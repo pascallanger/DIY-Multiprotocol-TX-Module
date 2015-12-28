@@ -12,9 +12,7 @@ The multiprotocol TX module can be used on any TX with a trainer port.
 
 Channels order is AETR by default but can be changed in the source code.
 
-The protocol selection is done via a dip switch or a rotary dip switch for access to up to 15 different protocols. The selection must be done before the power is applied.
-
-To bind a model press the bind button, apply power and then release.
+The protocol selection is done via a dip switch or a rotary dip switch for access to up to 15 different protocols.
 
 ###Using a serial output
 The multiprotocol TX module can be used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, ... running er9x or ersky9X. (A version for OpenTX is being looked at)
@@ -33,6 +31,83 @@ Options are:
 - Bind: bind a RX/model
 - Autobind: Yes or No. At the model selection (or power applied to the TX) a bind sequence will be initiated
 - Range: test range by setting the transmission power to the lowest value
+
+##Protocols
+
+###TX ID
+Each protocol is using a 32bits random ID generated at first power up.
+
+It's possible to generate a new ID using bind on the Hubsan protocol.
+
+###Bind
+To bind a model press the bind button, apply power and then release.
+
+###Protocol selection
+
+####Using the dial for PPM input
+Dial|Protocol|Sub_protocol|RF Module
+----|--------|------------|---------
+0|Select serial||
+1|FLYSKY|Flysky|A7105
+2|HUBSAN|0|A7105
+3|FRSKY|0|CC2500
+4|HISKY|Hisky|NRF24L01
+5|V2X2|0|NRF24L01
+6|DSM2|DSM2|CYRF6936
+7|DEVO|0|CYRF6936
+8|YD717|YD717
+9|KN|0|NRF24L01
+10|SYMAX|SYMAX|NRF24L01
+11|SLT|0|NRF24L01
+12|CX10|CX10_BLUE|NRF24L01
+13|CG023|CG023|NRF24L01
+14|BAYANG|0|NRF24L01
+15|SYMAX|SYMAX5C|NRF24L01
+
+Notes:
+- The selection must be done before the power is applied.
+- The protocols and subprotocols can be personnalized by modifying the source code.
+
+####Using serial input with er9x/ersky9x
+Protocol|Sub_protocol|RF Module
+--------|------------|---------
+Flysky||A7105
+ |Flysky
+ |V9x9
+ |V6x6
+ |V912
+Hubsan||A7105
+Frsky||CC2500
+Hisky||NRF24L01
+ |Hisky
+ |HK310
+V2x2||NRF24L01
+DSM2||CYRF6936
+ |DSM2
+ |DSMX
+Devo||CYRF6936
+YD717||NRF24L01
+ |YD717
+ |SKYWLKR
+ |SYMAX2
+ |XINXUN
+ |NIHUI
+KN||NRF24L01
+SymaX||NRF24L01
+ |SYMAX
+ |SYMAX5C
+SLT||NRF24L01
+CX10||NRF24L01
+ |CX10_GREEN
+ |CX10_BLUE
+ |DM007
+CG023||NRF24L01
+ |CG023
+ |YD829
+Bayang||NRF24L01
+
+Note:
+- The dial should be set to 0 for serial which means all protocol selection pins should be left unconnected
 
 ##Hardware
 
@@ -81,3 +156,10 @@ Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the f
 - Low Fuse	    0xFF
 - High Fuse	    0xD2
 - Extended Fuse	0x05
+
+##Troubleshooting
+###LED status
+- off: program not running or a protocol selected with the associated module not installed.
+- slow blink: serial has been selected but no valid signal has been seen on the RX pin.
+- fast blink: bind in progress.
+- on: normal operation.

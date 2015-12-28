@@ -10,12 +10,16 @@ Multiprotocol is a TX module which enables any TX to control lot of different mo
 ###Using standard PPM output (trainer port)
 The multiprotocol TX module can be used on any TX with a trainer port.
 
+Channels order is AETR by default but can be changed in the source code.
+
 The protocol selection is done via a dip switch or a rotary dip switch for access to up to 15 different protocols. The selection must be done before the power is applied.
 
 To bind a model press the bind button, apply power and then release.
 
 ###Using a serial output
 The multiprotocol TX module can be used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, ... running er9x or ersky9X. (A version for OpenTX is being looked at)
+
+Channels order is AETR by default but can be changed in the source code.
 
 This enables full integration using the radio GUI to setup models with all the available protocols options.
 
@@ -55,9 +59,25 @@ or build your own board using SMD components and an associated PCB:
 
 ###Schematic
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)
+Attention: All modules are 3.3V only, never power them with 5V.
 
 ###Radio integration
 You can 3D print your box (detalis [here](http://www.rcgroups.com/forums/showpost.php?p=33294140&postcount=2034)):
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462144-54-thumb-Multi_case_9XR.jpg?d=1448575289)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462145-106-thumb-Multi_case_v1.jpg?d=1448575293)
+
+##Compilation
+
+###Toolchain
+Arduino 1.6.5.
+
+###Upload the code using ISP (In System Programming)
+The recommendation is to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or to not supply any voltage to the multimodule to avoid any damages.
+From the Arduino environment, Skecth->Upload Using Programmer (Ctrl+Maj+U)
+
+###Set fuses
+Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the fuses of the Atmega328 to:
+- Low Fuse	    0xFF
+- High Fuse	    0xD2
+- Extended Fuse	0x05

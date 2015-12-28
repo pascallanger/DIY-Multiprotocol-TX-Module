@@ -315,6 +315,7 @@ Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the f
 - Low Fuse	     0xFF
 - High Fuse	    0xD2
 - Extended Fuse	0x05
+
 This  will make sure your ATMEGA328 is well configured and the global TX ID is not erased at each updates.
 
 ##Troubleshooting

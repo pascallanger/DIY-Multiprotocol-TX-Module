@@ -14,6 +14,8 @@ Channels order is AETR by default but can be changed in the source code.
 
 The protocol selection is done via a dip switch or a rotary dip switch for access to up to 15 different protocols.
 
+![Screenshot](http://media.digikey.com/photos/Grayhill%20Photos/94HBB16T_sml.jpg)
+
 ###Using a serial output
 The multiprotocol TX module can be used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, ... running er9x or ersky9X. (A version for OpenTX is being looked at)
 
@@ -158,8 +160,17 @@ Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the f
 - Extended Fuse	0x05
 
 ##Troubleshooting
+
 ###LED status
 - off: program not running or a protocol selected with the associated module not installed.
 - slow blink: serial has been selected but no valid signal has been seen on the RX pin.
 - fast blink: bind in progress.
 - on: normal operation.
+
+###Bind
+Make sure to follow the following procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fastly indicating a bind status and then fixed on. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.
+
+###Protocol selection
+For serial, leave all 4 selection pins unconnected.
+For PPM, connect 1 to 4 of the selection protocol pins to GND.
+The protocol/mode selection must be done before the power is applied.

@@ -49,9 +49,9 @@ To enable telemetry on Turnigy 9X or 9XR you need to modify your TX following on
 ##Protocols
 
 ###TX ID
-Each protocol is using a 32bits random ID generated at first power up.
+Each protocol is using a 32bits ID generated randomely at first power up. There are little chances to get a duplicated ID.
 
-It's possible to generate a new ID using bind on the Hubsan protocol.
+It's possible to generate a new ID using bind button on the Hubsan protocolduring power up.
 
 ###Bind
 To bind a model press the bind button, apply power and then release.
@@ -63,23 +63,23 @@ Dial|Protocol|Sub_protocol|RF Module
 ----|--------|------------|---------
 0|Select serial||
 1|FLYSKY|Flysky|A7105
-2|HUBSAN|0|A7105
-3|FRSKY|0|CC2500
+2|HUBSAN|-|A7105
+3|FRSKY|-|CC2500
 4|HISKY|Hisky|NRF24L01
-5|V2X2|0|NRF24L01
+5|V2X2|-|NRF24L01
 6|DSM2|DSM2|CYRF6936
-7|DEVO|0|CYRF6936
-8|YD717|YD717
-9|KN|0|NRF24L01
+7|DEVO|-|CYRF6936
+8|YD717|YD717|NRF24L01
+9|KN|-|NRF24L01
 10|SYMAX|SYMAX|NRF24L01
-11|SLT|0|NRF24L01
+11|SLT|-|NRF24L01
 12|CX10|CX10_BLUE|NRF24L01
 13|CG023|CG023|NRF24L01
-14|BAYANG|0|NRF24L01
+14|BAYANG|-|NRF24L01
 15|SYMAX|SYMAX5C|NRF24L01
 
 Notes:
-- The selection must be done before the power is applied.
+- The dial selection must be done before the power is applied.
 - The protocols and subprotocols can be personnalized by modifying the source code.
 
 ####Using serial input with er9x/ersky9x
@@ -121,7 +121,7 @@ CG023||NRF24L01
 Bayang||NRF24L01
 
 Note:
-- The dial should be set to 0 for serial which means all protocol selection pins should be left unconnected
+- The dial should be set to 0 for serial which means all protocol selection pins should be left unconnected.
 
 ###Protocol channels
 ####BAYANG
@@ -130,6 +130,8 @@ All channels allow -100%..+100%
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|HEADLESS|RTH
+
+Autobind protocol / do not need to use the bind button
 
 ####CG023
 All channels allow -100%..+100%
@@ -153,6 +155,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 A|E|T|R|FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
 MODE +100%=mode3 or headless for CX-10A, -100%=mode1, 0%=mode2
+
+Autobind protocol / do not need to use the bind button
 
 ####DEVO
 All channels allow -125%..+125%
@@ -226,6 +230,8 @@ Option=vTX frequency (H107D) 5645 - 5900 MHz
 
 Telemetry enabled for battery voltage only
 
+Autobind protocol / do not need to use the bind button
+
 ####KN
 All channels allow -100%..+100%
 
@@ -242,12 +248,16 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|GEAR|PITCH
 
+Autobind protocol / do not need to use the bind button
+
 ####Symax
 All channels allow -100%..+100%
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
+
+Autobind protocol / do not need to use the bind button
 
 ####V2X2
 All channels allow -100%..+100%
@@ -262,6 +272,8 @@ All channels allow -100%..+100%
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
+
+Autobind protocol / do not need to use the bind button
 
 ##Hardware
 
@@ -278,9 +290,16 @@ You also need some [antennas](http://www.banggood.com/2_4GHz-3dBi-RP-SMA-Connect
 
 ###Microcontroller
 The main program is running on a ATMEGA328 running @16MHz and 3.3V.
-An [Arduino pro mini](http://www.banggood.com/Wholesale-New-Ver-Pro-Mini-ATMEGA328-328p-5V-16MHz-Arduino-Compatible-Nano-Size-p-68534.html) can be used to build your Multimodule:
+An [Arduino pro mini](http://www.banggood.com/Wholesale-New-Ver-Pro-Mini-ATMEGA328-328p-5V-16MHz-Arduino-Compatible-Nano-Size-p-68534.html) can be used to build your own Multimodule.
+
+Using stripboard:
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t8214655-87-thumb-uploadfromtaptalk1405598143749.jpg?d=1441459923)
+
+Using a [home made PCB](http://www.rcgroups.com/forums/showpost.php?p=32645328&postcount=1621):
+
+![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226719-72-thumb-IMG_20150715_230024065.jpg?d=1441816456)
+![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226720-197-thumb-IMG_20150715_230603155.jpg?d=1441816457)
 
 or build your own board using SMD components and an associated PCB:
 

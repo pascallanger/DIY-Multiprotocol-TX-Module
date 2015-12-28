@@ -303,17 +303,19 @@ Arduino 1.6.5
 
 Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
 
-Multiprotocol.ino header can be modified to compile with/without some protocols, change protocols/sub_protocols associated with dials, different channel orders, different channels timing, 8 or 16 channels serial protocol, Telemetry or not, ... 
+Multiprotocol.ino header can be modified to compile with/without some protocols, change protocols/sub_protocols associated with dial for PPM input, different channel orders, different channels timing, 8 or 16 channels serial protocol, Telemetry or not, ... 
 
 ###Upload the code using ISP (In System Programming)
-The recommendation is to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or to not supply any voltage to the multimodule to avoid any damages.
-From the Arduino environment, Skecth->Upload Using Programmer (Ctrl+Maj+U)
+It is recommended to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.
+
+From the Arduino environment, you can use this shortcut to compile and upload to the module: Skecth->Upload Using Programmer (Ctrl+Maj+U)
 
 ###Set fuses
 Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the fuses of the Atmega328 to:
-- Low Fuse	    0xFF
+- Low Fuse	     0xFF
 - High Fuse	    0xD2
 - Extended Fuse	0x05
+This  will make sure your ATMEGA328 is well configured and the global TX ID is not erased at each updates.
 
 ##Troubleshooting
 

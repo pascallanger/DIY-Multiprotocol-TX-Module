@@ -299,7 +299,11 @@ You can 3D print your box (detalis [here](http://www.rcgroups.com/forums/showpos
 ##Compilation
 
 ###Toolchain
-Arduino 1.6.5.
+Arduino 1.6.5
+
+Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
+
+Multiprotocol.ino header can be modified to compile with/without some protocols, change protocols/sub_protocols associated with dials, different channel orders, different channels timing, 8 or 16 channels serial protocol, Telemetry or not, ... 
 
 ###Upload the code using ISP (In System Programming)
 The recommendation is to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or to not supply any voltage to the multimodule to avoid any damages.

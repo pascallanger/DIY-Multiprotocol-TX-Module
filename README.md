@@ -19,6 +19,8 @@ The protocol selection is done via a dip switch or a rotary dip switch for acces
 ###Using a serial output
 The multiprotocol TX module can be used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, ... running er9x or ersky9X. (A version for OpenTX is being looked at)
 
+Using this solution does not need any modification of the TX since it uses the TX module slot PPM pin for serial transfer.
+
 Channels order is AETR by default but can be changed in the source code.
 
 This enables full integration using the radio GUI to setup models with all the available protocols options.
@@ -26,13 +28,23 @@ This enables full integration using the radio GUI to setup models with all the a
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8520065-194-thumb-IMG_20151217_002215%20%28Medium%29.jpg?d=1450308588)
 
 Options are:
-- Protocol and type: many main protocols have variants
-- RX Num: number your different RXs and make sure only one model will react to the commands
-- Power: High or low, enables to lower the power setting of your TX (indoor for example). 
-- Option: -127..+127 allowing to set specific protocol options. Like for Hubsan to set the video frequency.
-- Bind: bind a RX/model
-- Autobind: Yes or No. At the model selection (or power applied to the TX) a bind sequence will be initiated
-- Range: test range by setting the transmission power to the lowest value
+ - Protocol and type: many main protocols have variants
+ - RX Num: number your different RXs and make sure only one model will react to the commands
+ - Power: High or low, enables to lower the power setting of your TX (indoor for example). 
+ - Option: -127..+127 allowing to set specific protocol options. Like for Hubsan to set the video frequency.
+ - Bind: bind a RX/model
+ - Autobind: Yes or No. At the model selection (or power applied to the TX) a bind sequence will be initiated
+ - Range: test range by setting the transmission power to the lowest value
+
+Note:
+ - there is 2 versions of serial protocol either 8 or 16 channels. 16 channels is the latest version. Make sure to use the right version based on your version of er9x/ersky9x.
+
+###Telemetry
+Telemetry is available for er9x and ersky9x TX.
+There are only 2 protocols so far supporting telemetry: Hubsan and Frsky.
+
+To enable telemetry on Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
+
 
 ##Protocols
 
@@ -110,6 +122,35 @@ Bayang||NRF24L01
 
 Note:
 - The dial should be set to 0 for serial which means all protocol selection pins should be left unconnected
+
+###Protocol channels
+####SLT
+All channels -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|GEAR|PITCH
+
+####Symax
+All channels -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
+
+####V2X2
+All channels -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
+
+####YD717
+All channels -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
 ##Hardware
 

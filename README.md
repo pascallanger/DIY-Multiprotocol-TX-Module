@@ -124,29 +124,140 @@ Note:
 - The dial should be set to 0 for serial which means all protocol selection pins should be left unconnected
 
 ###Protocol channels
+####BAYANG
+All channels allow -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|FLIP|HEADLESS|RTH
+
+####CG023
+All channels allow -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
+
+MODE +100%=mode3 or headless for CX-10A, -100%=mode1, 0%=mode2
+
+#####Sub_protocol YD829
+CH5|CH6|CH7|CH8
+---|---|---|---
+FLIP|HEADLESS|PICTURE|VIDEO
+
+####CX10
+All channels allow -125%..+125%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|FLIP|MODE|PICTURE|VIDEO|HEADLESS
+
+MODE +100%=mode3 or headless for CX-10A, -100%=mode1, 0%=mode2
+
+####DEVO
+All channels allow -125%..+125%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+####DSM2
+All channels allow -125%..+125%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8
+
+####FLYSKY
+All channels allow -125%..+125%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8
+
+#####Sub_protocol V9X9
+CH5|CH6|CH7|CH8
+---|---|---|---
+UNK|LIGHT|PICTURE|VIDEO
+
+#####Sub_protocol V6X6
+CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---
+FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
+
+#####Sub_protocol V912
+CH5|CH6
+---|---
+BTMBTN|TOPBTN
+
+####FRSKY
+All channels allow -125%..+125%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+Telemetry enabled for A0, A1, RSSI
+
+####HISKY
+All channels allow -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|GEAR|PITCH|GYRO|CH8
+
+GYRO -100%=6G, +100%=3G
+
+####HK310
+All channels allow -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+|||T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
+
+####HUBSAN
+All channels allow -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|FLIP|LIGHT||VIDEO
+
+Option=vTX frequency (H107D) 5645 - 5900 MHz
+
+Telemetry enabled for battery voltage only
+
+####KN
+All channels allow -100%..+100%
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|DR|THOLD|IDLEUP|GYRO3
+
+GYRO3 -100%=6G, +100%=3G
+
 ####SLT
-All channels -100%..+100%
+All channels allow -100%..+100%
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|GEAR|PITCH
 
 ####Symax
-All channels -100%..+100%
+All channels allow -100%..+100%
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
 
 ####V2X2
-All channels -100%..+100%
+All channels allow -100%..+100%
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
 
 ####YD717
-All channels -100%..+100%
+All channels allow -100%..+100%
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----

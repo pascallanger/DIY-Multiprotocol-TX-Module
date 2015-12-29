@@ -51,7 +51,7 @@ To enable telemetry on Turnigy 9X or 9XR you need to modify your TX following on
 ###TX ID
 Each protocol is using a 32bits ID generated randomely at first power up. There are little chances to get a duplicated ID.
 
-It's possible to generate a new ID using bind button on the Hubsan protocolduring power up.
+It's possible to generate a new ID using bind button on the Hubsan protocol during power up.
 
 ###Bind
 To bind a model press the bind button, apply power and then release.
@@ -123,18 +123,20 @@ Bayang||NRF24L01
 Note:
 - The dial should be set to 0 for serial which means all protocol selection pins should be left unconnected.
 
-###Protocol channels
+###Protocol details
+Extended limits supported: -125%..+125% can be used and will be transmitted. Otherwise the default is -100%..+100% only.
+
+Autobind protocol: you do not need to press the bind button at power up to bind, this is done automaticaly.
+
 ####BAYANG
-All channels allow -100%..+100%
+Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|HEADLESS|RTH
 
-Autobind protocol / do not need to use the bind button
-
 ####CG023
-All channels allow -100%..+100%
+Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
@@ -148,7 +150,7 @@ CH5|CH6|CH7|CH8
 FLIP|HEADLESS|PICTURE|VIDEO
 
 ####CX10
-All channels allow -125%..+125%
+Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
@@ -156,24 +158,22 @@ A|E|T|R|FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
 MODE +100%=mode3 or headless for CX-10A, -100%=mode1, 0%=mode2
 
-Autobind protocol / do not need to use the bind button
-
 ####DEVO
-All channels allow -125%..+125%
+Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ####DSM2
-All channels allow -125%..+125%
+Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8
 
 ####FLYSKY
-All channels allow -125%..+125%
+Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
@@ -195,17 +195,17 @@ CH5|CH6
 BTMBTN|TOPBTN
 
 ####FRSKY
-All channels allow -125%..+125%
+Extended limits supported
+
+Telemetry enabled for A0, A1, RSSI
+
+Option=fine frequency tunning, usually 0 or -41 based on the manufacturer boards
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
-Telemetry enabled for A0, A1, RSSI
-
 ####HISKY
-All channels allow -100%..+100%
-
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|GEAR|PITCH|GYRO|CH8
@@ -213,28 +213,22 @@ A|E|T|R|GEAR|PITCH|GYRO|CH8
 GYRO -100%=6G, +100%=3G
 
 ####HK310
-All channels allow -100%..+100%
-
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 |||T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
 
 ####HUBSAN
-All channels allow -100%..+100%
+Autobind protocol
+
+Telemetry enabled for battery voltage only
+
+Option=vTX frequency (H107D) 5645 - 5900 MHz
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|LIGHT||VIDEO
 
-Option=vTX frequency (H107D) 5645 - 5900 MHz
-
-Telemetry enabled for battery voltage only
-
-Autobind protocol / do not need to use the bind button
-
 ####KN
-All channels allow -100%..+100%
-
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|DR|THOLD|IDLEUP|GYRO3
@@ -242,38 +236,30 @@ A|E|T|R|DR|THOLD|IDLEUP|GYRO3
 GYRO3 -100%=6G, +100%=3G
 
 ####SLT
-All channels allow -100%..+100%
+Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|GEAR|PITCH
 
-Autobind protocol / do not need to use the bind button
-
 ####Symax
-All channels allow -100%..+100%
+Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
 
-Autobind protocol / do not need to use the bind button
-
 ####V2X2
-All channels allow -100%..+100%
-
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
 
 ####YD717
-All channels allow -100%..+100%
+Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
-
-Autobind protocol / do not need to use the bind button
 
 ##Hardware
 
@@ -304,6 +290,7 @@ Using a [home made PCB](http://www.rcgroups.com/forums/showpost.php?p=32645328&p
 or build your own board using SMD components and an associated PCB:
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952726-108-thumb-image-62c29cf2.jpg?d=1433909893)
+![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
 
 ###Schematic
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)

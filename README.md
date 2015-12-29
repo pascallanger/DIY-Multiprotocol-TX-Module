@@ -142,8 +142,6 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
-MODE +100%=mode3 or headless for CX-10A, -100%=mode1, 0%=mode2
-
 #####Sub_protocol YD829
 CH5|CH6|CH7|CH8
 ---|---|---|---
@@ -156,7 +154,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
-MODE +100%=mode3 or headless for CX-10A, -100%=mode1, 0%=mode2
+MODE: +100%=mode3 or headless for CX-10A, -100%=mode1, 0%=mode2
 
 ####DEVO
 Extended limits supported
@@ -210,7 +208,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|GEAR|PITCH|GYRO|CH8
 
-GYRO -100%=6G, +100%=3G
+GYRO: -100%=6G, +100%=3G
 
 ####HK310
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
@@ -233,7 +231,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|DR|THOLD|IDLEUP|GYRO3
 
-GYRO3 -100%=6G, +100%=3G
+GYRO3: -100%=6G, +100%=3G
 
 ####SLT
 Autobind protocol

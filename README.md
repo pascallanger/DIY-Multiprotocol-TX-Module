@@ -37,7 +37,7 @@ Options are:
  - Range: test range by setting the transmission power to the lowest value
 
 Note:
- - there is 2 versions of serial protocol either 8 or 16 channels. 16 channels is the latest version. Make sure to use the right version based on your version of er9x/ersky9x.
+ - there are 2 versions of serial protocol either 8 or 16 channels. 16 channels is the latest version. Make sure to use the right version based on your version of er9x/ersky9x.
 
 ###Telemetry
 Telemetry is available for er9x and ersky9x TX.
@@ -49,7 +49,7 @@ To enable telemetry on Turnigy 9X or 9XR you need to modify your TX following on
 ##Protocols
 
 ###TX ID
-Each protocol is using a 32bits ID generated randomely at first power up. There are little chances to get a duplicated ID.
+Each protocol is using a 32bits ID generated randomly at first power up. There are little chances to get a duplicated ID.
 
 It's possible to generate a new ID using bind button on the Hubsan protocol during power up.
 
@@ -80,7 +80,7 @@ Dial|Protocol|Sub_protocol|RF Module
 
 Notes:
 - The dial selection must be done before the power is applied.
-- The protocols and subprotocols can be personnalized by modifying the source code.
+- The protocols and subprotocols can be personalized by modifying the source code.
 
 ####Using serial input with er9x/ersky9x
 Protocol|Sub_protocol|RF Module
@@ -126,7 +126,7 @@ Note:
 ###Protocol details
 Extended limits supported: -125%..+125% can be used and will be transmitted. Otherwise the default is -100%..+100% only.
 
-Autobind protocol: you do not need to press the bind button at power up to bind, this is done automaticaly.
+Autobind protocol: you do not need to press the bind button at power up to bind, this is done automatically.
 
 ####BAYANG
 Autobind protocol
@@ -197,7 +197,7 @@ Extended limits supported
 
 Telemetry enabled for A0, A1, RSSI
 
-Option=fine frequency tunning, usually 0 or -41 based on the manufacturer boards
+Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
@@ -273,7 +273,7 @@ RF modules can be installed for protocols need only. Example: if you only need t
 You also need some [antennas](http://www.banggood.com/2_4GHz-3dBi-RP-SMA-Connector-Booster-Wireless-Antenna-Modem-Router-p-979407.html) and [cables](http://www.banggood.com/10cm-PCI-UFL-IPX-to-RPSMA-Female-Jack-Pigtail-Cable-p-924933.html).
 
 ###Microcontroller
-The main program is running on a ATMEGA328 running @16MHz and 3.3V.
+The main program is running on an ATMEGA328 running @16MHz and 3.3V.
 An [Arduino pro mini](http://www.banggood.com/Wholesale-New-Ver-Pro-Mini-ATMEGA328-328p-5V-16MHz-Arduino-Compatible-Nano-Size-p-68534.html) can be used to build your own Multimodule.
 
 Using stripboard:
@@ -295,7 +295,7 @@ or build your own board using SMD components and an associated PCB:
 Attention: All modules are 3.3V only, never power them with 5V.
 
 ###Radio integration
-You can 3D print your box (detalis [here](http://www.rcgroups.com/forums/showpost.php?p=33294140&postcount=2034)):
+You can 3D print your box (details [here](http://www.rcgroups.com/forums/showpost.php?p=33294140&postcount=2034)):
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462144-54-thumb-Multi_case_9XR.jpg?d=1448575289)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462145-106-thumb-Multi_case_v1.jpg?d=1448575293)
@@ -320,7 +320,7 @@ Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the f
 - High Fuse	    0xD2
 - Extended Fuse	0x05
 
-This  will make sure your ATMEGA328 is well configured and the global TX ID is not erased at each updates.
+This will make sure your ATMEGA328 is well configured and the global TX ID is not erased at each updates.
 
 ##Troubleshooting
 
@@ -331,7 +331,7 @@ This  will make sure your ATMEGA328 is well configured and the global TX ID is n
 - on: normal operation.
 
 ###Bind
-Make sure to follow the following procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fastly indicating a bind status and then fixed on. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.
+Make sure to follow the following procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fast indicating a bind status and then fixed on. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.
 
 ###Protocol selection
 For serial, leave all 4 selection pins unconnected.

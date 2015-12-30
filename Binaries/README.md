@@ -13,4 +13,4 @@
 ##ERSKY9X using the latest available next branch
 **ersky9xr_next_9XRPRO_16ch_%date%.bin** -> 9XR PRO using these parameters: REVB=1 DEBUG=1 STAMP=1 PHASES=1 REVX=1
 
-**ersky9x9XT_next_9XTREME_16ch_%date_hex%.bin** -> 9XTREME using these parameters: PCB=9XT DEBUG=1 STAMP=1
+**ersky9x9XT_next_9XTREME_16ch_%date%.bin** -> 9XTREME using these parameters: PCB=9XT DEBUG=1 STAMP=1

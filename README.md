@@ -1,9 +1,21 @@
 # DIY-Multiprotocol-TX-Module
 Multiprotocol is a TX module which enables any TX to control lot of different models available on the market.
 
-[Main Thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676)
+[Main thread on RCGROUPS for additional information](http://www.rcgroups.com/forums/showthread.php?t=2165676)
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
+
+##Contents
+
+[Compatible TX](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compatible-tx)
+
+[Protocols](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#protocols)
+
+[Hardware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#hardware)
+
+[Compilation](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compilation)
+
+[Troubleshooting](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#troubleshooting)
 
 ##Compatible TX
 

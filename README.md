@@ -17,7 +17,7 @@ The protocol selection is done via a dip switch or a rotary dip switch for acces
 ![Screenshot](http://media.digikey.com/photos/Grayhill%20Photos/94HBB16T_sml.jpg)
 
 ###Using a serial output
-The multiprotocol TX module can be used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, ... running er9x or ersky9X. (A version for OpenTX is being looked at)
+The multiprotocol TX module can be used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, ... running [er9x or ersky9X](https://github.com/MikeBland/mbtx/tree/next). (A version for OpenTX is being looked at)
 
 Using this solution does not need any modification of the TX since it uses the TX module slot PPM pin for serial transfer.
 

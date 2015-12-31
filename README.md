@@ -29,11 +29,7 @@ The protocol selection is done via a dip switch or a rotary dip switch for acces
 ![Screenshot](http://media.digikey.com/photos/Grayhill%20Photos/94HBB16T_sml.jpg)
 
 ###Using a serial output
-The multiprotocol TX module can be used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, ... running [er9x or ersky9X](https://github.com/MikeBland/mbtx/tree/next). (A version for OpenTX is being looked at)
-
-Using this solution does not need any modification of the TX since it uses the TX module slot PPM pin for serial transfer.
-
-Channels order is AETR by default but can be changed in the source code.
+The multiprotocol TX module takes full advantage of being used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, 9Xtreme, AR9X, ... running [er9x or ersky9X](https://github.com/MikeBland/mbtx/tree/next). (A version for OpenTX is being looked at)
 
 This enables full integration using the radio GUI to setup models with all the available protocols options.
 
@@ -48,25 +44,36 @@ Options are:
  - Autobind: Yes or No. At the model selection (or power applied to the TX) a bind sequence will be initiated
  - Range: test range by setting the transmission power to the lowest value
 
-Note:
- - there are 2 versions of serial protocol either 8 or 16 channels. 16 channels is the latest version. Make sure to use the right version based on your version of er9x/ersky9x.
+Notes:
+ - Using this solution does not need any modification of the TX since it uses the TX module slot PPM pin for serial transfer.
+ - There are 2 versions of serial protocol either 8 or 16 channels. 16 channels is the latest version. Make sure to use the right version based on your version of er9x/ersky9x.
+ - Channels order is AETR by default but can be changed in the source code.
 
 ###Telemetry
-Telemetry is available for er9x and ersky9x TX.
+Telemetry is available for er9x and ersky9x TXs.
 There are only 2 protocols so far supporting telemetry: Hubsan and Frsky.
 
 To enable telemetry on Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
 
+Enabling telemetry on 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
+
+Once the TX is telemetry enabled, it just needs to be configured on the model as usual.
 
 ##Protocols
 
 ###TX ID
-Each protocol is using a 32bits ID generated randomly at first power up. There are little chances to get a duplicated ID.
+The multiprotocol TX module is using a 32bits ID generated randomly at first power up. This global ID is used by all protocols.
+There are little chances to get a duplicated ID.
 
 It's possible to generate a new ID using bind button on the Hubsan protocol during power up.
 
 ###Bind
-To bind a model press the bind button, apply power and then release.
+To bind a model in:
+1. PPM Mode:
+- press the bind button, apply power and then release.
+2. Serial Mode:
+- use the GUI, access the model protocol page and long press on Bind.
+- press the bind button, apply power and then release will request a bind of the loaded model protocol. Note that the bind button is only effective at power up and not when the protocol is changed on the fly.
 
 ###Protocol selection
 
@@ -304,7 +311,10 @@ or build your own board using SMD components and an associated PCB:
 
 ###Schematic
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)
-Attention: All modules are 3.3V only, never power them with 5V.
+
+Notes:
+- Attention: All modules are 3.3V only, never power them with 5V.
+- For serial, the dial switch is not needed and the bind button optionnal
 
 ###Radio integration
 You can 3D print your box (details [here](http://www.rcgroups.com/forums/showpost.php?p=33294140&postcount=2034)):
@@ -343,7 +353,8 @@ This will make sure your ATMEGA328 is well configured and the global TX ID is no
 - on: normal operation.
 
 ###Bind
-Make sure to follow the following procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fast indicating a bind status and then fixed on. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.
+Make sure to follow this procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fast indicating a bind status and then fixed on. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.
+For serial, the preffered method is to bind via the GUI protocol page.
 
 ###Protocol selection
 For serial, leave all 4 selection pins unconnected.

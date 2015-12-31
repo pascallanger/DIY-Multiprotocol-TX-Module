@@ -78,6 +78,9 @@ To bind a model in:
 ###Protocol selection
 
 ####Using the dial for PPM input
+PPM is only allowing access to a subset of existing protocols & sub_protocols.
+The default association dial position / protocol is listed below.
+
 Dial|Protocol|Sub_protocol|RF Module
 ----|--------|------------|---------
 0|Select serial||
@@ -99,9 +102,11 @@ Dial|Protocol|Sub_protocol|RF Module
 
 Notes:
 - The dial selection must be done before the power is applied.
-- The protocols and subprotocols can be personalized by modifying the source code.
+- The protocols and subprotocols accessible by the dial can be personalized by modifying the source code. 
 
 ####Using serial input with er9x/ersky9x
+Serial is allowing access to all existing protocols & sub_protocols listed below.
+
 Protocol|Sub_protocol|RF Module
 --------|------------|---------
 Flysky||A7105
@@ -140,7 +145,7 @@ CG023||NRF24L01
 Bayang||NRF24L01
 
 Note:
-- The dial should be set to 0 for serial which means all protocol selection pins should be left unconnected.
+- The dial should be set to 0 for serial. Which means all protocol selection pins should be left unconnected.
 
 ###Protocol details
 Extended limits supported: -125%..+125% can be used and will be transmitted. Otherwise the default is -100%..+100% only.

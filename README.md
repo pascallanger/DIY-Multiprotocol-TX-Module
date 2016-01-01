@@ -5,6 +5,8 @@ Multiprotocol is a TX module which enables any TX to control lot of different mo
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
 
+If you are looking at downloading the latest compiled version (hex file), it's under [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) on the top menu.
+
 ##Contents
 
 [Compatible TX](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compatible-tx)
@@ -13,7 +15,7 @@ Multiprotocol is a TX module which enables any TX to control lot of different mo
 
 [Hardware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#hardware)
 
-[Compilation](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compilation)
+[Compilation and programmation](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compilation)
 
 [Troubleshooting](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#troubleshooting)
 
@@ -327,7 +329,7 @@ You can 3D print your box (details [here](http://www.rcgroups.com/forums/showpos
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462144-54-thumb-Multi_case_9XR.jpg?d=1448575289)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462145-106-thumb-Multi_case_v1.jpg?d=1448575293)
 
-##Compilation
+##Compilation and programmation
 
 ###Toolchain
 Arduino 1.6.5
@@ -340,6 +342,8 @@ Multiprotocol.ino header can be modified to compile with/without some protocols,
 It is recommended to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.
 
 From the Arduino environment, you can use this shortcut to compile and upload to the module: Skecth->Upload Using Programmer (Ctrl+Maj+U)
+
+To flash the latest provided hex file under [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases), you can use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/), set the microcontroller to m328p and flash it.
 
 ###Set fuses
 Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the fuses of the Atmega328 to:
@@ -365,3 +369,12 @@ For serial, the preffered method is to bind via the GUI protocol page.
 For serial, leave all 4 selection pins unconnected.
 For PPM, connect 1 to 4 of the selection protocol pins to GND.
 The protocol/mode selection must be done before the power is applied.
+
+###Report issues
+You can report your problem using the [GitHub issue](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.
+Please provide the following information:
+- Multiprotocol code version
+- TX type
+- Using PPM or Serial, if using er9x or ersky9x the version in use
+- Different led status (multimodule and model)
+- Explanation of the behavior and reproduction steps

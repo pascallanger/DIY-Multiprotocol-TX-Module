@@ -1,11 +1,13 @@
 # DIY-Multiprotocol-TX-Module
 Multiprotocol is a TX module which enables any TX to control lot of different models available on the market.
 
+The source code is partly based on the Deviation TX project, thanks to all the developpers for their great job on protocols.
+
 [Main thread on RCGROUPS for additional information](http://www.rcgroups.com/forums/showthread.php?t=2165676)
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
 
-If you are looking at downloading the latest compiled version (hex file), it's under [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) on the top menu.
+**If you are looking at downloading the latest compiled version (hex file), it's under [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) on the top menu.**
 
 ##Contents
 

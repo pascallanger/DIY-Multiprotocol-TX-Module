@@ -156,9 +156,8 @@ void CYRF_SetPower(uint8_t val)
 	uint8_t power=CYRF_BIND_POWER;
 	if(IS_BIND_DONE_on)
 		power=IS_POWER_FLAG_on?CYRF_HIGH_POWER:CYRF_LOW_POWER;
-	else
-		if(IS_RANGE_FLAG_on)
-			power=CYRF_POWER_0;
+	if(IS_RANGE_FLAG_on)
+		power=CYRF_RANGE_POWER;
 	CYRF_WriteRegister(CYRF_03_TX_CFG, val | power);
 }
 

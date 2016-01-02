@@ -162,9 +162,8 @@ void CC2500_SetPower()
 	uint8_t power=CC2500_BIND_POWER;
 	if(IS_BIND_DONE_on)
 		power=IS_POWER_FLAG_on?CC2500_HIGH_POWER:CC2500_LOW_POWER;
-	else
-		if(IS_RANGE_FLAG_on)
-			power=CC2500_POWER_0;
+	if(IS_RANGE_FLAG_on)
+		power=CC2500_RANGE_POWER;
 	cc2500_writeReg(CC2500_3E_PATABLE, power);
 }
 

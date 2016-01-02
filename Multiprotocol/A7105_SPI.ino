@@ -173,9 +173,8 @@ void A7105_SetPower()
 	uint8_t power=A7105_BIND_POWER;
 	if(IS_BIND_DONE_on)
 		power=IS_POWER_FLAG_on?A7105_HIGH_POWER:A7105_LOW_POWER;
-	else
-		if(IS_RANGE_FLAG_on)
-			power=A7105_POWER_0;
+	if(IS_RANGE_FLAG_on)
+		power=A7105_RANGE_POWER;
 	A7105_WriteReg(0x28, power);
 }
 

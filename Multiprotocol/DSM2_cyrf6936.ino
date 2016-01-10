@@ -282,17 +282,17 @@ const uint8_t init_vals[][2] = {
 	{CYRF_06_RX_CFG, 0x4A},
 	{CYRF_1B_TX_OFFSET_LSB, 0x55},
 	{CYRF_1C_TX_OFFSET_MSB, 0x05},
-	{CYRF_0F_XACT_CFG, 0x24},
-	{CYRF_03_TX_CFG, 0x38 | CYRF_BIND_POWER},
+	{CYRF_0F_XACT_CFG, 0x24}, // Force Idle
+	{CYRF_03_TX_CFG, 0x38 | CYRF_BIND_POWER}, //Set 64chip, SDR mode
 	{CYRF_12_DATA64_THOLD, 0x0a},
-	{CYRF_0F_XACT_CFG, 0x04},
+	{CYRF_0F_XACT_CFG, 0x04}, // Idle
 	{CYRF_39_ANALOG_CTRL, 0x01},
 	{CYRF_0F_XACT_CFG, 0x24}, //Force IDLE
 	{CYRF_29_RX_ABORT, 0x00}, //Clear RX abort
 	{CYRF_12_DATA64_THOLD, 0x0a}, //set pn correlation threshold
 	{CYRF_10_FRAMING_CFG, 0x4a}, //set sop len and threshold
 	{CYRF_29_RX_ABORT, 0x0f}, //Clear RX abort?
-	{CYRF_03_TX_CFG, 0x38 | CYRF_BIND_POWER}, //Set 64chip, SDE mode, was max-power but replaced by low power
+	{CYRF_03_TX_CFG, 0x38 | CYRF_BIND_POWER}, //Set 64chip, SDR mode
 	{CYRF_10_FRAMING_CFG, 0x4a}, //set sop len and threshold
 	{CYRF_1F_TX_OVERRIDE, 0x04}, //disable tx CRC
 	{CYRF_1E_RX_OVERRIDE, 0x14}, //disable rx crc
@@ -329,11 +329,11 @@ const uint8_t data_vals[][2] = {
 	{CYRF_29_RX_ABORT, 0x20},
 	{CYRF_0F_XACT_CFG, 0x24},
 	{CYRF_29_RX_ABORT, 0x00},
-	{CYRF_03_TX_CFG, 0x08 | 7},
+	{CYRF_03_TX_CFG, 0x08 | CYRF_HIGH_POWER},
 	{CYRF_10_FRAMING_CFG, 0xea},
 	{CYRF_1F_TX_OVERRIDE, 0x00},
 	{CYRF_1E_RX_OVERRIDE, 0x00},
-	{CYRF_03_TX_CFG, 0x28 | 7},
+	{CYRF_03_TX_CFG, 0x28 | CYRF_HIGH_POWER},
 	{CYRF_12_DATA64_THOLD, 0x3f},
 	{CYRF_10_FRAMING_CFG, 0xff},
 	{CYRF_0F_XACT_CFG, 0x24}, //Switch from reading RSSI to Writing

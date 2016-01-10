@@ -107,10 +107,6 @@ uint8_t CYRF_Reset()
 	return (CYRF_ReadRegister(CYRF_10_FRAMING_CFG) == 0xa5);//return if reset
 }
 
-uint8_t CYRF_MaxPower()
-{
-	return (*((uint8_t*)0x08001007) == 0) ? CYRF_PWR_100MW : CYRF_PWR_10MW;
-}
 /*
 *
 */
@@ -130,12 +126,20 @@ void CYRF_GetMfgData(uint8_t data[])
 */
 void CYRF_SetTxRxMode(uint8_t mode)
 {
-	//Set the post tx/rx state
-	CYRF_WriteRegister(CYRF_0F_XACT_CFG, mode == TX_EN ? 0x28 : 0x2C); //was 0x2C:0x28 but reversed in last deviation
-	if(mode == TX_EN)
-		CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x80);
+	if(mode==TXRX_OFF)
+	{
+		CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24); // 4=IDLE, 8=TX, C=RX
+		CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x00); // XOUT=0 PACTL=0
+	}
 	else
-		CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x20);
+	{
+		//Set the post tx/rx state
+		CYRF_WriteRegister(CYRF_0F_XACT_CFG, mode == TX_EN ? 0x28 : 0x2C); // 4=IDLE, 8=TX, C=RX
+		if(mode == TX_EN)
+			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x80); // XOUT=1, PACTL=0
+		else
+			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x20);	// XOUT=0, PACTL=1
+	}
 }
 /*
 *

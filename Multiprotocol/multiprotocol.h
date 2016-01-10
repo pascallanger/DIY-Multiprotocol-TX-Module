@@ -71,25 +71,13 @@ enum CX10 {
 
 enum CG023 {
     CG023 = 0,
-    YD829 = 1
+    YD829 = 1,
+    H8_3D = 2
 };
 
 #define PPM_MIN_COMMAND 1250
 #define PPM_SWITCH	1550
 #define PPM_MAX_COMMAND 1750
-
-enum TXRX_State {
-	TXRX_OFF,
-	TX_EN,
-	RX_EN
-};
-
-// Packet ack status values
-enum {
-	PKT_PENDING = 0,
-	PKT_ACKED,
-	PKT_TIMEOUT
-};
 
 //*******************
 //***   Pinouts   ***
@@ -250,11 +238,11 @@ enum CC2500_POWER
 {
 	CC2500_POWER_0 = 0xC5,	// -12dbm
 	CC2500_POWER_1 = 0x97,	// -10dbm
-	CC2500_POWER_2 = 0x6E,	// -8dbm
-	CC2500_POWER_3 = 0x7F,	// -6dbm
-	CC2500_POWER_4 = 0xA9,	// -4dbm
-	CC2500_POWER_5 = 0xBB,	// -2dbm
-	CC2500_POWER_6 = 0xFE,	// 0dbm
+	CC2500_POWER_2 = 0x6E,	//  -8dbm
+	CC2500_POWER_3 = 0x7F,	//  -6dbm
+	CC2500_POWER_4 = 0xA9,	//  -4dbm
+	CC2500_POWER_5 = 0xBB,	//  -2dbm
+	CC2500_POWER_6 = 0xFE,	//   0dbm
 	CC2500_POWER_7 = 0xFF	// 1.5dbm
 };
 #define CC2500_HIGH_POWER	CC2500_POWER_6
@@ -265,19 +253,32 @@ enum CC2500_POWER
 // CYRF power
 enum CYRF_POWER
 {
-	CYRF_POWER_0 = 0x00,	//
-	CYRF_POWER_1 = 0x01,	//
-	CYRF_POWER_2 = 0x02,	//
-	CYRF_POWER_3 = 0x03,	//
-	CYRF_POWER_4 = 0x04,	//
-	CYRF_POWER_5 = 0x05,	//
-	CYRF_POWER_6 = 0x06,	//
-	CYRF_POWER_7 = 0x07		//
+	CYRF_POWER_0 = 0x00,	// -35dbm
+	CYRF_POWER_1 = 0x01,	// -30dbm
+	CYRF_POWER_2 = 0x02,	// -24dbm
+	CYRF_POWER_3 = 0x03,	// -18dbm
+	CYRF_POWER_4 = 0x04,	// -13dbm
+	CYRF_POWER_5 = 0x05,	//  -5dbm
+	CYRF_POWER_6 = 0x06,	//   0dbm
+	CYRF_POWER_7 = 0x07		//  +4dbm
 };
 #define CYRF_HIGH_POWER		CYRF_POWER_7
 #define	CYRF_LOW_POWER		CYRF_POWER_3
 #define	CYRF_BIND_POWER		CYRF_POWER_0
 #define	CYRF_RANGE_POWER	CYRF_POWER_0
+
+enum TXRX_State {
+	TXRX_OFF,
+	TX_EN,
+	RX_EN
+};
+
+// Packet ack status values
+enum {
+	PKT_PENDING = 0,
+	PKT_ACKED,
+	PKT_TIMEOUT
+};
 
 //*******************
 //***  CRC Table  ***
@@ -347,6 +348,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					CX10		12
 					CG023		13
 					Bayang		14
+					FrskyX		15
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -380,6 +382,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==CG023
 			CG023		0
 			YD829		1
+			H8_3D		2
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127
@@ -422,6 +425,7 @@ Serial: 125000 Baud 8n1      _ xxxx xxxx - ---
 					CX10		12
 					CG023		13
 					Bayang		14
+					FrskyX		15
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -455,6 +459,7 @@ Serial: 125000 Baud 8n1      _ xxxx xxxx - ---
 		sub_protocol==CG023
 			CG023		0
 			YD829		1
+			H8_3D		2
    Power value => 0x80	0=High/1=Low
   Stream[2]   = option_protocol;
    option_protocol value is -127..127

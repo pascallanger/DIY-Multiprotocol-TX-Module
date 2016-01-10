@@ -12,7 +12,8 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// compatible with EAchine 3D X4, CG023/CG031, Attop YD-822/YD-829/YD-829C
+// Merged CG023 and H8_3D protocols
+// compatible with EAchine 3D X4, CG023/CG031, Attop YD-822/YD-829/YD-829C and H8_3D/JJRC H20
 
 #if defined(CG023_NRF24L01_INO)
 
@@ -22,8 +23,12 @@
 #define CG023_INITIAL_WAIT		500
 #define CG023_PACKET_SIZE		15   // packets have 15-byte payload
 #define CG023_RF_BIND_CHANNEL	0x2D
-#define CG023_BIND_COUNT		800  // 6 seconds
+#define CG023_BIND_COUNT		1000  // 8 seconds
 #define YD829_PACKET_PERIOD		4100 // Timeout for callback in uSec
+#define H8_3D_PACKET_PERIOD		1800 // Timeout for callback in uSec
+#define H8_3D_PACKET_SIZE		20
+#define H8_3D_RF_NUM_CHANNELS	4
+
 
 enum CG023_FLAGS {
     // flags going to packet[13]
@@ -48,6 +53,20 @@ enum YD829_FLAGS {
     YD829_FLAG_STILL    = 0x80,
 };
 
+enum H8_3D_FLAGS {
+    // flags going to packet[17]
+    H8_3D_FLAG_FLIP      = 0x01,
+    H8_3D_FLAG_RATE_MID  = 0x02,
+    H8_3D_FLAG_RATE_HIGH = 0x04,
+    H8_3D_FLAG_HEADLESS  = 0x10, // RTH + headless on H8, headless on JJRC H20
+    H8_3D_FLAG_RTH		 = 0x40, // 360 flip mode on H8 3D, RTH on JJRC H20
+};
+
+enum H8_3D_FLAGS_2 {
+    // flags going to packet[18]
+    H8_3D_FLAG_CALIBRATE = 0x20,  // accelerometer calibration
+};
+
 enum CG023_PHASES {
     CG023_BIND = 0,
     CG023_DATA
@@ -55,75 +74,135 @@ enum CG023_PHASES {
 
 void CG023_send_packet(uint8_t bind)
 {
-	if (bind)
-		packet[0]= 0xaa;
-	else
-		packet[0]= 0x55;
-	// transmitter id
+	// throttle : 0x00 - 0xFF
+	throttle=convert_channel_8b(THROTTLE);
+	// rudder
+	rudder = convert_channel_8b_scale(RUDDER,0x44,0xBC);	// yaw right : 0x80 (neutral) - 0xBC (right)
+	if (rudder<=0x80)
+		rudder=0x80-rudder;							// yaw left : 0x00 (neutral) - 0x3C (left)
+	// elevator : 0xBB - 0x7F - 0x43
+	elevator = convert_channel_8b_scale(ELEVATOR, 0x43, 0xBB); 
+	// aileron : 0x43 - 0x7F - 0xBB
+	aileron = convert_channel_8b_scale(AILERON, 0x43, 0xBB); 
+	
 	packet[1] = rx_tx_addr[0]; 
 	packet[2] = rx_tx_addr[1];
-	// unknown
-	packet[3] = 0x00;
-	packet[4] = 0x00;
-	// throttle : 0x00 - 0xFF
-	packet[5] = convert_channel_8b(THROTTLE);
-	// rudder
-	packet[6] = convert_channel_8b_scale(RUDDER,0x44,0xBC);	// yaw right : 0x80 (neutral) - 0xBC (right)
-	if (packet[6]<=0x80)
-		packet[6]=0x80-packet[6];							// yaw left : 0x00 (neutral) - 0x3C (left)
-	// elevator : 0xBB - 0x7F - 0x43
-	packet[7] = convert_channel_8b_scale(ELEVATOR, 0x43, 0xBB); 
-	// aileron : 0x43 - 0x7F - 0xBB
-	packet[8] = convert_channel_8b_scale(AILERON, 0x43, 0xBB); 
-	// throttle trim : 0x30 - 0x20 - 0x10
-	packet[9] = 0x20; // neutral
-	// neutral trims
-	packet[10] = 0x20;
-	packet[11] = 0x40;
-	packet[12] = 0x40;
-	if(sub_protocol==CG023)
+	if(sub_protocol==H8_3D)
 	{
-		// rate
-		packet[13] = CG023_FLAG_RATE_HIGH; 
-		// flags
-		if(Servo_data[AUX1] > PPM_SWITCH)
-			packet[13] |= CG023_FLAG_FLIP;
-		if(Servo_data[AUX2] > PPM_SWITCH)
-			packet[13] |= CG023_FLAG_LED_OFF;
-		if(Servo_data[AUX3] > PPM_SWITCH)
-			packet[13] |= CG023_FLAG_STILL;
-		if(Servo_data[AUX4] > PPM_SWITCH)
-			packet[13] |= CG023_FLAG_VIDEO;
-		if(Servo_data[AUX5] > PPM_SWITCH)
-			packet[13] |= CG023_FLAG_EASY;
+		packet[0] = 0x13;
+		packet[3] = rx_tx_addr[2];
+		packet[4] = rx_tx_addr[3];
+		packet[8] = (rx_tx_addr[0]+rx_tx_addr[1]+rx_tx_addr[2]+rx_tx_addr[3]) & 0xff; // txid checksum
+		memset(&packet[9], 0, 10);
+		if (bind)
+		{    
+			packet[5] = 0x00;
+			packet[6] = 0x00;
+			packet[7] = 0x01;
+		}
+		else
+		{
+			packet[5] = hopping_frequency_no;
+			packet[6] = 0x08;
+			packet[7] = 0x03;
+			packet[9] = throttle;
+			packet[10] = rudder;
+			packet[11] = elevator;
+			packet[12] = aileron;
+			// neutral trims
+			packet[13] = 0x20;
+			packet[14] = 0x20;
+			packet[15] = 0x20;
+			packet[16] = 0x20;
+			packet[17] = H8_3D_FLAG_RATE_HIGH;
+			if(Servo_data[AUX1] > PPM_SWITCH)
+				packet[17] |= H8_3D_FLAG_FLIP;
+			if(Servo_data[AUX2] > PPM_SWITCH)
+				packet[17] |= H8_3D_FLAG_HEADLESS;
+			if(Servo_data[AUX3] > PPM_SWITCH)
+				packet[17] |= H8_3D_FLAG_RTH; // 180/360 flip mode on H8 3D
+		
+			// both sticks bottom left: calibrate acc
+			if(packet[9] <= 0x05 && packet[10] >= 0xa7 && packet[11] <= 0x57 && packet[12] >= 0xa7)
+				packet[18] = H8_3D_FLAG_CALIBRATE;
+		}
+	    uint8_t  sum = packet[9];
+		for (uint8_t i=10; i < H8_3D_PACKET_SIZE-1; i++)
+			sum += packet[i];
+		packet[19] = sum; // data checksum
 	}
 	else
-	{// YD829
-		// rate
-		packet[13] = YD829_FLAG_RATE_HIGH; 
-		// flags
-		if(Servo_data[AUX1] > PPM_SWITCH)
-			packet[13] |= YD829_FLAG_FLIP;
-		if(Servo_data[AUX3] > PPM_SWITCH)
-			packet[13] |= YD829_FLAG_STILL;
-		if(Servo_data[AUX4] > PPM_SWITCH)
-			packet[13] |= YD829_FLAG_VIDEO;
-		if(Servo_data[AUX5] > PPM_SWITCH)
-			packet[13] |= YD829_FLAG_HEADLESS;
+	{ // CG023 and YD829
+		if (bind)
+			packet[0]= 0xaa;
+		else
+			packet[0]= 0x55;
+		// transmitter id
+		// unknown
+		packet[3] = 0x00;
+		packet[4] = 0x00;
+		packet[5] = throttle;
+		packet[6] = rudder;
+		packet[7] = elevator;
+		packet[8] = aileron;
+		// throttle trim : 0x30 - 0x20 - 0x10
+		packet[9] = 0x20; // neutral
+		// neutral trims
+		packet[10] = 0x20;
+		packet[11] = 0x40;
+		packet[12] = 0x40;
+		if(sub_protocol==CG023)
+		{
+			// rate
+			packet[13] = CG023_FLAG_RATE_HIGH; 
+			// flags
+			if(Servo_data[AUX1] > PPM_SWITCH)
+				packet[13] |= CG023_FLAG_FLIP;
+			if(Servo_data[AUX2] > PPM_SWITCH)
+				packet[13] |= CG023_FLAG_LED_OFF;
+			if(Servo_data[AUX3] > PPM_SWITCH)
+				packet[13] |= CG023_FLAG_STILL;
+			if(Servo_data[AUX4] > PPM_SWITCH)
+				packet[13] |= CG023_FLAG_VIDEO;
+			if(Servo_data[AUX5] > PPM_SWITCH)
+				packet[13] |= CG023_FLAG_EASY;
+		}
+		else
+		{// YD829
+			// rate
+			packet[13] = YD829_FLAG_RATE_HIGH; 
+			// flags
+			if(Servo_data[AUX1] > PPM_SWITCH)
+				packet[13] |= YD829_FLAG_FLIP;
+			if(Servo_data[AUX3] > PPM_SWITCH)
+				packet[13] |= YD829_FLAG_STILL;
+			if(Servo_data[AUX4] > PPM_SWITCH)
+				packet[13] |= YD829_FLAG_VIDEO;
+			if(Servo_data[AUX5] > PPM_SWITCH)
+				packet[13] |= YD829_FLAG_HEADLESS;
+		}
+		packet[14] = 0;
 	}
-	packet[14] = 0;
-
+	
 	// Power on, TX mode, 2byte CRC
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
 	XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
 	if (bind)
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, CG023_RF_BIND_CHANNEL);
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, sub_protocol==H8_3D?hopping_frequency[0]:CG023_RF_BIND_CHANNEL);
 	else
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency_no);
+	{
+		if(sub_protocol==H8_3D)
+		{
+			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
+			hopping_frequency_no %= H8_3D_RF_NUM_CHANNELS;
+		}
+		else // CG023 and YD829
+			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency_no);
+	}
 	// clear packet status bits and TX FIFO
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
-	XN297_WritePayload(packet, CG023_PACKET_SIZE);
+	XN297_WritePayload(packet, sub_protocol==H8_3D ? H8_3D_PACKET_SIZE:CG023_PACKET_SIZE);
 
 	NRF24L01_SetPower();	// Set tx_power
 }
@@ -132,7 +211,10 @@ void CG023_init()
 {
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
-    XN297_SetTXAddr((uint8_t *)"\x26\xA8\x67\x35\xCC", 5);
+	if(sub_protocol==H8_3D)
+		XN297_SetTXAddr((uint8_t *)"\xC4\x57\x09\x65\x21", 5);
+	else // CG023 and YD829
+		XN297_SetTXAddr((uint8_t *)"\x26\xA8\x67\x35\xCC", 5);
 
     NRF24L01_FlushTx();
     NRF24L01_FlushRx();
@@ -166,16 +248,32 @@ uint16_t CG023_callback()
 	if(sub_protocol==CG023)
 		return CG023_PACKET_PERIOD;
 	else
-		return YD829_PACKET_PERIOD;
+		if(sub_protocol==YD829)
+			return YD829_PACKET_PERIOD;
+	return	H8_3D_PACKET_PERIOD;
 }
 
 void CG023_initialize_txid()
 {
-	rx_tx_addr[0]= 0x80 | (rx_tx_addr[0] % 0x40);
-	if( rx_tx_addr[0] == 0xAA)			// avoid using same freq for bind and data channel
-		rx_tx_addr[0] ++;
-	
-	hopping_frequency_no = rx_tx_addr[0] - 0x7D;	// rf channel for data packets
+	if(sub_protocol==H8_3D)
+	{
+		rx_tx_addr[0] = 0xa0 + (rx_tx_addr[0] % 0x10);
+		rx_tx_addr[1] = 0xb0 + (rx_tx_addr[1] % 0x20);
+		rx_tx_addr[2] = rx_tx_addr[2] % 0x20;
+		rx_tx_addr[3] = rx_tx_addr[3] % 0x11;
+
+		hopping_frequency[0] = 0x06 + (((rx_tx_addr[0]>>8) + (rx_tx_addr[0]&0x0f)) % 0x0f);
+		hopping_frequency[1] = 0x15 + (((rx_tx_addr[1]>>8) + (rx_tx_addr[1]&0x0f)) % 0x0f);
+		hopping_frequency[2] = 0x24 + (((rx_tx_addr[2]>>8) + (rx_tx_addr[2]&0x0f)) % 0x0f);
+		hopping_frequency[3] = 0x33 + (((rx_tx_addr[3]>>8) + (rx_tx_addr[3]&0x0f)) % 0x0f);
+	}
+	else
+	{ // CG023 and YD829
+		rx_tx_addr[0]= 0x80 | (rx_tx_addr[0] % 0x40);
+		if( rx_tx_addr[0] == 0xAA)			// avoid using same freq for bind and data channel
+			rx_tx_addr[0] ++;
+		hopping_frequency_no = rx_tx_addr[0] - 0x7D;	// rf channel for data packets
+	}
 }
 
 uint16_t initCG023(void)
@@ -188,7 +286,9 @@ uint16_t initCG023(void)
 	if(sub_protocol==CG023)
 		return CG023_INITIAL_WAIT+CG023_PACKET_PERIOD;
 	else
-		return CG023_INITIAL_WAIT+YD829_PACKET_PERIOD;
+		if(sub_protocol==YD829)
+			return CG023_INITIAL_WAIT+YD829_PACKET_PERIOD;
+	return	CG023_INITIAL_WAIT+H8_3D_PACKET_PERIOD;
 }
 
 #endif

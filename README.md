@@ -146,7 +146,9 @@ CX10||NRF24L01
 CG023||NRF24L01
  |CG023
  |YD829
+ |H8_3D
 Bayang||NRF24L01
+FrskyX||CC2500
 
 Note:
 - The dial should be set to 0 for serial. Which means all protocol selection pins should be left unconnected.
@@ -174,6 +176,15 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP||PICTURE|VIDEO|HEADLESS
+
+#####Sub_protocol H8_3D
+CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---
+FLIP|HEADLESS|RTH
+
+RTH on H8_3D is 180/360 flip mode
+
+Both sticks bottom left: calibrate accelerometers
 
 ####CX10
 Extended limits supported

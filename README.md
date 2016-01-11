@@ -180,9 +180,11 @@ FLIP||PICTURE|VIDEO|HEADLESS
 #####Sub_protocol H8_3D
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
-FLIP|HEADLESS|RTH
+FLIP|OPT1|OPT2
 
-RTH on H8_3D is 180/360 flip mode
+JJRC H20: OPT1=Headless, OPT2=RTH
+
+H8 3D: OPT1=RTH + headless, OPT2=360° flip mode
 
 Both sticks bottom left: calibrate accelerometers
 

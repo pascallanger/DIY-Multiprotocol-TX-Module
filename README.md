@@ -1,13 +1,13 @@
 # DIY-Multiprotocol-TX-Module
-Multiprotocol is a TX module which enables any TX to control lot of different models available on the market.
+Multiprotocol is a 2.4GHz transmitter which enables any TX to control lot of different models available on the market.
 
 The source code is partly based on the Deviation TX project, thanks to all the developpers for their great job on protocols.
 
-[Main thread on RCGROUPS for additional information](http://www.rcgroups.com/forums/showthread.php?t=2165676)
+[Forum link on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) for additional information or requesting a new protocol integration.
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
 
-**If you are looking at downloading the latest compiled version (hex file), it's under [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) on the top menu.**
+**To download the latest compiled version (hex file), click on  [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) on the top menu.**
 
 ##Contents
 
@@ -72,12 +72,15 @@ There are little chances to get a duplicated ID.
 It's possible to generate a new ID using bind button on the Hubsan protocol during power up.
 
 ###Bind
-To bind a model in:
-1. PPM Mode:
-- press the bind button, apply power and then release.
-2. Serial Mode:
-- use the GUI, access the model protocol page and long press on Bind.
-- press the bind button, apply power and then release will request a bind of the loaded model protocol. Note that the bind button is only effective at power up and not when the protocol is changed on the fly.
+To bind a model in PPM Mode press the physical bind button, apply power and then release.
+
+In Serial Mode you have 2 options:
+- use the GUI, access the model protocol page and long press on Bind. This operation can be done at anytime.
+- press the physical bind button, apply power and then release. It will request a bind of the first loaded model protocol.
+
+Notes:
+- the physical bind button is only effective at power up. Pressing the button later has no effects.
+- a bind in progress is indicated by the LED fast blinking. Make sure to bind during this period.
 
 ###Protocol selection
 
@@ -377,8 +380,10 @@ This will make sure your ATMEGA328 is well configured and the global TX ID is no
 - on: normal operation.
 
 ###Bind
-Make sure to follow this procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fast indicating a bind status and then fixed on. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.
+Make sure to follow this procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fast indicating a bind status and then fixed on when the bind period is over. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.
 For serial, the preffered method is to bind via the GUI protocol page.
+
+It migth happen that your module is always binding at power up. If this is the case, there is a big chance that you are using an Arduino Pro Mini with an external status LED. To work around this issue connect a 10K resistor between D13 and 3.3V.
 
 ###Protocol selection
 For serial, leave all 4 selection pins unconnected.

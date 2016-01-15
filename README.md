@@ -162,6 +162,8 @@ Extended limits supported: -125%..+125% can be used and will be transmitted. Oth
 Autobind protocol: you do not need to press the bind button at power up to bind, this is done automatically.
 
 ####BAYANG
+Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
+
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
@@ -169,6 +171,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 A|E|T|R|FLIP|HEADLESS|RTH
 
 ####CG023
+Models: EAchine CG023/CG031/3D X4
+
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
@@ -176,11 +180,15 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
 #####Sub_protocol YD829
+Models: Attop YD-822/YD-829/YD-829C ...
+
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP||PICTURE|VIDEO|HEADLESS
 
 #####Sub_protocol H8_3D
+Models: EAchine H8 mini 3D, JJRC H20/H22
+
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP|OPT1|OPT2
@@ -196,9 +204,25 @@ Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
-A|E|T|R|FLIP|MODE|PICTURE|VIDEO|HEADLESS
+A|E|T|R|FLIP|MODE
 
 MODE: +100%=mode3 or headless for CX-10A, -100%=mode1, 0%=mode2
+
+#####Sub_protocol CX10_GREEN
+Cheerson CX-10 green pcb
+
+Same channels assignement as above.
+
+#####Sub_protocol CX10_BLUE
+Cheerson CX-10 blue pcb & some newer red pcb, CX-10A, CX-10C, CX11, CX12, Floureon FX10, JJRC DHD D1
+
+Same channels assignement as above.
+
+#####Sub_protocol CX10_DM007
+
+CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---
+FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
 ####DEVO
 Extended limits supported
@@ -255,6 +279,8 @@ A|E|T|R|GEAR|PITCH|GYRO|CH8
 GYRO: -100%=6G, +100%=3G
 
 ####HK310
+Models: RX HK3000 and HK3100
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 |||T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
@@ -291,7 +317,15 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
 
+#####Sub_protocol SYMAX
+Models: Syma X5C-1/X11/X11C/X12
+
+#####Sub_protocol SYMAX5C
+Model: Syma X5C
+
 ####V2X2
+Models: WLToys V202/252/272, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
@@ -329,10 +363,15 @@ Using a [home made PCB](http://www.rcgroups.com/forums/showpost.php?p=32645328&p
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226719-72-thumb-IMG_20150715_230024065.jpg?d=1441816456)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226720-197-thumb-IMG_20150715_230603155.jpg?d=1441816457)
 
-or build your own board using SMD components and an associated PCB:
+or build your own board using [SMD components](http://www.rcgroups.com/forums/showpost.php?p=31064232&postcount=1020) and an [associated PCB](https://oshpark.com/shared_projects/MaGYDg0y):
 
+![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7566755-3-thumb-i.png?d=1423810885)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952726-108-thumb-image-62c29cf2.jpg?d=1433909893)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
+
+If you make this PCB and want to enable serial mode for er9x/ersky9x, you should do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8180322-194-multi.jpg):
+![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t8180322-35-thumb-multi.jpg?d=1440422869)
+
 
 ###Schematic
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)
@@ -358,6 +397,8 @@ Multiprotocol.ino header can be modified to compile with/without some protocols,
 
 ###Upload the code using ISP (In System Programming)
 It is recommended to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.
+
+The dial must be set to 0 before flashing!
 
 From the Arduino environment, you can use this shortcut to compile and upload to the module: Skecth->Upload Using Programmer (Ctrl+Maj+U)
 

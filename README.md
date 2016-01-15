@@ -202,6 +202,8 @@ Both sticks bottom left: calibrate accelerometers
 ####CX10
 Extended limits supported
 
+Autobind protocol
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|MODE
@@ -279,7 +281,7 @@ A|E|T|R|GEAR|PITCH|GYRO|CH8
 GYRO: -100%=6G, +100%=3G
 
 ####HK310
-Models: RX HK3000 and HK3100
+Models: RX HK-3000 and HK3100
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
@@ -336,6 +338,13 @@ Autobind protocol
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
+
+#####Sub_protocol YD717
+#####Sub_protocol SKYWLKR
+#####Sub_protocol SYMAX2
+#####Sub_protocol XINXUN
+#####Sub_protocol NIHUI
+Same channels assignement as above.
 
 ##Hardware
 

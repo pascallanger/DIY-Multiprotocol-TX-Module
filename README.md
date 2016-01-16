@@ -168,7 +168,7 @@ Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
-A|E|T|R|FLIP|HEADLESS|RTH
+A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
 
 ####CG023
 Models: EAchine CG023/CG031/3D X4
@@ -191,9 +191,11 @@ Models: EAchine H8 mini 3D, JJRC H20/H22
 
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
-FLIP|OPT1|OPT2
+FLIP|OPT1|OPT2|OPT3|OPT4
 
 JJRC H20: OPT1=Headless, OPT2=RTH
+
+JJRC H22: OPT2=RTH, OPT3=LIGTH, OPT4=360° flip mode
 
 H8 3D: OPT1=RTH + headless, OPT2=360° flip mode
 

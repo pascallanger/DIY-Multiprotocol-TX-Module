@@ -146,6 +146,10 @@ CX10||NRF24L01
  |CX10_GREEN
  |CX10_BLUE
  |DM007
+ |Q282
+ |JC3015_1
+ |JC3015_2
+ |MK33041
 CG023||NRF24L01
  |CG023
  |YD829
@@ -208,9 +212,9 @@ Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
-A|E|T|R|FLIP|MODE
+A|E|T|R|FLIP|RATE
 
-MODE: +100%=mode3 or headless for CX-10A, -100%=mode1, 0%=mode2
+Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3
 
 #####Sub_protocol CX10_GREEN
 Cheerson CX-10 green pcb
@@ -220,13 +224,41 @@ Same channels assignement as above.
 #####Sub_protocol CX10_BLUE
 Cheerson CX-10 blue pcb & some newer red pcb, CX-10A, CX-10C, CX11, CX12, Floureon FX10, JJRC DHD D1
 
-Same channels assignement as above.
+CH5|CH6|CH7|CH8
+---|---|---|---
+FLIP|RATE|PICTURE|VIDEO
+
+Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3 or headless for CX-10A
 
 #####Sub_protocol CX10_DM007
 
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP|MODE|PICTURE|VIDEO|HEADLESS
+
+#####Sub_protocol CX10_Q282
+
+CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---
+FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
+
+#####Sub_protocol CX10_JC3015_1
+
+CH5|CH6|CH7|CH8
+---|---|---|---
+FLIP|MODE|PICTURE|VIDEO
+
+#####Sub_protocol CX10_JC3015_2
+
+CH5|CH6|CH7|CH8
+---|---|---|---
+FLIP|MODE|LED|DFLIP
+
+#####Sub_protocol CX10_MK33041
+
+CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---
+FLIP|MODE|PICTURE|VIDEO|HEADLESS|RTH
 
 ####DEVO
 Extended limits supported

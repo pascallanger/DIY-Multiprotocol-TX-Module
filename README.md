@@ -357,7 +357,7 @@ A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
 Models: Syma X5C-1/X11/X11C/X12
 
 #####Sub_protocol SYMAX5C
-Model: Syma X5C
+Model: Syma X5C (original) and X2
 
 ####V2X2
 Models: WLToys V202/252/272, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...

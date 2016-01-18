@@ -366,6 +366,10 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
 
+PICTURE: also automatic Missile Launcher and Hoist in one direction
+
+VIDEO: also Sprayer, Bubbler, Missile Launcher(1), and Hoist in the other dir
+
 ####YD717
 Autobind protocol
 

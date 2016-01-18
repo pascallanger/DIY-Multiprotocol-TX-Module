@@ -99,7 +99,7 @@ Dial|Protocol|Sub_protocol|RF Module
 6|DSM2|DSM2|CYRF6936
 7|DEVO|-|CYRF6936
 8|YD717|YD717|NRF24L01
-9|KN|-|NRF24L01
+9|KN|WLTOYS|NRF24L01
 10|SYMAX|SYMAX|NRF24L01
 11|SLT|-|NRF24L01
 12|CX10|CX10_BLUE|NRF24L01
@@ -138,6 +138,8 @@ YD717||NRF24L01
  |XINXUN
  |NIHUI
 KN||NRF24L01
+ |WLTOYS
+ |FEILUN
 SymaX||NRF24L01
  |SYMAX
  |SYMAX5C
@@ -335,9 +337,13 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ####KN
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
-A|E|T|R|DR|THOLD|IDLEUP|GYRO3
+A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim
 
-GYRO3: -100%=6G, +100%=3G
+Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO: -100%=6G, +100%=3G
+
+#####Sub_protocol WLTOYS
+#####Sub_protocol FEILUN
+Same channels assignement as above.
 
 ####SLT
 Autobind protocol

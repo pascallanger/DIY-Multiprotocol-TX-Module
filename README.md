@@ -191,15 +191,15 @@ Models: EAchine H8 mini 3D, JJRC H20/H22
 
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
-FLIP|OPT1|OPT2|OPT3|OPT4
+FLIP|LIGTH|OPT1|OPT2|CAL
 
 JJRC H20: OPT1=Headless, OPT2=RTH
 
-JJRC H22: OPT1=RTH, OPT3=LIGTH, OPT4=180/360° flip mode
+JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
 
 H8 3D: OPT1=RTH + headless, OPT2=180/360° flip mode
 
-Both sticks bottom left: calibrate accelerometers
+CAL: calibrate accelerometers
 
 ####CX10
 Extended limits supported

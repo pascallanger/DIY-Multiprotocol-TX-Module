@@ -134,7 +134,7 @@ Devo||CYRF6936
 YD717||NRF24L01
  |YD717
  |SKYWLKR
- |SYMAX2
+ |SYMAX4
  |XINXUN
  |NIHUI
 KN||NRF24L01
@@ -379,7 +379,7 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
 #####Sub_protocol YD717
 #####Sub_protocol SKYWLKR
-#####Sub_protocol SYMAX2
+#####Sub_protocol SYMAX4
 #####Sub_protocol XINXUN
 #####Sub_protocol NIHUI
 Same channels assignement as above.

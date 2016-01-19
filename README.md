@@ -220,12 +220,12 @@ A|E|T|R|FLIP|RATE
 Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3
 
 #####Sub_protocol CX10_GREEN
-Cheerson CX-10 green pcb
+Models: Cheerson CX-10 green pcb
 
 Same channels assignement as above.
 
 #####Sub_protocol CX10_BLUE
-Cheerson CX-10 blue pcb & some newer red pcb, CX-10A, CX-10C, CX11, CX12, Floureon FX10, JJRC DHD D1
+Models: Cheerson CX-10 blue pcb & some newer red pcb, CX-10A, CX-10C, CX11, CX12, Floureon FX10, JJRC DHD D1
 
 CH5|CH6|CH7|CH8
 ---|---|---|---
@@ -331,6 +331,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 |||T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
 
 ####HUBSAN
+Models: Hubsan and Hubsan +
+
 Autobind protocol
 
 Telemetry enabled for battery voltage only

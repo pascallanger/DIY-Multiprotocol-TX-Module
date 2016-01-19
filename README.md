@@ -158,6 +158,7 @@ CG023||NRF24L01
  |H8_3D
 Bayang||NRF24L01
 FrskyX||CC2500
+ESky||NRF24L01
 
 Note:
 - The dial should be set to 0 for serial. Which means all protocol selection pins should be left unconnected.
@@ -172,8 +173,8 @@ Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
 A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
 
 ####CG023
@@ -181,8 +182,8 @@ Models: EAchine CG023/CG031/3D X4
 
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
 #####Sub_protocol YD829
@@ -212,8 +213,8 @@ Extended limits supported
 
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
 A|E|T|R|FLIP|RATE
 
 Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3
@@ -265,22 +266,28 @@ FLIP|MODE|PICTURE|VIDEO|HEADLESS|RTH
 ####DEVO
 Extended limits supported
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ####DSM2
 Extended limits supported
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
+
+####ESKY
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|GYRO|PITCH
 
 ####FLYSKY
 Extended limits supported
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
 #####Sub_protocol V9X9
@@ -305,13 +312,13 @@ Telemetry enabled for A0, A1, RSSI
 
 Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ####HISKY
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
 A|E|T|R|GEAR|PITCH|GYRO|CH8
 
 GYRO: -100%=6G, +100%=3G
@@ -319,8 +326,8 @@ GYRO: -100%=6G, +100%=3G
 ####HK310
 Models: RX HK-3000 and HK3100
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
 |||T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
 
 ####HUBSAN
@@ -330,13 +337,13 @@ Telemetry enabled for battery voltage only
 
 Option=vTX frequency (H107D) 5645 - 5900 MHz
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
 ####KN
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim
 
 Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO: -100%=6G, +100%=3G
@@ -348,15 +355,15 @@ Same channels assignement as above.
 ####SLT
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
 A|E|T|R|GEAR|PITCH
 
 ####Symax
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
 
 #####Sub_protocol SYMAX
@@ -368,8 +375,8 @@ Model: Syma X5C (original) and X2
 ####V2X2
 Models: WLToys V202/252/272, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
 
 PICTURE: also automatic Missile Launcher and Hoist in one direction
@@ -379,8 +386,8 @@ VIDEO: also Sprayer, Bubbler, Missile Launcher(1), and Hoist in the other dir
 ####YD717
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
 #####Sub_protocol YD717
@@ -469,6 +476,7 @@ This will make sure your ATMEGA328 is well configured and the global TX ID is no
 
 ###LED status
 - off: program not running or a protocol selected with the associated module not installed.
+- flash: invalid protocol selected (excluded from compilation or invalid protocol number)
 - slow blink: serial has been selected but no valid signal has been seen on the RX pin.
 - fast blink: bind in progress.
 - on: normal operation.

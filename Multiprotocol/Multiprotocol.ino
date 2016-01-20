@@ -712,7 +712,7 @@ ISR(INT1_vect)
 		else
 			if(chan!=-1)		// need to wait for start of frame
 			{  //servo values between 500us and 2420us will end up here
-				uint16_t a = Cur_TCNT1>>2;
+				uint16_t a = Cur_TCNT1>>1;
 				if(a<PPM_MIN) a=PPM_MIN;
 				else if(a>PPM_MAX) a=PPM_MAX;
 				PPM_data[chan]=a;

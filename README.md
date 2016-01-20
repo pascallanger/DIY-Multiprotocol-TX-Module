@@ -324,7 +324,7 @@ A|E|T|R|GEAR|PITCH|GYRO|CH8
 GYRO: -100%=6G, +100%=3G
 
 ####HK310
-Models: RX HK-3000 and HK3100
+Models: RX HK-3000, HK3100 and XY3000 (TX are HK-300, HK-310 and TL-3C)
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---

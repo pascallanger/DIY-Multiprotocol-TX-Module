@@ -121,7 +121,7 @@ const uint8_t cyrfmfg_id[6] = {0xd4, 0x62, 0xd6, 0xad, 0xd3, 0xff}; //dx6i
 #endif
 */
 
-void build_bind_packet()
+static void build_bind_packet()
 {
 	uint8_t i;
 	uint16_t sum = 384 - 0x10;//
@@ -154,7 +154,7 @@ void build_bind_packet()
 	packet[15] = sum & 0xff;
 }
 
-void build_data_packet(uint8_t upper)//
+static void build_data_packet(uint8_t upper)//
 {
 #if DSM2_NUM_CHANNELS==4
 	const uint8_t ch_map[] = {0, 1, 2, 3, 0xff, 0xff, 0xff};    //Guess
@@ -252,7 +252,7 @@ void build_data_packet(uint8_t upper)//
 	}
 }
 
-uint8_t PROTOCOL_SticksMoved(uint8_t init)
+static uint8_t PROTOCOL_SticksMoved(uint8_t init)
 {
 #define STICK_MOVEMENT 15*(PPM_MAX-PPM_MIN)/100	// defines when the bind dialog should be interrupted (stick movement STICK_MOVEMENT %)
 	static uint16_t ele_start, ail_start;
@@ -268,7 +268,7 @@ uint8_t PROTOCOL_SticksMoved(uint8_t init)
     return ((ele_diff + ail_diff) > STICK_MOVEMENT);//
 }
 
-uint8_t get_pn_row(uint8_t channel)
+static uint8_t get_pn_row(uint8_t channel)
 {
 	return (sub_protocol == DSMX ? (channel - 2) % 5 : channel % 5);	
 }
@@ -300,7 +300,7 @@ const uint8_t init_vals[][2] = {
 	{CYRF_01_TX_LENGTH, 0x10}, //16byte packet
 };
 
-void cyrf_config()
+static void cyrf_config()
 {
 	for(uint8_t i = 0; i < sizeof(init_vals) / 2; i++)	
 		CYRF_WriteRegister(init_vals[i][0], init_vals[i][1]);
@@ -308,7 +308,7 @@ void cyrf_config()
 	CYRF_ConfigRFChannel(0x61);
 }
 
-void initialize_bind_state()
+static void initialize_bind_state()
 {
 	const uint8_t pn_bind[] = { 0xc6,0x94,0x22,0xfe,0x48,0xe6,0x57,0x4e };
 	uint8_t data_code[32];
@@ -342,13 +342,13 @@ const uint8_t data_vals[][2] = {
 	{CYRF_10_FRAMING_CFG, 0xea},
 };
 
-void cyrf_configdata()
+static void cyrf_configdata()
 {
 	for(uint8_t i = 0; i < sizeof(data_vals) / 2; i++)
 		CYRF_WriteRegister(data_vals[i][0], data_vals[i][1]);
 }
 
-void set_sop_data_crc()
+static void set_sop_data_crc()
 {
 	uint8_t pn_row = get_pn_row(hopping_frequency[chidx]);
 	//printf("Ch: %d Row: %d SOP: %d Data: %d\n", ch[chidx], pn_row, sop_col, data_col);
@@ -363,7 +363,7 @@ void set_sop_data_crc()
 	crcidx = !crcidx;
 }
 
-void calc_dsmx_channel()
+static void calc_dsmx_channel()
 {
 	uint8_t idx = 0;
 	uint32_t id = ~(((uint32_t)cyrfmfg_id[0] << 24) | ((uint32_t)cyrfmfg_id[1] << 16) | ((uint32_t)cyrfmfg_id[2] << 8) | (cyrfmfg_id[3] << 0));

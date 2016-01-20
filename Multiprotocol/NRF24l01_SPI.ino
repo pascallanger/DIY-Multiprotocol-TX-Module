@@ -19,7 +19,7 @@
 //---------------------------
 #include "iface_nrf24l01.h"
 
-void nrf_spi_write(uint8_t command)
+static void nrf_spi_write(uint8_t command)
 {
 	uint8_t n=8; 
 
@@ -39,7 +39,7 @@ void nrf_spi_write(uint8_t command)
 }  
 
 //VARIANT 2
-uint8_t nrf_spi_read(void)
+static uint8_t nrf_spi_read(void)
 {
 	uint8_t result;
 	uint8_t i;
@@ -106,7 +106,7 @@ uint8_t NRF24L01_ReadReg(uint8_t reg)
 	return data;
 }
 
-void NRF24L01_ReadRegisterMulti(uint8_t reg, uint8_t * data, uint8_t length)
+/*static void NRF24L01_ReadRegisterMulti(uint8_t reg, uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
 	nrf_spi_write(R_REGISTER | (REGISTER_MASK & reg));
@@ -114,8 +114,8 @@ void NRF24L01_ReadRegisterMulti(uint8_t reg, uint8_t * data, uint8_t length)
 		data[i] = nrf_spi_read();
 	NRF_CSN_on;
 }
-
-void NRF24L01_ReadPayload(uint8_t * data, uint8_t length)
+*/
+static void NRF24L01_ReadPayload(uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
 	nrf_spi_write(R_RX_PAYLOAD);
@@ -124,7 +124,7 @@ void NRF24L01_ReadPayload(uint8_t * data, uint8_t length)
 	NRF_CSN_on; 
 }
 
-void  NRF24L01_Strobe(uint8_t state)
+static void  NRF24L01_Strobe(uint8_t state)
 {
 	NRF_CSN_off;
 	nrf_spi_write(state);
@@ -161,7 +161,8 @@ void NRF24L01_SetBitrate(uint8_t bitrate)
     NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
 }
 
-void NRF24L01_SetPower_Value(uint8_t power)
+/*
+	static void NRF24L01_SetPower_Value(uint8_t power)
 {
     uint8_t nrf_power = 0;
     switch(power) {
@@ -179,7 +180,7 @@ void NRF24L01_SetPower_Value(uint8_t power)
     rf_setup = (rf_setup & 0xF9) | ((nrf_power & 0x03) << 1);
     NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
 }
-
+*/
 void NRF24L01_SetPower()
 {
 	uint8_t power=NRF_BIND_POWER;
@@ -254,42 +255,6 @@ uint8_t NRF24L01_packet_ack()
 	return PKT_PENDING;
 }
 
-
-
-//---------------------------
-/*
-void NRF24L01_spi_test(void)
-{
-unsigned long errors = 0;
-unsigned long test = 0;
-unsigned long time;
-uint8_t test_data_r[5];
-uint8_t test_data_w[5] = {0x01,0x02,0x03,0x04,0x05};
-
-time = micros();
-Serial.println("Testing SPI");
-  for(test=0; test < 2775600 ; test++) // should run for X mins.
-  {
-  NRF24L01_WriteRegisterMulti(NRF24L01_0B_RX_ADDR_P1, test_data_w, 5);
-  NRF24L01_ReadRegisterMulti(NRF24L01_0B_RX_ADDR_P1, test_data_r, 5);
-    if(0 != memcmp(test_data_r, test_data_w, sizeof(test_data_r))) errors++;   
-  test_data_w[0] ++;
-  test_data_w[1] ++;
-  test_data_w[2] ++;
-  test_data_w[3] ++;
-  test_data_w[4] ++;
-  }
-Serial.print("test "); Serial.print(test, HEX); Serial.print("\n");
-Serial.print("errors "); Serial.print(errors, HEX); Serial.print("\n");
-Serial.print("time "); Serial.print(micros()- time, DEC); Serial.print("\n");
-
-// 124211960
-//  90899216
-}
-*/
-//---------------------------
-
-
 ///////////////
 // XN297 emulation layer
 uint8_t xn297_addr_len;
@@ -311,7 +276,7 @@ static const uint16_t xn297_crc_xorout[] = {
 	0x8B17, 0x2920, 0x8B5F, 0x61B1, 0xD391, 0x7401,
 	0x2138, 0x129F, 0xB3A0, 0x2988};
 
-uint8_t bit_reverse(uint8_t b_in)
+static uint8_t bit_reverse(uint8_t b_in)
 {
     uint8_t b_out = 0;
     for (uint8_t i = 0; i < 8; ++i)
@@ -322,7 +287,7 @@ uint8_t bit_reverse(uint8_t b_in)
     return b_out;
 }
 
-uint16_t crc16_update(uint16_t crc, uint8_t a)
+static uint16_t crc16_update(uint16_t crc, uint8_t a)
 {
 	static const uint16_t polynomial = 0x1021;
 

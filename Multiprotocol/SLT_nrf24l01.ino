@@ -12,6 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+// Last sync with hexfet new_protocols/slt_nrf24l01.c dated 2015-02-13
 
 #if defined(SLT_NRF24L01_INO)
 
@@ -30,7 +31,7 @@ enum {
 	SLT_DATA3
 };
 
-void SLT_init()
+static void SLT_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO)); // 2-bytes CRC, radio off
@@ -56,7 +57,7 @@ static void SLT_init2()
 	NRF24L01_SetTxRxMode(TX_EN);
 }
 
-void SLT_set_tx_id(void)
+static void SLT_set_tx_id(void)
 {
 	// Frequency hopping sequence generation
 	for (uint8_t i = 0; i < 4; ++i)
@@ -67,7 +68,7 @@ void SLT_set_tx_id(void)
 		hopping_frequency[i*4 + 1]  = (rx_tx_addr[i] >> 2) + base;
 		hopping_frequency[i*4 + 2]  = (rx_tx_addr[i] >> 4) + (rx_tx_addr[next_i] & 0x03)*0x10 + base;
 		if (i*4 + 3 < SLT_NFREQCHANNELS) // guard for 16 channel
-		hopping_frequency[i*4 + 3]  = (rx_tx_addr[i] >> 6) + (rx_tx_addr[next_i] & 0x0f)*0x04 + base;
+			hopping_frequency[i*4 + 3]  = (rx_tx_addr[i] >> 6) + (rx_tx_addr[next_i] & 0x0f)*0x04 + base;
 	}
 
 	// unique
@@ -89,16 +90,16 @@ void SLT_set_tx_id(void)
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 4);
 }
 
-void wait_radio()
+static void SLT_wait_radio()
 {
 	if (packet_sent)
 		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_TX_DS))) ;
 	packet_sent = 0;
 }
 
-void send_data(uint8_t *data, uint8_t len)
+static void SLT_send_data(uint8_t *data, uint8_t len)
 {
-	wait_radio();
+	SLT_wait_radio();
 	NRF24L01_FlushTx();
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_RX_DR) | BV(NRF24L01_07_MAX_RT));
 	NRF24L01_WritePayload(data, len);
@@ -106,11 +107,11 @@ void send_data(uint8_t *data, uint8_t len)
 	packet_sent = 1;
 }
 
-void SLT_build_packet()
+static void SLT_build_packet()
 {
 	// aileron, elevator, throttle, rudder, gear, pitch
 	uint8_t e = 0; // byte where extension 2 bits for every 10-bit channel are packed
-	uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER};
+	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER};
 	for (uint8_t i = 0; i < 4; ++i) {
 		uint16_t v = convert_channel_10b(ch[i]);
 		packet[i] = v;
@@ -128,19 +129,20 @@ void SLT_build_packet()
 		hopping_frequency_no = 0;
 }
 
-static void send_bind_packet()
+static void SLT_send_bind_packet()
 {
-	wait_radio();
-
+	SLT_wait_radio();
+	BIND_IN_PROGRESS;	// autobind protocol
 	NRF24L01_SetPower();
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t *)"\x7E\xB8\x63\xA9", 4);
 
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x50);
-	send_data(rx_tx_addr, 4);
+	SLT_send_data(rx_tx_addr, 4);
 
 	// NB: we should wait until the packet's sent before changing TX address!
-	wait_radio();
+	SLT_wait_radio();
 
+	BIND_DONE;
 	NRF24L01_SetPower();
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 4);
 }
@@ -156,24 +158,23 @@ uint16_t SLT_callback()
 			delay_us = 150;
 			break;
 		case SLT_BIND:
-			send_bind_packet();
+			SLT_send_bind_packet();
 			phase = SLT_DATA1;
 			delay_us = 19000;
-			BIND_DONE;
 			break;
 		case SLT_DATA1:
 			SLT_build_packet();
-			send_data(packet, 7);
+			SLT_send_data(packet, 7);
 			phase = SLT_DATA2;
 			delay_us = 1000;
 			break;
 		case SLT_DATA2:
-			send_data(packet, 7);
+			SLT_send_data(packet, 7);
 			phase = SLT_DATA3;
 			delay_us = 1000;
 			break;
 		case SLT_DATA3:
-			send_data(packet, 7);
+			SLT_send_data(packet, 7);
 			if (++counter >= 100)
 			{
 				counter = 0;
@@ -196,7 +197,6 @@ uint16_t initSLT()
 	SLT_init();
 	phase = SLT_INIT2;
 	SLT_set_tx_id();
-	BIND_IN_PROGRESS;	// autobind protocol
 	return 50000;
 }
 

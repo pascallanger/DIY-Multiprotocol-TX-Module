@@ -12,6 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+// Last sync with hexfet new_protocols/yd717_nrf24l01.c dated 2015-09-28
 
 #if defined(YD717_NRF24L01_INO)
 
@@ -23,7 +24,7 @@
 #define YD717_PACKET_CHKTIME	500		// Time to wait if packet not yet acknowledged or timed out    
 
 // Stock tx fixed frequency is 0x3C. Receiver only binds on this freq.
-#define RF_CHANNEL 0x3C
+#define YD717_RF_CHANNEL 0x3C
 
 #define YD717_FLAG_FLIP     0x0F
 #define YD717_FLAG_LIGHT    0x80
@@ -32,7 +33,6 @@
 #define YD717_FLAG_HEADLESS 0x10
 
 #define YD717_PAYLOADSIZE 8				// receive data pipes set to this size, but unused
-//#define YD717_MAX_PACKET_SIZE 9		// YD717 packets have 8-byte payload, Syma X4 is 9
 
 enum {
 	YD717_INIT1 = 0,
@@ -41,7 +41,7 @@ enum {
 	YD717_DATA
 };
 
-void yd717_send_packet(uint8_t bind)
+static void yd717_send_packet(uint8_t bind)
 {
 	uint8_t rudder_trim, elevator_trim, aileron_trim;
 	if (bind)
@@ -93,23 +93,17 @@ void yd717_send_packet(uint8_t bind)
 			packet[6] = aileron_trim;
 		}
 		// Flags
+		flags=0;
 		// Channel 5
-		if (Servo_data[AUX1] > PPM_SWITCH)
-			flags = YD717_FLAG_FLIP;
-		else
-			flags=0;
+		if (Servo_AUX1)	flags = YD717_FLAG_FLIP;
 		// Channel 6
-		if (Servo_data[AUX2] > PPM_SWITCH)
-			flags |= YD717_FLAG_LIGHT;
+		if (Servo_AUX2)	flags |= YD717_FLAG_LIGHT;
 		// Channel 7
-		if (Servo_data[AUX3] > PPM_SWITCH)
-			flags |= YD717_FLAG_PICTURE;
+		if (Servo_AUX3)	flags |= YD717_FLAG_PICTURE;
 		// Channel 8
-		if (Servo_data[AUX4] > PPM_SWITCH)
-			flags |= YD717_FLAG_VIDEO;
+		if (Servo_AUX4)	flags |= YD717_FLAG_VIDEO;
 		// Channel 9
-		if (Servo_data[AUX5] > PPM_SWITCH)
-			flags |= YD717_FLAG_HEADLESS;
+		if (Servo_AUX5)	flags |= YD717_FLAG_HEADLESS;
 		packet[7] = flags;
 	}
 
@@ -123,7 +117,7 @@ void yd717_send_packet(uint8_t bind)
 	{
 		packet[8] = packet[0];  // checksum
 		for(uint8_t i=1; i < 8; i++)
-		packet[8] += packet[i];
+			packet[8] += packet[i];
 		packet[8] = ~packet[8];
 		NRF24L01_WritePayload(packet, 9);
 	}
@@ -131,7 +125,7 @@ void yd717_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-void yd717_init()
+static void yd717_init()
 {
 	NRF24L01_Initialize();
 
@@ -142,7 +136,7 @@ void yd717_init()
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x3F);  // Enable all data pipes
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address
 	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x1A); // 500uS retransmit t/o, 10 tries
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, RF_CHANNEL);      // Channel 3C
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, YD717_RF_CHANNEL);      // Channel 3C
 	NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
 	NRF24L01_SetPower();
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
@@ -168,23 +162,24 @@ void yd717_init()
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
 }
 
-void YD717_init1()
+static void YD717_init1()
 {
 	// for bind packets set address to prearranged value known to receiver
 	uint8_t bind_rx_tx_addr[] = {0x65, 0x65, 0x65, 0x65, 0x65};
-	if( sub_protocol==SYMAX2 )
-		for(uint8_t i=0; i < 5; i++)
+	uint8_t i;
+	if( sub_protocol==SYMAX4 )
+		for(i=0; i < 5; i++)
 			bind_rx_tx_addr[i]  = 0x60;
 	else
 		if( sub_protocol==NIHUI )
-			for(uint8_t i=0; i < 5; i++)
+			for(i=0; i < 5; i++)
 				bind_rx_tx_addr[i]  = 0x64;
 
     NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, bind_rx_tx_addr, 5);
     NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, bind_rx_tx_addr, 5);
 }
 
-void YD717_init2()
+static void YD717_init2()
 {
     // set rx/tx address for data phase
     NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);
@@ -244,7 +239,6 @@ uint16_t yd717_callback()
 uint16_t initYD717()
 {
 	rx_tx_addr[4] = 0xC1;	// always uses first data port
-	flags = 0;
 	yd717_init();
 	phase = YD717_INIT1;	
 	BIND_IN_PROGRESS;		// autobind protocol

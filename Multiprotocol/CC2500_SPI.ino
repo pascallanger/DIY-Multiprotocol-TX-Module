@@ -36,7 +36,7 @@ static void ReadRegisterMulti(uint8_t address, uint8_t data[], uint8_t length)
 
 //*********************************************
 
-void CC2500_WriteRegisterMulti(uint8_t address, const uint8_t data[], uint8_t length)
+static void CC2500_WriteRegisterMulti(uint8_t address, const uint8_t data[], uint8_t length)
 {
 	CC25_CSN_off;
 	cc2500_spi_write(CC2500_WRITE_BURST | address);
@@ -53,7 +53,7 @@ void cc2500_writeFifo(uint8_t *dpbuffer, uint8_t len)
 }
 
 //-------------------------------------- 
-void cc2500_spi_write(uint8_t command) {
+static void cc2500_spi_write(uint8_t command) {
 	uint8_t n=8; 
 
 	SCK_off;//SCK start low
@@ -81,7 +81,7 @@ void cc2500_writeReg(uint8_t address, uint8_t data) {//same as 7105
 	CC25_CSN_on;
 } 
 
-uint8_t cc2500_spi_read(void)
+static uint8_t cc2500_spi_read(void)
 {
 	uint8_t result;
 	uint8_t i;
@@ -101,7 +101,7 @@ uint8_t cc2500_spi_read(void)
 }   
   
 //--------------------------------------------
-uint8_t cc2500_readReg(uint8_t address)
+static uint8_t cc2500_readReg(uint8_t address)
 { 
 	uint8_t result;
 	CC25_CSN_off;
@@ -119,7 +119,7 @@ void cc2500_strobe(uint8_t address)
 	CC25_CSN_on;
 }
 //------------------------
-void cc2500_resetChip(void)
+/*static void cc2500_resetChip(void)
 {
 	// Toggle chip select signal
 	CC25_CSN_on;
@@ -131,7 +131,7 @@ void cc2500_resetChip(void)
 	cc2500_strobe(CC2500_SRES);
 	_delay_ms(100);
 }
-
+*/
 uint8_t CC2500_Reset()
 {
 	cc2500_strobe(CC2500_SRES);
@@ -139,8 +139,8 @@ uint8_t CC2500_Reset()
 	CC2500_SetTxRxMode(TXRX_OFF);
 	return cc2500_readReg(CC2500_0E_FREQ1) == 0xC4;//check if reset
 }
-
-void CC2500_SetPower_Value(uint8_t power)
+/*
+static void CC2500_SetPower_Value(uint8_t power)
 {
 	const unsigned char patable[8]=	{
 		0xC5,  // -12dbm
@@ -156,7 +156,7 @@ void CC2500_SetPower_Value(uint8_t power)
 		power = 7;
 	cc2500_writeReg(CC2500_3E_PATABLE,  patable[power]);
 }
-
+*/
 void CC2500_SetPower()
 {
 	uint8_t power=CC2500_BIND_POWER;

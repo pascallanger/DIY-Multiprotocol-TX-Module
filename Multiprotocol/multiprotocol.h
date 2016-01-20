@@ -14,6 +14,8 @@
  */
 
 //******************
+// Protocols
+//******************
 enum PROTOCOLS
 {
 	MODE_SERIAL = 0,		// Serial commands
@@ -32,6 +34,7 @@ enum PROTOCOLS
 	MODE_CG023 = 13,		// =>NRF24L01	/ CG023 protocol
 	MODE_BAYANG = 14,		// =>NRF24L01	/ BAYANG protocol
 	MODE_FRSKYX = 15,		// =>CC2500		/ FRSKYX protocol
+	MODE_ESKY = 16,			// =>NRF24L01	/ ESKY protocol
 };
 enum Flysky
 {
@@ -53,27 +56,128 @@ enum YD717
 {       			
 	YD717=0,
 	SKYWLKR=1,
-	SYMAX2=2,
+	SYMAX4=2,
 	XINXUN=3,
 	NIHUI=4
+};
+enum KN
+{
+	WLTOYS=0,
+	FEILUN=1
 };
 enum SYMAX
 {
 	SYMAX=0,
-	SYMAX5C=1,
+	SYMAX5C=1
 };
-
-enum CX10 {
+enum CX10
+{
     CX10_GREEN = 0,
-    CX10_BLUE,		// also compatible with CX10-A, CX12
-    DM007
+    CX10_BLUE=1,		// also compatible with CX10-A, CX12
+    DM007=2,
+	Q282=3,
+	JC3015_1=4,
+	JC3015_2=5,
+	MK33041=6
 };
-
-enum CG023 {
+enum CG023
+{
     CG023 = 0,
     YD829 = 1,
     H8_3D = 2
 };
+
+//******************
+//TX definitions with timing endpoints and channels order
+//******************
+
+// Turnigy PPM and channels
+#if defined(TX_ER9X)
+#define PPM_MAX		2140
+#define PPM_MIN		860
+#define PPM_MAX_100 2012
+#define PPM_MIN_100 988
+enum chan_order{
+	AILERON =0,
+	ELEVATOR,
+	THROTTLE,
+	RUDDER,
+	AUX1,
+	AUX2,
+	AUX3,
+	AUX4,
+	AUX5,
+	AUX6,
+	AUX7,
+	AUX8
+};
+#endif
+
+// Devo PPM and channels
+#if defined(TX_DEVO7)
+#define PPM_MAX		2100
+#define PPM_MIN		900
+#define PPM_MAX_100	1920
+#define PPM_MIN_100	1120
+enum chan_order{
+	ELEVATOR=0,
+	AILERON,
+	THROTTLE,
+	RUDDER,
+	AUX1,
+	AUX2,
+	AUX3,
+	AUX4,
+	AUX5,
+	AUX6,
+	AUX7,
+	AUX8
+};
+#endif
+
+// SPEKTRUM PPM and channels
+#if defined(TX_SPEKTRUM)
+#define PPM_MAX		2000
+#define PPM_MIN		1000
+#define PPM_MAX_100	1900
+#define PPM_MIN_100	1100
+enum chan_order{
+	THROTTLE=0,
+	AILERON,
+	ELEVATOR,
+	RUDDER,
+	AUX1,
+	AUX2,
+	AUX3,
+	AUX4,
+	AUX5,
+	AUX6,
+	AUX7,
+	AUX8
+};
+#endif
+
+// HISKY
+#if defined(TX_HISKY)
+#define PPM_MAX		2000
+#define PPM_MIN		1000
+#define PPM_MAX_100	1900
+#define PPM_MIN_100	1100
+enum chan_order{
+	AILERON =0,
+	ELEVATOR,
+	THROTTLE,
+	RUDDER,
+	AUX1,
+	AUX2,
+	AUX3,
+	AUX4,
+	AUX5,
+	AUX6,
+	AUX7,
+	AUX8
+};
+#endif
 
 #define PPM_MIN_COMMAND 1250
 #define PPM_SWITCH	1550
@@ -143,6 +247,7 @@ enum CG023 {
 #define LED_OFF  PORTB &= ~_BV(5)
 #define LED_TOGGLE  PORTB ^= _BV(5)
 #define LED_SET_OUTPUT DDRB |= _BV(5)
+#define IS_LED_on  ( (PORTB & _BV(5)) != 0x00 )
 
 // Macros
 #define NOP() __asm__ __volatile__("nop")
@@ -183,8 +288,24 @@ enum CG023 {
 #define BIND_DONE			protocol_flags |= _BV(7)
 #define IS_BIND_DONE_on		( ( protocol_flags & _BV(7) ) !=0 )
 
+#define BAD_PROTO_off		protocol_flags2 &= ~_BV(0)
+#define BAD_PROTO_on		protocol_flags2 |= _BV(0)
+#define IS_BAD_PROTO_on		( ( protocol_flags2 & _BV(0) ) !=0 )
+
 #define BLINK_BIND_TIME	100
 #define BLINK_SERIAL_TIME	500
+#define BLINK_BAD_PROTO_TIME_LOW	1000
+#define BLINK_BAD_PROTO_TIME_HIGH	50
+
+//AUX flags definition
+#define Servo_AUX1	Servo_AUX & _BV(0)
+#define Servo_AUX2	Servo_AUX & _BV(1)
+#define Servo_AUX3	Servo_AUX & _BV(2)
+#define Servo_AUX4	Servo_AUX & _BV(3)
+#define Servo_AUX5	Servo_AUX & _BV(4)
+#define Servo_AUX6	Servo_AUX & _BV(5)
+#define Servo_AUX7	Servo_AUX & _BV(6)
+#define Servo_AUX8	Servo_AUX & _BV(7)
 
 //************************
 //***  Power settings  ***
@@ -349,6 +470,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					CG023		13
 					Bayang		14
 					FrskyX		15
+					ESky		16
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -369,9 +491,12 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==YD717
 			YD717	0
 			SKYWLKR	1
-			SYMAX2	2
+			SYMAX4	2
 			XINXUN	3
 			NIHUI	4
+		sub_protocol==KN
+			WLTOYS	0
+			FEILUN	1
 		sub_protocol==SYMAX
 			SYMAX	0
 			SYMAX5C	1
@@ -379,6 +504,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CX10_GREEN	0
 			CX10_BLUE	1	// also compatible with CX10-A, CX12
 			DM007		2
+			Q282		3
+			JC3015_1	4
+			JC3015_2	5
+			MK33041		6
 		sub_protocol==CG023
 			CG023		0
 			YD829		1
@@ -426,6 +555,7 @@ Serial: 125000 Baud 8n1      _ xxxx xxxx - ---
 					CG023		13
 					Bayang		14
 					FrskyX		15
+					ESky		16
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -446,9 +576,12 @@ Serial: 125000 Baud 8n1      _ xxxx xxxx - ---
 		sub_protocol==YD717
 			YD717	0
 			SKYWLKR	1
-			SYMAX2	2
+			SYMAX4	2
 			XINXUN	3
 			NIHUI	4
+		sub_protocol==KN
+			WLTOYS	0
+			FEILUN	1
 		sub_protocol==SYMAX
 			SYMAX	0
 			SYMAX5C	1
@@ -456,6 +589,10 @@ Serial: 125000 Baud 8n1      _ xxxx xxxx - ---
 			CX10_GREEN	0
 			CX10_BLUE	1	// also compatible with CX10-A, CX12
 			DM007		2
+			Q282		3
+			JC3015_1	4
+			JC3015_2	5
+			MK33041		6
 		sub_protocol==CG023
 			CG023		0
 			YD829		1

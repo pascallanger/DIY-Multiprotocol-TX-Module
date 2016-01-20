@@ -12,15 +12,12 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+// compatible with Syma X5C-1, X11, X11C, X12 and for sub protocol X5C Syma X5C (original), X2
+// Last sync with hexfet new_protocols/cx10_nrf24l01.c dated 2015-09-28
 
 #if defined(SYMAX_NRF24L01_INO)
 
 #include "iface_nrf24l01.h"
-
-/***
-   Main protocol compatible with Syma X5C-1, X11, X11C, X12.
-   SymaX5C protocol option compatible with Syma X5C (original) and X2.
-***/
 
 #define SYMAX_BIND_COUNT			345		// 1.5 seconds
 #define SYMAX_FIRST_PACKET_DELAY	12000
@@ -44,16 +41,7 @@ enum {
 	SYMAX_DATA
 };
 
-/*
-http://www.deviationtx.com/forum/protocol-development/3768-syma-x5c-1-x11-x12?start=140
-	TX address        Channel Sequence
-S1    3B B6 00 00 A2    15 35 1D 3D
-D1    9A E9 02 00 A2    14 34 1C 3C
-
-D2    46 18 00 00 A2    11 21 31 41
-*/
-
-uint8_t SYMAX_checksum(uint8_t *data)
+static uint8_t SYMAX_checksum(uint8_t *data)
 {
 	uint8_t sum = data[0];
 
@@ -66,7 +54,7 @@ uint8_t SYMAX_checksum(uint8_t *data)
 	return sum + ( sub_protocol==SYMAX5C ? 0 : 0x55 );
 }
 
-void SYMAX_read_controls()
+static void SYMAX_read_controls()
 {
 	// Protocol is registered AETRF, that is
 	// Aileron is channel 1, Elevator - 2, Throttle - 3, Rudder - 4, Flip control - 5
@@ -75,25 +63,24 @@ void SYMAX_read_controls()
 	throttle = convert_channel_8b(THROTTLE);
 	rudder   = convert_channel_s8b(RUDDER);
 
+	flags=0;
 	// Channel 5
-	if (Servo_data[AUX1] > PPM_SWITCH)
+	if (Servo_AUX1)
 		flags = SYMAX_FLAG_FLIP;
-	else
-		flags=0;
 	// Channel 7
-	if (Servo_data[AUX3] > PPM_SWITCH)
+	if (Servo_AUX3)
 		flags |= SYMAX_FLAG_PICTURE;
 	// Channel 8
-	if (Servo_data[AUX4] > PPM_SWITCH)
+	if (Servo_AUX4)
 		flags |= SYMAX_FLAG_VIDEO;
 	// Channel 9
-	if (Servo_data[AUX5] > PPM_SWITCH)
+	if (Servo_AUX5)
 		flags |= SYMAX_FLAG_HEADLESS;
 }
 
 #define X5C_CHAN2TRIM(X) ((((X) & 0x80 ? 0xff - (X) : 0x80 + (X)) >> 2) + 0x20)
 
-void SYMAX_build_packet_x5c(uint8_t bind)
+static void SYMAX_build_packet_x5c(uint8_t bind)
 {
 	if (bind)
 	{
@@ -124,12 +111,12 @@ void SYMAX_build_packet_x5c(uint8_t bind)
 		packet[14] =  (flags & SYMAX_FLAG_VIDEO   ? 0x10 : 0x00) 
 					| (flags & SYMAX_FLAG_PICTURE ? 0x08 : 0x00)
 					| (flags & SYMAX_FLAG_FLIP    ? 0x01 : 0x00)
-					| 0x04;// (flags & SYMAX_FLAG_RATES   ? 0x04 : 0x00);
+					| 0x04;// always high rates (bit 3 is rate control)
 		packet[15] = SYMAX_checksum(packet);
 	}
 }
 
-void SYMAX_build_packet(uint8_t bind)
+static void SYMAX_build_packet(uint8_t bind)
 {
 	if (bind)
 	{
@@ -151,7 +138,7 @@ void SYMAX_build_packet(uint8_t bind)
 		packet[2] = rudder;
 		packet[3] = aileron;
 		packet[4] = (flags & SYMAX_FLAG_VIDEO   ? 0x80 : 0x00) | (flags & SYMAX_FLAG_PICTURE ? 0x40 : 0x00);
-		packet[5] = (elevator >> 2) | 0xc0; //always high rates (bit 7 is rate control) (flags & SYMAX_FLAG_RATES ? 0x80 : 0x00) | 0x40;  // use trims to extend controls
+		packet[5] = (elevator >> 2) | 0xc0; //always high rates (bit 7 is rate control)
 		packet[6] = (rudder >> 2)  | (flags & SYMAX_FLAG_FLIP ? 0x40 : 0x00);
 		packet[7] = (aileron >> 2) | (flags & SYMAX_FLAG_HEADLESS ? 0x80 : 0x00);
 		packet[8] = 0x00;
@@ -159,7 +146,7 @@ void SYMAX_build_packet(uint8_t bind)
 	packet[9] = SYMAX_checksum(packet);
 }
 
-void SYMAX_send_packet(uint8_t bind)
+static void SYMAX_send_packet(uint8_t bind)
 {
 	if (sub_protocol==SYMAX5C)
 		SYMAX_build_packet_x5c(bind);
@@ -232,20 +219,13 @@ static void symax_init()
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x0e);  // power on
 }
 
-void symax_init1()
+static void symax_init1()
 {
 	// duplicate stock tx sending strange packet (effect unknown)
 	uint8_t first_packet[] = {0xf9, 0x96, 0x82, 0x1b, 0x20, 0x08, 0x08, 0xf2, 0x7d, 0xef, 0xff, 0x00, 0x00, 0x00, 0x00};
 	uint8_t chans_bind[] = {0x4b, 0x30, 0x40, 0x20};
 	uint8_t chans_bind_x5c[] = {0x27, 0x1b, 0x39, 0x28, 0x24, 0x22, 0x2e, 0x36,
 								0x19, 0x21, 0x29, 0x14, 0x1e, 0x12, 0x2d, 0x18};
-
-	//uint8_t data_rx_tx_addr[] = {0x3b,0xb6,0x00,0x00,0xa2};
-	//uint8_t data_rx_tx_addr[] = {0x9A,0xe9,0x03,0x00,0xa2};//<<----  is ok
-	//uint8_t data_rx_tx_addr[] = {0x3b,0xb6,0x00,0x00,0xa2};//<<--- is ok
-	//uint8_t data_rx_tx_addr[] = {0x9A,0xe9,0x00,0x00,0xa2};
-	//uint8_t data_rx_tx_addr[] = {0x9A,0xe9,0x03,0x00,0xa2};//<<----  is ok
-	//uint8_t data_rx_tx_addr[] = {0x46,0x18,0x00,0x00,0xa2};
 
 	NRF24L01_FlushTx();
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x08);
@@ -267,14 +247,12 @@ void symax_init1()
 }
 
 // channels determined by last byte of tx address
-void symax_set_channels(uint8_t address)
+static void symax_set_channels(uint8_t address)
 {
 	static const uint8_t start_chans_1[] = {0x0a, 0x1a, 0x2a, 0x3a};
 	static const uint8_t start_chans_2[] = {0x2a, 0x0a, 0x42, 0x22};
 	static const uint8_t start_chans_3[] = {0x1a, 0x3a, 0x12, 0x32};
-	//static const uint8_t start_chans_4[] = {0x15, 0x35, 0x1d, 0x3d};
-	//static const uint8_t start_chans_5[] = {0x14, 0x34, 0x1c, 0x3c};
-	//static const uint8_t start_chans_6[] = {0x11, 0x21, 0x31, 0x41};
+
 	uint8_t laddress = address & 0x1f;
 	uint8_t i;
 	uint32_t *pchans = (uint32_t *)hopping_frequency;   // avoid compiler warning
@@ -312,7 +290,7 @@ void symax_set_channels(uint8_t address)
 					*pchans = 0x39194121;
 }
 
-void symax_init2()
+static void symax_init2()
 {
 	uint8_t chans_data_x5c[] = {0x1d, 0x2f, 0x26, 0x3d, 0x15, 0x2b, 0x25, 0x24,
 								0x27, 0x2c, 0x1c, 0x3e, 0x39, 0x2d, 0x22};

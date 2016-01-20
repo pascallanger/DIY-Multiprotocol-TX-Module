@@ -14,9 +14,8 @@
  */
 
 
-void frskySendStuffed(uint8_t frame[])
+static void frskySendStuffed(uint8_t frame[])
 {
-
 	Serial_write(0x7E);
 	for (uint8_t i = 0; i < 9; i++) {
 		if ((frame[i] == 0x7e) || (frame[i] == 0x7d)) {
@@ -28,9 +27,7 @@ void frskySendStuffed(uint8_t frame[])
 	Serial_write(0x7E);
 }
 
-
-
-void frskySendFrame()
+static void frskySendFrame()
 {
 	uint8_t frame[9];
 
@@ -54,16 +51,13 @@ void frskySendFrame()
 				frame[5] = frame[6] = frame[7] = frame[8] = 0;
 			}	
 		frskySendStuffed(frame);
-	
 }
-
-
 
 void frskyUpdate()
 {
-if(telemetry_link){	
+	if(telemetry_link)
+	{	
 		frskySendFrame();
 		telemetry_link=0;
-
 	}
 }

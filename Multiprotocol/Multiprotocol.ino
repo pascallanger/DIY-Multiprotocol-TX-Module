@@ -24,14 +24,17 @@
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 
-#include "multiprotocol.h"
-
+//******************************************************
 //******************************************************
 // Multiprotocol module configuration starts here
 
-//Uncomment the TX type
-#define ER9X
-//#define DEVO7
+//Uncomment the type of TX
+#define TX_ER9X			//ER9X AETR (988<->2012µs)
+//#define TX_DEVO7		//DEVO7 EATR (1120<->1920µs)
+//#define TX_SPEKTRUM	//Spektrum TAER (1100<->1900µs)
+//#define TX_HISKY		//HISKY AETR (1100<->1900µs)
+
+#include "multiprotocol.h"
 
 //Uncomment to enable 8 channels serial protocol, 16 otherwise
 //#define NUM_SERIAL_CH_8
@@ -39,12 +42,13 @@
 //Uncomment to enable telemetry
 #define TELEMETRY
 
-//Protocols to include in compilation, comment to exclude
+//Comment protocols to exclude from compilation
 #define	BAYANG_NRF24L01_INO
 #define	CG023_NRF24L01_INO
 #define	CX10_NRF24L01_INO
 #define	DEVO_CYRF6936_INO
 #define	DSM2_CYRF6936_INO
+#define	ESKY_NRF24L01_INO
 #define	FLYSKY_A7105_INO
 #define	FRSKY_CC2500_INO
 #define	HISKY_NRF24L01_INO
@@ -65,7 +69,7 @@ static const uint8_t PPM_prot[15][2]= { {MODE_FLYSKY	, Flysky	},	//Dial=1
 										{MODE_DSM2		, DSM2		},	//Dial=6
 										{MODE_DEVO		, 0			},	//Dial=7
 										{MODE_YD717		, YD717		},	//Dial=8
-										{MODE_KN		, 0			},	//Dial=9
+										{MODE_KN		, WLTOYS	},	//Dial=9
 										{MODE_SYMAX		, SYMAX		},	//Dial=10
 										{MODE_SLT		, 0			},	//Dial=11
 										{MODE_CX10		, CX10_BLUE	},	//Dial=12
@@ -74,54 +78,6 @@ static const uint8_t PPM_prot[15][2]= { {MODE_FLYSKY	, Flysky	},	//Dial=1
 										{MODE_SYMAX		, SYMAX5C	}	//Dial=15
 										};
 
-//
-//TX definitions with timing endpoints and channels order
-//
-
-// Turnigy PPM and channels
-#if defined(ER9X)
-#define PPM_MAX		2140
-#define PPM_MIN		860
-#define PPM_MAX_100 2012
-#define PPM_MIN_100 988
-enum chan_order{
-	AILERON =0,
-	ELEVATOR,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8
-};
-#endif
-
-// Devo PPM and channels
-#if defined(DEVO7)
-#define PPM_MAX		2100
-#define PPM_MIN		900
-#define PPM_MAX_100	1920
-#define PPM_MIN_100	1120
-enum chan_order{
-	ELEVATOR=0,
-	AILERON,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8
-};
-#endif
-
 //CC2500 RF module frequency adjustment, use in case you cannot bind with Frsky RX
 //Note: this is set via Option when serial protocol is used
 //values from 0-127 offset increase frequency, values from 255 to 127 decrease base frequency
@@ -129,6 +85,7 @@ enum chan_order{
 uint8_t fine = 0xd7;	//* 215=-41 *
 
 // Multiprotocol module configuration ends here
+//******************************************************
 //******************************************************
 
 
@@ -148,6 +105,7 @@ uint8_t packet[40];
 #define NUM_CHN 16
 // Servo data
 uint16_t Servo_data[NUM_CHN];
+uint8_t  Servo_AUX;
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
 
@@ -171,7 +129,7 @@ uint8_t flags;
 
 // Mode_select variables
 uint8_t mode_select;
-uint8_t protocol_flags;
+uint8_t protocol_flags=0,protocol_flags2=0;
 
 // Serial variables
 #if defined(NUM_SERIAL_CH_8) //8 channels serial protocol
@@ -207,7 +165,7 @@ uint8_t telemetry_link=0;
 // Callback
 typedef uint16_t (*void_function_t) (void);//pointer to a function with no parameters which return an uint16_t integer
 void_function_t remote_callback = 0;
-void CheckTimer(uint16_t (*cb)(void));
+static void CheckTimer(uint16_t (*cb)(void));
 
 // Init
 void setup()
@@ -251,7 +209,7 @@ void setup()
 //**********************************
 
 	// Update LED
-	LED_OFF; 
+	LED_OFF;
 	LED_SET_OUTPUT; 
 
 	// Read or create protocol id
@@ -287,6 +245,7 @@ void loop()
 	if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
 	{
 		update_serial_data();	// Update protocol and data
+		update_aux_flags();
 		if(IS_CHANGE_PROTOCOL_FLAG_on)
 		{ // Protocol needs to be changed
 			LED_OFF;									//led off during protocol init
@@ -302,6 +261,7 @@ void loop()
 			cli();	// disable global int
 			Servo_data[i]=PPM_data[i];
 			sei();	// enable global int
+			update_aux_flags();
 		}
 		PPM_FLAG_off;	// wait for next frame before update
 	}
@@ -314,33 +274,41 @@ void loop()
 		CheckTimer(remote_callback); 
 }
 
-// Update led status based on binding and serial
-void update_led_status(void)
+// Update Servo_AUX flags based on servo AUX positions
+static void update_aux_flags(void)
 {
-	if(cur_protocol[0]==0)
-	{	// serial without valid protocol
-		if(blink<millis())
-		{
-			LED_TOGGLE;
+	Servo_AUX=0;
+	for(uint8_t i=0;i<8;i++)
+		if(Servo_data[AUX1+i]>PPM_SWITCH)
+			Servo_AUX|=1<<i;
+}
+
+// Update led status based on binding and serial
+static void update_led_status(void)
+{
+	if(blink<millis())
+	{
+		if(cur_protocol[0]==0)	// No valid serial received at least once
 			blink+=BLINK_SERIAL_TIME;					//blink slowly while waiting a valid serial input
-		}
-	}
-	else
-		if(remote_callback == 0)
-			LED_OFF;
 		else
-			if(IS_BIND_DONE_on)
-				LED_ON;										//bind completed -> led on
+			if(remote_callback == 0)
+			{ // Invalid protocol
+				if(IS_LED_on)							//flash to indicate invalid protocol
+					blink+=BLINK_BAD_PROTO_TIME_LOW;
+				else
+					blink+=BLINK_BAD_PROTO_TIME_HIGH;
+			}
 			else
-				if(blink<millis())
-				{
-					LED_TOGGLE;
-					blink+=BLINK_BIND_TIME;					//blink fastly during binding
-				}
+				if(IS_BIND_DONE_on)
+					LED_OFF;									//bind completed -> led on
+				else
+					blink+=BLINK_BIND_TIME;				//blink fastly during binding
+		LED_TOGGLE;
+	}
 }
 
 // Protocol scheduler
-void CheckTimer(uint16_t (*cb)(void))
+static void CheckTimer(uint16_t (*cb)(void))
 { 
 	uint16_t next_callback;
 	uint32_t prev;
@@ -373,13 +341,13 @@ void CheckTimer(uint16_t (*cb)(void))
 	}
 }
 
-void protocol_init(uint8_t protocol)
+static void protocol_init(uint8_t protocol)
 {
-	uint16_t next_callback=100;		// Default is immediate call back
+	uint16_t next_callback=0;		// Default is immediate call back
 	remote_callback = 0;
 
 	set_rx_tx_addr(MProtocol_id);
-	blink=millis()+BLINK_BIND_TIME;
+	blink=millis();
 	if(IS_BIND_BUTTON_FLAG_on)
 		AUTOBIND_FLAG_on;
 	if(IS_AUTOBIND_FLAG_on)
@@ -387,8 +355,8 @@ void protocol_init(uint8_t protocol)
 	else
 		BIND_DONE;
 
-	CTRL1_on;	//antenna RF3 by default
-	CTRL2_off;	//antenna RF3 by default
+	CTRL1_on;	//NRF24L01 antenna RF3 by default
+	CTRL2_off;	//NRF24L01 antenna RF3 by default
 	
 	switch(protocol)	// Init the requested protocol
 	{
@@ -492,6 +460,12 @@ void protocol_init(uint8_t protocol)
 			remote_callback = BAYANG_callback;
 			break;
 #endif
+#if defined(ESKY_NRF24L01_INO)
+		case MODE_ESKY:
+			next_callback=initESKY();
+			remote_callback = ESKY_callback;
+			break;
+#endif
 	}
 
 	if(next_callback>32000)
@@ -506,7 +480,7 @@ void protocol_init(uint8_t protocol)
 	BIND_BUTTON_FLAG_off;			// do not bind/reset id anymore even if protocol change
 }
 
-void update_serial_data()
+static void update_serial_data()
 {
 	if(rx_ok_buff[0]&0x20)						//check range
 		RANGE_FLAG_on;
@@ -567,7 +541,7 @@ void update_serial_data()
 	RX_FLAG_off;								//data has been processed
 }
 
-void module_reset()
+static void module_reset()
 {
 	remote_callback = 0;
 	switch(prev_protocol)
@@ -580,18 +554,14 @@ void module_reset()
 		case MODE_FRSKYX:
 			CC2500_Reset();
 			break;
-		case MODE_HISKY:
-		case MODE_V2X2:
-		case MODE_YD717:
-		case MODE_KN:
-		case MODE_SYMAX:
-		case MODE_SLT:
-		case MODE_CX10:
-			NRF24L01_Reset();
 			break;
 		case MODE_DSM2:
 		case MODE_DEVO:
 			CYRF_Reset();
+			break;
+		default:
+		// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY
+			NRF24L01_Reset();
 			break;
 	}
 }
@@ -648,7 +618,7 @@ uint16_t limit_channel_100(uint8_t ch)
 }
 
 // Convert 32b id to rx_tx_addr
-void set_rx_tx_addr(uint32_t id)
+static void set_rx_tx_addr(uint32_t id)
 { // Used by almost all protocols
 	rx_tx_addr[0] = (id >> 24) & 0xFF;
 	rx_tx_addr[1] = (id >> 16) & 0xFF;
@@ -669,7 +639,7 @@ void Serial_write(uint8_t data)
 }
 #endif
 
-void Mprotocol_serial_init()
+static void Mprotocol_serial_init()
 {
 #if defined(NUM_SERIAL_CH_8) //8 channels serial protocol
 	#define BAUD 125000
@@ -742,9 +712,10 @@ ISR(INT1_vect)
 		else
 			if(chan!=-1)		// need to wait for start of frame
 			{  //servo values between 500us and 2420us will end up here
-				PPM_data[chan] = Cur_TCNT1/2;
-				if(PPM_data[chan]<PPM_MIN) PPM_data[chan]=PPM_MIN;
-				else if(PPM_data[chan]>PPM_MAX) PPM_data[chan]=PPM_MAX;
+				uint16_t a = Cur_TCNT1>>2;
+				if(a<PPM_MIN) a=PPM_MIN;
+				else if(a>PPM_MAX) a=PPM_MAX;
+				PPM_data[chan]=a;
 				if(chan++>=NUM_CHN)
 					chan=-1;	// don't accept any new channels
 			}

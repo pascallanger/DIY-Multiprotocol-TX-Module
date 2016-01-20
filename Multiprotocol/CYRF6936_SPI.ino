@@ -14,7 +14,7 @@
  */
 #include "iface_cyrf6936.h"
 
-void cyrf_spi_write(uint8_t command)
+static void cyrf_spi_write(uint8_t command)
 {
 	uint8_t n=8; 
 	SCK_off;//SCK start low
@@ -32,7 +32,7 @@ void cyrf_spi_write(uint8_t command)
 	SDI_on;
 } 
 
-uint8_t cyrf_spi_read()
+static uint8_t cyrf_spi_read()
 {
 	uint8_t result;
 	uint8_t i;
@@ -59,7 +59,7 @@ void CYRF_WriteRegister(uint8_t address, uint8_t data)
 	CYRF_CSN_on;
 }
 
-void CYRF_WriteRegisterMulti(uint8_t address, const uint8_t data[], uint8_t length)
+static void CYRF_WriteRegisterMulti(uint8_t address, const uint8_t data[], uint8_t length)
 {
 	uint8_t i;
 
@@ -70,7 +70,7 @@ void CYRF_WriteRegisterMulti(uint8_t address, const uint8_t data[], uint8_t leng
 	CYRF_CSN_on;
 }
 
-void CYRF_ReadRegisterMulti(uint8_t address, uint8_t data[], uint8_t length)
+static void CYRF_ReadRegisterMulti(uint8_t address, uint8_t data[], uint8_t length)
 {
 	uint8_t i;
 
@@ -149,11 +149,13 @@ void CYRF_ConfigRFChannel(uint8_t ch)
 	CYRF_WriteRegister(CYRF_00_CHANNEL,ch);
 }
 
-void CYRF_SetPower_Value(uint8_t power)
+/*
+static void CYRF_SetPower_Value(uint8_t power)
 {
 	uint8_t val = CYRF_ReadRegister(CYRF_03_TX_CFG) & 0xF8;
 	CYRF_WriteRegister(CYRF_03_TX_CFG, val | (power & 0x07));
 }
+*/
 
 void CYRF_SetPower(uint8_t val)
 {
@@ -203,22 +205,22 @@ void CYRF_WritePreamble(uint32_t preamble)
 /*
 *
 */
-void CYRF_StartReceive()
+static void CYRF_StartReceive()
 {
 	CYRF_WriteRegister(CYRF_05_RX_CTRL,0x87);
 }
 
-void CYRF_ReadDataPacket(uint8_t dpbuffer[])
+/*static void CYRF_ReadDataPacket(uint8_t dpbuffer[])
 {
 	CYRF_ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, 0x10);
 }
-
-void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
+*/
+/*static void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
 {
     ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, length);
 }
-
-void CYRF_WriteDataPacketLen(const uint8_t dpbuffer[], uint8_t len)
+*/
+static void CYRF_WriteDataPacketLen(const uint8_t dpbuffer[], uint8_t len)
 {
 	CYRF_WriteRegister(CYRF_01_TX_LENGTH, len);
 	CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
@@ -231,7 +233,7 @@ void CYRF_WriteDataPacket(const uint8_t dpbuffer[])
 	CYRF_WriteDataPacketLen(dpbuffer, 16);
 }
 
-uint8_t CYRF_ReadRSSI(uint8_t dodummyread)
+/*static uint8_t CYRF_ReadRSSI(uint8_t dodummyread)
 {
 	uint8_t result;
 	if(dodummyread)
@@ -241,7 +243,7 @@ uint8_t CYRF_ReadRSSI(uint8_t dodummyread)
 		result = CYRF_ReadRegister(CYRF_13_RSSI);
 	return (result & 0x0F);
 }
-
+*/
 //NOTE: This routine will reset the CRC Seed
 void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uint8_t min, uint8_t max)
 {

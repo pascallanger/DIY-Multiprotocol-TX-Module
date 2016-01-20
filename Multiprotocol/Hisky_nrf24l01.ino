@@ -12,6 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+// Last sync with hexfet new_protocols/hisky_nrf24l01.c dated 2015-03-27
 
 #if defined(HISKY_NRF24L01_INO)
 
@@ -26,7 +27,7 @@ uint8_t bind_buf_arry[4][10];
 // HiSky protocol uses TX id as an address for nRF24L01, and uses frequency hopping sequence
 // which does not depend on this id and is passed explicitly in binding sequence. So we are free
 // to generate this sequence as we wish. It should be in the range [02..77]
-void calc_fh_channels(uint32_t seed)
+static void calc_fh_channels(uint32_t seed)
 {
 	uint8_t idx = 0;
 	uint32_t rnd = seed;
@@ -60,7 +61,7 @@ void calc_fh_channels(uint32_t seed)
 	}
 }
 
-void build_binding_packet(void)
+static void build_binding_packet(void)
 {
 	uint8_t i;
 	uint16_t sum=0;
@@ -94,7 +95,7 @@ void build_binding_packet(void)
 	}
 }
 
-void hisky_init()
+static void hisky_init()
 {
 	NRF24L01_Initialize();
 
@@ -115,11 +116,11 @@ void hisky_init()
 
 // HiSky channel sequence: AILE  ELEV  THRO  RUDD  GEAR  PITCH, channel data value is from 0 to 1000
 // Channel 7 - Gyro mode, 0 - 6 axis, 3 - 3 axis 
-void build_ch_data()
+static void build_ch_data()
 {
 	uint16_t temp;
 	uint8_t i,j;
-	uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
+	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
 	for (i = 0; i< 8; i++) {
 		j=ch[i];
 		temp=map(limit_channel_100(j),PPM_MIN_100,PPM_MAX_100,0,1000);            			
@@ -213,7 +214,7 @@ uint16_t hisky_cb()
 }
 
 // Generate internal id from TX id and manufacturer id (STM32 unique id)
-void initialize_tx_id()
+static void initialize_tx_id()
 {
 	//Generate frequency hopping table	
 	if(sub_protocol==HK310)

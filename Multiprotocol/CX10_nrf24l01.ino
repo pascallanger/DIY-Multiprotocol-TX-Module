@@ -13,6 +13,7 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 // compatible with Cheerson CX-10 blue & newer red pcb, CX-10A, CX11, CX-10 green pcb, DM007, Floureon FX-10, CX-Stars
+// Last sync with hexfet new_protocols/cx10_nrf24l01.c dated 2015-11-26
 
 #if defined(CX10_NRF24L01_INO)
 
@@ -21,6 +22,7 @@
 #define CX10_BIND_COUNT 4360   // 6 seconds
 #define CX10_PACKET_SIZE 15
 #define CX10A_PACKET_SIZE 19       // CX10 blue board packets have 19-byte payload
+#define Q282_PACKET_SIZE 21
 #define CX10_PACKET_PERIOD   1316  // Timeout for callback in uSec
 #define CX10A_PACKET_PERIOD  6000
 
@@ -39,13 +41,12 @@
 #define NUM_RF_CHANNELS    4
 
 enum {
-    CX10_INIT1 = 0,
-    CX10_BIND1,
+    CX10_BIND1 = 0,
     CX10_BIND2,
     CX10_DATA
 };
 
-void CX10_Write_Packet(uint8_t bind)
+static void CX10_Write_Packet(uint8_t bind)
 {
 	uint8_t offset = 0;
 	if(sub_protocol == CX10_BLUE)
@@ -66,32 +67,74 @@ void CX10_Write_Packet(uint8_t bind)
 	packet[12+offset]= highByte(Servo_data[RUDDER]);
 	
     // Channel 5 - flip flag
-	if(Servo_data[AUX1] > PPM_SWITCH)
+	if(Servo_AUX1)
 		packet[12+offset] |= CX10_FLAG_FLIP; // flip flag
 
-    // Channel 6 - mode
-	if(Servo_data[AUX2] > PPM_MAX_COMMAND)		// mode 3 / headless on CX-10A
-		packet[13+offset] = 0x02;
+	//flags=0;	// packet 13
+	uint8_t flags2=0;	// packet 14
+
+	// Channel 6 - rate mode is 2 lsb of packet 13
+	if(Servo_data[AUX2] > PPM_MAX_COMMAND)		// rate 3 / headless on CX-10A
+		flags = 0x02;
 	else
 		if(Servo_data[AUX2] < PPM_MIN_COMMAND)
-			packet[13+offset] = 0x00;			// mode 1
+			flags = 0x00;			// rate 1
 		else
-			packet[13+offset] = 0x01;			// mode 2
+			flags = 0x01;			// rate 2
 
-	flags=0;
-	if(sub_protocol == DM007)
+	uint8_t video_state=packet[14] & 0x21;
+	switch(sub_protocol)
 	{
-		// Channel 7 - snapshot
-		if(Servo_data[AUX3] > PPM_SWITCH)
-			flags |= CX10_FLAG_SNAPSHOT;
-		// Channel 8 - video
-		if(Servo_data[AUX4] > PPM_SWITCH)
-			flags |= CX10_FLAG_VIDEO;
-		// Channel 9 - headless
-		if(Servo_data[AUX5] > PPM_SWITCH)
-			packet[13+offset] |= CX10_FLAG_HEADLESS;
+		case CX10_BLUE:
+			if(Servo_AUX3)	flags |= 0x10;	// Channel 7 - picture
+			if(Servo_AUX4)	flags |= 0x08;	// Channel 8 - video
+			break;
+		case Q282:
+			//FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
+			if(Servo_AUX1)	flags2 =0x80;	// Channel 5 - FLIP
+			if(Servo_AUX2)	flags2|=0x40;	// Channel 6 - LED
+			if(Servo_AUX3)  flags2|=0x10;	// Channel 7 - picture
+			if(Servo_AUX4)			// Channel 8 - video
+			{
+				if (!(video_state & 0x20)) video_state ^= 0x21;
+			}
+			else
+				if (video_state & 0x20) video_state &= 0x01;
+			flags2 |= video_state;
+
+			if(Servo_AUX5)	flags2|=0x08;	// Channel 9 - HEADLESS
+			flags=3;
+			if(Servo_AUX6)	flags |=0x80;	// Channel 10 - RTH
+			if(Servo_AUX7)	flags2|=0x04;	// Channel 11 - XCAL
+			if(Servo_AUX8)	flags2|=0x02;	// Channel 12 - YCAL
+			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
+			break;
+		case DM007:
+			//FLIP|MODE|PICTURE|VIDEO|HEADLESS
+			if(Servo_AUX3)	flags2 = CX10_FLAG_SNAPSHOT;	// Channel 7 - picture
+			if(Servo_AUX4)	flags2|= CX10_FLAG_VIDEO;		// Channel 8 - video
+			if(Servo_AUX5)	flags |= CX10_FLAG_HEADLESS;	// Channel 9 - headless
+			break;
+		case JC3015_1:
+			//FLIP|MODE|PICTURE|VIDEO
+			if(Servo_AUX3)	flags2 = _BV(3);	// Channel 7 - picture
+			if(Servo_AUX4)	flags2|= _BV(4);	// Channel 8 - video
+			break;
+		case JC3015_2:
+			//FLIP|MODE|LED|DFLIP
+			if(Servo_AUX3)	flags2 = _BV(3);	// Channel 7 - LED
+			if(Servo_AUX4)	flags2|= _BV(4);	// Channel 8 - DFLIP
+			break;
+		case MK33041:
+			//FLIP|MODE|PICTURE|VIDEO|HEADLESS|RTH
+			if(Servo_AUX3)	flags |= _BV(7);	// Channel 7 - picture
+			if(Servo_AUX4)	flags2 = _BV(0);	// Channel 8 - video
+			if(Servo_AUX5)	flags2|= _BV(5);	// Channel 9 - headless
+			if(Servo_AUX6)	flags |= _BV(2);	// Channel 10 - rth
+			break;
 	}
-	packet[14+offset] = flags;
+	packet[13+offset]=flags;
+	packet[14+offset]=flags2;
 
 	// Power on, TX mode, 2byte CRC
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
@@ -111,7 +154,7 @@ void CX10_Write_Packet(uint8_t bind)
 	NRF24L01_SetPower();
 }
 
-void CX10_init()
+static void CX10_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -130,9 +173,6 @@ void CX10_init()
 
 uint16_t CX10_callback() {
 	switch (phase) {
-		case CX10_INIT1:
-			phase = bind_phase;
-			break;
 		case CX10_BIND1:
 			if (bind_counter == 0)
 			{
@@ -174,41 +214,51 @@ uint16_t CX10_callback() {
 	return packet_period;
 }
 
-void initialize_txid()
+static void initialize_txid()
 {
 	rx_tx_addr[1]%= 0x30;
-    hopping_frequency[0] = 0x03 + (rx_tx_addr[0] & 0x0F);
-    hopping_frequency[1] = 0x16 + (rx_tx_addr[0] >> 4);
-    hopping_frequency[2] = 0x2D + (rx_tx_addr[1] & 0x0F);
-    hopping_frequency[3] = 0x40 + (rx_tx_addr[1] >> 4);
+	if(sub_protocol==Q282)
+	{
+		hopping_frequency[0] = 0x46;
+		hopping_frequency[1] = 0x48;
+		hopping_frequency[2] = 0x4a;
+		hopping_frequency[3] = 0x4c;
+	}
+	else
+	{
+		hopping_frequency[0] = 0x03 + (rx_tx_addr[0] & 0x0F);
+		hopping_frequency[1] = 0x16 + (rx_tx_addr[0] >> 4);
+		hopping_frequency[2] = 0x2D + (rx_tx_addr[1] & 0x0F);
+		hopping_frequency[3] = 0x40 + (rx_tx_addr[1] >> 4);
+	}
 }
 
 uint16_t initCX10(void)
 {
-	switch(sub_protocol)
+	if(sub_protocol==CX10_BLUE)
 	{
-		case CX10_GREEN:
-        case DM007:
-            packet_length = CX10_PACKET_SIZE;
-            packet_period = CX10_PACKET_PERIOD;
-            bind_phase = CX10_BIND1;
-            bind_counter = CX10_BIND_COUNT;
-			break;
-		case CX10_BLUE:
-            packet_length = CX10A_PACKET_SIZE;
-            packet_period = CX10A_PACKET_PERIOD;
-            bind_phase = CX10_BIND2;
-            bind_counter=0;
-			for(uint8_t i=0; i<4; i++)
-				packet[5+i] = 0xff; // clear aircraft id
-            packet[9] = 0;
-			break;
+		packet_length = CX10A_PACKET_SIZE;
+		packet_period = CX10A_PACKET_PERIOD;
+		phase = CX10_BIND2;
+		bind_counter=0;
+		for(uint8_t i=0; i<4; i++)
+			packet[5+i] = 0xff; // clear aircraft id
+		packet[9] = 0;
+	}
+	else
+	{
+		if(sub_protocol==Q282)
+			packet_length = Q282_PACKET_SIZE;
+		else
+		    packet_length = CX10_PACKET_SIZE;
+		packet_period = CX10_PACKET_PERIOD;
+		phase = CX10_BIND1;
+		bind_counter = CX10_BIND_COUNT;
 	}
 	initialize_txid();
 	CX10_init();
-	phase = CX10_INIT1;
 	BIND_IN_PROGRESS;	// autobind protocol
-	return INITIAL_WAIT;
+	return INITIAL_WAIT+packet_period;
 }
 
 #endif

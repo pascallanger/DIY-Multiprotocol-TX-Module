@@ -12,8 +12,10 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+// compatible with EAchine 3D X4, CG023/CG031, Attop YD-822/YD-829/YD-829C and H8_3D/JJRC H20/H22
 // Merged CG023 and H8_3D protocols
-// compatible with EAchine 3D X4, CG023/CG031, Attop YD-822/YD-829/YD-829C and H8_3D/JJRC H20
+// Last sync with hexfet new_protocols/cg023_nrf24l01.c dated 2015-10-03
+// Last sync with hexfet new_protocols/h8_3d_nrf24l01.c dated 2015-11-18
 
 #if defined(CG023_NRF24L01_INO)
 
@@ -58,8 +60,9 @@ enum H8_3D_FLAGS {
     H8_3D_FLAG_FLIP      = 0x01,
     H8_3D_FLAG_RATE_MID  = 0x02,
     H8_3D_FLAG_RATE_HIGH = 0x04,
-    H8_3D_FLAG_HEADLESS  = 0x10, // RTH + headless on H8, headless on JJRC H20
-    H8_3D_FLAG_RTH		 = 0x40, // 360 flip mode on H8 3D, RTH on JJRC H20
+    H8_3D_FLAG_LIGTH	 = 0x08, // Light on H22
+    H8_3D_FLAG_HEADLESS  = 0x10, // RTH + headless on H8, headless on JJRC H20, RTH on H22
+    H8_3D_FLAG_RTH		 = 0x20, // 360 flip mode on H8 3D and H22, RTH on JJRC H20
 };
 
 enum H8_3D_FLAGS_2 {
@@ -67,12 +70,7 @@ enum H8_3D_FLAGS_2 {
     H8_3D_FLAG_CALIBRATE = 0x20,  // accelerometer calibration
 };
 
-enum CG023_PHASES {
-    CG023_BIND = 0,
-    CG023_DATA
-};
-
-void CG023_send_packet(uint8_t bind)
+static void CG023_send_packet(uint8_t bind)
 {
 	// throttle : 0x00 - 0xFF
 	throttle=convert_channel_8b(THROTTLE);
@@ -92,7 +90,7 @@ void CG023_send_packet(uint8_t bind)
 		packet[0] = 0x13;
 		packet[3] = rx_tx_addr[2];
 		packet[4] = rx_tx_addr[3];
-		packet[8] = (rx_tx_addr[0]+rx_tx_addr[1]+rx_tx_addr[2]+rx_tx_addr[3]) & 0xff; // txid checksum
+		packet[8] = rx_tx_addr[0]+rx_tx_addr[1]+rx_tx_addr[2]+rx_tx_addr[3]; // txid checksum
 		memset(&packet[9], 0, 10);
 		if (bind)
 		{    
@@ -115,15 +113,15 @@ void CG023_send_packet(uint8_t bind)
 			packet[15] = 0x20;
 			packet[16] = 0x20;
 			packet[17] = H8_3D_FLAG_RATE_HIGH;
-			if(Servo_data[AUX1] > PPM_SWITCH)
+			if(Servo_AUX1)
 				packet[17] |= H8_3D_FLAG_FLIP;
-			if(Servo_data[AUX2] > PPM_SWITCH)
+			if(Servo_AUX2)
+				packet[17] |= H8_3D_FLAG_LIGTH; //H22 light
+			if(Servo_AUX3)
 				packet[17] |= H8_3D_FLAG_HEADLESS;
-			if(Servo_data[AUX3] > PPM_SWITCH)
+			if(Servo_AUX4)
 				packet[17] |= H8_3D_FLAG_RTH; // 180/360 flip mode on H8 3D
-		
-			// both sticks bottom left: calibrate acc
-			if(packet[9] <= 0x05 && packet[10] >= 0xa7 && packet[11] <= 0x57 && packet[12] >= 0xa7)
+			if(Servo_AUX5)
 				packet[18] = H8_3D_FLAG_CALIBRATE;
 		}
 	    uint8_t  sum = packet[9];
@@ -156,15 +154,15 @@ void CG023_send_packet(uint8_t bind)
 			// rate
 			packet[13] = CG023_FLAG_RATE_HIGH; 
 			// flags
-			if(Servo_data[AUX1] > PPM_SWITCH)
+			if(Servo_AUX1)
 				packet[13] |= CG023_FLAG_FLIP;
-			if(Servo_data[AUX2] > PPM_SWITCH)
+			if(Servo_AUX2)
 				packet[13] |= CG023_FLAG_LED_OFF;
-			if(Servo_data[AUX3] > PPM_SWITCH)
+			if(Servo_AUX3)
 				packet[13] |= CG023_FLAG_STILL;
-			if(Servo_data[AUX4] > PPM_SWITCH)
+			if(Servo_AUX4)
 				packet[13] |= CG023_FLAG_VIDEO;
-			if(Servo_data[AUX5] > PPM_SWITCH)
+			if(Servo_AUX5)
 				packet[13] |= CG023_FLAG_EASY;
 		}
 		else
@@ -172,13 +170,13 @@ void CG023_send_packet(uint8_t bind)
 			// rate
 			packet[13] = YD829_FLAG_RATE_HIGH; 
 			// flags
-			if(Servo_data[AUX1] > PPM_SWITCH)
+			if(Servo_AUX1)
 				packet[13] |= YD829_FLAG_FLIP;
-			if(Servo_data[AUX3] > PPM_SWITCH)
+			if(Servo_AUX3)
 				packet[13] |= YD829_FLAG_STILL;
-			if(Servo_data[AUX4] > PPM_SWITCH)
+			if(Servo_AUX4)
 				packet[13] |= YD829_FLAG_VIDEO;
-			if(Servo_data[AUX5] > PPM_SWITCH)
+			if(Servo_AUX5)
 				packet[13] |= YD829_FLAG_HEADLESS;
 		}
 		packet[14] = 0;
@@ -207,7 +205,7 @@ void CG023_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-void CG023_init()
+static void CG023_init()
 {
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
@@ -227,24 +225,19 @@ void CG023_init()
 
 uint16_t CG023_callback()
 {
-	switch (phase)
+	if(IS_BIND_DONE_on)
+		CG023_send_packet(0);
+	else
 	{
-		case CG023_BIND:
-			if (bind_counter == 0)
-			{
-				phase = CG023_DATA;
-				BIND_DONE;
-			}
-			else
-			{
-				CG023_send_packet(1);
-				bind_counter--;
-			}
-			break;
-		case CG023_DATA:
-			CG023_send_packet(0);
-			break;
+		if (bind_counter == 0)
+			BIND_DONE;
+		else
+		{
+			CG023_send_packet(1);
+			bind_counter--;
+		}
 	}
+
 	if(sub_protocol==CG023)
 		return CG023_PACKET_PERIOD;
 	else
@@ -253,7 +246,7 @@ uint16_t CG023_callback()
 	return	H8_3D_PACKET_PERIOD;
 }
 
-void CG023_initialize_txid()
+static void CG023_initialize_txid()
 {
 	if(sub_protocol==H8_3D)
 	{
@@ -262,10 +255,10 @@ void CG023_initialize_txid()
 		rx_tx_addr[2] = rx_tx_addr[2] % 0x20;
 		rx_tx_addr[3] = rx_tx_addr[3] % 0x11;
 
-		hopping_frequency[0] = 0x06 + (((rx_tx_addr[0]>>8) + (rx_tx_addr[0]&0x0f)) % 0x0f);
-		hopping_frequency[1] = 0x15 + (((rx_tx_addr[1]>>8) + (rx_tx_addr[1]&0x0f)) % 0x0f);
-		hopping_frequency[2] = 0x24 + (((rx_tx_addr[2]>>8) + (rx_tx_addr[2]&0x0f)) % 0x0f);
-		hopping_frequency[3] = 0x33 + (((rx_tx_addr[3]>>8) + (rx_tx_addr[3]&0x0f)) % 0x0f);
+		hopping_frequency[0] = 0x06 + (rx_tx_addr[0]&0x0f);
+		hopping_frequency[1] = 0x15 + (rx_tx_addr[1]&0x0f);
+		hopping_frequency[2] = 0x24 + (rx_tx_addr[2]&0x0f);
+		hopping_frequency[3] = 0x33 + (rx_tx_addr[3]&0x0f);
 	}
 	else
 	{ // CG023 and YD829
@@ -282,7 +275,6 @@ uint16_t initCG023(void)
     bind_counter = CG023_BIND_COUNT;
 	CG023_initialize_txid();
 	CG023_init();
-	phase=CG023_BIND;
 	if(sub_protocol==CG023)
 		return CG023_INITIAL_WAIT+CG023_PACKET_PERIOD;
 	else

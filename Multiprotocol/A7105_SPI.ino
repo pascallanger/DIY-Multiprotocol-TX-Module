@@ -140,19 +140,18 @@ void A7105_WriteID(uint32_t ida) {
 	CS_on;
 }
 
-void A7105_SetPower_Value(int power)
+/*
+static void A7105_SetPower_Value(int power)
 {
-	/*
-	Power amp is ~+16dBm so:
-	TXPOWER_100uW  = -23dBm == PAC=0 TBG=0
-	TXPOWER_300uW  = -20dBm == PAC=0 TBG=1
-	TXPOWER_1mW    = -16dBm == PAC=0 TBG=2
-	TXPOWER_3mW    = -11dBm == PAC=0 TBG=4
-	TXPOWER_10mW   = -6dBm  == PAC=1 TBG=5
-	TXPOWER_30mW   = 0dBm   == PAC=2 TBG=7
-	TXPOWER_100mW  = 1dBm   == PAC=3 TBG=7
-	TXPOWER_150mW  = 1dBm   == PAC=3 TBG=7
-	*/
+	//Power amp is ~+16dBm so:
+	//TXPOWER_100uW  = -23dBm == PAC=0 TBG=0
+	//TXPOWER_300uW  = -20dBm == PAC=0 TBG=1
+	//TXPOWER_1mW    = -16dBm == PAC=0 TBG=2
+	//TXPOWER_3mW    = -11dBm == PAC=0 TBG=4
+	//TXPOWER_10mW   = -6dBm  == PAC=1 TBG=5
+	//TXPOWER_30mW   = 0dBm   == PAC=2 TBG=7
+	//TXPOWER_100mW  = 1dBm   == PAC=3 TBG=7
+	//TXPOWER_150mW  = 1dBm   == PAC=3 TBG=7
 	uint8_t pac, tbg;
 	switch(power) {
 		case 0: pac = 0; tbg = 0; break;
@@ -167,6 +166,7 @@ void A7105_SetPower_Value(int power)
 	};
 	A7105_WriteReg(0x28, (pac << 3) | tbg);
 }
+*/
 
 void A7105_SetPower()
 {
@@ -196,6 +196,8 @@ const uint8_t PROGMEM FLYSKY_A7105_regs[] = {
 	0x13, 0xc3, 0x00, 0xff, 0x00, 0x00, 0x3b, 0x00, 0x17, 0x47, 0x80, 0x03, 0x01, 0x45, 0x18, 0x00,
 	0x01, 0x0f, 0xff
 };
+#define ID_NORMAL 0x55201041
+#define ID_PLUS   0xAA201041
 void A7105_Init(uint8_t protocol)
 {
 	void *A7105_Regs;
@@ -207,7 +209,7 @@ void A7105_Init(uint8_t protocol)
 	}
 	else
 	{
-		A7105_WriteID(0x55201041);
+		A7105_WriteID(ID_NORMAL);
 		A7105_Regs=(void *)HUBSAN_A7105_regs;
 	}
 	for (uint8_t i = 0; i < 0x33; i++){

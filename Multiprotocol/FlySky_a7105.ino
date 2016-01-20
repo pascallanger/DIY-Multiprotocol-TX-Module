@@ -12,6 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+// Last sync with hexfet new_protocols/flysky_a7105.c dated 2015-09-28
 
 #if defined(FLYSKY_A7105_INO)
 
@@ -72,44 +73,45 @@ uint8_t chanrow;
 uint8_t chancol;
 uint8_t chanoffset;
 
-void flysky_apply_extension_flags()
+static void flysky_apply_extension_flags()
 {
 	const uint8_t V912_X17_SEQ[10] =  { 0x14, 0x31, 0x40, 0x49, 0x49,    // sometime first byte is 0x15 ?
 										0x49, 0x49, 0x49, 0x49, 0x49, }; 
 	static uint8_t seq_counter;
-	switch(sub_protocol) {
+	switch(sub_protocol)
+	{
 		case V9X9:
-			if(Servo_data[AUX1] > PPM_SWITCH)
+			if(Servo_AUX1)
 				packet[12] |= FLAG_V9X9_UNK;
-			if(Servo_data[AUX2] > PPM_SWITCH)
+			if(Servo_AUX2)
 				packet[12] |= FLAG_V9X9_LED;
-			if(Servo_data[AUX3] > PPM_SWITCH)
+			if(Servo_AUX3)
 				packet[10] |= FLAG_V9X9_CAMERA;
-			if(Servo_data[AUX4] > PPM_SWITCH)
+			if(Servo_AUX4)
 				packet[10] |= FLAG_V9X9_VIDEO;
 			break;
 			
 		case V6X6:
 			packet[13] = 0x03; // 3 = 100% rate (0=40%, 1=60%, 2=80%)
 			packet[14] = 0x00;
-			if(Servo_data[AUX1] > PPM_SWITCH) 
+			if(Servo_AUX1) 
 				packet[14] |= FLAG_V6X6_FLIP;
-			if(Servo_data[AUX2] > PPM_SWITCH) 
+			if(Servo_AUX2) 
 				packet[14] |= FLAG_V6X6_LED;
-			if(Servo_data[AUX3] > PPM_SWITCH) 
+			if(Servo_AUX3) 
 				packet[14] |= FLAG_V6X6_CAMERA;
-			if(Servo_data[AUX4] > PPM_SWITCH) 
+			if(Servo_AUX4) 
 				packet[14] |= FLAG_V6X6_VIDEO;
-			if(Servo_data[AUX5] > PPM_SWITCH)
+			if(Servo_AUX5)
 			{ 
 				packet[13] |= FLAG_V6X6_HLESS1;
 				packet[14] |= FLAG_V6X6_HLESS2;
 			}
-			if(Servo_data[AUX6] > PPM_SWITCH) //use option to manipulate these bytes
+			if(Servo_AUX6) //use option to manipulate these bytes
 				packet[14] |= FLAG_V6X6_RTH;
-			if(Servo_data[AUX7] > PPM_SWITCH) 
+			if(Servo_AUX7) 
 				packet[14] |= FLAG_V6X6_XCAL;
-			if(Servo_data[AUX8] > PPM_SWITCH) 
+			if(Servo_AUX8) 
 				packet[14] |= FLAG_V6X6_YCAL;
 			packet[15] = 0x10; // unknown
 			packet[16] = 0x10; // unknown
@@ -126,9 +128,9 @@ void flysky_apply_extension_flags()
 			packet[12] |= 0x20; // bit 6 is always set ?
 			packet[13] = 0x00;  // unknown
 			packet[14] = 0x00;
-			if(Servo_data[AUX1] > PPM_SWITCH)
-				packet[14] |= FLAG_V912_BTMBTN;
-			if(Servo_data[AUX2] > PPM_SWITCH)
+			if(Servo_AUX1)
+				packet[14]  = FLAG_V912_BTMBTN;
+			if(Servo_AUX2)
 				packet[14] |= FLAG_V912_TOPBTN;
 			packet[15] = 0x27; // [15] and [16] apparently hold an analog channel with a value lower than 1000
 			packet[16] = 0x03; // maybe it's there for a pitch channel for a CP copter ?
@@ -146,7 +148,7 @@ void flysky_apply_extension_flags()
 	}
 }
 
-void flysky_build_packet(uint8_t init)
+static void flysky_build_packet(uint8_t init)
 {
     uint8_t i;
 	//servodata timing range for flysky.
@@ -159,7 +161,7 @@ void flysky_build_packet(uint8_t init)
     packet[2] = rx_tx_addr[2];
     packet[3] = rx_tx_addr[1];
     packet[4] = rx_tx_addr[0];
-	uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
+	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
 	for(i = 0; i < 8; i++)
 	{
 		packet[5+2*i]=lowByte(Servo_data[ch[i]]);	//low byte of servo timing(1000-2000us)

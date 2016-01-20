@@ -12,10 +12,11 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+// compatible with WLToys V2x2, JXD JD38x, JD39x, JJRC H6C, Yizhan Tarantula X6 ...
+// Last sync with hexfet new_protocols/v202_nrf24l01.c dated 2015-03-15
 
 #if defined(V2X2_NRF24L01_INO)
 
-// compatible with WLToys V2x2, JXD JD38x, JD39x, JJRC H6C, Yizhan Tarantula X6 ...
 
 #include "iface_nrf24l01.h"
 
@@ -73,9 +74,8 @@ static const uint8_t freq_hopping[][16] = {
 	{ 0x22, 0x27, 0x17, 0x39, 0x34, 0x28, 0x2B, 0x1D,
 		0x18, 0x2A, 0x21, 0x38, 0x10, 0x26, 0x20, 0x1F }  //  03
 };
-//static uint8_t hopping_frequency[16];
 
-void v202_init()
+static void v202_init()
 {
 	NRF24L01_Initialize();
 
@@ -103,14 +103,12 @@ void v202_init()
 	NRF24L01_WriteReg(NRF24L01_15_RX_PW_P4, V2X2_PAYLOADSIZE);
 	NRF24L01_WriteReg(NRF24L01_16_RX_PW_P5, V2X2_PAYLOADSIZE);
 	NRF24L01_WriteReg(NRF24L01_17_FIFO_STATUS, 0x00); // Just in case, no real bits to write here
-	uint8_t v2x2_rx_tx_addr[] = {0x66, 0x88, 0x68, 0x68, 0x68};
-	uint8_t rx_p1_addr[] = {0x88, 0x66, 0x86, 0x86, 0x86};
-	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, v2x2_rx_tx_addr, 5);
-	NRF24L01_WriteRegisterMulti(NRF24L01_0B_RX_ADDR_P1, rx_p1_addr, 5);
-	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, v2x2_rx_tx_addr, 5);
+	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t *)"\x66\x88\x68\x68\x68", 5);
+	NRF24L01_WriteRegisterMulti(NRF24L01_0B_RX_ADDR_P1, (uint8_t *)"\x88\x66\x86\x86\x86", 5);
+	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t *)"\x66\x88\x68\x68\x68", 5);
 }
 
-void V202_init2()
+static void V202_init2()
 {
 	NRF24L01_FlushTx();
 	packet_sent = 0;
@@ -121,7 +119,7 @@ void V202_init2()
 	//Done by TX_EN??? => NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
 }
 
-void set_tx_id(void)
+static void V2X2_set_tx_id(void)
 {
 	uint8_t sum;
 	sum = rx_tx_addr[1] + rx_tx_addr[2] + rx_tx_addr[3];
@@ -136,7 +134,7 @@ void set_tx_id(void)
 	}
 }
 
-void add_pkt_checksum()
+static void V2X2_add_pkt_checksum()
 {
 	uint8_t sum = 0;
 	for (uint8_t i = 0; i < 15;  ++i)
@@ -144,7 +142,7 @@ void add_pkt_checksum()
 	packet[15] = sum;
 }
 
-void send_packet(uint8_t bind)
+static void V2X2_send_packet(uint8_t bind)
 {
 	uint8_t flags2=0;
 	if (bind)
@@ -170,18 +168,15 @@ void send_packet(uint8_t bind)
 		packet[6] = 0x40; // roll
 
 		//Flags
+		flags=0;
 		// Channel 5
-		if (Servo_data[AUX1] > PPM_SWITCH)
-			flags |= V2X2_FLAG_FLIP;
+		if (Servo_AUX1)	flags = V2X2_FLAG_FLIP;
 		// Channel 6
-		if (Servo_data[AUX2] > PPM_SWITCH)
-			flags |= V2X2_FLAG_LIGHT;
+		if (Servo_AUX2)	flags |= V2X2_FLAG_LIGHT;
 		// Channel 7
-		if (Servo_data[AUX3] > PPM_SWITCH)
-			flags |= V2X2_FLAG_CAMERA;
+		if (Servo_AUX3)	flags |= V2X2_FLAG_CAMERA;
 		// Channel 8
-		if (Servo_data[AUX4] > PPM_SWITCH)
-			flags |= V2X2_FLAG_VIDEO;
+		if (Servo_AUX4)	flags |= V2X2_FLAG_VIDEO;
 
 		//Flags2
 		// Channel 9
@@ -205,7 +200,7 @@ void send_packet(uint8_t bind)
 	packet[13] = 0x00;
 	//
 	packet[14] = flags;
-	add_pkt_checksum();
+	V2X2_add_pkt_checksum();
 
 	packet_sent = 0;
 	uint8_t rf_ch = hopping_frequency[hopping_frequency_no >> 1];
@@ -213,7 +208,6 @@ void send_packet(uint8_t bind)
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch);
 	NRF24L01_FlushTx();
 	NRF24L01_WritePayload(packet, V2X2_PAYLOADSIZE);
-	++packet_counter;
 	packet_sent = 1;
 
 	if (! hopping_frequency_no)
@@ -237,7 +231,7 @@ uint16_t ReadV2x2()
 			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED) {
 				return PACKET_CHKTIME;
 			}
-			send_packet(1);
+			V2X2_send_packet(1);
 			if (--counter == 0) {
 				phase = V202_DATA;
 				BIND_DONE;
@@ -247,7 +241,7 @@ uint16_t ReadV2x2()
 			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED) {
 				return PACKET_CHKTIME;
 			}
-			send_packet(0);
+			V2X2_send_packet(0);
 			break;
 	}
 	// Packet every 4ms
@@ -256,8 +250,6 @@ uint16_t ReadV2x2()
 
 uint16_t initV2x2()
 {	
-	flags=0;
-	packet_counter = 0;
 	v202_init();
 	//
 	if (IS_AUTOBIND_FLAG_on)
@@ -267,7 +259,7 @@ uint16_t initV2x2()
 	}
 	else
 		phase = V202_INIT2_NO_BIND;
-	set_tx_id();
+	V2X2_set_tx_id();
 	return 50000;
 }
 

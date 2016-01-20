@@ -111,7 +111,7 @@ uint16_t ReadFrSky_2way()
 }
 
 #if defined(TELEMETRY)
-void check_telemetry(uint8_t *pkt,uint8_t len)
+static void check_telemetry(uint8_t *pkt,uint8_t len)
 {
 	if(pkt[1] != rx_tx_addr[3] || pkt[2] != rx_tx_addr[2] || len != pkt[0] + 3)
 	{//only packets with the required id and packet length
@@ -128,17 +128,16 @@ void check_telemetry(uint8_t *pkt,uint8_t len)
 }
 
 void compute_RSSIdbm(){ 
-if(pktt[len-2] >=128){
-RSSI_dBm =(((uint16_t)(pktt[len-2])*18)>>5)- 82;
-}
-else{
-	RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>5)+65;
-	}
+	RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>5);
+	if(pktt[len-2] >=128)
+		RSSI_dBm -= 82;
+	else
+		RSSI_dBm += 65;
 }
 
 #endif
 
-void frsky2way_init(uint8_t bind)
+static void frsky2way_init(uint8_t bind)
 {
 	// Configure cc2500 for tx mode
 	CC2500_Reset();
@@ -197,7 +196,7 @@ void frsky2way_init(uint8_t bind)
 	//#######END INIT########		
 }
 	
-uint8_t get_chan_num(uint16_t idx)
+static uint8_t get_chan_num(uint16_t idx)
 {
 	uint8_t ret = (idx * 0x1e) % 0xeb;
 	if(idx == 3 || idx == 23 || idx == 47)
@@ -207,7 +206,7 @@ uint8_t get_chan_num(uint16_t idx)
 	return ret;
 }
 
-void frsky2way_build_bind_packet()
+static void frsky2way_build_bind_packet()
 {
 	//11 03 01 d7 2d 00 00 1e 3c 5b 78 00 00 00 00 00 00 01
 	//11 03 01 19 3e 00 02 8e 2f bb 5c 00 00 00 00 00 00 01
@@ -234,7 +233,7 @@ void frsky2way_build_bind_packet()
 
 uint8_t telemetry_counter=0;
 
-void frsky2way_data_frame()
+static void frsky2way_data_frame()
 {//pachet[4] is telemetry user frame counter(hub)
 	//11 d7 2d 22 00 01 c9 c9 ca ca 88 88 ca ca c9 ca 88 88
 	//11 57 12 00 00 01 f2 f2 f2 f2 06 06 ca ca ca ca 18 18

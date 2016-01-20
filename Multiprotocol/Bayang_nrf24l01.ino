@@ -4,7 +4,7 @@
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- Multiprotocol is distributed in the hope that it will be useful,
+Multiprotocol is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
@@ -12,7 +12,8 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// compatible with EAchine H8 mini, H10, BayangToys X6/X7/X9, JJRC JJ850 ...
+// Compatible with EAchine H8 mini, H10, BayangToys X6/X7/X9, JJRC JJ850 ...
+// Last sync with hexfet new_protocols/bayang_nrf24l01.c dated 2015-12-22
 
 #if defined(BAYANG_NRF24L01_INO)
 
@@ -30,15 +31,14 @@ enum BAYANG_FLAGS {
     // flags going to packet[2]
     BAYANG_FLAG_RTH			= 0x01,
     BAYANG_FLAG_HEADLESS	= 0x02, 
-    BAYANG_FLAG_FLIP		= 0x08 
+    BAYANG_FLAG_FLIP		= 0x08,
+    BAYANG_FLAG_VIDEO		= 0x10, 
+    BAYANG_FLAG_PICTURE		= 0x20, 
+    // flags going to packet[3]
+    BAYANG_FLAG_INVERTED	= 0x80 // inverted flight on Floureon H101
 };
 
-enum BAYANG_PHASES {
-    BAYANG_BIND = 0,
-    BAYANG_DATA
-};
-
-void BAYANG_send_packet(uint8_t bind)
+static void BAYANG_send_packet(uint8_t bind)
 {
 	uint8_t i;
 	if (bind)
@@ -48,8 +48,8 @@ void BAYANG_send_packet(uint8_t bind)
 			packet[i+1]=rx_tx_addr[i];
 		for(i=0;i<4;i++)
 			packet[i+6]=hopping_frequency[i];
-		packet[10] = rx_tx_addr[0];
-		packet[11] = rx_tx_addr[1];
+		packet[10] = rx_tx_addr[0];	// txid[0]
+		packet[11] = rx_tx_addr[1];	// txid[1]
 	}
 	else
 	{
@@ -57,16 +57,22 @@ void BAYANG_send_packet(uint8_t bind)
 		packet[0] = 0xA5;
 		packet[1] = 0xFA;		// normal mode is 0xf7, expert 0xfa
 
-		//Flags
-		packet[2] =0x00;
-		if(Servo_data[AUX1] > PPM_SWITCH)
-			packet[2] |= BAYANG_FLAG_FLIP;
-		if(Servo_data[AUX2] > PPM_SWITCH)
-			packet[2] |= BAYANG_FLAG_HEADLESS;
-		if(Servo_data[AUX3] > PPM_SWITCH)
+		//Flags packet[2]
+		packet[2] = 0x00;
+		if(Servo_AUX1)
+			packet[2] = BAYANG_FLAG_FLIP;
+		if(Servo_AUX2)
 			packet[2] |= BAYANG_FLAG_RTH;
-		
+		if(Servo_AUX3)
+			packet[2] |= BAYANG_FLAG_PICTURE;
+		if(Servo_AUX4)
+			packet[2] |= BAYANG_FLAG_VIDEO;
+		if(Servo_AUX5)
+			packet[2] |= BAYANG_FLAG_HEADLESS;
+		//Flags packet[3]
 		packet[3] = 0x00;
+		if(Servo_AUX6)
+			packet[3] = BAYANG_FLAG_INVERTED;
 
 		//Aileron
 		val = convert_channel_10b(AILERON);
@@ -85,7 +91,7 @@ void BAYANG_send_packet(uint8_t bind)
 		packet[10] = (val>>8) + (val>>2 & 0xFC);
 		packet[11] = val & 0xFF;
 	}
-	packet[12] = rx_tx_addr[2];
+	packet[12] = rx_tx_addr[2];	// txid[2]
 	packet[13] = 0x0A;
 	packet[14] = 0;
     for (uint8_t i=0; i < BAYANG_PACKET_SIZE-1; i++)
@@ -95,10 +101,7 @@ void BAYANG_send_packet(uint8_t bind)
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
 	XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
 
-	if (bind)
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, BAYANG_RF_BIND_CHANNEL);
-	else
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? BAYANG_RF_BIND_CHANNEL:hopping_frequency[hopping_frequency_no++]);
 	hopping_frequency_no%=BAYANG_RF_NUM_CHANNELS;
 	
 	// clear packet status bits and TX FIFO
@@ -109,7 +112,7 @@ void BAYANG_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-void BAYANG_init()
+static void BAYANG_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -118,49 +121,40 @@ void BAYANG_init()
 
 	NRF24L01_FlushTx();
 	NRF24L01_FlushRx();
+    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00); // no retransmits
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
-	NRF24L01_SetPower();
-
-    NRF24L01_Activate(0x73);                         // Activate feature register
-    NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);      // Disable dynamic payload length on all pipes
-    NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
-    NRF24L01_Activate(0x73);
+    NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
+    NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
+    NRF24L01_SetPower();
 }
 
 uint16_t BAYANG_callback()
 {
-	switch (phase)
+	if(IS_BIND_DONE_on)
+		BAYANG_send_packet(0);
+	else
 	{
-		case BAYANG_BIND:
-			if (bind_counter == 0)
-			{
-				XN297_SetTXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
-				phase = BAYANG_DATA;
-				BIND_DONE;
-			}
-			else
-			{
-				BAYANG_send_packet(1);
-				bind_counter--;
-			}
-			break;
-		case BAYANG_DATA:
-			BAYANG_send_packet(0);
-			break;
+		if (bind_counter == 0)
+		{
+			XN297_SetTXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
+			BIND_DONE;
+		}
+		else
+		{
+			BAYANG_send_packet(1);
+			bind_counter--;
+		}
 	}
 	return BAYANG_PACKET_PERIOD;
 }
 
-void BAYANG_initialize_txid()
+static void BAYANG_initialize_txid()
 {
-	// Strange txid, rx_tx_addr and rf_channels could be anything so I will use on rx_tx_addr for all of them...
-	// Strange also that there is no check of duplicated rf channels... I think we need to implement that later...
-	for(uint8_t i=0; i<BAYANG_RF_NUM_CHANNELS; i++)
-		hopping_frequency[i]=rx_tx_addr[i]%42;
+	//Could be using txid[0..2] but using rx_tx_addr everywhere instead...
+	hopping_frequency[0]=0;
+	hopping_frequency[1]=(rx_tx_addr[0]&0x1F)+0x10;
+	hopping_frequency[2]=hopping_frequency[1]+0x20;
+	hopping_frequency[3]=hopping_frequency[2]+0x20;
 	hopping_frequency_no=0;
 }
 
@@ -169,7 +163,6 @@ uint16_t initBAYANG(void)
 	BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = BAYANG_BIND_COUNT;
 	BAYANG_initialize_txid();
-	phase=BAYANG_BIND;
 	BAYANG_init();
 	return BAYANG_INITIAL_WAIT+BAYANG_PACKET_PERIOD;
 }

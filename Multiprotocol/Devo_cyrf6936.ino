@@ -66,7 +66,7 @@ uint8_t ch_idx;
 uint8_t use_fixed_id;
 uint8_t failsafe_pkt;
 
-void scramble_pkt()
+static void scramble_pkt()
 {
 #ifdef NO_SCRAMBLE
 	return;
@@ -77,7 +77,7 @@ void scramble_pkt()
 #endif
 }
 
-void add_pkt_suffix()
+static void add_pkt_suffix()
 {
 	uint8_t bind_state;
 	if (use_fixed_id)
@@ -97,7 +97,7 @@ void add_pkt_suffix()
 	packet[15] = (fixed_id >> 16) & 0xff;
 }
 
-void build_beacon_pkt(uint8_t upper)
+static void build_beacon_pkt(uint8_t upper)
 {
 	packet[0] = ((DEVO_NUM_CHANNELS << 4) | 0x07);
 //	uint8_t enable = 0;
@@ -116,7 +116,7 @@ void build_beacon_pkt(uint8_t upper)
 	add_pkt_suffix();
 }
 
-void build_bind_pkt()
+static void build_bind_pkt()
 {
 	packet[0] = (DEVO_NUM_CHANNELS << 4) | 0x0a;
 	packet[1] = bind_counter & 0xff;
@@ -136,7 +136,7 @@ void build_bind_pkt()
 	packet[15] ^= cyrfmfg_id[2];
 }
 
-void build_data_pkt()
+static void build_data_pkt()
 {
 	uint8_t i;
 	packet[0] = (DEVO_NUM_CHANNELS << 4) | (0x0b + ch_idx);
@@ -161,7 +161,7 @@ void build_data_pkt()
 	add_pkt_suffix();
 }
 
-void cyrf_set_bound_sop_code()
+static void cyrf_set_bound_sop_code()
 {
 	/* crc == 0 isn't allowed, so use 1 if the math results in 0 */
 	uint8_t crc = (cyrfmfg_id[0] + (cyrfmfg_id[1] >> 6) + cyrfmfg_id[2]);
@@ -174,7 +174,7 @@ void cyrf_set_bound_sop_code()
 	CYRF_SetPower(0x08);
 }
 
-void cyrf_init()
+static void cyrf_init()
 {
 	/* Initialise CYRF chip */
 	CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x39);
@@ -201,7 +201,7 @@ void cyrf_init()
 	CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x28);
 }
 
-void set_radio_channels()
+static void set_radio_channels()
 {
 	//int i;
 	CYRF_FindBestChannels(hopping_frequency, 3, 4, 4, 80);
@@ -217,7 +217,7 @@ void set_radio_channels()
 	hopping_frequency[4] = hopping_frequency[1];
 }
 
-void DEVO_BuildPacket()
+static void DEVO_BuildPacket()
 {
 	switch(phase)
 	{
@@ -302,7 +302,7 @@ uint16_t devo_callback()
 	return 1200;
 }
 
-void devo_bind()
+/*static void devo_bind()
 {
 	fixed_id = Model_fixed_id;
 	bind_counter = DEVO_BIND_COUNT;
@@ -310,8 +310,8 @@ void devo_bind()
 	//PROTOCOL_SetBindState(0x1388 * 2400 / 1000); //msecs 12000ms
 }
 
-/*
-void generate_fixed_id_bind(){
+
+static void generate_fixed_id_bind(){
 if(BIND_0){
 //randomSeed((uint32_t)analogRead(A6)<<10|analogRead(A7));//seed
 uint8_t txid[4];

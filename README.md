@@ -331,7 +331,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 |||T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
 
 ####HUBSAN
-Models: Hubsan and Hubsan +
+Models: Hubsan H102D, H107/L/C/D and Hubsan H107P/C+/D+
 
 Autobind protocol
 

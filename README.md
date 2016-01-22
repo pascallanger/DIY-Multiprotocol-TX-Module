@@ -432,8 +432,8 @@ Using stripboard:
 
 Using a [home made PCB](http://www.rcgroups.com/forums/showpost.php?p=32645328&postcount=1621):
 
-![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226719-72-thumb-IMG_20150715_230024065.jpg?d=1441816456)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226720-197-thumb-IMG_20150715_230603155.jpg?d=1441816457)
+![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226719-72-thumb-IMG_20150715_230024065.jpg?d=1441816456)
 
 or build your own board using [SMD components](http://www.rcgroups.com/forums/showpost.php?p=31064232&postcount=1020) and an [associated PCB](https://oshpark.com/shared_projects/MaGYDg0y):
 

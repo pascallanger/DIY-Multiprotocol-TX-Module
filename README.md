@@ -97,24 +97,24 @@ Notes:
 PPM is only allowing access to a subset of existing protocols.
 The default association dial position / protocol is listed below.
 
-Dial|Protocol|Sub_protocol|RF Module
-----|--------|------------|---------
-0|Select serial||
-1|FLYSKY|Flysky|A7105
-2|HUBSAN|-|A7105
-3|FRSKY|-|CC2500
-4|HISKY|Hisky|NRF24L01
-5|V2X2|-|NRF24L01
-6|DSM2|DSM2|CYRF6936
-7|DEVO|-|CYRF6936
-8|YD717|YD717|NRF24L01
-9|KN|WLTOYS|NRF24L01
-10|SYMAX|SYMAX|NRF24L01
-11|SLT|-|NRF24L01
-12|CX10|CX10_BLUE|NRF24L01
-13|CG023|CG023|NRF24L01
-14|BAYANG|-|NRF24L01
-15|SYMAX|SYMAX5C|NRF24L01
+Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
+----|--------|------------|------|-----|---------|------|---------
+0|Select serial||||||
+1|FLYSKY|Flysky|0|High|No|0|A7105
+2|HUBSAN|-|0|High|No|0|A7105
+3|FRSKY|-|0|High|No|-41|CC2500
+4|HISKY|Hisky|0|High|No|0|NRF24L01
+5|V2X2|-|0|High|No|0|NRF24L01
+6|DSM2|DSM2|0|High|No|0|CYRF6936
+7|DEVO|-|0|High|No|0|CYRF6936
+8|YD717|YD717|0|High|No|0|NRF24L01
+9|KN|WLTOYS|0|High|No|0|NRF24L01
+10|SYMAX|SYMAX|0|High|No|0|NRF24L01
+11|SLT|-|0|High|No|0|NRF24L01
+12|CX10|CX10_BLUE|0|High|No|0|NRF24L01
+13|CG023|CG023|0|High|No|0|NRF24L01
+14|BAYANG|-|0|High|No|0|NRF24L01
+15|SYMAX|SYMAX5C|0|High|No|0|NRF24L01
 
 Notes:
 - The dial selection must be done before the power is applied.

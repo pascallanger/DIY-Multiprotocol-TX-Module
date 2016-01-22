@@ -151,7 +151,7 @@ static void frsky2way_init(uint8_t bind)
 	cc2500_writeReg(CC2500_08_PKTCTRL0, 0x05);
 	cc2500_writeReg(CC2500_3E_PATABLE, 0xff);
 	cc2500_writeReg(CC2500_0B_FSCTRL1, 0x08);
-	cc2500_writeReg(CC2500_0C_FSCTRL0, fine);
+	cc2500_writeReg(CC2500_0C_FSCTRL0, option);
 	//base freq              FREQ = 0x5C7627 (F = 2404MHz)
 	cc2500_writeReg(CC2500_0D_FREQ2, 0x5c);	
 	cc2500_writeReg(CC2500_0E_FREQ1, 0x76);

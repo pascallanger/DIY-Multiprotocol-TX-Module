@@ -26,12 +26,21 @@ The source code is partly based on the Deviation TX project, thanks to all the d
 ###Using standard PPM output (trainer port)
 The multiprotocol TX module can be used on any TX with a trainer port.
 
-Channels order is AETR by default but can be changed in the source code.
+Channels order is AETR by default but can be changed in the _Config.h.
 
-The protocol selection is done via a dip switch or a rotary dip switch for access to up to 15 different protocols.
+The protocol selection is done via a dip switch or a rotary dip switch.
 
 ![Screenshot](http://media.digikey.com/photos/Grayhill%20Photos/94HBB16T_sml.jpg)
 
+You can access to up to 15 different protocols and associated settings.
+ 
+Settings per selection are located in _Config.h:
+ - Protocol and type: many main protocols have variants
+ - RX Num: number your different RXs and make sure only one model will react to the commands
+ - Power: High or low, enables to lower the power setting of your TX (indoor for example). 
+ - Option: -127..+127 allowing to set specific protocol options. Like for Hubsan to set the video frequency.
+ - Autobind: Yes or No. At the model selection (or power applied to the TX) a bind sequence will be initiated
+ 
 ###Using a serial output
 The multiprotocol TX module takes full advantage of being used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, 9Xtreme, AR9X, ... running [er9x or ersky9X](https://github.com/MikeBland/mbtx/tree/next). (A version for OpenTX is being looked at)
 
@@ -50,8 +59,8 @@ Options are:
 
 Notes:
  - Using this solution does not need any modification of the TX since it uses the TX module slot PPM pin for serial transfer.
- - There are 2 versions of serial protocol either 8 or 16 channels. 16 channels is the latest version. Make sure to use the right version based on your version of er9x/ersky9x.
- - Channels order is AETR by default but can be changed in the source code.
+ - There are 2 versions of serial protocol either 8 or 16 channels. 16 channels is the latest and only available version going forward. Make sure to use the right version based on your version of er9x/ersky9x.
+ - Channels order is AETR by default but can be changed in _Config.h.
 
 ###Telemetry
 Telemetry is available for er9x and ersky9x TXs.
@@ -85,7 +94,7 @@ Notes:
 ###Protocol selection
 
 ####Using the dial for PPM input
-PPM is only allowing access to a subset of existing protocols & sub_protocols.
+PPM is only allowing access to a subset of existing protocols.
 The default association dial position / protocol is listed below.
 
 Dial|Protocol|Sub_protocol|RF Module
@@ -109,7 +118,7 @@ Dial|Protocol|Sub_protocol|RF Module
 
 Notes:
 - The dial selection must be done before the power is applied.
-- The protocols and subprotocols accessible by the dial can be personalized by modifying the source code. 
+- The protocols, subprotocols and all other settings can be personalized by modifying the _Config.h file. 
 
 ####Using serial input with er9x/ersky9x
 Serial is allowing access to all existing protocols & sub_protocols listed below.
@@ -455,7 +464,7 @@ Arduino 1.6.5
 
 Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
 
-Multiprotocol.ino header can be modified to compile with/without some protocols, change protocols/sub_protocols associated with dial for PPM input, different channel orders, different channels timing, 8 or 16 channels serial protocol, Telemetry or not, ... 
+_Config.h file can be modified to compile with/without some protocols, change protocols/sub_protocols/settings associated with dial for PPM input, different channel orders, different channels timing, Telemetry or not, ... 
 
 ###Upload the code using ISP (In System Programming)
 It is recommended to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.

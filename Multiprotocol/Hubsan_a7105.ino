@@ -12,6 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+// compatible with Hubsan H102D, H107/L/C/D and H107P/C+/D+
 // Last sync with hexfet new_protocols/hubsan_a7105.c dated 2015-12-11
 
 #if defined(HUBSAN_A7105_INO)

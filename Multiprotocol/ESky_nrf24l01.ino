@@ -41,8 +41,8 @@ static void ESKY_init(uint8_t bind)
 	if (bind)
 	{
 		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);     // 3-byte RX/TX address for bind packets
-		NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"x00x00x00", 3);
-		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    (uint8_t*)"x00x00x00", 3);
+		NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x00\x00\x00", 3);
+		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    (uint8_t*)"\x00\x00\x00", 3);
 	}
 	else
 		ESKY_set_data_address();

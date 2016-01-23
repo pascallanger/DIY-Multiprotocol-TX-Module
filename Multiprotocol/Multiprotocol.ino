@@ -149,8 +149,7 @@ void setup()
 
 	// Read or create protocol id
 	MProtocol_id_master=random_id(10,false);
-	
-	
+
 	//Protocol and interrupts initialization
 	if(mode_select != MODE_SERIAL)
 	{ // PPM
@@ -469,26 +468,29 @@ static void update_serial_data()
 
 static void module_reset()
 {
-	remote_callback = 0;
-	switch(prev_protocol)
-	{
-		case MODE_FLYSKY:
-		case MODE_HUBSAN:
-			A7105_Reset();
-			break;
-		case MODE_FRSKY:
-		case MODE_FRSKYX:
-			CC2500_Reset();
-			break;
-			break;
-		case MODE_DSM2:
-		case MODE_DEVO:
-			CYRF_Reset();
-			break;
-		default:
-		// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY
-			NRF24L01_Reset();
-			break;
+	if(remote_callback)
+	{ // a protocol was loaded, reset the module used
+		remote_callback = 0;
+		switch(prev_protocol)
+		{
+			case MODE_FLYSKY:
+			case MODE_HUBSAN:
+				A7105_Reset();
+				break;
+			case MODE_FRSKY:
+			case MODE_FRSKYX:
+				CC2500_Reset();
+				break;
+				break;
+			case MODE_DSM2:
+			case MODE_DEVO:
+				CYRF_Reset();
+				break;
+			default:
+			// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY
+				NRF24L01_Reset();
+				break;
+		}
 	}
 }
 

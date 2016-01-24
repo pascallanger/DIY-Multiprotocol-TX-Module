@@ -28,7 +28,7 @@ enum PROTOCOLS
 	MODE_DEVO =7,			// =>CYRF6936	/ DEVO protocol
 	MODE_YD717 = 8,			// =>NRF24L01	/ YD717 protocol	(CX10 red pcb)
 	MODE_KN  = 9,			// =>NRF24L01	/ KN protocol
-	MODE_SYMAX = 10,		// =>NRF24L01	/ SYMAX protocol	(SYMAX4 working)
+	MODE_SYMAX = 10,		// =>NRF24L01	/ SYMAX protocol
 	MODE_SLT = 11,			// =>NRF24L01	/ SLT protocol
 	MODE_CX10 = 12,			// =>NRF24L01	/ CX-10 protocol
 	MODE_CG023 = 13,		// =>NRF24L01	/ CG023 protocol

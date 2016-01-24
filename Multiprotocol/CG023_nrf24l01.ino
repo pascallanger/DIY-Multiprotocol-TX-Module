@@ -255,10 +255,10 @@ static void CG023_initialize_txid()
 		rx_tx_addr[2] = rx_tx_addr[2] % 0x20;
 		rx_tx_addr[3] = rx_tx_addr[3] % 0x11;
 
-		hopping_frequency[0] = 0x06 + (rx_tx_addr[0]&0x0f);
-		hopping_frequency[1] = 0x15 + (rx_tx_addr[1]&0x0f);
-		hopping_frequency[2] = 0x24 + (rx_tx_addr[2]&0x0f);
-		hopping_frequency[3] = 0x33 + (rx_tx_addr[3]&0x0f);
+		hopping_frequency[0] = 0x06 + ((rx_tx_addr[0]&0x0f) % 0x0f);
+		hopping_frequency[1] = 0x15 + ((rx_tx_addr[1]&0x0f) % 0x0f);
+		hopping_frequency[2] = 0x24 + ((rx_tx_addr[2]&0x0f) % 0x0f);
+		hopping_frequency[3] = 0x33 + ((rx_tx_addr[3]&0x0f) % 0x0f);
 	}
 	else
 	{ // CG023 and YD829

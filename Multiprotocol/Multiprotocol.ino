@@ -469,7 +469,7 @@ static void update_serial_data()
 static void module_reset()
 {
 	if(remote_callback)
-	{ // a protocol was loaded, reset the module used
+	{		// previous protocol loaded
 		remote_callback = 0;
 		switch(prev_protocol)
 		{
@@ -486,8 +486,7 @@ static void module_reset()
 			case MODE_DEVO:
 				CYRF_Reset();
 				break;
-			default:
-			// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY
+			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY
 				NRF24L01_Reset();
 				break;
 		}

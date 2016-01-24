@@ -199,7 +199,7 @@ uint16_t CX10_callback() {
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_SetTxRxMode(TX_EN);
 				CX10_Write_Packet(1);
-				delay(1);						// used to be 300µs in deviation but not working so 1ms now
+				delayMicroseconds(400);				// 300µs in deviation but not working so using 400µs instead
 				// switch to RX mode
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_FlushRx();

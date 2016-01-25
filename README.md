@@ -28,9 +28,11 @@ The multiprotocol TX module can be used on any TX with a trainer port.
 
 Channels order is AETR by default but can be changed in the _Config.h.
 
-The protocol selection is done via a dip switch or a rotary dip switch.
+The protocol selection is done via a dip switch, rotary dip switch or scsi ID selector.
 
+![Screenshot](http://media.digikey.com/photos/CTS%20Photos/206-4,%20206-4ST_sml.jpg)
 ![Screenshot](http://media.digikey.com/photos/Grayhill%20Photos/94HBB16T_sml.jpg)
+![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8637216-7-thumb-SCSI%20ID%20selector.jpg?d=1453737244)
 
 You can access to up to 15 different protocols and associated settings.
  

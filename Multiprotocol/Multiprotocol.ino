@@ -150,6 +150,9 @@ void setup()
 	// Read or create protocol id
 	MProtocol_id_master=random_id(10,false);
 
+	//Init RF modules
+	CC2500_Reset();
+
 	//Protocol and interrupts initialization
 	if(mode_select != MODE_SERIAL)
 	{ // PPM
@@ -480,7 +483,6 @@ static void module_reset()
 			case MODE_FRSKY:
 			case MODE_FRSKYX:
 				CC2500_Reset();
-				break;
 				break;
 			case MODE_DSM2:
 			case MODE_DEVO:

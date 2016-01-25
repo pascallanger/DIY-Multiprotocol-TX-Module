@@ -144,10 +144,14 @@ uint16_t hisky_cb()
 				NRF24L01_SetPower();
 				phase=2;
 				break;
+			case 3:
+				if (! bind_counter)
+					NRF24L01_WritePayload(packet,10); // 2 packets per 5ms
+				break;
 			case 4:
 				phase=6;
 				break;
-			case 7:		// build packet and send failsafe every 100ms
+			case 7:		// build packet with failsafe every 100ms
 				convert_channel_HK310(hopping_frequency_no!=0?RUDDER:AUX2,&packet[0],&packet[1]);
 				convert_channel_HK310(hopping_frequency_no!=0?THROTTLE:AUX3,&packet[2],&packet[3]);
 				convert_channel_HK310(hopping_frequency_no!=0?AUX1:AUX4,&packet[4],&packet[5]);

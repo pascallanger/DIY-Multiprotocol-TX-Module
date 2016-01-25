@@ -78,7 +78,8 @@ enum CX10
 	Q282=3,
 	JC3015_1=4,
 	JC3015_2=5,
-	MK33041=6
+	MK33041=6,
+	Q242=7
 };
 enum CG023
 {
@@ -428,6 +429,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			JC3015_1	4
 			JC3015_2	5
 			MK33041		6
+			Q242		7
 		sub_protocol==CG023
 			CG023		0
 			YD829		1

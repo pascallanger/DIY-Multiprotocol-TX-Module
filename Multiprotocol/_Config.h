@@ -104,6 +104,7 @@ static const PPM_Parameters PPM_prot[15]=
 		JC3015_1
 		JC3015_2
 		MK33041
+		Q242
 	MODE_CG023
 		CG023
 		YD829

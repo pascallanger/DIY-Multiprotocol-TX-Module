@@ -251,8 +251,7 @@ CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
-#####Sub_protocol CX10_Q282
-#####Sub_protocol CX10_Q242
+#####Sub_protocol CX10_Q282 and CX10_Q242
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---

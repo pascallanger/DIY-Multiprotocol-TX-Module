@@ -65,6 +65,10 @@ uint8_t hopping_frequency_no=0;
 uint8_t rf_ch_num;
 uint8_t throttle, rudder, elevator, aileron;
 uint8_t flags;
+//
+uint32_t state;
+uint8_t len;
+uint8_t RX_num;
 
 // Mode_select variables
 uint8_t mode_select;
@@ -159,7 +163,8 @@ void setup()
 		mode_select--;
 		cur_protocol[0]	=	PPM_prot[mode_select].protocol;
 		sub_protocol   	=	PPM_prot[mode_select].sub_proto;
-		MProtocol_id	=	PPM_prot[mode_select].rx_num + MProtocol_id_master;
+		RX_num			=	PPM_prot[mode_select].rx_num;
+		MProtocol_id	=	RX_num + MProtocol_id_master;
 		option			=	PPM_prot[mode_select].option;
 		if(PPM_prot[mode_select].power)		POWER_FLAG_on;
 		if(PPM_prot[mode_select].autobind)	AUTOBIND_FLAG_on;
@@ -208,7 +213,7 @@ void loop()
 	}
 	update_led_status();
 	#if defined(TELEMETRY)
-	if(((cur_protocol[0]&0x1F)==MODE_FRSKY)||((cur_protocol[0]&0x1F)==MODE_HUBSAN))
+	if( ((cur_protocol[0]&0x1F)==MODE_FRSKY) || ((cur_protocol[0]&0x1F)==MODE_HUBSAN) || ((cur_protocol[0]&0x1F)==MODE_FRSKYX) )
 		frskyUpdate();
 	#endif 
 	if (remote_callback != 0)
@@ -445,7 +450,8 @@ static void update_serial_data()
 		cur_protocol[1] = rx_ok_buff[1]&0x7F;	//store current protocol
 		CHANGE_PROTOCOL_FLAG_on;				//change protocol
 		sub_protocol=(rx_ok_buff[1]>>4)& 0x07;					//subprotocol no (0-7) bits 4-6
-		MProtocol_id=MProtocol_id_master+(rx_ok_buff[1]& 0x0F);	//personalized RX bind + rx num // rx_num bits 0---3
+		RX_num=rx_ok_buff[1]& 0x0F;
+		MProtocol_id=MProtocol_id_master+RX_num;	//personalized RX bind + rx num // rx_num bits 0---3
 	}
 	else
 		if( ((rx_ok_buff[0]&0x80)!=0) && ((cur_protocol[0]&0x80)==0) )	// Bind flag has been set

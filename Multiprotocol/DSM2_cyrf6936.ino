@@ -110,7 +110,6 @@ uint16_t cyrf_state;
 uint8_t crcidx;
 uint8_t binding;
 uint16_t crc;
-uint8_t model;
 
 /*
 #ifdef USE_FIXED_MFGID
@@ -128,7 +127,7 @@ static void build_bind_packet()
 	packet[0] = crc >> 8;
 	packet[1] = crc & 0xff;
 	packet[2] = 0xff ^ cyrfmfg_id[2];
-	packet[3] = (0xff ^ cyrfmfg_id[3]) + model;
+	packet[3] = (0xff ^ cyrfmfg_id[3]) + RX_num;
 	packet[4] = packet[0];
 	packet[5] = packet[1];
 	packet[6] = packet[2];
@@ -187,13 +186,13 @@ static void build_data_packet(uint8_t upper)//
 	if (sub_protocol==DSMX)
 	{
 		packet[0] = cyrfmfg_id[2];
-		packet[1] = cyrfmfg_id[3] + model;
+		packet[1] = cyrfmfg_id[3] + RX_num;
 		bits=11;
 	}
 	else
 	{
 		packet[0] = (0xff ^ cyrfmfg_id[2]);
-		packet[1] = (0xff ^ cyrfmfg_id[3]) + model;
+		packet[1] = (0xff ^ cyrfmfg_id[3]) + RX_num;
 		bits=10;
 	}
 	//
@@ -513,8 +512,6 @@ uint16_t initDsm2()
 	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;//Ok
 	data_col = 7 - sop_col;//ok
 
-	model=MProtocol_id-MProtocol_id_master; // RxNum for serial or 0 for ppm
-	
 	CYRF_SetTxRxMode(TX_EN);
 	//
 	if(IS_AUTOBIND_FLAG_on)

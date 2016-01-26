@@ -18,9 +18,11 @@
 #include "iface_cc2500.h"
 
 //##########Variables########
-uint32_t state;
-uint8_t len;
+//uint32_t state;
+//uint8_t len;
+uint8_t telemetry_counter=0;
 
+/*
 enum {
 	FRSKY_BIND		= 0,
 	FRSKY_BIND_DONE	= 1000,
@@ -30,6 +32,7 @@ enum {
 	FRSKY_DATA4,
 	FRSKY_DATA5
 };
+*/
 
 uint16_t initFrSky_2way()
 {
@@ -124,6 +127,8 @@ static void check_telemetry(uint8_t *pkt,uint8_t len)
 		for (uint8_t i=3;i<len;i++)
 	    pktt[i]=pkt[i];				 
 		telemetry_link=1;
+		if(pktt[6]>0)
+		telemetry_counter=(telemetry_counter+1)%32;		
 	}
 }
 
@@ -231,7 +236,7 @@ static void frsky2way_build_bind_packet()
 	packet[17] = 0x01;
 }
 
-uint8_t telemetry_counter=0;
+
 
 static void frsky2way_data_frame()
 {//pachet[4] is telemetry user frame counter(hub)
@@ -241,7 +246,8 @@ static void frsky2way_data_frame()
 	packet[1] = rx_tx_addr[3];
 	packet[2] = rx_tx_addr[2];
 	packet[3] = counter;//	
-	packet[4] = pkt[6]?(telemetry_counter++)%32:0;
+	packet[4]=telemetry_counter;	
+
 	packet[5] = 0x01;
 	//
 	packet[10] = 0;

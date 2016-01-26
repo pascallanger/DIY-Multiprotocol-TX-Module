@@ -91,7 +91,7 @@ uint16_t ReadFrSky_2way()
 		if (state == FRSKY_DATA1)
 		{
 			len = cc2500_readReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
-			if (len)//20 bytes
+			if (len<=MAX_PKT)//27 bytes
 			{
 				cc2500_readFifo(pkt, len);	//received telemetry packets			
 				#if defined(TELEMETRY)
@@ -125,10 +125,10 @@ static void check_telemetry(uint8_t *pkt,uint8_t len)
 	else
 	{	   
 		for (uint8_t i=3;i<len;i++)
-	    pktt[i]=pkt[i];				 
+			pktt[i]=pkt[i];				 
 		telemetry_link=1;
 		if(pktt[6]>0)
-		telemetry_counter=(telemetry_counter+1)%32;		
+			telemetry_counter=(telemetry_counter+1)%32;		
 	}
 }
 

@@ -90,8 +90,9 @@ uint8_t prev_protocol=0;
 
 // Telemetry
 #if defined(TELEMETRY)
-uint8_t pkt[27];//telemetry receiving packets
-uint8_t pktt[27];//telemetry receiving packets
+#define MAX_PKT 27
+uint8_t pkt[MAX_PKT];//telemetry receiving packets
+uint8_t pktt[MAX_PKT];//telemetry receiving packets
 volatile uint8_t tx_head;
 volatile uint8_t tx_tail;
 uint8_t v_lipo;
@@ -207,8 +208,8 @@ void loop()
 			cli();	// disable global int
 			Servo_data[i]=PPM_data[i];
 			sei();	// enable global int
-			update_aux_flags();
 		}
+		update_aux_flags();
 		PPM_FLAG_off;	// wait for next frame before update
 	}
 	update_led_status();

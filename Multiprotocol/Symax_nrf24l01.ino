@@ -41,7 +41,7 @@ enum {
 	SYMAX_DATA
 };
 
-static uint8_t SYMAX_checksum(uint8_t *data)
+static uint8_t __attribute__((unused)) SYMAX_checksum(uint8_t *data)
 {
 	uint8_t sum = data[0];
 
@@ -54,7 +54,7 @@ static uint8_t SYMAX_checksum(uint8_t *data)
 	return sum + ( sub_protocol==SYMAX5C ? 0 : 0x55 );
 }
 
-static void SYMAX_read_controls()
+static void __attribute__((unused)) SYMAX_read_controls()
 {
 	// Protocol is registered AETRF, that is
 	// Aileron is channel 1, Elevator - 2, Throttle - 3, Rudder - 4, Flip control - 5
@@ -80,7 +80,7 @@ static void SYMAX_read_controls()
 
 #define X5C_CHAN2TRIM(X) ((((X) & 0x80 ? 0xff - (X) : 0x80 + (X)) >> 2) + 0x20)
 
-static void SYMAX_build_packet_x5c(uint8_t bind)
+static void __attribute__((unused)) SYMAX_build_packet_x5c(uint8_t bind)
 {
 	if (bind)
 	{
@@ -116,7 +116,7 @@ static void SYMAX_build_packet_x5c(uint8_t bind)
 	}
 }
 
-static void SYMAX_build_packet(uint8_t bind)
+static void __attribute__((unused)) SYMAX_build_packet(uint8_t bind)
 {
 	if (bind)
 	{
@@ -146,7 +146,7 @@ static void SYMAX_build_packet(uint8_t bind)
 	packet[9] = SYMAX_checksum(packet);
 }
 
-static void SYMAX_send_packet(uint8_t bind)
+static void __attribute__((unused)) SYMAX_send_packet(uint8_t bind)
 {
 	if (sub_protocol==SYMAX5C)
 		SYMAX_build_packet_x5c(bind);
@@ -167,7 +167,7 @@ static void SYMAX_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void symax_init()
+static void __attribute__((unused)) symax_init()
 {
 	NRF24L01_Initialize();
 	//
@@ -219,7 +219,7 @@ static void symax_init()
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x0e);  // power on
 }
 
-static void symax_init1()
+static void __attribute__((unused)) symax_init1()
 {
 	// duplicate stock tx sending strange packet (effect unknown)
 	uint8_t first_packet[] = {0xf9, 0x96, 0x82, 0x1b, 0x20, 0x08, 0x08, 0xf2, 0x7d, 0xef, 0xff, 0x00, 0x00, 0x00, 0x00};
@@ -247,7 +247,7 @@ static void symax_init1()
 }
 
 // channels determined by last byte of tx address
-static void symax_set_channels(uint8_t address)
+static void __attribute__((unused)) symax_set_channels(uint8_t address)
 {
 	static const uint8_t start_chans_1[] = {0x0a, 0x1a, 0x2a, 0x3a};
 	static const uint8_t start_chans_2[] = {0x2a, 0x0a, 0x42, 0x22};
@@ -290,7 +290,7 @@ static void symax_set_channels(uint8_t address)
 					*pchans = 0x39194121;
 }
 
-static void symax_init2()
+static void __attribute__((unused)) symax_init2()
 {
 	uint8_t chans_data_x5c[] = {0x1d, 0x2f, 0x26, 0x3d, 0x15, 0x2b, 0x25, 0x24,
 								0x27, 0x2c, 0x1c, 0x3e, 0x39, 0x2d, 0x22};

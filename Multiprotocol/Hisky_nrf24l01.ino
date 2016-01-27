@@ -18,21 +18,21 @@
 
 #include "iface_nrf24l01.h"
 
-#define BIND_COUNT 1000
-#define TXID_SIZE 5
-#define FREQUENCE_NUM  20
+#define HISKY_BIND_COUNT 1000
+#define HISKY_TXID_SIZE 5
+#define HISKY_FREQUENCE_NUM  20
 //
 uint8_t bind_buf_arry[4][10];
 
 // HiSky protocol uses TX id as an address for nRF24L01, and uses frequency hopping sequence
 // which does not depend on this id and is passed explicitly in binding sequence. So we are free
 // to generate this sequence as we wish. It should be in the range [02..77]
-static void calc_fh_channels(uint32_t seed)
+static void __attribute__((unused)) calc_fh_channels()
 {
 	uint8_t idx = 0;
-	uint32_t rnd = seed;
+	uint32_t rnd = MProtocol_id;
 
-	while (idx < FREQUENCE_NUM)
+	while (idx < HISKY_FREQUENCE_NUM)
 	{
 		uint8_t i;
 		uint8_t count_2_26 = 0, count_27_50 = 0, count_51_74 = 0;
@@ -41,7 +41,7 @@ static void calc_fh_channels(uint32_t seed)
 		// Use least-significant byte. 73 is prime, so channels 76..77 are unused
 		uint8_t next_ch = ((rnd >> 8) % 73) + 2;
 		// Keep the distance 2 between the channels - either odd or even
-		if (((next_ch ^ (uint8_t)seed) & 0x01 )== 0)
+		if (((next_ch ^ (uint8_t)rx_tx_addr[3]) & 0x01 )== 0)
 			continue;
 		// Check that it's not duplicated and spread uniformly
 		for (i = 0; i < idx; i++) {
@@ -61,7 +61,7 @@ static void calc_fh_channels(uint32_t seed)
 	}
 }
 
-static void build_binding_packet(void)
+static void __attribute__((unused)) build_binding_packet(void)
 {
 	uint8_t i;
 	uint16_t sum=0;
@@ -95,7 +95,7 @@ static void build_binding_packet(void)
 	}
 }
 
-static void hisky_init()
+static void __attribute__((unused)) hisky_init()
 {
 	NRF24L01_Initialize();
 
@@ -116,7 +116,7 @@ static void hisky_init()
 
 // HiSky channel sequence: AILE  ELEV  THRO  RUDD  GEAR  PITCH, channel data value is from 0 to 1000
 // Channel 7 - Gyro mode, 0 - 6 axis, 3 - 3 axis 
-static void build_ch_data()
+static void __attribute__((unused)) build_ch_data()
 {
 	uint16_t temp;
 	uint8_t i,j;
@@ -144,10 +144,14 @@ uint16_t hisky_cb()
 				NRF24L01_SetPower();
 				phase=2;
 				break;
+			case 3:
+				if (! bind_counter)
+					NRF24L01_WritePayload(packet,10); // 2 packets per 5ms
+				break;
 			case 4:
 				phase=6;
 				break;
-			case 7:		// build packet and send failsafe every 100ms
+			case 7:		// build packet with failsafe every 100ms
 				convert_channel_HK310(hopping_frequency_no!=0?RUDDER:AUX2,&packet[0],&packet[1]);
 				convert_channel_HK310(hopping_frequency_no!=0?THROTTLE:AUX3,&packet[2],&packet[3]);
 				convert_channel_HK310(hopping_frequency_no!=0?AUX1:AUX4,&packet[4],&packet[5]);
@@ -195,7 +199,7 @@ uint16_t hisky_cb()
 			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
 			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
 			hopping_frequency_no++;
-			if (hopping_frequency_no >= FREQUENCE_NUM)
+			if (hopping_frequency_no >= HISKY_FREQUENCE_NUM)
 				hopping_frequency_no = 0;
 			break;
 		case 7:
@@ -213,15 +217,19 @@ uint16_t hisky_cb()
 	return 1000;  // send 1 binding packet and 1 data packet per 9ms	
 }
 
-// Generate internal id from TX id and manufacturer id (STM32 unique id)
-static void initialize_tx_id()
+static void __attribute__((unused)) initialize_tx_id()
 {
 	//Generate frequency hopping table	
 	if(sub_protocol==HK310)
-		for(uint8_t i=0;i<FREQUENCE_NUM;i++)
-			hopping_frequency[i]=i;	// Sequential order hop channels...
+	{
+		// for HiSky surface protocol, the transmitter always generates hop channels in sequential order. 
+		// The transmitter only generates the first hop channel between 0 and 49. So the channel range is from 0 to 69.
+		hopping_frequency_no=rx_tx_addr[0]%50;
+		for(uint8_t i=0;i<HISKY_FREQUENCE_NUM;i++)
+			hopping_frequency[i]=hopping_frequency_no++;	// Sequential order hop channels...
+	}
 	else
-		calc_fh_channels(MProtocol_id);
+		calc_fh_channels();
 }
 
 uint16_t initHiSky()
@@ -234,7 +242,7 @@ uint16_t initHiSky()
 	binding_idx = 0;
 
 	if(IS_AUTOBIND_FLAG_on)
-		bind_counter = BIND_COUNT;
+		bind_counter = HISKY_BIND_COUNT;
 	else 
 		bind_counter = 0;
 	return 1000;

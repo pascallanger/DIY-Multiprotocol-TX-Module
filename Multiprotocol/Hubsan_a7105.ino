@@ -12,6 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+// compatible with Hubsan H102D, H107/L/C/D and H107P/C+/D+
 // Last sync with hexfet new_protocols/hubsan_a7105.c dated 2015-12-11
 
 #if defined(HUBSAN_A7105_INO)
@@ -55,7 +56,7 @@ enum {
 };
 #define WAIT_WRITE 0x80
 
-static void update_crc()
+static void __attribute__((unused)) hubsan_update_crc()
 {
 	uint8_t sum = 0;
 	for(uint8_t i = 0; i < 15; i++)
@@ -63,7 +64,7 @@ static void update_crc()
 	packet[15] = (256 - (sum % 256)) & 0xFF;
 }
 
-static void hubsan_build_bind_packet(uint8_t bind_state)
+static void __attribute__((unused)) hubsan_build_bind_packet(uint8_t bind_state)
 {
 	static uint8_t handshake_counter;
 	if(phase < BIND_7)
@@ -98,14 +99,14 @@ static void hubsan_build_bind_packet(uint8_t bind_state)
 		if(phase == BIND_7)
 			packet[2] = handshake_counter++;
 	}
-	update_crc();
+	hubsan_update_crc();
 }
 
 //cc : throttle  observed range: 0x00 - 0xFF (smaller is down)
 //ee : rudder    observed range: 0x34 - 0xcc (smaller is right)52-204-60%
 //gg : elevator  observed range: 0x3e - 0xbc (smaller is up)62-188 -50%
 //ii : aileron   observed range: 0x45 - 0xc3 (smaller is right)69-195-50%
-static void hubsan_build_packet()
+static void __attribute__((unused)) hubsan_build_packet()
 {
 	static uint8_t vtx_freq = 0; 
 	memset(packet, 0, 16);
@@ -176,7 +177,7 @@ static void hubsan_build_packet()
 			packet_count++;
 		}
 	}
-	update_crc();
+	hubsan_update_crc();
 }
 
 #if defined(TELEMETRY)
@@ -192,8 +193,10 @@ static void hubsan_build_packet()
 
 uint16_t ReadHubsan() 
 {
-	static uint8_t txState=0;
+#if defined(TELEMETRY)
 	static uint8_t rfMode=0;
+#endif
+	static uint8_t txState=0;
 	static uint8_t bind_count=0;
 	uint16_t delay;
 	uint8_t i;
@@ -276,7 +279,9 @@ uint16_t ReadHubsan()
 		case DATA_4:
 		case DATA_5:
 			if( txState == 0) { // send packet
+#if defined(TELEMETRY)
 				rfMode = A7105_TX;
+#endif
 				if( phase == DATA_1)
 						A7105_SetPower(); //Keep transmit power in sync
 				hubsan_build_packet();

@@ -75,7 +75,7 @@ static const uint8_t freq_hopping[][16] = {
 		0x18, 0x2A, 0x21, 0x38, 0x10, 0x26, 0x20, 0x1F }  //  03
 };
 
-static void v202_init()
+static void __attribute__((unused)) v202_init()
 {
 	NRF24L01_Initialize();
 
@@ -108,7 +108,7 @@ static void v202_init()
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t *)"\x66\x88\x68\x68\x68", 5);
 }
 
-static void V202_init2()
+static void __attribute__((unused)) V202_init2()
 {
 	NRF24L01_FlushTx();
 	packet_sent = 0;
@@ -119,7 +119,7 @@ static void V202_init2()
 	//Done by TX_EN??? => NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
 }
 
-static void V2X2_set_tx_id(void)
+static void __attribute__((unused)) V2X2_set_tx_id(void)
 {
 	uint8_t sum;
 	sum = rx_tx_addr[1] + rx_tx_addr[2] + rx_tx_addr[3];
@@ -134,7 +134,7 @@ static void V2X2_set_tx_id(void)
 	}
 }
 
-static void V2X2_add_pkt_checksum()
+static void __attribute__((unused)) V2X2_add_pkt_checksum()
 {
 	uint8_t sum = 0;
 	for (uint8_t i = 0; i < 15;  ++i)
@@ -142,7 +142,7 @@ static void V2X2_add_pkt_checksum()
 	packet[15] = sum;
 }
 
-static void V2X2_send_packet(uint8_t bind)
+static void __attribute__((unused)) V2X2_send_packet(uint8_t bind)
 {
 	uint8_t flags2=0;
 	if (bind)

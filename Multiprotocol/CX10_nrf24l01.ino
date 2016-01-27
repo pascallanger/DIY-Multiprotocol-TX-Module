@@ -46,7 +46,7 @@ enum {
     CX10_DATA
 };
 
-static void CX10_Write_Packet(uint8_t bind)
+static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 {
 	uint8_t offset = 0;
 	if(sub_protocol == CX10_BLUE)
@@ -90,24 +90,36 @@ static void CX10_Write_Packet(uint8_t bind)
 			if(Servo_AUX4)	flags |= 0x08;	// Channel 8 - video
 			break;
 		case Q282:
+		case Q242:
+			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
 			//FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 			if(Servo_AUX1)	flags2 =0x80;	// Channel 5 - FLIP
 			if(Servo_AUX2)	flags2|=0x40;	// Channel 6 - LED
-			if(Servo_AUX3)  flags2|=0x10;	// Channel 7 - picture
-			if(Servo_AUX4)			// Channel 8 - video
-			{
-				if (!(video_state & 0x20)) video_state ^= 0x21;
-			}
-			else
-				if (video_state & 0x20) video_state &= 0x01;
-			flags2 |= video_state;
 
 			if(Servo_AUX5)	flags2|=0x08;	// Channel 9 - HEADLESS
-			flags=3;
+			if(sub_protocol==Q282)
+			{
+				if(Servo_AUX3)  flags2|=0x10;	// Channel 7 - picture
+				if(Servo_AUX4)					// Channel 8 - video
+				{
+					if (!(video_state & 0x20)) video_state ^= 0x21;
+				}
+				else
+					if (video_state & 0x20) video_state &= 0x01;
+				flags2 |= video_state;
+				flags=3;
+			}
+			else
+			{
+				if(Servo_AUX3)  flags2|=0x01;	// Channel 7 - picture
+				if(Servo_AUX4)	flags2|=0x10;	// Channel 8 - video
+				flags=2;
+				packet[17]=0x00;
+				packet[18]=0x00;
+			}
 			if(Servo_AUX6)	flags |=0x80;	// Channel 10 - RTH
 			if(Servo_AUX7)	flags2|=0x04;	// Channel 11 - XCAL
 			if(Servo_AUX8)	flags2|=0x02;	// Channel 12 - YCAL
-			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
 			break;
 		case DM007:
 			//FLIP|MODE|PICTURE|VIDEO|HEADLESS
@@ -154,7 +166,7 @@ static void CX10_Write_Packet(uint8_t bind)
 	NRF24L01_SetPower();
 }
 
-static void CX10_init()
+static void __attribute__((unused)) CX10_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -199,7 +211,7 @@ uint16_t CX10_callback() {
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_SetTxRxMode(TX_EN);
 				CX10_Write_Packet(1);
-				delay(1);						// used to be 300µs in deviation but not working so 1ms now
+				delayMicroseconds(400);				// 300µs in deviation but not working so using 400µs instead
 				// switch to RX mode
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_FlushRx();
@@ -214,7 +226,7 @@ uint16_t CX10_callback() {
 	return packet_period;
 }
 
-static void initialize_txid()
+static void __attribute__((unused)) initialize_txid()
 {
 	rx_tx_addr[1]%= 0x30;
 	if(sub_protocol==Q282)
@@ -225,12 +237,20 @@ static void initialize_txid()
 		hopping_frequency[3] = 0x4c;
 	}
 	else
-	{
-		hopping_frequency[0] = 0x03 + (rx_tx_addr[0] & 0x0F);
-		hopping_frequency[1] = 0x16 + (rx_tx_addr[0] >> 4);
-		hopping_frequency[2] = 0x2D + (rx_tx_addr[1] & 0x0F);
-		hopping_frequency[3] = 0x40 + (rx_tx_addr[1] >> 4);
-	}
+		if(sub_protocol==Q242)
+		{
+			hopping_frequency[0] = 0x48;
+			hopping_frequency[1] = 0x4a;
+			hopping_frequency[2] = 0x4c;
+			hopping_frequency[3] = 0x4e;
+		}
+		else
+		{
+			hopping_frequency[0] = 0x03 + (rx_tx_addr[0] & 0x0F);
+			hopping_frequency[1] = 0x16 + (rx_tx_addr[0] >> 4);
+			hopping_frequency[2] = 0x2D + (rx_tx_addr[1] & 0x0F);
+			hopping_frequency[3] = 0x40 + (rx_tx_addr[1] >> 4);
+		}
 }
 
 uint16_t initCX10(void)
@@ -247,7 +267,7 @@ uint16_t initCX10(void)
 	}
 	else
 	{
-		if(sub_protocol==Q282)
+		if(sub_protocol==Q282||sub_protocol==Q242)
 			packet_length = Q282_PACKET_SIZE;
 		else
 		    packet_length = CX10_PACKET_SIZE;

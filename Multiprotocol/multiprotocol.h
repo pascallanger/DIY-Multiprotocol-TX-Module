@@ -21,20 +21,24 @@ enum PROTOCOLS
 	MODE_SERIAL = 0,		// Serial commands
 	MODE_FLYSKY = 1,		// =>A7105		/ FLYSKY protocol
 	MODE_HUBSAN = 2,		// =>A7105		/ HUBSAN protocol
-	MODE_FRSKY = 3,			// =>CC2500		/ FRSKY protocol
+	MODE_FRSKY = 3,			// =>CC2500	/ FRSKY protocol
 	MODE_HISKY = 4,			// =>NRF24L01	/ HISKY protocol
 	MODE_V2X2 = 5,			// =>NRF24L01	/ V2x2 protocol
 	MODE_DSM2 = 6,			// =>CYRF6936	/ DSM2 protocol
 	MODE_DEVO =7,			// =>CYRF6936	/ DEVO protocol
 	MODE_YD717 = 8,			// =>NRF24L01	/ YD717 protocol	(CX10 red pcb)
 	MODE_KN  = 9,			// =>NRF24L01	/ KN protocol
-	MODE_SYMAX = 10,		// =>NRF24L01	/ SYMAX protocol	(SYMAX4 working)
+	MODE_SYMAX = 10,		// =>NRF24L01	/ SYMAX protocol
 	MODE_SLT = 11,			// =>NRF24L01	/ SLT protocol
 	MODE_CX10 = 12,			// =>NRF24L01	/ CX-10 protocol
 	MODE_CG023 = 13,		// =>NRF24L01	/ CG023 protocol
 	MODE_BAYANG = 14,		// =>NRF24L01	/ BAYANG protocol
-	MODE_FRSKYX = 15,		// =>CC2500		/ FRSKYX protocol
+	MODE_FRSKYX = 15,		// =>CC2500	/ FRSKYX protocol
 	MODE_ESKY = 16,			// =>NRF24L01	/ ESKY protocol
+// Ajout
+	MODE_H7 = 21,			// =>NRF24L01	/ EAchine MT99xx (H7, MT9916 ...)
+//	MODE_HM830 =22,			// =>NRF24L01	/ HM830
+	MODE_CFLIE =23,			// =>NRF24L01	/ CFlie
 };
 enum Flysky
 {
@@ -78,7 +82,8 @@ enum CX10
 	Q282=3,
 	JC3015_1=4,
 	JC3015_2=5,
-	MK33041=6
+	MK33041=6,
+	Q242=7
 };
 enum CG023
 {
@@ -87,101 +92,22 @@ enum CG023
     H8_3D = 2
 };
 
-//******************
-//TX definitions with timing endpoints and channels order
-//******************
 
-// Turnigy PPM and channels
-#if defined(TX_ER9X)
-#define PPM_MAX		2140
-#define PPM_MIN		860
-#define PPM_MAX_100 2012
-#define PPM_MIN_100 988
-enum chan_order{
-	AILERON =0,
-	ELEVATOR,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8
+#define NONE 		0
+#define P_HIGH		1
+#define P_LOW		0
+#define AUTOBIND	1
+#define NO_AUTOBIND	0
+
+struct PPM_Parameters
+{
+	uint8_t protocol : 5;
+	uint8_t sub_proto : 3;
+	uint8_t rx_num : 4;
+	uint8_t power : 1;
+	uint8_t autobind : 1;
+	uint8_t option;
 };
-#endif
-
-// Devo PPM and channels
-#if defined(TX_DEVO7)
-#define PPM_MAX		2100
-#define PPM_MIN		900
-#define PPM_MAX_100	1920
-#define PPM_MIN_100	1120
-enum chan_order{
-	ELEVATOR=0,
-	AILERON,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8
-};
-#endif
-
-// SPEKTRUM PPM and channels
-#if defined(TX_SPEKTRUM)
-#define PPM_MAX		2000
-#define PPM_MIN		1000
-#define PPM_MAX_100	1900
-#define PPM_MIN_100	1100
-enum chan_order{
-	THROTTLE=0,
-	AILERON,
-	ELEVATOR,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8
-};
-#endif
-
-// HISKY
-#if defined(TX_HISKY)
-#define PPM_MAX		2000
-#define PPM_MIN		1000
-#define PPM_MAX_100	1900
-#define PPM_MIN_100	1100
-enum chan_order{
-	AILERON =0,
-	ELEVATOR,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8
-};
-#endif
-
-#define PPM_MIN_COMMAND 1250
-#define PPM_SWITCH	1550
-#define PPM_MAX_COMMAND 1750
 
 //*******************
 //***   Pinouts   ***
@@ -508,6 +434,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			JC3015_1	4
 			JC3015_2	5
 			MK33041		6
+			Q242		7
 		sub_protocol==CG023
 			CG023		0
 			YD829		1
@@ -523,86 +450,5 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 	1843	+100%
 	2047	+125%
    Channels bits are concatenated to fit in 22 bytes like in SBUS protocol
-
-
-**************************
-8 channels serial protocol
-**************************
-Serial: 125000 Baud 8n1      _ xxxx xxxx - ---
-  Channels:
-    Nbr=8
-    10bits=0..1023
-	0		-125%
-    96		-100%
-	512		   0%
-	928		+100%
-	1023	+125%
-  Stream[0]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
-   sub_protocol is 0..31 (bits 0..4)
-				=>	Reserved	0
-					Flysky		1
-					Hubsan		2
-					Frsky		3
-					Hisky		4
-					V2x2		5
-					DSM2		6
-					Devo		7
-					YD717		8
-					KN			9
-					SymaX		10
-					SLT			11
-					CX10		12
-					CG023		13
-					Bayang		14
-					FrskyX		15
-					ESky		16
-   BindBit=>		0x80	1=Bind/0=No
-   AutoBindBit=>	0x40	1=Yes /0=No
-   RangeCheck=>		0x20	1=Yes /0=No
-  Stream[1]   = RxNum | Power | Type;
-   RxNum value is 0..15 (bits 0..3)
-   Type is 0..7 <<4     (bit 4..6)
-		sub_protocol==Flysky
-			Flysky	0
-			V9x9	1
-			V6x6	2
-			V912	3
-		sub_protocol==Hisky
-			Hisky	0
-			HK310	1
-		sub_protocol==DSM2
-			DSM2	0
-			DSMX	1
-		sub_protocol==YD717
-			YD717	0
-			SKYWLKR	1
-			SYMAX4	2
-			XINXUN	3
-			NIHUI	4
-		sub_protocol==KN
-			WLTOYS	0
-			FEILUN	1
-		sub_protocol==SYMAX
-			SYMAX	0
-			SYMAX5C	1
-		sub_protocol==CX10
-			CX10_GREEN	0
-			CX10_BLUE	1	// also compatible with CX10-A, CX12
-			DM007		2
-			Q282		3
-			JC3015_1	4
-			JC3015_2	5
-			MK33041		6
-		sub_protocol==CG023
-			CG023		0
-			YD829		1
-			H8_3D		2
-   Power value => 0x80	0=High/1=Low
-  Stream[2]   = option_protocol;
-   option_protocol value is -127..127
-  Stream[i+3] = lowByte(channel[i])		// with i[0..7]
-  Stream[11]  = highByte(channel[0])<<6 | highByte(channel[1])<<4 | highByte(channel[2])<<2 | highByte(channel[3])
-  Stream[12]  = highByte(channel[4])<<6 | highByte(channel[5])<<4 | highByte(channel[6])<<2 | highByte(channel[7])
-  Stream[13]  = lowByte(CRC16(Stream[0..12])
 */
 

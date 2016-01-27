@@ -73,7 +73,7 @@ uint8_t chanrow;
 uint8_t chancol;
 uint8_t chanoffset;
 
-static void flysky_apply_extension_flags()
+static void __attribute__((unused)) flysky_apply_extension_flags()
 {
 	const uint8_t V912_X17_SEQ[10] =  { 0x14, 0x31, 0x40, 0x49, 0x49,    // sometime first byte is 0x15 ?
 										0x49, 0x49, 0x49, 0x49, 0x49, }; 
@@ -148,7 +148,7 @@ static void flysky_apply_extension_flags()
 	}
 }
 
-static void flysky_build_packet(uint8_t init)
+static void __attribute__((unused)) flysky_build_packet(uint8_t init)
 {
     uint8_t i;
 	//servodata timing range for flysky.

@@ -1,4 +1,7 @@
 # DIY-Multiprotocol-TX-Module
+
+Fork for adding PPM select of project https://github.com/pascallanger/DIY-Multiprotocol-TX-Module
+
 Multiprotocol is a 2.4GHz transmitter which enables any TX to control lot of different models available on the market.
 
 The source code is partly based on the Deviation TX project, thanks to all the developpers for their great job on protocols.
@@ -26,12 +29,23 @@ The source code is partly based on the Deviation TX project, thanks to all the d
 ###Using standard PPM output (trainer port)
 The multiprotocol TX module can be used on any TX with a trainer port.
 
-Channels order is AETR by default but can be changed in the source code.
+Channels order is AETR by default but can be changed in the _Config.h.
 
-The protocol selection is done via a dip switch or a rotary dip switch for access to up to 15 different protocols.
+The protocol selection is done via a dip switch, rotary dip switch, scsi ID selector or PPM position.
 
+![Screenshot](http://media.digikey.com/photos/CTS%20Photos/206-4,%20206-4ST_sml.jpg)
 ![Screenshot](http://media.digikey.com/photos/Grayhill%20Photos/94HBB16T_sml.jpg)
+![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8637216-7-thumb-SCSI%20ID%20selector.jpg?d=1453737244)
 
+You can access to up to 15 different protocols and associated settings.
+ 
+Settings per selection are located in _Config.h:
+ - Protocol and type: many main protocols have variants
+ - RX Num: number your different RXs and make sure only one model will react to the commands
+ - Power: High or low, enables to lower the power setting of your TX (indoor for example). 
+ - Option: -127..+127 allowing to set specific protocol options. Like for Hubsan to set the video frequency.
+ - Autobind: Yes or No. At the model selection (or power applied to the TX) a bind sequence will be initiated
+ 
 ###Using a serial output
 The multiprotocol TX module takes full advantage of being used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, 9Xtreme, AR9X, ... running [er9x or ersky9X](https://github.com/MikeBland/mbtx/tree/next). (A version for OpenTX is being looked at)
 
@@ -50,18 +64,31 @@ Options are:
 
 Notes:
  - Using this solution does not need any modification of the TX since it uses the TX module slot PPM pin for serial transfer.
- - There are 2 versions of serial protocol either 8 or 16 channels. 16 channels is the latest version. Make sure to use the right version based on your version of er9x/ersky9x.
- - Channels order is AETR by default but can be changed in the source code.
+ - There are 2 versions of serial protocol either 8 or 16 channels. 16 channels is the latest and only available version going forward. Make sure to use the right version based on your version of er9x/ersky9x.
+ - Channels order is AETR by default but can be changed in _Config.h.
 
 ###Telemetry
-Telemetry is available for er9x and ersky9x TXs.
+
 There are only 2 protocols so far supporting telemetry: Hubsan and Frsky.
 
-To enable telemetry on Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
+Hubsan displays the battery voltage.
 
-Enabling telemetry on 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
+FRSky displays full telemetry (A0, A1, RSSI, TSSI and Hub).
 
-Once the TX is telemetry enabled, it just needs to be configured on the model as usual.
+### If used in PPM mode
+
+Telemetry is available as a serial 9600 8 n 1 output on the TX pin of the Atmega328p using the FRSky hub format.
+
+You can connect it to your TX if it is telemetry enabled or use a bluetooth adapter along with an app on your phone to display telemetry information and setup alerts.
+
+### If used in Serial mode
+ Telemetry is built in for er9x and ersky9x TXs.
+
+To enable telemetry on a Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
+
+Enabling telemetry on a 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
+
+Once the TX is telemetry enabled, it just needs to be configured on the model (see er9x/ersky9x documentation).
 
 ##Protocols
 
@@ -85,31 +112,35 @@ Notes:
 ###Protocol selection
 
 ####Using the dial for PPM input
-PPM is only allowing access to a subset of existing protocols & sub_protocols.
+PPM is only allowing access to a subset of existing protocols.
 The default association dial position / protocol is listed below.
 
-Dial|Protocol|Sub_protocol|RF Module
-----|--------|------------|---------
-0|Select serial||
-1|FLYSKY|Flysky|A7105
-2|HUBSAN|-|A7105
-3|FRSKY|-|CC2500
-4|HISKY|Hisky|NRF24L01
-5|V2X2|-|NRF24L01
-6|DSM2|DSM2|CYRF6936
-7|DEVO|-|CYRF6936
-8|YD717|YD717|NRF24L01
-9|KN|WLTOYS|NRF24L01
-10|SYMAX|SYMAX|NRF24L01
-11|SLT|-|NRF24L01
-12|CX10|CX10_BLUE|NRF24L01
-13|CG023|CG023|NRF24L01
-14|BAYANG|-|NRF24L01
-15|SYMAX|SYMAX5C|NRF24L01
+Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
+----|--------|------------|------|-----|---------|------|---------
+0|Select PPM||||||
+1|FLYSKY|Flysky|0|High|No|0|A7105
+2|HUBSAN|-|0|High|No|0|A7105
+3|FRSKY|-|0|High|No|-41|CC2500
+4|HISKY|Hisky|0|High|No|0|NRF24L01
+5|V2X2|-|0|High|No|0|NRF24L01
+6|DSM2|DSM2|0|High|No|0|CYRF6936
+7|DEVO|-|0|High|No|0|CYRF6936
+8|YD717|YD717|0|High|No|0|NRF24L01
+9|KN|WLTOYS|0|High|No|0|NRF24L01
+10|SYMAX|SYMAX|0|High|No|0|NRF24L01
+11|SLT|-|0|High|No|0|NRF24L01
+12|CX10|CX10_BLUE|0|High|No|0|NRF24L01
+13|CG023|CG023|0|High|No|0|NRF24L01
+14|BAYANG|-|0|High|No|0|NRF24L01
+15|SYMAX|SYMAX5C|0|High|No|0|NRF24L01
 
 Notes:
 - The dial selection must be done before the power is applied.
-- The protocols and subprotocols accessible by the dial can be personalized by modifying the source code. 
+- The protocols, subprotocols and all other settings can be personalized by modifying the _Config.h file. 
+
+#####Select PPM
+Calculating the desired protocol with the position of the sleeves during startup or reset. This allows for a choice of 26 protocols. A path is lost in order to have a hardware reset if using "PPM selection".
+To simplify the memorization, I provided a lua script for OPENTX.
 
 ####Using serial input with er9x/ersky9x
 Serial is allowing access to all existing protocols & sub_protocols listed below.
@@ -152,6 +183,7 @@ CX10||NRF24L01
  |JC3015_1
  |JC3015_2
  |MK33041
+ |Q242
 CG023||NRF24L01
  |CG023
  |YD829
@@ -239,7 +271,7 @@ CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
-#####Sub_protocol CX10_Q282
+#####Sub_protocol CX10_Q282 and CX10_Q242
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---
@@ -308,7 +340,7 @@ BTMBTN|TOPBTN
 ####FRSKY
 Extended limits supported
 
-Telemetry enabled for A0, A1, RSSI
+Telemetry enabled for A0, A1, RSSI, TSSI and Hub
 
 Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
 
@@ -419,11 +451,12 @@ An [Arduino pro mini](http://www.banggood.com/Wholesale-New-Ver-Pro-Mini-ATMEGA3
 Using stripboard:
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t8214655-87-thumb-uploadfromtaptalk1405598143749.jpg?d=1441459923)
+![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t8214656-102-thumb-uploadfromtaptalk1405598152484.jpg?d=1441459924)
 
 Using a [home made PCB](http://www.rcgroups.com/forums/showpost.php?p=32645328&postcount=1621):
 
-![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226719-72-thumb-IMG_20150715_230024065.jpg?d=1441816456)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226720-197-thumb-IMG_20150715_230603155.jpg?d=1441816457)
+![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226719-72-thumb-IMG_20150715_230024065.jpg?d=1441816456)
 
 or build your own board using [SMD components](http://www.rcgroups.com/forums/showpost.php?p=31064232&postcount=1020) and an [associated PCB](https://oshpark.com/shared_projects/MaGYDg0y):
 
@@ -455,7 +488,7 @@ Arduino 1.6.5
 
 Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
 
-Multiprotocol.ino header can be modified to compile with/without some protocols, change protocols/sub_protocols associated with dial for PPM input, different channel orders, different channels timing, 8 or 16 channels serial protocol, Telemetry or not, ... 
+_Config.h file can be modified to compile with/without some protocols, change protocols/sub_protocols/settings associated with dial for PPM input, different channel orders, different channels timing, Telemetry or not, ... 
 
 ###Upload the code using ISP (In System Programming)
 It is recommended to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.

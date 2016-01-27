@@ -65,14 +65,27 @@ Notes:
  - Channels order is AETR by default but can be changed in _Config.h.
 
 ###Telemetry
-Telemetry is available for er9x and ersky9x TXs.
+
 There are only 2 protocols so far supporting telemetry: Hubsan and Frsky.
 
-To enable telemetry on Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
+Hubsan displays the battery voltage.
 
-Enabling telemetry on 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
+FRSky displays full telemetry (A0, A1, RSSI, TSSI and Hub).
 
-Once the TX is telemetry enabled, it just needs to be configured on the model as usual.
+### If used in PPM mode
+
+Telemetry is available as a serial 9600 8 n 1 output on the TX pin of the Atmega328p using the FRSky hub format.
+
+You can connect it to your TX if it is telemetry enabled or use a bluetooth adapter along with an app on your phone to display telemetry information and setup alerts.
+
+### If used in Serial mode
+ Telemetry is built in for er9x and ersky9x TXs.
+
+To enable telemetry on a Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
+
+Enabling telemetry on a 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
+
+Once the TX is telemetry enabled, it just needs to be configured on the model (see er9x/ersky9x documentation).
 
 ##Protocols
 
@@ -320,7 +333,7 @@ BTMBTN|TOPBTN
 ####FRSKY
 Extended limits supported
 
-Telemetry enabled for A0, A1, RSSI
+Telemetry enabled for A0, A1, RSSI, TSSI and Hub
 
 Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
 

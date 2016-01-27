@@ -34,6 +34,135 @@ enum {
 };
 */
 
+static void __attribute__((unused)) frsky2way_init(uint8_t bind)
+{
+	// Configure cc2500 for tx mode
+	CC2500_Reset();
+	//
+	cc2500_writeReg(CC2500_02_IOCFG0, 0x06);		
+	cc2500_writeReg(CC2500_00_IOCFG2, 0x06);
+	cc2500_writeReg(CC2500_17_MCSM1, 0x0c);
+	cc2500_writeReg(CC2500_18_MCSM0, 0x18);
+	cc2500_writeReg(CC2500_06_PKTLEN, 0x19);
+	cc2500_writeReg(CC2500_07_PKTCTRL1, 0x04);
+	cc2500_writeReg(CC2500_08_PKTCTRL0, 0x05);
+	cc2500_writeReg(CC2500_3E_PATABLE, 0xff);
+	cc2500_writeReg(CC2500_0B_FSCTRL1, 0x08);
+	cc2500_writeReg(CC2500_0C_FSCTRL0, option);
+	//base freq              FREQ = 0x5C7627 (F = 2404MHz)
+	cc2500_writeReg(CC2500_0D_FREQ2, 0x5c);	
+	cc2500_writeReg(CC2500_0E_FREQ1, 0x76);
+	cc2500_writeReg(CC2500_0F_FREQ0, 0x27);
+	//		
+	cc2500_writeReg(CC2500_10_MDMCFG4, 0xAA);		
+	cc2500_writeReg(CC2500_11_MDMCFG3, 0x39);
+	cc2500_writeReg(CC2500_12_MDMCFG2, 0x11);
+	cc2500_writeReg(CC2500_13_MDMCFG1, 0x23);
+	cc2500_writeReg(CC2500_14_MDMCFG0, 0x7a);
+	cc2500_writeReg(CC2500_15_DEVIATN, 0x42);
+	cc2500_writeReg(CC2500_19_FOCCFG, 0x16);
+	cc2500_writeReg(CC2500_1A_BSCFG, 0x6c);	
+	cc2500_writeReg(CC2500_1B_AGCCTRL2, bind ? 0x43 : 0x03);
+	cc2500_writeReg(CC2500_1C_AGCCTRL1,0x40);
+	cc2500_writeReg(CC2500_1D_AGCCTRL0,0x91);
+	cc2500_writeReg(CC2500_21_FREND1, 0x56);
+	cc2500_writeReg(CC2500_22_FREND0, 0x10);
+	cc2500_writeReg(CC2500_23_FSCAL3, 0xa9);
+	cc2500_writeReg(CC2500_24_FSCAL2, 0x0A);
+	cc2500_writeReg(CC2500_25_FSCAL1, 0x00);
+	cc2500_writeReg(CC2500_26_FSCAL0, 0x11);
+	cc2500_writeReg(CC2500_29_FSTEST, 0x59);
+	cc2500_writeReg(CC2500_2C_TEST2, 0x88);
+	cc2500_writeReg(CC2500_2D_TEST1, 0x31);
+	cc2500_writeReg(CC2500_2E_TEST0, 0x0B);
+	cc2500_writeReg(CC2500_03_FIFOTHR, 0x07);
+	cc2500_writeReg(CC2500_09_ADDR, 0x00);
+	//
+	CC2500_SetTxRxMode(TX_EN);
+	CC2500_SetPower();
+	
+	cc2500_strobe(CC2500_SIDLE);	
+
+	cc2500_writeReg(CC2500_09_ADDR, bind ? 0x03 : rx_tx_addr[3]);
+	cc2500_writeReg(CC2500_07_PKTCTRL1, 0x05);
+	cc2500_strobe(CC2500_SIDLE);	// Go to idle...
+	//
+	cc2500_writeReg(CC2500_0A_CHANNR, 0x00);
+	cc2500_writeReg(CC2500_23_FSCAL3, 0x89);
+	cc2500_strobe(CC2500_SFRX);
+	//#######END INIT########		
+}
+	
+static uint8_t __attribute__((unused)) get_chan_num(uint16_t idx)
+{
+	uint8_t ret = (idx * 0x1e) % 0xeb;
+	if(idx == 3 || idx == 23 || idx == 47)
+		ret++;
+	if(idx > 47)
+		return 0;
+	return ret;
+}
+
+static void __attribute__((unused)) frsky2way_build_bind_packet()
+{
+	//11 03 01 d7 2d 00 00 1e 3c 5b 78 00 00 00 00 00 00 01
+	//11 03 01 19 3e 00 02 8e 2f bb 5c 00 00 00 00 00 00 01
+	packet[0] = 0x11;                
+	packet[1] = 0x03;                
+	packet[2] = 0x01;                
+	packet[3] = rx_tx_addr[3];
+	packet[4] = rx_tx_addr[2];
+	uint16_t idx = ((state -FRSKY_BIND) % 10) * 5;
+	packet[5] = idx;
+	packet[6] = get_chan_num(idx++);
+	packet[7] = get_chan_num(idx++);
+	packet[8] = get_chan_num(idx++);
+	packet[9] = get_chan_num(idx++);
+	packet[10] = get_chan_num(idx++);
+	packet[11] = 0x00;
+	packet[12] = 0x00;
+	packet[13] = 0x00;
+	packet[14] = 0x00;
+	packet[15] = 0x00;
+	packet[16] = 0x00;
+	packet[17] = 0x01;
+}
+
+
+
+static void __attribute__((unused)) frsky2way_data_frame()
+{//pachet[4] is telemetry user frame counter(hub)
+	//11 d7 2d 22 00 01 c9 c9 ca ca 88 88 ca ca c9 ca 88 88
+	//11 57 12 00 00 01 f2 f2 f2 f2 06 06 ca ca ca ca 18 18
+	packet[0] = 0x11;             //Length
+	packet[1] = rx_tx_addr[3];
+	packet[2] = rx_tx_addr[2];
+	packet[3] = counter;//	
+	packet[4]=telemetry_counter;	
+
+	packet[5] = 0x01;
+	//
+	packet[10] = 0;
+	packet[11] = 0;
+	packet[16] = 0;
+	packet[17] = 0;
+	for(uint8_t i = 0; i < 8; i++)
+	{
+		uint16_t value;
+			value = convert_channel_frsky(i);
+		if(i < 4)
+		{
+			packet[6+i] = value & 0xff;
+			packet[10+(i>>1)] |= ((value >> 8) & 0x0f) << (4 *(i & 0x01));
+		} 
+		else
+		{
+			packet[8+i] = value & 0xff;
+			packet[16+((i-4)>>1)] |= ((value >> 8) & 0x0f) << (4 * ((i-4) & 0x01));
+		}
+	}
+} 
+
 uint16_t initFrSky_2way()
 {
 	if(IS_AUTOBIND_FLAG_on)
@@ -49,6 +178,26 @@ uint16_t initFrSky_2way()
 	return 10000;
 }	
 		
+#if defined(TELEMETRY)
+static void __attribute__((unused)) check_telemetry(uint8_t *pkt,uint8_t len)
+{
+	if(pkt[1] != rx_tx_addr[3] || pkt[2] != rx_tx_addr[2] || len != pkt[0] + 3)
+	{//only packets with the required id and packet length
+		for(uint8_t i=3;i<6;i++)
+			pktt[i]=0;
+		return;
+	}
+	else
+	{	   
+		for (uint8_t i=3;i<len;i++)
+			pktt[i]=pkt[i];				 
+		telemetry_link=1;
+		if(pktt[6]>0)
+			telemetry_counter=(telemetry_counter+1)%32;		
+	}
+}
+#endif
+
 uint16_t ReadFrSky_2way()
 { 
 	if (state < FRSKY_BIND_DONE)
@@ -112,163 +261,4 @@ uint16_t ReadFrSky_2way()
 	}				
 	return state == FRSKY_DATA4 ? 7500 : 9000;		
 }
-
-#if defined(TELEMETRY)
-static void check_telemetry(uint8_t *pkt,uint8_t len)
-{
-	if(pkt[1] != rx_tx_addr[3] || pkt[2] != rx_tx_addr[2] || len != pkt[0] + 3)
-	{//only packets with the required id and packet length
-		for(uint8_t i=3;i<6;i++)
-			pktt[i]=0;
-		return;
-	}
-	else
-	{	   
-		for (uint8_t i=3;i<len;i++)
-			pktt[i]=pkt[i];				 
-		telemetry_link=1;
-		if(pktt[6]>0)
-			telemetry_counter=(telemetry_counter+1)%32;		
-	}
-}
-
-void compute_RSSIdbm(){ 
-	RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>5);
-	if(pktt[len-2] >=128)
-		RSSI_dBm -= 82;
-	else
-		RSSI_dBm += 65;
-}
-
-#endif
-
-static void frsky2way_init(uint8_t bind)
-{
-	// Configure cc2500 for tx mode
-	CC2500_Reset();
-	//
-	cc2500_writeReg(CC2500_02_IOCFG0, 0x06);		
-	cc2500_writeReg(CC2500_00_IOCFG2, 0x06);
-	cc2500_writeReg(CC2500_17_MCSM1, 0x0c);
-	cc2500_writeReg(CC2500_18_MCSM0, 0x18);
-	cc2500_writeReg(CC2500_06_PKTLEN, 0x19);
-	cc2500_writeReg(CC2500_07_PKTCTRL1, 0x04);
-	cc2500_writeReg(CC2500_08_PKTCTRL0, 0x05);
-	cc2500_writeReg(CC2500_3E_PATABLE, 0xff);
-	cc2500_writeReg(CC2500_0B_FSCTRL1, 0x08);
-	cc2500_writeReg(CC2500_0C_FSCTRL0, option);
-	//base freq              FREQ = 0x5C7627 (F = 2404MHz)
-	cc2500_writeReg(CC2500_0D_FREQ2, 0x5c);	
-	cc2500_writeReg(CC2500_0E_FREQ1, 0x76);
-	cc2500_writeReg(CC2500_0F_FREQ0, 0x27);
-	//		
-	cc2500_writeReg(CC2500_10_MDMCFG4, 0xAA);		
-	cc2500_writeReg(CC2500_11_MDMCFG3, 0x39);
-	cc2500_writeReg(CC2500_12_MDMCFG2, 0x11);
-	cc2500_writeReg(CC2500_13_MDMCFG1, 0x23);
-	cc2500_writeReg(CC2500_14_MDMCFG0, 0x7a);
-	cc2500_writeReg(CC2500_15_DEVIATN, 0x42);
-	cc2500_writeReg(CC2500_19_FOCCFG, 0x16);
-	cc2500_writeReg(CC2500_1A_BSCFG, 0x6c);	
-	cc2500_writeReg(CC2500_1B_AGCCTRL2, bind ? 0x43 : 0x03);
-	cc2500_writeReg(CC2500_1C_AGCCTRL1,0x40);
-	cc2500_writeReg(CC2500_1D_AGCCTRL0,0x91);
-	cc2500_writeReg(CC2500_21_FREND1, 0x56);
-	cc2500_writeReg(CC2500_22_FREND0, 0x10);
-	cc2500_writeReg(CC2500_23_FSCAL3, 0xa9);
-	cc2500_writeReg(CC2500_24_FSCAL2, 0x0A);
-	cc2500_writeReg(CC2500_25_FSCAL1, 0x00);
-	cc2500_writeReg(CC2500_26_FSCAL0, 0x11);
-	cc2500_writeReg(CC2500_29_FSTEST, 0x59);
-	cc2500_writeReg(CC2500_2C_TEST2, 0x88);
-	cc2500_writeReg(CC2500_2D_TEST1, 0x31);
-	cc2500_writeReg(CC2500_2E_TEST0, 0x0B);
-	cc2500_writeReg(CC2500_03_FIFOTHR, 0x07);
-	cc2500_writeReg(CC2500_09_ADDR, 0x00);
-	//
-	CC2500_SetTxRxMode(TX_EN);
-	CC2500_SetPower();
-	
-	cc2500_strobe(CC2500_SIDLE);	
-
-	cc2500_writeReg(CC2500_09_ADDR, bind ? 0x03 : rx_tx_addr[3]);
-	cc2500_writeReg(CC2500_07_PKTCTRL1, 0x05);
-	cc2500_strobe(CC2500_SIDLE);	// Go to idle...
-	//
-	cc2500_writeReg(CC2500_0A_CHANNR, 0x00);
-	cc2500_writeReg(CC2500_23_FSCAL3, 0x89);
-	cc2500_strobe(CC2500_SFRX);
-	//#######END INIT########		
-}
-	
-static uint8_t get_chan_num(uint16_t idx)
-{
-	uint8_t ret = (idx * 0x1e) % 0xeb;
-	if(idx == 3 || idx == 23 || idx == 47)
-		ret++;
-	if(idx > 47)
-		return 0;
-	return ret;
-}
-
-static void frsky2way_build_bind_packet()
-{
-	//11 03 01 d7 2d 00 00 1e 3c 5b 78 00 00 00 00 00 00 01
-	//11 03 01 19 3e 00 02 8e 2f bb 5c 00 00 00 00 00 00 01
-	packet[0] = 0x11;                
-	packet[1] = 0x03;                
-	packet[2] = 0x01;                
-	packet[3] = rx_tx_addr[3];
-	packet[4] = rx_tx_addr[2];
-	uint16_t idx = ((state -FRSKY_BIND) % 10) * 5;
-	packet[5] = idx;
-	packet[6] = get_chan_num(idx++);
-	packet[7] = get_chan_num(idx++);
-	packet[8] = get_chan_num(idx++);
-	packet[9] = get_chan_num(idx++);
-	packet[10] = get_chan_num(idx++);
-	packet[11] = 0x00;
-	packet[12] = 0x00;
-	packet[13] = 0x00;
-	packet[14] = 0x00;
-	packet[15] = 0x00;
-	packet[16] = 0x00;
-	packet[17] = 0x01;
-}
-
-
-
-static void frsky2way_data_frame()
-{//pachet[4] is telemetry user frame counter(hub)
-	//11 d7 2d 22 00 01 c9 c9 ca ca 88 88 ca ca c9 ca 88 88
-	//11 57 12 00 00 01 f2 f2 f2 f2 06 06 ca ca ca ca 18 18
-	packet[0] = 0x11;             //Length
-	packet[1] = rx_tx_addr[3];
-	packet[2] = rx_tx_addr[2];
-	packet[3] = counter;//	
-	packet[4]=telemetry_counter;	
-
-	packet[5] = 0x01;
-	//
-	packet[10] = 0;
-	packet[11] = 0;
-	packet[16] = 0;
-	packet[17] = 0;
-	for(uint8_t i = 0; i < 8; i++)
-	{
-		uint16_t value;
-			value = convert_channel_frsky(i);
-		if(i < 4)
-		{
-			packet[6+i] = value & 0xff;
-			packet[10+(i>>1)] |= ((value >> 8) & 0x0f) << (4 *(i & 0x01));
-		} 
-		else
-		{
-			packet[8+i] = value & 0xff;
-			packet[16+((i-4)>>1)] |= ((value >> 8) & 0x0f) << (4 * ((i-4) & 0x01));
-		}
-	}
-} 
-
 #endif

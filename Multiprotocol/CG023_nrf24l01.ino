@@ -70,7 +70,7 @@ enum H8_3D_FLAGS_2 {
     H8_3D_FLAG_CALIBRATE = 0x20,  // accelerometer calibration
 };
 
-static void CG023_send_packet(uint8_t bind)
+static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 {
 	// throttle : 0x00 - 0xFF
 	throttle=convert_channel_8b(THROTTLE);
@@ -205,7 +205,7 @@ static void CG023_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void CG023_init()
+static void __attribute__((unused)) CG023_init()
 {
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
@@ -246,7 +246,7 @@ uint16_t CG023_callback()
 	return	H8_3D_PACKET_PERIOD;
 }
 
-static void CG023_initialize_txid()
+static void __attribute__((unused)) CG023_initialize_txid()
 {
 	if(sub_protocol==H8_3D)
 	{

@@ -66,7 +66,7 @@ uint8_t ch_idx;
 uint8_t use_fixed_id;
 uint8_t failsafe_pkt;
 
-static void scramble_pkt()
+static void __attribute__((unused)) scramble_pkt()
 {
 #ifdef NO_SCRAMBLE
 	return;
@@ -77,7 +77,7 @@ static void scramble_pkt()
 #endif
 }
 
-static void add_pkt_suffix()
+static void __attribute__((unused)) add_pkt_suffix()
 {
 	uint8_t bind_state;
 	if (use_fixed_id)
@@ -97,7 +97,7 @@ static void add_pkt_suffix()
 	packet[15] = (fixed_id >> 16) & 0xff;
 }
 
-static void build_beacon_pkt(uint8_t upper)
+static void __attribute__((unused)) build_beacon_pkt(uint8_t upper)
 {
 	packet[0] = ((DEVO_NUM_CHANNELS << 4) | 0x07);
 //	uint8_t enable = 0;
@@ -116,7 +116,7 @@ static void build_beacon_pkt(uint8_t upper)
 	add_pkt_suffix();
 }
 
-static void build_bind_pkt()
+static void __attribute__((unused)) build_bind_pkt()
 {
 	packet[0] = (DEVO_NUM_CHANNELS << 4) | 0x0a;
 	packet[1] = bind_counter & 0xff;
@@ -136,7 +136,7 @@ static void build_bind_pkt()
 	packet[15] ^= cyrfmfg_id[2];
 }
 
-static void build_data_pkt()
+static void __attribute__((unused)) build_data_pkt()
 {
 	uint8_t i;
 	packet[0] = (DEVO_NUM_CHANNELS << 4) | (0x0b + ch_idx);
@@ -161,7 +161,7 @@ static void build_data_pkt()
 	add_pkt_suffix();
 }
 
-static void cyrf_set_bound_sop_code()
+static void __attribute__((unused)) cyrf_set_bound_sop_code()
 {
 	/* crc == 0 isn't allowed, so use 1 if the math results in 0 */
 	uint8_t crc = (cyrfmfg_id[0] + (cyrfmfg_id[1] >> 6) + cyrfmfg_id[2]);
@@ -174,7 +174,7 @@ static void cyrf_set_bound_sop_code()
 	CYRF_SetPower(0x08);
 }
 
-static void cyrf_init()
+static void __attribute__((unused)) cyrf_init()
 {
 	/* Initialise CYRF chip */
 	CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x39);
@@ -201,7 +201,7 @@ static void cyrf_init()
 	CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x28);
 }
 
-static void set_radio_channels()
+static void __attribute__((unused)) set_radio_channels()
 {
 	//int i;
 	CYRF_FindBestChannels(hopping_frequency, 3, 4, 4, 80);
@@ -217,7 +217,7 @@ static void set_radio_channels()
 	hopping_frequency[4] = hopping_frequency[1];
 }
 
-static void DEVO_BuildPacket()
+static void __attribute__((unused)) DEVO_BuildPacket()
 {
 	switch(phase)
 	{
@@ -302,7 +302,7 @@ uint16_t devo_callback()
 	return 1200;
 }
 
-/*static void devo_bind()
+/*static void __attribute__((unused)) devo_bind()
 {
 	fixed_id = Model_fixed_id;
 	bind_counter = DEVO_BIND_COUNT;
@@ -311,7 +311,7 @@ uint16_t devo_callback()
 }
 
 
-static void generate_fixed_id_bind(){
+static void __attribute__((unused)) generate_fixed_id_bind(){
 if(BIND_0){
 //randomSeed((uint32_t)analogRead(A6)<<10|analogRead(A7));//seed
 uint8_t txid[4];

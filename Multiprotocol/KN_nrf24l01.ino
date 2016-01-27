@@ -70,6 +70,205 @@ enum {
 	KN_FLAG_GYROR  = 0x80  // Always 0 so far
 };
 
+//-------------------------------------------------------------------------------------------------
+// This function init 24L01 regs and packet data for binding
+// Send tx address, hopping table (for Wl Toys), and data rate to the KN receiver during binding.
+// It seems that KN can remember these parameters, no binding needed after power up.
+// Bind uses fixed TX address "KNDZK", 1 Mbps data rate and channel 83
+//-------------------------------------------------------------------------------------------------
+static void __attribute__((unused)) kn_bind_init()
+{
+	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t*)"KNDZK", 5);
+	packet[0]  = 'K';
+	packet[1]  = 'N';
+	packet[2]  = 'D';
+	packet[3]  = 'Z';
+	//Use first four bytes of tx_addr
+	packet[4]  = rx_tx_addr[0];
+	packet[5]  = rx_tx_addr[1];
+	packet[6]  = rx_tx_addr[2];
+	packet[7]  = rx_tx_addr[3];
+
+	if(sub_protocol==WLTOYS)
+	{
+		packet[8]  = hopping_frequency[0];
+		packet[9]  = hopping_frequency[1];
+		packet[10] = hopping_frequency[2];
+		packet[11] = hopping_frequency[3];
+	}
+	else
+	{
+		packet[8]  = 0x00;
+		packet[9]  = 0x00;
+		packet[10] = 0x00;
+		packet[11] = 0x00;
+	}
+	packet[12] = 0x00;
+	packet[13] = 0x00;
+	packet[14] = 0x00;
+	packet[15] = 0x01;	//(USE1MBPS_YES) ? 0x01 : 0x00;
+
+	//Set RF channel
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 83);
+}
+
+//-------------------------------------------------------------------------------------------------
+// Update control data to be sent
+// Do it once per frequency, so the same values will be sent 4 times
+// KN uses 4 10-bit data channels plus a 8-bit switch channel
+//
+// The packet[0] is used for pitch/throttle, the relation is hard coded, not changeable.
+// We can change the throttle/pitch range though.
+//
+// How to use trim? V977 stock controller can trim 6-axis mode to eliminate the drift.
+//-------------------------------------------------------------------------------------------------
+static void __attribute__((unused)) kn_update_packet_control_data()
+{
+	uint16_t value;
+	value = convert_channel_10b(THROTTLE);
+	packet[0]  = (value >> 8) & 0xFF;
+	packet[1]  = value & 0xFF;
+	value = convert_channel_10b(AILERON);
+	packet[2]  = (value >> 8) & 0xFF;
+	packet[3]  = value & 0xFF;
+	value = convert_channel_10b(ELEVATOR);
+	packet[4]  = (value >> 8) & 0xFF;
+	packet[5]  = value & 0xFF;
+	value = convert_channel_10b(RUDDER);
+	packet[6]  = (value >> 8) & 0xFF;
+	packet[7]  = value & 0xFF;
+	// Trims, middle is 0x64 (100) range 0-200
+	packet[8]  = convert_channel_8b_scale(AUX5,0,200); // 0x64; // T
+	packet[9]  = convert_channel_8b_scale(AUX6,0,200); // 0x64; // A
+	packet[10] = convert_channel_8b_scale(AUX7,0,200); // 0x64; // E
+	packet[11] = 0x64; // R
+
+	flags=0;
+	if (Servo_data[AUX1] > PPM_SWITCH)
+		flags = KN_FLAG_DR;
+	if (Servo_data[AUX2] > PPM_SWITCH)
+		flags |= KN_FLAG_TH;
+	if (Servo_data[AUX3] > PPM_SWITCH)
+		flags |= KN_FLAG_IDLEUP;
+	if (Servo_data[AUX4] > PPM_SWITCH)
+		flags |= KN_FLAG_GYRO3;
+
+	packet[12] = flags;
+
+	packet[13] = 0x00;
+	if(sub_protocol==WLTOYS)
+		packet[13] = (packet_sent << 5) | (hopping_frequency_no << 2);
+
+	packet[14] = 0x00;
+	packet[15] = 0x00;
+
+	NRF24L01_SetPower();
+}
+
+
+//-------------------------------------------------------------------------------------------------
+// This function generate RF TX packet address
+// V977 can remember the binding parameters; we do not need rebind when power up.
+// This requires the address must be repeatable for a specific RF ID at power up.
+//-------------------------------------------------------------------------------------------------
+static void __attribute__((unused)) kn_calculate_tx_addr()
+{
+	if(sub_protocol==FEILUN)
+	{
+		uint8_t addr2;
+		// Generate TXID with sum of minimum 256 and maximum 256+MAX_RF_CHANNEL-32
+		rx_tx_addr[1] = 1 + rx_tx_addr[0] % (KN_MAX_RF_CHANNEL-33);
+		addr2 = 1 + rx_tx_addr[2] % (KN_MAX_RF_CHANNEL-33);
+		if ((uint16_t)(rx_tx_addr[0] + rx_tx_addr[1]) < 256)
+			rx_tx_addr[2] = addr2;
+		else
+			rx_tx_addr[2] = 0x00;
+		rx_tx_addr[3] = 0x00;
+		while((uint16_t)(rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2] + rx_tx_addr[3]) < 257)
+			rx_tx_addr[3] += addr2;
+	}
+    //The 5th byte is a constant, must be 'K'
+    rx_tx_addr[4] = 'K';
+}
+
+//-------------------------------------------------------------------------------------------------
+// This function generates "random" RF hopping frequency channel numbers.
+// These numbers must be repeatable for a specific seed
+// The generated number range is from 0 to MAX_RF_CHANNEL. No repeat or adjacent numbers
+//
+// For Feilun variant, the channels are calculated from TXID, and since only 2 channels are used
+// we copy them to fill up to MAX_RF_CHANNEL
+//-------------------------------------------------------------------------------------------------
+static void __attribute__((unused)) kn_calculate_freqency_hopping_channels()
+{
+	if(sub_protocol==WLTOYS)
+	{
+		uint8_t idx = 0;
+		uint32_t rnd = MProtocol_id;
+		while (idx < KN_RF_CH_COUNT)
+		{
+			uint8_t i;
+			rnd = rnd * 0x0019660D + 0x3C6EF35F; // Randomization
+
+			// Use least-significant byte. 73 is prime, so channels 76..77 are unused
+			uint8_t next_ch = ((rnd >> 8) % KN_MAX_RF_CHANNEL) + 2;
+			// Keep the distance 2 between the channels - either odd or even
+			if (((next_ch ^ MProtocol_id) & 0x01 )== 0)
+				continue;
+			// Check that it's not duplicate and spread uniformly
+			for (i = 0; i < idx; i++)
+				if(hopping_frequency[i] == next_ch)
+					break;
+			if (i != idx)
+				continue;
+			hopping_frequency[idx++] = next_ch;
+		}
+	}
+	else
+	{//FEILUN
+		hopping_frequency[0] = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2] + rx_tx_addr[3]; // - 256; ???
+		hopping_frequency[1] = hopping_frequency[0] + 32;
+		hopping_frequency[2] = hopping_frequency[0];
+		hopping_frequency[3] = hopping_frequency[1];
+	}
+}
+
+//-------------------------------------------------------------------------------------------------
+// This function setup 24L01
+// V977 uses one way communication, receiving only. 24L01 RX is never enabled.
+// V977 needs payload length in the packet. We should configure 24L01 to enable Packet Control Field(PCF)
+//   Some RX reg settings are actually for enable PCF
+//-------------------------------------------------------------------------------------------------
+static void __attribute__((unused)) kn_init()
+{
+	kn_calculate_tx_addr();
+	kn_calculate_freqency_hopping_channels();
+
+	NRF24L01_Initialize();
+
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO)); 
+	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknoledgement
+	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0
+	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address
+	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0);    // Disable retransmit
+	NRF24L01_SetPower();
+	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
+	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, 0x20);   // bytes of data payload for pipe 0
+
+
+	NRF24L01_Activate(0x73);
+	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 1); // Dynamic payload for data pipe 0
+	// Enable: Dynamic Payload Length to enable PCF
+	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, BV(NRF2401_1D_EN_DPL));
+
+	NRF24L01_SetPower();
+
+	NRF24L01_FlushTx();
+	// Turn radio power on
+	NRF24L01_SetTxRxMode(TX_EN);
+	NRF24L01_SetBitrate(NRF24L01_BR_1M);	//USE1MBPS_YES ? NRF24L01_BR_1M : NRF24L01_BR_250K;
+}
+  
 //================================================================================================
 // Private Functions
 //================================================================================================
@@ -145,202 +344,4 @@ uint16_t kn_callback()
     return packet_period;
 }
 
-//-------------------------------------------------------------------------------------------------
-// This function init 24L01 regs and packet data for binding
-// Send tx address, hopping table (for Wl Toys), and data rate to the KN receiver during binding.
-// It seems that KN can remember these parameters, no binding needed after power up.
-// Bind uses fixed TX address "KNDZK", 1 Mbps data rate and channel 83
-//-------------------------------------------------------------------------------------------------
-static void kn_bind_init()
-{
-	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t*)"KNDZK", 5);
-	packet[0]  = 'K';
-	packet[1]  = 'N';
-	packet[2]  = 'D';
-	packet[3]  = 'Z';
-	//Use first four bytes of tx_addr
-	packet[4]  = rx_tx_addr[0];
-	packet[5]  = rx_tx_addr[1];
-	packet[6]  = rx_tx_addr[2];
-	packet[7]  = rx_tx_addr[3];
-
-	if(sub_protocol==WLTOYS)
-	{
-		packet[8]  = hopping_frequency[0];
-		packet[9]  = hopping_frequency[1];
-		packet[10] = hopping_frequency[2];
-		packet[11] = hopping_frequency[3];
-	}
-	else
-	{
-		packet[8]  = 0x00;
-		packet[9]  = 0x00;
-		packet[10] = 0x00;
-		packet[11] = 0x00;
-	}
-	packet[12] = 0x00;
-	packet[13] = 0x00;
-	packet[14] = 0x00;
-	packet[15] = 0x01;	//(USE1MBPS_YES) ? 0x01 : 0x00;
-
-	//Set RF channel
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 83);
-}
-
-//-------------------------------------------------------------------------------------------------
-// Update control data to be sent
-// Do it once per frequency, so the same values will be sent 4 times
-// KN uses 4 10-bit data channels plus a 8-bit switch channel
-//
-// The packet[0] is used for pitch/throttle, the relation is hard coded, not changeable.
-// We can change the throttle/pitch range though.
-//
-// How to use trim? V977 stock controller can trim 6-axis mode to eliminate the drift.
-//-------------------------------------------------------------------------------------------------
-static void kn_update_packet_control_data()
-{
-	uint16_t value;
-	value = convert_channel_10b(THROTTLE);
-	packet[0]  = (value >> 8) & 0xFF;
-	packet[1]  = value & 0xFF;
-	value = convert_channel_10b(AILERON);
-	packet[2]  = (value >> 8) & 0xFF;
-	packet[3]  = value & 0xFF;
-	value = convert_channel_10b(ELEVATOR);
-	packet[4]  = (value >> 8) & 0xFF;
-	packet[5]  = value & 0xFF;
-	value = convert_channel_10b(RUDDER);
-	packet[6]  = (value >> 8) & 0xFF;
-	packet[7]  = value & 0xFF;
-	// Trims, middle is 0x64 (100) range 0-200
-	packet[8]  = convert_channel_8b_scale(AUX5,0,200); // 0x64; // T
-	packet[9]  = convert_channel_8b_scale(AUX6,0,200); // 0x64; // A
-	packet[10] = convert_channel_8b_scale(AUX7,0,200); // 0x64; // E
-	packet[11] = 0x64; // R
-
-	flags=0;
-	if (Servo_data[AUX1] > PPM_SWITCH)
-		flags = KN_FLAG_DR;
-	if (Servo_data[AUX2] > PPM_SWITCH)
-		flags |= KN_FLAG_TH;
-	if (Servo_data[AUX3] > PPM_SWITCH)
-		flags |= KN_FLAG_IDLEUP;
-	if (Servo_data[AUX4] > PPM_SWITCH)
-		flags |= KN_FLAG_GYRO3;
-
-	packet[12] = flags;
-
-	packet[13] = 0x00;
-	if(sub_protocol==WLTOYS)
-		packet[13] = (packet_sent << 5) | (hopping_frequency_no << 2);
-
-	packet[14] = 0x00;
-	packet[15] = 0x00;
-
-	NRF24L01_SetPower();
-}
-
-//-------------------------------------------------------------------------------------------------
-// This function setup 24L01
-// V977 uses one way communication, receiving only. 24L01 RX is never enabled.
-// V977 needs payload length in the packet. We should configure 24L01 to enable Packet Control Field(PCF)
-//   Some RX reg settings are actually for enable PCF
-//-------------------------------------------------------------------------------------------------
-static void kn_init()
-{
-	kn_calculate_tx_addr();
-	kn_calculate_freqency_hopping_channels();
-
-	NRF24L01_Initialize();
-
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO)); 
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknoledgement
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0);    // Disable retransmit
-	NRF24L01_SetPower();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, 0x20);   // bytes of data payload for pipe 0
-
-
-	NRF24L01_Activate(0x73);
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 1); // Dynamic payload for data pipe 0
-	// Enable: Dynamic Payload Length to enable PCF
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, BV(NRF2401_1D_EN_DPL));
-
-	NRF24L01_SetPower();
-
-	NRF24L01_FlushTx();
-	// Turn radio power on
-	NRF24L01_SetTxRxMode(TX_EN);
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);	//USE1MBPS_YES ? NRF24L01_BR_1M : NRF24L01_BR_250K;
-}
-
-//-------------------------------------------------------------------------------------------------
-// This function generate RF TX packet address
-// V977 can remember the binding parameters; we do not need rebind when power up.
-// This requires the address must be repeatable for a specific RF ID at power up.
-//-------------------------------------------------------------------------------------------------
-static void kn_calculate_tx_addr()
-{
-	if(sub_protocol==FEILUN)
-	{
-		uint8_t addr2;
-		// Generate TXID with sum of minimum 256 and maximum 256+MAX_RF_CHANNEL-32
-		rx_tx_addr[1] = 1 + rx_tx_addr[0] % (KN_MAX_RF_CHANNEL-33);
-		addr2 = 1 + rx_tx_addr[2] % (KN_MAX_RF_CHANNEL-33);
-		if ((uint16_t)(rx_tx_addr[0] + rx_tx_addr[1]) < 256)
-			rx_tx_addr[2] = addr2;
-		else
-			rx_tx_addr[2] = 0x00;
-		rx_tx_addr[3] = 0x00;
-		while((uint16_t)(rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2] + rx_tx_addr[3]) < 257)
-			rx_tx_addr[3] += addr2;
-	}
-    //The 5th byte is a constant, must be 'K'
-    rx_tx_addr[4] = 'K';
-}
-
-//-------------------------------------------------------------------------------------------------
-// This function generates "random" RF hopping frequency channel numbers.
-// These numbers must be repeatable for a specific seed
-// The generated number range is from 0 to MAX_RF_CHANNEL. No repeat or adjacent numbers
-//
-// For Feilun variant, the channels are calculated from TXID, and since only 2 channels are used
-// we copy them to fill up to MAX_RF_CHANNEL
-//-------------------------------------------------------------------------------------------------
-static void kn_calculate_freqency_hopping_channels()
-{
-	if(sub_protocol==WLTOYS)
-	{
-		uint8_t idx = 0;
-		uint32_t rnd = MProtocol_id;
-		while (idx < KN_RF_CH_COUNT)
-		{
-			uint8_t i;
-			rnd = rnd * 0x0019660D + 0x3C6EF35F; // Randomization
-
-			// Use least-significant byte. 73 is prime, so channels 76..77 are unused
-			uint8_t next_ch = ((rnd >> 8) % KN_MAX_RF_CHANNEL) + 2;
-			// Keep the distance 2 between the channels - either odd or even
-			if (((next_ch ^ MProtocol_id) & 0x01 )== 0)
-				continue;
-			// Check that it's not duplicate and spread uniformly
-			for (i = 0; i < idx; i++)
-				if(hopping_frequency[i] == next_ch)
-					break;
-			if (i != idx)
-				continue;
-			hopping_frequency[idx++] = next_ch;
-		}
-	}
-	else
-	{//FEILUN
-		hopping_frequency[0] = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2] + rx_tx_addr[3]; // - 256; ???
-		hopping_frequency[1] = hopping_frequency[0] + 32;
-		hopping_frequency[2] = hopping_frequency[0];
-		hopping_frequency[3] = hopping_frequency[1];
-	}
-}
-  
 #endif

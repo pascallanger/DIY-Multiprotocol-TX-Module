@@ -120,7 +120,7 @@ const uint8_t cyrfmfg_id[6] = {0xd4, 0x62, 0xd6, 0xad, 0xd3, 0xff}; //dx6i
 #endif
 */
 
-static void build_bind_packet()
+static void __attribute__((unused)) build_bind_packet()
 {
 	uint8_t i;
 	uint16_t sum = 384 - 0x10;//
@@ -153,7 +153,23 @@ static void build_bind_packet()
 	packet[15] = sum & 0xff;
 }
 
-static void build_data_packet(uint8_t upper)//
+static uint8_t __attribute__((unused)) PROTOCOL_SticksMoved(uint8_t init)
+{
+#define STICK_MOVEMENT 15*(PPM_MAX-PPM_MIN)/100	// defines when the bind dialog should be interrupted (stick movement STICK_MOVEMENT %)
+	static uint16_t ele_start, ail_start;
+    uint16_t ele = Servo_data[ELEVATOR];//CHAN_ReadInput(MIXER_MapChannel(INP_ELEVATOR));
+    uint16_t ail = Servo_data[AILERON];//CHAN_ReadInput(MIXER_MapChannel(INP_AILERON));
+    if(init) {
+        ele_start = ele;
+        ail_start = ail;
+        return 0;
+    }
+    uint16_t ele_diff = ele_start - ele;//abs(ele_start - ele);
+    uint16_t ail_diff = ail_start - ail;//abs(ail_start - ail);
+    return ((ele_diff + ail_diff) > STICK_MOVEMENT);//
+}
+
+static void __attribute__((unused)) build_data_packet(uint8_t upper)//
 {
 #if DSM2_NUM_CHANNELS==4
 	const uint8_t ch_map[] = {0, 1, 2, 3, 0xff, 0xff, 0xff};    //Guess
@@ -251,23 +267,7 @@ static void build_data_packet(uint8_t upper)//
 	}
 }
 
-static uint8_t PROTOCOL_SticksMoved(uint8_t init)
-{
-#define STICK_MOVEMENT 15*(PPM_MAX-PPM_MIN)/100	// defines when the bind dialog should be interrupted (stick movement STICK_MOVEMENT %)
-	static uint16_t ele_start, ail_start;
-    uint16_t ele = Servo_data[ELEVATOR];//CHAN_ReadInput(MIXER_MapChannel(INP_ELEVATOR));
-    uint16_t ail = Servo_data[AILERON];//CHAN_ReadInput(MIXER_MapChannel(INP_AILERON));
-    if(init) {
-        ele_start = ele;
-        ail_start = ail;
-        return 0;
-    }
-    uint16_t ele_diff = ele_start - ele;//abs(ele_start - ele);
-    uint16_t ail_diff = ail_start - ail;//abs(ail_start - ail);
-    return ((ele_diff + ail_diff) > STICK_MOVEMENT);//
-}
-
-static uint8_t get_pn_row(uint8_t channel)
+static uint8_t __attribute__((unused)) get_pn_row(uint8_t channel)
 {
 	return (sub_protocol == DSMX ? (channel - 2) % 5 : channel % 5);	
 }
@@ -299,7 +299,7 @@ const uint8_t init_vals[][2] = {
 	{CYRF_01_TX_LENGTH, 0x10}, //16byte packet
 };
 
-static void cyrf_config()
+static void __attribute__((unused)) cyrf_config()
 {
 	for(uint8_t i = 0; i < sizeof(init_vals) / 2; i++)	
 		CYRF_WriteRegister(init_vals[i][0], init_vals[i][1]);
@@ -307,7 +307,7 @@ static void cyrf_config()
 	CYRF_ConfigRFChannel(0x61);
 }
 
-static void initialize_bind_state()
+static void __attribute__((unused)) initialize_bind_state()
 {
 	const uint8_t pn_bind[] = { 0xc6,0x94,0x22,0xfe,0x48,0xe6,0x57,0x4e };
 	uint8_t data_code[32];
@@ -341,13 +341,13 @@ const uint8_t data_vals[][2] = {
 	{CYRF_10_FRAMING_CFG, 0xea},
 };
 
-static void cyrf_configdata()
+static void __attribute__((unused)) cyrf_configdata()
 {
 	for(uint8_t i = 0; i < sizeof(data_vals) / 2; i++)
 		CYRF_WriteRegister(data_vals[i][0], data_vals[i][1]);
 }
 
-static void set_sop_data_crc()
+static void __attribute__((unused)) set_sop_data_crc()
 {
 	uint8_t pn_row = get_pn_row(hopping_frequency[chidx]);
 	//printf("Ch: %d Row: %d SOP: %d Data: %d\n", ch[chidx], pn_row, sop_col, data_col);
@@ -362,7 +362,7 @@ static void set_sop_data_crc()
 	crcidx = !crcidx;
 }
 
-static void calc_dsmx_channel()
+static void __attribute__((unused)) calc_dsmx_channel()
 {
 	uint8_t idx = 0;
 	uint32_t id = ~(((uint32_t)cyrfmfg_id[0] << 24) | ((uint32_t)cyrfmfg_id[1] << 16) | ((uint32_t)cyrfmfg_id[2] << 8) | (cyrfmfg_id[3] << 0));

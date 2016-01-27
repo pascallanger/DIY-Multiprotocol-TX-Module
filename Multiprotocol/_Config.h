@@ -23,6 +23,7 @@
 
 //Uncomment to enable telemetry
 #define TELEMETRY
+#define HUB_TELEMETRY
 
 //Comment a protocol to exclude it from compilation
 #define	BAYANG_NRF24L01_INO

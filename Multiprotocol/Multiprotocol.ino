@@ -89,9 +89,9 @@ uint8_t cur_protocol[2];
 uint8_t prev_protocol=0;
 
 // Telemetry
-#if defined(TELEMETRY)
 #define MAX_PKT 27
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
+#if defined(TELEMETRY)
 uint8_t pktt[MAX_PKT];//telemetry receiving packets
 volatile uint8_t tx_head;
 volatile uint8_t tx_tail;
@@ -176,6 +176,9 @@ void setup()
 		//Configure PPM interrupt
 		EICRA |=(1<<ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
 		EIMSK |= (1<<INT1);		// INT1 interrupt enable
+#if defined(TELEMETRY)
+		PPM_Telemetry_serial_init();		// Configure serial for telemetry
+#endif
 	}
 	else
 	{ // Serial
@@ -577,6 +580,16 @@ static void Mprotocol_serial_init()
 		UDR0;
 	//enable reception and RC complete interrupt
 	UCSR0B |= (1<<RXEN0)|(1<<RXCIE0);//rx enable and interrupt
+	UCSR0B |= (1<<TXEN0);//tx enable
+}
+
+static void PPM_Telemetry_serial_init()
+{
+	//9600 bauds
+	UBRR0H = 0x00;
+	UBRR0L = 0x67;
+	//Set frame format to 8 data bits, none, 1 stop bit
+	UCSR0C |= (1<<UCSZ01)|(1<<UCSZ00);
 	UCSR0B |= (1<<TXEN0);//tx enable
 }
 

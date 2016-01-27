@@ -38,7 +38,7 @@ enum BAYANG_FLAGS {
     BAYANG_FLAG_INVERTED	= 0x80 // inverted flight on Floureon H101
 };
 
-static void BAYANG_send_packet(uint8_t bind)
+static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 {
 	uint8_t i;
 	if (bind)
@@ -112,7 +112,7 @@ static void BAYANG_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void BAYANG_init()
+static void __attribute__((unused)) BAYANG_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -148,7 +148,7 @@ uint16_t BAYANG_callback()
 	return BAYANG_PACKET_PERIOD;
 }
 
-static void BAYANG_initialize_txid()
+static void __attribute__((unused)) BAYANG_initialize_txid()
 {
 	//Could be using txid[0..2] but using rx_tx_addr everywhere instead...
 	hopping_frequency[0]=0;

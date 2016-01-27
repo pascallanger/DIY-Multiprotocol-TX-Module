@@ -31,7 +31,7 @@ enum {
 	SLT_DATA3
 };
 
-static void SLT_init()
+static void __attribute__((unused)) SLT_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO)); // 2-bytes CRC, radio off
@@ -47,7 +47,7 @@ static void SLT_init()
 	NRF24L01_FlushRx();
 }
 
-static void SLT_init2()
+static void __attribute__((unused)) SLT_init2()
 {
 	NRF24L01_FlushTx();
 	packet_sent = 0;
@@ -57,7 +57,7 @@ static void SLT_init2()
 	NRF24L01_SetTxRxMode(TX_EN);
 }
 
-static void SLT_set_tx_id(void)
+static void __attribute__((unused)) SLT_set_tx_id(void)
 {
 	// Frequency hopping sequence generation
 	for (uint8_t i = 0; i < 4; ++i)
@@ -90,14 +90,14 @@ static void SLT_set_tx_id(void)
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 4);
 }
 
-static void SLT_wait_radio()
+static void __attribute__((unused)) SLT_wait_radio()
 {
 	if (packet_sent)
 		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_TX_DS))) ;
 	packet_sent = 0;
 }
 
-static void SLT_send_data(uint8_t *data, uint8_t len)
+static void __attribute__((unused)) SLT_send_data(uint8_t *data, uint8_t len)
 {
 	SLT_wait_radio();
 	NRF24L01_FlushTx();
@@ -107,7 +107,7 @@ static void SLT_send_data(uint8_t *data, uint8_t len)
 	packet_sent = 1;
 }
 
-static void SLT_build_packet()
+static void __attribute__((unused)) SLT_build_packet()
 {
 	// aileron, elevator, throttle, rudder, gear, pitch
 	uint8_t e = 0; // byte where extension 2 bits for every 10-bit channel are packed
@@ -129,7 +129,7 @@ static void SLT_build_packet()
 		hopping_frequency_no = 0;
 }
 
-static void SLT_send_bind_packet()
+static void __attribute__((unused)) SLT_send_bind_packet()
 {
 	SLT_wait_radio();
 	BIND_IN_PROGRESS;	// autobind protocol

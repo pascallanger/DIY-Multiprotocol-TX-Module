@@ -23,14 +23,14 @@
 #define ESKY_PAYLOAD_SIZE	13
 #define ESKY_PACKET_CHKTIME	100 // Time to wait for packet to be sent (no ACK, so very short)
 
-static void ESKY_set_data_address()
+static void __attribute__((unused)) ESKY_set_data_address()
 {
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x02);     // 4-byte RX/TX address for regular packets
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 4);
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    rx_tx_addr, 4);
 }
 
-static void ESKY_init(uint8_t bind)
+static void __attribute__((unused)) ESKY_init(uint8_t bind)
 {
 	NRF24L01_Initialize();
 
@@ -60,7 +60,7 @@ static void ESKY_init(uint8_t bind)
 	NRF24L01_WriteReg(NRF24L01_17_FIFO_STATUS, 0x00);      // Just in case, no real bits to write here
 }
 
-static void ESKY_init2()
+static void __attribute__((unused)) ESKY_init2()
 {
 	NRF24L01_FlushTx();
 	packet_sent = 0;
@@ -90,7 +90,7 @@ static void ESKY_init2()
 	NRF24L01_SetTxRxMode(TX_EN);
 }
 
-static void ESKY_send_packet(uint8_t bind)
+static void __attribute__((unused)) ESKY_send_packet(uint8_t bind)
 {
 	uint8_t rf_ch = 50; // bind channel
 	if (bind)

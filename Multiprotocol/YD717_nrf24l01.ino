@@ -41,7 +41,7 @@ enum {
 	YD717_DATA
 };
 
-static void yd717_send_packet(uint8_t bind)
+static void __attribute__((unused)) yd717_send_packet(uint8_t bind)
 {
 	uint8_t rudder_trim, elevator_trim, aileron_trim;
 	if (bind)
@@ -125,7 +125,7 @@ static void yd717_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void yd717_init()
+static void __attribute__((unused)) yd717_init()
 {
 	NRF24L01_Initialize();
 
@@ -162,7 +162,7 @@ static void yd717_init()
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
 }
 
-static void YD717_init1()
+static void __attribute__((unused)) YD717_init1()
 {
 	// for bind packets set address to prearranged value known to receiver
 	uint8_t bind_rx_tx_addr[] = {0x65, 0x65, 0x65, 0x65, 0x65};
@@ -179,7 +179,7 @@ static void YD717_init1()
     NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, bind_rx_tx_addr, 5);
 }
 
-static void YD717_init2()
+static void __attribute__((unused)) YD717_init2()
 {
     // set rx/tx address for data phase
     NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);

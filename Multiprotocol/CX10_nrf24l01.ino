@@ -46,7 +46,7 @@ enum {
     CX10_DATA
 };
 
-static void CX10_Write_Packet(uint8_t bind)
+static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 {
 	uint8_t offset = 0;
 	if(sub_protocol == CX10_BLUE)
@@ -166,7 +166,7 @@ static void CX10_Write_Packet(uint8_t bind)
 	NRF24L01_SetPower();
 }
 
-static void CX10_init()
+static void __attribute__((unused)) CX10_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -226,7 +226,7 @@ uint16_t CX10_callback() {
 	return packet_period;
 }
 
-static void initialize_txid()
+static void __attribute__((unused)) initialize_txid()
 {
 	rx_tx_addr[1]%= 0x30;
 	if(sub_protocol==Q282)

@@ -72,7 +72,7 @@ uint8_t RX_num;
 
 // Mode_select variables
 uint8_t mode_select;
-uint8_t ppm_select;
+uint8_t ppm_select=0, flag_decal=0;
 uint8_t protocol_flags=0,protocol_flags2=0;
 
 // Serial variables
@@ -161,14 +161,16 @@ void setup()
 
 	//Protocol and interrupts initialization
 	#if !defined(POTAR_SELECT)
-	if(mode_select == MODE_SERIAL)
-	{ // Serial
-		cur_protocol[0]=0;
-		cur_protocol[1]=0;
-		prev_protocol=0;
-		Mprotocol_serial_init(); // Configure serial and enable RX interrupt
-	}
-	else
+		if(mode_select == MODE_SERIAL)
+		{ // Serial
+			cur_protocol[0]=0;
+			cur_protocol[1]=0;
+			prev_protocol=0;
+			Mprotocol_serial_init(); // Configure serial and enable RX interrupt
+		}
+		else
+	#else
+		if(mode_select==MODE_SERIAL) { flag_decal=1; } else { flag_decal=0;}
 	#endif 
 	{ // PPM
 		prev_protocol=0;
@@ -188,22 +190,19 @@ void setup()
 void loop()
 {
 	#if !defined(POTAR_SELECT)
-	if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
-	{
-		update_serial_data(); // Update protocol and data
-		update_aux_flags();
-	}
-	#endif 
-	if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)	// PPM mode and a full frame has been received
-	{
-		for(uint8_t i=0;i<NUM_CHN;i++)
-		{ // update servo data without interrupts to prevent bad read in protocols
-			cli();  // disable global int
-			Servo_data[i]=PPM_data[i];
-			sei();  // enable global int
+		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
+		{
+			update_serial_data(); // Update protocol and data
+			update_aux_flags();
 		}
+		if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)	// PPM mode and a full frame has been received
+	#else
+		if(IS_PPM_FLAG_on)	// PPM mode and a full frame has been received
+	#endif 
+	{
+		update_PPM_servo();
 		update_aux_flags();
-		PPM_FLAG_off; // wait for next frame before update
+		update_ppm_data();
 	}
 	if(IS_CHANGE_PROTOCOL_FLAG_on)	{ // Protocol needs to be changed
 		LED_OFF;                  //led off during protocol init
@@ -220,16 +219,20 @@ void loop()
 		CheckTimer(remote_callback); 
 }
 
+static void update_PPM_servo(void) {
+	for(uint8_t i=0;i<NUM_CHN;i++) { // update servo data without interrupts to prevent bad read in protocols
+		cli();  // disable global int
+		Servo_data[i]=PPM_data[i];
+		sei();  // enable global int
+	}
+	PPM_FLAG_off; // wait for next frame before update
+}
 // Update Servo_AUX flags based on servo AUX positions
 static void update_aux_flags(void)
 {
 	Servo_AUX=0;
 	for(uint8_t i=0;i<8;i++)
-		#if defined(POTAR_SELECT)
-			if(Servo_data[AUX2+i]>PPM_SWITCH)
-		#else
-			if(Servo_data[AUX1+i]>PPM_SWITCH)
-		#endif 
+		if(Servo_data[AUX1+i+flag_decal]>PPM_SWITCH)
 			Servo_AUX|=1<<i;
 }
 
@@ -446,39 +449,39 @@ static void protocol_init()
 
 static void update_ppm_data() {
 	#if defined(POTAR_SELECT)
-		if(Servo_data[AUX1+i]>PPM_SWITCH) { CHANGE_PROTOCOL_FLAG_on; }
+		if(Servo_data[AUX1]>PPM_SWITCH) { CHANGE_PROTOCOL_FLAG_on; }
 	#endif 
 	if(IS_CHANGE_PROTOCOL_FLAG_on)	{
+		ppm_select = 10;
+		
+		if(mode_select == 0) {
+			while(ppm_select) {
+				while(!IS_PPM_FLAG_on) {} // wait
+				update_PPM_servo();
+				if(Servo_data[AUX1] < PPM_MAX_100) { ppm_select--; }
+			}	// attente de la déactivation du rebind
+		}
 		prev_protocol = ppm_select;
 		
-		ppm_select = 0;
 		// protocol selection
-		// THROTTLE up
-		if(Servo_data[POTAR_SELECT_M] > PPM_MAX_COMMAND)  { ppm_select += 18; }
-		// THROTTLE down
-		else if(Servo_data[POTAR_SELECT_M] < PPM_MIN_COMMAND) { ppm_select += 9; }
-		// THROTTLE middle
-		else { ppm_select += 0; }
+		ppm_select = 0;
+		if(Servo_data[POTAR_SELECT_M] > PPM_MAX_COMMAND)  { ppm_select += 18; }			// THROTTLE up
+		else if(Servo_data[POTAR_SELECT_M] < PPM_MIN_COMMAND) { ppm_select += 9; }		// THROTTLE down
+		else { ppm_select += 0; }		// THROTTLE middle
 		
 		
-		// Elevator up
-		if(Servo_data[POTAR_SELECT_V] > PPM_MAX_COMMAND)  { ppm_select += 7; }
-		// Elevator down
-		else if(Servo_data[POTAR_SELECT_V] < PPM_MIN_COMMAND) { ppm_select += 1; }
-		// Elevator middle
-		else { ppm_select += 4; }
+		if(Servo_data[POTAR_SELECT_V] > PPM_MAX_COMMAND)  { ppm_select += 7; }			// Elevator up
+		else if(Servo_data[POTAR_SELECT_V] < PPM_MIN_COMMAND) { ppm_select += 1; }		// Elevator down
+		else { ppm_select += 4; }		// Elevator middle
 		
-		// Aileron right
-		if(Servo_data[POTAR_SELECT_H] > PPM_MAX_COMMAND) { ppm_select += 2; }
-		// Aileron left
-		else if(Servo_data[POTAR_SELECT_H] < PPM_MIN_COMMAND) { ppm_select += 0; }
-		// Aileron middle
-		else { ppm_select += 1; }
+		if(Servo_data[POTAR_SELECT_H] > PPM_MAX_COMMAND) { ppm_select += 2; }			// Aileron right
+		else if(Servo_data[POTAR_SELECT_H] < PPM_MIN_COMMAND) { ppm_select += 0; }		// Aileron left
+		else { ppm_select += 1; }		// Aileron middle
 		
-//	if(ppm_select == 5) { ppm_select = eeprom_read_byte(30); } else { eeprom_update_byte(30, ppm_select); }
-		if(ppm_select > 5) { ppm_select--; }
+//		if(ppm_select == 5) { ppm_select = eeprom_read_byte(30); } else { eeprom_update_byte(30, ppm_select); }
 		
-		if(mode_select > MODE_SERIAL) {
+		if(ppm_select != 5) {
+			if(ppm_select > 5) { ppm_select--; }
 			ppm_select--;
 			cur_protocol[0]	=	PPM_prot[ppm_select].protocol;
 			sub_protocol   	=	PPM_prot[ppm_select].sub_proto;
@@ -488,6 +491,8 @@ static void update_ppm_data() {
 			if(PPM_prot[ppm_select].autobind)	AUTOBIND_FLAG_on;
 			ppm_select++;
 		}
+		
+		while(Servo_data[THROTTLE] > PPM_MIN_100) { delay(100); update_PPM_servo(); }	// attente de la remise des gaz à zéro (poussé à fond avec le script lua)
 	}
 }
 static void update_serial_data()

@@ -477,7 +477,7 @@ You can 3D print your box (details [here](http://www.rcgroups.com/forums/showpos
 ##Compilation and programmation
 
 ###Toolchain
-Arduino 1.6.5. Make sure to select "Arduino Pro or Pro Mini, ATmega328 (5V,16MHz)".
+Supported Arduino version is [1.6.5](http://arduino.cc/download.php?f=/arduino-1.6.5-r5-windows.exe). Make sure to select "Arduino Pro or Pro Mini, ATmega328 (5V,16MHz)" before compiling.
 
 Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
 

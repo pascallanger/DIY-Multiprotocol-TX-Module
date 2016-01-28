@@ -8,10 +8,6 @@
 #define USER_MAX_BYTES 6
 #define MAX_PKTX 10
 uint8_t frame[18];
-uint8_t pass = 0;
-uint8_t index;
-uint8_t prev_index;
-uint8_t pktx[MAX_PKTX];
 
 void frskySendStuffed()
 {
@@ -63,7 +59,8 @@ void frsky_link_frame()
 #if defined HUB_TELEMETRY
 void frsky_user_frame()
 {
-	uint8_t indexx = 0, c=0, j=8, n=0, i;
+	static uint8_t indexx = 0, pass=0, index, pktx[MAX_PKTX];
+	uint8_t c=0, j=8, n=0, i;
 
 	if(pktt[6]>0 && pktt[6]<=MAX_PKTX)
 	{//only valid hub frames	  
@@ -93,7 +90,6 @@ void frsky_user_frame()
 		
 			case 1:
 				index=indexx;
-				prev_index = indexx; 
 				if(index<USER_MAX_BYTES)
 				{   			
 					for(i=0;i<index;i++)
@@ -110,8 +106,8 @@ void frsky_user_frame()
 				}			
 				break;
 			case 2:		
-				index = prev_index - index;
-				prev_index=0;
+				index = indexx - index;
+				indexx=0;
 				if(index<MAX_PKTX-USER_MAX_BYTES)	//10-6=4
 					for(i=0;i<index;i++)
 						frame[i+3]=pktx[USER_MAX_BYTES+i];

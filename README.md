@@ -76,7 +76,7 @@ FRSky displays full telemetry (A0, A1, RSSI, TSSI and Hub).
 
 Telemetry is available as a serial 9600 8 n 1 output on the TX pin of the Atmega328p using the FRSky hub format.
 
-You can connect it to your TX if it is telemetry enabled or use a bluetooth adapter along with an app on your phone to display telemetry information and setup alerts.
+You can connect it to your TX if it is telemetry enabled or use a bluetooth adapter (HC05/HC06) along with an app on your phone/tablet ([app example](https://play.google.com/store/apps/details?id=biz.onomato.frskydash&hl=fr)) to display telemetry information and setup alerts.
 
 ### If used in Serial mode
  Telemetry is built in for er9x and ersky9x TXs.

@@ -99,7 +99,6 @@ uint8_t v_lipo;
 int16_t RSSI_dBm;
 //const uint8_t RSSI_offset=72;//69 71.72 values db
 uint8_t telemetry_link=0; 
-#include "telemetry.h"
 #endif 
 
 // Callback
@@ -583,6 +582,7 @@ static void Mprotocol_serial_init()
 	UCSR0B |= (1<<TXEN0);//tx enable
 }
 
+#if defined(TELEMETRY)
 static void PPM_Telemetry_serial_init()
 {
 	//9600 bauds
@@ -592,6 +592,7 @@ static void PPM_Telemetry_serial_init()
 	UCSR0C |= (1<<UCSZ01)|(1<<UCSZ00);
 	UCSR0B |= (1<<TXEN0);//tx enable
 }
+#endif
 
 // Convert 32b id to rx_tx_addr
 static void set_rx_tx_addr(uint32_t id)

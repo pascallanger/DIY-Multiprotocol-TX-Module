@@ -68,9 +68,9 @@ Notes:
 
 There are only 2 protocols so far supporting telemetry: Hubsan and Frsky.
 
-Hubsan displays the battery voltage.
+Hubsan displays the battery voltage and TX RSSI.
 
-FRSky displays full telemetry (A0, A1, RSSI, TSSI and Hub).
+FRSky displays full telemetry (A0, A1, RX RSSI, TX RSSI and Hub).
 
 ### If used in PPM mode
 
@@ -360,7 +360,7 @@ Models: Hubsan H102D, H107/L/C/D and Hubsan H107P/C+/D+
 
 Autobind protocol
 
-Telemetry enabled for battery voltage only
+Telemetry enabled for battery voltage and TX RSSI
 
 Option=vTX frequency (H107D) 5645 - 5900 MHz
 

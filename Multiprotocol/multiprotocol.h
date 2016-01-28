@@ -13,6 +13,14 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Check selected board type
+#ifndef ARDUINO_AVR_PRO
+	#error You must select the board type "Arduino Pro or Pro Mini"
+#endif
+#if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
+	#error You must select the processor type "ATmega328(5V, 16MHz)"
+#endif
+
 //******************
 // Protocols
 //******************

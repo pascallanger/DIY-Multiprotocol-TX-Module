@@ -181,14 +181,15 @@ static void __attribute__((unused)) hubsan_build_packet()
 }
 
 #if defined(TELEMETRY)
-/*static uint8_t hubsan_check_integrity() 
+static uint8_t __attribute__((unused)) hubsan_check_integrity() 
 {
-    int sum = 0;
+    if( (packet[0]&0xFE) != 0xE0 )
+		return 0;
+	uint8_t sum = 0;
     for(uint8_t i = 0; i < 15; i++)
         sum += packet[i];
-    return packet[15] == ((256 - (sum % 256)) & 0xFF);
+	return ( packet[15] == (uint8_t)(-sum) );
 }
-*/
 #endif
 
 uint16_t ReadHubsan() 
@@ -295,7 +296,8 @@ uint16_t ReadHubsan()
 			}
 			else {
 #if defined(TELEMETRY)
-				if( rfMode == A7105_TX) {// switch to rx mode 3ms after packet sent
+				if( rfMode == A7105_TX)
+				{// switch to rx mode 3ms after packet sent
 					for( i=0; i<10; i++)
 					{
 						if( !(A7105_ReadReg(A7105_00_MODE) & 0x01)) {// wait for tx completion
@@ -306,15 +308,23 @@ uint16_t ReadHubsan()
 						}
 					}
 				}
-				if( rfMode == A7105_RX) { // check for telemetry frame
-					for( i=0; i<10; i++) {
-						if( !(A7105_ReadReg(A7105_00_MODE) & 0x01)) { // data received
+				if( rfMode == A7105_RX)
+				{ // check for telemetry frame
+					for( i=0; i<10; i++)
+					{
+						if( !(A7105_ReadReg(A7105_00_MODE) & 0x01))
+						{ // data received
 							A7105_ReadData();
-							if( !(A7105_ReadReg(A7105_00_MODE) & 0x01)){ // data received
-								v_lipo=packet[13];// hubsan lipo voltage 8bits the real value is h_lipo/10(0x2A=42-4.2V)
+							if( hubsan_check_integrity() )
+							{
+								v_lipo=packet[13];// hubsan lipo voltage 8bits the real value is h_lipo/10(0x2A=42 -> 4.2V)
 								telemetry_link=1;
 							}	
 							A7105_Strobe(A7105_RX);
+							// Read TX RSSI
+							RSSI_dBm=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;		// value from A7105 is between 8 for maximum signal strength to 160 or less
+							if(RSSI_dBm<0) RSSI_dBm=0;
+							else if(RSSI_dBm>255) RSSI_dBm=255;
 							break;
 						}
 					}
@@ -344,7 +354,6 @@ uint16_t initHubsan() {
 	packet_count=0;
 	id_data=ID_NORMAL;
 #if defined(TELEMETRY)
-	v_lipo=0;
 	telemetry_link=0;
 #endif
 	return 10000;

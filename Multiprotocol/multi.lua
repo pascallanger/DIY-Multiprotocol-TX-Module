@@ -44,7 +44,7 @@ local function run_func(proto, sw)
 	
 	-- delais init
 	if proto ~= debut then
-		tps = getTime() + 500 	-- delai pour mini 12 cycle PPM
+		tps = getTime() + 250 	-- delai pour mini 12 cycle PPM
 		tpsact = 1024
 		debut = proto
 	end
@@ -54,7 +54,7 @@ local function run_func(proto, sw)
 	local dir = 0
 	local pro = 0
 	
-	if tpsact == 0 and sw < 200 then
+	if tpsact == 0 and sw < 100 then
 		-- reprise valeur input
 		pro = getValue(1)
 		ail = getValue(2)
@@ -82,7 +82,10 @@ local function run_func(proto, sw)
 		if proto % 3 == 1 then dir = -1024 end
 		if proto % 3 == 0 then dir = 1024 end
 		
-		if tps < getTime() then tpsact = 0 end
+		if tps < getTime() then
+			tpsact = tpsact - 512
+			if tpsact>-20 then tps = getTime() + 250 end
+		end
 		sw = tpsact
 	end
 	

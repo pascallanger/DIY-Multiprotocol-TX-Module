@@ -22,7 +22,7 @@ void frskySendStuffed()
 		if ((frame[i] == 0x7e) || (frame[i] == 0x7d))
 		{
 			Serial_write(0x7D);	    	  
-			frame[i] ^= 0x20;			
+			frame[i] ^= 0x20;	
 		}
 		Serial_write(frame[i]);
 	}
@@ -39,25 +39,24 @@ void compute_RSSIdbm(){
 
 void frsky_link_frame()
 {
-	frame[0] = 0xfe;
+	frame[0] = 0xFE;
 	if ((cur_protocol[0]&0x1F)==MODE_FRSKY)
 	{		
-				compute_RSSIdbm();
-				frame[1] = pktt[3];
-				frame[2] = pktt[4];
-				frame[3] = (uint8_t)RSSI_dBm; 
+		compute_RSSIdbm();				
+		frame[1] = pktt[3];
+		frame[2] = pktt[4];
+		frame[3] = (uint8_t)RSSI_dBm; 
 		frame[4] = pktt[5]*2;
-				frame[5] = frame[6] = frame[7] = frame[8] = 0;
-			}
+	}
 	else
 		if ((cur_protocol[0]&0x1F)==MODE_HUBSAN)
 		{	
 			frame[1] = v_lipo*2; //v_lipo; common 0x2A=42/10=4.2V
 			frame[2] = frame[1];			
-			frame[3] =0X6e;
-			frame[4] =2*0x6e;				
-				frame[5] = frame[6] = frame[7] = frame[8] = 0;
-			}	
+			frame[3] = 0x00;
+			frame[4] = (uint8_t)RSSI_dBm;
+		}
+	frame[5] = frame[6] = frame[7] = frame[8] = 0;			
 	frskySendStuffed();
 }
 
@@ -129,7 +128,7 @@ void frsky_user_frame()
 	}
 	else
 		pass=0;
-}
+}	   
 #endif
 
 void frskyUpdate()
@@ -141,7 +140,7 @@ void frskyUpdate()
 		return;
 	}
 	#if defined HUB_TELEMETRY
-	if(!telemetry_link)
+	if(!telemetry_link && (cur_protocol[0]&0x1F) != MODE_HUBSAN )
 		frsky_user_frame();
 	#endif
 }

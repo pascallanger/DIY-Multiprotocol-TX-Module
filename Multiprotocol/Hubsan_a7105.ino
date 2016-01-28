@@ -181,10 +181,11 @@ static void __attribute__((unused)) hubsan_build_packet()
 }
 
 #if defined(TELEMETRY)
-static uint8_t __attribute__((unused)) hubsan_check_integrity() 
+static __attribute__((unused)) uint8_t hubsan_check_integrity() 
 {
     if( (packet[0]&0xFE) != 0xE0 )
 		return 0;
+	return 1;
 	uint8_t sum = 0;
     for(uint8_t i = 0; i < 15; i++)
         sum += packet[i];

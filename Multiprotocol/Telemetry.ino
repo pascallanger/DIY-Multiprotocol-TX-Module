@@ -141,7 +141,7 @@ void frskyUpdate()
 		return;
 	}
 	#if defined HUB_TELEMETRY
-	if(!telemetry_link)
+	if(!telemetry_link && (cur_protocol[0]&0x1F) != MODE_HUBSAN )
 		frsky_user_frame();
 	#endif
 }

@@ -437,8 +437,8 @@ RF modules can be installed for protocols need only. Example: if you only need t
 
 You also need some [antennas](http://www.banggood.com/2_4GHz-3dBi-RP-SMA-Connector-Booster-Wireless-Antenna-Modem-Router-p-979407.html) and [cables](http://www.banggood.com/10cm-PCI-UFL-IPX-to-RPSMA-Female-Jack-Pigtail-Cable-p-924933.html).
 
-###Microcontroller
-The main program is running on an ATMEGA328 running @16MHz and 3.3V.
+###Board
+The main program is running on an ATMEGA328p running @16MHz and 3.3V.
 An [Arduino pro mini](http://www.banggood.com/Wholesale-New-Ver-Pro-Mini-ATMEGA328-328p-5V-16MHz-Arduino-Compatible-Nano-Size-p-68534.html) can be used to build your own Multimodule.
 
 Using stripboard:

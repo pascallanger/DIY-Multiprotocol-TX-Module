@@ -126,7 +126,7 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 9|KN|WLTOYS|0|High|No|0|NRF24L01
 10|SYMAX|SYMAX|0|High|No|0|NRF24L01
 11|SLT|-|0|High|No|0|NRF24L01
-12|CX10|CX10_BLUE|0|High|No|0|NRF24L01
+12|CX10|BLUE|0|High|No|0|NRF24L01
 13|CG023|CG023|0|High|No|0|NRF24L01
 14|BAYANG|-|0|High|No|0|NRF24L01
 15|SYMAX|SYMAX5C|0|High|No|0|NRF24L01
@@ -274,7 +274,7 @@ CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---
 FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 
-Model: JXD 509 is using CX10_Q282 with CH12=Start/Stop motors
+Model: JXD 509 is using Q282 with CH12=Start/Stop motors
 
 #####Sub_protocol JC3015_1
 

@@ -187,7 +187,6 @@ ESky||NRF24L01
 MT99XX||NRF24L01
  |MT
  |H7
- |YZ
 
 Note:
 - The dial should be set to 0 for serial. Which means all protocol selection pins should be left unconnected.
@@ -396,8 +395,6 @@ A|E|T|R|FLIP||PICTURE|VIDEO|PITCH_Trim|ROLL_Trim
 Models: MT99xx
 #####Sub_protocol H7
 Models: Eachine H7
-#####Sub_protocol YZ
-Models: YIZHAN YZ i6S
 
 ####SLT
 Autobind protocol

@@ -169,8 +169,8 @@ SymaX||NRF24L01
  |SYMAX5C
 SLT||NRF24L01
 CX10||NRF24L01
- |CX10_GREEN
- |CX10_BLUE
+ |GREEN
+ |BLUE
  |DM007
  |Q282
  |JC3015_1
@@ -248,12 +248,12 @@ A|E|T|R|FLIP|RATE
 
 Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3
 
-#####Sub_protocol CX10_GREEN
+#####Sub_protocol GREEN
 Models: Cheerson CX-10 green pcb
 
 Same channels assignement as above.
 
-#####Sub_protocol CX10_BLUE
+#####Sub_protocol BLUE
 Models: Cheerson CX-10 blue pcb & some newer red pcb, CX-10A, CX-10C, CX11, CX12, Floureon FX10, JJRC DHD D1
 
 CH5|CH6|CH7|CH8
@@ -262,31 +262,33 @@ FLIP|RATE|PICTURE|VIDEO
 
 Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3 or headless for CX-10A
 
-#####Sub_protocol CX10_DM007
+#####Sub_protocol DM007
 
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
-#####Sub_protocol CX10_Q282 and CX10_Q242
+#####Sub_protocol Q282 and Q242
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---
 FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 
-#####Sub_protocol CX10_JC3015_1
+Model: JXD 509 is using CX10_Q282 with CH12=Start/Stop motors
+
+#####Sub_protocol JC3015_1
 
 CH5|CH6|CH7|CH8
 ---|---|---|---
 FLIP|MODE|PICTURE|VIDEO
 
-#####Sub_protocol CX10_JC3015_2
+#####Sub_protocol JC3015_2
 
 CH5|CH6|CH7|CH8
 ---|---|---|---
 FLIP|MODE|LED|DFLIP
 
-#####Sub_protocol CX10_MK33041
+#####Sub_protocol MK33041
 
 CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---

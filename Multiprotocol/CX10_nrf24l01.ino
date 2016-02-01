@@ -19,12 +19,13 @@
 
 #include "iface_nrf24l01.h"
 
-#define CX10_BIND_COUNT 4360   // 6 seconds
-#define CX10_PACKET_SIZE 15
-#define CX10A_PACKET_SIZE 19       // CX10 blue board packets have 19-byte payload
-#define Q282_PACKET_SIZE 21
-#define CX10_PACKET_PERIOD   1316  // Timeout for callback in uSec
-#define CX10A_PACKET_PERIOD  6000
+#define CX10_BIND_COUNT		4360   // 6 seconds
+#define CX10_PACKET_SIZE	15
+#define CX10A_PACKET_SIZE	19       // CX10 blue board packets have 19-byte payload
+#define Q282_PACKET_SIZE	21
+#define CX10_PACKET_PERIOD	1316  // Timeout for callback in uSec
+#define CX10A_PACKET_PERIOD	6000
+#define CX10A_BIND_COUNT	400   // 2 seconds
 
 #define INITIAL_WAIT     500
 
@@ -198,13 +199,22 @@ uint16_t CX10_callback() {
 			}
 			break;
 		case CX10_BIND2:
+			bind_counter--;
+			if(bind_counter==0)
+			{ // Needed for some CX-10A to properly finish the bind
+				CX10_init();
+				bind_counter=CX10A_BIND_COUNT;
+			}
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready
 				XN297_ReadPayload(packet, packet_length);
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_SetTxRxMode(TX_EN);
 				if(packet[9] == 1)
+				{
 					phase = CX10_BIND1;
+					bind_counter=0;
+				}
 			}
 			else
 			{
@@ -259,8 +269,10 @@ uint16_t initCX10(void)
 	{
 		packet_length = CX10A_PACKET_SIZE;
 		packet_period = CX10A_PACKET_PERIOD;
+
 		phase = CX10_BIND2;
-		bind_counter=0;
+		bind_counter=CX10A_BIND_COUNT;
+
 		for(uint8_t i=0; i<4; i++)
 			packet[5+i] = 0xff; // clear aircraft id
 		packet[9] = 0;

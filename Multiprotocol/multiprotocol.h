@@ -244,6 +244,8 @@ struct PPM_Parameters
 #define Servo_AUX7	Servo_AUX & _BV(6)
 #define Servo_AUX8	Servo_AUX & _BV(7)
 
+#define GET_FLAG(ch, mask) ( ch ? mask : 0)
+
 //************************
 //***  Power settings  ***
 //************************

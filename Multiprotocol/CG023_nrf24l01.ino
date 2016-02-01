@@ -237,13 +237,7 @@ uint16_t CG023_callback()
 			bind_counter--;
 		}
 	}
-
-	if(sub_protocol==CG023)
-		return CG023_PACKET_PERIOD;
-	else
-		if(sub_protocol==YD829)
-			return YD829_PACKET_PERIOD;
-	return	H8_3D_PACKET_PERIOD;
+	return	packet_period;
 }
 
 static void __attribute__((unused)) CG023_initialize_txid()
@@ -276,11 +270,13 @@ uint16_t initCG023(void)
 	CG023_initialize_txid();
 	CG023_init();
 	if(sub_protocol==CG023)
-		return CG023_INITIAL_WAIT+CG023_PACKET_PERIOD;
+		packet_period=CG023_PACKET_PERIOD;
 	else
 		if(sub_protocol==YD829)
-			return CG023_INITIAL_WAIT+YD829_PACKET_PERIOD;
-	return	CG023_INITIAL_WAIT+H8_3D_PACKET_PERIOD;
+			packet_period=YD829_PACKET_PERIOD;
+		else
+			packet_period=H8_3D_PACKET_PERIOD;
+	return	CG023_INITIAL_WAIT+YD829_PACKET_PERIOD;
 }
 
 #endif

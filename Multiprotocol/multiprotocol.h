@@ -27,23 +27,25 @@
 enum PROTOCOLS
 {
 	MODE_SERIAL = 0,		// Serial commands
-	MODE_FLYSKY = 1,		// =>A7105		/ FLYSKY protocol
-	MODE_HUBSAN = 2,		// =>A7105		/ HUBSAN protocol
-	MODE_FRSKY = 3,			// =>CC2500		/ FRSKY protocol
-	MODE_HISKY = 4,			// =>NRF24L01	/ HISKY protocol
-	MODE_V2X2 = 5,			// =>NRF24L01	/ V2x2 protocol
-	MODE_DSM2 = 6,			// =>CYRF6936	/ DSM2 protocol
-	MODE_DEVO =7,			// =>CYRF6936	/ DEVO protocol
-	MODE_YD717 = 8,			// =>NRF24L01	/ YD717 protocol	(CX10 red pcb)
-	MODE_KN  = 9,			// =>NRF24L01	/ KN protocol
-	MODE_SYMAX = 10,		// =>NRF24L01	/ SYMAX protocol
-	MODE_SLT = 11,			// =>NRF24L01	/ SLT protocol
-	MODE_CX10 = 12,			// =>NRF24L01	/ CX-10 protocol
-	MODE_CG023 = 13,		// =>NRF24L01	/ CG023 protocol
-	MODE_BAYANG = 14,		// =>NRF24L01	/ BAYANG protocol
-	MODE_FRSKYX = 15,		// =>CC2500		/ FRSKYX protocol
-	MODE_ESKY = 16,			// =>NRF24L01	/ ESKY protocol
+	MODE_FLYSKY = 1,		// =>A7105
+	MODE_HUBSAN = 2,		// =>A7105
+	MODE_FRSKY = 3,			// =>CC2500
+	MODE_HISKY = 4,			// =>NRF24L01
+	MODE_V2X2 = 5,			// =>NRF24L01
+	MODE_DSM2 = 6,			// =>CYRF6936
+	MODE_DEVO =7,			// =>CYRF6936
+	MODE_YD717 = 8,			// =>NRF24L01
+	MODE_KN  = 9,			// =>NRF24L01
+	MODE_SYMAX = 10,		// =>NRF24L01
+	MODE_SLT = 11,			// =>NRF24L01
+	MODE_CX10 = 12,			// =>NRF24L01
+	MODE_CG023 = 13,		// =>NRF24L01
+	MODE_BAYANG = 14,		// =>NRF24L01
+	MODE_FRSKYX = 15,		// =>CC2500
+	MODE_ESKY = 16,			// =>NRF24L01
+	MODE_MT99XX=17,			// =>NRF24L01
 };
+
 enum Flysky
 {
 	Flysky=0,
@@ -94,6 +96,12 @@ enum CG023
     CG023 = 0,
     YD829 = 1,
     H8_3D = 2
+};
+enum MT99XX
+{
+	MT99	= 0,
+	H7		= 1,
+	YZ		= 2
 };
 
 #define NONE 		0
@@ -400,6 +408,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					Bayang		14
 					FrskyX		15
 					ESky		16
+					MT99XX		17
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -442,6 +451,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CG023		0
 			YD829		1
 			H8_3D		2
+		sub_protocol==MT99XX
+			MT99		0
+			H7			1
+			YZ			2
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127

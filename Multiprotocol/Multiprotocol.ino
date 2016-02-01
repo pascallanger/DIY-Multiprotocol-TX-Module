@@ -33,12 +33,12 @@ uint32_t MProtocol_id;//tx id,
 uint32_t MProtocol_id_master;
 uint32_t Model_fixed_id=0;
 uint32_t fixed_id;
-uint8_t cyrfmfg_id[6];//for dsm2 and devo
+uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint32_t blink=0;
 //
 uint16_t counter;
-uint8_t channel;
-uint8_t packet[40];
+uint8_t  channel;
+uint8_t  packet[40];
 
 #define NUM_CHN 16
 // Servo data
@@ -48,26 +48,26 @@ uint8_t  Servo_AUX;
 volatile uint16_t PPM_data[NUM_CHN];
 
 // NRF variables
-uint8_t rx_tx_addr[5];
-uint8_t phase;
+uint8_t  rx_tx_addr[5];
+uint8_t  phase;
 uint16_t bind_counter;
-uint8_t bind_phase;
-uint8_t binding_idx;
+uint8_t  bind_phase;
+uint8_t  binding_idx;
 uint32_t packet_counter;
 uint16_t packet_period;
-uint8_t packet_count;
-uint8_t packet_sent;
-uint8_t packet_length;
-uint8_t hopping_frequency[23];
-uint8_t *hopping_frequency_ptr;
-uint8_t hopping_frequency_no=0;
-uint8_t rf_ch_num;
-uint8_t throttle, rudder, elevator, aileron;
-uint8_t flags;
+uint8_t  packet_count;
+uint8_t  packet_sent;
+uint8_t  packet_length;
+uint8_t  hopping_frequency[23];
+uint8_t  *hopping_frequency_ptr;
+uint8_t  hopping_frequency_no=0;
+uint8_t  rf_ch_num;
+uint8_t  throttle, rudder, elevator, aileron;
+uint8_t  flags;
 //
 uint32_t state;
-uint8_t len;
-uint8_t RX_num;
+uint8_t  len;
+uint8_t  RX_num;
 
 // Mode_select variables
 uint8_t mode_select;
@@ -415,6 +415,12 @@ static void protocol_init()
 			remote_callback = ESKY_callback;
 			break;
 #endif
+#if defined(MT99XX_NRF24L01_INO)
+		case MODE_MT99XX:
+			next_callback=initMT99XX();
+			remote_callback = MT99XX_callback;
+			break;
+#endif
 	}
 
 	if(next_callback>32000)
@@ -496,7 +502,7 @@ static void module_reset()
 			case MODE_DEVO:
 				CYRF_Reset();
 				break;
-			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY
+			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX
 				NRF24L01_Reset();
 				break;
 		}

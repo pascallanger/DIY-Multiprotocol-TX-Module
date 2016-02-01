@@ -42,6 +42,7 @@
 #define	V2X2_NRF24L01_INO
 #define	YD717_NRF24L01_INO
 //#define	FRSKYX_CC2500_INO
+//#define	MT99XX_NRF24L01_INO
 
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
 static const PPM_Parameters PPM_prot[15]=
@@ -116,6 +117,10 @@ static const PPM_Parameters PPM_prot[15]=
 		NONE
 	MODE_ESKY
 		NONE
+	MODE_MT99XX
+		MT99
+		H7
+		YZ
 
 RX_Num 		value between 0 and 15
 

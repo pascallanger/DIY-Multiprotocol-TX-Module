@@ -184,6 +184,10 @@ CG023||NRF24L01
 Bayang||NRF24L01
 FrskyX||CC2500
 ESky||NRF24L01
+MT99XX||NRF24L01
+ |MT
+ |H7
+ |YZ
 
 Note:
 - The dial should be set to 0 for serial. Which means all protocol selection pins should be left unconnected.
@@ -378,6 +382,20 @@ Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO:
 #####Sub_protocol WLTOYS
 #####Sub_protocol FEILUN
 Same channels assignement as above.
+
+####MT99XX
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP||PICTURE|VIDEO|PITCH_Trim|ROLL_Trim
+
+#####Sub_protocol MT
+Models: MT99xx
+#####Sub_protocol H7
+Models: Eachine H7
+#####Sub_protocol YZ
+Models: YIZHAN YZ i6S
 
 ####SLT
 Autobind protocol

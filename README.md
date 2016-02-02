@@ -17,7 +17,7 @@ The source code is partly based on the Deviation TX project, thanks to all the d
 
 [Hardware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#hardware)
 
-[Compilation and programmation](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compilation)
+[Compilation and programmation](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compilation-and-programmation)
 
 [Troubleshooting](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#troubleshooting)
 

@@ -456,7 +456,7 @@ You also need some [antennas](http://www.banggood.com/2_4GHz-3dBi-RP-SMA-Connect
 
 ###Board
 The main program is running on an ATMEGA328p running @16MHz and 3.3V.
-An [Arduino pro mini](http://www.banggood.com/Wholesale-New-Ver-Pro-Mini-ATMEGA328-328p-5V-16MHz-Arduino-Compatible-Nano-Size-p-68534.html) can be used to build your own Multimodule.
+An [Arduino pro mini 16Mhz/5V](http://www.banggood.com/Wholesale-New-Ver-Pro-Mini-ATMEGA328-328p-5V-16MHz-Arduino-Compatible-Nano-Size-p-68534.html) powered at 3.3V (yes it works) can be used to build your own Multimodule.
 
 Using stripboard:
 

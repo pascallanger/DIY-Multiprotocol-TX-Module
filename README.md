@@ -474,8 +474,7 @@ or build your own board using [SMD components](http://www.rcgroups.com/forums/sh
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952726-108-thumb-image-62c29cf2.jpg?d=1433909893)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
 
-If you build this PCB v2.3c and want to enable serial mode for er9x/ersky9x, you should do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8180322-194-multi.jpg):
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t8180322-35-thumb-multi.jpg?d=1440422869)
+**If you build this PCB v2.3c and want to enable serial mode for er9x/ersky9x, you have to do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8667856-242-multi.jpg).**
 
 
 ###Schematic

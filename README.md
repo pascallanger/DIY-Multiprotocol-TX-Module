@@ -526,16 +526,20 @@ This will make sure your ATMEGA328 is well configured and the global TX ID is no
 - fast blink: bind in progress.
 - on: normal operation.
 
+###Protocol selection
+####Input Mode - PPM
+- The protocol/mode selection must be done before the power is applied.
+- Connect 1 to 4 of the selection protocol pins to GND.
+
+####Input Mode - Serial
+- Make sure you have done the mods to the v2.3c PCB by adding the 1k and 330 ohm resistors as indicated in the [Board section] (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#board).
+- Leave all 4 selection pins unconnected.
+
 ###Bind
 Make sure to follow this procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fast indicating a bind status and then fixed on when the bind period is over. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.
 For serial, the preffered method is to bind via the GUI protocol page.
 
 It migth happen that your module is always binding at power up. If this is the case, there is a big chance that you are using an Arduino Pro Mini with an external status LED. To work around this issue connect a 10K resistor between D13 and 3.3V.
-
-###Protocol selection
-For serial, leave all 4 selection pins unconnected.
-For PPM, connect 1 to 4 of the selection protocol pins to GND.
-The protocol/mode selection must be done before the power is applied.
 
 ###Report issues
 You can report your problem using the [GitHub issue](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.

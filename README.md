@@ -532,7 +532,7 @@ This will make sure your ATMEGA328 is well configured and the global TX ID is no
 - Connect 1 to 4 of the selection protocol pins to GND.
 
 ####Input Mode - Serial
-- Make sure you have done the mods to the v2.3c PCB by adding the 1k and 330 ohm resistors as indicated in the [Board section] (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#board).
+- Make sure you have done the mods to the v2.3c PCB by adding the 2.2k and 330 ohm resistors as indicated in the [Board section] (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#board).
 - Leave all 4 selection pins unconnected.
 
 ###Bind

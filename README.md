@@ -187,6 +187,12 @@ ESky||NRF24L01
 MT99XX||NRF24L01
  |MT
  |H7
+ |YZ
+MJXQ||NRF24L01
+ |WLH08
+ |X600
+ |X800
+ |H26D
 
 Note:
 - The dial should be set to 0 for serial. Which means all protocol selection pins should be left unconnected.
@@ -384,6 +390,18 @@ Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO:
 #####Sub_protocol FEILUN
 Same channels assignement as above.
 
+####MJXQ
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT
+
+#####Sub_protocol WLH08
+#####Sub_protocol X600
+#####Sub_protocol X800
+#####Sub_protocol H26D
+
 ####MT99XX
 Autobind protocol
 
@@ -395,6 +413,8 @@ A|E|T|R|FLIP||PICTURE|VIDEO|PITCH_Trim|ROLL_Trim
 Models: MT99xx
 #####Sub_protocol H7
 Models: Eachine H7
+#####Sub_protocol YZ
+In progress...
 
 ####SLT
 Autobind protocol
@@ -507,6 +527,17 @@ The dial must be set to 0 before flashing!
 From the Arduino environment, you can use this shortcut to compile and upload to the module: Skecth->Upload Using Programmer (Ctrl+Maj+U)
 
 To flash the latest provided hex file under [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases), you can use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/), set the microcontroller to m328p and flash it.
+
+###Upload the code using FTDI (USB serial to TTL)
+Use this method only for Arduino Pro Mini boards with bootloader.
+
+Use an external FTDI adapter like [this one](http://www.banggood.com/FT232RL-FTDI-USB-To-TTL-Serial-Converter-Adapter-Module-For-Arduino-p-917226.html).
+
+The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.
+
+From the Arduino environment, you can use Upload button which will compile and upload to the module: Skecth->Upload (Ctrl+U)
+
+To upload the latest provided hex file under [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases), you can use a tool like [XLoader](http://russemotto.com/xloader/), set the microcontroller to Atmega328 and upload it.
 
 ###Set fuses
 Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the fuses of the Atmega328 to:

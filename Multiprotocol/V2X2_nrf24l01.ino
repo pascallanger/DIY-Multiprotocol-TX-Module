@@ -180,13 +180,13 @@ static void __attribute__((unused)) V2X2_send_packet(uint8_t bind)
 
 		//Flags2
 		// Channel 9
-		if (Servo_data[AUX5] > PPM_SWITCH)
+		if (Servo_AUX5)
 			flags2 = V2X2_FLAG_HEADLESS;
 		// Channel 10
-		if (Servo_data[AUX6] > PPM_SWITCH)
+		if (Servo_AUX6)
 			flags2 |= V2X2_FLAG_MAG_CAL_X;
 		// Channel 11
-		if (Servo_data[AUX7] > PPM_SWITCH)
+		if (Servo_AUX7)
 			flags2 |= V2X2_FLAG_MAG_CAL_Y;
 	}
 	// TX id

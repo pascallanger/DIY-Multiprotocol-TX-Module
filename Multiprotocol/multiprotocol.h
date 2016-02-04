@@ -44,6 +44,7 @@ enum PROTOCOLS
 	MODE_FRSKYX = 15,		// =>CC2500
 	MODE_ESKY = 16,			// =>NRF24L01
 	MODE_MT99XX=17,			// =>NRF24L01
+	MODE_MJXQ=18			// =>NRF24L01
 };
 
 enum Flysky
@@ -102,6 +103,13 @@ enum MT99XX
 	MT99	= 0,
 	H7		= 1,
 	YZ		= 2
+};
+enum MJXQ
+{
+	WLH08	= 0,
+	X600	= 1,
+	X800	= 2,
+	H26D	= 3
 };
 
 #define NONE 		0
@@ -411,6 +419,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					FrskyX		15
 					ESky		16
 					MT99XX		17
+					MJXQ		18
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -457,6 +466,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			MT99		0
 			H7			1
 			YZ			2
+		sub_protocol==MJXQ
+			WLH08		0
+			X600		1
+			X800		2
+			H26D		3
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127

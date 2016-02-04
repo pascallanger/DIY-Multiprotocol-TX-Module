@@ -144,13 +144,13 @@ static void __attribute__((unused)) kn_update_packet_control_data()
 	packet[11] = 0x64; // R
 
 	flags=0;
-	if (Servo_data[AUX1] > PPM_SWITCH)
+	if (Servo_AUX1)
 		flags = KN_FLAG_DR;
-	if (Servo_data[AUX2] > PPM_SWITCH)
+	if (Servo_AUX2)
 		flags |= KN_FLAG_TH;
-	if (Servo_data[AUX3] > PPM_SWITCH)
+	if (Servo_AUX3)
 		flags |= KN_FLAG_IDLEUP;
-	if (Servo_data[AUX4] > PPM_SWITCH)
+	if (Servo_AUX4)
 		flags |= KN_FLAG_GYRO3;
 
 	packet[12] = flags;

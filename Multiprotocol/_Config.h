@@ -26,23 +26,28 @@
 #define HUB_TELEMETRY
 
 //Comment a protocol to exclude it from compilation
+//A7105 protocols
+#define	FLYSKY_A7105_INO
+#define	HUBSAN_A7105_INO
+//CYRF6936 protocols
+#define	DEVO_CYRF6936_INO
+#define	DSM2_CYRF6936_INO
+//CC2500 protocols
+#define	FRSKY_CC2500_INO
+//#define	FRSKYX_CC2500_INO
+//NFR24L01 protocols
 #define	BAYANG_NRF24L01_INO
 #define	CG023_NRF24L01_INO
 #define	CX10_NRF24L01_INO
-#define	DEVO_CYRF6936_INO
-#define	DSM2_CYRF6936_INO
 #define	ESKY_NRF24L01_INO
-#define	FLYSKY_A7105_INO
-#define	FRSKY_CC2500_INO
 #define	HISKY_NRF24L01_INO
-#define	HUBSAN_A7105_INO
 #define	KN_NRF24L01_INO
 #define	SLT_NRF24L01_INO
 #define	SYMAX_NRF24L01_INO
 #define	V2X2_NRF24L01_INO
 #define	YD717_NRF24L01_INO
-//#define	FRSKYX_CC2500_INO
 #define	MT99XX_NRF24L01_INO
+#define	MJXQ_NRF24L01_INO
 
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
 static const PPM_Parameters PPM_prot[15]=
@@ -121,6 +126,11 @@ static const PPM_Parameters PPM_prot[15]=
 		MT99
 		H7
 		YZ
+	MODE_MJXQ
+		WLH08
+		X600
+		X800
+		H26D
 
 RX_Num 		value between 0 and 15
 
@@ -152,7 +162,8 @@ enum chan_order{
 	AUX5,
 	AUX6,
 	AUX7,
-	AUX8
+	AUX8,
+	AUX9
 };
 #endif
 
@@ -174,7 +185,8 @@ enum chan_order{
 	AUX5,
 	AUX6,
 	AUX7,
-	AUX8
+	AUX8,
+	AUX9
 };
 #endif
 
@@ -196,7 +208,8 @@ enum chan_order{
 	AUX5,
 	AUX6,
 	AUX7,
-	AUX8
+	AUX8,
+	AUX9
 };
 #endif
 
@@ -218,10 +231,11 @@ enum chan_order{
 	AUX5,
 	AUX6,
 	AUX7,
-	AUX8
+	AUX8,
+	AUX9
 };
 #endif
 
 #define PPM_MIN_COMMAND 1250
-#define PPM_SWITCH	1550
+#define PPM_SWITCH		1550
 #define PPM_MAX_COMMAND 1750

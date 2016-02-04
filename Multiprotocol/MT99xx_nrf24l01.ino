@@ -90,8 +90,8 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	{ // YZ
 		packet[0] = convert_channel_8b_scale(THROTTLE,0x00,0x64); // throttle
 		packet[1] = convert_channel_8b_scale(RUDDER  ,0x00,0x64); // rudder
-		packet[2] = convert_channel_8b_scale(AILERON ,0x00,0x64); // aileron
-		packet[3] = convert_channel_8b_scale(ELEVATOR,0x00,0x64); // elevator
+		packet[2] = convert_channel_8b_scale(ELEVATOR,0x00,0x64); // elevator
+		packet[3] = convert_channel_8b_scale(AILERON ,0x00,0x64); // aileron
 		if(packet_count++ >= 23)
 		{
 			yz_seq_num ++;
@@ -99,8 +99,8 @@ static void __attribute__((unused)) MT99XX_send_packet()
 				yz_seq_num = 0;
 			packet_count=0;
 		}
-		packet[4]= yz_p4_seq[yz_seq_num]; 
-		packet[5]= 0x02; // expert ? (0=unarmed, 1=normal)
+		packet[4] = yz_p4_seq[yz_seq_num]; 
+		packet[5] = 0x02; // expert ? (0=unarmed, 1=normal)
 		packet[6] = 0x80;
 		packet[7] = packet[0];            
 		for(uint8_t idx = 1; idx < MT99XX_PACKET_SIZE-2; idx++)
@@ -127,7 +127,6 @@ static void __attribute__((unused)) MT99XX_init()
 {
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
-    XN297_SetTXAddr((uint8_t *)"\0xCC\0xCC\0xCC\0xCC\0xCC", 5);
     NRF24L01_FlushTx();
     NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// Clear data ready, data sent, and retransmit
     NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknowldgement on all data pipes
@@ -139,6 +138,7 @@ static void __attribute__((unused)) MT99XX_init()
     else
         NRF24L01_SetBitrate(NRF24L01_BR_1M);          // 1Mbps
     NRF24L01_SetPower();
+    XN297_SetTXAddr((uint8_t *)"\0xCC\0xCC\0xCC\0xCC\0xCC", 5);
 }
 
 static void __attribute__((unused)) MT99XX_initialize_txid()

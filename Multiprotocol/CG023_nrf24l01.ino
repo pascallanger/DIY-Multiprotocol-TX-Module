@@ -104,6 +104,8 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 			packet[6] = 0x08;
 			packet[7] = 0x03;
 			packet[9] = throttle;
+			if(rudder==0x01) rudder=0;	// Small deadband
+			if(rudder==0x81) rudder=0;	// Small deadband
 			packet[10] = rudder;
 			packet[11] = elevator;
 			packet[12] = aileron;
@@ -112,15 +114,11 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 			packet[14] = 0x20;
 			packet[15] = 0x20;
 			packet[16] = 0x20;
-			packet[17] = H8_3D_FLAG_RATE_HIGH;
-			if(Servo_AUX1)
-				packet[17] |= H8_3D_FLAG_FLIP;
-			if(Servo_AUX2)
-				packet[17] |= H8_3D_FLAG_LIGTH; //H22 light
-			if(Servo_AUX3)
-				packet[17] |= H8_3D_FLAG_HEADLESS;
-			if(Servo_AUX4)
-				packet[17] |= H8_3D_FLAG_RTH; // 180/360 flip mode on H8 3D
+			packet[17] = 					  H8_3D_FLAG_RATE_HIGH
+						| GET_FLAG(Servo_AUX1,H8_3D_FLAG_FLIP)
+						| GET_FLAG(Servo_AUX2,H8_3D_FLAG_LIGTH) //H22 light
+						| GET_FLAG(Servo_AUX3,H8_3D_FLAG_HEADLESS)
+						| GET_FLAG(Servo_AUX4,H8_3D_FLAG_RTH); // 180/360 flip mode on H8 3D
 			if(Servo_AUX5)
 				packet[18] = H8_3D_FLAG_CALIBRATE;
 		}
@@ -152,32 +150,21 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 		if(sub_protocol==CG023)
 		{
 			// rate
-			packet[13] = CG023_FLAG_RATE_HIGH; 
-			// flags
-			if(Servo_AUX1)
-				packet[13] |= CG023_FLAG_FLIP;
-			if(Servo_AUX2)
-				packet[13] |= CG023_FLAG_LED_OFF;
-			if(Servo_AUX3)
-				packet[13] |= CG023_FLAG_STILL;
-			if(Servo_AUX4)
-				packet[13] |= CG023_FLAG_VIDEO;
-			if(Servo_AUX5)
-				packet[13] |= CG023_FLAG_EASY;
+			packet[13] =					  CG023_FLAG_RATE_HIGH
+						| GET_FLAG(Servo_AUX1,CG023_FLAG_FLIP)
+						| GET_FLAG(Servo_AUX2,CG023_FLAG_LED_OFF)
+						| GET_FLAG(Servo_AUX3,CG023_FLAG_STILL)
+						| GET_FLAG(Servo_AUX4,CG023_FLAG_VIDEO)
+						| GET_FLAG(Servo_AUX5,CG023_FLAG_EASY);
 		}
 		else
 		{// YD829
 			// rate
-			packet[13] = YD829_FLAG_RATE_HIGH; 
-			// flags
-			if(Servo_AUX1)
-				packet[13] |= YD829_FLAG_FLIP;
-			if(Servo_AUX3)
-				packet[13] |= YD829_FLAG_STILL;
-			if(Servo_AUX4)
-				packet[13] |= YD829_FLAG_VIDEO;
-			if(Servo_AUX5)
-				packet[13] |= YD829_FLAG_HEADLESS;
+			packet[13] =					  YD829_FLAG_RATE_HIGH
+						| GET_FLAG(Servo_AUX1,YD829_FLAG_FLIP)
+						| GET_FLAG(Servo_AUX3,YD829_FLAG_STILL)
+						| GET_FLAG(Servo_AUX4,YD829_FLAG_VIDEO)
+						| GET_FLAG(Servo_AUX5,YD829_FLAG_HEADLESS);
 		}
 		packet[14] = 0;
 	}

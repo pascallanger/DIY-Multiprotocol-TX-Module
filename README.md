@@ -110,7 +110,9 @@ Notes:
 
 ####Using the dial for PPM input
 PPM is only allowing access to a subset of existing protocols.
-The default association dial position / protocol is listed below.
+The protocols, subprotocols and all other settings can be personalized by modifying the **_Config.h** file. 
+
+The default association dial position / protocol in every release is listed below.
 
 Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 ----|--------|------------|------|-----|---------|------|---------
@@ -131,9 +133,8 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 14|BAYANG|-|0|High|No|0|NRF24L01
 15|SYMAX|SYMAX5C|0|High|No|0|NRF24L01
 
-Notes:
+Note:
 - The dial selection must be done before the power is applied.
-- The protocols, subprotocols and all other settings can be personalized by modifying the _Config.h file. 
 
 ####Using serial input with er9x/ersky9x
 Serial is allowing access to all existing protocols & sub_protocols listed below.

@@ -66,11 +66,13 @@ Notes:
 
 ###Telemetry
 
-There are only 2 protocols so far supporting telemetry: Hubsan and Frsky.
+There are 3 protocols supporting telemetry: Hubsan, FrSky and FrSkyX.
 
 Hubsan displays the battery voltage and TX RSSI.
 
-FRSky displays full telemetry (A0, A1, RX RSSI, TX RSSI and Hub).
+FrSky displays full telemetry (A0, A1, RX RSSI, TX RSSI and Hub).
+
+FrSkyX displays basic telemetry (A1, A2 and RX RSSI).
 
 ### If used in PPM mode
 
@@ -353,6 +355,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
+####FRSKYX
+Extended limits supported
+
+Telemetry enabled for A1 (RxBatt), A2, RSSI
+
+Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
 ####HISKY
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
@@ -360,7 +373,7 @@ A|E|T|R|GEAR|PITCH|GYRO|CH8
 
 GYRO: -100%=6G, +100%=3G
 
-####HK310
+#####HK310
 Models: RX HK-3000, HK3100 and XY3000 (TX are HK-300, HK-310 and TL-3C)
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
@@ -406,16 +419,16 @@ A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT
 ####MT99XX
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP||PICTURE|VIDEO|PITCH_Trim|ROLL_Trim
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS
 
 #####Sub_protocol MT
 Models: MT99xx
 #####Sub_protocol H7
 Models: Eachine H7
 #####Sub_protocol YZ
-In progress...
+Models: Yi Zhan i6S
 
 ####SLT
 Autobind protocol

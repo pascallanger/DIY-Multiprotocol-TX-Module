@@ -102,18 +102,7 @@ enum {
 #define REUSE_TX_PL   0xE3
 //#define NOP           0xFF
 
-/*
-void NRF24L01_Initialize();
-byte NRF24L01_WriteReg(byte reg, byte data);
-byte NRF24L01_WriteRegisterMulti(byte reg, byte data[], byte length);
-byte NRF24L01_WritePayload(byte *data, byte len);
-byte NRF24L01_ReadReg(byte reg);
-byte NRF24L01_ReadRegisterMulti(byte reg, byte data[], byte length);
-byte NRF24L01_ReadPayload(byte *data, byte len);
+// XN297 emulation layer
+#define XN297_UNSCRAMBLED 8
 
-byte NRF24L01_FlushTx();
-byte NRF24L01_FlushRx();
-byte NRF24L01_Activate(byte code);
-
-*/
 #endif

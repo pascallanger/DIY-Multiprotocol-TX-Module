@@ -37,29 +37,16 @@ enum{
     FLAG_MT_FLIP    = 0x80,
 };
 
-enum{
-    // flags going to ?????? (Yi Zhan i6S)ROLL
-    BLABLA,
-};
-
 enum {
     MT99XX_INIT = 0,
     MT99XX_BIND,
     MT99XX_DATA
 };
 
-static uint8_t __attribute__((unused)) MT99XX_calcChecksum()
-{
-	uint8_t result=checksum_offset;
-	for(uint8_t i=0; i<8; i++)
-		result += packet[i];
-	return result;
-}
-
 static void __attribute__((unused)) MT99XX_send_packet()
 {
-	static const uint8_t yz_p4_seq[] = {0xa0, 0x20, 0x60};
-	static const uint8_t mys_byte[] = {
+	const uint8_t yz_p4_seq[] = {0xa0, 0x20, 0x60};
+	const uint8_t mys_byte[] = {
 		0x01, 0x11, 0x02, 0x12, 0x03, 0x13, 0x04, 0x14, 
 		0x05, 0x15, 0x06, 0x16, 0x07, 0x17, 0x00, 0x10
 	};
@@ -71,8 +58,8 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		packet[1] = convert_channel_8b_scale(RUDDER  ,0x00,0xE1); // rudder
 		packet[2] = convert_channel_8b_scale(AILERON ,0x00,0xE1); // aileron
 		packet[3] = convert_channel_8b_scale(ELEVATOR,0x00,0xE1); // elevator
-		packet[4] = convert_channel_8b_scale(AUX5,0x00,0x3F); // pitch trim (0x3f-0x20-0x00)
-		packet[5] = convert_channel_8b_scale(AUX6,0x00,0x3F); // roll trim (0x00-0x20-0x3f)
+		packet[4] = 0x20; // pitch trim (0x3f-0x20-0x00)
+		packet[5] = 0x20; // roll trim (0x00-0x20-0x3f)
 		packet[6] = GET_FLAG( Servo_AUX1, FLAG_MT_FLIP )
 				  | GET_FLAG( Servo_AUX3, FLAG_MT_SNAPSHOT )
 				  | GET_FLAG( Servo_AUX4, FLAG_MT_VIDEO );
@@ -84,7 +71,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		// low nibble: index in chan list ?
 		// high nibble: 0->start from start of list, 1->start from end of list ?
 		packet[7] = mys_byte[hopping_frequency_no];
-		packet[8] = MT99XX_calcChecksum();
+		uint8_t result=checksum_offset;
+		for(uint8_t i=0; i<8; i++)
+			result += packet[i];
+		packet[8] = result;
 	}
 	else
 	{ // YZ
@@ -100,8 +90,12 @@ static void __attribute__((unused)) MT99XX_send_packet()
 			packet_count=0;
 		}
 		packet[4] = yz_p4_seq[yz_seq_num]; 
-		packet[5] = 0x02; // expert ? (0=unarmed, 1=normal)
-		packet[6] = 0x80;
+		packet[5] = 0x02 // expert ? (0=unarmed, 1=normal)
+					| GET_FLAG(Servo_AUX4, 0x10)		//VIDEO
+					| GET_FLAG(Servo_AUX1, 0x80)		//FLIP
+					| GET_FLAG(Servo_AUX5, 0x04)		//HEADLESS
+					| GET_FLAG(Servo_AUX3, 0x20);		//SNAPSHOT
+		packet[6] =   GET_FLAG(Servo_AUX2, 0x80);		//LED
 		packet[7] = packet[0];            
 		for(uint8_t idx = 1; idx < MT99XX_PACKET_SIZE-2; idx++)
 			packet[7] += packet[idx];
@@ -138,6 +132,9 @@ static void __attribute__((unused)) MT99XX_init()
     else
         NRF24L01_SetBitrate(NRF24L01_BR_1M);          // 1Mbps
     NRF24L01_SetPower();
+	
+    XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP) | (sub_protocol == YZ ? BV(XN297_UNSCRAMBLED):0) );
+	
     XN297_SetTXAddr((uint8_t *)"\0xCC\0xCC\0xCC\0xCC\0xCC", 5);
 }
 
@@ -210,8 +207,8 @@ uint16_t initMT99XX(void)
 		packet[2] = 0x05;
 		packet[3] = 0x06;
 	}
-    packet[4] = rx_tx_addr[0]; // 1th byte for data state tx address  
-    packet[5] = rx_tx_addr[1]; // 2th byte for data state tx address (always 0x00 on Yi Zhan ?)
+    packet[4] = rx_tx_addr[0]; // 1st byte for data state tx address  
+    packet[5] = rx_tx_addr[1]; // 2nd byte for data state tx address (always 0x00 on Yi Zhan ?)
     packet[6] = 0x00; // 3th byte for data state tx address (always 0x00 ?)
     packet[7] = checksum_offset; // checksum offset
     packet[8] = 0xAA; // fixed

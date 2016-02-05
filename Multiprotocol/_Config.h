@@ -23,31 +23,40 @@
 
 //Uncomment to enable telemetry
 #define TELEMETRY
-#define HUB_TELEMETRY
+
+//Comment if a module is not installed
+#define A7105_INSTALLED
+#define CYRF6936_INSTALLED
+#define CC2500_INSTALLED
+#define NFR24L01_INSTALLED
 
 //Comment a protocol to exclude it from compilation
-//A7105 protocols
-#define	FLYSKY_A7105_INO
-#define	HUBSAN_A7105_INO
-//CYRF6936 protocols
-#define	DEVO_CYRF6936_INO
-#define	DSM2_CYRF6936_INO
-//CC2500 protocols
-#define	FRSKY_CC2500_INO
-//#define	FRSKYX_CC2500_INO
-//NFR24L01 protocols
-#define	BAYANG_NRF24L01_INO
-#define	CG023_NRF24L01_INO
-#define	CX10_NRF24L01_INO
-#define	ESKY_NRF24L01_INO
-#define	HISKY_NRF24L01_INO
-#define	KN_NRF24L01_INO
-#define	SLT_NRF24L01_INO
-#define	SYMAX_NRF24L01_INO
-#define	V2X2_NRF24L01_INO
-#define	YD717_NRF24L01_INO
-#define	MT99XX_NRF24L01_INO
-#define	MJXQ_NRF24L01_INO
+#ifdef	A7105_INSTALLED
+	#define	FLYSKY_A7105_INO
+	#define	HUBSAN_A7105_INO
+#endif
+#ifdef	CYRF6936_INSTALLED
+	#define	DEVO_CYRF6936_INO
+	#define	DSM2_CYRF6936_INO
+#endif
+#ifdef	CC2500_INSTALLED
+	#define	FRSKY_CC2500_INO
+	#define	FRSKYX_CC2500_INO
+#endif
+#ifdef	NFR24L01_INSTALLED
+	#define	BAYANG_NRF24L01_INO
+	#define	CG023_NRF24L01_INO
+	#define	CX10_NRF24L01_INO
+	#define	ESKY_NRF24L01_INO
+	#define	HISKY_NRF24L01_INO
+	#define	KN_NRF24L01_INO
+	#define	SLT_NRF24L01_INO
+	#define	SYMAX_NRF24L01_INO
+	#define	V2X2_NRF24L01_INO
+	#define	YD717_NRF24L01_INO
+	#define	MT99XX_NRF24L01_INO
+	#define	MJXQ_NRF24L01_INO
+#endif
 
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
 static const PPM_Parameters PPM_prot[15]=

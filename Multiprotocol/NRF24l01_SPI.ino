@@ -257,6 +257,7 @@ uint8_t NRF24L01_packet_ack()
 
 ///////////////
 // XN297 emulation layer
+uint8_t xn297_scramble_enabled;
 uint8_t xn297_addr_len;
 uint8_t xn297_tx_addr[5];
 uint8_t xn297_rx_addr[5];
@@ -269,9 +270,16 @@ static const uint8_t xn297_scramble[] = {
 	0x1b, 0x5d, 0x19, 0x10, 0x24, 0xd3, 0xdc, 0x3f,
 	0x8e, 0xc5, 0x2f};
 
-static const uint16_t xn297_crc_xorout[] = {
-	0x0000, 0x3448, 0x9BA7, 0x8BBB, 0x85E1, 0x3E8C, // 1st entry is missing, probably never needed
-	0x451E, 0x18E6, 0x6B24, 0xE7AB, 0x3828, 0x814B, // it's used for 3-byte address w/ 0 byte payload only
+const uint16_t PROGMEM xn297_crc_xorout[] = {
+	0x0000, 0x3d5f, 0xa6f1, 0x3a23, 0xaa16, 0x1caf,
+	0x62b2, 0xe0eb, 0x0821, 0xbe07, 0x5f1a, 0xaf15,
+	0x4f0a, 0xad24, 0x5e48, 0xed34, 0x068c, 0xf2c9,
+	0x1852, 0xdf36, 0x129d, 0xb17c, 0xd5f5, 0x70d7,
+	0xb798, 0x5133, 0x67db, 0xd94e};
+
+const uint16_t PROGMEM xn297_crc_xorout_scrambled[] = {
+	0x0000, 0x3448, 0x9BA7, 0x8BBB, 0x85E1, 0x3E8C,
+	0x451E, 0x18E6, 0x6B24, 0xE7AB, 0x3828, 0x814B,
 	0xD461, 0xF494, 0x2503, 0x691D, 0xFE8B, 0x9BA7,
 	0x8B17, 0x2920, 0x8B5F, 0x61B1, 0xD391, 0x7401,
 	0x2138, 0x129F, 0xB3A0, 0x2988};
@@ -327,16 +335,21 @@ void XN297_SetRXAddr(const uint8_t* addr, uint8_t len)
 	memcpy(buf, addr, len);
 	memcpy(xn297_rx_addr, addr, len);
 	for (uint8_t i = 0; i < xn297_addr_len; ++i)
-		buf[i] = xn297_rx_addr[i] ^ xn297_scramble[xn297_addr_len-i-1];
+	{
+		buf[i] = xn297_rx_addr[i];
+		if(xn297_scramble_enabled)
+			buf[i] ^= xn297_scramble[xn297_addr_len-i-1];
+	}
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, len-2);
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, buf, 5);
 }
 
-void XN297_Configure(uint8_t flags)
+void XN297_Configure(uint16_t flags)
 {
+	xn297_scramble_enabled = !(flags & BV(XN297_UNSCRAMBLED));
 	xn297_crc = !!(flags & BV(NRF24L01_00_EN_CRC));
 	flags &= ~(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO));
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, flags);
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, flags & 0xFF);
 }
 
 void XN297_WritePayload(uint8_t* msg, uint8_t len)
@@ -352,12 +365,20 @@ void XN297_WritePayload(uint8_t* msg, uint8_t len)
 		buf[last++] = 0x55;
 	}
 	for (uint8_t i = 0; i < xn297_addr_len; ++i)
-		buf[last++] = xn297_tx_addr[xn297_addr_len-i-1] ^ xn297_scramble[i];
-
-	for (uint8_t i = 0; i < len; ++i) {
+	{
+		buf[last] = xn297_tx_addr[xn297_addr_len-i-1];
+		if(xn297_scramble_enabled)
+			buf[last] ^=  xn297_scramble[i];
+		last++;
+	}
+	for (uint8_t i = 0; i < len; ++i)
+	{
 		// bit-reverse bytes in packet
 		uint8_t b_out = bit_reverse(msg[i]);
-		buf[last++] = b_out ^ xn297_scramble[xn297_addr_len+i];
+		buf[last] = b_out;
+		if(xn297_scramble_enabled)
+			buf[last] ^= xn297_scramble[xn297_addr_len+i];
+		last++;
 	}
 	if (xn297_crc)
 	{
@@ -365,7 +386,10 @@ void XN297_WritePayload(uint8_t* msg, uint8_t len)
 		uint16_t crc = 0xb5d2;
 		for (uint8_t i = offset; i < last; ++i)
 			crc = crc16_update(crc, buf[i]);
-		crc ^= xn297_crc_xorout[xn297_addr_len - 3 + len];
+		if(xn297_scramble_enabled)
+			crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
+		else
+			crc ^= pgm_read_word(&xn297_crc_xorout[xn297_addr_len - 3 + len]);
 		buf[last++] = crc >> 8;
 		buf[last++] = crc & 0xff;
 	}
@@ -374,9 +398,14 @@ void XN297_WritePayload(uint8_t* msg, uint8_t len)
 
 void XN297_ReadPayload(uint8_t* msg, uint8_t len)
 {
+	// TODO: if xn297_crc==1, check CRC before filling *msg 
 	NRF24L01_ReadPayload(msg, len);
 	for(uint8_t i=0; i<len; i++)
-		msg[i] = bit_reverse(msg[i]) ^ bit_reverse(xn297_scramble[i+xn297_addr_len]);
+	{
+		msg[i] = bit_reverse(msg[i]);
+		if(xn297_scramble_enabled)
+			msg[i] ^= bit_reverse(xn297_scramble[i+xn297_addr_len]);
+	}
 }
 
 // End of XN297 emulation

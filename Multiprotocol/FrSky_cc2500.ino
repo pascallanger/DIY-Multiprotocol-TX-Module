@@ -20,7 +20,6 @@
 //##########Variables########
 //uint32_t state;
 //uint8_t len;
-uint8_t telemetry_counter=0;
 
 /*
 enum {
@@ -128,8 +127,6 @@ static void __attribute__((unused)) frsky2way_build_bind_packet()
 	packet[17] = 0x01;
 }
 
-
-
 static void __attribute__((unused)) frsky2way_data_frame()
 {//pachet[4] is telemetry user frame counter(hub)
 	//11 d7 2d 22 00 01 c9 c9 ca ca 88 88 ca ca c9 ca 88 88
@@ -138,7 +135,11 @@ static void __attribute__((unused)) frsky2way_data_frame()
 	packet[1] = rx_tx_addr[3];
 	packet[2] = rx_tx_addr[2];
 	packet[3] = counter;//	
-	packet[4]=telemetry_counter;	
+	#if defined TELEMETRY
+		packet[4] = telemetry_counter;
+	#else
+		packet[4] = 0x00;
+	#endif
 
 	packet[5] = 0x01;
 	//

@@ -47,7 +47,7 @@ uint8_t  Servo_AUX;
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
 
-// NRF variables
+// Protocol variables
 uint8_t  rx_tx_addr[5];
 uint8_t  phase;
 uint16_t bind_counter;
@@ -64,6 +64,7 @@ uint8_t  hopping_frequency_no=0;
 uint8_t  rf_ch_num;
 uint8_t  throttle, rudder, elevator, aileron;
 uint8_t  flags;
+uint16_t crc;
 //
 uint32_t state;
 uint8_t  len;
@@ -91,13 +92,14 @@ uint8_t prev_protocol=0;
 #define MAX_PKT 27
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
 #if defined(TELEMETRY)
-uint8_t pktt[MAX_PKT];//telemetry receiving packets
-volatile uint8_t tx_head;
-volatile uint8_t tx_tail;
-uint8_t v_lipo;
-int16_t RSSI_dBm;
-//const uint8_t RSSI_offset=72;//69 71.72 values db
-uint8_t telemetry_link=0; 
+	uint8_t pktt[MAX_PKT];//telemetry receiving packets
+	volatile uint8_t tx_head;
+	volatile uint8_t tx_tail;
+	uint8_t v_lipo;
+	int16_t RSSI_dBm;
+	//const uint8_t RSSI_offset=72;//69 71.72 values db
+	uint8_t telemetry_link=0; 
+	uint8_t telemetry_counter=0;
 #endif 
 
 // Callback

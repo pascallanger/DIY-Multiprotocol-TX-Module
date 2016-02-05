@@ -178,26 +178,6 @@ uint16_t initFrSky_2way()
 	return 10000;
 }	
 		
-#if defined(TELEMETRY)
-static void __attribute__((unused)) check_telemetry(uint8_t *pkt,uint8_t len)
-{
-	if(pkt[1] != rx_tx_addr[3] || pkt[2] != rx_tx_addr[2] || len != pkt[0] + 3)
-	{//only packets with the required id and packet length
-		for(uint8_t i=3;i<6;i++)
-			pktt[i]=0;
-		return;
-	}
-	else
-	{	   
-		for (uint8_t i=3;i<len;i++)
-			pktt[i]=pkt[i];				 
-		telemetry_link=1;
-		if(pktt[6]>0)
-			telemetry_counter=(telemetry_counter+1)%32;		
-	}
-}
-#endif
-
 uint16_t ReadFrSky_2way()
 { 
 	if (state < FRSKY_BIND_DONE)
@@ -245,7 +225,7 @@ uint16_t ReadFrSky_2way()
 				cc2500_readFifo(pkt, len);	//received telemetry packets			
 				#if defined(TELEMETRY)
 				//parse telemetry packet here
-				check_telemetry(pkt,len);	//check if valid telemetry packets and buffer them.
+				frsky_check_telemetry(pkt,len);	//check if valid telemetry packets and buffer them.
 				#endif	
 			}			
 			CC2500_SetTxRxMode(TX_EN);

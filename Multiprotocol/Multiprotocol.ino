@@ -419,18 +419,17 @@ static void protocol_init()
       remote_callback = ESKY_callback;
       break;
 #endif
-//  Ajout protocol
-#if defined(H7_NRF24L01_INO)
-    case MODE_H7:
-      next_callback=H7_init();
-      remote_callback = process_H7;
+#if defined(MT99XX_NRF24L01_INO)
+		case MODE_MT99XX:
+			next_callback=initMT99XX();
+			remote_callback = MT99XX_callback;
       break;
 #endif
-#if defined(HM830_NRF24L01_INO)
-    case MODE_HM830:
-      next_callback=HM830_setup();
-      remote_callback = HM830_callback;
-      break;
+#if defined(MJXQ_NRF24L01_INO)
+		case MODE_MJXQ:
+			next_callback=initMJXQ();
+			remote_callback = MJXQ_callback;
+			break;
 #endif
   }
 
@@ -448,7 +447,12 @@ static void protocol_init()
 
 static void update_ppm_data() {
 	#if defined(POTAR_SELECT)
-		if(Servo_data[AUX1]>PPM_SWITCH) { CHANGE_PROTOCOL_FLAG_on; }
+		if(Servo_data[AUX1]>PPM_SWITCH) {
+			CHANGE_PROTOCOL_FLAG_on;
+			tone(BUZZER, BUZZER_HTZ);
+			delay(BUZZER_TPS);
+			noTone(BUZZER);
+		}
 	#endif 
 	if(IS_CHANGE_PROTOCOL_FLAG_on)	{
 		ppm_select = 10;
@@ -458,7 +462,7 @@ static void update_ppm_data() {
 				while(!IS_PPM_FLAG_on) {} // wait
 				update_PPM_servo();
 				if(Servo_data[AUX1] < PPM_MAX_100) { ppm_select--; }
-			}	// attente de la déactivation du rebind
+			}	// attente de la dï¿½activation du rebind
 		}
 		prev_protocol = ppm_select;
 		
@@ -491,7 +495,7 @@ static void update_ppm_data() {
 			ppm_select++;
 		}
 		
-		while(Servo_data[THROTTLE] > PPM_MIN_100) { delay(100); update_PPM_servo(); }	// attente de la remise des gaz à zéro (poussé à fond avec le script lua)
+		while(Servo_data[THROTTLE] > PPM_MIN_100) { delay(100); update_PPM_servo(); }	// attente de la remise des gaz ï¿½ zï¿½ro (poussï¿½ ï¿½ fond avec le script lua)
 	}
 }
 static void update_serial_data()
@@ -561,7 +565,7 @@ static void module_reset()
 			case MODE_DEVO:
 				CYRF_Reset();
 				break;
-			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY
+			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ
 				NRF24L01_Reset();
 				break;
 		}

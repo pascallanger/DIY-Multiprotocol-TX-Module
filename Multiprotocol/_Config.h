@@ -35,46 +35,48 @@
 
 
 //Comment a protocol to exclude it from compilation
+//A7105 protocols
+#define	FLYSKY_A7105_INO
+#define	HUBSAN_A7105_INO
+//CYRF6936 protocols
+#define	DEVO_CYRF6936_INO
+#define	DSM2_CYRF6936_INO
+//CC2500 protocols
+#define	FRSKY_CC2500_INO
+//#define	FRSKYX_CC2500_INO
+//NFR24L01 protocols
 #define	BAYANG_NRF24L01_INO
 #define	CG023_NRF24L01_INO
 #define	CX10_NRF24L01_INO
-#define	DEVO_CYRF6936_INO
-#define	DSM2_CYRF6936_INO
 #define	ESKY_NRF24L01_INO
-#define	FLYSKY_A7105_INO
-#define	FRSKY_CC2500_INO	// FRSKY2way
-//#define	FRSKYX_CC2500_INO
 #define	HISKY_NRF24L01_INO
-#define	HUBSAN_A7105_INO
 #define	KN_NRF24L01_INO
 #define	SLT_NRF24L01_INO
 #define	SYMAX_NRF24L01_INO
 #define	V2X2_NRF24L01_INO
 #define	YD717_NRF24L01_INO
-
-#define	H7_NRF24L01_INO
-//#define	HM830_NRF24L01_INO
-//#define	CFlie_NRF24L01_INO
+#define	MT99XX_NRF24L01_INO
+#define	MJXQ_NRF24L01_INO
 
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
 static const PPM_Parameters PPM_prot[15]=
 {
-//	Protocol 		,	Sub protocol	,  RX_Num	,	Power	,	Auto Bind		,	Option
-	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=1
-	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=2
-	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=3
-	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=4
-	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=5
-	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=6
-	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=7
-	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=8
-	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=9
-	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=10
-	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=11
-	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=12
-	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=13
-	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},		//Dial=14
-	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},		//Dial=15
+//	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	AUTOBIND	,	0		},	//Dial=1
+	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=2
+	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},	//Dial=3
+	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=4
+	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=5
+	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=6
+	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=7
+	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=8
+	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=9
+	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=10
+	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=11
+	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=12
+	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=13
+	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=14
+	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}	//Dial=15
 };
 /* Available protocols and associated sub protocols:
 	MODE_FLYSKY
@@ -129,6 +131,15 @@ static const PPM_Parameters PPM_prot[15]=
 		NONE
 	MODE_ESKY
 		NONE
+	MODE_MT99XX
+		MT99
+		H7
+		YZ
+	MODE_MJXQ
+		WLH08
+		X600
+		X800
+		H26D
 
 RX_Num 		value between 0 and 15
 
@@ -184,14 +195,6 @@ Option		value between 0 and 255. 0xD7 or 0x00 for Frsky fine tuning.
 		AILERON,
 		THROTTLE,
 		RUDDER,
-		AUX1,
-		AUX2,
-		AUX3,
-		AUX4,
-		AUX5,
-		AUX6,
-		AUX7,
-		AUX8
 	};
 #endif
 
@@ -201,33 +204,28 @@ Option		value between 0 and 255. 0xD7 or 0x00 for Frsky fine tuning.
 		AILERON,
 		ELEVATOR,
 		RUDDER,
-		AUX1,
-		AUX2,
-		AUX3,
-		AUX4,
-		AUX5,
-		AUX6,
-		AUX7,
-		AUX8
-};
+	};
 #endif
 
 #if defined(AETR)
+	enum chan_order{
+		AILERON =0,
+		ELEVATOR,
+		THROTTLE,
+		RUDDER,
+	};
+#endif
 enum chan_order{
-	AILERON =0,
-	ELEVATOR,
-	THROTTLE,
-	RUDDER,
-	AUX1,
+	AUX1 =4,
 	AUX2,
 	AUX3,
 	AUX4,
 	AUX5,
 	AUX6,
 	AUX7,
-	AUX8
+	AUX8,
+	AUX9
 };
-#endif
 
 #define PPM_MIN_COMMAND 1250
 #define PPM_SWITCH	1550

@@ -9,7 +9,6 @@ Afin d'ajouter :
 - Un rebind hardware en PPM
 - La radio TARANIS (TAERB, B = rebind ;-) ) et redéclaration des radios
 - Un script "LUA" afin de faciliter la position des manches
-- Le protocole H7
 
 
 

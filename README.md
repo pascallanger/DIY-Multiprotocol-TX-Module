@@ -356,6 +356,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ####FRSKYX
+Models: FrSky receivers X4R, X6R and X8R.
+
 Extended limits supported
 
 Telemetry enabled for A1 (RxBatt), A2, RSSI

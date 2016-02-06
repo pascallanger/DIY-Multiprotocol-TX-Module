@@ -135,7 +135,7 @@ static void __attribute__((unused)) MT99XX_init()
 	
     XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP) | (sub_protocol == YZ ? BV(XN297_UNSCRAMBLED):0) );
 	
-    XN297_SetTXAddr((uint8_t *)"\0xCC\0xCC\0xCC\0xCC\0xCC", 5);
+    XN297_SetTXAddr((uint8_t *)"\xCC\xCC\xCC\xCC\xCC", 5);
 }
 
 static void __attribute__((unused)) MT99XX_initialize_txid()
@@ -187,7 +187,7 @@ uint16_t initMT99XX(void)
 	BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = MT99XX_BIND_COUNT;
 
-	memcpy(hopping_frequency,"\0x02\0x48\0x0C\0x3e\0x16\0x34\0x20\0x2A,\0x2A\0x20\0x34\0x16\0x3e\0x0c\0x48\0x02",16);
+	memcpy(hopping_frequency,"\x02\x48\x0C\x3e\x16\x34\x20\x2A\x2A\x20\x34\x16\x3e\x0c\x48\x02",16);
 
 	MT99XX_initialize_txid();
 	MT99XX_init();
@@ -207,11 +207,11 @@ uint16_t initMT99XX(void)
 		packet[2] = 0x05;
 		packet[3] = 0x06;
 	}
-    packet[4] = rx_tx_addr[0]; // 1st byte for data state tx address  
-    packet[5] = rx_tx_addr[1]; // 2nd byte for data state tx address (always 0x00 on Yi Zhan ?)
-    packet[6] = 0x00; // 3th byte for data state tx address (always 0x00 ?)
+    packet[4] = rx_tx_addr[0];	// 1st byte for data state tx address  
+    packet[5] = rx_tx_addr[1];	// 2nd byte for data state tx address (always 0x00 on Yi Zhan ?)
+    packet[6] = 0x00;			// 3rd byte for data state tx address (always 0x00 ?)
     packet[7] = checksum_offset; // checksum offset
-    packet[8] = 0xAA; // fixed
+    packet[8] = 0xAA;			// fixed
 	packet_count=0;
 	return	MT99XX_INITIAL_WAIT+MT99XX_PACKET_PERIOD_MT;
 }

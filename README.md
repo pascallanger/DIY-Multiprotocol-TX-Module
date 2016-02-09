@@ -431,6 +431,7 @@ Models: MT99xx
 Models: Eachine H7
 #####Sub_protocol YZ
 Models: Yi Zhan i6S
+Only one model can be flown at the same time since the ID is hardcoded.
 
 ####SLT
 Autobind protocol

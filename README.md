@@ -515,6 +515,13 @@ or build your own board using [SMD components](http://www.rcgroups.com/forums/sh
 
 **New PCB v2.3d! available in the [github repository](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/PCB%20v2.3d)**
 
+This is a variant of the Multipro V2.3c circuit design.  It is basicly the same as the 2.3c board as far
+as component placement goes.  What's changed is the added resistors for the serial protocol and also
+the addition of solder jumpers on the bottom of the board for the various options to connect the TX, RX, and PPM
+lines through them.
+
+![alt_text](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/PCB%20v2.3d/PCB_v2.3d_mini.jpg "Miniature")
+
 ###Schematic
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)
 

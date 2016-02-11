@@ -141,37 +141,51 @@ Note:
 ####Using serial input with er9x/ersky9x
 Serial is allowing access to all existing protocols & sub_protocols listed below.
 
-Protocol|Sub_protocol|RF Module
---------|------------|---------
-Flysky||A7105
+#####A7105 RF module
+Protocol|Sub_protocol
+--------|------------
+Flysky|
  |Flysky
  |V9x9
  |V6x6
  |V912
-Hubsan||A7105
-Frsky||CC2500
-Hisky||NRF24L01
- |Hisky
- |HK310
-V2x2||NRF24L01
-DSM2||CYRF6936
+Hubsan|
+
+#####CC2500 RF module
+Protocol|Sub_protocol
+--------|------------
+FrSky|
+FrSkyX|
+
+#####CYRF6936 RF module
+Protocol|Sub_protocol
+--------|------------
+DSM2|
  |DSM2
  |DSMX
-Devo||CYRF6936
-YD717||NRF24L01
+Devo|
+
+#####NRF24L01 RF module
+Protocol|Sub_protocol
+--------|------------
+Hisky|
+ |Hisky
+ |HK310
+V2x2|
+YD717|
  |YD717
  |SKYWLKR
  |SYMAX4
  |XINXUN
  |NIHUI
-KN||NRF24L01
+KN|
  |WLTOYS
  |FEILUN
-SymaX||NRF24L01
+SymaX|
  |SYMAX
  |SYMAX5C
-SLT||NRF24L01
-CX10||NRF24L01
+SLT|
+CX10|
  |GREEN
  |BLUE
  |DM007
@@ -180,18 +194,18 @@ CX10||NRF24L01
  |JC3015_2
  |MK33041
  |Q242
-CG023||NRF24L01
+CG023|
  |CG023
  |YD829
  |H8_3D
-Bayang||NRF24L01
+Bayang|
 FrskyX||CC2500
-ESky||NRF24L01
-MT99XX||NRF24L01
+ESky|
+MT99XX|
  |MT
  |H7
  |YZ
-MJXQ||NRF24L01
+MJXQ|
  |WLH08
  |X600
  |X800

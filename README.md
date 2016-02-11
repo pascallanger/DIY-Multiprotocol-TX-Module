@@ -280,11 +280,17 @@ You can 3D print your box (details [here](http://www.rcgroups.com/forums/showpos
 ##Compilation and programmation
 
 ###Toolchain
-Supported Arduino version is [1.6.7](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.7-windows.exe). Make sure to select "Arduino Pro or Pro Mini, ATmega328 (5V,16MHz)" before compiling.
+Multiprotocol source can be compiled using the Arduino IDE.
 
-Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
+The currently supported Arduino version is [1.6.7](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.7-windows.exe).
 
-_Config.h file can be modified to compile with/without some protocols, change protocols/sub_protocols/settings associated with dial for PPM input, different channel orders, different channels timing, Telemetry or not, ... 
+Download the [zip file](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/archive/master.zip) of this repository, unzip it in a folder, navigate to the Multiprotocol directory and then click on Multiprotocol.ino. The Arduino environment will appear and the Multiprotocol project will be loaded.
+
+[_Config.h file](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Multiprotocol/_Config.h) must be modified to select which protocols will be available, change protocols/sub_protocols/settings associated with dial for PPM input, different TX channel orders and timing, Telemetry or not, ... 
+
+Notes:
+- Make sure to select "Arduino Pro or Pro Mini, ATmega328 (5V,16MHz)" before compiling.
+- Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
 
 ###Upload the code using ISP (In System Programming)
 It is recommended to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.

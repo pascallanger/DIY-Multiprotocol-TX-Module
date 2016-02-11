@@ -250,9 +250,9 @@ or build your own board using [SMD components](http://www.rcgroups.com/forums/sh
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952726-108-thumb-image-62c29cf2.jpg?d=1433909893)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
 
-**If you build this PCB v2.3c and want to enable serial mode for er9x/ersky9x, you have to do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8667856-242-multi.jpg).**
+If you build this PCB v2.3c and want to enable serial mode for er9x/ersky9x, you have to do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8667856-242-multi.jpg).
 
-**New PCB v2.3d! available in the [github repository](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/PCB%20v2.3d)**
+**[New PCB v2.3d!](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/PCB%20v2.3d) available**
 
 This is a variant of the Multipro V2.3c circuit design.  It is basicly the same as the 2.3c board as far
 as component placement goes.  What's changed is the added resistors for the serial protocol and also
@@ -335,7 +335,7 @@ This will make sure your ATMEGA328 is well configured and the global TX ID is no
 - Connect 1 to 4 of the selection protocol pins to GND.
 
 ####Input Mode - Serial
-- Make sure you have done the mods to the v2.3c PCB by adding the 2.2k and 330 ohm resistors as indicated in the [Board section] (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#board).
+- Make sure you have done the mods to the v2.3c PCB by adding the 2.2k and 470 ohm resistors as indicated in the [Board section] (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#board).
 - Leave all 4 selection pins unconnected.
 
 ###Bind

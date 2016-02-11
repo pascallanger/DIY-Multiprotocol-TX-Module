@@ -254,8 +254,7 @@ If you build this PCB v2.3c and want to enable serial mode for er9x/ersky9x, you
 
 **[New PCB v2.3d!](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/PCB%20v2.3d) available**
 
-This is a variant of the Multipro V2.3c circuit design.  It is basicly the same as the 2.3c board as far
-as component placement goes.  What's changed is the added resistors for the serial protocol and also
+Repository includes Kicad files of schematic and pcb. This is a variant of the Multipro V2.3c circuit design.  It is basicly the same as the 2.3c board as far as component placement goes.  What's changed is the added resistors for the serial protocol and also
 the addition of solder jumpers on the bottom of the board for the various options to connect the TX, RX, and PPM
 lines through them.
 

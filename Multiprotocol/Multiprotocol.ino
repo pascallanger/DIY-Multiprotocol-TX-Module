@@ -1,6 +1,7 @@
 /*********************************************************
 		Multiprotocol Tx code
 		by Midelic and Pascal Langer(hpnuts)
+		fork by Tipouic
   http://www.rcgroups.com/forums/showthread.php?t=2165676
     https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/edit/master/README.md
 
@@ -29,7 +30,6 @@
 #include "_Config.h"
 
 //Global constants/variables
-
 uint32_t MProtocol_id;//tx id,
 uint32_t MProtocol_id_master;
 uint32_t Model_fixed_id=0;
@@ -48,7 +48,7 @@ uint8_t  Servo_AUX;
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
 
-// NRF variables
+// Protocol variables
 uint8_t rx_tx_addr[5];
 uint8_t phase;
 uint16_t bind_counter;
@@ -65,6 +65,7 @@ uint8_t hopping_frequency_no=0;
 uint8_t rf_ch_num;
 uint8_t throttle, rudder, elevator, aileron;
 uint8_t flags;
+uint16_t crc;
 //
 uint32_t state;
 uint8_t len;
@@ -100,6 +101,7 @@ uint8_t pktt[MAX_PKT];//telemetry receiving packets
 	int16_t RSSI_dBm;
 	//const uint8_t RSSI_offset=72;//69 71.72 values db
 	uint8_t telemetry_link=0; 
+	uint8_t telemetry_counter=0;
 #endif 
 
 // Callback
@@ -313,6 +315,49 @@ static void protocol_init()
   
 	switch(cur_protocol[0]&0x1F)	// Init the requested protocol
 	{
+#if defined(HM830_NRF24L01_INO)
+		case MODE_HM830:
+			next_callback=HM830_setup();
+			remote_callback = HM830_callback;
+			break;
+#endif
+#if defined(CFlie_NRF24L01_INO)
+		case MODE_CFLIE:
+			next_callback=Cflie_setup();
+			remote_callback = cflie_callback;
+			break;
+#endif
+#if defined(JOYSWAY_A7105_INO)
+		case MODE_JOYSWAY:
+			next_callback=JOYSWAY_Setup();
+			remote_callback = joysway_cb;
+			break;
+#endif
+#if defined(H377_NRF24L01_INO)
+		case MODE_H377:
+			next_callback=h377_setup();
+			remote_callback = h377_cb;
+			break;
+#endif
+#if defined(J6PRO_CYRF6936_INO)
+		case MODE_J6PRO:
+			next_callback=j6pro_setup();
+			remote_callback = j6pro_cb;
+			break;
+#endif
+#if defined(WK2x01_CYRF6936_INO)
+		case MODE_WK2x01:
+			next_callback=wk_setup();
+			remote_callback = wk_cb;
+			break;
+#endif
+#if defined(FY326_NRF24L01_INO)
+		case MODE_FY326:
+			next_callback=FY326_setup();
+			remote_callback = fy326_callback;
+			break;
+#endif
+
 #if defined(FLYSKY_A7105_INO)
     case MODE_FLYSKY:
       CTRL1_off;  //antenna RF1

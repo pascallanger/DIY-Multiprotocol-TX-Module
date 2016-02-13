@@ -15,7 +15,7 @@
 
 // Check selected board type
 #ifndef ARDUINO_AVR_PRO
-	#error You must select the board type "Arduino Pro or Pro Mini"
+//	#error You must select the board type "Arduino Pro or Pro Mini"
 #endif
 #if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
 	#error You must select the processor type "ATmega328(5V, 16MHz)"
@@ -26,6 +26,14 @@
 //******************
 enum PROTOCOLS
 {
+	MODE_HM830=40,			// =>NRF24L01
+	MODE_CFLIE=41,			// =>NRF24L01
+	MODE_JOYSWAY = 42,		// =>A7105
+	MODE_J6PRO = 43,		// =>CYRF6936
+	MODE_H377=44,			// =>NRF24L01
+	MODE_WK2x01 = 45,		// =>CYRF6936
+	MODE_FY326=46,			// =>NRF24L01
+	
 	MODE_SERIAL = 0,		// Serial commands
 	MODE_FLYSKY = 1,		// =>A7105
 	MODE_HUBSAN = 2,		// =>A7105
@@ -109,6 +117,12 @@ enum MJXQ
 	X600	= 1,
 	X800	= 2,
 	H26D	= 3
+};
+enum WK2X01
+{
+	WK2801	= 0,
+	WK2601	= 1,
+	WK2401	= 2
 };
 
 #define NONE 		0

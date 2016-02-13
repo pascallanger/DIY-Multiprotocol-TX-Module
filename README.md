@@ -26,3 +26,45 @@ Notes:
 - For serial, the dial switch is not needed and the bind button optionnal
 - Ajout d'un switch + transistor sur le TX
 ![Alt text](telemetryFRSKY.jpg)
+
+
+#Protocoles ajoutés mais non testés (Issue de Deviation)
+##CYRF6936 RF Module
+###J6PRO
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+###WK2x01
+En cours ...
+
+##A7105 RF Module
+###Joysway
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+##NRF24L01 RF Module
+###CFLIE
+Modele: CrazyFlie Nano quad
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+###Fy326
+Autobind
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|HEADLESS|RTH|Calibrate
+
+###H377
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+###HM830
+Modele: HM Hobby HM830 RC Paper Airplane
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---
+A|Turbo|T|Trim|Bouton ???
+

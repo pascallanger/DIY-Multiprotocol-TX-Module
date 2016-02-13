@@ -42,8 +42,7 @@ enum {
 	DSM2_CH2_READ_B  = BIND_COUNT1 + 10,
 };
 
-
-const uint8_t pncodes[5][9][8] = {
+const uint8_t PROGMEM pncodes[5][9][8] = {
 	/* Note these are in order transmitted (LSB 1st) */
 	{ /* Row 0 */
 		/* Col 0 */ {0x03, 0xBC, 0x6E, 0x8A, 0xEF, 0xBD, 0xFE, 0xF8},
@@ -102,6 +101,12 @@ const uint8_t pncodes[5][9][8] = {
 	},
 };
 
+static void __attribute__((unused)) read_code(uint8_t *buf, uint8_t row, uint8_t col, uint8_t len)
+{
+	for(uint8_t i=0;i<len;i++)
+		buf[i]=pgm_read_byte_near( &pncodes[row][col][i] );
+}
+
 //
 uint8_t chidx;
 uint8_t sop_col;
@@ -109,8 +114,6 @@ uint8_t data_col;
 uint16_t cyrf_state;
 uint8_t crcidx;
 uint8_t binding;
-uint16_t crc;
-
 /*
 #ifdef USE_FIXED_MFGID
 const uint8_t cyrfmfg_id[6] = {0x5e, 0x28, 0xa3, 0x1b, 0x00, 0x00}; //dx8
@@ -309,17 +312,20 @@ static void __attribute__((unused)) cyrf_config()
 
 static void __attribute__((unused)) initialize_bind_state()
 {
-	const uint8_t pn_bind[] = { 0xc6,0x94,0x22,0xfe,0x48,0xe6,0x57,0x4e };
-	uint8_t data_code[32];
+	uint8_t code[32];
+
 	CYRF_ConfigRFChannel(BIND_CHANNEL); //This seems to be random?
 	uint8_t pn_row = get_pn_row(BIND_CHANNEL);
 	//printf("Ch: %d Row: %d SOP: %d Data: %d\n", BIND_CHANNEL, pn_row, sop_col, data_col);
 	CYRF_ConfigCRCSeed(crc);
-	CYRF_ConfigSOPCode(pncodes[pn_row][sop_col]);
-	memcpy(data_code, pncodes[pn_row][data_col], 16);
-	memcpy(data_code + 16, pncodes[0][8], 8);
-	memcpy(data_code + 24, pn_bind, 8);
-	CYRF_ConfigDataCode(data_code, 32);
+
+	read_code(code,pn_row,sop_col,8);
+	CYRF_ConfigSOPCode(code);
+	read_code(code,pn_row,data_col,16);
+	read_code(code+16,0,8,8);
+	memcpy(code + 24, "\xc6\x94\x22\xfe\x48\xe6\x57\x4e", 8);
+	CYRF_ConfigDataCode(code, 32);
+
 	build_bind_packet();
 }
 
@@ -349,12 +355,17 @@ static void __attribute__((unused)) cyrf_configdata()
 
 static void __attribute__((unused)) set_sop_data_crc()
 {
+	uint8_t code[16];
 	uint8_t pn_row = get_pn_row(hopping_frequency[chidx]);
 	//printf("Ch: %d Row: %d SOP: %d Data: %d\n", ch[chidx], pn_row, sop_col, data_col);
 	CYRF_ConfigRFChannel(hopping_frequency[chidx]);
 	CYRF_ConfigCRCSeed(crcidx ? ~crc : crc);
-	CYRF_ConfigSOPCode(pncodes[pn_row][sop_col]);
-	CYRF_ConfigDataCode(pncodes[pn_row][data_col], 16);
+
+	read_code(code,pn_row,sop_col,8);
+	CYRF_ConfigSOPCode(code);
+	read_code(code,pn_row,data_col,16);
+	CYRF_ConfigDataCode(code, 16);
+
 	if(sub_protocol == DSMX)
 		chidx = (chidx + 1) % 23;
 	else

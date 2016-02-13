@@ -215,11 +215,10 @@ static void CYRF_StartReceive()
 	CYRF_ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, 0x10);
 }
 */
-/*static void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
+static void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
 {
     ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, length);
 }
-*/
 static void CYRF_WriteDataPacketLen(const uint8_t dpbuffer[], uint8_t len)
 {
 	CYRF_WriteRegister(CYRF_01_TX_LENGTH, len);

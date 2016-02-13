@@ -245,7 +245,7 @@ A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS
 ###Sub_protocol MT
 Models: MT99xx
 ###Sub_protocol H7
-Models: Eachine H7
+Models: Eachine H7, Cheerson CX023
 ###Sub_protocol YZ
 Models: Yi Zhan i6S
 Only one model can be flown at the same time since the ID is hardcoded.

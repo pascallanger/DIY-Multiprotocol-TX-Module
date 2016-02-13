@@ -36,6 +36,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ###WK2x01
+Autobind
+
 En cours ...
 
 ##A7105 RF Module
@@ -47,12 +49,16 @@ A|E|T|R
 ##NRF24L01 RF Module
 ###CFLIE
 Modele: CrazyFlie Nano quad
+
+Autobind
+
 CH1|CH2|CH3|CH4
 ---|---|---|---
 A|E|T|R
 
 ###Fy326
 Autobind
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|HEADLESS|RTH|Calibrate
@@ -64,6 +70,9 @@ A|E|T|R|CH5|CH6|CH7|CH8
 
 ###HM830
 Modele: HM Hobby HM830 RC Paper Airplane
+
+Autobind
+
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---
 A|Turbo|T|Trim|Bouton ???

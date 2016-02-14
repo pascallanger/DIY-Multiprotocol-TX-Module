@@ -38,7 +38,36 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ###WK2x01
 Autobind
 
-En cours ...
+####Sub_protocol WK2401
+CH1|CH2|CH3|CH4
+---|---|---|---
+CH1|CH2|CH3|CH4
+
+
+####Sub_protocol WK2601
+Option:	
+
+		0 = 5+1
+		2 = 6+1
+		..1 = Hélicoptère (. = autres options pour ce mode)
+		.01 = Hélicoptère normal
+		.11 = Hélicoptère avec pit inversé
+		0.1 = Pitch curve -100
+		1.1 = Pitch curve 100
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|???|CONF|Gyro & Rudder mix
+
+CONF:	Option 1 = Rate Throtle
+		Option 2 = Pitch
+		
+
+####Sub_protocol WK2801
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
 
 ##A7105 RF Module
 ###Joysway
@@ -59,9 +88,12 @@ A|E|T|R
 ###Fy326
 Autobind
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|FLIP|HEADLESS|RTH|Calibrate
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|HEADLESS|RTH|Calibrate|Expert
+
+####Sub_protocol FY319
+Same channels assignement as above.
 
 ###H377
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
@@ -77,3 +109,4 @@ CH1|CH2|CH3|CH4|CH5
 ---|---|---|---
 A|Turbo|T|Trim|Bouton ???
 
+###D'autres à venir

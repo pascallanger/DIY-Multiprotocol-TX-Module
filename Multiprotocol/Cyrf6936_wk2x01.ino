@@ -31,7 +31,7 @@ static const uint8_t sopcode[8] = {
 static const uint8_t fail_map[8] = {2, 1, 0, 3, 4, 5, 6, 7};
 
 static uint8_t wk_pkt_num;
-static u8 *radio_ch_ptr;
+static uint8_t *radio_ch_ptr;
 static uint16_t WK_BIND_COUNTer;
 static uint8_t last_beacon;
 /*
@@ -41,11 +41,11 @@ static const char * const wk2601_opts[] = {
   _tr_noop("COL Limit"), "-100", "100", NULL,
   NULL
 };
-*/
 #define WK2601_OPT_CHANMODE 0
 #define WK2601_OPT_PIT_INV 1
 #define WK2601_OPT_PIT_LIMIT 2
 #define LAST_PROTO_OPT 3
+*/
 
 static void add_pkt_crc(uint8_t init) {
 	uint8_t add = init;
@@ -177,14 +177,14 @@ static void channels_heli_2601(int frame, int *v1, int *v2) {
 	//pitch is controlled by rx
 	//we can only control fmode, pit-reverse and pit/thr rate
 	int pit_rev = 0;
-	if (Model.proto_opts[WK2601_OPT_PIT_INV]) { pit_rev = 1; }
+	if ((option/10)%10) { pit_rev = 1; }
 	uint16_t pit_rate = get_channel(5, 0x400, 0, 0x400);
 	int fmode = 1;
 	if (pit_rate < 0) {		pit_rate = -pit_rate;	fmode = 0;	}
 	if (frame == 1) {
 		//Pitch curve and range
 		*v1 = pit_rate;
-		*v2 = Model.proto_opts[WK2601_OPT_PIT_LIMIT] * 0x400 / 100 + 0x400;
+		*v2 = ((option/100) ? -100 : 100) * 0x400 / 100 + 0x400;
 	}
 	packet[7] = (pit_rev << 2); //reverse bits
 	packet[8] = fmode ? 0x02 : 0x00;
@@ -207,8 +207,8 @@ static void build_data_pkt_2601() {
 		v1 = get_channel(6, 0x200, 0x200, 0x200);
 		v2 = 0;
 	}
-	if (Model.proto_opts[WK2601_OPT_CHANMODE] == 1) { channels_heli_2601(frame, &v1, &v2); }
-	else if (Model.proto_opts[WK2601_OPT_CHANMODE] == 2) { channels_6plus1_2601(frame, &v1, &v2); }
+	if (option%10 == 1) { channels_heli_2601(frame, &v1, &v2); }
+	else if (option%10 == 2) { channels_6plus1_2601(frame, &v1, &v2); }
 	else { channels_5plus1_2601(frame, &v1, &v2); }
 	if (v1 > 1023) { v1 = 1023; }
 	if (v2 > 1023) { v2 = 1023; }

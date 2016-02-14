@@ -14,9 +14,6 @@
  */
 
 // Check selected board type
-#ifndef ARDUINO_AVR_PRO
-//	#error You must select the board type "Arduino Pro or Pro Mini"
-#endif
 #if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
 	#error You must select the processor type "ATmega328(5V, 16MHz)"
 #endif
@@ -118,11 +115,17 @@ enum MJXQ
 	X800	= 2,
 	H26D	= 3
 };
+
 enum WK2X01
 {
 	WK2801	= 0,
 	WK2601	= 1,
 	WK2401	= 2
+};
+enum FY326
+{
+	FY326	= 0,
+	FY319	= 1
 };
 
 #define NONE 		0

@@ -45,7 +45,7 @@ enum {
 	FLAG_V9X9_VIDEO = 0x40,
 	FLAG_V9X9_CAMERA= 0x80,
 	// flags going to byte 12
-	FLAG_V9X9_UNK   = 0x10, // undocumented ?
+	FLAG_V9X9_FLIP   = 0x10,
 	FLAG_V9X9_LED   = 0x20,
 };
 
@@ -82,7 +82,7 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 	{
 		case V9X9:
 			if(Servo_AUX1)
-				packet[12] |= FLAG_V9X9_UNK;
+				packet[12] |= FLAG_V9X9_FLIP;
 			if(Servo_AUX2)
 				packet[12] |= FLAG_V9X9_LED;
 			if(Servo_AUX3)

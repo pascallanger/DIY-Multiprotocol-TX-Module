@@ -154,7 +154,7 @@ void NRF24L01_SetBitrate(uint8_t bitrate)
     // Note that bitrate 250kbps (and bit RF_DR_LOW) is valid only
     // for nRF24L01+. There is no way to programmatically tell it from
     // older version, nRF24L01, but the older is practically phased out
-    // by Nordic, so we assume that we deal with with modern version.
+    // by Nordic, so we assume that we deal with modern version.
 
     // Bit 0 goes to RF_DR_HIGH, bit 1 - to RF_DR_LOW
     rf_setup = (rf_setup & 0xD7) | ((bitrate & 0x02) << 4) | ((bitrate & 0x01) << 3);

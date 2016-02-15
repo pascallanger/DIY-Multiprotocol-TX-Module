@@ -59,24 +59,23 @@
 #endif
 
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
-static const PPM_Parameters PPM_prot[15]=
-{
-//	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
-	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=1
-	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=2
-	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},	//Dial=3
-	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=4
-	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=5
-	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=6
-	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=7
-	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=8
-	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=9
-	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=10
-	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=11
-	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=12
-	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=13
-	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=14
-	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}	//Dial=15
+const PPM_Parameters PPM_prot[15]=	{
+//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+/*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	2	*/	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},
+/*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	10	*/	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	11	*/	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	12	*/	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	13	*/	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	15	*/	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}
 };
 /* Available protocols and associated sub protocols:
 	MODE_FLYSKY
@@ -155,10 +154,10 @@ Option		value between 0 and 255. 0xD7 or 0x00 for Frsky fine tuning.
 
 // Turnigy PPM and channels
 #if defined(TX_ER9X)
-#define PPM_MAX		2140
-#define PPM_MIN		860
-#define PPM_MAX_100 2012
-#define PPM_MIN_100 988
+#define PPM_MAX		2140	//	125%
+#define PPM_MIN		860		//	125%
+#define PPM_MAX_100 2012	//	100%
+#define PPM_MIN_100 988		//	100%
 enum chan_order{
 	AILERON =0,
 	ELEVATOR,
@@ -178,10 +177,10 @@ enum chan_order{
 
 // Devo PPM and channels
 #if defined(TX_DEVO7)
-#define PPM_MAX		2100
-#define PPM_MIN		900
-#define PPM_MAX_100	1920
-#define PPM_MIN_100	1120
+#define PPM_MAX		2100	//	125%
+#define PPM_MIN		900		//	125%
+#define PPM_MAX_100	1920	//	100%
+#define PPM_MIN_100	1120	//	100%
 enum chan_order{
 	ELEVATOR=0,
 	AILERON,
@@ -201,10 +200,10 @@ enum chan_order{
 
 // SPEKTRUM PPM and channels
 #if defined(TX_SPEKTRUM)
-#define PPM_MAX		2000
-#define PPM_MIN		1000
-#define PPM_MAX_100	1900
-#define PPM_MIN_100	1100
+#define PPM_MAX		2000	//	125%
+#define PPM_MIN		1000	//	125%
+#define PPM_MAX_100	1900	//	100%
+#define PPM_MIN_100	1100	//	100%
 enum chan_order{
 	THROTTLE=0,
 	AILERON,
@@ -224,10 +223,10 @@ enum chan_order{
 
 // HISKY
 #if defined(TX_HISKY)
-#define PPM_MAX		2000
-#define PPM_MIN		1000
-#define PPM_MAX_100	1900
-#define PPM_MIN_100	1100
+#define PPM_MAX		2000	//	125%
+#define PPM_MIN		1000	//	125%
+#define PPM_MAX_100	1900	//	100%
+#define PPM_MIN_100	1100	//	100%
 enum chan_order{
 	AILERON =0,
 	ELEVATOR,
@@ -248,3 +247,7 @@ enum chan_order{
 #define PPM_MIN_COMMAND 1250
 #define PPM_SWITCH		1550
 #define PPM_MAX_COMMAND 1750
+
+//Uncoment the desired serial speed
+#define BAUD 100000
+//#define BAUD 125000

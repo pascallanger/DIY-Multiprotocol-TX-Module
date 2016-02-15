@@ -44,8 +44,6 @@ uint8_t  packet[40];
 // Servo data
 uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
-// PPM variable
-volatile uint16_t PPM_data[NUM_CHN];
 
 // Protocol variables
 uint8_t  rx_tx_addr[5];
@@ -73,6 +71,9 @@ uint8_t  RX_num;
 // Mode_select variables
 uint8_t mode_select;
 uint8_t protocol_flags=0,protocol_flags2=0;
+
+// PPM variable
+volatile uint16_t PPM_data[NUM_CHN];
 
 // Serial variables
 #define RXBUFFER_SIZE 25
@@ -156,7 +157,9 @@ void setup()
 	MProtocol_id_master=random_id(10,false);
 
 	//Init RF modules
-	CC2500_Reset();
+	#ifdef	CC2500_INSTALLED
+		CC2500_Reset();
+	#endif
 
 	//Protocol and interrupts initialization
 	if(mode_select != MODE_SERIAL)
@@ -582,7 +585,6 @@ void Serial_write(uint8_t data)
 
 static void Mprotocol_serial_init()
 {
-	#define BAUD 100000
 	#include <util/setbaud.h>	
 	UBRR0H = UBRRH_VALUE;
 	UBRR0L = UBRRL_VALUE;

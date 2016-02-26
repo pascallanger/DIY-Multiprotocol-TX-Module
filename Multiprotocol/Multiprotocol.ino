@@ -146,7 +146,7 @@ void setup()
 	// after this mode_select will be one of {0000, 0001, ..., 1111}
 	mode_select=0x0F - ( ( (PINB>>2)&0x07 ) | ( (PINC<<3)&0x08) );//encoder dip switches 1,2,4,8=>B2,B3,B4,C0
 //**********************************
-//mode_select=14;	// here to test PPM
+//mode_select=1;	// here to test PPM
 //**********************************
 
 	// Update LED
@@ -432,6 +432,12 @@ static void protocol_init()
 			remote_callback = MJXQ_callback;
 			break;
 #endif
+#if defined(SHENQI_NRF24L01_INO)
+		case MODE_SHENQI:
+			next_callback=initSHENQI();
+			remote_callback = SHENQI_callback;
+			break;
+#endif
 	}
 
 	if(next_callback>32000)
@@ -513,7 +519,7 @@ static void module_reset()
 			case MODE_DEVO:
 				CYRF_Reset();
 				break;
-			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ
+			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI
 				NRF24L01_Reset();
 				break;
 		}

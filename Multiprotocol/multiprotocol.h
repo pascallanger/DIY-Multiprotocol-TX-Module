@@ -44,7 +44,8 @@ enum PROTOCOLS
 	MODE_FRSKYX = 15,		// =>CC2500
 	MODE_ESKY = 16,			// =>NRF24L01
 	MODE_MT99XX=17,			// =>NRF24L01
-	MODE_MJXQ=18			// =>NRF24L01
+	MODE_MJXQ=18,			// =>NRF24L01
+	MODE_SHENQI=19			// =>NRF24L01
 };
 
 enum Flysky
@@ -419,6 +420,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					ESky		16
 					MT99XX		17
 					MJXQ		18
+					SHENQI		19
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

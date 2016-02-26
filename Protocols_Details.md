@@ -247,8 +247,17 @@ Models: MT99xx
 ###Sub_protocol H7
 Models: Eachine H7, Cheerson CX023
 ###Sub_protocol YZ
-Models: Yi Zhan i6S
+Model: Yi Zhan i6S
 Only one model can be flown at the same time since the ID is hardcoded.
+
+##Shenqi
+Autobind protocol
+Model: Shenqiwei 1/20 Mini Motorcycle
+CH1|CH2|CH3|CH4
+---|---|---|---
+||T|R
+
+Throttle +100%=full forward,0%=stop,-100%=full backward.
 
 ##SLT
 Autobind protocol

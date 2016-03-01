@@ -75,14 +75,14 @@ static void send_packet(uint8_t bind)
                   | GET_FLAG(CHANNEL_CALIBRATE, 0x01)
                   | GET_FLAG(CHANNEL_EXPERT,    4);
     }
-    packet[2]  = 200 - scale_channel(AILERON, 0, 200);  // aileron
-    packet[3]  = scale_channel(ELEVATOR, 0, 200);        // elevator
-    packet[4]  = 200 - scale_channel(RUDDER, 0, 200);  // rudder
-    packet[5]  = scale_channel(THROTTLE, 0, 200);        // throttle
+    packet[2]  = 200 - scale_channel(AILERON, 0, 200);  // aileron  1
+    packet[3]  = scale_channel(ELEVATOR, 0, 200);        // elevator  2
+    packet[4]  = 200 - scale_channel(RUDDER, 0, 200);  // rudder  4
+    packet[5]  = scale_channel(THROTTLE, 0, 200);        // throttle  3
     if(sub_protocol == FY319) {
-        packet[6] = 255 - scale_channel(CHANNEL1, 0, 255);
-        packet[7] = scale_channel(CHANNEL2, 0, 255);
-        packet[8] = 255 - scale_channel(CHANNEL4, 0, 255);
+        packet[6] = 255 - scale_channel(AILERON, 0, 255);
+        packet[7] = scale_channel(ELEVATOR, 0, 255);
+        packet[8] = 255 - scale_channel(RUDDER, 0, 255);
     }
     else {
         packet[6]  = txid[0];
@@ -112,7 +112,7 @@ static void send_packet(uint8_t bind)
 
 static void fy326_init()
 {
-	uint8_t rx_tx_addr[] = {0x15, 0x59, 0x23, 0xc6, 0x29};
+  uint8_t rx_tx_addr[] = {0x15, 0x59, 0x23, 0xc6, 0x29};
 
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
@@ -148,7 +148,7 @@ static uint16_t fy326_callback()
         NRF24L01_WriteReg(NRF24L01_05_RF_CH, RF_BIND_CHANNEL);
         phase = FY319_BIND1;
 		BIND_IN_PROGRESS;
-        return PACKET_CHKTIME;
+        return FY326_CHKTIME;
         break;
         
     case FY319_BIND1:
@@ -158,7 +158,7 @@ static uint16_t fy326_callback()
             packet[0] = txid[3];
             packet[1] = 0x80;
             packet[14]= txid[4];
-            bind_counter = BIND_COUNT;
+            bind_counter = FY326_BIND_COUNT;
             NRF24L01_SetTxRxMode(TXRX_OFF);
             NRF24L01_SetTxRxMode(TX_EN);
             NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
@@ -168,7 +168,7 @@ static uint16_t fy326_callback()
                 packet[i] = rf_chans[0];
             phase = FY319_BIND2;
         }
-        return PACKET_CHKTIME;
+        return FY326_CHKTIME;
         break;
     
     case FY319_BIND2:
@@ -243,7 +243,7 @@ static void fy_txid()
     rf_chans[2] = 0x20 + (txid[1] & 0x0F);
     rf_chans[3] = 0x30 + (txid[1] >> 4);
     rf_chans[4] = 0x40 + (txid[2] >> 4);
-	
+  
     if(sub_protocol == FY319) {        
         for(uint8_t i=0; i<5; i++)
             rf_chans[i] = txid[0] & ~0x80;
@@ -264,3 +264,4 @@ static uint16_t FY326_setup()
     return INITIAL_WAIT;
 }
 #endif
+

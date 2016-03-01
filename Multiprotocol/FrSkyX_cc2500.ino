@@ -43,101 +43,12 @@
 		0x34,	0x1B,	0x00,	0x1D,	0x03 
 	};
 
-	uint8_t hop(uint8_t byte)
+	static uint8_t __attribute__((unused)) hop(uint8_t byte)
 	{
 		return pgm_read_byte_near(&hop_data[byte]);
 	}
 
-	uint16_t initFrSkyX()
-	{
-		while(!chanskip)
-		{
-			randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
-			chanskip=random(0xfefefefe)%47;
-		}
-		while((chanskip-ctr)%4)
-			ctr=(ctr+1)%4;
-		
-		counter_rst=(chanskip-ctr)>>2;
-		//for test***************
-		//rx_tx_addr[3]=0xB3;
-		//rx_tx_addr[2]=0xFD;
-		//************************
-		frskyX_init(); 
-		//
-		if(IS_AUTOBIND_FLAG_on)
-		{	   
-			state = FRSKY_BIND;
-			initialize_data(1);
-		}
-		else
-		{
-			state = FRSKY_DATA1;
-			initialize_data(0);
-		}
-		return 10000;
-	}	
-    
-	uint16_t ReadFrSkyX()
-	{
-		switch(state)
-		{	
-			default: 
-				set_start(47);		
-				CC2500_SetPower();
-				cc2500_strobe(CC2500_SFRX);
-				//		
-				frskyX_build_bind_packet();
-				cc2500_strobe(CC2500_SIDLE);
-				cc2500_writeFifo(packet, packet[0]+1);
-				state++;
-				return 9000;
-			case FRSKY_BIND_DONE:
-				initialize_data(0);
-				channr=0;
-				BIND_DONE;
-				state++;			
-				break;		
-			case FRSKY_DATA1:
-				LED_ON;
-				CC2500_SetTxRxMode(TX_EN);
-				set_start(channr);
-				CC2500_SetPower();		
-				cc2500_strobe(CC2500_SFRX);
-				channr = (channr+chanskip)%47;
-				cc2500_strobe(CC2500_SIDLE);		
-				cc2500_writeFifo(packet, packet[0]+1);
-				//
-				frskyX_data_frame();
-				state++;
-				return 5500;
-			case FRSKY_DATA2:
-				CC2500_SetTxRxMode(RX_EN);
-				cc2500_strobe(CC2500_SIDLE);
-				state++;
-				return 200;
-			case FRSKY_DATA3:		
-				cc2500_strobe(CC2500_SRX);
-				state++;
-				return 3000;
-			case FRSKY_DATA4:
-				len = cc2500_readReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
-				if (len &&(len<MAX_PKT))
-				{
-					cc2500_readFifo(pkt, len);
-					#if defined TELEMETRY
-						frsky_check_telemetry(pkt,len);	//check if valid telemetry packets
-						//parse telemetry packets here
-						//The same telemetry function used by FrSky(D8).
-					#endif
-				}
-				state = FRSKY_DATA1;
-				return 300;
-		}		
-		return 1;		
-	}
-	
-	void set_start(uint8_t ch )
+	static void __attribute__((unused)) set_start(uint8_t ch )
 	{
 		cc2500_strobe(CC2500_SIDLE);
 		cc2500_writeReg(CC2500_23_FSCAL3, calData[ch][0]);
@@ -146,45 +57,39 @@
 		cc2500_writeReg(CC2500_0A_CHANNR, ch==47?0:pgm_read_word(&hop_data[ch]));
 	}		
 	
-	void frskyX_init()
+	static void __attribute__((unused)) frskyX_init()
 	{
 		CC2500_Reset();
-		cc2500_writeReg(CC2500_02_IOCFG0, 0x06);		
-		cc2500_writeReg(CC2500_00_IOCFG2, 0x06);
-		cc2500_writeReg(CC2500_17_MCSM1, 0x0C);
-		cc2500_writeReg(CC2500_18_MCSM0, 0x18);
-		cc2500_writeReg(CC2500_06_PKTLEN, 0x1E);
-		cc2500_writeReg(CC2500_07_PKTCTRL1, 0x04);
-		cc2500_writeReg(CC2500_08_PKTCTRL0, 0x01);
-		cc2500_writeReg(CC2500_3E_PATABLE, 0xff);
-		cc2500_writeReg(CC2500_0B_FSCTRL1, 0x0A);
-		cc2500_writeReg(CC2500_0C_FSCTRL0, 0x00);
-		cc2500_writeReg(CC2500_0D_FREQ2, 0x5c);
-		cc2500_writeReg(CC2500_0E_FREQ1, 0x76);
-		cc2500_writeReg(CC2500_0F_FREQ0, 0x27);	
-		cc2500_writeReg(CC2500_10_MDMCFG4, 0x7B);	
-		cc2500_writeReg(CC2500_11_MDMCFG3, 0x61);
-		cc2500_writeReg(CC2500_12_MDMCFG2, 0x13);
-		cc2500_writeReg(CC2500_13_MDMCFG1, 0x23);
-		cc2500_writeReg(CC2500_14_MDMCFG0, 0x7a);
-		cc2500_writeReg(CC2500_15_DEVIATN, 0x51);
-		cc2500_writeReg(CC2500_19_FOCCFG, 0x16);
-		cc2500_writeReg(CC2500_1A_BSCFG, 0x6c);	
-		cc2500_writeReg(CC2500_1B_AGCCTRL2,0x43);
-		cc2500_writeReg(CC2500_1C_AGCCTRL1,0x40);
-		cc2500_writeReg(CC2500_1D_AGCCTRL0,0x91);
-		cc2500_writeReg(CC2500_21_FREND1, 0x56);
-		cc2500_writeReg(CC2500_22_FREND0, 0x10);
-		cc2500_writeReg(CC2500_23_FSCAL3, 0xa9);
-		cc2500_writeReg(CC2500_24_FSCAL2, 0x0A);
-		cc2500_writeReg(CC2500_25_FSCAL1, 0x00);
-		cc2500_writeReg(CC2500_26_FSCAL0, 0x11);
-		cc2500_writeReg(CC2500_29_FSTEST, 0x59);
-		cc2500_writeReg(CC2500_2C_TEST2, 0x88);
-		cc2500_writeReg(CC2500_2D_TEST1, 0x31);
-		cc2500_writeReg(CC2500_2E_TEST0, 0x0B);
-		cc2500_writeReg(CC2500_03_FIFOTHR, 0x07);
-		cc2500_writeReg(CC2500_09_ADDR, 0x00);
+		
+		for(uint8_t i=0;i<36;i++)
+		{
+			uint8_t reg=pgm_read_byte_near(&cc2500_conf[i][0]);
+			uint8_t val=pgm_read_byte_near(&cc2500_conf[i][1]);
+			
+			if(reg==CC2500_06_PKTLEN)
+				val=0x1E;
+			else
+				if(reg==CC2500_08_PKTCTRL0)
+					val=0x01;
+			else
+				if(reg==CC2500_0B_FSCTRL1)
+					val=0x0A;
+			else
+				if(reg==CC2500_10_MDMCFG4)
+					val=0x7B;
+			else
+				if(reg==CC2500_11_MDMCFG3)
+					val=0x61;
+			else
+				if(reg==CC2500_12_MDMCFG2)
+					val=0x13;
+			else
+				if(reg==CC2500_15_DEVIATN)
+					val=0x51;
+						
+			cc2500_writeReg(reg,val);
+		}
+
 		cc2500_writeReg(CC2500_07_PKTCTRL1, 0x04);			
 		cc2500_writeReg(CC2500_0C_FSCTRL0, option);
 		cc2500_strobe(CC2500_SIDLE);    
@@ -208,7 +113,7 @@
 		//#######END INIT########		
 	}
 	
-	void initialize_data(uint8_t adr)
+	static void __attribute__((unused)) initialize_data(uint8_t adr)
 	{
 		cc2500_writeReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
 		cc2500_writeReg(CC2500_18_MCSM0,    0x8);	
@@ -216,7 +121,18 @@
 		cc2500_writeReg(CC2500_07_PKTCTRL1,0x05);
 	}
 	
-	void frskyX_build_bind_packet()
+	static uint8_t __attribute__((unused)) crc_Byte( uint8_t byte )
+	{
+		crc = (crc<<8) ^ pgm_read_word(&CRCTable[((uint8_t)(crc>>8) ^ byte) & 0xFF]);
+		return byte;
+	}
+    
+	static uint16_t  __attribute__((unused)) scaleForPXX( uint8_t i )
+	{	//mapped 860,2140(125%) range to 64,1984(PXX values);
+		return (uint16_t)(((Servo_data[i]-PPM_MIN)*3)>>1)+64;
+	}
+	
+	static void __attribute__((unused)) frskyX_build_bind_packet()
 	{
 		crc=0;
 		packet[0] = 0x1D;       
@@ -243,7 +159,7 @@
 		//
 	}
 	
-	void frskyX_data_frame()
+	static void __attribute__((unused)) frskyX_data_frame()
 	{
 		//0x1D 0xB3 0xFD 0x02 0x56 0x07 0x15 0x00 0x00 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x08 0x00 0x00 0x00 0x00 0x00 0x00 0x96 0x12
 		//
@@ -302,14 +218,92 @@
 		packet[29]=lowByte(crc);
 	}
 
-	uint16_t scaleForPXX( uint8_t i )
-	{	//mapped 860,2140(125%) range to 64,1984(PXX values);
-		return (uint16_t)(((Servo_data[i]-PPM_MIN)*3)>>1)+64;
-	}
-	
-	uint8_t crc_Byte( uint8_t byte )
+	uint16_t ReadFrSkyX()
 	{
-		crc = (crc<<8) ^ pgm_read_word(&CRCTable[((uint8_t)(crc>>8) ^ byte) & 0xFF]);
-		return byte;
+		switch(state)
+		{	
+			default: 
+				set_start(47);		
+				CC2500_SetPower();
+				cc2500_strobe(CC2500_SFRX);
+				//		
+				frskyX_build_bind_packet();
+				cc2500_strobe(CC2500_SIDLE);
+				cc2500_writeFifo(packet, packet[0]+1);
+				state++;
+				return 9000;
+			case FRSKY_BIND_DONE:
+				initialize_data(0);
+				channr=0;
+				BIND_DONE;
+				state++;			
+				break;		
+			case FRSKY_DATA1:
+				LED_ON;
+				CC2500_SetTxRxMode(TX_EN);
+				set_start(channr);
+				CC2500_SetPower();		
+				cc2500_strobe(CC2500_SFRX);
+				channr = (channr+chanskip)%47;
+				cc2500_strobe(CC2500_SIDLE);		
+				cc2500_writeFifo(packet, packet[0]+1);
+				//
+				frskyX_data_frame();
+				state++;
+				return 5500;
+			case FRSKY_DATA2:
+				CC2500_SetTxRxMode(RX_EN);
+				cc2500_strobe(CC2500_SIDLE);
+				state++;
+				return 200;
+			case FRSKY_DATA3:		
+				cc2500_strobe(CC2500_SRX);
+				state++;
+				return 3000;
+			case FRSKY_DATA4:
+				len = cc2500_readReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
+				if (len &&(len<MAX_PKT))
+				{
+					cc2500_readFifo(pkt, len);
+					#if defined TELEMETRY
+						frsky_check_telemetry(pkt,len);	//check if valid telemetry packets
+						//parse telemetry packets here
+						//The same telemetry function used by FrSky(D8).
+					#endif
+				}
+				state = FRSKY_DATA1;
+				return 300;
+		}		
+		return 1;		
 	}
+
+	uint16_t initFrSkyX()
+	{
+		while(!chanskip)
+		{
+			randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
+			chanskip=random(0xfefefefe)%47;
+		}
+		while((chanskip-ctr)%4)
+			ctr=(ctr+1)%4;
+		
+		counter_rst=(chanskip-ctr)>>2;
+		//for test***************
+		//rx_tx_addr[3]=0xB3;
+		//rx_tx_addr[2]=0xFD;
+		//************************
+		frskyX_init(); 
+		//
+		if(IS_AUTOBIND_FLAG_on)
+		{	   
+			state = FRSKY_BIND;
+			initialize_data(1);
+		}
+		else
+		{
+			state = FRSKY_DATA1;
+			initialize_data(0);
+		}
+		return 10000;
+	}	
 #endif

@@ -60,6 +60,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
 CH1|CH2|CH3|CH4|???|CONF|Gyro & Rudder mix
 
 CONF:	Option 1 = Rate Throtle
+
 		Option 2 = Pitch
 		
 
@@ -76,8 +77,23 @@ CH1|CH2|CH3|CH4
 A|E|T|R
 
 ##NRF24L01 RF Module
+###BLUEFLY
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|GEAR|PITCH
+
 ###CFLIE
 Modele: CrazyFlie Nano quad
+
+Autobind
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+###ESKY150
 
 Autobind
 
@@ -107,6 +123,51 @@ Autobind
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---
-A|Turbo|T|Trim|Bouton ???
+A|Turbo|T|Trim|Bouton
+
+###HONTAI
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|LED|FLIP|PICTURE|VIDEO|HEADLESS|RTH|Calibrate
+
+####Sub_protocol JJRCX1
+Modele: JJRC X1
+
+CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+ARM|FLIP|PICTURE|VIDEO|HEADLESS|RTH|Calibrate
+
+###NE260
+Modele: Nine Eagles SoloPro
+
+Autobind
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+###UDI
+Modele: Known UDI 2.4GHz protocol variants, all using BK2421
+* UDI U819 coaxial 3ch helicoper
+* UDI U816/817/818 quadcopters
+  - "V1" with orange LED on TX, U816 RX labeled '' , U817/U818 RX labeled 'UD-U817B'
+  - "V2" with red LEDs on TX, U816 RX labeled '', U817/U818 RX labeled 'UD-U817OG'
+  - "V3" with green LEDs on TX. Did not get my hands on yet.
+* U830 mini quadcopter with tilt steering ("Protocol 2014")
+* U839 nano quadcopter ("Protocol 2014")
+
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP 360|FLIP|VIDEO|LED|MODE 2
+
+####Sub_protocol U816 V1 (orange)
+####Sub_protocol U816 V2 (red)
+####Sub_protocol U816 (2014)
+Same channels assignement as above.
+
 
 ###D'autres à venir

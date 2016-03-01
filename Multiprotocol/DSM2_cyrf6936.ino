@@ -114,14 +114,6 @@ uint8_t data_col;
 uint16_t cyrf_state;
 uint8_t crcidx;
 uint8_t binding;
-/*
-#ifdef USE_FIXED_MFGID
-const uint8_t cyrfmfg_id[6] = {0x5e, 0x28, 0xa3, 0x1b, 0x00, 0x00}; //dx8
-const uint8_t cyrfmfg_id[6] = {0xd4, 0x62, 0xd6, 0xad, 0xd3, 0xff}; //dx6i
-#else
-//uint8_t cyrfmfg_id[6];
-#endif
-*/
 
 static void __attribute__((unused)) build_bind_packet()
 {

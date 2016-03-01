@@ -30,6 +30,11 @@ enum PROTOCOLS
 	MODE_H377=44,			// =>NRF24L01
 	MODE_WK2x01 = 45,		// =>CYRF6936
 	MODE_FY326=46,			// =>NRF24L01
+	MODE_ESKY150=47,		// =>NRF24L01
+	MODE_BlueFly=48,		// =>NRF24L01
+	MODE_HonTai=49,			// =>NRF24L01
+	MODE_UDI=50,			// =>NRF24L01
+	MODE_NE260=51,			// =>NRF24L01
 	
 	MODE_SERIAL = 0,		// Serial commands
 	MODE_FLYSKY = 1,		// =>A7105
@@ -49,7 +54,8 @@ enum PROTOCOLS
 	MODE_FRSKYX = 15,		// =>CC2500
 	MODE_ESKY = 16,			// =>NRF24L01
 	MODE_MT99XX=17,			// =>NRF24L01
-	MODE_MJXQ=18			// =>NRF24L01
+	MODE_MJXQ=18,			// =>NRF24L01
+	MODE_SHENQI=19			// =>NRF24L01
 };
 enum Flysky
 {
@@ -127,6 +133,12 @@ enum FY326
 	FY326	= 0,
 	FY319	= 1
 };
+enum UDI
+{
+    U816_V1 = 0,
+    U816_V2,
+    U839_2014
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -147,10 +159,6 @@ struct PPM_Parameters
 //*******************
 //***   Pinouts   ***
 //*******************
-#define BUZZER 19	//A5
-#define BUZZER_HTZ 440	// La clé de sol
-#define BUZZER_TPS 300
-
 //#define BIND_pin 13
 #define LED_pin 13						//Promini original led on B5
 //
@@ -440,6 +448,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					ESky		16
 					MT99XX		17
 					MJXQ		18
+					SHENQI		19
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

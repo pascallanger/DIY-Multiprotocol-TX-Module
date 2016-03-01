@@ -45,8 +45,7 @@ uint8_t packet[40];
 // Servo data
 uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
-// PPM variable
-volatile uint16_t PPM_data[NUM_CHN];
+const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
 
 // Protocol variables
 uint8_t rx_tx_addr[5];
@@ -73,8 +72,10 @@ uint8_t RX_num;
 
 // Mode_select variables
 uint8_t mode_select;
-uint8_t ppm_select=0, flag_decal=0;
 uint8_t protocol_flags=0,protocol_flags2=0;
+
+// PPM variable
+volatile uint16_t PPM_data[NUM_CHN];
 
 // Serial variables
 #define RXBUFFER_SIZE 25
@@ -158,25 +159,24 @@ void setup()
 	MProtocol_id_master=random_id(10,false);
 
 	//Init RF modules
-	CC2500_Reset();
+	#ifdef	CC2500_INSTALLED
+		CC2500_Reset();
+	#endif
 
 	//Protocol and interrupts initialization
-	#if !defined(POTAR_SELECT)
-		if(mode_select == MODE_SERIAL)
-		{ // Serial
-			cur_protocol[0]=0;
-			cur_protocol[1]=0;
-			prev_protocol=0;
-			Mprotocol_serial_init(); // Configure serial and enable RX interrupt
-		}
-		else
-	#else
-		if(mode_select==MODE_SERIAL) { flag_decal=1; } else { flag_decal=0;}
-	#endif 
+	if(mode_select != MODE_SERIAL)
 	{ // PPM
-		prev_protocol=0;
-		CHANGE_PROTOCOL_FLAG_on;
-		update_ppm_data();
+		mode_select--;
+		cur_protocol[0]	=	PPM_prot[mode_select].protocol;
+		sub_protocol   	=	PPM_prot[mode_select].sub_proto;
+		RX_num			=	PPM_prot[mode_select].rx_num;
+		MProtocol_id	=	RX_num + MProtocol_id_master;
+		option			=	PPM_prot[mode_select].option;
+		if(PPM_prot[mode_select].power)		POWER_FLAG_on;
+		if(PPM_prot[mode_select].autobind)	AUTOBIND_FLAG_on;
+		mode_select++;
+
+		protocol_init();
 		
 		//Configure PPM interrupt
 		EICRA |=(1<<ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
@@ -185,31 +185,40 @@ void setup()
 				PPM_Telemetry_serial_init();		// Configure serial for telemetry
 		#endif
 	}
+	else
+	{ // Serial
+		cur_protocol[0]=0;
+		cur_protocol[1]=0;
+		prev_protocol=0;
+		Mprotocol_serial_init(); // Configure serial and enable RX interrupt
+	}
 }
 
 // Main
 void loop()
 {
-	#if !defined(POTAR_SELECT)
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
 		{
 			update_serial_data(); // Update protocol and data
 			update_aux_flags();
-		}
-		if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)	// PPM mode and a full frame has been received
-	#else
-		if(IS_PPM_FLAG_on)	// PPM mode and a full frame has been received
-	#endif 
-	{
-		update_PPM_servo();
-		update_aux_flags();
-		update_ppm_data();
-	}
-	if(IS_CHANGE_PROTOCOL_FLAG_on)	{ // Protocol needs to be changed
+		if(IS_CHANGE_PROTOCOL_FLAG_on)
+		{ // Protocol needs to be changed
 		LED_OFF;                  //led off during protocol init
 		module_reset();               //reset previous module
 		protocol_init();							//init new protocol
 		CHANGE_PROTOCOL_FLAG_off;         //done
+	}
+	}
+	if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)	// PPM mode and a full frame has been received
+	{
+		for(uint8_t i=0;i<NUM_CHN;i++)
+		{ // update servo data without interrupts to prevent bad read in protocols
+			cli();	// disable global int
+			Servo_data[i]=PPM_data[i];
+			sei();	// enable global int
+		}
+		update_aux_flags();
+		PPM_FLAG_off;	// wait for next frame before update
 	}
 	update_led_status();
 	#if defined(TELEMETRY)
@@ -220,20 +229,12 @@ void loop()
 		CheckTimer(remote_callback); 
 }
 
-static void update_PPM_servo(void) {
-	for(uint8_t i=0;i<NUM_CHN;i++) { // update servo data without interrupts to prevent bad read in protocols
-		cli();  // disable global int
-		Servo_data[i]=PPM_data[i];
-		sei();  // enable global int
-	}
-	PPM_FLAG_off; // wait for next frame before update
-}
 // Update Servo_AUX flags based on servo AUX positions
 static void update_aux_flags(void)
 {
 	Servo_AUX=0;
 	for(uint8_t i=0;i<8;i++)
-		if(Servo_data[AUX1+i+flag_decal]>PPM_SWITCH)
+		if(Servo_data[AUX1+i]>PPM_SWITCH)
 			Servo_AUX|=1<<i;
 }
 
@@ -357,6 +358,36 @@ static void protocol_init()
 			remote_callback = fy326_callback;
 			break;
 #endif
+#if defined(ESKY150_NRF24L01_INO)
+		case MODE_ESKY150:
+			next_callback=esky150_setup();
+			remote_callback = esky150_callback;
+			break;
+#endif
+#if defined(BlueFly_NRF24L01_INO)
+		case MODE_BlueFly:
+			next_callback=BlueFly_setup();
+			remote_callback = bluefly_cb;
+			break;
+#endif
+#if defined(HonTai_NRF24L01_INO)
+		case MODE_BlueFly:
+			next_callback=ht_setup();
+			remote_callback = ht_callback;
+			break;
+#endif
+#if defined(UDI_NRF24L01_INO)
+		case MODE_UDI:
+			next_callback=UDI_setup();
+			remote_callback = UDI_callback;
+			break;
+#endif
+#if defined(NE260_NRF24L01_INO)
+		case MODE_NE260:
+			next_callback=NE260_setup();
+			remote_callback = ne260_cb;
+			break;
+#endif
 
 #if defined(FLYSKY_A7105_INO)
     case MODE_FLYSKY:
@@ -476,6 +507,12 @@ static void protocol_init()
 			remote_callback = MJXQ_callback;
 			break;
 #endif
+#if defined(SHENQI_NRF24L01_INO)
+		case MODE_SHENQI:
+			next_callback=initSHENQI();
+			remote_callback = SHENQI_callback;
+			break;
+#endif
   }
 
 	if(next_callback>32000)
@@ -490,59 +527,6 @@ static void protocol_init()
 	BIND_BUTTON_FLAG_off;     // do not bind/reset id anymore even if protocol change
 }
 
-static void update_ppm_data() {
-	#if defined(POTAR_SELECT)
-		if(Servo_data[AUX1]>PPM_SWITCH) {
-			CHANGE_PROTOCOL_FLAG_on;
-			tone(BUZZER, BUZZER_HTZ);
-			delay(BUZZER_TPS);
-			noTone(BUZZER);
-		}
-	#endif 
-	if(IS_CHANGE_PROTOCOL_FLAG_on)	{
-		ppm_select = 10;
-		
-		if(mode_select == 0) {
-			while(ppm_select) {
-				while(!IS_PPM_FLAG_on) {} // wait
-				update_PPM_servo();
-				if(Servo_data[AUX1] < PPM_MAX_100) { ppm_select--; }
-			}	// attente de la d�activation du rebind
-		}
-		prev_protocol = ppm_select;
-		
-		// protocol selection
-		ppm_select = 0;
-		if(Servo_data[POTAR_SELECT_M] > PPM_MAX_COMMAND)  { ppm_select += 18; }			// THROTTLE up
-		else if(Servo_data[POTAR_SELECT_M] < PPM_MIN_COMMAND) { ppm_select += 9; }		// THROTTLE down
-		else { ppm_select += 0; }		// THROTTLE middle
-		
-		
-		if(Servo_data[POTAR_SELECT_V] > PPM_MAX_COMMAND)  { ppm_select += 7; }			// Elevator up
-		else if(Servo_data[POTAR_SELECT_V] < PPM_MIN_COMMAND) { ppm_select += 1; }		// Elevator down
-		else { ppm_select += 4; }		// Elevator middle
-		
-		if(Servo_data[POTAR_SELECT_H] > PPM_MAX_COMMAND) { ppm_select += 2; }			// Aileron right
-		else if(Servo_data[POTAR_SELECT_H] < PPM_MIN_COMMAND) { ppm_select += 0; }		// Aileron left
-		else { ppm_select += 1; }		// Aileron middle
-		
-//		if(ppm_select == 5) { ppm_select = eeprom_read_byte(30); } else { eeprom_update_byte(30, ppm_select); }
-		
-		if(ppm_select != 5) {
-			if(ppm_select > 5) { ppm_select--; }
-			ppm_select--;
-			cur_protocol[0]	=	PPM_prot[ppm_select].protocol;
-			sub_protocol   	=	PPM_prot[ppm_select].sub_proto;
-			MProtocol_id	=	PPM_prot[ppm_select].rx_num + MProtocol_id_master;
-			option			=	PPM_prot[ppm_select].option;
-			if(PPM_prot[ppm_select].power)		POWER_FLAG_on;
-			if(PPM_prot[ppm_select].autobind)	AUTOBIND_FLAG_on;
-			ppm_select++;
-		}
-		
-		while(Servo_data[THROTTLE] > PPM_MIN_100) { delay(100); update_PPM_servo(); }	// attente de la remise des gaz � z�ro (pouss� � fond avec le script lua)
-	}
-}
 static void update_serial_data()
 {
   if(rx_ok_buff[0]&0x20)            //check range
@@ -610,7 +594,7 @@ static void module_reset()
 			case MODE_DEVO:
 				CYRF_Reset();
 				break;
-			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ
+			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI
 				NRF24L01_Reset();
 				break;
 		}
@@ -682,7 +666,6 @@ void Serial_write(uint8_t data)
 
 static void Mprotocol_serial_init()
 {
-	#define BAUD 100000
 	#include <util/setbaud.h> 
 	UBRR0H = UBRRH_VALUE;
 	UBRR0L = UBRRL_VALUE;
@@ -778,7 +761,6 @@ ISR(INT1_vect)
 }
 
 //Serial RX
-#if !defined(POTAR_SELECT)
 ISR(USART_RX_vect)
 {	// RX interrupt
 	if((UCSR0A&0x1C)==0)			// Check frame error, data overrun and parity error
@@ -815,7 +797,6 @@ ISR(USART_RX_vect)
 		idx=0;		// Error encountered discard full frame...
 	}
 }
-#endif
 
 //Serial timer
 ISR(TIMER1_COMPB_vect)

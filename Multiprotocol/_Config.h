@@ -25,14 +25,6 @@
 //Uncomment to enable telemetry
 #define TELEMETRY
 
-
-//Uncomment to enable potar select
-#define POTAR_SELECT
-#define POTAR_SELECT_V ELEVATOR
-#define POTAR_SELECT_H RUDDER
-#define POTAR_SELECT_M AILERON
-
-
 //Comment if a module is not installed
 #define A7105_INSTALLED
 #define CYRF6936_INSTALLED
@@ -62,6 +54,11 @@
 	#define	CFlie_NRF24L01_INO
 	#define	H377_NRF24L01_INO
 	#define	FY326_NRF24L01_INO
+	#define	ESKY150_NRF24L01_INO
+//	#define	BlueFly_NRF24L01_INO	//probleme gene id 
+	#define	HonTai_NRF24L01_INO
+	#define	UDI_NRF24L01_INO
+	#define	NE260_NRF24L01_INO
 	
 	#define	BAYANG_NRF24L01_INO
 	#define	CG023_NRF24L01_INO
@@ -75,27 +72,27 @@
 	#define	YD717_NRF24L01_INO
 	#define	MT99XX_NRF24L01_INO
 	#define	MJXQ_NRF24L01_INO
+//	#define	SHENQI_NRF24L01_INO
 #endif
 
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
-static const PPM_Parameters PPM_prot[15]=
-{
-//	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
-	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	AUTOBIND	,	0		},	//Dial=1
-	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=2
-	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},	//Dial=3
-	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=4
-	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=5
-	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=6
-	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=7
-	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=8
-	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=9
-	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=10
-	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=11
-	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=12
-	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=13
-	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	//Dial=14
-	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}	//Dial=15
+const PPM_Parameters PPM_prot[15]=	{
+//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+/*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	AUTOBIND	,	0		},
+/*	2	*/	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},
+/*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	9	*/	{MODE_KN	,	FEILUN		,	0	,	P_HIGH	,	AUTOBIND	,	0		},
+/*	10	*/	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	11	*/	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	12	*/	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	13	*/	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	15	*/	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}
 };
 /* Available protocols and associated sub protocols:
 	MODE_FLYSKY
@@ -159,6 +156,8 @@ static const PPM_Parameters PPM_prot[15]=
 		X600
 		X800
 		H26D
+	MODE_SHENQI
+		NONE
 
 RX_Num 		value between 0 and 15
 
@@ -191,12 +190,21 @@ Option		value between 0 and 255. 0xD7 or 0x00 for Frsky fine tuning.
 #endif
 
 // SPEKTRUM PPM and channels
-#if defined(TX_SPEKTRUM) | defined(TARANIS)
+#if defined(TX_SPEKTRUM)
 	#define PPM_MAX		2000
 	#define PPM_MIN		1000
 	#define PPM_MAX_100	1900
 	#define PPM_MIN_100	1100
 	#define TAER
+#endif
+
+// TARANIS PPM and channels
+#if defined(TARANIS)
+	#define PPM_MAX		2000
+	#define PPM_MIN		1000
+	#define PPM_MAX_100	1900
+	#define PPM_MIN_100	1100
+	#define EATR
 #endif
 
 // HISKY
@@ -249,3 +257,7 @@ enum chan_orders{
 #define PPM_MIN_COMMAND 1250
 #define PPM_SWITCH	1550
 #define PPM_MAX_COMMAND 1750
+
+//Uncoment the desired serial speed
+#define BAUD 100000
+//#define BAUD 125000

@@ -117,7 +117,6 @@ static void __attribute__((unused)) ESKY_send_packet(uint8_t bind)
 		// For arithmetic simplicity, channels are repeated in rf_channels array
 		if (hopping_frequency_no == 0)
 		{
-			const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2};
 			for (uint8_t i = 0; i < 6; i++)
 			{
 				packet[i*2]   = Servo_data[ch[i]]>>8;	//high byte of servo timing(1000-2000us)

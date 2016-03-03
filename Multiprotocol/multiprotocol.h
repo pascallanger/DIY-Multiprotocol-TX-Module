@@ -14,8 +14,8 @@
  */
 
 // Check selected board type
-#ifndef ARDUINO_AVR_PRO
-	#error You must select the board type "Arduino Pro or Pro Mini"
+#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_AVR_MINI)
+	#error You must select the board type "Arduino Pro or Pro Mini" or "Arduino Mini"
 #endif
 #if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
 	#error You must select the processor type "ATmega328(5V, 16MHz)"

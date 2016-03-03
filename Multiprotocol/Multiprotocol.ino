@@ -138,6 +138,9 @@ void setup()
 	Servo_data[THROTTLE]=PPM_MIN_100;
 	memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
 	
+	//Wait for every component to start
+	delay(100);
+	
 	// Read status of bind button
 	if( (PINB & _BV(5)) == 0x00 )
 		BIND_BUTTON_FLAG_on;	// If bind button pressed save the status for protocol id reset under hubsan
@@ -594,12 +597,13 @@ static void Mprotocol_serial_init()
 	#include <util/setbaud.h>	
 	UBRR0H = UBRRH_VALUE;
 	UBRR0L = UBRRL_VALUE;
+	UCSR0A = 0 ;	// Clear X2 bit
 	//Set frame format to 8 data bits, even parity, 2 stop bits
-	UCSR0C |= (1<<UPM01)|(1<<USBS0)|(1<<UCSZ01)|(1<<UCSZ00);
+	UCSR0C = (1<<UPM01)|(1<<USBS0)|(1<<UCSZ01)|(1<<UCSZ00);
 	while ( UCSR0A & (1 << RXC0) )//flush receive buffer
 		UDR0;
 	//enable reception and RC complete interrupt
-	UCSR0B |= (1<<RXEN0)|(1<<RXCIE0);//rx enable and interrupt
+	UCSR0B = (1<<RXEN0)|(1<<RXCIE0);//rx enable and interrupt
 	UCSR0B |= (1<<TXEN0);//tx enable
 }
 
@@ -609,9 +613,10 @@ static void PPM_Telemetry_serial_init()
 	//9600 bauds
 	UBRR0H = 0x00;
 	UBRR0L = 0x67;
+	UCSR0A = 0 ;	// Clear X2 bit
 	//Set frame format to 8 data bits, none, 1 stop bit
-	UCSR0C |= (1<<UCSZ01)|(1<<UCSZ00);
-	UCSR0B |= (1<<TXEN0);//tx enable
+	UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+	UCSR0B = (1<<TXEN0);//tx enable
 }
 #endif
 

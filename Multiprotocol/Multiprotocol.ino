@@ -23,7 +23,7 @@
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
-#include "Multiprotocol.h"
+#include "multiprotocol.h"
 
 //Multiprotocol module configuration file
 #include "_Config.h"

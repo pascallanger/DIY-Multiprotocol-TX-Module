@@ -124,7 +124,7 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 3|FRSKY|-|0|High|No|-41|CC2500
 4|HISKY|Hisky|0|High|No|0|NRF24L01
 5|V2X2|-|0|High|No|0|NRF24L01
-6|DSM2|DSM2|0|High|No|0|CYRF6936
+6|DSM2|DSM2|0|High|No|6|CYRF6936
 7|DEVO|-|0|High|No|0|CYRF6936
 8|YD717|YD717|0|High|No|0|NRF24L01
 9|KN|WLTOYS|0|High|No|0|NRF24L01

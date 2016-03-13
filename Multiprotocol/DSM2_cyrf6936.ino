@@ -17,7 +17,6 @@
 
 #include "iface_cyrf6936.h"
 
-#define DSM2_NUM_CHANNELS 7
 #define RANDOM_CHANNELS  0		// disabled
 //#define RANDOM_CHANNELS  1	// enabled
 #define BIND_CHANNEL 0x0d //13 This can be any odd channel
@@ -132,15 +131,11 @@ static void __attribute__((unused)) build_bind_packet()
 	packet[8] = sum >> 8;
 	packet[9] = sum & 0xff;
 	packet[10] = 0x01; //???
-	packet[11] = DSM2_NUM_CHANNELS;
+	packet[11] = option>3?option:option+4;
 	if(sub_protocol==DSMX)	//DSMX type
 		packet[12] = 0xb2;	// Telemetry off: packet[12] = num_channels < 8 && Model.proto_opts[PROTOOPTS_TELEMETRY] == TELEM_OFF ? 0xa2 : 0xb2;
 	else
-#if DSM2_NUM_CHANNELS < 8
-		packet[12] = 0x01;
-#else
-		packet[12] = 0x02;
-#endif
+		packet[12] = option<8?0x01:0x02;
 	packet[13] = 0x00; //???
 	for(i = 8; i < 14; i++)
 		sum += packet[i];
@@ -166,34 +161,38 @@ static uint8_t __attribute__((unused)) PROTOCOL_SticksMoved(uint8_t init)
 
 static void __attribute__((unused)) build_data_packet(uint8_t upper)//
 {
-#if DSM2_NUM_CHANNELS==4
-	const uint8_t ch_map[] = {0, 1, 2, 3, 0xff, 0xff, 0xff};    //Guess
-#elif DSM2_NUM_CHANNELS==5
-	const uint8_t ch_map[] = {0, 1, 2, 3, 4,    0xff, 0xff}; //Guess
-#elif DSM2_NUM_CHANNELS==6
-	const uint8_t ch_map[] = {1, 5, 2, 3, 0,    4,    0xff}; //HP6DSM
-#elif DSM2_NUM_CHANNELS==7
-	const uint8_t ch_map[] = {1, 5, 2, 4, 3,    6,    0}; //DX6i
-#elif DSM2_NUM_CHANNELS==8
-	const uint8_t ch_map[] = {1, 5, 2, 3, 6,    0xff, 0xff, 4, 0, 7,    0xff, 0xff, 0xff, 0xff}; //DX8
-#elif DSM2_NUM_CHANNELS==9
-	const uint8_t ch_map[] = {3, 2, 1, 5, 0,    4,    6,    7, 8, 0xff, 0xff, 0xff, 0xff, 0xff}; //DM9
-#elif DSM2_NUM_CHANNELS==10
-	const uint8_t ch_map[] = {3, 2, 1, 5, 0,    4,    6,    7, 8, 9, 0xff, 0xff, 0xff, 0xff};
-#elif DSM2_NUM_CHANNELS==11
-	const uint8_t ch_map[] = {3, 2, 1, 5, 0,    4,    6,    7, 8, 9, 10, 0xff, 0xff, 0xff};
-#elif DSM2_NUM_CHANNELS==12
-	const uint8_t ch_map[] = {3, 2, 1, 5, 0,    4,    6,    7, 8, 9, 10, 11, 0xff, 0xff};
-#endif
-
 	uint8_t i;
 	uint8_t bits;
+
+	uint8_t ch_map[] = {3, 2, 1, 5, 0, 4, 6, 7, 8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};	//9 Channels - DM9 TX
+	switch(option>3?option:option+4)										// Create channel map based on number of channels
+	{
+		case 12:
+			ch_map[11]=11;													// 12 channels
+		case 11:
+			ch_map[10]=10;													// 11 channels
+		case 10:
+			ch_map[9]=9;													// 10 channels
+			break;
+		case 8:
+			memcpy(ch_map,"\x01\x05\x02\x03\x06\xFF\xFF\x04\x00\x07",10);	// 8 channels	- DX8 TX
+			break;
+		case 7:
+			memcpy(ch_map,"\x01\x05\x02\x04\x03\x06\x00",7);				// 7 channels	- DX6i TX
+			break;
+		case 6:
+			memcpy(ch_map,"\x01\x05\x02\x03\x00\x04\xFF",7);				// 6 channels	- HP6DSM TX
+			break;
+		case 4:
+		case 5:
+			memcpy(ch_map,"\x00\x01\x02\x03\xFF\xFF\xFF",7);				// 4 channels	- Guess
+			if(option&0x01)
+				ch_map[4]=4;												// 5 channels	- Guess
+			break;
+	}
 	//
 	if( binding && PROTOCOL_SticksMoved(0) )
-	{
-		//BIND_DONE;
 		binding = 0;
-	}
 	if (sub_protocol==DSMX)
 	{
 		packet[0] = cyrfmfg_id[2];
@@ -463,12 +462,16 @@ uint16_t ReadDsm2()
 			set_sop_data_crc();
 			if (cyrf_state == DSM2_CH2_CHECK_A)
 			{
-	#if DSM2_NUM_CHANNELS < 8
-				cyrf_state = DSM2_CH1_WRITE_A;		// change from CH2_CHECK_A to CH1_WRITE_A (ie no upper)
-				return 11000 - CH1_CH2_DELAY - WRITE_DELAY ;	// Original is 22000 from deviation but it works better this way
-	#else
-				cyrf_state = DSM2_CH1_WRITE_B;		// change from CH2_CHECK_A to CH1_WRITE_A (to transmit upper)
-	#endif
+				if(option < 8)
+				{
+					cyrf_state = DSM2_CH1_WRITE_A;		// change from CH2_CHECK_A to CH1_WRITE_A (ie no upper)
+					if(option>3)
+						return 11000 - CH1_CH2_DELAY - WRITE_DELAY ;	// force 11ms if option>3 ie 4,5,6,7 channels @11ms
+					else
+						return 22000 - CH1_CH2_DELAY - WRITE_DELAY ;	// normal 22ms mode if option<=3 ie 4,5,6,7 channels @22ms
+				}
+				else
+					cyrf_state = DSM2_CH1_WRITE_B;		// change from CH2_CHECK_A to CH1_WRITE_A (to transmit upper)
 			}
 			else
 				cyrf_state = DSM2_CH1_WRITE_A;		// change from CH2_CHECK_B to CH1_WRITE_A (upper already transmitted so transmit lower)

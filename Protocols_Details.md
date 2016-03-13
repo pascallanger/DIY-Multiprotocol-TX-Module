@@ -83,11 +83,27 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ##DSM2
 Extended limits supported
 
-7 channels @11ms
+option=number of channels and frame rate:
+ - 0 : 4 channels @22ms
+ - 1 : 5 channels @22ms
+ - 2 : 6 channels @22ms
+ - 3 : 7 channels @22ms
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7
+ - 4 : 4 channels @11ms
+ - 5 : 5 channels @11ms
+ - 6 : 6 channels @11ms
+ - 7 : 7 channels @11ms
+
+ - 8 : 8 channels @22ms
+ - 9 : 9 channels @22ms
+ - 10 : 10 channels @22ms
+ - 11 : 11 channels @22ms
+ - 12 : 12 channels @22ms
+6 is usually giving the best results with most of the RX.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ###Sub_protocol DSMX
 Same as above

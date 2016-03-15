@@ -92,10 +92,9 @@ Once the TX is telemetry enabled, it just needs to be configured on the model (s
 ##Protocols
 
 ###TX ID
-The multiprotocol TX module is using a 32bits ID generated randomly at first power up. This global ID is used by all protocols.
-There are little chances to get a duplicated ID.
+The multiprotocol TX module is using a 32bits ID generated randomly at first power up. This global ID is used by all protocolsexcept for the CYRF6963 (Devo, DSM2 and DSMX) protocols, which use the unique id of the CYRF6936 module. There are little chances to get a duplicated ID.
 
-It's possible to generate a new ID using bind button on the Hubsan protocol during power up.
+It's possible to generate a new ID using bind button on the Hubsan protocol during power up. 
 
 ###Bind
 To bind a model in PPM Mode press the physical bind button, apply power and then release.

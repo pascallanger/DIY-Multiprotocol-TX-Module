@@ -92,8 +92,10 @@ Once the TX is telemetry enabled, it just needs to be configured on the model (s
 ##Protocols
 
 ###TX ID
-The multiprotocol TX module is using a 32bits ID generated randomly at first power up. This global ID is used by all protocols.
+The multiprotocol TX module is using a 32bits ID generated randomly at first power up. This global ID is used by nearly all protocols.
 There are little chances to get a duplicated ID.
+
+For DSM2/X and Devo the CYRF6936 unique manufacturer ID is used.
 
 It's possible to generate a new ID using bind button on the Hubsan protocol during power up.
 

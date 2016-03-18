@@ -57,6 +57,7 @@
 	#define	MT99XX_NRF24L01_INO
 	#define	MJXQ_NRF24L01_INO
 	#define	SHENQI_NRF24L01_INO
+	#define	FY326_NRF24L01_INO
 #endif
 
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
@@ -141,6 +142,8 @@ const PPM_Parameters PPM_prot[15]=	{
 		X800
 		H26D
 	MODE_SHENQI
+		NONE
+	MODE_FY326
 		NONE
 
 RX_Num 		value between 0 and 15

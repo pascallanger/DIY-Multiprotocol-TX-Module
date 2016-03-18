@@ -441,6 +441,12 @@ static void protocol_init()
 			remote_callback = SHENQI_callback;
 			break;
 #endif
+#if defined(FY326_NRF24L01_INO)
+		case MODE_FY326:
+			next_callback=initFY326();
+			remote_callback = FY326_callback;
+			break;
+#endif
 	}
 
 	if(next_callback>32000)
@@ -522,7 +528,7 @@ static void module_reset()
 			case MODE_DEVO:
 				CYRF_Reset();
 				break;
-			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI
+			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI, MODE_FY326
 				NRF24L01_Reset();
 				break;
 		}

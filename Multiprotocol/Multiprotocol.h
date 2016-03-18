@@ -45,7 +45,8 @@ enum PROTOCOLS
 	MODE_ESKY = 16,			// =>NRF24L01
 	MODE_MT99XX=17,			// =>NRF24L01
 	MODE_MJXQ=18,			// =>NRF24L01
-	MODE_SHENQI=19			// =>NRF24L01
+	MODE_SHENQI=19,			// =>NRF24L01
+	MODE_FY326=20			// =>NRF24L01
 };
 
 enum Flysky
@@ -305,7 +306,8 @@ enum NRF_POWER
 // CC2500 power
 enum CC2500_POWER
 {
-	CC2500_POWER_0 = 0xC5,	// -12dbm
+	CC2500_POWER_0 = 0x50,	// -30dbm
+	//CC2500_POWER_0 = 0xC5,	// -12dbm
 	CC2500_POWER_1 = 0x97,	// -10dbm
 	CC2500_POWER_2 = 0x6E,	//  -8dbm
 	CC2500_POWER_3 = 0x7F,	//  -6dbm
@@ -421,6 +423,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					MT99XX		17
 					MJXQ		18
 					SHENQI		19
+					FY326		20
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

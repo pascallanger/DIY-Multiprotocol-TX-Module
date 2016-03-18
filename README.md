@@ -213,6 +213,7 @@ MJXQ|
  |X800
  |H26D
 Shenqi|
+FY326|
 
 Note:
 - The dial should be set to 0 for serial. Which means all protocol selection pins should be left unconnected.

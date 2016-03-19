@@ -573,8 +573,7 @@ static uint16_t UDI_setup()
     packet_counter = 0;
     UDI_init();
     phase = UDI_INIT2;
-    counter = BIND_UDI_COUNT;
-
+    
     // observed on U839 TX
     set_tx_id(0x457C27);
 

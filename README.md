@@ -76,6 +76,12 @@ CH1|CH2|CH3|CH4
 ---|---|---|---
 A|E|T|R
 
+##CC2500 RF Module
+###SKYARTEC
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+ ? | ? | ? | ? | ? | ? | ? 
+
 ##NRF24L01 RF Module
 ###BLUEFLY
 Autobind
@@ -100,6 +106,16 @@ Autobind
 CH1|CH2|CH3|CH4
 ---|---|---|---
 A|E|T|R
+
+###FBL100
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+ ? | ? | ? | ? | ? | ? | ? | ? 
+
+####Sub_protocol HP100
+Same channels assignement as above.
 
 ###Fy326
 Autobind
@@ -164,9 +180,9 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP 360|FLIP|VIDEO|LED|MODE 2
 
-####Sub_protocol U816 V1 (orange)
-####Sub_protocol U816 V2 (red)
-####Sub_protocol U816 (2014)
+####Sub_protocol U816_V1 (orange)
+####Sub_protocol U816_V2 (red)
+####Sub_protocol U839_2014
 Same channels assignement as above.
 
 

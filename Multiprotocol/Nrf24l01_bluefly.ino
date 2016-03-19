@@ -25,8 +25,6 @@
 static uint8_t hopping_frequency_start;
 
 static uint8_t  bluefly_binding_adr_rf[TXID_BlueFly_SIZE]={0x32,0xaa,0x45,0x45,0x78}; // fixed binding ids for all planes
-// bluefly_rf_adr_buf can be used for fixed id
-static uint8_t bluefly_rf_adr_buf[TXID_BlueFly_SIZE]; // ={0x13,0x88,0x46,0x57,0x76};
 
 static uint8_t bind_payload[PAYLOAD_BlueFly_SIZE];
 
@@ -37,7 +35,7 @@ static void bluefly_binding_packet(void)
 {
     int i;
     for (i = 0; i < TXID_BlueFly_SIZE; ++i)
-      bind_payload[i] = bluefly_rf_adr_buf[i];
+      bind_payload[i] = rx_tx_addr[i];
     bind_payload[i++] = hopping_frequency_start;
     for (; i < PAYLOAD_BlueFly_SIZE; ++i) bind_payload[i] = 0x55;
 }
@@ -47,8 +45,8 @@ static void bluefly_init() {
 
     NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable p0 rx
     NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknoledgement
-    NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, bluefly_rf_adr_buf, 5);
-    NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, bluefly_rf_adr_buf, 5);
+    NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
+    NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);
     NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, PAYLOAD_BlueFly_SIZE); // payload size = 12
     NRF24L01_WriteReg(NRF24L01_05_RF_CH, 81); // binding packet must be set in channel 81
 
@@ -110,7 +108,7 @@ static uint16_t bluefly_cb() {
 	        bluefly_ch_data();
 	        break;
 	    case 1:
-	        NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, bluefly_rf_adr_buf, 5);
+	        NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
 	        NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency_start + hopping_frequency_no*2);
 	        hopping_frequency_no++;
 	        hopping_frequency_no %= 15;
@@ -120,9 +118,9 @@ static uint16_t bluefly_cb() {
 	    case 2:
 	        break;
 	    case 3:
-	        if (counter>0) {
-	            counter--;
-	            if (! counter) {	BIND_DONE; }
+	        if (bind_phase>0) {
+	            bind_phase--;
+	            if (! bind_phase) {	BIND_DONE; }
 	            NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, bluefly_binding_adr_rf, 5);
 	            NRF24L01_WriteReg(NRF24L01_05_RF_CH, 81);
 	            NRF24L01_FlushTx();
@@ -141,42 +139,11 @@ static uint16_t bluefly_cb() {
     return 1000;  // send 1 binding packet and 1 data packet per 9ms
 }
 
-// Generate internal id from TX id and manufacturer id (STM32 unique id)
-static void initialize_tx_id() {
-    uint32_t lfsr = 0x7649eca9ul;
- 
-    if (Model.fixed_id) {
-       for (uint8_t i = 0, j = 0; i < sizeof(Model.fixed_id); ++i, j += 8)
-           rand32_r(&lfsr, (Model.fixed_id >> j) & 0xff);
-    }
-    // Pump zero bytes for LFSR to diverge more
-    for (int i = 0; i < TXID_BlueFly_SIZE; ++i) rand32_r(&lfsr, 0);
-
-    for (uint8_t i = 0; i < TXID_BlueFly_SIZE; ++i) {
-        bluefly_rf_adr_buf[i] = lfsr & 0xff;
-        rand32_r(&lfsr, i);
-    }
-
-    printf("Effective id: %02X%02X%02X%02X%02X\r\n", bluefly_rf_adr_buf[0], bluefly_rf_adr_buf[1], bluefly_rf_adr_buf[2], bluefly_rf_adr_buf[3], bluefly_rf_adr_buf[4]);
-
-    // Use LFSR to seed frequency hopping sequence after another
-    // divergence round
-    for (uint8_t i = 0; i < sizeof(lfsr); ++i) rand32_r(&lfsr, 0);
-	hopping_frequency_start = ((lfsr >> 8) % 47) + 2; 
-    bluefly_binding_packet();
-}
-
 static uint16_t BlueFly_setup() {
-	initialize_tx_id();
-
+	hopping_frequency_start = ((MProtocol_id >> 8) % 47) + 2; 
+    bluefly_binding_packet();
 	bluefly_init();
-
-	if(IS_AUTOBIND_FLAG_on) {
-		counter = BIND_BlueFly_COUNT;
-//		PROTOCOL_SetBindState(BIND_BlueFly_COUNT * 10); //8 seconds binding time
-	} else {
-		counter = 0;
-	}
+	if(IS_AUTOBIND_FLAG_on) {	bind_phase = BIND_BlueFly_COUNT; } else {	bind_phase = 0; }
 
 	return 1000;
 }

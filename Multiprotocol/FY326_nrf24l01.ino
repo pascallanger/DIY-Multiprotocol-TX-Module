@@ -4,38 +4,26 @@
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- Deviation is distributed in the hope that it will be useful,
+ Multiprotocol is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with Deviation.  If not, see <http://www.gnu.org/licenses/>.
+ along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+// Last sync with hexfet new_protocols/fy326_nrf24l01.c dated 2015-07-29
 
 #if defined(FY326_NRF24L01_INO)
 #include "iface_nrf24l01.h"
 
-#define INITIAL_WAIT    500
-#define FY326_PERIOD   1500  // Timeout for callback in uSec
-#define FY326_CHKTIME  300   // Time to wait if packet not yet received or sent
-#define FY326_SIZE     15
+#define FY326_INITIAL_WAIT		500
+#define FY326_PACKET_PERIOD		1500
+#define FY326_PACKET_CHKTIME	300
+#define FY326_PACKET_SIZE		15
 #define FY326_BIND_COUNT      16
-
-#define CHANNEL_FLIP      AUX1
-#define CHANNEL_HEADLESS  AUX2
-#define CHANNEL_RTH       AUX3
-#define CHANNEL_CALIBRATE AUX4
-#define CHANNEL_EXPERT    AUX5
-
-// frequency channel management
-#define RF_BIND_CHANNEL    0x17
-#define NUM_RF_CHANNELS    5
-static uint8_t current_chan;
-static uint8_t rf_chans[NUM_RF_CHANNELS];
-static uint8_t txid[5];
-static uint8_t rxid;
+#define FY326_RF_BIND_CHANNEL	0x17
+#define FY326_NUM_RF_CHANNELS	5
 
 enum {
     FY326_INIT1 = 0,
@@ -47,97 +35,86 @@ enum {
     FY319_BIND2,
 };
 
-// Bit vector from bit position
-#define BV(bit) (1 << bit)
+#define rxid channel
 
-#define CHAN_RANGE (PPM_MAX - PPM_MIN)
-static uint8_t scale_channel(uint8_t ch, uint8_t destMin, uint8_t destMax)
+#define CHAN_TO_TRIM(chanval) ((chanval/10)-10)
+static void __attribute__((unused)) FY326_send_packet(uint8_t bind)
 {
-    uint32_t chanval = Servo_data[ch];
-    uint32_t range = destMax - destMin;
-
-    if      (chanval < PPM_MIN) chanval = PPM_MIN;
-    else if (chanval > PPM_MAX) chanval = PPM_MAX;
-    return (range * (chanval - PPM_MIN)) / CHAN_RANGE + destMin;
-}
-
-#define GET_FLAG(ch, mask) (Servo_data[ch] > PPM_MIN_COMMAND ? mask : 0)
-#define CHAN_TO_TRIM(chanval) ((uint8_t)(((uint16_t)chanval/10)-10))  // scale to [-10,10]. [-20,20] caused problems.
-static void send_packet(uint8_t bind)
-{
-    packet[0] = txid[3];
-    if (bind) {
+	packet[0] = rx_tx_addr[3];
+	if(bind)
         packet[1] = 0x55;
-    } else {
-        packet[1] = GET_FLAG(CHANNEL_HEADLESS,  0x80)
-                  | GET_FLAG(CHANNEL_RTH,       0x40)
-                  | GET_FLAG(CHANNEL_FLIP,      0x02)
-                  | GET_FLAG(CHANNEL_CALIBRATE, 0x01)
-                  | GET_FLAG(CHANNEL_EXPERT,    4);
-    }
-    packet[2]  = 200 - scale_channel(AILERON, 0, 200);  // aileron  1
-    packet[3]  = scale_channel(ELEVATOR, 0, 200);        // elevator  2
-    packet[4]  = 200 - scale_channel(RUDDER, 0, 200);  // rudder  4
-    packet[5]  = scale_channel(THROTTLE, 0, 200);        // throttle  3
+	else
+		packet[1] =	  GET_FLAG(Servo_AUX3,	0x80)	// Headless
+					| GET_FLAG(Servo_AUX2,	0x40)	// RTH
+					| GET_FLAG(Servo_AUX1,	0x02)	// Flip
+					| GET_FLAG(Servo_AUX5,	0x01)	// Calibrate
+					| GET_FLAG(Servo_AUX4,	0x04);	// Expert
+	packet[2]  = 200 - convert_channel_8b_scale(AILERON, 0, 200);	// aileron
+	packet[3]  = convert_channel_8b_scale(ELEVATOR, 0, 200);		// elevator
+	packet[4]  = 200 - convert_channel_8b_scale(RUDDER, 0, 200);	// rudder
+	packet[5]  = convert_channel_8b_scale(THROTTLE, 0, 200);		// throttle
     if(sub_protocol == FY319) {
         packet[6] = 255 - scale_channel(AILERON, 0, 255);
         packet[7] = scale_channel(ELEVATOR, 0, 255);
         packet[8] = 255 - scale_channel(RUDDER, 0, 255);
     }
     else {
-        packet[6]  = txid[0];
-        packet[7]  = txid[1];
-        packet[8]  = txid[2];
-    }
+		packet[6]  = rx_tx_addr[0];
+		packet[7]  = rx_tx_addr[1];
+		packet[8]  = rx_tx_addr[2];
+	}
     packet[9]  = CHAN_TO_TRIM(packet[2]); // aileron_trim;
     packet[10] = CHAN_TO_TRIM(packet[3]); // elevator_trim;
     packet[11] = CHAN_TO_TRIM(packet[4]); // rudder_trim;
     packet[12] = 0; // throttle_trim;
     packet[13] = rxid;
-    packet[14] = txid[4];
+	packet[14] = rx_tx_addr[4];
 
-    if (bind) {
-        NRF24L01_WriteReg(NRF24L01_05_RF_CH, RF_BIND_CHANNEL);
-    } else {
-        NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_chans[current_chan++]);
-        current_chan %= NUM_RF_CHANNELS;
+	if (bind)
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, FY326_RF_BIND_CHANNEL);
+	else
+	{
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
+		hopping_frequency_no %= FY326_NUM_RF_CHANNELS;
+
     }
 
     // clear packet status bits and TX FIFO
     NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
     NRF24L01_FlushTx();
 
-    NRF24L01_WritePayload(packet, FY326_SIZE);
+	NRF24L01_WritePayload(packet, FY326_PACKET_SIZE);
+
+	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void fy326_init()
+static void __attribute__((unused)) FY326_init()
 {
-  uint8_t rx_tx_addr[] = {0x15, 0x59, 0x23, 0xc6, 0x29};
-
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
     if(sub_protocol == FY319)
         NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // Five-byte rx/tx address
     else
         NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);   // Three-byte rx/tx address
-    NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    rx_tx_addr, sizeof(rx_tx_addr));
-    NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, sizeof(rx_tx_addr));
+	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    (uint8_t *)"\x15\x59\x23\xc6\x29", 5);
+	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t *)"\x15\x59\x23\xc6\x29", 5);
     NRF24L01_FlushTx();
     NRF24L01_FlushRx();
     NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-    NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
+    NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowledgement on all data pipes
     NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
-    NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, FY326_SIZE);
-    NRF24L01_WriteReg(NRF24L01_05_RF_CH, RF_BIND_CHANNEL);
+    NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, FY326_PACKET_SIZE);
+    NRF24L01_WriteReg(NRF24L01_05_RF_CH, FY326_RF_BIND_CHANNEL);
     NRF24L01_SetBitrate(NRF24L01_BR_250K);
     NRF24L01_SetPower();
     
     NRF24L01_Activate(0x73);
     NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3f);
     NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);
+	NRF24L01_Activate(0x73);
 }
 
-static uint16_t fy326_callback()
+uint16_t fy326_callback()
 {
     uint8_t i;
     switch (phase) {
@@ -191,77 +168,76 @@ static uint16_t fy326_callback()
         break;
 
     case FY326_BIND1:
-        if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR)) { // RX fifo data ready
-            NRF24L01_ReadPayload(packet, FY326_SIZE);
+		if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
+		{ // RX fifo data ready
+				NRF24L01_ReadPayload(packet, FY326_PACKET_SIZE);
             rxid = packet[13];
-            txid[0] = 0xaa;
+			rx_tx_addr[0] = 0xAA;
             NRF24L01_SetTxRxMode(TXRX_OFF);
             NRF24L01_SetTxRxMode(TX_EN);
             BIND_DONE;
             phase = FY326_DATA;
-        } else if (bind_counter-- == 0) {
+		}
+		else
+		if (bind_counter-- == 0)
+		{
             bind_counter = FY326_BIND_COUNT;
             NRF24L01_SetTxRxMode(TXRX_OFF);
             NRF24L01_SetTxRxMode(TX_EN);
-            send_packet(1);
+			FY326_send_packet(1);
             phase = FY326_BIND2;
-            return FY326_CHKTIME;
+            return FY326_PACKET_CHKTIME;
         }
         break;
 
     case FY326_BIND2:
-        if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_TX_DS)) { // TX data sent
-            // switch to RX mode
+			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_TX_DS))
+			{ // TX data sent -> switch to RX mode
             NRF24L01_SetTxRxMode(TXRX_OFF);
             NRF24L01_FlushRx();
             NRF24L01_SetTxRxMode(RX_EN);
             phase = FY326_BIND1;
-        } else {
-            return FY326_CHKTIME;
         }
+			else
+				return FY326_PACKET_CHKTIME;
         break;
 
     case FY326_DATA:
-        send_packet(0);
+		FY326_send_packet(0);
         break;
     }
-    return FY326_PERIOD;
+	return FY326_PACKET_PERIOD;
 }
 
-// Generate address to use from TX id and manufacturer id (STM32 unique id)
-static void fy_txid()
+static void __attribute__((unused)) FY326_initialize_txid()
 {
-    txid[0] = (MProtocol_id_master >> 24) & 0xFF;
-    txid[1] = ((MProtocol_id_master >> 16) & 0xFF);
-    txid[2] = (MProtocol_id_master >> 8) & 0xFF;
-    txid[3] = MProtocol_id_master & 0xFF;
-//    for (uint8_t i = 0; i < sizeof(MProtocol_id_master); ++i) rand32_r(&MProtocol_id_master, 0);
-    txid[4] = MProtocol_id_master & 0xFF;
-
-    rf_chans[0] =         txid[0] & 0x0F;
-    rf_chans[1] = 0x10 + (txid[0] >> 4);
-    rf_chans[2] = 0x20 + (txid[1] & 0x0F);
-    rf_chans[3] = 0x30 + (txid[1] >> 4);
-    rf_chans[4] = 0x40 + (txid[2] >> 4);
-  
     if(sub_protocol == FY319) {        
-        for(uint8_t i=0; i<5; i++)
-            rf_chans[i] = txid[0] & ~0x80;
+		hopping_frequency[0] = (rx_tx_addr[0]&0x0f) & ~0x80;
+		hopping_frequency[1] = (rx_tx_addr[0] >> 4) & ~0x80;
+		hopping_frequency[2] = (rx_tx_addr[1]&0x0f) & ~0x80;
+		hopping_frequency[3] = (rx_tx_addr[1] >> 4) & ~0x80;
+		hopping_frequency[4] = (rx_tx_addr[2] >> 4) & ~0x80;
+	} else {	
+		hopping_frequency[0] = 		  (rx_tx_addr[0]&0x0f);
+		hopping_frequency[1] = 0x10 + (rx_tx_addr[0] >> 4);
+		hopping_frequency[2] = 0x20 + (rx_tx_addr[1]&0x0f);
+		hopping_frequency[3] = 0x30 + (rx_tx_addr[1] >> 4);
+		hopping_frequency[4] = 0x40 + (rx_tx_addr[2] >> 4);
     }
 }
 
-static uint16_t FY326_setup()
+uint16_t initFY326(void)
 {
-    BIND_IN_PROGRESS;
+	BIND_IN_PROGRESS;	// autobind protocol
     rxid = 0xaa;
+    bind_counter = 0;
+	FY326_initialize_txid();
+    fy326_init();
     if(sub_protocol == FY319)
         phase = FY319_INIT1;
     else
         phase = FY326_INIT1;
-    bind_counter = FY326_BIND_COUNT;
-    fy_txid();
-    fy326_init();
-    return INITIAL_WAIT;
+	return	FY326_INITIAL_WAIT;
 }
-#endif
 
+#endif

@@ -133,19 +133,19 @@ static uint16_t h377_cb() {
 	if(counter1ms==1) {	NRF24L01_FlushTx(); }
 	//-------------------------
 	else if(counter1ms==2) {
-		if (counter>0) {
+		if (bind_phase>0) {
 			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t *)binding_adr_rf, 5);
 			NRF24L01_WriteReg(NRF24L01_05_RF_CH, binding_ch);
 		}
 	}
 	else if(counter1ms==3) {
-		if (counter >0) {
-			counter--;
-			if (! counter) { BIND_DONE; }	// binding finished, change tx add
+		if (bind_phase >0) {
+			bind_phase--;
+			if (! bind_phase) { BIND_DONE; }	// binding finished, change tx add
 			NRF24L01_WritePayload(bind_buf_array,10);
 		}
 	} 
-	else if (counter1ms==4) {	if (counter > 0) {	NRF24L01_FlushTx(); }}
+	else if (counter1ms==4) {	if (bind_phase > 0) {	NRF24L01_FlushTx(); }}
 	//-------------------------
 	else if(counter1ms==5) {	NRF24L01_SetPower(); }
 	//-------------------------
@@ -200,10 +200,10 @@ static uint16_t h377_setup() {
 	h377_init();
 
 	if(IS_AUTOBIND_FLAG_on) {
-		counter = BIND_COUNT;
+		bind_phase = BIND_COUNT;
 		BIND_IN_PROGRESS;
 	} 
-	else { counter = 0; }
+	else { bind_phase = 0; }
 	
 	return 1000;
 }

@@ -140,6 +140,9 @@ void setup()
 	Servo_data[THROTTLE]=PPM_MIN_100;
 	memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
 
+	//Wait for every component to start
+	delay(100);
+	
 	// Read status of bind button
 	if( (PINB & _BV(5)) == 0x00 )
 		BIND_BUTTON_FLAG_on;  // If bind button pressed save the status for protocol id reset under hubsan
@@ -148,7 +151,7 @@ void setup()
 	// after this mode_select will be one of {0000, 0001, ..., 1111}
 	mode_select=0x0F - ( ( (PINB>>2)&0x07 ) | ( (PINC<<3)&0x08) );//encoder dip switches 1,2,4,8=>B2,B3,B4,C0
 	//**********************************
-	//mode_select=14; // here to test PPM
+//mode_select=1;	// here to test PPM
 	//**********************************
 
 	// Update LED
@@ -352,12 +355,6 @@ static void protocol_init()
 			remote_callback = wk_cb;
 			break;
 #endif
-#if defined(FY326_NRF24L01_INO)
-		case MODE_FY326:
-			next_callback=FY326_setup();
-			remote_callback = fy326_callback;
-			break;
-#endif
 #if defined(ESKY150_NRF24L01_INO)
 		case MODE_ESKY150:
 			next_callback=esky150_setup();
@@ -371,7 +368,7 @@ static void protocol_init()
 			break;
 #endif
 #if defined(HonTai_NRF24L01_INO)
-		case MODE_BlueFly:
+		case MODE_HonTai:
 			next_callback=ht_setup();
 			remote_callback = ht_callback;
 			break;
@@ -385,6 +382,18 @@ static void protocol_init()
 #if defined(NE260_NRF24L01_INO)
 		case MODE_NE260:
 			next_callback=NE260_setup();
+			remote_callback = ne260_cb;
+			break;
+#endif
+#if defined(SKYARTEC_CC2500_INO)
+		case MODE_SKYARTEC:
+			next_callback=skyartec_setup();
+			remote_callback = skyartec_cb;
+			break;
+#endif
+#if defined(FBL100_NRF24L01_INO)
+		case MODE_FBL100:
+			next_callback=fbl_setup();
 			remote_callback = ne260_cb;
 			break;
 #endif
@@ -513,6 +522,12 @@ static void protocol_init()
 			remote_callback = SHENQI_callback;
 			break;
 #endif
+#if defined(FY326_NRF24L01_INO)
+		case MODE_FY326:
+			next_callback=initFY326();
+			remote_callback = FY326_callback;
+			break;
+#endif
   }
 
 	if(next_callback>32000)
@@ -594,7 +609,7 @@ static void module_reset()
 			case MODE_DEVO:
 				CYRF_Reset();
 				break;
-			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI
+			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI, MODE_FY326
 				NRF24L01_Reset();
 				break;
 		}
@@ -669,12 +684,13 @@ static void Mprotocol_serial_init()
 	#include <util/setbaud.h> 
 	UBRR0H = UBRRH_VALUE;
 	UBRR0L = UBRRL_VALUE;
+	UCSR0A = 0 ;	// Clear X2 bit
 	//Set frame format to 8 data bits, even parity, 2 stop bits
-	UCSR0C |= (1<<UPM01)|(1<<USBS0)|(1<<UCSZ01)|(1<<UCSZ00);
+	UCSR0C = (1<<UPM01)|(1<<USBS0)|(1<<UCSZ01)|(1<<UCSZ00);
 	while ( UCSR0A & (1 << RXC0) )//flush receive buffer
 		UDR0;
 	//enable reception and RC complete interrupt
-	UCSR0B |= (1<<RXEN0)|(1<<RXCIE0);//rx enable and interrupt
+	UCSR0B = (1<<RXEN0)|(1<<RXCIE0);//rx enable and interrupt
 	UCSR0B |= (1<<TXEN0);//tx enable
 }
 
@@ -684,9 +700,10 @@ static void PPM_Telemetry_serial_init()
 	//9600 bauds
 	UBRR0H = 0x00;
 	UBRR0L = 0x67;
+	UCSR0A = 0 ;	// Clear X2 bit
 	//Set frame format to 8 data bits, none, 1 stop bit
-	UCSR0C |= (1<<UCSZ01)|(1<<UCSZ00);
-	UCSR0B |= (1<<TXEN0);//tx enable
+	UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+	UCSR0B = (1<<TXEN0);//tx enable
 }
 #endif
 

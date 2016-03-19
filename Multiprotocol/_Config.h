@@ -46,6 +46,8 @@
 	#define	DSM2_CYRF6936_INO
 #endif
 #ifdef	CC2500_INSTALLED
+	#define	SKYARTEC_CC2500_INO
+	
 	#define	FRSKY_CC2500_INO
 	#define	FRSKYX_CC2500_INO
 #endif
@@ -53,12 +55,12 @@
 	#define	HM830_NRF24L01_INO
 	#define	CFlie_NRF24L01_INO
 	#define	H377_NRF24L01_INO
-	#define	FY326_NRF24L01_INO
 	#define	ESKY150_NRF24L01_INO
-//	#define	BlueFly_NRF24L01_INO	//probleme gene id 
 	#define	HonTai_NRF24L01_INO
 	#define	UDI_NRF24L01_INO
 	#define	NE260_NRF24L01_INO
+	#define	BlueFly_NRF24L01_INO	//probleme gene id 
+	#define	FBL100_NRF24L01_INO	// finir id
 	
 	#define	BAYANG_NRF24L01_INO
 	#define	CG023_NRF24L01_INO
@@ -72,7 +74,8 @@
 	#define	YD717_NRF24L01_INO
 	#define	MT99XX_NRF24L01_INO
 	#define	MJXQ_NRF24L01_INO
-//	#define	SHENQI_NRF24L01_INO
+	#define	SHENQI_NRF24L01_INO
+	#define	FY326_NRF24L01_INO
 #endif
 
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
@@ -80,10 +83,10 @@ const PPM_Parameters PPM_prot[15]=	{
 //	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	AUTOBIND	,	0		},
 /*	2	*/	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},
+/*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},	// D7 fine tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// 6 channels @ 11ms
 /*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	9	*/	{MODE_KN	,	FEILUN		,	0	,	P_HIGH	,	AUTOBIND	,	0		},
@@ -158,6 +161,9 @@ const PPM_Parameters PPM_prot[15]=	{
 		H26D
 	MODE_SHENQI
 		NONE
+	MODE_FY326
+		FY326
+		FY319
 
 RX_Num 		value between 0 and 15
 

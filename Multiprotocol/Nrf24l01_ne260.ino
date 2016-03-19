@@ -162,7 +162,6 @@ uint8_t		neChannel = 10;
 uint8_t		neChannelOffset = 0;
 #define PACKET_NE_LENGTH	7
 
-static u32 bind_count;
 static uint16_t model_id = 0xA04A;
 
 uint8_t NE_ch[]={THROTTLE, RUDDER, ELEVATOR, AILERON,  AUX1};
@@ -266,7 +265,6 @@ static uint16_t ne260_cb() {
 
 static uint16_t NE260_setup() {
 	ne260_init();
-	bind_count = 10000;
 	state = NE260_BINDTX;
 	
 	return 10000;

@@ -35,7 +35,7 @@ static int joysway_init()
     //uint8_t vco_calibration0;
     //uint8_t vco_calibration1;
 
-    counter = 0;
+    phase = 0;
     next_ch = 0x30;
 
     for (i = 0; i < 0x33; i++)
@@ -100,7 +100,7 @@ static void joysway_build_packet()
     //Calculate:
     //Center = 0x5d9
     //1 %    = 5
-    packet[0] = counter == 0 ? 0xdd : 0xff;
+    packet[0] = phase == 0 ? 0xdd : 0xff;
     packet[1] = (MProtocol_id_master >> 24) & 0xff;
     packet[2] = (MProtocol_id_master >> 16) & 0xff;
     packet[3] = (MProtocol_id_master >>  8) & 0xff;
@@ -118,7 +118,7 @@ static void joysway_build_packet()
     packet[9] = 0x64;
     packet[12] = 0x64;
     packet[13] = 0x64;
-    packet[14] = counter == 0 ? 0x30 : 0xaa;
+    packet[14] = phase == 0 ? 0x30 : 0xaa;
     uint8_t value = 0;
     for (int i = 0; i < 15; i++) {        value += packet[i];    }
     packet[15] = value;
@@ -127,21 +127,21 @@ static void joysway_build_packet()
 static uint16_t joysway_cb()
 {
     uint8_t ch;
-    if (counter == 254) {
-        counter = 0;
+    if (phase == 254) {
+        phase = 0;
         A7105_WriteID(0x5475c52a);
         ch = 0x0a;
-    } else if (counter == 2) {
+    } else if (phase == 2) {
         A7105_WriteID(MProtocol_id_master);
         ch = 0x30;
     } else {
-        if ((counter & 0x01) ^ EVEN_ODD) {
+        if ((phase & 0x01) ^ EVEN_ODD) {
             ch = 0x30;
         } else {
             ch = next_ch;
         }
     }
-    if (! ((counter & 0x01) ^ EVEN_ODD)) {
+    if (! ((phase & 0x01) ^ EVEN_ODD)) {
         next_ch++;
         if (next_ch == 0x45)
             next_ch = 0x30;
@@ -149,7 +149,7 @@ static uint16_t joysway_cb()
     joysway_build_packet();
     A7105_Strobe(A7105_STANDBY);
     A7105_WriteData(16, ch);
-    counter++;
+    phase++;
     return 6000;
 }
 

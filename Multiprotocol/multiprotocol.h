@@ -29,12 +29,13 @@ enum PROTOCOLS
 	MODE_J6PRO = 43,		// =>CYRF6936
 	MODE_H377=44,			// =>NRF24L01
 	MODE_WK2x01 = 45,		// =>CYRF6936
-	MODE_FY326=46,			// =>NRF24L01
-	MODE_ESKY150=47,		// =>NRF24L01
-	MODE_BlueFly=48,		// =>NRF24L01
-	MODE_HonTai=49,			// =>NRF24L01
-	MODE_UDI=50,			// =>NRF24L01
-	MODE_NE260=51,			// =>NRF24L01
+	MODE_ESKY150=46,		// =>NRF24L01
+	MODE_BlueFly=47,		// =>NRF24L01
+	MODE_HonTai=48,			// =>NRF24L01
+	MODE_UDI=49,			// =>NRF24L01
+	MODE_NE260=50,			// =>NRF24L01
+	MODE_FBL100=51,			// =>NRF24L01
+	MODE_SKYARTEC=52,		// =>CC2500
 	
 	MODE_SERIAL = 0,		// Serial commands
 	MODE_FLYSKY = 1,		// =>A7105
@@ -55,7 +56,8 @@ enum PROTOCOLS
 	MODE_ESKY = 16,			// =>NRF24L01
 	MODE_MT99XX=17,			// =>NRF24L01
 	MODE_MJXQ=18,			// =>NRF24L01
-	MODE_SHENQI=19			// =>NRF24L01
+	MODE_SHENQI=19,			// =>NRF24L01
+	MODE_FY326=20			// =>NRF24L01
 };
 enum Flysky
 {
@@ -133,11 +135,21 @@ enum FY326
 	FY326	= 0,
 	FY319	= 1
 };
+enum HONTAI
+{
+    HONTAI = 0,
+    JJRCX1 = 1
+};
 enum UDI
 {
     U816_V1 = 0,
     U816_V2,
     U839_2014
+};
+enum FBL100
+{
+    FBL100 = 0,
+    HP100
 };
 
 #define NONE 		0
@@ -332,7 +344,8 @@ enum NRF_POWER
 // CC2500 power
 enum CC2500_POWER
 {
-	CC2500_POWER_0 = 0xC5,	// -12dbm
+	CC2500_POWER_0 = 0x50,	// -30dbm
+	//CC2500_POWER_0 = 0xC5,	// -12dbm
 	CC2500_POWER_1 = 0x97,	// -10dbm
 	CC2500_POWER_2 = 0x6E,	//  -8dbm
 	CC2500_POWER_3 = 0x7F,	//  -6dbm
@@ -449,6 +462,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					MT99XX		17
 					MJXQ		18
 					SHENQI		19
+					FY326		20
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -500,6 +514,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			X600		1
 			X800		2
 			H26D		3
+		sub_protocol==FY326
+			FY326		0
+			FY319		1
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127

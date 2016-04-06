@@ -161,6 +161,8 @@ Protocol|Sub_protocol
 --------|------------
 FrSky|
 FrSkyX|
+ |CH_16
+ |CH_8
 SFHSS|
 
 #####CYRF6936 RF module

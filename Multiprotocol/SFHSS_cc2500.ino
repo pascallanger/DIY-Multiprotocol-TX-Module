@@ -224,7 +224,7 @@ static void __attribute__((unused)) SFHSS_get_tx_id()
 {
 	uint32_t fixed_id;
 	// Some receivers (Orange) behaves better if they tuned to id that has
-	//  no more than 6 consequtive zeos and ones
+	//  no more than 6 consecutive zeros and ones
 	uint8_t run_count = 0;
 	// add guard for bit count
 	fixed_id = 1 ^ (MProtocol_id & 1);

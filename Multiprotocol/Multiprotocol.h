@@ -378,23 +378,33 @@ enum NRF_POWER
 #define	NRF_RANGE_POWER		NRF_POWER_0
 #define	NRF_BIND_POWER		NRF_POWER_0
 
-// CC2500 power
+// CC2500 power output from the chip itself
+// The numbers do not take into account any outside amplifier
 enum CC2500_POWER
 {
-	CC2500_POWER_0 = 0x50,	// -30dbm
-	//CC2500_POWER_0 = 0xC5,	// -12dbm
-	CC2500_POWER_1 = 0x97,	// -10dbm
-	CC2500_POWER_2 = 0x6E,	//  -8dbm
-	CC2500_POWER_3 = 0x7F,	//  -6dbm
-	CC2500_POWER_4 = 0xA9,	//  -4dbm
-	CC2500_POWER_5 = 0xBB,	//  -2dbm
-	CC2500_POWER_6 = 0xFE,	//   0dbm
-	CC2500_POWER_7 = 0xFF	// 1.5dbm
+	CC2500_POWER_0  = 0x00,	// –55dbm or less
+	CC2500_POWER_1  = 0x50,	// -30dbm
+	CC2500_POWER_2  = 0x44, // –28dbm
+	CC2500_POWER_3  = 0xC0, // –26dbm
+	CC2500_POWER_4  = 0x84, // –24dbm
+	CC2500_POWER_5  = 0x81, // –22dbm
+	CC2500_POWER_6  = 0x46, // –20dbm
+	CC2500_POWER_7  = 0x93, // –18dbm
+	CC2500_POWER_8  = 0x55, // –16dbm
+	CC2500_POWER_9  = 0x8D, // –14dbm
+	CC2500_POWER_10 = 0xC6,	// -12dbm
+	CC2500_POWER_11 = 0x97,	// -10dbm
+	CC2500_POWER_12 = 0x6E,	//  -8dbm
+	CC2500_POWER_13 = 0x7F,	//  -6dbm
+	CC2500_POWER_14 = 0xA9,	//  -4dbm
+	CC2500_POWER_15 = 0xBB,	//  -2dbm
+	CC2500_POWER_16 = 0xFE,	//   0dbm
+	CC2500_POWER_17 = 0xFF	//  +1dbm
 };
-#define CC2500_HIGH_POWER	CC2500_POWER_6
-#define	CC2500_LOW_POWER	CC2500_POWER_3
-#define CC2500_RANGE_POWER	CC2500_POWER_0
-#define CC2500_BIND_POWER	CC2500_POWER_0
+#define CC2500_HIGH_POWER	CC2500_POWER_16
+#define	CC2500_LOW_POWER	CC2500_POWER_13
+#define CC2500_RANGE_POWER	CC2500_POWER_1
+#define CC2500_BIND_POWER	CC2500_POWER_1
 
 // CYRF power
 enum CYRF_POWER
@@ -410,7 +420,7 @@ enum CYRF_POWER
 };
 #define CYRF_HIGH_POWER		CYRF_POWER_7
 #define	CYRF_LOW_POWER		CYRF_POWER_3
-#define	CYRF_RANGE_POWER	CYRF_POWER_1
+#define	CYRF_RANGE_POWER	CYRF_POWER_1	// 1/30 of the full power distance
 #define	CYRF_BIND_POWER		CYRF_POWER_0
 
 enum TXRX_State {

@@ -4,7 +4,7 @@
 	http://www.rcgroups.com/forums/showthread.php?t=2165676
     https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/edit/master/README.md
 
-	Thanks to PhracturedBlue, Hexfet, Goebish and all protocol developers
+	Thanks to PhracturedBlue, Hexfet, Goebish, Victzh and all protocol developers
 				Ported  from deviation firmware 
 
  This project is free software: you can redistribute it and/or modify
@@ -24,6 +24,8 @@
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include "Multiprotocol.h"
+
+//#define DEBUG_TX
 
 //Multiprotocol module configuration file
 #include "_Config.h"
@@ -68,6 +70,10 @@ uint32_t state;
 uint8_t  len;
 uint8_t  RX_num;
 
+#if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO)
+uint8_t calData[48][3];
+#endif
+
 // Mode_select variables
 uint8_t mode_select;
 uint8_t protocol_flags=0,protocol_flags2=0;
@@ -77,7 +83,7 @@ volatile uint16_t PPM_data[NUM_CHN];
 
 // Serial variables
 #define RXBUFFER_SIZE 25
-#define TXBUFFER_SIZE 12
+#define TXBUFFER_SIZE 20
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 volatile uint8_t tx_buff[TXBUFFER_SIZE];
@@ -94,8 +100,8 @@ uint8_t prev_protocol=0;
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
 #if defined(TELEMETRY)
 	uint8_t pktt[MAX_PKT];//telemetry receiving packets
-	volatile uint8_t tx_head;
-	volatile uint8_t tx_tail;
+	volatile uint8_t tx_head=0;
+	volatile uint8_t tx_tail=0;
 	uint8_t v_lipo;
 	int16_t RSSI_dBm;
 	//const uint8_t RSSI_offset=72;//69 71.72 values db
@@ -111,6 +117,20 @@ static void CheckTimer(uint16_t (*cb)(void));
 // Init
 void setup()
 {
+#ifdef XMEGA
+	PORTD.OUTSET = 0x17 ;
+	PORTD.DIRSET = 0xB2 ;
+	PORTD.DIRCLR = 0x4D ;
+	PORTD.PIN0CTRL = 0x18 ;
+	PORTD.PIN2CTRL = 0x18 ;
+	PORTE.DIRSET = 0x01 ;
+	PORTE.DIRCLR = 0x02 ;
+	PORTE.OUTSET = 0x01 ;
+
+	for ( uint8_t count = 0 ; count < 20 ; count += 1 )
+		asm("nop") ;
+	PORTE.OUTCLR = 0x01 ;
+#else	
 	// General pinout
 	DDRD = (1<<CS_pin)|(1<<SDI_pin)|(1<<SCLK_pin)|(1<<CS_pin)|(1<< CC25_CSN_pin);
 	DDRC = (1<<CTRL1)|(1<<CTRL2); //output
@@ -118,6 +138,7 @@ void setup()
 	DDRB  = _BV(0)|_BV(1);
 	PORTB = _BV(2)|_BV(3)|_BV(4)|_BV(5);//pullup 10,11,12 and bind button
 	PORTC = _BV(0);//A0 high pullup
+#endif
 
 	// Set Chip selects
 	CS_on;
@@ -128,9 +149,24 @@ void setup()
 	SDI_on;
 	SCK_off;
 
+//#ifdef XMEGA
+//	// SPI enable, master, prescale of 16
+//	SPID.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_PRESCALER0_bm ;
+//#endif
+
 	// Timer1 config
+#ifdef XMEGA
+// TCC1 16-bit timer, clocked at 0.5uS
+	EVSYS.CH3MUX = 0x80 + 0x04 ;	// Prescaler of 16
+	TCC1.CTRLB = 0; TCC1.CTRLC = 0; TCC1.CTRLD = 0; TCC1.CTRLE = 0;
+	TCC1.INTCTRLA = 0; TCC1.INTCTRLB = 0;
+	TCC1.PER = 0xFFFF ;
+	TCC1.CNT = 0 ;
+	TCC1.CTRLA = 0x0B ;	// Event3 (prescale of 16)
+#else	
 	TCCR1A = 0;
 	TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
+#endif
 
 	// Set servos positions
 	for(uint8_t i=0;i<NUM_CHN;i++)
@@ -142,12 +178,21 @@ void setup()
 	delay(100);
 	
 	// Read status of bind button
+#ifdef XMEGA
+	if( (PORTD.IN & _BV(2)) == 0x00 )
+#else
 	if( (PINB & _BV(5)) == 0x00 )
+#endif
 		BIND_BUTTON_FLAG_on;	// If bind button pressed save the status for protocol id reset under hubsan
 
 	// Read status of mode select binary switch
 	// after this mode_select will be one of {0000, 0001, ..., 1111}
+#ifdef XMEGA
+	mode_select=0x0F - ( PORTA.IN & 0x0F ) ; //encoder dip switches 1,2,4,8=>B2,B3,B4,C0
+	mode_select = MODE_SERIAL ;
+#else
 	mode_select=0x0F - ( ( (PINB>>2)&0x07 ) | ( (PINC<<3)&0x08) );//encoder dip switches 1,2,4,8=>B2,B3,B4,C0
+#endif
 //**********************************
 //mode_select=1;	// here to test PPM
 //**********************************
@@ -179,9 +224,12 @@ void setup()
 
 		protocol_init();
 
+#ifndef XMEGA
 		//Configure PPM interrupt
 		EICRA |=(1<<ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
 		EIMSK |= (1<<INT1);		// INT1 interrupt enable
+#endif
+
 #if defined(TELEMETRY)
 		PPM_Telemetry_serial_init();		// Configure serial for telemetry
 #endif
@@ -223,7 +271,7 @@ void loop()
 	}
 	update_led_status();
 	#if defined(TELEMETRY)
-	if( ((cur_protocol[0]&0x1F)==MODE_FRSKY) || ((cur_protocol[0]&0x1F)==MODE_HUBSAN) || ((cur_protocol[0]&0x1F)==MODE_FRSKYX) )
+	if( ((cur_protocol[0]&0x1F)==MODE_FRSKY) || ((cur_protocol[0]&0x1F)==MODE_HUBSAN) || ((cur_protocol[0]&0x1F)==MODE_FRSKYX) || ((cur_protocol[0]&0x1F)==MODE_DSM2) )
 		frskyUpdate();
 	#endif 
 	if (remote_callback != 0)
@@ -266,8 +314,17 @@ static void update_led_status(void)
 // Protocol scheduler
 static void CheckTimer(uint16_t (*cb)(void))
 { 
-	uint16_t next_callback;
-	uint32_t prev;
+	uint16_t next_callback,diff;
+#ifdef XMEGA		
+	if( (TCC1.INTFLAGS & TC1_CCAIF_bm) != 0)
+	{
+		cli();					// disable global int
+		TCC1.CCA = TCC1.CNT ;	// Callback should already have been called... Use "now" as new sync point.
+		sei();					// enable global int
+	}
+	else
+		while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait before callback
+#else
 	if( (TIFR1 & (1<<OCF1A)) != 0)
 	{
 		cli();			// disable global int
@@ -276,25 +333,42 @@ static void CheckTimer(uint16_t (*cb)(void))
 	}
 	else
 		while((TIFR1 & (1<<OCF1A)) == 0); // wait before callback
-	prev=micros();
-	next_callback=cb();
-	if(prev+next_callback+50 > micros())
-	{ // Callback did not took more than requested time for next callback
-		if(next_callback>32000)
-		{ // next_callback should not be more than 32767 so we will wait here...
-			delayMicroseconds(next_callback-2000);
-			cli();			// disable global int
-			OCR1A=TCNT1+4000;
-			sei();			// enable global int
+#endif
+	do
+	{
+		next_callback=cb();
+		while(next_callback>4000)
+		{ 										// start to wait here as much as we can...
+			next_callback=next_callback-2000;
+			cli();								// disable global int
+#ifdef XMEGA		
+			TCC1.CCA +=2000*2;					// set compare A for callback
+			TCC1.INTFLAGS = TC1_CCAIF_bm ;		// clear compare A=callback flag
+			sei();								// enable global int
+			while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait 2ms...
+#else
+			OCR1A+=2000*2;						// set compare A for callback
+			TIFR1=(1<<OCF1A);					// clear compare A=callback flag
+			sei();								// enable global int
+			while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...
+#endif
 		}
-		else
-		{
-			cli();			// disable global int
-			OCR1A+=next_callback*2;		// set compare A for callback
-			sei();			// enable global int
-		}
-		TIFR1=(1<<OCF1A);	// clear compare A=callback flag
+		// at this point we have between 2ms and 4ms in next_callback
+		cli();									// disable global int
+#ifdef XMEGA		
+		TCC1.CCA +=next_callback*2;				// set compare A for callback
+		TCC1.INTFLAGS = TC1_CCAIF_bm ;			// clear compare A=callback flag
+		diff=TCC1.CCA-TCC1.CNT;					// compare timer and comparator
+		sei();									// enable global int
+#else
+		OCR1A+=next_callback*2;					// set compare A for callback
+		TIFR1=(1<<OCF1A);						// clear compare A=callback flag
+		diff=OCR1A-TCNT1;						// compare timer and comparator
+		sei();									// enable global int
+#endif
 	}
+	while(diff&0x8000);	 						// Callback did not took more than requested time for next callback
+												// so we can let main do its stuff before next callback
 }
 
 // Protocol start
@@ -346,6 +420,14 @@ static void protocol_init()
 			CTRL2_on;
 			next_callback = initFrSkyX();
 			remote_callback = ReadFrSkyX;
+			break;
+#endif
+#if defined(SFHSS_CC2500_INO)
+		case MODE_SFHSS:
+			CTRL1_off;	//antenna RF2
+			CTRL2_on;
+			next_callback = initSFHSS();
+			remote_callback = ReadSFHSS;
 			break;
 #endif
 #if defined(DSM2_CYRF6936_INO)
@@ -455,9 +537,15 @@ static void protocol_init()
 		next_callback=2000;
 	}
 	cli();							// disable global int
+#ifdef XMEGA
+	TCC1.CCA = TCC1.CNT + next_callback*2;	// set compare A for callback
+	sei();							// enable global int
+	TCC1.INTFLAGS = TC1_CCAIF_bm ;	// clear compare A flag
+#else	
 	OCR1A=TCNT1+next_callback*2;	// set compare A for callback
 	sei();							// enable global int
 	TIFR1=(1<<OCF1A);				// clear compare A flag
+#endif
 	BIND_BUTTON_FLAG_off;			// do not bind/reset id anymore even if protocol change
 }
 
@@ -522,6 +610,7 @@ static void module_reset()
 				break;
 			case MODE_FRSKY:
 			case MODE_FRSKYX:
+			case MODE_SFHSS:
 				CC2500_Reset();
 				break;
 			case MODE_DSM2:
@@ -593,13 +682,31 @@ void Serial_write(uint8_t data)
 	if(++tx_head>=TXBUFFER_SIZE)
 		tx_head=0;
 	tx_buff[tx_head]=data;
-	sei();	// enable global int
+#ifdef XMEGA
+	USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;
+#else	
 	UCSR0B |= (1<<UDRIE0);//enable UDRE interrupt
+#endif
+	sei();	// enable global int
 }
 #endif
 
 static void Mprotocol_serial_init()
 {
+#ifdef XMEGA
+	
+	PORTC.OUTSET = 0x08 ;
+	PORTC.DIRSET = 0x08 ;
+
+	USARTC0.BAUDCTRLA = 19 ;
+	USARTC0.BAUDCTRLB = 0 ;
+	
+	USARTC0.CTRLB = 0x18 ;
+	USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+	USARTC0.CTRLC = 0x2B ;
+	USARTC0.DATA ;
+#else
+	
 	#include <util/setbaud.h>	
 	UBRR0H = UBRRH_VALUE;
 	UBRR0L = UBRRL_VALUE;
@@ -610,12 +717,25 @@ static void Mprotocol_serial_init()
 		UDR0;
 	//enable reception and RC complete interrupt
 	UCSR0B = (1<<RXEN0)|(1<<RXCIE0);//rx enable and interrupt
+#ifdef DEBUG_TX
+	TX_SET_OUTPUT;
+#else
 	UCSR0B |= (1<<TXEN0);//tx enable
+#endif
+#endif
 }
 
 #if defined(TELEMETRY)
 static void PPM_Telemetry_serial_init()
 {
+#ifdef XMEGA
+	USARTC0.BAUDCTRLA = 207 ;
+	USARTC0.BAUDCTRLB = 0 ;
+	
+	USARTC0.CTRLB = 0x18 ;
+	USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+	USARTC0.CTRLC = 0x03 ;
+#else
 	//9600 bauds
 	UBRR0H = 0x00;
 	UBRR0L = 0x67;
@@ -623,6 +743,7 @@ static void PPM_Telemetry_serial_init()
 	//Set frame format to 8 data bits, none, 1 stop bit
 	UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
 	UCSR0B = (1<<TXEN0);//tx enable
+#endif
 }
 #endif
 
@@ -668,13 +789,21 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 /**************************/
 
 //PPM
+#ifdef XMEGA
+ISR(PORTD_INT0_vect)
+#else
 ISR(INT1_vect)
+#endif
 {	// Interrupt on PPM pin
 	static int8_t chan=-1;
 	static uint16_t Prev_TCNT1=0;
 	uint16_t Cur_TCNT1;
 
+#ifdef XMEGA
+	Cur_TCNT1 = TCC1.CNT - Prev_TCNT1 ; // Capture current Timer1 value
+#else
 	Cur_TCNT1=TCNT1-Prev_TCNT1; // Capture current Timer1 value
+#endif
 	if(Cur_TCNT1<1000)
 		chan=-1;				// bad frame
 	else
@@ -697,62 +826,107 @@ ISR(INT1_vect)
 }
 
 //Serial RX
+#ifdef XMEGA
+ISR(USARTC0_RXC_vect)
+#else
 ISR(USART_RX_vect)
+#endif
 {	// RX interrupt
+#ifdef XMEGA
+	if((USARTC0.STATUS & 0x1C)==0)			// Check frame error, data overrun and parity error
+#else
 	if((UCSR0A&0x1C)==0)			// Check frame error, data overrun and parity error
+#endif
 	{ // received byte is ok to process
 		if(idx==0)
 		{	// Let's try to sync at this point
+#ifdef XMEGA
+			if(USARTC0.DATA==0x55)			// If 1st byte is 0x55 it looks ok
+#else
 			if(UDR0==0x55)			// If 1st byte is 0x55 it looks ok
+#endif
 			{
 				idx++;
+#ifdef XMEGA
+				TCC1.CCB = TCC1.CNT+(6500L) ;		// Full message should be received within timer of 3250us
+				TCC1.INTFLAGS = TC1_CCBIF_bm ;		// clear OCR1B match flag
+				TCC1.INTCTRLB = (TCC1.INTCTRLB & 0xF3) | 0x04 ;	// enable interrupt on compare B match
+#else
 				OCR1B=TCNT1+6500L;		// Full message should be received within timer of 3250us
 				TIFR1=(1<<OCF1B);		// clear OCR1B match flag
 				TIMSK1 |=(1<<OCIE1B);	// enable interrupt on compare B match
+#endif
 			}
 		}
 		else
 		{
-			rx_buff[(idx++)-1]=UDR0;	// Store received byte
+#ifdef XMEGA
+			rx_buff[(idx++)-1]=USARTC0.DATA;	// Store received byte
+#else
+			rx_buff[(idx++)-1]=UDR0;			// Store received byte
+#endif
 			if(idx>RXBUFFER_SIZE)
 			{	// A full frame has been received
-				TIMSK1 &=~(1<<OCIE1B);		// disable interrupt on compare B match
+#ifdef XMEGA
+				TCC1.INTCTRLB &=0xF3;			// disable interrupt on compare B match
+#else
+				TIMSK1 &=~(1<<OCIE1B);			// disable interrupt on compare B match
+#endif
 				if(!IS_RX_FLAG_on)
 				{ //Good frame received and main has finished with previous buffer
 					for(idx=0;idx<RXBUFFER_SIZE;idx++)
 						rx_ok_buff[idx]=rx_buff[idx];	// Duplicate the buffer
-					RX_FLAG_on;		//flag for main to process servo data
+					RX_FLAG_on;					// flag for main to process servo data
 				}
-				idx=0; // start again
+				idx=0; 							// start again
 			}
 		}
 	}
 	else
 	{
+#ifdef XMEGA
+		idx = USARTC0.DATA ;	// Dummy read
+#else
 		idx=UDR0;	// Dummy read
+#endif
 		idx=0;		// Error encountered discard full frame...
 	}
 }
 
 //Serial timer
+#ifdef XMEGA
+ISR(TCC1_CCB_vect)
+#else
 ISR(TIMER1_COMPB_vect)
+#endif
 {	// Timer1 compare B interrupt
 	idx=0;
 }
 
 #if defined(TELEMETRY)
 //Serial TX
+
+#ifdef XMEGA
+ISR(USARTC0_DRE_vect)
+#else
 ISR(USART_UDRE_vect)
+#endif
 {	// Transmit interrupt
-	uint8_t t = tx_tail;
-	if(tx_head!=t)
+	if(tx_head!=tx_tail)
 	{
-		if(++t>=TXBUFFER_SIZE)//head 
-		t=0;
-		UDR0=tx_buff[t];
-		tx_tail=t;
+		if(++tx_tail>=TXBUFFER_SIZE)//head 
+			tx_tail=0;
+#ifdef XMEGA
+		USARTC0.DATA = tx_buff[tx_tail] ;
+#else
+		UDR0=tx_buff[tx_tail];
+#endif
 	}
-	if (t == tx_head)
+	if (tx_tail == tx_head)
+#ifdef XMEGA
+		USARTC0.CTRLA &= ~0x03 ;
+#else
 		UCSR0B &= ~(1<<UDRIE0); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
+#endif
 }
 #endif

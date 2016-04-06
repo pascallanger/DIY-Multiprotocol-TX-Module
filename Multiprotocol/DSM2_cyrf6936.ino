@@ -20,7 +20,6 @@
 #define RANDOM_CHANNELS  0		// disabled
 //#define RANDOM_CHANNELS  1	// enabled
 #define BIND_CHANNEL 0x0d //13 This can be any odd channel
-#define NUM_WAIT_LOOPS (100 / 5) //each loop is ~5us.  Do not wait more than 100us
 
 //During binding we will send BIND_COUNT/2 packets
 //One packet each 10msec
@@ -107,21 +106,19 @@ static void __attribute__((unused)) read_code(uint8_t *buf, uint8_t row, uint8_t
 }
 
 //
-uint8_t chidx;
 uint8_t sop_col;
 uint8_t data_col;
 uint16_t cyrf_state;
-uint8_t crcidx;
 uint8_t binding;
 
 static void __attribute__((unused)) build_bind_packet()
 {
 	uint8_t i;
 	uint16_t sum = 384 - 0x10;//
-	packet[0] = crc >> 8;
-	packet[1] = crc & 0xff;
+	packet[0] = 0xff ^ cyrfmfg_id[0];
+	packet[1] = 0xff ^ cyrfmfg_id[1];
 	packet[2] = 0xff ^ cyrfmfg_id[2];
-	packet[3] = (0xff ^ cyrfmfg_id[3]) + RX_num;
+	packet[3] = 0xff ^ cyrfmfg_id[3];
 	packet[4] = packet[0];
 	packet[5] = packet[1];
 	packet[6] = packet[2];
@@ -133,7 +130,11 @@ static void __attribute__((unused)) build_bind_packet()
 	packet[10] = 0x01; //???
 	packet[11] = option>3?option:option+4;
 	if(sub_protocol==DSMX)	//DSMX type
-		packet[12] = 0xb2;	// Telemetry off: packet[12] = num_channels < 8 && Model.proto_opts[PROTOOPTS_TELEMETRY] == TELEM_OFF ? 0xa2 : 0xb2;
+#if defined DSM_TELEMETRY
+		packet[12] = 0xb2;	// Telemetry on
+#else
+		packet[12] = option<8? 0xa2 : 0xb2;	// Telemetry off
+#endif
 	else
 		packet[12] = option<8?0x01:0x02;
 	packet[13] = 0x00; //???
@@ -196,13 +197,13 @@ static void __attribute__((unused)) build_data_packet(uint8_t upper)//
 	if (sub_protocol==DSMX)
 	{
 		packet[0] = cyrfmfg_id[2];
-		packet[1] = cyrfmfg_id[3] + RX_num;
+		packet[1] = cyrfmfg_id[3];
 		bits=11;
 	}
 	else
 	{
 		packet[0] = (0xff ^ cyrfmfg_id[2]);
-		packet[1] = (0xff ^ cyrfmfg_id[3]) + RX_num;
+		packet[1] = (0xff ^ cyrfmfg_id[3]);
 		bits=10;
 	}
 	//
@@ -251,6 +252,18 @@ static void __attribute__((unused)) build_data_packet(uint8_t upper)//
 					case 7:
 						value=Servo_data[AUX4];
 						break;
+					case 8:
+						value=Servo_data[AUX5];
+						break;
+					case 9:
+						value=Servo_data[AUX6];
+						break;
+					case 10:
+						value=Servo_data[AUX7];
+						break;
+					case 11:
+						value=Servo_data[AUX8];
+						break;
 				}
 				value=map(value,PPM_MIN,PPM_MAX,0,max-1);
 			}		   
@@ -267,7 +280,7 @@ static uint8_t __attribute__((unused)) get_pn_row(uint8_t channel)
 }
 
 const uint8_t init_vals[][2] = {
-	{CYRF_02_TX_CTRL, 0x00},
+	{CYRF_02_TX_CTRL, 0x02},	//0x00 in deviation but needed to know when transmit is over
 	{CYRF_05_RX_CTRL, 0x00},
 	{CYRF_28_CLK_EN, 0x02},
 	{CYRF_32_AUTO_CAL_TIME, 0x3c},
@@ -314,7 +327,7 @@ static void __attribute__((unused)) initialize_bind_state()
 	CYRF_ConfigSOPCode(code);
 	read_code(code,pn_row,data_col,16);
 	read_code(code+16,0,8,8);
-	memcpy(code + 24, "\xc6\x94\x22\xfe\x48\xe6\x57\x4e", 8);
+	memcpy(code + 24, (void *)"\xc6\x94\x22\xfe\x48\xe6\x57\x4e", 8);
 	CYRF_ConfigDataCode(code, 32);
 
 	build_bind_packet();
@@ -347,10 +360,11 @@ static void __attribute__((unused)) cyrf_configdata()
 static void __attribute__((unused)) set_sop_data_crc()
 {
 	uint8_t code[16];
-	uint8_t pn_row = get_pn_row(hopping_frequency[chidx]);
-	//printf("Ch: %d Row: %d SOP: %d Data: %d\n", ch[chidx], pn_row, sop_col, data_col);
-	CYRF_ConfigRFChannel(hopping_frequency[chidx]);
-	CYRF_ConfigCRCSeed(crcidx ? ~crc : crc);
+	uint8_t pn_row = get_pn_row(hopping_frequency[hopping_frequency_no]);
+	//printf("Ch: %d Row: %d SOP: %d Data: %d\n", ch[hopping_frequency_no], pn_row, sop_col, data_col);
+	CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
+	CYRF_ConfigCRCSeed(crc);
+	crc=~crc;
 
 	read_code(code,pn_row,sop_col,8);
 	CYRF_ConfigSOPCode(code);
@@ -358,10 +372,9 @@ static void __attribute__((unused)) set_sop_data_crc()
 	CYRF_ConfigDataCode(code, 16);
 
 	if(sub_protocol == DSMX)
-		chidx = (chidx + 1) % 23;
+		hopping_frequency_no = (hopping_frequency_no + 1) % 23;
 	else
-		chidx = (chidx + 1) % 2;
-	crcidx = !crcidx;
+		hopping_frequency_no = (hopping_frequency_no + 1) % 2;
 }
 
 static void __attribute__((unused)) calc_dsmx_channel()
@@ -375,7 +388,7 @@ static void __attribute__((unused)) calc_dsmx_channel()
 		uint8_t count_3_27 = 0, count_28_51 = 0, count_52_76 = 0;
 		id_tmp = id_tmp * 0x0019660D + 0x3C6EF35F;		// Randomization
 		uint8_t next_ch = ((id_tmp >> 8) % 0x49) + 3;	// Use least-significant byte and must be larger than 3
-		if (((next_ch ^ id) & 0x01 )== 0)
+		if ( (next_ch ^ cyrfmfg_id[3]) & 0x01 )
 			continue;
 		for (i = 0; i < idx; i++)
 		{
@@ -400,10 +413,10 @@ static void __attribute__((unused)) calc_dsmx_channel()
 
 uint16_t ReadDsm2()
 {
-#define CH1_CH2_DELAY 4010  // Time between write of channel 1 and channel 2
-#define WRITE_DELAY   1650  // 1550 original, Time after write to verify write complete
-#define READ_DELAY     400  // Time before write to check read state, and switch channels
-	uint8_t i = 0;
+#define DSM_CH1_CH2_DELAY	4010	// Time between write of channel 1 and channel 2
+#define DSM_WRITE_DELAY		1550	// Time after write to verify write complete
+#define DSM_READ_DELAY		600		// Time before write to check read state, and switch channels. Was 400 but 500 seems what the 328p needs to read a packet
+	uint32_t start;
 
 	switch(cyrf_state)
 	{
@@ -413,8 +426,7 @@ uint16_t ReadDsm2()
 			if(cyrf_state & 1)
 			{
 				//Send packet on even states
-				//Note state has already incremented,
-				// so this is actually 'even' state
+				//Note state has already incremented, so this is actually 'even' state
 				CYRF_WriteDataPacket(packet);
 				return 8500;
 			}
@@ -430,35 +442,81 @@ uint16_t ReadDsm2()
 			//CYRF_FindBestChannels(ch, 2, 10, 1, 79);
 			cyrf_configdata();
 			CYRF_SetTxRxMode(TX_EN);
-			chidx = 0;
-			crcidx = 0;
-			cyrf_state = DSM2_CH1_WRITE_A;	// in fact cyrf_state++
+			hopping_frequency_no = 0;
+			cyrf_state = DSM2_CH1_WRITE_A;				// in fact cyrf_state++
 			set_sop_data_crc();
 			return 10000;
 		case DSM2_CH1_WRITE_A:
 		case DSM2_CH1_WRITE_B:
-			build_data_packet(cyrf_state == DSM2_CH1_WRITE_B);//compare state and DSM2_CH1_WRITE_B return 0 or 1
 		case DSM2_CH2_WRITE_A:
 		case DSM2_CH2_WRITE_B:
+			build_data_packet(cyrf_state == DSM2_CH1_WRITE_B);// build lower or upper channels
+			CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS);	// clear IRQ flags
 			CYRF_WriteDataPacket(packet);
-			cyrf_state++;				// change from WRITE to CHECK mode
-			return WRITE_DELAY;
+			cyrf_state++;								// change from WRITE to CHECK mode
+			return DSM_WRITE_DELAY;
 		case DSM2_CH1_CHECK_A:
 		case DSM2_CH1_CHECK_B:
-			while (! (CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02))
-				if(++i > NUM_WAIT_LOOPS)
+			start=micros();
+			while (micros()-start < 500)				// Wait max 500µs
+				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
 					break;
 			set_sop_data_crc();
-			cyrf_state++;			// change from CH1_CHECK to CH2_WRITE
-			return CH1_CH2_DELAY - WRITE_DELAY;
+			cyrf_state++;								// change from CH1_CHECK to CH2_WRITE
+			return DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
 		case DSM2_CH2_CHECK_A:
 		case DSM2_CH2_CHECK_B:
-			while (! (CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02))
-				if(++i > NUM_WAIT_LOOPS)
+			start=micros();
+			while (micros()-start < 500)				// Wait max 500µs
+				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
 					break;
 			if (cyrf_state == DSM2_CH2_CHECK_A)
-				CYRF_SetPower(0x28);	//Keep transmit power in sync
-			// No telemetry...
+				CYRF_SetPower(0x28);					//Keep transmit power in sync
+#if defined DSM_TELEMETRY
+			cyrf_state++;								// change from CH2_CHECK to CH2_READ
+			if(option<=3 || option>7)
+			{	// disable telemetry for option between 4 and 7 ie 4,5,6,7 channels @11ms since it does not work...
+				CYRF_SetTxRxMode(RX_EN);					//Receive mode
+				CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);	//0x80??? //Prepare to receive
+			}
+			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+		case DSM2_CH2_READ_A:
+		case DSM2_CH2_READ_B:
+			//Read telemetry
+			uint8_t rx_state = CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
+			if((rx_state & 0x03) == 0x02)  				// RXC=1, RXE=0 then 2nd check is required (debouncing)
+				rx_state |= CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
+			if((rx_state & 0x07) == 0x02)
+			{ // good data (complete with no errors)
+				CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);	// need to set RXOW before data read
+				uint8_t len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
+				if(len>MAX_PKT-2)
+					len=MAX_PKT-2;
+				CYRF_ReadDataPacketLen(pkt+1, len);
+				pkt[0]=CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;		// store RSSI of the received telemetry signal
+				telemetry_link=1;
+			}
+			if (cyrf_state == DSM2_CH2_READ_A && option <= 3)		// normal 22ms mode if option<=3 ie 4,5,6,7 channels @22ms
+			{
+				//Force end read state
+				CYRF_WriteRegister(CYRF_0F_XACT_CFG, (CYRF_ReadRegister(CYRF_0F_XACT_CFG) | 0x20));  // Force end state
+				start=micros();
+				while (micros()-start < 100)	// Wait max 100 µs
+					if((CYRF_ReadRegister(CYRF_0F_XACT_CFG) & 0x20) == 0)
+						break;
+				cyrf_state = DSM2_CH2_READ_B;
+				CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);			//0x80???	//Prepare to receive
+				return 11000;
+			}
+			if (cyrf_state == DSM2_CH2_READ_A && option>7)
+				cyrf_state = DSM2_CH1_WRITE_B;				//Transmit upper
+			else
+				cyrf_state = DSM2_CH1_WRITE_A;				//Force 11ms if option>3 ie 4,5,6,7 channels @11ms
+			CYRF_SetTxRxMode(TX_EN);						//Write mode
+			set_sop_data_crc();
+			return DSM_READ_DELAY;
+#else
+			// No telemetry
 			set_sop_data_crc();
 			if (cyrf_state == DSM2_CH2_CHECK_A)
 			{
@@ -466,16 +524,17 @@ uint16_t ReadDsm2()
 				{
 					cyrf_state = DSM2_CH1_WRITE_A;		// change from CH2_CHECK_A to CH1_WRITE_A (ie no upper)
 					if(option>3)
-						return 11000 - CH1_CH2_DELAY - WRITE_DELAY ;	// force 11ms if option>3 ie 4,5,6,7 channels @11ms
+						return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;	// force 11ms if option>3 ie 4,5,6,7 channels @11ms
 					else
-						return 22000 - CH1_CH2_DELAY - WRITE_DELAY ;	// normal 22ms mode if option<=3 ie 4,5,6,7 channels @22ms
+						return 22000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;	// normal 22ms mode if option<=3 ie 4,5,6,7 channels @22ms
 				}
 				else
 					cyrf_state = DSM2_CH1_WRITE_B;		// change from CH2_CHECK_A to CH1_WRITE_A (to transmit upper)
 			}
 			else
 				cyrf_state = DSM2_CH1_WRITE_A;		// change from CH2_CHECK_B to CH1_WRITE_A (upper already transmitted so transmit lower)
-			return 11000 - CH1_CH2_DELAY - WRITE_DELAY;
+			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
+#endif
 	}
 	return 0;		
 }
@@ -484,10 +543,12 @@ uint16_t initDsm2()
 { 
 	CYRF_Reset();
 	CYRF_GetMfgData(cyrfmfg_id);//
-
+	//Model match
+	cyrfmfg_id[3]+=RX_num;
+	
 	cyrf_config();
 
-	if (sub_protocol ==DSMX)
+	if (sub_protocol == DSMX)
 		calc_dsmx_channel();
 	else
 	{ 
@@ -511,12 +572,12 @@ uint16_t initDsm2()
 #endif
 	}
 	
-	///}
-	crc = ~((cyrfmfg_id[0] << 8) + cyrfmfg_id[1]); //The crc for channel 'a' is NOT(mfgid[1] << 8 + mfgid[0])
-	crcidx = 0;//The crc for channel 'b' is (mfgid[1] << 8 + mfgid[0])
+	//The crc for channel '1' is NOT(mfgid[0] << 8 + mfgid[1])
+	//The crc for channel '2' is (mfgid[0] << 8 + mfgid[1])
+	crc = ~((cyrfmfg_id[0] << 8) + cyrfmfg_id[1]);
 	//
-	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;//Ok
-	data_col = 7 - sop_col;//ok
+	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
+	data_col = 7 - sop_col;
 
 	CYRF_SetTxRxMode(TX_EN);
 	//

@@ -14,11 +14,13 @@
  */
 
 // Check selected board type
+#ifndef XMEGA
 #if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_AVR_MINI)
 	#error You must select the board type "Arduino Pro or Pro Mini" or "Arduino Mini"
 #endif
 #if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
 	#error You must select the processor type "ATmega328(5V, 16MHz)"
+#endif
 #endif
 
 //******************
@@ -46,7 +48,8 @@ enum PROTOCOLS
 	MODE_MT99XX=17,			// =>NRF24L01
 	MODE_MJXQ=18,			// =>NRF24L01
 	MODE_SHENQI=19,			// =>NRF24L01
-	MODE_FY326=20			// =>NRF24L01
+	MODE_FY326=20,			// =>NRF24L01
+	MODE_SFHSS=21			// =>CC2500
 };
 
 enum Flysky
@@ -114,6 +117,12 @@ enum MJXQ
 	H26D	= 3
 };
 
+enum FRSKYX
+{
+	CH_16	= 0,
+	CH_8	= 1,
+};
+
 #define NONE 		0
 #define P_HIGH		1
 #define P_LOW		0
@@ -137,7 +146,11 @@ struct PPM_Parameters
 #define LED_pin 13						//Promini original led on B5
 //
 #define PPM_pin 3						//PPM -D3
+#ifdef XMEGA
+#define SDI_pin 6						//SDIO-D6
+#else
 #define SDI_pin 5						//SDIO-D5
+#endif
 #define SCLK_pin 4						//SCK-D4
 #define CS_pin 2						//CS-D2
 #define SDO_pin 6						//D6
@@ -145,23 +158,51 @@ struct PPM_Parameters
 #define CTRL1 1							//C1 (A1)
 #define CTRL2 2							//C2 (A2)
 //
+#ifdef XMEGA
+#define CTRL1_on
+#define CTRL1_off
+//
+#define CTRL2_on
+#define CTRL2_off
+#else
 #define CTRL1_on  PORTC |= _BV(1)
 #define CTRL1_off PORTC &= ~_BV(1)
 //
 #define CTRL2_on  PORTC |= _BV(2)
 #define CTRL2_off PORTC &= ~_BV(2)
+#endif
 //
+#ifdef XMEGA
+#define  CS_on PORTD.OUTSET = _BV(4)			//D4
+#define  CS_off PORTD.OUTCLR = _BV(4)		//D4
+#else
 #define  CS_on PORTD |= _BV(2)			//D2
 #define  CS_off PORTD &= ~_BV(2)		//D2
+#endif
 //
+#ifdef XMEGA
+#define  SCK_on PORTD.OUTSET = _BV(7)			//D7
+#define  SCK_off PORTD.OUTCLR = _BV(7)		//D7
+#else
 #define  SCK_on PORTD |= _BV(4)			//D4
 #define  SCK_off PORTD &= ~_BV(4)		//D4
+#endif
 //
+#ifdef XMEGA
+#define  SDI_on PORTD.OUTSET = _BV(5)			//D5
+#define  SDI_off PORTD.OUTCLR = _BV(5)		//D5
+#else
 #define  SDI_on PORTD |= _BV(5)			//D5
 #define  SDI_off PORTD &= ~_BV(5)		//D5
+#endif
 
+#ifdef XMEGA
+#define  SDI_1 (PORTD.IN & (1<<SDI_pin)) == (1<<SDI_pin)	//D5
+#define  SDI_0 (PORTD.IN & (1<<SDI_pin)) == 0x00			//D5
+#else
 #define  SDI_1 (PIND & (1<<SDI_pin)) == (1<<SDI_pin)	//D5
 #define  SDI_0 (PIND & (1<<SDI_pin)) == 0x00			//D5
+#endif
 //
 #define SDI_SET_INPUT DDRD &= ~_BV(5)	//D5
 #define SDI_SET_OUTPUT DDRD |= _BV(5)	//D5
@@ -172,17 +213,37 @@ struct PPM_Parameters
 //
 #define CYRF_RST_pin A5					//reset pin
 //
+#ifdef XMEGA
+#define CC25_CSN_on PORTD.OUTSET = _BV(7)		//D7
+#define CC25_CSN_off PORTD.OUTCLR = _BV(7)	//D7
+#else
 #define CC25_CSN_on PORTD |= _BV(7)		//D7
 #define CC25_CSN_off PORTD &= ~_BV(7)	//D7
+#endif
 //
+#ifdef XMEGA
+#define NRF_CSN_on
+#define NRF_CSN_off
+#else
 #define NRF_CSN_on PORTB |= _BV(0)		//D8
 #define NRF_CSN_off PORTB &= ~_BV(0)	//D8
+#endif
 //
+#ifdef XMEGA
+#define CYRF_CSN_on PORTD.OUTSET = _BV(4)		//D9
+#define CYRF_CSN_off PORTD.OUTCLR = _BV(4)	//D9
+#else
 #define CYRF_CSN_on PORTB |= _BV(1)		//D9
 #define CYRF_CSN_off PORTB &= ~_BV(1)	//D9
+#endif
 //  
+#ifdef XMEGA
+#define  SDO_1 (PORTD.IN & (1<<SDO_pin)) == (1<<SDO_pin)	//D6
+#define  SDO_0 (PORTD.IN & (1<<SDO_pin)) == 0x00			//D6
+#else
 #define  SDO_1 (PIND & (1<<SDO_pin)) == (1<<SDO_pin)	//D6
 #define  SDO_0 (PIND & (1<<SDO_pin)) == 0x00			//D6
+#endif
 //
 #define RS_HI PORTC|=_BV(5)				//reset pin cyrf 
 #define RX_LO PORTB &= ~_BV(5)//
@@ -190,11 +251,25 @@ struct PPM_Parameters
 //
 
 // LED
+#ifdef XMEGA
+#define LED_ON  PORTD.OUTCLR = _BV(1)
+#define LED_OFF PORTD.OUTSET = _BV(1)
+#define LED_TOGGLE  PORTD.OUTTGL = _BV(1)
+#define LED_SET_OUTPUT PORTD.DIRSET = _BV(1)
+#define IS_LED_on  ( (PORTD.OUT & _BV(1)) != 0x00 )
+#else
 #define LED_ON  PORTB |= _BV(5)
 #define LED_OFF  PORTB &= ~_BV(5)
 #define LED_TOGGLE  PORTB ^= _BV(5)
 #define LED_SET_OUTPUT DDRB |= _BV(5)
 #define IS_LED_on  ( (PORTB & _BV(5)) != 0x00 )
+#endif
+
+// TX
+#define TX_ON  PORTD |= _BV(1)
+#define TX_OFF  PORTD &= ~_BV(1)
+#define TX_TOGGLE  PORTD ^= _BV(1)
+#define TX_SET_OUTPUT DDRD |= _BV(1)
 
 // Macros
 #define NOP() __asm__ __volatile__("nop")
@@ -283,10 +358,10 @@ enum A7105_POWER
 	A7105_POWER_6 = 0x03<<3 | 0x07,	// TXPOWER_100mW  =   1dBm == PAC=3 TBG=7
 	A7105_POWER_7 = 0x03<<3 | 0x07	// TXPOWER_150mW  =   1dBm == PAC=3 TBG=7
 };
-#define A7105_HIGH_POWER	A7105_POWER_5
+#define A7105_HIGH_POWER	A7105_POWER_7
 #define	A7105_LOW_POWER		A7105_POWER_3
-#define	A7105_BIND_POWER	A7105_POWER_0
 #define	A7105_RANGE_POWER	A7105_POWER_0
+#define	A7105_BIND_POWER	A7105_POWER_0
 
 // NRF Power
 // Power setting is 0..3 for nRF24L01
@@ -300,8 +375,8 @@ enum NRF_POWER
 };
 #define NRF_HIGH_POWER		NRF_POWER_2
 #define	NRF_LOW_POWER		NRF_POWER_1
-#define	NRF_BIND_POWER		NRF_POWER_0
 #define	NRF_RANGE_POWER		NRF_POWER_0
+#define	NRF_BIND_POWER		NRF_POWER_0
 
 // CC2500 power
 enum CC2500_POWER
@@ -318,8 +393,8 @@ enum CC2500_POWER
 };
 #define CC2500_HIGH_POWER	CC2500_POWER_6
 #define	CC2500_LOW_POWER	CC2500_POWER_3
-#define CC2500_BIND_POWER	CC2500_POWER_0
 #define CC2500_RANGE_POWER	CC2500_POWER_0
+#define CC2500_BIND_POWER	CC2500_POWER_0
 
 // CYRF power
 enum CYRF_POWER
@@ -335,8 +410,8 @@ enum CYRF_POWER
 };
 #define CYRF_HIGH_POWER		CYRF_POWER_7
 #define	CYRF_LOW_POWER		CYRF_POWER_3
+#define	CYRF_RANGE_POWER	CYRF_POWER_1
 #define	CYRF_BIND_POWER		CYRF_POWER_0
-#define	CYRF_RANGE_POWER	CYRF_POWER_0
 
 enum TXRX_State {
 	TXRX_OFF,
@@ -424,6 +499,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					MJXQ		18
 					SHENQI		19
 					FY326		20
+					SFHSS		21
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -475,6 +551,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			X600		1
 			X800		2
 			H26D		3
+		sub_protocol==FRSKYX
+			CH_16		0
+			CH_8		1
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127

@@ -14,20 +14,32 @@
  */
 #include "iface_cyrf6936.h"
 
+#ifdef XMEGA
+#define XNOP() NOP()
+#else
+#define XNOP()
+#endif
+
 static void cyrf_spi_write(uint8_t command)
 {
 	uint8_t n=8; 
 	SCK_off;//SCK start low
+	XNOP() ;
 	SDI_off;
+	XNOP() ;
 	while(n--) {
 		if(command&0x80)
 			SDI_on;
 		else 
 			SDI_off;
+		XNOP() ;
 		SCK_on;
 		NOP();
+		XNOP() ;
+		XNOP() ;
 		SCK_off;
 		command = command << 1;
+		XNOP() ;
 	}
 	SDI_on;
 } 
@@ -39,13 +51,16 @@ static uint8_t cyrf_spi_read()
 	result=0;
 	for(i=0;i<8;i++)
 	{                    
+		result<<=1;
 		if(SDO_1)  ///
-			result=(result<<1)|0x01;
-		else
-			result=result<<1;
+			result|=0x01;
 		SCK_on;
+		XNOP() ;
+		XNOP() ;
 		NOP();
 		SCK_off;
+		XNOP() ;
+		XNOP() ;
 		NOP();
 	}
 	return result;
@@ -215,11 +230,11 @@ static void CYRF_StartReceive()
 	CYRF_ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, 0x10);
 }
 */
-/*static void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
+void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
 {
-    ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, length);
+    CYRF_ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, length);
 }
-*/
+
 static void CYRF_WriteDataPacketLen(const uint8_t dpbuffer[], uint8_t len)
 {
 	CYRF_WriteRegister(CYRF_01_TX_LENGTH, len);

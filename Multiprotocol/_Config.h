@@ -42,6 +42,7 @@
 #ifdef	CC2500_INSTALLED
 	#define	FRSKY_CC2500_INO
 	#define	FRSKYX_CC2500_INO
+	#define SFHSS_CC2500_INO
 #endif
 #ifdef	NFR24L01_INSTALLED
 	#define	BAYANG_NRF24L01_INO
@@ -129,7 +130,8 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_BAYANG
 		NONE
 	MODE_FRSKYX
-		NONE
+		CH_16
+		CH_8
 	MODE_ESKY
 		NONE
 	MODE_MT99XX
@@ -144,6 +146,8 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_SHENQI
 		NONE
 	MODE_FY326
+		NONE
+	MODE_SFHSS
 		NONE
 
 RX_Num 		value between 0 and 15

@@ -86,7 +86,8 @@ You can connect it to your TX if it is telemetry enabled or use a bluetooth adap
 Telemetry is built in for er9x and ersky9x TXs.
 
 To enable telemetry on a Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
-Note: DSM telemetry is not available on er9x due to alack of flash space.
+
+Note: DSM telemetry is not available on er9x due to a lack of flash space.
 
 Enabling telemetry on a 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
 

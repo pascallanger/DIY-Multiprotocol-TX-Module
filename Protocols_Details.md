@@ -62,13 +62,28 @@ Models: FrSky receivers X4R, X6R and X8R.
 
 Extended limits supported
 
-Telemetry enabled for A1 (RxBatt), A2, RSSI
+Telemetry enabled for A1 (RxBatt), A2, RSSI, TSSI and Hub
 
 Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
 
+###Sub_protocol CH_16
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
+###Sub_protocol CH_8
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+##SFHSS
+Models: Futaba RXs and XK models.
+
+Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
 
 ***
 #CYRF6936 RF Module
@@ -82,6 +97,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ##DSM2
 Extended limits supported
+
+Telemetry enabled for TSSI and plugins
 
 option=number of channels and frame rate:
  - 0 : 4 channels @22ms

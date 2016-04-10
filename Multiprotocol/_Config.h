@@ -21,9 +21,6 @@
 //#define TX_SPEKTRUM	//Spektrum TAER (1100<->1900µs)
 //#define TX_HISKY		//HISKY AETR (1100<->1900µs)
 
-//Uncomment to enable telemetry
-#define TELEMETRY
-
 //Comment if a module is not installed
 #define A7105_INSTALLED
 #define CYRF6936_INSTALLED
@@ -60,6 +57,22 @@
 	#define	SHENQI_NRF24L01_INO
 	#define	FY326_NRF24L01_INO
 #endif
+
+//Uncomment to enable telemetry
+#define TELEMETRY
+
+//Comment to disable a specific telemetry
+#if defined(TELEMETRY)
+	#if defined DSM2_CYRF6936_INO
+		#define DSM_TELEMETRY	
+	#endif
+	#if defined FRSKYX_CC2500_INO
+		#define SPORT_TELEMETRY	
+	#endif
+	#if defined FRSKY_CC2500_INO
+		#define HUB_TELEMETRY
+	#endif
+#endif 
 
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
 const PPM_Parameters PPM_prot[15]=	{

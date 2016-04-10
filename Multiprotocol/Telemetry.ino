@@ -5,15 +5,6 @@
 
 #if defined TELEMETRY
 
-#if defined DSM2_CYRF6936_INO
-	#define DSM_TELEMETRY	
-#endif
-#if defined FRSKYX_CC2500_INO
-	#define SPORT_TELEMETRY	
-#endif
-#if defined FRSKY_CC2500_INO
-	#define HUB_TELEMETRY
-#endif
 #if defined SPORT_TELEMETRY	
 	#define SPORT_TIME 12000
 	#define FRSKY_SPORT_PACKET_SIZE   8
@@ -64,11 +55,11 @@ void frskySendStuffed()
 void compute_RSSIdbm()
 {
 	
-	RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>5);
+	RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
 	if(pktt[len-2] >=128)
-		RSSI_dBm -= 82;
+		RSSI_dBm -= 164;
 	else
-		RSSI_dBm += 65;
+		RSSI_dBm += 130;
 }
 
 void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
@@ -110,8 +101,8 @@ void frsky_link_frame()
 		compute_RSSIdbm();				
 		frame[1] = pktt[3];
 		frame[2] = pktt[4];
-		frame[3] = (uint8_t)RSSI_dBm; 
-		frame[4] = pktt[5]*2;
+		frame[3] = pktt[5];
+		frame[4] = (uint8_t)RSSI_dBm;
 	}
 	else
 		if ((cur_protocol[0]&0x1F)==MODE_HUBSAN)

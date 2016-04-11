@@ -88,7 +88,7 @@ static void __attribute__((unused)) SFHSS_tune_chan_fast()
 	_delay_us(6);
 }
 
-#ifdef USE_SFHSS_TUNE_FREQ
+#ifdef SFHSS_USE_TUNE_FREQ
 static void __attribute__((unused)) SFHSS_tune_freq() {
 // May be we'll need this tuning routine - some receivers are more sensitive to
 // frequency impreciseness, and though CC2500 has a procedure to handle it it
@@ -129,15 +129,15 @@ static uint16_t __attribute__((unused)) SFHSS_convert_channel(uint8_t num)
 
 static void __attribute__((unused)) SFHSS_build_data_packet()
 {
-#define spacer1 0b10
+#define spacer1 0x02 //0b10
 #define spacer2 (spacer1 << 4)
     uint8_t ch_offset = state == SFHSS_DATA1 ? 0 : 4;
 	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
 
-    u16 ch1 = SFHSS_convert_channel(ch[ch_offset+0]);
-    u16 ch2 = SFHSS_convert_channel(ch[ch_offset+1]);
-    u16 ch3 = SFHSS_convert_channel(ch[ch_offset+2]);
-    u16 ch4 = SFHSS_convert_channel(ch[ch_offset+3]);
+    uint16_t ch1 = SFHSS_convert_channel(ch[ch_offset+0]);
+    uint16_t ch2 = SFHSS_convert_channel(ch[ch_offset+1]);
+    uint16_t ch3 = SFHSS_convert_channel(ch[ch_offset+2]);
+    uint16_t ch4 = SFHSS_convert_channel(ch[ch_offset+3]);
     
     packet[0]  = 0x81; // can be 80, 81, 81 for Orange, only 81 for XK
     packet[1]  = rx_tx_addr[0];
@@ -146,11 +146,11 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
     packet[4]  = 0;
     packet[5]  = (rf_ch_num << 3) | spacer1 | ((ch1 >> 9) & 0x01);
     packet[6]  = (ch1 >> 1);
-    packet[7]  = (ch1 << 7) | spacer2 | ((ch2 >> 5) & 0b11111);
+    packet[7]  = (ch1 << 7) | spacer2 | ((ch2 >> 5) & 0x1F /*0b11111*/);
     packet[8]  = (ch2 << 3) | spacer1  | ((ch3 >> 9) & 0x01);
     packet[9]  = (ch3 >> 1);
-    packet[10] = (ch3 << 7) | spacer2  | ((ch4 >> 5) & 0b11111);
-    packet[11] = (ch4 << 3) | ((fhss_code >> 2) & 0b111);
+    packet[10] = (ch3 << 7) | spacer2  | ((ch4 >> 5) & 0x1F /*0b11111*/);
+    packet[11] = (ch4 << 3) | ((fhss_code >> 2) & 0x07 /*0b111 */);
     packet[12] = (fhss_code << 6) | state;
 }
 
@@ -251,6 +251,7 @@ static void __attribute__((unused)) SFHSS_get_tx_id()
 
 uint16_t initSFHSS()
 {
+	BIND_DONE;	// No bind procedure
 	SFHSS_get_tx_id();
 
 	randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));

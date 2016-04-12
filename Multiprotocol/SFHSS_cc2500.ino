@@ -254,11 +254,10 @@ static void __attribute__((unused)) SFHSS_get_tx_id()
 
 uint16_t initSFHSS()
 {
-	BIND_DONE;	// No bind procedure
+	BIND_DONE;	// No bind protocol
 	SFHSS_get_tx_id();
 
-	randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
-	fhss_code=random(0xfefefefe)%28; // Initialize it to random 0-27 inclusive
+	fhss_code=rx_tx_addr[2]%28; // Initialize it to random 0-27 inclusive
 
 	SFHSS_rf_init();
 	state = SFHSS_START;

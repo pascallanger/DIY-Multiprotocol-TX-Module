@@ -73,6 +73,20 @@ const PROGMEM uint8_t SFHSS_init_values[] = {
   /* 20 */ 0xF8, 0xB6, 0x10, 0xEA, 0x0A, 0x11, 0x11
 };
 
+static void __attribute__((unused)) SFHSS_rf_init()
+{
+	CC2500_Reset();
+	CC2500_Strobe(CC2500_SIDLE);
+
+	for (uint8_t i = 0; i < 39; ++i)
+		CC2500_WriteReg(i, pgm_read_byte_near(&SFHSS_init_values[i]));
+	//CC2500_WriteRegisterMulti(CC2500_00_IOCFG2, init_values, sizeof(init_values));
+	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+	
+	CC2500_SetTxRxMode(TX_EN);
+	CC2500_SetPower();
+}
+
 static void __attribute__((unused)) SFHSS_tune_chan()
 {
 	CC2500_Strobe(CC2500_SIDLE);
@@ -98,24 +112,13 @@ static void __attribute__((unused)) SFHSS_tune_freq() {
 }
 #endif
 
-static void __attribute__((unused)) SFHSS_rf_init()
-{
-	CC2500_Reset();
-	CC2500_Strobe(CC2500_SIDLE);
-
-	for (uint8_t i = 0; i < 39; ++i)
-		CC2500_WriteReg(i, pgm_read_byte_near(&SFHSS_init_values[i]));
-	//CC2500_WriteRegisterMulti(CC2500_00_IOCFG2, init_values, sizeof(init_values));
-
-	CC2500_SetTxRxMode(TX_EN);
-	CC2500_SetPower();
-}
-
 static void __attribute__((unused)) SFHSS_calc_next_chan()
 {
     rf_ch_num += fhss_code + 2;
-    if (rf_ch_num > 29) {
-        if (rf_ch_num < 31) rf_ch_num += fhss_code + 2;
+    if (rf_ch_num > 29)
+	{
+        if (rf_ch_num < 31)
+			rf_ch_num += fhss_code + 2;
         rf_ch_num -= 31;
     }
 }

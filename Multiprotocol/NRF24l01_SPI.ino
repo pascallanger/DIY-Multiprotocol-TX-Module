@@ -246,7 +246,8 @@ void NRF24L01_Reset()
 
 uint8_t NRF24L01_packet_ack()
 {
-    switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT))) {
+    switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)))
+	{
 		case BV(NRF24L01_07_TX_DS):
 			return PKT_ACKED;
 		case BV(NRF24L01_07_MAX_RT):
@@ -411,47 +412,47 @@ void XN297_ReadPayload(uint8_t* msg, uint8_t len)
 // End of XN297 emulation
 
 ///////////////
-// LT8910 emulation layer
-uint8_t LT8910_buffer[64];
-uint8_t LT8910_buffer_start;
-uint16_t LT8910_buffer_overhead_bits;
-uint8_t LT8910_addr[8];
-uint8_t LT8910_addr_size;
-uint8_t LT8910_Preamble_Len;
-uint8_t LT8910_Tailer_Len;
-uint8_t LT8910_CRC_Initial_Data;
-uint8_t LT8910_Flags;
-#define LT8910_CRC_ON 6
-#define LT8910_SCRAMBLE_ON 5
-#define LT8910_PACKET_LENGTH_EN 4
-#define LT8910_DATA_PACKET_TYPE_1 3
-#define LT8910_DATA_PACKET_TYPE_0 2
-#define LT8910_FEC_TYPE_1 1
-#define LT8910_FEC_TYPE_0 0
+// LT8900 emulation layer
+uint8_t LT8900_buffer[64];
+uint8_t LT8900_buffer_start;
+uint16_t LT8900_buffer_overhead_bits;
+uint8_t LT8900_addr[8];
+uint8_t LT8900_addr_size;
+uint8_t LT8900_Preamble_Len;
+uint8_t LT8900_Tailer_Len;
+uint8_t LT8900_CRC_Initial_Data;
+uint8_t LT8900_Flags;
+#define LT8900_CRC_ON 6
+#define LT8900_SCRAMBLE_ON 5
+#define LT8900_PACKET_LENGTH_EN 4
+#define LT8900_DATA_PACKET_TYPE_1 3
+#define LT8900_DATA_PACKET_TYPE_0 2
+#define LT8900_FEC_TYPE_1 1
+#define LT8900_FEC_TYPE_0 0
 
-void LT8910_Config(uint8_t preamble_len, uint8_t trailer_len, uint8_t flags, uint8_t crc_init)
+void LT8900_Config(uint8_t preamble_len, uint8_t trailer_len, uint8_t flags, uint8_t crc_init)
 {
 	//Preamble 1 to 8 bytes
-	LT8910_Preamble_Len=preamble_len;
+	LT8900_Preamble_Len=preamble_len;
 	//Trailer 4 to 18 bits
-	LT8910_Tailer_Len=trailer_len;
+	LT8900_Tailer_Len=trailer_len;
 	//Flags
 	// CRC_ON: 1 on, 0 off
 	// SCRAMBLE_ON: 1 on, 0 off
 	// PACKET_LENGTH_EN: 1 1st byte of payload is payload size
 	// DATA_PACKET_TYPE: 00 NRZ, 01 Manchester, 10 8bit/10bit line code, 11 interleave data type
 	// FEC_TYPE: 00 No FEC, 01 FEC13, 10 FEC23, 11 reserved
-	LT8910_Flags=flags;
+	LT8900_Flags=flags;
 	//CRC init constant
-	LT8910_CRC_Initial_Data=crc_init;
+	LT8900_CRC_Initial_Data=crc_init;
 }
 
-void LT8910_SetChannel(uint8_t channel)
+void LT8900_SetChannel(uint8_t channel)
 {
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, channel +2);	//NRF24L01 is 2400+channel but LT8900 is 2402+channel
 }
 
-void LT8910_SetTxRxMode(enum TXRX_State mode)
+void LT8900_SetTxRxMode(enum TXRX_State mode)
 {
 	if(mode == TX_EN)
 	{
@@ -477,61 +478,62 @@ void LT8910_SetTxRxMode(enum TXRX_State mode)
 			NRF24L01_SetTxRxMode(TXRX_OFF);
 }
 
-void LT8910_BuildOverhead()
+void LT8900_BuildOverhead()
 {
 	uint8_t pos;
 
 	//Build overhead
 	//preamble
-	memset(LT8910_buffer,LT8910_addr[0]&0x01?0xAA:0x55,LT8910_Preamble_Len-1);
-	pos=LT8910_Preamble_Len-1;
+	memset(LT8900_buffer,LT8900_addr[0]&0x01?0xAA:0x55,LT8900_Preamble_Len-1);
+	pos=LT8900_Preamble_Len-1;
 	//address
-	for(uint8_t i=0;i<LT8910_addr_size;i++)
+	for(uint8_t i=0;i<LT8900_addr_size;i++)
 	{
-		LT8910_buffer[pos]=bit_reverse(LT8910_addr[i]);
+		LT8900_buffer[pos]=bit_reverse(LT8900_addr[i]);
 		pos++;
 	}
 	//trailer
-	memset(LT8910_buffer+pos,(LT8910_buffer[pos-1]&0x01)==0?0xAA:0x55,3);
-	LT8910_buffer_overhead_bits=pos*8+LT8910_Tailer_Len;
+	memset(LT8900_buffer+pos,(LT8900_buffer[pos-1]&0x01)==0?0xAA:0x55,3);
+	LT8900_buffer_overhead_bits=pos*8+LT8900_Tailer_Len;
 	//nrf address length max is 5
-	pos+=LT8910_Tailer_Len/8;
-	LT8910_buffer_start=pos>5?5:pos;
+	pos+=LT8900_Tailer_Len/8;
+	LT8900_buffer_start=pos>5?5:pos;
 }
 
-void LT8910_SetAddress(uint8_t *address,uint8_t addr_size)
+void LT8900_SetAddress(uint8_t *address,uint8_t addr_size)
 {
 	uint8_t addr[5];
 	
 	//Address size (SyncWord) 2 to 8 bytes, 16/32/48/64 bits
-	LT8910_addr_size=addr_size;
-	memcpy(LT8910_addr,address,LT8910_addr_size);
+	LT8900_addr_size=addr_size;
+	for (uint8_t i = 0; i < addr_size; i++)
+		LT8900_addr[i] = address[addr_size-1-i];
 
 	//Build overhead
-	LT8910_BuildOverhead();
+	LT8900_BuildOverhead();
 
 	//Set NRF RX&TX address based on overhead content
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, LT8910_buffer_start-2);
-	for(uint8_t i=0;i<LT8910_buffer_start;i++)	// reverse bytes order
-		addr[i]=LT8910_buffer[LT8910_buffer_start-i-1];
-	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0,	addr,LT8910_buffer_start);
-	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,	addr,LT8910_buffer_start);
+	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, LT8900_buffer_start-2);
+	for(uint8_t i=0;i<LT8900_buffer_start;i++)	// reverse bytes order
+		addr[i]=LT8900_buffer[LT8900_buffer_start-i-1];
+	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0,	addr,LT8900_buffer_start);
+	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,	addr,LT8900_buffer_start);
 }
 
-uint8_t LT8910_ReadPayload(uint8_t* msg, uint8_t len)
+uint8_t LT8900_ReadPayload(uint8_t* msg, uint8_t len)
 {
 	uint8_t i,pos=0,shift,end,buffer[32];
-	unsigned int crc=LT8910_CRC_Initial_Data,a;
-	pos=LT8910_buffer_overhead_bits/8-LT8910_buffer_start;
-	end=pos+len+(LT8910_Flags&_BV(LT8910_PACKET_LENGTH_EN)?1:0)+(LT8910_Flags&_BV(LT8910_CRC_ON)?2:0);
+	unsigned int crc=LT8900_CRC_Initial_Data,a;
+	pos=LT8900_buffer_overhead_bits/8-LT8900_buffer_start;
+	end=pos+len+(LT8900_Flags&_BV(LT8900_PACKET_LENGTH_EN)?1:0)+(LT8900_Flags&_BV(LT8900_CRC_ON)?2:0);
 	//Read payload
 	NRF24L01_ReadPayload(buffer,end+1);
 	//Check address + trail
 	for(i=0;i<pos;i++)
-		if(LT8910_buffer[LT8910_buffer_start+i]!=buffer[i])
+		if(LT8900_buffer[LT8900_buffer_start+i]!=buffer[i])
 			return 0; // wrong address...
 	//Shift buffer to remove trail bits
-	shift=LT8910_buffer_overhead_bits&0x7;
+	shift=LT8900_buffer_overhead_bits&0x7;
 	for(i=pos;i<end;i++)
 	{
 		a=(buffer[i]<<8)+buffer[i+1];
@@ -539,7 +541,7 @@ uint8_t LT8910_ReadPayload(uint8_t* msg, uint8_t len)
 		buffer[i]=(a>>8)&0xFF;
 	}
 	//Check len
-	if(LT8910_Flags&_BV(LT8910_PACKET_LENGTH_EN))
+	if(LT8900_Flags&_BV(LT8900_PACKET_LENGTH_EN))
 	{
 		crc=crc16_update(crc,buffer[pos]);
 		if(bit_reverse(len)!=buffer[pos++])
@@ -552,7 +554,7 @@ uint8_t LT8910_ReadPayload(uint8_t* msg, uint8_t len)
 		msg[i]=bit_reverse(buffer[pos++]);
 	}
 	//Check CRC
-	if(LT8910_Flags&_BV(LT8910_CRC_ON))
+	if(LT8900_Flags&_BV(LT8900_CRC_ON))
 	{
 		if(buffer[pos++]!=((crc>>8)&0xFF)) return 0;	// wrong CRC...
 		if(buffer[pos]!=(crc&0xFF)) return 0;			// wrong CRC...
@@ -561,12 +563,12 @@ uint8_t LT8910_ReadPayload(uint8_t* msg, uint8_t len)
 	return 1;
 }
 
-void LT8910_WritePayload(uint8_t* msg, uint8_t len)
+void LT8900_WritePayload(uint8_t* msg, uint8_t len)
 {
-	unsigned int crc=LT8910_CRC_Initial_Data,a,mask;
+	unsigned int crc=LT8900_CRC_Initial_Data,a,mask;
 	uint8_t i, pos=0,tmp, buffer[64], pos_final,shift;
 	//Add packet len
-	if(LT8910_Flags&_BV(LT8910_PACKET_LENGTH_EN))
+	if(LT8900_Flags&_BV(LT8900_PACKET_LENGTH_EN))
 	{
 		tmp=bit_reverse(len);
 		buffer[pos++]=tmp;
@@ -580,25 +582,25 @@ void LT8910_WritePayload(uint8_t* msg, uint8_t len)
 		crc=crc16_update(crc,tmp);
 	}
 	//Add CRC
-	if(LT8910_Flags&_BV(LT8910_CRC_ON))
+	if(LT8900_Flags&_BV(LT8900_CRC_ON))
 	{
 		buffer[pos++]=crc>>8;
 		buffer[pos++]=crc;
 	}
 	//Shift everything to fit behind the trailer (4 to 18 bits)
-	shift=LT8910_buffer_overhead_bits&0x7;
-	pos_final=LT8910_buffer_overhead_bits/8;
+	shift=LT8900_buffer_overhead_bits&0x7;
+	pos_final=LT8900_buffer_overhead_bits/8;
 	mask=~(0xFF<<(8-shift));
-	LT8910_buffer[pos_final+pos]=0xFF;
+	LT8900_buffer[pos_final+pos]=0xFF;
 	for(i=pos-1;i!=0xFF;i--)
 	{
 		a=buffer[i]<<(8-shift);
-		LT8910_buffer[pos_final+i]=(LT8910_buffer[pos_final+i]&mask>>8)|a>>8;
-		LT8910_buffer[pos_final+i+1]=(LT8910_buffer[pos_final+i+1]&mask)|a;
+		LT8900_buffer[pos_final+i]=(LT8900_buffer[pos_final+i]&mask>>8)|a>>8;
+		LT8900_buffer[pos_final+i+1]=(LT8900_buffer[pos_final+i+1]&mask)|a;
 	}
 	if(shift)
 		pos++;
 	//Send everything
-	NRF24L01_WritePayload(LT8910_buffer+LT8910_buffer_start,pos_final+pos-LT8910_buffer_start);
+	NRF24L01_WritePayload(LT8900_buffer+LT8900_buffer_start,pos_final+pos-LT8900_buffer_start);
 }
-// End of LT8910 emulation
+// End of LT8900 emulation

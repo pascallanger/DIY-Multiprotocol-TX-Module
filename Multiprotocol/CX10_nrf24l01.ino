@@ -182,7 +182,8 @@ static void __attribute__((unused)) CX10_init()
 	NRF24L01_SetPower();
 }
 
-uint16_t CX10_callback() {
+uint16_t CX10_callback()
+{
 	switch (phase) {
 		case CX10_BIND1:
 			if (bind_counter == 0)
@@ -219,7 +220,7 @@ uint16_t CX10_callback() {
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_SetTxRxMode(TX_EN);
 				CX10_Write_Packet(1);
-				delayMicroseconds(400);				// 300µs in deviation but not working so using 400µs instead
+				_delay_us(1000);
 				// switch to RX mode
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_FlushRx();

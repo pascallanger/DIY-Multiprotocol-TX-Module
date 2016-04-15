@@ -217,6 +217,15 @@ void setup()
 	#ifdef	CC2500_INSTALLED
 		CC2500_Reset();
 	#endif
+	#ifdef	A7105_INSTALLED
+		A7105_Reset();
+	#endif
+	#ifdef	CYRF6936_INSTALLED
+		CYRF_Reset();
+	#endif
+	#ifdef	NFR24L01_INSTALLED
+		NRF24L01_Reset();
+	#endif
 
 	//Protocol and interrupts initialization
 	if(mode_select != MODE_SERIAL)

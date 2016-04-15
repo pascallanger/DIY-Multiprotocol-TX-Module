@@ -25,7 +25,7 @@
 #define CG023_INITIAL_WAIT		500
 #define CG023_PACKET_SIZE		15   // packets have 15-byte payload
 #define CG023_RF_BIND_CHANNEL	0x2D
-#define CG023_BIND_COUNT		1000  // 8 seconds
+#define CG023_BIND_COUNT		500  // 4 seconds
 #define YD829_PACKET_PERIOD		4100 // Timeout for callback in uSec
 #define H8_3D_PACKET_PERIOD		1800 // Timeout for callback in uSec
 #define H8_3D_PACKET_SIZE		20

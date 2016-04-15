@@ -121,9 +121,8 @@ uint8_t A7105_Reset()
 {
 	uint8_t result;
 	
-	delay(10);							//wait 10ms for A7105 wakeup
 	A7105_WriteReg(0x00, 0x00);
-	delay(1000);
+	_delay_us(1000);
 	A7105_SetTxRxMode(TXRX_OFF);		//Set both GPIO as output and low
 	result=A7105_ReadReg(0x10) == 0x9E;	//check if is reset.
 	A7105_Strobe(A7105_STANDBY);

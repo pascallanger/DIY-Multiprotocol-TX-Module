@@ -192,7 +192,6 @@ uint16_t ReadFlySky()
 }
 
 uint16_t initFlySky() {
-	//A7105_Reset();
 	A7105_Init(INIT_FLYSKY);	//flysky_init();
 	
 	if ((rx_tx_addr[3]&0xF0) > 0x90) // limit offset to 9 as higher values don't work with some RX (ie V912)

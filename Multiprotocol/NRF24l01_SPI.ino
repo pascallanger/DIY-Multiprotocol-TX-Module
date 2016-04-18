@@ -258,7 +258,7 @@ uint8_t NRF24L01_packet_ack()
 
 ///////////////
 // XN297 emulation layer
-uint8_t xn297_scramble_enabled;
+uint8_t xn297_scramble_enabled=1;	//enabled by default
 uint8_t xn297_addr_len;
 uint8_t xn297_tx_addr[5];
 uint8_t xn297_rx_addr[5];

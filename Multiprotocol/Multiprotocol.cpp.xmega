@@ -460,6 +460,7 @@ void NRF24L01_Reset()
 
 #include "cyrf6936_SPI.ino"
 #include "DSM2_cyrf6936.ino"
+#include "Devo_cyrf6936.ino"
 
 #include "Telemetry.ino"
 

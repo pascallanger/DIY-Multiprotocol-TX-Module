@@ -16,7 +16,8 @@
 /** Multiprotocol module configuration file ***/
 
 //Uncomment your TX type
-#define TX_ER9X			//ER9X AETR (988<->2012µs)
+#define TX_ER9X_AETR	//ER9X AETR (988<->2012µs)
+//#define TX_ER9X_TAER	//ER9X TAER (988<->2012µs)
 //#define TX_DEVO7		//DEVO7 EATR (1120<->1920µs)
 //#define TX_SPEKTRUM	//Spektrum TAER (1100<->1900µs)
 //#define TX_HISKY		//HISKY AETR (1100<->1900µs)
@@ -176,7 +177,7 @@ Option		value between 0 and 255. 0xD7 or 0x00 for Frsky fine tuning.
 //TX definitions with timing endpoints and channels order
 
 // Turnigy PPM and channels
-#if defined(TX_ER9X)
+#if defined(TX_ER9X_AETR)
 #define PPM_MAX		2140	//	125%
 #define PPM_MIN		860		//	125%
 #define PPM_MAX_100 2012	//	100%
@@ -185,6 +186,29 @@ enum chan_order{
 	AILERON =0,
 	ELEVATOR,
 	THROTTLE,
+	RUDDER,
+	AUX1,
+	AUX2,
+	AUX3,
+	AUX4,
+	AUX5,
+	AUX6,
+	AUX7,
+	AUX8,
+	AUX9
+};
+#endif
+
+// Turnigy PPM and channels
+#if defined(TX_ER9X_TAER)
+#define PPM_MAX		2140	//	125%
+#define PPM_MIN		860		//	125%
+#define PPM_MAX_100 2012	//	100%
+#define PPM_MIN_100 988		//	100%
+enum chan_order{
+	THROTTLE =0,
+	AILERON,
+	ELEVATOR,
 	RUDDER,
 	AUX1,
 	AUX2,

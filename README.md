@@ -274,10 +274,10 @@ lines through them.
 
 [OSH Park link](https://oshpark.com/shared_projects/Ztus1ah8) if you want to order.
 
-####Buy a ready to use Multi module
+####Buy a ready to use and complete Multi module
 ![Screenshot](http://img.banggood.com/thumb/view/oaupload/banggood/images/1D/EB/19bb6434-4616-411e-b8fa-a4c21d9dca24.jpg)
 
-This module can be purchased [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html) 
+This module can be purchased [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html). All the 4 RF modules are already implemented A7105, NRF24L01, CC2500 and CYRF6936. The board is also equiped with an antenna switcher which means only one antenna for all.
 
 If you use this module and want to enable serial mode for er9x/ersky9x/Taranis/..., you have to do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg).
 
@@ -285,7 +285,7 @@ There are currently some hardware issues with the first version of this 4in1 mod
  - A7105 RF is forced to PA mode which prevents telemetry to work. Hubsan is the only protocol using telemetry for battery voltage display.
  - NRF24L01 is forced to PA mode which prevents telemetry to work. There are currently no protocols using telemetry based on this RF chip.
 
-Based on the Deviation forum these issues will be solved in the upcoming version.
+Based on the [Deviation forum](http://www.deviationtx.com/forum/7-development/5434-3in1-4in1-rf-module?start=280#46751) these issues will be solved in the upcoming version.
 
 ###Schematic
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)

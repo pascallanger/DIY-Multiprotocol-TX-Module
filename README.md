@@ -245,17 +245,17 @@ You also need some [antennas](http://www.banggood.com/2_4GHz-3dBi-RP-SMA-Connect
 The main program is running on an ATMEGA328p running @16MHz and 3.3V.
 An [Arduino pro mini 16Mhz/5V](http://www.banggood.com/Wholesale-New-Ver-Pro-Mini-ATMEGA328-328p-5V-16MHz-Arduino-Compatible-Nano-Size-p-68534.html) powered at 3.3V (yes it works) can be used to build your own Multimodule. An Arduino Mini based on Atmega328p can also be used.
 
-Using stripboard:
+####Using stripboard:
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t8214655-87-thumb-uploadfromtaptalk1405598143749.jpg?d=1441459923)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t8214656-102-thumb-uploadfromtaptalk1405598152484.jpg?d=1441459924)
 
-Using a [home made PCB](http://www.rcgroups.com/forums/showpost.php?p=32645328&postcount=1621):
+####Using a [home made PCB](http://www.rcgroups.com/forums/showpost.php?p=32645328&postcount=1621):
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226720-197-thumb-IMG_20150715_230603155.jpg?d=1441816457)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226719-72-thumb-IMG_20150715_230024065.jpg?d=1441816456)
 
-or build your own board using [SMD components](http://www.rcgroups.com/forums/showpost.php?p=31064232&postcount=1020) and an [associated PCB v2.3c](https://oshpark.com/shared_projects/MaGYDg0y):
+####Build your own board using [SMD components](http://www.rcgroups.com/forums/showpost.php?p=31064232&postcount=1020) and an [associated PCB v2.3c](https://oshpark.com/shared_projects/MaGYDg0y):
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7566755-3-thumb-i.png?d=1423810885)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952726-108-thumb-image-62c29cf2.jpg?d=1433909893)
@@ -273,6 +273,18 @@ lines through them.
 ![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/97b87a89b75785d70b354e5b033f5209.png)
 
 [OSH Park link](https://oshpark.com/shared_projects/Ztus1ah8) if you want to order.
+
+####Buy a ready to use Multi module
+![Screenshot](http://img.banggood.com/thumb/view/oaupload/banggood/images/1D/EB/19bb6434-4616-411e-b8fa-a4c21d9dca24.jpg)
+
+This module can be purchased [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html) 
+
+If you use this module and want to enable serial mode for er9x/ersky9x/Taranis/..., you have to do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg).
+
+There are currently some hardware issues with the first version of this 4in1 module:
+ - A7105 RF is forced to PA mode which prevents telemetry to work. Hubsan is the only protocol using telemetry for battery voltage display.
+ - NRF24L01 is forced to PA mode which prevents telemetry to work. There are currently no protocols using telemetry based on this RF chip.
+Based on the Deviation forum these issues will be solved in the upcoming version.
 
 ###Schematic
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)

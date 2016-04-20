@@ -284,6 +284,7 @@ If you use this module and want to enable serial mode for er9x/ersky9x/Taranis/.
 There are currently some hardware issues with the first version of this 4in1 module:
  - A7105 RF is forced to PA mode which prevents telemetry to work. Hubsan is the only protocol using telemetry for battery voltage display.
  - NRF24L01 is forced to PA mode which prevents telemetry to work. There are currently no protocols using telemetry based on this RF chip.
+
 Based on the Deviation forum these issues will be solved in the upcoming version.
 
 ###Schematic

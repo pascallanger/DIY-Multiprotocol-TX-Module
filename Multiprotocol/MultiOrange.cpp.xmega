@@ -29,7 +29,7 @@ extern void frskyUpdate(void) ;
 extern uint16_t initDsm2(void) ;
 extern uint16_t ReadDsm2(void) ;
 extern uint16_t DevoInit(void) ;
-extern uint16_t Devo_callback(void) ;
+extern uint16_t devo_callback(void) ;
 
 extern void randomSeed(unsigned int seed) ;
 extern long random(long howbig) ;

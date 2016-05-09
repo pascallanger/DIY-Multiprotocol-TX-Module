@@ -279,7 +279,9 @@ lines through them.
 
 This module can be purchased [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html). All the 4 RF modules are already implemented A7105, NRF24L01, CC2500 and CYRF6936. The board is also equiped with an antenna switcher which means only one antenna for all.
 
-If you use this module and want to enable serial mode for er9x/ersky9x/Taranis/..., you have to do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg).
+To update the firmware of this module you have to solder a 6 pin header (top left) and use an USBASP like explained [below](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#upload-the-code-using-isp-in-system-programming). 
+
+If you want to enable serial mode for er9x/ersky9x/Taranis/..., you have to do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg).
 
 There are currently some hardware issues with the first version of this 4in1 module:
  - A7105 RF is forced to PA mode which prevents telemetry to work. Hubsan is the only protocol using telemetry for battery voltage display.

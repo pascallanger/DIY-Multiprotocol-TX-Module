@@ -44,7 +44,7 @@ Settings per selection are located in _Config.h:
  - Autobind: Yes or No. At the model selection (or power applied to the TX) a bind sequence will be initiated
  
 ###Using a serial output
-The multiprotocol TX module takes full advantage of being used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, 9Xtreme, AR9X, ... running [er9x or ersky9X](https://github.com/MikeBland/mbtx/tree/next). An OpenTX version for Taranis is being developped and available has a beta version for now.
+The multiprotocol TX module takes full advantage of being used on a Turnigy 9X, 9XR, 9XR Pro, Taranis, 9Xtreme, AR9X, ... running [er9x](http://openrcforums.com/forum/viewtopic.php?f=5&t=4598) or [ersky9X](http://openrcforums.com/forum/viewtopic.php?f=7&t=4676). An OpenTX version for Taranis is available [here](http://plaisthos.de/opentx/).
 
 This enables full integration using the radio GUI to setup models with all the available protocols options.
 

@@ -349,9 +349,9 @@ This will make sure your ATMEGA328 is well configured and the global TX ID is no
 
 ###LED status
 - off: program not running or a protocol selected with the associated module not installed.
-- flash: invalid protocol selected (excluded from compilation or invalid protocol number)
-- slow blink: serial has been selected but no valid signal has been seen on the RX pin.
-- fast blink: bind in progress.
+- flash(on=0.1s,off=1s): invalid protocol selected (excluded from compilation or invalid protocol number)
+- slow blink(on=0.5s,off=0.5s): serial has been selected but no valid signal has been seen on the RX pin.
+- fast blink(on=0.1s,off=0.1s): bind in progress.
 - on: normal operation.
 
 ###Protocol selection

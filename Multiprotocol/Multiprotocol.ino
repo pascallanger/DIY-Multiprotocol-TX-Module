@@ -463,6 +463,13 @@ static void protocol_init()
 			remote_callback = devo_callback;
 			break;
 #endif
+#if defined(J6PRO_CYRF6936_INO)
+		case MODE_J6PRO:
+			CTRL2_on;	//antenna RF4
+			next_callback = initJ6Pro();
+			remote_callback = ReadJ6Pro;
+			break;
+#endif
 #if defined(HISKY_NRF24L01_INO)
 		case MODE_HISKY:
 			next_callback=initHiSky();
@@ -633,6 +640,7 @@ static void module_reset()
 				break;
 			case MODE_DSM2:
 			case MODE_DEVO:
+			case MODE_J6PRO:
 				CYRF_Reset();
 				break;
 			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI, MODE_FY326

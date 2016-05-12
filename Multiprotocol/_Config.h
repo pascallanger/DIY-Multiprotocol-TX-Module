@@ -36,6 +36,7 @@
 #ifdef	CYRF6936_INSTALLED
 	#define	DEVO_CYRF6936_INO
 	#define	DSM2_CYRF6936_INO
+	#define J6PRO_CYRF6936_INO
 #endif
 #ifdef	CC2500_INSTALLED
 	#define	FRSKY_CC2500_INO
@@ -162,6 +163,8 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_FY326
 		NONE
 	MODE_SFHSS
+		NONE
+	MODE_J6PRO
 		NONE
 
 RX_Num 		value between 0 and 15

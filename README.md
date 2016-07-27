@@ -282,10 +282,10 @@ This module can be purchased [here](http://www.banggood.com/2_4G-CC2500-A7105-Fl
 **It is highly recommended to update the firmware** of this board as it is distributed with a really old and bugged one. For this you have to solder a 6 pin header (top left) and use an USBASP like explained [below](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#upload-the-code-using-isp-in-system-programming). 
 
 If you want to enable serial mode for er9x/ersky9x/Taranis/... and depending on your board revision, you have to do one of these modifications:
-- Add 2 resistors as shown here: ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg)
-- Solder pads together as shown by the yellow marks: ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9204252-13-Taranis_serial.png)
+- 1st revision, add 2 resistors as shown here: ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg)
+- 2nd revision, solder pads together as shown by the yellow marks: ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9204252-13-Taranis_serial.png)
 
-Note: if your module is sometime binding at power up even without pressing the bind button or not having an autobind protocol, then you can solve your issue by replacing the BIND led resistor (on the board back) of 1.2K by a 4.7K (probably a 2.2K would work but untested).
+Note: if you have the 1st board revision (check pictures above), sometime bind occures at power up even without pressing the bind button or not having an autobind protocol. To solve this issue, replacing the BIND led resistor (on the board back) of 1.2K by a 4.7K.
 
 ###Schematic
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)

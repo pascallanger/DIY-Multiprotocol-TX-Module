@@ -249,7 +249,7 @@ To update the firmware of this module you have to solder a 5 pin header(bottom )
 Serial mode  is already enabled by default so no need any resistor soldering.
 
 ###Schematic
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9075092-113-multi_STM32.png)
+![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9208047-205-multi-STM32.png)
 
 Notes:
 - Attention: All modules are 3.3V only, never power them with 5V.

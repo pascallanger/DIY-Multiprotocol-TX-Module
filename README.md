@@ -283,7 +283,9 @@ This module can be purchased [here](http://www.banggood.com/2_4G-CC2500-A7105-Fl
 
 If you want to enable serial mode for er9x/ersky9x/Taranis/... and depending on your board revision, you have to do one of these modifications:
 - 1st revision, add 2 resistors as shown here: ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg)
-- 2nd revision, solder pads together as shown: ![Screenshot](http://static.rcgroups.net/forums/attachments/4/8/3/5/8/4/a9206217-177-IMG_5790.jpg)
+- 2nd revision, solder pads together as shown:
+
+<img src="http://static.rcgroups.net/forums/attachments/4/8/3/5/8/4/a9206217-177-IMG_5790.jpg" width="350">
 
 Note: if you have the 1st board revision (check pictures above), sometime bind occures at power up even without pressing the bind button or not having an autobind protocol. To solve this issue, replacing the BIND led resistor (on the board back) of 1.2K by a 4.7K.
 
@@ -295,10 +297,16 @@ Notes:
 - For serial, the dial switch is not needed and the bind button optionnal
 
 ###Radio integration
-You can 3D print your box (details [here](http://www.rcgroups.com/forums/showpost.php?p=33294140&postcount=2034)):
+If you build your own version of the board you can 3D print this case (details [here](http://www.rcgroups.com/forums/showpost.php?p=33294140&postcount=2034)):
 
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462144-54-thumb-Multi_case_9XR.jpg?d=1448575289)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462145-106-thumb-Multi_case_v1.jpg?d=1448575293)
+
+If you have the ready to use board you can 3D print this case (details [here](http://www.rcgroups.com/forums/showpost.php?p=35349049&postcount=3)):
+
+<img src="http://static.rcgroups.net/forums/attachments/4/8/3/5/8/4/a9206211-97-Screen%20Shot%202016-07-27%20at%2011.02.35%20am.png" width="200">
+<img src="http://static.rcgroups.net/forums/attachments/4/8/3/5/8/4/a9206411-90-IMG_5793.jpeg" width="200">
+<img src="http://static.rcgroups.net/forums/attachments/4/8/3/5/8/4/a9206445-131-IMG_5796.jpeg" width="200">
 
 ##Compilation and programmation
 

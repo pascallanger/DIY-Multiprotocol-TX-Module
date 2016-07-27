@@ -301,8 +301,6 @@ Before upload new firmware move the bridge on BOOT0 to oposite side.
 - Connect 1 to 4 of the selection protocol pins to GND.
 
 ####Input Mode - Serial
-- Make sure you have done the mods to the v2.3c PCB by adding the 2.2k and 470 ohm resistors as indicated in the [Board section] (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#board).
-- Leave all 4 selection pins unconnected.
 
 ###Bind
 Make sure to follow this procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fast indicating a bind status and then fixed on when the bind period is over. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.

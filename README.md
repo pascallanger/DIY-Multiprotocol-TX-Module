@@ -313,7 +313,7 @@ If you have the Banggood ready to use board you can 3D print this case (details 
 ###Toolchain
 Multiprotocol source can be compiled using the Arduino IDE.
 
-The currently supported Arduino version is [1.6.7](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.7-windows.exe).
+The currently supported Arduino version is [1.6.9](http://arduino.cc/download_handler.php?f=/arduino-1.6.9-windows.exe).
 
 Download the [zip file](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/archive/master.zip) of this repository, unzip it in a folder, navigate to the Multiprotocol directory and then click on Multiprotocol.ino. The Arduino environment will appear and the Multiprotocol project will be loaded.
 

@@ -64,7 +64,7 @@ void compute_RSSIdbm()
 
 void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 {
-	if(pkt[1] == rx_tx_addr[3] || pkt[2] == rx_tx_addr[2] || len ==(pkt[0] + 3))
+	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len ==(pkt[0] + 3))
 	{	   
 		for (uint8_t i=3;i<len;i++)
 			pktt[i]=pkt[i];				 

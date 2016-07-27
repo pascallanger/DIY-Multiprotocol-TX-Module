@@ -302,7 +302,7 @@ If you build your own version of the board you can 3D print this case (details [
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462144-54-thumb-Multi_case_9XR.jpg?d=1448575289)
 ![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8462145-106-thumb-Multi_case_v1.jpg?d=1448575293)
 
-If you have the ready to use board you can 3D print this case (details [here](http://www.rcgroups.com/forums/showpost.php?p=35349049&postcount=3)):
+If you have the Banggood ready to use board you can 3D print this case (details [here](http://www.rcgroups.com/forums/showpost.php?p=35349049&postcount=3)):
 
 <img src="http://static.rcgroups.net/forums/attachments/4/8/3/5/8/4/a9206211-97-Screen%20Shot%202016-07-27%20at%2011.02.35%20am.png" width="200">
 <img src="http://static.rcgroups.net/forums/attachments/4/8/3/5/8/4/a9206411-90-IMG_5793.jpeg" width="200">

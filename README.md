@@ -5,7 +5,7 @@ The source code is partly based on the Deviation TX project, thanks to all the d
 
 [Forum link on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) for additional information or requesting a new protocol integration.
 
-**To download the latest compiled version (hex file), click on  [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) on the top menu.**
+**To download the latest compiled version (hex file), click on  [Release](https://github.com/midelic/DIY-Multiprotocol-TX-Module/releases) on the top menu.**
 
 ##Contents
 
@@ -231,11 +231,7 @@ Note:
 You also need some [antennas](http://www.banggood.com/2_4GHz-3dBi-RP-SMA-Connector-Booster-Wireless-Antenna-Modem-Router-p-979407.html) and [cables](http://www.banggood.com/10cm-PCI-UFL-IPX-to-RPSMA-Female-Jack-Pigtail-Cable-p-924933.html).
 
 ###Board
-The main program is running on an STM32F103CB running @8MHz and 3.3V.
-
-####Using a [home made PCB](http://www.rcgroups.com/forums/showpost.php?p=32645328&postcount=1621):
-
-
+The main program is running on an STM32F103CB running @8MHz X-tal and 3.3V power supply.
 
 ####Build your own board using [SMD components]
 
@@ -245,9 +241,8 @@ The main program is running on an STM32F103CB running @8MHz and 3.3V.
 [OSH Park link]()if you want to order.
 
 ####Buy a ready to use and complete tuner to used with new STM32 multimodule board
-![Screenshot](http://img.banggood.com/thumb/view/oaupload/banggood/images/1D/EB/19bb6434-4616-411e-b8fa-a4c21d9dca24.jpg)
 
-This module can be purchased [here](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html?AID=12202217&PID=3836173&SID=ir5dm8sw730004o402ecu&source=affiliate&utm_source=Banggood_CJ&utm_medium=commission_junction&utm_campaign=OpenPilot&utm_content=sandy). All the 4 RF modules are already implemented A7105, NRF24L01, CC2500 and CYRF6936. The board is also equiped with an antenna switcher which means only one antenna for all.
+This module(4 in 1 tuner) can be purchased [here](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html?AID=12202217&PID=3836173&SID=ir5dm8sw730004o402ecu&source=affiliate&utm_source=Banggood_CJ&utm_medium=commission_junction&utm_campaign=OpenPilot&utm_content=sandy). All the 4 RF modules are already implemented A7105, NRF24L01, CC2500 and CYRF6936. The board is also equiped with an antenna switcher which means only one antenna for all.
 
 To update the firmware of this module you have to solder a 5 pin header (bottom ) and use an USB-serial like FTDI 
 

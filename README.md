@@ -231,7 +231,7 @@ Note:
 You also need some [antennas](http://www.banggood.com/2_4GHz-3dBi-RP-SMA-Connector-Booster-Wireless-Antenna-Modem-Router-p-979407.html) and [cables](http://www.banggood.com/10cm-PCI-UFL-IPX-to-RPSMA-Female-Jack-Pigtail-Cable-p-924933.html).
 
 ###Board
-The main program is running on an STM32F103CB running @8MHz X-tal and 3.3V power supply.
+The main program is running on an STM32F103CBT6 chip running @8MHz X-tal and 3.3V power supply.
 
 ####Build your own board using [SMD components]
 

@@ -49,7 +49,8 @@ enum PROTOCOLS
 	MODE_MJXQ=18,			// =>NRF24L01
 	MODE_SHENQI=19,			// =>NRF24L01
 	MODE_FY326=20,			// =>NRF24L01
-	MODE_SFHSS=21			// =>CC2500
+	MODE_SFHSS=21,			// =>CC2500
+	MODE_J6PRO=22			// =>CYRF6936
 };
 
 enum Flysky
@@ -510,6 +511,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					SHENQI		19
 					FY326		20
 					SFHSS		21
+					J6PRO		22
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

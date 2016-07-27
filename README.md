@@ -285,6 +285,8 @@ If you want to enable serial mode for er9x/ersky9x/Taranis/... and depending on 
 - Add 2 resistors as shown here: ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg)
 - Solder pads together as shown by the yellow marks: ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9204252-13-Taranis_serial.png)
 
+Note: if your module is sometime binding at power up even without pressing the bind button or not having an autobind protocol, then you can solve your issue by replacing the BIND led resistor (on the board back) of 1.2K by a 4.7K (probably a 2.2K would work but untested).
+
 ###Schematic
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)
 

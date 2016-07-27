@@ -5,8 +5,6 @@ The source code is partly based on the Deviation TX project, thanks to all the d
 
 [Forum link on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) for additional information or requesting a new protocol integration.
 
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
-
 **To download the latest compiled version (hex file), click on  [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) on the top menu.**
 
 ##Contents
@@ -230,67 +228,33 @@ Note:
 
 ##Hardware
 
-###RF modules
-Up to 4 RF modules can be installed:
-- [A7105](http://www.banggood.com/XL7105-D03-A7105-Modification-Module-Support-Deviation-Galee-Flysky-p-922603.html)    for Flysky, Hubsan
-- [CC2500](http://www.banggood.com/CC2500-PA-LNA-Romote-Wireless-Module-CC2500-SI4432-NRF24L01-p-922595.html)   for FrSky, FrSkyX and SFHSS
-- [CYRF6936](http://www.ehirobo.com/walkera-wk-devo-s-mod-devo-8-or-12-to-devo-8s-or-12s-upgrade-module.html) for DSM2, DSMX, DEVO, Walkera
-- [NRF24L01](http://www.banggood.com/2_4G-NRF24L01-PA-LNA-Wireless-Module-1632mm-Without-Antenna-p-922601.html) for Hisky, V2x2, CX-10, SYMAX and plenty other protocols
-
-RF modules can be installed for protocols need only. Example: if you only need the Hubsan protocol then install only a A7105 on your board.
-
 You also need some [antennas](http://www.banggood.com/2_4GHz-3dBi-RP-SMA-Connector-Booster-Wireless-Antenna-Modem-Router-p-979407.html) and [cables](http://www.banggood.com/10cm-PCI-UFL-IPX-to-RPSMA-Female-Jack-Pigtail-Cable-p-924933.html).
 
 ###Board
-The main program is running on an ATMEGA328p running @16MHz and 3.3V.
-An [Arduino pro mini 16Mhz/5V](http://www.banggood.com/Wholesale-New-Ver-Pro-Mini-ATMEGA328-328p-5V-16MHz-Arduino-Compatible-Nano-Size-p-68534.html) powered at 3.3V (yes it works) can be used to build your own Multimodule. An Arduino Mini based on Atmega328p can also be used.
-
-####Using stripboard:
-
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t8214655-87-thumb-uploadfromtaptalk1405598143749.jpg?d=1441459923)
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t8214656-102-thumb-uploadfromtaptalk1405598152484.jpg?d=1441459924)
+The main program is running on an STM32F103CB running @8MHz and 3.3V.
 
 ####Using a [home made PCB](http://www.rcgroups.com/forums/showpost.php?p=32645328&postcount=1621):
 
-![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226720-197-thumb-IMG_20150715_230603155.jpg?d=1441816457)
-![Screenshot](http://static.rcgroups.net/forums/attachments/1/1/5/4/3/7/t8226719-72-thumb-IMG_20150715_230024065.jpg?d=1441816456)
 
-####Build your own board using [SMD components](http://www.rcgroups.com/forums/showpost.php?p=31064232&postcount=1020) and an [associated PCB v2.3c](https://oshpark.com/shared_projects/MaGYDg0y):
 
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7566755-3-thumb-i.png?d=1423810885)
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952726-108-thumb-image-62c29cf2.jpg?d=1433909893)
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952733-114-thumb-P4100002.JPG?d=1433910155) ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/t7952734-189-thumb-P4100003.JPG?d=1433910159)
+####Build your own board using [SMD components]
 
-If you build this PCB v2.3c and want to enable serial mode for er9x/ersky9x, you have to do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8667856-242-multi.jpg).
+![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/2346c662115cfbdd6add1263a0f577d0.png)
+![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/d47a7bf6bf819ff175b89dac9711d158.png)
 
-**[New PCB v2.3d!](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/PCB%20v2.3d) available**
+[OSH Park link]()if you want to order.
 
-Repository includes Kicad files of schematic and pcb. This is a variant of the Multipro V2.3c circuit design.  It is basicly the same as the 2.3c board as far as component placement goes.  What's changed is the added resistors for the serial protocol and also
-the addition of solder jumpers on the bottom of the board for the various options to connect the TX, RX, and PPM
-lines through them.
-
-![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/b637193364a5e228dc8ab6ad90c0ca3c.png)
-![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/97b87a89b75785d70b354e5b033f5209.png)
-
-[OSH Park link](https://oshpark.com/shared_projects/Ztus1ah8) if you want to order.
-
-####Buy a ready to use and complete Multi module
+####Buy a ready to use and complete tuner to used with new STM32 multimodule board
 ![Screenshot](http://img.banggood.com/thumb/view/oaupload/banggood/images/1D/EB/19bb6434-4616-411e-b8fa-a4c21d9dca24.jpg)
 
-This module can be purchased [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html). All the 4 RF modules are already implemented A7105, NRF24L01, CC2500 and CYRF6936. The board is also equiped with an antenna switcher which means only one antenna for all.
+This module can be purchased [here](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html?AID=12202217&PID=3836173&SID=ir5dm8sw730004o402ecu&source=affiliate&utm_source=Banggood_CJ&utm_medium=commission_junction&utm_campaign=OpenPilot&utm_content=sandy). All the 4 RF modules are already implemented A7105, NRF24L01, CC2500 and CYRF6936. The board is also equiped with an antenna switcher which means only one antenna for all.
 
-To update the firmware of this module you have to solder a 6 pin header (top left) and use an USBASP like explained [below](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#upload-the-code-using-isp-in-system-programming). 
+To update the firmware of this module you have to solder a 5 pin header (bottom ) and use an USB-serial like FTDI 
 
-If you want to enable serial mode for er9x/ersky9x/Taranis/..., you have to do [this mod](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg).
-
-There are currently some hardware issues with the first version of this 4in1 module:
- - A7105 RF is forced to PA mode which prevents telemetry to work. Hubsan is the only protocol using telemetry for battery voltage display.
- - NRF24L01 is forced to PA mode which prevents telemetry to work. There are currently no protocols using telemetry based on this RF chip.
-
-Based on the [Deviation forum](http://www.deviationtx.com/forum/7-development/5434-3in1-4in1-rf-module?start=280#46751) these issues will be solved in the upcoming version.
+Serial is already enabled by defaultso no need any soldering.
 
 ###Schematic
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)
+![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9075092-113-multi_STM32.png)
 
 Notes:
 - Attention: All modules are 3.3V only, never power them with 5V.
@@ -307,43 +271,25 @@ You can 3D print your box (details [here](http://www.rcgroups.com/forums/showpos
 ###Toolchain
 Multiprotocol source can be compiled using the Arduino IDE.
 
-The currently supported Arduino version is [1.6.7](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.7-windows.exe).
+The currently supported Arduino version is [1.6.5](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.7-windows.exe).
 
 Download the [zip file](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/archive/master.zip) of this repository, unzip it in a folder, navigate to the Multiprotocol directory and then click on Multiprotocol.ino. The Arduino environment will appear and the Multiprotocol project will be loaded.
 
 [_Config.h file](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Multiprotocol/_Config.h) must be modified to select which protocols will be available, change protocols/sub_protocols/settings associated with dial for PPM input, different TX channel orders and timing, Telemetry or not, ... 
 
 Notes:
-- Make sure to select "Arduino Pro or Pro Mini, ATmega328 (5V,16MHz)" before compiling.
+- Make sure to select "Generic STM32F103C series)" before compiling.
 - Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
 
-###Upload the code using ISP (In System Programming)
-It is recommended to use an external programmer like [USBASP](http://www.banggood.com/USBASP-USBISP-3_3-5V-AVR-Downloader-Programmer-With-ATMEGA8-ATMEGA128-p-934425.html) to upload the code in the Atmega328. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.
-
 The dial must be set to 0 before flashing!
-
-From the Arduino environment, you can use this shortcut to compile and upload to the module: Skecth->Upload Using Programmer (Ctrl+Maj+U)
-
-To flash the latest provided hex file under [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases), you can use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/), set the microcontroller to m328p and flash it.
 
 ###Upload the code using FTDI (USB serial to TTL)
 Use this method only for Arduino Pro Mini boards with bootloader.
 
 Use an external FTDI adapter like [this one](http://www.banggood.com/FT232RL-FTDI-USB-To-TTL-Serial-Converter-Adapter-Module-For-Arduino-p-917226.html).
 
-The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.
-
 From the Arduino environment, you can use Upload button which will compile and upload to the module: Skecth->Upload (Ctrl+U)
-
-To upload the latest provided hex file under [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases), you can use a tool like [XLoader](http://russemotto.com/xloader/), set the microcontroller to Atmega328 and upload it.
-
-###Set fuses
-Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the fuses of the Atmega328 to:
-- Low Fuse	     0xFF
-- High Fuse	    0xD2
-- Extended Fuse	0x05 (or 0xFD which is the same)
-
-This will make sure your ATMEGA328 is well configured and the global TX ID is not erased at each updates.
+Before upload new firmware move the bridge on BOOT0 to oposite side.
 
 ##Troubleshooting
 

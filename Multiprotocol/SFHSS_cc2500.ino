@@ -135,12 +135,10 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 #define spacer1 0x02 //0b10
 #define spacer2 (spacer1 << 4)
     uint8_t ch_offset = state == SFHSS_DATA1 ? 0 : 4;
-	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
-
-    uint16_t ch1 = SFHSS_convert_channel(ch[ch_offset+0]);
-    uint16_t ch2 = SFHSS_convert_channel(ch[ch_offset+1]);
-    uint16_t ch3 = SFHSS_convert_channel(ch[ch_offset+2]);
-    uint16_t ch4 = SFHSS_convert_channel(ch[ch_offset+3]);
+    uint16_t ch1 = SFHSS_convert_channel(CH_AETR[ch_offset+0]);
+    uint16_t ch2 = SFHSS_convert_channel(CH_AETR[ch_offset+1]);
+    uint16_t ch3 = SFHSS_convert_channel(CH_AETR[ch_offset+2]);
+    uint16_t ch4 = SFHSS_convert_channel(CH_AETR[ch_offset+3]);
     
     packet[0]  = 0x81; // can be 80, 81, 81 for Orange, only 81 for XK
     packet[1]  = rx_tx_addr[0];

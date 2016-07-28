@@ -142,11 +142,10 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
     packet[2] = rx_tx_addr[2];
     packet[3] = rx_tx_addr[1];
     packet[4] = rx_tx_addr[0];
-	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
 	for(i = 0; i < 8; i++)
 	{
-		packet[5 + i*2]=Servo_data[ch[i]]&0xFF;		//low byte of servo timing(1000-2000us)
-		packet[6 + i*2]=(Servo_data[ch[i]]>>8)&0xFF;	//high byte of servo timing(1000-2000us)
+		packet[5 + i*2]=Servo_data[CH_AETR[i]]&0xFF;		//low byte of servo timing(1000-2000us)
+		packet[6 + i*2]=(Servo_data[CH_AETR[i]]>>8)&0xFF;	//high byte of servo timing(1000-2000us)
 	}
     flysky_apply_extension_flags();
 }

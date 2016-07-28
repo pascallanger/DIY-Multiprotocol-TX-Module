@@ -111,9 +111,8 @@ static void __attribute__((unused)) SLT_build_packet()
 {
 	// aileron, elevator, throttle, rudder, gear, pitch
 	uint8_t e = 0; // byte where extension 2 bits for every 10-bit channel are packed
-	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER};
 	for (uint8_t i = 0; i < 4; ++i) {
-		uint16_t v = convert_channel_10b(ch[i]);
+		uint16_t v = convert_channel_10b(CH_AETR[i]);
 		packet[i] = v;
 		e = (e >> 2) | (uint8_t) ((v >> 2) & 0xC0);
 	}

@@ -78,11 +78,10 @@ static void __attribute__((unused)) j6pro_build_data_packet()
     uint8_t i;
     uint32_t upperbits = 0;
 	uint16_t value;
-	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
     packet[0] = 0xaa; //FIXME what is this?
     for (i = 0; i < 12; i++)
 	{
-        value = convert_channel_10b(ch[i]);
+        value = convert_channel_10b(CH_AETR[i]);
         packet[i+1] = value & 0xff;
         upperbits |= (value >> 8) << (i * 2);
     }

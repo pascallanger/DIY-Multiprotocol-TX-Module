@@ -276,7 +276,7 @@ Then run the IDE, and on the Tools menu, select the Boards manager, and install 
 
 Download the [zip file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/archive/master.zip) of this repository, unzip it in a folder, navigate to the Multiprotocol directory and then click on Multiprotocol.ino. The Arduino environment will appear and the Multiprotocol project will be loaded.
 
-[_Config.h file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/master/Multiprotocol/_Config.h) must be modified to select which protocols will be available, change protocols/sub_protocols/settings associated with dial for PPM input, different TX channel orders and timing, Telemetry or not, ... 
+[_Config.h file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/Multiprotocol/_Config.h) must be modified to select which protocols will be available, change protocols/sub_protocols/settings associated with dial for PPM input, different TX channel orders and timing, Telemetry or not, ... 
 
 Notes:
 - Make sure to select in arduino IDE the "Generic STM32F103C series" before compiling.

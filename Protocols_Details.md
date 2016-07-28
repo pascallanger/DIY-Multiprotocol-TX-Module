@@ -117,7 +117,7 @@ option=number of channels and frame rate:
  - 11 : 11 channels @22ms
  - 12 : 12 channels @22ms
 
-6 is usually giving the best results with most of the RX.
+Value 6 is usually giving the best results with most of the RX.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
@@ -125,6 +125,12 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ###Sub_protocol DSMX
 Same as above
+
+##J6Pro
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ***
 #NRF24L01 RF Module

@@ -24,7 +24,7 @@
 #define STUFF_MASK              0x20
 #define MAX_PKTX 10
 uint8_t pktx[MAX_PKTX];
-uint8_t index;
+uint8_t idxt;
 uint8_t pass = 0;
 uint8_t frame[18];
 
@@ -64,7 +64,7 @@ void compute_RSSIdbm()
 
 void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 {
-	if(pkt[1] == rx_tx_addr[3] || pkt[2] == rx_tx_addr[2] || len ==(pkt[0] + 3))
+	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len ==(pkt[0] + 3))
 	{	   
 		for (uint8_t i=3;i<len;i++)
 			pktt[i]=pkt[i];				 
@@ -146,28 +146,28 @@ void frsky_user_frame()
 				pass=1;
 				
 			case 1:
-				index=indexx;
+				idxt=indexx;
 				prev_index = indexx; 
-				if(index<USER_MAX_BYTES)
+				if(idxt<USER_MAX_BYTES)
 				{   			
-					for(i=0;i<index;i++)
+					for(i=0;i<idxt;i++)
 						frame[i+3]=pktx[i];
 					pktt[6]=0;
 					pass=0;
 				}
 				else
 				{
-					index = USER_MAX_BYTES;
-					for(i=0;i<index;i++)
+					idxt = USER_MAX_BYTES;
+					for(i=0;i<idxt;i++)
 						frame[i+3]=pktx[i];
 					pass=2;
 				}			
 				break;
 			case 2:		
-				index = prev_index - index;
+				idxt = prev_index - idxt;
 				prev_index=0;
 				if(index<(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
-					for(i=0;i<index;i++)
+					for(i=0;i<idxt;i++)
 						frame[i+3]=pktx[USER_MAX_BYTES+i];
 				pass=0;
 				pktt[6]=0; 
@@ -175,9 +175,9 @@ void frsky_user_frame()
 			default:
 				break;
 		}
-		if(!index)
+		if(!idxt)
 			return;
-		frame[1] = index;
+		frame[1] = idxt;
 		frskySendStuffed();
 	}
 	else
@@ -285,7 +285,7 @@ void sportSendFrame()
 	uint8_t i;
 	sport_counter = (sport_counter + 1) %36;
 	
-	if(sport_counter<3)
+	if(sport_counter<2)
 	{
 		frame[0] = 0x98;
 		frame[1] = 0x10;
@@ -294,19 +294,12 @@ void sportSendFrame()
 	}
 	switch (sport_counter)
 	{
-		case 0:
-			frame[2] = 0x05;
-			frame[3] = 0xf1;
-			frame[4] = 0x20;//dummy values if swr 20230f00
-			frame[5] = 0x23;
-			frame[6] = 0x0F;
-			break;
-		case 1: // RSSI
+		case 0: // RSSI
 			frame[2] = 0x01;
 			frame[3] = 0xf1;
 			frame[4] = rssi;
 			break;
-		case 2: //BATT
+		case 1: //BATT
 			frame[2] = 0x04;
 			frame[3] = 0xf1;
 			frame[4] = RxBt;//a1;
@@ -335,7 +328,7 @@ void proces_sport_data(uint8_t data)
 		case 0:
 			if (data == START_STOP)
 			{//waiting for 0x7e
-				index = 0;
+				idxt = 0;
 				pass = 1;
 			}
 			break;		
@@ -343,16 +336,16 @@ void proces_sport_data(uint8_t data)
 			if(data == BYTESTUFF)//if they are stuffed
 				pass=2;
 			else
-				if (index < MAX_PKTX)		
-					pktx[index++] = data;		
+				if (idxt < MAX_PKTX)		
+					pktx[idxt++] = data;		
 			break;
 		case 2:	
-			if (index < MAX_PKTX)	
-				pktx[index++] = data ^ STUFF_MASK;	//unstuff bytes	
+			if (idxt < MAX_PKTX)	
+				pktx[idxt++] = data ^ STUFF_MASK;	//unstuff bytes	
 			pass=1;
 			break;	
 	} // end switch
-	if (index >= FRSKY_SPORT_PACKET_SIZE)
+	if (idxt >= FRSKY_SPORT_PACKET_SIZE)
 	{//8 bytes no crc 
 		sport = 1;//ok to send
 		pass = 0;//reset

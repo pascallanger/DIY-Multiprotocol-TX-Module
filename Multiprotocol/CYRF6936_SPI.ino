@@ -20,57 +20,12 @@
 #define XNOP()
 #endif
 
-static void cyrf_spi_write(uint8_t command)
-{
-	uint8_t n=8; 
-	SCK_off;//SCK start low
-	XNOP() ;
-	SDI_off;
-	XNOP() ;
-	while(n--) {
-		if(command&0x80)
-			SDI_on;
-		else 
-			SDI_off;
-		XNOP() ;
-		SCK_on;
-		NOP();
-		XNOP() ;
-		XNOP() ;
-		SCK_off;
-		command = command << 1;
-		XNOP() ;
-	}
-	SDI_on;
-} 
-
-static uint8_t cyrf_spi_read()
-{
-	uint8_t result;
-	uint8_t i;
-	result=0;
-	for(i=0;i<8;i++)
-	{                    
-		result<<=1;
-		if(SDO_1)  ///
-			result|=0x01;
-		SCK_on;
-		XNOP() ;
-		XNOP() ;
-		NOP();
-		SCK_off;
-		XNOP() ;
-		XNOP() ;
-		NOP();
-	}
-	return result;
-} 
-
+ 
 void CYRF_WriteRegister(uint8_t address, uint8_t data)
 {
 	CYRF_CSN_off;
-	cyrf_spi_write(0x80 | address);
-	cyrf_spi_write(data);
+	spi_write(0x80 | address);
+	spi_write(data);
 	CYRF_CSN_on;
 }
 
@@ -79,9 +34,9 @@ static void CYRF_WriteRegisterMulti(uint8_t address, const uint8_t data[], uint8
 	uint8_t i;
 
 	CYRF_CSN_off;
-	cyrf_spi_write(0x80 | address);
+	spi_write(0x80 | address);
 	for(i = 0; i < length; i++)
-		cyrf_spi_write(data[i]);
+		spi_write(data[i]);
 	CYRF_CSN_on;
 }
 
@@ -90,9 +45,9 @@ static void CYRF_ReadRegisterMulti(uint8_t address, uint8_t data[], uint8_t leng
 	uint8_t i;
 
 	CYRF_CSN_off;
-	cyrf_spi_write(address);
+	spi_write(address);
 	for(i = 0; i < length; i++)
-		data[i] = cyrf_spi_read();
+		data[i] = spi_read();
 	CYRF_CSN_on;
 }
 
@@ -100,8 +55,8 @@ uint8_t CYRF_ReadRegister(uint8_t address)
 {
 	uint8_t data;
 	CYRF_CSN_off;
-	cyrf_spi_write(address);
-	data = cyrf_spi_read();
+	spi_write(address);
+	data = spi_read();
 	CYRF_CSN_on;
 	return data;
 }
@@ -211,10 +166,10 @@ void CYRF_ConfigDataCode(const uint8_t *datacodes, uint8_t len)
 void CYRF_WritePreamble(uint32_t preamble)
 {
 	CYRF_CSN_off;
-	cyrf_spi_write(0x80 | 0x24);
-	cyrf_spi_write(preamble & 0xff);
-	cyrf_spi_write((preamble >> 8) & 0xff);
-	cyrf_spi_write((preamble >> 16) & 0xff);
+	spi_write(0x80 | 0x24);
+	spi_write(preamble & 0xff);
+	spi_write((preamble >> 8) & 0xff);
+	spi_write((preamble >> 16) & 0xff);
 	CYRF_CSN_on;
 }
 /*

@@ -19,46 +19,6 @@
 //---------------------------
 #include "iface_nrf24l01.h"
 
-static void nrf_spi_write(uint8_t command)
-{
-	uint8_t n=8; 
-
-	SCK_off;//SCK start low
-	SDI_off;
-	while(n--) {
-		if(command&0x80)
-			SDI_on;
-		else 
-			SDI_off;
-		SCK_on;
-		NOP();
-		SCK_off;
-		command = command << 1;
-	}
-	SDI_on;
-}  
-
-//VARIANT 2
-static uint8_t nrf_spi_read(void)
-{
-	uint8_t result;
-	uint8_t i;
-	result=0;
-	for(i=0;i<8;i++) {                    
-		result<<=1;
-		if(SDO_1)  ///
-			result|=0x01;
-		SCK_on;
-		NOP();
-		SCK_off;
-		NOP();
-	}
-	return result;
-}   
-//--------------------------------------------
-
-
-
 //---------------------------
 // NRF24L01+ SPI Specific Functions
 //---------------------------
@@ -73,8 +33,8 @@ void NRF24L01_Initialize()
 void NRF24L01_WriteReg(uint8_t reg, uint8_t data)
 {
 	NRF_CSN_off;
-	nrf_spi_write(W_REGISTER | (REGISTER_MASK & reg));
-	nrf_spi_write(data);
+	spi_write(W_REGISTER | (REGISTER_MASK & reg));
+	spi_write(data);
 	NRF_CSN_on;
 }
 
@@ -82,26 +42,26 @@ void NRF24L01_WriteRegisterMulti(uint8_t reg, uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
 
-	nrf_spi_write(W_REGISTER | ( REGISTER_MASK & reg));
+	spi_write(W_REGISTER | ( REGISTER_MASK & reg));
 	for (uint8_t i = 0; i < length; i++)
-		nrf_spi_write(data[i]);
+		spi_write(data[i]);
 	NRF_CSN_on;
 }
 
 void NRF24L01_WritePayload(uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
-	nrf_spi_write(W_TX_PAYLOAD);
+	spi_write(W_TX_PAYLOAD);
 	for (uint8_t i = 0; i < length; i++)
-		nrf_spi_write(data[i]);
+		spi_write(data[i]);
 	NRF_CSN_on;
 }
 
 uint8_t NRF24L01_ReadReg(uint8_t reg)
 {
 	NRF_CSN_off;
-	nrf_spi_write(R_REGISTER | (REGISTER_MASK & reg));
-	uint8_t data = nrf_spi_read();
+	spi_write(R_REGISTER | (REGISTER_MASK & reg));
+	uint8_t data = spi_read();
 	NRF_CSN_on;
 	return data;
 }
@@ -118,16 +78,16 @@ uint8_t NRF24L01_ReadReg(uint8_t reg)
 static void NRF24L01_ReadPayload(uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
-	nrf_spi_write(R_RX_PAYLOAD);
+	spi_write(R_RX_PAYLOAD);
 	for(uint8_t i = 0; i < length; i++)
-		data[i] = nrf_spi_read();
+		data[i] = spi_read();
 	NRF_CSN_on; 
 }
 
 static void  NRF24L01_Strobe(uint8_t state)
 {
 	NRF_CSN_off;
-	nrf_spi_write(state);
+	spi_write(state);
 	NRF_CSN_on;
 }
 
@@ -144,8 +104,8 @@ void NRF24L01_FlushRx()
 void NRF24L01_Activate(uint8_t code)
 {
 	NRF_CSN_off;
-	nrf_spi_write(ACTIVATE);
-	nrf_spi_write(code);
+	spi_write(ACTIVATE);
+	spi_write(code);
 	NRF_CSN_on;
 }
 

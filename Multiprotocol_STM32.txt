@@ -1,0 +1,35 @@
+Parts list Multi-STM32
+
+Part          Value               Device              Package              Description                                       
+3.3VJUMPER                        JUMPER-2PTH         1X02                 Jumper                                                                                            
+C1            0.1uf               C-EUC0805           C0805                CAPACITOR, European symbol                                                                        
+C2            0.1uF               C-EUC0805           C0805                CAPACITOR, European symbol                                                                        
+C3            22uF                C-USC1206           C1206                CAPACITOR, American symbol                                                                        
+C8            22uF                C-USC1206           C1206                CAPACITOR, American symbol                                                                        
+C9            22uF                C-USC1206           C1206                CAPACITOR, American symbol                                                                        
+D1            1N5819              DIODESMA-ALT        SMA-DIODE_ALT        Diode Shottky                                                                                             
+IC1           AMS1117-33          V_REG_LM1117SOT223  SOT223               Voltage Regulator LM1117 3,3V                                                                         
+IC2           AMS1117-50          V_REG_LM1117SOT223  SOT223               Voltage Regulator LM1117 5.0V                                                                        
+J2            4455-B05_S          4455-B05_S          4455-B05             5-pin RECEPTACAL                                                                                        
+JP1                               PINHD-1X3           1X03                 PIN HEADER                                                                                        
+JP2           SERIAL              M04PTH              1X04                 Header 4                                                                                          
+L1            10uH                L-EUL1812           L1812                INDUCTOR, European symbol                                                                         
+LED                               LED3MM              LED3MM               LED red color                                                                                               
+PAD1                              SMD2                SMD1,27-2,54         SMD PAD                                                                                           
+PAD2                              1,6/0,8             1,6/0,8              THROUGH-HOLE PAD                                                                                  
+R1            2.2k                R-EU_R0805          R0805                RESISTOR, European symbol                                                                         
+R2            10k                 R-EU_R0805          R0805                RESISTOR, European symbol                                                                         
+R3            4.7k                R-EU_R0805          R0805                RESISTOR, European symbol                                                                         
+R4            1k                  R-EU_R0805          R0805                RESISTOR, European symbol                                                                         
+R5            10k                 R-EU_R0805          R0805                RESISTOR, European symbol                                                                         
+R7            470                 R-EU_R0805          R0805                RESISTOR, European symbol                                                                         
+R8            2.2k                R-EU_R0805          R0805                RESISTOR, European symbol                                                                         
+R10           10k                 R-EU_R0805          R0805                RESISTOR, European symbol                                                                         
+S1                                TAC_SWITCHPTH       TACTILE-PTH          Momentary Switch                                                                                  
+S3                                A1353HEX            A1353HEX             DIL/CODE rotary dip SWITCH                                      
+SJ1                               SJ                  SJ                   SMD solder JUMPER                                                                                 
+STM32F103CBT6 STM32-M-48          STM32-M-48          LQFP48               STM32F103 Medium Density 48pins                                                                   
+U$1           MULTIRF4IN1THT-LONG MULTIRF4IN1THT-LONG MULTIRF4IN1-THT-LONG 4 IN 1 tuner at BG                                                                                                  
+U$2           U.FL                U.FL                U.FL                 SMD antenna connector- WRL-09144                                                                  
+U1            SN74LVC2G86DCTR     SN74LVC2G86DCTR     SOP65P400X130-8N     DUAL 2-INPUT-XOR GATE   SSOP-8  Texas Instruments(must be DCTR form factor) you can find on ebay
+Y2            RESONATORSMD-8Mhz   RESONATORSMD        RESONATOR-SMD        Resonator ceramic SMD 8Mhz Murata -on ebay                                                                                      

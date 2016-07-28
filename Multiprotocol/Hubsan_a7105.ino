@@ -345,7 +345,11 @@ uint16_t initHubsan() {
 	const uint8_t allowed_ch[] = {0x14, 0x1e, 0x28, 0x32, 0x3c, 0x46, 0x50, 0x5a, 0x64, 0x6e, 0x78, 0x82};
 	A7105_Init(INIT_HUBSAN);	//hubsan_init();
 
+	#if defined STM32_board
+	randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));	
+	#else
 	randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
+	#endif	
 	sessionid = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
 	channel = allowed_ch[random(0xfefefefe) % sizeof(allowed_ch)];
 

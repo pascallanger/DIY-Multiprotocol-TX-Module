@@ -269,17 +269,18 @@ You can 3D print your box (details [here](http://www.rcgroups.com/forums/showpos
 ###Toolchain
 Multiprotocol source can be compiled using the Arduino IDE.
 
-The currently supported Arduino version is [1.6.5](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.7-windows.exe).
+The currently supported Arduino version is [1.6.7](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.7-windows.exe).
+You need to download and install aditionally [STM32 core](https://github.com/rogerclarkmelbourne/Arduino_STM32/archive/master.zip) ,Arduino_STM32 folder in ...../Arduino/hardware/ folder (note. if the hardware folder doesn't exist you will need to create it).
 
-Download the [zip file](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/archive/master.zip) of this repository, unzip it in a folder, navigate to the Multiprotocol directory and then click on Multiprotocol.ino. The Arduino environment will appear and the Multiprotocol project will be loaded.
+Then run the IDE, and on the Tools menu, select the Boards manager, and install the Arduino Zero from the list of available boards. You must do this step, it installs the arm-none-eabi-g++ toolchain!
 
-[_Config.h file](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Multiprotocol/_Config.h) must be modified to select which protocols will be available, change protocols/sub_protocols/settings associated with dial for PPM input, different TX channel orders and timing, Telemetry or not, ... 
+Download the [zip file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/archive/master.zip) of this repository, unzip it in a folder, navigate to the Multiprotocol directory and then click on Multiprotocol.ino. The Arduino environment will appear and the Multiprotocol project will be loaded.
+
+[_Config.h file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/master/Multiprotocol/_Config.h) must be modified to select which protocols will be available, change protocols/sub_protocols/settings associated with dial for PPM input, different TX channel orders and timing, Telemetry or not, ... 
 
 Notes:
-- Make sure to select "Generic STM32F103C series)" before compiling.
+- Make sure to select in arduino IDE the "Generic STM32F103C series" before compiling.
 - Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
-
-The dial must be set to 0 before flashing!
 
 ###Upload the code using FTDI (USB serial to TTL)
 Use this method only for Arduino Pro Mini boards with bootloader.
@@ -300,10 +301,12 @@ Before upload new firmware move the bridge on BOOT0 to oposite side.
 
 ###Protocol selection
 ####Input Mode - PPM
+
 - The protocol/mode selection must be done before the power is applied.
 - Connect 1 to 4 of the selection protocol pins to GND.
 
 ####Input Mode - Serial
+Put dial switch on "zero" activates serial mode on multi.If you want to use permanetly serial  mode there is n need of the dial switch installation.
 
 ###Bind
 Make sure to follow this procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fast indicating a bind status and then fixed on when the bind period is over. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.

@@ -60,8 +60,6 @@ const uint8_t j6pro_sopcodes[][8] = {
 const uint8_t bind_sop_code[] = {0x62, 0xdf, 0xc1, 0x49, 0xdf, 0xb1, 0xc0, 0x49};
 const uint8_t data_code[] = {0x02, 0xf9, 0x93, 0x97, 0x02, 0xfa, 0x5c, 0xe3, 0x01, 0x2b, 0xf1, 0xdb, 0x01, 0x32, 0xbe, 0x6f};
 
-static uint8_t radio_ch[4];
-
 static void __attribute__((unused)) j6pro_build_bind_packet()
 {
     packet[0] = 0x01;  //Packet type
@@ -77,20 +75,14 @@ static void __attribute__((unused)) j6pro_build_bind_packet()
 
 static void __attribute__((unused)) j6pro_build_data_packet()
 {
-    uint8_t num_channels = 8;
     uint8_t i;
     uint32_t upperbits = 0;
+	uint16_t value;
+	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
     packet[0] = 0xaa; //FIXME what is this?
-    for (i = 0; i < 12; i++) {
-        if (i >= num_channels) {
-            packet[i+1] = 0xff;
-            continue;
-        }
-        int16_t value = map(Servo_data[i],PPM_MIN_100,PPM_MAX_100,0,1024);
-        if (value < 0)
-            value = 0;
-        if (value > 0x3ff)
-            value = 0x3ff;
+    for (i = 0; i < 12; i++)
+	{
+        value = convert_channel_10b(ch[i]);
         packet[i+1] = value & 0xff;
         upperbits |= (value >> 8) << (i * 2);
     }
@@ -127,7 +119,7 @@ static void __attribute__((unused)) cyrf_bindinit()
 {
 /* Use when binding */
        //0.060470# 03 2f
-       CYRF_WriteRegister(CYRF_03_TX_CFG, 0x28 | 0x07); //Use max power for binding in case there is no telem module
+       CYRF_SetPower(0x28); //Deviation using max power, replaced by bind power...
 
        CYRF_ConfigRFChannel(0x52);
        CYRF_ConfigSOPCode(bind_sop_code);
@@ -161,15 +153,16 @@ static void __attribute__((unused)) j6pro_set_radio_channels()
 {
     //FIXME: Query free channels
     //lowest channel is 0x08, upper channel is 0x4d?
-    CYRF_FindBestChannels(radio_ch, 3, 5, 8, 77);
-    radio_ch[3] = radio_ch[0];
+    CYRF_FindBestChannels(hopping_frequency, 3, 5, 8, 77);
+    hopping_frequency[3] = hopping_frequency[0];
 }
 
 uint16_t ReadJ6Pro()
 {
 	uint32_t start;
 
-    switch(phase) {
+    switch(phase)
+	{
         case J6PRO_BIND:
             cyrf_bindinit();
             phase = J6PRO_BIND_01;
@@ -184,12 +177,10 @@ uint16_t ReadJ6Pro()
             phase = J6PRO_BIND_03_START;
             return 3000; //3msec
         case J6PRO_BIND_03_START:
-            {
-                start=micros();
-                while (micros()-start < 500)				// Wait max 500µs
-                    if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x06)
-                        break;
-            }
+            start=micros();
+            while (micros()-start < 500)				// Wait max 500µs
+                if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x06)
+                    break;
             CYRF_ConfigRFChannel(0x53);
             CYRF_SetTxRxMode(RX_EN);
             CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4a);
@@ -252,7 +243,7 @@ uint16_t ReadJ6Pro()
         case J6PRO_CHAN_3:
             //return 3750
         case J6PRO_CHAN_4:
-            CYRF_ConfigRFChannel(radio_ch[phase - J6PRO_CHAN_1]);
+            CYRF_ConfigRFChannel(hopping_frequency[phase - J6PRO_CHAN_1]);
             CYRF_SetTxRxMode(TX_EN);
             CYRF_WriteDataPacket(packet);
             if (phase == J6PRO_CHAN_4) {

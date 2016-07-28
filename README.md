@@ -248,7 +248,10 @@ To update the firmware of this module you have to solder a 5 pin header(bottom )
 
 Serial mode  is already enabled by default so no need any resistor soldering.
 
-###Schematic
+###Schematic and Parts list
+
+The Part list is [here](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/Multiprotocol_STM32.txt).
+
 ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9208047-205-multi-STM32.png)
 
 Notes:

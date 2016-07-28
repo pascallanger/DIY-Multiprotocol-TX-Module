@@ -75,6 +75,16 @@
 	#endif
 #endif 
 
+struct PPM_Parameters
+{
+	uint8_t protocol : 5;
+	uint8_t sub_proto : 3;
+	uint8_t rx_num : 4;
+	uint8_t power : 1;
+	uint8_t autobind : 1;
+	uint8_t option;
+};
+
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
 const PPM_Parameters PPM_prot[15]=	{
 //	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option

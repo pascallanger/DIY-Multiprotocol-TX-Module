@@ -173,6 +173,7 @@ DSM2|
  |DSM2
  |DSMX
 Devo|
+J6Pro|
 
 #####NRF24L01 RF module
 Protocol|Sub_protocol

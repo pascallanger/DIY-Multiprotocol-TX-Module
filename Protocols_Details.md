@@ -295,6 +295,8 @@ Models: Eachine H7, Cheerson CX023
 ###Sub_protocol YZ
 Model: Yi Zhan i6S
 Only one model can be flown at the same time since the ID is hardcoded.
+###Sub_protocol LS
+Models: LS114, 124
 
 ##Shenqi
 Autobind protocol

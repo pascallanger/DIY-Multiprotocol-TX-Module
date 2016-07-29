@@ -215,6 +215,7 @@ MT99XX|
  |MT
  |H7
  |YZ
+ |LS
 MJXQ|
  |WLH08
  |X600

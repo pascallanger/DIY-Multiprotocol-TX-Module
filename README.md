@@ -283,9 +283,9 @@ Notes:
 - Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
 
 ###Upload the code using FTDI (USB serial to TTL)
-Use this method only for Arduino Pro Mini boards with bootloader.
 
 Use an external FTDI adapter like [this one](http://www.banggood.com/FT232RL-FTDI-USB-To-TTL-Serial-Converter-Adapter-Module-For-Arduino-p-917226.html).
+or other USB serial-TTL dongle.
 
 From the Arduino environment, you can use Upload button which will compile and upload to the module: Skecth->Upload (Ctrl+U)
 Before upload new firmware move the bridge on BOOT0 to oposite side.

@@ -280,6 +280,7 @@ Download the [zip file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/a
 
 Notes:
 - Make sure to select in arduino IDE the "Generic STM32F103C series" before compiling.
+- Before uploading select from Tools,Upload Method:"Serial".
 - Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
 
 ###Upload the code using FTDI (USB serial to TTL)

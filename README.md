@@ -274,16 +274,14 @@ You need to download and install aditionally [STM32 core](https://github.com/rog
 
 Then run the IDE, and on the Tools menu, select the Boards manager, and install the Arduino Zero from the list of available boards. You must do this step, it installs the arm-none-eabi-g++ toolchain!
 
-Download the [zip file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/archive/master.zip) of this repository, unzip it in a folder, navigate to the Multiprotocol directory and then click on Multiprotocol.ino. The Arduino environment will appear and the Multiprotocol project will be loaded.
-
-[_Config.h file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/Multiprotocol/_Config.h) must be modified to select which protocols will be available, change protocols/sub_protocols/settings associated with dial for PPM input, different TX channel orders and timing, Telemetry or not, ... 
+Download the [zip file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/archive/master.zip) of this repository, unzip it in a folder, navigate to the Multiprotocol directory and then click on Multiprotocol.ino. The Arduino environment will appear and the Multiprotocol project will be loaded.Then you can use "Upload" button which will compile and upload to the module: Skecth->Upload (Ctrl+U).
 
 Warning:
 The dial must be set to 0 before flashing!
 
 Notes:
 - Make sure to select in arduino IDE the "Generic STM32F103C series" before compiling.
-- Before uploading select from Tools,Upload Method:"Serial".
+- Before uploading select from Tools, Upload Method: "Serial".
 - Compilation of the code posted here works. So if it doesn't for you this is a problem with your setup, please double check everything before asking.
 
 ###Upload the code using FTDI (USB serial to TTL)
@@ -291,7 +289,7 @@ Notes:
 Use an external FTDI adapter like [this one](http://www.banggood.com/FT232RL-FTDI-USB-To-TTL-Serial-Converter-Adapter-Module-For-Arduino-p-917226.html).
 or other USB serial-TTL dongle.
 
-From the Arduino environment, you can use Upload button which will compile and upload to the module: Skecth->Upload (Ctrl+U)
+If using 3.3V USB-TTL device it is required to bridge 3.3V jumper on top of the board.
 Before upload new firmware move the bridge on BOOT0 to oposite side.
 
 ##Troubleshooting

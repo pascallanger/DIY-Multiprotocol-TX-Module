@@ -291,9 +291,11 @@ or other USB serial-TTL dongle.
 
 Important:
 
-If using 3.3V USB-TTL device it is required to use a jumer on "3.3V jumper" on top of the board.
-Before upload new firmware use a jumper on BOOT0.
-After flashing new firmware it is required to remove both jumpers on 3.3 jumper and BOOT0.
+If using 3.3V USB-TTL device it is required to use a jumper on "3.3V jumper" on top of the board.
+
+Before uploading new firmware use a jumper on BOOT0.
+
+After flashing new firmware it is required to remove both jumpers on 3.3V jumper and BOOT0.
 
 ##Troubleshooting
 

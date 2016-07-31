@@ -156,8 +156,8 @@ enum FRSKYX
 #define SDO_pin PB14//MISO	
 #define SDI_pin PB15//MOSI							
 //
-#defined TX_INV_pin PB3
-#defined RX_INV_pin PB1
+#define TX_INV_pin PB3
+#define RX_INV_pin PB1
 //
 #define CTRL1_on  digitalWrite(CTRL1,HIGH)
 #define CTRL1_off digitalWrite(CTRL1,LOW)

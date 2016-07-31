@@ -340,7 +340,11 @@ uint16_t initFrSkyX()
 {
 	while(!chanskip)
 	{
-		randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
+		#if defined STM32_board
+	randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));	
+		#else
+	randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));			
+	#endif
 		chanskip=random(0xfefefefe)%47;
 	}
 	while((chanskip-ctr)%4)

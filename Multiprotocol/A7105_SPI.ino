@@ -37,7 +37,7 @@ void A7105_ReadData() {
 	uint8_t i;
 	A7105_Strobe(0xF0); //A7105_RST_RDPTR
 	CS_off;
-	A7105_Write(0x45);
+	spi_write(0x45);
 	for (i=0;i<16;i++)
 		packet[i]=spi_Read();
 	CS_on;
@@ -175,8 +175,8 @@ void A7105_Init(uint8_t protocol)
 		A7105_Regs=(void *)HUBSAN_A7105_regs;
 	}
 	for (uint8_t i = 0; i < 0x33; i++){
-		if( pgm_read_byte_near((uint16_t)(A7105_Regs)+i) != 0xFF)
-			A7105_WriteReg(i, pgm_read_byte_near((uint16_t)(A7105_Regs)+i));
+		if( pgm_read_byte_near((A7105_Regs)+i) != 0xFF)
+			A7105_WriteReg(i, pgm_read_byte_near((A7105_Regs)+i));
 	}
 	A7105_Strobe(A7105_STANDBY);
 

@@ -278,6 +278,9 @@ Download the [zip file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/a
 
 [_Config.h file](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/Multiprotocol/_Config.h) must be modified to select which protocols will be available, change protocols/sub_protocols/settings associated with dial for PPM input, different TX channel orders and timing, Telemetry or not, ... 
 
+Warning:
+The dial must be set to 0 before flashing!
+
 Notes:
 - Make sure to select in arduino IDE the "Generic STM32F103C series" before compiling.
 - Before uploading select from Tools,Upload Method:"Serial".

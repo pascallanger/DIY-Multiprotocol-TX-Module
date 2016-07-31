@@ -164,7 +164,7 @@ void setup()
 			pinMode(CTRL2,OUTPUT);
 			#if defined TELEMETRY
 			pinMode(TX_INV_pin,OUTPUT);
-			pinMode(RX_INV_PIN,OUTPUT);
+			pinMode(RX_INV_pin,OUTPUT);
                         #if defined TARANIS
                         TX_INV_on;
                         RX_INV_on;

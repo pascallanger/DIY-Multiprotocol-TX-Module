@@ -4,9 +4,9 @@ Part          Value               Device              Package              Descr
 3.3VJUMPER                        JUMPER-2PTH         1X02                 Jumper                                                                                            
 C1            0.1uf               C-EUC0805           C0805                CAPACITOR, European symbol                                                                        
 C2            0.1uF               C-EUC0805           C0805                CAPACITOR, European symbol                                                                        
-C3            22uF                C-USC1206           C1206                CAPACITOR, American symbol                                                                        
-C8            22uF                C-USC1206           C1206                CAPACITOR, American symbol                                                                        
-C9            22uF                C-USC1206           C1206                CAPACITOR, American symbol                                                                        
+C3            22uF/16V            C-USC1206           C1206                CAPACITOR, American symbol tantal +226 C or D                                                                      
+C8            22uF/16V            C-USC1206           C1206                CAPACITOR, American symbol tantal +226 C or D                                                                       
+C9            22uF/16V            C-USC1206           C1206                CAPACITOR, American symbol tantal  +226 C or D                                                                      
 D1            1N5819              DIODESMA-ALT        SMA-DIODE_ALT        Diode Shottky                                                                                             
 IC1           AMS1117-33          V_REG_LM1117SOT223  SOT223               Voltage Regulator LM1117 3,3V                                                                         
 IC2           AMS1117-50          V_REG_LM1117SOT223  SOT223               Voltage Regulator LM1117 5.0V                                                                        

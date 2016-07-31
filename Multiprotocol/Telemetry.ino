@@ -166,7 +166,7 @@ void frsky_user_frame()
 			case 2:		
 				idxt = prev_index - idxt;
 				prev_index=0;
-				if(index<(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
+				if(idxt<(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
 					for(i=0;i<idxt;i++)
 						frame[i+3]=pktx[USER_MAX_BYTES+i];
 				pass=0;

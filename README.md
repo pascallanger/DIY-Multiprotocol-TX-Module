@@ -273,8 +273,8 @@ The currently supported Arduino version is [1.6.5](https://www.arduino.cc/downlo
 You need to download and install aditionally [STM32 core](https://github.com/rogerclarkmelbourne/Arduino_STM32/archive/master.zip) ,Arduino_STM32 folder in ...../Arduino/hardware/ folder (note. if the hardware folder doesn't exist you will need to create it).
 
 In order to compile suscesfully you need also to modify a maple library file.
-In ....\hardware\Arduino_STM32\STM32F1\cores\maple\libmaple\usartf1.c
-comment 2 function as below.This is required to have acces to low level of USART intrerupt.
+In ....\hardware\Arduino_STM32\STM32F1\cores\maple\libmaple\usart_f1.c
+Comment the 2 function as shown below.This is required to have acces to low level of USART intrerupt.
 
 //void __irq_usart2(void) {
  usart_irq(&usart2_rb, USART2_BASE);

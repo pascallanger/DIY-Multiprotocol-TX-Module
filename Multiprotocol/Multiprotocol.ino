@@ -122,15 +122,6 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	#if defined FRSKY_CC2500_INO
 		#define HUB_TELEMETRY
 	#endif
-#if defined STM32_board
-#if defined TARANIS
-TX_INV_on;
-RX_INV_on;
-#else
-TX_INV_off;
-RX_INV_off;
-#endif	
-#endif		
 	uint8_t pktt[MAX_PKT];//telemetry receiving packets
 	volatile uint8_t tx_head=0;
 	volatile uint8_t tx_tail=0;
@@ -173,7 +164,17 @@ void setup()
 			pinMode(CTRL2,OUTPUT);
 			#if defined TELEMETRY
 			pinMode(TX_INV_pin,OUTPUT);
-			pinMode(RX_INV_PIN,OUTPUT);	
+			pinMode(RX_INV_PIN,OUTPUT);
+			#if defined STM32_board
+#if defined TARANIS
+TX_INV_on;
+RX_INV_on;
+#else
+TX_INV_off;
+RX_INV_off;
+#endif	
+#endif
+			
 			#endif
 			//pinMode(SDI_pin,OUTPUT);
 			//pinMode(SCK_pin,OUTPUT);//spi pins initialized with spi init

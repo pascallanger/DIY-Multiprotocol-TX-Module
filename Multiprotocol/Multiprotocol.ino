@@ -165,7 +165,6 @@ void setup()
 			#if defined TELEMETRY
 			pinMode(TX_INV_pin,OUTPUT);
 			pinMode(RX_INV_PIN,OUTPUT);
-			#if defined STM32_board
                         #if defined TARANIS
                         TX_INV_on;
                         RX_INV_on;
@@ -173,7 +172,6 @@ void setup()
                         TX_INV_off;
                         RX_INV_off;
                         #endif	
-                        #endif
 			#endif
 			//pinMode(SDI_pin,OUTPUT);
 			//pinMode(SCK_pin,OUTPUT);//spi pins initialized with spi init

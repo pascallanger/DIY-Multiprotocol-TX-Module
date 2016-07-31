@@ -9,15 +9,15 @@ The source code is partly based on the Deviation TX project, thanks to all the d
 
 ##Contents
 
-[Compatible TX](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compatible-tx)
+[Compatible TX](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/README.md#compatible-tx)
 
-[Protocols](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#protocols)
+[Protocols](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/README.md#protocols)
 
-[Hardware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#hardware)
+[Hardware](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/README.md#hardware)
 
-[Compilation and programmation](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compilation-and-programmation)
+[Compilation and programmation](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/README.md#compilation-and-programmation)
 
-[Troubleshooting](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#troubleshooting)
+[Troubleshooting](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/README.md#troubleshooting)
 
 ##Compatible TX
 
@@ -316,7 +316,7 @@ For serial, the preffered method is to bind via the GUI protocol page.
 It migth happen that your module is always binding at power up. If this is the case, there is a big chance that you are using an Arduino Pro Mini with an external status LED. To work around this issue connect a 10K resistor between D13 and 3.3V.
 
 ###Report issues
-You can report your problem using the [GitHub issue](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.
+You can report your problem using the [GitHub issue](https://github.com/midelic/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.
 Please provide the following information:
 - Multiprotocol code version
 - TX type

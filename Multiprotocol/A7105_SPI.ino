@@ -24,10 +24,10 @@ void A7105_WriteData(uint8_t len, uint8_t channel)
 {
 	uint8_t i;
 	CS_off;
-	A7105_Write(A7105_RST_WRPTR);
-	A7105_Write(0x05);
+	SPI_Write(A7105_RST_WRPTR);
+	SPI_Write(0x05);
 	for (i = 0; i < len; i++)
-		A7105_Write(packet[i]);
+		SPI_Write(packet[i]);
 	CS_on;
 	A7105_WriteReg(0x0F, channel);
 	A7105_Strobe(A7105_TX);
@@ -37,7 +37,7 @@ void A7105_ReadData() {
 	uint8_t i;
 	A7105_Strobe(0xF0); //A7105_RST_RDPTR
 	CS_off;
-	A7105_Write(0x45);
+	SPI_Write(0x45);
 	for (i=0;i<16;i++)
 		packet[i]=A7105_Read();
 	CS_on;
@@ -45,53 +45,34 @@ void A7105_ReadData() {
 
 void A7105_WriteReg(uint8_t address, uint8_t data) {
 	CS_off;
-	A7105_Write(address); 
+	SPI_Write(address); 
 	NOP();
-	A7105_Write(data);  
+	SPI_Write(data);  
 	CS_on;
 } 
 
 uint8_t A7105_ReadReg(uint8_t address) { 
 	uint8_t result;
 	CS_off;
-	A7105_Write(address |=0x40);		//bit 6 =1 for reading
+	SPI_Write(address |=0x40);		//bit 6 =1 for reading
 	result = A7105_Read();  
 	CS_on;
 	return(result); 
 } 
 
-void A7105_Write(uint8_t command) {  
-	uint8_t n=8; 
- 
-	SCK_off;//SCK start low
-	SDI_off;
-	while(n--) {
-		if(command&0x80)
-			SDI_on;
-		else 
-			SDI_off;
-		SCK_on;
-		NOP();
-		SCK_off;
-		command = command << 1;
-	}
-	SDI_on;
-}  
-
-uint8_t A7105_Read(void) {
-	uint8_t result=0;
+uint8_t A7105_Read(void)
+{
+	uint8_t result;
 	uint8_t i;
-
 	SDI_SET_INPUT;
-	for(i=0;i<8;i++) {                    
+	for(i=0;i<8;i++)
+	{                    
+		result=result<<1;
 		if(SDI_1)  ///if SDIO =1 
-			result=(result<<1)|0x01;
-		else
-			result=result<<1;
+			result |= 0x01;
 		SCK_on;
 		NOP();
 		SCK_off;
-		NOP();
 	}
 	SDI_SET_OUTPUT;
 	return result;
@@ -122,7 +103,7 @@ uint8_t A7105_Reset()
 	uint8_t result;
 	
 	A7105_WriteReg(0x00, 0x00);
-	_delay_us(1000);
+	delayMicroseconds(1000);
 	A7105_SetTxRxMode(TXRX_OFF);		//Set both GPIO as output and low
 	result=A7105_ReadReg(0x10) == 0x9E;	//check if is reset.
 	A7105_Strobe(A7105_STANDBY);
@@ -131,11 +112,11 @@ uint8_t A7105_Reset()
 
 void A7105_WriteID(uint32_t ida) {
 	CS_off;
-	A7105_Write(0x06);//ex id=0x5475c52a ;txid3txid2txid1txid0
-	A7105_Write((ida>>24)&0xff);//53 
-	A7105_Write((ida>>16)&0xff);//75
-	A7105_Write((ida>>8)&0xff);//c5
-	A7105_Write((ida>>0)&0xff);//2a
+	SPI_Write(0x06);//ex id=0x5475c52a ;txid3txid2txid1txid0
+	SPI_Write((ida>>24)&0xff);//53 
+	SPI_Write((ida>>16)&0xff);//75
+	SPI_Write((ida>>8)&0xff);//c5
+	SPI_Write((ida>>0)&0xff);//2a
 	CS_on;
 }
 
@@ -179,7 +160,7 @@ void A7105_SetPower()
 
 void A7105_Strobe(uint8_t address) {
 	CS_off;
-	A7105_Write(address);
+	SPI_Write(address);
 	CS_on;
 }
 

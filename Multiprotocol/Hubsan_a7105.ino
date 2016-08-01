@@ -235,9 +235,9 @@ uint16_t ReadHubsan()
 			phase &= ~WAIT_WRITE;
 			if(id_data == ID_PLUS)
 			{
-				if(state == BIND_7 && packet[2] == 9)
+				if(phase == BIND_7 && packet[2] == 9)
 				{
-					state = DATA_1;
+					phase = DATA_1;
 					A7105_WriteReg(A7105_1F_CODE_I, 0x0F);
 					BIND_DONE;
 					return 4500;

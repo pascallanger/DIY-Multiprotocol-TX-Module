@@ -50,7 +50,8 @@ enum PROTOCOLS
 	MODE_SHENQI=19,			// =>NRF24L01
 	MODE_FY326=20,			// =>NRF24L01
 	MODE_SFHSS=21,			// =>CC2500
-	MODE_J6PRO=22			// =>CYRF6936
+	MODE_J6PRO=22,			// =>CYRF6936
+	MODE_FQ777=23			// =>NRF24L01
 };
 
 enum Flysky
@@ -108,7 +109,8 @@ enum MT99XX
 {
 	MT99	= 0,
 	H7		= 1,
-	YZ		= 2
+	YZ		= 2,
+	LS		= 3
 };
 enum MJXQ
 {
@@ -512,6 +514,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					FY326		20
 					SFHSS		21
 					J6PRO		22
+					FQ777		23
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -558,6 +561,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			MT99		0
 			H7			1
 			YZ			2
+			LS			3
 		sub_protocol==MJXQ
 			WLH08		0
 			X600		1

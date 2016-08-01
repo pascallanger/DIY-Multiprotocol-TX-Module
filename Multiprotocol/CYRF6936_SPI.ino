@@ -14,63 +14,12 @@
  */
 #include "iface_cyrf6936.h"
 
-#ifdef XMEGA
-#define XNOP() NOP()
-#else
-#define XNOP()
-#endif
-
-static void cyrf_spi_write(uint8_t command)
-{
-	uint8_t n=8; 
-	SCK_off;//SCK start low
-	XNOP() ;
-	SDI_off;
-	XNOP() ;
-	while(n--) {
-		if(command&0x80)
-			SDI_on;
-		else 
-			SDI_off;
-		XNOP() ;
-		SCK_on;
-		NOP();
-		XNOP() ;
-		XNOP() ;
-		SCK_off;
-		command = command << 1;
-		XNOP() ;
-	}
-	SDI_on;
-} 
-
-static uint8_t cyrf_spi_read()
-{
-	uint8_t result;
-	uint8_t i;
-	result=0;
-	for(i=0;i<8;i++)
-	{                    
-		result<<=1;
-		if(SDO_1)  ///
-			result|=0x01;
-		SCK_on;
-		XNOP() ;
-		XNOP() ;
-		NOP();
-		SCK_off;
-		XNOP() ;
-		XNOP() ;
-		NOP();
-	}
-	return result;
-} 
 
 void CYRF_WriteRegister(uint8_t address, uint8_t data)
 {
 	CYRF_CSN_off;
-	cyrf_spi_write(0x80 | address);
-	cyrf_spi_write(data);
+	SPI_Write(0x80 | address);
+	SPI_Write(data);
 	CYRF_CSN_on;
 }
 
@@ -79,9 +28,9 @@ static void CYRF_WriteRegisterMulti(uint8_t address, const uint8_t data[], uint8
 	uint8_t i;
 
 	CYRF_CSN_off;
-	cyrf_spi_write(0x80 | address);
+	SPI_Write(0x80 | address);
 	for(i = 0; i < length; i++)
-		cyrf_spi_write(data[i]);
+		SPI_Write(data[i]);
 	CYRF_CSN_on;
 }
 
@@ -90,9 +39,9 @@ static void CYRF_ReadRegisterMulti(uint8_t address, uint8_t data[], uint8_t leng
 	uint8_t i;
 
 	CYRF_CSN_off;
-	cyrf_spi_write(address);
+	SPI_Write(address);
 	for(i = 0; i < length; i++)
-		data[i] = cyrf_spi_read();
+		data[i] = SPI_Read();
 	CYRF_CSN_on;
 }
 
@@ -100,8 +49,8 @@ uint8_t CYRF_ReadRegister(uint8_t address)
 {
 	uint8_t data;
 	CYRF_CSN_off;
-	cyrf_spi_write(address);
-	data = cyrf_spi_read();
+	SPI_Write(address);
+	data = SPI_Read();
 	CYRF_CSN_on;
 	return data;
 }
@@ -110,11 +59,11 @@ uint8_t CYRF_ReadRegister(uint8_t address)
 uint8_t CYRF_Reset()
 {
 	CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x01);//software reset
-	_delay_us(200);// 
+	delayMicroseconds(200);// 
 	// RS_HI;
-	//  _delay_us(100);
+	//  delayMicroseconds(100);
 	// RS_LO;
-	// _delay_us(100);		  
+	// delayMicroseconds(100);		  
 	CYRF_WriteRegister(CYRF_0C_XTAL_CTRL, 0xC0); //Enable XOUT as GPIO
 	CYRF_WriteRegister(CYRF_0D_IO_CFG, 0x04); //Enable PACTL as GPIO
 	CYRF_SetTxRxMode(TXRX_OFF);
@@ -211,10 +160,10 @@ void CYRF_ConfigDataCode(const uint8_t *datacodes, uint8_t len)
 void CYRF_WritePreamble(uint32_t preamble)
 {
 	CYRF_CSN_off;
-	cyrf_spi_write(0x80 | 0x24);
-	cyrf_spi_write(preamble & 0xff);
-	cyrf_spi_write((preamble >> 8) & 0xff);
-	cyrf_spi_write((preamble >> 16) & 0xff);
+	SPI_Write(0x80 | 0x24);
+	SPI_Write(preamble & 0xff);
+	SPI_Write((preamble >> 8) & 0xff);
+	SPI_Write((preamble >> 16) & 0xff);
 	CYRF_CSN_on;
 }
 /*
@@ -277,13 +226,13 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 	CYRF_ConfigCRCSeed(0x0000);
 	CYRF_SetTxRxMode(RX_EN);
 	//Wait for pre-amp to switch from send to receive
-	_delay_us(1000);
+	delayMicroseconds(1000);
 	for(i = 0; i < NUM_FREQ; i++)
 	{
 		CYRF_ConfigRFChannel(i);
 		CYRF_ReadRegister(CYRF_13_RSSI);
 		CYRF_StartReceive();
-		_delay_us(10);
+		delayMicroseconds(10);
 		rssi[i] = CYRF_ReadRegister(CYRF_13_RSSI);
 	}
 

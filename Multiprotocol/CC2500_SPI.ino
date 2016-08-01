@@ -28,9 +28,9 @@ void CC2500_ReadData(uint8_t *dpbuffer, uint8_t len)
 static void CC2500_ReadRegisterMulti(uint8_t address, uint8_t data[], uint8_t length)
 {
 	CC25_CSN_off;
-	CC2500_SPI_Write(address);
+	SPI_Write(address);
 	for(uint8_t i = 0; i < length; i++)
-		data[i] = CC2500_SPI_Read();
+		data[i] = SPI_Read();
 	CC25_CSN_on;
 }
 
@@ -39,9 +39,9 @@ static void CC2500_ReadRegisterMulti(uint8_t address, uint8_t data[], uint8_t le
 static void CC2500_WriteRegisterMulti(uint8_t address, const uint8_t data[], uint8_t length)
 {
 	CC25_CSN_off;
-	CC2500_SPI_Write(CC2500_WRITE_BURST | address);
+	SPI_Write(CC2500_WRITE_BURST | address);
 	for(uint8_t i = 0; i < length; i++)
-		CC2500_SPI_Write(data[i]);
+		SPI_Write(data[i]);
 	CC25_CSN_on;
 }
 
@@ -52,62 +52,23 @@ void CC2500_WriteData(uint8_t *dpbuffer, uint8_t len)
 	CC2500_Strobe(CC2500_STX);//0x35
 }
 
-//-------------------------------------- 
-static void CC2500_SPI_Write(uint8_t command) {
-	uint8_t n=8; 
-
-	SCK_off;//SCK start low
-	SDI_off;
-	while(n--)
-	{
-		if(command&0x80)
-			SDI_on;
-		else 
-			SDI_off;
-		SCK_on;
-		NOP();
-		SCK_off;
-		command = command << 1;
-	}
-	SDI_on;
-}
- 
 //----------------------------
 void CC2500_WriteReg(uint8_t address, uint8_t data) {//same as 7105
 	CC25_CSN_off;
-	CC2500_SPI_Write(address); 
+	SPI_Write(address); 
 	NOP();
-	CC2500_SPI_Write(data);  
+	SPI_Write(data);  
 	CC25_CSN_on;
 } 
 
-static uint8_t CC2500_SPI_Read(void)
-{
-	uint8_t result;
-	uint8_t i;
-	result=0;
-	for(i=0;i<8;i++)
-	{
-		if(SDO_1)  ///
-			result=(result<<1)|0x01;
-		else
-			result=result<<1;
-		SCK_on;
-		NOP();
-		SCK_off;
-		NOP();
-	}
-	return result;
-}   
-  
 //--------------------------------------------
 static uint8_t CC2500_ReadReg(uint8_t address)
 { 
 	uint8_t result;
 	CC25_CSN_off;
 	address |=0x80; //bit 7 =1 for reading
-	CC2500_SPI_Write(address);
-	result = CC2500_SPI_Read();  
+	SPI_Write(address);
+	result = SPI_Read();  
 	CC25_CSN_on;
 	return(result); 
 } 
@@ -115,7 +76,7 @@ static uint8_t CC2500_ReadReg(uint8_t address)
 void CC2500_Strobe(uint8_t address)
 {
 	CC25_CSN_off;
-	CC2500_SPI_Write(address);
+	SPI_Write(address);
 	CC25_CSN_on;
 }
 //------------------------
@@ -123,11 +84,11 @@ void CC2500_Strobe(uint8_t address)
 {
 	// Toggle chip select signal
 	CC25_CSN_on;
-	_delay_us(30);
+	delayMicroseconds(30);
 	CC25_CSN_off;
-	_delay_us(30);
+	delayMicroseconds(30);
 	CC25_CSN_on;
-	_delay_us(45);
+	delayMicroseconds(45);
 	CC2500_Strobe(CC2500_SRES);
 	_delay_ms(100);
 }
@@ -135,7 +96,7 @@ void CC2500_Strobe(uint8_t address)
 uint8_t CC2500_Reset()
 {
 	CC2500_Strobe(CC2500_SRES);
-	_delay_us(1000);
+	delayMicroseconds(1000);
 	CC2500_SetTxRxMode(TXRX_OFF);
 	return CC2500_ReadReg(CC2500_0E_FREQ1) == 0xC4;//check if reset
 }

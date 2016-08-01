@@ -12,7 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// compatible with MT99xx, Eachine H7, Yi Zhan i6S
+// compatible with MT99xx, Eachine H7, Yi Zhan i6S and LS114/124
 // Last sync with Goebish mt99xx_nrf24l01.c dated 2016-01-29
 
 #if defined(MT99XX_NRF24L01_INO)
@@ -43,34 +43,54 @@ enum {
     MT99XX_DATA
 };
 
+const uint8_t h7_mys_byte[] = {
+	0x01, 0x11, 0x02, 0x12, 0x03, 0x13, 0x04, 0x14, 
+	0x05, 0x15, 0x06, 0x16, 0x07, 0x17, 0x00, 0x10
+};
+
+static const u8 ls_mys_byte[] = {
+	0x05, 0x15, 0x25, 0x06, 0x16, 0x26,
+	0x07, 0x17, 0x27, 0x00, 0x10, 0x20,
+	0x01, 0x11, 0x21, 0x02, 0x12, 0x22,
+	0x03, 0x13, 0x23, 0x04, 0x14, 0x24
+};
+
 static void __attribute__((unused)) MT99XX_send_packet()
 {
 	const uint8_t yz_p4_seq[] = {0xa0, 0x20, 0x60};
-	const uint8_t mys_byte[] = {
-		0x01, 0x11, 0x02, 0x12, 0x03, 0x13, 0x04, 0x14, 
-		0x05, 0x15, 0x06, 0x16, 0x07, 0x17, 0x00, 0x10
-	};
 	static uint8_t yz_seq_num=0;
+	static uint8_t ls_counter=0;
 
 	if(sub_protocol != YZ)
-	{ // MT99XX & H7
+	{ // MT99XX & H7 & LS
 		packet[0] = convert_channel_8b_scale(THROTTLE,0x00,0xE1); // throttle
 		packet[1] = convert_channel_8b_scale(RUDDER  ,0x00,0xE1); // rudder
 		packet[2] = convert_channel_8b_scale(AILERON ,0x00,0xE1); // aileron
 		packet[3] = convert_channel_8b_scale(ELEVATOR,0x00,0xE1); // elevator
 		packet[4] = 0x20; // pitch trim (0x3f-0x20-0x00)
 		packet[5] = 0x20; // roll trim (0x00-0x20-0x3f)
-		packet[6] = GET_FLAG( Servo_AUX1, FLAG_MT_FLIP )
-				  | GET_FLAG( Servo_AUX3, FLAG_MT_SNAPSHOT )
-				  | GET_FLAG( Servo_AUX4, FLAG_MT_VIDEO );
-		if(sub_protocol==MT99)
-			packet[6] |= 0x40 | FLAG_MT_RATE2;
+		packet[6] = GET_FLAG( Servo_AUX1, FLAG_MT_FLIP );
+		packet[7] = h7_mys_byte[hopping_frequency_no];		// next rf channel index ?
+
+		if(sub_protocol==H7)
+			packet[6]|=FLAG_MT_RATE1; // max rate on H7
 		else
-			packet[6] |= FLAG_MT_RATE1; // max rate on H7
-		// todo: mys_byte = next channel index ? 
-		// low nibble: index in chan list ?
-		// high nibble: 0->start from start of list, 1->start from end of list ?
-		packet[7] = mys_byte[hopping_frequency_no];
+			if(sub_protocol==MT99)
+				packet[6] |= 0x40 | FLAG_MT_RATE2
+				  | GET_FLAG( Servo_AUX3, FLAG_MT_SNAPSHOT )
+				  | GET_FLAG( Servo_AUX4, FLAG_MT_VIDEO );	// max rate on MT99xx
+			else
+				if(sub_protocol==LS)
+					packet[6] |= 0x40 | FLAG_MT_RATE2;
+				else //LS
+				{
+					packet[6] |= FLAG_MT_RATE2				// max rate
+						| GET_FLAG( Servo_AUX5, 0x10 );		//HEADLESS
+					packet[7] = ls_mys_byte[ls_counter++];
+					if(ls_counter >= sizeof(ls_mys_byte))
+						ls_counter=0;
+				}
+
 		uint8_t result=checksum_offset;
 		for(uint8_t i=0; i<8; i++)
 			result += packet[i];
@@ -102,7 +122,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		packet[8] = 0xff;
 	}
 
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no] + channel_offset);
+	if(sub_protocol == LS)
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x2D); // LS always transmits on the same channel
+	else
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no] + channel_offset);
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 	XN297_WritePayload(packet, MT99XX_PACKET_SIZE);
@@ -120,8 +143,11 @@ static void __attribute__((unused)) MT99XX_send_packet()
 static void __attribute__((unused)) MT99XX_init()
 {
     NRF24L01_Initialize();
+    if(sub_protocol == YZ)
+		XN297_SetScrambledMode(XN297_UNSCRAMBLED);
     NRF24L01_SetTxRxMode(TX_EN);
     NRF24L01_FlushTx();
+    XN297_SetTXAddr((uint8_t *)"\xCC\xCC\xCC\xCC\xCC", 5);
     NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// Clear data ready, data sent, and retransmit
     NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknowldgement on all data pipes
     NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);		// Enable data pipe 0 only
@@ -133,19 +159,26 @@ static void __attribute__((unused)) MT99XX_init()
         NRF24L01_SetBitrate(NRF24L01_BR_1M);          // 1Mbps
     NRF24L01_SetPower();
 	
-    XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP) | (sub_protocol == YZ ? BV(XN297_UNSCRAMBLED):0) );
+    XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP) );
 	
-    XN297_SetTXAddr((uint8_t *)"\xCC\xCC\xCC\xCC\xCC", 5);
 }
 
 static void __attribute__((unused)) MT99XX_initialize_txid()
 {
+	rx_tx_addr[3] = 0xCC;
+	rx_tx_addr[4] = 0xCC;
     if(sub_protocol == YZ)
 	{
 		rx_tx_addr[0] = 0x53; // test (SB id)
 		rx_tx_addr[1] = 0x00;
+		rx_tx_addr[2] = 0x00;
 	}
-	checksum_offset = (rx_tx_addr[0] + rx_tx_addr[1]) & 0xff;
+	else
+		if(sub_protocol == LS)
+			rx_tx_addr[0] = 0xCC;
+		else //MT99 & H7
+			rx_tx_addr[2] = 0x00;
+	checksum_offset = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2];
 	channel_offset = (((checksum_offset & 0xf0)>>4) + (checksum_offset & 0x0f)) % 8;
 }
 
@@ -157,16 +190,16 @@ uint16_t MT99XX_callback()
 	{
 		if (bind_counter == 0)
 		{
-			rx_tx_addr[2] = 0x00;
-			rx_tx_addr[3] = 0xCC;
-			rx_tx_addr[4] = 0xCC;
             // set tx address for data packets
             XN297_SetTXAddr(rx_tx_addr, 5);
 			BIND_DONE;
 		}
 		else
 		{
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+			if(sub_protocol == LS)
+				NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x2D); // LS always transmits on the same channel
+			else
+				NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 			NRF24L01_FlushTx();
 			XN297_WritePayload(packet, MT99XX_PACKET_SIZE); // bind packet
@@ -193,23 +226,30 @@ uint16_t initMT99XX(void)
 	MT99XX_init();
 
 	packet[0] = 0x20;
-	if(sub_protocol!=YZ)
+	packet_period = MT99XX_PACKET_PERIOD_MT;
+	switch(sub_protocol)
 	{ // MT99 & H7
-		packet_period = MT99XX_PACKET_PERIOD_MT;
-		packet[1] = 0x14;
-		packet[2] = 0x03;
-		packet[3] = 0x25;
+		case MT99:
+		case H7:
+			packet[1] = 0x14;
+			packet[2] = 0x03;
+			packet[3] = 0x25;
+			break;
+		case YZ:
+			packet_period = MT99XX_PACKET_PERIOD_YZ;
+			packet[1] = 0x15;
+			packet[2] = 0x05;
+			packet[3] = 0x06;
+			break;
+		case LS:
+			packet[1] = 0x14;
+			packet[2] = 0x05;
+			packet[3] = 0x11;
+			break;
 	}
-	else
-	{ // YZ
-		packet_period = MT99XX_PACKET_PERIOD_YZ;
-		packet[1] = 0x15;
-		packet[2] = 0x05;
-		packet[3] = 0x06;
-	}
-    packet[4] = rx_tx_addr[0];	// 1st byte for data state tx address  
-    packet[5] = rx_tx_addr[1];	// 2nd byte for data state tx address (always 0x00 on Yi Zhan ?)
-    packet[6] = 0x00;			// 3rd byte for data state tx address (always 0x00 ?)
+	packet[4] = rx_tx_addr[0];
+	packet[5] = rx_tx_addr[1];
+	packet[6] = rx_tx_addr[2];
     packet[7] = checksum_offset; // checksum offset
     packet[8] = 0xAA;			// fixed
 	packet_count=0;

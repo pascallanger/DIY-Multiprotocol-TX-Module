@@ -18,7 +18,7 @@
 
 #include "iface_cc2500.h"
 
-//#define SFHSS_USE_TUNE_FREQ
+#define SFHSS_USE_TUNE_FREQ
 #define SFHSS_COARSE	0
 
 #define SFHSS_PACKET_LEN 13
@@ -73,20 +73,6 @@ const PROGMEM uint8_t SFHSS_init_values[] = {
   /* 20 */ 0xF8, 0xB6, 0x10, 0xEA, 0x0A, 0x11, 0x11
 };
 
-static void __attribute__((unused)) SFHSS_rf_init()
-{
-	CC2500_Reset();
-	CC2500_Strobe(CC2500_SIDLE);
-
-	for (uint8_t i = 0; i < 39; ++i)
-		CC2500_WriteReg(i, pgm_read_byte_near(&SFHSS_init_values[i]));
-	//CC2500_WriteRegisterMulti(CC2500_00_IOCFG2, init_values, sizeof(init_values));
-	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-	
-	CC2500_SetTxRxMode(TX_EN);
-	CC2500_SetPower();
-}
-
 static void __attribute__((unused)) SFHSS_tune_chan()
 {
 	CC2500_Strobe(CC2500_SIDLE);
@@ -99,7 +85,7 @@ static void __attribute__((unused)) SFHSS_tune_chan_fast()
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_WriteReg(CC2500_0A_CHANNR, rf_ch_num*6+16);
 	CC2500_WriteRegisterMulti(CC2500_23_FSCAL3, calData[rf_ch_num], 3);
-	_delay_us(6);
+	delayMicroseconds(6);
 }
 
 #ifdef SFHSS_USE_TUNE_FREQ
@@ -111,6 +97,20 @@ static void __attribute__((unused)) SFHSS_tune_freq() {
 	CC2500_WriteReg(CC2500_0F_FREQ0, SFHSS_FREQ0_VAL + SFHSS_COARSE);
 }
 #endif
+
+static void __attribute__((unused)) SFHSS_rf_init()
+{
+	CC2500_Reset();
+	CC2500_Strobe(CC2500_SIDLE);
+
+	for (uint8_t i = 0; i < 39; ++i)
+		CC2500_WriteReg(i, pgm_read_byte_near(&SFHSS_init_values[i]));
+	//CC2500_WriteRegisterMulti(CC2500_00_IOCFG2, init_values, sizeof(init_values));
+	//CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+	
+	CC2500_SetTxRxMode(TX_EN);
+	CC2500_SetPower();
+}
 
 static void __attribute__((unused)) SFHSS_calc_next_chan()
 {
@@ -194,6 +194,9 @@ uint16_t ReadSFHSS()
 			state = SFHSS_TUNE;
 			return 2000;
 		case SFHSS_TUNE:
+#ifdef SFHSS_USE_TUNE_FREQ
+			SFHSS_tune_freq();
+#endif
 			CC2500_SetPower();
 			state = SFHSS_DATA1;
 			return 3150;

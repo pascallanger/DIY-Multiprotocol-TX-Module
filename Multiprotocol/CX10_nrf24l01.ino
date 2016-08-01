@@ -215,7 +215,7 @@ uint16_t CX10_callback()
 				NRF24L01_FlushTx();
 				NRF24L01_SetTxRxMode(TX_EN);
 				CX10_Write_Packet(1);
-				_delay_us(400);
+				delayMicroseconds(400);
 				// switch to RX mode
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_FlushRx();

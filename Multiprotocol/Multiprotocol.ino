@@ -22,7 +22,6 @@
 */
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
-#include <util/delay.h>
 #include "Multiprotocol.h"
 
 //#define DEBUG_TX
@@ -53,7 +52,6 @@ uint8_t  phase;
 uint16_t bind_counter;
 uint8_t  bind_phase;
 uint8_t  binding_idx;
-uint32_t packet_counter;
 uint16_t packet_period;
 uint8_t  packet_count;
 uint8_t  packet_sent;
@@ -66,7 +64,7 @@ uint8_t  throttle, rudder, elevator, aileron;
 uint8_t  flags;
 uint16_t crc;
 //
-uint32_t state;
+uint16_t state;
 uint8_t  len;
 uint8_t  RX_num;
 
@@ -559,6 +557,12 @@ static void protocol_init()
 			remote_callback = FY326_callback;
 			break;
 #endif
+#if defined(FQ777_NRF24L01_INO)
+		case MODE_FQ777:
+			next_callback=initFQ777();
+			remote_callback = FQ777_callback;
+			break;
+#endif
 	}
 
 	if(next_callback>32000)
@@ -648,7 +652,7 @@ static void module_reset()
 			case MODE_J6PRO:
 				CYRF_Reset();
 				break;
-			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI, MODE_FY326
+			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI, MODE_FY326, MODE_FQ777
 				NRF24L01_Reset();
 				break;
 		}
@@ -822,6 +826,166 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 		eeprom_write_byte((uint8_t*)(adress+10),0xf0);//write bind flag in eeprom.
 	}
 	return id;
+}
+
+/********************/
+/**  SPI routines  **/
+/********************/
+void SPI_Write(uint8_t command)
+{
+	uint8_t n=8; 
+
+	SCK_off;//SCK start low
+	SDI_off;
+	do
+	{
+		if(command&0x80)
+			SDI_on;
+		else
+			SDI_off;
+		SCK_on;
+		command = command << 1;
+		SCK_off;
+	}
+	while(--n) ;
+	SDI_on;
+}
+
+uint8_t SPI_Read(void)
+{
+	uint8_t result;
+	uint8_t i;
+	for(i=0;i<8;i++)
+	{
+		result=result<<1;
+		if(SDO_1)
+			result |= 0x01;
+		SCK_on;
+		NOP();
+		SCK_off;
+	}
+	return result;
+}
+
+/************************************/
+/**  Arduino replacement routines  **/
+/************************************/
+// replacement millis() and micros()
+// These work polled, no interrupts
+// micros() MUST be called at least once every 32 milliseconds
+uint16_t MillisPrecount ;
+uint16_t lastTimerValue ;
+uint32_t TotalMicros ;
+uint32_t TotalMillis ;
+uint8_t Correction ;
+
+uint32_t micros()
+{
+   uint16_t elapsed ;
+   uint8_t millisToAdd ;
+   uint8_t oldSREG = SREG ;
+   cli() ;
+   uint16_t time = TCNT1 ;   // Read timer 1
+   SREG = oldSREG ;
+
+   elapsed = time - lastTimerValue ;
+   elapsed += Correction ;
+   Correction = elapsed & 0x01 ;
+   elapsed >>= 1 ;
+   
+   uint32_t ltime = TotalMicros ;
+   ltime += elapsed ;
+   cli() ;
+   TotalMicros = ltime ;   // Done this way for RPM to work correctly
+   lastTimerValue = time ;
+   SREG = oldSREG ;   // Still valid from above
+   
+   elapsed += MillisPrecount;
+   millisToAdd = 0 ;
+   
+   if ( elapsed  > 15999 )
+   {
+      millisToAdd = 16 ;
+      elapsed -= 16000 ;
+   }
+   if ( elapsed  > 7999 )
+   {
+      millisToAdd += 8 ;
+      elapsed -= 8000 ;
+   }
+   if ( elapsed  > 3999 )
+   {
+      millisToAdd += 4 ;      
+      elapsed -= 4000 ;
+   }
+   if ( elapsed  > 1999 )
+   {
+      millisToAdd += 2 ;
+      elapsed -= 2000 ;
+   }
+   if ( elapsed  > 999 )
+   {
+      millisToAdd += 1 ;
+      elapsed -= 1000 ;
+   }
+   TotalMillis += millisToAdd ;
+   MillisPrecount = elapsed ;
+   return TotalMicros ;
+}
+
+uint32_t millis()
+{
+   micros() ;
+   return TotalMillis ;
+}
+
+void delay(unsigned long ms)
+{
+   uint16_t start = (uint16_t)micros();
+   uint16_t lms = ms ;
+
+   while (lms > 0) {
+      if (((uint16_t)micros() - start) >= 1000) {
+         lms--;
+         start += 1000;
+      }
+   }
+}
+
+/* Delay for the given number of microseconds.  Assumes a 8 or 16 MHz clock. */
+void delayMicroseconds(unsigned int us)
+{
+   // calling avrlib's delay_us() function with low values (e.g. 1 or
+   // 2 microseconds) gives delays longer than desired.
+   //delay_us(us);
+   
+   // for the 16 MHz clock on most Arduino boards
+
+   // for a one-microsecond delay, simply return.  the overhead
+   // of the function call yields a delay of approximately 1 1/8 us.
+   if (--us == 0)
+      return;
+
+   // the following loop takes a quarter of a microsecond (4 cycles)
+   // per iteration, so execute it four times for each microsecond of
+   // delay requested.
+   us <<= 2;
+
+   // account for the time taken in the preceeding commands.
+   us -= 2;
+
+   // busy wait
+   __asm__ __volatile__ (
+      "1: sbiw %0,1" "\n\t" // 2 cycles
+      "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
+   );
+}
+
+void init()
+{
+   // this needs to be called before setup() or some functions won't
+   // work there
+   sei();
 }
 
 /**************************/

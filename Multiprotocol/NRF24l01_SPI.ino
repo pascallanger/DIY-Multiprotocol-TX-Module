@@ -19,45 +19,6 @@
 //---------------------------
 #include "iface_nrf24l01.h"
 
-static void nrf_spi_write(uint8_t command)
-{
-	uint8_t n=8; 
-
-	SCK_off;//SCK start low
-	SDI_off;
-	while(n--) {
-		if(command&0x80)
-			SDI_on;
-		else 
-			SDI_off;
-		SCK_on;
-		NOP();
-		SCK_off;
-		command = command << 1;
-	}
-	SDI_on;
-}  
-
-//VARIANT 2
-static uint8_t nrf_spi_read(void)
-{
-	uint8_t result;
-	uint8_t i;
-	result=0;
-	for(i=0;i<8;i++) {                    
-		result<<=1;
-		if(SDO_1)  ///
-			result|=0x01;
-		SCK_on;
-		NOP();
-		SCK_off;
-		NOP();
-	}
-	return result;
-}   
-//--------------------------------------------
-
-
 
 //---------------------------
 // NRF24L01+ SPI Specific Functions
@@ -73,8 +34,8 @@ void NRF24L01_Initialize()
 void NRF24L01_WriteReg(uint8_t reg, uint8_t data)
 {
 	NRF_CSN_off;
-	nrf_spi_write(W_REGISTER | (REGISTER_MASK & reg));
-	nrf_spi_write(data);
+	SPI_Write(W_REGISTER | (REGISTER_MASK & reg));
+	SPI_Write(data);
 	NRF_CSN_on;
 }
 
@@ -82,26 +43,26 @@ void NRF24L01_WriteRegisterMulti(uint8_t reg, uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
 
-	nrf_spi_write(W_REGISTER | ( REGISTER_MASK & reg));
+	SPI_Write(W_REGISTER | ( REGISTER_MASK & reg));
 	for (uint8_t i = 0; i < length; i++)
-		nrf_spi_write(data[i]);
+		SPI_Write(data[i]);
 	NRF_CSN_on;
 }
 
 void NRF24L01_WritePayload(uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
-	nrf_spi_write(W_TX_PAYLOAD);
+	SPI_Write(W_TX_PAYLOAD);
 	for (uint8_t i = 0; i < length; i++)
-		nrf_spi_write(data[i]);
+		SPI_Write(data[i]);
 	NRF_CSN_on;
 }
 
 uint8_t NRF24L01_ReadReg(uint8_t reg)
 {
 	NRF_CSN_off;
-	nrf_spi_write(R_REGISTER | (REGISTER_MASK & reg));
-	uint8_t data = nrf_spi_read();
+	SPI_Write(R_REGISTER | (REGISTER_MASK & reg));
+	uint8_t data = SPI_Read();
 	NRF_CSN_on;
 	return data;
 }
@@ -109,25 +70,25 @@ uint8_t NRF24L01_ReadReg(uint8_t reg)
 /*static void NRF24L01_ReadRegisterMulti(uint8_t reg, uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
-	nrf_spi_write(R_REGISTER | (REGISTER_MASK & reg));
+	SPI_Write(R_REGISTER | (REGISTER_MASK & reg));
 	for(uint8_t i = 0; i < length; i++)
-		data[i] = nrf_spi_read();
+		data[i] = SPI_Read();
 	NRF_CSN_on;
 }
 */
 static void NRF24L01_ReadPayload(uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
-	nrf_spi_write(R_RX_PAYLOAD);
+	SPI_Write(R_RX_PAYLOAD);
 	for(uint8_t i = 0; i < length; i++)
-		data[i] = nrf_spi_read();
+		data[i] = SPI_Read();
 	NRF_CSN_on; 
 }
 
 static void  NRF24L01_Strobe(uint8_t state)
 {
 	NRF_CSN_off;
-	nrf_spi_write(state);
+	SPI_Write(state);
 	NRF_CSN_on;
 }
 
@@ -144,8 +105,8 @@ void NRF24L01_FlushRx()
 void NRF24L01_Activate(uint8_t code)
 {
 	NRF_CSN_off;
-	nrf_spi_write(ACTIVATE);
-	nrf_spi_write(code);
+	SPI_Write(ACTIVATE);
+	SPI_Write(code);
 	NRF_CSN_on;
 }
 
@@ -202,7 +163,7 @@ void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 		NRF24L01_WriteReg(NRF24L01_00_CONFIG, (1 << NRF24L01_00_EN_CRC)   // switch to TX mode
 											| (1 << NRF24L01_00_CRCO)
 											| (1 << NRF24L01_00_PWR_UP));
-		_delay_us(130);
+		delayMicroseconds(130);
 		NRF_CSN_on;
 	}
 	else
@@ -217,7 +178,7 @@ void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 												| (1 << NRF24L01_00_CRCO)
 												| (1 << NRF24L01_00_PWR_UP)
 												| (1 << NRF24L01_00_PRIM_RX));
-			_delay_us(130);
+			delayMicroseconds(130);
 			NRF_CSN_on;
 		}
 		else
@@ -241,7 +202,7 @@ void NRF24L01_Reset()
     NRF24L01_Strobe(0xff);			// NOP
     NRF24L01_ReadReg(0x07);
     NRF24L01_SetTxRxMode(TXRX_OFF);
-	_delay_us(100);
+	delayMicroseconds(100);
 }
 
 uint8_t NRF24L01_packet_ack()
@@ -258,7 +219,7 @@ uint8_t NRF24L01_packet_ack()
 
 ///////////////
 // XN297 emulation layer
-uint8_t xn297_scramble_enabled=1;	//enabled by default
+uint8_t xn297_scramble_enabled=XN297_SCRAMBLED;	//enabled by default
 uint8_t xn297_addr_len;
 uint8_t xn297_tx_addr[5];
 uint8_t xn297_rx_addr[5];
@@ -271,19 +232,19 @@ static const uint8_t xn297_scramble[] = {
 	0x1b, 0x5d, 0x19, 0x10, 0x24, 0xd3, 0xdc, 0x3f,
 	0x8e, 0xc5, 0x2f};
 
-const uint16_t PROGMEM xn297_crc_xorout[] = {
-	0x0000, 0x3d5f, 0xa6f1, 0x3a23, 0xaa16, 0x1caf,
-	0x62b2, 0xe0eb, 0x0821, 0xbe07, 0x5f1a, 0xaf15,
-	0x4f0a, 0xad24, 0x5e48, 0xed34, 0x068c, 0xf2c9,
-	0x1852, 0xdf36, 0x129d, 0xb17c, 0xd5f5, 0x70d7,
-	0xb798, 0x5133, 0x67db, 0xd94e};
-
 const uint16_t PROGMEM xn297_crc_xorout_scrambled[] = {
 	0x0000, 0x3448, 0x9BA7, 0x8BBB, 0x85E1, 0x3E8C,
 	0x451E, 0x18E6, 0x6B24, 0xE7AB, 0x3828, 0x814B,
 	0xD461, 0xF494, 0x2503, 0x691D, 0xFE8B, 0x9BA7,
 	0x8B17, 0x2920, 0x8B5F, 0x61B1, 0xD391, 0x7401,
 	0x2138, 0x129F, 0xB3A0, 0x2988};
+
+const uint16_t PROGMEM xn297_crc_xorout[] = {
+	0x0000, 0x3d5f, 0xa6f1, 0x3a23, 0xaa16, 0x1caf,
+	0x62b2, 0xe0eb, 0x0821, 0xbe07, 0x5f1a, 0xaf15,
+	0x4f0a, 0xad24, 0x5e48, 0xed34, 0x068c, 0xf2c9,
+	0x1852, 0xdf36, 0x129d, 0xb17c, 0xd5f5, 0x70d7,
+	0xb798, 0x5133, 0x67db, 0xd94e};
 
 static uint8_t bit_reverse(uint8_t b_in)
 {
@@ -296,10 +257,9 @@ static uint8_t bit_reverse(uint8_t b_in)
     return b_out;
 }
 
+static const uint16_t polynomial = 0x1021;
 static uint16_t crc16_update(uint16_t crc, uint8_t a)
 {
-	static const uint16_t polynomial = 0x1021;
-
 	crc ^= a << 8;
     for (uint8_t i = 0; i < 8; ++i)
         if (crc & 0x8000)
@@ -345,12 +305,16 @@ void XN297_SetRXAddr(const uint8_t* addr, uint8_t len)
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, buf, 5);
 }
 
-void XN297_Configure(uint16_t flags)
+void XN297_Configure(uint8_t flags)
 {
-	xn297_scramble_enabled = !(flags & BV(XN297_UNSCRAMBLED));
 	xn297_crc = !!(flags & BV(NRF24L01_00_EN_CRC));
 	flags &= ~(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO));
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, flags & 0xFF);
+}
+
+void XN297_SetScrambledMode(const u8 mode)
+{
+    xn297_scramble_enabled = mode;
 }
 
 void XN297_WritePayload(uint8_t* msg, uint8_t len)

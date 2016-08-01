@@ -302,13 +302,17 @@ Notes:
 Use an external FTDI adapter like [this one](http://www.banggood.com/FT232RL-FTDI-USB-To-TTL-Serial-Converter-Adapter-Module-For-Arduino-p-917226.html).
 or other USB serial-TTL dongle.
 
-Important:
+###Important:
 
-If using 3.3V USB-TTL device it is required to use a jumper on "3.3V jumper" on top of the board.
+If using 3.3V USB-TTL device it is required to use a jumper on "3.3V jumper" on top of the board.After flashing it is imperative to be removed.
 
-Before uploading new firmware use a jumper on BOOT0.
+Before uploading new firmware use a jumper on BOOT0.After flashing new firmware remove also the BOOT0 jumper,or move it to oposite pin.
 
-After flashing new firmware it is required to remove both jumpers on 3.3V jumper and BOOT0.
+Don't flash new firmware with the TX switched on.
+
+###Warning!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+After flashing new firmware it is mandatory to remove the 3.3V jumper if installed.If not when starting the module and micro you may fry them as 5V is supplied directly on the RF module and micro.
 
 ##Troubleshooting
 

@@ -300,7 +300,7 @@ Notes:
 ###Upload the code using FTDI (USB serial to TTL)
 
 Use an external FTDI adapter like [this one](http://www.banggood.com/FT232RL-FTDI-USB-To-TTL-Serial-Converter-Adapter-Module-For-Arduino-p-917226.html).
-or other USB serial-TTL dongle.
+or other USB serial-TTL dongle.The device can work with both  5V and 3.3V. When in 3.3V selection there are some precautions to be taken ,you can read below.
 
 ###Important:
 

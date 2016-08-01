@@ -236,7 +236,7 @@ The main program is running on an STM32F103CBT6 chip running @8MHz X-tal and 3.3
 ####Build your own board using [SMD components]
 
 ![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/f2d598eacd8e9eebc3818adf47777199.png)
-![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/e3785d959caf01b68a11cd6d6dae57f2.png)
+![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/2026cfd1d0187a770570052590168df1.png)
 
 [OSH Park link](https://oshpark.com/shared_projects/zcG1NEzu)  if you want to order.
 
@@ -330,7 +330,7 @@ After flashing new firmware it is mandatory to remove the 3.3V jumper if install
 - Connect 1 to 4 of the selection protocol pins to GND.
 
 ####Input Mode - Serial
-Put dial switch on "zero" activates serial mode on multi.If you want to use permanetly serial  mode there is n need of the dial switch installation.
+Put dial switch on "zero" activates serial mode on multi.If you want to use permanetly serial  mode there is no need of the dial switch installation.
 
 ###Bind
 Make sure to follow this procedure: press the bind button, apply power and then release it after 1sec. The LED should be blinking fast indicating a bind status and then fixed on when the bind period is over. It's normal that the LED turns off when you press the bind button, this behavior is not controlled by the Atmega328.

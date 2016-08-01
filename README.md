@@ -235,8 +235,8 @@ The main program is running on an STM32F103CBT6 chip running @8MHz X-tal and 3.3
 
 ####Build your own board using [SMD components]
 
-![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/2346c662115cfbdd6add1263a0f577d0.png)
-![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/d47a7bf6bf819ff175b89dac9711d158.png)
+![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/f2d598eacd8e9eebc3818adf47777199.png)
+![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/e3785d959caf01b68a11cd6d6dae57f2.png)
 
 [OSH Park link](https://oshpark.com/shared_projects/zcG1NEzu)  if you want to order.
 

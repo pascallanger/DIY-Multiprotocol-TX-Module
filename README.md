@@ -312,7 +312,7 @@ Before uploading new firmware use a jumper on BOOT0.After flashing new firmware 
 
 ###Warning!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-After flashing new firmware it is mandatory to remove the 3.3V jumper if installed.If not when starting the module and micro you may fry them as 5V is supplied directly on the RF module and micro.
+After flashing new firmware it is mandatory to remove the 3.3V jumper if installed.If not when starting the module and micro you may fry them as 5V is supplied directly on the RF module and micro.Extreme care ,do not flash with 5V setting on USB-SERIAL and 3.3V jumper attached.If in doubt measure the serial  device output with a multimeter.
 
 ##Troubleshooting
 

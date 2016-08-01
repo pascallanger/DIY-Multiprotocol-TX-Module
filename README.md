@@ -304,11 +304,11 @@ or other USB serial-TTL dongle.
 
 ###Important:
 
+Don't flash new firmware with the TX switched on !!!!!
+
 If using 3.3V USB-TTL device it is required to use a jumper on "3.3V jumper" on top of the board.After flashing it is imperative to be removed.
 
 Before uploading new firmware use a jumper on BOOT0.After flashing new firmware remove also the BOOT0 jumper,or move it to oposite pin.
-
-Don't flash new firmware with the TX switched on.
 
 ###Warning!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

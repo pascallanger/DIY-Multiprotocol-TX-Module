@@ -252,7 +252,7 @@ Serial mode  is already enabled by default so no need any resistor soldering.
 
 The Part list is [here](https://github.com/midelic/DIY-Multiprotocol-TX-Module/blob/multi-STM32/Multiprotocol_STM32.txt).
 
-![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9208047-205-multi-STM32.png)
+![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9220887-113-multi-STM32.png)
 
 Notes:
 - Attention: All modules are 3.3V only, never power them with 5V.

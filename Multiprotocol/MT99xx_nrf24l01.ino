@@ -63,9 +63,9 @@ static void __attribute__((unused)) MT99XX_send_packet()
 
 	if(sub_protocol != YZ)
 	{ // MT99XX & H7 & LS
-		packet[0] = convert_channel_8b_scale(THROTTLE,0x00,0xE1); // throttle
+		packet[0] = convert_channel_8b_scale(THROTTLE,0xE1,0x00); // throttle
 		packet[1] = convert_channel_8b_scale(RUDDER  ,0x00,0xE1); // rudder
-		packet[2] = convert_channel_8b_scale(AILERON ,0x00,0xE1); // aileron
+		packet[2] = convert_channel_8b_scale(AILERON ,0xE1,0x00); // aileron
 		packet[3] = convert_channel_8b_scale(ELEVATOR,0x00,0xE1); // elevator
 		packet[4] = 0x20; // pitch trim (0x3f-0x20-0x00)
 		packet[5] = 0x20; // roll trim (0x00-0x20-0x3f)

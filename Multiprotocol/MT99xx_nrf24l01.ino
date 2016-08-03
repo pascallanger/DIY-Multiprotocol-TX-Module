@@ -37,6 +37,16 @@ enum{
     FLAG_MT_FLIP    = 0x80,
 };
 
+enum{
+    // flags going to packet[6] (LS)
+    FLAG_LS_INVERT  = 0x01,
+    FLAG_LS_RATE    = 0x02,
+    FLAG_LS_HEADLESS= 0x10,
+    FLAG_LS_SNAPSHOT= 0x20,
+    FLAG_LS_VIDEO   = 0x40,
+    FLAG_LS_FLIP    = 0x80,
+};
+
 enum {
     MT99XX_INIT = 0,
     MT99XX_BIND,
@@ -81,13 +91,11 @@ static void __attribute__((unused)) MT99XX_send_packet()
 				  | GET_FLAG( Servo_AUX4, FLAG_MT_VIDEO );	// max rate on MT99xx
 			else //LS
 			{
-				packet[6] |= FLAG_MT_RATE2				// max rate
-					| GET_FLAG( Servo_AUX2, 0x01 )		//???
-					| GET_FLAG( Servo_AUX3, 0x04 )		//???
-					| GET_FLAG( Servo_AUX4, 0x08 )		//???
-					| GET_FLAG( Servo_AUX5, 0x10 )		//HEADLESS
-					| GET_FLAG( Servo_AUX6, 0x20 )		//???
-					| GET_FLAG( Servo_AUX7, 0x40 );		//???
+				packet[6] |= FLAG_LS_RATE							// max rate
+					| GET_FLAG( Servo_AUX2, FLAG_LS_INVERT )		//INVERT
+					| GET_FLAG( Servo_AUX3, FLAG_LS_SNAPSHOT )		//SNAPSHOT
+					| GET_FLAG( Servo_AUX4, FLAG_LS_VIDEO )			//VIDEO
+					| GET_FLAG( Servo_AUX5, FLAG_LS_HEADLESS );		//HEADLESS
 				packet[7] = ls_mys_byte[ls_counter++];
 				if(ls_counter >= sizeof(ls_mys_byte))
 					ls_counter=0;

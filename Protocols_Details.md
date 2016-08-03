@@ -304,6 +304,10 @@ Only one model can be flown at the same time since the ID is hardcoded.
 ###Sub_protocol LS
 Models: LS114, 124, 215
 
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP||||HEADLESS
+
 ##Shenqi
 Autobind protocol
 

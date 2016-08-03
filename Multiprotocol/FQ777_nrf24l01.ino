@@ -58,8 +58,9 @@ static void __attribute__((unused)) ssv_pack_dpl(uint8_t addr[], uint8_t pid, ui
 		uint16_t val;
 	} crc;
 
+	crc.val=0x3c18;
 	for (i = 0; i < 7; ++i)
-		crc.val=crc16_update(0x3c18,header[i]);
+		crc.val=crc16_update(crc.val,header[i]);
 	for (i = 0; i < *len; ++i)
 		crc.val=crc16_update(crc.val,payload[i]);
 
@@ -133,7 +134,6 @@ static void __attribute__((unused)) FQ777_send_packet(uint8_t bind)
 				  | GET_FLAG(Servo_AUX3, FQ777_FLAG_HEADLESS)
 				  | GET_FLAG(!Servo_AUX2, FQ777_FLAG_RETURN)
 				  | GET_FLAG(Servo_AUX4,FQ777_FLAG_EXPERT);
-						  
 		packet_ori[6] = 0x00;
 		// calculate checksum
 		uint8_t checksum = 0;
@@ -168,6 +168,10 @@ static void __attribute__((unused)) FQ777_init()
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);
 	NRF24L01_SetBitrate(NRF24L01_BR_250K);
 	NRF24L01_SetPower();
+    NRF24L01_Activate(0x73);                         // Activate feature register
+    NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);      // Disable dynamic payload length on all pipes
+    NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
+    NRF24L01_Activate(0x73);
 }
 
 uint16_t FQ777_callback()

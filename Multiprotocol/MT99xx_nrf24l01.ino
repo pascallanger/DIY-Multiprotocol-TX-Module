@@ -79,17 +79,14 @@ static void __attribute__((unused)) MT99XX_send_packet()
 				packet[6] |= 0x40 | FLAG_MT_RATE2
 				  | GET_FLAG( Servo_AUX3, FLAG_MT_SNAPSHOT )
 				  | GET_FLAG( Servo_AUX4, FLAG_MT_VIDEO );	// max rate on MT99xx
-			else
-				if(sub_protocol==LS)
-					packet[6] |= 0x40 | FLAG_MT_RATE2;
-				else //LS
-				{
-					packet[6] |= FLAG_MT_RATE2				// max rate
-						| GET_FLAG( Servo_AUX5, 0x10 );		//HEADLESS
-					packet[7] = ls_mys_byte[ls_counter++];
-					if(ls_counter >= sizeof(ls_mys_byte))
-						ls_counter=0;
-				}
+			else //LS
+			{
+				packet[6] |= FLAG_MT_RATE2				// max rate
+					| GET_FLAG( Servo_AUX5, 0x10 );		//HEADLESS
+				packet[7] = ls_mys_byte[ls_counter++];
+				if(ls_counter >= sizeof(ls_mys_byte))
+					ls_counter=0;
+			}
 
 		uint8_t result=checksum_offset;
 		for(uint8_t i=0; i<8; i++)
@@ -99,9 +96,9 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	else
 	{ // YZ
 		packet[0] = convert_channel_8b_scale(THROTTLE,0x00,0x64); // throttle
-		packet[1] = convert_channel_8b_scale(RUDDER  ,0x00,0x64); // rudder
+		packet[1] = convert_channel_8b_scale(RUDDER  ,0x64,0x00); // rudder
 		packet[2] = convert_channel_8b_scale(ELEVATOR,0x00,0x64); // elevator
-		packet[3] = convert_channel_8b_scale(AILERON ,0x00,0x64); // aileron
+		packet[3] = convert_channel_8b_scale(AILERON ,0x64,0x00); // aileron
 		if(packet_count++ >= 23)
 		{
 			yz_seq_num ++;

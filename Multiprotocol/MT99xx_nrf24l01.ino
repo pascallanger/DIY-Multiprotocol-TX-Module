@@ -82,7 +82,12 @@ static void __attribute__((unused)) MT99XX_send_packet()
 			else //LS
 			{
 				packet[6] |= FLAG_MT_RATE2				// max rate
-					| GET_FLAG( Servo_AUX5, 0x10 );		//HEADLESS
+					| GET_FLAG( Servo_AUX2, 0x01 )		//???
+					| GET_FLAG( Servo_AUX3, 0x04 )		//???
+					| GET_FLAG( Servo_AUX4, 0x08 )		//???
+					| GET_FLAG( Servo_AUX5, 0x10 )		//HEADLESS
+					| GET_FLAG( Servo_AUX6, 0x20 )		//???
+					| GET_FLAG( Servo_AUX7, 0x40 );		//???
 				packet[7] = ls_mys_byte[ls_counter++];
 				if(ls_counter >= sizeof(ls_mys_byte))
 					ls_counter=0;

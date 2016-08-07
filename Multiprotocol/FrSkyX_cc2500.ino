@@ -119,18 +119,20 @@ static void __attribute__((unused)) initialize_data(uint8_t adr)
 	CC2500_WriteReg(CC2500_09_ADDR, adr ? 0x03 : rx_tx_addr[3]);
 	CC2500_WriteReg(CC2500_07_PKTCTRL1,0x05);
 }
-/*	
-	static uint8_t __attribute__((unused)) crc_Byte( uint8_t byte )
-	{
-		crc = (crc<<8) ^ pgm_read_word(&CRCTable[((uint8_t)(crc>>8) ^ byte) & 0xFF]);
-		return byte;
-	}
-*/  
+
+//**CRC**
+const uint16_t PROGMEM CRC_Short[]={
+	0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
+	0x8C48, 0x9DC1, 0xAF5A, 0xBED3, 0xCA6C, 0xDBE5, 0xE97E, 0xF8F7 };
+static uint16_t __attribute__((unused)) CRCTable(uint8_t val)
+{
+   return pgm_read_word(&CRC_Short[val&0x0F]) ^ (0x1081 * (val>>4));
+}
 static uint16_t __attribute__((unused)) crc_x(uint8_t *data, uint8_t len)
 {
 	uint16_t crc = 0;
 	for(uint8_t i=0; i < len; i++)
-		crc = (crc<<8) ^ pgm_read_word(&CRCTable[((uint8_t)(crc>>8) ^ *data++) & 0xFF]);
+		crc = (crc<<8) ^ CRCTable((uint8_t)(crc>>8) ^ *data++);
 	return crc;
 }
 

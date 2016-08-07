@@ -113,7 +113,7 @@ static void __attribute__((unused)) FQ777_send_packet(uint8_t bind)
 		//6 00 ??
 		//7 checksum - add values in other fields 
 
-		/*
+		
 		// Trims are usually done through the radio configuration but leaving the code here just in case...
 		uint8_t trim_mod  = packet_count % 144;
 		uint8_t trim_val  = 0;
@@ -121,15 +121,15 @@ static void __attribute__((unused)) FQ777_send_packet(uint8_t bind)
 			trim_val  = 0x20; // don't modify yaw trim
 		else
 			if (108 < trim_mod && trim_mod) // pitch
-				trim_val = map(ppm[FQ777124_TRIM_CHAN_PITCH], PPM_MIN, PPM_MAX, 0x01, 0x3E) + 0xA0 - 0x1F;
+				trim_val = 0xA0;
 			else // roll
-				trim_val = map(ppm[FQ777124_TRIM_CHAN_ROLL], PPM_MIN, PPM_MAX, 0x01, 0x3E) + 0x60 - 0x1F;*/
+				trim_val = 0x60;
 
 		packet_ori[0] = convert_channel_8b_scale(THROTTLE,0,0x64);
 		packet_ori[1] = convert_channel_8b_scale(RUDDER,0,0x64);
 		packet_ori[2] = convert_channel_8b_scale(ELEVATOR,0,0x64);
 		packet_ori[3] = convert_channel_8b_scale(AILERON,0,0x64);
-		packet_ori[4] = 0x20; //trim_val; // calculated above
+		packet_ori[4] = trim_val; // calculated above
 		packet_ori[5] = GET_FLAG(Servo_AUX1, FQ777_FLAG_FLIP)
 				  | GET_FLAG(Servo_AUX3, FQ777_FLAG_HEADLESS)
 				  | GET_FLAG(!Servo_AUX2, FQ777_FLAG_RETURN)
@@ -166,6 +166,7 @@ static void __attribute__((unused)) FQ777_init()
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowledgement on all data pipes
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x00);
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);
+	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00); // no retransmits
 	NRF24L01_SetBitrate(NRF24L01_BR_250K);
 	NRF24L01_SetPower();
     NRF24L01_Activate(0x73);                         // Activate feature register
@@ -179,7 +180,8 @@ uint16_t FQ777_callback()
 	if(bind_counter!=0)
 	{
 		FQ777_send_packet(1);
-		if (bind_counter-- == 0)
+		bind_counter--;
+		if (bind_counter == 0)
 		{
 			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
 			BIND_DONE;
@@ -194,6 +196,8 @@ uint16_t initFQ777(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	bind_counter = FQ777_BIND_COUNT;
+	packet_count=0;
+	memset(packet,0,32);
 	hopping_frequency[0] = 0x4D;
 	hopping_frequency[1] = 0x43;
 	hopping_frequency[2] = 0x27;

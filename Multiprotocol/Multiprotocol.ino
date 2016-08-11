@@ -95,7 +95,7 @@ volatile uint16_t PPM_data[NUM_CHN];
 
 // Serial variables
 #define RXBUFFER_SIZE 25
-#define TXBUFFER_SIZE 20
+#define TXBUFFER_SIZE 32
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 volatile uint8_t tx_buff[TXBUFFER_SIZE];
@@ -347,9 +347,11 @@ void loop()
 	{
 		for(uint8_t i=0;i<NUM_CHN;i++)
 		{ // update servo data without interrupts to prevent bad read in protocols
+		        uint16_t temp_ppm ;
 			cli();	// disable global int
-			Servo_data[i]=PPM_data[i];
+			temp_ppm = PPM_data[i] ;
 			sei();	// enable global int
+			Servo_data[i]=PPM_data[i];
 		}
 		update_aux_flags();
 		PPM_FLAG_off;	// wait for next frame before update
@@ -437,8 +439,10 @@ static void CheckTimer(uint16_t (*cb)(void))
 			#else
 			if( (TIFR1 & (1<<OCF1A)) != 0)
 			{
+				uint16_t temp ;
+	          	        temp = TCNT1 ;
 				cli();			// disable global int
-				OCR1A=TCNT1;	// Callback should already have been called... Use "now" as new sync point.
+				OCR1A=temp;	// Callback should already have been called... Use "now" as new sync point.
 				sei();			// enable global int
 			}
 			else
@@ -451,8 +455,9 @@ static void CheckTimer(uint16_t (*cb)(void))
 		while(next_callback>4000)
 		{ 										// start to wait here as much as we can...
 			next_callback=next_callback-2000;
-			cli();								// disable global int			
-			#ifdef XMEGA		
+			
+			#ifdef XMEGA
+				cli();								// disable global int
 				TCC1.CCA +=2000*2;					// set compare A for callback
 				TCC1.INTFLAGS = TC1_CCAIF_bm ;		// clear compare A=callback flag
 				sei();								// enable global int
@@ -460,12 +465,14 @@ static void CheckTimer(uint16_t (*cb)(void))
 				#else
 			    OCR1A+=2000*2;	// clear compare A=callback flag 
 				#if defined STM32_board	
+				        cli();
 					TIMER2_BASE->CCR1=OCR1A;
 					TCNT1 = TIMER2_BASE->CNT; 
 					TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag
 					sei();
 					while((TIMER2_BASE->SR &TIMER_SR_CC1IF)==0);//2ms wait
 					#else
+					cli();
 					TIFR1=(1<<OCF1A);					// clear compare A=callback flag
 					sei();								// enable global int
 					while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...
@@ -473,23 +480,27 @@ static void CheckTimer(uint16_t (*cb)(void))
 			#endif
 		}
 		// at this point we have between 2ms and 4ms in next_callback
-		cli();									// disable global int
-		#ifdef XMEGA		
+											// disable global int
+		#ifdef XMEGA
+		        cli();
 			TCC1.CCA +=next_callback*2;				// set compare A for callback
 			TCC1.INTFLAGS = TC1_CCAIF_bm ;			// clear compare A=callback flag
 			diff=TCC1.CCA-TCC1.CNT;					// compare timer and comparator
-			sei();				
-			// enable global int
+			sei();// enable global int			
 			#else
-			OCR1A+=next_callback*2;
 			#if defined STM32_board
-			    TIMER2_BASE->CCR1 = OCR1A;
+		        	OCR1A+=next_callback*2;
+			        cli();
+			        TIMER2_BASE->CCR1 = OCR1A;
 				TCNT1 = TIMER2_BASE->CNT;
 				TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;//clear compare Flag write zero 
 				diff=OCR1A-TCNT1;						// compare timer and comparator
 				sei();
 				#else
-				OCR1A+=next_callback*2;					// set compare A for callback
+			        next_callback *= 2 ;
+		                next_callback += OCR1A ;
+				cli();
+				OCR1A=next_callback;					// set compare A for callback
 				TIFR1=(1<<OCF1A);						// clear compare A=callback flag
 				diff=OCR1A-TCNT1;						// compare timer and comparator
 				sei();									// enable global int

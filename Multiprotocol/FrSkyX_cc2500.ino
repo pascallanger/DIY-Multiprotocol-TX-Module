@@ -124,7 +124,8 @@ static void __attribute__((unused)) frskyX_init()
 		CC2500_WriteReg(reg,val);
 	}
 
-	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x04);			
+	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x04);
+        LastOption = option ;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	CC2500_Strobe(CC2500_SIDLE);    
 	//
@@ -287,6 +288,11 @@ uint16_t ReadFrSkyX()
 			state++;			
 			break;		
 		case FRSKY_DATA1:
+			if ( LastOption != option )
+			{
+				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
+				LastOption = option ;
+			}
 			LED_ON;
 			CC2500_SetTxRxMode(TX_EN);
 			set_start(channr);

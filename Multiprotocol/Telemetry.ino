@@ -24,6 +24,7 @@
 #define STUFF_MASK              0x20
 #define MAX_PKTX 10
 uint8_t pktx[MAX_PKTX];
+uint8_t pktx1[MAX_PKTX];//second buffer for sport
 uint8_t idxt;
 uint8_t pass = 0;
 uint8_t frame[18];
@@ -119,7 +120,7 @@ void frsky_link_frame()
 #if defined HUB_TELEMETRY
 void frsky_user_frame()
 {
-	uint8_t indexx = 0, c=0, j=8, n=0, i;
+	uint8_t indexx = 0, j=8, i;
 	
 	if(pktt[6]>0 && pktt[6]<=10)
 	{//only valid hub frames	  
@@ -131,18 +132,8 @@ void frsky_user_frame()
 				indexx=pktt[6];
 				for(i=0;i<indexx;i++)
 				{
-					if(pktt[j]==0x5E)
-					{
-						if(c++)
-						{
-							c=0;
-							n++;
-							j++;
-						}
-					}
 					pktx[i]=pktt[j++];
 				}	
-				indexx = indexx-n;
 				pass=1;
 				
 			case 1:
@@ -166,7 +157,7 @@ void frsky_user_frame()
 			case 2:		
 				idxt = prev_index - idxt;
 				prev_index=0;
-				if(idxt<(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
+				if(idxt<=(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
 					for(i=0;i<idxt;i++)
 						frame[i+3]=pktx[USER_MAX_BYTES+i];
 				pass=0;
@@ -253,7 +244,8 @@ void sportSend(uint8_t *p)
 {
 	uint16_t crc_s = 0;
 	Serial_write(START_STOP);//+9
-	for (uint8_t i = 0; i < 9; i++)
+	Serial_write(p[0]) ;
+	for (uint8_t i = 1; i < 9; i++)
 	{
 		if (i == 8)
 			p[i] = 0xff - crc_s;
@@ -285,7 +277,7 @@ void sportSendFrame()
 	uint8_t i;
 	sport_counter = (sport_counter + 1) %36;
 	
-	if(sport_counter<2)
+	if(sport_counter<6)
 	{
 		frame[0] = 0x98;
 		frame[1] = 0x10;
@@ -294,12 +286,12 @@ void sportSendFrame()
 	}
 	switch (sport_counter)
 	{
-		case 0: // RSSI
+		case 2: // RSSI
 			frame[2] = 0x01;
 			frame[3] = 0xf1;
 			frame[4] = rssi;
 			break;
-		case 1: //BATT
+		case 4: //BATT
 			frame[2] = 0x04;
 			frame[3] = 0xf1;
 			frame[4] = RxBt;//a1;
@@ -308,7 +300,7 @@ void sportSendFrame()
 			if(sport)
 			{	
 				for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
-				frame[i]=pktx[i];
+				frame[i]=pktx1[i];
 				sport=0;
 				break;
 			}
@@ -347,7 +339,19 @@ void proces_sport_data(uint8_t data)
 	} // end switch
 	if (idxt >= FRSKY_SPORT_PACKET_SIZE)
 	{//8 bytes no crc 
-		sport = 1;//ok to send
+		if ( sport )
+		{
+			// overrun! do nothing
+		}
+		else
+		{
+			uint8_t i ;
+			for ( i = 0 ; i < FRSKY_SPORT_PACKET_SIZE ; i += 1 )
+			{
+				pktx1[i] = pktx[i] ;	// Double buffer
+			}
+			sport = 1;//ok to send
+		}
 		pass = 0;//reset
 	}
 }
@@ -382,10 +386,10 @@ void frskyUpdate()
 	{	// FrSkyX
 		if(telemetry_link)
 		{		
-			if(pktt[4]>0x36)
-			rssi=pktt[4]>>1;
+                        if(pktt[4] & 0x80)
+		        rssi=pktt[4] & 0x7F ;
 			else 
-			RxBt=pktt[4];					
+			RxBt = (pktt[4]<<1) + 1 ;					
 			for (uint8_t i=0; i < pktt[6]; i++)
 			proces_sport_data(pktt[7+i]);
 			telemetry_link=0;

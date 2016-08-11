@@ -80,6 +80,7 @@ uint16_t crc;
 uint16_t state;
 uint8_t  len;
 uint8_t  RX_num;
+uint8_t LastOption ;//change option value on the fly.
 
 #if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO)
 	uint8_t calData[48][3];

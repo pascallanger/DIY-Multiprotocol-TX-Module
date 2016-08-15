@@ -89,6 +89,7 @@ static void __attribute__((unused)) frskyX_init()
 	}
 
 	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x04);			
+	prev_option = option ;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	CC2500_Strobe(CC2500_SIDLE);    
 	//
@@ -124,9 +125,12 @@ static void __attribute__((unused)) initialize_data(uint8_t adr)
 const uint16_t PROGMEM CRC_Short[]={
 	0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
 	0x8C48, 0x9DC1, 0xAF5A, 0xBED3, 0xCA6C, 0xDBE5, 0xE97E, 0xF8F7 };
-static uint16_t __attribute__((unused)) CRCTable(uint8_t val)
+static uint16_t CRCTable(uint8_t val)
 {
-   return pgm_read_word(&CRC_Short[val&0x0F]) ^ (0x1081 * (val>>4));
+	uint16_t word ;
+	word = pgm_read_word(&CRC_Short[val&0x0F]) ;
+	val /= 16 ;
+	return word ^ (0x1081 * val) ;
 }
 static uint16_t __attribute__((unused)) crc_x(uint8_t *data, uint8_t len)
 {
@@ -253,6 +257,11 @@ uint16_t ReadFrSkyX()
 			state++;			
 			break;		
 		case FRSKY_DATA1:
+			if ( prev_option != option )
+			{
+				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
+				prev_option = option ;
+			}
 			LED_ON;
 			CC2500_SetTxRxMode(TX_EN);
 			set_start(channr);

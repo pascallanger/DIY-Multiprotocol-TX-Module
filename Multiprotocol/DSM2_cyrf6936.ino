@@ -416,7 +416,7 @@ uint16_t ReadDsm2()
 #define DSM_CH1_CH2_DELAY	4010	// Time between write of channel 1 and channel 2
 #define DSM_WRITE_DELAY		1550	// Time after write to verify write complete
 #define DSM_READ_DELAY		600		// Time before write to check read state, and switch channels. Was 400 but 500 seems what the 328p needs to read a packet
-	uint32_t start;
+	uint16_t start;
 
 	switch(cyrf_state)
 	{
@@ -458,7 +458,7 @@ uint16_t ReadDsm2()
 		case DSM2_CH1_CHECK_A:
 		case DSM2_CH1_CHECK_B:
 			start=micros();
-			while (micros()-start < 500)				// Wait max 500µs
+			while ((uint16_t)micros()-start < 500)				// Wait max 500µs
 				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
 					break;
 			set_sop_data_crc();
@@ -467,7 +467,7 @@ uint16_t ReadDsm2()
 		case DSM2_CH2_CHECK_A:
 		case DSM2_CH2_CHECK_B:
 			start=micros();
-			while (micros()-start < 500)				// Wait max 500µs
+			while ((uint16_t)micros()-start < 500)				// Wait max 500µs
 				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
 					break;
 			if (cyrf_state == DSM2_CH2_CHECK_A)
@@ -501,7 +501,7 @@ uint16_t ReadDsm2()
 				//Force end read state
 				CYRF_WriteRegister(CYRF_0F_XACT_CFG, (CYRF_ReadRegister(CYRF_0F_XACT_CFG) | 0x20));  // Force end state
 				start=micros();
-				while (micros()-start < 100)	// Wait max 100 µs
+				while ((uint16_t)micros()-start < 100)	// Wait max 100 µs
 					if((CYRF_ReadRegister(CYRF_0F_XACT_CFG) & 0x20) == 0)
 						break;
 				cyrf_state = DSM2_CH2_READ_B;

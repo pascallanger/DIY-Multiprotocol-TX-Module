@@ -150,7 +150,11 @@ void NRF24L01_SetPower()
 	if(IS_RANGE_FLAG_on)
 		power=NRF_POWER_0;
 	rf_setup = (rf_setup & 0xF9) | (power << 1);
-    NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
+	if(prev_power != power)
+	{
+		NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
+		prev_power=power;
+	}
 }
 
 void NRF24L01_SetTxRxMode(enum TXRX_State mode)

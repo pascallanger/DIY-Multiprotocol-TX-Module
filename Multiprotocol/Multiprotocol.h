@@ -439,6 +439,10 @@ enum {
 	PKT_TIMEOUT
 };
 
+// baudrate defines for serial
+#define SPEED_100K	0
+#define SPEED_9600	1
+
 //****************************************
 //*** MULTI protocol serial definition ***
 //****************************************

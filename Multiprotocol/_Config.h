@@ -15,6 +15,9 @@
 
 /** Multiprotocol module configuration file ***/
 
+/*******************/
+/*** TX SETTINGS ***/
+/*******************/
 //Uncomment your TX type
 #define TX_ER9X_AETR	//ER9X AETR (988<->2012µs)
 //#define TX_ER9X_TAER	//ER9X TAER (988<->2012µs)
@@ -22,6 +25,9 @@
 //#define TX_SPEKTRUM	//Spektrum TAER (1100<->1900µs)
 //#define TX_HISKY		//HISKY AETR (1100<->1900µs)
 
+/****************************/
+/*** PROTOCOLS TO INCLUDE ***/
+/****************************/
 //Comment if a module is not installed
 #define A7105_INSTALLED
 #define CYRF6936_INSTALLED
@@ -61,8 +67,14 @@
 	#define	FQ777_NRF24L01_INO
 #endif
 
+/**************************/
+/*** TELEMETRY SETTINGS ***/
+/**************************/
 //Uncomment to enable telemetry
 #define TELEMETRY
+
+//Uncomment to invert the telemetry serial signal, this is usefull for OpenTX on Taranis as an example
+//#define INVERT_TELEMETRY	1
 
 //Comment to disable a specific telemetry
 #if defined(TELEMETRY)
@@ -77,6 +89,9 @@
 	#endif
 #endif 
 
+/********************/
+/*** PPM SETTINGS ***/
+/********************/
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
 const PPM_Parameters PPM_prot[15]=	{
 //	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
@@ -180,9 +195,9 @@ Auto Bind	AUTOBIND or NO_AUTOBIND
 Option		value between 0 and 255. 0xD7 or 0x00 for Frsky fine tuning.
 */
 
-//******************
-//TX definitions with timing endpoints and channels order
-
+/*******************/
+/*** TX SETTINGS ***/
+/*******************/
 // Turnigy PPM and channels
 #if defined(TX_ER9X_AETR)
 #define PPM_MAX		2140	//	125%
@@ -301,7 +316,3 @@ enum chan_order{
 #define PPM_MIN_COMMAND 1250
 #define PPM_SWITCH		1550
 #define PPM_MAX_COMMAND 1750
-
-//Uncoment the desired serial speed
-#define BAUD 100000
-//#define BAUD 125000

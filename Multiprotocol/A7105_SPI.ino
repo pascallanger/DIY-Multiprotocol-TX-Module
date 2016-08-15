@@ -155,7 +155,11 @@ void A7105_SetPower()
 		power=IS_POWER_FLAG_on?A7105_HIGH_POWER:A7105_LOW_POWER;
 	if(IS_RANGE_FLAG_on)
 		power=A7105_RANGE_POWER;
-	A7105_WriteReg(0x28, power);
+	if(prev_power != power)
+	{
+		A7105_WriteReg(0x28, power);
+		prev_power=power;
+	}
 }
 
 void A7105_Strobe(uint8_t address) {

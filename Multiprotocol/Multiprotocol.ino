@@ -36,6 +36,8 @@ uint32_t Model_fixed_id=0;
 uint32_t fixed_id;
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint32_t blink=0;
+uint8_t  prev_option;
+uint8_t  prev_power=0xFD; // unused power value
 //
 uint16_t counter;
 uint8_t  channel;
@@ -85,11 +87,19 @@ uint8_t protocol_flags=0,protocol_flags2=0;
 volatile uint16_t PPM_data[NUM_CHN];
 
 // Serial variables
+#ifdef INVERT_TELEMETRY
+// enable bit bash for serial
+	#define	BASH_SERIAL 1
+	#define	INVERT_SERIAL 1
+#endif
+#define BAUD 100000
 #define RXBUFFER_SIZE 25
-#define TXBUFFER_SIZE 20
+#define TXBUFFER_SIZE 32
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
+#ifndef BASH_SERIAL
 volatile uint8_t tx_buff[TXBUFFER_SIZE];
+#endif
 volatile uint8_t idx = 0;
 
 //Serial protocol
@@ -112,8 +122,10 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 		#define HUB_TELEMETRY
 	#endif
 	uint8_t pktt[MAX_PKT];//telemetry receiving packets
+#ifndef BASH_SERIAL
 	volatile uint8_t tx_head=0;
 	volatile uint8_t tx_tail=0;
+#endif // BASH_SERIAL
 	uint8_t v_lipo;
 	int16_t RSSI_dBm;
 	//const uint8_t RSSI_offset=72;//69 71.72 values db
@@ -283,9 +295,11 @@ void loop()
 	{
 		for(uint8_t i=0;i<NUM_CHN;i++)
 		{ // update servo data without interrupts to prevent bad read in protocols
+			uint16_t temp_ppm ;
 			cli();	// disable global int
-			Servo_data[i]=PPM_data[i];
+			temp_ppm = PPM_data[i] ;
 			sei();	// enable global int
+			Servo_data[i]= temp_ppm ;
 		}
 		update_aux_flags();
 		PPM_FLAG_off;	// wait for next frame before update
@@ -348,8 +362,10 @@ static void CheckTimer(uint16_t (*cb)(void))
 #else
 	if( (TIFR1 & (1<<OCF1A)) != 0)
 	{
+		uint16_t temp ;
+		temp = TCNT1 ;
 		cli();			// disable global int
-		OCR1A=TCNT1;	// Callback should already have been called... Use "now" as new sync point.
+		OCR1A=temp;	// Callback should already have been called... Use "now" as new sync point.
 		sei();			// enable global int
 	}
 	else
@@ -361,28 +377,34 @@ static void CheckTimer(uint16_t (*cb)(void))
 		while(next_callback>4000)
 		{ 										// start to wait here as much as we can...
 			next_callback=next_callback-2000;
-			cli();								// disable global int
 #ifdef XMEGA		
+			cli();								// disable global int
 			TCC1.CCA +=2000*2;					// set compare A for callback
 			TCC1.INTFLAGS = TC1_CCAIF_bm ;		// clear compare A=callback flag
 			sei();								// enable global int
 			while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait 2ms...
 #else
-			OCR1A+=2000*2;						// set compare A for callback
+			uint16_t temp ;
+			temp = OCR1A + 2000*2 ;
+			cli();								// disable global int
+			OCR1A = temp ;						// set compare A for callback
 			TIFR1=(1<<OCF1A);					// clear compare A=callback flag
 			sei();								// enable global int
 			while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...
 #endif
 		}
 		// at this point we have between 2ms and 4ms in next_callback
-		cli();									// disable global int
 #ifdef XMEGA		
+		cli();									// disable global int
 		TCC1.CCA +=next_callback*2;				// set compare A for callback
 		TCC1.INTFLAGS = TC1_CCAIF_bm ;			// clear compare A=callback flag
 		diff=TCC1.CCA-TCC1.CNT;					// compare timer and comparator
 		sei();									// enable global int
 #else
-		OCR1A+=next_callback*2;					// set compare A for callback
+		next_callback *= 2 ;
+		next_callback += OCR1A ;
+		cli();									// disable global int
+		OCR1A = next_callback ;					// set compare A for callback
 		TIFR1=(1<<OCF1A);						// clear compare A=callback flag
 		diff=OCR1A-TCNT1;						// compare timer and comparator
 		sei();									// enable global int
@@ -657,6 +679,7 @@ static void module_reset()
 				break;
 		}
 	}
+	prev_power=0xFD; // unused power value
 }
 
 int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
@@ -721,22 +744,6 @@ uint16_t limit_channel_100(uint8_t ch)
 	return Servo_data[ch];
 }
 
-#if defined(TELEMETRY)
-void Serial_write(uint8_t data)
-{
-	cli();	// disable global int
-	if(++tx_head>=TXBUFFER_SIZE)
-		tx_head=0;
-	tx_buff[tx_head]=data;
-#ifdef XMEGA
-	USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;
-#else	
-	UCSR0B |= (1<<UDRIE0);//enable UDRE interrupt
-#endif
-	sei();	// enable global int
-}
-#endif
-
 static void Mprotocol_serial_init()
 {
 #ifdef XMEGA
@@ -766,7 +773,7 @@ static void Mprotocol_serial_init()
 #ifdef DEBUG_TX
 	TX_SET_OUTPUT;
 #else
-	UCSR0B |= (1<<TXEN0);//tx enable
+	initTXSerial( SPEED_100K ) ;
 #endif
 #endif
 }
@@ -774,22 +781,7 @@ static void Mprotocol_serial_init()
 #if defined(TELEMETRY)
 static void PPM_Telemetry_serial_init()
 {
-#ifdef XMEGA
-	USARTC0.BAUDCTRLA = 207 ;
-	USARTC0.BAUDCTRLB = 0 ;
-	
-	USARTC0.CTRLB = 0x18 ;
-	USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
-	USARTC0.CTRLC = 0x03 ;
-#else
-	//9600 bauds
-	UBRR0H = 0x00;
-	UBRR0L = 0x67;
-	UCSR0A = 0 ;	// Clear X2 bit
-	//Set frame format to 8 data bits, none, 1 stop bit
-	UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
-	UCSR0B = (1<<TXEN0);//tx enable
-#endif
+	initTXSerial( SPEED_9600 ) ;
 }
 #endif
 
@@ -998,7 +990,7 @@ void init()
 #ifdef XMEGA
 ISR(PORTD_INT0_vect)
 #else
-ISR(INT1_vect)
+ISR(INT1_vect, ISR_NOBLOCK)
 #endif
 {	// Interrupt on PPM pin
 	static int8_t chan=-1;
@@ -1021,10 +1013,10 @@ ISR(INT1_vect)
 		else
 			if(chan!=-1)		// need to wait for start of frame
 			{  //servo values between 500us and 2420us will end up here
-				uint16_t a = Cur_TCNT1>>1;
-				if(a<PPM_MIN) a=PPM_MIN;
-				else if(a>PPM_MAX) a=PPM_MAX;
-				PPM_data[chan]=a;
+				uint16_t temp = Cur_TCNT1>>1;
+				if(temp<PPM_MIN) temp=PPM_MIN;
+				else if(temp>PPM_MAX) temp=PPM_MAX;
+				PPM_data[chan]=temp;
 				if(chan++>=NUM_CHN)
 					chan=-1;	// don't accept any new channels
 			}
@@ -1041,6 +1033,10 @@ ISR(USART_RX_vect)
 #ifdef XMEGA
 	if((USARTC0.STATUS & 0x1C)==0)			// Check frame error, data overrun and parity error
 #else
+	
+	UCSR0B &= ~(1<<RXCIE0) ; //rx interrupt disable
+	sei() ;
+
 	if((UCSR0A&0x1C)==0)			// Check frame error, data overrun and parity error
 #endif
 	{ // received byte is ok to process
@@ -1080,8 +1076,9 @@ ISR(USART_RX_vect)
 #endif
 				if(!IS_RX_FLAG_on)
 				{ //Good frame received and main has finished with previous buffer
-					for(idx=0;idx<RXBUFFER_SIZE;idx++)
-						rx_ok_buff[idx]=rx_buff[idx];	// Duplicate the buffer
+					uint8_t i ;
+					for(i=0;i<RXBUFFER_SIZE;i++)
+						rx_ok_buff[i]=rx_buff[i];	// Duplicate the buffer
 					RX_FLAG_on;					// flag for main to process servo data
 				}
 				idx=0; 							// start again
@@ -1097,42 +1094,21 @@ ISR(USART_RX_vect)
 #endif
 		idx=0;		// Error encountered discard full frame...
 	}
+
+#ifndef XMEGA
+	cli() ;
+	UCSR0B |= (1<<RXCIE0) ;//rx enable interrupt
+#endif
 }
 
 //Serial timer
 #ifdef XMEGA
 ISR(TCC1_CCB_vect)
 #else
-ISR(TIMER1_COMPB_vect)
+//ISR(TIMER1_COMPB_vect)
+ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
 #endif
 {	// Timer1 compare B interrupt
 	idx=0;
 }
 
-#if defined(TELEMETRY)
-//Serial TX
-
-#ifdef XMEGA
-ISR(USARTC0_DRE_vect)
-#else
-ISR(USART_UDRE_vect)
-#endif
-{	// Transmit interrupt
-	if(tx_head!=tx_tail)
-	{
-		if(++tx_tail>=TXBUFFER_SIZE)//head 
-			tx_tail=0;
-#ifdef XMEGA
-		USARTC0.DATA = tx_buff[tx_tail] ;
-#else
-		UDR0=tx_buff[tx_tail];
-#endif
-	}
-	if (tx_tail == tx_head)
-#ifdef XMEGA
-		USARTC0.CTRLA &= ~0x03 ;
-#else
-		UCSR0B &= ~(1<<UDRIE0); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
-#endif
-}
-#endif

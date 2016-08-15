@@ -73,6 +73,22 @@ const PROGMEM uint8_t SFHSS_init_values[] = {
   /* 20 */ 0xF8, 0xB6, 0x10, 0xEA, 0x0A, 0x11, 0x11
 };
 
+static void __attribute__((unused)) SFHSS_rf_init()
+{
+	CC2500_Reset();
+	CC2500_Strobe(CC2500_SIDLE);
+
+	//CC2500_WriteRegisterMulti(CC2500_00_IOCFG2, init_values, sizeof(init_values));
+	for (uint8_t i = 0; i < 39; ++i)
+		CC2500_WriteReg(i, pgm_read_byte_near(&SFHSS_init_values[i]));
+
+	prev_option = option+1;
+	//CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+	
+	CC2500_SetTxRxMode(TX_EN);
+	CC2500_SetPower();
+}
+
 static void __attribute__((unused)) SFHSS_tune_chan()
 {
 	CC2500_Strobe(CC2500_SIDLE);
@@ -93,24 +109,14 @@ static void __attribute__((unused)) SFHSS_tune_freq() {
 // May be we'll need this tuning routine - some receivers are more sensitive to
 // frequency impreciseness, and though CC2500 has a procedure to handle it it
 // may not be applied in receivers, so we need to compensate for it on TX 
-	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-	CC2500_WriteReg(CC2500_0F_FREQ0, SFHSS_FREQ0_VAL + SFHSS_COARSE);
+	if ( prev_option != option )
+	{
+		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+		CC2500_WriteReg(CC2500_0F_FREQ0, SFHSS_FREQ0_VAL + SFHSS_COARSE);
+		prev_option = option ;
+	}
 }
 #endif
-
-static void __attribute__((unused)) SFHSS_rf_init()
-{
-	CC2500_Reset();
-	CC2500_Strobe(CC2500_SIDLE);
-
-	for (uint8_t i = 0; i < 39; ++i)
-		CC2500_WriteReg(i, pgm_read_byte_near(&SFHSS_init_values[i]));
-	//CC2500_WriteRegisterMulti(CC2500_00_IOCFG2, init_values, sizeof(init_values));
-	//CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-	
-	CC2500_SetTxRxMode(TX_EN);
-	CC2500_SetPower();
-}
 
 static void __attribute__((unused)) SFHSS_calc_next_chan()
 {
@@ -128,7 +134,6 @@ static uint16_t __attribute__((unused)) SFHSS_convert_channel(uint8_t num)
 {
 	return (uint16_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,86,906));
 }
-
 
 static void __attribute__((unused)) SFHSS_build_data_packet()
 {

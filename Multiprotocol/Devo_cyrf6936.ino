@@ -116,24 +116,28 @@ static void __attribute__((unused)) build_beacon_pkt(uint8_t upper)
 	add_pkt_suffix();
 }
 
+#define FORCE_INDIRECT(ptr) __asm__ __volatile__ ("" : "=e" (ptr) : "0" (ptr))
+
 static void __attribute__((unused)) build_bind_pkt()
 {
-	packet[0] = (DEVO_NUM_CHANNELS << 4) | 0x0a;
-	packet[1] = bind_counter & 0xff;
-	packet[2] = (bind_counter >> 8);
-	packet[3] = *hopping_frequency_ptr;
-	packet[4] = *(hopping_frequency_ptr + 1);
-	packet[5] = *(hopping_frequency_ptr + 2);
-	packet[6] = cyrfmfg_id[0];
-	packet[7] = cyrfmfg_id[1];
-	packet[8] = cyrfmfg_id[2];
-	packet[9] = cyrfmfg_id[3];
+	uint8_t *p = packet ;
+	FORCE_INDIRECT(p) ;
+	p[0] = (DEVO_NUM_CHANNELS << 4) | 0x0a;
+	p[1] = bind_counter & 0xff;
+	p[2] = (bind_counter >> 8);
+	p[3] = *hopping_frequency_ptr;
+	p[4] = *(hopping_frequency_ptr + 1);
+	p[5] = *(hopping_frequency_ptr + 2);
+	p[6] = cyrfmfg_id[0];
+	p[7] = cyrfmfg_id[1];
+	p[8] = cyrfmfg_id[2];
+	p[9] = cyrfmfg_id[3];
 	add_pkt_suffix();
 	//The fixed-id portion is scrambled in the bind packet
 	//I assume it is ignored
-	packet[13] ^= cyrfmfg_id[0];
-	packet[14] ^= cyrfmfg_id[1];
-	packet[15] ^= cyrfmfg_id[2];
+	p[13] ^= cyrfmfg_id[0];
+	p[14] ^= cyrfmfg_id[1];
+	p[15] ^= cyrfmfg_id[2];
 }
 
 static void __attribute__((unused)) build_data_pkt()
@@ -174,31 +178,57 @@ static void __attribute__((unused)) cyrf_set_bound_sop_code()
 	CYRF_SetPower(0x08);
 }
 
+const uint8_t PROGMEM devo_init_vals[][2] = {
+	{CYRF_06_RX_CFG, 0x4A },
+	{CYRF_0B_PWR_CTRL, 0x00 },
+	{CYRF_0D_IO_CFG, 0x04 },
+	{CYRF_0E_GPIO_CTRL, 0x20 },
+	{CYRF_10_FRAMING_CFG, 0xA4 },
+	{CYRF_11_DATA32_THOLD, 0x05 },
+	{CYRF_12_DATA64_THOLD, 0x0E },
+	{CYRF_1B_TX_OFFSET_LSB, 0x55 },
+	{CYRF_1C_TX_OFFSET_MSB, 0x05 },
+	{CYRF_32_AUTO_CAL_TIME, 0x3C },
+	{CYRF_35_AUTOCAL_OFFSET, 0x14 },
+	{CYRF_39_ANALOG_CTRL, 0x01 },
+	{CYRF_1E_RX_OVERRIDE, 0x10 },
+	{CYRF_1F_TX_OVERRIDE, 0x00 },
+	{CYRF_01_TX_LENGTH, 0x10 },
+	{CYRF_0C_XTAL_CTRL, 0xC0 },
+	{CYRF_0F_XACT_CFG, 0x10 },
+	{CYRF_27_CLK_OVERRIDE, 0x02 },
+	{CYRF_28_CLK_EN, 0x02 },
+	{CYRF_0F_XACT_CFG, 0x28 }
+};
+
 static void __attribute__((unused)) cyrf_init()
 {
 	/* Initialise CYRF chip */
 	CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x39);
 	CYRF_SetPower(0x08);
-	CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4A);
-	CYRF_WriteRegister(CYRF_0B_PWR_CTRL, 0x00);
-	CYRF_WriteRegister(CYRF_0D_IO_CFG, 0x04);
-	CYRF_WriteRegister(CYRF_0E_GPIO_CTRL, 0x20);
-	CYRF_WriteRegister(CYRF_10_FRAMING_CFG, 0xA4);
-	CYRF_WriteRegister(CYRF_11_DATA32_THOLD, 0x05);
-	CYRF_WriteRegister(CYRF_12_DATA64_THOLD, 0x0E);
-	CYRF_WriteRegister(CYRF_1B_TX_OFFSET_LSB, 0x55);
-	CYRF_WriteRegister(CYRF_1C_TX_OFFSET_MSB, 0x05);
-	CYRF_WriteRegister(CYRF_32_AUTO_CAL_TIME, 0x3C);
-	CYRF_WriteRegister(CYRF_35_AUTOCAL_OFFSET, 0x14);
-	CYRF_WriteRegister(CYRF_39_ANALOG_CTRL, 0x01);
-	CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE, 0x10);
-	CYRF_WriteRegister(CYRF_1F_TX_OVERRIDE, 0x00);
-	CYRF_WriteRegister(CYRF_01_TX_LENGTH, 0x10);
-	CYRF_WriteRegister(CYRF_0C_XTAL_CTRL, 0xC0);
-	CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x10);
-	CYRF_WriteRegister(CYRF_27_CLK_OVERRIDE, 0x02);
-	CYRF_WriteRegister(CYRF_28_CLK_EN, 0x02);
-	CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x28);
+	for(uint8_t i = 0; i < sizeof(devo_init_vals) / 2; i++)	
+		CYRF_WriteRegister(pgm_read_byte( &devo_init_vals[i][0]), pgm_read_byte( &devo_init_vals[i][1]) );
+
+//	CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4A);
+//	CYRF_WriteRegister(CYRF_0B_PWR_CTRL, 0x00);
+//	CYRF_WriteRegister(CYRF_0D_IO_CFG, 0x04);
+//	CYRF_WriteRegister(CYRF_0E_GPIO_CTRL, 0x20);
+//	CYRF_WriteRegister(CYRF_10_FRAMING_CFG, 0xA4);
+//	CYRF_WriteRegister(CYRF_11_DATA32_THOLD, 0x05);
+//	CYRF_WriteRegister(CYRF_12_DATA64_THOLD, 0x0E);
+//	CYRF_WriteRegister(CYRF_1B_TX_OFFSET_LSB, 0x55);
+//	CYRF_WriteRegister(CYRF_1C_TX_OFFSET_MSB, 0x05);
+//	CYRF_WriteRegister(CYRF_32_AUTO_CAL_TIME, 0x3C);
+//	CYRF_WriteRegister(CYRF_35_AUTOCAL_OFFSET, 0x14);
+//	CYRF_WriteRegister(CYRF_39_ANALOG_CTRL, 0x01);
+//	CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE, 0x10);
+//	CYRF_WriteRegister(CYRF_1F_TX_OVERRIDE, 0x00);
+//	CYRF_WriteRegister(CYRF_01_TX_LENGTH, 0x10);
+//	CYRF_WriteRegister(CYRF_0C_XTAL_CTRL, 0xC0);
+//	CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x10);
+//	CYRF_WriteRegister(CYRF_27_CLK_OVERRIDE, 0x02);
+//	CYRF_WriteRegister(CYRF_28_CLK_EN, 0x02);
+//	CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x28);
 }
 
 static void __attribute__((unused)) set_radio_channels()

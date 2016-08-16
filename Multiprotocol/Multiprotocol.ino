@@ -48,6 +48,8 @@ uint32_t Model_fixed_id=0;
 uint32_t fixed_id;
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint32_t blink=0;
+uint8_t  prev_option;
+uint8_t  prev_power=0xFD; // unused power value
 //
 uint16_t counter;
 uint8_t  channel;

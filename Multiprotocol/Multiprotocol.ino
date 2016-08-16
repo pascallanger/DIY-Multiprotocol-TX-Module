@@ -48,7 +48,7 @@ uint32_t Model_fixed_id=0;
 uint32_t fixed_id;
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint32_t blink=0;
-uint8_t  prev_option;
+uint8_t  prev_option;//change option value on the fly.
 uint8_t  prev_power=0xFD; // unused power value
 //
 uint16_t counter;
@@ -82,7 +82,6 @@ uint16_t crc;
 uint16_t state;
 uint8_t  len;
 uint8_t  RX_num;
-uint8_t LastOption ;//change option value on the fly.
 
 #if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO)
 	uint8_t calData[48][3];

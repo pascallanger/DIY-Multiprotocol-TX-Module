@@ -50,7 +50,7 @@ static void __attribute__((unused)) frsky2way_init(uint8_t bind)
 				val=bind ? 0x43 : 0x03;
 		CC2500_WriteReg(reg,val);
 	}
-        LastOption = option ;
+        prev_option = option ;
 	CC2500_SetTxRxMode(TX_EN);
 	CC2500_SetPower();
 	
@@ -207,10 +207,10 @@ uint16_t ReadFrSky_2way()
 			CC2500_SetPower();	// Set tx_power
 		}
 		
-		if ( LastOption != option )
+		if ( prev_option != option )
 		{
 		CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
-		LastOption = option ;
+		prev_option = option ;
 		}
 		CC2500_Strobe(CC2500_SIDLE);
 		CC2500_WriteReg(CC2500_0A_CHANNR, get_chan_num(counter % 47));

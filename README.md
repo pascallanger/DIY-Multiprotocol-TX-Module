@@ -303,6 +303,8 @@ Use an external FTDI adapter like [this one](http://www.banggood.com/FT232RL-FTD
 or other USB serial-TTL dongle.The device can work with both  5V and 3.3V. When in 3.3V selection there are some precautions to be taken ,you can read below.
 
 ###Important:
+Flashing:
+###Method 1:
 
 Don't flash new firmware with the TX switched on !!!!!
 
@@ -313,6 +315,16 @@ Before uploading new firmware use a jumper on BOOT0.After flashing new firmware 
 ###Warning!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 After flashing new firmware it is mandatory to remove the 3.3V jumper if installed.If not when starting the module and micro you may fry them as 5V is supplied directly on the RF module and micro.Extreme care ,do not flash with 5V setting on USB-SERIAL and 3.3V jumper attached.If in doubt measure the serial  device output with a multimeter.
+
+###Method 2.
+
+Uploading new firmware with TX switched on.
+For this method DON'T TOUCH THE 3.3V JUMPER(NO JUMPER)!!!
+This method is less prone to mistakes.The module is inside the TX bay.Move/set the jumper on BOOT0.
+Connect the USB-serial device TX ,RX,and GND lines to coresponding RX,TX GND on the multimodule.
+Start TX ,plug the USB -serial device on computer USB port,open arduino IDE upload the sketch normally.
+At the end of uploading remove the BOOT0 jumper.Start normally.
+
 
 ##Troubleshooting
 

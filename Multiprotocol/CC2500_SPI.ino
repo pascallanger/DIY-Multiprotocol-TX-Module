@@ -21,14 +21,14 @@
 
 void CC2500_ReadData(uint8_t *dpbuffer, uint8_t len)
 {
-	CC2500_ReadRegisterMulti(CC2500_3F_RXFIFO | CC2500_READ_BURST, dpbuffer, len);
+	CC2500_ReadRegisterMulti(CC2500_3F_RXFIFO , dpbuffer, len);
 }
 
 //----------------------
 static void CC2500_ReadRegisterMulti(uint8_t address, uint8_t data[], uint8_t length)
 {
 	CC25_CSN_off;
-	spi_write(address);
+	spi_write(CC2500_READ_BURST | address);
 	for(uint8_t i = 0; i < length; i++)
 		data[i] = spi_read();
 	CC25_CSN_on;

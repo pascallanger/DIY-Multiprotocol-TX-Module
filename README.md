@@ -238,7 +238,7 @@ The main program is running on an STM32F103CBT6 chip running @8MHz X-tal and 3.3
 ![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/f2d598eacd8e9eebc3818adf47777199.png)
 ![Screenshot](https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/2026cfd1d0187a770570052590168df1.png)
 
-[OSH Park link](https://oshpark.com/shared_projects/zcG1NEzu)  if you want to order.
+[OSH Park link](https://oshpark.com/shared_projects/toBXcpNK)  if you want to order.
 
 ####Buy a 4 in 1 tuner to be used with new STM32 multimodule board
 

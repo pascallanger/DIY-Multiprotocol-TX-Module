@@ -125,7 +125,11 @@ void CC2500_SetPower()
 		power=IS_POWER_FLAG_on?CC2500_HIGH_POWER:CC2500_LOW_POWER;
 	if(IS_RANGE_FLAG_on)
 		power=CC2500_RANGE_POWER;
-	CC2500_WriteReg(CC2500_3E_PATABLE, power);
+        if(prev_power != power)
+	{
+		CC2500_WriteReg(CC2500_3E_PATABLE, power);
+		prev_power=power;
+	}
 }
 
 void CC2500_SetTxRxMode(uint8_t mode)

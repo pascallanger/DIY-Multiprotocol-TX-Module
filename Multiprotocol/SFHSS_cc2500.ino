@@ -101,7 +101,7 @@ static void __attribute__((unused)) SFHSS_tune_chan_fast()
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_WriteReg(CC2500_0A_CHANNR, rf_ch_num*6+16);
 	CC2500_WriteRegisterMulti(CC2500_23_FSCAL3, calData[rf_ch_num], 3);
-	delayMicroseconds(100);	//6);
+	delayMicroseconds(6);
 }
 
 #ifdef SFHSS_USE_TUNE_FREQ

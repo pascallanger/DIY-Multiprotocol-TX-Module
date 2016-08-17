@@ -100,7 +100,6 @@ static void __attribute__((unused)) SFHSS_tune_chan_fast()
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_WriteReg(CC2500_0A_CHANNR, rf_ch_num*6+16);
 	CC2500_WriteRegisterMulti(CC2500_23_FSCAL3, calData[rf_ch_num], 3);
-	_delay_us(6);
 }
 
 #ifdef SFHSS_USE_TUNE_FREQ
@@ -129,9 +128,10 @@ static void __attribute__((unused)) SFHSS_calc_next_chan()
 }
 
 // Channel values are 10-bit values between 86 and 906, 496 is the middle.
+// Values grow down and to the right, so we just revert every channel.
 static uint16_t __attribute__((unused)) SFHSS_convert_channel(uint8_t num)
 {
-	return (uint16_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,86,906));
+	return (uint16_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,906,86));
 }
 
 
@@ -164,7 +164,7 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 
 static void __attribute__((unused)) SFHSS_send_packet()
 {
-    SFHSS_tune_chan_fast();
+    //SFHSS_tune_chan_fast();
     CC2500_WriteData(packet, SFHSS_PACKET_LEN);
 }
 
@@ -201,28 +201,11 @@ uint16_t ReadSFHSS()
 			state = SFHSS_TUNE;
 			return 2000;
 		case SFHSS_TUNE:
-			CC2500_SetPower();
 			state = SFHSS_DATA1;
-			return 3150;
-	/*
-		case SFHSS_DATA1:
-			SFHSS_build_data_packet();
-			SFHSS_send_packet();
-			state = SFHSS_DATA2;
-			return 1650;
-		case SFHSS_DATA2:
-			SFHSS_build_data_packet();
-			SFHSS_send_packet();
-			state = SFHSS_CAL2;
-			return 500;
-		case SFHSS_CAL2:
 			SFHSS_tune_freq();
-			//        CC2500_SetPower();
-			SFHSS_calc_next_chan();
-			SFHSS_tune_chan();
-			state = SFHSS_DATA1;
-			return 4650;
-	*/
+			SFHSS_tune_chan_fast();
+			CC2500_SetPower();
+			return 3150;
 	}
 	return 0;
 }

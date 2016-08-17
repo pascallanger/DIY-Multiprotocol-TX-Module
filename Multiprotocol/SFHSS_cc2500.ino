@@ -82,8 +82,8 @@ static void __attribute__((unused)) SFHSS_rf_init()
 	for (uint8_t i = 0; i < 39; ++i)
 		CC2500_WriteReg(i, pgm_read_byte_near(&SFHSS_init_values[i]));
 
-	prev_option = 0;
-	//CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+	prev_option = option;
+	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	
 	CC2500_SetTxRxMode(TX_EN);
 	CC2500_SetPower();
@@ -130,9 +130,10 @@ static void __attribute__((unused)) SFHSS_calc_next_chan()
 }
 
 // Channel values are 10-bit values between 86 and 906, 496 is the middle.
+// Values grow down and to the right, so we just revert every channel.
 static uint16_t __attribute__((unused)) SFHSS_convert_channel(uint8_t num)
 {
-	return (uint16_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,86,906));
+	return (uint16_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,906,86));
 }
 
 static void __attribute__((unused)) SFHSS_build_data_packet()
@@ -145,7 +146,7 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
     uint16_t ch3 = SFHSS_convert_channel(CH_AETR[ch_offset+2]);
     uint16_t ch4 = SFHSS_convert_channel(CH_AETR[ch_offset+3]);
     
-    packet[0]  = 0x81; // can be 80, 81, 81 for Orange, only 81 for XK
+    packet[0]  = 0x81; // can be 80 or 81 for Orange, only 81 for XK
     packet[1]  = rx_tx_addr[0];
     packet[2]  = rx_tx_addr[1];
     packet[3]  = 0;

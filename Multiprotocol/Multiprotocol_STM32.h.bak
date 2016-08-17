@@ -127,10 +127,10 @@ enum FRSKYX
 //*******************
 
 #if defined STM32_board
-#define digitalHi(p, i)  (gpio_write_bit(p, i, HIGH))
-#define digitallo(p, i)  (gpio_write_bit(p, i, LOW))
-#define digitalIn(p, i)  (gpio_read_bit(p,i))
-#define digitalToggle(p, i) (gpio_toggle_bit(p,i))
+#define digitalHi(p, i)  gpio_write_bit(p, PIN_MAP[i].gpio_bit, HIGH)
+#define digitallo(p, i)  gpio_write_bit(p, PIN_MAP[i].gpio_bit, LOW)
+#define digitalIn(p, i)  gpio_read_bit(p,PIN_MAP[i].gpio_bit)
+#define digitalToggle(p, i) gpio_toggle_bit(p,PIN_MAP[i].gpio_bit)
 //
 //********************
 #define BIND_pin PA0

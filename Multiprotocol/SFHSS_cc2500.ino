@@ -114,6 +114,7 @@ static void __attribute__((unused)) SFHSS_tune_freq() {
 		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 		CC2500_WriteReg(CC2500_0F_FREQ0, SFHSS_FREQ0_VAL + SFHSS_COARSE);
 		prev_option = option ;
+		phase = SFHSS_START;	// Restart the tune process if option is changed
 	}
 }
 #endif
@@ -163,7 +164,6 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 
 static void __attribute__((unused)) SFHSS_send_packet()
 {
-    SFHSS_tune_chan_fast();
     CC2500_WriteData(packet, SFHSS_PACKET_LEN);
 }
 
@@ -200,11 +200,12 @@ uint16_t ReadSFHSS()
 			phase = SFHSS_TUNE;
 			return 2000;
 		case SFHSS_TUNE:
+			phase = SFHSS_DATA1;
 #ifdef SFHSS_USE_TUNE_FREQ
 			SFHSS_tune_freq();
 #endif
+			SFHSS_tune_chan_fast();
 			CC2500_SetPower();
-			phase = SFHSS_DATA1;
 			return 3150;
 	/*
 		case SFHSS_DATA1:

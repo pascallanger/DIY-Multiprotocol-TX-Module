@@ -136,7 +136,7 @@ void CYRF_SetPower(uint8_t val)
 		power=CYRF_RANGE_POWER;
         if(prev_power != power)
 	{
-		CYRF_WriteRegister(CYRF_03_TX_CFG, val | power);
+		CYRF_WriteRegister(CYRF_03_TX_CFG, power);
 		prev_power=power;
 	}
 }

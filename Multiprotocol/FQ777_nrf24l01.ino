@@ -102,7 +102,7 @@ static void __attribute__((unused)) FQ777_send_packet(uint8_t bind)
 		packet_ori[4] = rx_tx_addr[0];
 		packet_ori[5] = rx_tx_addr[1];
 		packet_ori[6] = rx_tx_addr[2];
-		packet_ori[7] = packet[4] + packet[5] + packet[6];
+		packet_ori[7] = packet_ori[4] + packet_ori[5] + packet_ori[6];
 	}
 	else
 	{
@@ -197,7 +197,6 @@ uint16_t initFQ777(void)
 	BIND_IN_PROGRESS;	// autobind protocol
 	bind_counter = FQ777_BIND_COUNT;
 	packet_count=0;
-	memset(packet,0,32);
 	hopping_frequency[0] = 0x4D;
 	hopping_frequency[1] = 0x43;
 	hopping_frequency[2] = 0x27;

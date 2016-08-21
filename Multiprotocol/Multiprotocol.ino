@@ -670,6 +670,19 @@ static void protocol_init()
 			remote_callback = FY326_callback;
 			break;
 		#endif
+		#if defined(FQ777_NRF24L01_INO)
+		case MODE_FQ777:
+			next_callback=initFQ777();
+			remote_callback = FQ777_callback;
+			break;
+                #endif
+                #if defined(ASSAN_NRF24L01_INO)
+		case MODE_ASSAN:
+			next_callback=initASSAN();
+			remote_callback = ASSAN_callback;
+			break;
+                #endif
+		
 	}
 	
 	if(next_callback>32000)

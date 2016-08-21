@@ -779,9 +779,11 @@ static void Mprotocol_serial_init()
 #ifdef DEBUG_TX
 	TX_SET_OUTPUT;
 #else
+	#if defined(TELEMETRY)
 	initTXSerial( SPEED_100K ) ;
-#endif
-#endif
+	#endif //TELEMETRY
+#endif //DEBUG_TX
+#endif //XMEGA
 }
 
 #if defined(TELEMETRY)

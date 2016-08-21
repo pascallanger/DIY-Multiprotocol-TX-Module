@@ -18,7 +18,7 @@
 
 #include "iface_cc2500.h"
 
-//#define SFHSS_USE_TUNE_FREQ
+
 #define SFHSS_COARSE	0
 
 #define SFHSS_PACKET_LEN 13
@@ -102,7 +102,7 @@ static void __attribute__((unused)) SFHSS_tune_chan_fast()
 	CC2500_WriteRegisterMulti(CC2500_23_FSCAL3, calData[rf_ch_num], 3);
 }
 
-#ifdef SFHSS_USE_TUNE_FREQ
+
 static void __attribute__((unused)) SFHSS_tune_freq() {
 // May be we'll need this tuning routine - some receivers are more sensitive to
 // frequency impreciseness, and though CC2500 has a procedure to handle it it
@@ -114,7 +114,6 @@ static void __attribute__((unused)) SFHSS_tune_freq() {
 		prev_option = option ;
 	}
 }
-#endif
 
 static void __attribute__((unused)) SFHSS_calc_next_chan()
 {

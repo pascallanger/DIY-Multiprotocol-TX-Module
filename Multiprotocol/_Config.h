@@ -65,6 +65,7 @@
 	#define	SHENQI_NRF24L01_INO
 	#define	FY326_NRF24L01_INO
 	#define	FQ777_NRF24L01_INO
+	#define	ASSAN_NRF24L01_INO
 #endif
 
 /**************************/
@@ -184,6 +185,8 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_J6PRO
 		NONE
 	MODE_FQ777
+		NONE
+	MODE_ASSAN
 		NONE
 
 RX_Num 		value between 0 and 15

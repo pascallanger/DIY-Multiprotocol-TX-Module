@@ -58,17 +58,17 @@ uint8_t CYRF_ReadRegister(uint8_t address)
 
 uint8_t CYRF_Reset()
 {
-	CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x01);//software reset
-	delayMicroseconds(200);// 
-	// RS_HI;
-	//  delayMicroseconds(100);
-	// RS_LO;
-	// delayMicroseconds(100);		  
-	CYRF_WriteRegister(CYRF_0C_XTAL_CTRL, 0xC0); //Enable XOUT as GPIO
-	CYRF_WriteRegister(CYRF_0D_IO_CFG, 0x04); //Enable PACTL as GPIO
+	CYRF_RST_HI;										//Hardware reset
+	delayMicroseconds(100);
+	CYRF_RST_LO;
+	delayMicroseconds(100);		  
+/*	CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x01);	//Software reset
+	delayMicroseconds(200);
+*/	CYRF_WriteRegister(CYRF_0C_XTAL_CTRL, 0xC0);		//Enable XOUT as GPIO
+	CYRF_WriteRegister(CYRF_0D_IO_CFG, 0x04);			//Enable PACTL as GPIO
 	CYRF_SetTxRxMode(TXRX_OFF);
-	//Verify the CYRD chip is responding
-	return (CYRF_ReadRegister(CYRF_10_FRAMING_CFG) == 0xa5);//return if reset
+	//Verify the CYRF chip is responding
+	return (CYRF_ReadRegister(CYRF_10_FRAMING_CFG) == 0xa5);
 }
 
 /*

@@ -51,7 +51,8 @@ enum PROTOCOLS
 	MODE_FY326=20,			// =>NRF24L01
 	MODE_SFHSS=21,			// =>CC2500
 	MODE_J6PRO=22,			// =>CYRF6936
-	MODE_FQ777=23			// =>NRF24L01
+	MODE_FQ777=23,			// =>NRF24L01
+	MODE_ASSAN=24			// =>NRF24L01
 };
 
 enum Flysky
@@ -238,6 +239,8 @@ struct PPM_Parameters
 #else
 #define CYRF_CSN_on PORTB |= _BV(1)		//D9
 #define CYRF_CSN_off PORTB &= ~_BV(1)	//D9
+#define CYRF_RST_HI PORTC|=_BV(5)		//reset cyrf 
+#define CYRF_RST_LO PORTB &= ~_BV(5)	//
 #endif
 //  
 #ifdef XMEGA
@@ -247,9 +250,6 @@ struct PPM_Parameters
 #define  SDO_1 (PIND & (1<<SDO_pin)) == (1<<SDO_pin)	//D6
 #define  SDO_0 (PIND & (1<<SDO_pin)) == 0x00			//D6
 #endif
-//
-#define RS_HI PORTC|=_BV(5)				//reset pin cyrf 
-#define RX_LO PORTB &= ~_BV(5)//
 //
 //
 
@@ -480,6 +480,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					SFHSS		21
 					J6PRO		22
 					FQ777		23
+					ASSAN		24
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

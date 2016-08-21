@@ -50,6 +50,9 @@ enum PROTOCOLS
 	MODE_SHENQI=19,			// =>NRF24L01
 	MODE_FY326=20,			// =>NRF24L01
 	MODE_SFHSS=21			// =>CC2500
+	MODE_J6PRO=22,			// =>CYRF6936
+	MODE_FQ777=23,			// =>NRF24L01
+	MODE_ASSAN=24			// =>NRF24L01
 };
 
 enum Flysky
@@ -235,6 +238,8 @@ struct PPM_Parameters
 #else
 #define CYRF_CSN_on PORTB |= _BV(1)		//D9
 #define CYRF_CSN_off PORTB &= ~_BV(1)	//D9
+#define CYRF_RST_HI PORTC |=_BV(5)		//reset cyrf 
+#define CYRF_RST_LO PORTC &= ~_BV(5)	//
 #endif
 //  
 #ifdef XMEGA

@@ -155,7 +155,11 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	hopping_frequency[0]=freq;
 	// Alternate frequency
 	hopping_frequency[1]=freq*2-6;
+	#if defined STM32_board
+	hopping_frequency[1]+=analogRead(PB0)%12;		// Add some random to the second channel
+	#else
 	hopping_frequency[1]+=analogRead(A6)%12;		// Add some random to the second channel
+	#endif
 }
 
 uint16_t initASSAN()

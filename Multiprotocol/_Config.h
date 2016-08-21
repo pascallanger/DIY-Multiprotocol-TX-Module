@@ -57,6 +57,8 @@
 	#define	MJXQ_NRF24L01_INO
 	#define	SHENQI_NRF24L01_INO
 	#define	FY326_NRF24L01_INO
+	#define	FQ777_NRF24L01_INO
+	#define	ASSAN_NRF24L01_INO
 #endif
 
 //Uncomment to enable telemetry
@@ -173,6 +175,10 @@ const PPM_Parameters PPM_prot[15]=	{
 		NONE
 	MODE_SFHSS
 		NONE
+	MODE_FQ777
+		NONE
+	MODE_ASSAN
+		NONE	
 
 RX_Num 		value between 0 and 15
 

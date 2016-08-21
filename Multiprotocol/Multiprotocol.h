@@ -239,8 +239,8 @@ struct PPM_Parameters
 #else
 #define CYRF_CSN_on PORTB |= _BV(1)		//D9
 #define CYRF_CSN_off PORTB &= ~_BV(1)	//D9
-#define CYRF_RST_HI PORTC|=_BV(5)		//reset cyrf 
-#define CYRF_RST_LO PORTB &= ~_BV(5)	//
+#define CYRF_RST_HI PORTC|= _BV(5)		//reset cyrf 
+#define CYRF_RST_LO PORTC&=~_BV(5)		//
 #endif
 //  
 #ifdef XMEGA
@@ -424,7 +424,7 @@ enum CYRF_POWER
 #define CYRF_HIGH_POWER		CYRF_POWER_7
 #define	CYRF_LOW_POWER		CYRF_POWER_3
 #define	CYRF_RANGE_POWER	CYRF_POWER_1	// 1/30 of the full power distance
-#define	CYRF_BIND_POWER		CYRF_POWER_0
+#define	CYRF_BIND_POWER		CYRF_POWER_1
 
 enum TXRX_State {
 	TXRX_OFF,

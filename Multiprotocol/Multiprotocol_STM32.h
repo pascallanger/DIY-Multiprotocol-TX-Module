@@ -41,6 +41,9 @@ enum PROTOCOLS
 	MODE_SHENQI=19,			// =>NRF24L01
 	MODE_FY326=20,			// =>NRF24L01
 	MODE_SFHSS=21			// =>CC2500
+	MODE_J6PRO=22,			// =>CYRF6936
+	MODE_FQ777=23,			// =>NRF24L01
+	MODE_ASSAN=24			// =>NRF24L01
 };
 
 enum Flysky
@@ -188,7 +191,10 @@ enum FRSKYX
 #define NRF_CSN_off digitalWrite(NRF_CSN_pin,LOW)	
 
 #define CYRF_CSN_on digitalWrite(CYRF_CSN_pin,HIGH)		
-#define CYRF_CSN_off digitalWrite(CYRF_CSN_pin,LOW)	
+#define CYRF_CSN_off digitalWrite(CYRF_CSN_pin,LOW)
+
+#define CYRF_RST_HI digitalWrite(CYRF_RST_pin,HIGH)	//reset cyrf 
+#define CYRF_RST_LO digitalWrite(CYRF_RST_pin,LOW)	//
 
 #define  SDO_1 (digitalRead(SDO_pin)==HIGH)		
 #define  SDO_0 (digitalRead(SDO_pin)==LOW)	

@@ -5,7 +5,7 @@ The source code is partly based on the Deviation TX project, thanks to all the d
 
 [Forum link on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) for additional information or requesting a new protocol integration.
 
-**To download the latest compiled version (hex file), click on  [Release](https://github.com/midelic/DIY-Multiprotocol-TX-Module/releases) on the top menu.**
+**To download the latest compiled version (.bin file), click on  [Release](https://github.com/midelic/DIY-Multiprotocol-TX-Module/releases) on the top menu.**
 
 ##Contents
 

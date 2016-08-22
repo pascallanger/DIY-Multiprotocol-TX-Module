@@ -90,7 +90,7 @@ uint16_t ASSAN_callback()
 					for(uint8_t i=0;i<4;i++)
 						packet[16+i]=packet[23-i];
 					packet_count=0;
-					delay(260);
+					delayMilliseconds(260);
 					return 10000;	// Wait 270ms in total...
 				}
 			}
@@ -104,7 +104,7 @@ uint16_t ASSAN_callback()
 			if(packet_count==20)
 			{
 				phase++;
-				delay(2165);
+				delayMilliseconds(2165);
 			}
 			return 22520;
 	// Normal operation
@@ -134,7 +134,7 @@ uint16_t ASSAN_callback()
 
 static void __attribute__((unused)) ASSAN_initialize_txid()
 {
-/*	//Renaud TXID with Freq=36 and alternate freq 67 or 68 or 69 or 70 or 71 or 73 or 74 or 75 or 78 and may be more...
+/*	//Renaud TXID with Freq=36 and alternate Freq 67 or 68 or 69 or 70 or 71 or 73 or 74 or 75 or 78 and may be more...
 	packet[23]=0x22;
 	packet[22]=0x37;
 	packet[21]=0xFA;

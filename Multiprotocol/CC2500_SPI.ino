@@ -117,7 +117,7 @@ void CC2500_SetTxRxMode(uint8_t mode)
 uint8_t CC2500_Reset()
 {
 	CC2500_Strobe(CC2500_SRES);
-	delay(1);
+	delayMilliseconds(1);
 	CC2500_SetTxRxMode(TXRX_OFF);
 	return CC2500_ReadReg(CC2500_0E_FREQ1) == 0xC4;//check if reset
 }

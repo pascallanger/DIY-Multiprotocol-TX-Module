@@ -213,10 +213,8 @@ static void __attribute__((unused)) build_data_packet(uint8_t upper)//
 	for (i = 0; i < 7; i++)
 	{	
 		uint8_t idx = ch_map[upper * 7 + i];//1,5,2,3,0,4	   
-		uint16_t value;	
-		if (idx == 0xff)
-			value = 0xffff;
-		else
+		uint16_t value = 0xffff;;	
+		if (idx != 0xff)
 		{
 			if (binding)
 			{ // Failsafe position during binding

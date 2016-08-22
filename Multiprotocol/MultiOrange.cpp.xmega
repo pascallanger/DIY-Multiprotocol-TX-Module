@@ -200,7 +200,7 @@ unsigned long micros()
 	return ((m << 8) + t) * (64 / clockCyclesPerMicrosecond());
 }
 
-void delay(unsigned long ms)
+void delayMilliseconds(unsigned long ms)
 {
 	uint16_t start = (uint16_t)micros();
 
@@ -419,7 +419,7 @@ int analogRead(uint8_t pin)
 #endif
 
 	// without a delay, we seem to read from the wrong channel
-	//delay(1);
+	//delayMilliseconds(1);
 
 #if defined(ADCSRA) && defined(ADCL)
 	// start the conversion

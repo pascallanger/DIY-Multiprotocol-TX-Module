@@ -385,9 +385,9 @@ Model_fixed_id=0;
 eeprom_write_block((const void*)0,(void*)40,4);
 while(1){
 LED_ON;
-delay(100);
+delayMilliseconds(100);
 LED_OFF;
-delay(100);
+delayMilliseconds(100);
 }
 }
 else{

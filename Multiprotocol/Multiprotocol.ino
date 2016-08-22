@@ -199,7 +199,7 @@ void setup()
 	memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
 	
 	//Wait for every component to start
-	delay(100);
+	delayMilliseconds(100);
 	
 	// Read status of bind button
 #ifdef XMEGA
@@ -595,8 +595,9 @@ static void protocol_init()
 
 	if(next_callback>32000)
 	{ // next_callback should not be more than 32767 so we will wait here...
-		delayMicroseconds(next_callback-2000);
-		next_callback=2000;
+		uint16_t temp=next_callback>>10-2;
+		delayMilliseconds(temp);
+		next_callback-=temp<<10;	// between 2-3ms left at this stage
 	}
 	cli();							// disable global int
 #ifdef XMEGA
@@ -765,7 +766,6 @@ static void Mprotocol_serial_init()
 	USARTC0.CTRLC = 0x2B ;
 	USARTC0.DATA ;
 #else
-	
 	#include <util/setbaud.h>	
 	UBRR0H = UBRRH_VALUE;
 	UBRR0L = UBRRL_VALUE;
@@ -844,8 +844,10 @@ void SPI_Write(uint8_t command)
 		else
 			SDI_off;
 		SCK_on;
+		NOP();
 		command = command << 1;
 		SCK_off;
+		NOP();
 	}
 	while(--n) ;
 	SDI_on;
@@ -853,8 +855,7 @@ void SPI_Write(uint8_t command)
 
 uint8_t SPI_Read(void)
 {
-	uint8_t result;
-	uint8_t i;
+	uint8_t result=0,i;
 	for(i=0;i<8;i++)
 	{
 		result=result<<1;
@@ -863,6 +864,7 @@ uint8_t SPI_Read(void)
 		SCK_on;
 		NOP();
 		SCK_off;
+		NOP();
 	}
 	return result;
 }
@@ -939,7 +941,7 @@ uint32_t millis()
    return TotalMillis ;
 }
 
-void delay(unsigned long ms)
+void delayMilliseconds(unsigned long ms)
 {
    uint16_t start = (uint16_t)micros();
    uint16_t lms = ms ;
@@ -952,29 +954,15 @@ void delay(unsigned long ms)
    }
 }
 
-/* Delay for the given number of microseconds.  Assumes a 8 or 16 MHz clock. */
+/* Important notes:
+	- Max value is 16000µs
+	- delay is not accurate due to interrupts happening */
 void delayMicroseconds(unsigned int us)
 {
-   // calling avrlib's delay_us() function with low values (e.g. 1 or
-   // 2 microseconds) gives delays longer than desired.
-   //delay_us(us);
-   
-   // for the 16 MHz clock on most Arduino boards
-
-   // for a one-microsecond delay, simply return.  the overhead
-   // of the function call yields a delay of approximately 1 1/8 us.
    if (--us == 0)
       return;
-
-   // the following loop takes a quarter of a microsecond (4 cycles)
-   // per iteration, so execute it four times for each microsecond of
-   // delay requested.
-   us <<= 2;
-
-   // account for the time taken in the preceeding commands.
-   us -= 2;
-
-   // busy wait
+   us <<= 2;	// * 4
+   us -= 2;		// - 2
    __asm__ __volatile__ (
       "1: sbiw %0,1" "\n\t" // 2 cycles
       "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
@@ -983,8 +971,7 @@ void delayMicroseconds(unsigned int us)
 
 void init()
 {
-   // this needs to be called before setup() or some functions won't
-   // work there
+   // this needs to be called before setup() or some functions won't work there
    sei();
 }
 

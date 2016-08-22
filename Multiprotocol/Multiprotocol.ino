@@ -591,6 +591,13 @@ static void protocol_init()
 			remote_callback = devo_callback;
 			break;
 		#endif
+		#if defined(J6PRO_CYRF6936_INO)
+		case MODE_J6PRO:
+			CTRL2_on;	//antenna RF4
+			next_callback = initJ6Pro();
+			remote_callback = ReadJ6Pro;
+			break;
+                #endif
 		#if defined(HISKY_NRF24L01_INO)
 			case MODE_HISKY:
 			next_callback=initHiSky();

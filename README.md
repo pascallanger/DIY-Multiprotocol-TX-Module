@@ -350,9 +350,9 @@ To upload the latest provided hex file under [Release](https://github.com/pascal
 
 ###Set fuses
 Use a tool like [AVR Burn-O-Mat](http://avr8-burn-o-mat.aaabbb.de/) to set the fuses of the Atmega328 to:
-- Low Fuse	     0xFF
-- High Fuse	    0xD2
 - Extended Fuse	0x05 (or 0xFD which is the same)
+- High Fuse	    0xD2
+- Low Fuse	     0xFF
 
 This will make sure your ATMEGA328 is well configured and the global TX ID is not erased at each updates.
 

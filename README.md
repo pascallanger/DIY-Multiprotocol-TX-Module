@@ -209,7 +209,6 @@ CG023|
  |YD829
  |H8_3D
 Bayang|
-FrskyX||CC2500
 ESky|
 MT99XX|
  |MT
@@ -224,6 +223,7 @@ MJXQ|
 Shenqi|
 FY326|
 FQ777|
+ASSAN|
 
 Note:
 - The dial should be set to 0 for serial. Which means all protocol selection pins should be left unconnected.

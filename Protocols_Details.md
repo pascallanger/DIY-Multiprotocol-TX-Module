@@ -51,7 +51,7 @@ Extended limits supported
 
 Telemetry enabled for A0, A1, RSSI, TSSI and Hub
 
-Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
+Option=fine frequency tuning. This value is dependant of the board. To determine the option value, find the two limits where the Rx loses connection then set the option value to half way between them.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
@@ -64,7 +64,7 @@ Extended limits supported
 
 Telemetry enabled for A1 (RxBatt), A2, RSSI, TSSI and Hub
 
-Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
+Option=fine frequency tuning. This value is dependant of the board. To determine the option value, find the two limits where the Rx loses connection then set the option value to half way between them.
 
 ###Sub_protocol CH_16
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
@@ -79,7 +79,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ##SFHSS
 Models: Futaba RXs and XK models.
 
-Option=fine frequency tuning, usually 0 or -41 based on the manufacturer boards
+Option=fine frequency tuning. This value is dependant of the board. To determine the option value, find the two limits where the Rx loses connection then set the option value to half way between them.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
@@ -134,6 +134,15 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ***
 #NRF24L01 RF Module
+
+##ASSAN
+Extended limits supported
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+
+The transmitter must be close to the receiver while binding.
 
 ##BAYANG
 Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...

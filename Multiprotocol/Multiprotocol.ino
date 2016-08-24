@@ -700,19 +700,22 @@ static void protocol_init()
 		delayMicroseconds(next_callback-2000);
 		next_callback=2000;
 	}
-	cli();							// disable global int
+
 	#ifdef XMEGA
+		cli();							// disable global int
 		TCC1.CCA = TCC1.CNT + next_callback*2;	// set compare A for callback
 		sei();							// enable global int
 		TCC1.INTFLAGS = TC1_CCAIF_bm ;	// clear compare A flag
 		#else
-		#if defined STM32_board
+		#if defined STM32_board 
+			cli();							// disable global int
 			TCNT1 = TIMER2_BASE->CNT;			
 			OCR1A=TCNT1+next_callback*2;
 			TIMER2_BASE->CCR1 = OCR1A;
 			sei();
 			TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;//clear compare Flag write zero 
 			#else
+			cli();							// disable global int
 			OCR1A=TCNT1+next_callback*2;	// set compare A for callback
 			sei();							// enable global int
 			TIFR1=(1<<OCF1A);				// clear compare A flag

@@ -127,7 +127,7 @@ static void __attribute__((unused)) SFHSS_calc_next_chan()
 // Values grow down and to the right, so we just revert every channel.
 static uint16_t __attribute__((unused)) SFHSS_convert_channel(uint8_t num)
 {
-	return (uint16_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,906,86));
+	return (uint16_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,906,86));
 }
 
 static void __attribute__((unused)) SFHSS_build_data_packet()

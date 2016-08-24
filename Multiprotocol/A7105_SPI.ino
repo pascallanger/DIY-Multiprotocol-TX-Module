@@ -62,10 +62,9 @@ uint8_t A7105_ReadReg(uint8_t address) {
 
 uint8_t A7105_Read(void)
 {
-	uint8_t result;
-	uint8_t i;
+	uint8_t result=0;
 	SDI_SET_INPUT;
-	for(i=0;i<8;i++)
+	for(uint8_t i=0;i<8;i++)
 	{                    
 		result=result<<1;
 		if(SDI_1)  ///if SDIO =1 

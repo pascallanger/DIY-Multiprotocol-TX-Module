@@ -28,6 +28,7 @@
 
 //Multiprotocol module configuration file
 #include "_Config.h"
+#include "TX_Def.h"
 
 //Global constants/variables
 uint32_t MProtocol_id;//tx id,
@@ -47,6 +48,7 @@ uint8_t  packet[40];
 // Servo data
 uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
+uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
 
 // Protocol variables
 uint8_t  rx_tx_addr[5];
@@ -195,8 +197,10 @@ void setup()
 	// Set servos positions
 	for(uint8_t i=0;i<NUM_CHN;i++)
 		Servo_data[i]=1500;
-	Servo_data[THROTTLE]=PPM_MIN_100;
+	Servo_data[THROTTLE]=servo_min_100;
+#ifdef ENABLE_PPM
 	memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
+#endif
 	
 	//Wait for every component to start
 	delayMilliseconds(100);
@@ -217,9 +221,6 @@ void setup()
 #else
 	mode_select=0x0F - ( ( (PINB>>2)&0x07 ) | ( (PINC<<3)&0x08) );//encoder dip switches 1,2,4,8=>B2,B3,B4,C0
 #endif
-//**********************************
-//mode_select=1;	// here to test PPM
-//**********************************
 
 	// Update LED
 	LED_OFF;
@@ -242,6 +243,7 @@ void setup()
 		NRF24L01_Reset();
 	#endif
 
+#ifdef ENABLE_PPM
 	//Protocol and interrupts initialization
 	if(mode_select != MODE_SERIAL)
 	{ // PPM
@@ -254,6 +256,8 @@ void setup()
 		if(PPM_prot[mode_select].power)		POWER_FLAG_on;
 		if(PPM_prot[mode_select].autobind)	AUTOBIND_FLAG_on;
 		mode_select++;
+		servo_max_100=PPM_MAX_100; servo_min_100=PPM_MIN_100;
+		servo_max_125=PPM_MAX_125; servo_min_125=PPM_MIN_125;
 
 		protocol_init();
 
@@ -268,17 +272,23 @@ void setup()
 #endif
 	}
 	else
+#endif //ENABLE_PPM
 	{ // Serial
+#ifdef ENABLE_SERIAL
 		cur_protocol[0]=0;
 		cur_protocol[1]=0;
 		prev_protocol=0;
+		servo_max_100=SERIAL_MAX_100; servo_min_100=SERIAL_MIN_100;
+		servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
 		Mprotocol_serial_init(); // Configure serial and enable RX interrupt
+#endif //ENABLE_SERIAL
 	}
 }
 
 // Main
 void loop()
 {
+#ifdef ENABLE_SERIAL
 	if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
 	{
 		update_serial_data();	// Update protocol and data
@@ -291,6 +301,8 @@ void loop()
 			CHANGE_PROTOCOL_FLAG_off;					//done
 		}
 	}
+#endif //ENABLE_SERIAL
+#ifdef ENABLE_PPM
 	if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)	// PPM mode and a full frame has been received
 	{
 		for(uint8_t i=0;i<NUM_CHN;i++)
@@ -299,11 +311,14 @@ void loop()
 			cli();	// disable global int
 			temp_ppm = PPM_data[i] ;
 			sei();	// enable global int
+			if(temp_ppm<PPM_MIN_125) temp_ppm=PPM_MIN_125;
+			else if(temp_ppm>PPM_MAX_125) temp_ppm=PPM_MAX_125;
 			Servo_data[i]= temp_ppm ;
 		}
 		update_aux_flags();
 		PPM_FLAG_off;	// wait for next frame before update
 	}
+#endif //ENABLE_PPM
 	update_led_status();
 	#if defined(TELEMETRY)
 	if( ((cur_protocol[0]&0x1F)==MODE_FRSKY) || ((cur_protocol[0]&0x1F)==MODE_HUBSAN) || ((cur_protocol[0]&0x1F)==MODE_FRSKYX) || ((cur_protocol[0]&0x1F)==MODE_DSM2) )
@@ -362,10 +377,8 @@ static void CheckTimer(uint16_t (*cb)(void))
 #else
 	if( (TIFR1 & (1<<OCF1A)) != 0)
 	{
-		uint16_t temp ;
-		temp = TCNT1 ;
 		cli();			// disable global int
-		OCR1A=temp;	// Callback should already have been called... Use "now" as new sync point.
+		OCR1A=TCNT1;	// Callback should already have been called... Use "now" as new sync point.
 		sei();			// enable global int
 	}
 	else
@@ -384,10 +397,8 @@ static void CheckTimer(uint16_t (*cb)(void))
 			sei();								// enable global int
 			while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait 2ms...
 #else
-			uint16_t temp ;
-			temp = OCR1A + 2000*2 ;
 			cli();								// disable global int
-			OCR1A = temp ;						// set compare A for callback
+			OCR1A = OCR1A + 2000*2 ;			// set compare A for callback
 			TIFR1=(1<<OCF1A);					// clear compare A=callback flag
 			sei();								// enable global int
 			while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...
@@ -595,7 +606,7 @@ static void protocol_init()
 
 	if(next_callback>32000)
 	{ // next_callback should not be more than 32767 so we will wait here...
-		uint16_t temp=next_callback>>10-2;
+		uint16_t temp=(next_callback>>10)-2;
 		delayMilliseconds(temp);
 		next_callback-=temp<<10;	// between 2-3ms left at this stage
 	}
@@ -612,7 +623,7 @@ static void protocol_init()
 	BIND_BUTTON_FLAG_off;			// do not bind/reset id anymore even if protocol change
 }
 
-static void update_serial_data()
+void update_serial_data()
 {
 	if(rx_ok_buff[0]&0x20)						//check range
 		RANGE_FLAG_on;
@@ -660,7 +671,7 @@ static void update_serial_data()
 	RX_FLAG_off;								//data has been processed
 }
 
-static void module_reset()
+void module_reset()
 {
 	if(remote_callback)
 	{		// previous protocol loaded
@@ -703,13 +714,13 @@ int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t
 // Channel value is converted to 8bit values full scale
 uint8_t convert_channel_8b(uint8_t num)
 {
-	return (uint8_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,0,255));	
+	return (uint8_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,0,255));	
 }
 
 // Channel value is converted to 8bit values to provided values scale
 uint8_t convert_channel_8b_scale(uint8_t num,uint8_t min,uint8_t max)
 {
-	return (uint8_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,min,max));	
+	return (uint8_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,min,max));	
 }
 
 // Channel value is converted sign + magnitude 8bit values
@@ -723,7 +734,7 @@ uint8_t convert_channel_s8b(uint8_t num)
 // Channel value is converted to 10bit values
 uint16_t convert_channel_10b(uint8_t num)
 {
-	return (uint16_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,1,1023));
+	return (uint16_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,1,1023));
 }
 
 // Channel value is multiplied by 1.5
@@ -743,15 +754,15 @@ void convert_channel_HK310(uint8_t num, uint8_t *low, uint8_t *high)
 // Channel value is limited to PPM_100
 uint16_t limit_channel_100(uint8_t ch)
 {
-	if(Servo_data[ch]>PPM_MAX_100)
-		return PPM_MAX_100;
+	if(Servo_data[ch]>servo_max_100)
+		return servo_max_100;
 	else
-		if (Servo_data[ch]<PPM_MIN_100)
-			return PPM_MIN_100;
+		if (Servo_data[ch]<servo_min_100)
+			return servo_min_100;
 	return Servo_data[ch];
 }
 
-static void Mprotocol_serial_init()
+void Mprotocol_serial_init()
 {
 #ifdef XMEGA
 	
@@ -787,7 +798,7 @@ static void Mprotocol_serial_init()
 }
 
 #if defined(TELEMETRY)
-static void PPM_Telemetry_serial_init()
+void PPM_Telemetry_serial_init()
 {
 	initTXSerial( SPEED_9600 ) ;
 }
@@ -843,6 +854,7 @@ void SPI_Write(uint8_t command)
 			SDI_on;
 		else
 			SDI_off;
+		NOP();
 		SCK_on;
 		NOP();
 		command = command << 1;
@@ -982,6 +994,7 @@ void init()
 /**************************/
 
 //PPM
+#ifdef ENABLE_PPM
 #ifdef XMEGA
 ISR(PORTD_INT0_vect)
 #else
@@ -1008,17 +1021,16 @@ ISR(INT1_vect, ISR_NOBLOCK)
 		else
 			if(chan!=-1)		// need to wait for start of frame
 			{  //servo values between 500us and 2420us will end up here
-				uint16_t temp = Cur_TCNT1>>1;
-				if(temp<PPM_MIN) temp=PPM_MIN;
-				else if(temp>PPM_MAX) temp=PPM_MAX;
-				PPM_data[chan]=temp;
+				PPM_data[chan]= Cur_TCNT1>>1;;
 				if(chan++>=NUM_CHN)
 					chan=-1;	// don't accept any new channels
 			}
 	Prev_TCNT1+=Cur_TCNT1;
 }
+#endif //ENABLE_PPM
 
 //Serial RX
+#ifdef ENABLE_SERIAL
 #ifdef XMEGA
 ISR(USARTC0_RXC_vect)
 #else
@@ -1071,8 +1083,7 @@ ISR(USART_RX_vect)
 #endif
 				if(!IS_RX_FLAG_on)
 				{ //Good frame received and main has finished with previous buffer
-					uint8_t i ;
-					for(i=0;i<RXBUFFER_SIZE;i++)
+					for(uint8_t i=0;i<RXBUFFER_SIZE;i++)
 						rx_ok_buff[i]=rx_buff[i];	// Duplicate the buffer
 					RX_FLAG_on;					// flag for main to process servo data
 				}
@@ -1106,4 +1117,4 @@ ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
 {	// Timer1 compare B interrupt
 	idx=0;
 }
-
+#endif //ENABLE_SERIAL

@@ -148,7 +148,7 @@ static void __attribute__((unused)) build_data_pkt()
 	for (i = 0; i < 4; i++)
 	{
 		//
-		int16_t value= map(Servo_data[ch_idx * 4 + i],PPM_MIN,PPM_MAX,-1600,1600);//range -1600...+1600
+		int16_t value= map(Servo_data[ch_idx * 4 + i],servo_min_125,servo_max_125,-1600,1600);//range -1600...+1600
 		//s32 value = (s32)Channels[ch_idx * 4 + i] * 0x640 / CHAN_MAX_VALUE;//10000
 		if(value < 0)
 		{

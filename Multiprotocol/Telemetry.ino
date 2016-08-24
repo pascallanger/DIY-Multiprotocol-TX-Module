@@ -133,7 +133,8 @@ void frsky_link_frame()
 #if defined HUB_TELEMETRY
 void frsky_user_frame()
 {
-	uint8_t indexx = 0, c=0, j=8, n=0, i;
+	uint8_t indexx = 0,  j=8, i;
+	//uint8_t c=0, n=0;
 	
 	if(pktt[6]>0 && pktt[6]<=10)
 	{//only valid hub frames	  

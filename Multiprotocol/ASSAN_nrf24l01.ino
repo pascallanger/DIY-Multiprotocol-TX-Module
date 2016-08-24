@@ -74,17 +74,17 @@ uint16_t ASSAN_callback()
 			NRF24L01_SetTxRxMode(RX_EN);
 			phase++;
 		case ASSAN_BIND1:
-			//Wait for RX to send the frames
+			//Wait for receiver to send the frames
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
 			{ //Something has been received
 				NRF24L01_ReadPayload(packet, ASSAN_PACKET_SIZE);
 				if(packet[19]==0x13)
-				{ //Last packet received
+				{ //Last frame received
 					phase++;
 					//Switch to TX
 					NRF24L01_SetTxRxMode(TXRX_OFF);
 					NRF24L01_SetTxRxMode(TX_EN);
-					//Prepare packet
+					//Prepare bind packet
 					memset(packet,0x05,ASSAN_PACKET_SIZE-5);
 					packet[15]=0x99;
 					for(uint8_t i=0;i<4;i++)

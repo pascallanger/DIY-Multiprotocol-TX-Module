@@ -13,28 +13,32 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**********************************************/
 /** Multiprotocol module configuration file ***/
+/**********************************************/
 
 /*******************/
 /*** TX SETTINGS ***/
 /*******************/
-//Uncomment your TX type
-#define TX_ER9X_AETR	//ER9X AETR (988<->2012µs)
-//#define TX_ER9X_TAER	//ER9X TAER (988<->2012µs)
-//#define TX_DEVO7		//DEVO7 EATR (1120<->1920µs)
-//#define TX_SPEKTRUM	//Spektrum TAER (1100<->1900µs)
-//#define TX_HISKY		//HISKY AETR (1100<->1900µs)
+//Modify the channel order based on your TX: AETR, TAER, RETA...
+//For example a JR/Spektrum radio is TAER. Default is AETR.
+#define AETR
+
 
 /****************************/
 /*** PROTOCOLS TO INCLUDE ***/
 /****************************/
-//Comment if a module is not installed
+//In this section select the protocols you want to be accessible when using the module.
+//All the protocols will not fit in the module so you need to pick and choose.
+
+//There are 4 RF components supported. If one of them is not installed you must comment it using "//".
+//This is also a quick way to reduce the number of protocols and save Flash space.
 #define A7105_INSTALLED
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
 #define NFR24L01_INSTALLED
 
-//Comment a protocol to exclude it from compilation
+//Bellow is the list of all available protocols. Comment the protocols you are not using with "//" to save Flash space.
 #ifdef	A7105_INSTALLED
 	#define	FLYSKY_A7105_INO
 	#define	HUBSAN_A7105_INO
@@ -68,16 +72,20 @@
 	#define	ASSAN_NRF24L01_INO
 #endif
 
+
 /**************************/
 /*** TELEMETRY SETTINGS ***/
 /**************************/
-//Uncomment to enable telemetry
+//In this section you can configure the telemetry.
+
+//If you do not plan using the telemetry comment this global setting using "//" and skip to the next section.
 #define TELEMETRY
 
-//Uncomment to invert the telemetry serial signal, this is usefull for OpenTX on Taranis as an example
+//Uncomment to invert the polarity of the telemetry serial signal.
+//For ER9X and ERSKY9X it must be commented. For OpenTX it must be uncommented.
 //#define INVERT_TELEMETRY	1
 
-//Comment to disable a specific telemetry
+//Comment a line to disable a protocol telemetry
 #if defined(TELEMETRY)
 	#if defined DSM2_CYRF6936_INO
 		#define DSM_TELEMETRY	
@@ -90,18 +98,59 @@
 	#endif
 #endif 
 
-/********************/
-/*** PPM SETTINGS ***/
-/********************/
-//Update this table to set which protocol and all associated settings are called for the corresponding dial number
+
+/****************************/
+/*** SERIAL MODE SETTINGS ***/
+/****************************/
+//In this section you can configure the serial mode.
+//The serial mode enables full editing of all the parameters in the GUI of the radio.
+//This is available natively for ER9X and ERSKY9X. It is available for OpenTX on Taranis with a special version.
+
+//If you do not plan to use the Serial mode comment this line using "//" to save Flash space
+#define ENABLE_SERIAL
+
+
+/*************************/
+/*** PPM MODE SETTINGS ***/
+/*************************/
+//In this section you can configure all details about PPM.
+//If you do not plan to use the PPM mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
+#define ENABLE_PPM
+
+/*** TX END POINTS ***/
+//It is important for the module to know the endpoints of your radio.
+//Below are some standard transmitters already preconfigured.
+//Uncomment only the one which matches your transmitter.
+#define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012µs)
+//#define TX_DEVO7		//DEVO					(1120<->1920µs)
+//#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
+//#define TX_HISKY		//HISKY					(1100<->1900µs)
+//#define TX_CUSTOM		//Custom
+
+// The lines below are used to set the end points in microseconds (µs) if you have selected TX_CUSTOM.
+// A few things to considered:
+//  - If you put too big values compared to your TX you won't be able to reach the extremes which is bad for throttle as an example
+//  - If you put too low values you won't be able to use your full stick range, it will be maxed out before reaching the end
+//  - Centered stick value is usually 1500. It should match the middle between MIN and MAX, ie Center=(MAX-MIN)/2+MIN. If your TX is not centered you can adjust the value MIN or MAX.
+//  - 100% is the value when the model is by default, 125% is the value when you extend the servo travel which is only used by some protocols
+#if defined(TX_CUSTOM)
+	#define PPM_MAX_100	1900	//	100%
+	#define PPM_MIN_100	1100	//	100%
+	#define PPM_MAX_125	2000	//	125%
+	#define PPM_MIN_125	1000	//	125%
+#endif
+
+//The table below indicates which protocol to run when a specific position on the dial has been selected.
+//All fields and values are explained below. Everything is configurable from here like in the Serial mode.
+//Example: You can associate multiple times the same protocol to different dial positions to take advantage of the model match (RX_Num)
 const PPM_Parameters PPM_prot[15]=	{
 //	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	2	*/	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},	// D7 fine tuning
+/*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// option=fine freq tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// 6 channels @ 11ms
+/*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	2		},	// option=2=6 channels @ 22ms
 /*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -112,7 +161,7 @@ const PPM_Parameters PPM_prot[15]=	{
 /*	14	*/	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	15	*/	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}
 };
-/* Available protocols and associated sub protocols:
+/* Available protocols and associated sub protocols to pick and choose from
 	MODE_FLYSKY
 		Flysky
 		V9X9
@@ -188,134 +237,17 @@ const PPM_Parameters PPM_prot[15]=	{
 		NONE
 	MODE_ASSAN
 		NONE
-
-RX_Num 		value between 0 and 15
-
-Power		P_HIGH or P_LOW
-
-Auto Bind	AUTOBIND or NO_AUTOBIND
-
-Option		value between 0 and 255. 0xD7 or 0x00 for Frsky fine tuning.
 */
 
-/*******************/
-/*** TX SETTINGS ***/
-/*******************/
-// Turnigy PPM and channels
-#if defined(TX_ER9X_AETR)
-#define PPM_MAX		2140	//	125%
-#define PPM_MIN		860		//	125%
-#define PPM_MAX_100 2012	//	100%
-#define PPM_MIN_100 988		//	100%
-enum chan_order{
-	AILERON =0,
-	ELEVATOR,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
+// RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...
+// RX_Num value is between 0 and 15.
 
-// Turnigy PPM and channels
-#if defined(TX_ER9X_TAER)
-#define PPM_MAX		2140	//	125%
-#define PPM_MIN		860		//	125%
-#define PPM_MAX_100 2012	//	100%
-#define PPM_MIN_100 988		//	100%
-enum chan_order{
-	THROTTLE =0,
-	AILERON,
-	ELEVATOR,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
+// Power P_HIGH or P_LOW: High or low power setting for the transmission.
+// For indoor P_LOW is more than enough.
 
-// Devo PPM and channels
-#if defined(TX_DEVO7)
-#define PPM_MAX		2100	//	125%
-#define PPM_MIN		900		//	125%
-#define PPM_MAX_100	1920	//	100%
-#define PPM_MIN_100	1120	//	100%
-enum chan_order{
-	ELEVATOR=0,
-	AILERON,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
+// Auto Bind	AUTOBIND or NO_AUTOBIND
+// For protocols which does not require binding at each power up (like Flysky, FrSky...), you might still want a bind to be initiated each time you power up the TX.
+// As an exxample, it's usefull for the WLTOYS F929/F939/F949/F959 (all using the Flysky protocol) which requires a bind at each power up.
 
-// SPEKTRUM PPM and channels
-#if defined(TX_SPEKTRUM)
-#define PPM_MAX		2000	//	125%
-#define PPM_MIN		1000	//	125%
-#define PPM_MAX_100	1900	//	100%
-#define PPM_MIN_100	1100	//	100%
-enum chan_order{
-	THROTTLE=0,
-	AILERON,
-	ELEVATOR,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
-
-// HISKY
-#if defined(TX_HISKY)
-#define PPM_MAX		2000	//	125%
-#define PPM_MIN		1000	//	125%
-#define PPM_MAX_100	1900	//	100%
-#define PPM_MIN_100	1100	//	100%
-enum chan_order{
-	AILERON =0,
-	ELEVATOR,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
-
-#define PPM_MIN_COMMAND 1250
-#define PPM_SWITCH		1550
-#define PPM_MAX_COMMAND 1750
+// Option: the value is between -127 and +127.
+// The option value is only valid for some protocols, read this page for more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md

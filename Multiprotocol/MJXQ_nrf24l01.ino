@@ -26,6 +26,17 @@
 #define MJXQ_RF_NUM_CHANNELS	4
 #define MJXQ_ADDRESS_LENGTH	5
 
+// haven't figured out txid<-->rf channel mapping for MJX models
+const uint8_t PROGMEM MJXQ_map_rfchan[][4] = {
+				{0x0A, 0x46, 0x3A, 0x42},
+				{0x0A, 0x3C, 0x36, 0x3F},
+				{0x0A, 0x43, 0x36, 0x3F}	};
+const uint8_t PROGMEM MJXQ_map_txid[][3] = {
+				{0xF8, 0x4F, 0x1C},
+				{0xC8, 0x6E, 0x02},
+				{0x48, 0x6A, 0x40}	};
+
+
 #define MJXQ_PAN_TILT_COUNT	16   // for H26D - match stock tx timing
 #define MJXQ_PAN_DOWN		0x08
 #define MJXQ_PAN_UP			0x04
@@ -39,14 +50,14 @@ static uint8_t __attribute__((unused)) MJXQ_pan_tilt_value()
 	packet_count++;
 	if(packet_count & MJXQ_PAN_TILT_COUNT)
 	{
-		if(Servo_AUX8)
+		if(Servo_data[AUX8]>PPM_MAX_COMMAND)
 			pan=MJXQ_PAN_UP;
 		if(Servo_data[AUX8]<PPM_MIN_COMMAND)
 			pan=MJXQ_PAN_DOWN;
-		if(Servo_data[AUX9]>PPM_MIN_COMMAND)
-			pan=MJXQ_TILT_UP;
+		if(Servo_data[AUX9]>PPM_MAX_COMMAND)
+			pan+=MJXQ_TILT_UP;
 		if(Servo_data[AUX9]<PPM_MIN_COMMAND)
-			pan=MJXQ_TILT_DOWN;
+			pan+=MJXQ_TILT_DOWN;
 	}
 	return pan;
 }
@@ -188,29 +199,21 @@ static void __attribute__((unused)) MJXQ_init()
 
 static void __attribute__((unused)) MJXQ_init2()
 {
-	// haven't figured out txid<-->rf channel mapping for MJX models
-	static const uint8_t rf_map[][4] = {
-				{0x0A, 0x46, 0x3A, 0x42},
-				{0x0A, 0x3C, 0x36, 0x3F},
-				{0x0A, 0x43, 0x36, 0x3F}	};
 	if (sub_protocol == H26D)
 		memcpy(hopping_frequency, "\x32\x3e\x42\x4e", MJXQ_RF_NUM_CHANNELS);
 	else
 		if (sub_protocol == WLH08)
-			memcpy(hopping_frequency, rf_map[rx_tx_addr[0]%3], MJXQ_RF_NUM_CHANNELS);
+			for(uint8_t i=0;i<MJXQ_RF_NUM_CHANNELS;i++)
+				hopping_frequency[i]=pgm_read_byte_near( &MJXQ_map_rfchan[rx_tx_addr[4]%3][i] );
 }
 
 static void __attribute__((unused)) MJXQ_initialize_txid()
 {
-	// haven't figured out txid<-->rf channel mapping for MJX models
-	static const uint8_t tx_map[][3]={
-				{0xF8, 0x4F, 0x1C},
-				{0xC8, 0x6E, 0x02},
-				{0x48, 0x6A, 0x40}	};
 	if (sub_protocol == WLH08)
 		rx_tx_addr[0]&=0xF8;	// txid must be multiple of 8
 	else
-		memcpy(rx_tx_addr,tx_map[rx_tx_addr[0]%3],3);
+		for(uint8_t i=0;i<3;i++)
+			rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[4]%3][i] );
 }
 
 uint16_t MJXQ_callback()

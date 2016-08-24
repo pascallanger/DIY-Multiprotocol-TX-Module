@@ -357,7 +357,7 @@ void loop()
 			cli();	// disable global int
 			temp_ppm = PPM_data[i] ;
 			sei();	// enable global int
-			Servo_data[i]=PPM_data[i];
+			Servo_data[i]=temp_ppm;
 		}
 		update_aux_flags();
 		PPM_FLAG_off;	// wait for next frame before update
@@ -445,10 +445,8 @@ static void CheckTimer(uint16_t (*cb)(void))
 			#else
 			if( (TIFR1 & (1<<OCF1A)) != 0)
 			{
-				uint16_t temp ;
-	          	        temp = TCNT1 ;
 				cli();			// disable global int
-				OCR1A=temp;	// Callback should already have been called... Use "now" as new sync point.
+				OCR1A=TCNT1;	// Callback should already have been called... Use "now" as new sync point.
 				sei();			// enable global int
 			}
 			else

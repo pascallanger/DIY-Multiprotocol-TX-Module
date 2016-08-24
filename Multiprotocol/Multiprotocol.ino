@@ -1050,12 +1050,11 @@ ISR(USART_RX_vect)
 		if(idx==0)
 		{	// Let's try to sync at this point
 #ifdef XMEGA
-			if(USARTC0.DATA==0x55)			// If 1st byte is 0x55 it looks ok
+			if(USARTC0.DATA==0x55)	// If 1st byte is 0x55 it looks ok
 #else
 			if(UDR0==0x55)			// If 1st byte is 0x55 it looks ok
 #endif
 			{
-				idx++;
 #ifdef XMEGA
 				TCC1.CCB = TCC1.CNT+(6500L) ;		// Full message should be received within timer of 3250us
 				TCC1.INTFLAGS = TC1_CCBIF_bm ;		// clear OCR1B match flag
@@ -1065,6 +1064,7 @@ ISR(USART_RX_vect)
 				TIFR1=(1<<OCF1B);		// clear OCR1B match flag
 				TIMSK1 |=(1<<OCIE1B);	// enable interrupt on compare B match
 #endif
+				idx++;
 			}
 		}
 		else

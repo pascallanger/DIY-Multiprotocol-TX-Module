@@ -467,9 +467,10 @@ static void CheckTimer(uint16_t (*cb)(void))
 				sei();								// enable global int
 				while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait 2ms...
 				#else
-			    OCR1A+=2000*2;	// clear compare A=callback flag 
+			 
 				#if defined STM32_board	
 				        cli();
+				        OCR1A+=2000*2;// clear compare A=callback flag 
 					TIMER2_BASE->CCR1=OCR1A;
 					TCNT1 = TIMER2_BASE->CNT; 
 					TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag
@@ -477,6 +478,7 @@ static void CheckTimer(uint16_t (*cb)(void))
 					while((TIMER2_BASE->SR &TIMER_SR_CC1IF)==0);//2ms wait
 					#else
 					cli();
+				        OCR1A+=2000*2;	// clear compare A=callback flag 
 					TIFR1=(1<<OCF1A);					// clear compare A=callback flag
 					sei();								// enable global int
 					while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...

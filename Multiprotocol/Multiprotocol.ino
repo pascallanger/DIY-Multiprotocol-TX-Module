@@ -102,7 +102,7 @@ volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 #ifndef BASH_SERIAL
 volatile uint8_t tx_buff[TXBUFFER_SIZE];
 #endif
-volatile uint8_t idx = 0;
+volatile uint8_t discard_frame = 0;
 
 //Serial protocol
 uint8_t sub_protocol;
@@ -368,54 +368,53 @@ static void CheckTimer(uint16_t (*cb)(void))
 #ifdef XMEGA		
 	if( (TCC1.INTFLAGS & TC1_CCAIF_bm) != 0)
 	{
-		cli();					// disable global int
+		cli();					// Disable global int due to RW of 16 bits registers
 		TCC1.CCA = TCC1.CNT ;	// Callback should already have been called... Use "now" as new sync point.
-		sei();					// enable global int
+		sei();					// Enable global int
 	}
 	else
 		while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait before callback
 #else
 	if( (TIFR1 & (1<<OCF1A)) != 0)
 	{
-		cli();			// disable global int
-		OCR1A=TCNT1;	// Callback should already have been called... Use "now" as new sync point.
-		sei();			// enable global int
+		cli();					// Disable global int due to RW of 16 bits registers
+		OCR1A=TCNT1;			// Callback should already have been called... Use "now" as new sync point.
+		sei();					// Enable global int
 	}
 	else
-		while((TIFR1 & (1<<OCF1A)) == 0); // wait before callback
+		while((TIFR1 & (1<<OCF1A)) == 0); // Wait before callback
 #endif
 	do
 	{
 		next_callback=cb();
 		while(next_callback>4000)
-		{ 										// start to wait here as much as we can...
-			next_callback=next_callback-2000;
+		{ // start to wait here as much as we can...
+			next_callback-=2000;				// We will wait below for 2ms
 #ifdef XMEGA		
-			cli();								// disable global int
+			cli();								// Disable global int due to RW of 16 bits registers
 			TCC1.CCA +=2000*2;					// set compare A for callback
 			TCC1.INTFLAGS = TC1_CCAIF_bm ;		// clear compare A=callback flag
 			sei();								// enable global int
 			while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait 2ms...
 #else
-			cli();								// disable global int
+			cli();								// Disable global int due to RW of 16 bits registers
 			OCR1A = OCR1A + 2000*2 ;			// set compare A for callback
 			TIFR1=(1<<OCF1A);					// clear compare A=callback flag
 			sei();								// enable global int
 			while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...
 #endif
 		}
-		// at this point we have between 2ms and 4ms in next_callback
+		// at this point we have a maximum of 4ms in next_callback
+		next_callback *= 2 ;
 #ifdef XMEGA		
-		cli();									// disable global int
-		TCC1.CCA +=next_callback*2;				// set compare A for callback
+		cli();									// Disable global int due to RW of 16 bits registers
+		TCC1.CCA +=next_callback;				// set compare A for callback
 		TCC1.INTFLAGS = TC1_CCAIF_bm ;			// clear compare A=callback flag
 		diff=TCC1.CCA-TCC1.CNT;					// compare timer and comparator
 		sei();									// enable global int
 #else
-		next_callback *= 2 ;
-		next_callback += OCR1A ;
-		cli();									// disable global int
-		OCR1A = next_callback ;					// set compare A for callback
+		cli();									// Disable global int due to RW of 16 bits registers
+		OCR1A+= next_callback ;					// set compare A for callback
 		TIFR1=(1<<OCF1A);						// clear compare A=callback flag
 		diff=OCR1A-TCNT1;						// compare timer and comparator
 		sei();									// enable global int
@@ -625,50 +624,61 @@ static void protocol_init()
 
 void update_serial_data()
 {
-	if(rx_ok_buff[0]&0x20)						//check range
-		RANGE_FLAG_on;
-	else
-		RANGE_FLAG_off;		
-	if(rx_ok_buff[0]&0xC0)						//check autobind(0x40) & bind(0x80) together
-		AUTOBIND_FLAG_on;
-	else
-		AUTOBIND_FLAG_off;
-	if(rx_ok_buff[1]&0x80)						//if rx_ok_buff[1] ==1,power is low ,0-power high
-		POWER_FLAG_off;	//power low
-	else
-		POWER_FLAG_on;	//power high
-				
-	option=rx_ok_buff[2];
-
-	if( ((rx_ok_buff[0]&0x5F) != (cur_protocol[0]&0x5F)) || ( (rx_ok_buff[1]&0x7F) != cur_protocol[1] ) )
-	{ // New model has been selected
-		prev_protocol=cur_protocol[0]&0x1F;		//store previous protocol so we can reset the module
-		cur_protocol[1] = rx_ok_buff[1]&0x7F;	//store current protocol
-		CHANGE_PROTOCOL_FLAG_on;				//change protocol
-		sub_protocol=(rx_ok_buff[1]>>4)& 0x07;					//subprotocol no (0-7) bits 4-6
-		RX_num=rx_ok_buff[1]& 0x0F;
-		MProtocol_id=MProtocol_id_master+RX_num;	//personalized RX bind + rx num // rx_num bits 0---3
-	}
-	else
-		if( ((rx_ok_buff[0]&0x80)!=0) && ((cur_protocol[0]&0x80)==0) )	// Bind flag has been set
-			CHANGE_PROTOCOL_FLAG_on;			//restart protocol with bind
-	cur_protocol[0] = rx_ok_buff[0];			//store current protocol
-
-	// decode channel values
-	volatile uint8_t *p=rx_ok_buff+2;
-	uint8_t dec=-3;
-	for(uint8_t i=0;i<NUM_CHN;i++)
-	{
-		dec+=3;
-		if(dec>=8)
-		{
-			dec-=8;
-			p++;
-		}
-		p++;
-		Servo_data[i]=((((*((uint32_t *)p))>>dec)&0x7FF)*5)/8+860;	//value range 860<->2140 -125%<->+125%
-	}
 	RX_FLAG_off;								//data has been processed
+	do
+	{
+		cli();
+		if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
+			memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
+		sei();
+		RX_MISSED_BUFF_off;
+		RX_DONOTUPDTAE_on;
+		if(rx_ok_buff[0]&0x20)		//check range
+			RANGE_FLAG_on;
+		else
+			RANGE_FLAG_off;
+		if(rx_ok_buff[0]&0xC0)		//check autobind(0x40) & bind(0x80) together
+			AUTOBIND_FLAG_on;
+		else
+			AUTOBIND_FLAG_off;
+		if(rx_ok_buff[1]&0x80)		//if rx_ok_buff[1] ==1,power is low ,0-power high
+			POWER_FLAG_off;			//power low
+		else
+			POWER_FLAG_on;			//power high
+					
+		option=rx_ok_buff[2];
+
+		if( ((rx_ok_buff[0]&0x5F) != (cur_protocol[0]&0x5F)) || ( (rx_ok_buff[1]&0x7F) != cur_protocol[1] ) )
+		{ // New model has been selected
+			prev_protocol=cur_protocol[0]&0x1F;		//store previous protocol so we can reset the module
+			cur_protocol[1] = rx_ok_buff[1]&0x7F;	//store current protocol
+			CHANGE_PROTOCOL_FLAG_on;				//change protocol
+			sub_protocol=(rx_ok_buff[1]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
+			RX_num=rx_ok_buff[1]& 0x0F;
+			MProtocol_id=MProtocol_id_master+RX_num;//personalized RX bind + rx num // rx_num bits 0---3
+		}
+		else
+			if( ((rx_ok_buff[0]&0x80)!=0) && ((cur_protocol[0]&0x80)==0) )	// Bind flag has been set
+				CHANGE_PROTOCOL_FLAG_on;			//restart protocol with bind
+		cur_protocol[0] = rx_ok_buff[0];			//store current protocol
+
+		// decode channel values
+		volatile uint8_t *p=rx_ok_buff+2;
+		uint8_t dec=-3;
+		for(uint8_t i=0;i<NUM_CHN;i++)
+		{
+			dec+=3;
+			if(dec>=8)
+			{
+				dec-=8;
+				p++;
+			}
+			p++;
+			Servo_data[i]=((((*((uint32_t *)p))>>dec)&0x7FF)*5)/8+860;	//value range 860<->2140 -125%<->+125%
+		}
+		RX_DONOTUPDTAE_off;
+	}
+	while(IS_RX_MISSED_BUFF_on); // We've just processed an old frame...
 }
 
 void module_reset()
@@ -1037,18 +1047,20 @@ ISR(USARTC0_RXC_vect)
 ISR(USART_RX_vect)
 #endif
 {	// RX interrupt
+	static uint8_t idx=0;
 #ifdef XMEGA
-	if((USARTC0.STATUS & 0x1C)==0)			// Check frame error, data overrun and parity error
+	if((USARTC0.STATUS & 0x1C)==0)	// Check frame error, data overrun and parity error
 #else
 	
-	UCSR0B &= ~(1<<RXCIE0) ; //rx interrupt disable
+	UCSR0B &= ~(1<<RXCIE0) ;		//rx interrupt disable
 	sei() ;
 
 	if((UCSR0A&0x1C)==0)			// Check frame error, data overrun and parity error
 #endif
 	{ // received byte is ok to process
-		if(idx==0)
+		if(idx==0||discard_frame==1)
 		{	// Let's try to sync at this point
+			idx=0;discard_frame=0;
 #ifdef XMEGA
 			if(USARTC0.DATA==0x55)	// If 1st byte is 0x55 it looks ok
 #else
@@ -1056,19 +1068,20 @@ ISR(USART_RX_vect)
 #endif
 			{
 #ifdef XMEGA
-				TCC1.CCB = TCC1.CNT+(6500L) ;		// Full message should be received within timer of 3250us
-				TCC1.INTFLAGS = TC1_CCBIF_bm ;		// clear OCR1B match flag
+				TCC1.CCB = TCC1.CNT+(6500L) ;	// Full message should be received within timer of 3250us
+				TCC1.INTFLAGS = TC1_CCBIF_bm ;	// clear OCR1B match flag
 				TCC1.INTCTRLB = (TCC1.INTCTRLB & 0xF3) | 0x04 ;	// enable interrupt on compare B match
 #else
-				OCR1B=TCNT1+6500L;		// Full message should be received within timer of 3250us
-				TIFR1=(1<<OCF1B);		// clear OCR1B match flag
-				TIMSK1 |=(1<<OCIE1B);	// enable interrupt on compare B match
+				OCR1B=TCNT1+6500L;				// Full message should be received within timer of 3250us
+				TIFR1=(1<<OCF1B);				// clear OCR1B match flag
+				TIMSK1 |=(1<<OCIE1B);			// enable interrupt on compare B match
 #endif
 				idx++;
 			}
 		}
 		else
 		{
+			RX_MISSED_BUFF_off;					// if rx_buff was good it's not anymore...
 #ifdef XMEGA
 			rx_buff[(idx++)-1]=USARTC0.DATA;	// Store received byte
 #else
@@ -1081,12 +1094,13 @@ ISR(USART_RX_vect)
 #else
 				TIMSK1 &=~(1<<OCIE1B);			// disable interrupt on compare B match
 #endif
-				if(!IS_RX_FLAG_on)
-				{ //Good frame received and main has finished with previous buffer
-					for(uint8_t i=0;i<RXBUFFER_SIZE;i++)
-						rx_ok_buff[i]=rx_buff[i];	// Duplicate the buffer
+				if(!IS_RX_DONOTUPDTAE_on)
+				{ //Good frame received and main is not working on the buffer
+					memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
 					RX_FLAG_on;					// flag for main to process servo data
 				}
+				else
+					RX_MISSED_BUFF_on;			// notify that rx_buff is good
 				idx=0; 							// start again
 			}
 		}
@@ -1094,16 +1108,16 @@ ISR(USART_RX_vect)
 	else
 	{
 #ifdef XMEGA
-		idx = USARTC0.DATA ;	// Dummy read
+		idx = USARTC0.DATA;	// Dummy read
 #else
-		idx=UDR0;	// Dummy read
+		idx=UDR0;			// Dummy read
 #endif
-		idx=0;		// Error encountered discard full frame...
+		discard_frame=1;	// Error encountered discard full frame...
 	}
 
 #ifndef XMEGA
 	cli() ;
-	UCSR0B |= (1<<RXCIE0) ;//rx enable interrupt
+	UCSR0B |= (1<<RXCIE0) ;	// RX enable interrupt
 #endif
 }
 
@@ -1115,6 +1129,6 @@ ISR(TCC1_CCB_vect)
 ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
 #endif
 {	// Timer1 compare B interrupt
-	idx=0;
+	discard_frame=1;
 }
 #endif //ENABLE_SERIAL

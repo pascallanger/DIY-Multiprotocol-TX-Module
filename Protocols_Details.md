@@ -4,6 +4,7 @@
 Legend:
 - Extended limits supported: -125%..+125% can be used and will be transmitted. Otherwise the default is -100%..+100% only.
 - Autobind protocol: you do not need to press the bind button at power up to bind, this is done automatically.
+The AETR mentionned here for all protocols depends on the compilation option.
 
 ***
 #A7105 RF Module
@@ -93,7 +94,19 @@ Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+A|E|T|R|CH5|CH6|CH7|CH8
+
+Bind procedure:
+- With the TX off, put the binding plug in and power on the RX, then power it down and remove the binding plug. Receiver should now be in autobind mode.
+- Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
+- Tun on RX.
+- Turn on TX.
+- Wait for bind on the TX to complete, bind LED solid.
+- Make sure to set the RX_Num value for model match.
+- Change option to 1 to use the global ID.
+- Do not touch option/RX_Num anymore.
+
+Note that the ouput on the RX will be EATR.
 
 ##DSM2
 Extended limits supported
@@ -122,6 +135,8 @@ Value 6 is usually giving the best results with most of the RX.
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+Note that the ouput on the RX will be TAER.
 
 ###Sub_protocol DSMX
 Same as above

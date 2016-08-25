@@ -5,7 +5,7 @@ Legend:
 - Extended limits supported: -125%..+125% can be used and will be transmitted. Otherwise the default is -100%..+100% only.
 - Autobind protocol: you do not need to press the bind button at power up to bind, this is done automatically.
 
-The AETR mentionned here for all protocols depends on the compilation option.
+The AETR mentionned here for all protocols depends on the TX settings compilation option set in _Config.h.
 
 ***
 #A7105 RF Module

@@ -98,11 +98,11 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 A|E|T|R|CH5|CH6|CH7|CH8
 
 Bind procedure:
-- With the TX off, put the binding plug in and power on the RX, then power it down and remove the binding plug. Receiver should now be in autobind mode.
+- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
 - Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
-- Tun on RX.
-- Turn on TX.
-- Wait for bind on the TX to complete, bind LED solid.
+- Tun on RX (RX LED fast blink).
+- Turn on TX (RX LED solid, TX LED fast blink).
+- Wait for bind on the TX to complete (TX LED solid).
 - Make sure to set the RX_Num value for model match.
 - Change option to 1 to use the global ID.
 - Do not touch option/RX_Num anymore.

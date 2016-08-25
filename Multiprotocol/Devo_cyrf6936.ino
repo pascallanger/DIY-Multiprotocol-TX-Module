@@ -78,7 +78,12 @@ static void __attribute__((unused)) DEVO_scramble_pkt()
 static void __attribute__((unused)) DEVO_add_pkt_suffix()
 {
     uint8_t bind_state;
-    if (option)
+    if(prev_option!=option)
+	{
+		MProtocol_id = RX_num + MProtocol_id_master;
+		bind_counter=DEVO_BIND_COUNT;
+	}
+	if (option)
 	{
         if (bind_counter > 0)
             bind_state = 0xc0;
@@ -90,9 +95,9 @@ static void __attribute__((unused)) DEVO_add_pkt_suffix()
 	packet[10] = bind_state | (DEVO_PKTS_PER_CHANNEL - packet_count - 1);
 	packet[11] = *(hopping_frequency_ptr + 1);
 	packet[12] = *(hopping_frequency_ptr + 2);
-	packet[13] = fixed_id  & 0xff;
-	packet[14] = (fixed_id >> 8) & 0xff;
-	packet[15] = (fixed_id >> 16) & 0xff;
+	packet[13] = MProtocol_id  & 0xff;
+	packet[14] = (MProtocol_id >> 8) & 0xff;
+	packet[15] = (MProtocol_id >> 16) & 0xff;
 }
 
 static void __attribute__((unused)) DEVO_build_beacon_pkt(uint8_t upper)
@@ -303,11 +308,13 @@ uint16_t DevoInit()
 
 	packet_count = 0;
 
+	prev_option=option;
 	if(option==0)
 	{
 		MProtocol_id = ((uint32_t)(hopping_frequency[0] ^ cyrfmfg_id[0] ^ cyrfmfg_id[3]) << 16)
 					 | ((uint32_t)(hopping_frequency[1] ^ cyrfmfg_id[1] ^ cyrfmfg_id[4]) << 8)
 					 | ((uint32_t)(hopping_frequency[2] ^ cyrfmfg_id[2] ^ cyrfmfg_id[5]) << 0);
+		MProtocol_id %= 1000000;
 		bind_counter = DEVO_BIND_COUNT;
 		phase = DEVO_BIND;
 		BIND_IN_PROGRESS;
@@ -318,12 +325,6 @@ uint16_t DevoInit()
 		bind_counter = 0;
 		DEVO_cyrf_set_bound_sop_code();
 	}  
-	MProtocol_id %= 1000000;
-
-	if(IS_AUTOBIND_FLAG_on)
-	{
-		bind_counter = DEVO_BIND_COUNT;
-	}
 	return 2400;
 }
 

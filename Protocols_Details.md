@@ -17,6 +17,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
+Note that the RX ouput will be AETR.
+
 ###Sub_protocol V9X9
 CH5|CH6|CH7|CH8
 ---|---|---|---
@@ -97,7 +99,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
-Bind procedure:
+Bind procedure using serial:
 - With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
 - Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
 - Tun on RX (RX LED fast blink).
@@ -107,7 +109,14 @@ Bind procedure:
 - Change option to 1 to use the global ID.
 - Do not touch option/RX_Num anymore.
 
-Note that the ouput on the RX will be EATR.
+Bind procedure using PPM:
+- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
+- Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
+- Tun on RX (RX LED fast blink).
+- Turn on TX (RX LED solid, TX LED fast blink).
+Fixed ID is not supported yet.
+
+Note that the RX ouput will be EATR.
 
 ##DSM2
 Extended limits supported
@@ -137,7 +146,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
-Note that the ouput on the RX will be TAER.
+Note that the RX ouput will be TAER.
 
 ###Sub_protocol DSMX
 Same as above
@@ -196,7 +205,7 @@ JJRC H20: OPT1=Headless, OPT2=RTH
 
 JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
 
-H8 3D: OPT1=RTH + headless, OPT2=180/360° flip mode
+H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360° flip mode
 
 CAL: calibrate accelerometers
 

@@ -140,7 +140,7 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	packet[21]=0xFA;
 	packet[20]=0x53; */
 	// Using packet[20..23] to store the ID1 and packet[24..27] to store the ID2
-	uint8_t freq=0;
+	uint8_t freq=0,freq2;
 	for(uint8_t i=0;i<4;i++)
 	{
 		uint8_t temp=rx_tx_addr[0];
@@ -153,9 +153,15 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	freq=((freq%25)+2)<<1;
 	if(freq&0x02)	freq|=0x01;
 	hopping_frequency[0]=freq;
-	// Alternate frequency
-	hopping_frequency[1]=freq*2-6;
-	hopping_frequency[1]+=analogRead(A6)%12;		// Add some random to the second channel
+	// Alternate frequency has some random
+	do
+	{
+		randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
+		freq2=random(0xfefefefe)%9;
+		freq2+=freq*2-5;
+	}
+	while( (freq2>118) || (freq2<freq+1) || (freq2==2*freq) );
+	hopping_frequency[1]=freq2;			// Add some random to the second channel
 }
 
 uint16_t initASSAN()

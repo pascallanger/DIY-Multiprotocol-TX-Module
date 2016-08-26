@@ -21,7 +21,6 @@
 #include "iface_cc2500.h"
 
 uint8_t chanskip;
-uint8_t channr;
 uint8_t counter_rst;
 uint8_t ctr;
 uint8_t FS_flag=0;
@@ -85,10 +84,8 @@ static uint8_t __attribute__((unused)) hop(uint8_t byte)
 static void __attribute__((unused)) set_start(uint8_t ch )
 {
 	CC2500_Strobe(CC2500_SIDLE);
-	CC2500_WriteReg(CC2500_23_FSCAL3, calData[ch][0]);
-	CC2500_WriteReg(CC2500_24_FSCAL2, calData[ch][1]);
-	CC2500_WriteReg(CC2500_25_FSCAL1, calData[ch][2]);
-	CC2500_WriteReg(CC2500_0A_CHANNR, ch==47? 0:pgm_read_word(&hop_data[ch]));
+	CC2500_WriteReg(CC2500_25_FSCAL1, calData[ch]);
+	CC2500_WriteReg(CC2500_0A_CHANNR, ch==47? 0:hop(ch));
 }		
 
 static void __attribute__((unused)) frskyX_init()
@@ -132,20 +129,16 @@ static void __attribute__((unused)) frskyX_init()
 	for(uint8_t c=0;c < 47;c++)
 	{//calibrate hop channels
 		CC2500_Strobe(CC2500_SIDLE);    
-		CC2500_WriteReg(CC2500_0A_CHANNR,pgm_read_word(&hop_data[c]));
+		CC2500_WriteReg(CC2500_0A_CHANNR,hop(c));
 		CC2500_Strobe(CC2500_SCAL);
 		delayMicroseconds(900);//
-		calData[c][0] = CC2500_ReadReg(CC2500_23_FSCAL3);
-		calData[c][1] = CC2500_ReadReg(CC2500_24_FSCAL2);	
-		calData[c][2] = CC2500_ReadReg(CC2500_25_FSCAL1);
+		calData[c] = CC2500_ReadReg(CC2500_25_FSCAL1);
 	}
 	CC2500_Strobe(CC2500_SIDLE);    	
 	CC2500_WriteReg(CC2500_0A_CHANNR,0x00);
 	CC2500_Strobe(CC2500_SCAL);
 	delayMicroseconds(900);
-	calData[47][0] = CC2500_ReadReg(CC2500_23_FSCAL3);
-	calData[47][1] = CC2500_ReadReg(CC2500_24_FSCAL2);	
-	calData[47][2] = CC2500_ReadReg(CC2500_25_FSCAL1);
+	calData[47] = CC2500_ReadReg(CC2500_25_FSCAL1);
 	//#######END INIT########		
 }
 
@@ -189,11 +182,11 @@ static void __attribute__((unused)) frskyX_build_bind_packet()
 	packet[4] = rx_tx_addr[2];
 	int idx = ((state -FRSKY_BIND) % 10) * 5;
 	packet[5] = idx;	
-	packet[6] = pgm_read_word(&hop_data[idx++]);
-	packet[7] = pgm_read_word(&hop_data[idx++]);
-	packet[8] = pgm_read_word(&hop_data[idx++]);
-	packet[9] = pgm_read_word(&hop_data[idx++]);
-	packet[10] = pgm_read_word(&hop_data[idx++]);
+	packet[6] = hop(idx++);
+	packet[7] = hop(idx++);
+	packet[8] = hop(idx++);
+	packet[9] = hop(idx++);
+	packet[10] = hop(idx++);
 	packet[11] = 0x02;
 	packet[12] = RX_num;
 	//
@@ -219,7 +212,7 @@ static void __attribute__((unused)) frskyX_data_frame()
 	packet[2] = rx_tx_addr[2];
 	packet[3] = 0x02;
 	//  
-	packet[4] = (ctr<<6)+channr; 
+	packet[4] = (ctr<<6)+hopping_frequency_no; 
 	packet[5] = counter_rst;
 	packet[6] = RX_num;
 	//FLAGS 00 - standard packet
@@ -283,7 +276,7 @@ uint16_t ReadFrSkyX()
 			return 9000;
 		case FRSKY_BIND_DONE:
 			initialize_data(0);
-			channr=0;
+			hopping_frequency_no = 0;
 			BIND_DONE;
 			state++;			
 			break;		
@@ -295,10 +288,10 @@ uint16_t ReadFrSkyX()
 			}
 			LED_ON;
 			CC2500_SetTxRxMode(TX_EN);
-			set_start(channr);
+			set_start(hopping_frequency_no);
 			CC2500_SetPower();		
 			CC2500_Strobe(CC2500_SFRX);
-			channr = (channr+chanskip)%47;
+			hopping_frequency_no = (hopping_frequency_no+chanskip)%47;
 			CC2500_Strobe(CC2500_SIDLE);		
 			CC2500_WriteData(packet, packet[0]+1);
 			//

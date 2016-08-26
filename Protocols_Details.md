@@ -99,6 +99,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
+Note that the RX ouput will be EATR.
+
 Bind procedure using serial:
 - With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
 - Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
@@ -111,12 +113,14 @@ Bind procedure using serial:
 
 Bind procedure using PPM:
 - With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
-- Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
-- Tun on RX (RX LED fast blink).
-- Turn on TX (RX LED solid, TX LED fast blink).
-Fixed ID is not supported yet.
-
-Note that the RX ouput will be EATR.
+- Turn on RX (RX LED fast blink).
+- Turn the dial to the model number running protocol DEVO on the module.
+- Press the bind button and turn on the TX. TX is now in autobind mode.
+- Release bind button after 1 second: RX LED solid, TX LED fast blink.
+- Wait for bind on the TX to complete (TX LED solid).
+- Press the bind button for 1 second. TX/RX is now in fixed ID mode.
+- To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
+- Note: Autobind/fixed ID mode is linked to the dial number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
 
 ##DSM2
 Extended limits supported

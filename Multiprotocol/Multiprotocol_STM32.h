@@ -101,7 +101,8 @@ enum MT99XX
 {
 	MT99	= 0,
 	H7		= 1,
-	YZ		= 2
+	YZ		= 2,
+	LS              = 3
 };
 enum MJXQ
 {
@@ -130,11 +131,6 @@ enum FRSKYX
 //*******************
 
 #if defined STM32_board
-#define digitalHi(p, i)  (gpio_write_bit(p, i, HIGH)
-#define digitallo(p, i)  (gpio_write_bit(p, i, LOW)
-#define digitalIn(p, i)  (gpio_read_bit(p,i))
-#define digitalToggle(p, i) (gpio_toggle_bit(p,i))
-//
 //********************
 #define BIND_pin PA0
 #define LED_pin  PA1						
@@ -261,6 +257,14 @@ enum FRSKYX
 #define BAD_PROTO_off		protocol_flags2 &= ~_BV(0)
 #define BAD_PROTO_on		protocol_flags2 |= _BV(0)
 #define IS_BAD_PROTO_on		( ( protocol_flags2 & _BV(0) ) !=0 )
+
+#define RX_DONOTUPDTAE_off	protocol_flags2 &= ~_BV(1)
+#define RX_DONOTUPDTAE_on	protocol_flags2 |= _BV(1)
+#define IS_RX_DONOTUPDTAE_on	( ( protocol_flags2 & _BV(1) ) !=0 )
+
+#define RX_MISSED_BUFF_off	protocol_flags2 &= ~_BV(2)
+#define RX_MISSED_BUFF_on	protocol_flags2 |= _BV(2)
+#define IS_RX_MISSED_BUFF_on	( ( protocol_flags2 & _BV(2) ) !=0 )
 
 #define BLINK_BIND_TIME	100
 #define BLINK_SERIAL_TIME	500

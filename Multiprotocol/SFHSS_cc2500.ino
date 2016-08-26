@@ -99,7 +99,7 @@ static void __attribute__((unused)) SFHSS_tune_chan_fast()
 {
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_WriteReg(CC2500_0A_CHANNR, rf_ch_num*6+16);
-	CC2500_WriteRegisterMulti(CC2500_23_FSCAL3, calData[rf_ch_num], 3);
+	CC2500_WriteReg(CC2500_25_FSCAL1, calData[rf_ch_num]);
 }
 
 
@@ -177,7 +177,7 @@ uint16_t ReadSFHSS()
 			state = SFHSS_CAL;
 			return 2000;
 		case SFHSS_CAL:
-			CC2500_ReadRegisterMulti(CC2500_23_FSCAL3, calData[rf_ch_num], 3);
+			calData[rf_ch_num]=CC2500_ReadReg(CC2500_25_FSCAL1);
 			if (++rf_ch_num < 30)
 				SFHSS_tune_chan();
 			else

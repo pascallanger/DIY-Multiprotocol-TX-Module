@@ -102,7 +102,7 @@ A|E|T|R|CH5|CH6|CH7|CH8
 Bind procedure using serial:
 - With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
 - Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
-- Tun on RX (RX LED fast blink).
+- Turn on RX (RX LED fast blink).
 - Turn on TX (RX LED solid, TX LED fast blink).
 - Wait for bind on the TX to complete (TX LED solid).
 - Make sure to set the RX_Num value for model match.

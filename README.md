@@ -10,8 +10,6 @@ The source code is partly based on the Deviation TX project, thanks to all the d
 
 **To download the latest compiled version (hex file), click on  [Release](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) on the top menu.**
 
-If you wish to support the development of this free firmware [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RT7738FE98HMY)
-
 ##Contents
 
 [Compatible TX](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compatible-tx)

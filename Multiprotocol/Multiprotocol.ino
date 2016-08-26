@@ -196,11 +196,7 @@ void setup()
 	delayMilliseconds(100);
 	
 	// Read status of bind button
-#ifdef XMEGA
-	if( (PORTD.IN & _BV(2)) == 0x00 )
-#else
-	if( (PINB & _BV(5)) == 0x00 )
-#endif
+	if( IS_BIND_BUTTON_on )
 		BIND_BUTTON_FLAG_on;	// If bind button pressed save the status for protocol id reset under hubsan
 
 	// Read status of mode select binary switch
@@ -483,6 +479,21 @@ static void protocol_init()
 #endif
 #if defined(DEVO_CYRF6936_INO)
 		case MODE_DEVO:
+			#ifdef ENABLE_PPM
+			if(mode_select) //PPM mode
+			{
+				if(IS_BIND_BUTTON_FLAG_on)
+				{
+					eeprom_write_byte((uint8_t*)(30+mode_select),0x00);		// reset to autobind mode for the current model
+					option=0;
+				}
+				else
+				{	
+					option=eeprom_read_byte((uint8_t*)(30+mode_select));	// load previous mode: autobind or fixed id
+					if(option!=1) option=0;									// if not fixed id mode then it should be autobind
+				}
+			}
+			#endif //ENABLE_PPM
 			CTRL2_on;	//antenna RF4
 			next_callback = DevoInit();
 			remote_callback = devo_callback;

@@ -78,7 +78,20 @@ static void __attribute__((unused)) DEVO_scramble_pkt()
 static void __attribute__((unused)) DEVO_add_pkt_suffix()
 {
     uint8_t bind_state;
-    if(prev_option!=option)
+	#ifdef ENABLE_PPM
+	if(mode_select && option==0 && IS_BIND_DONE_on) 			//PPM mode and option not already set and bind is finished
+	{
+		BIND_SET_INPUT;
+		BIND_SET_PULLUP;										// set pullup
+		if(IS_BIND_BUTTON_on)
+		{
+			eeprom_write_byte((uint8_t*)(30+mode_select),0x01);	// Set fixed id mode for the current model
+			option=1;
+		}
+		BIND_SET_OUTPUT;
+	}
+	#endif //ENABLE_PPM
+    if(prev_option!=option && IS_BIND_DONE_on)
 	{
 		MProtocol_id = RX_num + MProtocol_id_master;
 		bind_counter=DEVO_BIND_COUNT;

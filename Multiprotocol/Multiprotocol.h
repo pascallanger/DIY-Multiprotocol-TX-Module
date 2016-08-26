@@ -248,17 +248,27 @@ struct PPM_Parameters
 
 // LED
 #ifdef XMEGA
-	#define LED_ON  PORTD.OUTCLR = _BV(1)
-	#define LED_OFF PORTD.OUTSET = _BV(1)
-	#define LED_TOGGLE  PORTD.OUTTGL = _BV(1)
-	#define LED_SET_OUTPUT PORTD.DIRSET = _BV(1)
-	#define IS_LED_on  ( (PORTD.OUT & _BV(1)) != 0x00 )
+	#define LED_ON  PORTD.OUTCLR		= _BV(1)
+	#define LED_OFF PORTD.OUTSET		= _BV(1)
+	#define LED_TOGGLE  PORTD.OUTTGL	= _BV(1)
+	#define LED_SET_OUTPUT PORTD.DIRSET	= _BV(1)
+	#define IS_LED_on		( (PORTD.OUT & _BV(1)) != 0x00 )
 #else
-	#define LED_ON  PORTB |= _BV(5)
-	#define LED_OFF  PORTB &= ~_BV(5)
-	#define LED_TOGGLE  PORTB ^= _BV(5)
-	#define LED_SET_OUTPUT DDRB |= _BV(5)
-	#define IS_LED_on  ( (PORTB & _BV(5)) != 0x00 )
+	#define LED_ON			PORTB |= _BV(5)
+	#define LED_OFF			PORTB &= ~_BV(5)
+	#define LED_TOGGLE		PORTB ^= _BV(5)
+	#define LED_SET_OUTPUT	DDRB |= _BV(5)
+	#define IS_LED_on		( (PORTB & _BV(5)) != 0x00 )
+#endif
+
+//BIND
+#ifdef XMEGA
+	#define IS_BIND_BUTTON_on	( (PORTD.IN & _BV(2)) == 0x00 )
+#else
+	#define BIND_SET_INPUT		DDRB &= ~_BV(5)
+	#define BIND_SET_PULLUP		PORTB |= _BV(5)
+	#define IS_BIND_BUTTON_on	( (PINB & _BV(5)) == 0x00 )
+	#define BIND_SET_OUTPUT		DDRB |= _BV(5)
 #endif
 
 // TX

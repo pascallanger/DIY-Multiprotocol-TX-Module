@@ -174,7 +174,7 @@ static void __attribute__((unused)) MJXQ_init()
 		else
 		{
 			memcpy(hopping_frequency, "\x0a\x35\x42\x3d", MJXQ_RF_NUM_CHANNELS);
-			memcpy(addr, "\x6d\x6a\x73\x73\x73", MJXQ_RF_NUM_CHANNELS);
+			memcpy(addr, "\x6d\x6a\x73\x73\x73", MJXQ_ADDRESS_LENGTH);
 		}
 
 	

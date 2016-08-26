@@ -61,6 +61,7 @@ uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
 
 // Protocol variables
+uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint8_t  rx_tx_addr[5];
 uint8_t  phase;
 uint16_t bind_counter;
@@ -84,13 +85,14 @@ uint8_t  len;
 uint8_t  RX_num;
 
 #if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO)
-	uint8_t calData[48][3];
+	uint8_t calData[48];
 #endif
 
 //Channel mapping for protocols
 const uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
-//const uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
-//const uint8_t CH_RETA[]={RUDDER, ELEVATOR, THROTTLE, AILERON, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
+const uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
+const uint8_t CH_RETA[]={RUDDER, ELEVATOR, THROTTLE, AILERON, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
+const uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
 
 // Mode_select variables
 uint8_t mode_select;
@@ -100,6 +102,12 @@ uint8_t protocol_flags=0,protocol_flags2=0;
 volatile uint16_t PPM_data[NUM_CHN];
 
 // Serial variables
+#ifdef INVERT_TELEMETRY
+// enable bit bash for serial
+	#define	BASH_SERIAL 1
+	#define	INVERT_SERIAL 1
+#endif
+#define BAUD 100000
 #define RXBUFFER_SIZE 25
 #define TXBUFFER_SIZE 32
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
@@ -129,9 +137,11 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	#if defined FRSKY_CC2500_INO
 		#define HUB_TELEMETRY
 	#endif
-	uint8_t pktt[MAX_PKT];//telemetry receiving packets
+	#ifndef BASH_SERIAL
 	volatile uint8_t tx_head=0;
 	volatile uint8_t tx_tail=0;
+#endif // BASH_SERIAL
+	uint8_t pktt[MAX_PKT];//telemetry receiving packets
 	uint8_t v_lipo;
 	int16_t RSSI_dBm;
 	uint8_t telemetry_link=0; 
@@ -486,16 +496,16 @@ static void CheckTimer(uint16_t (*cb)(void))
 			#endif
 		}
 		// at this point we have between 2ms and 4ms in next_callback
-											// disable global int
+		next_callback *= 2 ;									// disable global int
 		#ifdef XMEGA
 		        cli();
-			TCC1.CCA +=next_callback*2;				// set compare A for callback
+			TCC1.CCA +=next_callback;				// set compare A for callback
 			TCC1.INTFLAGS = TC1_CCAIF_bm ;			// clear compare A=callback flag
 			diff=TCC1.CCA-TCC1.CNT;					// compare timer and comparator
 			sei();// enable global int			
 			#else
 			#if defined STM32_board
-		        	OCR1A+=next_callback*2;
+		        	OCR1A+=next_callback;
 			        cli();
 			        TIMER2_BASE->CCR1 = OCR1A;
 				TCNT1 = TIMER2_BASE->CNT;
@@ -503,10 +513,8 @@ static void CheckTimer(uint16_t (*cb)(void))
 				diff=OCR1A-TCNT1;						// compare timer and comparator
 				sei();
 				#else
-			        next_callback *= 2 ;
-		                next_callback += OCR1A ;
 				cli();
-				OCR1A=next_callback;					// set compare A for callback
+				OCR1A+=next_callback;					// set compare A for callback
 				TIFR1=(1<<OCF1A);						// clear compare A=callback flag
 				diff=OCR1A-TCNT1;						// compare timer and comparator
 				sei();									// enable global int
@@ -699,8 +707,9 @@ static void protocol_init()
 	
 	if(next_callback>32000)
 	{ // next_callback should not be more than 32767 so we will wait here...
-		delayMicroseconds(next_callback-2000);
-		next_callback=2000;
+	        uint16_t temp=(next_callback>>10)-2;
+		delay(temp);
+		next_callback-=temp<<10;	// between 2-3ms left at this stage
 	}
 
 	#ifdef XMEGA
@@ -728,6 +737,16 @@ static void protocol_init()
 
 static void update_serial_data()
 {
+	RX_FLAG_off;								//data has been processed	
+	
+	do 
+	{
+	cli();
+	if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
+	memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
+	sei();
+	RX_MISSED_BUFF_off;
+	RX_DONOTUPDTAE_on;	
 	if(rx_ok_buff[0]&0x20)						//check range
 	RANGE_FLAG_on;
 	else
@@ -771,7 +790,9 @@ static void update_serial_data()
 		p++;
 		Servo_data[i]=((((*((uint32_t *)p))>>dec)&0x7FF)*5)/8+860;	//value range 860<->2140 -125%<->+125%
 	}
-	RX_FLAG_off;								//data has been processed
+         RX_DONOTUPDTAE_off;							
+       }
+while(IS_RX_MISSED_BUFF_on); // We've just processed an old frame...
 }
 
 static void module_reset()
@@ -1107,8 +1128,9 @@ static void set_rx_tx_addr(uint32_t id)
 			#endif	
 		#endif
 		{ // received byte is ok to process
-			if(idx==0)
+			if(idx==0||discard_frame==1)
 			{	// Let's try to sync at this point
+			idx=0;discard_frame=0;
 				#ifdef XMEGA
 					if(USARTC0.DATA==0x55)			// If 1st byte is 0x55 it looks ok
 					
@@ -1142,6 +1164,8 @@ static void set_rx_tx_addr(uint32_t id)
 			}
 			else
 			{
+				RX_MISSED_BUFF_off;					// if rx_buff was good it's not anymore...
+				
 				#ifdef XMEGA
 					rx_buff[(idx++)-1]=USARTC0.DATA;	// Store received byte
 					#else
@@ -1165,12 +1189,13 @@ static void set_rx_tx_addr(uint32_t id)
 							
 						#endif				
 					#endif
-					if(!IS_RX_FLAG_on)
+					if(!IS_RX_DONOTUPDTAE_on)
 					{ //Good frame received and main has finished with previous buffer
-						for(idx=0;idx<RXBUFFER_SIZE;idx++)
-						rx_ok_buff[idx]=rx_buff[idx];	// Duplicate the buffer
-						RX_FLAG_on;					// flag for main to process servo data
+                                            memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
+					    RX_FLAG_on;					// flag for main to process servo data
 					}
+					else
+					RX_MISSED_BUFF_on;			// notify that rx_buff is good
 					idx=0; 							// start again
 				}
 			}
@@ -1186,7 +1211,7 @@ static void set_rx_tx_addr(uint32_t id)
 					idx=UDR0;	// Dummy read
 				#endif
 			#endif
-			idx=0;		// Error encountered discard full frame...
+		discard_frame=1;		// Error encountered discard full frame...
 		}
 		
 	#if defined STM32_board	//If activated telemetry it doesn't work activated 
@@ -1211,7 +1236,7 @@ static void set_rx_tx_addr(uint32_t id)
 #endif
 
 {	// Timer1 compare B interrupt
-	idx=0;
+discard_frame=1;	// Error encountered discard full frame...
 }
 
 #if defined(TELEMETRY)

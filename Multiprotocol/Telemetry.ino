@@ -446,7 +446,7 @@ void frskyUpdate()
 	
 }
 
-
+#ifndef BASH_SERIAL
 //Serial TX	
 	#ifdef XMEGA
 		ISR(USARTC0_DRE_vect)
@@ -498,7 +498,7 @@ void frskyUpdate()
 	#endif	
 #endif
 
-#ifndef BASH_SERIAL
+
 	void Serial_write(uint8_t data)
 	{
 		cli();	// disable global int

@@ -129,15 +129,6 @@ void ISR_COMPB();
 #define MAX_PKT 27
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
 #if defined(TELEMETRY)
-	#if defined DSM2_CYRF6936_INO
-		#define DSM_TELEMETRY	
-	#endif
-	#if defined FRSKYX_CC2500_INO
-		#define SPORT_TELEMETRY	
-	#endif
-	#if defined FRSKY_CC2500_INO
-		#define HUB_TELEMETRY
-	#endif
 	#ifndef BASH_SERIAL
 	volatile uint8_t tx_head=0;
 	volatile uint8_t tx_tail=0;

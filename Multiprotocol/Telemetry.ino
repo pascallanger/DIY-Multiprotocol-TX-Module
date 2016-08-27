@@ -398,7 +398,11 @@ void frskyUpdate()
 		if ((now - last) > SPORT_TIME)
 		{
 			sportSendFrame();
+			#if defined STM32_board
 			last = now;
+			#else
+			last += SPORT_TIME ;
+			#endif
 		}
 	}
 	#endif

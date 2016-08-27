@@ -111,8 +111,10 @@ volatile uint16_t PPM_data[NUM_CHN];
 #define TXBUFFER_SIZE 32
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
+#ifndef BASH_SERIAL
 volatile uint8_t tx_buff[TXBUFFER_SIZE];
-volatile uint8_t idx = 0;
+#endif
+volatile uint8_t discard_frame = 0;
 
 //Serial protocol
 uint8_t sub_protocol;
@@ -1116,9 +1118,11 @@ static void set_rx_tx_addr(uint32_t id)
 	#endif
 	
 	{	// RX interrupt
+	static uint8_t idx=0;
 		#ifdef XMEGA
 			if((USARTC0.STATUS & 0x1C)==0)			// Check frame error, data overrun and parity error
 			#else
+			sei();
 			#if defined STM32_board
 	if(USART2_BASE->SR & USART_SR_RXNE) {
 				if((USART2_BASE->SR &0x0F)==0)					

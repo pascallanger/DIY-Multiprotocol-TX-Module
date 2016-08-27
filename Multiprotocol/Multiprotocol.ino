@@ -46,7 +46,6 @@ uint32_t MProtocol_id;//tx id,
 uint32_t MProtocol_id_master;
 uint32_t Model_fixed_id=0;
 uint32_t fixed_id;
-uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint32_t blink=0;
 uint8_t  prev_option;//change option value on the fly.
 uint8_t  prev_power=0xFD; // unused power value

@@ -401,7 +401,45 @@ void frskyUpdate()
 			last = now;
 		}
 	}
-	#endif					
+	#endif
+	
+#ifdef BASH_SERIAL
+	uint8_t h ;
+	uint8_t t ;
+	h = SerialControl.head ;
+	t = SerialControl.tail ;
+	if ( h >= t )
+	{
+		t += 64 - h ;
+	}
+	else
+	{
+		t -= h ;
+	}
+	if ( t < 32 )
+	{
+		return ;
+	}
+
+#else
+	uint8_t h ;
+	uint8_t t ;
+	h = tx_head ;
+	t = tx_tail ;
+	if ( h >= t )
+	{
+		t += TXBUFFER_SIZE - h ;
+	}
+	else
+	{
+		t -= h ;
+	}
+	if ( t < 16 )
+	{
+		return ;
+	}
+#endif
+	
 }
 
 #endif

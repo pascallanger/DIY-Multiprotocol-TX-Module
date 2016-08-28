@@ -225,6 +225,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		X600
 		X800
 		H26D
+		E010
 	MODE_SHENQI
 		NONE
 	MODE_FY326

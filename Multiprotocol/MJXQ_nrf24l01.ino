@@ -12,7 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// compatible with MJX WLH08, X600, X800, H26D
+// compatible with MJX WLH08, X600, X800, H26D, Eachine E010
 // Last sync with hexfet new_protocols/mjxq_nrf24l01.c dated 2016-01-17
 
 #if defined(MJXQ_NRF24L01_INO)
@@ -92,6 +92,12 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 // Servo_AUX7	AUTOFLIP	// X800, X600
 	switch(sub_protocol)
 	{
+		case E010:
+			packet[10]	= GET_FLAG(Servo_AUX5, 0x01)	//HEADLESS
+						| GET_FLAG(Servo_AUX6, 0x02);	//RTH
+			if (!bind)
+				packet[14] = GET_FLAG(Servo_AUX1, 0x04);	//FLIP
+			break;
 		case H26D:
 			packet[10]=MJXQ_pan_tilt_value();
 			// fall through on purpose - no break
@@ -169,7 +175,7 @@ static void __attribute__((unused)) MJXQ_init()
 	if (sub_protocol == WLH08)
 		memcpy(hopping_frequency, "\x12\x22\x32\x42", MJXQ_RF_NUM_CHANNELS);
 	else
-		if (sub_protocol == H26D)
+		if (sub_protocol == H26D || sub_protocol == E010)
 			memcpy(hopping_frequency, "\x36\x3e\x46\x2e", MJXQ_RF_NUM_CHANNELS);
 		else
 		{
@@ -193,7 +199,10 @@ static void __attribute__((unused)) MJXQ_init()
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);			// Enable data pipe 0 only
 	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);		// no retransmits
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, MJXQ_PACKET_SIZE);	// rx pipe 0 (used only for blue board)
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);					// 1Mbps
+	if (sub_protocol == E010)
+		NRF24L01_SetBitrate(NRF24L01_BR_250K);				// 250K
+	else
+		NRF24L01_SetBitrate(NRF24L01_BR_1M);				// 1Mbps
 	NRF24L01_SetPower();
 }
 
@@ -202,18 +211,25 @@ static void __attribute__((unused)) MJXQ_init2()
 	if (sub_protocol == H26D)
 		memcpy(hopping_frequency, "\x32\x3e\x42\x4e", MJXQ_RF_NUM_CHANNELS);
 	else
-		if (sub_protocol == WLH08)
+		if (sub_protocol != WLH08 && sub_protocol != E010)
 			for(uint8_t i=0;i<MJXQ_RF_NUM_CHANNELS;i++)
 				hopping_frequency[i]=pgm_read_byte_near( &MJXQ_map_rfchan[rx_tx_addr[4]%3][i] );
 }
 
 static void __attribute__((unused)) MJXQ_initialize_txid()
 {
-	if (sub_protocol == WLH08)
-		rx_tx_addr[0]&=0xF8;	// txid must be multiple of 8
+	if (sub_protocol == E010)
+	{
+		rx_tx_addr[0]=0x90;
+		rx_tx_addr[1]=0x1C;
+		rx_tx_addr[2]=0x00;
+	}
 	else
-		for(uint8_t i=0;i<3;i++)
-			rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[4]%3][i] );
+		if (sub_protocol == WLH08)
+			rx_tx_addr[0]&=0xF8;	// txid must be multiple of 8
+		else
+			for(uint8_t i=0;i<3;i++)
+				rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[4]%3][i] );
 }
 
 uint16_t MJXQ_callback()

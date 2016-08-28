@@ -325,6 +325,7 @@ A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT
 ###Sub_protocol X600
 ###Sub_protocol X800
 ###Sub_protocol H26D
+###Sub_protocol E010
 
 ##MT99XX
 Autobind protocol

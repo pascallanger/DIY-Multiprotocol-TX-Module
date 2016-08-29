@@ -304,6 +304,10 @@ or other USB serial-TTL dongle.The device can work with both  5V and 3.3V. When 
 
 ###Important:
 Flashing:
+For uploading binaries(.bin files) there is a specialized software you need to install on your computer.Using the same USB-serial device set the BOOT0 jumper and run the program.Ther are many totorials on the net on how ro use this program.
+STM32 Flash loader demonstrator
+http://www.st.com/content/st_com/en/products/development-tools/software-development-tools/stm32-software-development-tools/stm32-programmers/flasher-stm32.html
+
 ###Method 1:
 
 Don't flash new firmware with the TX switched on !!!!!

@@ -92,16 +92,11 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 // Servo_AUX7	AUTOFLIP	// X800, X600
 	switch(sub_protocol)
 	{
-		case E010:
-			packet[10]	= GET_FLAG(Servo_AUX5, 0x01)	//HEADLESS
-						| GET_FLAG(Servo_AUX6, 0x02);	//RTH
-			if (!bind)
-				packet[14] = GET_FLAG(Servo_AUX1, 0x04);	//FLIP
-			break;
 		case H26D:
 			packet[10]=MJXQ_pan_tilt_value();
 			// fall through on purpose - no break
 		case WLH08:
+		case E010:
 			packet[10] += GET_FLAG(Servo_AUX6, 0x02)	//RTH
 						| GET_FLAG(Servo_AUX5, 0x01);	//HEADLESS
 			if (!bind)

@@ -628,11 +628,19 @@ void update_serial_data()
 	RX_FLAG_off;								//data has been processed
 	do
 	{
-		cli();
+		#ifdef XMEGA
+			cli();
+		#else
+			UCSR0B &= ~(1<<RXCIE0);	// RX interrupt disable
+		#endif
 		if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
 			memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
-		sei();
 		RX_MISSED_BUFF_off;
+		#ifdef XMEGA
+			sei();
+		#else
+			UCSR0B |= (1<<RXCIE0) ;	// RX interrupt enable
+		#endif
 		RX_DONOTUPDTAE_on;
 		if(rx_ok_buff[0]&0x20)		//check range
 			RANGE_FLAG_on;
@@ -787,6 +795,9 @@ void Mprotocol_serial_init()
 	USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
 	USARTC0.CTRLC = 0x2B ;
 	USARTC0.DATA ;
+	#ifdef INVERT_TELEMETRY
+		PORTC.PIN3CTRL |= 0x40 ;
+	#endif
 #else
 	#include <util/setbaud.h>	
 	UBRR0H = UBRRH_VALUE;
@@ -898,6 +909,7 @@ uint8_t SPI_Read(void)
 // replacement millis() and micros()
 // These work polled, no interrupts
 // micros() MUST be called at least once every 32 milliseconds
+#ifndef XMEGA
 uint16_t MillisPrecount ;
 uint16_t lastTimerValue ;
 uint32_t TotalMicros ;
@@ -997,6 +1009,7 @@ void init()
    // this needs to be called before setup() or some functions won't work there
    sei();
 }
+#endif //XMEGA
 
 /**************************/
 /**************************/
@@ -1053,7 +1066,7 @@ ISR(USART_RX_vect)
 	if((USARTC0.STATUS & 0x1C)==0)	// Check frame error, data overrun and parity error
 #else
 	
-	UCSR0B &= ~(1<<RXCIE0) ;		//rx interrupt disable
+	UCSR0B &= ~(1<<RXCIE0) ;		// RX interrupt disable
 	sei() ;
 
 	if((UCSR0A&0x1C)==0)			// Check frame error, data overrun and parity error
@@ -1118,7 +1131,7 @@ ISR(USART_RX_vect)
 
 #ifndef XMEGA
 	cli() ;
-	UCSR0B |= (1<<RXCIE0) ;	// RX enable interrupt
+	UCSR0B |= (1<<RXCIE0) ;	// RX interrupt enable
 #endif
 }
 

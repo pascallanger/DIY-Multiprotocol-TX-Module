@@ -497,16 +497,17 @@ void frskyUpdate()
 // Routines for normal serial output
 void Serial_write(uint8_t data)
 {
-	cli();	// disable global int
-	if(++tx_head>=TXBUFFER_SIZE)
-		tx_head=0;
-	tx_buff[tx_head]=data;
+	uint8_t nextHead ;
+	nextHead = tx_head + 1 ;
+	if ( nextHead >= TXBUFFER_SIZE )
+		nextHead = 0 ;
+	tx_buff[nextHead]=data;
+	tx_head = nextHead ;
 #ifdef XMEGA
 	USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;
 #else	
 	UCSR0B |= (1<<UDRIE0);//enable UDRE interrupt
 #endif
-	sei();	// enable global int
 }
 
 // Speed is 0 for 100K and 1 for 9600
@@ -521,6 +522,7 @@ void initTXSerial( uint8_t speed)
 		USARTC0.CTRLB = 0x18 ;
 		USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
 		USARTC0.CTRLC = 0x03 ;
+	}
 	#else
 		//9600 bauds
 		UBRR0H = 0x00;
@@ -528,11 +530,9 @@ void initTXSerial( uint8_t speed)
 		UCSR0A = 0 ;	// Clear X2 bit
 		//Set frame format to 8 data bits, none, 1 stop bit
 		UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
-		UCSR0B = (1<<TXEN0);//tx enable
-	#endif
 	}
-	else
-		UCSR0B |= (1<<TXEN0);//tx enable
+	UCSR0B |= (1<<TXEN0);//tx enable
+	#endif
 }
 
 #ifdef XMEGA

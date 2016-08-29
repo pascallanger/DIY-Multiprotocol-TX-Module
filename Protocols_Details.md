@@ -323,9 +323,12 @@ A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT
 
 ###Sub_protocol WLH08
 ###Sub_protocol X600
+Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ###Sub_protocol X800
+Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ###Sub_protocol H26D
 ###Sub_protocol E010
+Only 1 TX ID available
 
 ##MT99XX
 Autobind protocol

@@ -221,6 +221,7 @@ MJXQ|
  |X600
  |X800
  |H26D
+ |E010
 Shenqi|
 FY326|
 FQ777|

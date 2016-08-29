@@ -202,8 +202,7 @@ void setup()
 	// Read status of mode select binary switch
 	// after this mode_select will be one of {0000, 0001, ..., 1111}
 #ifdef XMEGA
-	mode_select=0x0F - ( PORTA.IN & 0x0F ) ; //encoder dip switches 1,2,4,8=>B2,B3,B4,C0
-	mode_select = MODE_SERIAL ;
+	mode_select = MODE_SERIAL ;	// only serial mode
 #else
 	mode_select=0x0F - ( ( (PINB>>2)&0x07 ) | ( (PINC<<3)&0x08) );//encoder dip switches 1,2,4,8=>B2,B3,B4,C0
 #endif
@@ -328,7 +327,7 @@ static void update_led_status(void)
 {
 	if(blink<millis())
 	{
-		if(cur_protocol[0]==0)	// No valid serial received at least once
+		if(cur_protocol[0]==0)							//No valid serial received at least once
 			blink+=BLINK_SERIAL_TIME;					//blink slowly while waiting a valid serial input
 		else
 			if(remote_callback == 0)
@@ -340,7 +339,7 @@ static void update_led_status(void)
 			}
 			else
 				if(IS_BIND_DONE_on)
-					LED_OFF;									//bind completed -> led on
+					LED_OFF;							//bind completed -> led on
 				else
 					blink+=BLINK_BIND_TIME;				//blink fastly during binding
 		LED_TOGGLE;
@@ -384,7 +383,7 @@ static void CheckTimer(uint16_t (*cb)(void))
 			while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait 2ms...
 #else
 			cli();								// Disable global int due to RW of 16 bits registers
-			OCR1A = OCR1A + 2000*2 ;			// set compare A for callback
+			OCR1A += 2000*2 ;					// set compare A for callback
 			TIFR1=(1<<OCF1A);					// clear compare A=callback flag
 			sei();								// enable global int
 			while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...
@@ -626,68 +625,65 @@ static void protocol_init()
 void update_serial_data()
 {
 	RX_FLAG_off;								//data has been processed
-	do
-	{
-		#ifdef XMEGA
-			cli();
-		#else
-			UCSR0B &= ~(1<<RXCIE0);	// RX interrupt disable
-		#endif
-		if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
-			memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
-		RX_MISSED_BUFF_off;
-		#ifdef XMEGA
-			sei();
-		#else
-			UCSR0B |= (1<<RXCIE0) ;	// RX interrupt enable
-		#endif
-		RX_DONOTUPDTAE_on;
-		if(rx_ok_buff[0]&0x20)		//check range
-			RANGE_FLAG_on;
-		else
-			RANGE_FLAG_off;
-		if(rx_ok_buff[0]&0xC0)		//check autobind(0x40) & bind(0x80) together
-			AUTOBIND_FLAG_on;
-		else
-			AUTOBIND_FLAG_off;
-		if(rx_ok_buff[1]&0x80)		//if rx_ok_buff[1] ==1,power is low ,0-power high
-			POWER_FLAG_off;			//power low
-		else
-			POWER_FLAG_on;			//power high
-					
-		option=rx_ok_buff[2];
+	RX_DONOTUPDTAE_on;
+	if(rx_ok_buff[0]&0x20)		//check range
+		RANGE_FLAG_on;
+	else
+		RANGE_FLAG_off;
+	if(rx_ok_buff[0]&0xC0)		//check autobind(0x40) & bind(0x80) together
+		AUTOBIND_FLAG_on;
+	else
+		AUTOBIND_FLAG_off;
+	if(rx_ok_buff[1]&0x80)		//if rx_ok_buff[1] ==1,power is low ,0-power high
+		POWER_FLAG_off;			//power low
+	else
+		POWER_FLAG_on;			//power high
+				
+	option=rx_ok_buff[2];
 
-		if( ((rx_ok_buff[0]&0x5F) != (cur_protocol[0]&0x5F)) || ( (rx_ok_buff[1]&0x7F) != cur_protocol[1] ) )
-		{ // New model has been selected
-			prev_protocol=cur_protocol[0]&0x1F;		//store previous protocol so we can reset the module
-			cur_protocol[1] = rx_ok_buff[1]&0x7F;	//store current protocol
-			CHANGE_PROTOCOL_FLAG_on;				//change protocol
-			sub_protocol=(rx_ok_buff[1]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
-			RX_num=rx_ok_buff[1]& 0x0F;
-			MProtocol_id=MProtocol_id_master+RX_num;//personalized RX bind + rx num // rx_num bits 0---3
-		}
-		else
-			if( ((rx_ok_buff[0]&0x80)!=0) && ((cur_protocol[0]&0x80)==0) )	// Bind flag has been set
-				CHANGE_PROTOCOL_FLAG_on;			//restart protocol with bind
-		cur_protocol[0] = rx_ok_buff[0];			//store current protocol
-
-		// decode channel values
-		volatile uint8_t *p=rx_ok_buff+2;
-		uint8_t dec=-3;
-		for(uint8_t i=0;i<NUM_CHN;i++)
-		{
-			dec+=3;
-			if(dec>=8)
-			{
-				dec-=8;
-				p++;
-			}
-			p++;
-			Servo_data[i]=((((*((uint32_t *)p))>>dec)&0x7FF)*5)/8+860;	//value range 860<->2140 -125%<->+125%
-		}
-		RX_DONOTUPDTAE_off;
+	if( ((rx_ok_buff[0]&0x5F) != (cur_protocol[0]&0x5F)) || ( (rx_ok_buff[1]&0x7F) != cur_protocol[1] ) )
+	{ // New model has been selected
+		prev_protocol=cur_protocol[0]&0x1F;		//store previous protocol so we can reset the module
+		cur_protocol[1] = rx_ok_buff[1]&0x7F;	//store current protocol
+		CHANGE_PROTOCOL_FLAG_on;				//change protocol
+		sub_protocol=(rx_ok_buff[1]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
+		RX_num=rx_ok_buff[1]& 0x0F;
+		MProtocol_id=MProtocol_id_master+RX_num;//personalized RX bind + rx num // rx_num bits 0---3
 	}
-	while(IS_RX_MISSED_BUFF_on); // We've just processed an old frame...
+	else
+		if( ((rx_ok_buff[0]&0x80)!=0) && ((cur_protocol[0]&0x80)==0) )	// Bind flag has been set
+			CHANGE_PROTOCOL_FLAG_on;			//restart protocol with bind
+	cur_protocol[0] = rx_ok_buff[0];			//store current protocol
+
+	// decode channel values
+	volatile uint8_t *p=rx_ok_buff+2;
+	uint8_t dec=-3;
+	for(uint8_t i=0;i<NUM_CHN;i++)
+	{
+		dec+=3;
+		if(dec>=8)
+		{
+			dec-=8;
+			p++;
+		}
+		p++;
+		Servo_data[i]=((((*((uint32_t *)p))>>dec)&0x7FF)*5)/8+860;	//value range 860<->2140 -125%<->+125%
+	}
+	RX_DONOTUPDTAE_off;
+	#ifdef XMEGA
+		cli();
+	#else
+		UCSR0B &= ~(1<<RXCIE0);	// RX interrupt disable
+	#endif
+	if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
+		memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
+	RX_FLAG_on;					// data to be processed next time...
+	RX_MISSED_BUFF_off;
+	#ifdef XMEGA
+		sei();
+	#else
+		UCSR0B |= (1<<RXCIE0) ;	// RX interrupt enable
+	#endif
 }
 
 void module_reset()

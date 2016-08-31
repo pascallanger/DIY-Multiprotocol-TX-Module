@@ -109,7 +109,8 @@ enum MJXQ
 	WLH08	= 0,
 	X600	= 1,
 	X800	= 2,
-	H26D	= 3
+	H26D	= 3,
+	E010	= 4
 };
 
 enum FRSKYX
@@ -267,10 +268,22 @@ enum FRSKYX
 #define RX_MISSED_BUFF_on	protocol_flags2 |= _BV(2)
 #define IS_RX_MISSED_BUFF_on	( ( protocol_flags2 & _BV(2) ) !=0 )
 
+#define TX_MAIN_PAUSE_off		protocol_flags2 &= ~_BV(3)
+#define TX_MAIN_PAUSE_on			protocol_flags2 |= _BV(3)
+#define IS_TX_MAIN_PAUSE_on		( ( protocol_flags2 & _BV(3) ) !=0 )
 
+#define TX_RX_PAUSE_off		protocol_flags2 &= ~_BV(4)
+#define TX_RX_PAUSE_on			protocol_flags2 |= _BV(4)
+#define IS_TX_RX_PAUSE_on		( ( protocol_flags2 & _BV(4) ) !=0 )
+
+#define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
 
 
 #define IS_BIND_BUTTON_on	(digitalRead(BIND_pin)==0x00)
+
+#define BIND_SET_INPUT		pinMode(BIND_pin,INPUT)
+#define BIND_SET_PULLUP	        digitalWrite(BIND_pin,HIGH)	
+#define BIND_SET_OUTPUT	        pinMode(BIND_pin,OUTPUT)
 
 #define BLINK_BIND_TIME	100
 #define BLINK_SERIAL_TIME	500

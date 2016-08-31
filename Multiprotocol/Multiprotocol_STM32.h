@@ -210,6 +210,7 @@ enum FRSKYX
 #define cli() noInterrupts()
 #define sei() interrupts()
 #define _delay_us(x) delayMicroseconds(x)
+#define delaymilliseconds(x) delay()
 //
 #endif
 
@@ -265,6 +266,19 @@ enum FRSKYX
 #define RX_MISSED_BUFF_off	protocol_flags2 &= ~_BV(2)
 #define RX_MISSED_BUFF_on	protocol_flags2 |= _BV(2)
 #define IS_RX_MISSED_BUFF_on	( ( protocol_flags2 & _BV(2) ) !=0 )
+
+#ifndef STM32_board
+#define TX_MAIN_PAUSE_off		protocol_flags2 &= ~_BV(3)
+#define TX_MAIN_PAUSE_on			protocol_flags2 |= _BV(3)
+#define IS_TX_MAIN_PAUSE_on		( ( protocol_flags2 & _BV(3) ) !=0 )
+
+#define TX_RX_PAUSE_off		protocol_flags2 &= ~_BV(4)
+#define TX_RX_PAUSE_on			protocol_flags2 |= _BV(4)
+#define IS_TX_RX_PAUSE_on		( ( protocol_flags2 & _BV(4) ) !=0 )
+
+#define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
+#endif
+
 
 #define BLINK_BIND_TIME	100
 #define BLINK_SERIAL_TIME	500
@@ -495,11 +509,3 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 	2047	+125%
    Channels bits are concatenated to fit in 22 bytes like in SBUS protocol
 */
-
-
-
-
-	
-	
-	
-	

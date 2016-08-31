@@ -210,7 +210,7 @@ enum FRSKYX
 #define cli() noInterrupts()
 #define sei() interrupts()
 #define _delay_us(x) delayMicroseconds(x)
-#define delaymilliseconds(x) delay()
+#define delayMilliseconds(x) delay(x)
 //
 #endif
 

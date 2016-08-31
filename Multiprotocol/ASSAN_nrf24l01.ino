@@ -140,7 +140,7 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	packet[21]=0xFA;
 	packet[20]=0x53; */
 	// Using packet[20..23] to store the ID1 and packet[24..27] to store the ID2
-	uint8_t freq=0;
+	uint8_t freq=0,freq2;
 	for(uint8_t i=0;i<4;i++)
 	{
 		uint8_t temp=rx_tx_addr[0];

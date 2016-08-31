@@ -393,11 +393,9 @@ enum {
 	PKT_ACKED,
 	PKT_TIMEOUT
 };
-
-//*******************
-//***  CRC Table  ***
-//*******************
-
+// baudrate defines for serial
+#define SPEED_100K	0
+#define SPEED_9600	1
 
 
 //****************************************

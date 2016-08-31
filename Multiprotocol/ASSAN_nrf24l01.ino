@@ -158,7 +158,7 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	do
 	{
 	#if defined STM32_board
-	randomSeed((uint32_t)analogReadPB0) << 10 | analogRead(PB1));
+	randomSeed((uint32_t)analogReadP(B0) << 10 | analogRead(PB1));
 	#else
 		randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
 	#endif

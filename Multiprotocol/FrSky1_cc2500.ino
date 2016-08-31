@@ -16,26 +16,37 @@
 #if defined(FRSKY1_CC2500_INO)
 
 #include "iface_cc2500.h"
+const PROGMEM uint8_t FRSKY1_cc2500_conf[][2]={
+	{ CC2500_17_MCSM1, 0x0c },
+	{ CC2500_18_MCSM0, 0x18 },
+	{ CC2500_06_PKTLEN, 0xff },
+	{ CC2500_07_PKTCTRL1, 0x04 },
+	{ CC2500_08_PKTCTRL0, 0x05 },
+	{ CC2500_3E_PATABLE, 0xfe },
+	{ CC2500_0B_FSCTRL1, 0x08 },
+	{ CC2500_0C_FSCTRL0, 0x00 },
+	{ CC2500_0D_FREQ2, 0x5c },
+	{ CC2500_0E_FREQ1, 0x58 },
+	{ CC2500_0F_FREQ0, 0x9d },
+	{ CC2500_10_MDMCFG4, 0xaa },
+	{ CC2500_11_MDMCFG3, 0x10 },
+	{ CC2500_12_MDMCFG2, 0x93 },
+	{ CC2500_13_MDMCFG1, 0x23 },
+	{ CC2500_14_MDMCFG0, 0x7a },
+	{ CC2500_15_DEVIATN, 0x41 }
+};
 
 static void __attribute__((unused)) FRSKY1_init()
 {
-	CC2500_WriteReg(CC2500_17_MCSM1, 0x0c);
-	CC2500_WriteReg(CC2500_18_MCSM0, 0x18);
-	CC2500_WriteReg(CC2500_06_PKTLEN, 0xff);
-	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x04);
-	CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x05);
-	CC2500_WriteReg(CC2500_3E_PATABLE, 0xfe);
-	CC2500_WriteReg(CC2500_0B_FSCTRL1, 0x08);
-	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-	CC2500_WriteReg(CC2500_0D_FREQ2, 0x5c);
-	CC2500_WriteReg(CC2500_0E_FREQ1, 0x58);
-	CC2500_WriteReg(CC2500_0F_FREQ0, 0x9d);
-	CC2500_WriteReg(CC2500_10_MDMCFG4, 0xaa);
-	CC2500_WriteReg(CC2500_11_MDMCFG3, 0x10);
-	CC2500_WriteReg(CC2500_12_MDMCFG2, 0x93);
-	CC2500_WriteReg(CC2500_13_MDMCFG1, 0x23);
-	CC2500_WriteReg(CC2500_14_MDMCFG0, 0x7a);
-	CC2500_WriteReg(CC2500_15_DEVIATN, 0x41);
+	for(uint8_t i=0;i<17;i++)
+	{
+		uint8_t reg=pgm_read_byte_near(&FRSKY1_cc2500_conf[i][0]);
+		uint8_t val=pgm_read_byte_near(&FRSKY1_cc2500_conf[i][1]);
+		if(reg==CC2500_0C_FSCTRL0)
+			val=option;
+		CC2500_WriteReg(reg,val);
+	}
+	prev_option = option ;
 	for(uint8_t i=19;i<36;i++)
 	{
 		uint8_t reg=pgm_read_byte_near(&cc2500_conf[i][0]);
@@ -47,7 +58,6 @@ static void __attribute__((unused)) FRSKY1_init()
 	CC2500_SetPower();
 
 	CC2500_Strobe(CC2500_SIDLE);    // Go to idle...
-	prev_option = option ;
 }
 
 static uint8_t __attribute__((unused)) FRSKY1_crc8(uint8_t result, uint8_t *data, uint8_t len, uint8_t polynomial)

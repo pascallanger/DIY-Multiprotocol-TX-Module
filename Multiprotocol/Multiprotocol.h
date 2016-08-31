@@ -232,13 +232,12 @@ struct PPM_Parameters
 #ifdef XMEGA
 	#define CYRF_CSN_on PORTD.OUTSET  = _BV(4)
 	#define CYRF_CSN_off PORTD.OUTCLR = _BV(4)
-	#define CYRF_RST 0
 #else
 	#define CYRF_CSN_on  PORTB |=  _BV(1)		//D9
 	#define CYRF_CSN_off PORTB &= ~_BV(1)		//D9
 	#define CYRF_RST_HI  PORTC |=  _BV(5)		//A5
 	#define CYRF_RST_LO  PORTC &= ~_BV(5)		//A5
-	#define CYRF_RST 5
+	#define CYRF_RST_pin 5
 #endif
 //  
 #ifdef XMEGA

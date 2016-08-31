@@ -151,7 +151,7 @@ void setup()
 #else	
 	// General pinout
 	DDRD  = _BV(A7105_CS_pin)|_BV(SDI_pin)|_BV(SCLK_pin)|_BV( CC25_CSN_pin);//pin output
-	DDRC  = _BV(CTRL1_pin)|_BV(CTRL2_pin)|_BV(CYRF_RST);					//pin output
+	DDRC  = _BV(CTRL1_pin)|_BV(CTRL2_pin)|_BV(CYRF_RST_pin);				//pin output
 	DDRB  = _BV(NRF_CSN_pin)|_BV(CYRF_CSN_pin);	//pin output
 	PORTB = _BV(2)|_BV(3)|_BV(4)|_BV(BIND_pin);	//pullup on dial (D10=PB2,D11=PB3,D12=PB4) and bind button
 	PORTC = _BV(0);								//pullup on dial (A0=PC0)

@@ -39,6 +39,7 @@
 
 #include <avr/pgmspace.h>
 #include "_Config.h"
+#include "TX_Def.h"
 //Multiprotocol module configuration file
 
 //Global constants/variables
@@ -59,6 +60,9 @@ uint8_t  packet[40];
 uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
 
+#ifndef STM32_board
+uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
+#endif
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint8_t  rx_tx_addr[5];
@@ -122,18 +126,20 @@ uint8_t option;
 uint8_t cur_protocol[2];
 uint8_t prev_protocol=0;
 
+#ifdef STM32_board
 void PPM_decode();
 void ISR_COMPB();
-
+#endif
 // Telemetry
 #define MAX_PKT 27
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
 #if defined(TELEMETRY)
-	#ifndef BASH_SERIAL
+	uint8_t pass = 0;
+	uint8_t pktt[MAX_PKT];//telemetry receiving packets
+#ifndef BASH_SERIAL
 	volatile uint8_t tx_head=0;
 	volatile uint8_t tx_tail=0;
 #endif // BASH_SERIAL
-	uint8_t pktt[MAX_PKT];//telemetry receiving packets
 	uint8_t v_lipo;
 	int16_t RSSI_dBm;
 	uint8_t telemetry_link=0; 
@@ -161,7 +167,7 @@ void setup()
 		for ( uint8_t count = 0 ; count < 20 ; count += 1 )
 		asm("nop") ;
 		PORTE.OUTCLR = 0x01 ;
-		#else	
+	#else	
 		// General pinout
 		#if defined STM32_board	
 			pinMode(CS_pin,OUTPUT);
@@ -181,7 +187,7 @@ void setup()
                         TX_INV_off;
                         RX_INV_off;
                         #endif	
-			#endif
+		        #endif
 			//pinMode(SDI_pin,OUTPUT);
 			//pinMode(SCK_pin,OUTPUT);//spi pins initialized with spi init
 			//pinMode(SDO_pin,INPUT);			
@@ -191,7 +197,7 @@ void setup()
 			pinMode(S2_pin,INPUT_PULLUP);
 			pinMode(S3_pin,INPUT_PULLUP);
 			pinMode(S4_pin,INPUT_PULLUP);			
-			#else
+		#else
 			DDRD = (1<<CS_pin)|(1<<SDI_pin)|(1<<SCLK_pin)|(1<<CS_pin)|(1<< CC25_CSN_pin);
 			DDRC = (1<<CTRL1)|(1<<CTRL2); //output
 			DDRC |= (1<<5);//RST pin A5(C5) CYRF output
@@ -224,11 +230,11 @@ void setup()
 		TCC1.PER = 0xFFFF ;
 		TCC1.CNT = 0 ;
 		TCC1.CTRLA = 0x0B ;	// Event3 (prescale of 16)
-		#else
+	#else
 		#if defined STM32_board//16 bits timer for 0.5 us
 			//select the counter clock.
 			start_timer2();//0.5us
-			#else	
+		#else	
 			TCCR1A = 0;
 			TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
 		#endif
@@ -237,14 +243,20 @@ void setup()
 	// Set servos positions
 	for(uint8_t i=0;i<NUM_CHN;i++)
 	Servo_data[i]=1500;
-	Servo_data[THROTTLE]=PPM_MIN_100;
+	Servo_data[THROTTLE]=servo_min_100;
+#ifdef ENABLE_PPM
 	memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
+#endif
 	
 	//Wait for every component to start
-	delay(100);
+	delayMilliseconds(100);
 	
 	// Read status of bind button
-	#ifdef XMEGA
+		// Read status of bind button
+	if( IS_BIND_BUTTON_on )
+		BIND_BUTTON_FLAG_on;	// If bind button pressed save the status for protocol id reset under hubsan
+	
+/*	#ifdef XMEGA
 		if( (PORTD.IN & _BV(2)) == 0x00 )
 		#else
 		# if defined STM32_board
@@ -253,17 +265,15 @@ void setup()
 			if( (PINB & _BV(5)) == 0x00 )
 		#endif
 	#endif
-	BIND_BUTTON_FLAG_on;	// If bind button pressed save the status for protocol id reset under hubsan
-	
+	*/
 	// Read status of mode select binary switch
 	// after this mode_select will be one of {0000, 0001, ..., 1111}
 	#ifdef XMEGA
-		mode_select=0x0F - ( PORTA.IN & 0x0F ) ; //encoder dip switches 1,2,4,8=>B2,B3,B4,C0
 		mode_select = MODE_SERIAL ;
-		#else
+	#else
 		#if defined STM32_board		
 			mode_select= 0x0F -(uint8_t)(((GPIOA->regs->IDR)>>4)&0x0F);
-			#else
+		#else
 			mode_select=0x0F - ( ( (PINB>>2)&0x07 ) | ( (PINC<<3)&0x08) );//encoder dip switches 1,2,4,8=>B2,B3,B4,C0
 		#endif
 	#endif
@@ -277,22 +287,15 @@ void setup()
 	LED_SET_OUTPUT; 	
 	// Read or create protocol id
 	MProtocol_id_master=random_id(10,false);
-    initSPI2();
-	//Init RF modules
-	#ifdef	CC2500_INSTALLED
-		CC2500_Reset();
-	#endif
-	#ifdef	A7105_INSTALLED
-		A7105_Reset();
-	#endif
-	#ifdef	CYRF6936_INSTALLED
-		CYRF_Reset();
-	#endif
-	#ifdef	NFR24L01_INSTALLED
-		NRF24L01_Reset();
-	#endif
+	
+	#ifdef STM32_board
+         initSPI2();
+         #endif
+        //Init RF modules
+	modules_reset();
 		//LED_ON;	
 	//Protocol and interrupts initialization
+#ifdef ENABLE_PPM	
 	if(mode_select != MODE_SERIAL)
 	{ // PPM
 		mode_select--;
@@ -304,6 +307,10 @@ void setup()
 		if(PPM_prot[mode_select].power)		POWER_FLAG_on;
 		if(PPM_prot[mode_select].autobind)	AUTOBIND_FLAG_on;
 		mode_select++;
+		servo_max_100=PPM_MAX_100; servo_min_100=PPM_MIN_100;
+		servo_max_125=PPM_MAX_125; servo_min_125=PPM_MIN_125;
+		
+
 		
 		protocol_init();
 		
@@ -314,7 +321,7 @@ void setup()
 				EIMSK |= (1<<INT1);		// INT1 interrupt enable
 			#endif		
 		#endif
-		#if defined STM32_board
+		#ifdef STM32_board
 		attachInterrupt(PPM_pin,PPM_decode,FALLING);
 		#endif
 		
@@ -323,12 +330,16 @@ void setup()
 		#endif
 	}
 	else
+#endif
 	{ // Serial
+#ifdef ENABLE_SERIAL
 		cur_protocol[0]=0;
 		cur_protocol[1]=0;
 		prev_protocol=0;
-		
+		servo_max_100=SERIAL_MAX_100; servo_min_100=SERIAL_MIN_100;
+		servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
 		Mprotocol_serial_init(); // Configure serial and enable RX interrupt
+#endif //ENABLE_SERIAL		
 	}
 
 }
@@ -336,7 +347,7 @@ void setup()
 // Main
 void loop()
 {
-	
+
 	if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
 	{
 		update_serial_data();	// Update protocol and data
@@ -524,6 +535,15 @@ static void protocol_init()
 	remote_callback = 0;
 	
 	set_rx_tx_addr(MProtocol_id);
+		// reset telemetry
+	#ifdef TELEMETRY
+		tx_pause();
+		pass=0;
+		telemetry_link=0;
+		tx_tail=0;
+		tx_head=0;
+	#endif
+	
 	blink=millis();
 	if(IS_BIND_BUTTON_FLAG_on)
 	AUTOBIND_FLAG_on;
@@ -586,6 +606,21 @@ static void protocol_init()
 		#endif
 		#if defined(DEVO_CYRF6936_INO)
 			case MODE_DEVO:
+			#ifdef ENABLE_PPM
+			if(mode_select) //PPM mode
+			{
+				if(IS_BIND_BUTTON_FLAG_on)
+				{
+					eeprom_write_byte((uint8_t*)(30+mode_select),0x00);		// reset to autobind mode for the current model
+					option=0;
+				}
+				else
+				{	
+					option=eeprom_read_byte((uint8_t*)(30+mode_select));	// load previous mode: autobind or fixed id
+					if(option!=1) option=0;									// if not fixed id mode then it should be autobind
+				}
+			}
+			#endif //ENABLE_PPM
 			CTRL2_on;	//antenna RF4
 			next_callback = DevoInit();
 			remote_callback = devo_callback;
@@ -729,28 +764,20 @@ static void protocol_init()
 
 static void update_serial_data()
 {
+	RX_DONOTUPDTAE_on;
 	RX_FLAG_off;								//data has been processed	
-	
-	do 
-	{
-	cli();
-	if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
-	memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
-	sei();
-	RX_MISSED_BUFF_off;
-	RX_DONOTUPDTAE_on;	
 	if(rx_ok_buff[0]&0x20)						//check range
-	RANGE_FLAG_on;
+	        RANGE_FLAG_on;
 	else
-	RANGE_FLAG_off;		
+	        RANGE_FLAG_off;		
 	if(rx_ok_buff[0]&0xC0)						//check autobind(0x40) & bind(0x80) together
-	AUTOBIND_FLAG_on;
+	        AUTOBIND_FLAG_on;
 	else
 	AUTOBIND_FLAG_off;
 	if(rx_ok_buff[1]&0x80)						//if rx_ok_buff[1] ==1,power is low ,0-power high
-	POWER_FLAG_off;	//power low
+	        POWER_FLAG_off;	//power low
 	else
-	POWER_FLAG_on;	//power high
+	        POWER_FLAG_on;	//power high
 	
 	option=rx_ok_buff[2];
 	
@@ -766,6 +793,7 @@ static void update_serial_data()
 	else
 	if( ((rx_ok_buff[0]&0x80)!=0) && ((cur_protocol[0]&0x80)==0) )	// Bind flag has been set
 	CHANGE_PROTOCOL_FLAG_on;			//restart protocol with bind
+	else
 	cur_protocol[0] = rx_ok_buff[0];			//store current protocol
 	
 	// decode channel values
@@ -783,36 +811,54 @@ static void update_serial_data()
 		Servo_data[i]=((((*((uint32_t *)p))>>dec)&0x7FF)*5)/8+860;	//value range 860<->2140 -125%<->+125%
 	}
          RX_DONOTUPDTAE_off;							
-       }
-while(IS_RX_MISSED_BUFF_on); // We've just processed an old frame...
+   
+#ifdef XMEGA
+		cli();
+	#else
+	#ifdef STM32_board
+	//here code fro RX intrurpt disable
+	USART3_BASE->CR1 &= ~ USART_CR1_RXIE;//disable 
+	#else
+		UCSR0B &= ~(1<<RXCIE0);	// RX interrupt disable
+	#endif	
+	#endif
+	if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
+	{	memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
+		RX_FLAG_on;				// data to be processed next time...
+		RX_MISSED_BUFF_off;
+	}
+	#ifdef XMEGA
+		sei();
+	#else
+		#ifdef STM32_board
+	//here code fro RX intrurpt enable
+	USART3_BASE->CR1 |=  USART_CR1_RXIE;//disable 
+	        #else
+		UCSR0B |= (1<<RXCIE0) ;	// RX interrupt enable
+	#endif	
+	#endif
 }
 
-static void module_reset()
+void modules_reset()
 {
-	if(remote_callback)
-	{		// previous protocol loaded
-		remote_callback = 0;
-		switch(prev_protocol)
-		{
-			case MODE_FLYSKY:
-			case MODE_HUBSAN:
-			A7105_Reset();
-			break;
-			case MODE_FRSKY:
-			case MODE_FRSKYX:
-			case MODE_SFHSS:
-			CC2500_Reset();
-			break;
-			case MODE_DSM2:
-			case MODE_DEVO:
-			CYRF_Reset();
-			break;
-			default:	// MODE_HISKY, MODE_V2X2, MODE_YD717, MODE_KN, MODE_SYMAX, MODE_SLT, MODE_CX10, MODE_CG023, MODE_BAYANG, MODE_ESKY, MODE_MT99XX, MODE_MJXQ, MODE_SHENQI, MODE_FY326
-			NRF24L01_Reset();
-			break;
-		}
-	}
+	#ifdef	CC2500_INSTALLED
+		CC2500_Reset();
+	#endif
+	#ifdef	A7105_INSTALLED
+		A7105_Reset();
+	#endif
+	#ifdef	CYRF6936_INSTALLED
+		CYRF_Reset();
+	#endif
+	#ifdef	NFR24L01_INSTALLED
+		NRF24L01_Reset();
+	#endif
+
+	//Wait for every component to reset
+	delayMilliseconds(100);
+	prev_power=0xFD;		// unused power value
 }
+
 #ifndef STM32_board
 int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
 {
@@ -828,13 +874,13 @@ int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t
 // Channel value is converted to 8bit values full scale
 uint8_t convert_channel_8b(uint8_t num)
 {
-	return (uint8_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,0,255));	
+	return (uint8_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,0,255));	
 }
 
 // Channel value is converted to 8bit values to provided values scale
 uint8_t convert_channel_8b_scale(uint8_t num,uint8_t min,uint8_t max)
 {
-	return (uint8_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,min,max));	
+	return (uint8_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,min,max));	
 }
 
 // Channel value is converted sign + magnitude 8bit values
@@ -848,7 +894,7 @@ uint8_t convert_channel_s8b(uint8_t num)
 // Channel value is converted to 10bit values
 uint16_t convert_channel_10b(uint8_t num)
 {
-	return (uint16_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,1,1023));
+	return (uint16_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,1,1023));
 }
 
 // Channel value is multiplied by 1.5
@@ -868,11 +914,11 @@ void convert_channel_HK310(uint8_t num, uint8_t *low, uint8_t *high)
 // Channel value is limited to PPM_100
 uint16_t limit_channel_100(uint8_t ch)
 {
-	if(Servo_data[ch]>PPM_MAX_100)
-	return PPM_MAX_100;
+	if(Servo_data[ch]>servo_max_100)
+		return servo_max_100;
 	else
-	if (Servo_data[ch]<PPM_MIN_100)
-	return PPM_MIN_100;
+		if (Servo_data[ch]<servo_min_100)
+			return servo_min_100;
 	return Servo_data[ch];
 }
 
@@ -1069,6 +1115,7 @@ void init()
 /**************************/
 
 //PPM
+#ifdef ENABLE_PPM
 #ifdef XMEGA
 	ISR(PORTD_INT0_vect)
 	#else
@@ -1104,16 +1151,13 @@ void init()
 	else
 	if(chan!=-1)		// need to wait for start of frame
 	{  //servo values between 500us and 2420us will end up here
-		uint16_t a = Cur_TCNT1>>1;
-		if(a<PPM_MIN) a=PPM_MIN;
-		else if(a>PPM_MAX) a=PPM_MAX;
-		PPM_data[chan]=a;
-		if(chan++>=NUM_CHN)
-		chan=-1;	// don't accept any new channels
+		PPM_data[chan]= Cur_TCNT1>>1;;
+				if(chan++>=NUM_CHN)
+					chan=-1;	// don't accept any new channels
 	}
 	Prev_TCNT1+=Cur_TCNT1;
 }
-
+#endif //ENABLE_PPM
 //Serial RX
 #ifdef XMEGA
 	ISR(USARTC0_RXC_vect)
@@ -1157,7 +1201,6 @@ void init()
 					#endif			
 				#endif
 				{
-					idx++;
 					#ifdef XMEGA
 						TCC1.CCB = TCC1.CNT+(6500L) ;		// Full message should be received within timer of 3250us
 						TCC1.INTFLAGS = TC1_CCBIF_bm ;		// clear OCR1B match flag
@@ -1175,6 +1218,7 @@ void init()
 							TIMSK1 |=(1<<OCIE1B);	// enable interrupt on compare B match
 						#endif				
 					#endif
+					idx++;
 				}
 			}
 			else
@@ -1194,16 +1238,7 @@ void init()
 				#endif
 				if(idx>RXBUFFER_SIZE)
 				{	// A full frame has been received
-					#ifdef XMEGA
-						TCC1.INTCTRLB &=0xF3;			// disable interrupt on compare B match
-						#else
-						#if defined STM32_board
-							detachInterrupt(2);//disable interrupt on ch2	
-							#else							
-							TIMSK1 &=~(1<<OCIE1B);			// disable interrupt on compare B match
-							
-						#endif				
-					#endif
+
 					if(!IS_RX_DONOTUPDTAE_on)
 					{ //Good frame received and main has finished with previous buffer
                                             memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
@@ -1228,7 +1263,21 @@ void init()
 			#endif
 		discard_frame=1;		// Error encountered discard full frame...
 		}
-		
+	
+	if(discard_frame==1)
+	{
+                #ifdef XMEGA
+		        TCC1.INTCTRLB &=0xF3;			// disable interrupt on compare B match
+                #else
+		#if defined STM32_board
+		        detachInterrupt(2);//disable interrupt on ch2	
+		#else							
+			TIMSK1 &=~(1<<OCIE1B);			// disable interrupt on compare B match
+							
+		#endif				
+		#endif
+	
+	}	
 	#if defined STM32_board	//If activated telemetry it doesn't work activated 
 	}
 	#endif			
@@ -1246,11 +1295,22 @@ void init()
 	#if defined STM32_board
 		void ISR_COMPB()		
 		#else
-		ISR(TIMER1_COMPB_vect)
+		ISR(TIMER1_COMPB_vect,ISR_NOBLOCK)
 	#endif
 #endif
 
 {	// Timer1 compare B interrupt
 discard_frame=1;	// Error encountered discard full frame...
+	#ifdef XMEGA
+		TCC1.INTCTRLB &=0xF3;			// Disable interrupt on compare B match
+	#else
+	#ifdef STM32_board
+	detachInterrupt(2);//disable interrupt on ch2
+	#else
+		TIMSK1 &=~(1<<OCIE1B);			// Disable interrupt on compare B match
+	#endif
+	#endif
 }
 
+
+#endif //ENABLE_SERIAL

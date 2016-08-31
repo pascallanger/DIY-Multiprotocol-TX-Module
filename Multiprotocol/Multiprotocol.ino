@@ -70,7 +70,6 @@ uint8_t  phase;
 uint16_t bind_counter;
 uint8_t  bind_phase;
 uint8_t  binding_idx;
-uint32_t packet_counter;
 uint16_t packet_period;
 uint8_t  packet_count;
 uint8_t  packet_sent;
@@ -82,6 +81,8 @@ uint8_t  rf_ch_num;
 uint8_t  throttle, rudder, elevator, aileron;
 uint8_t  flags;
 uint16_t crc;
+uint8_t  crc8;
+uint16_t seed;
 //
 uint16_t state;
 uint8_t  len;
@@ -347,7 +348,12 @@ void setup()
 // Main
 void loop()
 {
-
+#ifndef STM32
+TX_ON;
+NOP();
+TX_OFF;
+#endif
+#ifdef ENABLE_SERIAL
 	if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
 	{
 		update_serial_data();	// Update protocol and data
@@ -362,6 +368,8 @@ void loop()
 		}
 		
 	}
+#endif //ENABLE_SERIAL	
+#ifdef ENABLE_PPM
 	if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)	// PPM mode and a full frame has been received
 	{
 		for(uint8_t i=0;i<NUM_CHN;i++)
@@ -370,6 +378,8 @@ void loop()
 			cli();	// disable global int
 			temp_ppm = PPM_data[i] ;
 			sei();	// enable global int
+			if(temp_ppm<PPM_MIN_125) temp_ppm=PPM_MIN_125;
+			else if(temp_ppm>PPM_MAX_125) temp_ppm=PPM_MAX_125;
 			Servo_data[i]=temp_ppm;
 		}
 		update_aux_flags();
@@ -378,8 +388,13 @@ void loop()
 	update_led_status();
 	#if defined(TELEMETRY)
 		if( ((cur_protocol[0]&0x1F)==MODE_FRSKY) || ((cur_protocol[0]&0x1F)==MODE_HUBSAN) || ((cur_protocol[0]&0x1F)==MODE_FRSKYX) || ((cur_protocol[0]&0x1F)==MODE_DSM2) )
-		frskyUpdate();
-	#endif		
+		TelemetryUpdate();
+	#endif
+#ifndef STM32_board
+TX_ON;
+NOP();
+TX_OFF;
+#endif
 	if (remote_callback != 0)
 	CheckTimer(remote_callback);
 }
@@ -537,7 +552,9 @@ static void protocol_init()
 	set_rx_tx_addr(MProtocol_id);
 		// reset telemetry
 	#ifdef TELEMETRY
+	        #ifndef STM32_board
 		tx_pause();
+	        #endif
 		pass=0;
 		telemetry_link=0;
 		tx_tail=0;
@@ -926,6 +943,57 @@ uint16_t limit_channel_100(uint8_t ch)
 //		return;
 //	}
 
+static void Mprotocol_serial_init()
+{
+	
+	#ifdef XMEGA
+		
+		PORTC.OUTSET = 0x08 ;
+		PORTC.DIRSET = 0x08 ;
+		
+		USARTC0.BAUDCTRLA = 19 ;
+		USARTC0.BAUDCTRLB = 0 ;
+		
+		USARTC0.CTRLB = 0x18 ;
+		USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+		USARTC0.CTRLC = 0x2B ;
+		USARTC0.DATA ;
+		#else
+		
+		#if defined STM32_board
+			Serial1.begin(100000,SERIAL_8E2);//USART2
+			Serial2.begin(100000,SERIAL_8E2);//USART3 
+			USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
+			USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable 
+			USART2_BASE->CR1 &= ~ USART_CR1_TE;//disable transmit
+			#else	
+			#include <util/setbaud.h>	
+			UBRR0H = UBRRH_VALUE;
+			UBRR0L = UBRRL_VALUE;
+			UCSR0A = 0 ;	// Clear X2 bit
+			//Set frame format to 8 data bits, even parity, 2 stop bits
+			UCSR0C = (1<<UPM01)|(1<<USBS0)|(1<<UCSZ01)|(1<<UCSZ00);
+			while ( UCSR0A & (1 << RXC0) )//flush receive buffer
+			UDR0;
+			//enable reception and RC complete interrupt
+			UCSR0B = (1<<RXEN0)|(1<<RXCIE0);//rx enable and interrupt
+			#ifdef DEBUG_TX
+				TX_SET_OUTPUT;
+				#else
+				#if defined(TELEMETRY)
+	                       initTXSerial( SPEED_100K ) ;
+	                       #endif //TELEMETRY
+			#endif
+		#endif
+	#endif
+}
+
+#if defined(TELEMETRY)
+void PPM_Telemetry_serial_init()
+{
+	initTXSerial( SPEED_9600 ) ;
+}
+#endif
 
 
 // Convert 32b id to rx_tx_addr
@@ -996,8 +1064,8 @@ static void set_rx_tx_addr(uint32_t id)
 	
 #endif
 
-
-#ifndef STM32_board
+#ifndef XMEGA
+#ifndef STM32_board 
 /************************************/
 /**  Arduino replacement routines  **/
 /************************************/
@@ -1105,7 +1173,7 @@ void init()
 }
 
 #endif
-
+#endif
 
 
 /**************************/

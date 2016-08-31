@@ -96,6 +96,18 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 						| GET_FLAG(!Servo_AUX2, 0x20);	// air/ground mode
 			}
 			break;
+		case E010:
+			packet[10] += GET_FLAG(Servo_AUX6, 0x02)	//RTH
+						| GET_FLAG(Servo_AUX5, 0x01);	//HEADLESS
+			if (!bind)
+			{
+				packet[14] = 0x04
+						| GET_FLAG(Servo_AUX1, 0x01)	//FLIP
+						| GET_FLAG(Servo_AUX3, 0x08)	//PICTURE
+						| GET_FLAG(Servo_AUX4, 0x10)	//VIDEO
+						| GET_FLAG(!Servo_AUX2, 0x20);	// air/ground mode
+			}
+			break;
 		case X600:
 			if(Servo_AUX5)	//HEADLESS
 			{ // driven trims cause issues when headless is enabled

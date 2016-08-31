@@ -267,18 +267,10 @@ enum FRSKYX
 #define RX_MISSED_BUFF_on	protocol_flags2 |= _BV(2)
 #define IS_RX_MISSED_BUFF_on	( ( protocol_flags2 & _BV(2) ) !=0 )
 
-#ifndef STM32_board
-#define TX_MAIN_PAUSE_off		protocol_flags2 &= ~_BV(3)
-#define TX_MAIN_PAUSE_on			protocol_flags2 |= _BV(3)
-#define IS_TX_MAIN_PAUSE_on		( ( protocol_flags2 & _BV(3) ) !=0 )
 
-#define TX_RX_PAUSE_off		protocol_flags2 &= ~_BV(4)
-#define TX_RX_PAUSE_on			protocol_flags2 |= _BV(4)
-#define IS_TX_RX_PAUSE_on		( ( protocol_flags2 & _BV(4) ) !=0 )
 
-#define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
-#endif
 
+#define IS_BIND_BUTTON_on	(digitalRead(BIND_pin)==0x00)
 
 #define BLINK_BIND_TIME	100
 #define BLINK_SERIAL_TIME	500

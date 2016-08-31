@@ -108,7 +108,6 @@ static void __attribute__((unused)) read_code(uint8_t *buf, uint8_t row, uint8_t
 //
 uint8_t sop_col;
 uint8_t data_col;
-uint16_t cyrf_state;
 uint8_t binding;
 
 static void __attribute__((unused)) build_bind_packet()
@@ -146,7 +145,7 @@ static void __attribute__((unused)) build_bind_packet()
 
 static uint8_t __attribute__((unused)) PROTOCOL_SticksMoved(uint8_t init)
 {
-#define STICK_MOVEMENT 15*(PPM_MAX-PPM_MIN)/100	// defines when the bind dialog should be interrupted (stick movement STICK_MOVEMENT %)
+#define STICK_MOVEMENT 15*(servo_max_125-servo_min_125)/100	// defines when the bind dialog should be interrupted (stick movement STICK_MOVEMENT %)
 	static uint16_t ele_start, ail_start;
     uint16_t ele = Servo_data[ELEVATOR];//CHAN_ReadInput(MIXER_MapChannel(INP_ELEVATOR));
     uint16_t ail = Servo_data[AILERON];//CHAN_ReadInput(MIXER_MapChannel(INP_AILERON));
@@ -265,7 +264,7 @@ static void __attribute__((unused)) build_data_packet(uint8_t upper)//
 						value=Servo_data[AUX8];
 						break;
 				}
-				value=map(value,PPM_MIN,PPM_MAX,0,max-1);
+				value=map(value,servo_max_125-servo_min_125,0,max-1);
 			}		   
 			value |= (upper && i == 0 ? 0x8000 : 0) | (idx << bits);
 		}	  
@@ -418,12 +417,12 @@ uint16_t ReadDsm2()
 #define DSM_READ_DELAY		600		// Time before write to check read state, and switch channels. Was 400 but 500 seems what the 328p needs to read a packet
 	uint32_t start;
 
-	switch(cyrf_state)
+	switch(state)
 	{
 		default:
 			//Binding
-			cyrf_state++;
-			if(cyrf_state & 1)
+			state++;
+			if(state & 1)
 			{
 				//Send packet on even states
 				//Note state has already incremented, so this is actually 'even' state
@@ -443,7 +442,7 @@ uint16_t ReadDsm2()
 			cyrf_configdata();
 			CYRF_SetTxRxMode(TX_EN);
 			hopping_frequency_no = 0;
-			cyrf_state = DSM2_CH1_WRITE_A;				// in fact cyrf_state++
+			state = DSM2_CH1_WRITE_A;				// in fact cyrf_state++
 			set_sop_data_crc();
 			return 10000;
 		case DSM2_CH1_WRITE_A:
@@ -453,7 +452,7 @@ uint16_t ReadDsm2()
 			build_data_packet(cyrf_state == DSM2_CH1_WRITE_B);// build lower or upper channels
 			CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS);	// clear IRQ flags
 			CYRF_WriteDataPacket(packet);
-			cyrf_state++;								// change from WRITE to CHECK mode
+			state++;								// change from WRITE to CHECK mode
 			return DSM_WRITE_DELAY;
 		case DSM2_CH1_CHECK_A:
 		case DSM2_CH1_CHECK_B:
@@ -462,7 +461,7 @@ uint16_t ReadDsm2()
 				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
 					break;
 			set_sop_data_crc();
-			cyrf_state++;								// change from CH1_CHECK to CH2_WRITE
+			state++;								// change from CH1_CHECK to CH2_WRITE
 			return DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
 		case DSM2_CH2_CHECK_A:
 		case DSM2_CH2_CHECK_B:
@@ -470,10 +469,10 @@ uint16_t ReadDsm2()
 			while (micros()-start < 500)				// Wait max 500µs
 				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
 					break;
-			if (cyrf_state == DSM2_CH2_CHECK_A)
+			if (state == DSM2_CH2_CHECK_A)
 				CYRF_SetPower(0x28);					//Keep transmit power in sync
 #if defined DSM_TELEMETRY
-			cyrf_state++;								// change from CH2_CHECK to CH2_READ
+			state++;								// change from CH2_CHECK to CH2_READ
 			if(option<=3 || option>7)
 			{	// disable telemetry for option between 4 and 7 ie 4,5,6,7 channels @11ms since it does not work...
 				CYRF_SetTxRxMode(RX_EN);					//Receive mode
@@ -496,7 +495,7 @@ uint16_t ReadDsm2()
 				pkt[0]=CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;		// store RSSI of the received telemetry signal
 				telemetry_link=1;
 			}
-			if (cyrf_state == DSM2_CH2_READ_A && option <= 3)		// normal 22ms mode if option<=3 ie 4,5,6,7 channels @22ms
+			if (state == DSM2_CH2_READ_A && option <= 3)		// normal 22ms mode if option<=3 ie 4,5,6,7 channels @22ms
 			{
 				//Force end read state
 				CYRF_WriteRegister(CYRF_0F_XACT_CFG, (CYRF_ReadRegister(CYRF_0F_XACT_CFG) | 0x20));  // Force end state
@@ -504,35 +503,35 @@ uint16_t ReadDsm2()
 				while (micros()-start < 100)	// Wait max 100 µs
 					if((CYRF_ReadRegister(CYRF_0F_XACT_CFG) & 0x20) == 0)
 						break;
-				cyrf_state = DSM2_CH2_READ_B;
+				state = DSM2_CH2_READ_B;
 				CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);			//0x80???	//Prepare to receive
 				return 11000;
 			}
-			if (cyrf_state == DSM2_CH2_READ_A && option>7)
-				cyrf_state = DSM2_CH1_WRITE_B;				//Transmit upper
+			if (state == DSM2_CH2_READ_A && option>7)
+				state = DSM2_CH1_WRITE_B;				//Transmit upper
 			else
-				cyrf_state = DSM2_CH1_WRITE_A;				//Force 11ms if option>3 ie 4,5,6,7 channels @11ms
+				state = DSM2_CH1_WRITE_A;				//Force 11ms if option>3 ie 4,5,6,7 channels @11ms
 			CYRF_SetTxRxMode(TX_EN);						//Write mode
 			set_sop_data_crc();
 			return DSM_READ_DELAY;
 #else
 			// No telemetry
 			set_sop_data_crc();
-			if (cyrf_state == DSM2_CH2_CHECK_A)
+			if (state == DSM2_CH2_CHECK_A)
 			{
 				if(option < 8)
 				{
-					cyrf_state = DSM2_CH1_WRITE_A;		// change from CH2_CHECK_A to CH1_WRITE_A (ie no upper)
+					state = DSM2_CH1_WRITE_A;		// change from CH2_CHECK_A to CH1_WRITE_A (ie no upper)
 					if(option>3)
 						return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;	// force 11ms if option>3 ie 4,5,6,7 channels @11ms
 					else
 						return 22000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;	// normal 22ms mode if option<=3 ie 4,5,6,7 channels @22ms
 				}
 				else
-					cyrf_state = DSM2_CH1_WRITE_B;		// change from CH2_CHECK_A to CH1_WRITE_A (to transmit upper)
+					state = DSM2_CH1_WRITE_B;		// change from CH2_CHECK_A to CH1_WRITE_A (to transmit upper)
 			}
 			else
-				cyrf_state = DSM2_CH1_WRITE_A;		// change from CH2_CHECK_B to CH1_WRITE_A (upper already transmitted so transmit lower)
+				state = DSM2_CH1_WRITE_A;		// change from CH2_CHECK_B to CH1_WRITE_A (upper already transmitted so transmit lower)
 			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
 #endif
 	}
@@ -583,14 +582,14 @@ uint16_t initDsm2()
 	//
 	if(IS_AUTOBIND_FLAG_on)
 	{
-		cyrf_state = DSM2_BIND;
+		state = DSM2_BIND;
 		PROTOCOL_SticksMoved(1);  //Initialize Stick position
 		initialize_bind_state();		
 		binding = 1;
 	}
 	else
 	{
-		cyrf_state = DSM2_CHANSEL;//
+		state = DSM2_CHANSEL;//
 		binding = 0;
 	}
 	return 10000;

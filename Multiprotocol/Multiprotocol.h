@@ -271,6 +271,15 @@ struct PPM_Parameters
 #define IS_LED_on  ( (PORTB & _BV(5)) != 0x00 )
 #endif
 
+#ifdef XMEGA
+	#define IS_BIND_BUTTON_on	( (PORTD.IN & _BV(2)) == 0x00 )
+#else
+	#define BIND_SET_INPUT		DDRB &= ~_BV(5)
+	#define BIND_SET_PULLUP		PORTB |= _BV(5)
+	#define IS_BIND_BUTTON_on	( (PINB & _BV(5)) == 0x00 )
+	#define BIND_SET_OUTPUT		DDRB |= _BV(5)
+#endif
+
 #ifdef DEBUG_TX
 	#define TX_ON  PORTD |= _BV(1)
 	#define TX_OFF  PORTD &= ~_BV(1)

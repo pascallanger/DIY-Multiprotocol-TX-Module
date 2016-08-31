@@ -433,8 +433,42 @@ static void update_led_status(void)
 	}
 }
 
+inline void tx_pause()
+{
+#ifdef TELEMETRY
+	#ifdef XMEGA
+		USARTC0.CTRLA &= ~0x03 ;		// Pause telemetry by disabling transmitter interrupt
+	#else
+		#ifndef BASH_SERIAL
+		#ifdef STM32_board
+		     USART3_BASE->CR1 &= ~ USART_CR1_TXEIE;//disable TX intrerupt
+		#else
+			UCSR0B &= ~_BV(UDRIE0);		// Pause telemetry by disabling transmitter interrupt
+		#endif	
+		#endif
+	#endif
+#endif
+}
 
-	
+
+inline void tx_resume()
+{
+#ifdef TELEMETRY
+	if(!IS_TX_PAUSE_on)
+		#ifdef XMEGA
+			USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;	// Resume telemetry by enabling transmitter interrupt
+		#else
+		#ifdef STM32_board
+		   USART3_BASE->CR1 |= USART_CR1_TXEIE;// TX intrrupt enabled
+		#else		
+			UCSR0B |= _BV(UDRIE0);			// Resume telemetry by enabling transmitter interrupt
+		#endif	
+		#endif
+#endif
+}
+
+
+#ifdef STM32_board	
 void start_timer2(){	
     // Pause the timer while we're configuring it
 	timer.pause();
@@ -446,7 +480,7 @@ void start_timer2(){
 	timer.refresh();
 	timer.resume();
 }
-
+#endif
 
 // Protocol scheduler
 static void CheckTimer(uint16_t (*cb)(void))
@@ -843,7 +877,7 @@ static void update_serial_data()
 	#else
 	#ifdef STM32_board
 	//here code fro RX intrurpt disable
-	USART3_BASE->CR1 &= ~ USART_CR1_RXIE;//disable 
+	USART3_BASE->CR1 &= ~ USART_CR1_RXNEIE;//disable 
 	#else
 		UCSR0B &= ~(1<<RXCIE0);	// RX interrupt disable
 	#endif	
@@ -858,7 +892,7 @@ static void update_serial_data()
 	#else
 		#ifdef STM32_board
 	//here code fro RX intrurpt enable
-	USART3_BASE->CR1 |=  USART_CR1_RXIE;//disable 
+	USART3_BASE->CR1 |=  USART_CR1_RXNEIE ;//disable 
 	        #else
 		UCSR0B |= (1<<RXCIE0) ;	// RX interrupt enable
 	#endif	

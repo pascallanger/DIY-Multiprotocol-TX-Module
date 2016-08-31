@@ -264,7 +264,7 @@ static void __attribute__((unused)) build_data_packet(uint8_t upper)//
 						value=Servo_data[AUX8];
 						break;
 				}
-				value=map(value,servo_max_125-servo_min_125,0,max-1);
+				value=map(value,servo_max_125,servo_min_125,0,max-1);
 			}		   
 			value |= (upper && i == 0 ? 0x8000 : 0) | (idx << bits);
 		}	  
@@ -449,7 +449,7 @@ uint16_t ReadDsm2()
 		case DSM2_CH1_WRITE_B:
 		case DSM2_CH2_WRITE_A:
 		case DSM2_CH2_WRITE_B:
-			build_data_packet(cyrf_state == DSM2_CH1_WRITE_B);// build lower or upper channels
+			build_data_packet(state == DSM2_CH1_WRITE_B);// build lower or upper channels
 			CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS);	// clear IRQ flags
 			CYRF_WriteDataPacket(packet);
 			state++;								// change from WRITE to CHECK mode

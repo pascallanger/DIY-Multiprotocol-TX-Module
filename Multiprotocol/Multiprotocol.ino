@@ -59,6 +59,7 @@ uint8_t  packet[40];
 // Servo data
 uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
+uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
 
 #ifndef STM32_board
 uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
@@ -348,7 +349,7 @@ void setup()
 // Main
 void loop()
 {
-#ifndef STM32
+#ifndef STM32_board
 TX_ON;
 NOP();
 TX_OFF;
@@ -361,7 +362,7 @@ TX_OFF;
 		if(IS_CHANGE_PROTOCOL_FLAG_on)
 		{ // Protocol needs to be changed
 			LED_OFF;									//led off during protocol init
-			module_reset();								//reset previous module
+			modules_reset();								//reset previous module
 			protocol_init();
 			//init new protocol
 			CHANGE_PROTOCOL_FLAG_off;					//done
@@ -628,13 +629,21 @@ static void protocol_init()
 			{
 				if(IS_BIND_BUTTON_FLAG_on)
 				{
+				#ifdef STM32_board
+			        	EEPROM.write((200+mode_select),0x00);		// reset to autobind mode for the current model
+				#else
 					eeprom_write_byte((uint8_t*)(30+mode_select),0x00);		// reset to autobind mode for the current model
+				#endif	
 					option=0;
 				}
 				else
 				{	
+				#ifdef STM32_board
+				        option=EEPROM.read((200+mode_select));	// load previous mode: autobind or fixed id
+				#else
 					option=eeprom_read_byte((uint8_t*)(30+mode_select));	// load previous mode: autobind or fixed id
-					if(option!=1) option=0;									// if not fixed id mode then it should be autobind
+				#endif	
+					if(option!=1) option=0;									// if not fixed id mode then it should be autobind								// if not fixed id mode then it should be autobind
 				}
 			}
 			#endif //ENABLE_PPM

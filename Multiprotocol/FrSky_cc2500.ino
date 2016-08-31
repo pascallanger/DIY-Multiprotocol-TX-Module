@@ -17,26 +17,9 @@
 
 #include "iface_cc2500.h"
 
-//##########Variables########
-//uint32_t state;
-//uint8_t len;
-
-/*
-enum {
-	FRSKY_BIND		= 0,
-	FRSKY_BIND_DONE	= 1000,
-	FRSKY_DATA1,
-	FRSKY_DATA2,
-	FRSKY_DATA3,
-	FRSKY_DATA4,
-	FRSKY_DATA5
-};
-*/
-
 static void __attribute__((unused)) frsky2way_init(uint8_t bind)
 {
 	// Configure cc2500 for tx mode
-	CC2500_Reset();
 	//
 	for(uint8_t i=0;i<36;i++)
 	{
@@ -142,9 +125,9 @@ static void __attribute__((unused)) frsky2way_data_frame()
 uint16_t initFrSky_2way()
 {
 	if(IS_AUTOBIND_FLAG_on)
-	{	   
+	{
 		frsky2way_init(1);
-		state = FRSKY_BIND;//
+		state = FRSKY_BIND;
 	}
 	else
 	{

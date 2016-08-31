@@ -64,6 +64,8 @@ uint8_t  rf_ch_num;
 uint8_t  throttle, rudder, elevator, aileron;
 uint8_t  flags;
 uint16_t crc;
+uint8_t  crc8;
+uint16_t seed;
 //
 uint16_t state;
 uint8_t  len;
@@ -148,16 +150,15 @@ void setup()
 	PORTE.OUTCLR = 0x01 ;
 #else	
 	// General pinout
-	DDRD = (1<<CS_pin)|(1<<SDI_pin)|(1<<SCLK_pin)|(1<<CS_pin)|(1<< CC25_CSN_pin);
-	DDRC = (1<<CTRL1)|(1<<CTRL2); //output
-	//DDRC |= (1<<5);//RST pin A5(C5) CYRF output
-	DDRB  = _BV(0)|_BV(1);
-	PORTB = _BV(2)|_BV(3)|_BV(4)|_BV(5);//pullup 10,11,12 and bind button
-	PORTC = _BV(0);//A0 high pullup
+	DDRD  = _BV(A7105_CS_pin)|_BV(SDI_pin)|_BV(SCLK_pin)|_BV( CC25_CSN_pin);//pin output
+	DDRC  = _BV(CTRL1_pin)|_BV(CTRL2_pin)|_BV(CYRF_RST);					//pin output
+	DDRB  = _BV(NRF_CSN_pin)|_BV(CYRF_CSN_pin);	//pin output
+	PORTB = _BV(2)|_BV(3)|_BV(4)|_BV(BIND_pin);	//pullup on dial (D10=PB2,D11=PB3,D12=PB4) and bind button
+	PORTC = _BV(0);								//pullup on dial (A0=PC0)
 #endif
 
 	// Set Chip selects
-	CS_on;
+	A7105_CS_on;
 	CC25_CSN_on;
 	NRF_CSN_on;
 	CYRF_CSN_on;
@@ -237,8 +238,8 @@ void setup()
 
 #ifndef XMEGA
 		//Configure PPM interrupt
-		EICRA |=(1<<ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
-		EIMSK |= (1<<INT1);		// INT1 interrupt enable
+		EICRA |=_BV(ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
+		EIMSK |= _BV(INT1);		// INT1 interrupt enable
 #endif
 
 #if defined(TELEMETRY)
@@ -285,14 +286,14 @@ void loop()
 			else
 				while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait before callback
 		#else
-			if( (TIFR1 & (1<<OCF1A)) != 0)
+			if( (TIFR1 & _BV(OCF1A)) != 0)
 			{
 				cli();					// Disable global int due to RW of 16 bits registers
 				OCR1A=TCNT1;			// Callback should already have been called... Use "now" as new sync point.
 				sei();					// Enable global int
 			}
 			else
-				while((TIFR1 & (1<<OCF1A)) == 0); // Wait before callback
+				while((TIFR1 & _BV(OCF1A)) == 0); // Wait before callback
 		#endif
 		do
 		{
@@ -318,12 +319,12 @@ void loop()
 				#else
 					cli();								// Disable global int due to RW of 16 bits registers
 					OCR1A += 2000*2 ;					// set compare A for callback
-					TIFR1=(1<<OCF1A);					// clear compare A=callback flag
+					TIFR1=_BV(OCF1A);					// clear compare A=callback flag
 					sei();								// enable global int
 					Update_All();
 					if(IS_CHANGE_PROTOCOL_FLAG_on)
 						break; // Protocol has been changed
-					while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...
+					while((TIFR1 & _BV(OCF1A)) == 0);	// wait 2ms...
 				#endif
 			}
 			// at this point we have a maximum of 4ms in next_callback
@@ -337,7 +338,7 @@ void loop()
 			#else
 				cli();									// Disable global int due to RW of 16 bits registers
 				OCR1A+= next_callback ;					// set compare A for callback
-				TIFR1=(1<<OCF1A);						// clear compare A=callback flag
+				TIFR1=_BV(OCF1A);						// clear compare A=callback flag
 				diff=OCR1A-TCNT1;						// compare timer and comparator
 				sei();									// enable global int
 			#endif
@@ -434,7 +435,7 @@ inline void tx_pause()
 		USARTC0.CTRLA &= ~0x03 ;		// Pause telemetry by disabling transmitter interrupt
 	#else
 		#ifndef BASH_SERIAL
-			UCSR0B &= ~(1<<UDRIE0);		// Pause telemetry by disabling transmitter interrupt
+			UCSR0B &= ~_BV(UDRIE0);		// Pause telemetry by disabling transmitter interrupt
 		#endif
 	#endif
 #endif
@@ -447,7 +448,7 @@ inline void tx_resume()
 		#ifdef XMEGA
 			USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;	// Resume telemetry by enabling transmitter interrupt
 		#else
-			UCSR0B |= (1<<UDRIE0);			// Resume telemetry by enabling transmitter interrupt
+			UCSR0B |= _BV(UDRIE0);			// Resume telemetry by enabling transmitter interrupt
 		#endif
 #endif
 }
@@ -503,6 +504,14 @@ static void protocol_init()
 			CTRL2_on;
 			next_callback = initFrSky_2way();
 			remote_callback = ReadFrSky_2way;
+			break;
+#endif
+#if defined(FRSKY1_CC2500_INO)
+		case MODE_FRSKY1:
+			CTRL1_off;	//antenna RF2
+			CTRL2_on;
+			next_callback = initFRSKY1();
+			remote_callback = ReadFRSKY1;
 			break;
 #endif
 #if defined(FRSKYX_CC2500_INO)
@@ -670,7 +679,7 @@ static void protocol_init()
 #else	
 	OCR1A=TCNT1+next_callback*2;	// set compare A for callback
 	sei();							// enable global int
-	TIFR1=(1<<OCF1A);				// clear compare A flag
+	TIFR1=_BV(OCF1A);				// clear compare A flag
 #endif
 	BIND_BUTTON_FLAG_off;			// do not bind/reset id anymore even if protocol change
 }
@@ -728,7 +737,7 @@ void update_serial_data()
 	#ifdef XMEGA
 		cli();
 	#else
-		UCSR0B &= ~(1<<RXCIE0);	// RX interrupt disable
+		UCSR0B &= ~_BV(RXCIE0);	// RX interrupt disable
 	#endif
 	if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
 	{	memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
@@ -738,7 +747,7 @@ void update_serial_data()
 	#ifdef XMEGA
 		sei();
 	#else
-		UCSR0B |= (1<<RXCIE0) ;	// RX interrupt enable
+		UCSR0B |= _BV(RXCIE0) ;	// RX interrupt enable
 	#endif
 }
 
@@ -847,11 +856,11 @@ void Mprotocol_serial_init()
 	UBRR0L = UBRRL_VALUE;
 	UCSR0A = 0 ;	// Clear X2 bit
 	//Set frame format to 8 data bits, even parity, 2 stop bits
-	UCSR0C = (1<<UPM01)|(1<<USBS0)|(1<<UCSZ01)|(1<<UCSZ00);
+	UCSR0C = _BV(UPM01)|_BV(USBS0)|_BV(UCSZ01)|_BV(UCSZ00);
 	while ( UCSR0A & (1 << RXC0) )//flush receive buffer
 		UDR0;
 	//enable reception and RC complete interrupt
-	UCSR0B = (1<<RXEN0)|(1<<RXCIE0);//rx enable and interrupt
+	UCSR0B = _BV(RXEN0)|_BV(RXCIE0);//rx enable and interrupt
 #ifdef DEBUG_TX
 	TX_SET_OUTPUT;
 #else
@@ -1104,7 +1113,7 @@ ISR(USART_RX_vect)
 	#ifdef XMEGA
 	if((USARTC0.STATUS & 0x1C)==0)	// Check frame error, data overrun and parity error
 	#else
-	UCSR0B &= ~(1<<RXCIE0) ;		// RX interrupt disable
+	UCSR0B &= ~_BV(RXCIE0) ;		// RX interrupt disable
 	sei() ;
 	if((UCSR0A&0x1C)==0)			// Check frame error, data overrun and parity error
 	#endif
@@ -1126,8 +1135,8 @@ ISR(USART_RX_vect)
 					TCC1.INTCTRLB = (TCC1.INTCTRLB & 0xF3) | 0x04 ;	// enable interrupt on compare B match
 				#else
 					OCR1B=TCNT1+6500L;				// Full message should be received within timer of 3250us
-					TIFR1=(1<<OCF1B);				// clear OCR1B match flag
-					TIMSK1 |=(1<<OCIE1B);			// enable interrupt on compare B match
+					TIFR1=_BV(OCF1B);				// clear OCR1B match flag
+					TIMSK1 |=_BV(OCIE1B);			// enable interrupt on compare B match
 				#endif
 				idx++;
 			}
@@ -1167,14 +1176,14 @@ ISR(USART_RX_vect)
 		#ifdef XMEGA
 			TCC1.INTCTRLB &=0xF3;			// Disable interrupt on compare B match
 		#else
-			TIMSK1 &=~(1<<OCIE1B);			// Disable interrupt on compare B match
+			TIMSK1 &=~_BV(OCIE1B);			// Disable interrupt on compare B match
 		#endif
 		TX_RX_PAUSE_off;
 		tx_resume();
 	}
 	#ifndef XMEGA
 		cli() ;
-		UCSR0B |= (1<<RXCIE0) ;	// RX interrupt enable
+		UCSR0B |= _BV(RXCIE0) ;	// RX interrupt enable
 	#endif
 }
 
@@ -1190,7 +1199,7 @@ ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
 	#ifdef XMEGA
 		TCC1.INTCTRLB &=0xF3;			// Disable interrupt on compare B match
 	#else
-		TIMSK1 &=~(1<<OCIE1B);			// Disable interrupt on compare B match
+		TIMSK1 &=~_BV(OCIE1B);			// Disable interrupt on compare B match
 	#endif
 	tx_resume();
 }

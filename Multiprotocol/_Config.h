@@ -50,6 +50,7 @@
 #endif
 #ifdef	CC2500_INSTALLED
 	#define	FRSKY_CC2500_INO
+	#define	FRSKY1_CC2500_INO
 	#define	FRSKYX_CC2500_INO
 	#define SFHSS_CC2500_INO
 #endif
@@ -237,6 +238,8 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_FQ777
 		NONE
 	MODE_ASSAN
+		NONE
+	MODE_FRSKY1
 		NONE
 */
 

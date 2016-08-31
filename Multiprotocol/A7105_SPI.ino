@@ -23,12 +23,12 @@
 void A7105_WriteData(uint8_t len, uint8_t channel)
 {
 	uint8_t i;
-	CS_off;
+	A7105_CS_off;
 	SPI_Write(A7105_RST_WRPTR);
 	SPI_Write(0x05);
 	for (i = 0; i < len; i++)
 		SPI_Write(packet[i]);
-	CS_on;
+	A7105_CS_on;
 	A7105_WriteReg(0x0F, channel);
 	A7105_Strobe(A7105_TX);
 }
@@ -36,27 +36,27 @@ void A7105_WriteData(uint8_t len, uint8_t channel)
 void A7105_ReadData() {
 	uint8_t i;
 	A7105_Strobe(0xF0); //A7105_RST_RDPTR
-	CS_off;
+	A7105_CS_off;
 	SPI_Write(0x45);
 	for (i=0;i<16;i++)
 		packet[i]=A7105_Read();
-	CS_on;
+	A7105_CS_on;
 }
 
 void A7105_WriteReg(uint8_t address, uint8_t data) {
-	CS_off;
+	A7105_CS_off;
 	SPI_Write(address); 
 	NOP();
 	SPI_Write(data);  
-	CS_on;
+	A7105_CS_on;
 } 
 
 uint8_t A7105_ReadReg(uint8_t address) { 
 	uint8_t result;
-	CS_off;
+	A7105_CS_off;
 	SPI_Write(address |=0x40);		//bit 6 =1 for reading
 	result = A7105_Read();  
-	CS_on;
+	A7105_CS_on;
 	return(result); 
 } 
 
@@ -110,13 +110,13 @@ uint8_t A7105_Reset()
 }
 
 void A7105_WriteID(uint32_t ida) {
-	CS_off;
+	A7105_CS_off;
 	SPI_Write(0x06);//ex id=0x5475c52a ;txid3txid2txid1txid0
 	SPI_Write((ida>>24)&0xff);//53 
 	SPI_Write((ida>>16)&0xff);//75
 	SPI_Write((ida>>8)&0xff);//c5
 	SPI_Write((ida>>0)&0xff);//2a
-	CS_on;
+	A7105_CS_on;
 }
 
 /*
@@ -162,9 +162,9 @@ void A7105_SetPower()
 }
 
 void A7105_Strobe(uint8_t address) {
-	CS_off;
+	A7105_CS_off;
 	SPI_Write(address);
-	CS_on;
+	A7105_CS_on;
 }
 
 const uint8_t PROGMEM HUBSAN_A7105_regs[] = {

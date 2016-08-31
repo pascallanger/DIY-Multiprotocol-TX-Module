@@ -52,7 +52,8 @@ enum PROTOCOLS
 	MODE_SFHSS		= 21,	// =>CC2500
 	MODE_J6PRO		= 22,	// =>CYRF6936
 	MODE_FQ777		= 23,	// =>NRF24L01
-	MODE_ASSAN		= 24	// =>NRF24L01
+	MODE_ASSAN		= 24,	// =>NRF24L01
+	MODE_FRSKY1		= 25	// =>CC2500
 };
 
 enum Flysky
@@ -148,21 +149,22 @@ struct PPM_Parameters
 //*******************
 //***   Pinouts   ***
 //*******************
-#define LED_pin 13							//Promini original led on B5
-#define PPM_pin 3							//PPM-D3
+#define LED_pin 5							//D13 = PB5
+#define BIND_pin 5							//D13 = PB5
+#define PPM_pin 3							//D3 = PD3
 #ifdef XMEGA
-	#define SDI_pin 6						//SDIO-D6
+	#define SDI_pin  6						//SDIO-D6
 #else
-	#define SDI_pin 5						//SDIO-D5
+	#define SDI_pin  5						//D5 = PD5
 #endif
-#define SCLK_pin	4						//SCK-D4
-#define CS_pin		2						//CS-D2
-#define SDO_pin		6						//D6
-#define CC25_CSN_pin 7
-#define NRF_CSN_pin  8
-#define CYRF_CSN_pin 9
-#define CTRL1 		1						//C1 (A1)
-#define CTRL2 		2						//C2 (A2)
+#define SCLK_pin	 4						//D4 = PD4
+#define A7105_CS_pin 2						//D2 = PD2
+#define SDO_pin		 6						//D6 = PD6
+#define CC25_CSN_pin 7						//D7 = PD7
+#define NRF_CSN_pin  0						//D8 = PB0
+#define CYRF_CSN_pin 1						//D9 = PB1
+#define CTRL1_pin 	 1						//A1 = PC1
+#define CTRL2_pin 	 2						//A2 = PC2
 //
 #ifdef XMEGA
 	#define CTRL1_on
@@ -177,39 +179,39 @@ struct PPM_Parameters
 #endif
 //
 #ifdef XMEGA
-	#define  CS_on PORTD.OUTSET = _BV(4)			//D4
-	#define  CS_off PORTD.OUTCLR = _BV(4)		//D4
+	#define  A7105_CS_on PORTD.OUTSET = _BV(4)	//D4
+	#define  A7105_CS_off PORTD.OUTCLR = _BV(4)	//D4
 #else
-	#define  CS_on PORTD |= _BV(2)			//D2
-	#define  CS_off PORTD &= ~_BV(2)		//D2
+	#define  A7105_CS_on PORTD |= _BV(2)		//D2
+	#define  A7105_CS_off PORTD &= ~_BV(2)		//D2
 #endif
 //
 #ifdef XMEGA
-	#define  SCK_on PORTD.OUTSET = _BV(7)			//D7
+	#define  SCK_on PORTD.OUTSET = _BV(7)		//D7
 	#define  SCK_off PORTD.OUTCLR = _BV(7)		//D7
 #else
-	#define  SCK_on PORTD |= _BV(4)			//D4
-	#define  SCK_off PORTD &= ~_BV(4)		//D4
+	#define  SCK_on PORTD |= _BV(4)				//D4
+	#define  SCK_off PORTD &= ~_BV(4)			//D4
 #endif
 //
 #ifdef XMEGA
-	#define  SDI_on PORTD.OUTSET = _BV(5)			//D5
+	#define  SDI_on PORTD.OUTSET = _BV(5)		//D5
 	#define  SDI_off PORTD.OUTCLR = _BV(5)		//D5
 #else
-	#define  SDI_on PORTD |= _BV(5)			//D5
-	#define  SDI_off PORTD &= ~_BV(5)		//D5
+	#define  SDI_on PORTD |= _BV(5)				//D5
+	#define  SDI_off PORTD &= ~_BV(5)			//D5
 #endif
 //
 #ifdef XMEGA
-	#define  SDI_1 (PORTD.IN & (1<<SDI_pin)) == (1<<SDI_pin)	//D5
-	#define  SDI_0 (PORTD.IN & (1<<SDI_pin)) == 0x00			//D5
+	#define  SDI_1 (PORTD.IN & _BV(SDI_pin)) == _BV(SDI_pin)	//D5
+	#define  SDI_0 (PORTD.IN & _BV(SDI_pin)) == 0x00			//D5
 #else
-	#define  SDI_1 (PIND & (1<<SDI_pin)) == (1<<SDI_pin)	//D5
-	#define  SDI_0 (PIND & (1<<SDI_pin)) == 0x00			//D5
+	#define  SDI_1 (PIND & _BV(SDI_pin)) == _BV(SDI_pin)		//D5
+	#define  SDI_0 (PIND & _BV(SDI_pin)) == 0x00				//D5
 #endif
 //
-#define SDI_SET_INPUT  DDRD &= ~_BV(5)		//D5
-#define SDI_SET_OUTPUT DDRD |=  _BV(5)		//D5
+#define SDI_SET_INPUT  DDRD &= ~_BV(5)			//D5
+#define SDI_SET_OUTPUT DDRD |=  _BV(5)			//D5
 //
 #ifdef XMEGA
 	#define CC25_CSN_on PORTD.OUTSET  = _BV(7)	//D7
@@ -230,19 +232,21 @@ struct PPM_Parameters
 #ifdef XMEGA
 	#define CYRF_CSN_on PORTD.OUTSET  = _BV(4)
 	#define CYRF_CSN_off PORTD.OUTCLR = _BV(4)
+	#define CYRF_RST 0
 #else
 	#define CYRF_CSN_on  PORTB |=  _BV(1)		//D9
 	#define CYRF_CSN_off PORTB &= ~_BV(1)		//D9
 	#define CYRF_RST_HI  PORTC |=  _BV(5)		//A5
 	#define CYRF_RST_LO  PORTC &= ~_BV(5)		//A5
+	#define CYRF_RST 5
 #endif
 //  
 #ifdef XMEGA
-	#define  SDO_1 (PORTD.IN & (1<<SDO_pin)) == (1<<SDO_pin)	//D6
-	#define  SDO_0 (PORTD.IN & (1<<SDO_pin)) == 0x00			//D6
+	#define  SDO_1 (PORTD.IN & _BV(SDO_pin)) == _BV(SDO_pin)	//D6
+	#define  SDO_0 (PORTD.IN & _BV(SDO_pin)) == 0x00			//D6
 #else
-	#define  SDO_1 (PIND & (1<<SDO_pin)) == (1<<SDO_pin)		//D6
-	#define  SDO_0 (PIND & (1<<SDO_pin)) == 0x00				//D6
+	#define  SDO_1 (PIND & _BV(SDO_pin)) == _BV(SDO_pin)		//D6
+	#define  SDO_0 (PIND & _BV(SDO_pin)) == 0x00				//D6
 #endif
 //
 //
@@ -510,6 +514,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					J6PRO		22
 					FQ777		23
 					ASSAN		24
+					FRSKY1		25
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

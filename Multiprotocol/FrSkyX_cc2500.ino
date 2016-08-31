@@ -252,7 +252,6 @@ uint16_t ReadFrSkyX()
 				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
 				prev_option = option ;
 			}
-			LED_ON;
 			CC2500_SetTxRxMode(TX_EN);
 			set_start(hopping_frequency_no);
 			CC2500_SetPower();		

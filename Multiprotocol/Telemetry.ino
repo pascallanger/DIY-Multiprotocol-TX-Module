@@ -26,7 +26,6 @@
 uint8_t pktx[MAX_PKTX];
 uint8_t pktx1[MAX_PKTX];
 uint8_t index;
-uint8_t pass = 0;
 uint8_t frame[18];
 
 #ifdef BASH_SERIAL
@@ -395,7 +394,7 @@ void proces_sport_data(uint8_t data)
 
 #endif
 
-void frskyUpdate()
+void TelemetryUpdate()
 {
 #if defined SPORT_TELEMETRY
 	if ((cur_protocol[0]&0x1F)==MODE_FRSKYX)
@@ -503,11 +502,7 @@ void Serial_write(uint8_t data)
 		nextHead = 0 ;
 	tx_buff[nextHead]=data;
 	tx_head = nextHead ;
-#ifdef XMEGA
-	USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;
-#else	
-	UCSR0B |= (1<<UDRIE0);//enable UDRE interrupt
-#endif
+	tx_resume();
 }
 
 // Speed is 0 for 100K and 1 for 9600

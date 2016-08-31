@@ -85,7 +85,11 @@ static void __attribute__((unused)) DEVO_add_pkt_suffix()
 		BIND_SET_PULLUP;										// set pullup
 		if(IS_BIND_BUTTON_on)
 		{
+			#ifdef STM32_board
+			EEPROM.write((200+mode_select),0x01);		// reset to autobind mode for the current model
+			#else
 			eeprom_write_byte((uint8_t*)(30+mode_select),0x01);	// Set fixed id mode for the current model
+			#endif
 			option=1;
 		}
 		BIND_SET_OUTPUT;

@@ -15,12 +15,12 @@
 
 /** Multiprotocol module configuration file ***/
 
-//Uncomment your TX type
-#define TX_ER9X_AETR	//ER9X AETR (988<->2012µs)
-//#define TX_ER9X_TAER	//ER9X TAER (988<->2012µs)
-//#define TX_DEVO7		//DEVO7 EATR (1120<->1920µs)
-//#define TX_SPEKTRUM	//Spektrum TAER (1100<->1900µs)
-//#define TX_HISKY		//HISKY AETR (1100<->1900µs)
+/*******************/
+/*** TX SETTINGS ***/
+/*******************/
+//Modify the channel order based on your TX: AETR, TAER, RETA...
+//For example a JR/Spektrum radio is TAER. Default is AETR.
+#define AETR
 
 //Comment if a module is not installed
 #define A7105_INSTALLED

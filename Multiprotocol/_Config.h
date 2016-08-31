@@ -40,6 +40,7 @@
 #endif
 #ifdef	CC2500_INSTALLED
 	#define	FRSKY_CC2500_INO
+	#define	FRSKY1_CC2500_INO
 	#define	FRSKYX_CC2500_INO
 	#define SFHSS_CC2500_INO
 #endif
@@ -65,6 +66,9 @@
 //Uncomment to enable telemetry
 #define TELEMETRY
 
+//Uncomment to invert the polarity of the telemetry serial signal.
+//For ER9X and ERSKY9X it must be commented. For OpenTX it must be uncommented.
+//#define INVERT_TELEMETRY	1
 //Comment to disable a specific telemetry
 #if defined(TELEMETRY)
 	#if defined DSM2_CYRF6936_INO
@@ -77,6 +81,49 @@
 		#define HUB_TELEMETRY
 	#endif
 #endif 
+
+
+/****************************/
+/*** SERIAL MODE SETTINGS ***/
+/****************************/
+//In this section you can configure the serial mode.
+//The serial mode enables full editing of all the parameters in the GUI of the radio.
+//This is available natively for ER9X and ERSKY9X. It is available for OpenTX on Taranis with a special version.
+
+//If you do not plan to use the Serial mode comment this line using "//" to save Flash space
+#define ENABLE_SERIAL
+
+
+/*************************/
+/*** PPM MODE SETTINGS ***/
+/*************************/
+//In this section you can configure all details about PPM.
+//If you do not plan to use the PPM mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
+#define ENABLE_PPM
+
+/*** TX END POINTS ***/
+//It is important for the module to know the endpoints of your radio.
+//Below are some standard transmitters already preconfigured.
+//Uncomment only the one which matches your transmitter.
+#define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012µs)
+//#define TX_DEVO7		//DEVO					(1120<->1920µs)
+//#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
+//#define TX_HISKY		//HISKY					(1100<->1900µs)
+//#define TX_CUSTOM		//Custom
+
+// The lines below are used to set the end points in microseconds (µs) if you have selected TX_CUSTOM.
+// A few things to considered:
+//  - If you put too big values compared to your TX you won't be able to reach the extremes which is bad for throttle as an example
+//  - If you put too low values you won't be able to use your full stick range, it will be maxed out before reaching the end
+//  - Centered stick value is usually 1500. It should match the middle between MIN and MAX, ie Center=(MAX-MIN)/2+MIN. If your TX is not centered you can adjust the value MIN or MAX.
+//  - 100% is the value when the model is by default, 125% is the value when you extend the servo travel which is only used by some protocols
+#if defined(TX_CUSTOM)
+	#define PPM_MAX_100	1900	//	100%
+	#define PPM_MIN_100	1100	//	100%
+	#define PPM_MAX_125	2000	//	125%
+	#define PPM_MIN_125	1000	//	125%
+#endif
+
 
 struct PPM_Parameters
 {
@@ -93,7 +140,7 @@ const PPM_Parameters PPM_prot[15]=	{
 //	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	2	*/	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0xD7	},	// D7 fine tuning
+/*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40	},	// D7 fine tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// 6 channels @ 11ms
@@ -187,131 +234,5 @@ Power		P_HIGH or P_LOW
 
 Auto Bind	AUTOBIND or NO_AUTOBIND
 
-Option		value between 0 and 255. 0xD7 or 0x00 for Frsky fine tuning.
+Option		value between -127 and 127. 
 */
-
-//******************
-//TX definitions with timing endpoints and channels order
-
-// Turnigy PPM and channels
-#if defined(TX_ER9X_AETR)
-#define PPM_MAX		2140	//	125%
-#define PPM_MIN		860		//	125%
-#define PPM_MAX_100 2012	//	100%
-#define PPM_MIN_100 988		//	100%
-enum chan_order{
-	AILERON =0,
-	ELEVATOR,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
-
-// Turnigy PPM and channels
-#if defined(TX_ER9X_TAER)
-#define PPM_MAX		2140	//	125%
-#define PPM_MIN		860		//	125%
-#define PPM_MAX_100 2012	//	100%
-#define PPM_MIN_100 988		//	100%
-enum chan_order{
-	THROTTLE =0,
-	AILERON,
-	ELEVATOR,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
-
-// Devo PPM and channels
-#if defined(TX_DEVO7)
-#define PPM_MAX		2100	//	125%
-#define PPM_MIN		900		//	125%
-#define PPM_MAX_100	1920	//	100%
-#define PPM_MIN_100	1120	//	100%
-enum chan_order{
-	ELEVATOR=0,
-	AILERON,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
-
-// SPEKTRUM PPM and channels
-#if defined(TX_SPEKTRUM)
-#define PPM_MAX		2000	//	125%
-#define PPM_MIN		1000	//	125%
-#define PPM_MAX_100	1900	//	100%
-#define PPM_MIN_100	1100	//	100%
-enum chan_order{
-	THROTTLE=0,
-	AILERON,
-	ELEVATOR,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
-
-// HISKY
-#if defined(TX_HISKY)
-#define PPM_MAX		2000	//	125%
-#define PPM_MIN		1000	//	125%
-#define PPM_MAX_100	1900	//	100%
-#define PPM_MIN_100	1100	//	100%
-enum chan_order{
-	AILERON =0,
-	ELEVATOR,
-	THROTTLE,
-	RUDDER,
-	AUX1,
-	AUX2,
-	AUX3,
-	AUX4,
-	AUX5,
-	AUX6,
-	AUX7,
-	AUX8,
-	AUX9
-};
-#endif
-
-#define PPM_MIN_COMMAND 1250
-#define PPM_SWITCH		1550
-#define PPM_MAX_COMMAND 1750
-
-//Uncoment the desired serial speed
-#define BAUD 100000
-//#define BAUD 125000

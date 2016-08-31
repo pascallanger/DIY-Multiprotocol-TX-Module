@@ -161,7 +161,7 @@ static void __attribute__((unused)) SYMAX_send_packet(uint8_t bind)
 
 	NRF24L01_WritePayload(packet, packet_length);
 
-	if (packet_counter++ % 2)	// use each channel twice
+	if (packet_count++ % 2)	// use each channel twice
 		hopping_frequency_no = (hopping_frequency_no + 1) % rf_ch_num;
 
 	NRF24L01_SetPower();	// Set tx_power
@@ -243,7 +243,7 @@ static void __attribute__((unused)) symax_init1()
 		memcpy(hopping_frequency, chans_bind, rf_ch_num);
 	}
 	hopping_frequency_no = 0;
-	packet_counter = 0;
+	packet_count = 0;
 }
 
 // channels determined by last byte of tx address
@@ -292,7 +292,7 @@ static void __attribute__((unused)) symax_set_channels(uint8_t address)
 
 static void __attribute__((unused)) symax_init2()
 {
-	uint8_t chans_data_x5c[] = {0x1d, 0x2f, 0x26, 0x3d, 0x15, 0x2b, 0x25, 0x24,
+	static uint8_t chans_data_x5c[] = {0x1d, 0x2f, 0x26, 0x3d, 0x15, 0x2b, 0x25, 0x24,
 								0x27, 0x2c, 0x1c, 0x3e, 0x39, 0x2d, 0x22};
 
 	if (sub_protocol==SYMAX5C)
@@ -306,7 +306,7 @@ static void __attribute__((unused)) symax_init2()
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
 	}
 	hopping_frequency_no = 0;
-	packet_counter = 0;
+	packet_count = 0;
 }
 
 uint16_t symax_callback()
@@ -345,7 +345,7 @@ uint16_t symax_callback()
 
 uint16_t initSymax()
 {	
-	packet_counter = 0;
+	packet_count = 0;
 	flags = 0;
 	BIND_IN_PROGRESS;	// autobind protocol
 	symax_init();

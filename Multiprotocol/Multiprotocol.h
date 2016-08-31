@@ -271,11 +271,17 @@ struct PPM_Parameters
 #define IS_LED_on  ( (PORTB & _BV(5)) != 0x00 )
 #endif
 
-// TX
-#define TX_ON  PORTD |= _BV(1)
-#define TX_OFF  PORTD &= ~_BV(1)
-#define TX_TOGGLE  PORTD ^= _BV(1)
-#define TX_SET_OUTPUT DDRD |= _BV(1)
+#ifdef DEBUG_TX
+	#define TX_ON  PORTD |= _BV(1)
+	#define TX_OFF  PORTD &= ~_BV(1)
+	#define TX_TOGGLE  PORTD ^= _BV(1)
+	#define TX_SET_OUTPUT DDRD |= _BV(1)
+#else
+	#define TX_ON
+	#define TX_OFF
+	#define TX_TOGGLE
+	#define TX_SET_OUTPUT
+#endif
 
 // Macros
 #define NOP() __asm__ __volatile__("nop")
@@ -328,6 +334,15 @@ struct PPM_Parameters
 #define RX_MISSED_BUFF_on	protocol_flags2 |= _BV(2)
 #define IS_RX_MISSED_BUFF_on	( ( protocol_flags2 & _BV(2) ) !=0 )
 
+#define TX_MAIN_PAUSE_off		protocol_flags2 &= ~_BV(3)
+#define TX_MAIN_PAUSE_on			protocol_flags2 |= _BV(3)
+#define IS_TX_MAIN_PAUSE_on		( ( protocol_flags2 & _BV(3) ) !=0 )
+
+#define TX_RX_PAUSE_off		protocol_flags2 &= ~_BV(4)
+#define TX_RX_PAUSE_on			protocol_flags2 |= _BV(4)
+#define IS_TX_RX_PAUSE_on		( ( protocol_flags2 & _BV(4) ) !=0 )
+
+#define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
 
 #define BLINK_BIND_TIME	100
 #define BLINK_SERIAL_TIME	500

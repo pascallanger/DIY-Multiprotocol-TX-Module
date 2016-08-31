@@ -90,7 +90,7 @@ uint16_t ASSAN_callback()
 					for(uint8_t i=0;i<4;i++)
 						packet[16+i]=packet[23-i];
 					packet_count=0;
-					delay(260);
+					delayMilliseconds(260);
 					return 10000;	// Wait 270ms in total...
 				}
 			}
@@ -104,7 +104,7 @@ uint16_t ASSAN_callback()
 			if(packet_count==20)
 			{
 				phase++;
-				delay(2165);
+				delayMilliseconds(2165);
 			}
 			return 22520;
 	// Normal operation
@@ -155,11 +155,19 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	hopping_frequency[0]=freq;
 	// Alternate frequency
 	hopping_frequency[1]=freq*2-6;
+	do
+	{
 	#if defined STM32_board
-	hopping_frequency[1]+=analogRead(PB0)%12;		// Add some random to the second channel
+	randomSeed((uint32_t)analogReadPB0) << 10 | analogRead(PB1));
 	#else
-	hopping_frequency[1]+=analogRead(A6)%12;		// Add some random to the second channel
+		randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
 	#endif
+		freq2=random(0xfefefefe)%9;
+		freq2+=freq*2-5;
+	}
+	
+	while( (freq2>118) || (freq2<freq+1) || (freq2==2*freq) );
+	hopping_frequency[1]=freq2;			// Add some random to the second channel
 }
 
 uint16_t initASSAN()

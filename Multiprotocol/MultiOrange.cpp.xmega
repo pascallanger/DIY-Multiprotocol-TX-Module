@@ -17,7 +17,8 @@ static void module_reset(void) ;
 static void update_led_status(void) ;
 static void set_rx_tx_addr(uint32_t id) ;
 uint16_t limit_channel_100(uint8_t ch) ;
-
+void initTXSerial( uint8_t speed);
+void Serial_write(uint8_t data);
 
 extern void NRF24L01_Reset(void ) ;
 extern void A7105_Reset(void ) ;

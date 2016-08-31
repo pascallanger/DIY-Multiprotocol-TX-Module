@@ -169,7 +169,7 @@ static uint16_t __attribute__((unused)) crc_x(uint8_t *data, uint8_t len)
 
 static uint16_t  __attribute__((unused)) scaleForPXX( uint8_t i )
 {	//mapped 860,2140(125%) range to 64,1984(PXX values);
-	return (uint16_t)(((Servo_data[i]-PPM_MIN)*3)>>1)+64;
+	return (uint16_t)(((Servo_data[i]-servo_min_125)*3)>>1)+64;
 }
 
 static void __attribute__((unused)) frskyX_build_bind_packet()

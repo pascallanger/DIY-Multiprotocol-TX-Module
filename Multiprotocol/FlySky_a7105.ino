@@ -54,10 +54,12 @@ uint8_t chanrow;
 uint8_t chancol;
 uint8_t chanoffset;
 
+const uint8_t PROGMEM V912_X17_SEQ[10] =  { 0x14, 0x31, 0x40, 0x49, 0x49,    // sometime first byte is 0x15 ?
+										0x49, 0x49, 0x49, 0x49, 0x49, }; 
+
 static void __attribute__((unused)) flysky_apply_extension_flags()
 {
-	const uint8_t V912_X17_SEQ[10] =  { 0x14, 0x31, 0x40, 0x49, 0x49,    // sometime first byte is 0x15 ?
-										0x49, 0x49, 0x49, 0x49, 0x49, }; 
+	
 	static uint8_t seq_counter;
 	switch(sub_protocol)
 	{
@@ -115,7 +117,7 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 				packet[14] |= FLAG_V912_TOPBTN;
 			packet[15] = 0x27; // [15] and [16] apparently hold an analog channel with a value lower than 1000
 			packet[16] = 0x03; // maybe it's there for a pitch channel for a CP copter ?
-			packet[17] = V912_X17_SEQ[seq_counter]; // not sure what [17] & [18] are for
+			packet[17] = pgm_read_byte( &V912_X17_SEQ[seq_counter] ) ; // not sure what [17] & [18] are for
 			if(seq_counter == 0)                    // V912 Rx does not even read those bytes... [17-20]
 				packet[18] = 0x02;
 			else

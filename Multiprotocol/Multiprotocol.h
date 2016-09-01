@@ -28,97 +28,100 @@
 //******************
 enum PROTOCOLS
 {
-	MODE_SERIAL = 0,		// Serial commands
-	MODE_FLYSKY = 1,		// =>A7105
-	MODE_HUBSAN = 2,		// =>A7105
-	MODE_FRSKY = 3,			// =>CC2500
-	MODE_HISKY = 4,			// =>NRF24L01
-	MODE_V2X2 = 5,			// =>NRF24L01
-	MODE_DSM2 = 6,			// =>CYRF6936
-	MODE_DEVO =7,			// =>CYRF6936
-	MODE_YD717 = 8,			// =>NRF24L01
-	MODE_KN  = 9,			// =>NRF24L01
-	MODE_SYMAX = 10,		// =>NRF24L01
-	MODE_SLT = 11,			// =>NRF24L01
-	MODE_CX10 = 12,			// =>NRF24L01
-	MODE_CG023 = 13,		// =>NRF24L01
-	MODE_BAYANG = 14,		// =>NRF24L01
-	MODE_FRSKYX = 15,		// =>CC2500
-	MODE_ESKY = 16,			// =>NRF24L01
-	MODE_MT99XX=17,			// =>NRF24L01
-	MODE_MJXQ=18,			// =>NRF24L01
-	MODE_SHENQI=19,			// =>NRF24L01
-	MODE_FY326=20,			// =>NRF24L01
-	MODE_SFHSS=21,			// =>CC2500
-	MODE_J6PRO=22,			// =>CYRF6936
-	MODE_FQ777=23,			// =>NRF24L01
-	MODE_ASSAN=24			// =>NRF24L01
+	MODE_SERIAL		= 0,	// Serial commands
+	MODE_FLYSKY 	= 1,	// =>A7105
+	MODE_HUBSAN		= 2,	// =>A7105
+	MODE_FRSKY		= 3,	// =>CC2500
+	MODE_HISKY		= 4,	// =>NRF24L01
+	MODE_V2X2		= 5,	// =>NRF24L01
+	MODE_DSM2		= 6,	// =>CYRF6936
+	MODE_DEVO		= 7,	// =>CYRF6936
+	MODE_YD717		= 8,	// =>NRF24L01
+	MODE_KN			= 9,	// =>NRF24L01
+	MODE_SYMAX		= 10,	// =>NRF24L01
+	MODE_SLT		= 11,	// =>NRF24L01
+	MODE_CX10		= 12,	// =>NRF24L01
+	MODE_CG023		= 13,	// =>NRF24L01
+	MODE_BAYANG		= 14,	// =>NRF24L01
+	MODE_FRSKYX		= 15,	// =>CC2500
+	MODE_ESKY		= 16,	// =>NRF24L01
+	MODE_MT99XX		= 17,	// =>NRF24L01
+	MODE_MJXQ		= 18,	// =>NRF24L01
+	MODE_SHENQI		= 19,	// =>NRF24L01
+	MODE_FY326		= 20,	// =>NRF24L01
+	MODE_SFHSS		= 21,	// =>CC2500
+	MODE_J6PRO		= 22,	// =>CYRF6936
+	MODE_FQ777		= 23,	// =>NRF24L01
+	MODE_ASSAN		= 24,	// =>NRF24L01
+	MODE_FRSKY1		= 25	// =>CC2500
 };
 
 enum Flysky
 {
-	Flysky=0,
-	V9X9=1,
-	V6X6=2,
-	V912=3
+	Flysky	= 0,
+	V9X9	= 1,
+	V6X6	= 2,
+	V912	= 3
 };
 enum Hisky
 {
-	Hisky=0,
-	HK310=1
+	Hisky	= 0,
+	HK310	= 1
 };
-enum DSM2{
-	DSM2=0,
-	DSMX=1
+enum DSM2
+{
+	DSM2	= 0,
+	DSMX	= 1
 };
 enum YD717
 {       			
-	YD717=0,
-	SKYWLKR=1,
-	SYMAX4=2,
-	XINXUN=3,
-	NIHUI=4
+	YD717	= 0,
+	SKYWLKR	= 1,
+	SYMAX4	= 2,
+	XINXUN	= 3,
+	NIHUI	= 4
 };
 enum KN
 {
-	WLTOYS=0,
-	FEILUN=1
+	WLTOYS	= 0,
+	FEILUN	= 1
 };
 enum SYMAX
 {
-	SYMAX=0,
-	SYMAX5C=1
+	SYMAX	= 0,
+	SYMAX5C	= 1
 };
 enum CX10
 {
-    CX10_GREEN = 0,
-    CX10_BLUE=1,		// also compatible with CX10-A, CX12
-    DM007=2,
-	Q282=3,
-	JC3015_1=4,
-	JC3015_2=5,
-	MK33041=6,
-	Q242=7
+    CX10_GREEN	= 0,
+    CX10_BLUE	= 1,	// also compatible with CX10-A, CX12
+    DM007		= 2,
+	Q282		= 3,
+	JC3015_1	= 4,
+	JC3015_2	= 5,
+	MK33041		= 6,
+	Q242		= 7
 };
 enum CG023
 {
-    CG023 = 0,
-    YD829 = 1,
-    H8_3D = 2
+    CG023	= 0,
+    YD829	= 1,
+    H8_3D	= 2
 };
 enum MT99XX
 {
 	MT99	= 0,
 	H7		= 1,
 	YZ		= 2,
-	LS              = 3
+	LS		= 3
 };
 enum MJXQ
 {
 	WLH08	= 0,
 	X600	= 1,
 	X800	= 2,
-	H26D	= 3
+	H26D	= 3,
+	E010	= 4
 };
 
 enum FRSKYX
@@ -146,131 +149,123 @@ struct PPM_Parameters
 //*******************
 //***   Pinouts   ***
 //*******************
-//#define BIND_pin 13
-#define LED_pin 13						//Promini original led on B5
-//
-#define PPM_pin 3						//PPM -D3
+#define LED_pin 5							//D13 = PB5
+#define BIND_pin 5							//D13 = PB5
+#define PPM_pin 3							//D3 = PD3
 #ifdef XMEGA
-#define SDI_pin 6						//SDIO-D6
+	#define SDI_pin  6						//SDIO-D6
 #else
-#define SDI_pin 5						//SDIO-D5
+	#define SDI_pin  5						//D5 = PD5
 #endif
-#define SCLK_pin 4						//SCK-D4
-#define CS_pin 2						//CS-D2
-#define SDO_pin 6						//D6
-//
-#define CTRL1 1							//C1 (A1)
-#define CTRL2 2							//C2 (A2)
-//
-#ifdef XMEGA
-#define CTRL1_on
-#define CTRL1_off
-//
-#define CTRL2_on
-#define CTRL2_off
-#else
-#define CTRL1_on  PORTC |= _BV(1)
-#define CTRL1_off PORTC &= ~_BV(1)
-//
-#define CTRL2_on  PORTC |= _BV(2)
-#define CTRL2_off PORTC &= ~_BV(2)
-#endif
+#define SCLK_pin	 4						//D4 = PD4
+#define A7105_CS_pin 2						//D2 = PD2
+#define SDO_pin		 6						//D6 = PD6
+#define CC25_CSN_pin 7						//D7 = PD7
+#define NRF_CSN_pin  0						//D8 = PB0
+#define CYRF_CSN_pin 1						//D9 = PB1
+#define CTRL1_pin 	 1						//A1 = PC1
+#define CTRL2_pin 	 2						//A2 = PC2
 //
 #ifdef XMEGA
-#define  CS_on PORTD.OUTSET = _BV(4)			//D4
-#define  CS_off PORTD.OUTCLR = _BV(4)		//D4
+	#define CTRL1_on
+	#define CTRL1_off
+	#define CTRL2_on
+	#define CTRL2_off
 #else
-#define  CS_on PORTD |= _BV(2)			//D2
-#define  CS_off PORTD &= ~_BV(2)		//D2
+	#define CTRL1_on  PORTC |=  _BV(1)
+	#define CTRL1_off PORTC &= ~_BV(1)
+	#define CTRL2_on  PORTC |=  _BV(2)
+	#define CTRL2_off PORTC &= ~_BV(2)
 #endif
 //
 #ifdef XMEGA
-#define  SCK_on PORTD.OUTSET = _BV(7)			//D7
-#define  SCK_off PORTD.OUTCLR = _BV(7)		//D7
+	#define  A7105_CS_on PORTD.OUTSET = _BV(4)	//D4
+	#define  A7105_CS_off PORTD.OUTCLR = _BV(4)	//D4
 #else
-#define  SCK_on PORTD |= _BV(4)			//D4
-#define  SCK_off PORTD &= ~_BV(4)		//D4
+	#define  A7105_CS_on PORTD |= _BV(2)		//D2
+	#define  A7105_CS_off PORTD &= ~_BV(2)		//D2
 #endif
 //
 #ifdef XMEGA
-#define  SDI_on PORTD.OUTSET = _BV(5)			//D5
-#define  SDI_off PORTD.OUTCLR = _BV(5)		//D5
+	#define  SCK_on PORTD.OUTSET = _BV(7)		//D7
+	#define  SCK_off PORTD.OUTCLR = _BV(7)		//D7
 #else
-#define  SDI_on PORTD |= _BV(5)			//D5
-#define  SDI_off PORTD &= ~_BV(5)		//D5
-#endif
-
-#ifdef XMEGA
-#define  SDI_1 (PORTD.IN & (1<<SDI_pin)) == (1<<SDI_pin)	//D5
-#define  SDI_0 (PORTD.IN & (1<<SDI_pin)) == 0x00			//D5
-#else
-#define  SDI_1 (PIND & (1<<SDI_pin)) == (1<<SDI_pin)	//D5
-#define  SDI_0 (PIND & (1<<SDI_pin)) == 0x00			//D5
-#endif
-//
-#define SDI_SET_INPUT DDRD &= ~_BV(5)	//D5
-#define SDI_SET_OUTPUT DDRD |= _BV(5)	//D5
-//Hisky /CC2500/CYRF aditional pinout
-#define CC25_CSN_pin 7
-#define NRF_CSN_pin 8
-#define CYRF_CSN_pin 9
-//
-#define CYRF_RST_pin A5					//reset pin
-//
-#ifdef XMEGA
-#define CC25_CSN_on PORTD.OUTSET = _BV(7)		//D7
-#define CC25_CSN_off PORTD.OUTCLR = _BV(7)	//D7
-#else
-#define CC25_CSN_on PORTD |= _BV(7)		//D7
-#define CC25_CSN_off PORTD &= ~_BV(7)	//D7
+	#define  SCK_on PORTD |= _BV(4)				//D4
+	#define  SCK_off PORTD &= ~_BV(4)			//D4
 #endif
 //
 #ifdef XMEGA
-#define NRF_CSN_on
-#define NRF_CSN_off
+	#define  SDI_on PORTD.OUTSET = _BV(5)		//D5
+	#define  SDI_off PORTD.OUTCLR = _BV(5)		//D5
 #else
-#define NRF_CSN_on PORTB |= _BV(0)		//D8
-#define NRF_CSN_off PORTB &= ~_BV(0)	//D8
+	#define  SDI_on PORTD |= _BV(5)				//D5
+	#define  SDI_off PORTD &= ~_BV(5)			//D5
 #endif
 //
 #ifdef XMEGA
-#define CYRF_CSN_on PORTD.OUTSET = _BV(4)		//D9
-#define CYRF_CSN_off PORTD.OUTCLR = _BV(4)	//D9
+	#define  SDI_1 (PORTD.IN & _BV(SDI_pin)) == _BV(SDI_pin)	//D5
+	#define  SDI_0 (PORTD.IN & _BV(SDI_pin)) == 0x00			//D5
 #else
-#define CYRF_CSN_on PORTB |= _BV(1)		//D9
-#define CYRF_CSN_off PORTB &= ~_BV(1)	//D9
-#define CYRF_RST_HI PORTC |=_BV(5)		//reset cyrf 
-#define CYRF_RST_LO PORTC &= ~_BV(5)	//
+	#define  SDI_1 (PIND & _BV(SDI_pin)) == _BV(SDI_pin)		//D5
+	#define  SDI_0 (PIND & _BV(SDI_pin)) == 0x00				//D5
+#endif
+//
+#define SDI_SET_INPUT  DDRD &= ~_BV(5)			//D5
+#define SDI_SET_OUTPUT DDRD |=  _BV(5)			//D5
+//
+#ifdef XMEGA
+	#define CC25_CSN_on PORTD.OUTSET  = _BV(7)	//D7
+	#define CC25_CSN_off PORTD.OUTCLR = _BV(7)	//D7
+#else
+	#define CC25_CSN_on PORTD  |=  _BV(7)		//D7
+	#define CC25_CSN_off PORTD &= ~_BV(7)		//D7
+#endif
+//
+#ifdef XMEGA
+	#define NRF_CSN_on
+	#define NRF_CSN_off
+#else
+	#define NRF_CSN_on PORTB  |=  _BV(0)		//D8
+	#define NRF_CSN_off PORTB &= ~_BV(0)		//D8
+#endif
+//
+#ifdef XMEGA
+	#define CYRF_CSN_on PORTD.OUTSET  = _BV(4)
+	#define CYRF_CSN_off PORTD.OUTCLR = _BV(4)
+#else
+	#define CYRF_CSN_on  PORTB |=  _BV(1)		//D9
+	#define CYRF_CSN_off PORTB &= ~_BV(1)		//D9
+	#define CYRF_RST_HI  PORTC |=  _BV(5)		//A5
+	#define CYRF_RST_LO  PORTC &= ~_BV(5)		//A5
+	#define CYRF_RST_pin 5
 #endif
 //  
 #ifdef XMEGA
-#define  SDO_1 (PORTD.IN & (1<<SDO_pin)) == (1<<SDO_pin)	//D6
-#define  SDO_0 (PORTD.IN & (1<<SDO_pin)) == 0x00			//D6
+	#define  SDO_1 (PORTD.IN & _BV(SDO_pin)) == _BV(SDO_pin)	//D6
+	#define  SDO_0 (PORTD.IN & _BV(SDO_pin)) == 0x00			//D6
 #else
-#define  SDO_1 (PIND & (1<<SDO_pin)) == (1<<SDO_pin)	//D6
-#define  SDO_0 (PIND & (1<<SDO_pin)) == 0x00			//D6
+	#define  SDO_1 (PIND & _BV(SDO_pin)) == _BV(SDO_pin)		//D6
+	#define  SDO_0 (PIND & _BV(SDO_pin)) == 0x00				//D6
 #endif
-//
-#define RS_HI PORTC|=_BV(5)				//reset pin cyrf 
-#define RX_LO PORTB &= ~_BV(5)//
 //
 //
 
 // LED
 #ifdef XMEGA
-#define LED_ON  PORTD.OUTCLR = _BV(1)
-#define LED_OFF PORTD.OUTSET = _BV(1)
-#define LED_TOGGLE  PORTD.OUTTGL = _BV(1)
-#define LED_SET_OUTPUT PORTD.DIRSET = _BV(1)
-#define IS_LED_on  ( (PORTD.OUT & _BV(1)) != 0x00 )
+	#define LED_ON  PORTD.OUTCLR		= _BV(1)
+	#define LED_OFF PORTD.OUTSET		= _BV(1)
+	#define LED_TOGGLE  PORTD.OUTTGL	= _BV(1)
+	#define LED_SET_OUTPUT PORTD.DIRSET	= _BV(1)
+	#define IS_LED_on		( (PORTD.OUT & _BV(1)) != 0x00 )
 #else
-#define LED_ON  PORTB |= _BV(5)
-#define LED_OFF  PORTB &= ~_BV(5)
-#define LED_TOGGLE  PORTB ^= _BV(5)
-#define LED_SET_OUTPUT DDRB |= _BV(5)
-#define IS_LED_on  ( (PORTB & _BV(5)) != 0x00 )
+	#define LED_ON			PORTB |= _BV(5)
+	#define LED_OFF			PORTB &= ~_BV(5)
+	#define LED_TOGGLE		PORTB ^= _BV(5)
+	#define LED_SET_OUTPUT	DDRB |= _BV(5)
+	#define IS_LED_on		( (PORTB & _BV(5)) != 0x00 )
 #endif
 
+//BIND
 #ifdef XMEGA
 	#define IS_BIND_BUTTON_on	( (PORTD.IN & _BV(2)) == 0x00 )
 #else
@@ -280,6 +275,7 @@ struct PPM_Parameters
 	#define BIND_SET_OUTPUT		DDRB |= _BV(5)
 #endif
 
+// TX
 #ifdef DEBUG_TX
 	#define TX_ON  PORTD |= _BV(1)
 	#define TX_OFF  PORTD &= ~_BV(1)
@@ -460,7 +456,7 @@ enum CYRF_POWER
 #define CYRF_HIGH_POWER		CYRF_POWER_7
 #define	CYRF_LOW_POWER		CYRF_POWER_3
 #define	CYRF_RANGE_POWER	CYRF_POWER_1	// 1/30 of the full power distance
-#define	CYRF_BIND_POWER		CYRF_POWER_0
+#define	CYRF_BIND_POWER		CYRF_POWER_1
 
 enum TXRX_State {
 	TXRX_OFF,
@@ -474,6 +470,7 @@ enum {
 	PKT_ACKED,
 	PKT_TIMEOUT
 };
+
 // baudrate defines for serial
 #define SPEED_100K	0
 #define SPEED_9600	1
@@ -513,6 +510,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					SHENQI		19
 					FY326		20
 					SFHSS		21
+					J6PRO		22
+					FQ777		23
+					ASSAN		24
+					FRSKY1		25
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -559,11 +560,13 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			MT99		0
 			H7			1
 			YZ			2
+			LS			3
 		sub_protocol==MJXQ
 			WLH08		0
 			X600		1
 			X800		2
 			H26D		3
+			E010		4
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1

@@ -60,14 +60,14 @@ static void __attribute__((unused)) FRSKY1_init()
 	CC2500_Strobe(CC2500_SIDLE);    // Go to idle...
 }
 
-static uint8_t __attribute__((unused)) FRSKY1_crc8(uint8_t result, uint8_t *data, uint8_t len, uint8_t polynomial)
+static uint8_t __attribute__((unused)) FRSKY1_crc8(uint8_t result, uint8_t *data, uint8_t len)
 {
 	for(uint8_t i = 0; i < len; i++)
 	{
 		result = result ^ data[i];
 		for(uint8_t j = 0; j < 8; j++)
 			if(result & 0x80)
-				result = (result << 1) ^ polynomial;
+				result = (result << 1) ^ 0x07;
 			else
 				result = result << 1;
 	}
@@ -83,7 +83,15 @@ static uint8_t __attribute__((unused)) FRSKY1_crc8_le(uint8_t init, uint8_t *dat
 		result = (result << 1) | (init & 0x01);
 		init >>= 1;
 	}
-	return FRSKY1_crc8(result,data,len,0x83);
+	for(uint8_t i = 0; i < len; i++)
+	{
+		result = result ^ data[i];
+		for(uint8_t j = 0; j < 8; j++)
+			if(result & 0x01)
+				result = (result >> 1) ^ 0x83;
+			else
+				result = result >> 1;
+	}
 }
 
 static void __attribute__((unused)) FRSKY1_build_bind_packet()
@@ -103,7 +111,7 @@ static void __attribute__((unused)) FRSKY1_build_bind_packet()
     packet[11] = 0x00;
     packet[12] = 0x00;
     packet[13] = 0x00;
-    packet[14] = FRSKY1_crc8(0x93, packet, 14, 0x07);
+    packet[14] = FRSKY1_crc8(0x93, packet, 14);
 }
 
 static uint8_t __attribute__((unused)) FRSKY1_calc_channel()
@@ -135,7 +143,7 @@ static void __attribute__((unused)) FRSKY1_build_data_packet()
 		packet[2*i + 6] = value & 0xff;
 		packet[2*i + 7] = value >> 8;
 	}
-	packet[14] = FRSKY1_crc8(crc8, packet, 14, 0x07);
+	packet[14] = FRSKY1_crc8(crc8, packet, 14);
 }
 
 static uint16_t ReadFRSKY1()
@@ -157,11 +165,6 @@ static uint16_t ReadFRSKY1()
 	if (state >= FRSKY_DATA1)
 	{
 		CC2500_Strobe(CC2500_SIDLE);
-		if (option != prev_option)
-		{
-			CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-			prev_option=option;
-		}
 		uint8_t chan = FRSKY1_calc_channel();
 		CC2500_WriteReg(CC2500_0A_CHANNR, chan * 5 + 6);
 		FRSKY1_build_data_packet();
@@ -169,6 +172,11 @@ static uint16_t ReadFRSKY1()
 		CC2500_WriteData(packet, packet[0]+1);
 		if (state == FRSKY_DATA5)
 		{
+			if (option != prev_option)
+			{
+				CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+				prev_option=option;
+			}
 			CC2500_SetPower();
 			state = FRSKY_DATA1;
 		}

@@ -147,7 +147,7 @@ static void __attribute__((unused)) FRSKY1_build_data_packet()
 	packet[14] = FRSKY1_crc8(crc8, packet, 14);
 }
 
-static uint16_t ReadFRSKY1()
+uint16_t ReadFRSKY1()
 {
 	if (state < FRSKY_BIND_DONE)
 	{

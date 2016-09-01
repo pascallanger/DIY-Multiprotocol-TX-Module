@@ -224,9 +224,13 @@ struct PPM_Parameters
 #ifdef XMEGA
 	#define NRF_CSN_on
 	#define NRF_CSN_off
+	#define NRF_CE_on
+	#define NRF_CE_off
 #else
-	#define NRF_CSN_on PORTB  |=  _BV(0)		//D8
-	#define NRF_CSN_off PORTB &= ~_BV(0)		//D8
+	#define NRF_CSN_on	PORTB |=  _BV(0)		//D8
+	#define NRF_CSN_off	PORTB &= ~_BV(0)		//D8
+	#define NRF_CE_on
+	#define NRF_CE_off
 #endif
 //
 #ifdef XMEGA

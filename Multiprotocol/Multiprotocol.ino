@@ -130,7 +130,6 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 // Callback
 typedef uint16_t (*void_function_t) (void);//pointer to a function with no parameters which return an uint16_t integer
 void_function_t remote_callback = 0;
-static void CheckTimer(uint16_t (*cb)(void));
 
 // Init
 void setup()

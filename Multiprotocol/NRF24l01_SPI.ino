@@ -160,7 +160,7 @@ void NRF24L01_SetPower()
 void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 {
 	if(mode == TX_EN) {
-		NRF_CSN_off;
+		NRF_CE_off;
 		NRF24L01_WriteReg(NRF24L01_07_STATUS, (1 << NRF24L01_07_RX_DR)    //reset the flag(s)
 											| (1 << NRF24L01_07_TX_DS)
 											| (1 << NRF24L01_07_MAX_RT));
@@ -168,11 +168,11 @@ void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 											| (1 << NRF24L01_00_CRCO)
 											| (1 << NRF24L01_00_PWR_UP));
 		delayMicroseconds(130);
-		NRF_CSN_on;
+		NRF_CE_on;
 	}
 	else
 		if (mode == RX_EN) {
-			NRF_CSN_off;
+			NRF_CE_off;
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);        // reset the flag(s)
 			NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x0F);        // switch to RX mode
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, (1 << NRF24L01_07_RX_DR)    //reset the flag(s)
@@ -183,12 +183,12 @@ void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 												| (1 << NRF24L01_00_PWR_UP)
 												| (1 << NRF24L01_00_PRIM_RX));
 			delayMicroseconds(130);
-			NRF_CSN_on;
+			NRF_CE_on;
 		}
 		else
 		{
 			NRF24L01_WriteReg(NRF24L01_00_CONFIG, (1 << NRF24L01_00_EN_CRC)); //PowerDown
-			NRF_CSN_off;
+			NRF_CE_off;
 		}
 }
 
@@ -204,7 +204,7 @@ void NRF24L01_Reset()
 	NRF24L01_FlushTx();
     NRF24L01_FlushRx();
     NRF24L01_Strobe(0xff);			// NOP
-    NRF24L01_ReadReg(0x07);
+    NRF24L01_ReadReg(NRF24L01_07_STATUS);
     NRF24L01_SetTxRxMode(TXRX_OFF);
 	delayMicroseconds(100);
 }

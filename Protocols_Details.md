@@ -135,7 +135,8 @@ Bind procedure using PPM:
 - To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
 - Note: Autobind/fixed ID mode is linked to the dial number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
 
-##DSM2
+##DSM
+###Sub_protocol DSM2
 Extended limits supported
 
 Telemetry enabled for TSSI and plugins

@@ -165,24 +165,25 @@ static uint16_t ReadFRSKY1()
 	}
 	if (state >= FRSKY_DATA1)
 	{
-		CC2500_Strobe(CC2500_SIDLE);
 		uint8_t chan = FRSKY1_calc_channel();
+		CC2500_Strobe(CC2500_SIDLE);
+		if (option != prev_option)
+		{
+			CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+			prev_option=option;
+		}
 		CC2500_WriteReg(CC2500_0A_CHANNR, chan * 5 + 6);
 		FRSKY1_build_data_packet();
 
-		CC2500_WriteData(packet, packet[0]+1);
 		if (state == FRSKY_DATA5)
 		{
-			if (option != prev_option)
-			{
-				CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-				prev_option=option;
-			}
 			CC2500_SetPower();
 			state = FRSKY_DATA1;
 		}
 		else
 			state++;
+
+		CC2500_WriteData(packet, packet[0]+1);
 		return 9006;
 	}
 	return 0;
@@ -190,7 +191,6 @@ static uint16_t ReadFRSKY1()
 
 uint16_t initFRSKY1()
 {
-	//u8 data[2] = {(fixed_id >> 8) & 0xff, fixed_id & 0xff};
 	crc8 = FRSKY1_crc8_le(0x6b, rx_tx_addr+2, 2); // Use rx_tx_addr[2] and rx_tx_addr[3] since we want to use RX_Num
 	FRSKY1_init();
 	seed = 1;

@@ -162,6 +162,7 @@ Hubsan|
 Protocol|Sub_protocol
 --------|------------
 FrSky|
+FrSky1|
 FrSkyX|
  |CH_16
  |CH_8

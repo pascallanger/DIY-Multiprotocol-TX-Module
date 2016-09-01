@@ -74,7 +74,7 @@ static uint8_t __attribute__((unused)) FRSKY1_crc8(uint8_t result, uint8_t *data
 	return result;
 }
 
-static uint8_t __attribute__((unused)) FRSKY1_crc8_le(uint8_t init, u8 *data, uint8_t len)
+static uint8_t __attribute__((unused)) FRSKY1_crc8_le(uint8_t init, uint8_t *data, uint8_t len)
 {
 	uint8_t result = 0;
 

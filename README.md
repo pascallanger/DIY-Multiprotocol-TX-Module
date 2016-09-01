@@ -131,7 +131,7 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 3|FRSKY|-|0|High|No|-41|CC2500
 4|HISKY|Hisky|0|High|No|0|NRF24L01
 5|V2X2|-|0|High|No|0|NRF24L01
-6|DSM2|DSM2|0|High|No|6|CYRF6936
+6|DSM|DSM2|0|High|No|6|CYRF6936
 7|DEVO|-|0|High|No|0|CYRF6936
 8|YD717|YD717|0|High|No|0|NRF24L01
 9|KN|WLTOYS|0|High|No|0|NRF24L01
@@ -171,7 +171,7 @@ SFHSS|
 #####CYRF6936 RF module
 Protocol|Sub_protocol
 --------|------------
-DSM2|
+DSM|
  |DSM2
  |DSMX
 Devo|
@@ -239,8 +239,8 @@ Note:
 ###RF modules
 Up to 4 RF modules can be installed:
 - [A7105](http://www.banggood.com/XL7105-D03-A7105-Modification-Module-Support-Deviation-Galee-Flysky-p-922603.html)    for Flysky, Hubsan
-- [CC2500](http://www.banggood.com/CC2500-PA-LNA-Romote-Wireless-Module-CC2500-SI4432-NRF24L01-p-922595.html)   for FrSky, FrSkyX and SFHSS
-- [CYRF6936](http://www.ehirobo.com/walkera-wk-devo-s-mod-devo-8-or-12-to-devo-8s-or-12s-upgrade-module.html) for DSM2, DSMX, DEVO, Walkera
+- [CC2500](http://www.banggood.com/CC2500-PA-LNA-Romote-Wireless-Module-CC2500-SI4432-NRF24L01-p-922595.html)   for FrSky, FrSky1, FrSkyX and SFHSS
+- [CYRF6936](http://www.ehirobo.com/walkera-wk-devo-s-mod-devo-8-or-12-to-devo-8s-or-12s-upgrade-module.html) for DSM, DEVO, J6Pro
 - [NRF24L01](http://www.banggood.com/2_4G-NRF24L01-PA-LNA-Wireless-Module-1632mm-Without-Antenna-p-922601.html) for Hisky, V2x2, CX-10, SYMAX and plenty other protocols
 
 RF modules can be installed for protocols need only. Example: if you only need the Hubsan protocol then install only a A7105 on your board.

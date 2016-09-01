@@ -1,7 +1,7 @@
-//*************************************
-// FrSky Telemetry serial code        *
-// By Midelic  on RCGroups                 *
-//*************************************
+//**************************
+// Telemetry serial code   *
+// By Midelic  on RCGroups *
+//**************************
 
 #if defined TELEMETRY
 
@@ -30,15 +30,14 @@ uint8_t frame[18];
 
 #ifdef BASH_SERIAL
 // For bit-bashed serial output
-
-struct t_serial_bash
-{
-	uint8_t head ;
-	uint8_t tail ;
-	uint8_t data[64] ;
-	uint8_t busy ;
-	uint8_t speed ;
-} SerialControl ;
+	struct t_serial_bash
+	{
+		uint8_t head ;
+		uint8_t tail ;
+		uint8_t data[64] ;
+		uint8_t busy ;
+		uint8_t speed ;
+	} SerialControl ;
 #endif
 
 #if defined DSM_TELEMETRY
@@ -540,18 +539,10 @@ ISR(USART_UDRE_vect)
 	{
 		if(++tx_tail>=TXBUFFER_SIZE)//head 
 			tx_tail=0;
-#ifdef XMEGA
-		USARTC0.DATA = tx_buff[tx_tail] ;
-#else
 		UDR0=tx_buff[tx_tail];
-#endif
 	}
 	if (tx_tail == tx_head)
-#ifdef XMEGA
-		USARTC0.CTRLA &= ~0x03 ;
-#else
-		UCSR0B &= ~(1<<UDRIE0); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
-#endif
+		tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
 }
 
 #else	//BASH_SERIAL
@@ -561,11 +552,11 @@ ISR(USART_UDRE_vect)
 void initTXSerial( uint8_t speed)
 {
 	TIMSK0 = 0 ;	// Stop all timer 0 interrupts
-#ifdef INVERT_SERIAL
-	PORTD &= ~2 ;
-#else
-	PORTD |= 2 ;
-#endif
+	#ifdef INVERT_SERIAL
+		PORTD &= ~2 ;
+	#else
+		PORTD |= 2 ;
+	#endif
 	DDRD |= 2 ;	// TxD pin is an output
 	UCSR0B &= ~(1<<TXEN0) ;
 

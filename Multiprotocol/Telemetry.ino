@@ -42,7 +42,7 @@ struct t_serial_bash
 #endif
 
 #if defined DSM_TELEMETRY
-void DSM2_frame()
+void DSM_frame()
 {
 	Serial_write(0xAA);					// Start
 	for (uint8_t i = 0; i < 17; i++)	// RSSI value followed by 16 bytes of telemetry data
@@ -452,9 +452,9 @@ void TelemetryUpdate()
 #endif
 	 
 	#if defined DSM_TELEMETRY
-	if(telemetry_link && (cur_protocol[0]&0x1F) == MODE_DSM2 )
-	{	// DSM2
-		DSM2_frame();
+	if(telemetry_link && (cur_protocol[0]&0x1F) == MODE_DSM )
+	{	// DSM
+		DSM_frame();
 		telemetry_link=0;
 		return;
 	}

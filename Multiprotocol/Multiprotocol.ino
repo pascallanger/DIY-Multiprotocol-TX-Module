@@ -386,7 +386,7 @@ TX_OFF;
 	update_led_status();
 	#if defined(TELEMETRY)
 	uint8_t protocol=cur_protocol[0]&0x1F;
-	if( (protocol==MODE_FRSKY) || (protocol==MODE_HUBSAN) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM2) )
+	if( (protocol==MODE_FRSKY) || (protocol==MODE_HUBSAN) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
 		TelemetryUpdate();
 	#endif
 TX_ON;
@@ -529,12 +529,12 @@ static void protocol_init()
 			remote_callback = ReadSFHSS;
 			break;
 #endif
-#if defined(DSM2_CYRF6936_INO)
-		case MODE_DSM2:
+#if defined(DSM_CYRF6936_INO)
+		case MODE_DSM:
 			CTRL2_on;	//antenna RF4
-			next_callback = initDsm2();
+			next_callback = initDsm();
 			//Servo_data[2]=1500;//before binding
-			remote_callback = ReadDsm2;
+			remote_callback = ReadDsm;
 			break;
 #endif
 #if defined(DEVO_CYRF6936_INO)

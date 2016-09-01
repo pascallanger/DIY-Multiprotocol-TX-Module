@@ -34,7 +34,7 @@ enum PROTOCOLS
 	MODE_FRSKY		= 3,	// =>CC2500
 	MODE_HISKY		= 4,	// =>NRF24L01
 	MODE_V2X2		= 5,	// =>NRF24L01
-	MODE_DSM2		= 6,	// =>CYRF6936
+	MODE_DSM		= 6,	// =>CYRF6936
 	MODE_DEVO		= 7,	// =>CYRF6936
 	MODE_YD717		= 8,	// =>NRF24L01
 	MODE_KN			= 9,	// =>NRF24L01
@@ -68,7 +68,7 @@ enum Hisky
 	Hisky	= 0,
 	HK310	= 1
 };
-enum DSM2
+enum DSM
 {
 	DSM2	= 0,
 	DSMX	= 1
@@ -460,7 +460,7 @@ enum CYRF_POWER
 #define CYRF_HIGH_POWER		CYRF_POWER_7
 #define	CYRF_LOW_POWER		CYRF_POWER_3
 #define	CYRF_RANGE_POWER	CYRF_POWER_1	// 1/30 of the full power distance
-#define	CYRF_BIND_POWER		CYRF_POWER_1
+#define	CYRF_BIND_POWER		CYRF_POWER_0
 
 enum TXRX_State {
 	TXRX_OFF,
@@ -498,7 +498,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					Frsky		3
 					Hisky		4
 					V2x2		5
-					DSM2		6
+					DSM			6
 					Devo		7
 					YD717		8
 					KN			9
@@ -532,7 +532,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==Hisky
 			Hisky	0
 			HK310	1
-		sub_protocol==DSM2
+		sub_protocol==DSM
 			DSM2	0
 			DSMX	1
 		sub_protocol==YD717

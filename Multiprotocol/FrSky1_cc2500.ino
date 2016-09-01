@@ -92,6 +92,7 @@ static uint8_t __attribute__((unused)) FRSKY1_crc8_le(uint8_t init, uint8_t *dat
 			else
 				result = result >> 1;
 	}
+	return result;
 }
 
 static void __attribute__((unused)) FRSKY1_build_bind_packet()

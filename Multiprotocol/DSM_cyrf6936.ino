@@ -13,7 +13,7 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(DSM2_CYRF6936_INO)
+#if defined(DSM_CYRF6936_INO)
 
 #include "iface_cyrf6936.h"
 
@@ -408,7 +408,7 @@ static void __attribute__((unused)) calc_dsmx_channel()
 	}
 }
 
-uint16_t ReadDsm2()
+uint16_t ReadDsm()
 {
 #define DSM_CH1_CH2_DELAY	4010	// Time between write of channel 1 and channel 2
 #define DSM_WRITE_DELAY		1550	// Time after write to verify write complete
@@ -536,7 +536,7 @@ uint16_t ReadDsm2()
 	return 0;		
 }
 
-uint16_t initDsm2()
+uint16_t initDsm()
 { 
 	CYRF_Reset();
 	CYRF_GetMfgData(cyrfmfg_id);//

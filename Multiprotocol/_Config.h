@@ -45,7 +45,7 @@
 #endif
 #ifdef	CYRF6936_INSTALLED
 	#define	DEVO_CYRF6936_INO
-	#define	DSM2_CYRF6936_INO
+	#define	DSM_CYRF6936_INO
 	#define J6PRO_CYRF6936_INO
 #endif
 #ifdef	CC2500_INSTALLED
@@ -88,7 +88,7 @@
 
 //Comment a line to disable a protocol telemetry
 #if defined(TELEMETRY)
-	#if defined DSM2_CYRF6936_INO
+	#if defined DSM_CYRF6936_INO
 		#define DSM_TELEMETRY	
 	#endif
 	#if defined FRSKYX_CC2500_INO
@@ -151,7 +151,7 @@ const PPM_Parameters PPM_prot[15]=	{
 /*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	2		},	// option=2=6 channels @ 22ms
+/*	6	*/	{MODE_DSM	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	2		},	// option=2=6 channels @ 22ms
 /*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -177,7 +177,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		HK310
 	MODE_V2X2
 		NONE
-	MODE_DSM2
+	MODE_DSM
 		DSM2
 		DSMX
 	MODE_DEVO

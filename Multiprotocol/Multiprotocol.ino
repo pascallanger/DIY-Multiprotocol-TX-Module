@@ -569,6 +569,7 @@ inline void tx_resume()
 {
 #ifdef TELEMETRY
 	if(!IS_TX_PAUSE_on)
+	{
 	#ifdef XMEGA
 	USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;	// Resume telemetry by enabling transmitter interrupt
 	#else
@@ -578,6 +579,7 @@ inline void tx_resume()
 	UCSR0B |= _BV(UDRIE0);			// Resume telemetry by enabling transmitter interrupt
 	#endif	
 	#endif
+	}
 #endif
 }
 
@@ -595,7 +597,7 @@ void start_timer2(){
 	timer.resume();
 }
 #endif
-
+/*
 // Protocol scheduler
 static void CheckTimer(uint16_t (*cb)(void))
 { 
@@ -691,7 +693,7 @@ static void CheckTimer(uint16_t (*cb)(void))
 	while(diff&0x8000);	 						// Callback did not took more than requested time for next callback
 	// so we can let main do its stuff before next callback
 }
-
+*/
 // Protocol start
 static void protocol_init()
 {
@@ -706,8 +708,10 @@ static void protocol_init()
 	#endif
 	pass=0;
 	telemetry_link=0;
+	#ifndef BASH_SERIAL
 	tx_tail=0;
 	tx_head=0;
+	#endif
 	#endif
 	
 	blink=millis();

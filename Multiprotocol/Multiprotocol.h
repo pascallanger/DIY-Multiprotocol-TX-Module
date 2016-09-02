@@ -174,7 +174,7 @@ struct PPM_Parameters
 	#define SDI_pin  5						//D5 = PD5
 #endif
 #define SCLK_pin	 4						//D4 = PD4
-#define A7105_CS_pin 2						//D2 = PD2
+#define CS_pin 2						//D2 = PD2
 #define SDO_pin		 6						//D6 = PD6
 #define CC25_CSN_pin 7						//D7 = PD7
 #define NRF_CSN_pin  0						//D8 = PB0
@@ -195,11 +195,11 @@ struct PPM_Parameters
 #endif
 //
 #ifdef XMEGA
-	#define  A7105_CS_on PORTD.OUTSET = _BV(4)	//D4
-	#define  A7105_CS_off PORTD.OUTCLR = _BV(4)	//D4
+	#define  CS_on PORTD.OUTSET = _BV(4)	//D4
+	#define  CS_off PORTD.OUTCLR = _BV(4)	//D4
 #else
-	#define  A7105_CS_on PORTD |= _BV(2)		//D2
-	#define  A7105_CS_off PORTD &= ~_BV(2)		//D2
+	#define  CS_on PORTD |= _BV(2)		//D2
+	#define  CS_off PORTD &= ~_BV(2)		//D2
 #endif
 //
 #ifdef XMEGA

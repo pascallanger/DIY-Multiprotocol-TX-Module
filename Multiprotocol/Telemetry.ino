@@ -540,27 +540,19 @@ void initTXSerial( uint8_t speed)
 		{
 			if(++tx_tail>=TXBUFFER_SIZE)//head 
 			tx_tail=0;
-			#ifdef XMEGA
-				USARTC0.DATA = tx_buff[tx_tail] ;
-				#else
 				#if defined STM32_board	
 				USART3_BASE->DR=tx_buff[tx_tail];//clears TXE bit				
 					#else
 					UDR0=tx_buff[tx_tail];
 				#endif		
-			#endif
 		}
 		if (tx_tail == tx_head)
-		#ifdef XMEGA
-			USARTC0.CTRLA &= ~0x03 ;
-			#else
 			#if defined STM32_board	
 			USART3_BASE->CR1 &= ~USART_CR1_TXEIE;//disable interrupt	
 			}
 				#else
-				UCSR0B &= ~(1<<UDRIE0); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
+				tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
 			#endif		
-		#endif
 	}
 	
 #if defined STM32_board			
@@ -570,6 +562,7 @@ void initTXSerial( uint8_t speed)
 #endif
 
 #endif
+
 
 #ifdef BASH_SERIAL
 // Routines for bit-bashed serial output

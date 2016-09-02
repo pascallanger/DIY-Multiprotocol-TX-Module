@@ -12,7 +12,27 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+ 
+/**Board selection**/
 
+#define STM32_board
+//#define XMEGA
+/*******************/
+#ifdef STM32_board
+//#undef __cplusplus
+#include "Multiprotocol_STM32.h"
+#include <EEPROM.h>
+#include <libmaple/usart.h>
+#include <libmaple/timer.h>
+#include <SPI.h>
+#else
+#include <avr/eeprom.h>
+#include <util/delay.h>
+#include "Multiprotocol.h"
+#endif
+ 
+ 
 /** Multiprotocol module configuration file ***/
 
 /*******************/
@@ -124,7 +144,7 @@
 	#define PPM_MIN_125	1000	//	125%
 #endif
 
-
+/*
 struct PPM_Parameters
 {
 	uint8_t protocol : 5;
@@ -134,7 +154,7 @@ struct PPM_Parameters
 	uint8_t autobind : 1;
 	uint8_t option;
 };
-
+*/
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
 const PPM_Parameters PPM_prot[15]=	{
 //	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option

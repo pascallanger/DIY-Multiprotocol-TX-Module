@@ -43,7 +43,8 @@ enum PROTOCOLS
 	MODE_SFHSS=21,			// =>CC2500
 	MODE_J6PRO=22,			// =>CYRF6936
 	MODE_FQ777=23,			// =>NRF24L01
-	MODE_ASSAN=24			// =>NRF24L01
+	MODE_ASSAN=24,			// =>NRF24L01
+	MODE_FRSKY1		= 25	// =>CC2500
 };
 
 enum Flysky
@@ -125,13 +126,29 @@ enum FRSKYX
 #define AUTOBIND	1
 #define NO_AUTOBIND	0
 
-
+struct PPM_Parameters
+{
+	uint8_t protocol : 5;
+	uint8_t sub_proto : 3;
+	uint8_t rx_num : 4;
+	uint8_t power : 1;
+	uint8_t autobind : 1;
+	uint8_t option;
+};
 
 //*******************
 //***   Pinouts   ***
 //*******************
 
 #if defined STM32_board
+
+#define OCR1A TIMER2_BASE->CCR1
+#define TCNT1 TIMER2_BASE->CNT
+#define UDR0 USART2_BASE->DR
+#define UCSR0B USART2_BASE->CR1
+#define RXCIE0 USART_CR1_RXNEIE_BIT
+#define TXCIE0 USART_CR1_TXEIE_BIT
+//#define TIFR1 TIMER2_BASE->SR
 //********************
 #define BIND_pin PA0
 #define LED_pin  PA1						
@@ -171,6 +188,9 @@ enum FRSKYX
 
 #define  CS_on digitalWrite(CS_pin,HIGH)			
 #define  CS_off digitalWrite(CS_pin,LOW)		
+
+#define NRF_CE_on
+#define NRF_CE_off
 
 #define  SCK_on digitalWrite(SCK_pin,HIGH)			
 #define  SCK_off digitalWrite(SCK_pin,LOW)		

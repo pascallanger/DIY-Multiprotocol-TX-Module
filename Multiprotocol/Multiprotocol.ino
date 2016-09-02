@@ -20,26 +20,14 @@
 	You should have received a copy of the GNU General Public License
 	along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
 */
-#define STM32_board
-//#undef __cplusplus
-#if defined STM32_board
-#include "Multiprotocol_STM32.h"
-#include <EEPROM.h>
-#include <libmaple/usart.h>
-#include <libmaple/timer.h>
-#include <SPI.h>
-uint16_t OCR1A = 0;
-uint16_t TCNT1=0;
-HardwareTimer timer(2);
-#else
-#include <avr/eeprom.h>
-#include <util/delay.h>
-#include "Multiprotocol.h"
-#endif
+
 
 #include <avr/pgmspace.h>
 #include "_Config.h"
 #include "TX_Def.h"
+#ifdef STM32_board
+HardwareTimer timer(2);
+#endif
 
 #ifdef XMEGA
 	#undef ENABLE_PPM	// Disable PPM for orange module
@@ -65,9 +53,6 @@ uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
 uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
 
-#ifndef STM32_board
-uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
-#endif
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint8_t  rx_tx_addr[5];
@@ -214,7 +199,7 @@ void setup()
 	start_timer2();//0.5us
 	#else
 	DDRD = (1<<CS_pin)|(1<<SDI_pin)|(1<<SCLK_pin)|(1<<CS_pin)|(1<< CC25_CSN_pin);
-	DDRC = (1<<CTRL1)|(1<<CTRL2); //output
+	DDRC = (1<<CTRL1_pin)|(1<<CTRL2_pin); //output
 	DDRC |= (1<<5);//RST pin A5(C5) CYRF output
 	DDRB  = _BV(0)|_BV(1);
 	PORTB = _BV(2)|_BV(3)|_BV(4)|_BV(5);//pullup 10,11,12 and bind button
@@ -348,16 +333,6 @@ void loop()
 			}
 			while(remote_callback==0);
 		}
-		#ifdef XMEGA		
-		if( (TCC1.INTFLAGS & TC1_CCAIF_bm) != 0)
-		{
-			cli();					// disable global int
-			TCC1.CCA = TCC1.CNT ;	// Callback should already have been called... Use "now" as new sync point.
-			sei();					// enable global int
-		}
-		else
-		while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait before callback
-		#else
 		#if defined STM32_board
 		if((TIMER2_BASE->SR & TIMER_SR_CC1IF)!=0){
 			cli();
@@ -368,16 +343,15 @@ void loop()
 		else
 		while((TIMER2_BASE->SR & TIMER_SR_CC1IF )==0);//walit till compare match	
 		#else
-		if( (TIFR1 & (1<<OCF1A)) != 0)
+		if( (TIFR1 & OCF1A_bm) != 0)
 		{
 			cli();			// disable global int
 			OCR1A=TCNT1;	// Callback should already have been called... Use "now" as new sync point.
 			sei();			// enable global int
 		}
 		else
-		while((TIFR1 & (1<<OCF1A)) == 0); // wait before callback
+		while((TIFR1 & OCF1A_bm) == 0); // wait before callback
 		#endif		
-		#endif
 		do
 		{
 			#ifndef STM32_board			
@@ -393,67 +367,42 @@ void loop()
 			#endif		   
 			while(next_callback>4000)
 			{ 										// start to wait here as much as we can...
-				next_callback-=2000;
-				
-				#ifdef XMEGA
-				cli();								// disable global int
-				TCC1.CCA +=2000*2;					// set compare A for callback
-				TCC1.INTFLAGS = TC1_CCAIF_bm ;		// clear compare A=callback flag
-				sei();								// enable global int
-				Update_All();
-				if(IS_CHANGE_PROTOCOL_FLAG_on)
-				break; // Protocol has been changed
-				while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait 2ms...
-				#else
-				
+				next_callback-=2000;				
 				#if defined STM32_board	
 				cli();
 				OCR1A+=2000*2;// clear compare A=callback flag 
-				TIMER2_BASE->CCR1=OCR1A;
-				TCNT1 = TIMER2_BASE->CNT; 
 				TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag
 				sei();
 				Update_All();
 				if(IS_CHANGE_PROTOCOL_FLAG_on)
 				break; // Protocol has been changed
-				while((TIMER2_BASE->SR &TIMER_SR_CC1IF)==0);//2ms wait
+				while((TIMER2_BASE->SR & TIMER_SR_CC1IF)==0);//2ms wait
 				#else
 				cli();
 				OCR1A+=2000*2;	// clear compare A=callback flag 
-				TIFR1=(1<<OCF1A);					// clear compare A=callback flag
+				TIFR1=OCF1A_bm;						// clear compare A=callback flag
 				sei();								// enable global int
 				Update_All();
 				if(IS_CHANGE_PROTOCOL_FLAG_on)
 				break; // Protocol has been changed
-				while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...
+				while((TIFR1 & OCF1A_bm) == 0);	// wait 2ms...
 				#endif			
-				#endif
 			}
 			// at this point we have between 2ms and 4ms in next_callback
 			next_callback *= 2 ;									// disable global int
-			#ifdef XMEGA
+			#if defined STM32_board			
 			cli();
-			TCC1.CCA +=next_callback;				// set compare A for callback
-			TCC1.INTFLAGS = TC1_CCAIF_bm ;			// clear compare A=callback flag
-			diff=TCC1.CCA-TCC1.CNT;					// compare timer and comparator
-			sei();// enable global int			
-			#else
-			#if defined STM32_board
 			OCR1A+=next_callback;
-			cli();
-			TIMER2_BASE->CCR1 = OCR1A;
-			TCNT1 = TIMER2_BASE->CNT;
 			TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;//clear compare Flag write zero 
 			diff=OCR1A-TCNT1;						// compare timer and comparator
 			sei();
 			#else
 			cli();
 			OCR1A+=next_callback;					// set compare A for callback
-			TIFR1=(1<<OCF1A);						// clear compare A=callback flag
+			TIFR1=OCF1A_bm;							// clear compare A=callback flag
 			diff=OCR1A-TCNT1;						// compare timer and comparator
 			sei();									// enable global int
 			#endif		
-			#endif
 		}
 		while(diff&0x8000);	 						// Callback did not took more than requested time for next callback
 		// so we can launch Update_All before next callback
@@ -463,12 +412,6 @@ void loop()
 
 void Update_All()
 {
-#ifndef STM32_board
-	TX_ON;
-	NOP();
-	TX_OFF;
-#endif
-
 #ifdef ENABLE_SERIAL
 	if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
 	{
@@ -505,11 +448,6 @@ void Update_All()
 	if( (protocol==MODE_FRSKY) || (protocol==MODE_HUBSAN) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM2) )
 	TelemetryUpdate();
 	#endif
-#ifndef STM32_board
-	TX_ON;
-	NOP();
-	TX_OFF;
-#endif
 }
 
 
@@ -596,103 +534,7 @@ void start_timer2(){
 	timer.resume();
 }
 #endif
-/*
-// Protocol scheduler
-static void CheckTimer(uint16_t (*cb)(void))
-{ 
-	uint16_t next_callback,diff;
-	#ifdef XMEGA		
-	if( (TCC1.INTFLAGS & TC1_CCAIF_bm) != 0)
-	{
-		cli();					// disable global int
-		TCC1.CCA = TCC1.CNT ;	// Callback should already have been called... Use "now" as new sync point.
-		sei();					// enable global int
-	}
-	else
-	while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait before callback
-	#else
-	#if defined STM32_board
-	if((TIMER2_BASE->SR & TIMER_SR_CC1IF)!=0){
-		cli();
-		OCR1A = TIMER2_BASE->CNT;
-		TIMER2_BASE->CCR1=OCR1A; 
-		sei();
-	}
-	else
-	while((TIMER2_BASE->SR & TIMER_SR_CC1IF )==0);//walit till compare match	
-	#else
-	if( (TIFR1 & (1<<OCF1A)) != 0)
-	{
-		cli();			// disable global int
-		OCR1A=TCNT1;	// Callback should already have been called... Use "now" as new sync point.
-		sei();			// enable global int
-	}
-	else
-	while((TIFR1 & (1<<OCF1A)) == 0); // wait before callback
-	#endif		
-	#endif
-	do
-	{
-		next_callback=cb();
-		while(next_callback>4000)
-		{ 										// start to wait here as much as we can...
-			next_callback=next_callback-2000;
-			
-			#ifdef XMEGA
-			cli();								// disable global int
-			TCC1.CCA +=2000*2;					// set compare A for callback
-			TCC1.INTFLAGS = TC1_CCAIF_bm ;		// clear compare A=callback flag
-			sei();								// enable global int
-			while((TCC1.INTFLAGS & TC1_CCAIF_bm) == 0); // wait 2ms...
-			#else
-			
-			#if defined STM32_board	
-			cli();
-			OCR1A+=2000*2;// clear compare A=callback flag 
-			TIMER2_BASE->CCR1=OCR1A;
-			TCNT1 = TIMER2_BASE->CNT; 
-			TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag
-			sei();
-			while((TIMER2_BASE->SR &TIMER_SR_CC1IF)==0);//2ms wait
-			#else
-			cli();
-			OCR1A+=2000*2;	// clear compare A=callback flag 
-			TIFR1=(1<<OCF1A);					// clear compare A=callback flag
-			sei();								// enable global int
-			while((TIFR1 & (1<<OCF1A)) == 0);	// wait 2ms...
-			#endif			
-			#endif
-		}
-		// at this point we have between 2ms and 4ms in next_callback
-		next_callback *= 2 ;									// disable global int
-		#ifdef XMEGA
-		cli();
-		TCC1.CCA +=next_callback;				// set compare A for callback
-		TCC1.INTFLAGS = TC1_CCAIF_bm ;			// clear compare A=callback flag
-		diff=TCC1.CCA-TCC1.CNT;					// compare timer and comparator
-		sei();// enable global int			
-		#else
-		#if defined STM32_board
-		OCR1A+=next_callback;
-		cli();
-		TIMER2_BASE->CCR1 = OCR1A;
-		TCNT1 = TIMER2_BASE->CNT;
-		TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;//clear compare Flag write zero 
-		diff=OCR1A-TCNT1;						// compare timer and comparator
-		sei();
-		#else
-		cli();
-		OCR1A+=next_callback;					// set compare A for callback
-		TIFR1=(1<<OCF1A);						// clear compare A=callback flag
-		diff=OCR1A-TCNT1;						// compare timer and comparator
-		sei();									// enable global int
-		#endif		
-		#endif
-	}
-	while(diff&0x8000);	 						// Callback did not took more than requested time for next callback
-	// so we can let main do its stuff before next callback
-}
-*/
+
 // Protocol start
 static void protocol_init()
 {
@@ -747,6 +589,14 @@ static void protocol_init()
 		CTRL2_on;
 		next_callback = initFrSky_2way();
 		remote_callback = ReadFrSky_2way;
+		break;
+		#endif
+		#if defined(FRSKY1_CC2500_INO)
+	case MODE_FRSKY1:
+		CTRL1_off;	//antenna RF2
+		CTRL2_on;
+		next_callback = initFRSKY1();
+		remote_callback = ReadFRSKY1;
 		break;
 		#endif
 		#if defined(FRSKYX_CC2500_INO)
@@ -912,30 +762,21 @@ static void protocol_init()
 	if(next_callback>32000)
 	{ // next_callback should not be more than 32767 so we will wait here...
 		uint16_t temp=(next_callback>>10)-2;
-		delay(temp);
+		delayMilliseconds(temp);
 		next_callback-=temp<<10;	// between 2-3ms left at this stage
 	}
 
-	#ifdef XMEGA
-	cli();							// disable global int
-	TCC1.CCA = TCC1.CNT + next_callback*2;	// set compare A for callback
-	sei();							// enable global int
-	TCC1.INTFLAGS = TC1_CCAIF_bm ;	// clear compare A flag
-	#else
 	#if defined STM32_board 
-	cli();							// disable global int
-	TCNT1 = TIMER2_BASE->CNT;			
+	cli();							// disable global int			
 	OCR1A=TCNT1+next_callback*2;
-	TIMER2_BASE->CCR1 = OCR1A;
 	sei();
 	TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;//clear compare Flag write zero 
 	#else
 	cli();							// disable global int
-	OCR1A=TCNT1+next_callback*2;	// set compare A for callback
+	OCR1A = TCNT1 + next_callback*2;	// set compare A for callback
 	sei();							// enable global int
-	TIFR1=(1<<OCF1A);				// clear compare A flag
+	TIFR1 = OCF1A_bm ;				// clear compare A flag
 	#endif	
-	#endif
 	BIND_BUTTON_FLAG_off;			// do not bind/reset id anymore even if protocol change
 }
 
@@ -971,6 +812,7 @@ static void update_serial_data()
 	if( ((rx_ok_buff[0]&0x80)!=0) && ((cur_protocol[0]&0x80)==0) )	// Bind flag has been set
 	CHANGE_PROTOCOL_FLAG_on;			//restart protocol with bind
 	else
+	CHANGE_PROTOCOL_FLAG_off;			//no need to restart
 	cur_protocol[0] = rx_ok_buff[0];			//store current protocol
 	
 	// decode channel values
@@ -992,12 +834,7 @@ static void update_serial_data()
 #ifdef XMEGA
 	cli();
 	#else
-	#ifdef STM32_board
-	//here code fro RX intrurpt disable
-	USART3_BASE->CR1 &= ~ USART_CR1_RXNEIE;//disable 
-	#else
 	UCSR0B &= ~(1<<RXCIE0);	// RX interrupt disable
-	#endif	
 	#endif
 	if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
 	{	memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
@@ -1007,12 +844,7 @@ static void update_serial_data()
 	#ifdef XMEGA
 	sei();
 	#else
-	#ifdef STM32_board
-	//here code fro RX intrurpt enable
-	USART3_BASE->CR1 |=  USART_CR1_RXNEIE ;//disable 
-	#else
 	UCSR0B |= (1<<RXCIE0) ;	// RX interrupt enable
-	#endif	
 	#endif
 }
 
@@ -1099,9 +931,6 @@ uint16_t limit_channel_100(uint8_t ch)
 	return Servo_data[ch];
 }
 
-//	void Serial_write(uint8_t data){
-//		return;
-//	}
 
 static void Mprotocol_serial_init()
 {
@@ -1117,7 +946,10 @@ static void Mprotocol_serial_init()
 	USARTC0.CTRLB = 0x18 ;
 	USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
 	USARTC0.CTRLC = 0x2B ;
-	USARTC0.DATA ;
+	UDR0 ;
+	#ifdef INVERT_TELEMETRY
+	PORTC.PIN3CTRL |= 0x40 ;
+	#endif
 	#else
 	
 	#if defined STM32_board
@@ -1137,13 +969,11 @@ static void Mprotocol_serial_init()
 	UDR0;
 	//enable reception and RC complete interrupt
 	UCSR0B = (1<<RXEN0)|(1<<RXCIE0);//rx enable and interrupt
-	#ifdef DEBUG_TX
-	TX_SET_OUTPUT;
-	#else
+	#ifndef DEBUG_TX
 	#if defined(TELEMETRY)
 	initTXSerial( SPEED_100K ) ;
 	#endif //TELEMETRY
-	#endif
+	#endif //DEBUG_TX
 	#endif
 	#endif
 }
@@ -1350,7 +1180,7 @@ ISR(PORTD_INT0_vect)
 #ifdef STM32_board
 void PPM_decode()	
 #else		
-ISR(INT1_vect)
+ISR(INT1_vect,ISR_NOBLOCK)
 #endif
 #endif
 {	// Interrupt on PPM pin
@@ -1358,16 +1188,8 @@ ISR(INT1_vect)
 	static uint16_t Prev_TCNT1=0;
 	uint16_t Cur_TCNT1;
 	
-	#ifdef XMEGA
-	Cur_TCNT1 = TCC1.CNT - Prev_TCNT1 ; // Capture current Timer1 value
-	#else
-	#if defined STM32_board
-	uint16_t time=TIMER2_BASE->CNT;
-	Cur_TCNT1=time-Prev_TCNT1; // Capture current Timer1 value			
-	#else
 	Cur_TCNT1=TCNT1-Prev_TCNT1; // Capture current Timer1 value
-	#endif	
-	#endif
+
 	if(Cur_TCNT1<1000)
 	chan=-1;				// bad frame
 	else
@@ -1409,9 +1231,7 @@ extern "C" {
 		#ifdef XMEGA
 		if((USARTC0.STATUS & 0x1C)==0)			// Check frame error, data overrun and parity error
 		#else
-		#ifndef STM32_board
 		UCSR0B &= ~_BV(RXCIE0) ;		// RX interrupt disable
-		#endif
 		sei();
 		#if defined STM32_board
 		if(USART2_BASE->SR & USART_SR_RXNE) {
@@ -1423,52 +1243,26 @@ extern "C" {
 			{ // received byte is ok to process
 				if(idx==0||discard_frame==1)
 				{	// Let's try to sync at this point
-					idx=0;discard_frame=0;
-					#ifdef XMEGA
-					if(USARTC0.DATA==0x55)			// If 1st byte is 0x55 it looks ok
-					
-					#else
-					#if defined STM32_board
-					if(USART2_BASE->DR==0x55)						
-					#else
+					idx=0;discard_frame=0;	
 					if(UDR0==0x55)			// If 1st byte is 0x55 it looks ok
-					#endif			
-					#endif
 					{
-						#ifdef XMEGA
-						TCC1.CCB = TCC1.CNT+(6500L) ;		// Full message should be received within timer of 3250us
-						TCC1.INTFLAGS = TC1_CCBIF_bm ;		// clear OCR1B match flag
-						TCC1.INTCTRLB = (TCC1.INTCTRLB & 0xF3) | 0x04 ;	// enable interrupt on compare B match
-						
-						#else
 						#if defined STM32_board
-						uint16_t OCR1B = TIMER2_BASE->CNT;
-						OCR1B +=6500L;
+						uint16_t OCR1B;
+						OCR1B =TCNT1+6500L;
 						timer.setCompare(TIMER_CH2,OCR1B);
 						timer.attachCompare2Interrupt(ISR_COMPB);
 						#else
 						OCR1B=TCNT1+6500L;		// Full message should be received within timer of 3250us
-						TIFR1=(1<<OCF1B);		// clear OCR1B match flag
-						TIMSK1 |=(1<<OCIE1B);	// enable interrupt on compare B match
-						#endif				
+				        TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
+				        SET_TIMSK1_OCIE1B ;		// enable interrupt on compare B match			
 						#endif
 						idx++;
 					}
 				}
 				else
 				{
-					RX_MISSED_BUFF_off;					// if rx_buff was good it's not anymore...
-					
-					#ifdef XMEGA
-					rx_buff[(idx++)-1]=USARTC0.DATA;	// Store received byte
-					#else
-					#if defined STM32_board
-					
-					rx_buff[(idx++)-1]=USART2_BASE->DR&0xff;			// Store received byte	
-					#else						
+					RX_MISSED_BUFF_off;					// if rx_buff was good it's not anymore...					
 					rx_buff[(idx++)-1]=UDR0;			// Store received byte
-					#endif			
-					#endif
 					if(idx>RXBUFFER_SIZE)
 					{	// A full frame has been received
 
@@ -1484,41 +1278,25 @@ extern "C" {
 				}
 			}
 			else
-			{
-				#ifdef XMEGA
-				idx = USARTC0.DATA ;	// Dummy read
-				#else
-				#if defined STM32_board					
-				idx=USART2_BASE->DR&0xff;	
-				#else					
+			{					
 				idx=UDR0;	// Dummy read
-				#endif
-				#endif
 				discard_frame=1;		// Error encountered discard full frame...
 			}
 			
 			if(discard_frame==1)
 			{
-				#ifdef XMEGA
-				TCC1.INTCTRLB &=0xF3;			// disable interrupt on compare B match
-				#else
 				#if defined STM32_board
 				detachInterrupt(2);//disable interrupt on ch2	
 				#else							
-				TIMSK1 &=~(1<<OCIE1B);			// disable interrupt on compare B match				
-				#endif				
-				#endif
-				#ifndef STM32_board
-				#ifndef XMEGA
-				TX_RX_PAUSE_off;
+		        CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
+		        TX_RX_PAUSE_off;
 				tx_resume();
 				#endif
-				#endif
 			}
-			#ifndef STM32_board)
-			cli() ;
+
+			#ifndef XMEGA
+			cli() ;			
 			UCSR0B |= _BV(RXCIE0) ;	// RX interrupt enable
-			
 			#endif
 			#if defined STM32_board	//If activated telemetry it doesn't work activated 
 		}
@@ -1543,14 +1321,10 @@ ISR(TIMER1_COMPB_vect,ISR_NOBLOCK)
 
 {	// Timer1 compare B interrupt
 	discard_frame=1;	// Error encountered discard full frame...
-	#ifdef XMEGA
-	TCC1.INTCTRLB &=0xF3;			// Disable interrupt on compare B match
-	#else
 	#ifdef STM32_board
 	detachInterrupt(2);//disable interrupt on ch2
 	#else
-	TIMSK1 &=~(1<<OCIE1B);			// Disable interrupt on compare B match
-	#endif
+	CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
 	#endif
 	#ifndef STM32_board
 	tx_resume();

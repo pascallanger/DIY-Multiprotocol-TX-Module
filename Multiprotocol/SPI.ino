@@ -5,7 +5,7 @@ based on arduino maple library
 */
 
 
-
+#ifdef STM32_board
 
 SPIClass SPI_2(2); //Create an instance of the SPI Class called SPI_2 that uses the 2nd SPI Port
 
@@ -20,7 +20,7 @@ void initSPI2() {
  SPI_2.setClockDivider(SPI_CLOCK_DIV8);  //// Slow speed (36 / 8 = 4.5 MHz SPI_2 speed)
 }
 
-
+#endif
 
 #ifdef XMEGA
 #define XNOP() NOP()

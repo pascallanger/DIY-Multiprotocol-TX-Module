@@ -40,6 +40,10 @@ HardwareTimer timer(2);
 #include <avr/pgmspace.h>
 #include "_Config.h"
 #include "TX_Def.h"
+
+#ifdef XMEGA
+	#undef ENABLE_PPM	// Disable PPM for orange module
+#endif
 //Multiprotocol module configuration file
 
 //Global constants/variables
@@ -169,6 +173,13 @@ void setup()
 	for ( uint8_t count = 0 ; count < 20 ; count += 1 )
 	asm("nop") ;
 	PORTE.OUTCLR = 0x01 ;
+	// TCC1 16-bit timer, clocked at 0.5uS
+	EVSYS.CH3MUX = 0x80 + 0x04 ;	// Prescaler of 16
+	TCC1.CTRLB = 0; TCC1.CTRLC = 0; TCC1.CTRLD = 0; TCC1.CTRLE = 0;
+	TCC1.INTCTRLA = 0; TCC1.INTCTRLB = 0;
+	TCC1.PER = 0xFFFF ;
+	TCC1.CNT = 0 ;
+	TCC1.CTRLA = 0x0B ;	// Event3 (prescale of 16)
 	#else	
 	// General pinout
 	#if defined STM32_board	
@@ -198,7 +209,9 @@ void setup()
 	pinMode(S1_pin,INPUT_PULLUP);//dial switch
 	pinMode(S2_pin,INPUT_PULLUP);
 	pinMode(S3_pin,INPUT_PULLUP);
-	pinMode(S4_pin,INPUT_PULLUP);			
+	pinMode(S4_pin,INPUT_PULLUP);
+	//select the counter clock.
+	start_timer2();//0.5us
 	#else
 	DDRD = (1<<CS_pin)|(1<<SDI_pin)|(1<<SCLK_pin)|(1<<CS_pin)|(1<< CC25_CSN_pin);
 	DDRC = (1<<CTRL1)|(1<<CTRL2); //output
@@ -206,6 +219,11 @@ void setup()
 	DDRB  = _BV(0)|_BV(1);
 	PORTB = _BV(2)|_BV(3)|_BV(4)|_BV(5);//pullup 10,11,12 and bind button
 	PORTC = _BV(0);//A0 high pullup
+	#ifdef DEBUG_TX
+	TX_SET_OUTPUT;
+	#endif
+	TCCR1A = 0;
+	TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
 	#endif
 	#endif
 	
@@ -223,25 +241,6 @@ void setup()
 	//	// SPI enable, master, prescale of 16
 	//	SPID.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_PRESCALER0_bm ;
 	//#endif	
-	// Timer1 config
-	#ifdef XMEGA
-	// TCC1 16-bit timer, clocked at 0.5uS
-	EVSYS.CH3MUX = 0x80 + 0x04 ;	// Prescaler of 16
-	TCC1.CTRLB = 0; TCC1.CTRLC = 0; TCC1.CTRLD = 0; TCC1.CTRLE = 0;
-	TCC1.INTCTRLA = 0; TCC1.INTCTRLB = 0;
-	TCC1.PER = 0xFFFF ;
-	TCC1.CNT = 0 ;
-	TCC1.CTRLA = 0x0B ;	// Event3 (prescale of 16)
-	#else
-	#if defined STM32_board//16 bits timer for 0.5 us
-	//select the counter clock.
-	start_timer2();//0.5us
-	#else	
-	TCCR1A = 0;
-	TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
-	#endif
-	#endif
-	
 	// Set servos positions
 	for(uint8_t i=0;i<NUM_CHN;i++)
 	Servo_data[i]=1500;
@@ -260,7 +259,7 @@ void setup()
 
 	// Read status of mode select binary switch
 	// after this mode_select will be one of {0000, 0001, ..., 1111}
-	#ifdef XMEGA
+	#ifndef ENABLE_PPM
 	mode_select = MODE_SERIAL ;
 	#else
 	#if defined STM32_board		
@@ -304,13 +303,13 @@ void setup()
 		
 		protocol_init();
 		
-		#ifndef XMEGA
+	
 		#ifndef STM32_board	
 		//Configure PPM interrupt
 		EICRA |=(1<<ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
 		EIMSK |= (1<<INT1);		// INT1 interrupt enable
 		#endif		
-		#endif
+
 		#ifdef STM32_board
 		attachInterrupt(PPM_pin,PPM_decode,FALLING);
 		#endif

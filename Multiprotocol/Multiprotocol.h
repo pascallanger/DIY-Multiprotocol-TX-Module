@@ -145,7 +145,23 @@ struct PPM_Parameters
 	uint8_t autobind : 1;
 	uint8_t option;
 };
-
+#ifdef XMEGA
+	#define TIFR1 TCC1.INTFLAGS
+	#define OCF1A_bm TC1_CCAIF_bm
+	#define OCR1A TCC1.CCA
+	#define TCNT1 TCC1.CNT
+	#define USARTC0.DATA UDR0
+	#define OCF1B_bm TC1_CCBIF_bm
+	#define OCR1B TCC1.CCB
+	#define TCC1.INTCTRLB TIMSK1
+	#define SET_TIMSK1_OCIE1B	TIMSK1  = (TIMSK1 & 0xF3) | 0x04
+	#define CLR_TIMSK1_OCIE1B	TIMSK1 &= 0xF3
+#else
+	#define OCF1A_bm _BV(OCF1A)
+	#define OCF1B_bm _BV(OCF1B)
+	#define SET_TIMSK1_OCIE1B	TIMSK1 |= _BV(OCIE1B)
+	#define CLR_TIMSK1_OCIE1B	TIMSK1 &=~_BV(OCIE1B)
+#endif
 //*******************
 //***   Pinouts   ***
 //*******************

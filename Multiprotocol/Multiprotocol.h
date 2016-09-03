@@ -31,7 +31,7 @@ enum PROTOCOLS
 	MODE_SERIAL		= 0,	// Serial commands
 	MODE_FLYSKY 	= 1,	// =>A7105
 	MODE_HUBSAN		= 2,	// =>A7105
-	MODE_FRSKY		= 3,	// =>CC2500
+	MODE_FRSKYD		= 3,	// =>CC2500
 	MODE_HISKY		= 4,	// =>NRF24L01
 	MODE_V2X2		= 5,	// =>NRF24L01
 	MODE_DSM2		= 6,	// =>CYRF6936
@@ -53,7 +53,7 @@ enum PROTOCOLS
 	MODE_J6PRO		= 22,	// =>CYRF6936
 	MODE_FQ777		= 23,	// =>NRF24L01
 	MODE_ASSAN		= 24,	// =>NRF24L01
-	MODE_FRSKY1		= 25	// =>CC2500
+	MODE_FRSKYV		= 25	// =>CC2500
 };
 
 enum Flysky

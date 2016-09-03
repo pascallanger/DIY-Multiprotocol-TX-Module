@@ -20,7 +20,7 @@
 //#define XMEGA
 /*******************/
 #ifdef STM32_board
-//#undef __cplusplus
+#undef __cplusplus
 #include "Multiprotocol_STM32.h"
 #include <EEPROM.h>
 #include <libmaple/usart.h>
@@ -59,8 +59,8 @@
 	#define J6PRO_CYRF6936_INO
 #endif
 #ifdef	CC2500_INSTALLED
-	#define	FRSKY_CC2500_INO
-	#define	FRSKY1_CC2500_INO
+	#define	FRSKYD_CC2500_INO
+	#define	FRSKYV_CC2500_INO
 	#define	FRSKYX_CC2500_INO
 	#define SFHSS_CC2500_INO
 #endif
@@ -97,7 +97,7 @@
 	#if defined FRSKYX_CC2500_INO
 		#define SPORT_TELEMETRY	
 	#endif
-	#if defined FRSKY_CC2500_INO
+	#if defined FRSKYD_CC2500_INO
 		#define HUB_TELEMETRY
 	#endif
 #endif 
@@ -160,7 +160,7 @@ const PPM_Parameters PPM_prot[15]=	{
 //	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	2	*/	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	3	*/	{MODE_FRSKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40	},	// D7 fine tuning
+/*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40	    },	// D7 fine tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// 6 channels @ 11ms

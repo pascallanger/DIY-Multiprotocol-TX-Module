@@ -444,7 +444,7 @@ void Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 	uint8_t protocol=cur_protocol[0]&0x1F;
-	if( (protocol==MODE_FRSKY) || (protocol==MODE_HUBSAN) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM2) )
+	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM2) )
 	TelemetryUpdate();
 	#endif
 }
@@ -583,7 +583,7 @@ static void protocol_init()
 		break;
 		#endif
 		#if defined(FRSKY_CC2500_INO)
-	case MODE_FRSKY:
+	case MODE_FRSKYD:
 		CTRL1_off;	//antenna RF2
 		CTRL2_on;
 		next_callback = initFrSky_2way();
@@ -591,11 +591,11 @@ static void protocol_init()
 		break;
 		#endif
 		#if defined(FRSKY1_CC2500_INO)
-	case MODE_FRSKY1:
+	case MODE_FRSKYV:
 		CTRL1_off;	//antenna RF2
 		CTRL2_on;
-		next_callback = initFRSKY1();
-		remote_callback = ReadFRSKY1;
+		next_callback = initFRSKYV();
+		remote_callback = ReadFRSKYV;
 		break;
 		#endif
 		#if defined(FRSKYX_CC2500_INO)

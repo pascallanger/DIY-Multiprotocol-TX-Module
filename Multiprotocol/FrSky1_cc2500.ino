@@ -15,6 +15,17 @@
 
 #if defined(FRSKY1_CC2500_INO)
 
+#define FRSKY1_BIND_COUNT 200
+
+enum {
+	FRSKY1_DATA1=0,
+	FRSKY1_DATA2,
+	FRSKY1_DATA3,
+	FRSKY1_DATA4,
+	FRSKY1_DATA5
+};
+
+
 #include "iface_cc2500.h"
 const PROGMEM uint8_t FRSKY1_cc2500_conf[][2]={
 	{ CC2500_17_MCSM1, 0x0c },
@@ -103,7 +114,7 @@ static void __attribute__((unused)) FRSKY1_build_bind_packet()
     packet[2] = 0x01;                //Packet type
     packet[3] = rx_tx_addr[3];
     packet[4] = rx_tx_addr[2];
-    packet[5] = ((state - FRSKY_BIND) % 10) * 5;
+    packet[5] = (binding_idx % 10) * 5;
     packet[6] = packet[5] * 5 + 6;
     packet[7] = packet[5] * 5 + 11;
     packet[8] = packet[5] * 5 + 16;
@@ -125,19 +136,23 @@ static uint8_t __attribute__((unused)) FRSKY1_calc_channel()
 
 static void __attribute__((unused)) FRSKY1_build_data_packet()
 {
+	uint8_t idx = 0;			// transmit lower channels
+	
 	packet[0] = 0x0e;
 	packet[1] = rx_tx_addr[3];
 	packet[2] = rx_tx_addr[2];
 	packet[3] = seed & 0xff;
 	packet[4] = seed >> 8;
-	if (state == FRSKY_DATA1 || state == FRSKY_DATA3)
+	if (phase == FRSKY1_DATA1 || phase == FRSKY1_DATA3)
 		packet[5] = 0x0f;
 	else
-		if(state == FRSKY_DATA2 || state == FRSKY_DATA4)
+		if(phase == FRSKY1_DATA2 || phase == FRSKY1_DATA4)
+		{
 			packet[5] = 0xf0;
+			idx=4;				// transmit upper channels
+		}
 		else
 			packet[5] = 0x00;
-	uint8_t idx = 0; //= (state == FRSKY_DATA1) ? 4 : 0;
 	for(uint8_t i = 0; i < 4; i++)
 	{
 		uint16_t value = convert_channel_frsky(i+idx);
@@ -149,22 +164,8 @@ static void __attribute__((unused)) FRSKY1_build_data_packet()
 
 uint16_t ReadFRSKY1()
 {
-	if (state < FRSKY_BIND_DONE)
-	{
-		FRSKY1_build_bind_packet();
-		CC2500_Strobe(CC2500_SIDLE);
-		CC2500_WriteReg(CC2500_0A_CHANNR, 0x00);
-		CC2500_WriteData(packet, packet[0]+1);
-		state++;
-		return 53460;
-	}
-	if (state == FRSKY_BIND_DONE)
-	{
-		state++;
-		BIND_DONE;
-	}
-	if (state >= FRSKY_DATA1)
-	{
+	if(IS_BIND_DONE_on)
+	{	// Normal operation
 		uint8_t chan = FRSKY1_calc_channel();
 		CC2500_Strobe(CC2500_SIDLE);
 		if (option != prev_option)
@@ -175,29 +176,38 @@ uint16_t ReadFRSKY1()
 		CC2500_WriteReg(CC2500_0A_CHANNR, chan * 5 + 6);
 		FRSKY1_build_data_packet();
 
-		if (state == FRSKY_DATA5)
+		if (phase == FRSKY1_DATA5)
 		{
 			CC2500_SetPower();
-			state = FRSKY_DATA1;
+			phase = FRSKY1_DATA1;
 		}
 		else
-			state++;
+			phase++;
 
 		CC2500_WriteData(packet, packet[0]+1);
 		return 9006;
 	}
-	return 0;
+	// Bind mode
+	FRSKY1_build_bind_packet();
+	CC2500_Strobe(CC2500_SIDLE);
+	CC2500_WriteReg(CC2500_0A_CHANNR, 0x00);
+	CC2500_WriteData(packet, packet[0]+1);
+	binding_idx++;
+	if(binding_idx>=FRSKY1_BIND_COUNT)
+		BIND_DONE;
+	return 53460;
 }
 
 uint16_t initFRSKY1()
 {
-	crc8 = FRSKY1_crc8_le(0x6b, rx_tx_addr+2, 2); // Use rx_tx_addr[2] and rx_tx_addr[3] since we want to use RX_Num
+	//ID is 15 bits. Using rx_tx_addr[2] and rx_tx_addr[3] since we want to use RX_Num for model match
+	rx_tx_addr[2]&=0x7F;
+	crc8 = FRSKY1_crc8_le(0x6b, rx_tx_addr+2, 2);
+
 	FRSKY1_init();
 	seed = 1;
-	if(IS_AUTOBIND_FLAG_on)
-		state = FRSKY_BIND;
-	else
-		state = FRSKY_DATA1;
+	binding_idx=0;
+	phase = FRSKY1_DATA1;
 	return 10000;
 }
 

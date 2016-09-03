@@ -41,6 +41,11 @@ enum PROTOCOLS
 	MODE_SHENQI=19,			// =>NRF24L01
 	MODE_FY326=20,			// =>NRF24L01
 	MODE_SFHSS=21			// =>CC2500
+	MODE_J6PRO=22,			// =>CYRF6936
+	MODE_FQ777=23,			// =>NRF24L01
+	MODE_ASSAN=24,			// =>NRF24L01
+	MODE_FRSKY1	= 25	    // =>CC2500
+	
 };
 
 enum Flysky
@@ -98,7 +103,8 @@ enum MT99XX
 {
 	MT99	= 0,
 	H7		= 1,
-	YZ		= 2
+	YZ		= 2,
+	LS      = 3
 };
 enum MJXQ
 {
@@ -120,13 +126,30 @@ enum FRSKYX
 #define AUTOBIND	1
 #define NO_AUTOBIND	0
 
-
+struct PPM_Parameters
+{
+	uint8_t protocol : 5;
+	uint8_t sub_proto : 3;
+	uint8_t rx_num : 4;
+	uint8_t power : 1;
+	uint8_t autobind : 1;
+	uint8_t option;
+};
 
 //*******************
 //***   Pinouts   ***
 //*******************
 
 #if defined STM32_board
+#define OCR1A TIMER2_BASE->CCR1
+#define TCNT1 TIMER2_BASE->CNT
+#define TIFR1 TIMER2_BASE->SR
+#define OCF1A_bm TIMER_SR_CC1IF
+#define UDR0 USART2_BASE->DR
+#define UCSR0B USART2_BASE->CR1
+#define RXCIE0 USART_CR1_RXNEIE_BIT
+#define TXCIE0 USART_CR1_TXEIE_BIT
+
 #define digitalHi(p, i)  gpio_write_bit(p, PIN_MAP[i].gpio_bit, HIGH)
 #define digitallo(p, i)  gpio_write_bit(p, PIN_MAP[i].gpio_bit, LOW)
 #define digitalIn(p, i)  gpio_read_bit(p,PIN_MAP[i].gpio_bit)
@@ -172,6 +195,9 @@ enum FRSKYX
 #define  CS_on digitalHi(GPIOB,CS_pin)			
 #define  CS_off digitallo(GPIOB,CS_pin)		
 
+#define NRF_CE_on
+#define NRF_CE_off
+
 #define  SCK_on digitalHi(GPIOB,SCK_pin)			
 #define  SCK_off digitallo(GPIOB,SCK_pin)		
 
@@ -209,6 +235,7 @@ enum FRSKYX
 #define cli() noInterrupts()
 #define sei() interrupts()
 #define _delay_us(x) delayMicroseconds(x)
+#define delayMilliseconds(x) delay(x)
 //
 #endif
 
@@ -256,6 +283,31 @@ enum FRSKYX
 #define BAD_PROTO_off		protocol_flags2 &= ~_BV(0)
 #define BAD_PROTO_on		protocol_flags2 |= _BV(0)
 #define IS_BAD_PROTO_on		( ( protocol_flags2 & _BV(0) ) !=0 )
+
+#define RX_DONOTUPDTAE_off	protocol_flags2 &= ~_BV(1)
+#define RX_DONOTUPDTAE_on	protocol_flags2 |= _BV(1)
+#define IS_RX_DONOTUPDTAE_on	( ( protocol_flags2 & _BV(1) ) !=0 )
+
+#define RX_MISSED_BUFF_off	protocol_flags2 &= ~_BV(2)
+#define RX_MISSED_BUFF_on	protocol_flags2 |= _BV(2)
+#define IS_RX_MISSED_BUFF_on	( ( protocol_flags2 & _BV(2) ) !=0 )
+
+#define TX_MAIN_PAUSE_off		protocol_flags2 &= ~_BV(3)
+#define TX_MAIN_PAUSE_on			protocol_flags2 |= _BV(3)
+#define IS_TX_MAIN_PAUSE_on		( ( protocol_flags2 & _BV(3) ) !=0 )
+
+#define TX_RX_PAUSE_off		protocol_flags2 &= ~_BV(4)
+#define TX_RX_PAUSE_on			protocol_flags2 |= _BV(4)
+#define IS_TX_RX_PAUSE_on		( ( protocol_flags2 & _BV(4) ) !=0 )
+
+#define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
+
+
+#define IS_BIND_BUTTON_on	(digitalRead(BIND_pin)==0x00)
+
+#define BIND_SET_INPUT		    pinMode(BIND_pin,INPUT)
+#define BIND_SET_PULLUP	        digitalHi(GPIOA,BIND_pin)
+#define BIND_SET_OUTPUT	        pinMode(BIND_pin,OUTPUT)
 
 #define BLINK_BIND_TIME	100
 #define BLINK_SERIAL_TIME	500
@@ -364,7 +416,7 @@ enum CYRF_POWER
 #define CYRF_HIGH_POWER		CYRF_POWER_7
 #define	CYRF_LOW_POWER		CYRF_POWER_3
 #define	CYRF_RANGE_POWER	CYRF_POWER_1	// 1/30 of the full power distance
-#define	CYRF_BIND_POWER		CYRF_POWER_0
+#define	CYRF_BIND_POWER		CYRF_POWER_1
 
 enum TXRX_State {
 	TXRX_OFF,
@@ -379,10 +431,9 @@ enum {
 	PKT_TIMEOUT
 };
 
-//*******************
-//***  CRC Table  ***
-//*******************
-
+// baudrate defines for serial
+#define SPEED_100K	0
+#define SPEED_9600	1
 
 
 //****************************************

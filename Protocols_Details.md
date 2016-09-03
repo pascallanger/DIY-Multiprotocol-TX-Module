@@ -50,7 +50,18 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ***
 #CC2500 RF Module
 
-##FRSKY
+##FRSKYV = FrSky 1 way
+Models: FrSky receivers V8R4, V8R7 and V8FR.
+
+Extended limits supported
+
+Option=fine frequency tuning. This value is different for each board. To determine the option value, find the two limits where the RX loses connection then set the option value to half way between them. If you have a 4in1 V2 board the value is around 40.
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+CH1|CH2|CH3|CH4
+
+##FRSKYD
 Models: FrSky receivers D4R and D8R. DIY RX-F801 and RX-F802 receivers.
 
 Extended limits supported
@@ -62,17 +73,6 @@ Option=fine frequency tuning. This value is different for each board. To determi
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
-
-##FRSKY1 = FrSky 1 way
-Models: FrSky receivers V8R4, V8R7 and V8FR.
-
-Extended limits supported
-
-Option=fine frequency tuning. This value is different for each board. To determine the option value, find the two limits where the RX loses connection then set the option value to half way between them. If you have a 4in1 V2 board the value is around 40.
-
-CH1|CH2|CH3|CH4
----|---|---|---
-CH1|CH2|CH3|CH4
 
 ##FRSKYX
 Models: FrSky receivers X4R, X6R and X8R.

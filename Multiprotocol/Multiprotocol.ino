@@ -336,8 +336,7 @@ void loop()
 		#if defined STM32_board
 		if((TIMER2_BASE->SR & TIMER_SR_CC1IF)!=0){
 			cli();
-			OCR1A = TIMER2_BASE->CNT;
-			TIMER2_BASE->CCR1=OCR1A; 
+			OCR1A = TCNT1;
 			sei();
 		}
 		else

@@ -108,7 +108,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 void frsky_link_frame()
 {
 	frame[0] = 0xFE;
-	if ((cur_protocol[0]&0x1F)==MODE_FRSKY)
+	if ((cur_protocol[0]&0x1F)==MODE_FRSKYD)
 	{		
 		compute_RSSIdbm();				
 		frame[1] = pktt[3];
@@ -465,7 +465,7 @@ void TelemetryUpdate()
 		return;
 	}
 	#if defined HUB_TELEMETRY
-	if(!telemetry_link && (cur_protocol[0]&0x1F) == MODE_FRSKY)
+	if(!telemetry_link && (cur_protocol[0]&0x1F) == MODE_FRSKYD)
 	{	// FrSky
 		frsky_user_frame();
 		return;

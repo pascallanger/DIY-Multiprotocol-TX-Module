@@ -31,7 +31,7 @@ enum PROTOCOLS
 	MODE_SERIAL		= 0,	// Serial commands
 	MODE_FLYSKY 	= 1,	// =>A7105
 	MODE_HUBSAN		= 2,	// =>A7105
-	MODE_FRSKY		= 3,	// =>CC2500
+	MODE_FRSKYD		= 3,	// =>CC2500
 	MODE_HISKY		= 4,	// =>NRF24L01
 	MODE_V2X2		= 5,	// =>NRF24L01
 	MODE_DSM		= 6,	// =>CYRF6936
@@ -53,7 +53,7 @@ enum PROTOCOLS
 	MODE_J6PRO		= 22,	// =>CYRF6936
 	MODE_FQ777		= 23,	// =>NRF24L01
 	MODE_ASSAN		= 24,	// =>NRF24L01
-	MODE_FRSKY1		= 25	// =>CC2500
+	MODE_FRSKYV		= 25	// =>CC2500
 };
 
 enum Flysky
@@ -516,7 +516,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    =>	Reserved	0
 					Flysky		1
 					Hubsan		2
-					Frsky		3
+					FrskyD		3
 					Hisky		4
 					V2x2		5
 					DSM			6
@@ -538,7 +538,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					J6PRO		22
 					FQ777		23
 					ASSAN		24
-					FRSKY1		25
+					FrskyV		25
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

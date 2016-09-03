@@ -13,7 +13,7 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(FRSKY_CC2500_INO)
+#if defined(FRSKYD_CC2500_INO)
 
 #include "iface_cc2500.h"
 

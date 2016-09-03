@@ -13,21 +13,21 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(FRSKY1_CC2500_INO)
+#if defined(FRSKYV_CC2500_INO)
 
-#define FRSKY1_BIND_COUNT 200
+#define FRSKYV_BIND_COUNT 200
 
 enum {
-	FRSKY1_DATA1=0,
-	FRSKY1_DATA2,
-	FRSKY1_DATA3,
-	FRSKY1_DATA4,
-	FRSKY1_DATA5
+	FRSKYV_DATA1=0,
+	FRSKYV_DATA2,
+	FRSKYV_DATA3,
+	FRSKYV_DATA4,
+	FRSKYV_DATA5
 };
 
 
 #include "iface_cc2500.h"
-const PROGMEM uint8_t FRSKY1_cc2500_conf[][2]={
+const PROGMEM uint8_t FRSKYV_cc2500_conf[][2]={
 	{ CC2500_17_MCSM1, 0x0c },
 	{ CC2500_18_MCSM0, 0x18 },
 	{ CC2500_06_PKTLEN, 0xff },
@@ -47,12 +47,12 @@ const PROGMEM uint8_t FRSKY1_cc2500_conf[][2]={
 	{ CC2500_15_DEVIATN, 0x41 }
 };
 
-static void __attribute__((unused)) FRSKY1_init()
+static void __attribute__((unused)) FRSKYV_init()
 {
 	for(uint8_t i=0;i<17;i++)
 	{
-		uint8_t reg=pgm_read_byte_near(&FRSKY1_cc2500_conf[i][0]);
-		uint8_t val=pgm_read_byte_near(&FRSKY1_cc2500_conf[i][1]);
+		uint8_t reg=pgm_read_byte_near(&FRSKYV_cc2500_conf[i][0]);
+		uint8_t val=pgm_read_byte_near(&FRSKYV_cc2500_conf[i][1]);
 		if(reg==CC2500_0C_FSCTRL0)
 			val=option;
 		CC2500_WriteReg(reg,val);
@@ -71,7 +71,7 @@ static void __attribute__((unused)) FRSKY1_init()
 	CC2500_Strobe(CC2500_SIDLE);    // Go to idle...
 }
 
-static uint8_t __attribute__((unused)) FRSKY1_crc8(uint8_t result, uint8_t *data, uint8_t len)
+static uint8_t __attribute__((unused)) FRSKYV_crc8(uint8_t result, uint8_t *data, uint8_t len)
 {
 	for(uint8_t i = 0; i < len; i++)
 	{
@@ -85,15 +85,10 @@ static uint8_t __attribute__((unused)) FRSKY1_crc8(uint8_t result, uint8_t *data
 	return result;
 }
 
-static uint8_t __attribute__((unused)) FRSKY1_crc8_le(uint8_t init, uint8_t *data, uint8_t len)
+static uint8_t __attribute__((unused)) FRSKYV_crc8_le(uint8_t *data, uint8_t len)
 {
-	uint8_t result = 0;
+	uint8_t result = 0xD6;
 
-	for(uint8_t i = 0; i < 8; i++)
-	{
-		result = (result << 1) | (init & 0x01);
-		init >>= 1;
-	}
 	for(uint8_t i = 0; i < len; i++)
 	{
 		result = result ^ data[i];
@@ -106,7 +101,7 @@ static uint8_t __attribute__((unused)) FRSKY1_crc8_le(uint8_t init, uint8_t *dat
 	return result;
 }
 
-static void __attribute__((unused)) FRSKY1_build_bind_packet()
+static void __attribute__((unused)) FRSKYV_build_bind_packet()
 {
     //0e 03 01 57 12 00 06 0b 10 15 1a 00 00 00 61
     packet[0] = 0x0e;                //Length
@@ -123,10 +118,10 @@ static void __attribute__((unused)) FRSKY1_build_bind_packet()
     packet[11] = 0x00;
     packet[12] = 0x00;
     packet[13] = 0x00;
-    packet[14] = FRSKY1_crc8(0x93, packet, 14);
+    packet[14] = FRSKYV_crc8(0x93, packet, 14);
 }
 
-static uint8_t __attribute__((unused)) FRSKY1_calc_channel()
+static uint8_t __attribute__((unused)) FRSKYV_calc_channel()
 {
 	uint32_t temp=seed;
 	temp = (temp * 0xaa) % 0x7673;
@@ -134,7 +129,7 @@ static uint8_t __attribute__((unused)) FRSKY1_calc_channel()
 	return (seed & 0xff) % 0x32;
 }
 
-static void __attribute__((unused)) FRSKY1_build_data_packet()
+static void __attribute__((unused)) FRSKYV_build_data_packet()
 {
 	uint8_t idx = 0;			// transmit lower channels
 	
@@ -143,10 +138,10 @@ static void __attribute__((unused)) FRSKY1_build_data_packet()
 	packet[2] = rx_tx_addr[2];
 	packet[3] = seed & 0xff;
 	packet[4] = seed >> 8;
-	if (phase == FRSKY1_DATA1 || phase == FRSKY1_DATA3)
+	if (phase == FRSKYV_DATA1 || phase == FRSKYV_DATA3)
 		packet[5] = 0x0f;
 	else
-		if(phase == FRSKY1_DATA2 || phase == FRSKY1_DATA4)
+		if(phase == FRSKYV_DATA2 || phase == FRSKYV_DATA4)
 		{
 			packet[5] = 0xf0;
 			idx=4;				// transmit upper channels
@@ -159,14 +154,14 @@ static void __attribute__((unused)) FRSKY1_build_data_packet()
 		packet[2*i + 6] = value & 0xff;
 		packet[2*i + 7] = value >> 8;
 	}
-	packet[14] = FRSKY1_crc8(crc8, packet, 14);
+	packet[14] = FRSKYV_crc8(crc8, packet, 14);
 }
 
-uint16_t ReadFRSKY1()
+uint16_t ReadFRSKYV()
 {
 	if(IS_BIND_DONE_on)
 	{	// Normal operation
-		uint8_t chan = FRSKY1_calc_channel();
+		uint8_t chan = FRSKYV_calc_channel();
 		CC2500_Strobe(CC2500_SIDLE);
 		if (option != prev_option)
 		{
@@ -174,12 +169,12 @@ uint16_t ReadFRSKY1()
 			prev_option=option;
 		}
 		CC2500_WriteReg(CC2500_0A_CHANNR, chan * 5 + 6);
-		FRSKY1_build_data_packet();
+		FRSKYV_build_data_packet();
 
-		if (phase == FRSKY1_DATA5)
+		if (phase == FRSKYV_DATA5)
 		{
 			CC2500_SetPower();
-			phase = FRSKY1_DATA1;
+			phase = FRSKYV_DATA1;
 		}
 		else
 			phase++;
@@ -188,26 +183,26 @@ uint16_t ReadFRSKY1()
 		return 9006;
 	}
 	// Bind mode
-	FRSKY1_build_bind_packet();
+	FRSKYV_build_bind_packet();
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_WriteReg(CC2500_0A_CHANNR, 0x00);
 	CC2500_WriteData(packet, packet[0]+1);
 	binding_idx++;
-	if(binding_idx>=FRSKY1_BIND_COUNT)
+	if(binding_idx>=FRSKYV_BIND_COUNT)
 		BIND_DONE;
 	return 53460;
 }
 
-uint16_t initFRSKY1()
+uint16_t initFRSKYV()
 {
 	//ID is 15 bits. Using rx_tx_addr[2] and rx_tx_addr[3] since we want to use RX_Num for model match
 	rx_tx_addr[2]&=0x7F;
-	crc8 = FRSKY1_crc8_le(0x6b, rx_tx_addr+2, 2);
+	crc8 = FRSKYV_crc8_le(rx_tx_addr+2, 2);
 
-	FRSKY1_init();
+	FRSKYV_init();
 	seed = 1;
 	binding_idx=0;
-	phase = FRSKY1_DATA1;
+	phase = FRSKYV_DATA1;
 	return 10000;
 }
 

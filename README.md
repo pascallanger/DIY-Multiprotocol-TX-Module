@@ -67,19 +67,19 @@ Notes:
 
 ###Telemetry
 
-There are 4 protocols supporting telemetry: Hubsan, DSM, FrSky and FrSkyX.
+There are 4 protocols supporting telemetry: Hubsan, DSM, FrSkyD and FrSkyX.
 
 Hubsan displays the battery voltage and TX RSSI.
 
 DSM displays TX RSSI and full telemetry.
 
-FrSky displays full telemetry (A0, A1, RX RSSI, TX RSSI and Hub).
+FrSkyD displays full telemetry (A0, A1, RX RSSI, TX RSSI and Hub).
 
 FrSkyX displays full telemetry (A1, A2, RX RSSI, TX RSSI and Hub).
 
 ### If used in PPM mode
 
-Telemetry is available as a serial 9600 8 n 1 output on the TX pin of the Atmega328p using the FRSky hub format for Hubsan, FrSky, FrSkyX and DSM format for DSM2/X.
+Telemetry is available as a serial 9600 8 n 1 output on the TX pin of the Atmega328p using the FrSky hub format for Hubsan, FrSkyD, FrSkyX and DSM format for DSM2/X.
 
 You can connect it to your TX if it is telemetry enabled or use a bluetooth adapter (HC05/HC06) along with an app on your phone/tablet ([app example](https://play.google.com/store/apps/details?id=biz.onomato.frskydash&hl=fr)) to display telemetry information and setup alerts.
 
@@ -128,7 +128,7 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 0|Select serial||||||
 1|FLYSKY|Flysky|0|High|No|0|A7105
 2|HUBSAN|-|0|High|No|0|A7105
-3|FRSKY|-|0|High|No|-41|CC2500
+3|FRSKYD|-|0|High|No|-41|CC2500
 4|HISKY|Hisky|0|High|No|0|NRF24L01
 5|V2X2|-|0|High|No|0|NRF24L01
 6|DSM|DSM2|0|High|No|6|CYRF6936
@@ -161,8 +161,8 @@ Hubsan|
 #####CC2500 RF module
 Protocol|Sub_protocol
 --------|------------
-FrSky|
-FrSky1|
+FrSkyV|
+FrSkyD|
 FrSkyX|
  |CH_16
  |CH_8
@@ -239,7 +239,7 @@ Note:
 ###RF modules
 Up to 4 RF modules can be installed:
 - [A7105](http://www.banggood.com/XL7105-D03-A7105-Modification-Module-Support-Deviation-Galee-Flysky-p-922603.html)    for Flysky, Hubsan
-- [CC2500](http://www.banggood.com/CC2500-PA-LNA-Romote-Wireless-Module-CC2500-SI4432-NRF24L01-p-922595.html)   for FrSky, FrSky1, FrSkyX and SFHSS
+- [CC2500](http://www.banggood.com/CC2500-PA-LNA-Romote-Wireless-Module-CC2500-SI4432-NRF24L01-p-922595.html)   for FrSkyV, FrSkyD, FrSkyX and SFHSS
 - [CYRF6936](http://www.ehirobo.com/walkera-wk-devo-s-mod-devo-8-or-12-to-devo-8s-or-12s-upgrade-module.html) for DSM, DEVO, J6Pro
 - [NRF24L01](http://www.banggood.com/2_4G-NRF24L01-PA-LNA-Wireless-Module-1632mm-Without-Antenna-p-922601.html) for Hisky, V2x2, CX-10, SYMAX and plenty other protocols
 

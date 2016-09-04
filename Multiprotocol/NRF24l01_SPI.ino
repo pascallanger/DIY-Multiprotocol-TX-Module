@@ -76,6 +76,16 @@ uint8_t NRF24L01_ReadReg(uint8_t reg)
 	NRF_CSN_on;
 }
 */
+
+static uint8_t __attribute__((unused)) NRF24L01_ReadPayloadLength()
+{
+	NRF_CSN_off;
+    SPI_Write(R_RX_PL_WID);
+    uint8_t len = SPI_Read();
+	NRF_CSN_on; 
+    return len;
+}
+
 static void NRF24L01_ReadPayload(uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
@@ -220,6 +230,7 @@ uint8_t NRF24L01_packet_ack()
     }
 	return PKT_PENDING;
 }
+
 
 ///////////////
 // XN297 emulation layer

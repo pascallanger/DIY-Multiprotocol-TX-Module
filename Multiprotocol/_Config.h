@@ -36,7 +36,7 @@
 #define A7105_INSTALLED
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
-#define NFR24L01_INSTALLED
+#define NRF24L01_INSTALLED
 
 //Bellow is the list of all available protocols. Comment the protocols you are not using with "//" to save Flash space.
 #ifdef	A7105_INSTALLED
@@ -54,7 +54,7 @@
 	#define	FRSKYX_CC2500_INO
 	#define SFHSS_CC2500_INO
 #endif
-#ifdef	NFR24L01_INSTALLED
+#ifdef	NRF24L01_INSTALLED
 	#define	BAYANG_NRF24L01_INO
 	#define	CG023_NRF24L01_INO
 	#define	CX10_NRF24L01_INO

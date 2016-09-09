@@ -172,11 +172,34 @@ void setup()
 		TCC1.CTRLA = 0x0B ;	// Event3 (prescale of 16)
 	#else	
 		// General pinout
-		DDRD  = _BV(A7105_CS_pin)|_BV(SDI_pin)|_BV(SCLK_pin)|_BV( CC25_CSN_pin);//pin output
-		DDRC  = _BV(CTRL1_pin)|_BV(CTRL2_pin)|_BV(CYRF_RST_pin);				//pin output
-		DDRB  = _BV(NRF_CSN_pin)|_BV(CYRF_CSN_pin);	//pin output
-		PORTB = _BV(2)|_BV(3)|_BV(4)|_BV(BIND_pin);	//pullup on dial (D10=PB2,D11=PB3,D12=PB4) and bind button
-		PORTC = _BV(0);								//pullup on dial (A0=PC0)
+
+    // outputs
+#ifdef A7105_INSTALLED
+    A7105_CS_ddr |=  _BV(A7105_CS_pin);
+#endif
+    SDI_SET_OUTPUT;
+    SCLK_ddr |= _BV(SCLK_pin);
+#ifdef CC2500_INSTALLED
+    CC25_CSN_ddr |= _BV(CC25_CSN_pin);
+#endif
+    CTRL1_ddr |= _BV(CTRL1_pin);
+    CTRL2_ddr |= _BV(CTRL2_pin);
+#ifdef CYRF6936_INSTALLED
+    CYRF_RST_ddr |= _BV(CYRF_RST_pin);
+    CYRF_CSN_ddr |= _BV(CYRF_CSN_pin);
+#endif
+#ifdef NRF24L01_INSTALLED
+    NRF_CSN_ddr |= _BV(NRF_CSN_pin);
+#endif
+
+    //pullup on dial (D10=PB2,D11=PB3,D12=PB4) and bind button
+    MODE_DIAL1_PORT |= _BV(MODE_DIAL1_PIN);
+    MODE_DIAL2_PORT |= _BV(MODE_DIAL2_PIN);
+    MODE_DIAL3_PORT |= _BV(MODE_DIAL3_PIN);
+    MODE_DIAL4_PORT |= _BV(MODE_DIAL4_PIN);
+    BIND_port |= _BV(BIND_pin);
+
+
 		#ifdef DEBUG_TX
 			TX_SET_OUTPUT;
 		#endif
@@ -188,10 +211,18 @@ void setup()
 	#endif
 
 	// Set Chip selects
+#ifdef A7105_INSTALLED
 	A7105_CS_on;
+#endif
+#ifdef CC2500_INSTALLED
 	CC25_CSN_on;
+#endif
+#ifdef NRF24L01_INSTALLED
 	NRF_CSN_on;
+#endif
+#ifdef CYRF6936_INSTALLED
 	CYRF_CSN_on;
+#endif
 	//	Set SPI lines
 	SDI_on;
 	SCK_off;
@@ -216,7 +247,11 @@ void setup()
 	#ifndef ENABLE_PPM
 		mode_select = MODE_SERIAL ;	// force serial mode
 	#else
-		mode_select=0x0F - ( ( (PINB>>2)&0x07 ) | ( (PINC<<3)&0x08) );//encoder dip switches 1,2,4,8=>B2,B3,B4,C0
+    mode_select = 
+    ((MODE_DIAL1_PORT & MODE_DIAL1_PIN) ? 1 : 0) + 
+    ((MODE_DIAL2_PORT & MODE_DIAL2_PIN) ? 2 : 0) +
+    ((MODE_DIAL3_PORT & MODE_DIAL3_PIN) ? 4 : 0) +
+    ((MODE_DIAL4_PORT & MODE_DIAL4_PIN) ? 8 : 0);
 	#endif
 
 	// Update LED
@@ -254,8 +289,16 @@ void setup()
 		protocol_init();
 
 		//Configure PPM interrupt
-		EICRA |=_BV(ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
+    #if PPM_pin == 2
+    EICRA |= _BV(ISC01);    // The rising edge of INT1 pin D3 generates an interrupt request
+    EIMSK |= _BV(INT0);   // INT1 interrupt enable
+    #elif PPM_pin == 3
+		EICRA |= _BV(ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
 		EIMSK |= _BV(INT1);		// INT1 interrupt enable
+    #else
+    #error PPM pin can only be 2 or 3
+    #endif
+
 
 		#if defined(TELEMETRY)
 			PPM_Telemetry_serial_init();		// Configure serial for telemetry
@@ -1097,9 +1140,17 @@ void init()
 //PPM
 #ifdef ENABLE_PPM
 #ifdef XMEGA
+#if PPM_pin == 2
 ISR(PORTD_INT0_vect)
 #else
+ISR(PORTD_INT1_vect)
+#endif
+#else
+#if PPM_pin == 2
+ISR(INT0_vect, ISR_NOBLOCK)
+#else
 ISR(INT1_vect, ISR_NOBLOCK)
+#endif
 #endif
 {	// Interrupt on PPM pin
 	static int8_t chan=-1;

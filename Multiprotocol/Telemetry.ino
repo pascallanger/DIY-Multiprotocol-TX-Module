@@ -588,11 +588,11 @@ void initTXSerial( uint8_t speed)
 {
 	TIMSK0 = 0 ;	// Stop all timer 0 interrupts
 	#ifdef INVERT_SERIAL
-		PORTD &= ~2 ;
+		TELEMETRY_SERIAL_TX_port &= ~_BV(TELEMETRY_SERIAL_TX_pin);
 	#else
-		PORTD |= 2 ;
+		TELEMETRY_SERIAL_TX_port |= _BV(TELEMETRY_SERIAL_TX_pin);
 	#endif
-	DDRD |= 2 ;	// TxD pin is an output
+	TELEMETRY_SERIAL_TX_ddr |= _BV(TELEMETRY_SERIAL_TX_pin) ;	// TxD pin is an output
 	UCSR0B &= ~(1<<TXEN0) ;
 
 	SerialControl.speed = speed ;
@@ -707,11 +707,11 @@ ISR(TIMER0_COMPA_vect)
 	byte = GPIOR0 ;
 	if ( byte & 0x01 )
 	{
-		PORTD |= 0x02 ;
+		TELEMETRY_SERIAL_TX_port |= _BV(TELEMETRY_SERIAL_TX_pin);
 	}
 	else
 	{
-		PORTD &= ~0x02 ;
+		TELEMETRY_SERIAL_TX_port &= ~_BV(TELEMETRY_SERIAL_TX_pin);
 	}
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	GPIOR0 = byte ;
@@ -732,11 +732,11 @@ ISR(TIMER0_COMPB_vect)
 	byte = GPIOR2 ;
 	if ( byte & 0x01 )
 	{
-		PORTD |= 0x02 ;
+		TELEMETRY_SERIAL_TX_port |= _BV(TELEMETRY_SERIAL_TX_pin);
 	}
 	else
 	{
-		PORTD &= ~0x02 ;
+		TELEMETRY_SERIAL_TX_port &= ~_BV(TELEMETRY_SERIAL_TX_pin);
 	}
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	GPIOR2 = byte ;
@@ -787,11 +787,11 @@ ISR(TIMER0_OVF_vect)
 	}
 	if ( byte & 0x01 )
 	{
-		PORTD |= 0x02 ;
+		TELEMETRY_SERIAL_TX_port |= _BV(TELEMETRY_SERIAL_TX_pin);
 	}
 	else
 	{
-		PORTD &= ~0x02 ;
+		TELEMETRY_SERIAL_TX_port &= ~_BV(TELEMETRY_SERIAL_TX_pin);
 	}
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	if ( GPIOR1 > 2 )

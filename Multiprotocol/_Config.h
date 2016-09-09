@@ -71,6 +71,7 @@
 	#define	FY326_NRF24L01_INO
 	#define	FQ777_NRF24L01_INO
 	#define	ASSAN_NRF24L01_INO
+	#define	HONTAI_NRF24L01_INO
 #endif
 
 
@@ -241,6 +242,10 @@ const PPM_Parameters PPM_prot[15]=	{
 		NONE
 	MODE_FRSKYV
 		NONE
+	MODE_HONTAI
+		FORMAT_HONTAI
+		FORMAT_JJRCX1
+		FORMAT_X5C1
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

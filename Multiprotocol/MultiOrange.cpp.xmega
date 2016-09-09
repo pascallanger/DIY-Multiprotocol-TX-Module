@@ -9,11 +9,10 @@
 
 static void protocol_init(void) ;
 static void update_aux_flags(void) ;
-static void PPM_Telemetry_serial_init(void) ;
+//static void PPM_Telemetry_serial_init(void) ;
 static uint32_t random_id(uint16_t adress, uint8_t create_new) ;
 static void update_serial_data(void) ;
 static void Mprotocol_serial_init(void) ;
-static void module_reset(void) ;
 static void update_led_status(void) ;
 static void set_rx_tx_addr(uint32_t id) ;
 uint16_t limit_channel_100(uint8_t ch) ;
@@ -26,9 +25,6 @@ extern void CC2500_Reset(void ) ;
 extern uint8_t CYRF_Reset(void ) ;
 extern void CYRF_SetTxRxMode(uint8_t mode) ;
 
-extern void frskyUpdate(void) ;
-extern uint16_t initDsm2(void) ;
-extern uint16_t ReadDsm2(void) ;
 extern uint16_t DevoInit(void) ;
 extern uint16_t devo_callback(void) ;
 
@@ -42,6 +38,15 @@ extern void delayMicroseconds(uint16_t x) ;
 extern void init(void) ;
 
 extern int analogRead(uint8_t pin) ;
+
+extern void modules_reset() ;
+extern void Update_All() ;
+extern void tx_pause() ;
+extern void tx_resume() ;
+extern void TelemetryUpdate() ;
+extern uint16_t initDsm() ;
+extern uint16_t ReadDsm() ;
+
 
 #define A6 20
 #define A7 21
@@ -358,10 +363,10 @@ void init()
 #endif
 
 	// PPM interrupt
-	PORTD.DIRCLR = 0x08 ;	// D3 is input
-	PORTD.PIN3CTRL = 0x01 ;	// Rising edge
-	PORTD.INT0MASK = 0x08 ;
-	PORTD.INTCTRL = 0x02 ;	// Medium level interrupt
+//	PORTD.DIRCLR = 0x08 ;	// D3 is input
+//	PORTD.PIN3CTRL = 0x01 ;	// Rising edge
+//	PORTD.INT0MASK = 0x08 ;
+//	PORTD.INTCTRL = 0x02 ;	// Medium level interrupt
 
 // Dip Switch inputs
 	PORTA.DIRCLR = 0xFF ;
@@ -462,7 +467,7 @@ void NRF24L01_Reset()
 #include "Multiprotocol.ino"
 
 #include "cyrf6936_SPI.ino"
-#include "DSM2_cyrf6936.ino"
+#include "DSM_cyrf6936.ino"
 #include "Devo_cyrf6936.ino"
 
 #include "Telemetry.ino"

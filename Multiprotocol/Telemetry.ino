@@ -43,7 +43,7 @@ uint8_t frame[18];
 #if defined DSM_TELEMETRY
 void DSM_frame()
 {
-	Serial_write(0xAA);					// Start
+	Serial_write(0xAA);					// Telemetry packet
 	for (uint8_t i = 0; i < 17; i++)	// RSSI value followed by 16 bytes of telemetry data
 		Serial_write(pkt[i]);
 }
@@ -625,6 +625,12 @@ void Serial_write( uint8_t byte )
 		SerialControl.data[SerialControl.head+1] = byteLo ;
 		SerialControl.head = next ;
 	}
+	if(!IS_TX_PAUSE_on)
+		tx_resume();
+}
+
+void resumeBashSerial()
+{
 	cli() ;
 	if ( SerialControl.busy == 0 )
 	{
@@ -701,22 +707,30 @@ ISR(TIMER0_COMPB_vect)
 	GPIOR2 = byte ;
 	if ( --GPIOR1 == 0 )
 	{
-		// prepare next byte and allow for 2 stop bits
-		struct t_serial_bash *ptr = &SerialControl ;
-		if ( ptr->head != ptr->tail )
-		{
-			GPIOR0 = ptr->data[ptr->tail] ;
-			GPIOR2 = ptr->data[ptr->tail+1] ;
-			ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
-			GPIOR1 = 8 ;
-			OCR0A = OCR0B + 40 ;
-			OCR0B = OCR0A + 8 * 20 ;
-			TIMSK0 |= (1<<OCIE0A) ;
-		}
-		else
+		if ( IS_TX_PAUSE_on )
 		{
 			SerialControl.busy = 0 ;
 			TIMSK0 &= ~(1<<OCIE0B) ;
+		}
+		else
+		{
+			// prepare next byte and allow for 2 stop bits
+			struct t_serial_bash *ptr = &SerialControl ;
+			if ( ptr->head != ptr->tail )
+			{
+				GPIOR0 = ptr->data[ptr->tail] ;
+				GPIOR2 = ptr->data[ptr->tail+1] ;
+				ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
+				GPIOR1 = 8 ;
+				OCR0A = OCR0B + 40 ;
+				OCR0B = OCR0A + 8 * 20 ;
+				TIMSK0 |= (1<<OCIE0A) ;
+			}
+			else
+			{
+				SerialControl.busy = 0 ;
+				TIMSK0 &= ~(1<<OCIE0B) ;
+			}
 		}
 	}
 	else

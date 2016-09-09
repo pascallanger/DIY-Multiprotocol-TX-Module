@@ -53,7 +53,8 @@ enum PROTOCOLS
 	MODE_J6PRO		= 22,	// =>CYRF6936
 	MODE_FQ777		= 23,	// =>NRF24L01
 	MODE_ASSAN		= 24,	// =>NRF24L01
-	MODE_FRSKYV		= 25	// =>CC2500
+	MODE_FRSKYV		= 25,	// =>CC2500
+	MODE_HONTAI		= 26	// =>NRF24L01
 };
 
 enum Flysky
@@ -123,11 +124,16 @@ enum MJXQ
 	H26D	= 3,
 	E010	= 4
 };
-
 enum FRSKYX
 {
 	CH_16	= 0,
 	CH_8	= 1,
+};
+enum HONTAI
+{
+	FORMAT_HONTAI	= 0,
+	FORMAT_JJRCX1	= 1,
+	FORMAT_X5C1		= 2
 };
 
 #define NONE 		0
@@ -154,10 +160,10 @@ struct PPM_Parameters
 	#define OCF1A_bm TC1_CCAIF_bm
 	#define OCR1A TCC1.CCA
 	#define TCNT1 TCC1.CNT
-	#define USARTC0.DATA UDR0
+	#define UDR0 USARTC0.DATA
 	#define OCF1B_bm TC1_CCBIF_bm
 	#define OCR1B TCC1.CCB
-	#define TCC1.INTCTRLB TIMSK1
+	#define TIMSK1 TCC1.INTCTRLB
 	#define SET_TIMSK1_OCIE1B	TIMSK1  = (TIMSK1 & 0xF3) | 0x04
 	#define CLR_TIMSK1_OCIE1B	TIMSK1 &= 0xF3
 #else
@@ -539,6 +545,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					FQ777		23
 					ASSAN		24
 					FrskyV		25
+					HONTAI		26
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -595,6 +602,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1
+		sub_protocol==HONTAI
+			FORMAT_HONTAI	0
+			FORMAT_JJRCX1	1
+			FORMAT_X5C1		2
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127

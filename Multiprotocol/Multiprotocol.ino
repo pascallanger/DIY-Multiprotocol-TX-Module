@@ -30,7 +30,10 @@
 #include "TX_Def.h"
 
 #ifdef XMEGA
-	#undef ENABLE_PPM	// Disable PPM for orange module
+	#undef ENABLE_PPM			// Disable PPM for orange module
+	#undef A7105_INSTALLED		// Disable A7105 for orange module
+	#undef CC2500_INSTALLED		// Disable CC2500 for orange module
+	#undef NFR24L01_INSTALLED	// Disable NRF for orange module
 #endif
 
 //Global constants/variables
@@ -285,30 +288,28 @@ void loop()
 			while((TIFR1 & OCF1A_bm) == 0); // Wait before callback
 		do
 		{
-			TX_ON;
 			TX_MAIN_PAUSE_on;
 			tx_pause();
 			next_callback=remote_callback();
 			TX_MAIN_PAUSE_off;
 			tx_resume();
-			TX_OFF;
 			while(next_callback>4000)
 			{ // start to wait here as much as we can...
 				next_callback-=2000;				// We will wait below for 2ms
 				cli();								// Disable global int due to RW of 16 bits registers
 				OCR1A += 2000*2 ;					// set compare A for callback
-				TIFR1=OCF1A_bm;					// clear compare A=callback flag
+				TIFR1=OCF1A_bm;						// clear compare A=callback flag
 				sei();								// enable global int
 				Update_All();
 				if(IS_CHANGE_PROTOCOL_FLAG_on)
 					break; // Protocol has been changed
-				while((TIFR1 & OCF1A_bm) == 0);	// wait 2ms...
+				while((TIFR1 & OCF1A_bm) == 0);		// wait 2ms...
 			}
 			// at this point we have a maximum of 4ms in next_callback
 			next_callback *= 2 ;
 			cli();									// Disable global int due to RW of 16 bits registers
 			OCR1A+= next_callback ;					// set compare A for callback
-			TIFR1=OCF1A_bm;						// clear compare A=callback flag
+			TIFR1=OCF1A_bm;							// clear compare A=callback flag
 			diff=OCR1A-TCNT1;						// compare timer and comparator
 			sei();									// enable global int
 		}
@@ -413,6 +414,8 @@ inline void tx_resume()
 			#else
 				#ifndef BASH_SERIAL
 					UCSR0B |= _BV(UDRIE0);			// Resume telemetry by enabling transmitter interrupt
+				#else
+					resumeBashSerial() ;
 				#endif
 			#endif
 		}
@@ -629,6 +632,12 @@ static void protocol_init()
 			case MODE_ASSAN:
 				next_callback=initASSAN();
 				remote_callback = ASSAN_callback;
+				break;
+		#endif
+		#if defined(HONTAI_NRF24L01_INO)
+			case MODE_HONTAI:
+				next_callback=initHONTAI();
+				remote_callback = HONTAI_callback;
 				break;
 		#endif
 	}
@@ -875,21 +884,33 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 /********************/
 /**  SPI routines  **/
 /********************/
+#ifdef XMEGA
+	#define XNOP() NOP()
+#else
+	#define XNOP()
+#endif
+
 void SPI_Write(uint8_t command)
 {
 	uint8_t n=8; 
 
 	SCK_off;//SCK start low
+	XNOP();
 	SDI_off;
+	XNOP();
 	do
 	{
 		if(command&0x80)
 			SDI_on;
 		else
 			SDI_off;
+		XNOP();
 		SCK_on;
+		XNOP();
+		XNOP();
 		command = command << 1;
 		SCK_off;
+		XNOP();
 	}
 	while(--n) ;
 	SDI_on;
@@ -904,8 +925,12 @@ uint8_t SPI_Read(void)
 		if(SDO_1)
 			result |= 0x01;
 		SCK_on;
+		XNOP();
+		XNOP();
 		NOP();
 		SCK_off;
+		XNOP();
+		XNOP();
 	}
 	return result;
 }

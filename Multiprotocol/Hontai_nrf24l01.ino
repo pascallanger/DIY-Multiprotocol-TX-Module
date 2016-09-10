@@ -102,9 +102,13 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 		packet[2] = 0x00;
 		packet[3] = (convert_channel_8b_scale(THROTTLE, 0, 127) << 1)	// Throttle
 					| GET_FLAG(Servo_AUX3, 0x01);						// Picture
-		packet[4] = convert_channel_8b_scale(CHANNEL1, 63, 0);			// Aileron
-		if(sub_protocol == FORMAT_JJRCX1)
+		packet[4] = convert_channel_8b_scale(AILERON, 63, 0);			// Aileron
+		if(sub_protocol == FORMAT_JJRCX1 || sub_protocol == FORMAT_X5C1)
+		{
 			packet[4] |= 0x80;											// not sure what this bit does
+      if (sub_protocol == FORMAT_X5C1)
+        packet[4] |= GET_FLAG(Servo_AUX1, 0x40);  ///Lights (X5C1)
+		}
 		else
 		{
 			packet[4] |= GET_FLAG(Servo_AUX6, 0x80)						// RTH
@@ -112,11 +116,14 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 		}
 		packet[5] = convert_channel_8b_scale(ELEVATOR, 0, 63)			// Elevator
 				| GET_FLAG(Servo_AUX7, 0x80)							// Calibrate
-				| GET_FLAG(Servo_AUX1, 0x40);							// Flip
+				| GET_FLAG(Servo_AUX2, 0x40);							// Flip
 		packet[6] = convert_channel_8b_scale(RUDDER, 0, 63)				// Rudder
 				| GET_FLAG(Servo_AUX4, 0x80);							// Video
-		packet[7] = convert_channel_8b_scale(AILERON, 0, 32)-16;		// Aileron trim
-		if(sub_protocol == FORMAT_JJRCX1)
+		if(sub_protocol == FORMAT_X5C1)
+			packet[7] = 0; 												// Aileron trim
+		else
+			packet[7] = convert_channel_8b_scale(AILERON, 0, 32)-16;		// Aileron trim
+		if(sub_protocol == FORMAT_JJRCX1 || sub_protocol == FORMAT_X5C1)
 		{
 			packet[8] = 0xc0											// Always in expert mode
 					| GET_FLAG(Servo_AUX6, 0x02)						// RTH
@@ -124,7 +131,11 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 		}
 		else
 			packet[8] = convert_channel_8b_scale(RUDDER, 0, 32)-16;		// Rudder trim
-		packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 32)-16;		// Elevator trim
+		if (sub_protocol == FORMAT_X5C1)
+			packet[9] = 0; 												// Elevator trim
+		else
+			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 32)-16;		// Elevator trim
+
 		packet_size=HONTAI_PACKET_SIZE;
 	}
 	crc16(packet, packet_size);

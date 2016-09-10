@@ -25,29 +25,6 @@
 #define HONTAI_PACKET_SIZE        12
 #define HONTAI_RF_BIND_CHANNEL    0
 
-// For code readability
-enum {
-    CHANNEL1 = 0, // Aileron
-    CHANNEL2,     // Elevator
-    CHANNEL3,     // Throttle
-    CHANNEL4,     // Rudder
-    CHANNEL5,     // Leds
-    CHANNEL6,     // Flip
-    CHANNEL7,     // Still camera
-    CHANNEL8,     // Video camera
-    CHANNEL9,     // Headless
-    CHANNEL10,    // Return To Home
-    CHANNEL11,    // Calibrate
-};
-#define CHANNEL_LED         CHANNEL5
-#define CHANNEL_ARM         CHANNEL5    // for JJRC X1
-#define CHANNEL_FLIP        CHANNEL6
-#define CHANNEL_PICTURE     CHANNEL7
-#define CHANNEL_VIDEO       CHANNEL8
-#define CHANNEL_HEADLESS    CHANNEL9
-#define CHANNEL_RTH         CHANNEL10
-#define CHANNEL_CALIBRATE   CHANNEL11
-
 enum{
     HONTAI_FLAG_FLIP      = 0x01, 
     HONTAI_FLAG_PICTURE   = 0x02, 
@@ -94,7 +71,7 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 	else
 	{
 		if(sub_protocol == FORMAT_JJRCX1)
-			packet[0] = GET_FLAG(CHANNEL_ARM, 0x02);
+			packet[0] = GET_FLAG(Servo_AUX2, 0x02);						// Arm
 		else
 			packet[0] = 0x0b;
 
@@ -103,34 +80,34 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 		packet[3] = (convert_channel_8b_scale(THROTTLE, 0, 127) << 1)	// Throttle
 					| GET_FLAG(Servo_AUX3, 0x01);						// Picture
 		packet[4] = convert_channel_8b_scale(AILERON, 63, 0);			// Aileron
-		if(sub_protocol == FORMAT_JJRCX1 || sub_protocol == FORMAT_X5C1)
-		{
-			packet[4] |= 0x80;											// not sure what this bit does
-      if (sub_protocol == FORMAT_X5C1)
-        packet[4] |= GET_FLAG(Servo_AUX1, 0x40);  ///Lights (X5C1)
-		}
-		else
+		if(sub_protocol == FORMAT_HONTAI)
 		{
 			packet[4] |= GET_FLAG(Servo_AUX6, 0x80)						// RTH
 					| GET_FLAG(Servo_AUX5, 0x40);						// Headless
 		}
+		else
+		{
+			packet[4] |= 0x80;											// not sure what this bit does
+			if (sub_protocol == FORMAT_X5C1)
+				packet[4] |= GET_FLAG(Servo_AUX2, 0x40);				// Lights (X5C1)
+		}
 		packet[5] = convert_channel_8b_scale(ELEVATOR, 0, 63)			// Elevator
 				| GET_FLAG(Servo_AUX7, 0x80)							// Calibrate
-				| GET_FLAG(Servo_AUX2, 0x40);							// Flip
+				| GET_FLAG(Servo_AUX1, 0x40);							// Flip
 		packet[6] = convert_channel_8b_scale(RUDDER, 0, 63)				// Rudder
 				| GET_FLAG(Servo_AUX4, 0x80);							// Video
 		if(sub_protocol == FORMAT_X5C1)
 			packet[7] = 0; 												// Aileron trim
 		else
-			packet[7] = convert_channel_8b_scale(AILERON, 0, 32)-16;		// Aileron trim
-		if(sub_protocol == FORMAT_JJRCX1 || sub_protocol == FORMAT_X5C1)
+			packet[7] = convert_channel_8b_scale(AILERON, 0, 32)-16;	// Aileron trim
+		if(sub_protocol == FORMAT_HONTAI)
+			packet[8] = convert_channel_8b_scale(RUDDER, 0, 32)-16;		// Rudder trim
+		else
 		{
 			packet[8] = 0xc0											// Always in expert mode
 					| GET_FLAG(Servo_AUX6, 0x02)						// RTH
 					| GET_FLAG(Servo_AUX5, 0x01);						// Headless
 		}
-		else
-			packet[8] = convert_channel_8b_scale(RUDDER, 0, 32)-16;		// Rudder trim
 		if (sub_protocol == FORMAT_X5C1)
 			packet[9] = 0; 												// Elevator trim
 		else

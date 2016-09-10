@@ -341,7 +341,7 @@ CH6|
 ---|
 ARM|
 
-###Sub_protocol X5C1
+###Sub_protocol X5C1 clone
 
 ##MJXQ
 Autobind protocol

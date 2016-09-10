@@ -329,6 +329,8 @@ Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO:
 Same channels assignement as above.
 
 ##HONTAI
+Autobind protocol
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|CAL

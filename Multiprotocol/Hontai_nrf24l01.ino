@@ -238,6 +238,7 @@ uint16_t HONTAI_callback()
 
 uint16_t initHONTAI()
 {
+	BIND_IN_PROGRESS;	// autobind protocol
 	bind_counter = HONTAI_BIND_COUNT;
 	HONTAI_initialize_txid();
 	HONTAI_init();

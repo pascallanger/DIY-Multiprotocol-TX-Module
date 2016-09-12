@@ -303,10 +303,7 @@ uint16_t ReadFrSkyX()
 uint16_t initFrSkyX()
 {
 	while(!chanskip)
-	{
-		randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
 		chanskip=random(0xfefefefe)%47;
-	}
 	while((chanskip-ctr)%4)
 		ctr=(ctr+1)%4;
 	

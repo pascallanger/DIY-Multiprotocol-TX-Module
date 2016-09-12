@@ -95,10 +95,15 @@ uint8_t protocol_flags=0,protocol_flags2=0;
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
 
+//Random variable
+volatile uint32_t gWDT_entropy=0;
+
 // Serial variables
 #ifdef INVERT_TELEMETRY
 // enable bit bash for serial
-	#define	BASH_SERIAL 1
+	#ifndef XMEGA
+		#define	BASH_SERIAL 1
+	#endif
 	#define	INVERT_SERIAL 1
 #endif
 #define BAUD 100000
@@ -179,6 +184,7 @@ void setup()
 		TCCR1A = 0;
 		TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
 	#endif
+	random_init();
 
 	// Set Chip selects
 	A7105_CS_on;
@@ -216,11 +222,14 @@ void setup()
 	LED_OFF;
 	LED_SET_OUTPUT; 
 
-	// Read or create protocol id
-	MProtocol_id_master=random_id(10,false);
-
 	//Init RF modules
 	modules_reset();
+
+	//Init the seed with a random value created from watchdog timer for all protocols requiring random values
+	randomSeed(random_value());
+
+	// Read or create protocol id
+	MProtocol_id_master=random_id(10,false);
 	
 #ifdef ENABLE_PPM
 	//Protocol and interrupts initialization
@@ -856,28 +865,41 @@ static void set_rx_tx_addr(uint32_t id)
 	rx_tx_addr[4] = 0xC1;	// for YD717: always uses first data port
 }
 
+static void random_init(void)
+{
+	cli();					// Temporarily turn off interrupts, until WDT configured
+	MCUSR = 0;				// Use the MCU status register to reset flags for WDR, BOR, EXTR, and POWR
+	WDTCSR |= _BV(WDCE);	// WDT control register, This sets the Watchdog Change Enable (WDCE) flag, which is  needed to set the prescaler
+	WDTCSR = _BV(WDIE);		// Watchdog interrupt enable (WDIE)
+	sei();					// Turn interupts on
+}
+
+static uint32_t random_value(void)
+{
+	while (!gWDT_entropy);
+	return gWDT_entropy;
+}
+
 static uint32_t random_id(uint16_t adress, uint8_t create_new)
 {
 	uint32_t id;
 	uint8_t txid[4];
 
-	if (eeprom_read_byte((uint8_t*)(adress+10))==0xf0 && !create_new)
+	if(eeprom_read_byte((uint8_t*)(adress+10))==0xf0 && !create_new)
 	{  // TXID exists in EEPROM
 		eeprom_read_block((void*)txid,(const void*)adress,4);
 		id=(txid[0] | ((uint32_t)txid[1]<<8) | ((uint32_t)txid[2]<<16) | ((uint32_t)txid[3]<<24));
+		if(id!=0x2AD141A7)	//ID with seed=0
+			return id;
 	}
-	else
-	{ // if not generate a random ID
-		randomSeed((uint32_t)analogRead(A6)<<10|analogRead(A7));//seed
-		//
-		id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
-		txid[0]=  (id &0xFF);
-		txid[1] = ((id >> 8) & 0xFF);
-		txid[2] = ((id >> 16) & 0xFF);
-		txid[3] = ((id >> 24) & 0xFF);
-		eeprom_write_block((const void*)txid,(void*)adress,4);
-		eeprom_write_byte((uint8_t*)(adress+10),0xf0);//write bind flag in eeprom.
-	}
+	// Generate a random ID
+	id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
+	txid[0]=  (id &0xFF);
+	txid[1] = ((id >> 8) & 0xFF);
+	txid[2] = ((id >> 16) & 0xFF);
+	txid[3] = ((id >> 24) & 0xFF);
+	eeprom_write_block((const void*)txid,(void*)adress,4);
+	eeprom_write_byte((uint8_t*)(adress+10),0xf0);//write bind flag in eeprom.
 	return id;
 }
 
@@ -1157,3 +1179,28 @@ ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
 	tx_resume();
 }
 #endif //ENABLE_SERIAL
+
+// Random interrupt service routine called every time the WDT interrupt is triggered.
+// It is only enabled at startup to generate a seed.
+ISR(WDT_vect)
+{
+	static uint8_t gWDT_buffer_position=0;
+	#define gWDT_buffer_SIZE 32
+	static uint8_t gWDT_buffer[gWDT_buffer_SIZE];
+	gWDT_buffer[gWDT_buffer_position] = TCNT1L; // Record the Timer 1 low byte (only one needed) 
+	gWDT_buffer_position++;                     // every time the WDT interrupt is triggered
+	if (gWDT_buffer_position >= gWDT_buffer_SIZE)
+	{
+		// The following code is an implementation of Jenkin's one at a time hash
+		for(uint8_t gWDT_loop_counter = 0; gWDT_loop_counter < gWDT_buffer_SIZE; ++gWDT_loop_counter)
+		{
+			gWDT_entropy += gWDT_buffer[gWDT_loop_counter];
+			gWDT_entropy += (gWDT_entropy << 10);
+			gWDT_entropy ^= (gWDT_entropy >> 6);
+		}
+		gWDT_entropy += (gWDT_entropy << 3);
+		gWDT_entropy ^= (gWDT_entropy >> 11);
+		gWDT_entropy += (gWDT_entropy << 15);
+		WDTCSR = 0;	// Disable Watchdog interrupt
+	}
+}

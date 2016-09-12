@@ -156,7 +156,6 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	// Alternate frequency has some random
 	do
 	{
-		randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
 		freq2=random(0xfefefefe)%9;
 		freq2+=freq*2-5;
 	}

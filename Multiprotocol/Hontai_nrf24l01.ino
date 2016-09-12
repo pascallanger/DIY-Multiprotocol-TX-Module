@@ -97,7 +97,7 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 		packet[6] = convert_channel_8b_scale(RUDDER, 0, 63)				// Rudder
 				| GET_FLAG(Servo_AUX4, 0x80);							// Video
 		if(sub_protocol == FORMAT_X5C1)
-			packet[7] = 0; 												// Aileron trim
+			packet[7] = convert_channel_8b_scale(AILERON, 0, 63)-31;	// Aileron trim
 		else
 			packet[7] = convert_channel_8b_scale(AILERON, 0, 32)-16;	// Aileron trim
 		if(sub_protocol == FORMAT_HONTAI)
@@ -109,9 +109,9 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 					| GET_FLAG(Servo_AUX5, 0x01);						// Headless
 		}
 		if (sub_protocol == FORMAT_X5C1)
-			packet[9] = 0; 												// Elevator trim
+			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 63)-31;	// Elevator trim
 		else
-			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 32)-16;		// Elevator trim
+			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 32)-16;	// Elevator trim
 
 		packet_size=HONTAI_PACKET_SIZE;
 	}

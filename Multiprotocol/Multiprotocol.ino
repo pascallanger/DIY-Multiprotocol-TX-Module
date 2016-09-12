@@ -95,9 +95,10 @@ uint8_t protocol_flags=0,protocol_flags2=0;
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
 
+#ifndef XMEGA
 //Random variable
 volatile uint32_t gWDT_entropy=0;
-
+#endif
 // Serial variables
 #ifdef INVERT_TELEMETRY
 // enable bit bash for serial
@@ -183,8 +184,8 @@ void setup()
 		// Timer1 config
 		TCCR1A = 0;
 		TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
+		random_init();
 	#endif
-	random_init();
 
 	// Set Chip selects
 	A7105_CS_on;
@@ -225,8 +226,10 @@ void setup()
 	//Init RF modules
 	modules_reset();
 
+#ifndef XMEGA
 	//Init the seed with a random value created from watchdog timer for all protocols requiring random values
 	randomSeed(random_value());
+#endif
 
 	// Read or create protocol id
 	MProtocol_id_master=random_id(10,false);
@@ -419,7 +422,9 @@ inline void tx_resume()
 		if(!IS_TX_PAUSE_on)
 		{
 			#ifdef XMEGA
+				cli() ;
 				USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;	// Resume telemetry by enabling transmitter interrupt
+				sei() ;
 			#else
 				#ifndef BASH_SERIAL
 					UCSR0B |= _BV(UDRIE0);			// Resume telemetry by enabling transmitter interrupt
@@ -865,6 +870,7 @@ static void set_rx_tx_addr(uint32_t id)
 	rx_tx_addr[4] = 0xC1;	// for YD717: always uses first data port
 }
 
+#ifndef XMEGA
 static void random_init(void)
 {
 	cli();					// Temporarily turn off interrupts, until WDT configured
@@ -879,6 +885,7 @@ static uint32_t random_value(void)
 	while (!gWDT_entropy);
 	return gWDT_entropy;
 }
+#endif
 
 static uint32_t random_id(uint16_t adress, uint8_t create_new)
 {
@@ -963,7 +970,6 @@ uint8_t SPI_Read(void)
 // replacement millis() and micros()
 // These work polled, no interrupts
 // micros() MUST be called at least once every 32 milliseconds
-#ifndef XMEGA
 uint16_t MillisPrecount ;
 uint16_t lastTimerValue ;
 uint32_t TotalMicros ;
@@ -1052,12 +1058,24 @@ void delayMicroseconds(unsigned int us)
       return;
    us <<= 2;	// * 4
    us -= 2;		// - 2
-   __asm__ __volatile__ (
+#ifdef XMEGA
+	 __asm__ __volatile__ (
+      "1: sbiw %0,1" "\n\t" // 2 cycles
+			"nop \n"
+			"nop \n"
+			"nop \n"
+			"nop \n"
+      "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
+   );
+#else   
+	 __asm__ __volatile__ (
       "1: sbiw %0,1" "\n\t" // 2 cycles
       "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
    );
+#endif
 }
 
+#ifndef XMEGA
 void init()
 {
    // this needs to be called before setup() or some functions won't work there
@@ -1180,6 +1198,7 @@ ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
 }
 #endif //ENABLE_SERIAL
 
+#ifndef XMEGA
 // Random interrupt service routine called every time the WDT interrupt is triggered.
 // It is only enabled at startup to generate a seed.
 ISR(WDT_vect)
@@ -1204,3 +1223,4 @@ ISR(WDT_vect)
 		WDTCSR = 0;	// Disable Watchdog interrupt
 	}
 }
+#endif

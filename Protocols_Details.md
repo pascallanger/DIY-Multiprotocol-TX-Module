@@ -357,7 +357,6 @@ Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ###Sub_protocol H26D
 ###Sub_protocol E010
-Only 1 TX ID available
 
 ##MT99XX
 Autobind protocol

@@ -68,10 +68,10 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	packet[0] = convert_channel_8b(THROTTLE);
 	packet[1] = convert_channel_s8b(RUDDER);
 	packet[4] = 0x40;							// rudder does not work well with dyntrim
-	packet[2] = convert_channel_s8b(ELEVATOR);
-	packet[5] = MJXQ_CHAN2TRIM(packet[2]);		// trim elevator
+	packet[2] = 0x80 ^ convert_channel_s8b(ELEVATOR);
+	packet[5] = GET_FLAG(Servo_AUX5, 1) ? 0x40 : MJXQ_CHAN2TRIM(packet[2]);	// trim elevator
 	packet[3] = convert_channel_s8b(AILERON);
-	packet[6] = MJXQ_CHAN2TRIM(packet[3]);		// trim aileron
+	packet[6] = GET_FLAG(Servo_AUX5, 1) ? 0x40 : MJXQ_CHAN2TRIM(packet[3]);	// trim aileron
 	packet[7] = rx_tx_addr[0];
 	packet[8] = rx_tx_addr[1];
 	packet[9] = rx_tx_addr[2];
@@ -109,11 +109,6 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 			}
 			break;
 		case X600:
-			if(Servo_AUX5)	//HEADLESS
-			{ // driven trims cause issues when headless is enabled
-				packet[5] = 0x40;
-				packet[6] = 0x40;
-			}
 			packet[10] = GET_FLAG(!Servo_AUX2, 0x02);	//LED
 			packet[11] = GET_FLAG(Servo_AUX6, 0x01);	//RTH
 			if (!bind)
@@ -213,18 +208,15 @@ static void __attribute__((unused)) MJXQ_init2()
 
 static void __attribute__((unused)) MJXQ_initialize_txid()
 {
+	rx_tx_addr[0]&=0xF8;
 	if (sub_protocol == E010)
 	{
-		rx_tx_addr[0]=0x90;
-		rx_tx_addr[1]=0x1C;
-		rx_tx_addr[2]=0x00;
+		rx_tx_addr[1]=(rx_tx_addr[1]&0xF0)|0x0C;
+		rx_tx_addr[2]&=0xF0;
 	}
 	else
-		if (sub_protocol == WLH08)
-			rx_tx_addr[0]&=0xF8;	// txid must be multiple of 8
-		else
-			for(uint8_t i=0;i<3;i++)
-				rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[4]%3][i] );
+		for(uint8_t i=0;i<3;i++)
+			rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[4]%3][i] );
 }
 
 uint16_t MJXQ_callback()

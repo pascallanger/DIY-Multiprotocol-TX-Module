@@ -85,7 +85,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 			telemetry_counter=(telemetry_counter+1)%32;
 		//
 #if defined FRSKYX_CC2500_INO
-		if ((cur_protocol[0]&0x1F)==MODE_FRSKYX)
+		if (protocol==MODE_FRSKYX)
 		{
 			if ((pktt[5] >> 4 & 0x0f) == 0x08)
 			{  
@@ -108,7 +108,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 void frsky_link_frame()
 {
 	frame[0] = 0xFE;
-	if ((cur_protocol[0]&0x1F)==MODE_FRSKYD)
+	if (protocol==MODE_FRSKYD)
 	{		
 		compute_RSSIdbm();				
 		frame[1] = pktt[3];
@@ -117,7 +117,7 @@ void frsky_link_frame()
 		frame[4] = (uint8_t)RSSI_dBm;
 	}
 	else
-		if ((cur_protocol[0]&0x1F)==MODE_HUBSAN)
+		if (protocol==MODE_HUBSAN)
 		{	
 			frame[1] = v_lipo*2; //v_lipo; common 0x2A=42/10=4.2V
 			frame[2] = frame[1];			
@@ -396,7 +396,7 @@ void proces_sport_data(uint8_t data)
 void TelemetryUpdate()
 {
 #if defined SPORT_TELEMETRY
-	if ((cur_protocol[0]&0x1F)==MODE_FRSKYX)
+	if (protocol==MODE_FRSKYX)
 	{	// FrSkyX
 		if(telemetry_link)
 		{		
@@ -451,28 +451,28 @@ void TelemetryUpdate()
 #endif
 	 
 	#if defined DSM_TELEMETRY
-	if(telemetry_link && (cur_protocol[0]&0x1F) == MODE_DSM )
+	if(telemetry_link && protocol == MODE_DSM )
 	{	// DSM
 		DSM_frame();
 		telemetry_link=0;
 		return;
 	}
 	#endif
-	if(telemetry_link && (cur_protocol[0]&0x1F) != MODE_FRSKYX )
+	if(telemetry_link && protocol != MODE_FRSKYX )
 	{	// FrSky + Hubsan
 		frsky_link_frame();
 		telemetry_link=0;
 		return;
 	}
 	#if defined HUB_TELEMETRY
-	if(!telemetry_link && (cur_protocol[0]&0x1F) == MODE_FRSKYD)
+	if(!telemetry_link && protocol == MODE_FRSKYD)
 	{	// FrSky
 		frsky_user_frame();
 		return;
 	}
 	#endif
 	#if defined SPORT_TELEMETRY
-	if ((cur_protocol[0]&0x1F)==MODE_FRSKYX)
+	if (protocol==MODE_FRSKYX)
 	{	// FrSkyX
 		uint32_t now = micros();
 		if ((now - last) > SPORT_TIME)

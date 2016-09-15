@@ -54,7 +54,8 @@ enum PROTOCOLS
 	MODE_FQ777		= 23,	// =>NRF24L01
 	MODE_ASSAN		= 24,	// =>NRF24L01
 	MODE_FRSKYV		= 25,	// =>CC2500
-	MODE_HONTAI		= 26	// =>NRF24L01
+	MODE_HONTAI		= 26,	// =>NRF24L01
+	MODE_OPENLRS	= 27,	// =>OpenLRS hardware
 };
 
 enum Flysky
@@ -73,6 +74,14 @@ enum DSM
 {
 	DSM2	= 0,
 	DSMX	= 1
+};
+enum
+{
+	DSM2_22	= 0,
+	DSM2_11	= 1,
+	DSMX_22	= 2,
+	DSMX_11	= 3,
+	AUTO	= 4
 };
 enum YD717
 {       			
@@ -144,7 +153,7 @@ enum HONTAI
 
 struct PPM_Parameters
 {
-	uint8_t protocol : 5;
+	uint8_t protocol : 6;
 	uint8_t sub_proto : 3;
 	uint8_t rx_num : 4;
 	uint8_t power : 1;
@@ -515,10 +524,11 @@ enum {
 **************************
 Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Total of 26 bytes
-  Stream[0]   = 0x55
+  Stream[0]   = 0x55	sub_protocol values are 0..31
+  Stream[0]   = 0x54	sub_protocol values are 32..63
    header
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
-   sub_protocol is 0..31 (bits 0..4)
+   sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54
    =>	Reserved	0
 					Flysky		1
 					Hubsan		2
@@ -546,6 +556,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					ASSAN		24
 					FrskyV		25
 					HONTAI		26
+					OpenLRS		27
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

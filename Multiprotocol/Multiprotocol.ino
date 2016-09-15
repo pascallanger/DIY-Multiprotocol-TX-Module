@@ -40,8 +40,6 @@
 uint32_t MProtocol_id;//tx id,
 uint32_t MProtocol_id_master;
 uint32_t blink=0;
-uint8_t  prev_option;
-uint8_t  prev_power=0xFD; // unused power value
 //
 uint16_t counter;
 uint8_t  channel;
@@ -108,7 +106,7 @@ volatile uint32_t gWDT_entropy=0;
 	#define	INVERT_SERIAL 1
 #endif
 #define BAUD 100000
-#define RXBUFFER_SIZE 25
+#define RXBUFFER_SIZE 26
 #define TXBUFFER_SIZE 32
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
@@ -119,9 +117,11 @@ volatile uint8_t discard_frame = 0;
 
 //Serial protocol
 uint8_t sub_protocol;
+uint8_t protocol;
 uint8_t option;
-uint8_t cur_protocol[2];
-uint8_t prev_protocol=0;
+uint8_t cur_protocol[3];
+uint8_t prev_option;
+uint8_t prev_power=0xFD; // unused power value
 
 // Telemetry
 #define MAX_PKT 27
@@ -239,7 +239,7 @@ void setup()
 	if(mode_select != MODE_SERIAL)
 	{ // PPM
 		mode_select--;
-		cur_protocol[0]	=	PPM_prot[mode_select].protocol;
+		protocol		=	PPM_prot[mode_select].protocol;
 		sub_protocol   	=	PPM_prot[mode_select].sub_proto;
 		RX_num			=	PPM_prot[mode_select].rx_num;
 		MProtocol_id	=	RX_num + MProtocol_id_master;
@@ -264,9 +264,9 @@ void setup()
 #endif //ENABLE_PPM
 	{ // Serial
 		#ifdef ENABLE_SERIAL
-			cur_protocol[0]=0;
-			cur_protocol[1]=0;
-			prev_protocol=0;
+			for(uint i=0;i<3;i++)
+				cur_protocol[i]=0;
+			protocol=0;
 			servo_max_100=SERIAL_MAX_100; servo_min_100=SERIAL_MIN_100;
 			servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
 			Mprotocol_serial_init(); // Configure serial and enable RX interrupt
@@ -364,7 +364,6 @@ void Update_All()
 	#endif //ENABLE_PPM
 	update_led_status();
 	#if defined(TELEMETRY)
-		uint8_t protocol=cur_protocol[0]&0x1F;
 		if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
 			TelemetryUpdate();
 	#endif
@@ -384,7 +383,7 @@ static void update_led_status(void)
 {
 	if(blink<millis())
 	{
-		if(cur_protocol[0]==0)							//No valid serial received at least once
+		if(cur_protocol[1]==0)							//No valid serial received at least once
 			blink+=BLINK_SERIAL_TIME;					//blink slowly while waiting a valid serial input
 		else
 			if(remote_callback == 0)
@@ -442,8 +441,6 @@ static void protocol_init()
 	uint16_t next_callback=0;		// Default is immediate call back
 	remote_callback = 0;
 
-	set_rx_tx_addr(MProtocol_id);	// Reset rx_tx_addr
-	
 	// reset telemetry
 	#ifdef TELEMETRY
 		tx_pause();
@@ -466,7 +463,7 @@ static void protocol_init()
 	CTRL1_on;						//NRF24L01 antenna RF3 by default
 	CTRL2_off;						//NRF24L01 antenna RF3 by default
 	
-	switch(cur_protocol[0]&0x1F)	// Init the requested protocol
+	switch(protocol)				// Init the requested protocol
 	{
 		#if defined(FLYSKY_A7105_INO)
 			case MODE_FLYSKY:
@@ -660,52 +657,54 @@ static void protocol_init()
 	{ // next_callback should not be more than 32767 so we will wait here...
 		uint16_t temp=(next_callback>>10)-2;
 		delayMilliseconds(temp);
-		next_callback-=temp<<10;	// between 2-3ms left at this stage
+		next_callback-=temp<<10;				// between 2-3ms left at this stage
 	}
-	cli();							// disable global int
-	OCR1A = TCNT1 + next_callback*2;// set compare A for callback
-	sei();							// enable global int
-	TIFR1 = OCF1A_bm ;				// clear compare A flag
-	BIND_BUTTON_FLAG_off;			// do not bind/reset id anymore even if protocol change
+	cli();										// disable global int
+	OCR1A = TCNT1 + next_callback*2;			// set compare A for callback
+	sei();										// enable global int
+	TIFR1 = OCF1A_bm ;							// clear compare A flag
+	BIND_BUTTON_FLAG_off;						// do not bind/reset id anymore even if protocol change
 }
 
 void update_serial_data()
 {
 	RX_DONOTUPDTAE_on;
-	RX_FLAG_off;				//data is being processed
-	if(rx_ok_buff[0]&0x20)		//check range
+	RX_FLAG_off;								//data is being processed
+	if(rx_ok_buff[1]&0x20)						//check range
 		RANGE_FLAG_on;
 	else
 		RANGE_FLAG_off;
-	if(rx_ok_buff[0]&0xC0)		//check autobind(0x40) & bind(0x80) together
+	if(rx_ok_buff[1]&0xC0)						//check autobind(0x40) & bind(0x80) together
 		AUTOBIND_FLAG_on;
 	else
 		AUTOBIND_FLAG_off;
-	if(rx_ok_buff[1]&0x80)		//if rx_ok_buff[1] ==1,power is low ,0-power high
-		POWER_FLAG_off;			//power low
+	if(rx_ok_buff[2]&0x80)						//if rx_ok_buff[2] ==1,power is low ,0-power high
+		POWER_FLAG_off;							//power low
 	else
-		POWER_FLAG_on;			//power high
-				
-	option=rx_ok_buff[2];
+		POWER_FLAG_on;							//power high
 
-	if( ((rx_ok_buff[0]&0x5F) != (cur_protocol[0]&0x5F)) || ( (rx_ok_buff[1]&0x7F) != cur_protocol[1] ) )
+	option=rx_ok_buff[3];
+
+	if( (rx_ok_buff[0] != cur_protocol[0]) || ((rx_ok_buff[1]&0x5F) != (cur_protocol[1]&0x5F)) || ( (rx_ok_buff[2]&0x7F) != (cur_protocol[2]&0x7F) ) )
 	{ // New model has been selected
-		prev_protocol=cur_protocol[0]&0x1F;		//store previous protocol so we can reset the module
-		cur_protocol[1] = rx_ok_buff[1]&0x7F;	//store current protocol
 		CHANGE_PROTOCOL_FLAG_on;				//change protocol
-		sub_protocol=(rx_ok_buff[1]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
-		RX_num=rx_ok_buff[1]& 0x0F;
-		MProtocol_id=MProtocol_id_master+RX_num;//personalized RX bind + rx num // rx_num bits 0---3
+		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]
+		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
+		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
+		MProtocol_id=MProtocol_id_master+RX_num;//personalized RX bind + rx num
+		set_rx_tx_addr(MProtocol_id);			//set rx_tx_addr
 	}
 	else
-		if( ((rx_ok_buff[0]&0x80)!=0) && ((cur_protocol[0]&0x80)==0) )	// Bind flag has been set
+		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )	// Bind flag has been set
 			CHANGE_PROTOCOL_FLAG_on;			//restart protocol with bind
 		else
 			CHANGE_PROTOCOL_FLAG_off;			//no need to restart
-	cur_protocol[0] = rx_ok_buff[0];			//store current protocol
-
+	//store current protocol values
+	for(uint8_t i=0;i<3;i++)
+		cur_protocol[i] =  rx_ok_buff[i];
+	
 	// decode channel values
-	volatile uint8_t *p=rx_ok_buff+2;
+	volatile uint8_t *p=rx_ok_buff+3;
 	uint8_t dec=-3;
 	for(uint8_t i=0;i<NUM_CHN;i++)
 	{
@@ -722,17 +721,17 @@ void update_serial_data()
 	#ifdef XMEGA
 		cli();
 	#else
-		UCSR0B &= ~_BV(RXCIE0);	// RX interrupt disable
+		UCSR0B &= ~_BV(RXCIE0);					// RX interrupt disable
 	#endif
-	if(IS_RX_MISSED_BUFF_on)	// If the buffer is still valid
+	if(IS_RX_MISSED_BUFF_on)					// If the buffer is still valid
 	{	memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
-		RX_FLAG_on;				// data to be processed next time...
+		RX_FLAG_on;								// data to be processed next time...
 		RX_MISSED_BUFF_off;
 	}
 	#ifdef XMEGA
 		sei();
 	#else
-		UCSR0B |= _BV(RXCIE0) ;	// RX interrupt enable
+		UCSR0B |= _BV(RXCIE0) ;					// RX interrupt enable
 	#endif
 }
 
@@ -1101,21 +1100,21 @@ ISR(INT1_vect, ISR_NOBLOCK)
 	static uint16_t Prev_TCNT1=0;
 	uint16_t Cur_TCNT1;
 
-	Cur_TCNT1 = TCNT1 - Prev_TCNT1 ; // Capture current Timer1 value
+	Cur_TCNT1 = TCNT1 - Prev_TCNT1 ;	// Capture current Timer1 value
 	if(Cur_TCNT1<1000)
-		chan=-1;				// bad frame
+		chan=-1;						// bad frame
 	else
 		if(Cur_TCNT1>4840)
 		{
-			chan=0;				// start of frame
-			PPM_FLAG_on;		// full frame present (even at startup since PPM_data has been initialized)
+			chan=0;						// start of frame
+			PPM_FLAG_on;				// full frame present (even at startup since PPM_data has been initialized)
 		}
 		else
-			if(chan!=-1)		// need to wait for start of frame
+			if(chan!=-1)				// need to wait for start of frame
 			{  //servo values between 500us and 2420us will end up here
 				PPM_data[chan]= Cur_TCNT1>>1;;
 				if(chan++>=NUM_CHN)
-					chan=-1;	// don't accept any new channels
+					chan=-1;			// don't accept any new channels
 			}
 	Prev_TCNT1+=Cur_TCNT1;
 }
@@ -1141,7 +1140,9 @@ ISR(USART_RX_vect)
 		if(idx==0||discard_frame==1)
 		{	// Let's try to sync at this point
 			idx=0;discard_frame=0;
-			if(UDR0==0x55)				// If 1st byte is 0x55 it looks ok
+			RX_MISSED_BUFF_off;			// If rx_buff was good it's not anymore...
+			rx_buff[0]=UDR0;
+			if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
 			{
 				TX_RX_PAUSE_on;
 				tx_pause();
@@ -1153,14 +1154,13 @@ ISR(USART_RX_vect)
 		}
 		else
 		{
-			RX_MISSED_BUFF_off;			// if rx_buff was good it's not anymore...
-			rx_buff[(idx++)-1]=UDR0;	// Store received byte
-			if(idx>RXBUFFER_SIZE)
+			rx_buff[idx++]=UDR0;		// Store received byte
+			if(idx>=RXBUFFER_SIZE)
 			{	// A full frame has been received
 				if(!IS_RX_DONOTUPDTAE_on)
 				{ //Good frame received and main is not working on the buffer
 					memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
-					RX_FLAG_on;					// flag for main to process servo data
+					RX_FLAG_on;			// flag for main to process servo data
 				}
 				else
 					RX_MISSED_BUFF_on;	// notify that rx_buff is good
@@ -1175,13 +1175,13 @@ ISR(USART_RX_vect)
 	}
 	if(discard_frame==1)
 	{
-		CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
+		CLR_TIMSK1_OCIE1B;				// Disable interrupt on compare B match
 		TX_RX_PAUSE_off;
 		tx_resume();
 	}
 	#ifndef XMEGA
 		cli() ;
-		UCSR0B |= _BV(RXCIE0) ;	// RX interrupt enable
+		UCSR0B |= _BV(RXCIE0) ;			// RX interrupt enable
 	#endif
 }
 
@@ -1193,7 +1193,7 @@ ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
 #endif
 {	// Timer1 compare B interrupt
 	discard_frame=1;
-	CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
+	CLR_TIMSK1_OCIE1B;					// Disable interrupt on compare B match
 	tx_resume();
 }
 #endif //ENABLE_SERIAL

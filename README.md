@@ -128,7 +128,7 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 0|Select serial||||||
 1|FLYSKY|Flysky|0|High|No|0|A7105
 2|HUBSAN|-|0|High|No|0|A7105
-3|FRSKYD|-|0|High|No|-41|CC2500
+3|FRSKYD|-|0|High|No|40|CC2500
 4|HISKY|Hisky|0|High|No|0|NRF24L01
 5|V2X2|-|0|High|No|0|NRF24L01
 6|DSM|DSM2|0|High|No|6|CYRF6936

@@ -264,7 +264,7 @@ void setup()
 #endif //ENABLE_PPM
 	{ // Serial
 		#ifdef ENABLE_SERIAL
-			for(uint i=0;i<3;i++)
+			for(uint8_t i=0;i<3;i++)
 				cur_protocol[i]=0;
 			protocol=0;
 			servo_max_100=SERIAL_MAX_100; servo_min_100=SERIAL_MIN_100;

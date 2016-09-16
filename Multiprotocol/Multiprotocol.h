@@ -514,6 +514,8 @@ enum {
 // baudrate defines for serial
 #define SPEED_100K	0
 #define SPEED_9600	1
+#define SPEED_57600	2
+#define SPEED_125K	3
 
 //****************************************
 //*** MULTI protocol serial definition ***

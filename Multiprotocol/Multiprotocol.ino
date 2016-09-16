@@ -855,7 +855,12 @@ void Mprotocol_serial_init()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	initTXSerial( SPEED_9600 ) ;
+	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN))
+		initTXSerial( SPEED_9600 ) ;
+	if(protocol==MODE_FRSKYX)
+		initTXSerial( SPEED_57600 ) ;
+	if(protocol==MODE_DSM)
+		initTXSerial( SPEED_125K ) ;
 }
 #endif
 

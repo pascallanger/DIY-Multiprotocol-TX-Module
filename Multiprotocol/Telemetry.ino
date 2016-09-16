@@ -504,28 +504,63 @@ void Serial_write(uint8_t data)
 	tx_resume();
 }
 
-// Speed is 0 for 100K and 1 for 9600
 void initTXSerial( uint8_t speed)
 {
-	if(speed==SPEED_9600)
-	{ // 9600
-	#ifdef XMEGA
-		USARTC0.BAUDCTRLA = 207 ;
-		USARTC0.BAUDCTRLB = 0 ;
-		
-		USARTC0.CTRLB = 0x18 ;
-		USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
-		USARTC0.CTRLC = 0x03 ;
-	}
-	#else
-		//9600 bauds
-		UBRR0H = 0x00;
-		UBRR0L = 0x67;
-		UCSR0A = 0 ;	// Clear X2 bit
-		//Set frame format to 8 data bits, none, 1 stop bit
-		UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
-	}
-	UCSR0B |= (1<<TXEN0);//tx enable
+	#ifdef ENABLE_PPM
+		if(speed==SPEED_9600)
+		{ // 9600
+			#ifdef XMEGA
+				USARTC0.BAUDCTRLA = 207 ;
+				USARTC0.BAUDCTRLB = 0 ;
+				USARTC0.CTRLB = 0x18 ;
+				USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+				USARTC0.CTRLC = 0x03 ;
+			#else
+				//9600 bauds
+				UBRR0H = 0x00;
+				UBRR0L = 0x67;
+				UCSR0A = 0 ;	// Clear X2 bit
+				//Set frame format to 8 data bits, none, 1 stop bit
+				UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+			#endif
+		}
+		else if(speed==SPEED_57600)
+		{ // 57600
+			#ifdef XMEGA
+				/*USARTC0.BAUDCTRLA = 207 ;
+				USARTC0.BAUDCTRLB = 0 ;
+				USARTC0.CTRLB = 0x18 ;
+				USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+				USARTC0.CTRLC = 0x03 ;*/
+			#else
+				//57600 bauds
+				UBRR0H = 0x00;
+				UBRR0L = 0x22;
+				UCSR0A = 0x02 ;	// Set X2 bit
+				//Set frame format to 8 data bits, none, 1 stop bit
+				UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+			#endif
+		}
+		else if(speed==SPEED_125K)
+		{ // 125000
+			#ifdef XMEGA
+				/*USARTC0.BAUDCTRLA = 207 ;
+				USARTC0.BAUDCTRLB = 0 ;
+				USARTC0.CTRLB = 0x18 ;
+				USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+				USARTC0.CTRLC = 0x03 ;*/
+			#else
+				//125000 bauds
+				UBRR0H = 0x00;
+				UBRR0L = 0x07;
+				UCSR0A = 0x00 ;	// Clear X2 bit
+				//Set frame format to 8 data bits, none, 1 stop bit
+				UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+			#endif
+		}
+	#endif
+	#ifndef XMEGA
+		UCSR0B |= (1<<TXEN0);//tx enable
 	#endif
 }
 

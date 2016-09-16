@@ -240,6 +240,7 @@ void setup()
 	{ // PPM
 		mode_select--;
 		protocol		=	PPM_prot[mode_select].protocol;
+		cur_protocol[1] = protocol;
 		sub_protocol   	=	PPM_prot[mode_select].sub_proto;
 		RX_num			=	PPM_prot[mode_select].rx_num;
 		MProtocol_id	=	RX_num + MProtocol_id_master;

@@ -98,8 +98,10 @@ volatile uint16_t PPM_data[NUM_CHN];
 // Serial variables
 #ifdef INVERT_TELEMETRY
 // enable bit bash for serial
+#ifndef STM32_board
 #define	BASH_SERIAL 1
 #define	INVERT_SERIAL 1
+#endif
 #endif
 #define BAUD 100000
 #define RXBUFFER_SIZE 25
@@ -178,8 +180,8 @@ void setup()
 	#if defined TELEMETRY
 	pinMode(TX_INV_pin,OUTPUT);
 	pinMode(RX_INV_pin,OUTPUT);
-	#if defined TARANIS
-	TX_INV_on;
+	#if defined INVERT_TELEMETRY
+	TX_INV_on;//activated inverter for both serial TX and RX signals
 	RX_INV_on;
 	#else
 	TX_INV_off;

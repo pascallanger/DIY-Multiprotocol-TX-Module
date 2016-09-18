@@ -22,75 +22,75 @@ enum PROTOCOLS
 	MODE_SERIAL = 0,		// Serial commands
 	MODE_FLYSKY = 1,		// =>A7105
 	MODE_HUBSAN = 2,		// =>A7105
-	MODE_FRSKYD = 3,			// =>CC2500
-	MODE_HISKY = 4,			// =>NRF24L01
-	MODE_V2X2 = 5,			// =>NRF24L01
-	MODE_DSM2 = 6,			// =>CYRF6936
-	MODE_DEVO =7,			// =>CYRF6936
-	MODE_YD717 = 8,			// =>NRF24L01
-	MODE_KN  = 9,			// =>NRF24L01
-	MODE_SYMAX = 10,		// =>NRF24L01
-	MODE_SLT = 11,			// =>NRF24L01
-	MODE_CX10 = 12,			// =>NRF24L01
-	MODE_CG023 = 13,		// =>NRF24L01
+	MODE_FRSKYD = 3,		// =>CC2500
+	MODE_HISKY  = 4,	    // =>NRF24L01
+	MODE_V2X2   = 5,		// =>NRF24L01
+	MODE_DSM2   = 6,		// =>CYRF6936
+	MODE_DEVO   = 7,		// =>CYRF6936
+	MODE_YD717  = 8,		// =>NRF24L01
+	MODE_KN     = 9,		// =>NRF24L01
+	MODE_SYMAX  = 10,		// =>NRF24L01
+	MODE_SLT    = 11,		// =>NRF24L01
+	MODE_CX10   = 12,		// =>NRF24L01
+	MODE_CG023  = 13,		// =>NRF24L01
 	MODE_BAYANG = 14,		// =>NRF24L01
 	MODE_FRSKYX = 15,		// =>CC2500
-	MODE_ESKY = 16,			// =>NRF24L01
-	MODE_MT99XX=17,			// =>NRF24L01
-	MODE_MJXQ=18,			// =>NRF24L01
-	MODE_SHENQI=19,			// =>NRF24L01
-	MODE_FY326=20,			// =>NRF24L01
-	MODE_SFHSS=21,			// =>CC2500
-	MODE_J6PRO=22,			// =>CYRF6936
-	MODE_FQ777=23,			// =>NRF24L01
-	MODE_ASSAN=24,			// =>NRF24L01
-	MODE_FRSKYV		= 25	// =>CC2500
+	MODE_ESKY   = 16,		// =>NRF24L01
+	MODE_MT99XX = 17,		// =>NRF24L01
+	MODE_MJXQ   = 18,		// =>NRF24L01
+	MODE_SHENQI = 19,		// =>NRF24L01
+	MODE_FY326  = 20,		// =>NRF24L01
+	MODE_SFHSS  = 21,		// =>CC2500
+	MODE_J6PRO  = 22,		// =>CYRF6936
+	MODE_FQ777  = 23,		// =>NRF24L01
+	MODE_ASSAN  = 24,		// =>NRF24L01
+	MODE_FRSKYV	= 25	    // =>CC2500
 };
 
 enum Flysky
 {
-	Flysky=0,
-	V9X9=1,
-	V6X6=2,
-	V912=3
+	Flysky= 0,
+	V9X9  = 1,
+	V6X6  = 2,
+	V912  = 3
 };
 enum Hisky
 {
-	Hisky=0,
-	HK310=1
+	Hisky = 0,
+	HK310 = 1
 };
 enum DSM2{
-	DSM2=0,
-	DSMX=1
+	DSM2 = 0,
+	DSMX = 1
 };
 enum YD717
 {       			
-	YD717=0,
-	SKYWLKR=1,
-	SYMAX4=2,
-	XINXUN=3,
-	NIHUI=4
+	YD717   = 0,
+	SKYWLKR = 1,
+	SYMAX4  = 2,
+	XINXUN  = 3,
+	NIHUI   = 4
 };
 enum KN
 {
-	WLTOYS=0,
-	FEILUN=1
+	WLTOYS= 0,
+	FEILUN= 1
 };
 enum SYMAX
 {
-	SYMAX=0,
-	SYMAX5C=1
+	SYMAX   = 0,
+	SYMAX5C = 1
 };
 enum CX10
 {
     CX10_GREEN = 0,
-    CX10_BLUE=1,		// also compatible with CX10-A, CX12
-    DM007=2,
-	Q282=3,
-	JC3015_1=4,
-	JC3015_2=5,
-	MK33041=6,
-	Q242=7
+    CX10_BLUE  = 1,		// also compatible with CX10-A, CX12
+    DM007      = 2,
+	Q282       = 3,
+	JC3015_1   = 4,
+	JC3015_2   = 5,
+	MK33041    = 6,
+	Q242       = 7
 };
 enum CG023
 {

@@ -31,6 +31,9 @@ HardwareTimer timer(2);
 
 #ifdef XMEGA
 	#undef ENABLE_PPM	// Disable PPM for orange module
+	#undef A7105_INSTALLED		// Disable A7105 for orange module
+	#undef CC2500_INSTALLED		// Disable CC2500 for orange module
+	#undef NFR24L01_INSTALLED	// Disable NRF for orange module
 #endif
 //Multiprotocol module configuration file
 
@@ -40,8 +43,7 @@ uint32_t MProtocol_id_master;
 uint32_t Model_fixed_id=0;
 uint32_t fixed_id;
 uint32_t blink=0;
-uint8_t  prev_option;//change option value on the fly.
-uint8_t  prev_power=0xFD; // unused power value
+
 //
 uint16_t counter;
 uint8_t  channel;
@@ -99,7 +101,9 @@ volatile uint16_t PPM_data[NUM_CHN];
 #ifdef INVERT_TELEMETRY
 // enable bit bash for serial
 #ifndef STM32_board
+#ifndef XMEGA
 #define	BASH_SERIAL 1
+#endif
 #define	INVERT_SERIAL 1
 #endif
 #endif
@@ -118,6 +122,8 @@ uint8_t sub_protocol;
 uint8_t option;
 uint8_t cur_protocol[2];
 uint8_t prev_protocol=0;
+uint8_t  prev_option;//change option value on the fly.
+uint8_t  prev_power=0xFD; // unused power value
 
 #ifdef STM32_board
 void PPM_decode();
@@ -142,7 +148,7 @@ uint8_t telemetry_counter=0;
 // Callback
 typedef uint16_t (*void_function_t) (void);//pointer to a function with no parameters which return an uint16_t integer
 void_function_t remote_callback = 0;
-static void CheckTimer(uint16_t (*cb)(void));
+//static void CheckTimer(uint16_t (*cb)(void));
 
 // Init
 void setup()
@@ -202,9 +208,9 @@ void setup()
 	#else
 	DDRD = (1<<CS_pin)|(1<<SDI_pin)|(1<<SCLK_pin)|(1<<CS_pin)|(1<< CC25_CSN_pin);
 	DDRC = (1<<CTRL1_pin)|(1<<CTRL2_pin); //output
-	DDRC |= (1<<5);//RST pin A5(C5) CYRF output
+	DDRC |= (1<<CYRF_RST_pin);//RST pin A5(C5) CYRF output
 	DDRB  = _BV(0)|_BV(1);
-	PORTB = _BV(2)|_BV(3)|_BV(4)|_BV(5);//pullup 10,11,12 and bind button
+	PORTB = _BV(2)|_BV(3)|_BV(4)|_BV(BIND_pin);//pullup 10,11,12 and bind button
 	PORTC = _BV(0);//A0 high pullup
 	#ifdef DEBUG_TX
 	TX_SET_OUTPUT;
@@ -224,10 +230,7 @@ void setup()
 	SDI_on;
 	SCK_off;
 	#endif
-	//#ifdef XMEGA
-	//	// SPI enable, master, prescale of 16
-	//	SPID.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_PRESCALER0_bm ;
-	//#endif	
+	
 	// Set servos positions
 	for(uint8_t i=0;i<NUM_CHN;i++)
 	Servo_data[i]=1500;
@@ -262,7 +265,8 @@ void setup()
 	// Update LED
 	
 	LED_OFF;
-	LED_SET_OUTPUT; 	
+	LED_SET_OUTPUT; 
+	modules_reset();
 	// Read or create protocol id
 	MProtocol_id_master=random_id(10,false);
 	
@@ -270,7 +274,7 @@ void setup()
 	initSPI2();
 	#endif
 	//Init RF modules
-	modules_reset();
+
 	//LED_ON;	
 	//Protocol and interrupts initialization
 #ifdef ENABLE_PPM	

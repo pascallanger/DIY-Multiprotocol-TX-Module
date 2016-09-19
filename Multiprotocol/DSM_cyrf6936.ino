@@ -428,6 +428,7 @@ uint16_t ReadDsm()
 			CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84\xC9\x2C\x06\x93\x86\xB9\x9E", 16);
 			CYRF_SetTxRxMode(RX_EN);						//Receive mode
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);		//Prepare to receive
+			bind_counter=300;
 			phase++;										// change from BIND_CHECK to BIND_READ
 			return 2000;
 		case DSM_BIND_READ:
@@ -447,7 +448,7 @@ uint16_t ReadDsm()
 					pkt[0]=0x80;
 					telemetry_link=1;						// send received data on serial
 					CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);
-					CYRF_SetTxRxMode(TX_EN);				//Write mode
+					CYRF_SetTxRxMode(TX_EN);				// Write mode
 					phase++;
 					return 2000;
 				}
@@ -458,8 +459,13 @@ uint16_t ReadDsm()
 			while ((uint16_t)micros()-start < 100)			// Wait max 100 µs
 				if((CYRF_ReadRegister(CYRF_0F_XACT_CFG) & 0x20) == 0)
 					break;
-			CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x0C);  	// Read
-			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);		//Prepare to receive
+			if( --bind_counter == 0 )
+			{
+				phase++;									// Exit if no answer has been received for some time
+				return 7000 ;
+			}
+			CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x0C);  	// Read mode
+			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);		// Prepare to receive
 			return 7000;
 		case DSM_CHANSEL:
 			BIND_DONE;

@@ -33,7 +33,7 @@
 	#undef ENABLE_PPM			// Disable PPM for orange module
 	#undef A7105_INSTALLED		// Disable A7105 for orange module
 	#undef CC2500_INSTALLED		// Disable CC2500 for orange module
-	#undef NFR24L01_INSTALLED	// Disable NRF for orange module
+	#undef NRF24L01_INSTALLED	// Disable NRF for orange module
 #endif
 
 //Global constants/variables
@@ -172,60 +172,59 @@ void setup()
 		TCC1.CTRLA = 0x0B ;	// Event3 (prescale of 16)
 	#else	
 		// General pinout
-
-    // outputs
-#ifdef A7105_INSTALLED
-    A7105_CS_ddr |=  _BV(A7105_CS_pin);
-#endif
-    SDI_SET_OUTPUT;
-    SCLK_ddr |= _BV(SCLK_pin);
-#ifdef CC2500_INSTALLED
-    CC25_CSN_ddr |= _BV(CC25_CSN_pin);
-#endif
-    CTRL1_ddr |= _BV(CTRL1_pin);
-    CTRL2_ddr |= _BV(CTRL2_pin);
-#ifdef CYRF6936_INSTALLED
-    CYRF_RST_ddr |= _BV(CYRF_RST_pin);
-    CYRF_CSN_ddr |= _BV(CYRF_CSN_pin);
-#endif
-#ifdef NRF24L01_INSTALLED
-    NRF_CSN_ddr |= _BV(NRF_CSN_pin);
-#endif
-
-    //pullup on dial (D10=PB2,D11=PB3,D12=PB4) and bind button
-    MODE_DIAL1_PORT |= _BV(MODE_DIAL1_PIN);
-    MODE_DIAL2_PORT |= _BV(MODE_DIAL2_PIN);
-    MODE_DIAL3_PORT |= _BV(MODE_DIAL3_PIN);
-    MODE_DIAL4_PORT |= _BV(MODE_DIAL4_PIN);
-    BIND_port |= _BV(BIND_pin);
-
-
-		#ifdef DEBUG_TX
-			TX_SET_OUTPUT;
+		// all inputs
+		DDRB=DDRC=DDRD=0x00;
+		// outputs
+		SDI_output;
+		SCLK_output;
+		#ifdef A7105_INSTALLED
+			A7105_CSN_output;
 		#endif
+		#ifdef CC2500_INSTALLED
+			CC25_CSN_output;
+		#endif
+		#ifdef CYRF6936_INSTALLED
+			CYRF_RST_output;
+			CYRF_CSN_output;
+		#endif
+		#ifdef NRF24L01_INSTALLED
+			NRF_CSN_output;
+		#endif
+		PE1_output;
+		PE2_output;
+		SERIAL_TX_output;
+
+		// pullups
+		MODE_DIAL1_port |= _BV(MODE_DIAL1_pin);
+		MODE_DIAL2_port |= _BV(MODE_DIAL2_pin);
+		MODE_DIAL3_port |= _BV(MODE_DIAL3_pin);
+		MODE_DIAL4_port |= _BV(MODE_DIAL4_pin);
+		BIND_port |= _BV(BIND_pin);
 
 		// Timer1 config
 		TCCR1A = 0;
 		TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
+		
+		// Random
 		random_init();
 	#endif
 
 	// Set Chip selects
-#ifdef A7105_INSTALLED
-	A7105_CS_on;
-#endif
-#ifdef CC2500_INSTALLED
-	CC25_CSN_on;
-#endif
-#ifdef NRF24L01_INSTALLED
-	NRF_CSN_on;
-#endif
-#ifdef CYRF6936_INSTALLED
-	CYRF_CSN_on;
-#endif
+	#ifdef A7105_INSTALLED
+		A7105_CSN_on;
+	#endif
+	#ifdef CC2500_INSTALLED
+		CC25_CSN_on;
+	#endif
+	#ifdef NRF24L01_INSTALLED
+		NRF_CSN_on;
+	#endif
+	#ifdef CYRF6936_INSTALLED
+		CYRF_CSN_on;
+	#endif
 	//	Set SPI lines
 	SDI_on;
-	SCK_off;
+	SCLK_off;
 
 	// Set servos positions
 	for(uint8_t i=0;i<NUM_CHN;i++)
@@ -247,16 +246,16 @@ void setup()
 	#ifndef ENABLE_PPM
 		mode_select = MODE_SERIAL ;	// force serial mode
 	#else
-    mode_select = 
-    ((MODE_DIAL1_PORT & MODE_DIAL1_PIN) ? 1 : 0) + 
-    ((MODE_DIAL2_PORT & MODE_DIAL2_PIN) ? 2 : 0) +
-    ((MODE_DIAL3_PORT & MODE_DIAL3_PIN) ? 4 : 0) +
-    ((MODE_DIAL4_PORT & MODE_DIAL4_PIN) ? 8 : 0);
+		mode_select = 
+			((MODE_DIAL1_port & MODE_DIAL1_pin) ? 1 : 0) + 
+			((MODE_DIAL2_port & MODE_DIAL2_pin) ? 2 : 0) +
+			((MODE_DIAL3_port & MODE_DIAL3_pin) ? 4 : 0) +
+			((MODE_DIAL4_port & MODE_DIAL4_pin) ? 8 : 0);
 	#endif
 
 	// Update LED
-	LED_OFF;
-	LED_SET_OUTPUT; 
+	LED_off;
+	LED_output; 
 
 	//Init RF modules
 	modules_reset();
@@ -289,16 +288,15 @@ void setup()
 		protocol_init();
 
 		//Configure PPM interrupt
-    #if PPM_pin == 2
-    EICRA |= _BV(ISC01);    // The rising edge of INT1 pin D3 generates an interrupt request
-    EIMSK |= _BV(INT0);   // INT1 interrupt enable
-    #elif PPM_pin == 3
-		EICRA |= _BV(ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
-		EIMSK |= _BV(INT1);		// INT1 interrupt enable
-    #else
-    #error PPM pin can only be 2 or 3
-    #endif
-
+		#if PPM_pin == 2
+			EICRA |= _BV(ISC01);	// The rising edge of INT0 pin D2 generates an interrupt request
+			EIMSK |= _BV(INT0);		// INT0 interrupt enable
+		#elif PPM_pin == 3
+			EICRA |= _BV(ISC11);	// The rising edge of INT1 pin D3 generates an interrupt request
+			EIMSK |= _BV(INT1);		// INT1 interrupt enable
+		#else
+			#error PPM pin can only be 2 or 3
+		#endif
 
 		#if defined(TELEMETRY)
 			PPM_Telemetry_serial_init();		// Configure serial for telemetry
@@ -383,7 +381,7 @@ void Update_All()
 			update_aux_flags();
 			if(IS_CHANGE_PROTOCOL_FLAG_on)
 			{ // Protocol needs to be changed
-				LED_OFF;									//led off during protocol init
+				LED_off;									//led off during protocol init
 				modules_reset();							//reset all modules
 				protocol_init();							//init new protocol
 			}
@@ -439,10 +437,10 @@ static void update_led_status(void)
 			}
 			else
 				if(IS_BIND_DONE_on)
-					LED_OFF;							//bind completed -> led on
+					LED_off;							//bind completed -> led on
 				else
 					blink+=BLINK_BIND_TIME;				//blink fastly during binding
-		LED_TOGGLE;
+		LED_toggle;
 	}
 }
 
@@ -504,21 +502,21 @@ static void protocol_init()
 	else
 		BIND_DONE;
 
-	CTRL1_on;						//NRF24L01 antenna RF3 by default
-	CTRL2_off;						//NRF24L01 antenna RF3 by default
+	PE1_on;						//NRF24L01 antenna RF3 by default
+	PE2_off;						//NRF24L01 antenna RF3 by default
 	
 	switch(protocol)				// Init the requested protocol
 	{
 		#if defined(FLYSKY_A7105_INO)
 			case MODE_FLYSKY:
-				CTRL1_off;	//antenna RF1
+				PE1_off;	//antenna RF1
 				next_callback = initFlySky();
 				remote_callback = ReadFlySky;
 				break;
 		#endif
 		#if defined(HUBSAN_A7105_INO)
 			case MODE_HUBSAN:
-				CTRL1_off;	//antenna RF1
+				PE1_off;	//antenna RF1
 				if(IS_BIND_BUTTON_FLAG_on) random_id(10,true); // Generate new ID if bind button is pressed.
 				next_callback = initHubsan();
 				remote_callback = ReadHubsan;
@@ -526,39 +524,39 @@ static void protocol_init()
 		#endif
 		#if defined(FRSKYD_CC2500_INO)
 			case MODE_FRSKYD:
-				CTRL1_off;	//antenna RF2
-				CTRL2_on;
+				PE1_off;	//antenna RF2
+				PE2_on;
 				next_callback = initFrSky_2way();
 				remote_callback = ReadFrSky_2way;
 				break;
 		#endif
 		#if defined(FRSKYV_CC2500_INO)
 			case MODE_FRSKYV:
-				CTRL1_off;	//antenna RF2
-				CTRL2_on;
+				PE1_off;	//antenna RF2
+				PE2_on;
 				next_callback = initFRSKYV();
 				remote_callback = ReadFRSKYV;
 				break;
 		#endif
 		#if defined(FRSKYX_CC2500_INO)
 			case MODE_FRSKYX:
-				CTRL1_off;	//antenna RF2
-				CTRL2_on;
+				PE1_off;	//antenna RF2
+				PE2_on;
 				next_callback = initFrSkyX();
 				remote_callback = ReadFrSkyX;
 				break;
 		#endif
 		#if defined(SFHSS_CC2500_INO)
 			case MODE_SFHSS:
-				CTRL1_off;	//antenna RF2
-				CTRL2_on;
+				PE1_off;	//antenna RF2
+				PE2_on;
 				next_callback = initSFHSS();
 				remote_callback = ReadSFHSS;
 				break;
 		#endif
 		#if defined(DSM_CYRF6936_INO)
 			case MODE_DSM:
-				CTRL2_on;	//antenna RF4
+				PE2_on;	//antenna RF4
 				next_callback = initDsm();
 				//Servo_data[2]=1500;//before binding
 				remote_callback = ReadDsm;
@@ -581,14 +579,14 @@ static void protocol_init()
 						}
 					}
 				#endif //ENABLE_PPM
-				CTRL2_on;	//antenna RF4
+				PE2_on;	//antenna RF4
 				next_callback = DevoInit();
 				remote_callback = devo_callback;
 				break;
 		#endif
 		#if defined(J6PRO_CYRF6936_INO)
 			case MODE_J6PRO:
-				CTRL2_on;	//antenna RF4
+				PE2_on;	//antenna RF4
 				next_callback = initJ6Pro();
 				remote_callback = ReadJ6Pro;
 				break;
@@ -790,7 +788,7 @@ void modules_reset()
 	#ifdef	CYRF6936_INSTALLED
 		CYRF_Reset();
 	#endif
-	#ifdef	NFR24L01_INSTALLED
+	#ifdef	NRF24L01_INSTALLED
 		NRF24L01_Reset();
 	#endif
 
@@ -971,7 +969,7 @@ void SPI_Write(uint8_t command)
 {
 	uint8_t n=8; 
 
-	SCK_off;//SCK start low
+	SCLK_off;//SCK start low
 	XNOP();
 	SDI_off;
 	XNOP();
@@ -982,11 +980,11 @@ void SPI_Write(uint8_t command)
 		else
 			SDI_off;
 		XNOP();
-		SCK_on;
+		SCLK_on;
 		XNOP();
 		XNOP();
 		command = command << 1;
-		SCK_off;
+		SCLK_off;
 		XNOP();
 	}
 	while(--n) ;
@@ -1001,11 +999,11 @@ uint8_t SPI_Read(void)
 		result=result<<1;
 		if(SDO_1)
 			result |= 0x01;
-		SCK_on;
+		SCLK_on;
 		XNOP();
 		XNOP();
 		NOP();
-		SCK_off;
+		SCLK_off;
 		XNOP();
 		XNOP();
 	}
@@ -1124,11 +1122,11 @@ void delayMicroseconds(unsigned int us)
 }
 
 #ifndef XMEGA
-void init()
-{
-   // this needs to be called before setup() or some functions won't work there
-   sei();
-}
+	void init()
+	{
+	   // this needs to be called before setup() or some functions won't work there
+	   sei();
+	}
 #endif //XMEGA
 
 /**************************/
@@ -1139,145 +1137,145 @@ void init()
 
 //PPM
 #ifdef ENABLE_PPM
-#ifdef XMEGA
-#if PPM_pin == 2
-ISR(PORTD_INT0_vect)
-#else
-ISR(PORTD_INT1_vect)
-#endif
-#else
-#if PPM_pin == 2
-ISR(INT0_vect, ISR_NOBLOCK)
-#else
-ISR(INT1_vect, ISR_NOBLOCK)
-#endif
-#endif
-{	// Interrupt on PPM pin
-	static int8_t chan=-1;
-	static uint16_t Prev_TCNT1=0;
-	uint16_t Cur_TCNT1;
+	#ifdef XMEGA
+		#if PPM_pin == 2
+			ISR(PORTD_INT0_vect)
+		#else
+			ISR(PORTD_INT1_vect)
+		#endif
+	#else
+		#if PPM_pin == 2
+			ISR(INT0_vect, ISR_NOBLOCK)
+		#else
+			ISR(INT1_vect, ISR_NOBLOCK)
+		#endif
+	#endif
+	{	// Interrupt on PPM pin
+		static int8_t chan=-1;
+		static uint16_t Prev_TCNT1=0;
+		uint16_t Cur_TCNT1;
 
-	Cur_TCNT1 = TCNT1 - Prev_TCNT1 ;	// Capture current Timer1 value
-	if(Cur_TCNT1<1000)
-		chan=-1;						// bad frame
-	else
-		if(Cur_TCNT1>4840)
-		{
-			chan=0;						// start of frame
-			PPM_FLAG_on;				// full frame present (even at startup since PPM_data has been initialized)
-		}
+		Cur_TCNT1 = TCNT1 - Prev_TCNT1 ;	// Capture current Timer1 value
+		if(Cur_TCNT1<1000)
+			chan=-1;						// bad frame
 		else
-			if(chan!=-1)				// need to wait for start of frame
-			{  //servo values between 500us and 2420us will end up here
-				PPM_data[chan]= Cur_TCNT1>>1;;
-				if(chan++>=NUM_CHN)
-					chan=-1;			// don't accept any new channels
+			if(Cur_TCNT1>4840)
+			{
+				chan=0;						// start of frame
+				PPM_FLAG_on;				// full frame present (even at startup since PPM_data has been initialized)
 			}
-	Prev_TCNT1+=Cur_TCNT1;
-}
+			else
+				if(chan!=-1)				// need to wait for start of frame
+				{  //servo values between 500us and 2420us will end up here
+					PPM_data[chan]= Cur_TCNT1>>1;;
+					if(chan++>=NUM_CHN)
+						chan=-1;			// don't accept any new channels
+				}
+		Prev_TCNT1+=Cur_TCNT1;
+	}
 #endif //ENABLE_PPM
 
 //Serial RX
 #ifdef ENABLE_SERIAL
-#ifdef XMEGA
-ISR(USARTC0_RXC_vect)
-#else
-ISR(USART_RX_vect)
-#endif
-{	// RX interrupt
-	static uint8_t idx=0;
 	#ifdef XMEGA
-	if((USARTC0.STATUS & 0x1C)==0)		// Check frame error, data overrun and parity error
+		ISR(USARTC0_RXC_vect)
 	#else
-	UCSR0B &= ~_BV(RXCIE0) ;			// RX interrupt disable
-	sei() ;
-	if((UCSR0A&0x1C)==0)				// Check frame error, data overrun and parity error
+		ISR(USART_RX_vect)
 	#endif
-	{ // received byte is ok to process
-		if(idx==0||discard_frame==1)
-		{	// Let's try to sync at this point
-			idx=0;discard_frame=0;
-			RX_MISSED_BUFF_off;			// If rx_buff was good it's not anymore...
-			rx_buff[0]=UDR0;
-			if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
+	{	// RX interrupt
+		static uint8_t idx=0;
+		#ifdef XMEGA
+			if((USARTC0.STATUS & 0x1C)==0)		// Check frame error, data overrun and parity error
+		#else
+			UCSR0B &= ~_BV(RXCIE0) ;			// RX interrupt disable
+			sei() ;
+			if((UCSR0A&0x1C)==0)				// Check frame error, data overrun and parity error
+		#endif
+		{ // received byte is ok to process
+			if(idx==0||discard_frame==1)
+			{	// Let's try to sync at this point
+				idx=0;discard_frame=0;
+				RX_MISSED_BUFF_off;			// If rx_buff was good it's not anymore...
+				rx_buff[0]=UDR0;
+				if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
+				{
+					TX_RX_PAUSE_on;
+					tx_pause();
+					OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
+					TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
+					SET_TIMSK1_OCIE1B ;		// enable interrupt on compare B match
+					idx++;
+				}
+			}
+			else
 			{
-				TX_RX_PAUSE_on;
-				tx_pause();
-				OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
-				TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
-				SET_TIMSK1_OCIE1B ;		// enable interrupt on compare B match
-				idx++;
+				rx_buff[idx++]=UDR0;		// Store received byte
+				if(idx>=RXBUFFER_SIZE)
+				{	// A full frame has been received
+					if(!IS_RX_DONOTUPDTAE_on)
+					{ //Good frame received and main is not working on the buffer
+						memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
+						RX_FLAG_on;			// flag for main to process servo data
+					}
+					else
+						RX_MISSED_BUFF_on;	// notify that rx_buff is good
+					discard_frame=1; 		// start again
+				}
 			}
 		}
 		else
 		{
-			rx_buff[idx++]=UDR0;		// Store received byte
-			if(idx>=RXBUFFER_SIZE)
-			{	// A full frame has been received
-				if(!IS_RX_DONOTUPDTAE_on)
-				{ //Good frame received and main is not working on the buffer
-					memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
-					RX_FLAG_on;			// flag for main to process servo data
-				}
-				else
-					RX_MISSED_BUFF_on;	// notify that rx_buff is good
-				discard_frame=1; 		// start again
-			}
+			idx=UDR0;						// Dummy read
+			discard_frame=1;				// Error encountered discard full frame...
 		}
+		if(discard_frame==1)
+		{
+			CLR_TIMSK1_OCIE1B;				// Disable interrupt on compare B match
+			TX_RX_PAUSE_off;
+			tx_resume();
+		}
+		#ifndef XMEGA
+			cli() ;
+			UCSR0B |= _BV(RXCIE0) ;			// RX interrupt enable
+		#endif
 	}
-	else
-	{
-		idx=UDR0;						// Dummy read
-		discard_frame=1;				// Error encountered discard full frame...
-	}
-	if(discard_frame==1)
-	{
-		CLR_TIMSK1_OCIE1B;				// Disable interrupt on compare B match
-		TX_RX_PAUSE_off;
+
+	//Serial timer
+	#ifdef XMEGA
+		ISR(TCC1_CCB_vect)
+	#else
+		ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
+	#endif
+	{	// Timer1 compare B interrupt
+		discard_frame=1;
+		CLR_TIMSK1_OCIE1B;					// Disable interrupt on compare B match
 		tx_resume();
 	}
-	#ifndef XMEGA
-		cli() ;
-		UCSR0B |= _BV(RXCIE0) ;			// RX interrupt enable
-	#endif
-}
-
-//Serial timer
-#ifdef XMEGA
-ISR(TCC1_CCB_vect)
-#else
-ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
-#endif
-{	// Timer1 compare B interrupt
-	discard_frame=1;
-	CLR_TIMSK1_OCIE1B;					// Disable interrupt on compare B match
-	tx_resume();
-}
 #endif //ENABLE_SERIAL
 
 #ifndef XMEGA
-// Random interrupt service routine called every time the WDT interrupt is triggered.
-// It is only enabled at startup to generate a seed.
-ISR(WDT_vect)
-{
-	static uint8_t gWDT_buffer_position=0;
-	#define gWDT_buffer_SIZE 32
-	static uint8_t gWDT_buffer[gWDT_buffer_SIZE];
-	gWDT_buffer[gWDT_buffer_position] = TCNT1L; // Record the Timer 1 low byte (only one needed) 
-	gWDT_buffer_position++;                     // every time the WDT interrupt is triggered
-	if (gWDT_buffer_position >= gWDT_buffer_SIZE)
+	// Random interrupt service routine called every time the WDT interrupt is triggered.
+	// It is only enabled at startup to generate a seed.
+	ISR(WDT_vect)
 	{
-		// The following code is an implementation of Jenkin's one at a time hash
-		for(uint8_t gWDT_loop_counter = 0; gWDT_loop_counter < gWDT_buffer_SIZE; ++gWDT_loop_counter)
+		static uint8_t gWDT_buffer_position=0;
+		#define gWDT_buffer_SIZE 32
+		static uint8_t gWDT_buffer[gWDT_buffer_SIZE];
+		gWDT_buffer[gWDT_buffer_position] = TCNT1L; // Record the Timer 1 low byte (only one needed) 
+		gWDT_buffer_position++;                     // every time the WDT interrupt is triggered
+		if (gWDT_buffer_position >= gWDT_buffer_SIZE)
 		{
-			gWDT_entropy += gWDT_buffer[gWDT_loop_counter];
-			gWDT_entropy += (gWDT_entropy << 10);
-			gWDT_entropy ^= (gWDT_entropy >> 6);
+			// The following code is an implementation of Jenkin's one at a time hash
+			for(uint8_t gWDT_loop_counter = 0; gWDT_loop_counter < gWDT_buffer_SIZE; ++gWDT_loop_counter)
+			{
+				gWDT_entropy += gWDT_buffer[gWDT_loop_counter];
+				gWDT_entropy += (gWDT_entropy << 10);
+				gWDT_entropy ^= (gWDT_entropy >> 6);
+			}
+			gWDT_entropy += (gWDT_entropy << 3);
+			gWDT_entropy ^= (gWDT_entropy >> 11);
+			gWDT_entropy += (gWDT_entropy << 15);
+			WDTCSR = 0;	// Disable Watchdog interrupt
 		}
-		gWDT_entropy += (gWDT_entropy << 3);
-		gWDT_entropy ^= (gWDT_entropy >> 11);
-		gWDT_entropy += (gWDT_entropy << 15);
-		WDTCSR = 0;	// Disable Watchdog interrupt
 	}
-}
 #endif

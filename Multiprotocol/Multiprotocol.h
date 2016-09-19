@@ -181,192 +181,186 @@ struct PPM_Parameters
 //***   Pinouts   ***
 //*******************
 
-#define TELEMETRY_SERIAL_TX_pin 2
-#define TELEMETRY_SERIAL_TX_port PORTD
-#define TELEMETRY_SERIAL_TX_ddr DDRD
-#define DEBUG_TX_pin 1
-#define DEBUG_TX_port PORTD
-#define DEBUG_TX_ddr DDRD
-#define MODE_DIAL1_PIN 2
-#define MODE_DIAL1_PORT PORTB
-#define MODE_DIAL2_PIN 3
-#define MODE_DIAL2_PORT PORTB
-#define MODE_DIAL3_PIN 4
-#define MODE_DIAL3_PORT PORTB
-#define MODE_DIAL4_PIN 0
-#define MODE_DIAL4_PORT PORTC
-#define LED_pin 5							//D13 = PB5
-#define LED_port PORTB
-#define LED_ddr DDRB
-#define BIND_pin 5							//D13 = PB5
-#define BIND_port PORTB
-#define BIND_ipr PINB
-#define BIND_ddr DDRB
-#define PPM_pin 3							//D3 = PD3
-#define PPM_port PORTD
-#ifdef XMEGA
-	#define SDI_pin  6						//SDIO-D6
-	#define SDI_port PORTD
-	#define SDI_ipr PIND
-	#define SDI_ddr DDRD
+// TX
+#define SERIAL_TX_pin	1							// PD1
+#define SERIAL_TX_port	PORTD
+#define SERIAL_TX_ddr	DDRD
+#define SERIAL_TX_output SERIAL_TX_ddr	|= _BV(SERIAL_TX_pin)
+#define SERIAL_TX_on	SERIAL_TX_port |=  _BV(SERIAL_TX_pin)
+#define SERIAL_TX_off	SERIAL_TX_port &= ~_BV(SERIAL_TX_pin)
+#ifdef DEBUG_TX
+	#define DEBUG_TX_on		SERIAL_TX_ON
+	#define DEBUG_TX_off	SERIAL_TX_OFF
+	#define DEBUG_TX_toggle	SERIAL_TX_port ^=  _BV(SERIAL_TX_pin)
 #else
-	#define SDI_pin  5						//D5 = PD5
-	#define SDI_port PORTD
-	#define SDI_ipr PIND
-	#define SDI_ddr DDRD
+	#define DEBUG_TX_on
+	#define DEBUG_TX_off
+	#define DEBUG_TX_toggle
 #endif
-#define SCLK_pin   4            //D4 = PD4
+
+// Dial
+#define MODE_DIAL1_pin	2
+#define MODE_DIAL1_port	PORTB
+#define MODE_DIAL2_pin	3
+#define MODE_DIAL2_port	PORTB
+#define MODE_DIAL3_pin	4
+#define MODE_DIAL3_port	PORTB
+#define MODE_DIAL4_pin	0
+#define MODE_DIAL4_port	PORTC
+
+// PPM
+#define PPM_pin	 3										//D3 = PD3
+#define PPM_port PORTD
+
+// SDIO
+#define SDI_pin	 5										//D5 = PD5
+#define SDI_port PORTD
+#define SDI_ipr  PIND
+#define SDI_ddr  DDRD
+#ifdef XMEGA
+	#define SDI_on	SDI_port.OUTSET = _BV(SDI_pin)
+	#define SDI_off SDI_port.OUTCLR = _BV(SDI_pin)
+#else
+	#define SDI_on	SDI_port |= _BV(SDI_pin)
+	#define SDI_off	SDI_port &= ~_BV(SDI_pin)
+	#define SDI_1	(SDI_ipr & _BV(SDI_pin)) != 0x00
+	#define SDI_0	(SDI_ipr & _BV(SDI_pin)) == 0x00
+#endif
+#define SDI_input	SDI_ddr &= ~_BV(SDI_pin)
+#define SDI_output	SDI_ddr |=  _BV(SDI_pin)
+
+//SDO
+#define SDO_pin		6									//D6 = PD6
+#define SDO_port	PORTD
+#define SDO_ipr		PIND
+#ifdef XMEGA
+	#define SDO_1 (SDO_port.IN & _BV(SDO_pin)) != 0x00
+	#define SDO_0 (SDO_port.IN & _BV(SDO_pin)) == 0x00
+#else
+	#define SDO_1 (SDO_ipr & _BV(SDO_pin)) != 0x00
+	#define SDO_0 (SDO_ipr & _BV(SDO_pin)) == 0x00
+#endif
+
+// SCLK
 #define SCLK_port PORTD
 #define SCLK_ddr DDRD
-#define A7105_CS_pin 2						//D2 = PD2
-#define A7105_CS_port PORTD
-#define A7105_CS_ddr DDRD
-#define SDO_pin		 6						//D6 = PD6
-#define SDO_port PORTD
-#define SDO_ipr PIND
-#define CC25_CSN_pin 7						//D7 = PD7
-#define CC25_CSN_port PORTD
-#define CC25_CSN_ddr DDRD
-#define NRF_CSN_pin  0						//D8 = PB0
-#define NRF_CSN_port PORTB
-#define NRF_CSN_ddr DDRB
-#define CYRF_CSN_pin 1						//D9 = PB1
-#define CYRF_CSN_port PORTB
-#define CYRF_CSN_ddr DDRB
-#define CYRF_RST_pin 5						//D9 = PB1
-#define CYRF_RST_port PORTC
-#define CYRF_RST_ddr DDRC
-#define CTRL1_pin 	 1						//A1 = PC1
-#define CTRL1_port PORTC
-#define CTRL1_ddr DDRC
-#define CTRL2_pin 	 2						//A2 = PC2
-#define CTRL2_port PORTC
-#define CTRL2_ddr DDRC
-//
 #ifdef XMEGA
-	#define CTRL1_on
-	#define CTRL1_off
-	#define CTRL2_on
-	#define CTRL2_off
+	#define SCLK_pin	7								//D7
+	#define SCLK_on		SCLK_port.OUTSET = _BV(SCLK_pin)
+	#define SCLK_off	SCLK_port.OUTCLR = _BV(SCLK_pin)
 #else
-	#define CTRL1_on  CTRL1_port |=  _BV(CTRL1_pin)
-	#define CTRL1_off CTRL1_port &= ~_BV(CTRL1_pin)
-	#define CTRL2_on  CTRL2_port |=  _BV(CTRL2_pin)
-	#define CTRL2_off CTRL2_port &= ~_BV(CTRL2_pin)
+	#define SCLK_pin	4								//D4 = PD4
+	#define SCLK_output	SCLK_ddr  |=  _BV(SCLK_pin)
+	#define SCLK_on		SCLK_port |=  _BV(SCLK_pin)
+	#define SCLK_off	SCLK_port &= ~_BV(SCLK_pin)
 #endif
-//
+
+// A7105
+#define A7105_CSN_pin	2								//D2 = PD2
+#define A7105_CSN_port	PORTD
+#define A7105_CSN_ddr	DDRD
+#define A7105_CSN_output	A7105_CSN_ddr	|= _BV(A7105_CSN_pin)
+#define A7105_CSN_on	A7105_CSN_port |=  _BV(A7105_CSN_pin)
+#define A7105_CSN_off	A7105_CSN_port &= ~_BV(A7105_CSN_pin)
+
+// CC2500
+#define CC25_CSN_pin	7								//D7 = PD7
+#define CC25_CSN_port	PORTD
+#define CC25_CSN_ddr	DDRD
+#define CC25_CSN_output	CC25_CSN_ddr  |=  _BV(CC25_CSN_pin)
+#define CC25_CSN_on		CC25_CSN_port |=  _BV(CC25_CSN_pin)
+#define CC25_CSN_off	CC25_CSN_port &= ~_BV(CC25_CSN_pin)
+
+// NRF24L01
+#define NRF_CSN_pin		0								//D8 = PB0
+#define NRF_CSN_port	PORTB
+#define NRF_CSN_ddr		DDRB
+#define NRF_CSN_output	NRF_CSN_ddr  |=  _BV(NRF_CSN_pin)
+#define NRF_CSN_on		NRF_CSN_port |=  _BV(NRF_CSN_pin)
+#define NRF_CSN_off		NRF_CSN_port &= ~_BV(NRF_CSN_pin)
+#define NRF_CE_on
+#define NRF_CE_off
+
+// CYRF6936
 #ifdef XMEGA
-	#define  A7105_CS_on A7105_CS_port.OUTSET = _BV(A7105_CS_pin)	//D4
-	#define  A7105_CS_off A7105_CS_port.OUTCLR = _BV(A7105_CS_pin)	//D4
+	#define CYRF_CSN_pin	4							//D4
+	#define CYRF_CSN_port	PORTD
+	#define CYRF_CSN_ddr	DDRD
+	#define CYRF_CSN_on		CYRF_CSN_port.OUTSET = _BV(CYRF_CSN_pin)
+	#define CYRF_CSN_off	CYRF_CSN_port.OUTCLR = _BV(CYRF_CSN_pin)
 #else
-	#define  A7105_CS_on A7105_CS_port |= _BV(A7105_CS_pin)		//D2
-	#define  A7105_CS_off A7105_CS_port &= ~_BV(A7105_CS_pin)		//D2
+	#define CYRF_CSN_pin	1							//D9 = PB1
+	#define CYRF_CSN_port	PORTB
+	#define CYRF_CSN_ddr	DDRB
+	#define CYRF_CSN_output	CYRF_CSN_ddr  |=  _BV(CYRF_CSN_pin)
+	#define CYRF_CSN_on		CYRF_CSN_port |=  _BV(CYRF_CSN_pin)
+	#define CYRF_CSN_off	CYRF_CSN_port &= ~_BV(CYRF_CSN_pin)
+
+	#define CYRF_RST_pin	5							//A5 = PC5
+	#define CYRF_RST_port	PORTC
+	#define CYRF_RST_ddr	DDRC
+	#define CYRF_RST_output	CYRF_RST_ddr  |=  _BV(CYRF_RST_pin)
+	#define CYRF_RST_HI		CYRF_RST_port |=  _BV(CYRF_RST_pin)
+	#define CYRF_RST_LO		CYRF_RST_port &= ~_BV(CYRF_RST_pin)
 #endif
-//
+
+//RF Switch
 #ifdef XMEGA
-	#define  SCK_on SCLK_port.OUTSET = _BV(SCLK_pin)		//D7
-	#define  SCK_off SCLK_port.OUTCLR = _BV(SCLK_pin)		//D7
+	#define PE1_on
+	#define PE1_off
+	#define PE2_on
+	#define PE2_off
 #else
-	#define  SCK_on SCLK_port |= _BV(SCLK_pin)				//D4
-	#define  SCK_off SCLK_port &= ~_BV(SCLK_pin)			//D4
+	#define PE1_pin		1								//A1 = PC1
+	#define PE1_port	PORTC
+	#define PE1_ddr		DDRC
+	#define	PE1_output	PE1_ddr  |=  _BV(PE1_pin)
+	#define PE1_on		PE1_port |=  _BV(PE1_pin)
+	#define PE1_off		PE1_port &= ~_BV(PE1_pin)
+
+	#define PE2_pin		2								//A2 = PC2
+	#define PE2_port	PORTC
+	#define PE2_ddr		DDRC
+	#define	PE2_output	PE2_ddr  |=  _BV(PE2_pin)
+	#define PE2_on		PE2_port |=  _BV(PE2_pin)
+	#define PE2_off		PE2_port &= ~_BV(PE2_pin)
 #endif
-//
-#ifdef XMEGA
-	#define  SDI_on SDI_port.OUTSET = _BV(SDI_pin)		//D5
-	#define  SDI_off SDI_port.OUTCLR = _BV(SDI_pin)		//D5
-#else
-	#define  SDI_on SDI_port |= _BV(SDI_pin)				//D5
-	#define  SDI_off SDI_port &= ~_BV(SDI_pin)			//D5
-#endif
-//
-#ifdef XMEGA
-	#define  SDI_1 (SDI_port.IN & _BV(SDI_pin)) == _BV(SDI_pin)	//D5
-	#define  SDI_0 (SDI_port.IN & _BV(SDI_pin)) == 0x00			//D5
-#else
-	#define  SDI_1 (SDI_ipr & _BV(SDI_pin)) == _BV(SDI_pin)		//D5
-	#define  SDI_0 (SDI_ipr & _BV(SDI_pin)) == 0x00				//D5
-#endif
-//
-#define SDI_SET_INPUT  SDI_ddr &= ~_BV(SDI_pin)			//D5
-#define SDI_SET_OUTPUT SDI_ddr |=  _BV(SDI_pin)			//D5
-//
-#ifdef XMEGA
-	#define CC25_CSN_on CC25_CSN_port.OUTSET  = _BV(CC25_CSN_pin)	//D7
-	#define CC25_CSN_off CC25_CSN_port.OUTCLR = _BV(CC25_CSN_pin)	//D7
-#else
-	#define CC25_CSN_on CC25_CSN_port  |=  _BV(CC25_CSN_pin)		//D7
-	#define CC25_CSN_off CC25_CSN_port &= ~_BV(CC25_CSN_pin)		//D7
-#endif
-//
-#ifdef XMEGA
-	#define NRF_CSN_on
-	#define NRF_CSN_off
-	#define NRF_CE_on
-	#define NRF_CE_off
-#else
-	#define NRF_CSN_on	NRF_CSN_port |=  _BV(NRF_CSN_pin)		//D8
-	#define NRF_CSN_off	NRF_CSN_port &= ~_BV(NRF_CSN_pin)		//D8
-	#define NRF_CE_on
-	#define NRF_CE_off
-#endif
-//
-#ifdef XMEGA
-	#define CYRF_CSN_on CYRF_CSN_port.OUTSET  = _BV(CYRF_CSN_pin)
-	#define CYRF_CSN_off CYRF_CSN_port.OUTCLR = _BV(CYRF_CSN_pin)
-#else
-	#define CYRF_CSN_on  CYRF_CSN_port |=  _BV(CYRF_CSN_pin)		//D9
-	#define CYRF_CSN_off CYRF_CSN_port &= ~_BV(CYRF_CSN_pin)		//D9
-	#define CYRF_RST_HI  CYRF_RST_port |=  _BV(CYRF_RST_pin)		//A5
-	#define CYRF_RST_LO  CYRF_RST_port &= ~_BV(CYRF_RST_pin)		//A5
-	#define CYRF_RST_pin 5
-#endif
-//  
-#ifdef XMEGA
-	#define  SDO_1 (SDO_port.IN & _BV(SDO_pin)) == _BV(SDO_pin)	//D6
-	#define  SDO_0 (SDO_port.IN & _BV(SDO_pin)) == 0x00			//D6
-#else
-	#define  SDO_1 (SDO_ipr & _BV(SDO_pin)) == _BV(SDO_pin)		//D6
-	#define  SDO_0 (SDO_ipr & _BV(SDO_pin)) == 0x00				//D6
-#endif
-//
-//
 
 // LED
 #ifdef XMEGA
-	#define LED_ON  LED_port.OUTCLR		= _BV(LED_pin)
-	#define LED_OFF LED_port.OUTSET		= _BV(LED_pin)
-	#define LED_TOGGLE  LED_port.OUTTGL	= _BV(LED_pin)
-	#define LED_SET_OUTPUT LED_port.DIRSET	= _BV(LED_pin)
-	#define IS_LED_on		( (LED_port.OUT & _BV(LED_pin)) != 0x00 )
+	#define LED_pin		1								//PD1
+	#define LED_port	PORTD
+	#define LED_ddr		DDRD
+	#define LED_on		LED_port.OUTCLR	= _BV(LED_pin)
+	#define LED_off		LED_port.OUTSET	= _BV(LED_pin)
+	#define LED_toggle	LED_port.OUTTGL	= _BV(LED_pin)
+	#define LED_output	LED_port.DIRSET	= _BV(LED_pin)
+	#define IS_LED_on	( (LED_port.OUT & _BV(LED_pin)) != 0x00 )
 #else
-	#define LED_ON			LED_port |= _BV(LED_pin)
-	#define LED_OFF			LED_port &= ~_BV(LED_pin)
-	#define LED_TOGGLE		LED_port ^= _BV(LED_pin)
-	#define LED_SET_OUTPUT	LED_ddr |= _BV(LED_pin)
-	#define IS_LED_on		( (LED_port & _BV(LED_pin)) != 0x00 )
+	#define LED_pin		5								//D13 = PB5
+	#define LED_port	PORTB
+	#define LED_ddr		DDRB
+	#define LED_on		LED_port |= _BV(LED_pin)
+	#define LED_off		LED_port &= ~_BV(LED_pin)
+	#define LED_toggle	LED_port ^= _BV(LED_pin)
+	#define LED_output	LED_ddr  |= _BV(LED_pin)
+	#define IS_LED_on	( (LED_port & _BV(LED_pin)) != 0x00 )
 #endif
 
 //BIND
 #ifdef XMEGA
-	#define IS_BIND_BUTTON_on	( (PORTD.IN & _BV(2)) == 0x00 )
+	#define BIND_pin			2						//PD2
+	#define BIND_port			PORTD
+	#define IS_BIND_BUTTON_on	( (BIND_port.IN & _BV(BIND_pin)) == 0x00 )
 #else
+	#define BIND_pin			5						//D13 = PB5
+	#define BIND_port			PORTB
+	#define BIND_ipr			PINB
+	#define BIND_ddr			DDRB
 	#define BIND_SET_INPUT		BIND_ddr &= ~_BV(BIND_pin)
 	#define BIND_SET_PULLUP		BIND_port |= _BV(BIND_pin)
 	#define IS_BIND_BUTTON_on	( (BIND_ipr & _BV(BIND_pin)) == 0x00 )
 	#define BIND_SET_OUTPUT		BIND_ddr |= _BV(BIND_pin)
-#endif
-
-// TX
-#ifdef DEBUG_TX
-	#define TX_ON  DEBUG_TX_port |= _BV(DEBUG_TX_pin)
-	#define TX_OFF  DEBUG_TX_port &= ~_BV(DEBUG_TX_pin)
-	#define TX_TOGGLE  DEBUG_TX_port ^= _BV(DEBUG_TX_pin)
-	#define TX_SET_OUTPUT DEBUG_TX_ddr |= _BV(DEBUG_TX_pin)
-#else
-	#define TX_ON
-	#define TX_OFF
-	#define TX_TOGGLE
-	#define TX_SET_OUTPUT
 #endif
 
 // Macros
@@ -674,4 +668,3 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 	2047	+125%
    Channels bits are concatenated to fit in 22 bytes like in SBUS protocol
 */
-	

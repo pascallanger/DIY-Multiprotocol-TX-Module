@@ -588,11 +588,10 @@ void initTXSerial( uint8_t speed)
 {
 	TIMSK0 = 0 ;	// Stop all timer 0 interrupts
 	#ifdef INVERT_SERIAL
-		TELEMETRY_SERIAL_TX_port &= ~_BV(TELEMETRY_SERIAL_TX_pin);
+		SERIAL_TX_off;
 	#else
-		TELEMETRY_SERIAL_TX_port |= _BV(TELEMETRY_SERIAL_TX_pin);
+		SERIAL_TX_on;
 	#endif
-	TELEMETRY_SERIAL_TX_ddr |= _BV(TELEMETRY_SERIAL_TX_pin) ;	// TxD pin is an output
 	UCSR0B &= ~(1<<TXEN0) ;
 
 	SerialControl.speed = speed ;
@@ -615,20 +614,20 @@ void Serial_write( uint8_t byte )
 	uint8_t temp1 ;
 	uint8_t byteLo ;
 
-#ifdef INVERT_SERIAL
-	byte = ~byte ;
-#endif
+	#ifdef INVERT_SERIAL
+		byte = ~byte ;
+	#endif
 
 	byteLo = byte ;
 	byteLo >>= 7 ;		// Top bit
 	if ( SerialControl.speed == SPEED_100K )
 	{
-#ifdef INVERT_SERIAL
-		byteLo |= 0x02 ;	// Parity bit
-#else
-		byteLo |= 0xFC ;	// Stop bits
-#endif
-	// calc parity
+		#ifdef INVERT_SERIAL
+				byteLo |= 0x02 ;	// Parity bit
+		#else
+				byteLo |= 0xFC ;	// Stop bits
+		#endif
+		// calc parity
 		temp = byte ;
 		temp >>= 4 ;
 		temp = byte ^ temp ;
@@ -639,21 +638,21 @@ void Serial_write( uint8_t byte )
 		temp1 <<= 1 ;
 		temp ^= temp1 ;
 		temp &= 0x02 ;
-#ifdef INVERT_SERIAL
-		byteLo ^= temp ;
-#else	
-		byteLo |= temp ;
-#endif
+		#ifdef INVERT_SERIAL
+				byteLo ^= temp ;
+		#else	
+				byteLo |= temp ;
+		#endif
 	}
 	else
 	{
 		byteLo |= 0xFE ;	// Stop bit
 	}	
 	byte <<= 1 ;
-#ifdef INVERT_SERIAL
-	byte |= 1 ;		// Start bit
-#endif
-  uint8_t next = (SerialControl.head + 2) & 0x3f ;
+	#ifdef INVERT_SERIAL
+		byte |= 1 ;		// Start bit
+	#endif
+	uint8_t next = (SerialControl.head + 2) & 0x3f ;
 	if ( next != SerialControl.tail )
 	{
 		SerialControl.data[SerialControl.head] = byte ;
@@ -671,11 +670,11 @@ void resumeBashSerial()
 	{
 		sei() ;
 		// Start the transmission here
-#ifdef INVERT_SERIAL
-		GPIOR2 = 0 ;
-#else
-		GPIOR2 = 0x01 ;
-#endif
+		#ifdef INVERT_SERIAL
+			GPIOR2 = 0 ;
+		#else
+			GPIOR2 = 0x01 ;
+		#endif
 		if ( SerialControl.speed == SPEED_100K )
 		{
 			GPIOR1 = 1 ;
@@ -706,13 +705,9 @@ ISR(TIMER0_COMPA_vect)
 	uint8_t byte ;
 	byte = GPIOR0 ;
 	if ( byte & 0x01 )
-	{
-		TELEMETRY_SERIAL_TX_port |= _BV(TELEMETRY_SERIAL_TX_pin);
-	}
+		SERIAL_TX_on;
 	else
-	{
-		TELEMETRY_SERIAL_TX_port &= ~_BV(TELEMETRY_SERIAL_TX_pin);
-	}
+		SERIAL_TX_off;
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	GPIOR0 = byte ;
 	if ( --GPIOR1 == 0 )
@@ -731,13 +726,9 @@ ISR(TIMER0_COMPB_vect)
 	uint8_t byte ;
 	byte = GPIOR2 ;
 	if ( byte & 0x01 )
-	{
-		TELEMETRY_SERIAL_TX_port |= _BV(TELEMETRY_SERIAL_TX_pin);
-	}
+		SERIAL_TX_on;
 	else
-	{
-		TELEMETRY_SERIAL_TX_port &= ~_BV(TELEMETRY_SERIAL_TX_pin);
-	}
+		SERIAL_TX_off;
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	GPIOR2 = byte ;
 	if ( --GPIOR1 == 0 )
@@ -786,13 +777,9 @@ ISR(TIMER0_OVF_vect)
 		byte = GPIOR2 ;
 	}
 	if ( byte & 0x01 )
-	{
-		TELEMETRY_SERIAL_TX_port |= _BV(TELEMETRY_SERIAL_TX_pin);
-	}
+		SERIAL_TX_on;
 	else
-	{
-		TELEMETRY_SERIAL_TX_port &= ~_BV(TELEMETRY_SERIAL_TX_pin);
-	}
+		SERIAL_TX_off;
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	if ( GPIOR1 > 2 )
 	{

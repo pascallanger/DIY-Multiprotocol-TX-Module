@@ -34,7 +34,7 @@ enum PROTOCOLS
 	MODE_FRSKYD		= 3,	// =>CC2500
 	MODE_HISKY		= 4,	// =>NRF24L01
 	MODE_V2X2		= 5,	// =>NRF24L01
-	MODE_DSM2		= 6,	// =>CYRF6936
+	MODE_DSM		= 6,	// =>CYRF6936
 	MODE_DEVO		= 7,	// =>CYRF6936
 	MODE_YD717		= 8,	// =>NRF24L01
 	MODE_KN			= 9,	// =>NRF24L01
@@ -53,7 +53,9 @@ enum PROTOCOLS
 	MODE_J6PRO		= 22,	// =>CYRF6936
 	MODE_FQ777		= 23,	// =>NRF24L01
 	MODE_ASSAN		= 24,	// =>NRF24L01
-	MODE_FRSKYV		= 25	// =>CC2500
+	MODE_FRSKYV		= 25,	// =>CC2500
+	MODE_HONTAI		= 26,	// =>NRF24L01
+	MODE_OPENLRS	        = 27	// =>OpenLRS hardware
 };
 
 enum Flysky
@@ -128,6 +130,12 @@ enum FRSKYX
 {
 	CH_16	= 0,
 	CH_8	= 1,
+};
+enum HONTAI
+{
+	FORMAT_HONTAI	= 0,
+	FORMAT_JJRCX1	= 1,
+	FORMAT_X5C1		= 2
 };
 
 #define NONE 		0

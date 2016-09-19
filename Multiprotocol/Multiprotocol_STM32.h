@@ -122,6 +122,13 @@ enum FRSKYX
 	CH_8	= 1,
 };
 
+enum HONTAI
+{
+	FORMAT_HONTAI	= 0,
+	FORMAT_JJRCX1	= 1,
+	FORMAT_X5C1	= 2
+};
+
 #define NONE 		0
 #define P_HIGH		1
 #define P_LOW		0

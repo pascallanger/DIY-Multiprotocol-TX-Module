@@ -246,11 +246,12 @@ void setup()
 	#ifndef ENABLE_PPM
 		mode_select = MODE_SERIAL ;	// force serial mode
 	#else
-		mode_select = 
+		mode_select=0x0F - ( ( (PINB>>2)&0x07 ) | ( (PINC<<3)&0x08) );//encoder dip switches 1,2,4,8=>B2,B3,B4,C0
+		/*mode_select = 0x0F - (
 			((MODE_DIAL1_port & MODE_DIAL1_pin) ? 1 : 0) + 
 			((MODE_DIAL2_port & MODE_DIAL2_pin) ? 2 : 0) +
 			((MODE_DIAL3_port & MODE_DIAL3_pin) ? 4 : 0) +
-			((MODE_DIAL4_port & MODE_DIAL4_pin) ? 8 : 0);
+			((MODE_DIAL4_port & MODE_DIAL4_pin) ? 8 : 0));*/
 	#endif
 
 	// Update LED

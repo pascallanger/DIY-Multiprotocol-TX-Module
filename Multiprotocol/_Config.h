@@ -152,7 +152,7 @@ const PPM_Parameters PPM_prot[15]=	{
 /*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	2		},	// option=2=6 channels @ 22ms
+/*	6	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	2		},	// option=2=6 channels @ 22ms
 /*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -179,8 +179,10 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_V2X2
 		NONE
 	MODE_DSM
-		DSM2
-		DSMX
+		DSM2_22
+		DSM2_11
+		DSMX_22
+		DSMX_11
 	MODE_DEVO
 		NONE
 	MODE_YD717

@@ -72,16 +72,11 @@ enum Hisky
 };
 enum DSM
 {
-	DSM2	= 0,
-	DSMX	= 1
-};
-enum
-{
 	DSM2_22	= 0,
 	DSM2_11	= 1,
 	DSMX_22	= 2,
 	DSMX_11	= 3,
-	AUTO	= 4
+	DSM_AUTO = 4
 };
 enum YD717
 {       			
@@ -566,28 +561,30 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    RxNum value is 0..15 (bits 0..3)
    Type is 0..7 <<4     (bit 4..6)
 		sub_protocol==Flysky
-			Flysky	0
-			V9x9	1
-			V6x6	2
-			V912	3
+			Flysky		0
+			V9x9		1
+			V6x6		2
+			V912		3
 		sub_protocol==Hisky
-			Hisky	0
-			HK310	1
+			Hisky		0
+			HK310		1
 		sub_protocol==DSM
-			DSM2	0
-			DSMX	1
+			DSM2_22 	0
+			DSM2_11 	1
+			DSMX_22 	2
+			DSMX_11 	3
 		sub_protocol==YD717
-			YD717	0
-			SKYWLKR	1
-			SYMAX4	2
-			XINXUN	3
-			NIHUI	4
+			YD717		0
+			SKYWLKR		1
+			SYMAX4		2
+			XINXUN		3
+			NIHUI		4
 		sub_protocol==KN
-			WLTOYS	0
-			FEILUN	1
+			WLTOYS		0
+			FEILUN		1
 		sub_protocol==SYMAX
-			SYMAX	0
-			SYMAX5C	1
+			SYMAX		0
+			SYMAX5C		1
 		sub_protocol==CX10
 			CX10_GREEN	0
 			CX10_BLUE	1	// also compatible with CX10-A, CX12

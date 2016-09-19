@@ -44,7 +44,9 @@ enum PROTOCOLS
 	MODE_J6PRO  = 22,		// =>CYRF6936
 	MODE_FQ777  = 23,		// =>NRF24L01
 	MODE_ASSAN  = 24,		// =>NRF24L01
-	MODE_FRSKYV	= 25	    // =>CC2500
+	MODE_FRSKYV = 25,	        // =>CC2500
+	MODE_HONTAI = 26,	        // =>NRF24L01
+	MODE_OPENLRS= 27	        // =>OpenLRS hardware
 };
 
 enum Flysky

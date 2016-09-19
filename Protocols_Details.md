@@ -136,38 +136,28 @@ Bind procedure using PPM:
 - Note: Autobind/fixed ID mode is linked to the dial number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
 
 ##DSM
-###Sub_protocol DSM2
 Extended limits supported
 
 Telemetry enabled for TSSI and plugins
 
-option=number of channels and frame rate:
- - 0 : 4 channels @22ms
- - 1 : 5 channels @22ms
- - 2 : 6 channels @22ms
- - 3 : 7 channels @22ms
-
- - 4 : 4 channels @11ms
- - 5 : 5 channels @11ms
- - 6 : 6 channels @11ms
- - 7 : 7 channels @11ms
-
- - 8 : 8 channels @22ms
- - 9 : 9 channels @22ms
- - 10 : 10 channels @22ms
- - 11 : 11 channels @22ms
- - 12 : 12 channels @22ms
-
-Value 6 is usually giving the best results with most of the RX.
+option=number of channels from 4 to 12 for normal receivers or -4 to -12 for OrangeRX. An invalid option value will end up with 6 channels.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
-Note that the RX ouput will be TAER.
+Notes:
+ - model/type/number of channels indicated on the RX can be different from what the RX is in fact wanting to see. So don't hesitate to test different combinations until you have something working. Using Auto is the best way to find it out.
+ - OrangeRX are using a wrong table which causes issues with some RX_Num values. It is recommended to use the minus number of channels.
+ - RX ouput will be TAER.
 
-###Sub_protocol DSMX
-Same as above
+###Sub_protocol DSM2_22
+###Sub_protocol DSM2_11
+###Sub_protocol DSMX_22
+###Sub_protocol DSMX_11
+###Sub_protocol AUTO
+The current radio firmware which are able to use the "AUTO" feature are ersky9x (9XR Pro, 9Xtreme, Taranis, ...) and er9x for M128 (9XR) and M2561.
+For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx" to be sure of receiving the bind response packet. Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on ersky9x you can set "Invert COM1" accordinlgy.
 
 ##J6Pro
 

@@ -177,7 +177,7 @@ struct PPM_Parameters
 #define CC25_CSN_pin PB6//CC2500
 #define NRF_CSN_pin  PB7//NRF24L01
 #define CYRF_RST_pin PB8//CYRF RESET
-#define CS_pin       PB9//A7105
+#define A7105_CS_pin PB9//A7105
 #define CYRF_CSN_pin PB12//CYRF CSN
 //SPI pins	
 #define SCK_pin PB13//SCK
@@ -197,8 +197,8 @@ struct PPM_Parameters
 #define RS_LO digitalWrite(CYRF_RST_pin,LOW)
 
 
-#define  CS_on digitalWrite(CS_pin,HIGH)			
-#define  CS_off digitalWrite(CS_pin,LOW)		
+#define  A7105_CS_on digitalWrite(CS_pin,HIGH)			
+#define  A7105_CS_off digitalWrite(CS_pin,LOW)		
 
 #define NRF_CE_on
 #define NRF_CE_off
@@ -440,6 +440,8 @@ enum {
 // baudrate defines for serial
 #define SPEED_100K	0
 #define SPEED_9600	1
+#define SPEED_57600	2
+#define SPEED_125K	3
 
 
 //****************************************
@@ -451,17 +453,18 @@ enum {
 **************************
 Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Total of 26 bytes
-  Stream[0]   = 0x55
+  Stream[0]   = 0x55	sub_protocol values are 0..31
+  Stream[0]   = 0x54	sub_protocol values are 32..63
    header
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
-   sub_protocol is 0..31 (bits 0..4)
+   sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54
    =>	Reserved	0
 					Flysky		1
 					Hubsan		2
-					Frsky		3
+					FrskyD		3
 					Hisky		4
 					V2x2		5
-					DSM2		6
+					DSM			6
 					Devo		7
 					YD717		8
 					KN			9
@@ -477,6 +480,12 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					SHENQI		19
 					FY326		20
 					SFHSS		21
+					J6PRO		22
+					FQ777		23
+					ASSAN		24
+					FrskyV		25
+					HONTAI		26
+					OpenLRS		27
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -484,28 +493,30 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    RxNum value is 0..15 (bits 0..3)
    Type is 0..7 <<4     (bit 4..6)
 		sub_protocol==Flysky
-			Flysky	0
-			V9x9	1
-			V6x6	2
-			V912	3
+			Flysky		0
+			V9x9		1
+			V6x6		2
+			V912		3
 		sub_protocol==Hisky
-			Hisky	0
-			HK310	1
-		sub_protocol==DSM2
-			DSM2	0
-			DSMX	1
+			Hisky		0
+			HK310		1
+		sub_protocol==DSM
+			DSM2_22 	0
+			DSM2_11 	1
+			DSMX_22 	2
+			DSMX_11 	3
 		sub_protocol==YD717
-			YD717	0
-			SKYWLKR	1
-			SYMAX4	2
-			XINXUN	3
-			NIHUI	4
+			YD717		0
+			SKYWLKR		1
+			SYMAX4		2
+			XINXUN		3
+			NIHUI		4
 		sub_protocol==KN
-			WLTOYS	0
-			FEILUN	1
+			WLTOYS		0
+			FEILUN		1
 		sub_protocol==SYMAX
-			SYMAX	0
-			SYMAX5C	1
+			SYMAX		0
+			SYMAX5C		1
 		sub_protocol==CX10
 			CX10_GREEN	0
 			CX10_BLUE	1	// also compatible with CX10-A, CX12
@@ -523,14 +534,20 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			MT99		0
 			H7			1
 			YZ			2
+			LS			3
 		sub_protocol==MJXQ
 			WLH08		0
 			X600		1
 			X800		2
 			H26D		3
+			E010		4
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1
+		sub_protocol==HONTAI
+			FORMAT_HONTAI	0
+			FORMAT_JJRCX1	1
+			FORMAT_X5C1		2
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127

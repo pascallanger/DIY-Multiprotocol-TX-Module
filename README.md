@@ -32,7 +32,7 @@ A functioning DIY Multiprotocol module consists of (see image below):
 
 1. DIY Multiprotocol module that connects to a host transmitter.  This module is typically comprised of
 
-  * A microprocessor (currently ATMega328P) that interfaces with the Tx, controls the module functions and forwards the RC commands to the RF hardware
+  * A microcontroller (currently ATMega328P) that interfaces with the Tx, controls the module functions and forwards the RC commands to the RF hardware
 
   * One or more (but at least one) RF modules that provide the capability to communicate with RC receivers.  To communicate with the receiver the RF module in the Tx must match with the RF module type in the receiver.  The four most common 2.4GHz RF chips on the market are supported TI CC2500, Nordic NRF24L01, Cypress CYRF6936, and the Amiccom A7105
 

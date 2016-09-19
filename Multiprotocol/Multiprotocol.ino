@@ -761,7 +761,12 @@ static void protocol_init()
 		remote_callback = ASSAN_callback;
 		break;
 		#endif
-		
+	        #if defined(HONTAI_NRF24L01_INO)
+	case MODE_HONTAI:
+		next_callback=initHONTAI();
+		remote_callback = HONTAI_callback;
+		break;
+		#endif	
 	}
 	
 	if(next_callback>32000)

@@ -103,9 +103,11 @@ Visit the [Troubleshooting](docs/Troubleshooting.md) page.  Please bear in mind 
 # A final word
 A very big thanks to all the people who have shared their time so graciously to create this great project.  If you come across them on RC Groups, please be kind and show appreciation.  In no particular order:
 * Pascal Langer (rcgroups: hpnuts)
+* Midelic (rcgroups: midelic)
 * Mike Blandford (rcgroups: Mike Blandford)
-* (rcgroups: midelic)
-* victhz – from Deviation-tx
-* Enter the other Deviation people here (###)
+* PhracturedBlue – from Deviation-tx
+* goebish – from Deviation-tx
+* victzh – from Deviation-tx
+* hexfet – from Deviation-tx
 
 Your help would be greatly appreciated.  If protocol reverse-engineering and dev is not your thing then any help with testing and contributing to the documentation would be amazing.  Given the number of different Tx/module hardware/RF module/protocol/model combinations the process of testing and documenting is a major bottleneck for the developers.  Anything you can do to help will free them up to do even greater things. Check out this quick guide {How to help with documentation} for how you can submit changes to the documentation. 

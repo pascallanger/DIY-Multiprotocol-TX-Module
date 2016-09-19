@@ -181,7 +181,7 @@ struct PPM_Parameters
 #define CC25_CSN_pin PB6//CC2500
 #define NRF_CSN_pin  PB7//NRF24L01
 #define CYRF_RST_pin PB8//CYRF RESET
-#define CS_pin       PB9//A7105
+#define A7105_CS_pin PB9//A7105
 #define CYRF_CSN_pin PB12//CYRF CSN
 //SPI pins	
 #define SCK_pin PB13//SCK
@@ -201,8 +201,8 @@ struct PPM_Parameters
 #define RS_LO digitallo(GPIOB,CYRF_RST_pin)
 
 
-#define  CS_on digitalHi(GPIOB,CS_pin)			
-#define  CS_off digitallo(GPIOB,CS_pin)		
+#define  A7105_CS_on digitalHi(GPIOB,CS_pin)			
+#define  A7105_CS_off digitallo(GPIOB,CS_pin)		
 
 #define NRF_CE_on
 #define NRF_CE_off

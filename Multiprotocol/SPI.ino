@@ -82,7 +82,9 @@ void spi_write(uint8_t command)
 {
 	uint8_t n=8; 
 	SCK_off;//SCK start low
+	XNOP();
 	SDI_off;
+	XNOP();
 	do
 	{
 		if(command&0x80)
@@ -94,8 +96,9 @@ void spi_write(uint8_t command)
 		NOP();
 		XNOP() ;
 		XNOP() ;
+		command = command << 1;		
 		SCK_off;
-		command = command << 1;
+                XNOP() ;
 	}
 	while(n--);
 	SDI_on;
@@ -129,8 +132,12 @@ uint8_t spi_read()
 		if(SDO_1)  ///
 			result|=0x01;
 		SCK_on;
+		XNOP();
+		XNOP();
 		NOP();
 		SCK_off;
+		XNOP();
+		XNOP();
 	}
 	return result;
 }

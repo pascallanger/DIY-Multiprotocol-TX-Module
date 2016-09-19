@@ -152,12 +152,19 @@ Notes:
  - RX ouput will be TAER.
 
 ###Sub_protocol DSM2_22
+DSM2, Resolution 1024, refresh rate 22ms
 ###Sub_protocol DSM2_11
+DSM2, Resolution 2048, refresh rate 11ms
 ###Sub_protocol DSMX_22
+DSMX, Resolution 2048, refresh rate 22ms
 ###Sub_protocol DSMX_11
+DSMX, Resolution 2048, refresh rate 11ms
 ###Sub_protocol AUTO
+The "AUTO" feature enables the TX to automatically choose what are the best settings for your DSM RX and update your model protocol settings accordingly.
+
 The current radio firmware which are able to use the "AUTO" feature are ersky9x (9XR Pro, 9Xtreme, Taranis, ...) and er9x for M128 (9XR) and M2561.
-For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx" to be sure of receiving the bind response packet. Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on ersky9x you can set "Invert COM1" accordinlgy.
+For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx".
+Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on ersky9x you can set "Invert COM1" accordinlgy.
 
 ##J6Pro
 

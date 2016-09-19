@@ -206,7 +206,7 @@ void setup()
 	//select the counter clock.
 	start_timer2();//0.5us
 	#else
-	DDRD = (1<<CS_pin)|(1<<SDI_pin)|(1<<SCLK_pin)|(1<<CS_pin)|(1<< CC25_CSN_pin);
+	DDRD = (1<<CS_pin)|(1<<SDI_pin)|(1<<SCLK_pin)|(1<<A7105_CS_pin)|(1<< CC25_CSN_pin);
 	DDRC = (1<<CTRL1_pin)|(1<<CTRL2_pin); //output
 	DDRC |= (1<<CYRF_RST_pin);//RST pin A5(C5) CYRF output
 	DDRB  = _BV(0)|_BV(1);
@@ -221,7 +221,7 @@ void setup()
 	#endif
 	
 	// Set Chip selects
-	CS_on;
+	A7105_CS_on;
 	CC25_CSN_on;
 	NRF_CSN_on;
 	CYRF_CSN_on;

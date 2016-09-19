@@ -19,33 +19,34 @@
 //******************
 enum PROTOCOLS
 {
-	MODE_SERIAL = 0,		// Serial commands
-	MODE_FLYSKY = 1,		// =>A7105
-	MODE_HUBSAN = 2,		// =>A7105
-	MODE_FRSKYD = 3,			// =>CC2500
-	MODE_HISKY = 4,			// =>NRF24L01
-	MODE_V2X2 = 5,			// =>NRF24L01
-	MODE_DSM2 = 6,			// =>CYRF6936
-	MODE_DEVO =7,			// =>CYRF6936
-	MODE_YD717 = 8,			// =>NRF24L01
-	MODE_KN  = 9,			// =>NRF24L01
-	MODE_SYMAX = 10,		// =>NRF24L01
-	MODE_SLT = 11,			// =>NRF24L01
-	MODE_CX10 = 12,			// =>NRF24L01
-	MODE_CG023 = 13,		// =>NRF24L01
-	MODE_BAYANG = 14,		// =>NRF24L01
-	MODE_FRSKYX = 15,		// =>CC2500
-	MODE_ESKY = 16,			// =>NRF24L01
-	MODE_MT99XX=17,			// =>NRF24L01
-	MODE_MJXQ=18,			// =>NRF24L01
-	MODE_SHENQI=19,			// =>NRF24L01
-	MODE_FY326=20,			// =>NRF24L01
-	MODE_SFHSS=21			// =>CC2500
-	MODE_J6PRO=22,			// =>CYRF6936
-	MODE_FQ777=23,			// =>NRF24L01
-	MODE_ASSAN=24,			// =>NRF24L01
-	MODE_FRSKYV	= 25	    // =>CC2500
-	
+	MODE_SERIAL		= 0,	// Serial commands
+	MODE_FLYSKY 	= 1,	// =>A7105
+	MODE_HUBSAN		= 2,	// =>A7105
+	MODE_FRSKYD		= 3,	// =>CC2500
+	MODE_HISKY		= 4,	// =>NRF24L01
+	MODE_V2X2		= 5,	// =>NRF24L01
+	MODE_DSM		= 6,	// =>CYRF6936
+	MODE_DEVO		= 7,	// =>CYRF6936
+	MODE_YD717		= 8,	// =>NRF24L01
+	MODE_KN			= 9,	// =>NRF24L01
+	MODE_SYMAX		= 10,	// =>NRF24L01
+	MODE_SLT		= 11,	// =>NRF24L01
+	MODE_CX10		= 12,	// =>NRF24L01
+	MODE_CG023		= 13,	// =>NRF24L01
+	MODE_BAYANG		= 14,	// =>NRF24L01
+	MODE_FRSKYX		= 15,	// =>CC2500
+	MODE_ESKY		= 16,	// =>NRF24L01
+	MODE_MT99XX		= 17,	// =>NRF24L01
+	MODE_MJXQ		= 18,	// =>NRF24L01
+	MODE_SHENQI		= 19,	// =>NRF24L01
+	MODE_FY326		= 20,	// =>NRF24L01
+	MODE_SFHSS		= 21,	// =>CC2500
+	MODE_J6PRO		= 22,	// =>CYRF6936
+	MODE_FQ777		= 23,	// =>NRF24L01
+	MODE_ASSAN		= 24,	// =>NRF24L01
+	MODE_FRSKYV		= 25,	// =>CC2500
+	MODE_HONTAI		= 26,	// =>NRF24L01
+	MODE_OPENLRS	        = 27	// =>OpenLRS hardware
 };
 
 enum Flysky
@@ -119,6 +120,14 @@ enum FRSKYX
 	CH_16	= 0,
 	CH_8	= 1,
 };
+
+enum HONTAI
+{
+	FORMAT_HONTAI	= 0,
+	FORMAT_JJRCX1	= 1,
+	FORMAT_X5C1		= 2
+};
+
 
 #define NONE 		0
 #define P_HIGH		1
@@ -411,12 +420,12 @@ enum CYRF_POWER
 	CYRF_POWER_4 = 0x04,	// -13dbm
 	CYRF_POWER_5 = 0x05,	//  -5dbm
 	CYRF_POWER_6 = 0x06,	//   0dbm
-	CYRF_POWER_7 = 0x07		//  +4dbm
+	CYRF_POWER_7 = 0x07	//  +4dbm
 };
 #define CYRF_HIGH_POWER		CYRF_POWER_7
 #define	CYRF_LOW_POWER		CYRF_POWER_3
 #define	CYRF_RANGE_POWER	CYRF_POWER_1	// 1/30 of the full power distance
-#define	CYRF_BIND_POWER		CYRF_POWER_1
+#define	CYRF_BIND_POWER		CYRF_POWER_0
 
 enum TXRX_State {
 	TXRX_OFF,
@@ -434,6 +443,8 @@ enum {
 // baudrate defines for serial
 #define SPEED_100K	0
 #define SPEED_9600	1
+#define SPEED_57600	2
+#define SPEED_125K	3
 
 
 //****************************************
@@ -445,17 +456,18 @@ enum {
 **************************
 Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Total of 26 bytes
-  Stream[0]   = 0x55
+  Stream[0]   = 0x55	sub_protocol values are 0..31
+  Stream[0]   = 0x54	sub_protocol values are 32..63
    header
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
-   sub_protocol is 0..31 (bits 0..4)
+   sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54
    =>	Reserved	0
 					Flysky		1
 					Hubsan		2
-					Frsky		3
+					FrskyD		3
 					Hisky		4
 					V2x2		5
-					DSM2		6
+					DSM			6
 					Devo		7
 					YD717		8
 					KN			9
@@ -471,6 +483,12 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					SHENQI		19
 					FY326		20
 					SFHSS		21
+					J6PRO		22
+					FQ777		23
+					ASSAN		24
+					FrskyV		25
+					HONTAI		26
+					OpenLRS		27
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -478,28 +496,30 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    RxNum value is 0..15 (bits 0..3)
    Type is 0..7 <<4     (bit 4..6)
 		sub_protocol==Flysky
-			Flysky	0
-			V9x9	1
-			V6x6	2
-			V912	3
+			Flysky		0
+			V9x9		1
+			V6x6		2
+			V912		3
 		sub_protocol==Hisky
-			Hisky	0
-			HK310	1
-		sub_protocol==DSM2
-			DSM2	0
-			DSMX	1
+			Hisky		0
+			HK310		1
+		sub_protocol==DSM
+			DSM2_22 	0
+			DSM2_11 	1
+			DSMX_22 	2
+			DSMX_11 	3
 		sub_protocol==YD717
-			YD717	0
-			SKYWLKR	1
-			SYMAX4	2
-			XINXUN	3
-			NIHUI	4
+			YD717		0
+			SKYWLKR		1
+			SYMAX4		2
+			XINXUN		3
+			NIHUI		4
 		sub_protocol==KN
-			WLTOYS	0
-			FEILUN	1
+			WLTOYS		0
+			FEILUN		1
 		sub_protocol==SYMAX
-			SYMAX	0
-			SYMAX5C	1
+			SYMAX		0
+			SYMAX5C		1
 		sub_protocol==CX10
 			CX10_GREEN	0
 			CX10_BLUE	1	// also compatible with CX10-A, CX12
@@ -517,14 +537,20 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			MT99		0
 			H7			1
 			YZ			2
+			LS			3
 		sub_protocol==MJXQ
 			WLH08		0
 			X600		1
 			X800		2
 			H26D		3
+			E010		4
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1
+		sub_protocol==HONTAI
+			FORMAT_HONTAI	0
+			FORMAT_JJRCX1	1
+			FORMAT_X5C1		2
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127

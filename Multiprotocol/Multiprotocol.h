@@ -182,7 +182,7 @@ struct PPM_Parameters
 //*******************
 
 // TX
-#define SERIAL_TX_pin	1							// PD1
+#define SERIAL_TX_pin	1								//PD1
 #define SERIAL_TX_port	PORTD
 #define SERIAL_TX_ddr	DDRD
 #define SERIAL_TX_output SERIAL_TX_ddr	|= _BV(SERIAL_TX_pin)
@@ -201,12 +201,16 @@ struct PPM_Parameters
 // Dial
 #define MODE_DIAL1_pin	2
 #define MODE_DIAL1_port	PORTB
+#define MODE_DIAL1_ipr  PINB
 #define MODE_DIAL2_pin	3
 #define MODE_DIAL2_port	PORTB
+#define MODE_DIAL2_ipr  PINB
 #define MODE_DIAL3_pin	4
 #define MODE_DIAL3_port	PORTB
+#define MODE_DIAL3_ipr  PINB
 #define MODE_DIAL4_pin	0
 #define MODE_DIAL4_port	PORTC
+#define MODE_DIAL4_ipr  PINC
 
 // PPM
 #define PPM_pin	 3										//D3 = PD3
@@ -223,7 +227,7 @@ struct PPM_Parameters
 #else
 	#define SDI_on	SDI_port |= _BV(SDI_pin)
 	#define SDI_off	SDI_port &= ~_BV(SDI_pin)
-	#define SDI_1	(SDI_ipr & _BV(SDI_pin)) != 0x00
+	#define SDI_1	(SDI_ipr & _BV(SDI_pin))
 	#define SDI_0	(SDI_ipr & _BV(SDI_pin)) == 0x00
 #endif
 #define SDI_input	SDI_ddr &= ~_BV(SDI_pin)
@@ -234,10 +238,10 @@ struct PPM_Parameters
 #define SDO_port	PORTD
 #define SDO_ipr		PIND
 #ifdef XMEGA
-	#define SDO_1 (SDO_port.IN & _BV(SDO_pin)) != 0x00
+	#define SDO_1 (SDO_port.IN & _BV(SDO_pin))
 	#define SDO_0 (SDO_port.IN & _BV(SDO_pin)) == 0x00
 #else
-	#define SDO_1 (SDO_ipr & _BV(SDO_pin)) != 0x00
+	#define SDO_1 (SDO_ipr & _BV(SDO_pin))
 	#define SDO_0 (SDO_ipr & _BV(SDO_pin)) == 0x00
 #endif
 
@@ -245,7 +249,7 @@ struct PPM_Parameters
 #define SCLK_port PORTD
 #define SCLK_ddr DDRD
 #ifdef XMEGA
-	#define SCLK_pin	7								//D7
+	#define SCLK_pin	7								//PD7
 	#define SCLK_on		SCLK_port.OUTSET = _BV(SCLK_pin)
 	#define SCLK_off	SCLK_port.OUTCLR = _BV(SCLK_pin)
 #else
@@ -259,7 +263,7 @@ struct PPM_Parameters
 #define A7105_CSN_pin	2								//D2 = PD2
 #define A7105_CSN_port	PORTD
 #define A7105_CSN_ddr	DDRD
-#define A7105_CSN_output	A7105_CSN_ddr	|= _BV(A7105_CSN_pin)
+#define A7105_CSN_output	A7105_CSN_ddr |= _BV(A7105_CSN_pin)
 #define A7105_CSN_on	A7105_CSN_port |=  _BV(A7105_CSN_pin)
 #define A7105_CSN_off	A7105_CSN_port &= ~_BV(A7105_CSN_pin)
 
@@ -283,7 +287,7 @@ struct PPM_Parameters
 
 // CYRF6936
 #ifdef XMEGA
-	#define CYRF_CSN_pin	4							//D4
+	#define CYRF_CSN_pin	4							//PD4
 	#define CYRF_CSN_port	PORTD
 	#define CYRF_CSN_ddr	DDRD
 	#define CYRF_CSN_on		CYRF_CSN_port.OUTSET = _BV(CYRF_CSN_pin)
@@ -335,7 +339,7 @@ struct PPM_Parameters
 	#define LED_off		LED_port.OUTSET	= _BV(LED_pin)
 	#define LED_toggle	LED_port.OUTTGL	= _BV(LED_pin)
 	#define LED_output	LED_port.DIRSET	= _BV(LED_pin)
-	#define IS_LED_on	( (LED_port.OUT & _BV(LED_pin)) != 0x00 )
+	#define IS_LED_on	(LED_port.OUT & _BV(LED_pin))
 #else
 	#define LED_pin		5								//D13 = PB5
 	#define LED_port	PORTB
@@ -344,7 +348,7 @@ struct PPM_Parameters
 	#define LED_off		LED_port &= ~_BV(LED_pin)
 	#define LED_toggle	LED_port ^= _BV(LED_pin)
 	#define LED_output	LED_ddr  |= _BV(LED_pin)
-	#define IS_LED_on	( (LED_port & _BV(LED_pin)) != 0x00 )
+	#define IS_LED_on	(LED_port & _BV(LED_pin))
 #endif
 
 //BIND
@@ -358,9 +362,9 @@ struct PPM_Parameters
 	#define BIND_ipr			PINB
 	#define BIND_ddr			DDRB
 	#define BIND_SET_INPUT		BIND_ddr &= ~_BV(BIND_pin)
+	#define BIND_SET_OUTPUT		BIND_ddr |=  _BV(BIND_pin)
 	#define BIND_SET_PULLUP		BIND_port |= _BV(BIND_pin)
 	#define IS_BIND_BUTTON_on	( (BIND_ipr & _BV(BIND_pin)) == 0x00 )
-	#define BIND_SET_OUTPUT		BIND_ddr |= _BV(BIND_pin)
 #endif
 
 // Macros

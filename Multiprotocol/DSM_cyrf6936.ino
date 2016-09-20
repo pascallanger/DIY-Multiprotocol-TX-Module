@@ -414,16 +414,23 @@ uint16_t ReadDsm()
 #define DSM_WRITE_DELAY		1550			// Time after write to verify write complete
 #define DSM_READ_DELAY		600				// Time before write to check read phase, and switch channels. Was 400 but 600 seems what the 328p needs to read a packet
 	uint16_t start;
-	uint8_t rx_phase;
-	uint8_t len;
+	#if defined DSM_TELEMETRY
+		uint8_t rx_phase;
+		uint8_t len;
+	#endif
 	
 	switch(phase)
 	{
 		case DSM_BIND_WRITE:
 			if(bind_counter--==0)
+			#if defined DSM_TELEMETRY
 				phase=DSM_BIND_CHECK;						//Check RX answer
+			#else
+				phase=DSM_CHANSEL;							//Switch to normal mode
+			#endif
 			CYRF_WriteDataPacket(packet);
 			return 10000;
+	#if defined DSM_TELEMETRY
 		case DSM_BIND_CHECK:
 			CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84\xC9\x2C\x06\x93\x86\xB9\x9E", 16);
 			CYRF_SetTxRxMode(RX_EN);						//Receive mode
@@ -467,6 +474,7 @@ uint16_t ReadDsm()
 			CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x0C);  	// Read mode
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);		// Prepare to receive
 			return 7000;
+	#endif
 		case DSM_CHANSEL:
 			BIND_DONE;
 			//Select channels and configure for writing data

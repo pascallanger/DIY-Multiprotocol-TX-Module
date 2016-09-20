@@ -116,7 +116,7 @@ uint16_t initSHENQI()
 	SHENQI_init();
 	hopping_frequency_no = 0;
 	packet_count=0;
-	packet_period=100;
+	packet_period=500;
 	return 1000;
 }
 

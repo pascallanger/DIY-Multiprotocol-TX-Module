@@ -25,54 +25,59 @@
 #define AETR
 
 
-/****************************/
-/*** PROTOCOLS TO INCLUDE ***/
-/****************************/
-//In this section select the protocols you want to be accessible when using the module.
-//All the protocols will not fit in the module so you need to pick and choose.
-
+/**************************/
+/*** RF CHIPS INSTALLED ***/
+/**************************/
 //There are 4 RF components supported. If one of them is not installed you must comment it using "//".
-//This is also a quick way to reduce the number of protocols and save Flash space.
+//If a chip is not installed all associated protocols are disabled.
+//4-in-1 modules have all RF chips installed
+//!!!If a RF chip is present it MUST be marked as installed!!! or weird things will happen you have been warned.
 #define A7105_INSTALLED
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
 
-//Bellow is the list of all available protocols. Comment the protocols you are not using with "//" to save Flash space.
-#ifdef	A7105_INSTALLED
-	#define	FLYSKY_A7105_INO
-	#define	HUBSAN_A7105_INO
-#endif
-#ifdef	CYRF6936_INSTALLED
-	#define	DEVO_CYRF6936_INO
-	#define	DSM_CYRF6936_INO
-	#define J6PRO_CYRF6936_INO
-#endif
-#ifdef	CC2500_INSTALLED
-	#define	FRSKYD_CC2500_INO
-	#define	FRSKYV_CC2500_INO
-	#define	FRSKYX_CC2500_INO
-	#define SFHSS_CC2500_INO
-#endif
-#ifdef	NRF24L01_INSTALLED
-	#define	BAYANG_NRF24L01_INO
-	#define	CG023_NRF24L01_INO
-	#define	CX10_NRF24L01_INO
-	#define	ESKY_NRF24L01_INO
-	#define	HISKY_NRF24L01_INO
-	#define	KN_NRF24L01_INO
-	#define	SLT_NRF24L01_INO
-	#define	SYMAX_NRF24L01_INO
-	#define	V2X2_NRF24L01_INO
-	#define	YD717_NRF24L01_INO
-	#define	MT99XX_NRF24L01_INO
-	#define	MJXQ_NRF24L01_INO
-	#define	SHENQI_NRF24L01_INO
-	#define	FY326_NRF24L01_INO
-	#define	FQ777_NRF24L01_INO
-	#define	ASSAN_NRF24L01_INO
-	#define	HONTAI_NRF24L01_INO
-#endif
+
+/****************************/
+/*** PROTOCOLS TO INCLUDE ***/
+/****************************/
+//In this section select the protocols you want to be accessible when using the module.
+//All the protocols will not fit in the module so you need to pick and choose.
+//Comment the protocols you are not using with "//" to save Flash space.
+
+//The protocols below need an A7105 to be installed
+#define	FLYSKY_A7105_INO
+#define	HUBSAN_A7105_INO
+
+//The protocols below need a CYRF6936 to be installed
+#define	DEVO_CYRF6936_INO
+#define	DSM_CYRF6936_INO
+#define J6PRO_CYRF6936_INO
+
+//The protocols below need a CC2500 to be installed
+#define	FRSKYD_CC2500_INO
+#define	FRSKYV_CC2500_INO
+#define	FRSKYX_CC2500_INO
+#define SFHSS_CC2500_INO
+
+//The protocols below need a NRF24L01 to be installed
+#define	BAYANG_NRF24L01_INO
+#define	CG023_NRF24L01_INO
+#define	CX10_NRF24L01_INO
+#define	ESKY_NRF24L01_INO
+#define	HISKY_NRF24L01_INO
+#define	KN_NRF24L01_INO
+#define	SLT_NRF24L01_INO
+#define	SYMAX_NRF24L01_INO
+#define	V2X2_NRF24L01_INO
+#define	YD717_NRF24L01_INO
+#define	MT99XX_NRF24L01_INO
+#define	MJXQ_NRF24L01_INO
+#define	SHENQI_NRF24L01_INO
+#define	FY326_NRF24L01_INO
+#define	FQ777_NRF24L01_INO
+#define	ASSAN_NRF24L01_INO
+#define	HONTAI_NRF24L01_INO
 
 
 /**************************/
@@ -85,20 +90,12 @@
 
 //Uncomment to invert the polarity of the telemetry serial signal.
 //For ER9X and ERSKY9X it must be commented. For OpenTX it must be uncommented.
-//#define INVERT_TELEMETRY	1
+//#define INVERT_TELEMETRY
 
 //Comment a line to disable a protocol telemetry
-#if defined(TELEMETRY)
-	#if defined DSM_CYRF6936_INO
-		#define DSM_TELEMETRY	
-	#endif
-	#if defined FRSKYX_CC2500_INO
-		#define SPORT_TELEMETRY	
-	#endif
-	#if defined FRSKYD_CC2500_INO
-		#define HUB_TELEMETRY
-	#endif
-#endif 
+#define DSM_TELEMETRY	
+#define SPORT_TELEMETRY	
+#define HUB_TELEMETRY
 
 
 /****************************/
@@ -152,7 +149,7 @@ const PPM_Parameters PPM_prot[15]=	{
 /*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=6 channels @ 22ms
+/*	6	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
 /*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},

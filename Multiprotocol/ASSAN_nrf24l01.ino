@@ -75,7 +75,7 @@ uint16_t ASSAN_callback()
 			phase++;
 		case ASSAN_BIND1:
 			//Wait for receiver to send the frames
-			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
+			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ //Something has been received
 				NRF24L01_ReadPayload(packet, ASSAN_PACKET_SIZE);
 				if(packet[19]==0x13)

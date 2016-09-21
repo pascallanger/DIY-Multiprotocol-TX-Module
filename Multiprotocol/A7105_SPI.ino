@@ -12,12 +12,9 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//-------------------------------
-//-------------------------------
-//A7105 SPI routines
-//-------------------------------
-//-------------------------------
+/********************/
+/** A7105 routines **/
+/********************/
 #include "iface_a7105.h"
 
 void A7105_WriteData(uint8_t len, uint8_t channel)
@@ -39,7 +36,7 @@ void A7105_ReadData() {
 	A7105_CSN_off;
 	SPI_Write(0x45);
 	for (i=0;i<16;i++)
-		packet[i]=A7105_Read();
+		packet[i]=SPI_SDIO_Read();
 	A7105_CSN_on;
 }
 
@@ -55,27 +52,10 @@ uint8_t A7105_ReadReg(uint8_t address) {
 	uint8_t result;
 	A7105_CSN_off;
 	SPI_Write(address |=0x40);		//bit 6 =1 for reading
-	result = A7105_Read();  
+	result = SPI_SDIO_Read();  
 	A7105_CSN_on;
 	return(result); 
 } 
-
-uint8_t A7105_Read(void)
-{
-	uint8_t result=0;
-	SDI_input;
-	for(uint8_t i=0;i<8;i++)
-	{                    
-		result=result<<1;
-		if(SDI_1)  ///if SDIO =1 
-			result |= 0x01;
-		SCLK_on;
-		NOP();
-		SCLK_off;
-	}
-	SDI_output;
-	return result;
-}   
 
 //------------------------
 void A7105_SetTxRxMode(uint8_t mode)

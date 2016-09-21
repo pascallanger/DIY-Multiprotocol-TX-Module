@@ -94,7 +94,7 @@ uint16_t SHENQI_callback()
 		SHENQI_send_packet();
 	else
 	{
-		if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
+		if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 		{
 			if(LT8900_ReadPayload(packet, 3))
 			{

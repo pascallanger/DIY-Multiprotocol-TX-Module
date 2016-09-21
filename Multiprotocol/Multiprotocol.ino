@@ -23,6 +23,7 @@
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 //#define DEBUG_TX
+#include "Pins.h"
 #include "Multiprotocol.h"
 
 //Multiprotocol module configuration file
@@ -34,6 +35,9 @@
 	#undef A7105_INSTALLED		// Disable A7105 for OrangeTX module
 	#undef CC2500_INSTALLED		// Disable CC2500 for OrangeTX module
 	#undef NRF24L01_INSTALLED	// Disable NRF for OrangeTX module
+	#define TELEMETRY			// Enable telemetry
+	#define INVERT_TELEMETRY	// Enable invert telemetry
+	#define DSM_TELEMETRY		// Enable DSM telemetry
 #endif
 
 //Global constants/variables
@@ -213,7 +217,7 @@ void setup()
 		#endif
 		PE1_output;
 		PE2_output;
-		//SERIAL_TX_output;
+		SERIAL_TX_output;
 
 		// pullups
 		MODE_DIAL1_port |= _BV(MODE_DIAL1_pin);
@@ -826,68 +830,6 @@ void modules_reset()
 	prev_power=0xFD;		// unused power value
 }
 
-int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
-{
-//  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-	long y ;
-	x -= in_min ;
-	y = out_max - out_min ;
-	y *= x ;
-	x = y / (in_max - in_min) ;
-	return x  + out_min ;
-}
-
-// Channel value is converted to 8bit values full scale
-uint8_t convert_channel_8b(uint8_t num)
-{
-	return (uint8_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,0,255));	
-}
-
-// Channel value is converted to 8bit values to provided values scale
-uint8_t convert_channel_8b_scale(uint8_t num,uint8_t min,uint8_t max)
-{
-	return (uint8_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,min,max));	
-}
-
-// Channel value is converted sign + magnitude 8bit values
-uint8_t convert_channel_s8b(uint8_t num)
-{
-	uint8_t ch;
-	ch = convert_channel_8b(num);
-	return (ch < 128 ? 127-ch : ch);	
-}
-
-// Channel value is converted to 10bit values
-uint16_t convert_channel_10b(uint8_t num)
-{
-	return (uint16_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,1,1023));
-}
-
-// Channel value is multiplied by 1.5
-uint16_t convert_channel_frsky(uint8_t num)
-{
-	return Servo_data[num] + Servo_data[num]/2;
-}
-
-// Channel value is converted for HK310
-void convert_channel_HK310(uint8_t num, uint8_t *low, uint8_t *high)
-{
-	uint16_t temp=0xFFFF-(4*Servo_data[num])/3;
-	*low=(uint8_t)(temp&0xFF);
-	*high=(uint8_t)(temp>>8);
-}
-
-// Channel value is limited to PPM_100
-uint16_t limit_channel_100(uint8_t ch)
-{
-	if(Servo_data[ch]>servo_max_100)
-		return servo_max_100;
-	else
-		if (Servo_data[ch]<servo_min_100)
-			return servo_min_100;
-	return Servo_data[ch];
-}
-
 void Mprotocol_serial_init()
 {
 	#ifdef XMEGA
@@ -942,7 +884,7 @@ static void set_rx_tx_addr(uint32_t id)
 	rx_tx_addr[1] = (id >> 16) & 0xFF;
 	rx_tx_addr[2] = (id >>  8) & 0xFF;
 	rx_tx_addr[3] = (id >>  0) & 0xFF;
-	rx_tx_addr[4] = 0xC1;	// for YD717: always uses first data port
+	rx_tx_addr[4] = (rx_tx_addr[2]&0xF0)|(rx_tx_addr[3]&0x0F);
 }
 
 #ifndef XMEGA
@@ -984,179 +926,6 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 	eeprom_write_byte((uint8_t*)(adress+10),0xf0);//write bind flag in eeprom.
 	return id;
 }
-
-/********************/
-/**  SPI routines  **/
-/********************/
-#ifdef XMEGA
-	#define XNOP() NOP()
-#else
-	#define XNOP()
-#endif
-
-void SPI_Write(uint8_t command)
-{
-	uint8_t n=8; 
-
-	SCLK_off;//SCK start low
-	XNOP();
-	SDI_off;
-	XNOP();
-	do
-	{
-		if(command&0x80)
-			SDI_on;
-		else
-			SDI_off;
-		XNOP();
-		SCLK_on;
-		XNOP();
-		XNOP();
-		command = command << 1;
-		SCLK_off;
-		XNOP();
-	}
-	while(--n) ;
-	SDI_on;
-}
-
-uint8_t SPI_Read(void)
-{
-	uint8_t result=0,i;
-	for(i=0;i<8;i++)
-	{
-		result=result<<1;
-		if(SDO_1)
-			result |= 0x01;
-		SCLK_on;
-		XNOP();
-		XNOP();
-		NOP();
-		SCLK_off;
-		XNOP();
-		XNOP();
-	}
-	return result;
-}
-
-/************************************/
-/**  Arduino replacement routines  **/
-/************************************/
-// replacement millis() and micros()
-// These work polled, no interrupts
-// micros() MUST be called at least once every 32 milliseconds
-uint16_t MillisPrecount ;
-uint16_t lastTimerValue ;
-uint32_t TotalMicros ;
-uint32_t TotalMillis ;
-uint8_t Correction ;
-
-uint32_t micros()
-{
-   uint16_t elapsed ;
-   uint8_t millisToAdd ;
-   uint8_t oldSREG = SREG ;
-   cli() ;
-   uint16_t time = TCNT1 ;   // Read timer 1
-   SREG = oldSREG ;
-
-   elapsed = time - lastTimerValue ;
-   elapsed += Correction ;
-   Correction = elapsed & 0x01 ;
-   elapsed >>= 1 ;
-   
-   uint32_t ltime = TotalMicros ;
-   ltime += elapsed ;
-   cli() ;
-   TotalMicros = ltime ;   // Done this way for RPM to work correctly
-   lastTimerValue = time ;
-   SREG = oldSREG ;   // Still valid from above
-   
-   elapsed += MillisPrecount;
-   millisToAdd = 0 ;
-   
-   if ( elapsed  > 15999 )
-   {
-      millisToAdd = 16 ;
-      elapsed -= 16000 ;
-   }
-   if ( elapsed  > 7999 )
-   {
-      millisToAdd += 8 ;
-      elapsed -= 8000 ;
-   }
-   if ( elapsed  > 3999 )
-   {
-      millisToAdd += 4 ;      
-      elapsed -= 4000 ;
-   }
-   if ( elapsed  > 1999 )
-   {
-      millisToAdd += 2 ;
-      elapsed -= 2000 ;
-   }
-   if ( elapsed  > 999 )
-   {
-      millisToAdd += 1 ;
-      elapsed -= 1000 ;
-   }
-   TotalMillis += millisToAdd ;
-   MillisPrecount = elapsed ;
-   return TotalMicros ;
-}
-
-uint32_t millis()
-{
-   micros() ;
-   return TotalMillis ;
-}
-
-void delayMilliseconds(unsigned long ms)
-{
-   uint16_t start = (uint16_t)micros();
-   uint16_t lms = ms ;
-
-   while (lms > 0) {
-      if (((uint16_t)micros() - start) >= 1000) {
-         lms--;
-         start += 1000;
-      }
-   }
-}
-
-/* Important notes:
-	- Max value is 16000µs
-	- delay is not accurate due to interrupts happening */
-void delayMicroseconds(unsigned int us)
-{
-   if (--us == 0)
-      return;
-   us <<= 2;	// * 4
-   us -= 2;		// - 2
-#ifdef XMEGA
-	 __asm__ __volatile__ (
-      "1: sbiw %0,1" "\n\t" // 2 cycles
-			"nop \n"
-			"nop \n"
-			"nop \n"
-			"nop \n"
-      "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
-   );
-#else   
-	 __asm__ __volatile__ (
-      "1: sbiw %0,1" "\n\t" // 2 cycles
-      "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
-   );
-#endif
-}
-
-#ifndef XMEGA
-	void init()
-	{
-	   // this needs to be called before setup() or some functions won't work there
-	   sei();
-	}
-#endif //XMEGA
 
 /**************************/
 /**************************/

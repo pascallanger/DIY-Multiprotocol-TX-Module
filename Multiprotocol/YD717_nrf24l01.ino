@@ -101,7 +101,7 @@ static void __attribute__((unused)) yd717_send_packet(uint8_t bind)
 	}
 
     // clear packet status bits and TX FIFO
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)));
+    NRF24L01_WriteReg(NRF24L01_07_STATUS, (_BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_MAX_RT)));
     NRF24L01_FlushTx();
 
 	if( sub_protocol == YD717 )
@@ -124,7 +124,7 @@ static void __attribute__((unused)) yd717_init()
 
 	// CRC, radio on
 	NRF24L01_SetTxRxMode(TX_EN);
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_PWR_UP)); 
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_PWR_UP)); 
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// Disable Acknoledgement on all data pipes
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x00);		// Disable all data pipes
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);		// 5-byte RX/TX address

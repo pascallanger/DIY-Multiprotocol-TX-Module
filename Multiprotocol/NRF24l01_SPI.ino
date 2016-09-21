@@ -221,11 +221,11 @@ void NRF24L01_Reset()
 
 uint8_t NRF24L01_packet_ack()
 {
-    switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)))
+    switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (_BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_MAX_RT)))
 	{
-		case BV(NRF24L01_07_TX_DS):
+		case _BV(NRF24L01_07_TX_DS):
 			return PKT_ACKED;
-		case BV(NRF24L01_07_MAX_RT):
+		case _BV(NRF24L01_07_MAX_RT):
 			return PKT_TIMEOUT;
     }
 	return PKT_PENDING;
@@ -322,8 +322,8 @@ void XN297_SetRXAddr(const uint8_t* addr, uint8_t len)
 
 void XN297_Configure(uint8_t flags)
 {
-	xn297_crc = !!(flags & BV(NRF24L01_00_EN_CRC));
-	flags &= ~(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO));
+	xn297_crc = !!(flags & _BV(NRF24L01_00_EN_CRC));
+	flags &= ~(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO));
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, flags & 0xFF);
 }
 

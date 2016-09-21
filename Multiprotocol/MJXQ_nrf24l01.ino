@@ -142,7 +142,7 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	if (sub_protocol == H26D)
 		NRF24L01_SetTxRxMode(TX_EN);
 	else
-		XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
+		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++ / 2]);
 	hopping_frequency_no %= 2 * MJXQ_RF_NUM_CHANNELS;	// channels repeated

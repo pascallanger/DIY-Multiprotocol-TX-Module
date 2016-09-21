@@ -15,12 +15,12 @@
 
 // Check selected board type
 #ifndef XMEGA
-#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO)
-	#error You must select the board type "Arduino Pro or Pro Mini" or "Arduino Mini"
-#endif
-#if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
-	#error You must select the processor type "ATmega328(5V, 16MHz)"
-#endif
+	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO)
+		#error You must select the board type "Arduino Pro or Pro Mini" or "Arduino Mini"
+	#endif
+	#if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
+		#error You must select the processor type "ATmega328(5V, 16MHz)"
+	#endif
 #endif
 
 //******************
@@ -156,6 +156,9 @@ struct PPM_Parameters
 	uint8_t option;
 };
 
+// Macros
+#define NOP() __asm__ __volatile__("nop")
+
 //*******************
 //***    Timer    ***
 //*******************
@@ -177,207 +180,15 @@ struct PPM_Parameters
 	#define CLR_TIMSK1_OCIE1B	TIMSK1 &=~_BV(OCIE1B)
 #endif
 
-//*******************
-//***   Pinouts   ***
-//*******************
-
-// TX
-#define SERIAL_TX_pin	1								//PD1
-#define SERIAL_TX_port	PORTD
-#define SERIAL_TX_ddr	DDRD
-#define SERIAL_TX_output SERIAL_TX_ddr	|= _BV(SERIAL_TX_pin)
-#define SERIAL_TX_on	SERIAL_TX_port |=  _BV(SERIAL_TX_pin)
-#define SERIAL_TX_off	SERIAL_TX_port &= ~_BV(SERIAL_TX_pin)
-#ifdef DEBUG_TX
-	#define DEBUG_TX_on		SERIAL_TX_ON
-	#define DEBUG_TX_off	SERIAL_TX_OFF
-	#define DEBUG_TX_toggle	SERIAL_TX_port ^=  _BV(SERIAL_TX_pin)
-#else
-	#define DEBUG_TX_on
-	#define DEBUG_TX_off
-	#define DEBUG_TX_toggle
-#endif
-
-// Dial
-#define MODE_DIAL1_pin	2
-#define MODE_DIAL1_port	PORTB
-#define MODE_DIAL1_ipr  PINB
-#define MODE_DIAL2_pin	3
-#define MODE_DIAL2_port	PORTB
-#define MODE_DIAL2_ipr  PINB
-#define MODE_DIAL3_pin	4
-#define MODE_DIAL3_port	PORTB
-#define MODE_DIAL3_ipr  PINB
-#define MODE_DIAL4_pin	0
-#define MODE_DIAL4_port	PORTC
-#define MODE_DIAL4_ipr  PINC
-
-// PPM
-#define PPM_pin	 3										//D3 = PD3
-#define PPM_port PORTD
-
-// SDIO
-#define SDI_pin	 5										//D5 = PD5
-#define SDI_port PORTD
-#define SDI_ipr  PIND
-#define SDI_ddr  DDRD
-#ifdef XMEGA
-	#define SDI_on	SDI_port.OUTSET = _BV(SDI_pin)
-	#define SDI_off SDI_port.OUTCLR = _BV(SDI_pin)
-#else
-	#define SDI_on	SDI_port |= _BV(SDI_pin)
-	#define SDI_off	SDI_port &= ~_BV(SDI_pin)
-	#define SDI_1	(SDI_ipr & _BV(SDI_pin))
-	#define SDI_0	(SDI_ipr & _BV(SDI_pin)) == 0x00
-#endif
-#define SDI_input	SDI_ddr &= ~_BV(SDI_pin)
-#define SDI_output	SDI_ddr |=  _BV(SDI_pin)
-
-//SDO
-#define SDO_pin		6									//D6 = PD6
-#define SDO_port	PORTD
-#define SDO_ipr		PIND
-#ifdef XMEGA
-	#define SDO_1 (SDO_port.IN & _BV(SDO_pin))
-	#define SDO_0 (SDO_port.IN & _BV(SDO_pin)) == 0x00
-#else
-	#define SDO_1 (SDO_ipr & _BV(SDO_pin))
-	#define SDO_0 (SDO_ipr & _BV(SDO_pin)) == 0x00
-#endif
-
-// SCLK
-#define SCLK_port PORTD
-#define SCLK_ddr DDRD
-#ifdef XMEGA
-	#define SCLK_pin	7								//PD7
-	#define SCLK_on		SCLK_port.OUTSET = _BV(SCLK_pin)
-	#define SCLK_off	SCLK_port.OUTCLR = _BV(SCLK_pin)
-#else
-	#define SCLK_pin	4								//D4 = PD4
-	#define SCLK_output	SCLK_ddr  |=  _BV(SCLK_pin)
-	#define SCLK_on		SCLK_port |=  _BV(SCLK_pin)
-	#define SCLK_off	SCLK_port &= ~_BV(SCLK_pin)
-#endif
-
-// A7105
-#define A7105_CSN_pin	2								//D2 = PD2
-#define A7105_CSN_port	PORTD
-#define A7105_CSN_ddr	DDRD
-#define A7105_CSN_output	A7105_CSN_ddr |= _BV(A7105_CSN_pin)
-#define A7105_CSN_on	A7105_CSN_port |=  _BV(A7105_CSN_pin)
-#define A7105_CSN_off	A7105_CSN_port &= ~_BV(A7105_CSN_pin)
-
-// CC2500
-#define CC25_CSN_pin	7								//D7 = PD7
-#define CC25_CSN_port	PORTD
-#define CC25_CSN_ddr	DDRD
-#define CC25_CSN_output	CC25_CSN_ddr  |=  _BV(CC25_CSN_pin)
-#define CC25_CSN_on		CC25_CSN_port |=  _BV(CC25_CSN_pin)
-#define CC25_CSN_off	CC25_CSN_port &= ~_BV(CC25_CSN_pin)
-
-// NRF24L01
-#define NRF_CSN_pin		0								//D8 = PB0
-#define NRF_CSN_port	PORTB
-#define NRF_CSN_ddr		DDRB
-#define NRF_CSN_output	NRF_CSN_ddr  |=  _BV(NRF_CSN_pin)
-#define NRF_CSN_on		NRF_CSN_port |=  _BV(NRF_CSN_pin)
-#define NRF_CSN_off		NRF_CSN_port &= ~_BV(NRF_CSN_pin)
-#define NRF_CE_on
-#define NRF_CE_off
-
-// CYRF6936
-#ifdef XMEGA
-	#define CYRF_CSN_pin	4							//PD4
-	#define CYRF_CSN_port	PORTD
-	#define CYRF_CSN_ddr	DDRD
-	#define CYRF_CSN_on		CYRF_CSN_port.OUTSET = _BV(CYRF_CSN_pin)
-	#define CYRF_CSN_off	CYRF_CSN_port.OUTCLR = _BV(CYRF_CSN_pin)
-#else
-	#define CYRF_CSN_pin	1							//D9 = PB1
-	#define CYRF_CSN_port	PORTB
-	#define CYRF_CSN_ddr	DDRB
-	#define CYRF_CSN_output	CYRF_CSN_ddr  |=  _BV(CYRF_CSN_pin)
-	#define CYRF_CSN_on		CYRF_CSN_port |=  _BV(CYRF_CSN_pin)
-	#define CYRF_CSN_off	CYRF_CSN_port &= ~_BV(CYRF_CSN_pin)
-
-	#define CYRF_RST_pin	5							//A5 = PC5
-	#define CYRF_RST_port	PORTC
-	#define CYRF_RST_ddr	DDRC
-	#define CYRF_RST_output	CYRF_RST_ddr  |=  _BV(CYRF_RST_pin)
-	#define CYRF_RST_HI		CYRF_RST_port |=  _BV(CYRF_RST_pin)
-	#define CYRF_RST_LO		CYRF_RST_port &= ~_BV(CYRF_RST_pin)
-#endif
-
-//RF Switch
-#ifdef XMEGA
-	#define PE1_on
-	#define PE1_off
-	#define PE2_on
-	#define PE2_off
-#else
-	#define PE1_pin		1								//A1 = PC1
-	#define PE1_port	PORTC
-	#define PE1_ddr		DDRC
-	#define	PE1_output	PE1_ddr  |=  _BV(PE1_pin)
-	#define PE1_on		PE1_port |=  _BV(PE1_pin)
-	#define PE1_off		PE1_port &= ~_BV(PE1_pin)
-
-	#define PE2_pin		2								//A2 = PC2
-	#define PE2_port	PORTC
-	#define PE2_ddr		DDRC
-	#define	PE2_output	PE2_ddr  |=  _BV(PE2_pin)
-	#define PE2_on		PE2_port |=  _BV(PE2_pin)
-	#define PE2_off		PE2_port &= ~_BV(PE2_pin)
-#endif
-
-// LED
-#ifdef XMEGA
-	#define LED_pin		1								//PD1
-	#define LED_port	PORTD
-	#define LED_ddr		DDRD
-	#define LED_on		LED_port.OUTCLR	= _BV(LED_pin)
-	#define LED_off		LED_port.OUTSET	= _BV(LED_pin)
-	#define LED_toggle	LED_port.OUTTGL	= _BV(LED_pin)
-	#define LED_output	LED_port.DIRSET	= _BV(LED_pin)
-	#define IS_LED_on	(LED_port.OUT & _BV(LED_pin))
-#else
-	#define LED_pin		5								//D13 = PB5
-	#define LED_port	PORTB
-	#define LED_ddr		DDRB
-	#define LED_on		LED_port |= _BV(LED_pin)
-	#define LED_off		LED_port &= ~_BV(LED_pin)
-	#define LED_toggle	LED_port ^= _BV(LED_pin)
-	#define LED_output	LED_ddr  |= _BV(LED_pin)
-	#define IS_LED_on	(LED_port & _BV(LED_pin))
-#endif
-
-//BIND
-#ifdef XMEGA
-	#define BIND_pin			2						//PD2
-	#define BIND_port			PORTD
-	#define IS_BIND_BUTTON_on	( (BIND_port.IN & _BV(BIND_pin)) == 0x00 )
-#else
-	#define BIND_pin			5						//D13 = PB5
-	#define BIND_port			PORTB
-	#define BIND_ipr			PINB
-	#define BIND_ddr			DDRB
-	#define BIND_SET_INPUT		BIND_ddr &= ~_BV(BIND_pin)
-	#define BIND_SET_OUTPUT		BIND_ddr |=  _BV(BIND_pin)
-	#define BIND_SET_PULLUP		BIND_port |= _BV(BIND_pin)
-	#define IS_BIND_BUTTON_on	( (BIND_ipr & _BV(BIND_pin)) == 0x00 )
-#endif
-
-// Macros
-#define NOP() __asm__ __volatile__("nop")
-#define BV(bit) (1 << bit)
-
-//Serial flags definition
+//***************
+//***  Flags  ***
+//***************
 #define RX_FLAG_on			protocol_flags |= _BV(0)
 #define RX_FLAG_off			protocol_flags &= ~_BV(0)
 #define IS_RX_FLAG_on		( ( protocol_flags & _BV(0) ) !=0 )
 //
 #define CHANGE_PROTOCOL_FLAG_on		protocol_flags |= _BV(1)
-#define CHANGE_PROTOCOL_FLAG_off		protocol_flags &= ~_BV(1)
+#define CHANGE_PROTOCOL_FLAG_off	protocol_flags &= ~_BV(1)
 #define IS_CHANGE_PROTOCOL_FLAG_on	( ( protocol_flags & _BV(1) ) !=0 )
 //
 #define POWER_FLAG_on		protocol_flags |= _BV(2)
@@ -395,45 +206,47 @@ struct PPM_Parameters
 #define BIND_BUTTON_FLAG_on		protocol_flags |= _BV(5)
 #define BIND_BUTTON_FLAG_off	protocol_flags &= ~_BV(5)
 #define IS_BIND_BUTTON_FLAG_on	( ( protocol_flags & _BV(5) ) !=0 )
-
 //PPM RX OK
-#define PPM_FLAG_off			protocol_flags &= ~_BV(6)
+#define PPM_FLAG_off		protocol_flags &= ~_BV(6)
 #define PPM_FLAG_on			protocol_flags |= _BV(6)
 #define IS_PPM_FLAG_on		( ( protocol_flags & _BV(6) ) !=0 )
-
-//Bind flag for blinking
+//Bind flag
 #define BIND_IN_PROGRESS	protocol_flags &= ~_BV(7)
 #define BIND_DONE			protocol_flags |= _BV(7)
 #define IS_BIND_DONE_on		( ( protocol_flags & _BV(7) ) !=0 )
-
+//
 #define BAD_PROTO_off		protocol_flags2 &= ~_BV(0)
 #define BAD_PROTO_on		protocol_flags2 |= _BV(0)
 #define IS_BAD_PROTO_on		( ( protocol_flags2 & _BV(0) ) !=0 )
-
+//
 #define RX_DONOTUPDTAE_off	protocol_flags2 &= ~_BV(1)
 #define RX_DONOTUPDTAE_on	protocol_flags2 |= _BV(1)
 #define IS_RX_DONOTUPDTAE_on	( ( protocol_flags2 & _BV(1) ) !=0 )
-
+//
 #define RX_MISSED_BUFF_off	protocol_flags2 &= ~_BV(2)
 #define RX_MISSED_BUFF_on	protocol_flags2 |= _BV(2)
 #define IS_RX_MISSED_BUFF_on	( ( protocol_flags2 & _BV(2) ) !=0 )
-
-#define TX_MAIN_PAUSE_off		protocol_flags2 &= ~_BV(3)
-#define TX_MAIN_PAUSE_on			protocol_flags2 |= _BV(3)
-#define IS_TX_MAIN_PAUSE_on		( ( protocol_flags2 & _BV(3) ) !=0 )
-
+//TX Pause
+#define TX_MAIN_PAUSE_off	protocol_flags2 &= ~_BV(3)
+#define TX_MAIN_PAUSE_on		protocol_flags2 |= _BV(3)
+#define IS_TX_MAIN_PAUSE_on	( ( protocol_flags2 & _BV(3) ) !=0 )
 #define TX_RX_PAUSE_off		protocol_flags2 &= ~_BV(4)
-#define TX_RX_PAUSE_on			protocol_flags2 |= _BV(4)
-#define IS_TX_RX_PAUSE_on		( ( protocol_flags2 & _BV(4) ) !=0 )
-
+#define TX_RX_PAUSE_on		protocol_flags2 |= _BV(4)
+#define IS_TX_RX_PAUSE_on	( ( protocol_flags2 & _BV(4) ) !=0 )
 #define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
 
-#define BLINK_BIND_TIME	100
-#define BLINK_SERIAL_TIME	500
+//********************
+//*** Blink timing ***
+//********************
+#define BLINK_BIND_TIME				100
+#define BLINK_SERIAL_TIME			500
 #define BLINK_BAD_PROTO_TIME_LOW	1000
 #define BLINK_BAD_PROTO_TIME_HIGH	50
 
-//AUX flags definition
+//*******************
+//***  AUX flags  ***
+//*******************
+#define GET_FLAG(ch, mask) ( ch ? mask : 0)
 #define Servo_AUX1	Servo_AUX & _BV(0)
 #define Servo_AUX2	Servo_AUX & _BV(1)
 #define Servo_AUX3	Servo_AUX & _BV(2)
@@ -442,8 +255,6 @@ struct PPM_Parameters
 #define Servo_AUX6	Servo_AUX & _BV(5)
 #define Servo_AUX7	Servo_AUX & _BV(6)
 #define Servo_AUX8	Servo_AUX & _BV(7)
-
-#define GET_FLAG(ch, mask) ( ch ? mask : 0)
 
 //************************
 //***  Power settings  ***

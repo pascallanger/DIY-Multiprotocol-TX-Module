@@ -96,7 +96,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		if(pktt[6])
 			telemetry_counter=(telemetry_counter+1)%32;
 		//
-#if defined FRSKYX_CC2500_INO
+#if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
 		if (protocol==MODE_FRSKYX)
 		{
 			if ((pktt[5] >> 4 & 0x0f) == 0x08)

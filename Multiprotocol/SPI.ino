@@ -66,6 +66,7 @@ uint8_t SPI_Read(void)
 	return result;
 }
 
+#ifdef A7105_INSTALLED
 uint8_t SPI_SDIO_Read(void)
 {
 	uint8_t result=0;
@@ -81,4 +82,5 @@ uint8_t SPI_SDIO_Read(void)
 	}
 	SDI_output;
 	return result;
-}   
+}
+#endif

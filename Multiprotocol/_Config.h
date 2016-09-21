@@ -21,7 +21,8 @@
 /*** TX SETTINGS ***/
 /*******************/
 //Modify the channel order based on your TX: AETR, TAER, RETA...
-//For example a JR/Spektrum radio is TAER. Default is AETR.
+//Examples: Flysky & DEVO is AETR, JR/Spektrum radio is TAER, Multiplex is AERT...
+//Default is AETR.
 #define AETR
 
 
@@ -124,6 +125,7 @@
 //#define TX_DEVO7		//DEVO					(1120<->1920µs)
 //#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
 //#define TX_HISKY		//HISKY					(1100<->1900µs)
+//#define TX_MPX		//Multiplex MC2020		(1250<->1950µs)
 //#define TX_CUSTOM		//Custom
 
 // The lines below are used to set the end points in microseconds (µs) if you have selected TX_CUSTOM.

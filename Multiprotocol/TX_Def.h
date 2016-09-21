@@ -24,12 +24,18 @@
 
 // HISKY
 #if defined(TX_HISKY)
-	#define PPM_MAX_125	2000	//	125%
-	#define PPM_MIN_125	1000	//	125%
 	#define PPM_MAX_100	1900	//	100%
 	#define PPM_MIN_100	1100	//	100%
 	#define PPM_MAX_125	2000	//	125%
 	#define PPM_MIN_125	1000	//	125%
+#endif
+
+// Multiplex MC2020
+#if defined(TX_MPX)
+	#define PPM_MAX_100 1950 // 100%
+	#define PPM_MIN_100 1250 // 100%
+	#define PPM_MAX_125 2050 // 125%
+	#define PPM_MIN_125 1150 // 125%
 #endif
 
 //Serial MIN MAX values

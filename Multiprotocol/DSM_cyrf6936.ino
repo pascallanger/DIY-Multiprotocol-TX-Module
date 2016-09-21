@@ -575,7 +575,6 @@ uint16_t ReadDsm()
 
 uint16_t initDsm()
 { 
-	CYRF_Reset();
 	CYRF_GetMfgData(cyrfmfg_id);//
 	//Model match
 	cyrfmfg_id[3]+=RX_num;

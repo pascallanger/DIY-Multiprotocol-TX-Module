@@ -235,7 +235,6 @@ uint16_t ReadJ6Pro()
 
 uint16_t initJ6Pro()
 {
-    CYRF_Reset();
     j6pro_cyrf_init();
 
 	if(IS_AUTOBIND_FLAG_on) {

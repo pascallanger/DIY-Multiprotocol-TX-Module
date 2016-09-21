@@ -74,7 +74,6 @@ const PROGMEM uint8_t SFHSS_init_values[] = {
 
 static void __attribute__((unused)) SFHSS_rf_init()
 {
-	CC2500_Reset();
 	CC2500_Strobe(CC2500_SIDLE);
 
 	for (uint8_t i = 0; i < 39; ++i)

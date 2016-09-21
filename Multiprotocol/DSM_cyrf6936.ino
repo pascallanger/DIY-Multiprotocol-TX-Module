@@ -17,8 +17,6 @@
 
 #include "iface_cyrf6936.h"
 
-#define DSM2_RANDOM_CHANNELS  0		// disabled
-//#define DSM2_RANDOM_CHANNELS  1	// enabled
 #define DSM_BIND_CHANNEL 0x0d //13 This can be any odd channel
 
 //During binding we will send BIND_COUNT/2 packets
@@ -140,120 +138,6 @@ static void __attribute__((unused)) read_code(uint8_t *buf, uint8_t row, uint8_t
 			buf[i]=pgm_read_byte_near( &pncodes[row][col][i] );
 }
 
-static void __attribute__((unused)) build_bind_packet()
-{
-	uint8_t i;
-	uint16_t sum = 384 - 0x10;//
-	packet[0] = 0xff ^ cyrfmfg_id[0];
-	packet[1] = 0xff ^ cyrfmfg_id[1];
-	packet[2] = 0xff ^ cyrfmfg_id[2];
-	packet[3] = 0xff ^ cyrfmfg_id[3];
-	packet[4] = packet[0];
-	packet[5] = packet[1];
-	packet[6] = packet[2];
-	packet[7] = packet[3];
-	for(i = 0; i < 8; i++)
-		sum += packet[i];
-	packet[8] = sum >> 8;
-	packet[9] = sum & 0xff;
-	packet[10] = 0x01; //???
-	packet[11] = DSM_num_ch;
-
-	if (sub_protocol==DSM2_22)
-		packet[12]=DSM_num_ch<8?0x01:0x02;	// DSM2/1024 1 or 2 packets depending on the number of channels
-	if(sub_protocol==DSM2_11)
-		packet[12]=0x12;					// DSM2/2048 2 packets
-	if(sub_protocol==DSMX_22)
-		#if defined DSM_TELEMETRY
-			packet[12] = 0xb2;				// DSMX/2048 2 packets
-		#else
-			packet[12] = DSM_num_ch<8? 0xa2 : 0xb2;	// DSMX/2048 1 or 2 packets depending on the number of channels
-		#endif
-	if(sub_protocol==DSMX_11 || sub_protocol==DSM_AUTO) // Force DSMX/1024 in mode Auto
-		packet[12]=0xb2;					// DSMX/1024 2 packets
-	
-	packet[13] = 0x00; //???
-	for(i = 8; i < 14; i++)
-		sum += packet[i];
-	packet[14] = sum >> 8;
-	packet[15] = sum & 0xff;
-}
-
-static void __attribute__((unused)) update_channels()
-{
-	prev_option=option;
-	if(sub_protocol==DSM_AUTO)
-		DSM_num_ch=12;						// Force 12 channels in mode Auto
-	else
-		if(option&0x80)
-		{
-			DSM_num_ch=-option;
-			DSM_orx=1;						// Use orange table
-		}
-		else
-		{
-			DSM_num_ch=option;
-			DSM_orx=0;						// Use normal table
-		}
-	if(DSM_num_ch<4 || DSM_num_ch>12)
-		DSM_num_ch=6;						// Default to 6 channels if invalid choice...
-
-	// Create channel map based on number of channels
-	for(uint8_t i=0;i<12;i++)
-		ch_map[i]=pgm_read_byte_near(&ch_map_progmem[DSM_num_ch-4][i]);
-	ch_map[12]=0xFF;
-	ch_map[13]=0xFF;
-	// TODO: if DSM2_11 or DSMX_11 then repeat lower channels to upper channels need to rewrite this part
-	if(DSM_num_ch<8)
-		for(uint8_t i=7;i<14;i++)
-			ch_map[i]=ch_map[i-7];
-}
-
-static void __attribute__((unused)) build_data_packet(uint8_t upper)
-{
-	uint16_t max = 2047;
-	uint8_t bits = 11;
-
-	if(prev_option!=option)
-		update_channels();
-
-		if (sub_protocol==DSMX_11 || sub_protocol==DSMX_22 )
-	{
-		packet[0] = cyrfmfg_id[2];
-		packet[1] = cyrfmfg_id[3];
-	}
-	else
-	{
-		packet[0] = (0xff ^ cyrfmfg_id[2]);
-		packet[1] = (0xff ^ cyrfmfg_id[3]);
-		if(sub_protocol==DSM2_22)
-		{
-			max=1023;						// Only DSM_22 is using a resolution of 1024
-			bits=10;
-		}
-	}
-
-	for (uint8_t i = 0; i < 7; i++)
-	{	
-		uint8_t idx = ch_map[(upper?7:0) + i];//1,5,2,3,0,4	   
-		uint16_t value = 0xffff;;	
-		if (idx != 0xff)
-		{
-			if (!IS_BIND_DONE_on)
-			{ // Failsafe position during binding
-				value=max/2;				//all channels to middle
-				if(idx==0)
-					value=1;				//except throttle
-			}
-			else
-				value=map(Servo_data[CH_TAER[idx]],servo_min_125,servo_max_125,0,max);
-			value |= (upper ? 0x8000 : 0) | (idx << bits);
-		}	  
-		packet[i*2+2] = (value >> 8) & 0xff;
-		packet[i*2+3] = (value >> 0) & 0xff;
-	}
-}
-
 static uint8_t __attribute__((unused)) get_pn_row(uint8_t channel)
 {
 	return ((sub_protocol == DSMX_11 || sub_protocol == DSMX_22 )? (channel - 2) % 5 : channel % 5);	
@@ -292,6 +176,45 @@ static void __attribute__((unused)) cyrf_config()
 		CYRF_WriteRegister(pgm_read_byte_near(&init_vals[i][0]), pgm_read_byte_near(&init_vals[i][1]));
 	CYRF_WritePreamble(0x333304);
 	CYRF_ConfigRFChannel(0x61);
+}
+
+static void __attribute__((unused)) build_bind_packet()
+{
+	uint8_t i;
+	uint16_t sum = 384 - 0x10;//
+	packet[0] = 0xff ^ cyrfmfg_id[0];
+	packet[1] = 0xff ^ cyrfmfg_id[1];
+	packet[2] = 0xff ^ cyrfmfg_id[2];
+	packet[3] = 0xff ^ cyrfmfg_id[3];
+	packet[4] = packet[0];
+	packet[5] = packet[1];
+	packet[6] = packet[2];
+	packet[7] = packet[3];
+	for(i = 0; i < 8; i++)
+		sum += packet[i];
+	packet[8] = sum >> 8;
+	packet[9] = sum & 0xff;
+	packet[10] = 0x01; //???
+	packet[11] = DSM_num_ch;
+
+	if (sub_protocol==DSM2_22)
+		packet[12]=DSM_num_ch<8?0x01:0x02;	// DSM2/1024 1 or 2 packets depending on the number of channels
+	if(sub_protocol==DSM2_11)
+		packet[12]=0x12;					// DSM2/2048 2 packets
+	if(sub_protocol==DSMX_22)
+		#if defined DSM_TELEMETRY
+			packet[12] = 0xb2;				// DSMX/2048 2 packets
+		#else
+			packet[12] = DSM_num_ch<8? 0xa2 : 0xb2;	// DSMX/2048 1 or 2 packets depending on the number of channels
+		#endif
+	if(sub_protocol==DSMX_11 || sub_protocol==DSM_AUTO) // Force DSMX/1024 in mode Auto
+		packet[12]=0xb2;					// DSMX/1024 2 packets
+	
+	packet[13] = 0x00; //???
+	for(i = 8; i < 14; i++)
+		sum += packet[i];
+	packet[14] = sum >> 8;
+	packet[15] = sum & 0xff;
 }
 
 static void __attribute__((unused)) initialize_bind_phase()
@@ -337,24 +260,104 @@ static void __attribute__((unused)) cyrf_configdata()
 		CYRF_WriteRegister(pgm_read_byte_near(&data_vals[i][0]), pgm_read_byte_near(&data_vals[i][1]));
 }
 
+static void __attribute__((unused)) update_channels()
+{
+	prev_option=option;
+	if(sub_protocol==DSM_AUTO)
+		DSM_num_ch=12;						// Force 12 channels in mode Auto
+	else
+		if(option&0x80)
+		{
+			DSM_num_ch=-option;
+			DSM_orx=1;						// Use orange table
+		}
+		else
+		{
+			DSM_num_ch=option;
+			DSM_orx=0;						// Use normal table
+		}
+	if(DSM_num_ch<4 || DSM_num_ch>12)
+		DSM_num_ch=6;						// Default to 6 channels if invalid choice...
+
+	// Create channel map based on number of channels
+	for(uint8_t i=0;i<12;i++)
+		ch_map[i]=pgm_read_byte_near(&ch_map_progmem[DSM_num_ch-4][i]);
+	ch_map[12]=0xFF;
+	ch_map[13]=0xFF;
+	// TODO: if DSM2_11 or DSMX_11 then repeat lower channels to upper channels need to rewrite this part
+	if(DSM_num_ch<8)
+		for(uint8_t i=7;i<14;i++)
+			ch_map[i]=ch_map[i-7];
+}
+
+static void __attribute__((unused)) build_data_packet(uint8_t upper)
+{
+	uint16_t max = 2047;
+	uint8_t bits = 11;
+
+	if(prev_option!=option)
+		update_channels();
+
+	if (sub_protocol==DSMX_11 || sub_protocol==DSMX_22 )
+	{
+		packet[0] = cyrfmfg_id[2];
+		packet[1] = cyrfmfg_id[3];
+	}
+	else
+	{
+		packet[0] = (0xff ^ cyrfmfg_id[2]);
+		packet[1] = (0xff ^ cyrfmfg_id[3]);
+		if(sub_protocol==DSM2_22)
+		{
+			max=1023;						// Only DSM_22 is using a resolution of 1024
+			bits=10;
+		}
+	}
+
+	for (uint8_t i = 0; i < 7; i++)
+	{	
+		uint8_t idx = ch_map[(upper?7:0) + i];//1,5,2,3,0,4	   
+		uint16_t value = 0xffff;;	
+		if (idx != 0xff)
+		{
+			if (!IS_BIND_DONE_on)
+			{ // Failsafe position during binding
+				value=max/2;				//all channels to middle
+				if(idx==0)
+					value=1;				//except throttle
+			}
+			else
+				value=map(Servo_data[CH_TAER[idx]],servo_min_125,servo_max_125,0,max);
+			value |= (upper ? 0x8000 : 0) | (idx << bits);
+		}	  
+		packet[i*2+2] = (value >> 8) & 0xff;
+		packet[i*2+3] = (value >> 0) & 0xff;
+	}
+}
+
 static void __attribute__((unused)) set_sop_data_crc()
 {
-	uint8_t code[16];
-	uint8_t pn_row = get_pn_row(hopping_frequency[hopping_frequency_no]);
-	//printf("Ch: %d Row: %d SOP: %d Data: %d\n", ch[hopping_frequency_no], pn_row, sop_col, 7 - sop_col);
-	CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
-	CYRF_ConfigCRCSeed(crc);
-	crc=~crc;
+	//The crc for channel '1' is NOT(mfgid[0] << 8 + mfgid[1])
+	//The crc for channel '2' is (mfgid[0] << 8 + mfgid[1])
+	uint16_t crc = (cyrfmfg_id[0] << 8) + cyrfmfg_id[1];
+	if(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B)
+		CYRF_ConfigCRCSeed(crc);	//CH2
+	else
+		CYRF_ConfigCRCSeed(~crc);	//CH1
 
+	uint8_t pn_row = get_pn_row(hopping_frequency[hopping_frequency_no]);
+	uint8_t code[16];
 	read_code(code,pn_row,sop_col,8);
 	CYRF_ConfigSOPCode(code);
 	read_code(code,pn_row,7 - sop_col,16);
 	CYRF_ConfigDataCode(code, 16);
 
+	CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
+	hopping_frequency_no++;
 	if(sub_protocol == DSMX_11 || sub_protocol == DSMX_22)
-		hopping_frequency_no = (hopping_frequency_no + 1) % 23;
+		hopping_frequency_no %=23;
 	else
-		hopping_frequency_no = (hopping_frequency_no + 1) % 2;
+		hopping_frequency_no %=2;
 }
 
 static void __attribute__((unused)) calc_dsmx_channel()
@@ -477,8 +480,6 @@ uint16_t ReadDsm()
 	#endif
 		case DSM_CHANSEL:
 			BIND_DONE;
-			//Select channels and configure for writing data
-			//CYRF_FindBestChannels(ch, 2, 10, 1, 79);
 			cyrf_configdata();
 			CYRF_SetTxRxMode(TX_EN);
 			hopping_frequency_no = 0;
@@ -585,7 +586,6 @@ uint16_t initDsm()
 		calc_dsmx_channel();
 	else
 	{ 
-#if DSM2_RANDOM_CHANNELS == 1
 		uint8_t tmpch[10];
 		CYRF_FindBestChannels(tmpch, 10, 5, 3, 75);
 		//
@@ -598,15 +598,8 @@ uint16_t initDsm()
 				break;
 		}
 		hopping_frequency[1] = tmpch[idx];
-#else
-		hopping_frequency[0] = (cyrfmfg_id[0] + cyrfmfg_id[2] + cyrfmfg_id[4]) % 39 + 1;
-		hopping_frequency[1] = (cyrfmfg_id[1] + cyrfmfg_id[3] + cyrfmfg_id[5]) % 40 + 40;	
-#endif
 	}
 	
-	//The crc for channel '1' is NOT(mfgid[0] << 8 + mfgid[1])
-	//The crc for channel '2' is (mfgid[0] << 8 + mfgid[1])
-	crc = ~((cyrfmfg_id[0] << 8) + cyrfmfg_id[1]);
 	//
 	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
 

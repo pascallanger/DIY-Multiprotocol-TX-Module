@@ -35,6 +35,7 @@ The HIGH fuse needs to be set to 0xD6.  (See the section below on Setting the Fu
 The Arduino IDE is used to upload firmware and set fuses on the ATMega microprocessor. 
 
 You can install avrdude on your computer, but it is already contained in the Arduino IDE bundle and we suggest that you use the Arduino-bundled version.  
+
 1. Unplug any programmer that may be connected to the computer
 1. In the Arduino IDE click on Sketch -> Upload Using Programmer
 1. After a series of compiling messages you will see an error that a programmer is not found.  Scroll up and find the programming command that caused the errors (usually the last white line before the red errors) and copy it into TextEdit or Notepad. 

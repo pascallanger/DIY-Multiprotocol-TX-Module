@@ -8,7 +8,7 @@ RCGroups page: http://www.rcgroups.com/forums/showpost.php?p=35584619&postcount=
 
 #Bluetooth telemetry board for telemetry in PPM mode
 This document describes a simple bluetooth module to stream telemetry information to a mobile device like an Android smartphone or tablet.  This is very useful with modules used in the PPM mode with transmitters that do not support telemetry.  See the [Advanced Bluetooth Telemetry](Advanced_Bluetooth_Telemetry.md) page for more details.  
-Created and supported by: Miledic 
+Created and supported by: Midelic 
 
 RCGroups page: None
 

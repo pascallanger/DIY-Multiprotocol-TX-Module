@@ -48,9 +48,9 @@ In constructing a functioning module there are important choices to be made and 
 
 ##**Choice 1:** Which module hardware option 
 
-There are currently four generic paths to construct your own DIY Multiprotocol module.  These are outlined in detail on the [hardware] page.  Here they are in order of increasing difficulty:
-  * You can purchase a ready-made DIY Multiprotocol module from Banggood
-  * You can purchase a DIY Multiprotocol PCB from [OSHPark] and then buy and solder on your own RF modules 
+There are currently four generic paths to construct your own DIY Multiprotocol module.  These are outlined in detail on the [hardware](docs/Hardware.md) page.  Here they are in order of increasing difficulty:
+  * You can purchase a ready-made 4-in-1 Multiprotocol module from Banggood
+  * You can purchase a DIY Multiprotocol PCB from [OSHPark](http://www.oshpark.com) and then buy and solder on your own RF modules 
   * You can use a Orange Rx transmitter module available from Hobyking
   * You can build the module from scratch using an Arduino Pro Mini and a perf board base.
 The last option is where it all started and how the pioneers in this project made their boards.  However, due to the growing interest in “one module to rule them all” you now have options to purchase a ready-made board (with old firmware that you will need to upgrade).  
@@ -89,12 +89,12 @@ The DIY Mulitprotocol module supports industry standard PPM interface that works
 
 If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX firmwares (Frsky Taranis running erSky9x or OpenTx, or any of the FlySky/Turnigy family of Txs running ER9X, ERSky9x or OpenTx) you have the additional option to use a serial protocol to communicate between your Tx and the DIY Mulitprotocol module. (Owners of Walkera Devo transmitters should look at the [Deviation Tx](http://www.deviationtx.com) project for how to achieve the same end goal). This serial protocol does not require any hardware modifications, but will require updating the firmware on your radio. For those willing to do this, there are some nice advantages:
   * The model and protocol selection and binding is done from the Model Settings menu on the Tx
-  * For telemetry capable receivers, the telemetry integration is done seamlessly with the Tx firmware.
+  * For telemetry capable receivers, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work)
 See the [Setting up your Tx](docs/TransmitterSetup.md) page for more details.
 
 #How to get started?
-1. Browse the [Protocols] page to see which protocols you would like on your module
-1. Go to the [Hardware Options] page to decide what Tx module you need and which RF modules you plan to integrate
+1. Browse the [Protocols](docs/Protocol_Details.md) page to see which protocols you would like on your module
+1. Go to the [Hardware Options](docs/Hardware.md) page to decide what Tx module you need and which RF modules you plan to integrate
 1. Once you have your module, you should go to [Compiling and Programming](docs/Compiling.md) page to download, compile and program the DIY Multiprotocol module
 1. Finally, you should visit the [Setting up your Tx](docs/TransmitterSetup.md) page to configure the last few settings before you can fly to your heart’s content!!!!!
 

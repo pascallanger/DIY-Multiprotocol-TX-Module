@@ -16,9 +16,17 @@ When using the standard PPM Tx output, the protocol selection is achieved throug
 
 Since the module supports literally hundreds of protocol/sub-protocol/options combinations, you must select which of these will map to the 15 positions on the switch.  Refer to the [Compiling and Programming](Compiling.md) page for information on how to do his.
 
-Telemetry is available as a serial 9600 8 n 1 output on the TX pin of the Atmega328p using the FrSky hub format for Hubsan, FrSkyD, FrSkyX and DSM format for DSM2/X.
+Telemetry is available as a serial output on the TX pin of the Atmega328p using the FrSky hub format for Hubsan, FrSkyD, FrSkyX and DSM format for DSM2/X.  The serial paramets depends on the protocol:
 
-You can connect it to your TX if it is telemetry enabled or use a bluetooth adapter (HC05/HC06) along with an app on your phone/tablet ([app example](https://play.google.com/store/apps/details?id=biz.onomato.frskydash&hl=fr)) to display telemetry information and setup alerts.
+Protocol|Serial Parameters
+--------|-----------------
+Hubsan|9600bps 8n1
+FrSkyD|9600bps 8n1
+FrSkyX|57,600bps 8n1
+DSM2/X|125,000bps 8n1
+
+
+You can connect it to your TX if it is telemetry enabled or use a bluetooth adapter to send it to a tablet/phone. See [Advanced Topics - Bluetooth Telemetry](Advanced_Bluetooth_Telemetry.md)
 
 For transmitter setup using the PPM protocol go to the [PPM Setup page](PPM_Setup.md)
 

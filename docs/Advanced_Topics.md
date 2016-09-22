@@ -5,8 +5,16 @@ This document describes how you can set up your ATmega-based Mulitprotocol modul
 Created and supported by: Mike Blandford 
 
 RCGroups page: {insert page here}
+
 #Bluetooth telemetry board for telemetry in PPM mode
 This document describes a simple bluetooth module to stream telemetry information to a mobile device like an Android smartphone or tablet.  This is very useful with modules used in the PPM mode with transmitters that do not support telemetry.  See the [Advanced Bluetooth Telemetry](Advanced_Bluetooth_Telemetry.md) page for more details.  
 Created and supported by: Miledic 
 
-RCGroups page: {insert page here}
+RCGroups page: None
+
+
+#Manually setting fuses on ATmega328
+This document describes a relatively simple process to set the fuses on ATmega328 using the flexibility of the command line.  It does not require installation of AVRdude because it uses the AVRdude that is bundled with the Arduino IDE.   See the [Advanced Manually Setting ATmega328 Fuses](Advanced_Manually_Setting_ATmega328_Fuses.md) page for more details.  
+Created and supported by: hpnuts 
+
+RCGroups page: No rcgroups page

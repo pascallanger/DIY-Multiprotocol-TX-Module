@@ -7,7 +7,8 @@ If you want the best performance you can set the number of channels and framerat
 If you do not have a module bay, there are only three wires you need to connect to get PPM to work.  (The pins are numbered from top to bottom) 
 - PPM on pin 1
 - vbat on pin 3
-- ground on pin 4
+- ground on pin 4  
+
 Note: vbat should be between 6V and 13V when using the 4-in-1 and 2.3 PCB boards. If you built a module from scratch it depends on the voltage regulator you chose.
 
 
@@ -22,7 +23,7 @@ Note: vbat should be between 6V and 13V when using the 4-in-1 and 2.3 PCB boards
 
 To select the protocol simply switch off the transmitter and rotate the protocol selection switch on the module to the desired position. 
 
-*Note that the dial selection must be done before the module receives power - this is not necessarily the same time that the transmitter is powered up.  The transmitter often only provides power to the module once it has passed switch checks and throttle position checks. *
+**Note that the dial selection must be done before the module receives power - this is not necessarily the same time that the transmitter is powered up.  The transmitter often only provides power to the module once it has passed switch checks and throttle position checks.**
 
 The default mapping of protocols to switch positions can be viewed on the Protocol Details page found [here](Protocol_Details.md#DefaultMapping)
 

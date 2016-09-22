@@ -13,18 +13,18 @@ FrSkyX displays full telemetry (A1, A2, RX RSSI, TX RSSI and Hub).
 
 ### If used in PPM mode
 
-Telemetry is available as a serial 9600 8 n 1 output on the TX pin of the Atmega328p using the FrSky hub format for Hubsan, FrSkyD, FrSkyX and DSM format for DSM2/X.
+Telemetry is available as a serial output on the TX pin of the Atmega328p using the FrSky hub format for Hubsan, FrSkyD, FrSkyX and DSM format for DSM2/X.  The serial paramets depends on the protocol:
+
+Protocol|Serial Parameters
+--------|-----------------
+Hubsan|9600bps 8n1
+FrSkyD|9600bps 8n1
+FrSkyX|57,600bps 8n1
+DSM2/X|125,000bps 8n1
+
+The serial stream is also available on pin 5 of the Module connector (pins numbered from top to bottom) on the [4-in-1 module](Module_BG_4-in-1.md) and the [V2.3d modules](Module_Build_yourself_PCB.md) provided the Tx jumper has been soldered.  See the linked module documentation for what this means. 
+
 
 You can connect it to your TX if it is telemetry enabled or use a bluetooth adapter (HC05/HC06) along with an app on your phone/tablet ([app example](https://play.google.com/store/apps/details?id=biz.onomato.frskydash&hl=fr)) to display telemetry information and setup alerts.
 
-### If used in Serial mode
-Telemetry is built in for er9x and ersky9x TXs.
-
-To enable telemetry on a Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
-
-Note: DSM telemetry is not available on er9x due to a lack of flash space.
-
-Enabling telemetry on a 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
-
-Once the TX is telemetry enabled, it just needs to be configured on the model (see er9x/ersky9x documentation).
 

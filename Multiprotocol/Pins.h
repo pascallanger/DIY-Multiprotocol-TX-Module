@@ -127,6 +127,12 @@
 	#define CYRF_CSN_ddr	DDRD
 	#define CYRF_CSN_on		CYRF_CSN_port.OUTSET = _BV(CYRF_CSN_pin)
 	#define CYRF_CSN_off	CYRF_CSN_port.OUTCLR = _BV(CYRF_CSN_pin)
+
+	#define CYRF_RST_pin	0							//PE0
+	#define CYRF_RST_port	PORTE
+	#define CYRF_RST_ddr	DDRE
+	#define CYRF_RST_HI		CYRF_RST_port.OUTSET |=  _BV(CYRF_RST_pin)
+	#define CYRF_RST_LO		CYRF_RST_port.OUTCLR &= ~_BV(CYRF_RST_pin)
 #else
 	#define CYRF_CSN_pin	1							//D9 = PB1
 	#define CYRF_CSN_port	PORTB

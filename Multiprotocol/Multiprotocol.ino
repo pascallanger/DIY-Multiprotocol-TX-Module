@@ -181,12 +181,6 @@ void setup()
 		PORTD.PIN2CTRL = 0x18 ;
 		PORTE.DIRSET = 0x01 ;
 		PORTE.DIRCLR = 0x02 ;
-		PORTE.OUTSET = 0x01 ;
-
-		for ( uint8_t count = 0 ; count < 20 ; count += 1 )
-			asm("nop") ;
-		PORTE.OUTCLR = 0x01 ;
-
 		// Timer1 config
 		// TCC1 16-bit timer, clocked at 0.5uS
 		EVSYS.CH3MUX = 0x80 + 0x04 ;	// Prescaler of 16

@@ -35,20 +35,22 @@ Transmitters that run er9X, erSky9X or OpenTx firmwares - like the FrSky Taranis
 
 This serial protocol does not require any hardware modifications, but **will** require updating the firmware on your radio. 
 
+To enable serial telemetry **may** require modifications to your Tx. See the table below.
+
 Transmitters and firmware combinations that support the Serial protocol are:
 
-{Can someone check the transmitters click through to the right pages?  How should the "erSky9x" boards be handled? A separate Tx- page or a link to the Taranis page?}
 
-Transmitter|Firmware Options
-:----------|:-------
-[FrSky Taranis/Plus/9XE](Tx-Taranis.md)| [erSky9x](http://www.er9x.com), [OpenTx 2.1.8 Multi](http://plaisthos.de/opentx/)
-[Turnigy 9X/9xR](Tx-FlyskyTH9X.md)|[er9x](http://www.er9x.com)
-[Turnigy 9XR-Pro](Tx-Taranis.md)|[erSky9x](http://www.er9x.com)
-[FrSky TH9x](Tx-FlyskyTH9X.md)|[er9x](http://www.er9x.com)
-SKY board|[erSky9x](http://www.er9x.com)
-AR9X board|[erSky9x](http://www.er9x.com)
-9Xtreme board|[erSky9x](http://www.er9x.com)
-AR9X UNI board|[erSky9x](http://www.er9x.com)
+
+Transmitter|Firmware Options|Telemetry Enabled
+:----------|:---------------|:----------------
+[FrSky Taranis/Plus/9XE](Tx-Taranis.md)| [erSky9x](http://www.er9x.com), [OpenTx 2.1.8 Multi](http://plaisthos.de/opentx/)|Yes - native
+[Turnigy 9X/9xR](Tx-FlyskyTH9X.md)|[er9x](http://www.er9x.com)|[Mod required](http://blog.oscarliang.net/turnigy-9x-advance-mod/), No DSM telem
+[Turnigy 9XR-Pro](Tx-Taranis.md)|[erSky9x](http://www.er9x.com)|Yes - native
+[FrSky TH9x](Tx-FlyskyTH9X.md)|[er9x](http://www.er9x.com) |[Mod required](http://blog.oscarliang.net/turnigy-9x-advance-mod/), No DSM telem
+SKY board|[erSky9x](http://www.er9x.com)|Yes - native
+AR9X board|[erSky9x](http://www.er9x.com)|Yes - native
+9Xtreme board|[erSky9x](http://www.er9x.com)|Yes - native
+AR9X UNI board|[erSky9x](http://www.er9x.com)|Yes - native
 
 Click on your transmitter above to view specific setup instructions.
 
@@ -57,3 +59,10 @@ Other Notes:
 
 - Owners of Walkera Devo transmitters should look at the [Deviation-Tx](http://www.deviationtx.com) project for how to achieve the same end goal with your transmitters. 
 
+- To enable telemetry on a Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
+
+- DSM telemetry is not available on er9x due to a lack of flash space.
+
+- Enabling telemetry on a 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
+
+- Once the TX is telemetry enabled, it just needs to be configured on the model (see er9x/ersky9x documentation).

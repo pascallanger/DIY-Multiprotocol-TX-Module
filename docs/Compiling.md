@@ -186,6 +186,7 @@ To complete this step you need an USBASP programmer like the one shown below and
 
 If the output indicates that the fuses have been successfully written give yourself a pat on the back.  Well done, you have successfully programmed your DIY Multiprotocol module and you are ready to go on to the final step [Setting up your Transmitter](TransmitterSetup.md) before you can begin to fly!!!!
 
+<a name="Programming_Arduino_Pro_Mini"></a>
 ##Programming Arduino Pro-Mini Boards <a name="Programming_Arduino_Pro_Mini"></a>
 Use this method only for Arduino Pro Mini boards with bootloader.
 1. Use an external FTDI adapter like this one.

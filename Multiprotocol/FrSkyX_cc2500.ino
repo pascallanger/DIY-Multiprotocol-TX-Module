@@ -23,7 +23,6 @@
 uint8_t chanskip;
 uint8_t counter_rst;
 uint8_t ctr;
-uint8_t FS_flag=0;
 uint8_t seq_last_sent;
 uint8_t seq_last_rcvd;
 
@@ -90,8 +89,6 @@ static void __attribute__((unused)) set_start(uint8_t ch )
 
 static void __attribute__((unused)) frskyX_init()
 {
-	CC2500_Reset();
-	
 	for(uint8_t i=0;i<36;i++)
 	{
 		uint8_t reg=pgm_read_byte_near(&cc2500_conf[i][0]);
@@ -215,10 +212,10 @@ static void __attribute__((unused)) frskyX_data_frame()
 	packet[4] = (ctr<<6)+hopping_frequency_no; 
 	packet[5] = counter_rst;
 	packet[6] = RX_num;
-	//FLAGS 00 - standard packet
+	//packet[7] = FLAGS 00 - standard packet
 	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
 	//20 - range check packet
-	packet[7] = FS_flag;
+	packet[7] = 0;
 	packet[8] = 0;		
 	//
 	if ( lpass & 1 )
@@ -286,7 +283,7 @@ uint16_t ReadFrSkyX()
 				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
 				prev_option = option ;
 			}
-			LED_ON;
+			LED_on;
 			CC2500_SetTxRxMode(TX_EN);
 			set_start(hopping_frequency_no);
 			CC2500_SetPower();		
@@ -339,10 +336,8 @@ uint16_t initFrSkyX()
 {
 	while(!chanskip)
 	{
-		#if defined STM32_board
-	randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));	
-		#else
-	randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));			
+	#if defined STM32_board
+	randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));			
 	#endif
 		chanskip=random(0xfefefefe)%47;
 	}

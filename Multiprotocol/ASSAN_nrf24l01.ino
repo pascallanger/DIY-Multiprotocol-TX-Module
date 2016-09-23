@@ -74,17 +74,17 @@ uint16_t ASSAN_callback()
 			NRF24L01_SetTxRxMode(RX_EN);
 			phase++;
 		case ASSAN_BIND1:
-			//Wait for RX to send the frames
-			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
+			//Wait for receiver to send the frames
+			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ //Something has been received
 				NRF24L01_ReadPayload(packet, ASSAN_PACKET_SIZE);
 				if(packet[19]==0x13)
-				{ //Last packet received
+				{ //Last frame received
 					phase++;
 					//Switch to TX
 					NRF24L01_SetTxRxMode(TXRX_OFF);
 					NRF24L01_SetTxRxMode(TX_EN);
-					//Prepare packet
+					//Prepare bind packet
 					memset(packet,0x05,ASSAN_PACKET_SIZE-5);
 					packet[15]=0x99;
 					for(uint8_t i=0;i<4;i++)
@@ -134,7 +134,7 @@ uint16_t ASSAN_callback()
 
 static void __attribute__((unused)) ASSAN_initialize_txid()
 {
-/*	//Renaud TXID with Freq=36 and alternate freq 67 or 68 or 69 or 70 or 71 or 73 or 74 or 75 or 78 and may be more...
+/*	//Renaud TXID with Freq=36 and alternate Freq 67 or 68 or 69 or 70 or 71 or 73 or 74 or 75 or 78 and may be more...
 	packet[23]=0x22;
 	packet[22]=0x37;
 	packet[21]=0xFA;
@@ -153,19 +153,15 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	freq=((freq%25)+2)<<1;
 	if(freq&0x02)	freq|=0x01;
 	hopping_frequency[0]=freq;
-	// Alternate frequency
-	hopping_frequency[1]=freq*2-6;
+	// Alternate frequency has some random
 	do
 	{
 	#if defined STM32_board
 	randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));
-	#else
-		randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
-	#endif
+#endif
 		freq2=random(0xfefefefe)%9;
 		freq2+=freq*2-5;
 	}
-	
 	while( (freq2>118) || (freq2<freq+1) || (freq2==2*freq) );
 	hopping_frequency[1]=freq2;			// Add some random to the second channel
 }

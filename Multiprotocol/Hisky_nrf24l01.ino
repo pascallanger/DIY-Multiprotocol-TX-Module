@@ -120,9 +120,8 @@ static void __attribute__((unused)) build_ch_data()
 {
 	uint16_t temp;
 	uint8_t i,j;
-	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
 	for (i = 0; i< 8; i++) {
-		j=ch[i];
+		j=CH_AETR[i];
 		temp=map(limit_channel_100(j),servo_min_100,servo_max_100,0,1000);            			
 		if (j == THROTTLE) // It is clear that hisky's throttle stick is made reversely, so I adjust it here on purpose
 			temp = 1000 -temp;

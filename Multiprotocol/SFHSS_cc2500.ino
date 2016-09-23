@@ -18,7 +18,6 @@
 
 #include "iface_cc2500.h"
 
-
 #define SFHSS_COARSE	0
 
 #define SFHSS_PACKET_LEN 13
@@ -27,11 +26,11 @@
 uint8_t	fhss_code; // 0-27
 
 enum {
-    SFHSS_START = 0x101,
-    SFHSS_CAL   = 0x102,
-    SFHSS_TUNE  = 0x103,
-    SFHSS_DATA1 = 0x02,
-    SFHSS_DATA2 = 0x0b
+    SFHSS_START = 0x00,
+    SFHSS_CAL   = 0x01,
+    SFHSS_DATA1 = 0x02,	// do not change this value
+    SFHSS_DATA2 = 0x0B,	// do not change this value
+    SFHSS_TUNE  = 0x0F
 };
 
 #define SFHSS_FREQ0_VAL 0xC4
@@ -75,12 +74,11 @@ const PROGMEM uint8_t SFHSS_init_values[] = {
 
 static void __attribute__((unused)) SFHSS_rf_init()
 {
-	CC2500_Reset();
 	CC2500_Strobe(CC2500_SIDLE);
 
 	for (uint8_t i = 0; i < 39; ++i)
 		CC2500_WriteReg(i, pgm_read_byte_near(&SFHSS_init_values[i]));
-	//CC2500_WriteRegisterMulti(CC2500_00_IOCFG2, init_values, sizeof(init_values));
+
 	prev_option = option;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	
@@ -102,16 +100,14 @@ static void __attribute__((unused)) SFHSS_tune_chan_fast()
 	CC2500_WriteReg(CC2500_25_FSCAL1, calData[rf_ch_num]);
 }
 
-
-static void __attribute__((unused)) SFHSS_tune_freq() {
-// May be we'll need this tuning routine - some receivers are more sensitive to
-// frequency impreciseness, and though CC2500 has a procedure to handle it it
-// may not be applied in receivers, so we need to compensate for it on TX 
+static void __attribute__((unused)) SFHSS_tune_freq()
+{
 	if ( prev_option != option )
 	{
 		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 		CC2500_WriteReg(CC2500_0F_FREQ0, SFHSS_FREQ0_VAL + SFHSS_COARSE);
 		prev_option = option ;
+		phase = SFHSS_START;	// Restart the tune process if option is changed to get good tuned values
 	}
 }
 
@@ -130,23 +126,20 @@ static void __attribute__((unused)) SFHSS_calc_next_chan()
 // Values grow down and to the right, so we just revert every channel.
 static uint16_t __attribute__((unused)) SFHSS_convert_channel(uint8_t num)
 {
-	return (uint16_t) (map(limit_channel_100(num),PPM_MIN_100,PPM_MAX_100,906,86));
+	return (uint16_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,906,86));
 }
-
 
 static void __attribute__((unused)) SFHSS_build_data_packet()
 {
 #define spacer1 0x02 //0b10
 #define spacer2 (spacer1 << 4)
-    uint8_t ch_offset = state == SFHSS_DATA1 ? 0 : 4;
-	const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
-
-    uint16_t ch1 = SFHSS_convert_channel(ch[ch_offset+0]);
-    uint16_t ch2 = SFHSS_convert_channel(ch[ch_offset+1]);
-    uint16_t ch3 = SFHSS_convert_channel(ch[ch_offset+2]);
-    uint16_t ch4 = SFHSS_convert_channel(ch[ch_offset+3]);
+    uint8_t ch_offset = phase == SFHSS_DATA1 ? 0 : 4;
+    uint16_t ch1 = SFHSS_convert_channel(CH_AETR[ch_offset+0]);
+    uint16_t ch2 = SFHSS_convert_channel(CH_AETR[ch_offset+1]);
+    uint16_t ch3 = SFHSS_convert_channel(CH_AETR[ch_offset+2]);
+    uint16_t ch4 = SFHSS_convert_channel(CH_AETR[ch_offset+3]);
     
-    packet[0]  = 0x81; // can be 80, 81, 81 for Orange, only 81 for XK
+    packet[0]  = 0x81; // can be 80 or 81 for Orange, only 81 for XK
     packet[1]  = rx_tx_addr[0];
     packet[2]  = rx_tx_addr[1];
     packet[3]  = 0;
@@ -158,23 +151,22 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
     packet[9]  = (ch3 >> 1);
     packet[10] = (ch3 << 7) | spacer2  | ((ch4 >> 5) & 0x1F /*0b11111*/);
     packet[11] = (ch4 << 3) | ((fhss_code >> 2) & 0x07 /*0b111 */);
-    packet[12] = (fhss_code << 6) | state;
+    packet[12] = (fhss_code << 6) | phase;
 }
 
 static void __attribute__((unused)) SFHSS_send_packet()
 {
-    //SFHSS_tune_chan_fast();
     CC2500_WriteData(packet, SFHSS_PACKET_LEN);
 }
 
 uint16_t ReadSFHSS()
 {
-	switch(state)
+	switch(phase)
 	{
 		case SFHSS_START:
 			rf_ch_num = 0;
 			SFHSS_tune_chan();
-			state = SFHSS_CAL;
+			phase = SFHSS_CAL;
 			return 2000;
 		case SFHSS_CAL:
 			calData[rf_ch_num]=CC2500_ReadReg(CC2500_25_FSCAL1);
@@ -183,7 +175,7 @@ uint16_t ReadSFHSS()
 			else
 			{
 				rf_ch_num = 0;
-				state = SFHSS_DATA1;
+				phase = SFHSS_DATA1;
 			}
 			return 2000;
 
@@ -191,16 +183,16 @@ uint16_t ReadSFHSS()
 		case SFHSS_DATA1:
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();
-			state = SFHSS_DATA2;
+			phase = SFHSS_DATA2;
 			return 1650;
 		case SFHSS_DATA2:
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();
 			SFHSS_calc_next_chan();
-			state = SFHSS_TUNE;
+			phase = SFHSS_TUNE;
 			return 2000;
 		case SFHSS_TUNE:
-			state = SFHSS_DATA1;
+			phase = SFHSS_DATA1;
 			SFHSS_tune_freq();
 			SFHSS_tune_chan_fast();
 			CC2500_SetPower();
@@ -241,13 +233,13 @@ static void __attribute__((unused)) SFHSS_get_tx_id()
 
 uint16_t initSFHSS()
 {
-	BIND_DONE;	// No bind protocol
+	BIND_DONE;	// Not a TX bind protocol
 	SFHSS_get_tx_id();
 
 	fhss_code=rx_tx_addr[2]%28; // Initialize it to random 0-27 inclusive
 
 	SFHSS_rf_init();
-	state = SFHSS_START;
+	phase = SFHSS_START;
 
 	return 10000;
 }

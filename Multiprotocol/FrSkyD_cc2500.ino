@@ -13,30 +13,13 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(FRSKY_CC2500_INO)
+#if defined(FRSKYD_CC2500_INO)
 
 #include "iface_cc2500.h"
-
-//##########Variables########
-//uint32_t state;
-//uint8_t len;
-
-/*
-enum {
-	FRSKY_BIND		= 0,
-	FRSKY_BIND_DONE	= 1000,
-	FRSKY_DATA1,
-	FRSKY_DATA2,
-	FRSKY_DATA3,
-	FRSKY_DATA4,
-	FRSKY_DATA5
-};
-*/
 
 static void __attribute__((unused)) frsky2way_init(uint8_t bind)
 {
 	// Configure cc2500 for tx mode
-	CC2500_Reset();
 	//
 	for(uint8_t i=0;i<36;i++)
 	{
@@ -51,6 +34,7 @@ static void __attribute__((unused)) frsky2way_init(uint8_t bind)
 		CC2500_WriteReg(reg,val);
 	}
         prev_option = option ;
+
 	CC2500_SetTxRxMode(TX_EN);
 	CC2500_SetPower();
 	
@@ -143,7 +127,7 @@ uint16_t initFrSky_2way()
 	if(IS_AUTOBIND_FLAG_on)
 	{	   
 		frsky2way_init(1);
-		state = FRSKY_BIND;//
+		state = FRSKY_BIND;
 	}
 	else
 	{
@@ -206,14 +190,13 @@ uint16_t ReadFrSky_2way()
 			CC2500_SetTxRxMode(TX_EN);
 			CC2500_SetPower();	// Set tx_power
 		}
-		
+		CC2500_Strobe(CC2500_SIDLE);
+		CC2500_WriteReg(CC2500_0A_CHANNR, get_chan_num(counter % 47));
 		if ( prev_option != option )
 		{
 		CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
 		prev_option = option ;
 		}
-		CC2500_Strobe(CC2500_SIDLE);
-		CC2500_WriteReg(CC2500_0A_CHANNR, get_chan_num(counter % 47));
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);
 		CC2500_Strobe(CC2500_SFRX);        
 		frsky2way_data_frame();

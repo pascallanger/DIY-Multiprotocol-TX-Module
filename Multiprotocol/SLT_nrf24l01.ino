@@ -34,7 +34,7 @@ enum {
 static void __attribute__((unused)) SLT_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO)); // 2-bytes CRC, radio off
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO)); // 2-bytes CRC, radio off
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknoledgement
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);		// Enable data pipe 0
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x02);		// 4-byte RX/TX address
@@ -93,7 +93,7 @@ static void __attribute__((unused)) SLT_set_tx_id(void)
 static void __attribute__((unused)) SLT_wait_radio()
 {
 	if (packet_sent)
-		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_TX_DS))) ;
+		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS))) ;
 	packet_sent = 0;
 }
 
@@ -101,7 +101,7 @@ static void __attribute__((unused)) SLT_send_data(uint8_t *data, uint8_t len)
 {
 	SLT_wait_radio();
 	NRF24L01_FlushTx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_RX_DR) | BV(NRF24L01_07_MAX_RT));
+	NRF24L01_WriteReg(NRF24L01_07_STATUS, _BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_RX_DR) | _BV(NRF24L01_07_MAX_RT));
 	NRF24L01_WritePayload(data, len);
 	//NRF24L01_PulseCE();
 	packet_sent = 1;

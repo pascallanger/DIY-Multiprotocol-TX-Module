@@ -347,8 +347,6 @@ uint16_t initHubsan() {
 
 	#if defined STM32_board
 	randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));	
-	#else
-	randomSeed((uint32_t)analogRead(A6) << 10 | analogRead(A7));
 	#endif	
 	sessionid = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
 	channel = allowed_ch[random(0xfefefefe) % sizeof(allowed_ch)];

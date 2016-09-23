@@ -105,7 +105,7 @@ uint16_t FY326_callback()
 	switch (phase)
 	{
 		case FY326_BIND1:
-			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
+			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready
 				NRF24L01_ReadPayload(packet, FY326_PACKET_SIZE);
 				rxid = packet[13];
@@ -127,7 +127,7 @@ uint16_t FY326_callback()
 				}
 			break;
 		case FY326_BIND2:
-			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_TX_DS))
+			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS))
 			{ // TX data sent -> switch to RX mode
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_FlushRx();

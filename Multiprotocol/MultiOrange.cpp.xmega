@@ -3,17 +3,18 @@
 
 #define XMEGA	1
 
+// For BLUE module use:
+//#define DSM_BLUE
+
 #include <stdlib.h>
 #include <string.h>
 #include <avr/interrupt.h>
 
 static void protocol_init(void) ;
 static void update_aux_flags(void) ;
-static void PPM_Telemetry_serial_init(void) ;
 static uint32_t random_id(uint16_t adress, uint8_t create_new) ;
 static void update_serial_data(void) ;
 static void Mprotocol_serial_init(void) ;
-static void module_reset(void) ;
 static void update_led_status(void) ;
 static void set_rx_tx_addr(uint32_t id) ;
 uint16_t limit_channel_100(uint8_t ch) ;
@@ -31,6 +32,8 @@ extern uint16_t initDsm2(void) ;
 extern uint16_t ReadDsm2(void) ;
 extern uint16_t DevoInit(void) ;
 extern uint16_t devo_callback(void) ;
+extern uint16_t initJ6Pro(void) ;
+extern uint16_t ReadJ6Pro(void) ;
 
 extern void randomSeed(unsigned int seed) ;
 extern long random(long howbig) ;
@@ -39,19 +42,18 @@ extern long map(long x, long in_min, long in_max, long out_min, long out_max) ;
 extern uint32_t millis(void) ;
 extern uint32_t micros(void) ;
 extern void delayMicroseconds(uint16_t x) ;
+extern void delayMilliseconds(unsigned long ms) ;
 extern void init(void) ;
 
-extern int analogRead(uint8_t pin) ;
-
-#define A6 20
-#define A7 21
+extern void modules_reset() ;
+extern void Update_All() ;
+extern void tx_pause() ;
+extern void tx_resume() ;
+extern void TelemetryUpdate() ;
+extern uint16_t initDsm() ;
+extern uint16_t ReadDsm() ;
 
 #define yield()
-
-//void _delay_us( uint16_t x )
-//{
-//	delayMicroseconds( x ) ;
-//}
 
 #define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
@@ -68,219 +70,6 @@ extern int analogRead(uint8_t pin) ;
 // about - 8 and 16 MHz - this doesn't lose precision.)
 #define FRACT_INC ((MICROSECONDS_PER_TIMER0_OVERFLOW % 1000) >> 3)
 #define FRACT_MAX (1000 >> 3)
-
-volatile unsigned long timer0_overflow_count = 0;
-volatile unsigned long timer0_millis = 0;
-static unsigned char timer0_fract = 0;
-
-
-
-//void chipInit()
-//{
-//	PR.PRGEN = 0 ;		// RTC and event system active
-//	PR.PRPC = 0 ;		// No power reduction port C
-//	PR.PRPD = 0 ;    // No power reduction port D
-//	PMIC.CTRL = 7 ;
-//	OSC.CTRL = 0xC3 ;	// unclear	
-//	OSC.CTRL |= 0x08 ;	// Enable external oscillator
-//	while( ( OSC.STATUS & 0x08 ) == 0 ) ;	// Wait for ext osc to be ready
-//	OSC.PLLCTRL = 0xC2 ;		// Ext. Osc times 2
-//	OSC.CTRL |= 0x10 ;			// Enable PLL
-//	while( ( OSC.STATUS & 0x10 ) == 0 ) ;	// Wait PLL ready
-//	CPU_CCP = 0xD8 ; // 0x34
-//	CLK.CTRL = 0 ;			// Select 2MHz internal clock
-//	CPU_CCP = 0xD8 ; // 0x34
-//	CLK.CTRL = 0x04 ;	// Select PLL as clock (32MHz)
-//	PORTD.OUTSET = 0x17 ;
-//	PORTD.DIRSET = 0xB2 ;
-//	PORTD.DIRCLR = 0x4D ;
-//	PORTD.PIN0CTRL = 0x18 ;
-//	PORTD.PIN2CTRL = 0x18 ;
-//	PORTE.DIRSET = 0x01 ;
-//	PORTE.DIRCLR = 0x02 ;
-//	PORTE.OUTSET = 0x01 ;
-//	PORTA.DIRCLR = 0xFF ;
-//	PORTA.PIN0CTRL = 0x18 ;
-//	PORTA.PIN1CTRL = 0x18 ;
-//	PORTA.PIN2CTRL = 0x18 ;
-//	PORTA.PIN3CTRL = 0x18 ;
-//	PORTA.PIN4CTRL = 0x18 ;
-//	PORTA.PIN5CTRL = 0x18 ;
-//	PORTA.PIN6CTRL = 0x18 ;
-//	PORTA.PIN7CTRL = 0x18 ;
-//	PORTC.DIRSET = 0x20 ;
-//	PORTC.OUTCLR = 0x20 ;
-//	SPID.CTRL = 0x51 ;
-//	PORTC.OUTSET = 0x08 ;
-//	PORTC.DIRSET = 0x08 ;
-//	PORTC.PIN3CTRL = 0x18 ;
-//	PORTC.PIN2CTRL = 0x18 ;
-//	USARTC0.BAUDCTRLA = 19 ;
-//	USARTC0.BAUDCTRLB = 0 ;
-//	USARTC0.CTRLB = 0x18 ;
-//	USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
-//	USARTC0.CTRLC = 0x03 ;
-	
-//	TCC0.CTRLB = 0 ;
-//	TCC0.CTRLC = 0 ;
-//	TCC0.CTRLD = 0 ;
-//	TCC0.CTRLE = 0 ;
-//	TCC0.INTCTRLA = 0x01 ;
-//	TCC0.INTCTRLB = 0 ;
-//	TCC0.PER = 0x00FF ;
-//	TCC0.CTRLA = 4 ;
-
-//	TCC1.CTRLB = 0 ;
-//	TCC1.CTRLC = 0 ;
-//	TCC1.CTRLD = 0 ;
-//	TCC1.CTRLE = 0 ;
-//	TCC1.INTCTRLA = 0x03 ;
-//	TCC1.INTCTRLB = 0 ;
-//	TCC1.PER = 0xFFFF ;
-//	TCC1.CNT = 0 ;
-//	TCC1.CTRLA = 4 ;
-
-//	TCD0.CTRLA = 4 ;
-//	TCD0.INTCTRLA = 0x03 ;
-//	TCD0.PER = 0x02ED ;
-
-////	L0EDB() ;
-
-//	NVM.CTRLB &= 0xF7 ;	// No EEPROM mapping
-//}
-
-
-
-ISR(TCC0_OVF_vect)
-{
-	// copy these to local variables so they can be stored in registers
-	// (volatile variables must be read from memory on every access)
-	unsigned long m = timer0_millis;
-	unsigned char f = timer0_fract;
-
-	m += MILLIS_INC;
-	f += FRACT_INC;
-	if (f >= FRACT_MAX) {
-		f -= FRACT_MAX;
-		m += 1;
-	}
-
-	timer0_fract = f;
-	timer0_millis = m;
-	timer0_overflow_count++;
-}
-
-unsigned long millis()
-{
-	unsigned long m;
-	uint8_t oldSREG = SREG;
-
-	// disable interrupts while we read timer0_millis or we might get an
-	// inconsistent value (e.g. in the middle of a write to timer0_millis)
-	cli();
-	m = timer0_millis;
-	SREG = oldSREG;
-
-	return m;
-}
-
-unsigned long micros()
-{
-	unsigned long m;
-	uint8_t oldSREG = SREG, t;
-	
-	cli();
-	m = timer0_overflow_count;
-	t = TCC0.CNT ;
-
-	if ((TCC0.INTFLAGS & TC0_OVFIF_bm) && (t < 255))
-		m++;
-
-	SREG = oldSREG;
-	
-	return ((m << 8) + t) * (64 / clockCyclesPerMicrosecond());
-}
-
-void delay(unsigned long ms)
-{
-	uint16_t start = (uint16_t)micros();
-
-	while (ms > 0) {
-		yield();
-		if (((uint16_t)micros() - start) >= 1000) {
-			ms--;
-			start += 1000;
-		}
-	}
-}
-
-/* Delay for the given number of microseconds.  Assumes a 8 or 16 MHz clock. */
-void delayMicroseconds(unsigned int us)
-{
-	// calling avrlib's delay_us() function with low values (e.g. 1 or
-	// 2 microseconds) gives delays longer than desired.
-	//delay_us(us);
-#if F_CPU >= 20000000L
-	// for the 20 MHz clock on rare Arduino boards
-
-	// for a one-microsecond delay, simply wait 2 cycle and return. The overhead
-	// of the function call yields a delay of exactly a one microsecond.
-	__asm__ __volatile__ (
-		"nop" "\n\t"
-		"nop"); //just waiting 2 cycle
-	if (--us == 0)
-		return;
-
-	// the following loop takes a 1/5 of a microsecond (4 cycles)
-	// per iteration, so execute it five times for each microsecond of
-	// delay requested.
-	us = (us<<2) + us; // x5 us
-
-	// account for the time taken in the preceeding commands.
-	us -= 2;
-
-#elif F_CPU >= 16000000L
-	// for the 16 MHz clock on most Arduino boards
-
-	// for a one-microsecond delay, simply return.  the overhead
-	// of the function call yields a delay of approximately 1 1/8 us.
-	if (--us == 0)
-		return;
-
-	// the following loop takes a quarter of a microsecond (4 cycles)
-	// per iteration, so execute it four times for each microsecond of
-	// delay requested.
-	us <<= 2;
-
-	// account for the time taken in the preceeding commands.
-	us -= 2;
-#else
-	// for the 8 MHz internal clock on the ATmega168
-
-	// for a one- or two-microsecond delay, simply return.  the overhead of
-	// the function calls takes more than two microseconds.  can't just
-	// subtract two, since us is unsigned; we'd overflow.
-	if (--us == 0)
-		return;
-	if (--us == 0)
-		return;
-
-	// the following loop takes half of a microsecond (4 cycles)
-	// per iteration, so execute it twice for each microsecond of
-	// delay requested.
-	us <<= 1;
-    
-	// partially compensate for the time taken by the preceeding commands.
-	// we can't subtract any more than this or we'd overflow w/ small delays.
-	us--;
-#endif
-
-	// busy wait
-	__asm__ __volatile__ (
-		"1: sbiw %0,1" "\n\t" // 2 cycles
-		"brne 1b" : "=w" (us) : "0" (us) // 2 cycles
-	);
-}
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -314,27 +103,6 @@ void init()
 	PMIC.CTRL = 7 ;		// Enable all interrupt levels
 	sei();
 	
-	// on the ATmega168, timer 0 is also used for fast hardware pwm
-	// (using phase-correct PWM would mean that timer 0 overflowed half as often
-	// resulting in different millis() behavior on the ATmega8 and ATmega168)
-//#if defined(TCCR0A) && defined(WGM01)
-//	sbi(TCCR0A, WGM01);
-//	sbi(TCCR0A, WGM00);
-//#endif  
-
-	
-// TCC0 counts 0-255 at 4uS clock rate
-	EVSYS.CH2MUX = 0x80 + 0x07 ;	// Prescaler of 128
-	TCC0.CTRLB = 0 ;
-	TCC0.CTRLC = 0 ;
-	TCC0.CTRLD = 0 ;
-	TCC0.CTRLE = 0 ;
-	TCC0.INTCTRLA = 0x01 ;
-	TCC0.INTCTRLB = 0 ;
-	TCC0.PER = 0x00FF ;
-	TCC0.CTRLA = 0x0A ;
-
-
 #if defined(ADCSRA)
 	// set a2d prescale factor to 128
 	// 16 MHz / 128 = 125 KHz, inside the desired 50-200 KHz range.
@@ -357,12 +125,6 @@ void init()
 	UCSR0B = 0;
 #endif
 
-	// PPM interrupt
-	PORTD.DIRCLR = 0x08 ;	// D3 is input
-	PORTD.PIN3CTRL = 0x01 ;	// Rising edge
-	PORTD.INT0MASK = 0x08 ;
-	PORTD.INTCTRL = 0x02 ;	// Medium level interrupt
-
 // Dip Switch inputs
 	PORTA.DIRCLR = 0xFF ;
 	PORTA.PIN0CTRL = 0x18 ;
@@ -375,95 +137,15 @@ void init()
 	PORTA.PIN7CTRL = 0x18 ;
 }
 
-#define DEFAULT 1
-
-uint8_t analog_reference = DEFAULT;
-
-void analogReference(uint8_t mode)
-{
-	// can't actually set the register here because the default setting
-	// will connect AVCC and the AREF pin, which would cause a short if
-	// there's something connected to AREF.
-	analog_reference = mode;
-}
-
-int analogRead(uint8_t pin)
-{
-	uint8_t low, high;
-
-#if defined(analogPinToChannel)
-#if defined(__AVR_ATmega32U4__)
-	if (pin >= 18) pin -= 18; // allow for channel or pin numbers
-#endif
-	pin = analogPinToChannel(pin);
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-	if (pin >= 54) pin -= 54; // allow for channel or pin numbers
-#elif defined(__AVR_ATmega32U4__)
-	if (pin >= 18) pin -= 18; // allow for channel or pin numbers
-#elif defined(__AVR_ATmega1284__) || defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega644__) || defined(__AVR_ATmega644A__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__)
-	if (pin >= 24) pin -= 24; // allow for channel or pin numbers
-#else
-	if (pin >= 14) pin -= 14; // allow for channel or pin numbers
-#endif
-
-#if defined(ADCSRB) && defined(MUX5)
-	// the MUX5 bit of ADCSRB selects whether we're reading from channels
-	// 0 to 7 (MUX5 low) or 8 to 15 (MUX5 high).
-	ADCSRB = (ADCSRB & ~(1 << MUX5)) | (((pin >> 3) & 0x01) << MUX5);
-#endif
-  
-	// set the analog reference (high two bits of ADMUX) and select the
-	// channel (low 4 bits).  this also sets ADLAR (left-adjust result)
-	// to 0 (the default).
-#if defined(ADMUX)
-	ADMUX = (analog_reference << 6) | (pin & 0x07);
-#endif
-
-	// without a delay, we seem to read from the wrong channel
-	//delay(1);
-
-#if defined(ADCSRA) && defined(ADCL)
-	// start the conversion
-	sbi(ADCSRA, ADSC);
-
-	// ADSC is cleared when the conversion finishes
-	while (bit_is_set(ADCSRA, ADSC));
-
-	// we have to read ADCL first; doing so locks both ADCL
-	// and ADCH until ADCH is read.  reading ADCL second would
-	// cause the results of each conversion to be discarded,
-	// as ADCL and ADCH would be locked when it completed.
-	low  = ADCL;
-	high = ADCH;
-#else
-	// we dont have an ADC, return 0
-	low  = 0;
-	high = 0;
-#endif
-
-	// combine the two bytes
-	return (high << 8) | low;
-}
-
-
-
-
-void A7105_Reset()
-{
-}
-void CC2500_Reset()
-{
-}
-void NRF24L01_Reset()
-{
-}
-
-
 #include "Multiprotocol.ino"
+#include "SPI.ino"
+#include "Convert.ino"
+#include "Arduino.ino"
 
 #include "cyrf6936_SPI.ino"
-#include "DSM2_cyrf6936.ino"
+#include "DSM_cyrf6936.ino"
 #include "Devo_cyrf6936.ino"
+#include "J6Pro_cyrf6936.ino"
 
 #include "Telemetry.ino"
 

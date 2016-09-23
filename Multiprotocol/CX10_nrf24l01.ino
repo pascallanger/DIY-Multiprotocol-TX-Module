@@ -148,7 +148,7 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 
 	// Power on, TX mode, 2byte CRC
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
-	XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
+	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 	if (bind)
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, CX10_RF_BIND_CHANNEL);
 	else
@@ -197,7 +197,7 @@ uint16_t CX10_callback()
 			}
 			break;
 		case CX10_BIND2:
-			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
+			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready
 				XN297_ReadPayload(packet, packet_length);
 				NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -215,12 +215,12 @@ uint16_t CX10_callback()
 				NRF24L01_FlushTx();
 				NRF24L01_SetTxRxMode(TX_EN);
 				CX10_Write_Packet(1);
-				_delay_us(400);
+				delayMicroseconds(400);
 				// switch to RX mode
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_FlushRx();
 				NRF24L01_SetTxRxMode(RX_EN);
-				XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP) | BV(NRF24L01_00_PRIM_RX));
+				XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
 			}
 			break;
 		case CX10_DATA:

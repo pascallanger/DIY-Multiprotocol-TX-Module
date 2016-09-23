@@ -84,11 +84,11 @@ void CC2500_Strobe(uint8_t address)
 {
 	// Toggle chip select signal
 	CC25_CSN_on;
-	_delay_us(30);
+	delayMicroseconds(30);
 	CC25_CSN_off;
-	_delay_us(30);
+	delayMicroseconds(30);
 	CC25_CSN_on;
-	_delay_us(45);
+	delayMicroseconds(45);
 	CC2500_Strobe(CC2500_SRES);
 	_delay_ms(100);
 }
@@ -96,7 +96,7 @@ void CC2500_Strobe(uint8_t address)
 uint8_t CC2500_Reset()
 {
 	CC2500_Strobe(CC2500_SRES);
-	_delay_us(1000);
+	delayMilliseconds(1);
 	CC2500_SetTxRxMode(TXRX_OFF);
 	return CC2500_ReadReg(CC2500_0E_FREQ1) == 0xC4;//check if reset
 }

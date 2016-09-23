@@ -14,11 +14,7 @@
  */
 #include "iface_cyrf6936.h"
 
-#ifdef XMEGA
-#define XNOP() NOP()
-#else
-#define XNOP()
-#endif
+
 
  
 void CYRF_WriteRegister(uint8_t address, uint8_t data)
@@ -64,17 +60,19 @@ uint8_t CYRF_ReadRegister(uint8_t address)
 
 uint8_t CYRF_Reset()
 {
-	//CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x01);//software reset
-//	_delay_us(200);// 
-	 CYRF_RST_HI;
-	 _delay_us(100);
+#ifdef CYRF_RST_HI
+	CYRF_RST_HI;										//Hardware reset
+	delayMicroseconds(100);
 	 CYRF_RST_LO;
-	 _delay_us(100);		  
+	delayMicroseconds(100);		  
+#endif
+	CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x01);	//Software reset
+	delayMicroseconds(200);
 	CYRF_WriteRegister(CYRF_0C_XTAL_CTRL, 0xC0); //Enable XOUT as GPIO
 	CYRF_WriteRegister(CYRF_0D_IO_CFG, 0x04); //Enable PACTL as GPIO
 	CYRF_SetTxRxMode(TXRX_OFF);
-	//Verify the CYRD chip is responding
-	return (CYRF_ReadRegister(CYRF_10_FRAMING_CFG) == 0xa5);//return if reset
+	//Verify the CYRF chip is responding
+	return (CYRF_ReadRegister(CYRF_10_FRAMING_CFG) == 0xa5);
 }
 
 /*
@@ -106,9 +104,15 @@ void CYRF_SetTxRxMode(uint8_t mode)
 		//Set the post tx/rx state
 		CYRF_WriteRegister(CYRF_0F_XACT_CFG, mode == TX_EN ? 0x28 : 0x2C); // 4=IDLE, 8=TX, C=RX
 		if(mode == TX_EN)
+#ifdef DSM_BLUE
+			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x20); // XOUT=1, PACTL=0
+		else
+			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x80);	// XOUT=0, PACTL=1
+#else
 			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x80); // XOUT=1, PACTL=0
 		else
 			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x20);	// XOUT=0, PACTL=1
+#endif
 	}
 }
 /*
@@ -134,6 +138,7 @@ void CYRF_SetPower(uint8_t val)
 		power=IS_POWER_FLAG_on?CYRF_HIGH_POWER:CYRF_LOW_POWER;
 	if(IS_RANGE_FLAG_on)
 		power=CYRF_RANGE_POWER;
+	power|=val;
         if(prev_power != power)
 	{
 		CYRF_WriteRegister(CYRF_03_TX_CFG, power);
@@ -236,13 +241,13 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 	CYRF_ConfigCRCSeed(0x0000);
 	CYRF_SetTxRxMode(RX_EN);
 	//Wait for pre-amp to switch from send to receive
-	_delay_us(1000);
+	delayMilliseconds(1);
 	for(i = 0; i < NUM_FREQ; i++)
 	{
 		CYRF_ConfigRFChannel(i);
 		CYRF_ReadRegister(CYRF_13_RSSI);
 		CYRF_StartReceive();
-		_delay_us(10);
+		delayMicroseconds(10);
 		rssi[i] = CYRF_ReadRegister(CYRF_13_RSSI);
 	}
 
@@ -260,4 +265,38 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 		}
 	}
 	CYRF_SetTxRxMode(TX_EN);
+}
+
+#if defined(DEVO_CYRF6936_INO) || defined(J6PRO_CYRF6936_INO)
+const uint8_t PROGMEM DEVO_j6pro_sopcodes[][8] = {
+    /* Note these are in order transmitted (LSB 1st) */
+    {0x3C, 0x37, 0xCC, 0x91, 0xE2, 0xF8, 0xCC, 0x91},
+    {0x9B, 0xC5, 0xA1, 0x0F, 0xAD, 0x39, 0xA2, 0x0F},
+    {0xEF, 0x64, 0xB0, 0x2A, 0xD2, 0x8F, 0xB1, 0x2A},
+    {0x66, 0xCD, 0x7C, 0x50, 0xDD, 0x26, 0x7C, 0x50},
+    {0x5C, 0xE1, 0xF6, 0x44, 0xAD, 0x16, 0xF6, 0x44},
+    {0x5A, 0xCC, 0xAE, 0x46, 0xB6, 0x31, 0xAE, 0x46},
+    {0xA1, 0x78, 0xDC, 0x3C, 0x9E, 0x82, 0xDC, 0x3C},
+    {0xB9, 0x8E, 0x19, 0x74, 0x6F, 0x65, 0x18, 0x74},
+    {0xDF, 0xB1, 0xC0, 0x49, 0x62, 0xDF, 0xC1, 0x49},
+    {0x97, 0xE5, 0x14, 0x72, 0x7F, 0x1A, 0x14, 0x72},
+#if defined(J6PRO_CYRF6936_INO)
+    {0x82, 0xC7, 0x90, 0x36, 0x21, 0x03, 0xFF, 0x17},
+    {0xE2, 0xF8, 0xCC, 0x91, 0x3C, 0x37, 0xCC, 0x91}, //Note: the '03' was '9E' in the Cypress recommended table
+    {0xAD, 0x39, 0xA2, 0x0F, 0x9B, 0xC5, 0xA1, 0x0F}, //The following are the same as the 1st 8 above,
+    {0xD2, 0x8F, 0xB1, 0x2A, 0xEF, 0x64, 0xB0, 0x2A}, //but with the upper and lower word swapped
+    {0xDD, 0x26, 0x7C, 0x50, 0x66, 0xCD, 0x7C, 0x50},
+    {0xAD, 0x16, 0xF6, 0x44, 0x5C, 0xE1, 0xF6, 0x44},
+    {0xB6, 0x31, 0xAE, 0x46, 0x5A, 0xCC, 0xAE, 0x46},
+    {0x9E, 0x82, 0xDC, 0x3C, 0xA1, 0x78, 0xDC, 0x3C},
+    {0x6F, 0x65, 0x18, 0x74, 0xB9, 0x8E, 0x19, 0x74},
+#endif
+};
+#endif
+static void __attribute__((unused)) CYRF_PROGMEM_ConfigSOPCode(const uint8_t *data)
+{
+	uint8_t code[8];
+	for(uint8_t i=0;i<8;i++)
+		code[i]=pgm_read_byte_near(&data[i]);
+	CYRF_ConfigSOPCode(code);
 }

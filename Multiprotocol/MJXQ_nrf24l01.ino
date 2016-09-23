@@ -12,7 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// compatible with MJX WLH08, X600, X800, H26D
+// compatible with MJX WLH08, X600, X800, H26D, Eachine E010
 // Last sync with hexfet new_protocols/mjxq_nrf24l01.c dated 2016-01-17
 
 #if defined(MJXQ_NRF24L01_INO)
@@ -25,6 +25,17 @@
 #define MJXQ_PACKET_SIZE	16
 #define MJXQ_RF_NUM_CHANNELS	4
 #define MJXQ_ADDRESS_LENGTH	5
+
+// haven't figured out txid<-->rf channel mapping for MJX models
+const uint8_t PROGMEM MJXQ_map_rfchan[][4] = {
+				{0x0A, 0x46, 0x3A, 0x42},
+				{0x0A, 0x3C, 0x36, 0x3F},
+				{0x0A, 0x43, 0x36, 0x3F}	};
+const uint8_t PROGMEM MJXQ_map_txid[][3] = {
+				{0xF8, 0x4F, 0x1C},
+				{0xC8, 0x6E, 0x02},
+				{0x48, 0x6A, 0x40}	};
+
 
 #define MJXQ_PAN_TILT_COUNT	16   // for H26D - match stock tx timing
 #define MJXQ_PAN_DOWN		0x08
@@ -39,14 +50,14 @@ static uint8_t __attribute__((unused)) MJXQ_pan_tilt_value()
 	packet_count++;
 	if(packet_count & MJXQ_PAN_TILT_COUNT)
 	{
-		if(Servo_AUX8)
+		if(Servo_data[AUX8]>PPM_MAX_COMMAND)
 			pan=MJXQ_PAN_UP;
 		if(Servo_data[AUX8]<PPM_MIN_COMMAND)
 			pan=MJXQ_PAN_DOWN;
-		if(Servo_data[AUX9]>PPM_MIN_COMMAND)
-			pan=MJXQ_TILT_UP;
+		if(Servo_data[AUX9]>PPM_MAX_COMMAND)
+			pan+=MJXQ_TILT_UP;
 		if(Servo_data[AUX9]<PPM_MIN_COMMAND)
-			pan=MJXQ_TILT_DOWN;
+			pan+=MJXQ_TILT_DOWN;
 	}
 	return pan;
 }
@@ -57,10 +68,10 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	packet[0] = convert_channel_8b(THROTTLE);
 	packet[1] = convert_channel_s8b(RUDDER);
 	packet[4] = 0x40;							// rudder does not work well with dyntrim
-	packet[2] = convert_channel_s8b(ELEVATOR);
-	packet[5] = MJXQ_CHAN2TRIM(packet[2]);		// trim elevator
+	packet[2] = 0x80 ^ convert_channel_s8b(ELEVATOR);
+	packet[5] = GET_FLAG(Servo_AUX5, 1) ? 0x40 : MJXQ_CHAN2TRIM(packet[2]);	// trim elevator
 	packet[3] = convert_channel_s8b(AILERON);
-	packet[6] = MJXQ_CHAN2TRIM(packet[3]);		// trim aileron
+	packet[6] = GET_FLAG(Servo_AUX5, 1) ? 0x40 : MJXQ_CHAN2TRIM(packet[3]);	// trim aileron
 	packet[7] = rx_tx_addr[0];
 	packet[8] = rx_tx_addr[1];
 	packet[9] = rx_tx_addr[2];
@@ -85,17 +96,6 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 			packet[10]=MJXQ_pan_tilt_value();
 			// fall through on purpose - no break
 		case WLH08:
-			packet[10] += GET_FLAG(Servo_AUX6, 0x02)	//RTH
-						| GET_FLAG(Servo_AUX5, 0x01);	//HEADLESS
-			if (!bind)
-			{
-				packet[14] = 0x04
-						| GET_FLAG(Servo_AUX1, 0x01)	//FLIP
-						| GET_FLAG(Servo_AUX3, 0x08)	//PICTURE
-						| GET_FLAG(Servo_AUX4, 0x10)	//VIDEO
-						| GET_FLAG(!Servo_AUX2, 0x20);	// air/ground mode
-			}
-			break;
 		case E010:
 			packet[10] += GET_FLAG(Servo_AUX6, 0x02)	//RTH
 						| GET_FLAG(Servo_AUX5, 0x01);	//HEADLESS
@@ -109,11 +109,6 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 			}
 			break;
 		case X600:
-			if(Servo_AUX5)	//HEADLESS
-			{ // driven trims cause issues when headless is enabled
-				packet[5] = 0x40;
-				packet[6] = 0x40;
-			}
 			packet[10] = GET_FLAG(!Servo_AUX2, 0x02);	//LED
 			packet[11] = GET_FLAG(Servo_AUX6, 0x01);	//RTH
 			if (!bind)
@@ -147,7 +142,7 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	if (sub_protocol == H26D)
 		NRF24L01_SetTxRxMode(TX_EN);
 	else
-		XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
+		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++ / 2]);
 	hopping_frequency_no %= 2 * MJXQ_RF_NUM_CHANNELS;	// channels repeated
@@ -170,12 +165,12 @@ static void __attribute__((unused)) MJXQ_init()
 	if (sub_protocol == WLH08)
 		memcpy(hopping_frequency, "\x12\x22\x32\x42", MJXQ_RF_NUM_CHANNELS);
 	else
-		if (sub_protocol == H26D)
+		if (sub_protocol == H26D || sub_protocol == E010)
 			memcpy(hopping_frequency, "\x36\x3e\x46\x2e", MJXQ_RF_NUM_CHANNELS);
 		else
 		{
 			memcpy(hopping_frequency, "\x0a\x35\x42\x3d", MJXQ_RF_NUM_CHANNELS);
-			memcpy(addr, "\x6d\x6a\x73\x73\x73", MJXQ_RF_NUM_CHANNELS);
+			memcpy(addr, "\x6d\x6a\x73\x73\x73", MJXQ_ADDRESS_LENGTH);
 		}
 
 	
@@ -194,35 +189,34 @@ static void __attribute__((unused)) MJXQ_init()
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);			// Enable data pipe 0 only
 	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);		// no retransmits
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, MJXQ_PACKET_SIZE);	// rx pipe 0 (used only for blue board)
+	if (sub_protocol == E010)
+		NRF24L01_SetBitrate(NRF24L01_BR_250K);				// 250K
+	else
 	NRF24L01_SetBitrate(NRF24L01_BR_1M);					// 1Mbps
 	NRF24L01_SetPower();
 }
 
 static void __attribute__((unused)) MJXQ_init2()
 {
-	// haven't figured out txid<-->rf channel mapping for MJX models
-	static const uint8_t rf_map[][4] = {
-				{0x0A, 0x46, 0x3A, 0x42},
-				{0x0A, 0x3C, 0x36, 0x3F},
-				{0x0A, 0x43, 0x36, 0x3F}	};
 	if (sub_protocol == H26D)
 		memcpy(hopping_frequency, "\x32\x3e\x42\x4e", MJXQ_RF_NUM_CHANNELS);
 	else
-		if (sub_protocol == WLH08)
-			memcpy(hopping_frequency, rf_map[rx_tx_addr[0]%3], MJXQ_RF_NUM_CHANNELS);
+		if (sub_protocol != WLH08 && sub_protocol != E010)
+			for(uint8_t i=0;i<MJXQ_RF_NUM_CHANNELS;i++)
+				hopping_frequency[i]=pgm_read_byte_near( &MJXQ_map_rfchan[rx_tx_addr[4]%3][i] );
 }
 
 static void __attribute__((unused)) MJXQ_initialize_txid()
 {
-	// haven't figured out txid<-->rf channel mapping for MJX models
-	static const uint8_t tx_map[][3]={
-				{0xF8, 0x4F, 0x1C},
-				{0xC8, 0x6E, 0x02},
-				{0x48, 0x6A, 0x40}	};
-	if (sub_protocol == WLH08)
-		rx_tx_addr[0]&=0xF8;	// txid must be multiple of 8
+	rx_tx_addr[0]&=0xF8;
+	if (sub_protocol == E010)
+	{
+		rx_tx_addr[1]=(rx_tx_addr[1]&0xF0)|0x0C;
+		rx_tx_addr[2]&=0xF0;
+	}
 	else
-		memcpy(rx_tx_addr,tx_map[rx_tx_addr[0]%3],3);
+		for(uint8_t i=0;i<3;i++)
+			rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[4]%3][i] );
 }
 
 uint16_t MJXQ_callback()

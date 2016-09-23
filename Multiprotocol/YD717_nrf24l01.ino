@@ -34,13 +34,6 @@
 
 #define YD717_PAYLOADSIZE 8				// receive data pipes set to this size, but unused
 
-enum {
-	YD717_INIT1 = 0,
-	YD717_BIND2,
-	YD717_BIND3,
-	YD717_DATA
-};
-
 static void __attribute__((unused)) yd717_send_packet(uint8_t bind)
 {
 	uint8_t rudder_trim, elevator_trim, aileron_trim;
@@ -108,7 +101,7 @@ static void __attribute__((unused)) yd717_send_packet(uint8_t bind)
 	}
 
     // clear packet status bits and TX FIFO
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)));
+    NRF24L01_WriteReg(NRF24L01_07_STATUS, (_BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_MAX_RT)));
     NRF24L01_FlushTx();
 
 	if( sub_protocol == YD717 )
@@ -131,117 +124,62 @@ static void __attribute__((unused)) yd717_init()
 
 	// CRC, radio on
 	NRF24L01_SetTxRxMode(TX_EN);
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_PWR_UP)); 
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x3F);      // Auto Acknoledgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x3F);  // Enable all data pipes
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_PWR_UP)); 
+	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// Disable Acknoledgement on all data pipes
+	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x00);		// Disable all data pipes
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x1A); // 500uS retransmit t/o, 10 tries
+	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);	// No retransmit
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, YD717_RF_CHANNEL);      // Channel 3C
 	NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
 	NRF24L01_SetPower();
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_0C_RX_ADDR_P2, 0xC3); // LSB byte of pipe 2 receive address
-	NRF24L01_WriteReg(NRF24L01_0D_RX_ADDR_P3, 0xC4);
-	NRF24L01_WriteReg(NRF24L01_0E_RX_ADDR_P4, 0xC5);
-	NRF24L01_WriteReg(NRF24L01_0F_RX_ADDR_P5, 0xC6);
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, YD717_PAYLOADSIZE);   // bytes of data payload for pipe 1
-	NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, YD717_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_13_RX_PW_P2, YD717_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_14_RX_PW_P3, YD717_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_15_RX_PW_P4, YD717_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_16_RX_PW_P5, YD717_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_17_FIFO_STATUS, 0x00); // Just in case, no real bits to write here
 
 	NRF24L01_Activate(0x73);						  // Activate feature register
 	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3F);       // Enable dynamic payload length on all pipes
 	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);     // Set feature bits on
 	NRF24L01_Activate(0x73);
 
-	// set tx id
-	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);
-	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
-}
-
-static void __attribute__((unused)) YD717_init1()
-{
 	// for bind packets set address to prearranged value known to receiver
 	uint8_t bind_rx_tx_addr[] = {0x65, 0x65, 0x65, 0x65, 0x65};
-	uint8_t i;
+
 	if( sub_protocol==SYMAX4 )
-		for(i=0; i < 5; i++)
+		for(uint8_t i=0; i < 5; i++)
 			bind_rx_tx_addr[i]  = 0x60;
 	else
 		if( sub_protocol==NIHUI )
-			for(i=0; i < 5; i++)
+			for(uint8_t i=0; i < 5; i++)
 				bind_rx_tx_addr[i]  = 0x64;
 
-    NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, bind_rx_tx_addr, 5);
     NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, bind_rx_tx_addr, 5);
-}
-
-static void __attribute__((unused)) YD717_init2()
-{
-    // set rx/tx address for data phase
-    NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);
-    NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
 }
 
 uint16_t yd717_callback()
 {
-	switch (phase)
+	if(IS_BIND_DONE_on)
+		yd717_send_packet(0);
+	else
 	{
-		case YD717_INIT1:
-			yd717_send_packet(0);	// receiver doesn't re-enter bind mode if connection lost...check if already bound
-			phase = YD717_BIND3;
-			break;
-		case YD717_BIND2:
-			if (counter == 0)
+		if (bind_counter == 0)
 			{
-				if (NRF24L01_packet_ack() == PKT_PENDING)
-					return YD717_PACKET_CHKTIME;	// packet send not yet complete
-				YD717_init2();						// change to data phase rx/tx address
+			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);	// set address
 				yd717_send_packet(0);
-				phase = YD717_BIND3;
+			BIND_DONE;							// bind complete
 			}
 			else
 			{
-				if (NRF24L01_packet_ack() == PKT_PENDING)
-					return YD717_PACKET_CHKTIME;	// packet send not yet complete;
 				yd717_send_packet(1);
-				counter--;
+			bind_counter--;
 			}
-			break;
-		case YD717_BIND3:
-			switch (NRF24L01_packet_ack())
-			{
-				case PKT_PENDING:
-					return YD717_PACKET_CHKTIME;	// packet send not yet complete
-				case PKT_ACKED:
-					phase = YD717_DATA;
-					BIND_DONE;							// bind complete
-					break;
-				case PKT_TIMEOUT:
-					YD717_init1();					// change to bind rx/tx address
-					counter = YD717_BIND_COUNT;
-					phase = YD717_BIND2;
-					yd717_send_packet(1);
-			}
-			break;
-		case YD717_DATA:
-			if (NRF24L01_packet_ack() == PKT_PENDING)
-				return YD717_PACKET_CHKTIME;		// packet send not yet complete
-			yd717_send_packet(0);
-			break;
 	}	
 	return YD717_PACKET_PERIOD;						// Packet every 8ms
 }
 
 uint16_t initYD717()
 {
+	BIND_IN_PROGRESS;			// autobind protocol
 	rx_tx_addr[4] = 0xC1;	// always uses first data port
 	yd717_init();
-	phase = YD717_INIT1;	
-	BIND_IN_PROGRESS;		// autobind protocol
+	bind_counter = YD717_BIND_COUNT;
 
 	// Call callback in 50ms
 	return YD717_INITIAL_WAIT;

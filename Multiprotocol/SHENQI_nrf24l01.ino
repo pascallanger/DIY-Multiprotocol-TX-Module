@@ -4,10 +4,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
+
  Multiprotocol is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
+
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -93,7 +95,7 @@ uint16_t SHENQI_callback()
 		SHENQI_send_packet();
 	else
 	{
-		if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
+		if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 		{
 			if(LT8900_ReadPayload(packet, 3))
 			{
@@ -115,7 +117,7 @@ uint16_t initSHENQI()
 	SHENQI_init();
 	hopping_frequency_no = 0;
 	packet_count=0;
-	packet_period=100;
+	packet_period=500;
 	return 1000;
 }
 

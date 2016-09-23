@@ -386,7 +386,6 @@ void setup()
 		Mprotocol_serial_init(); // Configure serial and enable RX interrupt
 #endif //ENABLE_SERIAL		
 	}
-	Serial.begin(250000);
 }
 
 // Main
@@ -502,7 +501,6 @@ if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has b
 #ifdef ENABLE_PPM
 	if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)	// PPM mode and a full frame has been received
 	{
-				Serial.println("start");
 		for(uint8_t i=0;i<NUM_CHN;i++)
 		{ // update servo data without interrupts to prevent bad read in protocols
 			uint16_t temp_ppm ;
@@ -512,9 +510,6 @@ if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has b
 			if(temp_ppm<PPM_MIN_125) temp_ppm=PPM_MIN_125;
 			else if(temp_ppm>PPM_MAX_125) temp_ppm=PPM_MAX_125;
 			Servo_data[i]= temp_ppm ;
-
-
-			
 		}
 
 		update_aux_flags();

@@ -85,7 +85,7 @@ to
 Close and reopen the Arduino IDE and load the Multiprotocol project.
 
 ## Common process for OSX and Windows
-If you have module with an Arduino Pro-Mini then scroll down to Programming Arduino Pro-Mini Boards
+If you have module with an Arduino Pro-Mini then scroll down to [Programming Arduino Pro-Mini Boards](#Programming_Arduino_Pro_Mini)
 
 If you are using one of the DIY Mulitprotocol modules with the ATmega soldered directly to a PCB (like the 3.2d board or the Banggood readymade 4-in-1 module) then follow these instructions.  
 ###Preparing for ATMega328P microcontroller
@@ -130,7 +130,7 @@ Comment out any of the RF modules that you do not need by typing ```// ``` at th
 
 Scroll down to the available protocols and comment out all the protocols you will not require.  The following example shows the DEVO protocol commented out.
 
-> **```#ifdef	CYRF6936_INSTALLED ```
+> ```#ifdef	CYRF6936_INSTALLED ```
 
 > **``` //	#define	DEVO_CYRF6936_INO ```**
 
@@ -138,7 +138,7 @@ Scroll down to the available protocols and comment out all the protocols you wil
 
 > ```	#define J6PRO_CYRF6936_INO ```
 
-> ``` #endif ```**
+> ``` #endif ```
 
 If you have a Taranis Tx and you plan on using Serial mode with telemetry find and uncomment the  INVERT_TELEMETRY line below:
 > ```//Uncomment to invert the polarity of the telemetry serial signal.``` 
@@ -165,6 +165,8 @@ If there is another error carefully read the error to see the approximate line n
 ###Connecting the programmer
 To complete this step you need an USBASP programmer like the one shown below and a 10-pin to 6-pin programming cable.
 
+<img src="images/USBasp_Programmer.jpeg" width="200" height="200" />
+
 1. Before you connect the programmer make sure that you have selected the 3.3V mode and not the 5V mode.  The RF Modules are not 5V tolerant and you will harm with 5V.  On most programmers this is done by moving a jumper on the programmer.
 1. Please re-read item 1. above before going on.
 1. Turn the rotary switch on the DIY Multiprotocol module to the 0 position. If you do not have a switch (if you are using only Serial mode) then it the same as being in the 0 position. The upload will not work if the switch is in any other position.
@@ -180,11 +182,11 @@ To complete this step you need an USBASP programmer like the one shown below and
  -  Prevent the EEPROM from being erased each time the firmware is flashed.  This will preserve your Tx ID and save you from having to rebind all your models after an update of the firmware
  - Configure the clock source of the board - this is very important if you built the board from components.  The ATMega328P microprocessor is configured at the factory to use an internal 8Mhz clock.  The DIY Multiprotocol boards have a much more accurate 16MHz external crystal and the fuses will tell the MCU to use this clock source.  (If you were able to flash the board but after setting the fuses the board no longer responds, it is very likely that you have a problem with your external clock.)
  - Set the program counter to point at the right place when the module is powered up.  The fuses configure the MCU to use a bootloader or not.  If you compiled the firmware without a bootloader then the fuses must be set accordingly. 
-1. In the Arduino IDE ensure that the **4-in-1 Multi** is selected under **Tools -> Board"** click on **Tools -> Burn Bootloader**.  Do not worry if it returns the error that no bootloader was found (in the case of the 4-in-1 board), it has burned the fuses.  If you IDE was set to provide verbose compilation and uploading output, you should be able to see the final value of the fuses in the Arduino IDE.
+1. In the Arduino IDE ensure that the **4-in-1 Multi** is selected under **Tools -> Board:** click on **Tools -> Burn Bootloader**.  Do not worry if it returns the error that no bootloader was found (in the case of the 4-in-1 board), it has burned the fuses.  If you IDE was set to provide verbose compilation and uploading output, you should be able to see the final value of the fuses in the Arduino IDE.
 
 If the output indicates that the fuses have been successfully written give yourself a pat on the back.  Well done, you have successfully programmed your DIY Multiprotocol module and you are ready to go on to the final step [Setting up your Transmitter](TransmitterSetup.md) before you can begin to fly!!!!
 
-##Programming Arduino Pro-Mini Boards
+##Programming Arduino Pro-Mini Boards <a name="Programming_Arduino_Pro_Mini"></a>
 Use this method only for Arduino Pro Mini boards with bootloader.
 1. Use an external FTDI adapter like this one.
 1. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.

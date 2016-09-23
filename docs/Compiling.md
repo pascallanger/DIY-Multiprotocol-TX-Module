@@ -92,6 +92,7 @@ If you are using one of the DIY Mulitprotocol modules with the ATmega soldered d
 1. Under the Tools -> Board select the Multi 4-in-1 board
 1. Under Tools -> Programmer select your programmer (probably USBASP)
 
+<a name="CustomizeFirmareToYourNeeds"></a>
 ###Customize the firmware to your hardware and your needs
 On all modules with ATMega microprocessors, the memory required for all the protocols exceeds the available 32k of flash memory.  You will need to select which protocols you wish to use that will fit into the available memory.
 
@@ -188,22 +189,22 @@ If the output indicates that the fuses have been successfully written give yours
 
 <a name="Programming_Arduino_Pro_Mini"></a>
 ##Programming Arduino Pro-Mini Boards <a name="Programming_Arduino_Pro_Mini"></a>
-Use this method only for Arduino Pro Mini boards with bootloader.
-1. Use an external FTDI adapter like this one.
-1. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.
-1. Under the Tools -> Board select the Arduino Pro-Mini
-1. Under Tools -> Processor select the Atmega328p (5V, 16Mhz)
-1. Under Tools -> Port select your the serial port your programmer is connected to (it should appear on the the list)
-1. Scroll back to the section [Customize the firmware to your hardware and your needs] above and follow the instructions remembering that you can simply use the Upload button in the Arduino IDE to upload firmware using the Arduino bootloader:
+Use this method only for Arduino Pro Mini boards with bootloader.  
+1. Use an external FTDI adapter like one of these options:  
+<img src="images/FTDI_Cable.jpeg" width="200" height="150"> <img src="images/FTDI_Adapter.jpeg" width="150" height="150">  
+1. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.  
+1. Under the Tools -> Board select the Arduino Pro-Mini  
+1. Under Tools -> Processor select the Atmega328p (5V, 16Mhz)  
+1. Under Tools -> Port select your the serial port your programmer is connected to (it should appear on the the list)  
+1. Scroll back to the section [Customize the firmware to your hardware and your needs](#CustomizeFirmareToYourNeeds) above and follow the instructions remembering that you can simply use the Upload button in the Arduino IDE to upload firmware using the Arduino bootloader:  
  - From the Arduino environment, you can use Upload button which will compile and upload to the module: Sketch->Upload (Ctrl+U)
 
-To change the fuses you will need to use an external programmer (like USBasp mentioned above) and a flash tool that fits over the MCU and connects to the required pins.  Follow the same instructions to set the fuses in the section above.  
+To change the fuses you will need to use an external programmer (like USBasp mentioned above) and a flash tool that fits over the MCU and connects to the required pins, like this one:     
+[<img src="http://www.hobbyking.com/hobbyking/store/catalog/27195.jpg" />](http://www.hobbyking.com/hobbyking/store/__27195__Atmel_Atmega_Socket_Firmware_Flashing_Tool.html)  
+It connects to the USBASP programmer and connects directly to the pins on the microcontroller and it will allow you to program the Pro-Mini like the 4-in-1 boards above, without using the bootloader.
+
+Follow the same instructions to set the fuses in the section above.  
 
 If building the board from scratch was your chosen strategy we suspect that you would already know how to do this.  If not, Google is your friend, try something like “how to flash fuses on Arduino pro-mini”.  
-
-You may also find a Atmel socket flash tool like this useful 
-
-[<img src="http://www.hobbyking.com/hobbyking/store/catalog/27195.jpg" />](http://www.hobbyking.com/hobbyking/store/__27195__Atmel_Atmega_Socket_Firmware_Flashing_Tool.html)
-
 
 It connects to the USBASP programmer and connects directly to the pins on the microcontroller and it will allow you to program the Pro-Mini like the 4-in-1 boards above, without using the bootloader.

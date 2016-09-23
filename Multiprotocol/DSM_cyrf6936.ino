@@ -137,40 +137,25 @@ const uint8_t PROGMEM init_vals[][2] = {
 	{CYRF_06_RX_CFG, 0x4A},					// LNA enabled, RX override enabled, Fast turn mode enabled, RX is 1MHz below TX
 	{CYRF_1B_TX_OFFSET_LSB, 0x55},			// Default init value
 	{CYRF_1C_TX_OFFSET_MSB, 0x05},			// Default init value
-	{CYRF_0F_XACT_CFG, 0x24}, 				// Force Idle
-	{CYRF_03_TX_CFG, 0x38 | CYRF_BIND_POWER}, //64 chip codes, SDR mode
-	{CYRF_12_DATA64_THOLD, 0x0a},			// 64 Chip Data PN corelator threshold, default datasheet value is 0x0E
-	{CYRF_0F_XACT_CFG, 0x04},				// Idle
 	{CYRF_39_ANALOG_CTRL, 0x01},			// All slow for synth setting time
-	{CYRF_0F_XACT_CFG, 0x24},				// Why again???
-	{CYRF_29_RX_ABORT, 0x00},				// Clear RX abort
-	{CYRF_12_DATA64_THOLD, 0x0a},			// Why again???
+	{CYRF_01_TX_LENGTH, 0x10},				// 16 bytes packet
+	{CYRF_14_EOP_CTRL, 0x02},				// Set EOP Symbol Count to 2
+	{CYRF_12_DATA64_THOLD, 0x0a},			// 64 Chip Data PN corelator threshold, default datasheet value is 0x0E
+	//Below is for bind only
+	{CYRF_03_TX_CFG, 0x38 | CYRF_BIND_POWER}, //64 chip codes, SDR mode
 	{CYRF_10_FRAMING_CFG, 0x4a},			// SOP disabled, no LEN field and SOP correlator of 0x0a but since SOP is disabled...
-	{CYRF_29_RX_ABORT, 0x0f},				// This does not make sense since most is read only and the only bit is already cleared from above
-	{CYRF_03_TX_CFG, 0x38 | CYRF_BIND_POWER}, // Why again???
-	{CYRF_10_FRAMING_CFG, 0x4A},			// Why again???
 	{CYRF_1F_TX_OVERRIDE, 0x04},			// Disable TX CRC, no ACK, use TX synthesizer
 	{CYRF_1E_RX_OVERRIDE, 0x14},			// Disable RX CRC, Force receive data rate, use RX synthesizer
-	{CYRF_14_EOP_CTRL, 0x02},				// Set EOP Symbol Count to 2
-	{CYRF_01_TX_LENGTH, 0x10},				// 16 bytes packet
 };
 
 const uint8_t PROGMEM data_vals[][2] = {
-	{CYRF_05_RX_CTRL, 0x83},				// Start RX process
-	{CYRF_29_RX_ABORT, 0x20},				// Abort RX operation
+	{CYRF_29_RX_ABORT, 0x20},				// Abort RX operation in case we are coming from bind
 	{CYRF_0F_XACT_CFG, 0x24},				// Force Idle
 	{CYRF_29_RX_ABORT, 0x00},				// Clear abort RX
-	{CYRF_03_TX_CFG, 0x08 | CYRF_HIGH_POWER}, // 32 chip codes, 8DR mode
+	{CYRF_03_TX_CFG, 0x28 | CYRF_HIGH_POWER}, // 64 chip codes, 8DR mode
 	{CYRF_10_FRAMING_CFG, 0xea},			// SOP enabled, SOP_CODE_ADR 64 chips, Packet len enabled, SOP correlator 0x0A
 	{CYRF_1F_TX_OVERRIDE, 0x00},			// CRC16 enabled, no ACK
 	{CYRF_1E_RX_OVERRIDE, 0x00},			// CRC16 enabled, no ACK
-	{CYRF_03_TX_CFG, 0x28 | CYRF_HIGH_POWER}, // 64 chip codes, 8DR mode
-	{CYRF_12_DATA64_THOLD, 0x3f},			// 64 Chip Data PN corelator threshold, max value is 0x1F...
-	{CYRF_10_FRAMING_CFG, 0xff},			// SOP enabled, SOP_CODE_ADR 64 chips, Packet len enabled, SOP correlator 0x1F
-	{CYRF_0F_XACT_CFG, 0x24},				// Force IDLE
-	{CYRF_29_RX_ABORT, 0x00},				// Why abort RX again???
-	{CYRF_12_DATA64_THOLD, 0x0a},			// 64 Chip Data PN corelator threshold, default value is 0x0E...
-	{CYRF_10_FRAMING_CFG, 0xea},			// SOP enabled, SOP_CODE_ADR 64 chips, Packet len enabled, SOP correlator 0x0A
 };
 
 static void __attribute__((unused)) cyrf_config()
@@ -424,9 +409,6 @@ uint16_t ReadDsm()
 				{
 					pkt[0]=0x80;
 					telemetry_link=1;						// send received data on serial
-					CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);	// Abort RX operation
-					CYRF_SetTxRxMode(TX_EN);				// Write mode
-					CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);	// Clear abort RX operation
 					phase++;
 					return 2000;
 				}
@@ -552,8 +534,6 @@ uint16_t initDsm()
 	   cyrfmfg_id[0]^=0x01;									//Change year bit so sop_col will be different from 0
 	   sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
 	}
-	//
-	cyrf_config();
 	//Hopping frequencies
 	if (sub_protocol == DSMX_11 || sub_protocol == DSMX_22)
 		calc_dsmx_channel();
@@ -573,6 +553,7 @@ uint16_t initDsm()
 		hopping_frequency[1] = tmpch[idx];
 	}
 	//
+	cyrf_config();
 	CYRF_SetTxRxMode(TX_EN);
 	//
 	update_channels();

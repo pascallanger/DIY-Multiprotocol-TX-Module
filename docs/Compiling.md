@@ -190,21 +190,21 @@ If the output indicates that the fuses have been successfully written give yours
 <a name="Programming_Arduino_Pro_Mini"></a>
 ##Programming Arduino Pro-Mini Boards <a name="Programming_Arduino_Pro_Mini"></a>
 Use this method only for Arduino Pro Mini boards with bootloader.  
+
 1. Use an external FTDI adapter like one of these options:  
 <img src="images/FTDI_Cable.jpeg" width="200" height="150"> <img src="images/FTDI_Adapter.jpeg" width="150" height="150">  
-1. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.  
-1. Under the Tools -> Board select the Arduino Pro-Mini  
-1. Under Tools -> Processor select the Atmega328p (5V, 16Mhz)  
-1. Under Tools -> Port select your the serial port your programmer is connected to (it should appear on the the list)  
+1. The programmer should be set to 3.3V or nothing to not supply any over voltage to the multimodule and avoid any damages.   
+1. Under the **Tools -> Board:** select the **Arduino Pro-Mini**  
+1. Under **Tools -> Processor** select the **Atmega328p (5V, 16Mhz)**  
+1. Under **Tools -> Port** select your the serial port your programmer is connected to (it should appear on the the list)  
 1. Scroll back to the section [Customize the firmware to your hardware and your needs](#CustomizeFirmareToYourNeeds) above and follow the instructions remembering that you can simply use the Upload button in the Arduino IDE to upload firmware using the Arduino bootloader:  
  - From the Arduino environment, you can use Upload button which will compile and upload to the module: Sketch->Upload (Ctrl+U)
 
 To change the fuses you will need to use an external programmer (like USBasp mentioned above) and a flash tool that fits over the MCU and connects to the required pins, like this one:     
 [<img src="http://www.hobbyking.com/hobbyking/store/catalog/27195.jpg" />](http://www.hobbyking.com/hobbyking/store/__27195__Atmel_Atmega_Socket_Firmware_Flashing_Tool.html)  
-It connects to the USBASP programmer and connects directly to the pins on the microcontroller and it will allow you to program the Pro-Mini like the 4-in-1 boards above, without using the bootloader.
+It connects to the USBASP programmer and connects directly to the pins on the microcontroller and it will allow you to set fuses and to program the Pro-Mini like the 4-in-1 boards above, without using the bootloader.
 
-Follow the same instructions to set the fuses in the section above.  
+Follow the instructions in [Advanced Topics - Manually Setting Fuses](Advanced_Manually_Setting_ATmega328_Fuses.md) to set the fuses.  
 
 If building the board from scratch was your chosen strategy we suspect that you would already know how to do this.  If not, Google is your friend, try something like “how to flash fuses on Arduino pro-mini”.  
 
-It connects to the USBASP programmer and connects directly to the pins on the microcontroller and it will allow you to program the Pro-Mini like the 4-in-1 boards above, without using the bootloader.

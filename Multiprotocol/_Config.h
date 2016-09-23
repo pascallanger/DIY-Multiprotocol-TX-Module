@@ -28,7 +28,7 @@ along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
 #define A7105_INSTALLED
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
-#define NFR24L01_INSTALLED
+#define NRF24L01_INSTALLED
 
 //The protocols below need an A7105 to be installed
 #define	FLYSKY_A7105_INO
@@ -36,7 +36,7 @@ along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
 
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO
-#define	DSM2_CYRF6936_INO
+#define	DSM_CYRF6936_INO
 #define J6PRO_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed

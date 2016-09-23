@@ -78,6 +78,11 @@ void SPI_SET_UNIDIRECTIONAL()
 
 #else
 
+#ifdef XMEGA
+#define XNOP() NOP()
+#else
+#define XNOP()
+#endif
 void spi_write(uint8_t command)
 {
 	uint8_t n=8; 

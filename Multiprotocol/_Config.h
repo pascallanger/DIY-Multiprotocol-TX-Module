@@ -1,38 +1,20 @@
 /*
- This project is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+This project is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
- Multiprotocol is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+Multiprotocol is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
- */
- 
- 
-/**Board selection**/
+You should have received a copy of the GNU General Public License
+along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
-#define STM32_board
-//#define XMEGA
-/*******************/
-#ifdef STM32_board
-#undef __cplusplus
-#include "Multiprotocol_STM32.h"
-#include <EEPROM.h>
-#include <libmaple/usart.h>
-#include <libmaple/timer.h>
-#include <SPI.h>
-#else
-#include <avr/eeprom.h>
-#include <util/delay.h>
-#include "Multiprotocol.h"
-#endif
- 
- 
+
+
 /** Multiprotocol module configuration file ***/
 
 /*******************/
@@ -48,59 +30,58 @@
 #define CC2500_INSTALLED
 #define NFR24L01_INSTALLED
 
-//Comment a protocol to exclude it from compilation
-#ifdef	A7105_INSTALLED
-	#define	FLYSKY_A7105_INO
-	#define	HUBSAN_A7105_INO
-#endif
-#ifdef	CYRF6936_INSTALLED
-	#define	DEVO_CYRF6936_INO
-	#define	DSM2_CYRF6936_INO
-	#define J6PRO_CYRF6936_INO
-#endif
-#ifdef	CC2500_INSTALLED
-	#define	FRSKYD_CC2500_INO
-	#define	FRSKYV_CC2500_INO
-	#define	FRSKYX_CC2500_INO
-	#define SFHSS_CC2500_INO
-#endif
-#ifdef	NFR24L01_INSTALLED
-	#define	BAYANG_NRF24L01_INO
-	#define	CG023_NRF24L01_INO
-	#define	CX10_NRF24L01_INO
-	#define	ESKY_NRF24L01_INO
-	#define	HISKY_NRF24L01_INO
-	#define	KN_NRF24L01_INO
-	#define	SLT_NRF24L01_INO
-	#define	SYMAX_NRF24L01_INO
-	#define	V2X2_NRF24L01_INO
-	#define	YD717_NRF24L01_INO
-	#define	MT99XX_NRF24L01_INO
-	#define	MJXQ_NRF24L01_INO
-	#define	SHENQI_NRF24L01_INO
-	#define	FY326_NRF24L01_INO
-	#define	FQ777_NRF24L01_INO
-	#define	ASSAN_NRF24L01_INO
-#endif
+//The protocols below need an A7105 to be installed
+#define	FLYSKY_A7105_INO
+#define	HUBSAN_A7105_INO
+
+//The protocols below need a CYRF6936 to be installed
+#define	DEVO_CYRF6936_INO
+#define	DSM2_CYRF6936_INO
+#define J6PRO_CYRF6936_INO
+
+//The protocols below need a CC2500 to be installed
+#define	FRSKYD_CC2500_INO
+#define	FRSKYV_CC2500_INO
+#define	FRSKYX_CC2500_INO
+#define SFHSS_CC2500_INO
+
+//The protocols below need a NRF24L01 to be installed
+#define	BAYANG_NRF24L01_INO
+#define	CG023_NRF24L01_INO
+#define	CX10_NRF24L01_INO
+#define	ESKY_NRF24L01_INO
+#define	HISKY_NRF24L01_INO
+#define	KN_NRF24L01_INO
+#define	SLT_NRF24L01_INO
+#define	SYMAX_NRF24L01_INO
+#define	V2X2_NRF24L01_INO
+#define	YD717_NRF24L01_INO
+#define	MT99XX_NRF24L01_INO
+#define	MJXQ_NRF24L01_INO
+#define	SHENQI_NRF24L01_INO
+#define	FY326_NRF24L01_INO
+#define	FQ777_NRF24L01_INO
+#define	ASSAN_NRF24L01_INO
+#define	HONTAI_NRF24L01_INO
+
+
+/**************************/
+/*** TELEMETRY SETTINGS ***/
+/**************************/
+//In this section you can configure the telemetry.
 
 //Uncomment to enable telemetry
 #define TELEMETRY
 
 //Uncomment to invert the polarity of the telemetry serial signal.
 //For ER9X and ERSKY9X it must be commented. For OpenTX it must be uncommented.
-//#define INVERT_TELEMETRY	1
+//#define INVERT_TELEMETRY	
 //Comment to disable a specific telemetry
-#if defined(TELEMETRY)
-	#if defined DSM2_CYRF6936_INO
-		#define DSM_TELEMETRY	
-	#endif
-	#if defined FRSKYX_CC2500_INO
-		#define SPORT_TELEMETRY	
-	#endif
-	#if defined FRSKYD_CC2500_INO
-		#define HUB_TELEMETRY
-	#endif
-#endif 
+#define DSM_TELEMETRY	
+#define SPORT_TELEMETRY	
+#define HUB_TELEMETRY
+
+
 
 
 /****************************/
@@ -125,10 +106,11 @@
 //It is important for the module to know the endpoints of your radio.
 //Below are some standard transmitters already preconfigured.
 //Uncomment only the one which matches your transmitter.
-#define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012µs)
-//#define TX_DEVO7		//DEVO					(1120<->1920µs)
-//#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
-//#define TX_HISKY		//HISKY					(1100<->1900µs)
+#define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012Âµs)
+//#define TX_DEVO7		//DEVO					(1120<->1920Âµs)
+//#define TX_SPEKTRUM	//Spektrum				(1100<->1900Âµs)
+//#define TX_HISKY		//HISKY					(1100<->1900Âµs)
+//#define TX_MPX		//Multiplex MC2020		(1250<->1950Âµs)
 //#define TX_CUSTOM		//Custom
 
 // The lines below are used to set the end points in microseconds (µs) if you have selected TX_CUSTOM.
@@ -138,10 +120,10 @@
 //  - Centered stick value is usually 1500. It should match the middle between MIN and MAX, ie Center=(MAX-MIN)/2+MIN. If your TX is not centered you can adjust the value MIN or MAX.
 //  - 100% is the value when the model is by default, 125% is the value when you extend the servo travel which is only used by some protocols
 #if defined(TX_CUSTOM)
-	#define PPM_MAX_100	1900	//	100%
-	#define PPM_MIN_100	1100	//	100%
-	#define PPM_MAX_125	2000	//	125%
-	#define PPM_MIN_125	1000	//	125%
+#define PPM_MAX_100	1900	//	100%
+#define PPM_MIN_100	1100	//	100%
+#define PPM_MAX_125	2000	//	125%
+#define PPM_MIN_125	1000	//	125%
 #endif
 
 /*
@@ -157,22 +139,22 @@ struct PPM_Parameters
 */
 //Update this table to set which protocol and all associated settings are called for the corresponding dial number
 const PPM_Parameters PPM_prot[15]=	{
-//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
-/*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	2	*/	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40	    },	// D7 fine tuning
-/*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM2	,	DSM2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// 6 channels @ 11ms
-/*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	10	*/	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	11	*/	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	12	*/	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	13	*/	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	14	*/	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	15	*/	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}
+	//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+	/*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	2	*/	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+	/*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	6	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
+	/*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	10	*/	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	11	*/	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	12	*/	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	13	*/	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	14	*/	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	/*	15	*/	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}
 };
 /* Available protocols and associated sub protocols:
 	MODE_FLYSKY
@@ -182,16 +164,18 @@ const PPM_Parameters PPM_prot[15]=	{
 		V912
 	MODE_HUBSAN
 		NONE
-	MODE_FRSKY
+	MODE_FRSKYD
 		NONE
 	MODE_HISKY
 		Hisky
 		HK310
 	MODE_V2X2
 		NONE
-	MODE_DSM2
-		DSM2
-		DSMX
+	MODE_DSM
+		DSM2_22
+		DSM2_11
+		DSMX_22
+		DSMX_11
 	MODE_DEVO
 		NONE
 	MODE_YD717
@@ -232,21 +216,32 @@ const PPM_Parameters PPM_prot[15]=	{
 		MT99
 		H7
 		YZ
+		LS
 	MODE_MJXQ
 		WLH08
 		X600
 		X800
 		H26D
+		E010
 	MODE_SHENQI
 		NONE
 	MODE_FY326
 		NONE
 	MODE_SFHSS
 		NONE
+	MODE_J6PRO
+		NONE
 	MODE_FQ777
 		NONE
 	MODE_ASSAN
 		NONE	
+	MODE_FRSKYV
+		NONE
+	MODE_HONTAI
+		FORMAT_HONTAI
+		FORMAT_JJRCX1
+		FORMAT_X5C1
+
 
 RX_Num 		value between 0 and 15
 

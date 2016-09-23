@@ -25,7 +25,7 @@ enum PROTOCOLS
 	MODE_FRSKYD = 3,		// =>CC2500
 	MODE_HISKY  = 4,	    // =>NRF24L01
 	MODE_V2X2   = 5,		// =>NRF24L01
-	MODE_DSM2   = 6,		// =>CYRF6936
+	MODE_DSM   = 6,		// =>CYRF6936
 	MODE_DEVO   = 7,		// =>CYRF6936
 	MODE_YD717  = 8,		// =>NRF24L01
 	MODE_KN     = 9,		// =>NRF24L01
@@ -61,9 +61,12 @@ enum Hisky
 	Hisky = 0,
 	HK310 = 1
 };
-enum DSM2{
-	DSM2 = 0,
-	DSMX = 1
+enum DSM{
+	DSM2_22	= 0,
+	DSM2_11	= 1,
+	DSMX_22	= 2,
+	DSMX_11	= 3,
+	DSM_AUTO = 4
 };
 enum YD717
 {       			
@@ -177,7 +180,7 @@ struct PPM_Parameters
 #define CC25_CSN_pin PB6//CC2500
 #define NRF_CSN_pin  PB7//NRF24L01
 #define CYRF_RST_pin PB8//CYRF RESET
-#define A7105_CS_pin PB9//A7105
+#define A7105_CSN_pin PB9//A7105
 #define CYRF_CSN_pin PB12//CYRF CSN
 //SPI pins	
 #define SCK_pin PB13//SCK
@@ -187,18 +190,18 @@ struct PPM_Parameters
 #define TX_INV_pin PB3
 #define RX_INV_pin PB1
 //
-#define CTRL1_on  digitalWrite(CTRL1,HIGH)
-#define CTRL1_off digitalWrite(CTRL1,LOW)
+#define PE1_on  digitalWrite(CTRL1,HIGH)
+#define PE1_off digitalWrite(CTRL1,LOW)
 //
-#define CTRL2_on  digitalWrite(CTRL2,HIGH)
-#define CTRL2_off digitalWrite(CTRL2,LOW)
+#define PE2_on  digitalWrite(CTRL2,HIGH)
+#define PE2_off digitalWrite(CTRL2,LOW)
 
 #define RS_HI digitalWrite(CYRF_RST_pin,HIGH)				//reset pin cyrf 
 #define RS_LO digitalWrite(CYRF_RST_pin,LOW)
 
 
-#define  A7105_CS_on digitalWrite(CS_pin,HIGH)			
-#define  A7105_CS_off digitalWrite(CS_pin,LOW)		
+#define  A7105_CSN_on digitalWrite(A7105_CSN_pin,HIGH)			
+#define  A7105_CSN_off digitalWrite(A7105_CSN_pin,LOW)		
 
 #define NRF_CE_on
 #define NRF_CE_off
@@ -233,9 +236,9 @@ struct PPM_Parameters
 #define RX_INV_on digitalWrite(RX_INV_pin,HIGH)		
 #define RX_INV_off digitalWrite(RX_INV_pin,LOW)
 
-#define LED_ON  digitalWrite(LED_pin,HIGH)
-#define LED_OFF  digitalWrite(LED_pin,LOW)
-#define LED_TOGGLE  digitalWrite(LED_pin ,!digitalRead(LED_pin))
+#define LED_on  digitalWrite(LED_pin,HIGH)
+#define LED_off  digitalWrite(LED_pin,LOW)
+#define LED_toggle  digitalWrite(LED_pin ,!digitalRead(LED_pin))
 #define LED_SET_OUTPUT pinMode(LED_pin,OUTPUT)
 #define IS_LED_on  ( digitalRead(LED_pin)==HIGH)
 
@@ -310,7 +313,7 @@ struct PPM_Parameters
 #define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
 
 
-#define IS_BIND_BUTTON_on	(digitalRead(BIND_pin)==0x00)
+#define IS_BIND_BUTTON_on	(digitalRead(BIND_pin)==LOW)
 
 #define BIND_SET_INPUT		pinMode(BIND_pin,INPUT)
 #define BIND_SET_PULLUP	        digitalWrite(BIND_pin,HIGH)	

@@ -1,22 +1,34 @@
-//*************************************
-// FrSky Telemetry serial code        *
-// By Midelic  on RCGroups                 *
-//*************************************
+/*
+This project is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
+Multiprotocol is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
+*/
+//**************************
+// Telemetry serial code   *
+//**************************
 #if defined TELEMETRY
 
 #if defined SPORT_TELEMETRY	
-	#define SPORT_TIME 12000
-	#define FRSKY_SPORT_PACKET_SIZE   8
-	uint32_t last = 0;
-	uint8_t sport_counter=0;
-	uint8_t RxBt = 0;
-	uint8_t rssi;
-	uint8_t sport = 0;
+#define SPORT_TIME 12000
+#define FRSKY_SPORT_PACKET_SIZE   8
+uint32_t last = 0;
+uint8_t sport_counter=0;
+uint8_t RxBt = 0;
+uint8_t rssi;
+uint8_t sport = 0;
 #endif
 #if defined HUB_TELEMETRY
-	#define USER_MAX_BYTES 6
-	uint8_t prev_index;
+#define USER_MAX_BYTES 6
+uint8_t prev_index;
 #endif
 
 #define START_STOP              0x7e
@@ -28,10 +40,8 @@ uint8_t pktx1[MAX_PKTX];//second buffer for sport
 uint8_t idxt;
 uint8_t frame[18];
 
-
 #ifdef BASH_SERIAL
 // For bit-bashed serial output
-
 struct t_serial_bash
 {
 	uint8_t head ;
@@ -42,13 +52,12 @@ struct t_serial_bash
 } SerialControl ;
 #endif
 
-
 #if defined DSM_TELEMETRY
-void DSM2_frame()
+void DSM_frame()
 {
-	Serial_write(0xAA);					// Start
+	Serial_write(0xAA);					// Telemetry packet
 	for (uint8_t i = 0; i < 17; i++)	// RSSI value followed by 16 bytes of telemetry data
-		Serial_write(pkt[i]);
+	Serial_write(pkt[i]);
 }
 #endif
 
@@ -72,9 +81,9 @@ void compute_RSSIdbm()
 	
 	RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
 	if(pktt[len-2] >=128)
-		RSSI_dBm -= 164;
+	RSSI_dBm -= 164;
 	else
-		RSSI_dBm += 130;
+	RSSI_dBm += 130;
 }
 
 void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
@@ -82,13 +91,13 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len ==(pkt[0] + 3))
 	{	   
 		for (uint8_t i=3;i<len;i++)
-			pktt[i]=pkt[i];				 
+		pktt[i]=pkt[i];				 
 		telemetry_link=1;
 		if(pktt[6])
-			telemetry_counter=(telemetry_counter+1)%32;
+		telemetry_counter=(telemetry_counter+1)%32;
 		//
-#if defined FRSKYX_CC2500_INO
-		if ((cur_protocol[0]&0x1F)==MODE_FRSKYX)
+#if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
+		if (protocol==MODE_FRSKYX)
 		{
 			if ((pktt[5] >> 4 & 0x0f) == 0x08)
 			{  
@@ -99,9 +108,9 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 			else
 			{
 				if ((pktt[5] >> 4 & 0x03) == (seq_last_rcvd + 1) % 4)
-					seq_last_rcvd = (seq_last_rcvd + 1) % 4;
+				seq_last_rcvd = (seq_last_rcvd + 1) % 4;
 				else
-					pass=0;//reset if sequence wrong
+				pass=0;//reset if sequence wrong
 			}
 		}
 #endif
@@ -111,7 +120,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 void frsky_link_frame()
 {
 	frame[0] = 0xFE;
-	if ((cur_protocol[0]&0x1F)==MODE_FRSKYD)
+	if (protocol==MODE_FRSKYD)
 	{		
 		compute_RSSIdbm();				
 		frame[1] = pktt[3];
@@ -120,13 +129,13 @@ void frsky_link_frame()
 		frame[4] = (uint8_t)RSSI_dBm;
 	}
 	else
-		if ((cur_protocol[0]&0x1F)==MODE_HUBSAN)
-		{	
-			frame[1] = v_lipo*2; //v_lipo; common 0x2A=42/10=4.2V
-			frame[2] = frame[1];			
-			frame[3] = 0x00;
-			frame[4] = (uint8_t)RSSI_dBm;
-		}
+	if (protocol==MODE_HUBSAN)
+	{	
+		frame[1] = v_lipo*2; //v_lipo; common 0x2A=42/10=4.2V
+		frame[2] = frame[1];			
+		frame[3] = 0x00;
+		frame[4] = (uint8_t)RSSI_dBm;
+	}
 	frame[5] = frame[6] = frame[7] = frame[8] = 0;			
 	frskySendStuffed();
 }
@@ -142,58 +151,58 @@ void frsky_user_frame()
 		frame[2] = pktt[7];		
 		switch(pass)
 		{
-			case 0:
-				indexx=pktt[6];
-				for(i=0;i<indexx;i++)
-				{
-					pktx[i]=pktt[j++];
-				}	
-				pass=1;
-				
-			case 1:
-				idxt=indexx;
-				prev_index = indexx; 
-				if(idxt<USER_MAX_BYTES)
-				{   			
-					for(i=0;i<idxt;i++)
-						frame[i+3]=pktx[i];
-					pktt[6]=0;
-					pass=0;
-				}
-				else
-				{
-					idxt = USER_MAX_BYTES;
-					for(i=0;i<idxt;i++)
-						frame[i+3]=pktx[i];
-					pass=2;
-				}			
-				break;
-			case 2:		
-				idxt = prev_index - idxt;
-				prev_index=0;
-				if(idxt<=(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
-					for(i=0;i<idxt;i++)
-						frame[i+3]=pktx[USER_MAX_BYTES+i];
+		case 0:
+			indexx=pktt[6];
+			for(i=0;i<indexx;i++)
+			{
+				pktx[i]=pktt[j++];
+			}	
+			pass=1;
+			
+		case 1:
+			idxt=indexx;
+			prev_index = indexx; 
+			if(idxt<USER_MAX_BYTES)
+			{   			
+				for(i=0;i<idxt;i++)
+				frame[i+3]=pktx[i];
+				pktt[6]=0;
 				pass=0;
-				pktt[6]=0; 
-				break;
-			default:
-				break;
+			}
+			else
+			{
+				idxt = USER_MAX_BYTES;
+				for(i=0;i<idxt;i++)
+				frame[i+3]=pktx[i];
+				pass=2;
+			}			
+			break;
+		case 2:		
+			idxt = prev_index - idxt;
+			prev_index=0;
+			if(idxt<=(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
+			for(i=0;i<idxt;i++)
+			frame[i+3]=pktx[USER_MAX_BYTES+i];
+			pass=0;
+			pktt[6]=0; 
+			break;
+		default:
+			break;
 		}
 		if(!idxt)
-			return;
+		return;
 		frame[1] = idxt;
 		frskySendStuffed();
 	}
 	else
-		pass=0;
+	pass=0;
 }	   
 #endif
 
 /*
 HuB RX packets.
 pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09 
-        %32        
+		%32        
 01     08          5E 28 12 00 5E 5E 3A 06 00 5E
 0A     09          28 12 00 5E 5E 3A 06 00 5E 5E  
 09     0A          3B 09 00 5E 5E 06 36 7D 5E 5E 
@@ -262,7 +271,7 @@ void sportSend(uint8_t *p)
 	for (uint8_t i = 1; i < 9; i++)
 	{
 		if (i == 8)
-			p[i] = 0xff - crc_s;
+		p[i] = 0xff - crc_s;
 		
 		if ((p[i] == START_STOP) || (p[i] == BYTESTUFF))
 		{
@@ -270,7 +279,7 @@ void sportSend(uint8_t *p)
 			Serial_write(STUFF_MASK ^ p[i]);
 		} 
 		else			
-			Serial_write(p[i]);					
+		Serial_write(p[i]);					
 		
 		if (i>0)
 		{
@@ -300,29 +309,36 @@ void sportSendFrame()
 	}
 	switch (sport_counter)
 	{
-		case 2: // RSSI
-			frame[2] = 0x01;
-			frame[3] = 0xf1;
-			frame[4] = rssi;
+	case 0:
+		frame[2] = 0x05;
+		frame[3] = 0xf1;
+		frame[4] = 0x02 ;//dummy values if swr 20230f00
+		frame[5] = 0x23;
+		frame[6] = 0x0F;
+		break;
+	case 2: // RSSI
+		frame[2] = 0x01;
+		frame[3] = 0xf1;
+		frame[4] = rssi;
+		break;
+	case 4: //BATT
+		frame[2] = 0x04;
+		frame[3] = 0xf1;
+		frame[4] = RxBt;//a1;
+		break;								
+	default:
+		if(sport)
+		{	
+			for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
+			frame[i]=pktx1[i];
+			sport=0;
 			break;
-		case 4: //BATT
-			frame[2] = 0x04;
-			frame[3] = 0xf1;
-			frame[4] = RxBt;//a1;
-			break;								
-		default:
-			if(sport)
-			{	
-				for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
-				frame[i]=pktx1[i];
-				sport=0;
-				break;
-			}
-			else
-			{
-				sportIdle();
-				return;
-			}		
+		}
+		else
+		{
+			sportIdle();
+			return;
+		}		
 	}
 	sportSend(frame);
 }	
@@ -331,31 +347,37 @@ void proces_sport_data(uint8_t data)
 {
 	switch (pass)
 	{
-		case 0:
-			if (data == START_STOP)
-			{//waiting for 0x7e
-				idxt = 0;
-				pass = 1;
-			}
+	case 0:
+		if (data == START_STOP)
+		{//waiting for 0x7e
+			idxt = 0;
+			pass = 1;
+		}
+		break;		
+	case 1:
+		if (data == START_STOP)	// Happens if missed packet
+		{//waiting for 0x7e
+			idxt = 0;
+			pass = 1;
 			break;		
-		case 1:
-			if(data == BYTESTUFF)//if they are stuffed
-				pass=2;
-			else
-				if (idxt < MAX_PKTX)		
-					pktx[idxt++] = data;		
-			break;
-		case 2:	
-			if (idxt < MAX_PKTX)	
-				pktx[idxt++] = data ^ STUFF_MASK;	//unstuff bytes	
-			pass=1;
-			break;	
+		}
+		if(data == BYTESTUFF)//if they are stuffed
+		pass=2;
+		else
+		if (idxt < MAX_PKTX)		
+		pktx[idxt++] = data;		
+		break;
+	case 2:	
+		if (idxt < MAX_PKTX)	
+		pktx[idxt++] = data ^ STUFF_MASK;	//unstuff bytes	
+		pass=1;
+		break;	
 	} // end switch
 	if (idxt >= FRSKY_SPORT_PACKET_SIZE)
 	{//8 bytes no crc 
 		if ( sport )
 		{
-			// overrun! do nothing
+			// overrun!
 		}
 		else
 		{
@@ -375,12 +397,12 @@ void proces_sport_data(uint8_t data)
 void TelemetryUpdate()
 {
 	#if defined SPORT_TELEMETRY
-	if ((cur_protocol[0]&0x1F)==MODE_FRSKYX)
+	if (protocol==MODE_FRSKYX)
 	{	// FrSkyX
 		if(telemetry_link)
 		{		
-                        if(pktt[4] & 0x80)
-		        rssi=pktt[4] & 0x7F ;
+			if(pktt[4] & 0x80)
+			rssi=pktt[4] & 0x7F ;
 			else 
 			RxBt = (pktt[4]<<1) + 1 ;					
 			for (uint8_t i=0; i < pktt[6]; i++)
@@ -400,6 +422,8 @@ void TelemetryUpdate()
 	}
 	#endif
 	
+	// check for space in tx buffer
+
 	#ifdef BASH_SERIAL
 	uint8_t h ;
 	uint8_t t ;
@@ -418,7 +442,7 @@ void TelemetryUpdate()
 		return ;
 	}
 
-        #else
+	#else
 	uint8_t h ;
 	uint8_t t ;
 	h = tx_head ;
@@ -435,24 +459,24 @@ void TelemetryUpdate()
 	{
 		return ;
 	}
-        #endif
-        
+	#endif
+	
 	#if defined DSM_TELEMETRY
-	if(telemetry_link && (cur_protocol[0]&0x1F) == MODE_DSM2 )
-	{	// DSM2
-		DSM2_frame();
+	if(telemetry_link && protocol == MODE_DSM )
+	{	// DSM
+		DSM_frame();
 		telemetry_link=0;
 		return;
 	}
 	#endif
-	if(telemetry_link && (cur_protocol[0]&0x1F) != MODE_FRSKYX )
+	if(telemetry_link && protocol != MODE_FRSKYX )
 	{	// FrSky + Hubsan
 		frsky_link_frame();
 		telemetry_link=0;
 		return;
 	}
 	#if defined HUB_TELEMETRY
-	if(!telemetry_link && (cur_protocol[0]&0x1F) == MODE_FRSKYD)
+	if(!telemetry_link && protocol == MODE_FRSKYD)
 	{	// FrSky
 		frsky_user_frame();
 		return;
@@ -471,7 +495,6 @@ void TelemetryUpdate()
 /**************************/
 /**************************/
 
-
 #ifndef BASH_SERIAL
 // Routines for normal serial output
 void Serial_write(uint8_t data)
@@ -479,86 +502,131 @@ void Serial_write(uint8_t data)
 	uint8_t nextHead ;
 	nextHead = tx_head + 1 ;
 	if ( nextHead >= TXBUFFER_SIZE )
-		nextHead = 0 ;
+	nextHead = 0 ;
 	tx_buff[nextHead]=data;
 	tx_head = nextHead ;
 	tx_resume();
 }
 
-// Speed is 0 for 100K and 1 for 9600
 void initTXSerial( uint8_t speed)
 {
+#ifdef ENABLE_PPM
 	if(speed==SPEED_9600)
 	{ // 9600
-	#ifdef XMEGA
+		#ifdef XMEGA
 		USARTC0.BAUDCTRLA = 207 ;
 		USARTC0.BAUDCTRLB = 0 ;
-		
 		USARTC0.CTRLB = 0x18 ;
 		USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
 		USARTC0.CTRLC = 0x03 ;
-	}
-	#else
-	#ifdef STM32_board
-                Serial2.begin(9600);//USART3 
+		#else
+		#ifdef STM32_board
+		Serial2.begin(9600);//USART3 
 		USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable RX leave TX enabled
-        }
-	#else
+		#else
 		//9600 bauds
 		UBRR0H = 0x00;
 		UBRR0L = 0x67;
 		UCSR0A = 0 ;	// Clear X2 bit
 		//Set frame format to 8 data bits, none, 1 stop bit
 		UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+		#endif
+		#endif
+	}		
+	else if(speed==SPEED_57600)
+	{ // 57600
+		#ifdef XMEGA
+		/*USARTC0.BAUDCTRLA = 207 ;
+				USARTC0.BAUDCTRLB = 0 ;
+				USARTC0.CTRLB = 0x18 ;
+				USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+				USARTC0.CTRLC = 0x03 ;*/
+		#else
+		#ifdef STM32_board
+		Serial2.begin(57600);//USART3 
+		USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable RX leave TX enabled		
+		#else		
+		//57600 bauds
+		UBRR0H = 0x00;
+		UBRR0L = 0x22;
+		UCSR0A = 0x02 ;	// Set X2 bit
+		//Set frame format to 8 data bits, none, 1 stop bit
+		UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+		#endif
+		#endif
 	}
+	else if(speed==SPEED_125K)
+	{ // 125000
+		#ifdef XMEGA
+		/*USARTC0.BAUDCTRLA = 207 ;
+				USARTC0.BAUDCTRLB = 0 ;
+				USARTC0.CTRLB = 0x18 ;
+				USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+				USARTC0.CTRLC = 0x03 ;*/
+		#else
+		#ifdef STM32_board
+		Serial2.begin(125000);//USART3 
+		USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable RX leave TX enabled		
+		#else
+		//125000 bauds
+		UBRR0H = 0x00;
+		UBRR0L = 0x07;
+		UCSR0A = 0x00 ;	// Clear X2 bit
+		//Set frame format to 8 data bits, none, 1 stop bit
+		UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+		#endif
+		#endif		
+	}
+#endif	
+	#ifndef XMEGA	
+	#ifndef STM32_board
 	UCSR0B |= (1<<TXEN0);//tx enable
 	#endif
 	#endif
-
 }
 
 
 //Serial TX	
-	#ifdef XMEGA
-		ISR(USARTC0_DRE_vect)
-		#else
-		#if defined STM32_board
-		#ifdef __cplusplus
-			extern "C" {
-			#endif	
-			void __irq_usart3()			
-			#else
-			ISR(USART_UDRE_vect)
-		#endif
+#ifdef XMEGA
+ISR(USARTC0_DRE_vect)
+#else
+#if defined STM32_board
+#ifdef __cplusplus
+extern "C" {
+	#endif	
+	void __irq_usart3()			
+	#else
+	ISR(USART_UDRE_vect)
+	#endif
 	#endif
 	
 	{	// Transmit interrupt
-	#if defined STM32_board	
-	if(USART3_BASE->SR & USART_SR_TXE) {
-	#endif
-		if(tx_head!=tx_tail)
-		{
-			if(++tx_tail>=TXBUFFER_SIZE)//head 
-			tx_tail=0;
+		#if defined STM32_board	
+		if(USART3_BASE->SR & USART_SR_TXE) {
+			#endif
+			if(tx_head!=tx_tail)
+			{
+				if(++tx_tail>=TXBUFFER_SIZE)//head 
+				tx_tail=0;
 				#if defined STM32_board	
 				USART3_BASE->DR=tx_buff[tx_tail];//clears TXE bit				
-					#else
-					UDR0=tx_buff[tx_tail];
+				#else
+				UDR0=tx_buff[tx_tail];
 				#endif		
-		}
-		if (tx_tail == tx_head)
+			}
+			if (tx_tail == tx_head)
 			#if defined STM32_board	
 			USART3_BASE->CR1 &= ~USART_CR1_TXEIE;//disable interrupt	
-			}
-				#else
-				tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
-			#endif		
+		}
+		#else
+		tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
+		#endif		
 	}
 	
 #if defined STM32_board			
 #ifdef __cplusplus
-		}
-	#endif	
+}
+#endif	
 #endif
 
 #endif
@@ -572,11 +640,10 @@ void initTXSerial( uint8_t speed)
 {
 	TIMSK0 = 0 ;	// Stop all timer 0 interrupts
 #ifdef INVERT_SERIAL
-	PORTD &= ~2 ;
+	SERIAL_TX_off;
 #else
-	PORTD |= 2 ;
+	SERIAL_TX_on;
 #endif
-	DDRD |= 2 ;	// TxD pin is an output
 	UCSR0B &= ~(1<<TXEN0) ;
 
 	SerialControl.speed = speed ;
@@ -612,7 +679,7 @@ void Serial_write( uint8_t byte )
 #else
 		byteLo |= 0xFC ;	// Stop bits
 #endif
-	// calc parity
+		// calc parity
 		temp = byte ;
 		temp >>= 4 ;
 		temp = byte ^ temp ;
@@ -637,13 +704,19 @@ void Serial_write( uint8_t byte )
 #ifdef INVERT_SERIAL
 	byte |= 1 ;		// Start bit
 #endif
-  uint8_t next = (SerialControl.head + 2) & 0x3f ;
+	uint8_t next = (SerialControl.head + 2) & 0x3f ;
 	if ( next != SerialControl.tail )
 	{
 		SerialControl.data[SerialControl.head] = byte ;
 		SerialControl.data[SerialControl.head+1] = byteLo ;
 		SerialControl.head = next ;
 	}
+	if(!IS_TX_PAUSE_on)
+	tx_resume();
+}
+
+void resumeBashSerial()
+{
 	cli() ;
 	if ( SerialControl.busy == 0 )
 	{
@@ -684,13 +757,9 @@ ISR(TIMER0_COMPA_vect)
 	uint8_t byte ;
 	byte = GPIOR0 ;
 	if ( byte & 0x01 )
-	{
-		PORTD |= 0x02 ;
-	}
+	SERIAL_TX_on;
 	else
-	{
-		PORTD &= ~0x02 ;
-	}
+	SERIAL_TX_off;
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	GPIOR0 = byte ;
 	if ( --GPIOR1 == 0 )
@@ -709,33 +778,37 @@ ISR(TIMER0_COMPB_vect)
 	uint8_t byte ;
 	byte = GPIOR2 ;
 	if ( byte & 0x01 )
-	{
-		PORTD |= 0x02 ;
-	}
+	SERIAL_TX_on;
 	else
-	{
-		PORTD &= ~0x02 ;
-	}
+	SERIAL_TX_off;
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	GPIOR2 = byte ;
 	if ( --GPIOR1 == 0 )
 	{
-		// prepare next byte and allow for 2 stop bits
-		struct t_serial_bash *ptr = &SerialControl ;
-		if ( ptr->head != ptr->tail )
-		{
-			GPIOR0 = ptr->data[ptr->tail] ;
-			GPIOR2 = ptr->data[ptr->tail+1] ;
-			ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
-			GPIOR1 = 8 ;
-			OCR0A = OCR0B + 40 ;
-			OCR0B = OCR0A + 8 * 20 ;
-			TIMSK0 |= (1<<OCIE0A) ;
-		}
-		else
+		if ( IS_TX_PAUSE_on )
 		{
 			SerialControl.busy = 0 ;
 			TIMSK0 &= ~(1<<OCIE0B) ;
+		}
+		else
+		{
+			// prepare next byte and allow for 2 stop bits
+			struct t_serial_bash *ptr = &SerialControl ;
+			if ( ptr->head != ptr->tail )
+			{
+				GPIOR0 = ptr->data[ptr->tail] ;
+				GPIOR2 = ptr->data[ptr->tail+1] ;
+				ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
+				GPIOR1 = 8 ;
+				OCR0A = OCR0B + 40 ;
+				OCR0B = OCR0A + 8 * 20 ;
+				TIMSK0 |= (1<<OCIE0A) ;
+			}
+			else
+			{
+				SerialControl.busy = 0 ;
+				TIMSK0 &= ~(1<<OCIE0B) ;
+			}
 		}
 	}
 	else
@@ -756,13 +829,9 @@ ISR(TIMER0_OVF_vect)
 		byte = GPIOR2 ;
 	}
 	if ( byte & 0x01 )
-	{
-		PORTD |= 0x02 ;
-	}
+	SERIAL_TX_on;
 	else
-	{
-		PORTD &= ~0x02 ;
-	}
+	SERIAL_TX_off;
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	if ( GPIOR1 > 2 )
 	{

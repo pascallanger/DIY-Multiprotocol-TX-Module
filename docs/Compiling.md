@@ -65,7 +65,7 @@ paste the following text into the end of the file and save it.
 
 Close and reopen the Arduino IDE and load the Multiprotocol project.
 
-### Windows: {customize for windows}
+### Windows:
 Using File Explorer navigate to 
 
 ```C:\Program Files(x86)\Arduino\hardware\arduino\avr ```

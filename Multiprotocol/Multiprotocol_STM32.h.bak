@@ -61,9 +61,12 @@ enum Hisky
 	Hisky=0,
 	HK310=1
 };
-enum DSM2{
-	DSM2=0,
-	DSMX=1
+enum DSM{
+	DSM2_22	= 0,
+	DSM2_11	= 1,
+	DSMX_22	= 2,
+	DSMX_11	= 3,
+	DSM_AUTO = 4
 };
 enum YD717
 {       			
@@ -181,7 +184,7 @@ struct PPM_Parameters
 #define CC25_CSN_pin PB6//CC2500
 #define NRF_CSN_pin  PB7//NRF24L01
 #define CYRF_RST_pin PB8//CYRF RESET
-#define A7105_CS_pin PB9//A7105
+#define A7105_CSN_pin PB9//A7105
 #define CYRF_CSN_pin PB12//CYRF CSN
 //SPI pins	
 #define SCK_pin PB13//SCK
@@ -191,18 +194,18 @@ struct PPM_Parameters
 #define TX_INV_pin PB3
 #define RX_INV_pin PB1
 //
-#define CTRL1_on  digitalHi(GPIOB,CTRL1)
-#define CTRL1_off digitallo(GPIOB,CTRL1)
+#define PE1_on  digitalHi(GPIOB,CTRL1)
+#define PE1_off digitallo(GPIOB,CTRL1)
 //
-#define CTRL2_on  digitalHi(GPIOB,CTRL2)
-#define CTRL2_off digitallo(GPIOB,CTRL2)
+#define PE2_on  digitalHi(GPIOB,CTRL2)
+#define PE2_off digitallo(GPIOB,CTRL2)
 
 #define RS_HI digitalHi(GPIOB,CYRF_RST_pin)				//reset pin cyrf 
 #define RS_LO digitallo(GPIOB,CYRF_RST_pin)
 
 
-#define  A7105_CS_on digitalHi(GPIOB,CS_pin)			
-#define  A7105_CS_off digitallo(GPIOB,CS_pin)		
+#define  A7105_CSN_on digitalHi(GPIOB,CS_pin)			
+#define  A7105_CSN_off digitallo(GPIOB,CS_pin)		
 
 #define NRF_CE_on
 #define NRF_CE_off
@@ -234,10 +237,10 @@ struct PPM_Parameters
 #define RX_INV_on digitalHi(GPIOB,RX_INV_pin)		
 #define RX_INV_off digitallo(GPIOB,RX_INV_pin)
 
-#define LED_ON  digitalHi(GPIOA,LED_pin)
-#define LED_OFF  digitallo(GPIOA,LED_pin)
+#define LED_on  digitalHi(GPIOA,LED_pin)
+#define LED_off  digitallo(GPIOA,LED_pin)
 
-#define LED_TOGGLE  digitalToggle(GPIOA,LED_pin)
+#define LED_toggle  digitalToggle(GPIOA,LED_pin)
 #define LED_SET_OUTPUT pinMode(LED_pin,OUTPUT)
 #define IS_LED_on  ( digitalIn(GPIOA,LED_pin)==HIGH)
 

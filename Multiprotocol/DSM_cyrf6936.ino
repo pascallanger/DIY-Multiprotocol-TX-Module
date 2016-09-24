@@ -44,16 +44,25 @@ enum {
 uint8_t sop_col;
 uint8_t DSM_num_ch=0;
 uint8_t ch_map[14];
-const uint8_t PROGMEM ch_map_progmem[][12] = {
-	{0, 1, 2, 3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, //Guess
-	{0, 1, 2, 3, 4,    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, //Guess
-	{1, 5, 2, 3, 0,    4,    0xff, 0xff, 0xff, 0xff, 0xff, 0xff}, //HP6DSM
-	{1, 5, 2, 4, 3,    6,    0,    0xff, 0xff, 0xff, 0xff, 0xff}, //DX6i
-	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    0xff, 0xff}, //DX8
-	{3, 2, 1, 5, 0,    4,    6,    7,    8,    0xff, 0xff, 0xff}, //DM9
-	{3, 2, 1, 5, 0,    4,    6,    7,    8,    9,    0xff, 0xff}, //Guess
-	{3, 2, 1, 5, 0,    4,    6,    7,    8,    9,    10,   0xff}, //Guess
-	{3, 2, 1, 5, 0,    4,    6,    7,    8,    9,    10,   11} }; //Guess
+const uint8_t PROGMEM ch_map_progmem[][14] = {
+//22+11ms for 4..7 channels
+	{1, 0, 2, 3, 0xff, 0xff, 0xff, 1,    0,    2,    3, 0xff, 0xff,    0xff}, //4ch  - Guess
+	{1, 0, 2, 3, 4,    0xff, 0xff, 1,    0,    2,    3,    4, 0xff,    0xff}, //5ch  - Guess
+	{1, 5, 2, 3, 0,    4,    0xff, 1,    5,    2,    3,    0,    4,    0xff}, //6ch  - HP6DSM
+	{1, 5, 2, 4, 3,    6,    0,    1,    5,    2,    4,    3,    6,    0   }, //7ch  - DX6i
+//22ms for 8..12 channels
+	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    0xff, 0xff, 0xff, 0xff}, //8ch  - DX8/DX7
+	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    8,    0xff, 0xff, 0xff}, //9ch  - Guess
+	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    8,    9,    0xff, 0xff}, //10ch - Guess
+	{1, 5, 2, 3, 6,    10,   0xff, 4,    0,    7,    8,    9,    0xff, 0xff}, //11ch - Guess
+	{1, 5, 2, 4, 6,    10,   0xff, 0,    7,    3,    8,    9   , 11  , 0xff}, //12ch - DX18
+//11ms for 8..12 channels
+	{1, 5, 2, 3, 6,    7,    0xff, 1,    5,    2,    4,    0,    0xff, 0xff}, //8ch  - DX7
+	{1, 5, 2, 3, 6,    7,    0xff, 1,    5,    2,    4,    0,    8,    0xff}, //9ch  - Guess
+	{1, 5, 2, 3, 4,    8,    9,    1,    5,    2,    3,     0,   7,    6   }, //10ch - DX18
+	{1, 5, 2, 3, 4,    8,    9,    1,    5,    2,   10,     0,   7,    6   }, //11ch - Guess
+	{1, 5, 2, 3, 4,    8,    9,    1,    5,    11,  10,     0,   7,    6   }, //12ch - Guess
+};
 
 const uint8_t PROGMEM pncodes[5][8][8] = {
 	/* Note these are in order transmitted (LSB 1st) */
@@ -229,15 +238,12 @@ static void __attribute__((unused)) update_channels()
 	if(DSM_num_ch<4 || DSM_num_ch>12)
 		DSM_num_ch=6;						// Default to 6 channels if invalid choice...
 
-	// Create channel map based on number of channels
-	for(uint8_t i=0;i<12;i++)
-		ch_map[i]=pgm_read_byte_near(&ch_map_progmem[DSM_num_ch-4][i]);
-	ch_map[12]=0xFF;
-	ch_map[13]=0xFF;
-	// TODO: if DSM2_11 or DSMX_11 then repeat lower channels to upper channels need to rewrite this part
-	if(DSM_num_ch<8)
-		for(uint8_t i=7;i<14;i++)
-			ch_map[i]=ch_map[i-7];
+	// Create channel map based on number of channels and refresh rate
+	uint8_t idx=DSM_num_ch-4;
+	if(DSM_num_ch>7 && (sub_protocol==DSM2_11 || sub_protocol==DSMX_11))
+		idx+=5;
+	for(uint8_t i=0;i<14;i++)
+		ch_map[i]=pgm_read_byte_near(&ch_map_progmem[idx][i]);
 }
 
 static void __attribute__((unused)) build_data_packet(uint8_t upper)
@@ -278,7 +284,7 @@ static void __attribute__((unused)) build_data_packet(uint8_t upper)
 			}
 			else
 				value=map(Servo_data[CH_TAER[idx]],servo_min_125,servo_max_125,0,max);
-			value |= (upper ? 0x8000 : 0) | (idx << bits);
+			value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);
 		}	  
 		packet[i*2+2] = (value >> 8) & 0xff;
 		packet[i*2+3] = (value >> 0) & 0xff;
@@ -531,7 +537,7 @@ uint16_t initDsm()
 	//Fix for OrangeRX using wrong pncodes by preventing access to "Col 8"
 	if(sop_col==0)
 	{
-	   cyrfmfg_id[0]^=0x01;									//Change year bit so sop_col will be different from 0
+	   cyrfmfg_id[rx_tx_addr[0]%3]^=0x01;					//Change a bit so sop_col will be different from 0
 	   sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
 	}
 	//Hopping frequencies

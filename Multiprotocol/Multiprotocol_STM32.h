@@ -159,9 +159,9 @@ struct PPM_Parameters
 #define UDR0 USART2_BASE->DR
 #define TIFR1 TIMER2_BASE->SR
 #define OCF1A_bm TIMER_SR_CC1IF
-#define UCSR0B USART2_BASE->CR1
-#define RXCIE0 USART_CR1_RXNEIE_BIT
-#define TXCIE0 USART_CR1_TXEIE_BIT
+//#define UCSR0B USART2_BASE->CR1
+//#define RXCIE0 USART_CR1_RXNEIE_BIT
+//#define TXCIE0 USART_CR1_TXEIE_BIT
 //#define TIFR1 TIMER2_BASE->SR
 //********************
 #define BIND_pin PA0

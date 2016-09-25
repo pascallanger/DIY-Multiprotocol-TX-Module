@@ -18,9 +18,9 @@ Multiprotocol Transmitter Module or Multiprotocol Module is not only becoming qu
 
 In addition to this it would be very useful if we could bucket the different MPTM options according to how they are built.  For example:
 
-- Banggood 4-in-1 module : Readymade Mulitprotocol Module or Readymade Multiprotocol Transmitter Module or Readymade MPTM or Banggood MPTM
-- Modules made from PCB : DIY Multiprotocol Module, DIY ATmega Multiprotocol Module, DIY STM32 Multiprotocol Module or DIY STM32 MPTM
-- Modules made from scratch:  
+- **Ready-made:** Banggood 4-in-1 module : Readymade Mulitprotocol Module or Readymade Multiprotocol Transmitter Module or Readymade MPTM or Banggood MPTM
+- **DIY:** Modules made from PCBs : DIY Multiprotocol Module, DIY ATmega Multiprotocol Module, DIY STM32 Multiprotocol Module or DIY STM32 MPTM
+- **Scratchbuild:** Modules made from scratch:  
    - Option 1: Perfboard Multiprotocol Module or Perfboard MPTM
    - Option 2: Scratchbuild Multiprotocol Module or Scratchbuild MPTM
 

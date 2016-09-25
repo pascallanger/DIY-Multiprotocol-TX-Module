@@ -60,8 +60,6 @@ const uint8_t PROGMEM ch_map_progmem[][14] = {
 	{1, 5, 2, 3, 6,    7,    0xff, 1,    5,    2,    4,    0,    0xff, 0xff}, //8ch  - DX7
 	{1, 5, 2, 3, 6,    7,    0xff, 1,    5,    2,    4,    0,    8,    0xff}, //9ch  - Guess
 	{1, 5, 2, 3, 4,    8,    9,    1,    5,    2,    3,     0,   7,    6   }, //10ch - DX18
-	{1, 5, 2, 3, 4,    8,    9,    1,    5,    2,   10,     0,   7,    6   }, //11ch - Guess
-	{1, 5, 2, 3, 4,    8,    9,    1,    5,    11,  10,     0,   7,    6   }, //12ch - Guess
 };
 
 const uint8_t PROGMEM pncodes[5][8][8] = {
@@ -240,8 +238,8 @@ static void __attribute__((unused)) update_channels()
 
 	// Create channel map based on number of channels and refresh rate
 	uint8_t idx=DSM_num_ch-4;
-	if(DSM_num_ch>7 && (sub_protocol==DSM2_11 || sub_protocol==DSMX_11))
-		idx+=5;
+	if(DSM_num_ch>7 && DSM_num_ch<11 && (sub_protocol==DSM2_11 || sub_protocol==DSMX_11))
+		idx+=5;								// In 11ms mode change index only for channels 8..10
 	for(uint8_t i=0;i<14;i++)
 		ch_map[i]=pgm_read_byte_near(&ch_map_progmem[idx][i]);
 }

@@ -25,7 +25,7 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 2. [Advanced Topics (not for the fainthearted!)](docs/Advanced_Topics.md)
 
 ## Introduction
-A functioning MPTM consists of (see image below):
+A functioning MPTM consists of (see image below):  
 <img src="docs/images/DIY_Multiprotocol_Module_Overview.png" width="500" height="300" />
 
 1.  A host RC Tx

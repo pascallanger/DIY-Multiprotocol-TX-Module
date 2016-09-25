@@ -1,6 +1,6 @@
-# Overview
+# Overview of the MPTM
 
-Multiprotocol is a 2.4GHz transmitter which enables any TX to control lot of different models available on the market.
+The **Multiprotocol Tx Module** (or **MPTM**) is a 2.4GHz transmitter module which enables almost any TX to control lot of different models available on the market.
 
 The source code is partly based on the [Deviation TX project](http://www.deviationtx.com), thanks to all the developers for their great job on protocols.
 
@@ -25,18 +25,18 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 2. [Advanced Topics (not for the fainthearted!)](docs/Advanced_Topics.md)
 
 ## Introduction
-A functioning DIY Multiprotocol module consists of (see image below):
-![Screenshot](docs/images/DIY_Multiprotocol_Module_Overview.png)
+A functioning MPTM consists of (see image below):
+<img src="docs/images/DIY_Multiprotocol_Module_Overview.png" width="500" height="300" />
 
-1.  A host RC transmitter
+1.  A host RC Tx
 
-1. DIY Multiprotocol module that connects to a host transmitter.  This module is typically comprised of
+1. A Multiprotocol Transmitter Module that connects to a host transmitter.  This module is typically comprised of
 
   * A microcontroller (currently ATMega328P) that interfaces with the Tx, controls the module functions and forwards the RC commands to the RF hardware
 
   * One or more (but at least one) RF modules that provide the capability to communicate with RC receivers.  To communicate with the receiver the RF module in the Tx must match with the RF module type in the receiver.  The four most common 2.4GHz RF chips on the market are supported TI CC2500, Nordic NRF24L01, Cypress CYRF6936, and the Amiccom A7105
 
-  * DIY Multiprotocol firmware loaded on to the microprocessor.  At a high level, this firmware performs a few different functions: 
+  * MPTM firmware loaded on to the microprocessor.  At a high level, this firmware performs a few different functions: 
      * It interfaces with signals from the host Tx and decodes these for transmission to the model, it manages the activation of the correct hardware RF module for each protocol
      * It implements the unique communication protocols for each receiver/model and manages the all-important binding process with a receiver/model
      * In the case of some protocols (for example DSMX and FrSky) it receives and decodes the telemetry information and makes this available to the receiver.
@@ -46,18 +46,19 @@ A functioning DIY Multiprotocol module consists of (see image below):
 
 In constructing a functioning module there are important choices to be made and tradeoffs to be aware of.  The most important are:
 
-##**Choice 1:** Which module hardware option 
+##**Choice 1:** Which MPTM hardware option 
 
-There are currently four generic paths to construct your own DIY Multiprotocol module.  These are outlined in detail on the [hardware](docs/Hardware.md) page.  Here they are in order of increasing difficulty:
-  * You can purchase a ready-made 4-in-1 Multiprotocol module from Banggood
-  * You can purchase a DIY Multiprotocol PCB from [OSHPark](http://www.oshpark.com) and then buy and solder on your own RF modules 
-  * You can use a Orange Rx transmitter module available from Hobyking
-  * You can build the module from scratch using an Arduino Pro Mini and a perf board base.
+There are currently four generic paths to get your hands on an MPTM.  These are outlined in detail on the [hardware](docs/Hardware.md) page.  Here they are, in order of increasing difficulty:
+  - **Ready-made MPTM** - Available from Banggood which includes a 4-in-1 RF module and an antenna switcher
+  - **DIY MPTM** - Purchase one of the PCB options from [OSHPark](http://www.oshpark.com) and then solder on your own components and RF modules 
+  - **OrangeRx MPTM** You can improve the Orange Rx Transmitter module available from Hobbyking by uploading this firmware
+  - **Scratchbuild a MPTM** -  Build the module from scratch using perfboard base, an Arduino Pro Mini and discrete components.
+
 The last option is where it all started and how the pioneers in this project made their boards.  However, due to the growing interest in “one module to rule them all” you now have options to purchase a ready-made board (with old firmware that you will need to upgrade).  
 
 For more information on these options see the [hardware](docs/Hardware.md) page
 
-##**Choice 2:** Which RF modules to include
+##**Choice 2:** Which RF modules to include in the MPTM
 
 This depends on your specific needs.  However, recent the availability of the 4-in-1 RF modules from Banggood for less than $35 makes it easy to “have it all”.  Most manufacturers of RC systems (Spektrum, FrSky, FlySky) and toys (Syma, Hubsan, Horizon Hobby, etc.) use one of these four RF chips to manage the RF link between the transmitter and the reciever/model.  Here is an incomplete list of the RF modules and some of the most popular toys that use them.  For the complete list see the [Protocol Details](docs/Protocol_Details.md) page.
 
@@ -78,28 +79,35 @@ Nordic Semiconductor|NRF24L01|HiSky
 
 For example, if you have no interest in binding your Tx to an model with and FrSky or Futaba SFHSS receiver you do not need to include the CC2500 RF module in your system.
 
-##**Choice 3:** Which protocols to upload the module 
+##**Choice 3:** Which protocols to upload to the MPTM
 
-Of course there always a catch. There is a 32K memory limit on the ATmega328 processor. Due to the amazing work done by devs on this project, the memory required by all the possible protocols exceeds the limit. This means that you will need to make a choice of which protocols you will compile into your firmware.  Fortunately, the process of selecting and compiling is not too difficult and it is fully documented on the [Compiling and Programming](docs/Compiling.md) page.
+Of course there always a catch. In this case it is the 32K memory limit on the ATmega328 processor. Due to the amazing work done by devs on this project, the memory required by all the possible protocols exceeds this limit considerably. This means that you will need to make a choice of which protocols you will compile into your firmware.  Fortunately, the process of selecting and compiling is not too difficult and it is fully documented on the [Compiling and Programming](docs/Compiling.md) page.
 Also, the lead dev Pascal Langer (rcgroups:hpnuts) makes this process even easier for many users by making compiled binaries available for three popular combinations of RF modules.  These are always “fresh” (based on the latest stable firmware) and available on the [Releases](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) page.
 
-##**Choice 4:** Choosing the type of interface with your Tx (PPM or Serial)
+Midelic has ported a version the firmware to an STM32 ARM microcontroller.  If you go the route of building this version of the DIY MPTM then the memory limits do not apply.  
 
-The DIY Mulitprotocol module supports industry standard PPM interface that works with all transmitters with either a module bay, and/or a trainer port.  Even the older 72MHz FM radios support this standard.
+##**Choice 4:** Choosing the type of interface between the MPTM and your Tx (PPM or Serial)
 
-If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX firmwares (Frsky Taranis running erSky9x or OpenTx, or any of the FlySky/Turnigy family of Txs running ER9X, ERSky9x or OpenTx) you have the additional option to use a serial protocol to communicate between your Tx and the DIY Mulitprotocol module. (Owners of Walkera Devo transmitters should look at the [Deviation Tx](http://www.deviationtx.com) project for how to achieve the same end goal). This serial protocol does not require any hardware modifications, but will require updating the firmware on your radio. For those willing to do this, there are some nice advantages:
-  * The model and protocol selection and binding is done from the Model Settings menu on the Tx
-  * For telemetry capable receivers, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work)
+The all the MPTM options supports industry standard PPM interface that works with all transmitters with either:  
+ - a module bay or
+ - a trainer port or
+ - any PPM signal that can be accessed inside the Tx.
+
+Most of the older FM radios support the PPM interface.
+
+If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX firmwares (Frsky Taranis running erSky9x or OpenTx, or any of the FlySky/Turnigy family of Txs running ER9X, ERSky9x or OpenTx) you have the additional option to use a serial protocol to communicate between your Tx and the MPTM. (Owners of Walkera Devo transmitters should look at the [Deviation Tx](http://www.deviationtx.com) project for how to achieve the same end goal). This serial protocol does not require any hardware modifications, but will require updating the firmware on your radio. For those willing to do this, there are some nice advantages:
+  - The model and protocol selection and binding is done from the Model Settings menu on the Tx
+  - For telemetry capable receivers, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work)
 See the [Setting up your Tx](docs/TransmitterSetup.md) page for more details.
 
 #How to get started?
 1. Browse the [Protocols](docs/Protocol_Details.md) page to see which protocols you would like on your module
-1. Go to the [Hardware Options](docs/Hardware.md) page to decide what Tx module you need and which RF modules you plan to integrate
-1. Once you have your module, you should go to [Compiling and Programming](docs/Compiling.md) page to download, compile and program the DIY Multiprotocol module
+1. Go to the [Hardware Options](docs/Hardware.md) page to decide which of the MPTM options appeals to you and which RF modules you plan to integrate
+1. Once you have your module, you should go to [Compiling and Programming](docs/Compiling.md) page to download, compile and program your MPTM
 1. Finally, you should visit the [Setting up your Tx](docs/TransmitterSetup.md) page to configure the last few settings before you can fly to your heart’s content!!!!!
 
 # Troubleshooting
-Visit the [Troubleshooting](docs/Troubleshooting.md) page.  Please bear in mind that the DIY Multiprotocol module is a complex system of hardware and software and it make take some patience to get it up and running.  Also remember that the developers of the system are actual users of the system.  This means that at any moment in time the system is working perfectly for them.  A corollary to this is that if you are struggling there are likely two scenarios.  First, that the problem is with your hardware or with your configuration, second, and much more unlikely but not impossible scenario, is that you are struggling with a new undiscovered bug.  (The author of this documentation speaks from experience ;-)   Please check the RC Groups forum and search for keywords relating to your problem before posting a reply.  When you do post a reply please so humbly and respectfully – you will find many helpful people there.  In your reply please include as much relevant information as possible and attach compilation output and _Config.h files as text attachments to keep the forum clean.
+Visit the [Troubleshooting](docs/Troubleshooting.md) page.  Please bear in mind that the MPTM is a complex system of hardware and software and it make take some patience to get it up and running.  Also remember that the developers of the system are actual users of the system.  This means that at any moment in time the system is working perfectly for them.  A corollary to this is that if you are struggling there are likely two scenarios.  First, that the problem is with your hardware or with your configuration, second, and much more unlikely but not impossible scenario, is that you are struggling with a new undiscovered bug.  (The author of this documentation speaks from experience ;-)   Please check the RC Groups forum and search for keywords relating to your problem before posting a reply.  When you do post a reply please so humbly and respectfully – you will find many helpful people there.  In your reply please include as much relevant information as possible and attach compilation output and _Config.h files as text attachments to keep the forum clean.
 # A final word
 A very big thanks to all the people who have shared their time so graciously to create this great project.  If you come across them on RC Groups, please be kind and show appreciation.  In no particular order:
 * Pascal Langer (rcgroups: hpnuts)

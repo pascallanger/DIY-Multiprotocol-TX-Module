@@ -404,7 +404,8 @@ void TelemetryUpdate()
 			if(pktt[4] & 0x80)
 			rssi=pktt[4] & 0x7F ;
 			else 
-			RxBt = (pktt[4]<<1) + 1 ;					
+			RxBt = (pktt[4]<<1) + 1 ;
+			if(pktt[6]<=6)
 			for (uint8_t i=0; i < pktt[6]; i++)
 			proces_sport_data(pktt[7+i]);
 			telemetry_link=0;

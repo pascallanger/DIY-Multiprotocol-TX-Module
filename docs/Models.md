@@ -1,6 +1,9 @@
 #Model Setup
 This is the page to document model or receiver specific setup instructions.
 The complete list of models the protocols they use are documented [here](https://docs.google.com/spreadsheets/d/1nBHzT3VWF6ShAhOqRB5y0Bcc7aXFuRFFlQkHn1RIM84/edit#gid=0)
+
+The Deviation project (on which this project was based) have a useful list of models [here](http://www.deviationtx.com/wiki/supported_models).
+
 #Syma X5C
 <img src="http://img2.cheapdrone.co.uk/images/upload/2014/12/X5C%203/SKU115108-7.jpg" Width="200" Height="200" />
 ##Binding

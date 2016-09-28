@@ -1,6 +1,6 @@
 #Bill of Materials DIY STM32 Module 
 
-Here is the bill of materials for the STM32 version of the DIY  MPTM. Carefully compare your board with the picture below to determine which version you have. 
+Here is the bill of materials for the STM32 version of the DIY  MPTM. There are two versions. Carefully compare your board with the picture below to determine which version you have. 
 
 If you are looking for the BOM for the DIY ATmega328 3.2d version click [here]().
 

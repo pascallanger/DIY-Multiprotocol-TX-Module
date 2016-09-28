@@ -18,8 +18,8 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 3|C3,8,9|Cap Tantal|22uF/16V|1206|[478-8254-1-ND](https://www.digikey.com/product-detail/en/avx-corporation/F931C226MAA/478-8254-1-ND/4005702)
 1|D1|Diode Shottky|1N5819||[1N5819HW-FDICT-ND](https://www.digikey.com/product-detail/en/diodes-incorporated/1N5819HW-7-F/1N5819HW-FDICT-ND/815283)
 1|IC1|Voltage reg 3.3V|AMS1117-33|SOT223|[LM1117MPX-3.3/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MPX-3.3-NOPB/LM1117MPX-3.3-NOPBCT-ND/1010516)
-1|IC2|Voltage reg 3.3V|AMS1117-50|SOT223|[LM1117MP-5.0/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MP-5.0-NOPB/LM1117MP-5.0-NOPBCT-ND/363589)
-1|J2|Receptacle|5-pin||[WM14512-ND](https://www.digikey.com/product-search/en?keywords=0038001395)
+1|IC2|Voltage reg 5V|AMS1117-50|SOT223|[LM1117MP-5.0/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MP-5.0-NOPB/LM1117MP-5.0-NOPBCT-ND/363589)
+1|J301|Receptacle|5-pin||[WM3103-ND](http://www.digikey.com/product-search/en?keywords=WM3103-ND)
 1|JP1|Pin header|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|JP2|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|L1|High Freq Inductor|10uH|1812|[CM453232-100KLCT-ND](https://www.digikey.com/product-detail/en/bourns-inc/CM453232-100KL/CM453232-100KLCT-ND/3437938)
@@ -45,7 +45,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 
 Qty|Part|Description|Value|Package|Digikey Part Number
 ---|----|-----------|-----|-------|-------------------
-1|J301|Receptacle|5-pin||[WM14512-ND](https://www.digikey.com/product-search/en?keywords=0038001395)
+1|J301|Receptacle|5-pin||[WM3103-ND](http://www.digikey.com/product-search/en?keywords=WM3103-ND)
 1|SV201|Jumper|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV202|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV203|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)

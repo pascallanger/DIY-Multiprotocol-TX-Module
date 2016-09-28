@@ -25,3 +25,4 @@ In addition to this it would be very useful if we could bucket the different MPT
    - Option 2: Scratchbuild Multiprotocol Module or Scratchbuild MPTM
 
 
+1.  Move to atmega specific and add ftdi to stm32 AVR ISP programmer like the popular USBASP programming dongle that is 3.3V safe - available from many sellers on ebay. There are reports that some of the cheap programmers are not safe to use with 3.3V units (like this unit). Look for USBAsp programmers with the “LC Technologies” label. {Pascal to confirm these reports are true} Also, you will need a 10-pin to 6-pin connector to connect the USBASP to the board.

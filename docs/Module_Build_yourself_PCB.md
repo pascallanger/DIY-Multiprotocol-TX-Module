@@ -22,7 +22,7 @@ The **STM32-based** board has been designed to accept the 4-in-1 RF module with 
     - [A7105](http://www.banggood.com/A7105-Wireless-RF-2_4GHz-Transceiver-Module-3_3V-Power-Supply-Module-p-909404.html) for Flysky, Hubsan
     - [NRF24L01](http://www.banggood.com/2_4G-NRF24L01-PA-LNA-Wireless-Module-16+32mm-Without-Antenna-p-922601.html?utm_source=tradetracker&utm_medium=tradetracker_SE&utm_campaign=tradetracker&utm_content=227736) for Hisky, V2x2, CX-10, SYMAX and plenty other protocols
     - The 4-in-1 RF module (available [here](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html)) can also be connected with solder wires.  To enable the antenna switcher the PE1 and PE2 pads must be soldered to ATmega pins, check the [schematic](#V23D_Schematic)  
-1. Electronics component BOM is downloadable [here](http://www.rcgroups.com/forums/showatt.php?attachmentid=7565057&d=1423770640).  This BOM is inclusive, you many not need all the parts depending on your needs.
+1. Electronics component BOM is [here](BOM_DIY_ATmega.md).  This BOM is inclusive, you many not need all the parts depending on your needs.
 
 The schematic for the board is [here](#V23D_Schematic).  Please note that is is the general schematic - there will be some minor differences (like solder jumpers) between this and the board.
 

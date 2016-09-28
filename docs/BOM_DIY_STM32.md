@@ -23,7 +23,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|R5|SMD Resistor|1K|0805|[311-1.0KARCT-ND](https://www.digikey.com/product-detail/en/yageo/RC0805JR-071KL/311-1.0KARCT-ND/731165)
 1|R7|SMD Resistor|470|0805|[RMCF0805JT470RCT-ND](https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT470R/RMCF0805JT470RCT-ND/1942551)
 1|Switch|Hex Switch||4-DIP|[FR01KR16P-W-S-ND](https://www.digikey.com/product-detail/en/nkk-switches/FR01KR16P-W-S/FR01KR16P-W-S-ND/2104098)
-1|Switch|Momentary Switch||12mm|[EG1024-ND](https://www.digikey.com/product-detail/en/e-switch/TL1100FF160Q/EG1024-ND/15701)
+1|Switch|Momentary Switch||6mm|[	450-1643-ND](https://www.digikey.com/product-detail/en/te-connectivity-alcoswitch-switches/2-1825910-7/450-1642-ND/1632528)
 1|MCU|STM32F103CBT6||LQFP48|[STM32F103CBT6](https://www.digikey.com/product-detail/en/stmicroelectronics/STM32F103CBT6/497-6288-ND/1754420)
 1|U$1|4-in-1 RF Module|||[Banggood 4-in-1 Module](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html)
 1|Y2|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)

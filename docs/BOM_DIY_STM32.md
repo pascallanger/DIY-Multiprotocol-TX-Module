@@ -1,0 +1,32 @@
+#Bill of Materials DIY STM32 Module
+
+Here is the bill of materials for the STM32 version of the DIY  MPTM.  If you are looking for the BOM for the DIY ATmega328 3.2d version click [here]().
+
+Digikey may not be your preferred supplier, but you should find enough information on their page to cross reference parts.
+
+Qty|Part|Description|Value|Package|Digikey Part Number
+---|----|-----------|-----|-------|-------------------
+1|3.3VJumper|Jumper|1x2||[3M9467-ND](https://www.digikey.com/product-detail/en/3m/961102-5604-AR/3M9467-ND/2071508)
+2|C1,C2|Cap Cera|0.1uF|0805|[311-1361-1-ND](https://www.digikey.com/product-detail/en/yageo/CC0805ZRY5V9BB104/311-1361-1-ND/2103145)
+3|C3,8,9|Cap Tantal|22uF/16V|1206|[478-8254-1-ND](https://www.digikey.com/product-detail/en/avx-corporation/F931C226MAA/478-8254-1-ND/4005702)
+1|D1|Diode Shottky|1N5819||[1N5819HW-FDICT-ND](https://www.digikey.com/product-detail/en/diodes-incorporated/1N5819HW-7-F/1N5819HW-FDICT-ND/815283)
+1|IC1|Voltage reg 3.3V|AMS1117-33|SOT223|[LM1117MPX-3.3/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MPX-3.3-NOPB/LM1117MPX-3.3-NOPBCT-ND/1010516)
+1|IC2|Voltage reg 3.3V|AMS1117-50|SOT223|[LM1117MP-5.0/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MP-5.0-NOPB/LM1117MP-5.0-NOPBCT-ND/363589)
+1|J2|Receptacle|5-pin||[WM14512-ND](https://www.digikey.com/product-search/en?keywords=0038001395)
+1|JP1|Pin header|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
+1|JP2|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
+1|L1|High Freq Inductor|10uH|1812|[CM453232-100KLCT-ND](https://www.digikey.com/product-detail/en/bourns-inc/CM453232-100KL/CM453232-100KLCT-ND/3437938)
+1|LED|Red Led|LED3mm|||
+2|R1,R8|SMD Resistor|2.2K|0805|[RMCF0805JT2K20CT-ND ](https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT2K20/RMCF0805JT2K20CT-ND/1942563)
+3|R2,R5,R10|SMD Resistor|10K|0805|[RMCF0805JT10K0CT-ND](https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT10K0/RMCF0805JT10K0CT-ND/1942577)
+1|R3|SMD Resistor|4.7K|0805|[311-4.70KCRCT-ND](https://www.digikey.com/product-detail/en/yageo/RC0805FR-074K7L/311-4.70KCRCT-ND/730876)
+1|R5|SMD Resistor|1K|0805|[311-1.0KARCT-ND](https://www.digikey.com/product-detail/en/yageo/RC0805JR-071KL/311-1.0KARCT-ND/731165)
+1|R7|SMD Resistor|470|0805|[RMCF0805JT470RCT-ND](https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT470R/RMCF0805JT470RCT-ND/1942551)
+1|Switch|Hex Switch||4-DIP|[FR01KR16P-W-S-ND](https://www.digikey.com/product-detail/en/nkk-switches/FR01KR16P-W-S/FR01KR16P-W-S-ND/2104098)
+1|Switch|Momentary Switch||12mm|[EG1024-ND](https://www.digikey.com/product-detail/en/e-switch/TL1100FF160Q/EG1024-ND/15701)
+1|MCU|STM32F103CBT6||LQFP48|[STM32F103CBT6](https://www.digikey.com/product-detail/en/stmicroelectronics/STM32F103CBT6/497-6288-ND/1754420)
+1|U$1|4-in-1 RF Module|||[Banggood 4-in-1 Module](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html)
+1|Y2|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)
+1|U1|Dual 2-INPUT-XOR|SN74LVC2G86DCTR|SSOP-8|[296-13274-1-ND](https://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G86DCTR/296-13274-1-ND/484501)
+1|U.FL|SMD ant. conn.|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
+

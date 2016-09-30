@@ -90,7 +90,7 @@ static void h377_init() {
 
 	// 2-bytes CRC, radio off
 	NRF24L01_SetTxRxMode(TX_EN);
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address (byte -2)
 	NRF24L01_SetBitrate(0);                          // 1Mbps
 	NRF24L01_SetPower();
@@ -100,10 +100,11 @@ static void h377_init() {
 // H377 channel sequence: AILE  ELEV  THRO  RUDD  GEAR  PITH, channel data value is from 0 to 1000
 static void h377_ch_data() {
 	uint32_t temp;
-	uint8_t i;
+	uint8_t i,j;
 	for (i = 0; i< 8; i++) {
-		temp = (uint32_t)Servo_data[i] * 450/PPM_MAX + 500; // max/min servo range is +-125%
-		if (i == 2) // It is clear that h377's thro stick is made reversely, so I adjust it here on purpose
+		j=CH_AETR[i];
+		temp=map(limit_channel_100(j),servo_min_100,servo_max_100,0,1000); // max/min servo range is +-125%
+		if (j == THROTTLE) // It is clear that h377's thro stick is made reversely, so I adjust it here on purpose
 			temp = 1000 -temp;
 		//if (i == 0) // It is clear that h377's thro stick is made reversely, so I adjust it here on purpose
 		//    temp = 1000 -temp;

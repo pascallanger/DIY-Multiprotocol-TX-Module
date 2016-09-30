@@ -32,15 +32,15 @@ enum {
 
 
 static uint8_t esky150_packet_ack() {
-	switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT))) {
-		case BV(NRF24L01_07_TX_DS):		return PKT_ACKED;
-		case BV(NRF24L01_07_MAX_RT):	return PKT_TIMEOUT;
+	switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (_BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_MAX_RT))) {
+		case _BV(NRF24L01_07_TX_DS):		return PKT_ACKED;
+		case _BV(NRF24L01_07_MAX_RT):	return PKT_TIMEOUT;
 	}
 	return PKT_PENDING;
 }
 
 // 2-bytes CRC
-#define CRC_CONFIG (BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO))
+#define CRC_CONFIG (_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO))
 static uint16_t esky150_init() {
     uint8_t rx_addr[ADDR_esky150_SIZE] = { 0x73, 0x73, 0x74, 0x63 };
     uint8_t tx_addr[ADDR_esky150_SIZE] = { 0x71, 0x0A, 0x31, 0xF4 };
@@ -64,7 +64,7 @@ static uint16_t esky150_init() {
     NRF24L01_Activate(0x73);
     NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 1); // Dynamic payload for data pipe 0
     // Enable: Dynamic Payload Length, Payload with ACK , W_TX_PAYLOAD_NOACK
-    NRF24L01_WriteReg(NRF24L01_1D_FEATURE, BV(NRF2401_1D_EN_DPL) | BV(NRF2401_1D_EN_ACK_PAY) | BV(NRF2401_1D_EN_DYN_ACK));
+    NRF24L01_WriteReg(NRF24L01_1D_FEATURE, _BV(NRF2401_1D_EN_DPL) | _BV(NRF2401_1D_EN_ACK_PAY) | _BV(NRF2401_1D_EN_DYN_ACK));
 
     // Delay 50 ms
     return 50000;
@@ -80,32 +80,9 @@ static uint16_t esky150_init2() {
 
     // Turn radio power on
     NRF24L01_SetTxRxMode(TX_EN);
-    NRF24L01_WriteReg(NRF24L01_00_CONFIG, CRC_CONFIG | BV(NRF24L01_00_PWR_UP));
+    NRF24L01_WriteReg(NRF24L01_00_CONFIG, CRC_CONFIG | _BV(NRF24L01_00_PWR_UP));
     // delayMicroseconds(150);
     return 150;
-}
-
-
-static void calc_fh_channels(uint32_t seed) {
-    // Use channels 2..79
-    uint8_t first = seed % 37 + 2;
-    uint8_t second = first + 40;
-    hopping_frequency[0] = first;  // 0x22;
-    hopping_frequency[1] = second; // 0x4a;
-}
-
-
-static uint8_t convert_channel(uint8_t num) {
-	uint32_t ch = Servo_data[num];
-	if (ch < PPM_MIN) {	ch = PPM_MIN;	}
-	else if (ch > PPM_MAX) {	ch = PPM_MAX;	}
-	return (uint8_t) ((ch * 500 / PPM_MAX) + 1500);
-}
-static void read_controls(uint8_t* throttle, uint8_t* aileron, uint8_t* elevator, uint8_t* rudder) {
-    *throttle = convert_channel(THROTTLE);
-    *aileron  = convert_channel(AILERON);
-    *elevator = convert_channel(ELEVATOR);
-    *rudder   = convert_channel(RUDDER);
 }
 
 
@@ -113,18 +90,16 @@ static void esky150_send_packet() {
 	uint8_t rf_ch = hopping_frequency[rf_ch_num];
 	rf_ch_num = 1 - rf_ch_num;
 
-	read_controls(&throttle, &aileron, &elevator, &rudder);
-
 	packet[0]  = hopping_frequency[0];
 	packet[1]  = hopping_frequency[1];
-	packet[2]  = (throttle >> 8) & 0xFF;
-	packet[3]  = throttle & 0xFF;
-	packet[4]  = (aileron >> 8) & 0xFF;
-	packet[5]  = aileron  & 0xFF;
-	packet[6]  = (elevator >> 8) & 0xFF;
-	packet[7]  = elevator & 0xFF;
-	packet[8]  = (rudder >> 8) & 0xFF;
-	packet[9]  = rudder & 0xFF;
+	packet[2]  = highByte(Servo_data[THROTTLE]);
+	packet[3]  = lowByte(Servo_data[THROTTLE]);
+	packet[4]  = highByte(Servo_data[AILERON]);
+	packet[5]  = lowByte(Servo_data[AILERON]);
+	packet[6]  = highByte(Servo_data[ELEVATOR]);
+	packet[7]  = lowByte(Servo_data[ELEVATOR]);
+	packet[8]  = highByte(Servo_data[RUDDER]);
+	packet[9]  = lowByte(Servo_data[RUDDER]);
 	// Constant values 00 d8 18 f8
 	packet[10] = 0x00;
 	packet[11] = 0xd8;
@@ -166,6 +141,12 @@ static uint16_t esky150_callback() {
 static uint16_t esky150_setup() {
     total_packets = 0;
     uint16_t timeout = esky150_init();
+	
+    // Use channels 2..79
+    uint8_t first = MProtocol_id % 37 + 2;
+    uint8_t second = first + 40;
+    hopping_frequency[0] = first;  // 0x22;
+    hopping_frequency[1] = second; // 0x4a;
 
     return timeout;
 }

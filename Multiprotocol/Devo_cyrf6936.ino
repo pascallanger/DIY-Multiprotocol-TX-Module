@@ -43,31 +43,7 @@ enum {
 	DEVO_BOUND_10,
 };
 
-<<<<<<< HEAD
-const uint8_t sopcodes[][8] = {
-	/* Note these are in order transmitted (LSB 1st) */
-	/* 0 */ {0x3C,0x37,0xCC,0x91,0xE2,0xF8,0xCC,0x91}, //0x91CCF8E291CC373C
-	/* 1 */ {0x9B,0xC5,0xA1,0x0F,0xAD,0x39,0xA2,0x0F}, //0x0FA239AD0FA1C59B
-	/* 2 */ {0xEF,0x64,0xB0,0x2A,0xD2,0x8F,0xB1,0x2A}, //0x2AB18FD22AB064EF
-	/* 3 */ {0x66,0xCD,0x7C,0x50,0xDD,0x26,0x7C,0x50}, //0x507C26DD507CCD66
-	/* 4 */ {0x5C,0xE1,0xF6,0x44,0xAD,0x16,0xF6,0x44}, //0x44F616AD44F6E15C
-	/* 5 */ {0x5A,0xCC,0xAE,0x46,0xB6,0x31,0xAE,0x46}, //0x46AE31B646AECC5A
-	/* 6 */ {0xA1,0x78,0xDC,0x3C,0x9E,0x82,0xDC,0x3C}, //0x3CDC829E3CDC78A1
-	/* 7 */ {0xB9,0x8E,0x19,0x74,0x6F,0x65,0x18,0x74}, //0x7418656F74198EB9
-	/* 8 */ {0xDF,0xB1,0xC0,0x49,0x62,0xDF,0xC1,0x49}, //0x49C1DF6249C0B1DF
-	/* 9 */ {0x97,0xE5,0x14,0x72,0x7F,0x1A,0x14,0x72}, //0x72141A7F7214E597
-};
-
-uint8_t txState;
-uint8_t pkt_num;
-uint8_t ch_idx;
-uint8_t use_fixed_id;
-uint8_t failsafe_pkt;
-
-static void __attribute__((unused)) scramble_pkt()
-=======
 static void __attribute__((unused)) DEVO_scramble_pkt()
->>>>>>> refs/remotes/pascallanger/master
 {
 #ifdef NO_SCRAMBLE
 	return;
@@ -77,11 +53,7 @@ static void __attribute__((unused)) DEVO_scramble_pkt()
 #endif
 }
 
-<<<<<<< HEAD
-static void __attribute__((unused)) add_pkt_suffix()
-=======
 static void __attribute__((unused)) DEVO_add_pkt_suffix()
->>>>>>> refs/remotes/pascallanger/master
 {
     uint8_t bind_state;
 	#ifdef ENABLE_PPM
@@ -119,11 +91,7 @@ static void __attribute__((unused)) DEVO_add_pkt_suffix()
 	packet[15] = (MProtocol_id >> 16) & 0xff;
 }
 
-<<<<<<< HEAD
-static void __attribute__((unused)) build_beacon_pkt(uint8_t upper)
-=======
 static void __attribute__((unused)) DEVO_build_beacon_pkt(uint8_t upper)
->>>>>>> refs/remotes/pascallanger/master
 {
 	packet[0] = (DEVO_NUM_CHANNELS << 4) | 0x07;
 	uint8_t max = 8;
@@ -138,11 +106,7 @@ static void __attribute__((unused)) DEVO_build_beacon_pkt(uint8_t upper)
 	DEVO_add_pkt_suffix();
 }
 
-<<<<<<< HEAD
-static void __attribute__((unused)) build_bind_pkt()
-=======
 static void __attribute__((unused)) DEVO_build_bind_pkt()
->>>>>>> refs/remotes/pascallanger/master
 {
 	packet[0] = (DEVO_NUM_CHANNELS << 4) | 0x0a;
 	packet[1] = bind_counter & 0xff;
@@ -162,11 +126,7 @@ static void __attribute__((unused)) DEVO_build_bind_pkt()
 	packet[15] ^= cyrfmfg_id[2];
 }
 
-<<<<<<< HEAD
-static void __attribute__((unused)) build_data_pkt()
-=======
 static void __attribute__((unused)) DEVO_build_data_pkt()
->>>>>>> refs/remotes/pascallanger/master
 {
 	static uint8_t ch_idx=0;
 
@@ -190,11 +150,7 @@ static void __attribute__((unused)) DEVO_build_data_pkt()
 	DEVO_add_pkt_suffix();
 }
 
-<<<<<<< HEAD
-static void __attribute__((unused)) cyrf_set_bound_sop_code()
-=======
 static void __attribute__((unused)) DEVO_cyrf_set_bound_sop_code()
->>>>>>> refs/remotes/pascallanger/master
 {
 	/* crc == 0 isn't allowed, so use 1 if the math results in 0 */
 	uint8_t crc = (cyrfmfg_id[0] + (cyrfmfg_id[1] >> 6) + cyrfmfg_id[2]);
@@ -207,9 +163,6 @@ static void __attribute__((unused)) DEVO_cyrf_set_bound_sop_code()
 	CYRF_SetPower(0x08);
 }
 
-<<<<<<< HEAD
-static void __attribute__((unused)) cyrf_init()
-=======
 const uint8_t PROGMEM DEVO_init_vals[][2] = {
 	{ CYRF_1D_MODE_OVERRIDE, 0x38 },
 	{ CYRF_03_TX_CFG, 0x08 },
@@ -233,18 +186,13 @@ const uint8_t PROGMEM DEVO_init_vals[][2] = {
 };
 
 static void __attribute__((unused)) DEVO_cyrf_init()
->>>>>>> refs/remotes/pascallanger/master
 {
 	/* Initialise CYRF chip */
 	for(uint8_t i = 0; i < sizeof(DEVO_init_vals) / 2; i++)	
 		CYRF_WriteRegister(pgm_read_byte( &DEVO_init_vals[i][0]), pgm_read_byte( &DEVO_init_vals[i][1]) );
 }
 
-<<<<<<< HEAD
-static void __attribute__((unused)) set_radio_channels()
-=======
 static void __attribute__((unused)) DEVO_set_radio_channels()
->>>>>>> refs/remotes/pascallanger/master
 {
 	CYRF_FindBestChannels(hopping_frequency, 3, 4, 4, 80);
 	hopping_frequency[3] = hopping_frequency[0];
@@ -337,35 +285,6 @@ uint16_t devo_callback()
 	return 1200;
 }
 
-<<<<<<< HEAD
-/*static void __attribute__((unused)) devo_bind()
-{
-	fixed_id = Model_fixed_id;
-	bind_counter = DEVO_BIND_COUNT;
-	use_fixed_id = 1;
-	//PROTOCOL_SetBindState(0x1388 * 2400 / 1000); //msecs 12000ms
-}
-
-
-static void __attribute__((unused)) generate_fixed_id_bind(){
-if(BIND_0){
-//randomSeed((uint32_t)analogRead(A6)<<10|analogRead(A7));//seed
-uint8_t txid[4];
-//Model_fixed_id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
-Model_fixed_id=0x332211;
-txid[0]=  (id &0xFF);
-txid[1] = ((id >> 8) & 0xFF);
-txid[2] = ((id >> 16) & 0xFF);
-//txid[3] = ((id >> 24) & 0xFF);
-eeprom_write_block((const void*)txid,(void*)40,3);
-devo_bind();
-}
-}
-*/
-
-
-=======
->>>>>>> refs/remotes/pascallanger/master
 uint16_t DevoInit()
 {	
 	DEVO_cyrf_init();

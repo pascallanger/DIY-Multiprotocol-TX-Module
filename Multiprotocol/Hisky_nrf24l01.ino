@@ -122,7 +122,7 @@ static void __attribute__((unused)) build_ch_data()
 	uint8_t i,j;
 	for (i = 0; i< 8; i++) {
 		j=CH_AETR[i];
-		temp=map(limit_channel_100(j),servo_min_100,servo_max_100,0,1000);            			
+		temp=map(limit_channel_100(j),servo_min_100,servo_max_100,0,1000);
 		if (j == THROTTLE) // It is clear that hisky's throttle stick is made reversely, so I adjust it here on purpose
 			temp = 1000 -temp;
 		if (j == AUX3)

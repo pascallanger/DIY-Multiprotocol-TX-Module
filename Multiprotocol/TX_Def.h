@@ -22,6 +22,16 @@
 	#define PPM_MIN_125	1000	//	125%
 #endif
 
+// TAARANIS PPM and channels
+#if defined(TX_TARANIS)
+	#define PPM_MAX_100	1900	//	100%
+	#define PPM_MIN_100	1100	//	100%
+	#define PPM_MAX_125	2000	//	125%
+	#define PPM_MIN_125	1000	//	125%
+	
+	#define INVERT_TELEMETRY
+#endif
+
 // HISKY
 #if defined(TX_HISKY)
 	#define PPM_MAX_100	1900	//	100%
@@ -37,7 +47,6 @@
 	#define PPM_MAX_125 2050 // 125%
 	#define PPM_MIN_125 1150 // 125%
 #endif
-
 //Serial MIN MAX values
 #define SERIAL_MAX_100	2012	//	100%
 #define SERIAL_MIN_100	988		//	100%

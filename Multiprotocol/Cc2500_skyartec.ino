@@ -37,53 +37,53 @@ enum {
 static void skyartec_init() {
 	CC2500_Reset();
 
-	cc2500_writeReg(CC2500_16_MCSM2, 0x07);
-	cc2500_writeReg(CC2500_17_MCSM1, 0x30);
-	cc2500_writeReg(CC2500_1E_WOREVT1, 0x87);
-	cc2500_writeReg(CC2500_1F_WOREVT0, 0x6b);
-	cc2500_writeReg(CC2500_20_WORCTRL, 0xf8);
-	cc2500_writeReg(CC2500_2A_PTEST, 0x7f);
-	cc2500_writeReg(CC2500_2B_AGCTEST, 0x3f);
-	cc2500_writeReg(CC2500_0B_FSCTRL1, 0x09);
-	cc2500_writeReg(CC2500_0C_FSCTRL0, 0x00);
-	cc2500_writeReg(CC2500_0D_FREQ2, 0x5d);
-	cc2500_writeReg(CC2500_0E_FREQ1, 0x93);
-	cc2500_writeReg(CC2500_0F_FREQ0, 0xb1);
-	cc2500_writeReg(CC2500_10_MDMCFG4, 0x2d);
-	cc2500_writeReg(CC2500_11_MDMCFG3, 0x20);
-	cc2500_writeReg(CC2500_12_MDMCFG2, 0x73);
-	cc2500_writeReg(CC2500_13_MDMCFG1, 0x22);
-	cc2500_writeReg(CC2500_14_MDMCFG0, 0xf8);
-	cc2500_writeReg(CC2500_0A_CHANNR, 0xcd);
-	cc2500_writeReg(CC2500_15_DEVIATN, 0x50);
-	cc2500_writeReg(CC2500_21_FREND1, 0xb6);
-	cc2500_writeReg(CC2500_22_FREND0, 0x10);
-	cc2500_writeReg(CC2500_18_MCSM0, 0x18);
-	cc2500_writeReg(CC2500_19_FOCCFG, 0x1d);
-	cc2500_writeReg(CC2500_1A_BSCFG, 0x1c);
-	cc2500_writeReg(CC2500_1B_AGCCTRL2, 0xc7);
-	cc2500_writeReg(CC2500_1C_AGCCTRL1, 0x00);
-	cc2500_writeReg(CC2500_1D_AGCCTRL0, 0xb2);
-	cc2500_writeReg(CC2500_23_FSCAL3, 0xea);
-	cc2500_writeReg(CC2500_24_FSCAL2, 0x0a);
-	cc2500_writeReg(CC2500_25_FSCAL1, 0x00);
-	cc2500_writeReg(CC2500_26_FSCAL0, 0x11);
-	cc2500_writeReg(CC2500_29_FSTEST, 0x59);
-	cc2500_writeReg(CC2500_2C_TEST2, 0x88);
-	cc2500_writeReg(CC2500_2D_TEST1, 0x31);
-	cc2500_writeReg(CC2500_2E_TEST0, 0x0b);
-	cc2500_writeReg(CC2500_07_PKTCTRL1, 0x05);
-	cc2500_writeReg(CC2500_08_PKTCTRL0, 0x05);
-	cc2500_writeReg(CC2500_09_ADDR, 0x43);
-	cc2500_writeReg(CC2500_06_PKTLEN, 0xff);
-	cc2500_writeReg(CC2500_04_SYNC1, 0x13);
-	cc2500_writeReg(CC2500_05_SYNC0, 0x18);
+	CC2500_WriteReg(CC2500_16_MCSM2, 0x07);
+	CC2500_WriteReg(CC2500_17_MCSM1, 0x30);
+	CC2500_WriteReg(CC2500_1E_WOREVT1, 0x87);
+	CC2500_WriteReg(CC2500_1F_WOREVT0, 0x6b);
+	CC2500_WriteReg(CC2500_20_WORCTRL, 0xf8);
+	CC2500_WriteReg(CC2500_2A_PTEST, 0x7f);
+	CC2500_WriteReg(CC2500_2B_AGCTEST, 0x3f);
+	CC2500_WriteReg(CC2500_0B_FSCTRL1, 0x09);
+	CC2500_WriteReg(CC2500_0C_FSCTRL0, 0x00);
+	CC2500_WriteReg(CC2500_0D_FREQ2, 0x5d);
+	CC2500_WriteReg(CC2500_0E_FREQ1, 0x93);
+	CC2500_WriteReg(CC2500_0F_FREQ0, 0xb1);
+	CC2500_WriteReg(CC2500_10_MDMCFG4, 0x2d);
+	CC2500_WriteReg(CC2500_11_MDMCFG3, 0x20);
+	CC2500_WriteReg(CC2500_12_MDMCFG2, 0x73);
+	CC2500_WriteReg(CC2500_13_MDMCFG1, 0x22);
+	CC2500_WriteReg(CC2500_14_MDMCFG0, 0xf8);
+	CC2500_WriteReg(CC2500_0A_CHANNR, 0xcd);
+	CC2500_WriteReg(CC2500_15_DEVIATN, 0x50);
+	CC2500_WriteReg(CC2500_21_FREND1, 0xb6);
+	CC2500_WriteReg(CC2500_22_FREND0, 0x10);
+	CC2500_WriteReg(CC2500_18_MCSM0, 0x18);
+	CC2500_WriteReg(CC2500_19_FOCCFG, 0x1d);
+	CC2500_WriteReg(CC2500_1A_BSCFG, 0x1c);
+	CC2500_WriteReg(CC2500_1B_AGCCTRL2, 0xc7);
+	CC2500_WriteReg(CC2500_1C_AGCCTRL1, 0x00);
+	CC2500_WriteReg(CC2500_1D_AGCCTRL0, 0xb2);
+	CC2500_WriteReg(CC2500_23_FSCAL3, 0xea);
+	CC2500_WriteReg(CC2500_24_FSCAL2, 0x0a);
+	CC2500_WriteReg(CC2500_25_FSCAL1, 0x00);
+	CC2500_WriteReg(CC2500_26_FSCAL0, 0x11);
+	CC2500_WriteReg(CC2500_29_FSTEST, 0x59);
+	CC2500_WriteReg(CC2500_2C_TEST2, 0x88);
+	CC2500_WriteReg(CC2500_2D_TEST1, 0x31);
+	CC2500_WriteReg(CC2500_2E_TEST0, 0x0b);
+	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05);
+	CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x05);
+	CC2500_WriteReg(CC2500_09_ADDR, 0x43);
+	CC2500_WriteReg(CC2500_06_PKTLEN, 0xff);
+	CC2500_WriteReg(CC2500_04_SYNC1, 0x13);
+	CC2500_WriteReg(CC2500_05_SYNC0, 0x18);
 	CC2500_SetTxRxMode(TX_EN);
 	CC2500_SetPower();
-	cc2500_strobe(CC2500_SFTX);
-	cc2500_strobe(CC2500_SFRX);
-	cc2500_strobe(CC2500_SXOFF);
-	cc2500_strobe(CC2500_SIDLE);
+	CC2500_Strobe(CC2500_SFTX);
+	CC2500_Strobe(CC2500_SFRX);
+	CC2500_Strobe(CC2500_SXOFF);
+	CC2500_Strobe(CC2500_SIDLE);
 }
 
 static void add_pkt_suffix() {
@@ -104,7 +104,7 @@ static void send_data_packet() {
 	packet[1] = TX_ADDR;             //Tx Addr?
 	packet[2] = 0x01;                //???
 	for(int i = 0; i < 7; i++) {
-		uint32_t value = (uint32_t)Servo_data[i] * 0x280 / PPM_MAX + 0x280;
+		uint32_t value = map(limit_channel_100(i),servo_min_100,servo_max_100,0,1280);
 		if(value < 0) { value = 0; }
 		if(value > 0x500) { value = 0x500; }
 		packet[3+2*i] = value >> 8;
@@ -112,11 +112,11 @@ static void send_data_packet() {
 	}
 	add_pkt_suffix();
 	//for(int i = 0; i < 20; i++) printf("%02x ", packet[i]); printf("\n");
-	cc2500_writeReg(CC2500_04_SYNC1, ((binding_idx >> 0) & 0xff));
-	cc2500_writeReg(CC2500_05_SYNC0, ((binding_idx >> 8) & 0xff));
-	cc2500_writeReg(CC2500_09_ADDR, TX_ADDR);
-	cc2500_writeReg(CC2500_0A_CHANNR, TX_CHANNEL);
-	cc2500_writeFifo(packet, 20);
+	CC2500_WriteReg(CC2500_04_SYNC1, ((binding_idx >> 0) & 0xff));
+	CC2500_WriteReg(CC2500_05_SYNC0, ((binding_idx >> 8) & 0xff));
+	CC2500_WriteReg(CC2500_09_ADDR, TX_ADDR);
+	CC2500_WriteReg(CC2500_0A_CHANNR, TX_CHANNEL);
+	CC2500_WriteData(packet, 20);
 }
 
 static void send_bind_packet() {
@@ -135,16 +135,16 @@ static void send_bind_packet() {
 	uint8_t xore = 0;
 	for(int i = 3; i < 11; i++) { xore ^= packet[i]; }
 	packet[11] = xore;
-	cc2500_writeReg(CC2500_04_SYNC1, 0x7d);
-	cc2500_writeReg(CC2500_05_SYNC0, 0x7d);
-	cc2500_writeReg(CC2500_09_ADDR, 0x7d);
-	cc2500_writeReg(CC2500_0A_CHANNR, 0x7d);
-	cc2500_writeFifo(packet, 12);
+	CC2500_WriteReg(CC2500_04_SYNC1, 0x7d);
+	CC2500_WriteReg(CC2500_05_SYNC0, 0x7d);
+	CC2500_WriteReg(CC2500_09_ADDR, 0x7d);
+	CC2500_WriteReg(CC2500_0A_CHANNR, 0x7d);
+	CC2500_WriteData(packet, 12);
 }
 
 static uint16_t skyartec_cb() {
 	if (state & 0x01) {
-		cc2500_strobe(CC2500_SIDLE);
+		CC2500_Strobe(CC2500_SIDLE);
 		if (state == SKYARTEC_LAST) {	CC2500_SetPower();	state = SKYARTEC_PKT1; }
 		else {		state++;		}
 		return 3000;

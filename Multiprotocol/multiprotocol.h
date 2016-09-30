@@ -16,7 +16,7 @@
 // Check selected board type
 #ifndef XMEGA
 	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO)
-		#error You must select the board type "Arduino Pro or Pro Mini" or "Arduino Mini"
+//		#error You must select the board type "Arduino Pro or Pro Mini" or "Arduino Mini"
 	#endif
 	#if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
 		#error You must select the processor type "ATmega328(5V, 16MHz)"
@@ -24,10 +24,27 @@
 #endif
 
 //******************
-// Protocols
+// Protocols				max 31 x2
 //******************
 enum PROTOCOLS
 {
+	MODE_JOYSWAY	= 40,	// =>A7105
+	MODE_WK2x01 	= 41,	// =>CYRF6936
+	MODE_SKYARTEC	= 42,	// =>CC2500
+	
+	MODE_UDI		= 44,	// =>NRF24L01
+	MODE_FBL100		= 45,	// =>NRF24L01
+	
+	MODE_HM830		= 50,	// =>NRF24L01
+	MODE_CFLIE		= 51,	// =>NRF24L01
+	MODE_H377		= 52,	// =>NRF24L01
+	MODE_ESKY150	= 53,	// =>NRF24L01
+	MODE_BlueFly	= 54,	// =>NRF24L01
+	MODE_NE260		= 55,	// =>NRF24L01
+	
+	MODE_AFHDS2A	= 31,	// =>A7105
+	MODE_INAV		= 57,	// =>NRF24L01
+	
 	MODE_SERIAL		= 0,	// Serial commands
 	MODE_FLYSKY 	= 1,	// =>A7105
 	MODE_HUBSAN		= 2,	// =>A7105
@@ -57,18 +74,17 @@ enum PROTOCOLS
 	MODE_HONTAI		= 26,	// =>NRF24L01
 	MODE_OPENLRS	= 27,	// =>OpenLRS hardware
 };
-
 enum Flysky
 {
-	Flysky	= 0,
-	V9X9	= 1,
-	V6X6	= 2,
-	V912	= 3
+	Flysky=0,
+	V9X9=1,
+	V6X6=2,
+	V912=3
 };
 enum Hisky
 {
-	Hisky	= 0,
-	HK310	= 1
+	Hisky=0,
+	HK310=1
 };
 enum DSM
 {
@@ -80,38 +96,38 @@ enum DSM
 };
 enum YD717
 {       			
-	YD717	= 0,
-	SKYWLKR	= 1,
-	SYMAX4	= 2,
-	XINXUN	= 3,
-	NIHUI	= 4
+	YD717=0,
+	SKYWLKR=1,
+	SYMAX4=2,
+	XINXUN=3,
+	NIHUI=4
 };
 enum KN
 {
-	WLTOYS	= 0,
-	FEILUN	= 1
+	WLTOYS=0,
+	FEILUN=1
 };
 enum SYMAX
 {
-	SYMAX	= 0,
-	SYMAX5C	= 1
+	SYMAX=0,
+	SYMAX5C=1
 };
 enum CX10
 {
-    CX10_GREEN	= 0,
-    CX10_BLUE	= 1,	// also compatible with CX10-A, CX12
-    DM007		= 2,
-	Q282		= 3,
-	JC3015_1	= 4,
-	JC3015_2	= 5,
-	MK33041		= 6,
-	Q242		= 7
+    CX10_GREEN = 0,
+    CX10_BLUE=1,		// also compatible with CX10-A, CX12
+    DM007=2,
+	Q282=3,
+	JC3015_1=4,
+	JC3015_2=5,
+	MK33041=6,
+	Q242=7
 };
 enum CG023
 {
-    CG023	= 0,
-    YD829	= 1,
-    H8_3D	= 2
+    CG023 = 0,
+    YD829 = 1,
+    H8_3D = 2
 };
 enum MT99XX
 {
@@ -135,9 +151,41 @@ enum FRSKYX
 };
 enum HONTAI
 {
-	FORMAT_HONTAI	= 0,
+    FORMAT_HONTAI	= 0,
 	FORMAT_JJRCX1	= 1,
-	FORMAT_X5C1		= 2
+	FORMAT_X5C1		= 2,
+	FORMAT_FQ777	= 3
+};
+
+enum HUBSAN
+{
+	H107	= 0,
+	H301	= 1,
+	H501	= 2
+};
+enum FY326
+{
+	FY326	= 0,
+	FY319	= 1
+};
+
+enum WK2X01
+{
+	WK2801	= 0,
+	WK2601	= 1,
+	WK2401	= 2
+};
+
+enum UDI
+{
+    U816_V1 = 0,
+    U816_V2 = 1,
+    U839_2014 = 2
+};
+enum FBL100
+{
+    FBL100 = 0,
+    HP100 = 1
 };
 
 #define NONE 		0
@@ -188,7 +236,7 @@ struct PPM_Parameters
 #define IS_RX_FLAG_on		( ( protocol_flags & _BV(0) ) !=0 )
 //
 #define CHANGE_PROTOCOL_FLAG_on		protocol_flags |= _BV(1)
-#define CHANGE_PROTOCOL_FLAG_off	protocol_flags &= ~_BV(1)
+#define CHANGE_PROTOCOL_FLAG_off		protocol_flags &= ~_BV(1)
 #define IS_CHANGE_PROTOCOL_FLAG_on	( ( protocol_flags & _BV(1) ) !=0 )
 //
 #define POWER_FLAG_on		protocol_flags |= _BV(2)
@@ -206,8 +254,9 @@ struct PPM_Parameters
 #define BIND_BUTTON_FLAG_on		protocol_flags |= _BV(5)
 #define BIND_BUTTON_FLAG_off	protocol_flags &= ~_BV(5)
 #define IS_BIND_BUTTON_FLAG_on	( ( protocol_flags & _BV(5) ) !=0 )
+
 //PPM RX OK
-#define PPM_FLAG_off		protocol_flags &= ~_BV(6)
+#define PPM_FLAG_off			protocol_flags &= ~_BV(6)
 #define PPM_FLAG_on			protocol_flags |= _BV(6)
 #define IS_PPM_FLAG_on		( ( protocol_flags & _BV(6) ) !=0 )
 //Bind flag
@@ -227,19 +276,21 @@ struct PPM_Parameters
 #define RX_MISSED_BUFF_on	protocol_flags2 |= _BV(2)
 #define IS_RX_MISSED_BUFF_on	( ( protocol_flags2 & _BV(2) ) !=0 )
 //TX Pause
-#define TX_MAIN_PAUSE_off	protocol_flags2 &= ~_BV(3)
-#define TX_MAIN_PAUSE_on		protocol_flags2 |= _BV(3)
-#define IS_TX_MAIN_PAUSE_on	( ( protocol_flags2 & _BV(3) ) !=0 )
+#define TX_MAIN_PAUSE_off		protocol_flags2 &= ~_BV(3)
+#define TX_MAIN_PAUSE_on			protocol_flags2 |= _BV(3)
+#define IS_TX_MAIN_PAUSE_on		( ( protocol_flags2 & _BV(3) ) !=0 )
+
 #define TX_RX_PAUSE_off		protocol_flags2 &= ~_BV(4)
-#define TX_RX_PAUSE_on		protocol_flags2 |= _BV(4)
-#define IS_TX_RX_PAUSE_on	( ( protocol_flags2 & _BV(4) ) !=0 )
+#define TX_RX_PAUSE_on			protocol_flags2 |= _BV(4)
+#define IS_TX_RX_PAUSE_on		( ( protocol_flags2 & _BV(4) ) !=0 )
+
 #define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
 
 //********************
 //*** Blink timing ***
 //********************
-#define BLINK_BIND_TIME				100
-#define BLINK_SERIAL_TIME			500
+#define BLINK_BIND_TIME	100
+#define BLINK_SERIAL_TIME	500
 #define BLINK_BAD_PROTO_TIME_LOW	1000
 #define BLINK_BAD_PROTO_TIME_HIGH	50
 
@@ -416,30 +467,30 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    RxNum value is 0..15 (bits 0..3)
    Type is 0..7 <<4     (bit 4..6)
 		sub_protocol==Flysky
-			Flysky		0
-			V9x9		1
-			V6x6		2
-			V912		3
+			Flysky	0
+			V9x9	1
+			V6x6	2
+			V912	3
 		sub_protocol==Hisky
-			Hisky		0
-			HK310		1
+			Hisky	0
+			HK310	1
 		sub_protocol==DSM
 			DSM2_22 	0
 			DSM2_11 	1
 			DSMX_22 	2
 			DSMX_11 	3
 		sub_protocol==YD717
-			YD717		0
-			SKYWLKR		1
-			SYMAX4		2
-			XINXUN		3
-			NIHUI		4
+			YD717	0
+			SKYWLKR	1
+			SYMAX4	2
+			XINXUN	3
+			NIHUI	4
 		sub_protocol==KN
-			WLTOYS		0
-			FEILUN		1
+			WLTOYS	0
+			FEILUN	1
 		sub_protocol==SYMAX
-			SYMAX		0
-			SYMAX5C		1
+			SYMAX	0
+			SYMAX5C	1
 		sub_protocol==CX10
 			CX10_GREEN	0
 			CX10_BLUE	1	// also compatible with CX10-A, CX12
@@ -464,14 +515,18 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			X800		2
 			H26D		3
 			E010		4
+		sub_protocol==FY326
+			FY326		0
+			FY319		1
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1
 		sub_protocol==HONTAI
-			FORMAT_HONTAI	0
-			FORMAT_JJRCX1	1
-			FORMAT_X5C1		2
-   Power value => 0x80	0=High/1=Low
+			HONTAI		0
+			JJRCX1		1
+			X5C1		2
+			FQ777-521	3
+    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127
   Stream[4] to [25] = Channels
@@ -483,3 +538,4 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 	2047	+125%
    Channels bits are concatenated to fit in 22 bytes like in SBUS protocol
 */
+

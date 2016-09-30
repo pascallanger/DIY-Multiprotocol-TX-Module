@@ -192,18 +192,11 @@ static void CYRF_StartReceive()
 	CYRF_ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, 0x10);
 }
 */
-<<<<<<< HEAD
-static void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
-=======
 void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
->>>>>>> refs/remotes/pascallanger/master
 {
     CYRF_ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, length);
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> refs/remotes/pascallanger/master
 static void CYRF_WriteDataPacketLen(const uint8_t dpbuffer[], uint8_t len)
 {
 	CYRF_WriteRegister(CYRF_01_TX_LENGTH, len);

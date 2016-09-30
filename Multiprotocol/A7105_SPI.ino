@@ -30,12 +30,12 @@ void A7105_WriteData(uint8_t len, uint8_t channel)
 	A7105_Strobe(A7105_TX);
 }
 
-void A7105_ReadData() {
+void A7105_ReadData(uint8_t len=16) {
 	uint8_t i;
 	A7105_Strobe(0xF0); //A7105_RST_RDPTR
 	A7105_CSN_off;
 	SPI_Write(0x45);
-	for (i=0;i<16;i++)
+	for (i=0;i<len;i++)
 		packet[i]=SPI_SDIO_Read();
 	A7105_CSN_on;
 }
@@ -159,16 +159,25 @@ const uint8_t PROGMEM FLYSKY_A7105_regs[] = {
 	0x13, 0xc3, 0x00, 0xff, 0x00, 0x00, 0x3b, 0x00, 0x17, 0x47, 0x80, 0x03, 0x01, 0x45, 0x18, 0x00,
 	0x01, 0x0f, 0xff
 };
+const uint8_t AFHDS2A_regs[] = {
+	-1  , 0x42 | (1<<5), 0x00, 0x25, 0x00,   -1,   -1, 0x00, 0x00, 0x00, 0x00, 0x01, 0x3c, 0x05, 0x00, 0x50, // 00 - 0f
+	0x9e, 0x4b, 0x00, 0x02, 0x16, 0x2b, 0x12, 0x4f, 0x62, 0x80,   -1,   -1, 0x2a, 0x32, 0xc3, 0x1f, // 10 - 1f
+	0x1e,   -1, 0x00,   -1, 0x00, 0x00, 0x3b, 0x00, 0x17, 0x47, 0x80, 0x03, 0x01, 0x45, 0x18, 0x00, // 20 - 2f
+	0x01, 0x0f // 30 - 31
+};
 #define ID_NORMAL 0x55201041
 #define ID_PLUS   0xAA201041
 void A7105_Init(uint8_t protocol)
 {
 	void *A7105_Regs;
 	
-	if(protocol==INIT_FLYSKY)
+	if(protocol==INIT_FLYSKY || protocol==INIT_FLYSKY_AFHDS2A)
 	{
 		A7105_WriteID(0x5475c52A);//0x2Ac57554
-		A7105_Regs=(void *)FLYSKY_A7105_regs;
+		if(protocol==INIT_FLYSKY_AFHDS2A)
+			A7105_Regs=(void *)AFHDS2A_regs;
+		else
+			A7105_Regs=(void *)FLYSKY_A7105_regs;
 	}
 	else
 	{
@@ -187,7 +196,7 @@ void A7105_Init(uint8_t protocol)
 //	A7105_ReadReg(A7105_22_IF_CALIB_I);
 //	A7105_ReadReg(A7105_24_VCO_CURCAL);
 
-	if(protocol==INIT_FLYSKY)
+	if(protocol==INIT_FLYSKY || protocol==INIT_FLYSKY_AFHDS2A)
 	{
 		//VCO Current Calibration
 		A7105_WriteReg(A7105_24_VCO_CURCAL,0x13); //Recommended calibration from A7105 Datasheet
@@ -210,6 +219,8 @@ void A7105_Init(uint8_t protocol)
 	//Reset VCO Band calibration
 	if(protocol==INIT_FLYSKY)
 		A7105_WriteReg(A7105_25_VCO_SBCAL_I,0x08);
+	if(protocol==INIT_FLYSKY_AFHDS2A)
+		A7105_WriteReg(A7105_25_VCO_SBCAL_I,0x0A);
 
 	A7105_SetTxRxMode(TX_EN);
 	A7105_SetPower();

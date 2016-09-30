@@ -70,6 +70,7 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 	}
 	else
 	{
+/*
 		if(sub_protocol == FORMAT_JJRCX1)
 			packet[0] = GET_FLAG(Servo_AUX2, 0x02);						// Arm
 		else
@@ -112,7 +113,60 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 63)-31;	// Elevator trim
 		else
 			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 32)-16;	// Elevator trim
+*/
+		packet[1] = 0x00;
+		packet[2] = 0x00;
+		packet[3] = (convert_channel_8b_scale(THROTTLE, 0, 127) << 1);	// Throttle
+		packet[4] = convert_channel_8b_scale(AILERON, 63, 0);			// Aileron
+		packet[5] = convert_channel_8b_scale(ELEVATOR, 0, 63);			// Elevator
+		packet[6] = convert_channel_8b_scale(RUDDER, 0, 63);			// Rudder
+		if(sub_protocol == FORMAT_X5C1)
+			packet[7] = convert_channel_8b_scale(AILERON, 0, 63)-31;	// Aileron trim
+		else
+			packet[7] = convert_channel_8b_scale(AILERON, 0, 32)-16;	// Aileron trim
+		if (sub_protocol == FORMAT_X5C1)
+			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 63)-31;	// Elevator trim
+		else
+			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 32)-16;	// Elevator trim
 
+        switch(sub_protocol) {
+            case FORMAT_HONTAI:
+                packet[0] =  0x0b;
+                packet[3] |= GET_FLAG(Servo_AUX3, 0x01);				// Picture
+                packet[4] |= GET_FLAG(Servo_AUX6, 0x80)					// RTH
+                          |  GET_FLAG(Servo_AUX5, 0x40);				// Headless
+                packet[5] |= GET_FLAG(Servo_AUX7, 0x80)					// Calibrate
+                          |  GET_FLAG(Servo_AUX1, 0x40);				// Flip
+                packet[6] |= GET_FLAG(Servo_AUX4, 0x80);				// Video
+				packet[8] = convert_channel_8b_scale(RUDDER, 0, 32)-16;	// Rudder trim
+                break;
+            case FORMAT_X5C1:
+            case FORMAT_JJRCX1:
+                packet[0] =  GET_FLAG(Servo_AUX2, 0x02);				//Arm
+                packet[3] |= GET_FLAG(Servo_AUX3, 0x01);				// Picture
+                packet[4] |= 0x80; // unknown
+					if (sub_protocol == FORMAT_X5C1)
+						packet[4] |= GET_FLAG(Servo_AUX2, 0x40);		// Lights (X5C1)
+                packet[5] |= GET_FLAG(Servo_AUX7, 0x80)					// Calibrate
+                          |  GET_FLAG(Servo_AUX1, 0x40);				// Flip
+                packet[6] |= GET_FLAG(Servo_AUX4, 0x80);				// Video
+                packet[8] =  0xc0 // high rate, no rudder trim
+                          |  GET_FLAG(Servo_AUX6, 0x02)					// RTH
+                          |  GET_FLAG(Servo_AUX5, 0x01);				// Headless
+                break;
+            case FORMAT_FQ777:
+                // todo: add missing calibration flag
+                packet[0] =  GET_FLAG(Servo_AUX3, 0x01)					// Picture
+                          |  GET_FLAG(Servo_AUX4, 0x02);				// Video
+                packet[3] |= GET_FLAG(Servo_AUX1, 0x01);				// Flip
+                packet[4] |= 0xc0; // high rate (mid=0xa0, low=0x60)
+                packet[6] |= GET_FLAG(Servo_AUX5, 0x40);				// Headless
+                if((packet[4] & 0x3f) > 0x3d && (packet[5] & 0x3f) < 3)
+                    packet[5] |= 0x80; // accelerometer recalibration
+                break;
+				packet[8] = convert_channel_8b_scale(RUDDER, 0, 32)-16;	// Rudder trim
+        }
+		
 		packet_size=HONTAI_PACKET_SIZE;
 	}
 	crc16(packet, packet_size);
@@ -172,7 +226,8 @@ static void __attribute__((unused)) HONTAI_init()
 
 const uint8_t PROGMEM hopping_frequency_nonels[][3] = {
 	{0x05, 0x19, 0x28},     // Hontai
-	{0x0a, 0x1e, 0x2d}};    // JJRC X1
+	{0x0a, 0x1e, 0x2d},     // JJRC X1
+	{0x05, 0x19, 0x28}};    // FQ777-951
 
 const uint8_t PROGMEM addr_vals[4][16] = {
 	{0x24, 0x26, 0x2a, 0x2c, 0x32, 0x34, 0x36, 0x4a, 0x4c, 0x4e, 0x54, 0x56, 0x5a, 0x64, 0x66, 0x6a},

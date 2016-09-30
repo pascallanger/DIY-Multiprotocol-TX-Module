@@ -93,7 +93,7 @@ static void config_nrf24l01() {
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // 0:No Auto Acknoledgement; 1:Auto Acknoledgement
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, packet_length); // fbl100/v922's packet size = 10, hp100 = 12
 	// 2-bytes CRC, radio off
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address (byte -2)
 	NRF24L01_SetBitrate(sub_protocol == HP100? NRF24L01_BR_250K:NRF24L01_BR_1M);  //hp100:250kbps; fbl100: 1Mbps
 	NRF24L01_SetPower();
@@ -108,7 +108,7 @@ static void fbl100_build_ch_data() {
 	uint32_t temp;
 	uint8_t i;
 	for (i = 0; i< 8; i++) {
-		temp = (uint32_t)Servo_data[i] * 500/PPM_MAX + 500;
+		temp = (uint32_t)Servo_data[i] -1000;
 		if (i == 2) { temp = 1000 -temp; } // It is clear that fbl100's thro stick is made reversely,so I adjust it here on purposely
 		if (temp < 0) { fbl_data[i] = 0; }
 		else if (temp > 1000) { fbl_data[i] = 1000; }
@@ -131,11 +131,12 @@ static void hp100_build_ch_data() {
 	uint32_t temp;
 	uint8_t i;
 	for (i = 0; i< 8; i++) {
-		temp = (uint32_t)Servo_data[i] * 300/PPM_MAX + 500;
+		temp=map(limit_channel_100(i),servo_min_100,servo_max_100,200,800);
+/*		temp = (uint32_t)Servo_data[i] * 300/PPM_MAX + 500;
 		if (temp < 0) { temp = 0; }
 		else if (temp > 1000) { temp = 1000; }
 		if (i == 3 || i == 5) { temp = 1000 -temp; }	// hp100's rudd and pit channel are made reversely,so I adjust them on purposely
-
+*/
 		fbl_data[i] = (unsigned int)temp;
 		packet[i] = (uint8_t)fbl_data[i];
 	}

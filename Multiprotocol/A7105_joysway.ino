@@ -109,9 +109,7 @@ static void joysway_build_packet()
     static const int chmap[4] = {6, 7, 10, 11};
     for (i = 0; i < 4; i++) {
 //        if (i >= Model.num_channels) {            packet[chmap[i]] = 0x64;            continue;        }
-        uint32_t value = (uint32_t)Servo_data[i] * 0x66 / PPM_MAX + 0x66;
-        if (value < 0) { value = 0; }
-        if (value > 0xff) { value = 0xff; }
+        uint32_t value = map(limit_channel_100(i),servo_min_100,servo_max_100,0,204);
         packet[chmap[i]] = value;
     }
     packet[8] = 0x64;

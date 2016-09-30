@@ -89,6 +89,7 @@ enum A7105_MASK {
 
 enum {
 	INIT_FLYSKY,
+	INIT_FLYSKY_AFHDS2A,
 	INIT_HUBSAN
 };
 

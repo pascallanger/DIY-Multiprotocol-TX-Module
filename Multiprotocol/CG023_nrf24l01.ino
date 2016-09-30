@@ -25,7 +25,7 @@
 #define CG023_INITIAL_WAIT		500
 #define CG023_PACKET_SIZE		15   // packets have 15-byte payload
 #define CG023_RF_BIND_CHANNEL	0x2D
-#define CG023_BIND_COUNT		1000  // 8 seconds
+#define CG023_BIND_COUNT		500  // 4 seconds
 #define YD829_PACKET_PERIOD		4100 // Timeout for callback in uSec
 #define H8_3D_PACKET_PERIOD		1800 // Timeout for callback in uSec
 #define H8_3D_PACKET_SIZE		20
@@ -171,7 +171,7 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 	
 	// Power on, TX mode, 2byte CRC
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
-	XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
+	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 	if (bind)
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, sub_protocol==H8_3D?hopping_frequency[0]:CG023_RF_BIND_CHANNEL);
 	else

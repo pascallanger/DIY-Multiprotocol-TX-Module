@@ -12,23 +12,20 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//-------------------------------
-//-------------------------------
-//A7105 SPI routines
-//-------------------------------
-//-------------------------------
+/********************/
+/** A7105 routines **/
+/********************/
 #include "iface_a7105.h"
 
 void A7105_WriteData(uint8_t len, uint8_t channel)
 {
 	uint8_t i;
-	CS_off;
-	A7105_Write(A7105_RST_WRPTR);
-	A7105_Write(0x05);
+	A7105_CSN_off;
+	SPI_Write(A7105_RST_WRPTR);
+	SPI_Write(0x05);
 	for (i = 0; i < len; i++)
-		A7105_Write(packet[i]);
-	CS_on;
+		SPI_Write(packet[i]);
+	A7105_CSN_on;
 	A7105_WriteReg(0x0F, channel);
 	A7105_Strobe(A7105_TX);
 }
@@ -36,66 +33,29 @@ void A7105_WriteData(uint8_t len, uint8_t channel)
 void A7105_ReadData() {
 	uint8_t i;
 	A7105_Strobe(0xF0); //A7105_RST_RDPTR
-	CS_off;
-	A7105_Write(0x45);
+	A7105_CSN_off;
+	SPI_Write(0x45);
 	for (i=0;i<16;i++)
-		packet[i]=A7105_Read();
-	CS_on;
+		packet[i]=SPI_SDIO_Read();
+	A7105_CSN_on;
 }
 
 void A7105_WriteReg(uint8_t address, uint8_t data) {
-	CS_off;
-	A7105_Write(address); 
+	A7105_CSN_off;
+	SPI_Write(address); 
 	NOP();
-	A7105_Write(data);  
-	CS_on;
+	SPI_Write(data);  
+	A7105_CSN_on;
 } 
 
 uint8_t A7105_ReadReg(uint8_t address) { 
 	uint8_t result;
-	CS_off;
-	A7105_Write(address |=0x40);		//bit 6 =1 for reading
-	result = A7105_Read();  
-	CS_on;
+	A7105_CSN_off;
+	SPI_Write(address |=0x40);		//bit 6 =1 for reading
+	result = SPI_SDIO_Read();  
+	A7105_CSN_on;
 	return(result); 
 } 
-
-void A7105_Write(uint8_t command) {  
-	uint8_t n=8; 
- 
-	SCK_off;//SCK start low
-	SDI_off;
-	while(n--) {
-		if(command&0x80)
-			SDI_on;
-		else 
-			SDI_off;
-		SCK_on;
-		NOP();
-		SCK_off;
-		command = command << 1;
-	}
-	SDI_on;
-}  
-
-uint8_t A7105_Read(void) {
-	uint8_t result=0;
-	uint8_t i;
-
-	SDI_SET_INPUT;
-	for(i=0;i<8;i++) {                    
-		if(SDI_1)  ///if SDIO =1 
-			result=(result<<1)|0x01;
-		else
-			result=result<<1;
-		SCK_on;
-		NOP();
-		SCK_off;
-		NOP();
-	}
-	SDI_SET_OUTPUT;
-	return result;
-}   
 
 //------------------------
 void A7105_SetTxRxMode(uint8_t mode)
@@ -121,9 +81,8 @@ uint8_t A7105_Reset()
 {
 	uint8_t result;
 	
-	delay(10);							//wait 10ms for A7105 wakeup
 	A7105_WriteReg(0x00, 0x00);
-	delay(1000);
+	delayMilliseconds(1);
 	A7105_SetTxRxMode(TXRX_OFF);		//Set both GPIO as output and low
 	result=A7105_ReadReg(0x10) == 0x9E;	//check if is reset.
 	A7105_Strobe(A7105_STANDBY);
@@ -131,13 +90,13 @@ uint8_t A7105_Reset()
 }
 
 void A7105_WriteID(uint32_t ida) {
-	CS_off;
-	A7105_Write(0x06);//ex id=0x5475c52a ;txid3txid2txid1txid0
-	A7105_Write((ida>>24)&0xff);//53 
-	A7105_Write((ida>>16)&0xff);//75
-	A7105_Write((ida>>8)&0xff);//c5
-	A7105_Write((ida>>0)&0xff);//2a
-	CS_on;
+	A7105_CSN_off;
+	SPI_Write(0x06);//ex id=0x5475c52a ;txid3txid2txid1txid0
+	SPI_Write((ida>>24)&0xff);//53 
+	SPI_Write((ida>>16)&0xff);//75
+	SPI_Write((ida>>8)&0xff);//c5
+	SPI_Write((ida>>0)&0xff);//2a
+	A7105_CSN_on;
 }
 
 /*
@@ -175,13 +134,17 @@ void A7105_SetPower()
 		power=IS_POWER_FLAG_on?A7105_HIGH_POWER:A7105_LOW_POWER;
 	if(IS_RANGE_FLAG_on)
 		power=A7105_RANGE_POWER;
-	A7105_WriteReg(0x28, power);
+	if(prev_power != power)
+	{
+		A7105_WriteReg(0x28, power);
+		prev_power=power;
+	}
 }
 
 void A7105_Strobe(uint8_t address) {
-	CS_off;
-	A7105_Write(address);
-	CS_on;
+	A7105_CSN_off;
+	SPI_Write(address);
+	A7105_CSN_on;
 }
 
 const uint8_t PROGMEM HUBSAN_A7105_regs[] = {

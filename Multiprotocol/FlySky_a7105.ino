@@ -21,6 +21,7 @@
 //FlySky constants & variables
 #define FLYSKY_BIND_COUNT 2500
 
+<<<<<<< HEAD
 const uint8_t PROGMEM tx_channels[] = {
   0x0a, 0x5a, 0x14, 0x64, 0x1e, 0x6e, 0x28, 0x78, 0x32, 0x82, 0x3c, 0x8c, 0x46, 0x96, 0x50, 0xa0,
   0xa0, 0x50, 0x96, 0x46, 0x8c, 0x3c, 0x82, 0x32, 0x78, 0x28, 0x6e, 0x1e, 0x64, 0x14, 0x5a, 0x0a,
@@ -47,6 +48,15 @@ enum {
   // flags going to byte 12
   FLAG_V9X9_FLIP   = 0x10,
   FLAG_V9X9_LED   = 0x20,
+=======
+enum {
+	// flags going to byte 10
+	FLAG_V9X9_VIDEO = 0x40,
+	FLAG_V9X9_CAMERA= 0x80,
+	// flags going to byte 12
+	FLAG_V9X9_FLIP   = 0x10,
+	FLAG_V9X9_LED   = 0x20,
+>>>>>>> refs/remotes/pascallanger/master
 };
 
 enum {
@@ -69,12 +79,12 @@ enum {
   FLAG_V912_BTMBTN= 0x80,
 };
 
-uint8_t chanrow;
-uint8_t chancol;
-uint8_t chanoffset;
+const uint8_t PROGMEM V912_X17_SEQ[10] =  { 0x14, 0x31, 0x40, 0x49, 0x49,    // sometime first byte is 0x15 ?
+										0x49, 0x49, 0x49, 0x49, 0x49, }; 
 
 static void __attribute__((unused)) flysky_apply_extension_flags()
 {
+<<<<<<< HEAD
   const uint8_t V912_X17_SEQ[10] =  { 0x14, 0x31, 0x40, 0x49, 0x49,    // sometime first byte is 0x15 ?
                     0x49, 0x49, 0x49, 0x49, 0x49, }; 
   static uint8_t seq_counter;
@@ -146,6 +156,77 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
     default:
       break; 
   }
+=======
+	static uint8_t seq_counter;
+	switch(sub_protocol)
+	{
+		case V9X9:
+			if(Servo_AUX1)
+				packet[12] |= FLAG_V9X9_FLIP;
+			if(Servo_AUX2)
+				packet[12] |= FLAG_V9X9_LED;
+			if(Servo_AUX3)
+				packet[10] |= FLAG_V9X9_CAMERA;
+			if(Servo_AUX4)
+				packet[10] |= FLAG_V9X9_VIDEO;
+			break;
+			
+		case V6X6:
+			packet[13] = 0x03; // 3 = 100% rate (0=40%, 1=60%, 2=80%)
+			packet[14] = 0x00;
+			if(Servo_AUX1) 
+				packet[14] |= FLAG_V6X6_FLIP;
+			if(Servo_AUX2) 
+				packet[14] |= FLAG_V6X6_LED;
+			if(Servo_AUX3) 
+				packet[14] |= FLAG_V6X6_CAMERA;
+			if(Servo_AUX4) 
+				packet[14] |= FLAG_V6X6_VIDEO;
+			if(Servo_AUX5)
+			{ 
+				packet[13] |= FLAG_V6X6_HLESS1;
+				packet[14] |= FLAG_V6X6_HLESS2;
+			}
+			if(Servo_AUX6) //use option to manipulate these bytes
+				packet[14] |= FLAG_V6X6_RTH;
+			if(Servo_AUX7) 
+				packet[14] |= FLAG_V6X6_XCAL;
+			if(Servo_AUX8) 
+				packet[14] |= FLAG_V6X6_YCAL;
+			packet[15] = 0x10; // unknown
+			packet[16] = 0x10; // unknown
+			packet[17] = 0xAA; // unknown
+			packet[18] = 0xAA; // unknown
+			packet[19] = 0x60; // unknown, changes at irregular interval in stock TX
+			packet[20] = 0x02; // unknown
+			break;
+			
+		case V912:
+			seq_counter++;
+			if( seq_counter > 9)
+				seq_counter = 0;
+			packet[12] |= 0x20; // bit 6 is always set ?
+			packet[13] = 0x00;  // unknown
+			packet[14] = 0x00;
+			if(Servo_AUX1)
+				packet[14]  = FLAG_V912_BTMBTN;
+			if(Servo_AUX2)
+				packet[14] |= FLAG_V912_TOPBTN;
+			packet[15] = 0x27; // [15] and [16] apparently hold an analog channel with a value lower than 1000
+			packet[16] = 0x03; // maybe it's there for a pitch channel for a CP copter ?
+			packet[17] = pgm_read_byte( &V912_X17_SEQ[seq_counter] ) ; // not sure what [17] & [18] are for
+			if(seq_counter == 0)                    // V912 Rx does not even read those bytes... [17-20]
+				packet[18] = 0x02;
+			else
+				packet[18] = 0x00;
+			packet[19] = 0x00; // unknown
+			packet[20] = 0x00; // unknown
+			break;
+			
+		default:
+			break; 
+	}
+>>>>>>> refs/remotes/pascallanger/master
 }
 
 static void __attribute__((unused)) flysky_build_packet(uint8_t init)
@@ -161,12 +242,20 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
     packet[2] = rx_tx_addr[2];
     packet[3] = rx_tx_addr[1];
     packet[4] = rx_tx_addr[0];
+<<<<<<< HEAD
   const uint8_t ch[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4};
   for(i = 0; i < 8; i++)
   {
     packet[5+2*i]=lowByte(Servo_data[ch[i]]); //low byte of servo timing(1000-2000us)
     packet[6+2*i]=highByte(Servo_data[ch[i]]);  //high byte of servo timing(1000-2000us)
   }
+=======
+	for(i = 0; i < 8; i++)
+	{
+		packet[5 + i*2]=Servo_data[CH_AETR[i]]&0xFF;		//low byte of servo timing(1000-2000us)
+		packet[6 + i*2]=(Servo_data[CH_AETR[i]]>>8)&0xFF;	//high byte of servo timing(1000-2000us)
+	}
+>>>>>>> refs/remotes/pascallanger/master
     flysky_apply_extension_flags();
 }
 
@@ -180,6 +269,7 @@ uint16_t ReadFlySky()
         if (! bind_counter)
             BIND_DONE;
     }
+<<<<<<< HEAD
   else
   {
         flysky_build_packet(0);
@@ -207,7 +297,62 @@ uint16_t initFlySky() {
   else
     bind_counter = 0;
   return 2400;
+=======
+	else
+	{
+		flysky_build_packet(0);
+        A7105_WriteData(21, hopping_frequency[hopping_frequency_no]);
+        hopping_frequency_no = (hopping_frequency_no + 1) & 0x0F;
+		A7105_SetPower();
+    }
+	return 1510;	//1460 on deviation but not working with the latest V911 bricks... Turnigy 9X v2 is 1533, Flysky TX for 9XR/9XR Pro is 1510, V911 TX is 1490.
 }
 
+const uint8_t PROGMEM tx_channels[8][4] = {
+	{ 0x12, 0x34, 0x56, 0x78},
+	{ 0x18, 0x27, 0x36, 0x45},
+	{ 0x41, 0x82, 0x36, 0x57},
+	{ 0x84, 0x13, 0x65, 0x72},
+	{ 0x87, 0x64, 0x15, 0x32},
+	{ 0x76, 0x84, 0x13, 0x52},
+	{ 0x71, 0x62, 0x84, 0x35},
+	{ 0x71, 0x86, 0x43, 0x52}
+};
+
+uint16_t initFlySky()
+{
+	uint8_t chanrow;
+	uint8_t chanoffset;
+	uint8_t temp;
+
+	A7105_Init(INIT_FLYSKY);	//flysky_init();
+	
+	if ((rx_tx_addr[3]&0xF0) > 0x90) // limit offset to 9 as higher values don't work with some RX (ie V912)
+		rx_tx_addr[3]=rx_tx_addr[3]-0x70;
+	chanrow=rx_tx_addr[3] & 0x0F;
+	chanoffset=rx_tx_addr[3]/16;
+	
+	// Build frequency hop table
+	for(uint8_t i=0;i<16;i++)
+	{
+		temp=pgm_read_byte_near(&tx_channels[chanrow>>1][i>>2]);
+		if(i&0x01)
+			temp&=0x0F;
+		else
+			temp>>=4;
+		temp*=0x0A;
+		if(i&0x02)
+			temp+=0x50;
+		hopping_frequency[((chanrow&1)?15-i:i)]=temp-chanoffset;
+	}
+	hopping_frequency_no=0;
+	
+	if(IS_AUTOBIND_FLAG_on)
+		bind_counter = FLYSKY_BIND_COUNT;
+	else
+		bind_counter = 0;
+	return 2400;
+>>>>>>> refs/remotes/pascallanger/master
+}
 #endif
 

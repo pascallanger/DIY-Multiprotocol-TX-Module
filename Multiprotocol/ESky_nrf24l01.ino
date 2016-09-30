@@ -35,7 +35,7 @@ static void __attribute__((unused)) ESKY_init(uint8_t bind)
 	NRF24L01_Initialize();
 
 	// 2-bytes CRC, radio off
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO)); 
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO)); 
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);            // No Auto Acknowledgement
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);        // Enable data pipe 0
 	if (bind)
@@ -119,8 +119,8 @@ static void __attribute__((unused)) ESKY_send_packet(uint8_t bind)
 		{
 			for (uint8_t i = 0; i < 6; i++)
 			{
-				packet[i*2]   = Servo_data[ch[i]]>>8;	//high byte of servo timing(1000-2000us)
-				packet[i*2+1] = Servo_data[ch[i]]&0xFF;	//low byte of servo timing(1000-2000us)
+				packet[i*2]   = Servo_data[CH_AETR[i]]>>8;	//high byte of servo timing(1000-2000us)
+				packet[i*2+1] = Servo_data[CH_AETR[i]]&0xFF;	//low byte of servo timing(1000-2000us)
 			}
 		}
 		rf_ch = hopping_frequency[hopping_frequency_no];

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/*
+ This project is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Multiprotocol is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+>>>>>>> refs/remotes/pascallanger/master
 #if defined(SHENQI_NRF24L01_INO)
 
 #include "iface_nrf24l01.h"
@@ -24,10 +42,17 @@ void SHENQI_init()
 
     NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);		// 5 bytes rx/tx address
 
+<<<<<<< HEAD
 	LT8910_Config(4, 8, _BV(LT8910_CRC_ON)|_BV(LT8910_PACKET_LENGTH_EN), 0xAA);
 	LT8910_SetChannel(2);
 	LT8910_SetAddress((uint8_t *)"\x9A\x9A\x9A\x9A",4);
 	LT8910_SetTxRxMode(RX_EN);
+=======
+	LT8900_Config(4, 8, _BV(LT8900_CRC_ON)|_BV(LT8900_PACKET_LENGTH_EN), 0xAA);
+	LT8900_SetChannel(2);
+	LT8900_SetAddress((uint8_t *)"\x9A\x9A\x9A\x9A",4);
+	LT8900_SetTxRxMode(RX_EN);
+>>>>>>> refs/remotes/pascallanger/master
 }
 
 void SHENQI_send_packet()
@@ -36,6 +61,7 @@ void SHENQI_send_packet()
 	if(packet_count==0)
 	{
 		uint8_t bind_addr[4];
+<<<<<<< HEAD
 		bind_addr[0]=0x9A;
 		bind_addr[1]=0x9A;
 		bind_addr[2]=rx_tx_addr[2];
@@ -44,24 +70,48 @@ void SHENQI_send_packet()
 		LT8910_SetChannel(2);
 		packet[1]=rx_tx_addr[1];
 		packet[2]=rx_tx_addr[0];
+=======
+		bind_addr[0]=rx_tx_addr[0];
+		bind_addr[1]=rx_tx_addr[1];
+		bind_addr[2]=0x9A;
+		bind_addr[3]=0x9A;
+		LT8900_SetAddress(bind_addr,4);
+		LT8900_SetChannel(2);
+		packet[1]=rx_tx_addr[2];
+		packet[2]=rx_tx_addr[3];
+>>>>>>> refs/remotes/pascallanger/master
 		packet_period=2508;
 	}
 	else
 	{
+<<<<<<< HEAD
 		LT8910_SetAddress(rx_tx_addr,4);
 		packet[1]=255-convert_channel_8b(RUDDER);
 		packet[2]=255-convert_channel_8b_scale(THROTTLE,0x60,0xA0);
 		uint8_t freq=pgm_read_byte_near(&SHENQI_Freq[hopping_frequency_no])+(rx_tx_addr[1]&0x0F);
 		LT8910_SetChannel(freq);
+=======
+		LT8900_SetAddress(rx_tx_addr,4);
+		packet[1]=255-convert_channel_8b(RUDDER);
+		packet[2]=255-convert_channel_8b_scale(THROTTLE,0x60,0xA0);
+		uint8_t freq=pgm_read_byte_near(&SHENQI_Freq[hopping_frequency_no])+(rx_tx_addr[2]&0x0F);
+		LT8900_SetChannel(freq);
+>>>>>>> refs/remotes/pascallanger/master
 		hopping_frequency_no++;
 		if(hopping_frequency_no==60)
 			hopping_frequency_no=0;
 		packet_period=1750;
 	}
 	// Send packet + 1 retransmit - not sure why but needed (not present on original TX...)
+<<<<<<< HEAD
 	LT8910_WritePayload(packet,3);
 	while(NRF24L01_packet_ack()!=PKT_ACKED);
 	LT8910_WritePayload(packet,3);
+=======
+	LT8900_WritePayload(packet,3);
+	while(NRF24L01_packet_ack()!=PKT_ACKED);
+	LT8900_WritePayload(packet,3);
+>>>>>>> refs/remotes/pascallanger/master
 	
 	packet_count++;
 	if(packet_count==7)
@@ -79,6 +129,7 @@ uint16_t SHENQI_callback()
 		SHENQI_send_packet();
 	else
 	{
+<<<<<<< HEAD
 		if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
 		{
 			if(LT8910_ReadPayload(packet, 3))
@@ -87,6 +138,16 @@ uint16_t SHENQI_callback()
 				rx_tx_addr[3]=packet[1];
 				rx_tx_addr[2]=packet[2];
 				LT8910_SetTxRxMode(TX_EN);
+=======
+		if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
+		{
+			if(LT8900_ReadPayload(packet, 3))
+			{
+				BIND_DONE;
+				rx_tx_addr[0]=packet[1];
+				rx_tx_addr[1]=packet[2];
+				LT8900_SetTxRxMode(TX_EN);
+>>>>>>> refs/remotes/pascallanger/master
 				packet_period=14000;
 			}
 			NRF24L01_FlushRx();
@@ -101,7 +162,11 @@ uint16_t initSHENQI()
 	SHENQI_init();
 	hopping_frequency_no = 0;
 	packet_count=0;
+<<<<<<< HEAD
 	packet_period=100;
+=======
+	packet_period=500;
+>>>>>>> refs/remotes/pascallanger/master
 	return 1000;
 }
 

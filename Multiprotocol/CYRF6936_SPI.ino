@@ -14,48 +14,12 @@
  */
 #include "iface_cyrf6936.h"
 
-static void cyrf_spi_write(uint8_t command)
-{
-	uint8_t n=8; 
-	SCK_off;//SCK start low
-	SDI_off;
-	while(n--) {
-		if(command&0x80)
-			SDI_on;
-		else 
-			SDI_off;
-		SCK_on;
-		NOP();
-		SCK_off;
-		command = command << 1;
-	}
-	SDI_on;
-} 
-
-static uint8_t cyrf_spi_read()
-{
-	uint8_t result;
-	uint8_t i;
-	result=0;
-	for(i=0;i<8;i++)
-	{                    
-		if(SDO_1)  ///
-			result=(result<<1)|0x01;
-		else
-			result=result<<1;
-		SCK_on;
-		NOP();
-		SCK_off;
-		NOP();
-	}
-	return result;
-} 
 
 void CYRF_WriteRegister(uint8_t address, uint8_t data)
 {
 	CYRF_CSN_off;
-	cyrf_spi_write(0x80 | address);
-	cyrf_spi_write(data);
+	SPI_Write(0x80 | address);
+	SPI_Write(data);
 	CYRF_CSN_on;
 }
 
@@ -64,9 +28,9 @@ static void CYRF_WriteRegisterMulti(uint8_t address, const uint8_t data[], uint8
 	uint8_t i;
 
 	CYRF_CSN_off;
-	cyrf_spi_write(0x80 | address);
+	SPI_Write(0x80 | address);
 	for(i = 0; i < length; i++)
-		cyrf_spi_write(data[i]);
+		SPI_Write(data[i]);
 	CYRF_CSN_on;
 }
 
@@ -75,9 +39,9 @@ static void CYRF_ReadRegisterMulti(uint8_t address, uint8_t data[], uint8_t leng
 	uint8_t i;
 
 	CYRF_CSN_off;
-	cyrf_spi_write(address);
+	SPI_Write(address);
 	for(i = 0; i < length; i++)
-		data[i] = cyrf_spi_read();
+		data[i] = SPI_Read();
 	CYRF_CSN_on;
 }
 
@@ -85,8 +49,8 @@ uint8_t CYRF_ReadRegister(uint8_t address)
 {
 	uint8_t data;
 	CYRF_CSN_off;
-	cyrf_spi_write(address);
-	data = cyrf_spi_read();
+	SPI_Write(address);
+	data = SPI_Read();
 	CYRF_CSN_on;
 	return data;
 }
@@ -94,17 +58,19 @@ uint8_t CYRF_ReadRegister(uint8_t address)
 
 uint8_t CYRF_Reset()
 {
-	CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x01);//software reset
-	_delay_us(200);// 
-	// RS_HI;
-	//  _delay_us(100);
-	// RS_LO;
-	// _delay_us(100);		  
-	CYRF_WriteRegister(CYRF_0C_XTAL_CTRL, 0xC0); //Enable XOUT as GPIO
-	CYRF_WriteRegister(CYRF_0D_IO_CFG, 0x04); //Enable PACTL as GPIO
+#ifdef CYRF_RST_HI
+	CYRF_RST_HI;										//Hardware reset
+	delayMicroseconds(100);
+	CYRF_RST_LO;
+	delayMicroseconds(100);		  
+#endif
+	CYRF_WriteRegister(CYRF_1D_MODE_OVERRIDE, 0x01);	//Software reset
+	delayMicroseconds(200);
+	CYRF_WriteRegister(CYRF_0C_XTAL_CTRL, 0xC0);		//Enable XOUT as GPIO
+	CYRF_WriteRegister(CYRF_0D_IO_CFG, 0x04);			//Enable PACTL as GPIO
 	CYRF_SetTxRxMode(TXRX_OFF);
-	//Verify the CYRD chip is responding
-	return (CYRF_ReadRegister(CYRF_10_FRAMING_CFG) == 0xa5);//return if reset
+	//Verify the CYRF chip is responding
+	return (CYRF_ReadRegister(CYRF_10_FRAMING_CFG) == 0xa5);
 }
 
 /*
@@ -136,9 +102,15 @@ void CYRF_SetTxRxMode(uint8_t mode)
 		//Set the post tx/rx state
 		CYRF_WriteRegister(CYRF_0F_XACT_CFG, mode == TX_EN ? 0x28 : 0x2C); // 4=IDLE, 8=TX, C=RX
 		if(mode == TX_EN)
+#ifdef DSM_BLUE
+			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x20); // XOUT=1, PACTL=0
+		else
+			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x80);	// XOUT=0, PACTL=1
+#else
 			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x80); // XOUT=1, PACTL=0
 		else
 			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x20);	// XOUT=0, PACTL=1
+#endif
 	}
 }
 /*
@@ -164,7 +136,12 @@ void CYRF_SetPower(uint8_t val)
 		power=IS_POWER_FLAG_on?CYRF_HIGH_POWER:CYRF_LOW_POWER;
 	if(IS_RANGE_FLAG_on)
 		power=CYRF_RANGE_POWER;
-	CYRF_WriteRegister(CYRF_03_TX_CFG, val | power);
+	power|=val;
+	if(prev_power != power)
+	{
+		CYRF_WriteRegister(CYRF_03_TX_CFG,power);
+		prev_power=power;
+	}
 }
 
 /*
@@ -196,10 +173,10 @@ void CYRF_ConfigDataCode(const uint8_t *datacodes, uint8_t len)
 void CYRF_WritePreamble(uint32_t preamble)
 {
 	CYRF_CSN_off;
-	cyrf_spi_write(0x80 | 0x24);
-	cyrf_spi_write(preamble & 0xff);
-	cyrf_spi_write((preamble >> 8) & 0xff);
-	cyrf_spi_write((preamble >> 16) & 0xff);
+	SPI_Write(0x80 | 0x24);
+	SPI_Write(preamble & 0xff);
+	SPI_Write((preamble >> 8) & 0xff);
+	SPI_Write((preamble >> 16) & 0xff);
 	CYRF_CSN_on;
 }
 /*
@@ -215,10 +192,18 @@ static void CYRF_StartReceive()
 	CYRF_ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, 0x10);
 }
 */
+<<<<<<< HEAD
 static void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
+=======
+void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
+>>>>>>> refs/remotes/pascallanger/master
 {
-    ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, length);
+    CYRF_ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, length);
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/pascallanger/master
 static void CYRF_WriteDataPacketLen(const uint8_t dpbuffer[], uint8_t len)
 {
 	CYRF_WriteRegister(CYRF_01_TX_LENGTH, len);
@@ -261,13 +246,13 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 	CYRF_ConfigCRCSeed(0x0000);
 	CYRF_SetTxRxMode(RX_EN);
 	//Wait for pre-amp to switch from send to receive
-	_delay_us(1000);
+	delayMilliseconds(1);
 	for(i = 0; i < NUM_FREQ; i++)
 	{
 		CYRF_ConfigRFChannel(i);
 		CYRF_ReadRegister(CYRF_13_RSSI);
 		CYRF_StartReceive();
-		_delay_us(10);
+		delayMicroseconds(10);
 		rssi[i] = CYRF_ReadRegister(CYRF_13_RSSI);
 	}
 
@@ -285,4 +270,38 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 		}
 	}
 	CYRF_SetTxRxMode(TX_EN);
+}
+
+#if defined(DEVO_CYRF6936_INO) || defined(J6PRO_CYRF6936_INO)
+const uint8_t PROGMEM DEVO_j6pro_sopcodes[][8] = {
+    /* Note these are in order transmitted (LSB 1st) */
+    {0x3C, 0x37, 0xCC, 0x91, 0xE2, 0xF8, 0xCC, 0x91},
+    {0x9B, 0xC5, 0xA1, 0x0F, 0xAD, 0x39, 0xA2, 0x0F},
+    {0xEF, 0x64, 0xB0, 0x2A, 0xD2, 0x8F, 0xB1, 0x2A},
+    {0x66, 0xCD, 0x7C, 0x50, 0xDD, 0x26, 0x7C, 0x50},
+    {0x5C, 0xE1, 0xF6, 0x44, 0xAD, 0x16, 0xF6, 0x44},
+    {0x5A, 0xCC, 0xAE, 0x46, 0xB6, 0x31, 0xAE, 0x46},
+    {0xA1, 0x78, 0xDC, 0x3C, 0x9E, 0x82, 0xDC, 0x3C},
+    {0xB9, 0x8E, 0x19, 0x74, 0x6F, 0x65, 0x18, 0x74},
+    {0xDF, 0xB1, 0xC0, 0x49, 0x62, 0xDF, 0xC1, 0x49},
+    {0x97, 0xE5, 0x14, 0x72, 0x7F, 0x1A, 0x14, 0x72},
+#if defined(J6PRO_CYRF6936_INO)
+    {0x82, 0xC7, 0x90, 0x36, 0x21, 0x03, 0xFF, 0x17},
+    {0xE2, 0xF8, 0xCC, 0x91, 0x3C, 0x37, 0xCC, 0x91}, //Note: the '03' was '9E' in the Cypress recommended table
+    {0xAD, 0x39, 0xA2, 0x0F, 0x9B, 0xC5, 0xA1, 0x0F}, //The following are the same as the 1st 8 above,
+    {0xD2, 0x8F, 0xB1, 0x2A, 0xEF, 0x64, 0xB0, 0x2A}, //but with the upper and lower word swapped
+    {0xDD, 0x26, 0x7C, 0x50, 0x66, 0xCD, 0x7C, 0x50},
+    {0xAD, 0x16, 0xF6, 0x44, 0x5C, 0xE1, 0xF6, 0x44},
+    {0xB6, 0x31, 0xAE, 0x46, 0x5A, 0xCC, 0xAE, 0x46},
+    {0x9E, 0x82, 0xDC, 0x3C, 0xA1, 0x78, 0xDC, 0x3C},
+    {0x6F, 0x65, 0x18, 0x74, 0xB9, 0x8E, 0x19, 0x74},
+#endif
+};
+#endif
+static void __attribute__((unused)) CYRF_PROGMEM_ConfigSOPCode(const uint8_t *data)
+{
+	uint8_t code[8];
+	for(uint8_t i=0;i<8;i++)
+		code[i]=pgm_read_byte_near(&data[i]);
+	CYRF_ConfigSOPCode(code);
 }

@@ -1,6 +1,5 @@
 #Model Setup
 This is the page to document model or receiver specific setup instructions.
-The complete list of models the protocols they use are documented [here](https://docs.google.com/spreadsheets/d/1nBHzT3VWF6ShAhOqRB5y0Bcc7aXFuRFFlQkHn1RIM84/edit#gid=0)
 
 The Deviation project (on which this project was based) have a useful list of models [here](http://www.deviationtx.com/wiki/supported_models).
 

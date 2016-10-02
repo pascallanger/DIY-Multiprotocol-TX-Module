@@ -2,7 +2,7 @@
 
 The choice of **Multiprotocol Transmitter Module (MPTM)** hardware is the single biggest choice you will make.  Due to the growing popularity of this project the number of hardware choices is growing almost monthly.  
 
-There are currently four common hardware options.  They are:
+There are currently four common hardware options.  They are (click on the pictures for more info):
 
 1. A ready-made MPTM from Banggood.com (see [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html)) that integrates the microprocessor with all four supported RF modules and a hardware antenna switcher.  
 [<img src="images/4-in-1_Module_BG.jpeg" width="200" height="200" />](Module_BG_4-in-1.md)

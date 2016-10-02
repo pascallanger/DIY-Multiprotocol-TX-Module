@@ -15,7 +15,7 @@ Please refer to the [PPM Setup](PPM_Setup.md) page.
 ## Serial Mode
 Serial mode is only supported by the er9X firmware.  Loading this firmware is beyond the scope of this document but it is well covered in tutorial and video tutorials online. {mikeb - any favourite tutorials or video tuts that I an add here}
 ###Enabling Serial Mode
-1. Confirm that the Multiprotocol Module has the required physical connections between the pins on the back of the Tx and the ATMega328 microprocessor.  This may require some soldering and depends on which version of the DIY Multiprotocol module you have.  Check out your module’s hardware page under the section [Enabling your module for Serial{gvzb19 to insert}](### insert link) for details.
+1. Confirm that the Multiprotocol Module has the required physical connections between the pins on the back of the Tx and the ATMega328 microprocessor.  This may require some soldering and depends on which version of the DIY Multiprotocol module you have.  Check out your module’s hardware page under the section **Enabling your module for Serial** for details. Click here for the [hardware](Hardware.md) pages.
 1. Plug in your DIY Multiprotocol module into the transmitter module bay.  If you have a rotary protocol selection switch, turn the switch to position 0 to put the unit into Serial mode.  
 1. Ensure throttle is down and all switches are in the start position and power up the Tx.  The red LED on the DIY Multiprotocol module should be flashing with a period of about 1 second indicating that it has not established a valid serial link with the Tx.  This is expected as we have not set up the Tx yet.
 1.  Create a new model 

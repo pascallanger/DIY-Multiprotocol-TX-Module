@@ -82,8 +82,12 @@ You are now ready to go over to [Compiling and Programming STM32](Compiling_STM3
 
 #Reference Schematic <a name="Schematic"></a>
 Here is the schematic you can use to troubleshoot the module
-##  <a name="V23D_Schematic"></a> PCB V2.3d Schematic
+##  <a name="V32D_Schematic"></a> PCB 3.2d Schematic
+General module schematic (reference)
 <img src="images/DIY_Mulitprotocol_Module_Schematic.jpeg" width="1000" height="500" /> 
+V3.2d Board Schematic
+<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/PCB%20v2.3d/Schematic_v2.3d.jpg" width="1000" height="500" /> 
+
 ## <a name="STM32_Schematic"></a> PCB STM32 Schematic
 <img src="http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9220887-113-multi-STM32.png" width="1000" height="500" /> 
 

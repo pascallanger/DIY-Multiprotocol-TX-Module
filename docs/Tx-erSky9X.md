@@ -2,14 +2,15 @@
 This page is relevant to the following transmitters:  
  - Taranis running erSky9X (for the Taranis running OpenTx see [here](Tx-Taranis.md))
  - Turnigy 9XR Pro (for Turnigy 9X see [here](Tx-FlyskyTH9X.md))
- - SKY board
- - AR9X board
- - 9Xtreme board
- - AR9X UNI board
+ - A variety of replacement mother boards for FlySky transmitters:  
+    - SKY board
+    - AR9X board
+    - 9Xtreme board
+    - AR9X UNI board
 
 
 ## Features
-The Multiprotocol module can be used in this family of transmitters in either PPM mode or in Serial mode.  To operate in Serial mode, a version of er9X supporting the Multiprotocol Module must be installed on the Tx. 
+The Multiprotocol module can be used in this family of transmitters in either PPM mode or in Serial mode.  To operate in Serial mode, a version of erSky9X supporting the Multiprotocol Module must be installed on the Tx. 
 
 ## PPM Mode
 Please refer to the [PPM Setup](PPM_Setup.md) page. 
@@ -25,7 +26,7 @@ erSky9X is well documented, the slightly outdated erSky9X documentation is [here
 1. Plug in your DIY Multiprotocol module into the transmitter module bay.  If you have a rotary protocol selection switch, turn the switch to position 0 to put the unit into Serial mode.  
 1. Ensure throttle is down and all switches are in the start position and power up the Tx.  The red LED on the DIY Multiprotocol module should be flashing with a period of about 1 second indicating that it has not established a valid serial link with the Tx.  This is expected as we have not set up the Tx yet.
 1.  Create a new model 
-1. In the Model Settings menu scroll down to the **Protocol** submenu and change the RF settings to MULTI  
+1. In the Model Setup menu scroll down to the **Protocol** submenu and change the RF settings to MULTI.  This should reveal a set of additional options (like Protocol and Options) 
 1. The red LED on the Multiprotocol module should briefly flash and then remain solid.  This confirms that the DIY Multiprotocol module has established serial communication with the Tx.  If the red LED on the module continues to flash at a period of about 1 seconds then it signals that serial communication has not been established.  Check your settings under the model menu as described above and check that the protocol selection switch on the module is at 0 (enable Serial mode).  If there is still no communication, power down and power up the Tx.  Finally check that you have correctly enabled your module for serial as described on the hardware page for your module under the heading "Enabling your module for Serial". Click here to access the [hardware](Hardware.md) and then click on the picture of your module.
 
 ###Protocol Selection in Serial mode

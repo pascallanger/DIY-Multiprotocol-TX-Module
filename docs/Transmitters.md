@@ -1,7 +1,6 @@
 # Compatible Transmitters
 
 Any Tx that provides a PPM output (like a trainer port, or a RF module bay) is compatible with the DIY Multiprotocol module.  In practice, most of the documentation on this site is focused on building modules that slip into your transmitter’s module bay. 
-{insert picures of different modules}
  
 There are two different options for the interface between the Mulitprotocol Module and the transmitter: PPM and Serial. The considerations are different for each.
 - **PPM** is more generic, easy to implement and will work with most transmitters. 
@@ -16,7 +15,7 @@ When using the standard PPM Tx output, the protocol selection is achieved throug
 
 Since the module supports literally hundreds of protocol/sub-protocol/options combinations, you must select which of these will map to the 15 positions on the switch.  Refer to the [Compiling and Programming](Compiling.md) page for information on how to do his.
 
-Telemetry is available as a serial output on the TX pin of the Atmega328p using the FrSky hub format for Hubsan, FrSkyD, FrSkyX and DSM format for DSM2/X.  The serial paramets depends on the protocol:
+Telemetry is available as a serial output on the TX pin of the Atmega328p using the FrSky hub format for Hubsan, FrSkyD, FrSkyX and DSM format for DSM2/X.  The serial parameters depends on the protocol:
 
 Protocol|Serial Parameters
 --------|-----------------

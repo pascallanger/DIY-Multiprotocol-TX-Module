@@ -51,15 +51,23 @@ Transmitters and firmware combinations that support the Serial protocol are:
 Transmitter|Firmware Options|Telemetry Enabled
 :----------|:---------------|:----------------
 [FrSky Taranis/Plus/9XE](Tx-Taranis.md)| erSky9x, OpenTx 2.1.8 Multi|Yes - native
-[Turnigy 9X/9xR](Tx-FlyskyTH9X.md)|er9x|[Mod required](http://blog.oscarliang.net/turnigy-9x-advance-mod/), No DSM telem
+[Turnigy 9X/9xR](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod), No DSM telem
 [Turnigy 9XR-Pro](Tx-erSky9X.md)|erSky9x|Yes - native
-[FrSky TH9x](Tx-FlyskyTH9X.md)|er9x|[Mod required](http://blog.oscarliang.net/turnigy-9x-advance-mod/), No DSM telem
+[FrSky TH9x](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod), No DSM telem
 [SKY board](Tx-erSky9X.md)|erSky9x|Yes - native
 [AR9X board](Tx-erSky9X.md)|erSky9x|Yes - native
 [9Xtreme board](Tx-erSky9X.md)|erSky9x|Yes - native
 [AR9X UNI board](Tx-erSky9X.md)|erSky9x|Yes - native
 
 Click on your transmitter above to view specific setup instructions.
+
+<a name="Telemetry_Mod"></a>##Optional Telemetry mod for 9X/r TH9X transmitters
+The telemetry mod for these transmitters has evolved.  The original and popular "FrSky Telemetry Mod" requires 2 pins on the transmitter module board to be modified (RX on pin 5 and TX on pin 2).  All the recent MPTM hardware options supports serial transmission on pin 1 (the same pin as the PPM signal) so, in this case, only the mod on pin 5 is required. 
+
+A good tutorial to follow is Oscar Liang's [here](http://blog.oscarliang.net/turnigy-9x-advance-mod/) but when you get to wiring up the Tx Module bay pins, you only need to perform the steps relevant for Pin 5.
+
+You can see Midelic's original instructions [here](http://www.rcgroups.com/forums/showpost.php?p=28359305&postcount=2)
+
 
 Other Notes: 
 - er9X and erSky9X firmware already supports Multiprotocol Module as a standard feature.  At time of writing it looks like that the next major release of OpenTx - OpenTx 2.2 - will have DIY Mulitprotocol support as a standard feature.  
@@ -73,3 +81,4 @@ Other Notes:
 - Enabling telemetry on a 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
 
 - Once the TX is telemetry enabled, it just needs to be configured on the model (see er9x/ersky9x documentation).
+

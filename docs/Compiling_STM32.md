@@ -91,28 +91,36 @@ If you get an error carefully read the error to see the approximate line number 
 
 ###Preparing for STM32 microcontroller for firmware flashing
 
-There are two option for flashing the firmware.  The first (and strongly recommended) is flashing it while it is plugged into and powered by the transmitter.  The second is flashing it out of the transmitter (the power is supplied by the FTDI cable).  The second option is very risky because if the 3.3V bridge jumper is not removed after flashing it will fry your RF module - **you have been warned**.  
+There are two option for flashing the firmware.  The first (and strongly recommended) is flashing it while it is plugged into and powered by the transmitter.  The second is flashing it out of the transmitter (the power is supplied by the 3.3V FTDI cable).  The second option is very risky because if the 3.3V bridge jumper is not removed after flashing it will fry your RF module - **you have been warned**.  
 
 ####Option 1: Flashing with Tx power
 
 1. Put the module in the Tx 
 1. Place a jumper over the BOOT0 pins 
-1. Connect your 3.3V/5V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V).The multimodule RX pin connected to FTDI TX pin and multi TX pin connected to FTDI RX pin.Connect only TX and RX pins(2 pins),the power will be supplied by TX. 
+1. Connect your 3.3V/5V FTDI cable (USB - TTL serial) to  Multiprotocol serial port.  Connect only RX, TX and GND.  **Do not connect the 5V or 3.3V between the FTDI cable and the module - the power will be supplied by the transmitter**.  Connect the pins as follows:   
+  - Module RX pin to FTDI TX pin
+  - Module TX pin to FTDI Rx pin
+  - Module GND to FTDI GND   
 1. In arduino IDE under the **Tools** -> **Board:** check that you have selected the **Generic STM32F103C series** board 
 1. Under **Tools** -> **Upload Method:** select **Serial** 
-1. Click "Upload" and the sketch will be uploaded normally.This is valid for  all arduino versions. 
+1. Click "Upload" and the sketch will be uploaded normally.   This is valid for  all arduino versions. 
 1. Once the firmware has uploaded, remove the BOOT0 jumper. 
 
 
 ####Option 2: Flashing without Tx power
 
-The key difference of this method is that the 3.3V FTDI cable must also provide power to the 5V circuitry during the flashing process.  To do this, a jumper must be enabled connecting the 3.3V VCC to the 5V line. 
+The key difference of this method is that the 3.3V FTDI cable must also provide power to the 5V circuitry during the flashing process.  To do this, a jumper must be enabled connecting the 3.3V VCC to the 5V line.  
 
-**If the module is powered through the transmitter and this jumper is enabled, then it will feed 5V throughout the 3.3V circuit and this will fry your RF modules.** 
+**If the module is powered through the transmitter and this jumper is enabled, then it will feed 5V throughout the 3.3V circuit and this will fry your RF modules.  Do not plug the module into the transmitter before removing this jumper!**  
 
+1. Remove the module from the transmitter bay
 1. Set BOOT0 jumper 
-1. Set the 3.3V jumper.This step only for 3.3V USB-serial!!!.Skip this step if using 5V USB-serial.
-1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V).If set 3.3V jumper ,3.3V supply from USB-serial  goes to 5V pin. 
+1. Set the 3.3V jumper. 
+1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V).  Connect the pins as follows:   
+  - Module RX pin to FTDI TX pin
+  - Module TX pin to FTDI Rx pin
+  - Module GND to FTDI GND  
+  - Module V to FTDI 3.3V
 1. In arduino IDE under the **Tools** -> **Board:** check that you have selected the **Generic STM32F103C series** board 
 1. Under **Tools** -> **Upload Method:** select **Serial**. 
 1. Click "Upload" and the sketch will be uploaded normally.
@@ -120,6 +128,7 @@ The key difference of this method is that the 3.3V FTDI cable must also provide 
    - Remove the 3.3V jumper!!!! 
    - Remove the BOOT0 jumper
    - Check that you removed the 3.3V jumper
+1. Insert the module into the transmitter bay
 
 
 ###Flashing binary file:

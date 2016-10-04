@@ -1,3 +1,3 @@
 #OrangeRx Transmitter module
-{need someone to do this if it is important}
+See the RC groups page [here](http://openrcforums.com/forum/viewtopic.php?f=40&t=8753)
 

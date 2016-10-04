@@ -30,7 +30,7 @@ A functioning MPTM consists of (see image below):
 
 1.  A host RC Tx
 
-1. A Multiprotocol Transmitter Module that connects to a host transmitter.  This module is typically comprised of
+1. A Multiprotocol Transmitter Module (MPTM) that connects to a host transmitter.  This module is typically comprised of
 
   * A microcontroller (currently ATMega328P) that interfaces with the Tx, controls the module functions and forwards the RC commands to the RF hardware
 
@@ -44,13 +44,13 @@ A functioning MPTM consists of (see image below):
 
 
 
-In constructing a functioning module there are important choices to be made and tradeoffs to be aware of.  The most important are:
+In constructing a functioning MPTM there are important choices to be made and tradeoffs to be aware of.  The most important are:
 
 ##**Choice 1:** Which MPTM hardware option 
 
 There are currently four generic paths to get your hands on an MPTM.  These are outlined in detail on the [hardware](docs/Hardware.md) page.  Here they are, in order of increasing difficulty:
   - **Ready-made MPTM** - Available from Banggood which includes a 4-in-1 RF module and an antenna switcher
-  - **DIY MPTM** - Purchase one of the PCB options from [OSHPark](http://www.oshpark.com) and then solder on your own components and RF modules 
+  - **DIY MPTM** - Purchase one of the PCB options from [OSHPark](http://www.oshpark.com) and then solder on your own components and RF modules (the two options differ in the MCU used - either an ATmega328P or a STM32F1)
   - **OrangeRx MPTM** You can improve the Orange Rx Transmitter module available from Hobbyking by uploading this firmware
   - **Scratchbuild a MPTM** -  Build the module from scratch using perfboard base, an Arduino Pro Mini and discrete components.
 
@@ -97,7 +97,7 @@ Most of the older FM radios support the PPM interface.
 
 If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX firmwares (Frsky Taranis running erSky9x or OpenTx, or any of the FlySky/Turnigy family of Txs running ER9X, ERSky9x or OpenTx) you have the additional option to use a serial protocol to communicate between your Tx and the MPTM. (Owners of Walkera Devo transmitters should look at the [Deviation Tx](http://www.deviationtx.com) project for how to achieve the same end goal). This serial protocol does not require any hardware modifications, but will require updating the firmware on your radio. For those willing to do this, there are some nice advantages:
   - The model and protocol selection and binding is done from the Model Settings menu on the Tx
-  - For telemetry capable receivers, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work)
+  - For telemetry capable transmitters, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work)
 See the [Setting up your Tx](docs/TransmitterSetup.md) page for more details.
 
 #How to get started?

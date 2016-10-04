@@ -36,7 +36,7 @@ First, confirm that the DIY Multiprotocol module has the required physical conne
  4. If the red LED on the module continues to flash at a period of about 1s then it signals that serial communication has not been established.  Check your settings under the model menu as described above and check that the protocol selection switch on the module is at 0 (zero).  If there is still no communication, power down and power up the Tx.  Finally check that you have correctly enabled your module for serial as described in specific pages for your module hardware (under the section "Enabling Serial") linked [here](Hardware.md)
  
 ###Protocol Selection in Serial mode
-To select the protocol, scroll through the available options under the Model Settings menu.  Depending on which protocol you have selected you may be required to select a sup-protocol and options.  For example, the DSM protocol has two sub-protocols DSM2 and DSMX.  Each of these sub-protocols have options that specify the number of channels and the packet frame rate.  
+To select the protocol, scroll through the available options under the Model Settings menu.  Depending on which protocol you have selected you may be required to select a sup-protocol and options.  For example, the FrSky protocol has three sub-protocols FrSkyV, FrSkyD and FrSkyX.  Each of the sub-protocols may have options that specify the number of channels and the packet frame rate, etc.  
 
 The following picture shows DSM – DSMX – Option 6 (6 channels and 11ms frame rate). Check out the [Protocol Details](Protocol_Details.md) page for detailed information and suggestions regarding the sub-protocols and options.
 ###Binding in Serial mode

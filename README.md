@@ -1,8 +1,12 @@
+<<<<<<< HEAD
+# DIY-Multiprotocol-TX-Module
+=======
 # Overview of the MPTM
 
 The **Multiprotocol Tx Module** (or **MPTM**) is a 2.4GHz transmitter module which enables almost any TX to control lot of different models available on the market.
 
 The source code is partly based on the [Deviation TX project](http://www.deviationtx.com), thanks to all the developers for their great job on protocols.
+>>>>>>> refs/remotes/pascallanger/master
 
 ## Quicklinks
 * [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases)
@@ -11,6 +15,193 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 * [The old documentation](docs/README-old.md)
 * [Documentation to-do list](docs/Documentation_To_Do_List.md)
 
+<<<<<<< HEAD
+Fork du projet https://github.com/pascallanger/DIY-Multiprotocol-TX-Module
+
+Afin d'ajouter :
+- Une sélection du protocole via les manches de la radio
+- Un rebind hardware en PPM
+- La radio TARANIS (TAERB, B = rebind ;-) ) et redéclaration des radios
+- Un script "LUA" afin de faciliter la position des manches
+
+
+
+Programme des évolutions :
+- Ajout du de la télémetrie TARANIS à l'aide du projet https://github.com/shadow974/TxAdapter
+
+	(Attention, il faut rajouter un transistor afin d'inverser et amplifier le signal)
+
+
+#Schematic
+![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8443844-119-multiprotocol_diagram_rotary_serial_2.jpg)
+
+Notes:
+- Attention: All modules are 3.3V only, never power them with 5V.
+- For serial, the dial switch is not needed and the bind button optionnal
+- Ajout d'un switch + transistor sur le TX
+![Alt text](telemetryFRSKY.jpg)
+
+
+#Protocoles ajoutés mais non testés (Issue de Deviation)
+##CYRF6936 RF Module
+###J6PRO
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+###WK2x01
+Autobind
+
+####Sub_protocol WK2401
+CH1|CH2|CH3|CH4
+---|---|---|---
+CH1|CH2|CH3|CH4
+
+
+####Sub_protocol WK2601
+Option:	
+
+		0 = 5+1
+		2 = 6+1
+		..1 = Hélicoptère (. = autres options pour ce mode)
+		.01 = Hélicoptère normal
+		.11 = Hélicoptère avec pit inversé
+		0.1 = Pitch curve -100
+		1.1 = Pitch curve 100
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|???|CONF|Gyro & Rudder mix
+
+CONF:	Option 1 = Rate Throtle
+
+		Option 2 = Pitch
+		
+
+####Sub_protocol WK2801
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+
+##A7105 RF Module
+###Joysway
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+##CC2500 RF Module
+###SKYARTEC
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+ ? | ? | ? | ? | ? | ? | ? 
+
+##NRF24L01 RF Module
+###BLUEFLY
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|GEAR|PITCH
+
+###CFLIE
+Modele: CrazyFlie Nano quad
+
+Autobind
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+###ESKY150
+
+Autobind
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+###FBL100
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+ ? | ? | ? | ? | ? | ? | ? | ? 
+
+####Sub_protocol HP100
+Same channels assignement as above.
+
+###Fy326
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|HEADLESS|RTH|Calibrate|Expert
+
+####Sub_protocol FY319
+Same channels assignement as above.
+
+###H377
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+###HM830
+Modele: HM Hobby HM830 RC Paper Airplane
+
+Autobind
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---
+A|Turbo|T|Trim|Bouton
+
+###HONTAI
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|LED|FLIP|PICTURE|VIDEO|HEADLESS|RTH|Calibrate
+
+####Sub_protocol JJRCX1
+Modele: JJRC X1
+
+CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+ARM|FLIP|PICTURE|VIDEO|HEADLESS|RTH|Calibrate
+
+###NE260
+Modele: Nine Eagles SoloPro
+
+Autobind
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+###UDI
+Modele: Known UDI 2.4GHz protocol variants, all using BK2421
+* UDI U819 coaxial 3ch helicoper
+* UDI U816/817/818 quadcopters
+  - "V1" with orange LED on TX, U816 RX labeled '' , U817/U818 RX labeled 'UD-U817B'
+  - "V2" with red LEDs on TX, U816 RX labeled '', U817/U818 RX labeled 'UD-U817OG'
+  - "V3" with green LEDs on TX. Did not get my hands on yet.
+* U830 mini quadcopter with tilt steering ("Protocol 2014")
+* U839 nano quadcopter ("Protocol 2014")
+
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP 360|FLIP|VIDEO|LED|MODE 2
+
+####Sub_protocol U816_V1 (orange)
+####Sub_protocol U816_V2 (red)
+####Sub_protocol U839_2014
+Same channels assignement as above.
+
+
+###D'autres à venir
+=======
 ## Outline of the documentation
 1. Introduction (this page)
 1. [Available protocols](docs/Protocol_Details.md)
@@ -119,3 +310,4 @@ A very big thanks to all the people who have shared their time so graciously to 
 * hexfet – from Deviation-tx
 
 Your help would be greatly appreciated.  If protocol reverse-engineering and dev is not your thing then any help with testing and contributing to the documentation would be amazing.  Given the number of different Tx/module hardware/RF module/protocol/model combinations the process of testing and documenting is a major bottleneck for the developers.  Anything you can do to help will free them up to do even greater things. 
+>>>>>>> refs/remotes/pascallanger/master

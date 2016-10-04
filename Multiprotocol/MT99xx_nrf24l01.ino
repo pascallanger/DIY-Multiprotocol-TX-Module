@@ -12,7 +12,11 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+<<<<<<< HEAD
+// compatible with MT99xx, Eachine H7, Yi Zhan i6S
+=======
 // compatible with MT99xx, Eachine H7, Yi Zhan i6S and LS114/124
+>>>>>>> refs/remotes/pascallanger/master
 // Last sync with Goebish mt99xx_nrf24l01.c dated 2016-01-29
 
 #if defined(MT99XX_NRF24L01_INO)
@@ -37,6 +41,8 @@ enum{
     FLAG_MT_FLIP    = 0x80,
 };
 
+<<<<<<< HEAD
+=======
 enum{
     // flags going to packet[6] (LS)
     FLAG_LS_INVERT  = 0x01,
@@ -47,12 +53,43 @@ enum{
     FLAG_LS_FLIP    = 0x80,
 };
 
+>>>>>>> refs/remotes/pascallanger/master
 enum {
     MT99XX_INIT = 0,
     MT99XX_BIND,
     MT99XX_DATA
 };
 
+<<<<<<< HEAD
+static void __attribute__((unused)) MT99XX_send_packet()
+{
+	const uint8_t yz_p4_seq[] = {0xa0, 0x20, 0x60};
+	const uint8_t mys_byte[] = {
+		0x01, 0x11, 0x02, 0x12, 0x03, 0x13, 0x04, 0x14, 
+		0x05, 0x15, 0x06, 0x16, 0x07, 0x17, 0x00, 0x10
+	};
+	static uint8_t yz_seq_num=0;
+
+	if(sub_protocol != YZ)
+	{ // MT99XX & H7
+		packet[0] = convert_channel_8b_scale(THROTTLE,0x00,0xE1); // throttle
+		packet[1] = convert_channel_8b_scale(RUDDER  ,0x00,0xE1); // rudder
+		packet[2] = convert_channel_8b_scale(AILERON ,0x00,0xE1); // aileron
+		packet[3] = convert_channel_8b_scale(ELEVATOR,0x00,0xE1); // elevator
+		packet[4] = 0x20; // pitch trim (0x3f-0x20-0x00)
+		packet[5] = 0x20; // roll trim (0x00-0x20-0x3f)
+		packet[6] = GET_FLAG( Servo_AUX1, FLAG_MT_FLIP )
+				  | GET_FLAG( Servo_AUX3, FLAG_MT_SNAPSHOT )
+				  | GET_FLAG( Servo_AUX4, FLAG_MT_VIDEO );
+		if(sub_protocol==MT99)
+			packet[6] |= 0x40 | FLAG_MT_RATE2;
+		else
+			packet[6] |= FLAG_MT_RATE1; // max rate on H7
+		// todo: mys_byte = next channel index ? 
+		// low nibble: index in chan list ?
+		// high nibble: 0->start from start of list, 1->start from end of list ?
+		packet[7] = mys_byte[hopping_frequency_no];
+=======
 const uint8_t h7_mys_byte[] = {
 	0x01, 0x11, 0x02, 0x12, 0x03, 0x13, 0x04, 0x14, 
 	0x05, 0x15, 0x06, 0x16, 0x07, 0x17, 0x00, 0x10
@@ -101,6 +138,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					ls_counter=0;
 			}
 
+>>>>>>> refs/remotes/pascallanger/master
 		uint8_t result=checksum_offset;
 		for(uint8_t i=0; i<8; i++)
 			result += packet[i];
@@ -109,9 +147,15 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	else
 	{ // YZ
 		packet[0] = convert_channel_8b_scale(THROTTLE,0x00,0x64); // throttle
+<<<<<<< HEAD
+		packet[1] = convert_channel_8b_scale(RUDDER  ,0x00,0x64); // rudder
+		packet[2] = convert_channel_8b_scale(ELEVATOR,0x00,0x64); // elevator
+		packet[3] = convert_channel_8b_scale(AILERON ,0x00,0x64); // aileron
+=======
 		packet[1] = convert_channel_8b_scale(RUDDER  ,0x64,0x00); // rudder
 		packet[2] = convert_channel_8b_scale(ELEVATOR,0x00,0x64); // elevator
 		packet[3] = convert_channel_8b_scale(AILERON ,0x64,0x00); // aileron
+>>>>>>> refs/remotes/pascallanger/master
 		if(packet_count++ >= 23)
 		{
 			yz_seq_num ++;
@@ -132,10 +176,14 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		packet[8] = 0xff;
 	}
 
+<<<<<<< HEAD
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no] + channel_offset);
+=======
 	if(sub_protocol == LS)
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x2D); // LS always transmits on the same channel
 	else
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no] + channel_offset);
+>>>>>>> refs/remotes/pascallanger/master
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 	XN297_WritePayload(packet, MT99XX_PACKET_SIZE);
@@ -153,11 +201,16 @@ static void __attribute__((unused)) MT99XX_send_packet()
 static void __attribute__((unused)) MT99XX_init()
 {
     NRF24L01_Initialize();
+<<<<<<< HEAD
+    NRF24L01_SetTxRxMode(TX_EN);
+    NRF24L01_FlushTx();
+=======
     if(sub_protocol == YZ)
 		XN297_SetScrambledMode(XN297_UNSCRAMBLED);
     NRF24L01_SetTxRxMode(TX_EN);
     NRF24L01_FlushTx();
     XN297_SetTXAddr((uint8_t *)"\xCC\xCC\xCC\xCC\xCC", 5);
+>>>>>>> refs/remotes/pascallanger/master
     NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// Clear data ready, data sent, and retransmit
     NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknowldgement on all data pipes
     NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);		// Enable data pipe 0 only
@@ -169,18 +222,31 @@ static void __attribute__((unused)) MT99XX_init()
         NRF24L01_SetBitrate(NRF24L01_BR_1M);          // 1Mbps
     NRF24L01_SetPower();
 	
+<<<<<<< HEAD
+    XN297_Configure(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP) | (sub_protocol == YZ ? BV(XN297_UNSCRAMBLED):0) );
+	
+    XN297_SetTXAddr((uint8_t *)"\xCC\xCC\xCC\xCC\xCC", 5);
+=======
     XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) );
 	
+>>>>>>> refs/remotes/pascallanger/master
 }
 
 static void __attribute__((unused)) MT99XX_initialize_txid()
 {
+<<<<<<< HEAD
+=======
 	rx_tx_addr[3] = 0xCC;
 	rx_tx_addr[4] = 0xCC;
+>>>>>>> refs/remotes/pascallanger/master
     if(sub_protocol == YZ)
 	{
 		rx_tx_addr[0] = 0x53; // test (SB id)
 		rx_tx_addr[1] = 0x00;
+<<<<<<< HEAD
+	}
+	checksum_offset = (rx_tx_addr[0] + rx_tx_addr[1]) & 0xff;
+=======
 		rx_tx_addr[2] = 0x00;
 	}
 	else
@@ -189,6 +255,7 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 		else //MT99 & H7
 			rx_tx_addr[2] = 0x00;
 	checksum_offset = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2];
+>>>>>>> refs/remotes/pascallanger/master
 	channel_offset = (((checksum_offset & 0xf0)>>4) + (checksum_offset & 0x0f)) % 8;
 }
 
@@ -200,16 +267,26 @@ uint16_t MT99XX_callback()
 	{
 		if (bind_counter == 0)
 		{
+<<<<<<< HEAD
+			rx_tx_addr[2] = 0x00;
+			rx_tx_addr[3] = 0xCC;
+			rx_tx_addr[4] = 0xCC;
+=======
+>>>>>>> refs/remotes/pascallanger/master
             // set tx address for data packets
             XN297_SetTXAddr(rx_tx_addr, 5);
 			BIND_DONE;
 		}
 		else
 		{
+<<<<<<< HEAD
+			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+=======
 			if(sub_protocol == LS)
 				NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x2D); // LS always transmits on the same channel
 			else
 				NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+>>>>>>> refs/remotes/pascallanger/master
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 			NRF24L01_FlushTx();
 			XN297_WritePayload(packet, MT99XX_PACKET_SIZE); // bind packet
@@ -236,6 +313,25 @@ uint16_t initMT99XX(void)
 	MT99XX_init();
 
 	packet[0] = 0x20;
+<<<<<<< HEAD
+	if(sub_protocol!=YZ)
+	{ // MT99 & H7
+		packet_period = MT99XX_PACKET_PERIOD_MT;
+		packet[1] = 0x14;
+		packet[2] = 0x03;
+		packet[3] = 0x25;
+	}
+	else
+	{ // YZ
+		packet_period = MT99XX_PACKET_PERIOD_YZ;
+		packet[1] = 0x15;
+		packet[2] = 0x05;
+		packet[3] = 0x06;
+	}
+    packet[4] = rx_tx_addr[0];	// 1st byte for data state tx address  
+    packet[5] = rx_tx_addr[1];	// 2nd byte for data state tx address (always 0x00 on Yi Zhan ?)
+    packet[6] = 0x00;			// 3rd byte for data state tx address (always 0x00 ?)
+=======
 	packet_period = MT99XX_PACKET_PERIOD_MT;
 	switch(sub_protocol)
 	{ // MT99 & H7
@@ -260,6 +356,7 @@ uint16_t initMT99XX(void)
 	packet[4] = rx_tx_addr[0];
 	packet[5] = rx_tx_addr[1];
 	packet[6] = rx_tx_addr[2];
+>>>>>>> refs/remotes/pascallanger/master
     packet[7] = checksum_offset; // checksum offset
     packet[8] = 0xAA;			// fixed
 	packet_count=0;

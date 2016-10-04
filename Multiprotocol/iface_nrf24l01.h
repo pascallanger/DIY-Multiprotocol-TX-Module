@@ -103,8 +103,13 @@ enum {
 //#define NOP           0xFF
 
 // XN297 emulation layer
+<<<<<<< HEAD
+#define XN297_UNSCRAMBLED 8
+
+=======
 enum {
 	XN297_UNSCRAMBLED = 0,
 	XN297_SCRAMBLED
 };
+>>>>>>> refs/remotes/pascallanger/master
 #endif

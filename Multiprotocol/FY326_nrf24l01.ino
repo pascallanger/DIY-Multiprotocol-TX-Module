@@ -15,21 +15,38 @@
 // Last sync with hexfet new_protocols/fy326_nrf24l01.c dated 2015-07-29
 
 #if defined(FY326_NRF24L01_INO)
+<<<<<<< HEAD
+=======
 
+>>>>>>> refs/remotes/pascallanger/master
 #include "iface_nrf24l01.h"
 
 #define FY326_INITIAL_WAIT		500
 #define FY326_PACKET_PERIOD		1500
 #define FY326_PACKET_CHKTIME	300
 #define FY326_PACKET_SIZE		15
+<<<<<<< HEAD
+#define FY326_BIND_COUNT      16
+=======
 #define FY326_BIND_COUNT		16
+>>>>>>> refs/remotes/pascallanger/master
 #define FY326_RF_BIND_CHANNEL	0x17
 #define FY326_NUM_RF_CHANNELS	5
 
 enum {
+<<<<<<< HEAD
+    FY326_INIT1 = 0,
+    FY326_BIND1,
+    FY326_BIND2,
+    FY326_DATA,
+    FY319_INIT1,
+    FY319_BIND1,
+    FY319_BIND2,
+=======
     FY326_BIND1=0,
     FY326_BIND2,
     FY326_DATA
+>>>>>>> refs/remotes/pascallanger/master
 };
 
 #define rxid channel
@@ -39,7 +56,11 @@ static void __attribute__((unused)) FY326_send_packet(uint8_t bind)
 {
 	packet[0] = rx_tx_addr[3];
 	if(bind)
+<<<<<<< HEAD
+        packet[1] = 0x55;
+=======
 		packet[1] = 0x55;
+>>>>>>> refs/remotes/pascallanger/master
 	else
 		packet[1] =	  GET_FLAG(Servo_AUX3,	0x80)	// Headless
 					| GET_FLAG(Servo_AUX2,	0x40)	// RTH
@@ -50,6 +71,23 @@ static void __attribute__((unused)) FY326_send_packet(uint8_t bind)
 	packet[3]  = convert_channel_8b_scale(ELEVATOR, 0, 200);		// elevator
 	packet[4]  = 200 - convert_channel_8b_scale(RUDDER, 0, 200);	// rudder
 	packet[5]  = convert_channel_8b_scale(THROTTLE, 0, 200);		// throttle
+<<<<<<< HEAD
+    if(sub_protocol == FY319) {
+        packet[6] = 255 - scale_channel(AILERON, 0, 255);
+        packet[7] = scale_channel(ELEVATOR, 0, 255);
+        packet[8] = 255 - scale_channel(RUDDER, 0, 255);
+    }
+    else {
+		packet[6]  = rx_tx_addr[0];
+		packet[7]  = rx_tx_addr[1];
+		packet[8]  = rx_tx_addr[2];
+	}
+    packet[9]  = CHAN_TO_TRIM(packet[2]); // aileron_trim;
+    packet[10] = CHAN_TO_TRIM(packet[3]); // elevator_trim;
+    packet[11] = CHAN_TO_TRIM(packet[4]); // rudder_trim;
+    packet[12] = 0; // throttle_trim;
+    packet[13] = rxid;
+=======
 	packet[6]  = rx_tx_addr[0];
 	packet[7]  = rx_tx_addr[1];
 	packet[8]  = rx_tx_addr[2];
@@ -58,6 +96,7 @@ static void __attribute__((unused)) FY326_send_packet(uint8_t bind)
 	packet[11] = CHAN_TO_TRIM(packet[4]);	// rudder_trim;
 	packet[12] = 0;							// throttle_trim;
 	packet[13] = rxid;
+>>>>>>> refs/remotes/pascallanger/master
 	packet[14] = rx_tx_addr[4];
 
 	if (bind)
@@ -66,11 +105,20 @@ static void __attribute__((unused)) FY326_send_packet(uint8_t bind)
 	{
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
 		hopping_frequency_no %= FY326_NUM_RF_CHANNELS;
+<<<<<<< HEAD
+
+    }
+
+    // clear packet status bits and TX FIFO
+    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+    NRF24L01_FlushTx();
+=======
 	}
 
 	// clear packet status bits and TX FIFO
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
+>>>>>>> refs/remotes/pascallanger/master
 
 	NRF24L01_WritePayload(packet, FY326_PACKET_SIZE);
 
@@ -79,9 +127,18 @@ static void __attribute__((unused)) FY326_send_packet(uint8_t bind)
 
 static void __attribute__((unused)) FY326_init()
 {
+<<<<<<< HEAD
+    NRF24L01_Initialize();
+    NRF24L01_SetTxRxMode(TX_EN);
+    if(sub_protocol == FY319)
+        NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // Five-byte rx/tx address
+    else
+        NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);   // Three-byte rx/tx address
+=======
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);   // Three-byte rx/tx address
+>>>>>>> refs/remotes/pascallanger/master
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    (uint8_t *)"\x15\x59\x23\xc6\x29", 5);
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t *)"\x15\x59\x23\xc6\x29", 5);
     NRF24L01_FlushTx();
@@ -93,13 +150,112 @@ static void __attribute__((unused)) FY326_init()
     NRF24L01_WriteReg(NRF24L01_05_RF_CH, FY326_RF_BIND_CHANNEL);
     NRF24L01_SetBitrate(NRF24L01_BR_250K);
     NRF24L01_SetPower();
+<<<<<<< HEAD
+    
+    NRF24L01_Activate(0x73);
+=======
 
 	NRF24L01_Activate(0x73);
+>>>>>>> refs/remotes/pascallanger/master
     NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3f);
     NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);
 	NRF24L01_Activate(0x73);
 }
 
+<<<<<<< HEAD
+uint16_t fy326_callback()
+{
+    uint8_t i;
+    switch (phase) {
+    case FY319_INIT1:
+        NRF24L01_SetTxRxMode(TXRX_OFF);
+        NRF24L01_FlushRx();
+        NRF24L01_SetTxRxMode(RX_EN);
+        NRF24L01_WriteReg(NRF24L01_05_RF_CH, RF_BIND_CHANNEL);
+        phase = FY319_BIND1;
+		BIND_IN_PROGRESS;
+        return FY326_CHKTIME;
+        break;
+        
+    case FY319_BIND1:
+        if(NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR)) {
+            NRF24L01_ReadPayload(packet, FY326_SIZE);
+            rxid = packet[13];
+            packet[0] = txid[3];
+            packet[1] = 0x80;
+            packet[14]= txid[4];
+            bind_counter = FY326_BIND_COUNT;
+            NRF24L01_SetTxRxMode(TXRX_OFF);
+            NRF24L01_SetTxRxMode(TX_EN);
+            NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+            NRF24L01_FlushTx();
+            bind_counter = 255;
+            for(i=2; i<6; i++)
+                packet[i] = rf_chans[0];
+            phase = FY319_BIND2;
+        }
+        return FY326_CHKTIME;
+        break;
+    
+    case FY319_BIND2:
+        NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+        NRF24L01_FlushTx();
+        NRF24L01_WritePayload(packet, FY326_SIZE);
+        if(bind_counter == 250)
+            packet[1] = 0x40;
+        if(--bind_counter == 0) {
+            BIND_DONE;
+            phase = FY326_DATA;
+        }
+        break;
+    
+    case FY326_INIT1:
+        bind_counter = FY326_BIND_COUNT;
+        phase = FY326_BIND2;
+        send_packet(1);
+        return FY326_CHKTIME;
+        break;
+
+    case FY326_BIND1:
+		if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
+		{ // RX fifo data ready
+				NRF24L01_ReadPayload(packet, FY326_PACKET_SIZE);
+            rxid = packet[13];
+			rx_tx_addr[0] = 0xAA;
+            NRF24L01_SetTxRxMode(TXRX_OFF);
+            NRF24L01_SetTxRxMode(TX_EN);
+            BIND_DONE;
+            phase = FY326_DATA;
+		}
+		else
+		if (bind_counter-- == 0)
+		{
+            bind_counter = FY326_BIND_COUNT;
+            NRF24L01_SetTxRxMode(TXRX_OFF);
+            NRF24L01_SetTxRxMode(TX_EN);
+			FY326_send_packet(1);
+            phase = FY326_BIND2;
+            return FY326_PACKET_CHKTIME;
+        }
+        break;
+
+    case FY326_BIND2:
+			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_TX_DS))
+			{ // TX data sent -> switch to RX mode
+            NRF24L01_SetTxRxMode(TXRX_OFF);
+            NRF24L01_FlushRx();
+            NRF24L01_SetTxRxMode(RX_EN);
+            phase = FY326_BIND1;
+        }
+			else
+				return FY326_PACKET_CHKTIME;
+        break;
+
+    case FY326_DATA:
+		FY326_send_packet(0);
+        break;
+    }
+=======
 uint16_t FY326_callback()
 {
 	switch (phase)
@@ -141,26 +297,54 @@ uint16_t FY326_callback()
 			FY326_send_packet(0);
 			break;
 	}
+>>>>>>> refs/remotes/pascallanger/master
 	return FY326_PACKET_PERIOD;
 }
 
 static void __attribute__((unused)) FY326_initialize_txid()
 {
+<<<<<<< HEAD
+    if(sub_protocol == FY319) {        
+		hopping_frequency[0] = (rx_tx_addr[0]&0x0f) & ~0x80;
+		hopping_frequency[1] = (rx_tx_addr[0] >> 4) & ~0x80;
+		hopping_frequency[2] = (rx_tx_addr[1]&0x0f) & ~0x80;
+		hopping_frequency[3] = (rx_tx_addr[1] >> 4) & ~0x80;
+		hopping_frequency[4] = (rx_tx_addr[2] >> 4) & ~0x80;
+	} else {	
+		hopping_frequency[0] = 		  (rx_tx_addr[0]&0x0f);
+		hopping_frequency[1] = 0x10 + (rx_tx_addr[0] >> 4);
+		hopping_frequency[2] = 0x20 + (rx_tx_addr[1]&0x0f);
+		hopping_frequency[3] = 0x30 + (rx_tx_addr[1] >> 4);
+		hopping_frequency[4] = 0x40 + (rx_tx_addr[2] >> 4);
+    }
+=======
 	hopping_frequency[0] = 		  (rx_tx_addr[0]&0x0f);
 	hopping_frequency[1] = 0x10 + (rx_tx_addr[0] >> 4);
 	hopping_frequency[2] = 0x20 + (rx_tx_addr[1]&0x0f);
 	hopping_frequency[3] = 0x30 + (rx_tx_addr[1] >> 4);
 	hopping_frequency[4] = 0x40 + (rx_tx_addr[2] >> 4);
+>>>>>>> refs/remotes/pascallanger/master
 }
 
 uint16_t initFY326(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
+<<<<<<< HEAD
+    rxid = 0xaa;
+    bind_counter = 0;
+	FY326_initialize_txid();
+    fy326_init();
+    if(sub_protocol == FY319)
+        phase = FY319_INIT1;
+    else
+        phase = FY326_INIT1;
+=======
     rxid = 0xAA;
 	bind_counter = 0;
 	FY326_initialize_txid();
 	FY326_init();
 	phase=FY326_BIND1;
+>>>>>>> refs/remotes/pascallanger/master
 	return	FY326_INITIAL_WAIT;
 }
 

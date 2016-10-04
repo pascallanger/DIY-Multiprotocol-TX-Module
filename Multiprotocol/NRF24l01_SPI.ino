@@ -234,7 +234,11 @@ uint8_t NRF24L01_packet_ack()
 
 ///////////////
 // XN297 emulation layer
+<<<<<<< HEAD
+uint8_t xn297_scramble_enabled;
+=======
 uint8_t xn297_scramble_enabled=XN297_SCRAMBLED;	//enabled by default
+>>>>>>> refs/remotes/pascallanger/master
 uint8_t xn297_addr_len;
 uint8_t xn297_tx_addr[5];
 uint8_t xn297_rx_addr[5];
@@ -247,6 +251,16 @@ static const uint8_t xn297_scramble[] = {
 	0x1b, 0x5d, 0x19, 0x10, 0x24, 0xd3, 0xdc, 0x3f,
 	0x8e, 0xc5, 0x2f};
 
+<<<<<<< HEAD
+const uint16_t PROGMEM xn297_crc_xorout[] = {
+	0x0000, 0x3d5f, 0xa6f1, 0x3a23, 0xaa16, 0x1caf,
+	0x62b2, 0xe0eb, 0x0821, 0xbe07, 0x5f1a, 0xaf15,
+	0x4f0a, 0xad24, 0x5e48, 0xed34, 0x068c, 0xf2c9,
+	0x1852, 0xdf36, 0x129d, 0xb17c, 0xd5f5, 0x70d7,
+	0xb798, 0x5133, 0x67db, 0xd94e};
+
+=======
+>>>>>>> refs/remotes/pascallanger/master
 const uint16_t PROGMEM xn297_crc_xorout_scrambled[] = {
 	0x0000, 0x3448, 0x9BA7, 0x8BBB, 0x85E1, 0x3E8C,
 	0x451E, 0x18E6, 0x6B24, 0xE7AB, 0x3828, 0x814B,
@@ -320,8 +334,14 @@ void XN297_SetRXAddr(const uint8_t* addr, uint8_t len)
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, buf, 5);
 }
 
-void XN297_Configure(uint8_t flags)
+void XN297_Configure(uint16_t flags)
 {
+<<<<<<< HEAD
+	xn297_scramble_enabled = !(flags & BV(XN297_UNSCRAMBLED));
+	xn297_crc = !!(flags & BV(NRF24L01_00_EN_CRC));
+	flags &= ~(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO));
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, flags & 0xFF);
+=======
 	xn297_crc = !!(flags & _BV(NRF24L01_00_EN_CRC));
 	flags &= ~(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO));
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, flags & 0xFF);
@@ -330,6 +350,7 @@ void XN297_Configure(uint8_t flags)
 void XN297_SetScrambledMode(const u8 mode)
 {
     xn297_scramble_enabled = mode;
+>>>>>>> refs/remotes/pascallanger/master
 }
 
 void XN297_WritePayload(uint8_t* msg, uint8_t len)
@@ -391,6 +412,32 @@ void XN297_ReadPayload(uint8_t* msg, uint8_t len)
 // End of XN297 emulation
 
 ///////////////
+<<<<<<< HEAD
+// LT8910 emulation layer
+uint8_t LT8910_buffer[64];
+uint8_t LT8910_buffer_start;
+uint16_t LT8910_buffer_overhead_bits;
+uint8_t LT8910_addr[8];
+uint8_t LT8910_addr_size;
+uint8_t LT8910_Preamble_Len;
+uint8_t LT8910_Tailer_Len;
+uint8_t LT8910_CRC_Initial_Data;
+uint8_t LT8910_Flags;
+#define LT8910_CRC_ON 6
+#define LT8910_SCRAMBLE_ON 5
+#define LT8910_PACKET_LENGTH_EN 4
+#define LT8910_DATA_PACKET_TYPE_1 3
+#define LT8910_DATA_PACKET_TYPE_0 2
+#define LT8910_FEC_TYPE_1 1
+#define LT8910_FEC_TYPE_0 0
+
+void LT8910_Config(uint8_t preamble_len, uint8_t trailer_len, uint8_t flags, uint8_t crc_init)
+{
+	//Preamble 1 to 8 bytes
+	LT8910_Preamble_Len=preamble_len;
+	//Trailer 4 to 18 bits
+	LT8910_Tailer_Len=trailer_len;
+=======
 // LT8900 emulation layer
 uint8_t LT8900_buffer[64];
 uint8_t LT8900_buffer_start;
@@ -415,23 +462,37 @@ void LT8900_Config(uint8_t preamble_len, uint8_t trailer_len, uint8_t flags, uin
 	LT8900_Preamble_Len=preamble_len;
 	//Trailer 4 to 18 bits
 	LT8900_Tailer_Len=trailer_len;
+>>>>>>> refs/remotes/pascallanger/master
 	//Flags
 	// CRC_ON: 1 on, 0 off
 	// SCRAMBLE_ON: 1 on, 0 off
 	// PACKET_LENGTH_EN: 1 1st byte of payload is payload size
 	// DATA_PACKET_TYPE: 00 NRZ, 01 Manchester, 10 8bit/10bit line code, 11 interleave data type
 	// FEC_TYPE: 00 No FEC, 01 FEC13, 10 FEC23, 11 reserved
+<<<<<<< HEAD
+	LT8910_Flags=flags;
+	//CRC init constant
+	LT8910_CRC_Initial_Data=crc_init;
+}
+
+void LT8910_SetChannel(uint8_t channel)
+=======
 	LT8900_Flags=flags;
 	//CRC init constant
 	LT8900_CRC_Initial_Data=crc_init;
 }
 
 void LT8900_SetChannel(uint8_t channel)
+>>>>>>> refs/remotes/pascallanger/master
 {
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, channel +2);	//NRF24L01 is 2400+channel but LT8900 is 2402+channel
 }
 
+<<<<<<< HEAD
+void LT8910_SetTxRxMode(enum TXRX_State mode)
+=======
 void LT8900_SetTxRxMode(enum TXRX_State mode)
+>>>>>>> refs/remotes/pascallanger/master
 {
 	if(mode == TX_EN)
 	{
@@ -457,12 +518,35 @@ void LT8900_SetTxRxMode(enum TXRX_State mode)
 			NRF24L01_SetTxRxMode(TXRX_OFF);
 }
 
+<<<<<<< HEAD
+void LT8910_BuildOverhead()
+=======
 void LT8900_BuildOverhead()
+>>>>>>> refs/remotes/pascallanger/master
 {
 	uint8_t pos;
 
 	//Build overhead
 	//preamble
+<<<<<<< HEAD
+	memset(LT8910_buffer,LT8910_addr[0]&0x01?0xAA:0x55,LT8910_Preamble_Len-1);
+	pos=LT8910_Preamble_Len-1;
+	//address
+	for(uint8_t i=0;i<LT8910_addr_size;i++)
+	{
+		LT8910_buffer[pos]=bit_reverse(LT8910_addr[i]);
+		pos++;
+	}
+	//trailer
+	memset(LT8910_buffer+pos,(LT8910_buffer[pos-1]&0x01)==0?0xAA:0x55,3);
+	LT8910_buffer_overhead_bits=pos*8+LT8910_Tailer_Len;
+	//nrf address length max is 5
+	pos+=LT8910_Tailer_Len/8;
+	LT8910_buffer_start=pos>5?5:pos;
+}
+
+void LT8910_SetAddress(uint8_t *address,uint8_t addr_size)
+=======
 	memset(LT8900_buffer,LT8900_addr[0]&0x01?0xAA:0x55,LT8900_Preamble_Len-1);
 	pos=LT8900_Preamble_Len-1;
 	//address
@@ -480,10 +564,33 @@ void LT8900_BuildOverhead()
 }
 
 void LT8900_SetAddress(uint8_t *address,uint8_t addr_size)
+>>>>>>> refs/remotes/pascallanger/master
 {
 	uint8_t addr[5];
 	
 	//Address size (SyncWord) 2 to 8 bytes, 16/32/48/64 bits
+<<<<<<< HEAD
+	LT8910_addr_size=addr_size;
+	memcpy(LT8910_addr,address,LT8910_addr_size);
+
+	//Build overhead
+	LT8910_BuildOverhead();
+
+	//Set NRF RX&TX address based on overhead content
+	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, LT8910_buffer_start-2);
+	for(uint8_t i=0;i<LT8910_buffer_start;i++)	// reverse bytes order
+		addr[i]=LT8910_buffer[LT8910_buffer_start-i-1];
+	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0,	addr,LT8910_buffer_start);
+	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,	addr,LT8910_buffer_start);
+}
+
+uint8_t LT8910_ReadPayload(uint8_t* msg, uint8_t len)
+{
+	uint8_t i,pos=0,shift,end,buffer[32];
+	unsigned int crc=LT8910_CRC_Initial_Data,a;
+	pos=LT8910_buffer_overhead_bits/8-LT8910_buffer_start;
+	end=pos+len+(LT8910_Flags&_BV(LT8910_PACKET_LENGTH_EN)?1:0)+(LT8910_Flags&_BV(LT8910_CRC_ON)?2:0);
+=======
 	LT8900_addr_size=addr_size;
 	for (uint8_t i = 0; i < addr_size; i++)
 		LT8900_addr[i] = address[addr_size-1-i];
@@ -505,14 +612,22 @@ uint8_t LT8900_ReadPayload(uint8_t* msg, uint8_t len)
 	unsigned int crc=LT8900_CRC_Initial_Data,a;
 	pos=LT8900_buffer_overhead_bits/8-LT8900_buffer_start;
 	end=pos+len+(LT8900_Flags&_BV(LT8900_PACKET_LENGTH_EN)?1:0)+(LT8900_Flags&_BV(LT8900_CRC_ON)?2:0);
+>>>>>>> refs/remotes/pascallanger/master
 	//Read payload
 	NRF24L01_ReadPayload(buffer,end+1);
 	//Check address + trail
 	for(i=0;i<pos;i++)
+<<<<<<< HEAD
+		if(LT8910_buffer[LT8910_buffer_start+i]!=buffer[i])
+			return 0; // wrong address...
+	//Shift buffer to remove trail bits
+	shift=LT8910_buffer_overhead_bits&0x7;
+=======
 		if(LT8900_buffer[LT8900_buffer_start+i]!=buffer[i])
 			return 0; // wrong address...
 	//Shift buffer to remove trail bits
 	shift=LT8900_buffer_overhead_bits&0x7;
+>>>>>>> refs/remotes/pascallanger/master
 	for(i=pos;i<end;i++)
 	{
 		a=(buffer[i]<<8)+buffer[i+1];
@@ -520,7 +635,11 @@ uint8_t LT8900_ReadPayload(uint8_t* msg, uint8_t len)
 		buffer[i]=(a>>8)&0xFF;
 	}
 	//Check len
+<<<<<<< HEAD
+	if(LT8910_Flags&_BV(LT8910_PACKET_LENGTH_EN))
+=======
 	if(LT8900_Flags&_BV(LT8900_PACKET_LENGTH_EN))
+>>>>>>> refs/remotes/pascallanger/master
 	{
 		crc=crc16_update(crc,buffer[pos]);
 		if(bit_reverse(len)!=buffer[pos++])
@@ -533,7 +652,11 @@ uint8_t LT8900_ReadPayload(uint8_t* msg, uint8_t len)
 		msg[i]=bit_reverse(buffer[pos++]);
 	}
 	//Check CRC
+<<<<<<< HEAD
+	if(LT8910_Flags&_BV(LT8910_CRC_ON))
+=======
 	if(LT8900_Flags&_BV(LT8900_CRC_ON))
+>>>>>>> refs/remotes/pascallanger/master
 	{
 		if(buffer[pos++]!=((crc>>8)&0xFF)) return 0;	// wrong CRC...
 		if(buffer[pos]!=(crc&0xFF)) return 0;			// wrong CRC...
@@ -542,12 +665,21 @@ uint8_t LT8900_ReadPayload(uint8_t* msg, uint8_t len)
 	return 1;
 }
 
+<<<<<<< HEAD
+void LT8910_WritePayload(uint8_t* msg, uint8_t len)
+{
+	unsigned int crc=LT8910_CRC_Initial_Data,a,mask;
+	uint8_t i, pos=0,tmp, buffer[64], pos_final,shift;
+	//Add packet len
+	if(LT8910_Flags&_BV(LT8910_PACKET_LENGTH_EN))
+=======
 void LT8900_WritePayload(uint8_t* msg, uint8_t len)
 {
 	unsigned int crc=LT8900_CRC_Initial_Data,a,mask;
 	uint8_t i, pos=0,tmp, buffer[64], pos_final,shift;
 	//Add packet len
 	if(LT8900_Flags&_BV(LT8900_PACKET_LENGTH_EN))
+>>>>>>> refs/remotes/pascallanger/master
 	{
 		tmp=bit_reverse(len);
 		buffer[pos++]=tmp;
@@ -561,12 +693,27 @@ void LT8900_WritePayload(uint8_t* msg, uint8_t len)
 		crc=crc16_update(crc,tmp);
 	}
 	//Add CRC
+<<<<<<< HEAD
+	if(LT8910_Flags&_BV(LT8910_CRC_ON))
+=======
 	if(LT8900_Flags&_BV(LT8900_CRC_ON))
+>>>>>>> refs/remotes/pascallanger/master
 	{
 		buffer[pos++]=crc>>8;
 		buffer[pos++]=crc;
 	}
 	//Shift everything to fit behind the trailer (4 to 18 bits)
+<<<<<<< HEAD
+	shift=LT8910_buffer_overhead_bits&0x7;
+	pos_final=LT8910_buffer_overhead_bits/8;
+	mask=~(0xFF<<(8-shift));
+	LT8910_buffer[pos_final+pos]=0xFF;
+	for(i=pos-1;i!=0xFF;i--)
+	{
+		a=buffer[i]<<(8-shift);
+		LT8910_buffer[pos_final+i]=(LT8910_buffer[pos_final+i]&mask>>8)|a>>8;
+		LT8910_buffer[pos_final+i+1]=(LT8910_buffer[pos_final+i+1]&mask)|a;
+=======
 	shift=LT8900_buffer_overhead_bits&0x7;
 	pos_final=LT8900_buffer_overhead_bits/8;
 	mask=~(0xFF<<(8-shift));
@@ -576,10 +723,17 @@ void LT8900_WritePayload(uint8_t* msg, uint8_t len)
 		a=buffer[i]<<(8-shift);
 		LT8900_buffer[pos_final+i]=(LT8900_buffer[pos_final+i]&mask>>8)|a>>8;
 		LT8900_buffer[pos_final+i+1]=(LT8900_buffer[pos_final+i+1]&mask)|a;
+>>>>>>> refs/remotes/pascallanger/master
 	}
 	if(shift)
 		pos++;
 	//Send everything
+<<<<<<< HEAD
+	NRF24L01_WritePayload(LT8910_buffer+LT8910_buffer_start,pos_final+pos-LT8910_buffer_start);
+}
+// End of LT8910 emulation
+=======
 	NRF24L01_WritePayload(LT8900_buffer+LT8900_buffer_start,pos_final+pos-LT8900_buffer_start);
 }
 // End of LT8900 emulation
+>>>>>>> refs/remotes/pascallanger/master

@@ -133,6 +133,7 @@ The key difference of this method is that the 3.3V FTDI cable must also provide 
 
 ###Flashing binary file:  
 If you want to flash a pre-compiled binary file (like the Release .bin files) you need specialized software and the FTDI cable.  
+
 1. Set BOOT0 jumper  
 1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V)  
 1. The other steps regarding power supply the same as previous recommandation regarding jumpers  
@@ -151,6 +152,7 @@ To be checked.
 ###Report issues for the STM32 board
 You can report your problem using the [GitHub issue](https://github.com/midelic/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.
 Please provide the following information:
+
 - Multiprotocol code version
 - STM32 version
 - TX type

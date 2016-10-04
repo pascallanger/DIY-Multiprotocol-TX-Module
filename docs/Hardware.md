@@ -9,9 +9,9 @@ There are currently four common hardware options.  They are (click on the pictur
 1. A DIY MPTM made using one of the PCBs that are available and soldering on your own components. The picture below shows an example of one before RF modules have been soldered on.  
 [<img src="images/Multiprotocol_3.2.jpeg" width="150" height="200" />](Module_Build_yourself_PCB.md)
 1. A MPTM based on the OrangeRx DSM transmitter module that natively supports the CYRF6936 RF module. This module can be improved with Mulitprotocol firmware:  
-1. Now works with most (all) DSM bind-and-fly models  
-1. Supports the Devo protocols
-1. Supports the J6Pro protocols   
+   - Now works with most (all) DSM bind-and-fly models  
+   - Supports the Devo protocols
+   - Supports the J6Pro protocols   
 [<img src="images/OrangeRx_Module.jpg" width="250" height="200" />](Module_OrangeRx.md)
 1. A scratchbuilt MPTM using perfboard, an Arduino Pro-Mini and the desired RF modules.
 Unless you are handy with a soldering iron and you have access to electronic test equipment (like an oscilloscope) you should consider only Option 1.  For a price of about $44 you can get everything you need, neatly assembled 

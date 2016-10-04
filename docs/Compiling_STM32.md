@@ -131,11 +131,11 @@ The key difference of this method is that the 3.3V FTDI cable must also provide 
 1. Insert the module into the transmitter bay
 
 
-###Flashing binary file:
-If you want to flash a pre-compiled binary file (like the Release .bin files) you need specialized software and the FTDI cable.
-1. Set BOOT0 jumper
-1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V)
-1. The other steps regarding power supply the same as previous recommandation regarding jumpers. 
+###Flashing binary file:  
+If you want to flash a pre-compiled binary file (like the Release .bin files) you need specialized software and the FTDI cable.  
+1. Set BOOT0 jumper  
+1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V)  
+1. The other steps regarding power supply the same as previous recommandation regarding jumpers  
 For uploading binaries(.bin files) there is a specialized software you need to install on your computer.  
 
 #### Windows:

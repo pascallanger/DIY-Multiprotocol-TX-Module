@@ -51,7 +51,7 @@ In constructing a functioning MPTM there are important choices to be made and tr
 There are currently four generic paths to get your hands on an MPTM.  These are outlined in detail on the [hardware](docs/Hardware.md) page.  Here they are, in order of increasing difficulty:
   - **Ready-made MPTM** - Available from Banggood which includes a 4-in-1 RF module and an antenna switcher
   - **DIY MPTM** - Purchase one of the PCB options from [OSHPark](http://www.oshpark.com) and then solder on your own components and RF modules (the two options differ in the MCU used - either an ATmega328P or a STM32F1)
-  - **OrangeRx MPTM** You can improve the Orange Rx Transmitter module available from Hobbyking by uploading this firmware
+  - **OrangeRx MPTM** You can turn the OrangeRx DSM2/X Tx module (available from HobbyKing) into a MPTM increase the number of supported protocols, add telemetry as an option and bind more successfully with problematic bind-and-fly models. 
   - **Scratchbuild a MPTM** -  Build the module from scratch using perfboard base, an Arduino Pro Mini and discrete components.
 
 The last option is where it all started and how the pioneers in this project made their boards.  However, due to the growing interest in “one module to rule them all” you now have options to purchase a ready-made board (with old firmware that you will need to upgrade).  

@@ -17,11 +17,11 @@ Please refer to the [PPM Setup](PPM_Setup.md) page.
 ###Enabling Serial Mode
 To operate in serial mode, you need one of these firmwares:
  1. erSky9x
- 1. OpenTx supporting the DIY Multiprotocol Module (Version 2.18 Multi or Version 2.2)
+ 1. OpenTx supporting the DIY Multiprotocol Module (Version 2.18 Multi or later)
 
 Check and upload a supported firmware.  The latest available version at time of writing are:
- - erSky9x Revision 218 and the hex files are available [here](http://www.er9x.com).  
- - OpenTx 2.1.8 Multi and the hex files are available [here](http://plaisthos.de/opentx/)
+ - erSky9x Revision 218 or later - the hex files are available [here](http://www.er9x.com).  
+ - OpenTx 2.1.8 Multi or later - the hex files are available [here](http://plaisthos.de/opentx/)
 
 Tutorials for uploading new firmware using the SD Card are available [here](http://www.dronetrest.com/t/how-to-upgrade-firmware-for-frsky-taranis-x9d/959) or the CompanionTx or eepe software (recommended) are available [here](http://open-txu.org/home/undergraduate-courses/fund-of-opentx/part-2-flashing-opentx/). 
 

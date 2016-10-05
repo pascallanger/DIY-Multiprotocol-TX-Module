@@ -96,7 +96,7 @@ If you are using one of the DIY Mulitprotocol modules with the ATmega soldered d
 ###Customize the firmware to your hardware and your needs
 On all modules with ATMega microprocessors, the memory required for all the protocols exceeds the available 32k of flash memory.  You will need to select which protocols you wish to use that will fit into the available memory.
 
-Before customizing your firmware it would be good to review the protocol on the [Protocol Details](#Protocol_Details_Page) page and to identify the protocols you would like to support on your module.  
+Before customizing your firmware it would be good to review the protocol on the [Protocol Details](pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md) page and to identify the protocols you would like to support on your module.  
 
 At the same time make a note of RF modules required by your protocols.  For example, if you do not wish to use the FlySky or the Husan protocols then you do not need to compile support the the A7105 RF Module into your firmware.  Similarly, if you have no need to bind with ASSAN RC receivers then you do not need to compile the ASSAN protocol into your firmware. 
 

@@ -32,6 +32,7 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 - **Autobind protocol** - The transmitter will automatically initiate a bind sequence on power up.  This is for models where the receiver expects to rebind every time it is powered up. In these protocols you do not need to press the bind button at power up to bind, it will be done automatically.
 - **Channel Order** - The channel order assumed in all the documentation is AETR and it is highly recommended that you keep it this way.  You can change this in the compilation settings.  However, please indicate your channel order in all questions and posts on the forum pages. 
 
+
 ***
 #A7105 RF Module
 
@@ -161,38 +162,34 @@ Bind procedure using PPM:
 - Note: Autobind/fixed ID mode is linked to the dial number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
 
 ##DSM
-###Sub_protocol DSM2
 Extended limits supported
 
 Telemetry enabled for TSSI and plugins
 
-option=number of channels and frame rate:
- - 0 : 4 channels @22ms
- - 1 : 5 channels @22ms
- - 2 : 6 channels @22ms
- - 3 : 7 channels @22ms
-
- - 4 : 4 channels @11ms
- - 5 : 5 channels @11ms
- - 6 : 6 channels @11ms
- - 7 : 7 channels @11ms
-
- - 8 : 8 channels @22ms
- - 9 : 9 channels @22ms
- - 10 : 10 channels @22ms
- - 11 : 11 channels @22ms
- - 12 : 12 channels @22ms
-
-Value 6 is usually giving the best results with most of the RX.
+option=number of channels from 4 to 12. An invalid option value will end up with 6 channels.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
-Note that the RX ouput will be TAER.
+Notes:
+ - model/type/number of channels indicated on the RX can be different from what the RX is in fact wanting to see. So don't hesitate to test different combinations until you have something working. Using Auto is the best way to find these settings.
+ - RX ouput will always be TAER independently of the input AETR, RETA...
 
-###Sub_protocol DSMX
-Same as above
+###Sub_protocol DSM2_22
+DSM2, Resolution 1024, refresh rate 22ms
+###Sub_protocol DSM2_11
+DSM2, Resolution 2048, refresh rate 11ms
+###Sub_protocol DSMX_22
+DSMX, Resolution 2048, refresh rate 22ms
+###Sub_protocol DSMX_11
+DSMX, Resolution 2048, refresh rate 11ms
+###Sub_protocol AUTO
+The "AUTO" feature enables the TX to automatically choose what are the best settings for your DSM RX and update your model protocol settings accordingly.
+
+The current radio firmware which are able to use the "AUTO" feature are ersky9x (9XR Pro, 9Xtreme, Taranis, ...) and er9x for M128 (9XR) and M2561.
+For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx".
+Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on ersky9x you can set "Invert COM1" accordinlgy.
 
 ##J6Pro
 
@@ -347,11 +344,26 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim
 
-Dual Rate (DR): +100%=full range, Throttle Hold (THOLD): +100%=hold, Idle Up (IDLEUP): +100%=3D, GYRO: -100%=6G, +100%=3G
+Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO: -100%=6G, +100%=3G
 
 ###Sub_protocol WLTOYS
 ###Sub_protocol FEILUN
 Same channels assignement as above.
+
+##HONTAI
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|CAL
+
+###Sub_protocol HONTAI
+###Sub_protocol JJRCX1
+CH6|
+---|
+ARM|
+
+###Sub_protocol X5C1 clone
 
 ##MJXQ
 Autobind protocol
@@ -367,7 +379,6 @@ Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ###Sub_protocol H26D
 ###Sub_protocol E010
-Only 1 TX ID available
 
 ##MT99XX
 Autobind protocol
@@ -413,7 +424,7 @@ Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|RATES|PICTURE|VIDEO|HEADLESS
+A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
 
 ###Sub_protocol SYMAX
 Models: Syma X5C-1/X11/X11C/X12
@@ -445,3 +456,4 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ###Sub_protocol XINXUN
 ###Sub_protocol NIHUI
 Same channels assignement as above.
+

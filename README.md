@@ -17,7 +17,7 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 1. [Compatible Transmitters](docs/Transmitters.md)
 1. [Module Hardware options](docs/Hardware.md)
 1. [Compiling and programming the module (ATmega328)](docs/Compiling.md) and [Compiling STM32](docs/Compiling_STM32.md).
-1. [Transmitter Setup](Transmitters.md) 
+1. [Transmitter Setup](docs/Transmitters.md) 
    - [Taranis](docs/Tx-Taranis.md)
    - [FlySky TH9X, Turnigy 9X/R](docs/Tx-FlyskyTH9X.md)
    - [erSky Transmitters](docs/Tx-erSky9X.md)

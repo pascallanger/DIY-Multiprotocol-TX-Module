@@ -1,11 +1,39 @@
-#MULTI-Module Protocol Details
-**You'll find below a detailed description of every supported protocols sorted by RF modules.**
+#Protocols details
+Here are detailed descriptions of every supported protocols (sorted by RF modules) as well as the available options for each protocol.
 
-Legend:
-- Extended limits supported: -125%..+125% can be used and will be transmitted. Otherwise the default is -100%..+100% only.
-- Autobind protocol: you do not need to press the bind button at power up to bind, this is done automatically.
+ If you want to see a list of models that use these protocols see the [Models](Models.md) page.
+ 
+ The Deviation project (on which this project was based) have a useful list of models and protocols [here](http://www.deviationtx.com/wiki/supported_models).
 
-The AETR mentionned here for all protocols depends on the TX settings compilation option set in _Config.h.
+## Default Mapping of Protocols <a name="DefaultMapping"></a>
+Here is the default mapping of protocols to the 16-position protocol selection switch on the module.  You can customize these when you compile your own firmware as described in [Compiling and Programming.](Compiling.md)
+
+**Note that the protocol must be selected before the unit is turned on.**
+
+Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
+----|--------|------------|------|-----|---------|------|---------
+0|Select serial||||||
+1|FLYSKY|Flysky|0|High|No|0|A7105
+2|HUBSAN|-|0|High|No|0|A7105
+3|FRSKYD|-|0|High|No|-41|CC2500
+4|HISKY|Hisky|0|High|No|0|NRF24L01
+5|V2X2|-|0|High|No|0|NRF24L01
+6|DSM|DSM2|0|High|No|6|CYRF6936
+7|DEVO|-|0|High|No|0|CYRF6936
+8|YD717|YD717|0|High|No|0|NRF24L01
+9|KN|WLTOYS|0|High|No|0|NRF24L01
+10|SYMAX|SYMAX|0|High|No|0|NRF24L01
+11|SLT|-|0|High|No|0|NRF24L01
+12|CX10|BLUE|0|High|No|0|NRF24L01
+13|CG023|CG023|0|High|No|0|NRF24L01
+14|BAYANG|-|0|High|No|0|NRF24L01
+15|SYMAX|SYMAX5C|0|High|No|0|NRF24L01
+
+## Useful notes and definitions
+- **Extended limits supported** - A command range of -125%..+125% will be transmitted. Otherwise the default is -100%..+100% only.
+- **Autobind protocol** - The transmitter will automatically initiate a bind sequence on power up.  This is for models where the receiver expects to rebind every time it is powered up. In these protocols you do not need to press the bind button at power up to bind, it will be done automatically.
+- **Channel Order** - The channel order assumed in all the documentation is AETR and it is highly recommended that you keep it this way.  You can change this in the compilation settings.  However, please indicate your channel order in all questions and posts on the forum pages. 
+
 
 ***
 #A7105 RF Module
@@ -430,3 +458,5 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ###Sub_protocol XINXUN
 ###Sub_protocol NIHUI
 Same channels assignement as above.
+
+

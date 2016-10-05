@@ -7,13 +7,13 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 ## Quicklinks
 * [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases)
 * [Forum on rcroups](http://www.rcgroups.com/forums/showthread.php?t=2165676)
-* [Available Protocols list](docs/Protocol_Details.md)
+* [Available Protocols list](Protocols_Details.md)
 * [The old documentation](docs/README-old.md)
 * [Documentation to-do list](docs/Documentation_To_Do_List.md)
 
 ## Outline of the documentation
 1. Introduction (this page)
-1. [Available protocols](docs/Protocol_Details.md)
+1. [Available protocols](Protocols_Details.md)
 1. [Compatible Transmitters](docs/Transmitters.md)
 1. [Module Hardware options](docs/Hardware.md)
 1. [Compiling and programming the module (ATmega328)](docs/Compiling.md) and [Compiling STM32](Compiling_STM32.md).
@@ -60,7 +60,7 @@ For more information on these options see the [hardware](docs/Hardware.md) page
 
 ##**Choice 2:** Which RF modules to include in the MULTI-Module
 
-This depends on your specific needs.  However, recent the availability of the 4-in-1 RF modules from Banggood for less than $35 makes it easy to “have it all”.  Most manufacturers of RC systems (Spektrum, FrSky, FlySky) and toys (Syma, Hubsan, Horizon Hobby, etc.) use one of these four RF chips to manage the RF link between the transmitter and the reciever/model.  Here is an incomplete list of the RF modules and some of the most popular toys that use them.  For the complete list see the [Protocol Details](docs/Protocol_Details.md) page.
+This depends on your specific needs.  However, recent the availability of the 4-in-1 RF modules from Banggood for less than $35 makes it easy to “have it all”.  Most manufacturers of RC systems (Spektrum, FrSky, FlySky) and toys (Syma, Hubsan, Horizon Hobby, etc.) use one of these four RF chips to manage the RF link between the transmitter and the reciever/model.  Here is an incomplete list of the RF modules and some of the most popular toys that use them.  For the complete list see the [Protocol Details](Protocols_Details.md) page.
 
 Manufacturer|RF Chip|Example Protocols
 :-----------|-------|:-------
@@ -100,7 +100,7 @@ If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX f
   - For telemetry capable transmitters, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work).  Click on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page for more details.
 
 #How to get started?
-1. Browse the [Protocols](docs/Protocol_Details.md) page to see which protocols you would like on your module
+1. Browse the [Protocols](Protocols_Details.md) page to see which protocols you would like on your module
 1. Go to the [Hardware Options](docs/Hardware.md) page to decide which of the MULTI-Module hardware options appeals to you and which RF modules you plan to integrate
 1. Once you have your module, you should go to [Compiling and Programming](docs/Compiling.md) page to download, compile and program your MULTI-Module
 1. Finally, you should visit the setup page for your transmitter by clicking on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page to configure the last few settings before you can fly to your heart’s content!!!!!

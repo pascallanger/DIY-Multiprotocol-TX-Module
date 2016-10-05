@@ -1,5 +1,5 @@
 
-#DIY MPTM by soldering components on a PCB
+#DIY MULTI-module by soldering components on a PCB
 Currently the form factor of this module is designed for the JR-style module bay. Many of the popular RC transmitters use the JR-style module bay: FrSky Taranis, FlySky Th9x, Turnigy 9X/R/Pro
 ##What you need
 First you must choose the PCB onto which to solder all the components. There are two PCB options:

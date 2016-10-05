@@ -18,7 +18,7 @@ The **STM32-based** board has been designed to accept the 4-in-1 RF module with 
 1. ATmega (8-bit) powered PCB V2.3d available from OSHPark [here](https://oshpark.com/shared_projects/Ztus1ah8).
 2. Individual RF modules  The modules are available here:
     - [CC2500](http://www.banggood.com/2_4G-500K-CC2500-Long-Range-Wireless-Transceiver-Module-p-1075492.html) for FrSkyV, FrSkyD, FrSkyX and SFHSS
-    - CYRF6936 {Can someone please give me a source} for DSM, DEVO, J6Pro
+    - CYRF6936 for DSM, DEVO, J6Pro ([here](http://www.trade4me.de/Devo-WK-21201RF-2-4GHZ-Telemetrie-Modul::34960.html), [here](http://www.walkeraonline.com/walkera-wk-devo-s-mod-devo-8-or-12-to-devo-8s-or-12s-upgrade-module.html), or [here](http://www.buychina.com/items/2-4g-module-cyrf6936-pa-lna-module-cyrf6936-20dbm-module-uuruunslkhi)
     - [A7105](http://www.banggood.com/A7105-Wireless-RF-2_4GHz-Transceiver-Module-3_3V-Power-Supply-Module-p-909404.html) for Flysky, Hubsan
     - [NRF24L01](http://www.banggood.com/2_4G-NRF24L01-PA-LNA-Wireless-Module-16+32mm-Without-Antenna-p-922601.html?utm_source=tradetracker&utm_medium=tradetracker_SE&utm_campaign=tradetracker&utm_content=227736) for Hisky, V2x2, CX-10, SYMAX and plenty other protocols
     - The 4-in-1 RF module (available [here](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html)) can also be connected with solder wires.  To enable the antenna switcher the PE1 and PE2 pads must be soldered to ATmega pins, check the [schematic](#V23D_Schematic)  

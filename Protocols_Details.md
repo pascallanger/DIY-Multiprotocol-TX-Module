@@ -1,12 +1,12 @@
 #Protocols details
 Here are detailed descriptions of every supported protocols (sorted by RF modules) as well as the available options for each protocol.
 
- If you want to see a list of models that use these protocols see the [Models](Models.md) page.
+ If you want to see a list of models that use these protocols see the [Models](docs/Models.md) page.
  
  The Deviation project (on which this project was based) have a useful list of models and protocols [here](http://www.deviationtx.com/wiki/supported_models).
 
 ## Default Mapping of Protocols <a name="DefaultMapping"></a>
-Here is the default mapping of protocols to the 16-position protocol selection switch on the module.  You can customize these when you compile your own firmware as described in [Compiling and Programming.](Compiling.md)
+Here is the default mapping of protocols to the 16-position protocol selection switch on the module.  You can customize these when you compile your own firmware as described in [Compiling and Programming.](docs/Compiling.md)
 
 **Note that the protocol must be selected before the unit is turned on.**
 

@@ -13,15 +13,21 @@ A|E|T|R|FLIP|RATES|PICTURE|VIDEO
 There are no special binding instructions.  The model powers up in Autobind mode and expects the bind sequence from the transmitter within the first 4-5 seconds. 
 ##Tx Setup
 A basic 4-channel setup works perfectly, but some improvements are possible:   
-###Setting up a switch to Flip   
+###Setting up a switch to Flip    
 
+1. Choose your "Rates" switch - typically the momentary TRN switch
+1. In the Mixer create an entry for CH5
+1. Edit this line as follows:  
+   - er9X: Source: sTRN, Weight 100 (or whatever switch you selected)
+   - OpenTx: Source: SH, Weight 200 (or whatever switch you selected)
+   
 ###Setting up a swich for high rates
 
 1. Choose your "Rates" switch
 1. In the Mixer create an entry for CH6
 1. Edit this line as follows:  
-   - er9X: Source: FULL, Switch: THR (or whatever switch you selected)
-   - OpenTx: Source: SF   
+   - er9X: Source: sTHR, Weight 100 (or whatever switch you selected)
+   - OpenTx: Source: SF, Weight 200 (or whatever switch you selected)
 
 When the switch is in the rear position the rates will be standard, when the switch is forward rates will be high.  There is no need to move the throttle stick to the full up and full down position as with the standard controller. 
 

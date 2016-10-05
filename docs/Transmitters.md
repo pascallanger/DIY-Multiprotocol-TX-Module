@@ -63,7 +63,7 @@ Click on your transmitter above to view specific setup instructions.
 
 <a name="Telemetry_Mod"></a>   
 ##Optional Telemetry mod for 9X/r TH9X transmitters
-The telemetry mod for these transmitters has evolved.  The original and popular "FrSky Telemetry Mod" requires 2 pins on the transmitter module board to be modified (RX on pin 5 and TX on pin 2).  All the recent MPTM hardware options supports serial transmission on pin 1 (the same pin as the PPM signal) so, in this case, only the mod on pin 5 is required. 
+The telemetry mod for these transmitters has evolved.  The original and popular "FrSky Telemetry Mod" requires 2 pins on the transmitter module board to be modified (RX on pin 5 and TX on pin 2).  All the recent MULTI-Module hardware options supports serial transmission on pin 1 (the same pin as the PPM signal) so, in this case, only the mod on pin 5 is required. 
 
 A good tutorial to follow is Oscar Liang's [here](http://blog.oscarliang.net/turnigy-9x-advance-mod/) but when you get to wiring up the Tx Module bay pins, you only need to perform the steps relevant for Pin 5.
 

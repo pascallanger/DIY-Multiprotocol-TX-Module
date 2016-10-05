@@ -9,7 +9,7 @@ The instructions below are relevant to the following firmwares:
  1. Taranis with OpenTx available [here](http://plaisthos.de/opentx/)
 
 
-The DIY Multiprotocol module can be used with all transmitters and firmwares in PPM mode.  Taranis transmitters running erSky9X or OpenTX (Version 2.1.8 Multi or Version 2.2) fully support Serial mode. 
+The MULTI-module can be used with all transmitters and firmwares in PPM mode.  Taranis transmitters running erSky9X or OpenTX (Version 2.1.8 Multi or Version 2.2) fully support Serial mode. 
 ## PPM Mode
 Please refer to the [PPM Setup](PPM_Setup.md) page. 
 
@@ -17,7 +17,7 @@ Please refer to the [PPM Setup](PPM_Setup.md) page.
 ###Enabling Serial Mode
 To operate in serial mode, you need one of these firmwares:
  1. erSky9x
- 1. OpenTx supporting the DIY Multiprotocol Module (Version 2.18 Multi or later)
+ 1. OpenTx supporting the MULTI-Module (Version 2.18 Multi or later)
 
 Check and upload a supported firmware.  The latest available version at time of writing are:
  - erSky9x Revision 218 or later - the hex files are available [here](http://www.er9x.com) (Mike's latests test versions are available [here](http://openrcforums.com/forum/viewtopic.php?f=7&t=4676)).  
@@ -27,12 +27,12 @@ Tutorials for uploading new firmware using the SD Card are available [here](http
 
 **Note: In these tutorials, substitute the firmwares from the links to the supported firmwares above.**
 
-First, confirm that the DIY Multiprotocol module has the required physical connections between the pins on the back of the Tx and the ATMega328 microprocessor.  This may require some soldering and depends on which version of the DIY Multiprotocol module you have.  Check out the specific pages for your module hardware (under the section "Enabling Serial") linked [here](Hardware.md) for details.
+First, confirm that the MULTI-Module has the required physical connections between the pins on the back of the Tx and the ATMega328 microprocessor.  This may require some soldering and depends on which version of the DIY Multiprotocol module you have.  Check out the specific pages for your module hardware (under the section "Enabling Serial") linked [here](Hardware.md) for details.
 
- 1. Plug in your DIY Multiprotocol module into the Taranis module bay.  
+ 1. Plug in your MULTI-Module into the Taranis module bay.  
  2. If you have a rotary protocol selection switch, turn the switch to position 0 to put the unit into Serial mode. 
- 2. Ensure throttle is down and all switches are in the start position and power up the Taranis.  The red LED on the DIY Multiprotocol module should be flashing with a period of about 1s indicating that it has not established a valid serial link with the Tx.  This is expected as we have not set up the Tx yet.
- 3. Create a new model (make sure channel order is AETR) and on the first Model Settings page scroll down to disable the internal RF and enable the external RF by selecting MULTI as the external RF. Your Taranis settings should look like this: {insert picture of Taranis screen showing external RF settings} The Red LED on the DIY Multiprotocol module should briefly flash and then go off.  This confirms that the DIY Multiprotocol module has established serial communication with the Tx.  
+ 2. Ensure throttle is down and all switches are in the start position and power up the Taranis.  The red LED on the MULTI-Module should be flashing with a period of about 1s indicating that it has not established a valid serial link with the Tx.  This is expected as we have not set up the Tx yet.
+ 3. Create a new model (make sure channel order is AETR) and on the first Model Settings page scroll down to disable the internal RF and enable the external RF by selecting MULTI as the external RF. Your Taranis settings should look like this: {insert picture of Taranis screen showing external RF settings} The Red LED on the MULTI-Module should briefly flash and then go off.  This confirms that the MULTI-Module module has established serial communication with the Tx.  
  4. If the red LED on the module continues to flash at a period of about 1s then it signals that serial communication has not been established.  Check your settings under the model menu as described above and check that the protocol selection switch on the module is at 0 (zero).  If there is still no communication, power down and power up the Tx.  Finally check that you have correctly enabled your module for serial as described in specific pages for your module hardware (under the section "Enabling Serial") linked [here](Hardware.md)
  
 ###Protocol Selection in Serial mode

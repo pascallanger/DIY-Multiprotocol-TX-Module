@@ -32,7 +32,7 @@ On all modules with STM32F103 microcontroller, the program flash memory on the m
 
 If you plan to use the PPM mode then you should follow the instructions to customize the protocol selection switch to protocol mapping.  
 
-Before customizing your firmware it would be good to review the protocol on the [Protocol Details](Protocol_Details.md) page and to identify the protocols you would like to support on your module.  
+Before customizing your firmware it would be good to review the protocol on the [Protocol Details](../Protocols_Details.md) page and to identify the protocols you would like to support on your module.  
 
 At the same time make a note of RF modules required by your protocols.  For example, if you do not wish to use the FlySky or the Husan protocols then you do not need to compile support the the A7105 RF Module into your firmware.  Similarly, if you have no need to bind with ASSAN RC receivers then you do not need to compile the ASSAN protocol into your firmware. 
 

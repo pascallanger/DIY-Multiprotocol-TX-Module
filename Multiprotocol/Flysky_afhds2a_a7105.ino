@@ -9,6 +9,7 @@
 	#define TXID_SIZE		4
 	#define RXID_SIZE		4
 
+	static uint8_t txid[RXID_SIZE];
 	static uint8_t rxid[RXID_SIZE];
 	static uint8_t packet_type;
 	static uint8_t bind_reply;
@@ -39,7 +40,7 @@
 		switch(type) {
 			case PACKET_STICKS:		
 				packet[0] = 0x58;
-				memcpy( &packet[1], rx_tx_addr, 4);
+				memcpy( &packet[1], txid, 4);
 				memcpy( &packet[5], rxid, 4);
 				for(uint8_t ch=0; ch<14; ch++) {
 					packet[9 +  ch*2] = Servo_data[CH_AETR[ch]]&0xFF;
@@ -50,7 +51,7 @@
 				
 			case PACKET_SETTINGS:
 				packet[0] = 0xaa;
-				memcpy( &packet[1], rx_tx_addr, 4);
+				memcpy( &packet[1], txid, 4);
 				memcpy( &packet[5], rxid, 4);
 				packet[9] = 0xfd;
 				packet[10]= 0xff;
@@ -75,7 +76,7 @@
 				
 			case PACKET_FAILSAFE:
 				packet[0] = 0x56;
-				memcpy( &packet[1], rx_tx_addr, 4);
+				memcpy( &packet[1], txid, 4);
 				memcpy( &packet[5], rxid, 4);
 				for(uint8_t ch=0; ch<14; ch++) {
 					if(ch==0) {
@@ -133,7 +134,7 @@
 
 	static void afhds2a_build_bind_packet() {
 		uint8_t ch;
-		memcpy( &packet[1], rx_tx_addr, 4);
+		memcpy( &packet[1], txid, 4);
 		memset( &packet[5], 0xff, 4);
 		packet[10]= 0x00;
 		for(ch=0; ch<16; ch++) {
@@ -298,6 +299,9 @@
 	static uint16_t AFHDS2A_setup()
 	{
 		A7105_Init(INIT_FLYSKY_AFHDS2A);	//flysky_init();
+		for (u8 i = 0; i < TXID_SIZE; ++i) {
+			txid[i] = rx_tx_addr[0];
+		}
 
 		calc_afhds_channels(MProtocol_id);
 		packet_type = PACKET_STICKS;

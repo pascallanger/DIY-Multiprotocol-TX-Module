@@ -1,4 +1,4 @@
-#Protocol Details Page
+#MULTI-Module Protocol Details
 **You'll find below a detailed description of every supported protocols sorted by RF modules.**
 
 Legend:

@@ -22,6 +22,7 @@ Multiprotocol source can be compiled using the Arduino IDE using STM32 Core (Map
  > ```//void __irq_usart3(void) { usart_irq(&usart3_rb, USART3_BASE); } ```  
 1. Run the IDE, and on the **Tools** menu, select **Board** and then **Boards manager**. Click on the Arduino DUE (32 Bits ARM-Cortex M3) from the list of available boards. You must do this step, it installs the arm-none-eabi-g++ toolchain!
 1. Close and reopen the Arduino IDE and load the Multiprotocol project.
+1. In arduino IDE under the **Tools** -> **Board:** select the **Generic STM32F103C series** board
 1. Click on the **Verify** button to test compile the before you make any changes.  If there are errors check the process above and be sure to have the right version of the Arduino IDE.
 
 

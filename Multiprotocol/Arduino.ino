@@ -12,6 +12,8 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef STM32_BOARD
+/************************************/
 /************************************/
 /**  Arduino replacement routines  **/
 /************************************/
@@ -106,7 +108,7 @@ void delayMicroseconds(unsigned int us)
       return;
    us <<= 2;	// * 4
    us -= 2;		// - 2
-#ifdef XMEGA
+#ifdef ORANGE_TX
 	 __asm__ __volatile__ (
       "1: sbiw %0,1" "\n\t" // 2 cycles
 			"nop \n"
@@ -123,11 +125,12 @@ void delayMicroseconds(unsigned int us)
 #endif
 }
 
-#ifndef XMEGA
+#ifndef ORANGE_TX
 	void init()
 	{
 	   // this needs to be called before setup() or some functions won't work there
 	   sei();
 	}
-#endif //XMEGA
+#endif //ORANGE_TX
 
+#endif //STM32_BOARD

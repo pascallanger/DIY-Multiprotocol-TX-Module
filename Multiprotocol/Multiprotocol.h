@@ -13,16 +13,6 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Check selected board type
-#ifndef XMEGA
-	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO)
-		#error You must select the board type "Arduino Pro or Pro Mini" or "Arduino Mini"
-	#endif
-	#if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
-		#error You must select the processor type "ATmega328(5V, 16MHz)"
-	#endif
-#endif
-
 //******************
 // Protocols
 //******************
@@ -158,27 +148,6 @@ struct PPM_Parameters
 
 // Macros
 #define NOP() __asm__ __volatile__("nop")
-
-//*******************
-//***    Timer    ***
-//*******************
-#ifdef XMEGA
-	#define TIFR1 TCC1.INTFLAGS
-	#define OCF1A_bm TC1_CCAIF_bm
-	#define OCR1A TCC1.CCA
-	#define TCNT1 TCC1.CNT
-	#define UDR0 USARTC0.DATA
-	#define OCF1B_bm TC1_CCBIF_bm
-	#define OCR1B TCC1.CCB
-	#define TIMSK1 TCC1.INTCTRLB
-	#define SET_TIMSK1_OCIE1B	TIMSK1  = (TIMSK1 & 0xF3) | 0x04
-	#define CLR_TIMSK1_OCIE1B	TIMSK1 &= 0xF3
-#else
-	#define OCF1A_bm _BV(OCF1A)
-	#define OCF1B_bm _BV(OCF1B)
-	#define SET_TIMSK1_OCIE1B	TIMSK1 |= _BV(OCIE1B)
-	#define CLR_TIMSK1_OCIE1B	TIMSK1 &=~_BV(OCIE1B)
-#endif
 
 //***************
 //***  Flags  ***

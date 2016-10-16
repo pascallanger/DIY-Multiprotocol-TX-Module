@@ -15,6 +15,7 @@
 /************************/
 /**  Convert routines  **/
 /************************/
+#ifndef STM32_BOARD
 int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
 {
 //  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -25,6 +26,7 @@ int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t
 	x = y / (in_max - in_min) ;
 	return x  + out_min ;
 }
+#endif
 
 // Channel value is converted to 8bit values full scale
 uint8_t convert_channel_8b(uint8_t num)

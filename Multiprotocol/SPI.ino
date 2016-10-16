@@ -15,7 +15,81 @@
 /********************/
 /**  SPI routines  **/
 /********************/
-#ifdef XMEGA
+#ifdef STM32_BOARD
+
+SPIClass SPI_2(2); 							//Create an instance of the SPI Class called SPI_2 that uses the 2nd SPI Port
+
+void initSPI2()
+{
+	//SPI_DISABLE();
+	SPI_2.end();
+	SPI2_BASE->CR1 &= ~SPI_CR1_DFF_8_BIT;	//8 bits format This bit should be written only when SPI is disabled (SPE = ?0?) for correct operation.
+	SPI_2.begin();							//Initialize the SPI_2 port.
+
+	SPI_2.setBitOrder(MSBFIRST);			// Set the SPI_2 bit order
+	SPI_2.setDataMode(SPI_MODE0);			// Set the SPI_2 data mode 0
+	SPI_2.setClockDivider(SPI_CLOCK_DIV8);	// Set the speed (36 / 8 = 4.5 MHz SPI_2 speed)
+}
+	
+void SPI_Write(uint8_t command)
+{//working OK	
+	SPI2_BASE->DR = command;				//Write the first data item to be transmitted into the SPI_DR register (this clears the TXE flag).
+	while (!(SPI2_BASE->SR & SPI_SR_RXNE));
+	command = SPI2_BASE->DR;				// ... and read the last received data.
+}
+
+uint8_t SPI_Read(void)
+{
+	SPI_Write(0x00);		
+	return SPI2_BASE->DR;
+}
+
+uint8_t SPI_SDI_Read()
+{	
+	uint8_t rx=0;
+	cli();	//Fix Hubsan droputs??
+	while(!(SPI2_BASE->SR & SPI_SR_TXE));
+	while((SPI2_BASE->SR & SPI_SR_BSY));	
+	//	
+	SPI_DISABLE();
+	SPI_SET_BIDIRECTIONAL();
+	volatile uint8_t x = SPI2_BASE->DR;
+	(void)x;
+	SPI_ENABLE();
+	//
+	SPI_DISABLE();				  
+	while(!(SPI2_BASE->SR& SPI_SR_RXNE));
+	rx=SPI2_BASE->DR;
+	SPI_SET_UNIDIRECTIONAL();
+	SPI_ENABLE();
+	sei();//fix Hubsan dropouts??
+	return rx;
+}
+
+void SPI_ENABLE()
+{
+	SPI2_BASE->CR1 |= SPI_CR1_SPE;
+}
+
+void SPI_DISABLE()
+{
+	SPI2_BASE->CR1 &= ~SPI_CR1_SPE;
+}
+
+void SPI_SET_BIDIRECTIONAL()
+{
+	SPI2_BASE->CR1 |= SPI_CR1_BIDIMODE;
+	SPI2_BASE->CR1  &= ~ SPI_CR1_BIDIOE;//receive only
+}
+
+void SPI_SET_UNIDIRECTIONAL()
+{
+	SPI2_BASE->CR1 &= ~SPI_CR1_BIDIMODE;
+}
+
+#else
+
+#ifdef ORANGE_TX
 	#define XNOP() NOP()
 #else
 	#define XNOP()
@@ -67,7 +141,7 @@ uint8_t SPI_Read(void)
 }
 
 #ifdef A7105_INSTALLED
-uint8_t SPI_SDIO_Read(void)
+uint8_t SPI_SDI_Read(void)
 {
 	uint8_t result=0;
 	SDI_input;
@@ -84,3 +158,5 @@ uint8_t SPI_SDIO_Read(void)
 	return result;
 }
 #endif
+
+#endif//STM32_BOARD

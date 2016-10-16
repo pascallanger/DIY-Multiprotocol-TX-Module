@@ -135,8 +135,7 @@ static uint8_t __attribute__((unused)) get_pn_row(uint8_t channel)
 }
 
 const uint8_t PROGMEM init_vals[][2] = {
-	{CYRF_02_TX_CTRL, 0x03},				// TX interrupt complete and error enabled
-											//0x00 in deviation but needed to know when transmit is over
+	{CYRF_02_TX_CTRL, 0x00},				// All TX interrupt disabled
 	{CYRF_05_RX_CTRL, 0x00},				// All RX interrupt disabled
 	{CYRF_28_CLK_EN, 0x02},					// Force receive clock enable
 	{CYRF_32_AUTO_CAL_TIME, 0x3c},			// Default init value
@@ -369,13 +368,13 @@ static uint8_t __attribute__((unused)) DSM_Check_RX_packet()
 uint16_t ReadDsm()
 {
 #define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
-#define DSM_WRITE_DELAY		1550			// Time after write to verify write complete
+#define DSM_WRITE_DELAY		1950			// Time after write to verify write complete
 #define DSM_READ_DELAY		600				// Time before write to check read phase, and switch channels. Was 400 but 600 seems what the 328p needs to read a packet
-	uint16_t start;
 	#if defined DSM_TELEMETRY
 		uint8_t rx_phase;
 		uint8_t len;
 	#endif
+	uint8_t start;
 	
 	switch(phase)
 	{
@@ -451,19 +450,28 @@ uint16_t ReadDsm()
 			return DSM_WRITE_DELAY;
 		case DSM_CH1_CHECK_A:
 		case DSM_CH1_CHECK_B:
-			start=micros();
-			while ((uint16_t)micros()-start < 500)			// Wait max 500µs
-				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
-					break;
-			set_sop_data_crc();
-			phase++;										// change from CH1_CHECK to CH2_WRITE
-			return DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
 		case DSM_CH2_CHECK_A:
 		case DSM_CH2_CHECK_B:
 			start=micros();
-			while ((uint16_t)micros()-start < 500)			// Wait max 500µs
+			while ((uint8_t)micros()-start < 100)			// Wait max 100µs, max I've seen is 50µs
 				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
 					break;
+			if(phase==DSM_CH1_CHECK_A || phase==DSM_CH1_CHECK_B)
+			{
+				#if defined DSM_TELEMETRY
+					// reset cyrf6936 if freezed after switching from TX to RX
+					if (((CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x22) == 0x20) || (CYRF_ReadRegister(CYRF_02_TX_CTRL) & 0x80))
+					{
+						CYRF_Reset();
+						cyrf_config();
+						cyrf_configdata();
+						CYRF_SetTxRxMode(TX_EN);
+					}
+				#endif
+				set_sop_data_crc();
+				phase++;										// change from CH1_CHECK to CH2_WRITE
+				return DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
+			}
 			if (phase == DSM_CH2_CHECK_A)
 				CYRF_SetPower(0x28);						//Keep transmit power in sync
 #if defined DSM_TELEMETRY

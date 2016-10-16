@@ -17,6 +17,14 @@
 /** Multiprotocol module configuration file ***/
 /**********************************************/
 
+/********************/
+/***  BOARD TYPE  ***/
+/********************/
+//Uncomment one of the line below if you have a different module not based on the original Multi Atmega328p design which includes the 4-in-1.
+//If you don't know then leave them commented.
+//#define STM32_BOARD
+
+
 /*******************/
 /*** TX SETTINGS ***/
 /*******************/
@@ -53,13 +61,13 @@
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO
 #define	DSM_CYRF6936_INO
-#define J6PRO_CYRF6936_INO
+#define	J6PRO_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
 #define	FRSKYD_CC2500_INO
 #define	FRSKYV_CC2500_INO
 #define	FRSKYX_CC2500_INO
-#define SFHSS_CC2500_INO
+#define	SFHSS_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO

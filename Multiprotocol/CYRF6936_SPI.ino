@@ -12,8 +12,8 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifdef CYRF6936_INSTALLED
 #include "iface_cyrf6936.h"
-
 
 void CYRF_WriteRegister(uint8_t address, uint8_t data)
 {
@@ -182,11 +182,6 @@ void CYRF_WritePreamble(uint32_t preamble)
 /*
 *
 */
-static void CYRF_StartReceive()
-{
-	CYRF_WriteRegister(CYRF_05_RX_CTRL,0x87);
-}
-
 /*static void CYRF_ReadDataPacket(uint8_t dpbuffer[])
 {
 	CYRF_ReadRegisterMulti(CYRF_21_RX_BUFFER, dpbuffer, 0x10);
@@ -243,10 +238,14 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 	for(i = 0; i < NUM_FREQ; i++)
 	{
 		CYRF_ConfigRFChannel(i);
-		CYRF_ReadRegister(CYRF_13_RSSI);
-		CYRF_StartReceive();
-		delayMicroseconds(10);
-		rssi[i] = CYRF_ReadRegister(CYRF_13_RSSI);
+		delayMicroseconds(270);					//slow channel require 270usec for synthesizer to settle
+        if( !(CYRF_ReadRegister(CYRF_05_RX_CTRL) & 0x80)) {
+            CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x80); //Prepare to receive
+            delayMicroseconds(15);
+            CYRF_ReadRegister(CYRF_13_RSSI);	//dummy read
+            delayMicroseconds(15);				//The conversion can occur as often as once every 12us
+        }
+		rssi[i] = CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;
 	}
 
 	for (i = 0; i < len; i++)
@@ -262,7 +261,9 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 			rssi[j] = 0xff;
 		}
 	}
+	CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation
 	CYRF_SetTxRxMode(TX_EN);
+	CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Clear abort RX
 }
 
 #if defined(DEVO_CYRF6936_INO) || defined(J6PRO_CYRF6936_INO)
@@ -298,3 +299,4 @@ static void __attribute__((unused)) CYRF_PROGMEM_ConfigSOPCode(const uint8_t *da
 		code[i]=pgm_read_byte_near(&data[i]);
 	CYRF_ConfigSOPCode(code);
 }
+#endif

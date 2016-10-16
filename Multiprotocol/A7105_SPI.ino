@@ -15,6 +15,7 @@
 /********************/
 /** A7105 routines **/
 /********************/
+#ifdef A7105_INSTALLED
 #include "iface_a7105.h"
 
 void A7105_WriteData(uint8_t len, uint8_t channel)
@@ -30,13 +31,14 @@ void A7105_WriteData(uint8_t len, uint8_t channel)
 	A7105_Strobe(A7105_TX);
 }
 
-void A7105_ReadData() {
+void A7105_ReadData()
+{
 	uint8_t i;
 	A7105_Strobe(0xF0); //A7105_RST_RDPTR
 	A7105_CSN_off;
 	SPI_Write(0x45);
 	for (i=0;i<16;i++)
-		packet[i]=SPI_SDIO_Read();
+		packet[i]=SPI_SDI_Read();
 	A7105_CSN_on;
 }
 
@@ -48,11 +50,12 @@ void A7105_WriteReg(uint8_t address, uint8_t data) {
 	A7105_CSN_on;
 } 
 
-uint8_t A7105_ReadReg(uint8_t address) { 
+uint8_t A7105_ReadReg(uint8_t address)
+{ 
 	uint8_t result;
 	A7105_CSN_off;
 	SPI_Write(address |=0x40);		//bit 6 =1 for reading
-	result = SPI_SDIO_Read();  
+	result = SPI_SDI_Read();  
 	A7105_CSN_on;
 	return(result); 
 } 
@@ -163,21 +166,21 @@ const uint8_t PROGMEM FLYSKY_A7105_regs[] = {
 #define ID_PLUS   0xAA201041
 void A7105_Init(uint8_t protocol)
 {
-	void *A7105_Regs;
+	uint8_t *A7105_Regs;
 	
 	if(protocol==INIT_FLYSKY)
 	{
 		A7105_WriteID(0x5475c52A);//0x2Ac57554
-		A7105_Regs=(void *)FLYSKY_A7105_regs;
+		A7105_Regs=(uint8_t*)FLYSKY_A7105_regs;
 	}
 	else
 	{
 		A7105_WriteID(ID_NORMAL);
-		A7105_Regs=(void *)HUBSAN_A7105_regs;
+		A7105_Regs=(uint8_t*)HUBSAN_A7105_regs;
 	}
 	for (uint8_t i = 0; i < 0x33; i++){
-		if( pgm_read_byte_near((uint16_t)(A7105_Regs)+i) != 0xFF)
-			A7105_WriteReg(i, pgm_read_byte_near((uint16_t)(A7105_Regs)+i));
+		if( pgm_read_byte_near(&A7105_Regs[i]) != 0xFF)
+			A7105_WriteReg(i, pgm_read_byte_near(&A7105_Regs[i]));
 	}
 	A7105_Strobe(A7105_STANDBY);
 
@@ -216,3 +219,4 @@ void A7105_Init(uint8_t protocol)
 
 	A7105_Strobe(A7105_STANDBY);
 }
+#endif

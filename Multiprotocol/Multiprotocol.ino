@@ -33,6 +33,7 @@
 #ifndef STM32_BOARD
 	#include <avr/eeprom.h>
 #else
+	#include <arduino.h>
 	#undef __cplusplus
 	#include <libmaple/usart.h>
 	#include <libmaple/timer.h>

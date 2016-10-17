@@ -34,12 +34,18 @@
 	#include <avr/eeprom.h>
 #else
 	#include <arduino.h>
-	#undef __cplusplus
 	#include <libmaple/usart.h>
 	#include <libmaple/timer.h>
 	#include <SPI.h>	
 	#include <EEPROM.h>	
 	HardwareTimer timer(2);
+	void PPM_decode();
+	void ISR_COMPB();
+	extern "C"
+	{
+		void __irq_usart2(void);
+		void __irq_usart3(void);
+	}
 #endif
 
 //Global constants/variables
@@ -119,10 +125,6 @@ volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 volatile uint8_t discard_frame = 0;
 
-#ifdef STM32_BOARD
-void PPM_decode();
-void ISR_COMPB();
-#endif
 // Telemetry
 #define MAX_PKT 27
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
@@ -1061,9 +1063,6 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 	#ifdef ORANGE_TX
 		ISR(USARTC0_RXC_vect)
 	#elif defined STM32_BOARD
-		#ifdef __cplusplus
-			extern "C" {
-		#endif
 		void __irq_usart2()			
 	#else
 		ISR(USART_RX_vect)
@@ -1138,9 +1137,6 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 			UCSR0B |= _BV(RXCIE0) ;			// RX interrupt enable
 		#endif
 	}
-	#if defined (STM32_BOARD) && defined (__cplusplus)
-		}
-	#endif
 
 	//Serial timer
 	#ifdef ORANGE_TX

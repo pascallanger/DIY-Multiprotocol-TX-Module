@@ -599,9 +599,6 @@ void TelemetryUpdate()
 		ISR(USARTC0_DRE_vect)
 	#else
 		#ifdef STM32_BOARD
-			#ifdef __cplusplus
-				extern "C" {
-			#endif	
 			void __irq_usart3()			
 		#else
 			ISR(USART_UDRE_vect)
@@ -630,11 +627,6 @@ void TelemetryUpdate()
 			tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
 			#endif		
 	}
-	#if defined STM32_BOARD			
-		#ifdef __cplusplus
-			}
-		#endif
-	#endif	//STM32_BOARD
 
 #else	//BASH_SERIAL
 // Routines for bit-bashed serial output

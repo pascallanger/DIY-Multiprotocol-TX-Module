@@ -75,8 +75,9 @@ You are now ready to go over to [Compiling and Programming](Compiling.md).
 
 #### **STM32 board** 
 
-Solder bridges and resistors as illustrated in the picture below. {need to get info from midelic}
-<img src="" width="500" height="340" /> 
+You need to solder bridges over jumpers to connect pin 5 from the transmitter to the RX pin on the MCU.  Depending on which version of the board you have the jumpers are labled SJ1 or SJ301.  Check the images below to determine your board version and the location of the solder jumper.  
+
+<img src="https://camo.githubusercontent.com/3573273fdb73ef287df888e708d34a9db3df203f/68747470733a2f2f36343464623464653335303563343061303434342d33323737323362636532393865336666353831336662343262616565666261612e73736c2e6366312e7261636b63646e2e636f6d2f32303236636664316430313837613737303537303035323539303136386466312e706e67" width="250" height="340" /> <img src="https://camo.githubusercontent.com/666a6792bebd76a8edfe389ee4246baf7dbad5bb/68747470733a2f2f36343464623464653335303563343061303434342d33323737323362636532393865336666353831336662343262616565666261612e73736c2e6366312e7261636b63646e2e636f6d2f66386237336232316439633765313537323963386237623839616565353339622e706e67" width="250" height="340" />  
 
 You are now ready to go over to [Compiling and Programming STM32](Compiling_STM32.md).
 

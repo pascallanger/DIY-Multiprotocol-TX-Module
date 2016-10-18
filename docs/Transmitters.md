@@ -1,10 +1,12 @@
 # Compatible Transmitters
 
-Any Tx that provides a PPM output (like a trainer port, or a RF module bay) is compatible with the DIY Multiprotocol module.  In practice, most of the documentation on this site is focused on building modules that slip into your transmitter’s module bay. 
- 
+
 There are two different options for the interface between the Mulitprotocol Module and the transmitter: PPM and Serial. The considerations are different for each.
 - **PPM** is more generic, easy to implement and will work with most transmitters. 
-- **Serial** requires custom firmware on the transmitter but brings added functionality including telemetry and protocol selection through the Tx interface
+- **Serial** requires custom firmware on the transmitter but brings added functionality including protocol selection through the Tx interface.
+
+Any Tx that provides a PPM output (like a trainer port, or a transmitter with a RF module bay) is compatible with the MULTI-module.  In practice, most of the documentation on this site is focused on building modules that slip into your transmitter’s module bay. 
+ 
 
 ##PPM
 The DIY Mulitprotocol module supports industry standard PPM interface that works with all transmitters with either a module bay, and/or a trainer port.  Even the older 72MHz FM radios support this standard.
@@ -15,17 +17,7 @@ When using the standard PPM Tx output, the protocol selection is achieved throug
 
 Since the module supports literally hundreds of protocol/sub-protocol/options combinations, you must select which of these will map to the 15 positions on the switch.  Refer to the [Compiling and Programming](Compiling.md) page for information on how to do his.
 
-Telemetry is available as a serial output on the TX pin of the Atmega328p using the FrSky hub format for Hubsan, FrSkyD, FrSkyX and DSM format for DSM2/X.  The serial parameters depends on the protocol:
-
-Protocol|Serial Parameters
---------|-----------------
-Hubsan|9600bps 8n1
-FrSkyD|9600bps 8n1
-FrSkyX|57,600bps 8n1
-DSM2/X|125,000bps 8n1
-
-
-You can connect it to your TX if it is telemetry enabled or use a bluetooth adapter to send it to a tablet/phone. See [Advanced Topics - Bluetooth Telemetry](Advanced_Bluetooth_Telemetry.md)
+Even in PPM mode it may still be possible to access telemetry information from selected receivers that support telemetry (e.g. Frsky, Hubsan, DSM).  To find out more about this advanced option check out the section on the [Advanced Topics](Advanced_Topics.md) page.  
 
 For transmitter setup using the PPM protocol go to the [PPM Setup page](PPM_Setup.md)
 
@@ -35,7 +27,7 @@ Transmitters that run er9X, erSky9X or OpenTx firmwares - like the FrSky Taranis
 1. selecting the specific radio protocol (e.g. DSM) and the sub protocol (e.g. DSMX) directly in the menu system of the Tx (see the picture below) 
 1. binding through the menu on the Tx 
 1. range checking through the menu on the Tx 
-1. enabling two-way telemetry for telemetry capable receivers and protocols. 
+1. in some cases enabling two-way telemetry for telemetry capable receivers and protocols. 
 
 <img src="images/OpenTx_Multi_Menu.jpg" width="470" height="180" /> <img src="images/er9X_Multi_Menu.jpg" width="250" height="180" /> 
 

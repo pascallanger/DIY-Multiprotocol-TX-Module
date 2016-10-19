@@ -27,14 +27,14 @@
 #define MJXQ_ADDRESS_LENGTH	5
 
 // haven't figured out txid<-->rf channel mapping for MJX models
-const uint8_t PROGMEM MJXQ_map_rfchan[][4] = {
-				{0x0A, 0x46, 0x3A, 0x42},
-				{0x0A, 0x3C, 0x36, 0x3F},
-				{0x0A, 0x43, 0x36, 0x3F}	};
 const uint8_t PROGMEM MJXQ_map_txid[][3] = {
 				{0xF8, 0x4F, 0x1C},
 				{0xC8, 0x6E, 0x02},
 				{0x48, 0x6A, 0x40}	};
+const uint8_t PROGMEM MJXQ_map_rfchan[][4] = {
+				{0x0A, 0x46, 0x3A, 0x42},
+				{0x0A, 0x3C, 0x36, 0x3F},
+				{0x0A, 0x43, 0x36, 0x3F}	};
 
 
 #define MJXQ_PAN_TILT_COUNT	16   // for H26D - match stock tx timing
@@ -178,17 +178,20 @@ static void __attribute__((unused)) MJXQ_init()
 	NRF24L01_SetTxRxMode(TX_EN);
 
 	if (sub_protocol == H26D)
+	{
+		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW,		0x03);		// 5-byte RX/TX address
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, MJXQ_ADDRESS_LENGTH);
+	}
 	else
 		XN297_SetTXAddr(addr, MJXQ_ADDRESS_LENGTH);
 
 	NRF24L01_FlushTx();
 	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);				// No Auto Acknowledgment on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);			// Enable data pipe 0 only
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);		// no retransmits
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, MJXQ_PACKET_SIZE);	// rx pipe 0 (used only for blue board)
+	NRF24L01_WriteReg(NRF24L01_07_STATUS,		0x70);		// Clear data ready, data sent, and retransmit
+	NRF24L01_WriteReg(NRF24L01_01_EN_AA,		0x00);		// No Auto Acknowledgment on all data pipes
+	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR,	0x01);		// Enable data pipe 0 only
+	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR,	0x00);		// no retransmits
+	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0,		MJXQ_PACKET_SIZE);
 	if (sub_protocol == E010)
 		NRF24L01_SetBitrate(NRF24L01_BR_250K);				// 250K
 	else
@@ -203,20 +206,21 @@ static void __attribute__((unused)) MJXQ_init2()
 	else
 		if (sub_protocol != WLH08 && sub_protocol != E010)
 			for(uint8_t i=0;i<MJXQ_RF_NUM_CHANNELS;i++)
-				hopping_frequency[i]=pgm_read_byte_near( &MJXQ_map_rfchan[rx_tx_addr[4]%3][i] );
+				hopping_frequency[i]=pgm_read_byte_near( &MJXQ_map_rfchan[rx_tx_addr[3]%3][i] );
 }
 
 static void __attribute__((unused)) MJXQ_initialize_txid()
 {
 	rx_tx_addr[0]&=0xF8;
+	rx_tx_addr[2]=rx_tx_addr[3];	// Make use of RX_Num
 	if (sub_protocol == E010)
 	{
 		rx_tx_addr[1]=(rx_tx_addr[1]&0xF0)|0x0C;
-		rx_tx_addr[2]&=0xF0;
+		rx_tx_addr[2]<<=4;			// Make use of RX_Num
 	}
 	else
 		for(uint8_t i=0;i<3;i++)
-			rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[4]%3][i] );
+			rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[3]%3][i] );
 }
 
 uint16_t MJXQ_callback()

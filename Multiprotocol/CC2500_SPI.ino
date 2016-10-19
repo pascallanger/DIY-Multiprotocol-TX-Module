@@ -1,3 +1,4 @@
+
 /*
  This project is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -17,6 +18,7 @@
 //CC2500 SPI routines
 //-------------------------------
 //-------------------------------
+#ifdef CC2500_INSTALLED
 #include "iface_cc2500.h"
 
 //----------------------------
@@ -152,4 +154,4 @@ void CC2500_SetPower()
 		prev_power=power;
 	}
 }
-
+#endif

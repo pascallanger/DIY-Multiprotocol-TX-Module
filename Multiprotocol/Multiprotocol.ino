@@ -21,24 +21,34 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
 */
-	#include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 //#define DEBUG_TX
-#include "Pins.h"
 #include "Multiprotocol.h"
 
 //Multiprotocol module configuration file
 #include "_Config.h"
+#include "Pins.h"
 #include "TX_Def.h"
+#include "Validate.h"
 
-#ifdef XMEGA
-	#undef ENABLE_PPM			// Disable PPM for OrangeTX module
-	#undef A7105_INSTALLED		// Disable A7105 for OrangeTX module
-	#undef CC2500_INSTALLED		// Disable CC2500 for OrangeTX module
-	#undef NRF24L01_INSTALLED	// Disable NRF for OrangeTX module
-	#define TELEMETRY			// Enable telemetry
-	#define INVERT_TELEMETRY	// Enable invert telemetry
-	#define DSM_TELEMETRY		// Enable DSM telemetry
+#ifndef STM32_BOARD
+	#include <avr/eeprom.h>
+#else
+/*
+	#include <arduino.h>
+	#include <libmaple/usart.h>
+	#include <libmaple/timer.h>
+	#include <SPI.h>	
+	#include <EEPROM.h>	
+	HardwareTimer timer(2);
+	void PPM_decode();
+	void ISR_COMPB();
+	extern "C"
+	{
+		void __irq_usart2(void);
+		void __irq_usart3(void);
+	}
+*/
 #endif
 
 //Global constants/variables
@@ -58,7 +68,7 @@ uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
 
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
-uint8_t rx_tx_addr[5];
+uint8_t  rx_tx_addr[5];
 uint8_t phase;
 uint16_t bind_counter;
 uint8_t bind_phase;
@@ -98,7 +108,7 @@ uint8_t protocol_flags=0,protocol_flags2=0;
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
 
-#ifndef XMEGA
+#ifndef ORANGE_TX
 	//Random variable
 	volatile uint32_t gWDT_entropy=0;
 #endif
@@ -118,35 +128,13 @@ volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 volatile uint8_t discard_frame = 0;
 
-//Make sure telemetry is selected correctly
-#ifndef TELEMETRY
-	#undef INVERT_TELEMETRY
-	#undef DSM_TELEMETRY	
-	#undef SPORT_TELEMETRY	
-	#undef HUB_TELEMETRY
-#else
-	#if not defined(CYRF6936_INSTALLED) || not defined(DSM_CYRF6936_INO)
-		#undef DSM_TELEMETRY
-	#endif
-	#if (not defined(CC2500_INSTALLED) || not defined(FRSKYD_CC2500_INO)) && (not defined(A7105_INSTALLED) || not defined(HUBSAN_A7105_INO))
-		#undef HUB_TELEMETRY
-	#endif
-	#if not defined(CC2500_INSTALLED) || not defined(FRSKYX_CC2500_INO)
-		#undef SPORT_TELEMETRY
-	#endif
-#endif
-#if not defined(DSM_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(SPORT_TELEMETRY)
-	#undef TELEMETRY
-	#undef INVERT_TELEMETRY
-#endif
-
 // Telemetry
 #define MAX_PKT 27
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
 #if defined(TELEMETRY)
 	#ifdef INVERT_TELEMETRY
-	// enable bit bash for serial
-		#ifndef XMEGA
+		#if not defined(ORANGE_TX) && not defined(STM32_BOARD)
+			// enable bit bash for serial
 			#define	BASH_SERIAL 1
 		#endif
 		#define	INVERT_SERIAL 1
@@ -161,9 +149,9 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	#endif // BASH_SERIAL
 	uint8_t v_lipo;
 	int16_t RSSI_dBm;
-	//const uint8_t RSSI_offset=72;//69 71.72 values db
 	uint8_t telemetry_link=0; 
 	uint8_t telemetry_counter=0;
+	uint8_t telemetry_lost;
 #endif 
 
 // Callback
@@ -173,8 +161,9 @@ void_function_t remote_callback = 0;
 // Init
 void setup()
 {
-	#ifdef XMEGA
 		// General pinout
+	#ifdef ORANGE_TX
+		//XMEGA
 		PORTD.OUTSET = 0x17 ;
 		PORTD.DIRSET = 0xB2 ;
 		PORTD.DIRCLR = 0x4D ;
@@ -190,11 +179,43 @@ void setup()
 		TCC1.PER = 0xFFFF ;
 		TCNT1 = 0 ;
 		TCC1.CTRLA = 0x0B ;	// Event3 (prescale of 16)
+	#elif defined STM32_BOARD
+		//STM32
+		pinMode(A7105_CSN_pin,OUTPUT);
+		pinMode(CC25_CSN_pin,OUTPUT);
+		pinMode(NRF_CSN_pin,OUTPUT);
+		pinMode(CYRF_CSN_pin,OUTPUT);
+		pinMode(CYRF_RST_pin,OUTPUT);
+		pinMode(PE1_pin,OUTPUT);
+		pinMode(PE2_pin,OUTPUT);
+		#if defined TELEMETRY
+			pinMode(TX_INV_pin,OUTPUT);
+			pinMode(RX_INV_pin,OUTPUT);
+			#if defined INVERT_SERIAL
+				TX_INV_on;//activated inverter for both serial TX and RX signals
+				RX_INV_on;
+			#else
+				TX_INV_off;
+				RX_INV_off;
+			#endif	
+		#endif
+		pinMode(BIND_pin,INPUT_PULLUP);
+		pinMode(PPM_pin,INPUT);
+		pinMode(S1_pin,INPUT_PULLUP);//dial switch
+		pinMode(S2_pin,INPUT_PULLUP);
+		pinMode(S3_pin,INPUT_PULLUP);
+		pinMode(S4_pin,INPUT_PULLUP);
+		//Random pins
+		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
+		pinMode(PB1, INPUT_ANALOG); // set up pin for analog input
+
+		//select the counter clock.
+		start_timer2();//0.5us
 	#else
-		// General pinout
+		//ATMEGA328p
 		// all inputs
 		DDRB=0x00;DDRC=0x00;DDRD=0x00;
-    // outputs
+		// outputs
 		SDI_output;
 		SCLK_output;
 		#ifdef A7105_INSTALLED
@@ -243,8 +264,12 @@ void setup()
 		NRF_CSN_on;
 	#endif
 	//  Set SPI lines
-	SDI_on;
-	SCLK_off;
+	#ifdef	STM32_BOARD
+		initSPI2();
+	#else
+		SDI_on;
+		SCLK_off;
+	#endif
 
 	// Set servos positions
 	for(uint8_t i=0;i<NUM_CHN;i++)
@@ -265,6 +290,8 @@ void setup()
 	// after this mode_select will be one of {0000, 0001, ..., 1111}
 	#ifndef ENABLE_PPM
 		mode_select = MODE_SERIAL ;	// force serial mode
+	#elif defined STM32_BOARD
+		mode_select= 0x0F -(uint8_t)(((GPIOA->regs->IDR)>>4)&0x0F);
 	#else
 //		mode_select=0x0F - ( ( (PINB>>2)&0x07 ) | ( (PINC<<3)&0x08) );//encoder dip switches 1,2,4,8=>B2,B3,B4,C0
 		mode_select = 
@@ -281,9 +308,13 @@ void setup()
 	//Init RF modules
 	modules_reset();
 
-	#ifndef XMEGA
+	#ifndef ORANGE_TX
 		//Init the seed with a random value created from watchdog timer for all protocols requiring random values
-		randomSeed(random_value());
+		#ifdef STM32_BOARD
+			randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));			
+		#else
+			randomSeed(random_value());
+		#endif
 	#endif
 
 	// Read or create protocol id
@@ -308,16 +339,20 @@ void setup()
 	
 			protocol_init();
 			
-			//Configure PPM interrupt
-		    #if PPM_pin == 2
-			EICRA |= _BV(ISC01);	// The rising edge of INT0 pin D2 generates an interrupt request
-			EIMSK |= _BV(INT0);		// INT0 interrupt enable
-		    #elif PPM_pin == 3
-				EICRA |=_BV(ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
-				EIMSK |= _BV(INT1);		// INT1 interrupt enable
-		    #else
-		  	  #error PPM pin can only be 2 or 3
-		    #endif
+			#ifndef STM32_BOARD
+				//Configure PPM interrupt
+			    #if PPM_pin == 2
+				EICRA |= _BV(ISC01);	// The rising edge of INT0 pin D2 generates an interrupt request
+				EIMSK |= _BV(INT0);		// INT0 interrupt enable
+			    #elif PPM_pin == 3
+					EICRA |=_BV(ISC11);		// The rising edge of INT1 pin D3 generates an interrupt request
+					EIMSK |= _BV(INT1);		// INT1 interrupt enable
+			    #else
+			  	  #error PPM pin can only be 2 or 3
+			    #endif
+			#else
+				attachInterrupt(PPM_pin,PPM_decode,FALLING);
+			#endif
 
 			#if defined(TELEMETRY)
 				PPM_Telemetry_serial_init();		// Configure serial for telemetry
@@ -353,14 +388,25 @@ void loop()
 			}
 			while(remote_callback==0);
 		}
-		if( (TIFR1 & OCF1A_bm) != 0)
-		{
-			cli();					// Disable global int due to RW of 16 bits registers
-			OCR1A=TCNT1;			// Callback should already have been called... Use "now" as new sync point.
-			sei();					// Enable global int
-		}
-		else
-			while((TIFR1 & OCF1A_bm) == 0); // Wait before callback
+		#ifndef STM32_BOARD
+			if( (TIFR1 & OCF1A_bm) != 0)
+			{
+				cli();					// Disable global int due to RW of 16 bits registers
+				OCR1A=TCNT1;			// Callback should already have been called... Use "now" as new sync point.
+				sei();					// Enable global int
+			}
+			else
+				while((TIFR1 & OCF1A_bm) == 0); // Wait before callback
+		#else
+			if((TIMER2_BASE->SR & TIMER_SR_CC1IF)!=0)
+			{
+				cli();
+				OCR1A = TCNT1;
+				sei();
+			}
+			else
+				while((TIMER2_BASE->SR & TIMER_SR_CC1IF )==0); // Wait before callback
+		#endif
 		do
 		{
 			TX_MAIN_PAUSE_on;
@@ -373,18 +419,30 @@ void loop()
 				next_callback-=2000;				// We will wait below for 2ms
 				cli();								// Disable global int due to RW of 16 bits registers
 				OCR1A += 2000*2 ;					// set compare A for callback
+				#ifndef STM32_BOARD	
 				TIFR1=OCF1A_bm;					// clear compare A=callback flag
+				#else
+					TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag
+				#endif
 				sei();								// enable global int
 				Update_All();
 				if(IS_CHANGE_PROTOCOL_FLAG_on)
 					break; // Protocol has been changed
-				while((TIFR1 & OCF1A_bm) == 0);	// wait 2ms...
+				#ifndef STM32_BOARD	
+					while((TIFR1 & OCF1A_bm) == 0);	// wait 2ms...
+				#else
+					while((TIMER2_BASE->SR & TIMER_SR_CC1IF)==0);//2ms wait
+				#endif
 			}
 			// at this point we have a maximum of 4ms in next_callback
 			next_callback *= 2 ;
 			cli();									// Disable global int due to RW of 16 bits registers
 			OCR1A+= next_callback ;					// set compare A for callback
-			TIFR1=OCF1A_bm;						// clear compare A=callback flag
+			#ifndef STM32_BOARD			
+				TIFR1=OCF1A_bm;						// clear compare A=callback flag
+			#else
+				TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag write zero 
+			#endif		
 			diff=OCR1A-TCNT1;						// compare timer and comparator
 			sei();									// enable global int
 		}
@@ -400,13 +458,6 @@ void Update_All()
 		{
 			update_serial_data(); // Update protocol and data
 			update_aux_flags();
-			if(Servo_data[AUX10]>PPM_SWITCH && !( (cur_protocol[0]&0x1F)==MODE_FRSKYD || (cur_protocol[0]&0x1F)==MODE_DSM || (cur_protocol[0]&0x1F)==MODE_AFHDS2A ) ) { CHANGE_PROTOCOL_FLAG_on;	}	// Rebind voie
-			if(IS_CHANGE_PROTOCOL_FLAG_on)
-			{ // Protocol needs to be changed
-				LED_off;									//led off during protocol init
-				modules_reset();							//reset all modules
-				protocol_init();							//init new protocol
-			}
 		}
 	#endif //ENABLE_SERIAL
 	#ifdef ENABLE_PPM
@@ -440,6 +491,16 @@ static void update_aux_flags(void)
 	for(uint8_t i=0;i<8;i++)
 		if(Servo_data[AUX1+i]>PPM_SWITCH)
 			Servo_AUX|=1<<i;
+	if(Servo_data[AUX10]>PPM_SWITCH && !( (cur_protocol[0]&0x1F)==MODE_FRSKYD || (cur_protocol[0]&0x1F)==MODE_DSM || (cur_protocol[0]&0x1F)==MODE_AFHDS2A ) ) { CHANGE_PROTOCOL_FLAG_on;	}	// Rebind voie
+	if(IS_CHANGE_PROTOCOL_FLAG_on)
+	{ // Protocol needs to be changed
+		LED_off;									//led off during protocol init
+		modules_reset();							//reset all modules
+		#ifdef ENABLE_PPM
+			AUTOBIND_FLAG_on;
+		#endif //ENABLE_PPM
+		protocol_init();							//init new protocol
+	}
 }
 
 // Update led status based on binding and serial
@@ -468,12 +529,14 @@ static void update_led_status(void)
 
 inline void tx_pause()
 { 
-	#ifdef TELEMETRY
-		#ifdef XMEGA		
-			USARTC0.CTRLA &= ~0x03 ;		// Pause telemetry by disabling transmitter interrupt
-		#else
-			#ifndef BASH_SERIAL
-				UCSR0B &= ~_BV(UDRIE0);		// Pause telemetry by disabling transmitter interrupt
+	#ifndef STM32_BOARD
+		#ifdef TELEMETRY
+			#ifdef ORANGE_TX
+				USARTC0.CTRLA &= ~0x03 ;		// Pause telemetry by disabling transmitter interrupt
+			#else
+				#ifndef BASH_SERIAL
+					UCSR0B &= ~_BV(UDRIE0);		// Pause telemetry by disabling transmitter interrupt
+				#endif
 			#endif
 		#endif
 	#endif
@@ -481,23 +544,40 @@ inline void tx_pause()
 
 inline void tx_resume()
 {
-	#ifdef TELEMETRY
-		if(!IS_TX_PAUSE_on)
-		{
-			#ifdef XMEGA		
-				cli() ;
-				USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;	// Resume telemetry by enabling transmitter interrupt
-				sei() ;
-			#else
-				#ifndef BASH_SERIAL
-					UCSR0B |= _BV(UDRIE0);			// Resume telemetry by enabling transmitter interrupt
+	#ifndef STM32_BOARD
+		#ifdef TELEMETRY
+			if(!IS_TX_PAUSE_on)
+			{
+					#ifdef ORANGE_TX
+					cli() ;
+					USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;	// Resume telemetry by enabling transmitter interrupt
+					sei() ;
 				#else
-					resumeBashSerial() ;
-				#endif			
-			#endif
-		}
+					#ifndef BASH_SERIAL
+						UCSR0B |= _BV(UDRIE0);			// Resume telemetry by enabling transmitter interrupt
+					#else
+						resumeBashSerial() ;
+					#endif			
+				#endif
+			}
+		#endif
 	#endif
 }
+
+#ifdef STM32_BOARD	
+	void start_timer2()
+	{	
+		// Pause the timer while we're configuring it
+		timer.pause();
+		TIMER2_BASE->PSC = 35;			//36-1;for 72 MHZ /0.5sec/(35+1)
+		TIMER2_BASE->ARR = 0xFFFF;		//count till max
+		timer.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);
+		timer.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);
+		// Refresh the timer's count, prescale, and overflow
+		timer.refresh();
+		timer.resume();
+	}
+#endif
 
 // Protocol start
 static void protocol_init()
@@ -510,6 +590,7 @@ static void protocol_init()
 		tx_pause();
 		pass=0;
 		telemetry_link=0;
+		telemetry_lost=1;
 		#ifndef BASH_SERIAL
 			tx_tail=0;
 			tx_head=0;
@@ -624,12 +705,12 @@ static void protocol_init()
 						{
 							if(IS_BIND_BUTTON_FLAG_on)
 							{
-								eeprom_write_byte((uint8_t*)(30+mode_select),0x00);		// reset to autobind mode for the current model
+								eeprom_write_byte((EE_ADDR)(30+mode_select),0x00);	// reset to autobind mode for the current model
 								option=0;
 							}
 							else
 							{	
-								option=eeprom_read_byte((uint8_t*)(30+mode_select));	// load previous mode: autobind or fixed id
+								option=eeprom_read_byte((EE_ADDR)(30+mode_select));	// load previous mode: autobind or fixed id
 								if(option!=1) option=0;									// if not fixed id mode then it should be autobind
 							}
 						}
@@ -817,7 +898,11 @@ static void protocol_init()
 	cli();              // disable global int
 	OCR1A=TCNT1+next_callback*2;  // set compare A for callback
 	sei();              // enable global int
-	TIFR1 = OCF1A_bm ;				// clear compare A flag
+	#ifndef STM32_BOARD
+		TIFR1 = OCF1A_bm ;				// clear compare A flag
+	#else
+		TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;		//clear compare Flag write zero 
+	#endif	
 	BIND_BUTTON_FLAG_off;     // do not bind/reset id anymore even if protocol change
 }
 
@@ -873,7 +958,7 @@ void update_serial_data()
 		Servo_data[i]=((((*((uint32_t *)p))>>dec)&0x7FF)*5)/8+860;  //value range 860<->2140 -125%<->+125%
 	}
 	RX_DONOTUPDTAE_off;
-	#ifdef XMEGA
+	#ifdef ORANGE_TX
 		cli();
 	#else
 		UCSR0B &= ~_BV(RXCIE0);	// RX interrupt disable
@@ -883,7 +968,7 @@ void update_serial_data()
 		RX_FLAG_on;				// data to be processed next time...
 		RX_MISSED_BUFF_off;
 	}
-	#ifdef XMEGA
+	#ifdef ORANGE_TX
 		sei();
 	#else
 		UCSR0B |= _BV(RXCIE0) ;	// RX interrupt enable
@@ -912,7 +997,7 @@ void modules_reset()
 
 void Mprotocol_serial_init()
 {
-	#ifdef XMEGA
+	#ifdef ORANGE_TX
 		PORTC.OUTSET = 0x08 ;
 		PORTC.DIRSET = 0x08 ;
 	
@@ -923,10 +1008,17 @@ void Mprotocol_serial_init()
 		USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
 		USARTC0.CTRLC = 0x2B ;
 		UDR0 ;
-		#ifdef INVERT_TELEMETRY
+		#ifdef INVERT_SERIAL
 			PORTC.PIN3CTRL |= 0x40 ;
 		#endif
+	#elif defined STM32_BOARD
+		Serial1.begin(100000,SERIAL_8E2);//USART2
+		Serial2.begin(100000,SERIAL_8E2);//USART3 
+		USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
+		USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable 
+		USART2_BASE->CR1 &= ~ USART_CR1_TE;//disable transmit
 	#else	
+		//ATMEGA328p
 		#include <util/setbaud.h> 
 		UBRR0H = UBRRH_VALUE;
 		UBRR0L = UBRRL_VALUE;
@@ -942,7 +1034,7 @@ void Mprotocol_serial_init()
 				initTXSerial( SPEED_100K ) ;
 			#endif //TELEMETRY
 		#endif //DEBUG_TX
-	#endif //XMEGA
+	#endif //ORANGE_TX
 }
 
 #if defined(TELEMETRY)
@@ -967,7 +1059,7 @@ static void set_rx_tx_addr(uint32_t id)
 	rx_tx_addr[4] = (rx_tx_addr[2]&0xF0)|(rx_tx_addr[3]&0x0F);
 }
 
-#ifndef XMEGA
+#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 static void random_init(void)
 {
 	cli();					// Temporarily turn off interrupts, until WDT configured
@@ -986,25 +1078,35 @@ static uint32_t random_value(void)
 
 static uint32_t random_id(uint16_t adress, uint8_t create_new)
 {
-	#define nb_txid 5
-	uint32_t id;
-	uint8_t txid[nb_txid];
+	uint32_t id=0;
 
-	if (eeprom_read_byte((uint8_t*)(adress+10))==0xf0 && !create_new)
+	if(eeprom_read_byte((EE_ADDR)(adress+10))==0xf0 && !create_new)
 	{  // TXID exists in EEPROM
-		eeprom_read_block((void*)txid,(const void*)adress,nb_txid);
-		id=(txid[0] | ((uint32_t)txid[1]<<8) | ((uint32_t)txid[2]<<16) | ((uint32_t)txid[3]<<24));
+//		eeprom_read_block((void*)txid,(const void*)adress,nb_txid);
+//		id=(txid[0] | ((uint32_t)txid[1]<<8) | ((uint32_t)txid[2]<<16) | ((uint32_t)txid[3]<<24));
+		for(uint8_t i=4;i>0;i--)
+		{
+			id<<=8;
+			id|=eeprom_read_byte((EE_ADDR)adress+i-1);
+		}	
 		if(id!=0x2AD141A7)	//ID with seed=0
 			return id;
 	}
 	// Generate a random ID
 	id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
-	txid[0]=  (id &0xFF);
+/*	txid[0]=  (id &0xFF);
 	txid[1] = ((id >> 8) & 0xFF);
 	txid[2] = ((id >> 16) & 0xFF);
 	txid[3] = ((id >> 24) & 0xFF);
 	eeprom_write_block((const void*)txid,(void*)adress,nb_txid);
 	eeprom_write_byte((uint8_t*)(adress+10),0xf0);//write bind flag in eeprom.
+*/
+	for(uint8_t i=0;i<4;i++)
+	{
+		eeprom_write_byte((EE_ADDR)adress+i,id);
+		id>>=8;
+	}	
+	eeprom_write_byte((EE_ADDR)(adress+10),0xf0);//write bind flag in eeprom.
 	return id;
 }
 
@@ -1016,12 +1118,14 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 
 //PPM
 #ifdef ENABLE_PPM
-	#ifdef XMEGA
+	#ifdef ORANGE_TX
 		#if PPM_pin == 2
 			ISR(PORTD_INT0_vect)
 		#else
 			ISR(PORTD_INT1_vect)
 		#endif
+	#elif defined STM32_BOARD
+		void PPM_decode()
 	#else
 		#if PPM_pin == 2
 			ISR(INT0_vect, ISR_NOBLOCK)
@@ -1056,15 +1160,19 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 
 //Serial RX
 #ifdef ENABLE_SERIAL
-	#ifdef XMEGA
+	#ifdef ORANGE_TX
 		ISR(USARTC0_RXC_vect)
+	#elif defined STM32_BOARD
+		void __irq_usart2()			
 	#else
 		ISR(USART_RX_vect)
 	#endif
 	{	// RX interrupt
 	static uint8_t idx=0;
-		#ifdef XMEGA
+		#ifdef ORANGE_TX
 			if((USARTC0.STATUS & 0x1C)==0)			// Check frame error, data overrun and parity error
+		#elif defined STM32_BOARD
+			if((USART2_BASE->SR & USART_SR_RXNE) && (USART2_BASE->SR &0x0F)==0)					
 		#else
 			UCSR0B &= ~_BV(RXCIE0) ;		// RX interrupt disable
 			sei() ;
@@ -1078,11 +1186,18 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 			rx_buff[0]=UDR0;
 			if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
 				{
-					TX_RX_PAUSE_on;
-					tx_pause();
-					OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
-					TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
-					SET_TIMSK1_OCIE1B ;		// enable interrupt on compare B match
+					#if defined STM32_BOARD
+						uint16_t OCR1B;
+						OCR1B =TCNT1+(6500L);
+						timer.setCompare(TIMER_CH2,OCR1B);
+						timer.attachCompare2Interrupt(ISR_COMPB);
+					#else
+						TX_RX_PAUSE_on;
+						tx_pause();
+						OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
+						TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
+						SET_TIMSK1_OCIE1B ;		// enable interrupt on compare B match
+					#endif
 					idx++;
 				}
 			}
@@ -1109,52 +1224,62 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 		}
 		if(discard_frame==1)
 		{
-			CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
-			TX_RX_PAUSE_off;
-			tx_resume();
+			#ifdef STM32_BOARD
+				detachInterrupt(2);			// Disable interrupt on ch2	
+			#else							
+				CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
+				TX_RX_PAUSE_off;
+				tx_resume();
+			#endif
 		}
-		#ifndef XMEGA
+		#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 			cli() ;
 			UCSR0B |= _BV(RXCIE0) ;	// RX interrupt enable
 		#endif
 	}
 
 	//Serial timer
-	#ifdef XMEGA
+	#ifdef ORANGE_TX
 		ISR(TCC1_CCB_vect)
+	#elif defined STM32_BOARD
+		void ISR_COMPB()
 	#else
 		ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
 	#endif
 	{	// Timer1 compare B interrupt
 		discard_frame=1;
-		CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
-		tx_resume();
+		#ifdef STM32_BOARD
+			detachInterrupt(2);				// Disable interrupt on ch2
+		#else
+			CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
+			tx_resume();
+		#endif
 	}
 #endif //ENABLE_SERIAL
 
-#ifndef XMEGA
-// Random interrupt service routine called every time the WDT interrupt is triggered.
-// It is only enabled at startup to generate a seed.
-ISR(WDT_vect)
-{
-	static uint8_t gWDT_buffer_position=0;
-	#define gWDT_buffer_SIZE 32
-	static uint8_t gWDT_buffer[gWDT_buffer_SIZE];
-	gWDT_buffer[gWDT_buffer_position] = TCNT1L; // Record the Timer 1 low byte (only one needed) 
-	gWDT_buffer_position++;                     // every time the WDT interrupt is triggered
-	if (gWDT_buffer_position >= gWDT_buffer_SIZE)
+#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
+	// Random interrupt service routine called every time the WDT interrupt is triggered.
+	// It is only enabled at startup to generate a seed.
+	ISR(WDT_vect)
 	{
-		// The following code is an implementation of Jenkin's one at a time hash
-		for(uint8_t gWDT_loop_counter = 0; gWDT_loop_counter < gWDT_buffer_SIZE; ++gWDT_loop_counter)
+		static uint8_t gWDT_buffer_position=0;
+		#define gWDT_buffer_SIZE 32
+		static uint8_t gWDT_buffer[gWDT_buffer_SIZE];
+		gWDT_buffer[gWDT_buffer_position] = TCNT1L; // Record the Timer 1 low byte (only one needed) 
+		gWDT_buffer_position++;                     // every time the WDT interrupt is triggered
+		if (gWDT_buffer_position >= gWDT_buffer_SIZE)
 		{
-			gWDT_entropy += gWDT_buffer[gWDT_loop_counter];
-			gWDT_entropy += (gWDT_entropy << 10);
-			gWDT_entropy ^= (gWDT_entropy >> 6);
+			// The following code is an implementation of Jenkin's one at a time hash
+			for(uint8_t gWDT_loop_counter = 0; gWDT_loop_counter < gWDT_buffer_SIZE; ++gWDT_loop_counter)
+			{
+				gWDT_entropy += gWDT_buffer[gWDT_loop_counter];
+				gWDT_entropy += (gWDT_entropy << 10);
+				gWDT_entropy ^= (gWDT_entropy >> 6);
+			}
+			gWDT_entropy += (gWDT_entropy << 3);
+			gWDT_entropy ^= (gWDT_entropy >> 11);
+			gWDT_entropy += (gWDT_entropy << 15);
+			WDTCSR = 0;	// Disable Watchdog interrupt
 		}
-		gWDT_entropy += (gWDT_entropy << 3);
-		gWDT_entropy ^= (gWDT_entropy >> 11);
-		gWDT_entropy += (gWDT_entropy << 15);
-		WDTCSR = 0;	// Disable Watchdog interrupt
 	}
-}
 #endif

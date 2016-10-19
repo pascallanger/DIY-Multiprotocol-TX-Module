@@ -126,6 +126,22 @@ CH1|CH2|CH3|CH4
 ---|---|---|---
 A|E|T|R
 
+###CG023
+###Sub_protocol H8_3D
+Models: EAchine H8 mini 3D, JJRC H20/H22, JJRC H11D
+
+CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---
+FLIP|LIGTH|OPT1|OPT2|CAL|SNAPSHOT|VIDEO
+
+JJRC H20: OPT1=Headless, OPT2=RTH
+
+JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
+
+H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360° flip mode
+
+CAL: calibrate accelerometers
+
 ###ESKY150
 
 Autobind
@@ -158,6 +174,9 @@ Same channels assignement as above.
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
+
+###HISKY
+####Sub_protocol HK310
 
 ###HM830
 Modele: HM Hobby HM830 RC Paper Airplane
@@ -226,5 +245,20 @@ A|E|T|R|FLIP 360|FLIP|VIDEO|LED|MODE 2
 ####Sub_protocol U839_2014
 Same channels assignement as above.
 
+###V2X2
+####Sub_protocol V2X2
+Models: WLToys V202/252/272, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
+A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
+
+PICTURE: also automatic Missile Launcher and Hoist in one direction
+
+VIDEO: also Sprayer, Bubbler, Missile Launcher(1), and Hoist in the other dir
+####Sub_protocol JXD-506
+CH10|CH11|CH12
+----|----|----
+ARM|EMERGENCY|PAN CAMERA
 
 ###D'autres à venir

@@ -60,199 +60,151 @@
 
 //Channel definitions
 #ifdef AETR
-enum {
-	AILERON =0,
-	ELEVATOR,
-	THROTTLE,
-	RUDDER,
-};
+	#define	AILERON  0
+	#define	ELEVATOR 1
+	#define	THROTTLE 2
+	#define	RUDDER   3
 #endif
 #ifdef AERT
-enum {
-	AILERON =0,
-	ELEVATOR,
-	RUDDER,
-	THROTTLE,
-};
+	#define	AILERON  0
+	#define	ELEVATOR 1
+	#define	THROTTLE 3
+	#define	RUDDER   2
 #endif
 #ifdef ARET
-enum {
-	AILERON =0,
-	RUDDER,
-	ELEVATOR,
-	THROTTLE,
-};
+	#define	AILERON  0
+	#define	ELEVATOR 2
+	#define	THROTTLE 3
+	#define	RUDDER   1
 #endif
 #ifdef ARTE
-enum {
-	AILERON =0,
-	RUDDER,
-	THROTTLE,
-	ELEVATOR,
-};
+	#define	AILERON  0
+	#define	ELEVATOR 3
+	#define	THROTTLE 2
+	#define	RUDDER   1
 #endif
 #ifdef ATRE
-enum {
-	AILERON =0,
-	THROTTLE,
-	RUDDER,
-	ELEVATOR,
-};
+	#define	AILERON  0
+	#define	ELEVATOR 3
+	#define	THROTTLE 1
+	#define	RUDDER   2
 #endif
 #ifdef ATER
-enum {
-	AILERON =0,
-	THROTTLE,
-	ELEVATOR,
-	RUDDER,
-};
+	#define	AILERON  0
+	#define	ELEVATOR 2
+	#define	THROTTLE 1
+	#define	RUDDER   3
 #endif
 
 #ifdef EATR
-enum {
-	ELEVATOR =0,
-	AILERON,
-	THROTTLE,
-	RUDDER,
-};
+	#define	AILERON  1
+	#define	ELEVATOR 0
+	#define	THROTTLE 2
+	#define	RUDDER   3
 #endif
 #ifdef EART
-enum {
-	ELEVATOR =0,
-	AILERON,
-	RUDDER,
-	THROTTLE,
-};
+	#define	AILERON  1
+	#define	ELEVATOR 0
+	#define	THROTTLE 3
+	#define	RUDDER   2
 #endif
 #ifdef ERAT
-enum {
-	ELEVATOR =0,
-	RUDDER,
-	AILERON,
-	THROTTLE,
-};
+	#define	AILERON  2
+	#define	ELEVATOR 0
+	#define	THROTTLE 3
+	#define	RUDDER   1
 #endif
 #ifdef ERTA
-enum {
-	ELEVATOR =0,
-	RUDDER,
-	THROTTLE,
-	AILERON,
-};
+	#define	AILERON  3
+	#define	ELEVATOR 0
+	#define	THROTTLE 2
+	#define	RUDDER   1
 #endif
 #ifdef ETRA
-enum {
-	ELEVATOR =0,
-	THROTTLE,
-	RUDDER,
-	AILERON,
-};
+	#define	AILERON  3
+	#define	ELEVATOR 0
+	#define	THROTTLE 1
+	#define	RUDDER   2
 #endif
 #ifdef ETAR
-enum {
-	ELEVATOR =0,
-	THROTTLE,
-	AILERON,
-	RUDDER,
-};
+	#define	AILERON  2
+	#define	ELEVATOR 0
+	#define	THROTTLE 1
+	#define	RUDDER   3
 #endif
 
 #ifdef TEAR
-enum {
-	THROTTLE =0,
-	ELEVATOR,
-	AILERON,
-	RUDDER,
-};
+	#define	AILERON  2
+	#define	ELEVATOR 1
+	#define	THROTTLE 0
+	#define	RUDDER   3
 #endif
 #ifdef TERA
-enum {
-	THROTTLE =0,
-	ELEVATOR,
-	RUDDER,
-	AILERON,
-};
+	#define	AILERON  3
+	#define	ELEVATOR 1
+	#define	THROTTLE 0
+	#define	RUDDER   2
 #endif
 #ifdef TREA
-enum {
-	THROTTLE =0,
-	RUDDER,
-	ELEVATOR,
-	AILERON,
-};
+	#define	AILERON  3
+	#define	ELEVATOR 2
+	#define	THROTTLE 0
+	#define	RUDDER   1
 #endif
 #ifdef TRAE
-enum {
-	THROTTLE =0,
-	RUDDER,
-	AILERON,
-	ELEVATOR,
-};
+	#define	AILERON  2
+	#define	ELEVATOR 3
+	#define	THROTTLE 0
+	#define	RUDDER   1
 #endif
 #ifdef TARE
-enum {
-	THROTTLE =0,
-	AILERON,
-	RUDDER,
-	ELEVATOR,
-};
+	#define	AILERON  1
+	#define	ELEVATOR 3
+	#define	THROTTLE 0
+	#define	RUDDER   2
 #endif
 #ifdef TAER
-enum {
-	THROTTLE =0,
-	AILERON,
-	ELEVATOR,
-	RUDDER,
-};
+	#define	AILERON  1
+	#define	ELEVATOR 2
+	#define	THROTTLE 0
+	#define	RUDDER   3
 #endif
 
 #ifdef RETA
-enum {
-	RUDDER =0,
-	ELEVATOR,
-	THROTTLE,
-	AILERON,
-};
+	#define	AILERON  3
+	#define	ELEVATOR 1
+	#define	THROTTLE 2
+	#define	RUDDER   0
 #endif
 #ifdef REAT
-enum {
-	RUDDER =0,
-	ELEVATOR,
-	AILERON,
-	THROTTLE,
-};
+	#define	AILERON  2
+	#define	ELEVATOR 1
+	#define	THROTTLE 3
+	#define	RUDDER   0
 #endif
 #ifdef RAET
-enum {
-	RUDDER =0,
-	AILERON,
-	ELEVATOR,
-	THROTTLE,
-};
+	#define	AILERON  1
+	#define	ELEVATOR 2
+	#define	THROTTLE 3
+	#define	RUDDER   0
 #endif
 #ifdef RATE
-enum {
-	RUDDER =0,
-	AILERON,
-	THROTTLE,
-	ELEVATOR,
-};
+	#define	AILERON  1
+	#define	ELEVATOR 3
+	#define	THROTTLE 2
+	#define	RUDDER   0
 #endif
 #ifdef RTAE
-enum {
-	RUDDER =0,
-	THROTTLE,
-	AILERON,
-	ELEVATOR,
-};
+	#define	AILERON  2
+	#define	ELEVATOR 3
+	#define	THROTTLE 1
+	#define	RUDDER   0
 #endif
 #ifdef RTEA
-enum {
-	RUDDER =0,
-	THROTTLE,
-	ELEVATOR,
-	AILERON,
-};
+	#define	AILERON  3
+	#define	ELEVATOR 2
+	#define	THROTTLE 1
+	#define	RUDDER   0
 #endif
 
 #define	AUX1	4

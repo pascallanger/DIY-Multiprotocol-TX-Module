@@ -38,7 +38,7 @@
 #define MAX_PKTX 10
 uint8_t pktx[MAX_PKTX];
 uint8_t pktx1[MAX_PKTX];
-uint8_t index;
+uint8_t indx;
 uint8_t frame[18];
 
 #ifdef BASH_SERIAL
@@ -94,6 +94,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		for (uint8_t i=3;i<len;i++)
 			pktt[i]=pkt[i];				 
 		telemetry_link=1;
+		telemetry_lost=0;
 		if(pktt[6])
 			telemetry_counter=(telemetry_counter+1)%32;
 		//
@@ -172,28 +173,28 @@ void frsky_user_frame()
 				pass=1;
 				
 			case 1:
-				index=indexx;
+				indx=indexx;
 				prev_index = indexx; 
-				if(index<USER_MAX_BYTES)
+				if(indx<USER_MAX_BYTES)
 				{   			
-					for(i=0;i<index;i++)
+					for(i=0;i<indx;i++)
 						frame[i+3]=pktx[i];
 					pktt[6]=0;
 					pass=0;
 				}
 				else
 				{
-					index = USER_MAX_BYTES;
-					for(i=0;i<index;i++)
+					indx = USER_MAX_BYTES;
+					for(i=0;i<indx;i++)
 						frame[i+3]=pktx[i];
 					pass=2;
 				}			
 				break;
 			case 2:		
-				index = prev_index - index;
+				indx = prev_index - indx;
 				prev_index=0;
-				if(index<=(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
-					for(i=0;i<index;i++)
+				if(indx<=(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
+					for(i=0;i<indx;i++)
 						frame[i+3]=pktx[USER_MAX_BYTES+i];
 				pass=0;
 				pktt[6]=0; 
@@ -201,9 +202,9 @@ void frsky_user_frame()
 			default:
 				break;
 		}
-		if(!index)
+		if(!indx)
 			return;
-		frame[1] = index;
+		frame[1] = indx;
 		frskySendStuffed();
 	}
 	else
@@ -311,7 +312,11 @@ void sportSendFrame()
 {
 	uint8_t i;
 	sport_counter = (sport_counter + 1) %36;
-	
+	if(telemetry_lost)
+	{
+		sportIdle();
+		return;
+	}
 	if(sport_counter<6)
 	{
 		frame[0] = 0x98;
@@ -362,30 +367,30 @@ void proces_sport_data(uint8_t data)
 		case 0:
 			if (data == START_STOP)
 			{//waiting for 0x7e
-				index = 0;
+				indx = 0;
 				pass = 1;
 			}
 			break;		
 		case 1:
 			if (data == START_STOP)	// Happens if missed packet
 			{//waiting for 0x7e
-				index = 0;
+				indx = 0;
 				pass = 1;
 				break;		
 			}
 			if(data == BYTESTUFF)//if they are stuffed
 				pass=2;
 			else
-				if (index < MAX_PKTX)		
-					pktx[index++] = data;		
+				if (indx < MAX_PKTX)		
+					pktx[indx++] = data;		
 			break;
 		case 2:	
-			if (index < MAX_PKTX)	
-				pktx[index++] = data ^ STUFF_MASK;	//unstuff bytes	
+			if (indx < MAX_PKTX)	
+				pktx[indx++] = data ^ STUFF_MASK;	//unstuff bytes	
 			pass=1;
 			break;	
 	} // end switch
-	if (index >= FRSKY_SPORT_PACKET_SIZE)
+	if (indx >= FRSKY_SPORT_PACKET_SIZE)
 	{//8 bytes no crc 
 		if ( sport )
 		{
@@ -408,22 +413,6 @@ void proces_sport_data(uint8_t data)
 
 void TelemetryUpdate()
 {
-	#if defined SPORT_TELEMETRY
-		if (protocol==MODE_FRSKYX)
-		{	// FrSkyX
-			if(telemetry_link)
-			{		
-				if(pktt[4] & 0x80)
-					rssi=pktt[4] & 0x7F ;
-				else 
-					RxBt = (pktt[4]<<1) + 1 ;
-				for (uint8_t i=0; i < pktt[6]; i++)
-				proces_sport_data(pktt[7+i]);
-				telemetry_link=0;
-			}
-		}
-	#endif					
-
 	// check for space in tx buffer
 
 	#ifdef BASH_SERIAL
@@ -463,6 +452,33 @@ void TelemetryUpdate()
 		}
 	#endif
 	 
+	#if defined SPORT_TELEMETRY
+		if (protocol==MODE_FRSKYX)
+		{	// FrSkyX
+			if(telemetry_link)
+			{		
+				if(pktt[4] & 0x80)
+					rssi=pktt[4] & 0x7F ;
+				else 
+					RxBt = (pktt[4]<<1) + 1 ;
+				if(pktt[6]<=6)
+					for (uint8_t i=0; i < pktt[6]; i++)
+						proces_sport_data(pktt[7+i]);
+				telemetry_link=0;
+			}
+			uint32_t now = micros();
+			if ((now - last) > SPORT_TIME)
+			{
+				sportSendFrame();
+				#ifdef STM32_BOARD
+					last=now;
+				#else
+					last += SPORT_TIME ;
+				#endif
+			}
+		}
+	#endif					
+
 	#if defined DSM_TELEMETRY
 		if(telemetry_link && protocol == MODE_DSM )
 		{	// DSM
@@ -484,17 +500,6 @@ void TelemetryUpdate()
 			return;
 		}
 	#endif
-	#if defined SPORT_TELEMETRY
-		if (protocol==MODE_FRSKYX)
-		{	// FrSkyX
-			uint32_t now = micros();
-			if ((now - last) > SPORT_TIME)
-			{
-				sportSendFrame();
-				last += SPORT_TIME ;
-			}
-		}
-	#endif					
 }
 
 
@@ -505,323 +510,361 @@ void TelemetryUpdate()
 /**************************/
 
 #ifndef BASH_SERIAL
-// Routines for normal serial output
-void Serial_write(uint8_t data)
-{
-	uint8_t nextHead ;
-	nextHead = tx_head + 1 ;
-	if ( nextHead >= TXBUFFER_SIZE )
-		nextHead = 0 ;
-	tx_buff[nextHead]=data;
-	tx_head = nextHead ;
-	tx_resume();
-}
-
-void initTXSerial( uint8_t speed)
-{
-	#ifdef ENABLE_PPM
-		if(speed==SPEED_9600)
-		{ // 9600
-		#ifdef XMEGA
-			USARTC0.BAUDCTRLA = 207 ;
-			USARTC0.BAUDCTRLB = 0 ;
-			USARTC0.CTRLB = 0x18 ;
-			USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
-			USARTC0.CTRLC = 0x03 ;
-		#else
-			//9600 bauds
-			UBRR0H = 0x00;
-			UBRR0L = 0x67;
-			UCSR0A = 0 ;	// Clear X2 bit
-			//Set frame format to 8 data bits, none, 1 stop bit
-			UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
-			#endif
-		}
-		else if(speed==SPEED_57600)
-		{ // 57600
-			#ifdef XMEGA
-				/*USARTC0.BAUDCTRLA = 207 ;
-				USARTC0.BAUDCTRLB = 0 ;
-				USARTC0.CTRLB = 0x18 ;
-				USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
-				USARTC0.CTRLC = 0x03 ;*/
-			#else
-				//57600 bauds
-				UBRR0H = 0x00;
-				UBRR0L = 0x22;
-				UCSR0A = 0x02 ;	// Set X2 bit
-				//Set frame format to 8 data bits, none, 1 stop bit
-				UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
-			#endif
-		}
-		else if(speed==SPEED_125K)
-		{ // 125000
-			#ifdef XMEGA
-				/*USARTC0.BAUDCTRLA = 207 ;
-				USARTC0.BAUDCTRLB = 0 ;
-				USARTC0.CTRLB = 0x18 ;
-				USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
-				USARTC0.CTRLC = 0x03 ;*/
-			#else
-				//125000 bauds
-				UBRR0H = 0x00;
-				UBRR0L = 0x07;
-				UCSR0A = 0x00 ;	// Clear X2 bit
-				//Set frame format to 8 data bits, none, 1 stop bit
-				UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
-			#endif
-		}
-	#endif
-	#ifndef XMEGA
-		UCSR0B |= (1<<TXEN0);//tx enable
-	#endif
-}
-
-#ifdef XMEGA
-ISR(USARTC0_DRE_vect)
-#else
-ISR(USART_UDRE_vect)
-#endif
-{	// Transmit interrupt
-	if(tx_head!=tx_tail)
+	// Routines for normal serial output
+	void Serial_write(uint8_t data)
 	{
-		if(++tx_tail>=TXBUFFER_SIZE)//head 
-			tx_tail=0;
-		UDR0=tx_buff[tx_tail];
+		uint8_t nextHead ;
+		nextHead = tx_head + 1 ;
+		if ( nextHead >= TXBUFFER_SIZE )
+			nextHead = 0 ;
+		tx_buff[nextHead]=data;
+		tx_head = nextHead ;
+		tx_resume();
 	}
-	if (tx_tail == tx_head)
-		tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
-}
+	
+	void initTXSerial( uint8_t speed)
+	{
+		#ifdef ENABLE_PPM
+			if(speed==SPEED_9600)
+			{ // 9600
+				#ifdef ORANGE_TX
+					USARTC0.BAUDCTRLA = 207 ;
+					USARTC0.BAUDCTRLB = 0 ;
+					USARTC0.CTRLB = 0x18 ;
+					USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+					USARTC0.CTRLC = 0x03 ;
+				#else
+					#ifdef STM32_BOARD
+						Serial2.begin(9600);				//USART3 
+						USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable RX leave TX enabled
+					#else
+						UBRR0H = 0x00;
+						UBRR0L = 0x67;
+						UCSR0A = 0 ;	// Clear X2 bit
+						//Set frame format to 8 data bits, none, 1 stop bit
+						UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+					#endif
+				#endif
+			}
+			else if(speed==SPEED_57600)
+			{ // 57600
+				#ifdef ORANGE_TX
+					/*USARTC0.BAUDCTRLA = 207 ;
+					USARTC0.BAUDCTRLB = 0 ;
+					USARTC0.CTRLB = 0x18 ;
+					USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+					USARTC0.CTRLC = 0x03 ;*/
+				#else
+						#ifdef STM32_BOARD
+							Serial2.begin(57600);				//USART3 
+							USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable RX leave TX enabled
+						#else
+					UBRR0H = 0x00;
+					UBRR0L = 0x22;
+					UCSR0A = 0x02 ;	// Set X2 bit
+					//Set frame format to 8 data bits, none, 1 stop bit
+					UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+				#endif
+					#endif
+			}
+			else if(speed==SPEED_125K)
+			{ // 125000
+				#ifdef ORANGE_TX
+					/*USARTC0.BAUDCTRLA = 207 ;
+					USARTC0.BAUDCTRLB = 0 ;
+					USARTC0.CTRLB = 0x18 ;
+					USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+					USARTC0.CTRLC = 0x03 ;*/
+				#else
+						#ifdef STM32_BOARD
+							Serial2.begin(125000);				//USART3 
+							USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable RX leave TX enabled
+						#else
+					UBRR0H = 0x00;
+					UBRR0L = 0x07;
+					UCSR0A = 0x00 ;	// Clear X2 bit
+					//Set frame format to 8 data bits, none, 1 stop bit
+					UCSR0C = (1<<UCSZ01)|(1<<UCSZ00);
+				#endif
+					#endif
+			}
+		#endif
+		#ifndef ORANGE_TX
+			#ifndef STM32_BOARD
+				UCSR0B |= (1<<TXEN0);//tx enable
+			#endif
+		#endif
+	}
+
+	//Serial TX
+	#ifdef ORANGE_TX
+		ISR(USARTC0_DRE_vect)
+	#else
+		#ifdef STM32_BOARD
+			#ifdef __cplusplus
+				extern "C" {
+			#endif	
+			void __irq_usart3()			
+		#else
+			ISR(USART_UDRE_vect)
+		#endif
+	#endif
+	{	// Transmit interrupt
+		#ifdef STM32_BOARD
+			if(USART3_BASE->SR & USART_SR_TXE)
+			{
+		#endif
+		if(tx_head!=tx_tail)
+		{
+			if(++tx_tail>=TXBUFFER_SIZE)//head 
+				tx_tail=0;
+			#ifdef STM32_BOARD	
+				USART3_BASE->DR=tx_buff[tx_tail];//clears TXE bit				
+			#else
+				UDR0=tx_buff[tx_tail];
+			#endif
+		}
+		if (tx_tail == tx_head)
+			#ifdef STM32_BOARD	
+				USART3_BASE->CR1 &= ~USART_CR1_TXEIE;//disable interrupt	
+			}
+			#else
+				tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
+			#endif		
+	}
+	#if defined STM32_BOARD			
+		#ifdef __cplusplus
+			}
+		#endif
+	#endif	//STM32_BOARD
 
 #else	//BASH_SERIAL
-// Routines for bit-bashed serial output
+	// Routines for bit-bashed serial output
 
-// Speed is 0 for 100K and 1 for 9600
-void initTXSerial( uint8_t speed)
-{
-	TIMSK0 = 0 ;	// Stop all timer 0 interrupts
+	// Speed is 0 for 100K and 1 for 9600
+	void initTXSerial( uint8_t speed)
+	{
+		TIMSK0 = 0 ;	// Stop all timer 0 interrupts
+		#ifdef INVERT_SERIAL
+			SERIAL_TX_off;
+		#else
+			SERIAL_TX_on;
+		#endif
+		UCSR0B &= ~(1<<TXEN0) ;
+
+		SerialControl.speed = speed ;
+		if ( speed == SPEED_9600 )
+		{
+			OCR0A = 207 ;	// 104uS period
+			TCCR0A = 3 ;
+			TCCR0B = 0x0A ; // Fast PMM, 2MHz
+		}
+		else	// 100K
+		{
+			TCCR0A = 0 ;
+			TCCR0B = 2 ;	// Clock/8 (0.5uS)
+		}
+	}
+
+	void Serial_write( uint8_t byte )
+	{
+		uint8_t temp ;
+		uint8_t temp1 ;
+		uint8_t byteLo ;
+
 	#ifdef INVERT_SERIAL
-		SERIAL_TX_off;
-	#else
-		SERIAL_TX_on;
+		byte = ~byte ;
 	#endif
-	UCSR0B &= ~(1<<TXEN0) ;
 
-	SerialControl.speed = speed ;
-	if ( speed == SPEED_9600 )
-	{
-		OCR0A = 207 ;	// 104uS period
-		TCCR0A = 3 ;
-		TCCR0B = 0x0A ; // Fast PMM, 2MHz
-	}
-	else	// 100K
-	{
-		TCCR0A = 0 ;
-		TCCR0B = 2 ;	// Clock/8 (0.5uS)
-	}
-}
-
-void Serial_write( uint8_t byte )
-{
-	uint8_t temp ;
-	uint8_t temp1 ;
-	uint8_t byteLo ;
-
-#ifdef INVERT_SERIAL
-	byte = ~byte ;
-#endif
-
-	byteLo = byte ;
-	byteLo >>= 7 ;		// Top bit
-	if ( SerialControl.speed == SPEED_100K )
-	{
-#ifdef INVERT_SERIAL
-		byteLo |= 0x02 ;	// Parity bit
-#else
-		byteLo |= 0xFC ;	// Stop bits
-#endif
-	// calc parity
-		temp = byte ;
-		temp >>= 4 ;
-		temp = byte ^ temp ;
-		temp1 = temp ;
-		temp1 >>= 2 ;
-		temp = temp ^ temp1 ;
-		temp1 = temp ;
-		temp1 <<= 1 ;
-		temp ^= temp1 ;
-		temp &= 0x02 ;
-#ifdef INVERT_SERIAL
-		byteLo ^= temp ;
-#else	
-		byteLo |= temp ;
-#endif
-	}
-	else
-	{
-		byteLo |= 0xFE ;	// Stop bit
-	}	
-	byte <<= 1 ;
-#ifdef INVERT_SERIAL
-	byte |= 1 ;		// Start bit
-#endif
-  uint8_t next = (SerialControl.head + 2) & 0x3f ;
-	if ( next != SerialControl.tail )
-	{
-		SerialControl.data[SerialControl.head] = byte ;
-		SerialControl.data[SerialControl.head+1] = byteLo ;
-		SerialControl.head = next ;
-	}
-	if(!IS_TX_PAUSE_on)
-		tx_resume();
-}
-
-void resumeBashSerial()
-{
-	cli() ;
-	if ( SerialControl.busy == 0 )
-	{
-		sei() ;
-		// Start the transmission here
-#ifdef INVERT_SERIAL
-		GPIOR2 = 0 ;
-#else
-		GPIOR2 = 0x01 ;
-#endif
+		byteLo = byte ;
+		byteLo >>= 7 ;		// Top bit
 		if ( SerialControl.speed == SPEED_100K )
 		{
-			GPIOR1 = 1 ;
-			OCR0B = TCNT0 + 40 ;
-			OCR0A = OCR0B + 210 ;
-			TIFR0 = (1<<OCF0A) | (1<<OCF0B) ;
-			TIMSK0 |= (1<<OCIE0B) ;
-			SerialControl.busy = 1 ;
+	#ifdef INVERT_SERIAL
+			byteLo |= 0x02 ;	// Parity bit
+	#else
+			byteLo |= 0xFC ;	// Stop bits
+	#endif
+		// calc parity
+			temp = byte ;
+			temp >>= 4 ;
+			temp = byte ^ temp ;
+			temp1 = temp ;
+			temp1 >>= 2 ;
+			temp = temp ^ temp1 ;
+			temp1 = temp ;
+			temp1 <<= 1 ;
+			temp ^= temp1 ;
+			temp &= 0x02 ;
+	#ifdef INVERT_SERIAL
+			byteLo ^= temp ;
+	#else	
+			byteLo |= temp ;
+	#endif
 		}
 		else
 		{
-			GPIOR1 = 1 ;
-			TIFR0 = (1<<TOV0) ;
-			TIMSK0 |= (1<<TOIE0) ;
-			SerialControl.busy = 1 ;
-		}
-	}
-	else
-	{
-		sei() ;
-	}
-}
-
-// Assume timer0 at 0.5uS clock
-
-ISR(TIMER0_COMPA_vect)
-{
-	uint8_t byte ;
-	byte = GPIOR0 ;
-	if ( byte & 0x01 )
-		SERIAL_TX_on;
-	else
-		SERIAL_TX_off;
-	byte /= 2 ;		// Generates shorter code than byte >>= 1
-	GPIOR0 = byte ;
-	if ( --GPIOR1 == 0 )
-	{
-		TIMSK0 &= ~(1<<OCIE0A) ;
-		GPIOR1 = 3 ;
-	}
-	else
-	{
-		OCR0A += 20 ;
-	}
-}
-
-ISR(TIMER0_COMPB_vect)
-{
-	uint8_t byte ;
-	byte = GPIOR2 ;
-	if ( byte & 0x01 )
-		SERIAL_TX_on;
-	else
-		SERIAL_TX_off;
-	byte /= 2 ;		// Generates shorter code than byte >>= 1
-	GPIOR2 = byte ;
-	if ( --GPIOR1 == 0 )
-	{
-		if ( IS_TX_PAUSE_on )
+			byteLo |= 0xFE ;	// Stop bit
+		}	
+		byte <<= 1 ;
+	#ifdef INVERT_SERIAL
+		byte |= 1 ;		// Start bit
+	#endif
+	  uint8_t next = (SerialControl.head + 2) & 0x3f ;
+		if ( next != SerialControl.tail )
 		{
-			SerialControl.busy = 0 ;
-			TIMSK0 &= ~(1<<OCIE0B) ;
+			SerialControl.data[SerialControl.head] = byte ;
+			SerialControl.data[SerialControl.head+1] = byteLo ;
+			SerialControl.head = next ;
+		}
+		if(!IS_TX_PAUSE_on)
+			tx_resume();
+	}
+
+	void resumeBashSerial()
+	{
+		cli() ;
+		if ( SerialControl.busy == 0 )
+		{
+			sei() ;
+			// Start the transmission here
+			#ifdef INVERT_SERIAL
+				GPIOR2 = 0 ;
+			#else
+				GPIOR2 = 0x01 ;
+			#endif
+			if ( SerialControl.speed == SPEED_100K )
+			{
+				GPIOR1 = 1 ;
+				OCR0B = TCNT0 + 40 ;
+				OCR0A = OCR0B + 210 ;
+				TIFR0 = (1<<OCF0A) | (1<<OCF0B) ;
+				TIMSK0 |= (1<<OCIE0B) ;
+				SerialControl.busy = 1 ;
+			}
+			else
+			{
+				GPIOR1 = 1 ;
+				TIFR0 = (1<<TOV0) ;
+				TIMSK0 |= (1<<TOIE0) ;
+				SerialControl.busy = 1 ;
+			}
 		}
 		else
 		{
-			// prepare next byte and allow for 2 stop bits
+			sei() ;
+		}
+	}
+
+	// Assume timer0 at 0.5uS clock
+
+	ISR(TIMER0_COMPA_vect)
+	{
+		uint8_t byte ;
+		byte = GPIOR0 ;
+		if ( byte & 0x01 )
+			SERIAL_TX_on;
+		else
+			SERIAL_TX_off;
+		byte /= 2 ;		// Generates shorter code than byte >>= 1
+		GPIOR0 = byte ;
+		if ( --GPIOR1 == 0 )
+		{
+			TIMSK0 &= ~(1<<OCIE0A) ;
+			GPIOR1 = 3 ;
+		}
+		else
+		{
+			OCR0A += 20 ;
+		}
+	}
+
+	ISR(TIMER0_COMPB_vect)
+	{
+		uint8_t byte ;
+		byte = GPIOR2 ;
+		if ( byte & 0x01 )
+			SERIAL_TX_on;
+		else
+			SERIAL_TX_off;
+		byte /= 2 ;		// Generates shorter code than byte >>= 1
+		GPIOR2 = byte ;
+		if ( --GPIOR1 == 0 )
+		{
+			if ( IS_TX_PAUSE_on )
+			{
+				SerialControl.busy = 0 ;
+				TIMSK0 &= ~(1<<OCIE0B) ;
+			}
+			else
+			{
+				// prepare next byte and allow for 2 stop bits
+				struct t_serial_bash *ptr = &SerialControl ;
+				if ( ptr->head != ptr->tail )
+				{
+					GPIOR0 = ptr->data[ptr->tail] ;
+					GPIOR2 = ptr->data[ptr->tail+1] ;
+					ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
+					GPIOR1 = 8 ;
+					OCR0A = OCR0B + 40 ;
+					OCR0B = OCR0A + 8 * 20 ;
+					TIMSK0 |= (1<<OCIE0A) ;
+				}
+				else
+				{
+					SerialControl.busy = 0 ;
+					TIMSK0 &= ~(1<<OCIE0B) ;
+				}
+			}
+		}
+		else
+		{
+			OCR0B += 20 ;
+		}
+	}
+
+	ISR(TIMER0_OVF_vect)
+	{
+		uint8_t byte ;
+		if ( GPIOR1 > 2 )
+		{
+			byte = GPIOR0 ;
+		}
+		else
+		{
+			byte = GPIOR2 ;
+		}
+		if ( byte & 0x01 )
+			SERIAL_TX_on;
+		else
+			SERIAL_TX_off;
+		byte /= 2 ;		// Generates shorter code than byte >>= 1
+		if ( GPIOR1 > 2 )
+		{
+			GPIOR0 = byte ;
+		}
+		else
+		{
+			GPIOR2 = byte ;
+		}
+		if ( --GPIOR1 == 0 )
+		{
+			// prepare next byte
 			struct t_serial_bash *ptr = &SerialControl ;
 			if ( ptr->head != ptr->tail )
 			{
 				GPIOR0 = ptr->data[ptr->tail] ;
 				GPIOR2 = ptr->data[ptr->tail+1] ;
 				ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
-				GPIOR1 = 8 ;
-				OCR0A = OCR0B + 40 ;
-				OCR0B = OCR0A + 8 * 20 ;
-				TIMSK0 |= (1<<OCIE0A) ;
+				GPIOR1 = 10 ;
 			}
 			else
 			{
 				SerialControl.busy = 0 ;
-				TIMSK0 &= ~(1<<OCIE0B) ;
+				TIMSK0 &= ~(1<<TOIE0) ;
 			}
 		}
 	}
-	else
-	{
-		OCR0B += 20 ;
-	}
-}
-
-ISR(TIMER0_OVF_vect)
-{
-	uint8_t byte ;
-	if ( GPIOR1 > 2 )
-	{
-		byte = GPIOR0 ;
-	}
-	else
-	{
-		byte = GPIOR2 ;
-	}
-	if ( byte & 0x01 )
-		SERIAL_TX_on;
-	else
-		SERIAL_TX_off;
-	byte /= 2 ;		// Generates shorter code than byte >>= 1
-	if ( GPIOR1 > 2 )
-	{
-		GPIOR0 = byte ;
-	}
-	else
-	{
-		GPIOR2 = byte ;
-	}
-	if ( --GPIOR1 == 0 )
-	{
-		// prepare next byte
-		struct t_serial_bash *ptr = &SerialControl ;
-		if ( ptr->head != ptr->tail )
-		{
-			GPIOR0 = ptr->data[ptr->tail] ;
-			GPIOR2 = ptr->data[ptr->tail+1] ;
-			ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
-			GPIOR1 = 10 ;
-		}
-		else
-		{
-			SerialControl.busy = 0 ;
-			TIMSK0 &= ~(1<<TOIE0) ;
-		}
-	}
-}
-
-
 #endif // BASH_SERIAL
 
 #endif // TELEMETRY

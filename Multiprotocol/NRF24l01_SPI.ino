@@ -14,9 +14,7 @@
  */
 
 
-//---------------------------
-// AVR nrf chip bitbang SPI functions
-//---------------------------
+#ifdef NRF24L01_INSTALLED
 #include "iface_nrf24l01.h"
 
 
@@ -189,7 +187,8 @@ void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 		NRF_CE_on;
 	}
 	else
-		if (mode == RX_EN) {
+		if (mode == RX_EN)
+		{
 			NRF_CE_off;
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);        // reset the flag(s)
 			NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x0F);        // switch to RX mode
@@ -335,7 +334,7 @@ void XN297_Configure(uint8_t flags)
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, flags & 0xFF);
 }
 
-void XN297_SetScrambledMode(const u8 mode)
+void XN297_SetScrambledMode(const uint8_t mode)
 {
     xn297_scramble_enabled = mode;
 }
@@ -591,3 +590,4 @@ void LT8900_WritePayload(uint8_t* msg, uint8_t len)
 	NRF24L01_WritePayload(LT8900_buffer+LT8900_buffer_start,pos_final+pos-LT8900_buffer_start);
 }
 // End of LT8900 emulation
+#endif

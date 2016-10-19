@@ -17,6 +17,14 @@
 /** Multiprotocol module configuration file ***/
 /**********************************************/
 
+/********************/
+/***  BOARD TYPE  ***/
+/********************/
+//Uncomment one of the line below if you have a different module not based on the original Multi Atmega328p design which includes the 4-in-1.
+//If you don't know then leave them commented.
+//#define STM32_BOARD
+
+
 /*******************/
 /*** TX SETTINGS ***/
 /*******************/
@@ -43,7 +51,7 @@
 /*** PROTOCOLS TO INCLUDE ***/
 /****************************/
 //In this section select the protocols you want to be accessible when using the module.
-//All the protocols will not fit in the module so you need to pick and choose.
+//All the protocols will not fit in the Atmega328p module so you need to pick and choose.
 //Comment the protocols you are not using with "//" to save Flash space.
 
 //The protocols below need an A7105 to be installed
@@ -138,17 +146,17 @@
 //Below are some standard transmitters already preconfigured.
 //Uncomment only the one which matches your transmitter.
 //#define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012µs)
-#define TX_TARANIS   //TARANIS AETR (1100<->1900µs)
-//#define TX_DEVO7		//DEVO					(1120<->1920µs)
-//#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
-//#define TX_HISKY		//HISKY					(1100<->1900µs)
-//#define TX_MPX		//Multiplex MC2020		(1250<->1950µs)
-//#define TX_CUSTOM		//Custom
+#define TX_TARANIS			//TARANIS AETR (1100<->1900µs)
+//#define TX_DEVO7			//DEVO					(1120<->1920µs)
+//#define TX_SPEKTRUM		//Spektrum				(1100<->1900µs)
+//#define TX_HISKY			//HISKY					(1100<->1900µs)
+//#define TX_MPX			//Multiplex MC2020		(1250<->1950µs)
+//#define TX_CUSTOM			//Custom
 
 // The lines below are used to set the end points in microseconds (µs) if you have selected TX_CUSTOM.
-// A few things to considered:
+// A few things to consider:
 //  - If you put too big values compared to your TX you won't be able to reach the extremes which is bad for throttle as an example
-//  - If you put too low values you won't be able to use your full stick range, it will be maxed out before reaching the end
+//  - If you put too low values you won't be able to use your full stick range, it will be maxed out before reaching the ends
 //  - Centered stick value is usually 1500. It should match the middle between MIN and MAX, ie Center=(MAX-MIN)/2+MIN. If your TX is not centered you can adjust the value MIN or MAX.
 //  - 100% is the value when the model is by default, 125% is the value when you extend the servo travel which is only used by some protocols
 #if defined(TX_CUSTOM)
@@ -276,7 +284,7 @@ const PPM_Parameters PPM_prot[15]=	{
 
 // Auto Bind	AUTOBIND or NO_AUTOBIND
 // For protocols which does not require binding at each power up (like Flysky, FrSky...), you might still want a bind to be initiated each time you power up the TX.
-// As an exxample, it's usefull for the WLTOYS F929/F939/F949/F959 (all using the Flysky protocol) which requires a bind at each power up.
+// As an example, it's usefull for the WLTOYS F929/F939/F949/F959 (all using the Flysky protocol) which requires a bind at each power up.
 
 // Option: the value is between -127 and +127.
 // The option value is only valid for some protocols, read this page for more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md

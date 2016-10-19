@@ -1,7 +1,7 @@
 #define ARDUINO_AVR_PRO		1
 //#define __AVR_ATmega328P__	1
 
-#define XMEGA	1
+#define ORANGE_TX	1
 
 // For BLUE module use:
 //#define DSM_BLUE

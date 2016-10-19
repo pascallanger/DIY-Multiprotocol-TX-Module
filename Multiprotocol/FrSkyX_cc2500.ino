@@ -274,13 +274,14 @@ uint16_t ReadFrSkyX()
 			return 3000;
 		case FRSKY_DATA4:
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
-			if (len && (len<MAX_PKT))
+			if (len && (len<=(0x0E + 3)))				//Telemetry frame is 17
 			{
+				counter=0;
 				CC2500_ReadData(pkt, len);
 				#if defined TELEMETRY
-				frsky_check_telemetry(pkt,len);	//check if valid telemetry packets
-				//parse telemetry packets here
-				//The same telemetry function used by FrSky(D8).
+					frsky_check_telemetry(pkt,len);	//check if valid telemetry packets
+					//parse telemetry packets here
+					//The same telemetry function used by FrSky(D8).
 				#endif
 			} 
 			else
@@ -292,7 +293,9 @@ uint16_t ReadFrSkyX()
 					seq_last_sent = 0;
 					seq_last_rcvd = 8;
 					counter=0;
+					telemetry_lost=1;
 				}
+				CC2500_Strobe(CC2500_SFRX);			//flush the RXFIFO
 			}
 			state = FRSKY_DATA1;
 			return 300;

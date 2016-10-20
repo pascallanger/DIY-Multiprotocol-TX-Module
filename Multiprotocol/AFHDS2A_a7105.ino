@@ -269,7 +269,7 @@ uint16_t ReadAFHDS2A()
 			A7105_Strobe(A7105_STANDBY);
 			AFHDS2A_build_packet(packet_type);
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, hopping_frequency[hopping_frequency_no++]);
-			if(hopping_frequency_no >= 16)
+			if(hopping_frequency_no >= AFHDS2A_NUMFREQ)
 				hopping_frequency_no = 0;
 			if(!(packet_counter % 1313))
 				packet_type = AFHDS2A_PACKET_SETTINGS;

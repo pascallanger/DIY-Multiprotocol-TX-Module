@@ -33,6 +33,7 @@
 #ifndef A7105_INSTALLED
 	#undef FLYSKY_A7105_INO
 	#undef HUBSAN_A7105_INO
+	#undef AFHDS2A_A7105_INO
 #endif
 #ifndef CYRF6936_INSTALLED
 	#undef	DEVO_CYRF6936_INO
@@ -75,7 +76,7 @@
 	#if not defined(CYRF6936_INSTALLED) || not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if (not defined(CC2500_INSTALLED) || not defined(FRSKYD_CC2500_INO)) && (not defined(A7105_INSTALLED) || not defined(HUBSAN_A7105_INO))
+	#if (not defined(CC2500_INSTALLED) || not defined(FRSKYD_CC2500_INO)) && (not defined(A7105_INSTALLED) || not defined(HUBSAN_A7105_INO) || not defined(AFHDS2A_A7105_INO))
 		#undef HUB_TELEMETRY
 	#endif
 	#if not defined(CC2500_INSTALLED) || not defined(FRSKYX_CC2500_INO)

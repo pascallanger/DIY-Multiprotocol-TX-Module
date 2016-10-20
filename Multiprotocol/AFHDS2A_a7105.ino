@@ -16,8 +16,6 @@
 
 #ifdef AFHDS2A_A7105_INO
 
-#define AFHDS2A_EEPROMadress	0		// rx ID 32bit
-
 #define AFHDS2A_TXPACKET_SIZE	38
 #define AFHDS2A_RXPACKET_SIZE	37
 #define AFHDS2A_NUMFREQ			16
@@ -74,6 +72,7 @@ static void AFHDS2A_calc_channels()
 	}
 }
 
+#if defined(TELEMETRY)
 // telemetry sensors ID
 enum{
 	AFHDS2A_SENSOR_RX_VOLTAGE   = 0x00,
@@ -111,6 +110,7 @@ static void AFHDS2A_update_telemetry()
 		}
 	}
 }
+#endif
 
 static void AFHDS2A_build_bind_packet()
 {
@@ -184,6 +184,7 @@ static void AFHDS2A_build_packet(uint8_t type)
 			packet[10]= 0xff;
 			packet[12]= 0x00;
 			uint16_t a=5*option+50;	// option value should be between 0 and 70 which gives a value between 50 and 400Hz
+			if(a<50 || a>400) a=50;	// default is 50Hz
 			packet[11]= a;
 			packet[12]= a >> 8;
 			if(sub_protocol == PPM_IBUS || sub_protocol == PPM_SBUS)
@@ -291,8 +292,10 @@ uint16_t ReadAFHDS2A()
 					A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 					if(packet[9] == 0xfc)
 						packet_type=AFHDS2A_PACKET_SETTINGS;	// RX is asking for settings
+					#if defined(TELEMETRY)
 					else
 						AFHDS2A_update_telemetry();
+					#endif
 				}
 			}
 			packet_count++;

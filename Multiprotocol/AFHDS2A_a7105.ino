@@ -118,7 +118,7 @@ static void AFHDS2A_build_bind_packet()
 	memcpy( &packet[1], rx_tx_addr, 4);
 	memset( &packet[5], 0xff, 4);
 	packet[10]= 0x00;
-	for(ch=0; ch<16; ch++)
+	for(ch=0; ch<AFHDS2A_NUMFREQ; ch++)
 		packet[11+ch] = hopping_frequency[ch];
 	memset( &packet[27], 0xff, 10);
 	packet[37] = 0x00;
@@ -182,11 +182,10 @@ static void AFHDS2A_build_packet(uint8_t type)
 			packet[0] = 0xaa;
 			packet[9] = 0xfd;
 			packet[10]= 0xff;
-			packet[12]= 0x00;
-			uint16_t a=5*option+50;	// option value should be between 0 and 70 which gives a value between 50 and 400Hz
-			if(a<50 || a>400) a=50;	// default is 50Hz
-			packet[11]= a;
-			packet[12]= a >> 8;
+			uint16_t val_hz=5*option+50;			// option value should be between 0 and 70 which gives a value between 50 and 400Hz
+			if(val_hz<50 || val_hz>400) val_hz=50;	// default is 50Hz
+			packet[11]= val_hz;
+			packet[12]= val_hz >> 8;
 			if(sub_protocol == PPM_IBUS || sub_protocol == PPM_SBUS)
 				packet[13] = 0x01;	// PPM output enabled
 			else
@@ -200,7 +199,7 @@ static void AFHDS2A_build_packet(uint8_t type)
 			if(sub_protocol == PWM_SBUS || sub_protocol == PPM_SBUS)
 				packet[21] = 0xdd;	// SBUS output enabled
 			else
-				packet[21] = 0xde;
+				packet[21] = 0xde;	// IBUS
 			packet[37] = 0x00;
 			break;
 	}
@@ -210,6 +209,8 @@ static void AFHDS2A_build_packet(uint8_t type)
 uint16_t ReadAFHDS2A()
 {
 	static uint8_t packet_type = AFHDS2A_PACKET_STICKS;
+	static int32_t packet_counter=0;
+	
 	switch(phase)
 	{
 		case AFHDS2A_BIND1:
@@ -254,7 +255,6 @@ uint16_t ReadAFHDS2A()
 			bind_phase++;
 			if(bind_phase>=4)
 			{ 
-				packet_count=0;
 				hopping_frequency_no=1;
 				phase = AFHDS2A_DATA;
 				BIND_DONE;
@@ -271,9 +271,9 @@ uint16_t ReadAFHDS2A()
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, hopping_frequency[hopping_frequency_no++]);
 			if(hopping_frequency_no >= 16)
 				hopping_frequency_no = 0;
-			if(!(packet_count % 1313))
+			if(!(packet_counter % 1313))
 				packet_type = AFHDS2A_PACKET_SETTINGS;
-			else if(!(packet_count % 1569))
+			else if(!(packet_counter % 1569))
 				packet_type = AFHDS2A_PACKET_FAILSAFE;
 			else
 				packet_type = AFHDS2A_PACKET_STICKS; // todo : check for settings changes
@@ -298,7 +298,7 @@ uint16_t ReadAFHDS2A()
 					#endif
 				}
 			}
-			packet_count++;
+			packet_counter++;
 			phase |= AFHDS2A_WAIT_WRITE;
 			return 1700;
 		case AFHDS2A_DATA|AFHDS2A_WAIT_WRITE:

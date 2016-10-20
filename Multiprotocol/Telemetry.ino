@@ -130,7 +130,7 @@ void frsky_link_frame()
 		frame[4] = (uint8_t)RSSI_dBm;
 	}
 	else
-		if (protocol==MODE_HUBSAN)
+		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A)
 		{	
 			frame[1] = v_lipo*2; //v_lipo; common 0x2A=42/10=4.2V
 			frame[2] = frame[1];			
@@ -486,7 +486,7 @@ void TelemetryUpdate()
 		}
 	#endif
 		if(telemetry_link && protocol != MODE_FRSKYX )
-		{	// FrSky + Hubsan
+		{	// FrSky + Hubsan + AFHDS2A
 			frsky_link_frame();
 			telemetry_link=0;
 			return;

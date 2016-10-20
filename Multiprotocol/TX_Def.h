@@ -210,4 +210,3 @@
 #define	AUX10	13
 #define	AUX11	14
 #define	AUX12	15
-#define	AUX13	16

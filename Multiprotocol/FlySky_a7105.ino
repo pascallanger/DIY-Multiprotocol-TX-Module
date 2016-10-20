@@ -184,7 +184,7 @@ uint16_t initFlySky()
 	uint8_t chanoffset;
 	uint8_t temp;
 
-	A7105_Init(INIT_FLYSKY);	//flysky_init();
+	A7105_Init();
 	
 	if ((rx_tx_addr[3]&0xF0) > 0x90) // limit offset to 9 as higher values don't work with some RX (ie V912)
 		rx_tx_addr[3]=rx_tx_addr[3]-0x70;

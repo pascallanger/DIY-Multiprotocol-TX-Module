@@ -253,7 +253,7 @@ uint16_t ReadHubsan()
 				phase = BIND_1;
 				return 4500; //No signal, restart binding procedure.  12msec elapsed since last write
 			}
-			A7105_ReadData();
+			A7105_ReadData(16);
 			phase++;
 			if (phase == BIND_5)
 				A7105_WriteID(((uint32_t)packet[2] << 24) | ((uint32_t)packet[3] << 16) | ((uint32_t)packet[4] << 8) | packet[5]);
@@ -264,7 +264,7 @@ uint16_t ReadHubsan()
 				phase = BIND_7;
 				return 15000; //22.5msec elapsed since last write
 			}
-			A7105_ReadData();
+			A7105_ReadData(16);
 			if(packet[1] == 9 && id_data == ID_NORMAL) {
 				phase = DATA_1;
 				A7105_WriteReg(A7105_1F_CODE_I, 0x0F);
@@ -314,7 +314,7 @@ uint16_t ReadHubsan()
 					{
 						if( !(A7105_ReadReg(A7105_00_MODE) & 0x01))
 						{ // data received
-							A7105_ReadData();
+							A7105_ReadData(16);
 							if( hubsan_check_integrity() )
 							{
 								v_lipo=packet[13];// hubsan lipo voltage 8bits the real value is h_lipo/10(0x2A=42 -> 4.2V)
@@ -343,7 +343,7 @@ uint16_t ReadHubsan()
 
 uint16_t initHubsan() {
 	const uint8_t allowed_ch[] = {0x14, 0x1e, 0x28, 0x32, 0x3c, 0x46, 0x50, 0x5a, 0x64, 0x6e, 0x78, 0x82};
-	A7105_Init(INIT_HUBSAN);	//hubsan_init();
+	A7105_Init();
 
 	sessionid = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
 	channel = allowed_ch[random(0xfefefefe) % sizeof(allowed_ch)];

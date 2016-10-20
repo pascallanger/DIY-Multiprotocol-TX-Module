@@ -66,6 +66,7 @@ uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint8_t  rx_tx_addr[5];
+uint8_t  rx_id[4];
 uint8_t  phase;
 uint16_t bind_counter;
 uint8_t  bind_phase;
@@ -93,7 +94,7 @@ uint8_t  RX_num;
 #endif
 
 //Channel mapping for protocols
-const uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
+const uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8, AUX9, AUX10};
 const uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
 const uint8_t CH_RETA[]={RUDDER, ELEVATOR, THROTTLE, AILERON, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
 const uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
@@ -481,7 +482,7 @@ void Update_All()
 	#endif //ENABLE_PPM
 	update_led_status();
 	#if defined(TELEMETRY)
-		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
+		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
 			TelemetryUpdate();
 	#endif
 }
@@ -608,6 +609,13 @@ static void protocol_init()
 					PE1_off;	//antenna RF1
 					next_callback = initFlySky();
 					remote_callback = ReadFlySky;
+					break;
+			#endif
+			#if defined(AFHDS2A_A7105_INO)
+				case MODE_AFHDS2A:
+					PE1_off;	//antenna RF1
+					next_callback = initAFHDS2A();
+					remote_callback = ReadAFHDS2A;
 					break;
 			#endif
 			#if defined(HUBSAN_A7105_INO)

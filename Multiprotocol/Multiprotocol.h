@@ -46,6 +46,7 @@ enum PROTOCOLS
 	MODE_FRSKYV		= 25,	// =>CC2500
 	MODE_HONTAI		= 26,	// =>NRF24L01
 	MODE_OPENLRS	= 27,	// =>OpenLRS hardware
+	MODE_AFHDS2A	= 28,	// =>A7105
 };
 
 enum Flysky
@@ -54,6 +55,13 @@ enum Flysky
 	V9X9	= 1,
 	V6X6	= 2,
 	V912	= 3
+};
+enum AFHDS2A
+{
+	PWM_IBUS = 0,
+	PPM_IBUS = 1,
+	PWM_SBUS = 2,
+	PPM_SBUS = 3,
 };
 enum Hisky
 {
@@ -378,6 +386,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					FrskyV		25
 					HONTAI		26
 					OpenLRS		27
+					AFHDS2A		28
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

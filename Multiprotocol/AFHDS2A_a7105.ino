@@ -183,16 +183,9 @@ static void AFHDS2A_build_packet(uint8_t type)
 			packet[9] = 0xfd;
 			packet[10]= 0xff;
 			packet[12]= 0x00;
-			if(option==0)			//50Hz
-				packet[11]= 50;
-			else
-				if(option==2)		//5Hz
-					packet[11]= 50;
-				else				//400Hz
-				{
-					packet[11]= 400&0xFF;
-					packet[12]= 400>>8;
-				}
+			uint16_t a=5*option+50;	// option value should be between 0 and 70 which gives a value between 50 and 400Hz
+			packet[11]= a;
+			packet[12]= a >> 8;
 			if(sub_protocol == PPM_IBUS || sub_protocol == PPM_SBUS)
 				packet[13] = 0x01;	// PPM output enabled
 			else

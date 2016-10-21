@@ -225,6 +225,7 @@ uint16_t ReadAFHDS2A()
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 				if(packet[0] == 0xbc)
 				{
+					BIND_DONE;
 					uint8_t temp=50+RX_num*4;
 					for(uint8_t i=0; i<4; i++)
 					{
@@ -249,6 +250,7 @@ uint16_t ReadAFHDS2A()
 				phase = AFHDS2A_BIND1;
 			return 2150-AFHDS2A_DELAY;
 		case AFHDS2A_BIND4:
+			A7105_SetTxRxMode(TX_EN);
 			A7105_Strobe(A7105_STANDBY);
 			AFHDS2A_build_bind_packet();
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, packet_count%2 ? 0x0d : 0x8c);
@@ -265,10 +267,12 @@ uint16_t ReadAFHDS2A()
 			phase |= AFHDS2A_WAIT_WRITE;
 			return 1700+AFHDS2A_DELAY;
 		case AFHDS2A_BIND4|AFHDS2A_WAIT_WRITE:
+			A7105_SetTxRxMode(RX_EN);
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;
 			return 2150-AFHDS2A_DELAY;
 		case AFHDS2A_DATA:    
+			A7105_SetTxRxMode(TX_EN);
 			A7105_Strobe(A7105_STANDBY);
 			AFHDS2A_build_packet(packet_type);
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, hopping_frequency[hopping_frequency_no++]);
@@ -305,6 +309,7 @@ uint16_t ReadAFHDS2A()
 			phase |= AFHDS2A_WAIT_WRITE;
 			return 1700+AFHDS2A_DELAY;
 		case AFHDS2A_DATA|AFHDS2A_WAIT_WRITE:
+			A7105_SetTxRxMode(RX_EN);
 			phase &= ~AFHDS2A_WAIT_WRITE;
 			A7105_Strobe(A7105_RX);
 			return 2150-AFHDS2A_DELAY;

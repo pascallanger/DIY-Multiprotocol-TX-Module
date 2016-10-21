@@ -71,6 +71,7 @@ Cyprus Semiconductor| CYRF6936|DSM/DSMX
 Texas Instruments|CC2500|FrSky
 ||Futaba SFHSS
 Amiccom|A7105|FlySky
+||FlySky AFHDS2A
 ||Turnigy (most)
 ||Hubsan
 Nordic Semiconductor|NRF24L01|HiSky

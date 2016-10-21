@@ -225,7 +225,6 @@ uint16_t ReadAFHDS2A()
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 				if(packet[0] == 0xbc)
 				{
-					BIND_DONE;
 					uint8_t temp=50+RX_num*4;
 					for(uint8_t i=0; i<4; i++)
 					{

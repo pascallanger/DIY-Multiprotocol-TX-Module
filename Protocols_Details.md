@@ -15,7 +15,7 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 0|Select serial||||||
 1|FLYSKY|Flysky|0|High|No|0|A7105
 2|HUBSAN|-|0|High|No|0|A7105
-3|FRSKYD|-|0|High|No|-41|CC2500
+3|FRSKYD|-|0|High|No|40|CC2500
 4|HISKY|Hisky|0|High|No|0|NRF24L01
 5|V2X2|-|0|High|No|0|NRF24L01
 6|DSM|DSM2|0|High|No|6|CYRF6936
@@ -61,6 +61,26 @@ FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 CH5|CH6
 ---|---
 BTMBTN|TOPBTN
+
+##FLYSKY AFHDS2A
+Extended limits supported
+
+Telemetry enabled for battery voltage and RX RSSI using FrSky Hub protocol
+
+Option values =0->50Hz, =1->400Hz, =2->5Hz
+
+RX_Num is used to give a number a given RX. You must use a different RX_Num per RX. A maximum of 16 AFHDS2A RXs are supported.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
+---|---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
+
+Note that the RX ouput will be AETR.
+
+###Sub_protocol PWM_IBUS
+###Sub_protocol PPM_IBUS
+###Sub_protocol PWM_SBUS
+###Sub_protocol PPM_SBUS
 
 ##HUBSAN
 Models: Hubsan H102D, H107/L/C/D and Hubsan H107P/C+/D+

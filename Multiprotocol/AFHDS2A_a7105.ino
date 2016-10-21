@@ -159,7 +159,6 @@ static void AFHDS2A_build_packet(uint8_t type)
 				packet[9 +  ch*2] = Servo_data[CH_AETR[ch]]&0xFF;
 				packet[10 + ch*2] = (Servo_data[CH_AETR[ch]]>>8)&0xFF;
 			}
-			packet[37] = 0x00;
 			break;
 		case AFHDS2A_PACKET_FAILSAFE:
 			packet[0] = 0x56;
@@ -176,7 +175,6 @@ static void AFHDS2A_build_packet(uint8_t type)
 					packet[10+ ch*2] = 0xff;
 				}
 			}
-			packet[37] = 0x00;
 			break;
 		case AFHDS2A_PACKET_SETTINGS:
 			packet[0] = 0xaa;
@@ -200,16 +198,16 @@ static void AFHDS2A_build_packet(uint8_t type)
 				packet[21] = 0xdd;	// SBUS output enabled
 			else
 				packet[21] = 0xde;	// IBUS
-			packet[37] = 0x00;
 			break;
 	}
+	packet[37] = 0x00;
 }
 
 #define AFHDS2A_WAIT_WRITE 0x80
 uint16_t ReadAFHDS2A()
 {
 	static uint8_t packet_type = AFHDS2A_PACKET_STICKS;
-	static int32_t packet_counter=0;
+	static uint16_t packet_counter=0;
 	
 	switch(phase)
 	{
@@ -255,6 +253,8 @@ uint16_t ReadAFHDS2A()
 			bind_phase++;
 			if(bind_phase>=4)
 			{ 
+				packet_counter=0;
+				packet_type = AFHDS2A_PACKET_STICKS;
 				hopping_frequency_no=1;
 				phase = AFHDS2A_DATA;
 				BIND_DONE;

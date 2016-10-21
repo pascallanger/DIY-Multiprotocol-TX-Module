@@ -204,7 +204,7 @@ static void AFHDS2A_build_packet(uint8_t type)
 }
 
 #define AFHDS2A_WAIT_WRITE 0x80
-#define AFHDS2A_DELAY 700
+#define AFHDS2A_DELAY 0
 uint16_t ReadAFHDS2A()
 {
 	static uint8_t packet_type = AFHDS2A_PACKET_STICKS;

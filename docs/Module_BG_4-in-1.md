@@ -25,7 +25,7 @@ The assembly process is trivial but it does depend on:
 ###PPM interface
 If you are only planning on using the PPM interface with transmitter you are ready to program the module as described in Compiling and Programming the module.
 
-###Enabling Serial interface
+###Enabling Serial and Telemetry interface
 If you have a transmitter that can support serial communication with the board then you need to wire up the board appropriately. There are two versions of the module and the steps are slightly different.
 
 Check which module you have and based on the pictures below.  If you purchased the module after June 2016 then it is likely that you have V2 module.  

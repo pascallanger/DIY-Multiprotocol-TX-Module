@@ -14,14 +14,13 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 ## Outline of the documentation
 1. Introduction (this page)
 1. [Available protocols](Protocols_Details.md)
-1. [Compatible Transmitters](docs/Transmitters.md)
+1. [Transmitters and serial/telemetry options](docs/Transmitters.md)
 1. [Module Hardware options](docs/Hardware.md)
 1. [Compiling and programming the module (ATmega328)](docs/Compiling.md) and [Compiling STM32](docs/Compiling_STM32.md).
 1. [Transmitter Setup](docs/Transmitters.md) 
    - [Taranis](docs/Tx-Taranis.md)
    - [FlySky TH9X, Turnigy 9X/R](docs/Tx-FlyskyTH9X.md)
    - [erSky Transmitters](docs/Tx-erSky9X.md)
-1. [Overview of Telemetry options and capabilities](docs/Telemetry.md)
 1. [How to for popular models](docs/Models.md)
 1. [Troubleshooting](docs/Troubleshooting.md)
 2. [Advanced Topics (not for the fainthearted!)](docs/Advanced_Topics.md)

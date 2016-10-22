@@ -5,7 +5,7 @@ The **Multiprotocol Tx Module** (or **MULTI-Module**) is a 2.4GHz transmitter mo
 The source code is partly based on the [Deviation TX project](http://www.deviationtx.com), thanks to all the developers for their great job on protocols.
 
 ## Quicklinks
-* [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases)
+* [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) and [instructions to upload .hex files](docs/Advanced_Manually_Setting_ATmega328_Fuses.md)
 * [Forum on rcroups](http://www.rcgroups.com/forums/showthread.php?t=2165676)
 * [Available Protocols list](Protocols_Details.md)
 * [The old documentation](docs/README-old.md)

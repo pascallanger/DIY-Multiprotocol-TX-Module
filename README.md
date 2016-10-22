@@ -1,6 +1,6 @@
 # Overview of the MULTI-Module
 
-The **Multiprotocol Tx Module** (or **MULTI-Module**) is a 2.4GHz transmitter module which enables almost any TX to control lot of different models available on the market.
+The **Multiprotocol Tx Module** (or **MULTI-Module**) is a 2.4GHz transmitter module which enables almost any TX to control lot of different models available on the market.  
 
 The source code is partly based on the [Deviation TX project](http://www.deviationtx.com), thanks to all the developers for their great job on protocols.
 
@@ -9,7 +9,7 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 * [Forum on rcroups](http://www.rcgroups.com/forums/showthread.php?t=2165676)
 * [Available Protocols list](Protocols_Details.md)
 * [The old documentation](docs/README-old.md)
-* [Documentation to-do list](docs/Documentation_To_Do_List.md)
+
 
 ## Outline of the documentation
 1. Introduction (this page)
@@ -21,13 +21,14 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
    - [Taranis](docs/Tx-Taranis.md)
    - [FlySky TH9X, Turnigy 9X/R](docs/Tx-FlyskyTH9X.md)
    - [erSky Transmitters](docs/Tx-erSky9X.md)
+1. [Overview of Telemetry options and capabilities](docs/Telemetry.md)
 1. [How to for popular models](docs/Models.md)
 1. [Troubleshooting](docs/Troubleshooting.md)
 2. [Advanced Topics (not for the fainthearted!)](docs/Advanced_Topics.md)
 
 ## Introduction
 A functioning MULTI-Module consists of (see image below):  
-<img src="docs/images/DIY_Multiprotocol_Module_Overview.png" width="500" height="300" />
+<img src="docs/images/MULTI_Module_Overview.png" width="700" height="400" />
 
 1.  A host RC Tx
 
@@ -43,7 +44,7 @@ A functioning MULTI-Module consists of (see image below):
      * In the case of some protocols (for example DSMX and FrSky) it receives and decodes the telemetry information and makes this available to the receiver.
 1. The physical 2.4GHz antenna (or in some cases multiple antennas) for the modules
 
-
+On of the most attractive features of the MULTI-module is the ability to send telemetry signals back to the transmitter. The MULTI-Module is fully telemetry capable for all protocols that support telemetry.  Your ability to use the telemetry information depends on the your transmitter hardware and your transmitter firmware.
 
 In constructing a functioning MULTI-Module there are important choices to be made and tradeoffs to be aware of.  The most important are:
 
@@ -66,17 +67,17 @@ This depends on your specific needs.  However, recent the availability of the 4-
 Manufacturer|RF Chip|Example Protocols
 :-----------|-------|:-------
 Cyprus Semiconductor| CYRF6936|DSM/DSMX
-||Walkera Devo
-||J6Pro
+ | |Walkera Devo
+ | |J6Pro
 Texas Instruments|CC2500|FrSky
-||Futaba SFHSS
+ | |Futaba SFHSS
 Amiccom|A7105|FlySky
-||Turnigy (most)
-||Hubsan
+ | |FlySky AFHDS2A
+ | |Hubsan
 Nordic Semiconductor|NRF24L01|HiSky
-||Syma
-||ASSAN
-||and most other Chinese models
+ | |Syma
+ | |ASSAN
+ | |and most other Chinese models
 
 For example, if you have no interest in binding your Tx to an model with and FrSky or Futaba SFHSS receiver you do not need to include the CC2500 RF module in your system.
 
@@ -96,7 +97,7 @@ The all the MULTI-Module options supports industry standard PPM interface that w
 
 Most of the older FM radios support the PPM interface.
 
-If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX firmwares (Frsky Taranis running erSky9x or OpenTx, or any of the FlySky/Turnigy family of Txs running ER9X, ERSky9x or OpenTx) you have the additional option to use a serial protocol to communicate between your Tx and the MULTI-Module. (Owners of Walkera Devo transmitters should look at the [Deviation Tx](http://www.deviationtx.com) project for how to achieve the same end goal). This serial protocol does not require any hardware modifications, but will require updating the firmware on your radio. For those willing to do this, there are some nice advantages:
+If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX firmwares (Frsky Taranis or the FlySky TH9X or the Turnigy 9X family) you have the additional option to use a serial protocol to communicate between your Tx and the MULTI-Module. (Owners of Walkera Devo transmitters should look at the [Deviation Tx](http://www.deviationtx.com) project for how to achieve the same end goal). This serial protocol does not require any hardware modifications, but will likely require updating the firmware on your radio. For those willing to do this, there are some nice advantages:
   - The model and protocol selection and binding is done from the Model Settings menu on the Tx
   - For telemetry capable transmitters, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work).  Click on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page for more details.
 

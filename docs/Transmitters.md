@@ -1,9 +1,9 @@
 # Compatible Transmitters
 
 
-There are two different options for the interface between the Mulitprotocol Module and the transmitter: PPM and Serial. The considerations are different for each.
+There are two different options for the interface between the MULTI-Module and the transmitter: PPM and Serial. The considerations are different for each.
 - **PPM** is more generic, easy to implement and will work with most transmitters. 
-- **Serial** requires custom firmware on the transmitter but brings added functionality including protocol selection through the Tx interface.
+- **Serial** requires custom firmware on the transmitter but brings added functionality including protocol selection through the Tx interface and the option of telemetry (with the right transmitter firmware).
 
 Any Tx that provides a PPM output (like a trainer port, or a transmitter with a RF module bay) is compatible with the MULTI-module.  In practice, most of the documentation on this site is focused on building modules that slip into your transmitter’s module bay. 
  
@@ -22,12 +22,12 @@ Even in PPM mode it may still be possible to access telemetry information from s
 For transmitter setup using the PPM protocol go to the [PPM Setup page](PPM_Setup.md)
 
 ##Serial
-Transmitters that run er9X, erSky9X or OpenTx firmwares - like the FrSky Taranis and FlySky TH9X/Turnigy 9X/R family of transmitters - have the option of using a fast, two-way serial, communication protocol between the Tx and the DIY Multiprotocol module.  Using this serial communication protocol has some significant advantages:
+Transmitters that run er9X, erSky9X or OpenTx firmwares (like the FrSky Taranis, FlySky TH9X and Turnigy 9X family of transmitters) have the option of using a fast serial communication protocol between the Tx and the DIY Multiprotocol module.  Using this serial communication protocol has some significant advantages:
 
-1. selecting the specific radio protocol (e.g. DSM) and the sub protocol (e.g. DSMX) directly in the menu system of the Tx (see the picture below) 
+1. selecting the specific radio protocol (e.g. DSM) and the sub protocol (e.g. DSMX22) is done directly in the menu system of the Tx (see the picture below) 
 1. binding through the menu on the Tx 
 1. range checking through the menu on the Tx 
-1. in some cases enabling two-way telemetry for telemetry capable receivers and protocols. 
+1. in some cases enabling two-way serial communication for telemetry capable receivers/models. 
 
 <img src="images/OpenTx_Multi_Menu.jpg" width="470" height="180" /> <img src="images/er9X_Multi_Menu.jpg" width="250" height="180" /> 
 
@@ -54,7 +54,7 @@ Transmitter|Firmware Options|Telemetry Enabled
 Click on your transmitter above to view specific setup instructions.
 
 <a name="Telemetry_Mod"></a>   
-##Optional Telemetry mod for 9X/r TH9X transmitters
+##Optional Telemetry mod for 9X/R TH9X transmitters
 The telemetry mod for these transmitters has evolved.  The original and popular "FrSky Telemetry Mod" requires 2 pins on the transmitter module board to be modified (RX on pin 5 and TX on pin 2).  All the recent MULTI-Module hardware options supports serial transmission on pin 1 (the same pin as the PPM signal) so, in this case, only the mod on pin 5 is required. 
 
 A good tutorial to follow is Oscar Liang's [here](http://blog.oscarliang.net/turnigy-9x-advance-mod/) but when you get to wiring up the Tx Module bay pins, you only need to perform the steps relevant for Pin 5.
@@ -67,7 +67,7 @@ You can see Midelic's original instructions [here](http://www.rcgroups.com/forum
 
 - Owners of Walkera Devo transmitters should look at the [Deviation-Tx](http://www.deviationtx.com) project for how to achieve the same end goal with your transmitters. 
 
-- To enable telemetry on a Turnigy 9X or 9XR you need to modify your TX following one of the Frsky mod like this [one](http://blog.oscarliang.net/turnigy-9x-advance-mod/).
+- To enable telemetry on a Turnigy 9X or 9XR you need to modify your TX [read this.](#Telemetry_Mod).
 
 - DSM telemetry is not available on er9x due to a lack of flash space.
 

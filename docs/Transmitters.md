@@ -32,13 +32,7 @@ Transmitters that run er9X, erSky9X or OpenTx firmwares (like the FrSky Taranis,
 <img src="images/OpenTx_Multi_Menu.jpg" width="470" height="180" /> <img src="images/er9X_Multi_Menu.jpg" width="250" height="180" /> 
 
 
-This serial protocol does not require any hardware modifications, but **will** require updating the firmware on your radio. 
-
-To enable serial telemetry **may** require modifications to your Tx. See the table below.
-
-Transmitters and firmware combinations that support the Serial protocol are:
-
-
+This serial protocol does not require any hardware modifications, but **will** require updating the firmware on your radio. Transmitters and firmware combinations that support the Serial protocol are shown in the table below. Also shown are telemetry considerations that will be discussed next.  
 
 Transmitter|Firmware Options|Telemetry Enabled
 :----------|:---------------|:----------------
@@ -52,6 +46,15 @@ Transmitter|Firmware Options|Telemetry Enabled
 [AR9X UNI board](Tx-erSky9X.md)|erSky9x|Yes - native
 
 Click on your transmitter above to view specific setup instructions.
+
+
+##Telemetry  
+
+To enable serial telemetry you need one of the radios and firmwares listed in the table above and **may** require modifications to your Tx. See the table above.  Before attempting telemetry check the following:  
+
+1. Your module has the appropriate connections or solder jumpers to connect the TX pin of the MCU to pin 5 on the module.  Check the documentation by selecting your module on this [page](Hardware.md) and reviewing the Telemetry section
+1. You have the correct firmware to allow serial communcation between the transmitter and the MULTI-Module.  Check the table above.
+1. Your transmitter hardware is telemetry enabled, or you have done the required mods.  Check the table above.
 
 <a name="Telemetry_Mod"></a>   
 ##Optional Telemetry mod for 9X/R TH9X transmitters

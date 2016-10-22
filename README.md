@@ -5,7 +5,7 @@ The **Multiprotocol Tx Module** (or **MULTI-Module**) is a 2.4GHz transmitter mo
 The source code is partly based on the [Deviation TX project](http://www.deviationtx.com), thanks to all the developers for their great job on protocols.
 
 ## Quicklinks
-* [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases)
+* [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) and [instructions to upload .hex files](docs/Advanced_Manually_Setting_ATmega328_Fuses.md)
 * [Forum on rcroups](http://www.rcgroups.com/forums/showthread.php?t=2165676)
 * [Available Protocols list](Protocols_Details.md)
 * [The old documentation](docs/README-old.md)
@@ -14,14 +14,13 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 ## Outline of the documentation
 1. Introduction (this page)
 1. [Available protocols](Protocols_Details.md)
-1. [Compatible Transmitters](docs/Transmitters.md)
+1. [Transmitters and serial/telemetry options](docs/Transmitters.md)
 1. [Module Hardware options](docs/Hardware.md)
 1. [Compiling and programming the module (ATmega328)](docs/Compiling.md) and [Compiling STM32](docs/Compiling_STM32.md).
 1. [Transmitter Setup](docs/Transmitters.md) 
    - [Taranis](docs/Tx-Taranis.md)
    - [FlySky TH9X, Turnigy 9X/R](docs/Tx-FlyskyTH9X.md)
    - [erSky Transmitters](docs/Tx-erSky9X.md)
-1. [Overview of Telemetry options and capabilities](docs/Telemetry.md)
 1. [How to for popular models](docs/Models.md)
 1. [Troubleshooting](docs/Troubleshooting.md)
 2. [Advanced Topics (not for the fainthearted!)](docs/Advanced_Topics.md)
@@ -104,7 +103,8 @@ If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX f
 #How to get started?
 1. Browse the [Protocols](Protocols_Details.md) page to see which protocols you would like on your module
 1. Go to the [Hardware Options](docs/Hardware.md) page to decide which of the MULTI-Module hardware options appeals to you and which RF modules you plan to integrate
-1. Once you have your module, you should go to [Compiling and Programming](docs/Compiling.md) page to download, compile and program your MULTI-Module
+1. Once you have your module, you should review what jumper settings or modifications are required to the module to support serial communication and possibly telemetry
+1. Go to [Compiling and Programming](docs/Compiling.md) page to download, compile and program your MULTI-Module
 1. Finally, you should visit the setup page for your transmitter by clicking on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page to configure the last few settings before you can fly to your heart’s content!!!!!
 
 # Troubleshooting

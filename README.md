@@ -103,7 +103,8 @@ If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX f
 #How to get started?
 1. Browse the [Protocols](Protocols_Details.md) page to see which protocols you would like on your module
 1. Go to the [Hardware Options](docs/Hardware.md) page to decide which of the MULTI-Module hardware options appeals to you and which RF modules you plan to integrate
-1. Once you have your module, you should go to [Compiling and Programming](docs/Compiling.md) page to download, compile and program your MULTI-Module
+1. Once you have your module, you should review what jumper settings or modifications are required to the module to support serial communication and possibly telemetry
+1. Go to [Compiling and Programming](docs/Compiling.md) page to download, compile and program your MULTI-Module
 1. Finally, you should visit the setup page for your transmitter by clicking on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page to configure the last few settings before you can fly to your heart’s content!!!!!
 
 # Troubleshooting

@@ -53,7 +53,7 @@ If you got this far you already know what you are doing!!
 ###PPM interface
 If you are only planning on using the PPM interface with transmitter you are ready to program the module as described in Compiling and Programming the module.
 
-###Enabling Serial interface
+###Enabling Serial and Telemetry interface
 If you have a transmitter that can support serial communication with the board then you need to solder some jumpers.
 
 
@@ -69,7 +69,7 @@ There are four solder type jumpers on the bottom side of the board near the lowe
 
 	(J-4) Use (MOD) only to connect the transmitter pin 2 to pin 1 of the two pin header (P3).
 
-**It is most likely J-2 will be the only one needing to be shorted for the serial method of sending model protocols.**
+**It is most likely J-2 will be the only one needing to be shorted for the serial method of sending model protocols.  If you plan to use telemetry you will also need to solder J-3**
 
 You are now ready to go over to [Compiling and Programming](Compiling.md).
 

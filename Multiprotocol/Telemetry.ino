@@ -486,7 +486,7 @@ void TelemetryUpdate()
 		}
 	#endif
 		if(telemetry_link && protocol != MODE_FRSKYX )
-		{	// FrSky + Hubsan + AFHDS2A
+		{	// FrSkyD + Hubsan + AFHDS2A
 			frsky_link_frame();
 			telemetry_link=0;
 			return;

@@ -205,9 +205,9 @@ static void AFHDS2A_build_packet(uint8_t type)
 
 #define AFHDS2A_WAIT_WRITE 0x80
 #ifdef STM32_BOARD
-	#define AFHDS2A_DELAY 0
+	#define AFHDS2A_TIMING_OFFSET 0
 #else
-	#define AFHDS2A_DELAY 700
+	#define AFHDS2A_TIMING_OFFSET 100
 #endif
 uint16_t ReadAFHDS2A()
 {
@@ -219,29 +219,28 @@ uint16_t ReadAFHDS2A()
 		case AFHDS2A_BIND1:
 		case AFHDS2A_BIND2:
 		case AFHDS2A_BIND3:
-			A7105_Strobe(A7105_STANDBY);
-			A7105_SetTxRxMode(TX_EN);
 			AFHDS2A_build_bind_packet();
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, packet_count%2 ? 0x0d : 0x8c);
-			if(A7105_ReadReg(A7105_00_MODE) == 0x1b)
-			{ // todo: replace with check crc+fec
-				A7105_Strobe(A7105_RST_RDPTR);
+			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)))
+			{ // FECF+CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
-				if(packet[0] == 0xbc)
+				if(packet[0] == 0xbc && packet[9] == 0x01)
 				{
 					uint8_t temp=50+RX_num*4;
-					for(uint8_t i=0; i<4; i++)
+					uint8_t i;
+					for(i=0; i<4; i++)
 					{
 						rx_id[i] = packet[5+i];
 						eeprom_write_byte((EE_ADDR)(temp+i),rx_id[i]);
 					}
-					if(packet[9] == 0x01)
-						phase = AFHDS2A_BIND4;
+					phase = AFHDS2A_BIND4;
+					packet_count++;
+					return 3850;
 				}
 			}
 			packet_count++;
 			phase |= AFHDS2A_WAIT_WRITE;
-			return 1700+AFHDS2A_DELAY;
+			return 1700+AFHDS2A_TIMING_OFFSET;
 		case AFHDS2A_BIND1|AFHDS2A_WAIT_WRITE:
 		case AFHDS2A_BIND2|AFHDS2A_WAIT_WRITE:
 		case AFHDS2A_BIND3|AFHDS2A_WAIT_WRITE:
@@ -251,10 +250,8 @@ uint16_t ReadAFHDS2A()
 			phase++;
 			if(phase > AFHDS2A_BIND3)
 				phase = AFHDS2A_BIND1;
-			return 2150-AFHDS2A_DELAY;
+			return 2150-AFHDS2A_TIMING_OFFSET;
 		case AFHDS2A_BIND4:
-			A7105_SetTxRxMode(TX_EN);
-			A7105_Strobe(A7105_STANDBY);
 			AFHDS2A_build_bind_packet();
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, packet_count%2 ? 0x0d : 0x8c);
 			packet_count++;
@@ -267,16 +264,8 @@ uint16_t ReadAFHDS2A()
 				phase = AFHDS2A_DATA;
 				BIND_DONE;
 			}                        
-			phase |= AFHDS2A_WAIT_WRITE;
-			return 1700+AFHDS2A_DELAY;
-		case AFHDS2A_BIND4|AFHDS2A_WAIT_WRITE:
-			A7105_SetTxRxMode(RX_EN);
-			A7105_Strobe(A7105_RX);
-			phase &= ~AFHDS2A_WAIT_WRITE;
-			return 2150-AFHDS2A_DELAY;
+			return 3850;
 		case AFHDS2A_DATA:    
-			A7105_SetTxRxMode(TX_EN);
-			A7105_Strobe(A7105_STANDBY);
 			AFHDS2A_build_packet(packet_type);
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, hopping_frequency[hopping_frequency_no++]);
 			if(hopping_frequency_no >= AFHDS2A_NUMFREQ)
@@ -287,14 +276,8 @@ uint16_t ReadAFHDS2A()
 				packet_type = AFHDS2A_PACKET_FAILSAFE;
 			else
 				packet_type = AFHDS2A_PACKET_STICKS; // todo : check for settings changes
-			// got some data from RX ?
-			// we've no way to know if RX fifo has been filled
-			// as we can't poll GIO1 or GIO2 to check WTR
-			// we can't check A7105_MASK_TREN either as we know
-			// it's currently in transmit mode.
 			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)))
 			{ // FECF+CRCF Ok
-				A7105_Strobe(A7105_RST_RDPTR);
 				A7105_ReadData(1);
 				if(packet[0] == 0xaa)
 				{
@@ -310,12 +293,12 @@ uint16_t ReadAFHDS2A()
 			}
 			packet_counter++;
 			phase |= AFHDS2A_WAIT_WRITE;
-			return 1700+AFHDS2A_DELAY;
+			return 1700+AFHDS2A_TIMING_OFFSET;
 		case AFHDS2A_DATA|AFHDS2A_WAIT_WRITE:
 			A7105_SetTxRxMode(RX_EN);
-			phase &= ~AFHDS2A_WAIT_WRITE;
 			A7105_Strobe(A7105_RX);
-			return 2150-AFHDS2A_DELAY;
+			phase &= ~AFHDS2A_WAIT_WRITE;
+			return 2150-AFHDS2A_TIMING_OFFSET;
 	}
 	return 3850; // never reached, please the compiler
 }

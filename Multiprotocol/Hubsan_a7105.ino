@@ -218,7 +218,6 @@ uint16_t ReadHubsan()
 		case BIND_5:
 		case BIND_7:
 			hubsan_build_bind_packet(phase == BIND_7 ? 9 : (phase == BIND_5 ? 1 : phase + 1 - BIND_1));
-			A7105_Strobe(A7105_STANDBY);
 			A7105_WriteData(16, channel);
 			phase |= WAIT_WRITE;
 			return 3000;
@@ -286,7 +285,6 @@ uint16_t ReadHubsan()
 				if( phase == DATA_1)
 						A7105_SetPower(); //Keep transmit power in sync
 				hubsan_build_packet();
-				A7105_Strobe(A7105_STANDBY);
 				A7105_WriteData(16, phase == DATA_5 && id_data == ID_NORMAL ? channel + 0x23 : channel);
 				if (phase == DATA_5)
 					phase = DATA_1;

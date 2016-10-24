@@ -93,11 +93,11 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		for (uint8_t i=3;i<len;i++)
 			pktt[i]=pkt[i];				 
 		telemetry_link=1;
-		telemetry_lost=0;
 		if(pktt[6])
 			telemetry_counter=(telemetry_counter+1)%32;
 		//
 #if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
+		telemetry_lost=0;
 		if (protocol==MODE_FRSKYX)
 		{
 			if ((pktt[5] >> 4 & 0x0f) == 0x08)
@@ -134,8 +134,8 @@ void frsky_link_frame()
 		{	
 			frame[1] = v_lipo*2; //v_lipo; common 0x2A=42/10=4.2V
 			frame[2] = frame[1];			
-			frame[3] = 0x00;
-			frame[4] = (uint8_t)RSSI_dBm;
+			frame[3] = protocol==MODE_HUBSAN?0x00:(uint8_t)RSSI_dBm;
+			frame[4] = protocol==MODE_HUBSAN?(uint8_t)RSSI_dBm:0x00;
 		}
 	frame[5] = frame[6] = frame[7] = frame[8] = 0;			
 	frskySendStuffed();

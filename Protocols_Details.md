@@ -65,7 +65,7 @@ BTMBTN|TOPBTN
 ##FLYSKY AFHDS2A
 Extended limits supported
 
-Telemetry enabled for battery voltage and RX RSSI using FrSky Hub protocol
+Telemetry enabled for battery voltage and RX&TX RSSI using FrSky Hub protocol
 
 Option values =0->50Hz, =1->400Hz, =2->5Hz
 

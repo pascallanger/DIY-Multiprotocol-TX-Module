@@ -135,7 +135,7 @@ void frsky_link_frame()
 			frame[1] = v_lipo*2; //v_lipo; common 0x2A=42/10=4.2V
 			frame[2] = frame[1];			
 			frame[3] = protocol==MODE_HUBSAN?0x00:(uint8_t)RSSI_dBm;
-			frame[4] = protocol==MODE_HUBSAN?(uint8_t)RSSI_dBm:0x00;
+			frame[4] = TX_RSSI;
 		}
 	frame[5] = frame[6] = frame[7] = frame[8] = 0;			
 	frskySendStuffed();

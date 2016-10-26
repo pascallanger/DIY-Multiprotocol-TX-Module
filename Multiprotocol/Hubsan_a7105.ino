@@ -320,9 +320,10 @@ uint16_t ReadHubsan()
 							}	
 							A7105_Strobe(A7105_RX);
 							// Read TX RSSI
-							RSSI_dBm=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;		// value from A7105 is between 8 for maximum signal strength to 160 or less
-							if(RSSI_dBm<0) RSSI_dBm=0;
-							else if(RSSI_dBm>255) RSSI_dBm=255;
+							int16_t temp=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;		// value from A7105 is between 8 for maximum signal strength to 160 or less
+							if(temp<0) temp=0;
+							else if(temp>255) temp=255;
+							TX_RSSI=temp;
 							break;
 						}
 					}

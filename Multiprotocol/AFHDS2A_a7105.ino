@@ -204,16 +204,12 @@ static void AFHDS2A_build_packet(uint8_t type)
 }
 
 #define AFHDS2A_WAIT_WRITE 0x80
-#ifdef STM32_BOARD
-	#define AFHDS2A_TIMING_OFFSET 0
-#else
-	#define AFHDS2A_TIMING_OFFSET 100
-#endif
 uint16_t ReadAFHDS2A()
 {
 	static uint8_t packet_type = AFHDS2A_PACKET_STICKS;
 	static uint16_t packet_counter=0;
-	
+	uint8_t data_rx;
+	uint16_t start;
 	switch(phase)
 	{
 		case AFHDS2A_BIND1:
@@ -240,17 +236,22 @@ uint16_t ReadAFHDS2A()
 			}
 			packet_count++;
 			phase |= AFHDS2A_WAIT_WRITE;
-			return 1700+AFHDS2A_TIMING_OFFSET;
+			return 1700;
 		case AFHDS2A_BIND1|AFHDS2A_WAIT_WRITE:
 		case AFHDS2A_BIND2|AFHDS2A_WAIT_WRITE:
 		case AFHDS2A_BIND3|AFHDS2A_WAIT_WRITE:
+			//Wait for TX completion
+			start=micros();
+			while ((uint16_t)micros()-start < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
+				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
+					break;
 			A7105_SetTxRxMode(RX_EN);
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;
 			phase++;
 			if(phase > AFHDS2A_BIND3)
 				phase = AFHDS2A_BIND1;
-			return 2150-AFHDS2A_TIMING_OFFSET;
+			return 2150;
 		case AFHDS2A_BIND4:
 			AFHDS2A_build_bind_packet();
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, packet_count%2 ? 0x0d : 0x8c);
@@ -267,6 +268,10 @@ uint16_t ReadAFHDS2A()
 			return 3850;
 		case AFHDS2A_DATA:    
 			AFHDS2A_build_packet(packet_type);
+			if((A7105_ReadReg(A7105_00_MODE) & 0x01))		// Check if something has been received...
+				data_rx=0;
+			else
+				data_rx=1;									// Yes
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, hopping_frequency[hopping_frequency_no++]);
 			if(hopping_frequency_no >= AFHDS2A_NUMFREQ)
 				hopping_frequency_no = 0;
@@ -275,30 +280,40 @@ uint16_t ReadAFHDS2A()
 			else if(!(packet_counter % 1569))
 				packet_type = AFHDS2A_PACKET_FAILSAFE;
 			else
-				packet_type = AFHDS2A_PACKET_STICKS; // todo : check for settings changes
-			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)))
-			{ // FECF+CRCF Ok
-				A7105_ReadData(1);
+				packet_type = AFHDS2A_PACKET_STICKS;		// todo : check for settings changes
+			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)) && data_rx==1)
+			{ // RX+FECF+CRCF Ok
+				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 				if(packet[0] == 0xaa)
 				{
-					A7105_Strobe(A7105_RST_RDPTR);
-					A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 					if(packet[9] == 0xfc)
 						packet_type=AFHDS2A_PACKET_SETTINGS;	// RX is asking for settings
 					#if defined(TELEMETRY)
 					else
+					{
+						// Read TX RSSI
+						int16_t temp=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;		// value from A7105 is between 8 for maximum signal strength to 160 or less
+						if(temp<0) temp=0;
+						else if(temp>255) temp=255;
+						TX_RSSI=temp;
 						AFHDS2A_update_telemetry();
+					}
 					#endif
 				}
 			}
 			packet_counter++;
 			phase |= AFHDS2A_WAIT_WRITE;
-			return 1700+AFHDS2A_TIMING_OFFSET;
+			return 1700;
 		case AFHDS2A_DATA|AFHDS2A_WAIT_WRITE:
+			//Wait for TX completion
+			start=micros();
+			while ((uint16_t)micros()-start < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
+				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
+					break;
 			A7105_SetTxRxMode(RX_EN);
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;
-			return 2150-AFHDS2A_TIMING_OFFSET;
+			return 2150;
 	}
 	return 3850; // never reached, please the compiler
 }

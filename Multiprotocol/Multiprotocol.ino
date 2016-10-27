@@ -523,13 +523,16 @@ static void update_led_status(void)
 
 inline void tx_pause()
 {
-	#ifndef STM32_BOARD
-		#ifdef TELEMETRY
-			#ifdef ORANGE_TX
-				USARTC0.CTRLA &= ~0x03 ;		// Pause telemetry by disabling transmitter interrupt
-			#else
-				#ifndef BASH_SERIAL
-					UCSR0B &= ~_BV(UDRIE0);		// Pause telemetry by disabling transmitter interrupt
+	#ifdef TELEMETRY
+	// Pause telemetry by disabling transmitter interrupt
+		#ifdef ORANGE_TX
+			USARTC0.CTRLA &= ~0x03 ;
+		#else
+			#ifndef BASH_SERIAL
+				#ifdef STM32_BOARD
+					USART3_BASE->CR1 &= ~ USART_CR1_TXEIE;
+				#else
+					UCSR0B &= ~_BV(UDRIE0);
 				#endif
 			#endif
 		#endif
@@ -538,23 +541,26 @@ inline void tx_pause()
 
 inline void tx_resume()
 {
-	#ifndef STM32_BOARD
-		#ifdef TELEMETRY
-			if(!IS_TX_PAUSE_on)
-			{
-				#ifdef ORANGE_TX
-					cli() ;
-					USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;	// Resume telemetry by enabling transmitter interrupt
-					sei() ;
-				#else
-					#ifndef BASH_SERIAL
-						UCSR0B |= _BV(UDRIE0);			// Resume telemetry by enabling transmitter interrupt
+	#ifdef TELEMETRY
+	// Resume telemetry by enabling transmitter interrupt
+		if(!IS_TX_PAUSE_on)
+		{
+			#ifdef ORANGE_TX
+				cli() ;
+				USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;
+				sei() ;
+			#else
+				#ifndef BASH_SERIAL
+					#ifdef STM32_BOARD
+						USART3_BASE->CR1 |= USART_CR1_TXEIE;
 					#else
-						resumeBashSerial() ;
+						UCSR0B |= _BV(UDRIE0);			
 					#endif
+				#else
+					resumeBashSerial();
 				#endif
-			}
-		#endif
+			#endif
+		}
 	#endif
 }
 
@@ -589,6 +595,8 @@ static void protocol_init()
 			tx_tail=0;
 			tx_head=0;
 		#endif
+		TX_RX_PAUSE_off;
+		TX_MAIN_PAUSE_off;
 	#endif
 
 	blink=millis();
@@ -958,7 +966,7 @@ void Mprotocol_serial_init()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN))
+	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) )
 		initTXSerial( SPEED_9600 ) ;
 	if(protocol==MODE_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;
@@ -1095,14 +1103,14 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 				rx_buff[0]=UDR0;
 				if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
 				{
+					TX_RX_PAUSE_on;
+					tx_pause();
 					#if defined STM32_BOARD
 						uint16_t OCR1B;
 						OCR1B =TCNT1+(6500L);
 						timer.setCompare(TIMER_CH2,OCR1B);
 						timer.attachCompare2Interrupt(ISR_COMPB);
 					#else
-						TX_RX_PAUSE_on;
-						tx_pause();
 						OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
 						TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
 						SET_TIMSK1_OCIE1B ;		// enable interrupt on compare B match
@@ -1137,9 +1145,9 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 				detachInterrupt(2);			// Disable interrupt on ch2	
 			#else							
 				CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
-				TX_RX_PAUSE_off;
-				tx_resume();
 			#endif
+			TX_RX_PAUSE_off;
+			tx_resume();
 		}
 		#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 			cli() ;
@@ -1161,8 +1169,8 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 			detachInterrupt(2);				// Disable interrupt on ch2
 		#else
 			CLR_TIMSK1_OCIE1B;				// Disable interrupt on compare B match
-			tx_resume();
 		#endif
+		tx_resume();
 	}
 #endif //ENABLE_SERIAL
 

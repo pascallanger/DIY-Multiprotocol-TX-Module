@@ -620,12 +620,10 @@ void TelemetryUpdate()
 			#endif
 		}
 		if (tx_tail == tx_head)
-			#ifdef STM32_BOARD	
-				USART3_BASE->CR1 &= ~USART_CR1_TXEIE;//disable interrupt	
-			}
-			#else
 			tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
-			#endif		
+		#ifdef STM32_BOARD	
+			}
+		#endif		
 	}
 
 #else	//BASH_SERIAL

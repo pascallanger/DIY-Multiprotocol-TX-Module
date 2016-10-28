@@ -20,7 +20,7 @@ The Arduino IDE must be customized to optimally compile the firmware. The follow
 ###Mac OSX:
 1. Using finder navigate to ```Applications``` folder
 1. Ctl-Click on the Arduino application and select **Show Package Contents**.
-1. Browse to ```Contents/Java/hardware/arduino`` and double click on boards.txt
+1. Browse to ```Contents/Java/hardware/arduino/avr`` and double click on boards.txt
 1. Copy and paste the following text into the end of the file and save it:
 
 ```

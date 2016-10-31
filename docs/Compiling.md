@@ -66,14 +66,6 @@ Open ```boards.txt``` in your favourite text editor (Notepad)
 
 Copy and paste the "Multi 4-in-1" text listed above into the end of the file and save it.
 
-Open the file *platform.txt* in the same folder and change the line that reads
-
-```compiler.c.elf.extra_flags= ```
-
-to
-
-```compiler.c.elf.extra_flags=-Wl,--relax ```
-
 Close and reopen the Arduino IDE and load the Multiprotocol project.
 
 ## Common process for OSX and Windows

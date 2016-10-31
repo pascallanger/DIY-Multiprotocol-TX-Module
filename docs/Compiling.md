@@ -39,6 +39,7 @@ multi.bootloader.lock_bits=0x0F
 multi.build.board=AVR_PRO
 multi.build.core=arduino
 multi.build.variant=eightanaloginputs
+multi.build.extra_flags=-Wl,--relax
 
 multi.menu.cpu.16MHzatmega328=ATmega328 (3.3V, 16 MHz)
 
@@ -53,16 +54,6 @@ multi.menu.cpu.16MHzatmega328.bootloader.extended_fuses=0xFD
 multi.menu.cpu.16MHzatmega328.build.mcu=atmega328p
 multi.menu.cpu.16MHzatmega328.build.f_cpu=16000000L
 ##############################################################
-```
-1. Open the file *platform.txt* in the same folder and change the line that reads
-
-```compiler.c.elf.extra_flags= ```
-
-to
-
-```compiler.c.elf.extra_flags=-Wl,--relax ```
-
-paste the following text into the end of the file and save it. 
 
 Close and reopen the Arduino IDE and load the Multiprotocol project.
 

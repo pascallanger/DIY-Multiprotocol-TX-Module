@@ -46,7 +46,7 @@ One of the most annoying functions on the Syma X5C is that the motors stop when 
 <img src="https://s7d5.scene7.com/is/image/horizonhobby/BLH8700_a0" Width="200" Height="200" />
 
 ##Binding
-{Enter bind instructions here - Which DSM mode works best?}
+For telemetry enabled modules, you should just let the remote autodetect the settings. Otherwise choose DSMX 22ms with 6ch or 7ch. To bind the model, keep the transmitter off, power on the Inductrix. Wait until it flashes fast and then use Bind.
 
 ##Tx Setup
-{How to setup the transmitter optimally for leveling and acro mode}
+Setup channel 6 with a momemtary button or switch (e.g. SH on the Taranis) and use that switch to switch between modes. For Inductrix FPV you might need to adjust the lower end of throttle to be a higher than default, otherwise motors will be spinning on minimal throttle.

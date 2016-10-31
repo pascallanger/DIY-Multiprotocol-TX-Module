@@ -22,7 +22,9 @@
 /********************/
 //Uncomment one of the line below if you have a different module not based on the original Multi Atmega328p design which includes the 4-in-1.
 //If you don't know then leave them commented.
-//#define STM32_BOARD
+#ifdef __arm__
+#define STM32_BOARD
+#endif
 
 
 /*******************/

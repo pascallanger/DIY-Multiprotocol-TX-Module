@@ -50,5 +50,26 @@ For telemetry enabled modules, you should just let the remote autodetect the set
 
 ##Tx Setup
 Remember that 100% on your transmitter using the MULTI-Module corresponds to 125% on the DSM receiver side.  On some functions sending 100% will confuse the model. Conversely 80% on your Tx is interpreted to be 100% at the model. Consider this when implementing the suggestions below.
+###Throttle
+For Inductrix FPV you might need to adjust the lower end of throttle to be a higher than default, otherwise motors will be spinning on minimal throttle.  One way to do this is to set the throttle to 80% output (100% of DSM output) and then to enable the **Throttle Idle Trim Only** under the Model Setup menu.  See image below:  
+<img src="images/Inductrix_Throttle_Setup.png" Width="600" Height="200" />  
+###Acro and Level Mode
 Setup channel 6 with a momemtary button or switch (e.g. SH on the Taranis) and use that switch to switch between modes. Set the output to somewhere between 40% to 60% for best results.
-For Inductrix FPV you might need to adjust the lower end of throttle to be a higher than default, otherwise motors will be spinning on minimal throttle.  One way to do this is to set the throttle to 80% output (100% of DSM output) and then to enable the **Throttle Idle Trim Only** under the Model Setup menu.   
+
+An addition consideration when flying in Acro mode is to reduce stick sensitivity and to add some expo.  The screens below show one way of doing this.  Customize to your needs.
+
+####Inputs Screen   
+The follwing INPUTS screen shows one potential setup to introduce expo for Acro mode.  The activation of the expo on Roll, Pitch and Yaw is when the SG switch is not in the back position.  Add to taste.
+<img src="images/Inductrix_Inputs.png" Width="600" Height="200" />  
+
+####Aileron Rates attached to Switch !SG-up
+The next screen shows and example of how the expo (50%) was set up on the stick input and how it is activated by !SG-up:  
+<img src="images/Inductrix_Aileron_Expo.png" Width="600" Height="200" />  
+
+####Mixer Menu
+The next screen shows the mixer menu with the mode change on momentary switch SH and High-Low rates on switch SC:  
+<img src="images/Inductrix_Mixer.png" Width="600" Height="200" />  
+
+
+
+  

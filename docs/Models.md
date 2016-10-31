@@ -46,7 +46,9 @@ One of the most annoying functions on the Syma X5C is that the motors stop when 
 <img src="https://s7d5.scene7.com/is/image/horizonhobby/BLH8700_a0" Width="200" Height="200" />
 
 ##Binding
-For telemetry enabled modules, you should just let the remote autodetect the settings. Otherwise choose DSMX 22ms with 6ch or 7ch. To bind the model, keep the transmitter off, power on the Inductrix. Wait until it flashes fast and then use Bind.
+For telemetry enabled modules, you should just let the remote autodetect the settings. Otherwise choose DSMX 22ms with 6ch or 7ch. To bind the model, keep the transmitter off, power on the Inductrix. Wait until it flashes fast and then power up the Tx and use Bind.
 
 ##Tx Setup
-Setup channel 6 with a momemtary button or switch (e.g. SH on the Taranis) and use that switch to switch between modes. For Inductrix FPV you might need to adjust the lower end of throttle to be a higher than default, otherwise motors will be spinning on minimal throttle.
+Remember that 100% on your transmitter using the MULTI-Module corresponds to 125% on the DSM receiver side.  On some functions sending 100% will confuse the model. Conversely 80% on your Tx is interpreted to be 100% at the model. Consider this when implementing the suggestions below.
+Setup channel 6 with a momemtary button or switch (e.g. SH on the Taranis) and use that switch to switch between modes. Set the output to somewhere between 40% to 60% for best results.
+For Inductrix FPV you might need to adjust the lower end of throttle to be a higher than default, otherwise motors will be spinning on minimal throttle.  One way to do this is to set the throttle to 80% output (100% of DSM output) and then to enable the **Throttle Idle Trim Only** under the Model Setup menu.   

@@ -46,7 +46,6 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 Qty|Part|Description|Value|Package|Digikey Part Number
 ---|----|-----------|-----|-------|-------------------
 1|J301|Receptacle|5-pin||[WM3103-ND](http://www.digikey.com/product-search/en?keywords=WM3103-ND)
-1|K201|USB Receptacle|USB||[732-2735-ND](https://www.digikey.com/product-search/en?keywords=651005136421)
 1|SV201|Jumper|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV202|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV203|Pin header|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
@@ -82,6 +81,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 Qty|Part|Description|Value|Package|Digikey Part Number
 ---|----|-----------|-----|-------|-------------------
 1|J301|Receptacle|5-pin||[WM3103-ND](http://www.digikey.com/product-search/en?keywords=WM3103-ND)
+1|K201|USB Receptacle|USB||[732-2735-ND](https://www.digikey.com/product-search/en?keywords=651005136421)
 1|SV201|Jumper|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV202|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV203|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)

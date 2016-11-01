@@ -3,6 +3,7 @@ This page contains setup instructions for the FrSky family of transmitters. Thes
 
 <img src="http://www.frsky-rc.com/product/images/pic/1456723548.jpg" width="300" height="200" />
 <img src="http://www.frsky-rc.com/product/images/pic/1456723588.jpg" width="300" height="200" />
+<img src="http://www.frsky-rc.com/product/images/pic/1471248674.jpg" width="300" height="200" />
 
 The instructions below are relevant to the following firmwares:
  1. Taranis with erSky9X available [here](http://www.er9x.com)
@@ -34,7 +35,8 @@ First, confirm that the MULTI-Module has the required physical connections betwe
  2. If you have a rotary protocol selection switch, turn the switch to position 0 to put the unit into Serial mode. 
  2. Ensure throttle is down and all switches are in the start position and power up the Transmitter.  The red LED on the MULTI-Module should be flashing with a period of about 1s indicating that it has not established a valid serial link with the Tx.  This is expected as we have not set up the Tx yet.
  3. Create a new model (make sure channel order is AETR) and on the first Model Settings page scroll down to disable the internal RF and enable the external RF by selecting MULTI as the external RF. Your Transmitter settings should look like this: 
- <img src="images/settings-horus.png" /> <img src="images/settings-taranis.png" />
+
+<img src="images/settings-horus.png" /> or <img src="images/settings-taranis.png" />
  
  The Red LED on the MULTI-Module should briefly flash and then stay on.  This confirms that the MULTI-Module module has established serial communication with the Tx.  
  4. If the red LED on the module continues to flash at a period of about 1s then it signals that serial communication has not been established.  Check your settings under the model menu as described above and check that the protocol selection switch on the module is at 0 (zero).  If there is still no communication, power down and power up the Tx.  Finally check that you have correctly enabled your module for serial as described in specific pages for your module hardware (under the section "Enabling Serial") linked [here](Hardware.md)

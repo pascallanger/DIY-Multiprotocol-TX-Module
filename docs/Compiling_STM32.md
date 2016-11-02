@@ -5,11 +5,11 @@
 Multiprotocol source can be compiled using the Arduino IDE using STM32 Core (Maple) and Arduino ARM-Cortex-M3 libraries.  
 
 ###Install the Arduino IDE and the Multiprotocol project
-1. Download the Arduino IDE. The currently supported Arduino version is 1.6.5. available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.5-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.5-macosx.zip)
+1. Download the Arduino IDE. The currently supported Arduino version is 1.6.5.[update now supports Arduino 1.6.11] available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
 1. Download the [STM32 Core](https://github.com/rogerclarkmelbourne/Arduino_STM32/archive/master.zip) and copy the Arduino_STM32 folder to:
   - OSX: ```Arduino.app/Contents/Java/hardware```  (you can open Arduino.app by Ctl Clicking on Arduino.app and selecting "Show Package Contents") 
   - Windows: ```C:\Program Files (x86)\Arduino\hardware``` 
-1. Download the zip file with the Multiprotocol module source code from [here](https://github.com/midelic/DIY-Multiprotocol-TX-Module/archive/multi-STM32.zip)
+1. Download the zip file with the Multiprotocol module source code from [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)
 1. Unzip and copy the source code folder ```Multiprotocol``` to a folder of your choosing
 1. Click on the ```Multiprotocol.ino file``` in the ```Multiprotocol``` folder and the Arduino environment should appear and the Multiprotocol project will be loaded.
 
@@ -92,7 +92,9 @@ If you get an error carefully read the error to see the approximate line number 
 
 ###Preparing for STM32 microcontroller for firmware flashing
 
-There are two option for flashing the firmware.  The first (and strongly recommended) is flashing it while it is plugged into and powered by the transmitter.  The second is flashing it out of the transmitter (the power is supplied by the 3.3V FTDI cable).  The second option is very risky because if the 3.3V bridge jumper is not removed after flashing it will fry your RF module - **you have been warned**.  
+There are three options for flashing the firmware.  The first (and strongly recommended) is flashing it while it is plugged into and powered by the transmitter.  The second is flashing it out of the transmitter (the power is supplied by the 3.3V FTDI cable).  The second option is very risky because if the 3.3V bridge jumper is not removed after flashing it will fry your RF module - **you have been warned**.  The third is preparing the board for flashing with a USB cable. 
+
+The third method is definitely the easiest in the long-term, but it does require setting up the bootloader on the STM32 MCU.
 
 ####Option 1: Flashing with Tx power
 
@@ -131,6 +133,14 @@ The key difference of this method is that the 3.3V FTDI cable must also provide 
    - Check that you removed the 3.3V jumper
 1. Insert the module into the transmitter bay
 
+###Method 3.
+
+This method use USB connector on the STM32 V1.0 board or on the maple clone board.  
+
+1. Install first maple USB driver by running the batch file found in Arduino STM32 package folder "..\hardware\Arduino_STM32\drivers\win\install_drivers.bat"  
+1. Download the free STM32 flash loader demonstrator from [ST.com](http://www.st.com/en/development-tools/flasher-stm32.html) and using a USB-TTL device (like FTDI cable) flash the STM32duino bootloader available from Roger Clark's great STM32 site [here](https://github.com/rogerclarkmelbourne/STM32duino-bootloader/tree/master/STM32F1/binaries)  
+1. In Arduino IDE under "Upload method" select STM32duino-bootloader.
+1. After that select the correct serial port and and upload sketches normally in Arduino using USB port
 
 ###Flashing binary file:  
 If you want to flash a pre-compiled binary file (like the Release .bin files) you need specialized software and the FTDI cable.  

@@ -39,7 +39,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 
 
 ## BOM DIY STM32 PCB - the V0.8
- This BOM is for the board that looks like this - check carefully:
+ This BOM is for the board that looks like the image below (avialble from OSHpark [here](https://oshpark.com/shared_projects/3IU1JXoN)) - check carefully:
  
 <img src="https://camo.githubusercontent.com/b46c53c214cf87184d202f57f328413d3629ca24/68747470733a2f2f36343464623464653335303563343061303434342d33323737323362636532393865336666353831336662343262616565666261612e73736c2e6366312e7261636b63646e2e636f6d2f36633561613434363133356336363336613030383064623763613238663162652e706e67"  width="300" height="400"/>
 

@@ -133,7 +133,7 @@ The key difference of this method is that the 3.3V FTDI cable must also provide 
    - Check that you removed the 3.3V jumper
 1. Insert the module into the transmitter bay
 
-###Method 3.
+####Option 3: Flashing with USB cable.
 
 This method use USB connector on the STM32 V1.0 board or on the maple clone board.  
 

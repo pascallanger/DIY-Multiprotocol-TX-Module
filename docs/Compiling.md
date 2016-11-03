@@ -149,6 +149,9 @@ If there is another error carefully read the error to see the approximate line n
 
 
 ###Connecting the programmer
+
+If you are programming the Readymade Banggood 4-in-1 module or any of the DIY ATmega boards you should follow the process below.  If you will be programming a module based on an Arduino Pro Mini please see the section below titled "[Programming Arduino Pro Mini](#Programming_Arduino_Pro_Mini)".
+
 To complete this step you need an USBASP programmer like the one shown below and a 10-pin to 6-pin programming cable.
 
 <img src="images/USBasp_Programmer.jpeg" width="200" height="200" />

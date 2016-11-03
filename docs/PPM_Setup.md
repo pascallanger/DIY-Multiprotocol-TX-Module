@@ -14,7 +14,7 @@ Note: vbat should be between 6V and 13V when using the 4-in-1 and 2.3 PCB boards
 
 ##Enabling PPM mode in your transmitter
 
-1. Enable the default Tx mode to be AETR. If you do not want to change the default channel order on your Tx you must remember to change the channel order for each new model using the module to AETR under the Model Mixer menu. 
+1. Enable the default Tx mode to be AETR. If you do not want to change the default channel order on your Tx you must remember to change the channel order for each new model using the module to AETR under the Model Mixer menu. (**This is really important - this is for all protocols - even for DSM as the MULTI-module firware will change the transmitted channel order according to the protocol.**)  
 1. The default PPM settings is 8 channels with a frame period of 22.5 ms (sometimes called the frame rate).  If you want to optimize performance you should change the channels to the actual number of channels required by your model.  The corresponding frame period should be set to (number of channels + 1) * 2.5 ms.  For example:
     - A 4 channel model the frame period is (4 + 1)*2.5 = 12.5 ms.
     - A 6 channel model the frame period is (6 + 1)*2.5 = 17.5ms. 

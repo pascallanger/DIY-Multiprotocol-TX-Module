@@ -187,6 +187,7 @@ Use this method only for Arduino Pro Mini boards with bootloader.
 1. Under **Tools -> Port** select your the serial port your programmer is connected to (it should appear on the the list)  
 1. Scroll back to the section [Customize the firmware to your hardware and your needs](#CustomizeFirmareToYourNeeds) above and follow the instructions remembering that you can simply use the Upload button in the Arduino IDE to upload firmware using the Arduino bootloader:  
  - From the Arduino environment, you can use Upload button which will compile and upload to the module: Sketch->Upload (Ctrl+U)
+1. Note that the available flash memory for the firmware reduces by about 2K when you use the bootloader  
 
 To change the fuses you will need to use an external programmer (like USBasp mentioned above) and a flash tool that fits over the MCU and connects to the required pins, like this one:     
 [<img src="http://www.hobbyking.com/hobbyking/store/catalog/27195.jpg" />](http://www.hobbyking.com/hobbyking/store/__27195__Atmel_Atmega_Socket_Firmware_Flashing_Tool.html)  

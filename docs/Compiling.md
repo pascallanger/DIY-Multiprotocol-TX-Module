@@ -21,7 +21,7 @@ The Arduino IDE must be customized to optimally compile the firmware. The follow
 1. Using finder navigate to ```Applications``` folder
 1. Ctl-Click on the Arduino application and select **Show Package Contents**.
 1. Browse to ```Contents/Java/hardware/arduino/avr`` and double click on boards.txt
-1. Copy and paste the following text into the end of the file and save it:
+1. Copy and paste the following text into the end of the file and save it: 
 
 ```
 ##############################################################
@@ -53,7 +53,8 @@ multi.menu.cpu.16MHzatmega328.bootloader.extended_fuses=0xFD
 
 multi.menu.cpu.16MHzatmega328.build.mcu=atmega328p
 multi.menu.cpu.16MHzatmega328.build.f_cpu=16000000L
-##############################################################
+##############################################################   
+```
 
 Close and reopen the Arduino IDE and load the Multiprotocol project.
 
@@ -157,19 +158,19 @@ To complete this step you need an USBASP programmer like the one shown below and
 1. Turn the rotary switch on the DIY Multiprotocol module to the 0 position. If you do not have a switch (if you are using only Serial mode) then it the same as being in the 0 position. The upload will not work if the switch is in any other position.
 1. Connect the 6-pin programming connector to the 6-pin ASP IVR connector on the DIY Multiprotocol board. Be sure to match the ground pin of the programmer connector to the ground pin on the board (see the images below for the pin layout and the location of the ground pin on the board) {insert pictures AVR ISP Pinout.png and images of boards with ground pin marked}
 1. You are now ready to plug in the USB programmer to the computer
+1. The first step is to flash the fuses of the microprocessor.  These correct fuses will do a few things:
+ -  Prevent the EEPROM from being erased each time the firmware is flashed.  This will preserve your Tx ID and save you from having to rebind all your models after an update of the firmware
+ - Configure the clock source of the board - this is very important if you built the board from components.  The ATMega328P microprocessor is configured at the factory to use an internal 8Mhz clock.  The DIY Multiprotocol boards have a much more accurate 16MHz external crystal and the fuses will tell the MCU to use this clock source.  (If you were able to flash the board but after setting the fuses the board no longer responds, it is very likely that you have a problem with your external clock.)
+ - Set the program counter to point at the right place when the module is powered up.  The fuses configure the MCU to use a bootloader or not.  If you compiled the firmware without a bootloader then the fuses must be set accordingly. 
+1. In the Arduino IDE ensure that the **4-in-1 Multi** is selected under **Tools -> Board:** click on **Tools -> Burn Bootloader**.  Do not worry if it returns the error that no bootloader was found (in the case of the 4-in-1 board), it has burned the fuses.  If you IDE was set to provide verbose compilation and uploading output, you should be able to see the final value of the fuses in the Arduino IDE.
 1. You are now ready to flash the firmware.  In the Arduino IDE click **Sketch -> Upload Using Programmer**.
 2. If you get an error that indicates a valid microprocessor was not found there is something wrong with:
  - your connections, 
  - your programmer, or
  - your board
  - Google around with the specific error message to get suggestions of how to fix it.  The most common cause is problems with the connection setup and in some cases problems with the cheap programmers from Chinese sources.
-1. The final step is to flash the fuses of the microprocessor.  These correct fuses will do a few things:
- -  Prevent the EEPROM from being erased each time the firmware is flashed.  This will preserve your Tx ID and save you from having to rebind all your models after an update of the firmware
- - Configure the clock source of the board - this is very important if you built the board from components.  The ATMega328P microprocessor is configured at the factory to use an internal 8Mhz clock.  The DIY Multiprotocol boards have a much more accurate 16MHz external crystal and the fuses will tell the MCU to use this clock source.  (If you were able to flash the board but after setting the fuses the board no longer responds, it is very likely that you have a problem with your external clock.)
- - Set the program counter to point at the right place when the module is powered up.  The fuses configure the MCU to use a bootloader or not.  If you compiled the firmware without a bootloader then the fuses must be set accordingly. 
-1. In the Arduino IDE ensure that the **4-in-1 Multi** is selected under **Tools -> Board:** click on **Tools -> Burn Bootloader**.  Do not worry if it returns the error that no bootloader was found (in the case of the 4-in-1 board), it has burned the fuses.  If you IDE was set to provide verbose compilation and uploading output, you should be able to see the final value of the fuses in the Arduino IDE.
 
-If the output indicates that the fuses have been successfully written give yourself a pat on the back.  Well done, you have successfully programmed your DIY Multiprotocol module and you are ready to go on to the final step [Setting up your Transmitter](TransmitterSetup.md) before you can begin to fly!!!!
+If the output indicates that the fuses have been successfully written and the firmware has been uploaded - give yourself a pat on the back.  Well done, you have successfully programmed your DIY Multiprotocol module and you are ready to go on to the final step [Setting up your Transmitter](TransmitterSetup.md) before you can begin to fly!!!!
 
 <a name="Programming_Arduino_Pro_Mini"></a>
 ##Programming Arduino Pro-Mini Boards <a name="Programming_Arduino_Pro_Mini"></a>

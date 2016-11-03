@@ -34,7 +34,7 @@ First, confirm that the MULTI-Module has the required physical connections betwe
  1. Plug in your MULTI-Module into the transmitter's module bay.  
  2. If you have a rotary protocol selection switch, turn the switch to position 0 to put the unit into Serial mode. 
  2. Ensure throttle is down and all switches are in the start position and power up the Transmitter.  The red LED on the MULTI-Module should be flashing with a period of about 1s indicating that it has not established a valid serial link with the Tx.  This is expected as we have not set up the Tx yet.
- 3. Create a new model (make sure channel order is AETR) and on the first Model Settings page scroll down to disable the internal RF and enable the external RF by selecting MULTI as the external RF. Your Transmitter settings should look like this: 
+ 3. Create a new model (make sure channel order is AETR - **This is really important - this is for all protocols - even for DSM as the MULTI-module firware will change the transmitted channel order according to the protocol.**) and on the first Model Settings page scroll down to disable the internal RF and enable the external RF by selecting MULTI as the external RF. Your Transmitter settings should look like this: 
 
 <img src="images/settings-horus.png" /> or <img src="images/settings-taranis.png" />
  

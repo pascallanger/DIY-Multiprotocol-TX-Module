@@ -106,7 +106,7 @@
 #define DSM_TELEMETRY	
 #define SPORT_TELEMETRY	
 #define HUB_TELEMETRY
-
+#define AFHDS2A_TELEMETRY
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/

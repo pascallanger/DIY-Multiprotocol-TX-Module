@@ -86,7 +86,17 @@ static void AFHDS2A_update_telemetry()
 {
 	// AA | TXID | rx_id | sensor id | sensor # | value 16 bit big endian | sensor id ......
 	// max 7 sensors per packet
+#if defined AFHDS2A_TELEMETRY
+    if (option & 0x80) {
+        // forward telemetry to TX, skip rx and tx id to save space
+        pkt[0]= TX_RSSI;
+        for(int i=9;i < AFHDS2A_RXPACKET_SIZE; i++)
+            pkt[i-8]=packet[i];
 
+        telemetry_link=2;
+        return;
+    }
+#endif    
 	for(uint8_t sensor=0; sensor<7; sensor++)
 	{
 		uint8_t index = 9+(4*sensor);
@@ -180,7 +190,7 @@ static void AFHDS2A_build_packet(uint8_t type)
 			packet[0] = 0xaa;
 			packet[9] = 0xfd;
 			packet[10]= 0xff;
-			uint16_t val_hz=5*option+50;			// option value should be between 0 and 70 which gives a value between 50 and 400Hz
+			uint16_t val_hz=5*(option & 0x7f)+50;			// option value should be between 0 and 70 which gives a value between 50 and 400Hz
 			if(val_hz<50 || val_hz>400) val_hz=50;	// default is 50Hz
 			packet[11]= val_hz;
 			packet[12]= val_hz >> 8;

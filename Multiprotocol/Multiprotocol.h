@@ -449,11 +449,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			FORMAT_HONTAI	0
 			FORMAT_JJRCX1	1
 			FORMAT_X5C1		2
-        sub_protocol==AFHDS2A
-        	FORMAT_IBUS+PWM 0
-        	FORMAT_IBUS+PPM 1
-        	FORMAT_SBUS+PWM 2
-        	FORMAT_SBUS+PPM 3
+		sub_protocol==AFHDS2A
+			PWM_IBUS	0
+			PPM_IBUS	1
+			PWM_SBUS	2
+			PPM_SBUS	3
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127

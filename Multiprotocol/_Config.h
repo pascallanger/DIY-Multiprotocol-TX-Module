@@ -22,7 +22,9 @@
 /********************/
 //Uncomment one of the line below if you have a different module not based on the original Multi Atmega328p design which includes the 4-in-1.
 //If you don't know then leave them commented.
-//#define STM32_BOARD
+#ifdef __arm__
+	#define STM32_BOARD	// Let's automatically select this board if arm is selected since this is the only one for now...
+#endif
 
 
 /*******************/
@@ -257,7 +259,10 @@ const PPM_Parameters PPM_prot[15]=	{
 		FORMAT_JJRCX1
 		FORMAT_X5C1
 	MODE_AFHDS2A
-		NONE
+		PWM_IBUS
+		PPM_IBUS
+		PWM_SBUS
+		PPM_SBUS
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

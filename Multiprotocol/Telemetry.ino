@@ -61,6 +61,15 @@ void DSM_frame()
 }
 #endif
 
+#if defined AFHDS2A_TELEMETRY
+void AFHDSA_short_frame()
+{
+	Serial_write(0xAA);					// Telemetry packet
+	for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
+		Serial_write(pkt[i]);
+}
+#endif
+
 void frskySendStuffed()
 {
 	Serial_write(START_STOP);
@@ -485,6 +494,13 @@ void TelemetryUpdate()
 			return;
 		}
 	#endif
+    #if defined AFHDS2A_TELEMETRY     
+        if(telemetry_link == 2 && protocol == MODE_AFHDS2A)
+            {
+                AFHDSA_short_frame();
+                telemetry_link=0;
+            }
+    #endif        
 		if(telemetry_link && protocol != MODE_FRSKYX )
 		{	// FrSkyD + Hubsan + AFHDS2A
 			frsky_link_frame();

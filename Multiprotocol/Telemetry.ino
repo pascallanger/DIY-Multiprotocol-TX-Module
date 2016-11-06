@@ -549,7 +549,7 @@ void TelemetryUpdate()
 					USARTC0.CTRLC = 0x03 ;
 				#else
 					#ifdef STM32_BOARD
-						Serial2.begin(9600);				//USART3 
+						usart3_begin(9600,SERIAL_8N1);		//USART3 
 						USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable RX leave TX enabled
 					#else
 						UBRR0H = 0x00;
@@ -570,7 +570,7 @@ void TelemetryUpdate()
 					USARTC0.CTRLC = 0x03 ;*/
 				#else
 					#ifdef STM32_BOARD
-						Serial2.begin(57600);				//USART3 
+						usart3_begin(57600,SERIAL_8N1);		//USART3 
 						USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable RX leave TX enabled
 					#else
 						UBRR0H = 0x00;
@@ -591,7 +591,7 @@ void TelemetryUpdate()
 					USARTC0.CTRLC = 0x03 ;*/
 				#else
 					#ifdef STM32_BOARD
-						Serial2.begin(125000);				//USART3 
+						usart3_begin(125000,SERIAL_8N1);	//USART3 
 						USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable RX leave TX enabled
 					#else
 						UBRR0H = 0x00;
@@ -641,7 +641,22 @@ void TelemetryUpdate()
 			}
 		#endif		
 	}
-
+	#ifdef STM32_BOARD
+		void usart2_begin(uint32_t baud,uint32_t config )
+		{
+			usart_init(USART2); 
+			usart_config_gpios_async(USART2,GPIOA,PIN_MAP[PA3].gpio_bit,GPIOA,PIN_MAP[PA2].gpio_bit,config);
+			usart_set_baud_rate(USART2, STM32_PCLK1, baud);//
+			usart_enable(USART2);
+		}
+		void usart3_begin(uint32_t baud,uint32_t config )
+		{
+			usart_init(USART3);
+			usart_config_gpios_async(USART3,GPIOB,PIN_MAP[PB11].gpio_bit,GPIOB,PIN_MAP[PB10].gpio_bit,config);
+			usart_set_baud_rate(USART3, STM32_PCLK1, baud);
+			usart_enable(USART3);
+		}
+	#endif
 #else	//BASH_SERIAL
 // Routines for bit-bashed serial output
 

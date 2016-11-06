@@ -938,8 +938,8 @@ void Mprotocol_serial_init()
 			PORTC.PIN3CTRL |= 0x40 ;
 		#endif
 	#elif defined STM32_BOARD
-		Serial1.begin(100000,SERIAL_8E2);//USART2
-		Serial2.begin(100000,SERIAL_8E2);//USART3 
+		usart2_begin(100000,SERIAL_8E2);
+		usart3_begin(100000,SERIAL_8E2);
 		USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
 		USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable 
 		USART2_BASE->CR1 &= ~ USART_CR1_TE;//disable transmit

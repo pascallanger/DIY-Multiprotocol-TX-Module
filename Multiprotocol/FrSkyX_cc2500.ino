@@ -293,7 +293,9 @@ uint16_t ReadFrSkyX()
 					seq_last_sent = 0;
 					seq_last_rcvd = 8;
 					counter=0;
-					telemetry_lost=1;
+					#if defined TELEMETRY
+						telemetry_lost=1;
+					#endif
 				}
 				CC2500_Strobe(CC2500_SFRX);			//flush the RXFIFO
 			}

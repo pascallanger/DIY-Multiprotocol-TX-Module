@@ -55,10 +55,10 @@ static void __attribute__((unused)) j6pro_build_data_packet()
 {
     uint8_t i;
     uint32_t upperbits = 0;
-	uint16_t value;
+    uint16_t value;
     packet[0] = 0xaa; //FIXME what is this?
     for (i = 0; i < 12; i++)
-	{
+    {
         value = convert_channel_10b(CH_AETR[i]);
         packet[i+1] = value & 0xff;
         upperbits |= (value >> 8) << (i * 2);
@@ -76,16 +76,16 @@ static void __attribute__((unused)) j6pro_cyrf_init()
     CYRF_WriteRegister(CYRF_35_AUTOCAL_OFFSET, 0x14);
     CYRF_WriteRegister(CYRF_1C_TX_OFFSET_MSB, 0x05);
     CYRF_WriteRegister(CYRF_1B_TX_OFFSET_LSB, 0x55);
-    CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x25);
-    CYRF_SetPower(0x05);
-    CYRF_WriteRegister(CYRF_06_RX_CFG, 0x8a);
+    //CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);
+    //CYRF_SetPower(0x05);
+    CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4a);
     CYRF_SetPower(0x28);
     CYRF_WriteRegister(CYRF_12_DATA64_THOLD, 0x0e);
     CYRF_WriteRegister(CYRF_10_FRAMING_CFG, 0xee);
     CYRF_WriteRegister(CYRF_1F_TX_OVERRIDE, 0x00);
     CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE, 0x00);
     CYRF_ConfigDataCode(j6pro_data_code, 16);
-    CYRF_WritePreamble(0x023333);
+    CYRF_WritePreamble(0x333302);
 
     CYRF_GetMfgData(cyrfmfg_id);
 	//Model match
@@ -94,36 +94,28 @@ static void __attribute__((unused)) j6pro_cyrf_init()
 
 static void __attribute__((unused)) cyrf_bindinit()
 {
-/* Use when binding */
-       //0.060470# 03 2f
-       CYRF_SetPower(0x28); //Deviation using max power, replaced by bind power...
-
-       CYRF_ConfigRFChannel(0x52);
-       CYRF_PROGMEM_ConfigSOPCode(j6pro_bind_sop_code);
-       CYRF_ConfigCRCSeed(0x0000);
-       CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4a);
-       CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);
-       //0.061511# 13 20
-
-       CYRF_ConfigRFChannel(0x52);
-       //0.062684# 0f 05
-       CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x25);
-       //0.062792# 0f 05
-       CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
-       j6pro_build_bind_packet(); //01 01 e9 49 ec a9 c4 c1 ff
-       //CYRF_WriteDataPacketLen(packet, 0x09);
+    /* Use when binding */
+    CYRF_SetPower(0x28); //Deviation using max power, replaced by bind power...
+    //CYRF_ConfigRFChannel(0x52);
+    CYRF_PROGMEM_ConfigSOPCode(j6pro_bind_sop_code);
+    CYRF_ConfigCRCSeed(0x0000);
+    //CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4a);
+    //CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x80);
+    //CYRF_ConfigRFChannel(0x52);
+    //CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);
+    //CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
+    j6pro_build_bind_packet();
 }
 
 static void __attribute__((unused)) cyrf_datainit()
 {
-/* Use when already bound */
-       //0.094007# 0f 05
-       uint8_t sop_idx = (0xff & (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + cyrfmfg_id[3] - cyrfmfg_id[5])) % 19;
-       uint16_t crc =  (0xff & (cyrfmfg_id[1] - cyrfmfg_id[4] + cyrfmfg_id[5])) |
-                ((0xff & (cyrfmfg_id[2] + cyrfmfg_id[3] - cyrfmfg_id[4] + cyrfmfg_id[5])) << 8);
-       CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x25);
-       CYRF_PROGMEM_ConfigSOPCode(DEVO_j6pro_sopcodes[sop_idx]);
-       CYRF_ConfigCRCSeed(crc);
+    /* Use when already bound */
+    uint8_t sop_idx = (0xff & (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + cyrfmfg_id[3] - cyrfmfg_id[5])) % 19;
+    uint16_t crc =  (0xff & (cyrfmfg_id[1] - cyrfmfg_id[4] + cyrfmfg_id[5])) |
+                   ((0xff & (cyrfmfg_id[2] + cyrfmfg_id[3] - cyrfmfg_id[4] + cyrfmfg_id[5])) << 8);
+    //CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);
+    CYRF_PROGMEM_ConfigSOPCode(DEVO_j6pro_sopcodes[sop_idx]);
+    CYRF_ConfigCRCSeed(crc);
 }
 
 static void __attribute__((unused)) j6pro_set_radio_channels()
@@ -136,10 +128,10 @@ static void __attribute__((unused)) j6pro_set_radio_channels()
 
 uint16_t ReadJ6Pro()
 {
-	uint32_t start;
+    uint32_t start;
 
     switch(phase)
-	{
+    {
         case J6PRO_BIND:
             cyrf_bindinit();
             phase = J6PRO_BIND_01;
@@ -147,9 +139,7 @@ uint16_t ReadJ6Pro()
         case J6PRO_BIND_01:
             CYRF_ConfigRFChannel(0x52);
             CYRF_SetTxRxMode(TX_EN);
-            //0.062684# 0f 05
-            CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x25);
-            //0.062684# 0f 05
+            //CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);
             CYRF_WriteDataPacketLen(packet, 0x09);
             phase = J6PRO_BIND_03_START;
             return 3000; //3msec
@@ -160,8 +150,8 @@ uint16_t ReadJ6Pro()
                     break;
             CYRF_ConfigRFChannel(0x53);
             CYRF_SetTxRxMode(RX_EN);
-            CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4a);
-            CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);
+            //CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4a);
+            CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x80);
             phase = J6PRO_BIND_03_CHECK;
             return 30000; //30msec
         case J6PRO_BIND_03_CHECK:
@@ -201,7 +191,7 @@ uint16_t ReadJ6Pro()
         case J6PRO_BIND_05_4:
         case J6PRO_BIND_05_5:
         case J6PRO_BIND_05_6:
-            CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x25);
+            //CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);
             CYRF_WriteDataPacketLen(packet, 0x0f);
             phase = phase + 1;
             return 4600; //4.6msec
@@ -212,7 +202,7 @@ uint16_t ReadJ6Pro()
             phase = J6PRO_CHAN_1;
         case J6PRO_CHAN_1:
             //Keep transmit power updated
-            CYRF_SetPower(0);
+            CYRF_SetPower(0x28);
             j6pro_build_data_packet();
             //return 3400;
         case J6PRO_CHAN_2:
@@ -237,12 +227,10 @@ uint16_t initJ6Pro()
 {
     j6pro_cyrf_init();
 
-	if(IS_AUTOBIND_FLAG_on) {
+	if(IS_AUTOBIND_FLAG_on)
         phase = J6PRO_BIND;
-    }
-    else {
+    else
         phase = J6PRO_CHANSEL;
-    }
     return 2400;
 }
 

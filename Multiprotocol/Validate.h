@@ -33,6 +33,7 @@
 #ifndef A7105_INSTALLED
 	#undef FLYSKY_A7105_INO
 	#undef HUBSAN_A7105_INO
+	#undef AFHDS2A_A7105_INO
 #endif
 #ifndef CYRF6936_INSTALLED
 	#undef	DEVO_CYRF6936_INO
@@ -71,17 +72,21 @@
 	#undef DSM_TELEMETRY	
 	#undef SPORT_TELEMETRY	
 	#undef HUB_TELEMETRY
+	#undef AFHDS2A_TELEMETRY
 #else
-	#if not defined(CYRF6936_INSTALLED) || not defined(DSM_CYRF6936_INO)
+	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if (not defined(CC2500_INSTALLED) || not defined(FRSKYD_CC2500_INO)) && (not defined(A7105_INSTALLED) || not defined(HUBSAN_A7105_INO))
+	#if not defined(FRSKYD_CC2500_INO) && not defined(HUBSAN_A7105_INO) && not defined(AFHDS2A_A7105_INO)
 		#undef HUB_TELEMETRY
 	#endif
-	#if not defined(CC2500_INSTALLED) || not defined(FRSKYX_CC2500_INO)
+	#if not defined(FRSKYX_CC2500_INO)
 		#undef SPORT_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(SPORT_TELEMETRY)
+	#if not defined(AFHDS2A_A7105_INO)
+		#undef 	AFHDS2A_TELEMETRY
+	#endif
+	#if not defined(DSM_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(AFHDS2A_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 	#endif

@@ -22,8 +22,9 @@
 /********************/
 //Uncomment one of the line below if you have a different module not based on the original Multi Atmega328p design which includes the 4-in-1.
 //If you don't know then leave them commented.
-//#define STM32_BOARD
-
+#ifdef __arm__
+	#define STM32_BOARD	// Let's automatically select this board if arm is selected since this is the only one for now...
+#endif
 
 /*******************/
 /*** TX SETTINGS ***/
@@ -33,6 +34,10 @@
 //Default is AETR.
 #define EATR
 
+
+//Modify the channel for a software reset modul: AUX...(channel number - 4)
+//Default is AUX10 (channel 14).
+#define SWITCH_RESET 14
 
 /**************************/
 /*** RF CHIPS INSTALLED ***/
@@ -55,11 +60,11 @@
 //Comment the protocols you are not using with "//" to save Flash space.
 
 //The protocols below need an A7105 to be installed
-	#define	AFHDS2A_A7105_INO
 //	#define	JOYSWAY_A7105_INO
 
 	#define	FLYSKY_A7105_INO
 	#define	HUBSAN_A7105_INO
+	#define	AFHDS2A_A7105_INO
 //The protocols below need a CYRF6936 to be installed
 //	#define	WK2x01_CYRF6936_INO //!\\			//pb voie
 	
@@ -85,7 +90,8 @@
 //	#define	NE260_NRF24L01_INO
 //	#define	BlueFly_NRF24L01_INO	//probleme gene id
 //	#define	FBL100_NRF24L01_INO	// finir id 				//!\\			//pb voie ???
-	#define	INAV_NRF24L01_INO	
+//	#define	INAV_NRF24L01_INO	//	a faire
+	#define	Q303_NRF24L01_INO	
 	
 	#define	BAYANG_NRF24L01_INO
 	#define	CG023_NRF24L01_INO
@@ -121,7 +127,7 @@
 	#define DSM_TELEMETRY	
 	#define SPORT_TELEMETRY	
 	#define HUB_TELEMETRY
-
+	#define AFHDS2A_TELEMETRY
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -274,6 +280,8 @@ const PPM_Parameters PPM_prot[15]=	{
 		FORMAT_JJRCX1
 		FORMAT_X5C1
 		FQ777-951
+	MODE_AFHDS2A
+		NONE
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

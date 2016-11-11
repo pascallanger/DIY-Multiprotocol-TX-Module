@@ -1,0 +1,89 @@
+#define PPM_TEST 3 //test voie valeur
+
+#define PPM_MIN_COMMAND 1250
+#define PPM_SWITCH		1550
+#define PPM_MAX_COMMAND 1750
+#define isterie 10
+
+
+#define PPM_Pin 3 //this must be 2 or 3
+int ppm[18]; //array for storing up to 16 servo signals
+int maxi = 0, mini = 3000, decal, moy, a,r, val;
+
+void setup() {
+	Serial.begin(115200);		Serial.println("ready");
+	pinMode(PPM_Pin, INPUT);	attachInterrupt(PPM_Pin - 2, read_ppm, CHANGE);
+
+	TCCR1A = 0; //reset timer1
+	TCCR1B = 0;
+	TCCR1B |= (1 << CS11); //set timer1 to increment every 0,5 us
+}
+
+void loop() {
+	//You can delete everithing inside loop() and put your own code here
+	int count;
+	if(ppm[PPM_TEST]<mini || ppm[PPM_TEST]>maxi) {
+		maxi = max( maxi, ppm[PPM_TEST]);
+		mini = min( mini, ppm[PPM_TEST]);
+		moy = (maxi + mini)/2;
+		decal = (maxi - moy) / 125 * 100;
+		a = moy + decal;
+		r = moy - decal;
+	}
+	Serial.print(a);		Serial.print(" ");
+	Serial.print(r);		Serial.print(" ");
+	Serial.print(maxi);		Serial.print(" ");
+	Serial.print(mini);		Serial.print(" ");
+	Serial.print(moy);		Serial.print(" ");
+	if((PPM_SWITCH - isterie) < moy < (PPM_SWITCH + isterie)) {
+		Serial.print("	.	Pb istérie PPM middel	");
+		Serial.print(PPM_SWITCH);
+	}
+	else {
+		Serial.print("	.	");
+		
+		count = 0;
+		Serial.print(ppm[count]);	Serial.print("	"); count++;
+		Serial.print(ppm[count]);	Serial.print("	"); count++;
+		Serial.print(ppm[count]);	Serial.print("	"); count++;
+		Serial.print(ppm[count]);	Serial.print("	"); count++;
+		for( ;count<17;count++) {
+			val=ppm[count];
+				 if((moy-2*isterie) < val < (moy+2*isterie)) {	Serial.print("2"); }
+			else if(PPM_MAX_COMMAND < val < 2200) {	Serial.print("3"); }
+			else if(PPM_MAX_COMMAND < val) {	Serial.print("+"); }
+			else if(800 < val < PPM_MIN_COMMAND) {	Serial.print("1"); }
+			else {	Serial.print("."); }
+			
+		}
+/*
+		while(ppm[count] != 0){ //print out the servo values
+			Serial.print(count);		Serial.print(" ");
+			Serial.print(ppm[count]);	Serial.print("	");
+			count++;
+		}
+*/
+	}
+	Serial.println("");
+	delay(100); //you can even use delays!!!
+}
+
+void read_ppm(){ //leave this alone
+    #if F_CPU == 16000000
+        #define PPM_SCALE 1L
+    #elif F_CPU == 8000000
+        #define PPM_SCALE 0L
+    #else
+        #error // 8 or 16MHz only !
+    #endif
+	static unsigned int pulse;
+	static unsigned long counter;
+	static byte channel;
+
+	counter = TCNT1;
+	TCNT1 = 0;
+
+	if(counter < 510 << PPM_SCALE){			pulse = counter;	}	//must be a pulse if less than 510us
+	else if(counter > 1910 << PPM_SCALE){	channel = 0;		}	//sync pulses over 1910us
+	else{	ppm[channel] = (counter + pulse) >> PPM_SCALE;	channel++;	}	//servo values between 510us and 2420us will end up here
+}

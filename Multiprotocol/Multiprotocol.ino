@@ -69,6 +69,7 @@ uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint8_t  rx_tx_addr[5];
+uint8_t  rx_id[4];
 uint8_t phase;
 uint16_t bind_counter;
 uint8_t bind_phase;
@@ -129,7 +130,7 @@ volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 volatile uint8_t discard_frame = 0;
 
 // Telemetry
-#define MAX_PKT 27
+#define MAX_PKT 29
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
 #if defined(TELEMETRY)
 	#ifdef INVERT_TELEMETRY
@@ -149,6 +150,7 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	#endif // BASH_SERIAL
 	uint8_t v_lipo;
 	int16_t RSSI_dBm;
+	uint8_t TX_RSSI;
 	uint8_t telemetry_link=0; 
 	uint8_t telemetry_counter=0;
 	uint8_t telemetry_lost;
@@ -479,7 +481,7 @@ void Update_All()
 	#endif //ENABLE_PPM
 	update_led_status();
 	#if defined(TELEMETRY)
-		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) || (protocol==MODE_AFHDS2A) )
+		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
 			TelemetryUpdate();
 	#endif 
 }
@@ -491,7 +493,7 @@ static void update_aux_flags(void)
 	for(uint8_t i=0;i<8;i++)
 		if(Servo_data[AUX1+i]>PPM_SWITCH)
 			Servo_AUX|=1<<i;
-	if(Servo_data[AUX10]>PPM_SWITCH && !( (cur_protocol[0]&0x1F)==MODE_FRSKYD || (cur_protocol[0]&0x1F)==MODE_DSM || (cur_protocol[0]&0x1F)==MODE_AFHDS2A ) ) { CHANGE_PROTOCOL_FLAG_on;	}	// Rebind voie
+	if(Servo_data[SWITCH_RESET]>PPM_SWITCH && !( (cur_protocol[0]&0x1F)==MODE_FRSKYD || (cur_protocol[0]&0x1F)==MODE_DSM || (cur_protocol[0]&0x1F)==MODE_AFHDS2A ) ) { CHANGE_PROTOCOL_FLAG_on;	}	// Rebind voie
 	if(IS_CHANGE_PROTOCOL_FLAG_on)
 	{ // Protocol needs to be changed
 		LED_off;									//led off during protocol init
@@ -529,13 +531,16 @@ static void update_led_status(void)
 
 inline void tx_pause()
 { 
-	#ifndef STM32_BOARD
-		#ifdef TELEMETRY
-			#ifdef ORANGE_TX
-				USARTC0.CTRLA &= ~0x03 ;		// Pause telemetry by disabling transmitter interrupt
-			#else
-				#ifndef BASH_SERIAL
-					UCSR0B &= ~_BV(UDRIE0);		// Pause telemetry by disabling transmitter interrupt
+	#ifdef TELEMETRY
+	// Pause telemetry by disabling transmitter interrupt
+		#ifdef ORANGE_TX
+			USARTC0.CTRLA &= ~0x03 ;
+		#else
+			#ifndef BASH_SERIAL
+				#ifdef STM32_BOARD
+					USART3_BASE->CR1 &= ~ USART_CR1_TXEIE;
+				#else
+					UCSR0B &= ~_BV(UDRIE0);
 				#endif
 			#endif
 		#endif
@@ -544,23 +549,26 @@ inline void tx_pause()
 
 inline void tx_resume()
 {
-	#ifndef STM32_BOARD
-		#ifdef TELEMETRY
-			if(!IS_TX_PAUSE_on)
-			{
-					#ifdef ORANGE_TX
-					cli() ;
-					USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;	// Resume telemetry by enabling transmitter interrupt
-					sei() ;
-				#else
-					#ifndef BASH_SERIAL
-						UCSR0B |= _BV(UDRIE0);			// Resume telemetry by enabling transmitter interrupt
+	#ifdef TELEMETRY
+	// Resume telemetry by enabling transmitter interrupt
+		if(!IS_TX_PAUSE_on)
+		{
+				#ifdef ORANGE_TX
+				cli() ;
+				USARTC0.CTRLA = (USARTC0.CTRLA & 0xFC) | 0x01 ;
+				sei() ;
+			#else
+				#ifndef BASH_SERIAL
+					#ifdef STM32_BOARD
+						USART3_BASE->CR1 |= USART_CR1_TXEIE;
 					#else
-						resumeBashSerial() ;
-					#endif			
-				#endif
-			}
-		#endif
+						UCSR0B |= _BV(UDRIE0);			
+					#endif
+				#else
+					resumeBashSerial() ;
+				#endif			
+			#endif
+		}
 	#endif
 }
 
@@ -595,6 +603,8 @@ static void protocol_init()
 			tx_tail=0;
 			tx_head=0;
 		#endif
+		TX_RX_PAUSE_off;
+		TX_MAIN_PAUSE_off;
 	#endif
 
 	blink=millis();
@@ -618,18 +628,18 @@ static void protocol_init()
 					remote_callback = joysway_cb;
 					break;
 			#endif
-			#if defined(AFHDS2A_A7105_INO)
-				case MODE_AFHDS2A:
-					next_callback=AFHDS2A_setup();
-					remote_callback = afhds2a_cb;
-					break;
-			#endif
-			
 			#if defined(FLYSKY_A7105_INO)
 				case MODE_FLYSKY:
 					PE1_off;	//antenna RF1
 					next_callback = initFlySky();
 					remote_callback = ReadFlySky;
+					break;
+			#endif
+			#if defined(AFHDS2A_A7105_INO)
+				case MODE_AFHDS2A:
+					PE1_off;	//antenna RF1
+					next_callback = initAFHDS2A();
+					remote_callback = ReadAFHDS2A;
 					break;
 			#endif
 			#if defined(HUBSAN_A7105_INO)
@@ -781,6 +791,12 @@ static void protocol_init()
 				case MODE_INAV:
 					next_callback=INAV_setup();
 					remote_callback = inav_cb;
+					break;
+			#endif
+			#if defined(Q303_NRF24L01_INO)
+				case MODE_Q303:
+					next_callback=q303_init();
+					remote_callback = q303_callback;
 					break;
 			#endif
 			
@@ -1012,8 +1028,8 @@ void Mprotocol_serial_init()
 			PORTC.PIN3CTRL |= 0x40 ;
 		#endif
 	#elif defined STM32_BOARD
-		Serial1.begin(100000,SERIAL_8E2);//USART2
-		Serial2.begin(100000,SERIAL_8E2);//USART3 
+		usart2_begin(100000,SERIAL_8E2);
+		usart3_begin(100000,SERIAL_8E2);
 		USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
 		USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable 
 		USART2_BASE->CR1 &= ~ USART_CR1_TE;//disable transmit
@@ -1040,7 +1056,7 @@ void Mprotocol_serial_init()
 #if defined(TELEMETRY)
 	void PPM_Telemetry_serial_init()
 	{
-	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A))
+	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) )
 		initTXSerial( SPEED_9600 ) ;
 	if(protocol==MODE_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;
@@ -1186,14 +1202,14 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 			rx_buff[0]=UDR0;
 			if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
 				{
+					TX_RX_PAUSE_on;
+					tx_pause();
 					#if defined STM32_BOARD
 						uint16_t OCR1B;
 						OCR1B =TCNT1+(6500L);
 						timer.setCompare(TIMER_CH2,OCR1B);
 						timer.attachCompare2Interrupt(ISR_COMPB);
 					#else
-						TX_RX_PAUSE_on;
-						tx_pause();
 						OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
 						TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
 						SET_TIMSK1_OCIE1B ;		// enable interrupt on compare B match
@@ -1228,9 +1244,9 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 				detachInterrupt(2);			// Disable interrupt on ch2	
 			#else							
 				CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
-				TX_RX_PAUSE_off;
-				tx_resume();
 			#endif
+			TX_RX_PAUSE_off;
+			tx_resume();
 		}
 		#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 			cli() ;
@@ -1252,8 +1268,8 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 			detachInterrupt(2);				// Disable interrupt on ch2
 		#else
 			CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
-			tx_resume();
 		#endif
+		tx_resume();
 	}
 #endif //ENABLE_SERIAL
 

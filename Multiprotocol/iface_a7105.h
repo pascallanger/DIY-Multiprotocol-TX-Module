@@ -87,11 +87,4 @@ enum A7105_MASK {
     A7105_MASK_VBCF = 1 << 3,
 };
 
-enum {
-	INIT_FLYSKY,
-	INIT_FLYSKY_AFHDS2A,
-	INIT_JOYSWAY,
-	INIT_HUBSAN
-};
-
 #endif

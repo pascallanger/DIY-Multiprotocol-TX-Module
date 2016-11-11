@@ -55,11 +55,11 @@
 
 	#include "iface_nrf24l01.h"
 
-	#define BIND_COUNT 345   // 1.5 seconds
-	#define FIRST_PACKET_DELAY  12000
+	#define INAV_BIND_COUNT 345   // 1.5 seconds
+	#define FIRST_INAV_PACKET_DELAY  12000
 
-	#define PACKET_PERIOD        4000     // Timeout for callback in uSec
-	#define INITIAL_WAIT          500
+	#define INAV_PACKET_PERIOD        4000     // Timeout for callback in uSec
+	#define INAV_INITIAL_WAIT          500
 
 	// For code readability
 	enum {
@@ -96,28 +96,28 @@
 
 
 	enum {
-		RATE_LOW = 0,
-		RATE_MID = 1,
-		RATE_HIGH = 2,
+		INAV_RATE_LOW = 0,
+		INAV_RATE_MID = 1,
+		INAV_RATE_HIGH = 2,
 	};
 
 	enum {
-		FLAG_FLIP     = 0x01,
-		FLAG_PICTURE  = 0x02,
-		FLAG_VIDEO    = 0x04,
-		FLAG_RTH      = 0x08,
-		FLAG_HEADLESS = 0x10,
+		INAV_FLAG_FLIP     = 0x01,
+		INAV_FLAG_PICTURE  = 0x02,
+		INAV_FLAG_VIDEO    = 0x04,
+		INAV_FLAG_RTH      = 0x08,
+		INAV_FLAG_HEADLESS = 0x10,
 	};
 
 	typedef enum {
-		PHASE_INAV_INIT = 0,
+		PHASE_INIT = 0,
 		PHASE_INAV_BIND,
 		PHASE_INAV_DATA
 	};
 
 	typedef enum {
-		DATA_PACKET = 0,
-		BIND_PACKET = 1,
+		DATA_INAV_PACKET = 0,
+		BIND_INAV_PACKET = 1,
 	};
 
 	static const char * const inav_opts[] = {
@@ -308,19 +308,19 @@
 		// pack the AETR low bits
 		packet[6] = (aileron & 0x03) | ((elevator & 0x03) << 2) | ((throttle & 0x03) << 4) | ((rudder & 0x03) << 6);
 
-		uint8_t rate = RATE_LOW;
+		uint8_t rate = INAV_RATE_LOW;
 		if (Channels[CHANNEL_RATE] > 0) {
-			rate = RATE_HIGH;
+			rate = INAV_RATE_HIGH;
 		} else if (Channels[CHANNEL_RATE] == 0) {
-			rate = RATE_MID;
+			rate = INAV_RATE_MID;
 		}
 		packet[7] = rate; // rate, deviation channel 5, is mapped to AUX1
 
-		const uint8_t flags = GET_FLAG(CHANNEL_FLIP, FLAG_FLIP)
-				   | GET_FLAG(CHANNEL_PICTURE, FLAG_PICTURE)
-				   | GET_FLAG(CHANNEL_VIDEO, FLAG_VIDEO)
-				   | GET_FLAG(CHANNEL_RTH, FLAG_RTH)    
-				   | GET_FLAG(CHANNEL_HEADLESS, FLAG_HEADLESS);
+		const uint8_t flags = GET_FLAG(CHANNEL_FLIP, INAV_FLAG_FLIP)
+				   | GET_FLAG(CHANNEL_PICTURE, INAV_FLAG_PICTURE)
+				   | GET_FLAG(CHANNEL_VIDEO, INAV_FLAG_VIDEO)
+				   | GET_FLAG(CHANNEL_RTH, INAV_FLAG_RTH)    
+				   | GET_FLAG(CHANNEL_HEADLESS, INAV_FLAG_HEADLESS);
 		packet[8] = flags; // flags, deviation channels 6-10 are mapped to AUX2 t0 AUX6
 
 		// map deviation channels 9-12 to RC channels AUX7-AUX10, use 10 bit resolution
@@ -399,7 +399,7 @@
 
 	static void send_packet(uint8_t packet_type)
 	{
-		if (packet_type == DATA_PACKET) {
+		if (packet_type == DATA_INAV_PACKET) {
 			build_data_packet();
 		} else {
 			build_bind_packet();
@@ -644,9 +644,9 @@
 		switch (phase) {
 		case PHASE_INAV_INIT:
 			phase = PHASE_INAV_BIND;
-			bind_counter = BIND_COUNT;
+			bind_counter = INAV_BIND_COUNT;
 			bind_acked = 0;
-			return FIRST_PACKET_DELAY;
+			return FIRST_INAV_PACKET_DELAY;
 			break;
 
 		case PHASE_INAV_BIND:
@@ -660,9 +660,9 @@
 				if (bind_acked == 1) {
 					// bind packet acked, so set bind_counter to zero to enter data phase on next callback
 					bind_counter = 0;
-					return PACKET_PERIOD;
+					return INAV_PACKET_PERIOD;
 				}
-				send_packet(BIND_PACKET);
+				send_packet(BIND_INAV_PACKET);
 				--bind_counter;
 			}
 			break;
@@ -674,10 +674,10 @@
 				return PACKET_CHKTIME; // packet send not yet complete
 			}*/
 			packet_ack();
-			send_packet(DATA_PACKET);
+			send_packet(DATA_INAV_PACKET);
 			break;
 		}
-		return PACKET_PERIOD;
+		return INAV_PACKET_PERIOD;
 	}
 
 	static uint8_t INAV_setup()
@@ -696,12 +696,12 @@
 
 		if(IS_AUTOBIND_FLAG_on) {
 			phase = PHASE_INAV_INIT;
-//			PROTOCOL_SetBindState(BIND_COUNT * PACKET_PERIOD / 1000);
+//			PROTOCOL_SetBindState(INAV_BIND_COUNT * INAV_PACKET_PERIOD / 1000);
 		} else {
 			set_data_phase();
 //			BIND_DONE;
 		}
-		return INITIAL_WAIT;
+		return INAV_INITIAL_WAIT;
 	}
 /*
 	const void *INAV_Cmds(enum ProtoCmds cmd)

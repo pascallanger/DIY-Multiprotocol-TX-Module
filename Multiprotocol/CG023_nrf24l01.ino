@@ -126,8 +126,8 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 						| GET_FLAG(Servo_AUX4,H8_3D_FLAG_RTH); // 180/360 flip mode on H8 3D
 			packet[18] =  GET_FLAG(Servo_AUX5,H8_3D_FLAG_CALIBRATE)
 						| GET_FLAG(Servo_AUX5,H8_3D_FLAG_CALIBRATE2)
-						| GET_FLAG(Servo_AUX6, H8_3D_FLAG_SNAPSHOT)
-						| GET_FLAG(Servo_AUX7, H8_3D_FLAG_VIDEO);
+						| GET_FLAG(Servo_AUX6,H8_3D_FLAG_SNAPSHOT)
+						| GET_FLAG(Servo_AUX7,H8_3D_FLAG_VIDEO);
 		}
 	    uint8_t  sum = packet[9];
 		for (uint8_t i=10; i < H8_3D_PACKET_SIZE-1; i++)

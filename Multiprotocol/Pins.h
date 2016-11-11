@@ -79,7 +79,7 @@
 		#define SDO_1 (SDO_ipr & _BV(SDO_pin))
 		#define SDO_0 (SDO_ipr & _BV(SDO_pin)) == 0x00
 	#endif
-	
+
 	// SCLK
 	#define SCLK_port PORTD
 	#define SCLK_ddr DDRD
@@ -290,21 +290,6 @@
 	#define	cli() 			noInterrupts()
 	#define	sei() 			interrupts()
 	#define	delayMilliseconds(x) delay(x)
-	//TX Pause
-	#undef TX_MAIN_PAUSE_off
-	#undef TX_MAIN_PAUSE_on
-	#undef IS_TX_MAIN_PAUSE_on
-	#undef TX_RX_PAUSE_off
-	#undef TX_RX_PAUSE_on
-	#undef IS_TX_RX_PAUSE_on
-	#undef IS_TX_PAUSE_on
-	#define TX_MAIN_PAUSE_off
-	#define TX_MAIN_PAUSE_on
-	#define IS_TX_MAIN_PAUSE_on
-	#define TX_RX_PAUSE_off
-	#define TX_RX_PAUSE_on
-	#define IS_TX_RX_PAUSE_on
-	#define IS_TX_PAUSE_on
 #endif
 
 //*******************

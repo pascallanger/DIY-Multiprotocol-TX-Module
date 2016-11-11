@@ -27,14 +27,14 @@
 #define MJXQ_ADDRESS_LENGTH	5
 
 // haven't figured out txid<-->rf channel mapping for MJX models
-const uint8_t PROGMEM MJXQ_map_rfchan[][4] = {
-				{0x0A, 0x46, 0x3A, 0x42},
-				{0x0A, 0x3C, 0x36, 0x3F},
-				{0x0A, 0x43, 0x36, 0x3F}	};
 const uint8_t PROGMEM MJXQ_map_txid[][3] = {
 				{0xF8, 0x4F, 0x1C},
 				{0xC8, 0x6E, 0x02},
 				{0x48, 0x6A, 0x40}	};
+const uint8_t PROGMEM MJXQ_map_rfchan[][4] = {
+				{0x0A, 0x46, 0x3A, 0x42},
+				{0x0A, 0x3C, 0x36, 0x3F},
+				{0x0A, 0x43, 0x36, 0x3F}	};
 
 
 #define MJXQ_PAN_TILT_COUNT	16   // for H26D - match stock tx timing
@@ -90,9 +90,11 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 // Servo_AUX5	HEADLESS
 // Servo_AUX6	RTH
 // Servo_AUX7	AUTOFLIP	// X800, X600
+// Servo_AUX8	ARM			// H26WH
 	switch(sub_protocol)
 	{
 		case H26D:
+		case H26WH:
 			packet[10]=MJXQ_pan_tilt_value();
 			// fall through on purpose - no break
 		case WLH08:
@@ -106,6 +108,11 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 						| GET_FLAG(Servo_AUX3, 0x08)	//PICTURE
 						| GET_FLAG(Servo_AUX4, 0x10)	//VIDEO
 						| GET_FLAG(!Servo_AUX2, 0x20);	// air/ground mode
+			}
+			if (sub_protocol == H26WH) {
+				packet[10] &= ~0x40;
+				packet[14] &= ~0x24;
+				packet[14] |= GET_FLAG(Servo_AUX2, 0x04);
 			}
 			break;
 		case X600:
@@ -139,10 +146,15 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	packet[15] = sum;
 
 	// Power on, TX mode, 2byte CRC
-	if (sub_protocol == H26D)
-		NRF24L01_SetTxRxMode(TX_EN);
-	else
-		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+	switch (Model.proto_opts[PROTOOPTS_FORMAT]) {
+		case H26D:
+		case H26WH:
+			NRF24L01_SetTxRxMode(TX_EN);
+			break;
+		default:
+			XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+			break;
+	}
 
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++ / 2]);
 	hopping_frequency_no %= 2 * MJXQ_RF_NUM_CHANNELS;	// channels repeated
@@ -150,10 +162,15 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 
-	if (sub_protocol == H26D)
-		NRF24L01_WritePayload(packet, MJXQ_PACKET_SIZE);
-	else
-		XN297_WritePayload(packet, MJXQ_PACKET_SIZE);
+	switch (Model.proto_opts[PROTOOPTS_FORMAT]) {
+		case H26D:
+		case H26WH:
+			NRF24L01_WritePayload(packet, MJXQ_PACKET_SIZE);
+			break;
+		default:
+			XN297_WritePayload(packet, MJXQ_PACKET_SIZE);
+			break;
+	}
 
 	NRF24L01_SetPower();
 }
@@ -162,10 +179,13 @@ static void __attribute__((unused)) MJXQ_init()
 {
 	uint8_t addr[MJXQ_ADDRESS_LENGTH];
 	memcpy(addr, "\x6d\x6a\x77\x77\x77", MJXQ_ADDRESS_LENGTH);
+	NRF24L01_Initialize();
+	NRF24L01_SetTxRxMode(TX_EN);
+
 	if (sub_protocol == WLH08)
 		memcpy(hopping_frequency, "\x12\x22\x32\x42", MJXQ_RF_NUM_CHANNELS);
 	else
-		if (sub_protocol == H26D || sub_protocol == E010)
+		if (sub_protocol == H26D || sub_protocol == H26WH || sub_protocol == E010)
 			memcpy(hopping_frequency, "\x36\x3e\x46\x2e", MJXQ_RF_NUM_CHANNELS);
 		else
 		{
@@ -174,11 +194,11 @@ static void __attribute__((unused)) MJXQ_init()
 		}
 
 	
-	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
-
-	if (sub_protocol == H26D)
+	if (sub_protocol == H26D || sub_protocol == H26WH)
+	{
+		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW,		0x03);		// 5-byte RX/TX address
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, MJXQ_ADDRESS_LENGTH);
+	}
 	else
 		XN297_SetTXAddr(addr, MJXQ_ADDRESS_LENGTH);
 
@@ -203,20 +223,25 @@ static void __attribute__((unused)) MJXQ_init2()
 	else
 		if (sub_protocol != WLH08 && sub_protocol != E010)
 			for(uint8_t i=0;i<MJXQ_RF_NUM_CHANNELS;i++)
-				hopping_frequency[i]=pgm_read_byte_near( &MJXQ_map_rfchan[rx_tx_addr[4]%3][i] );
+				hopping_frequency[i]=pgm_read_byte_near( &MJXQ_map_rfchan[rx_tx_addr[3]%3][i] );
 }
 
 static void __attribute__((unused)) MJXQ_initialize_txid()
 {
 	rx_tx_addr[0]&=0xF8;
-	if (sub_protocol == E010)
+	rx_tx_addr[2]=rx_tx_addr[3];	// Make use of RX_Num
+	if (sub_protocol == H26WH)
+	{
+		memcpy(txid, "\xa4\x03\x00", sizeof(txid));
+	}
+	else if (sub_protocol == E010)
 	{
 		rx_tx_addr[1]=(rx_tx_addr[1]&0xF0)|0x0C;
-		rx_tx_addr[2]&=0xF0;
+		rx_tx_addr[2]<<=4;			// Make use of RX_Num
 	}
 	else
 		for(uint8_t i=0;i<3;i++)
-			rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[4]%3][i] );
+			rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[3]%3][i] );
 }
 
 uint16_t MJXQ_callback()

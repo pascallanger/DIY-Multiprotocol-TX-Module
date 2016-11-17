@@ -35,7 +35,7 @@ Check which module you have and based on the pictures below.  If you purchased t
 Solder two bridges over the pads shown in the picture below. 
  
 <img src="images/4-in-1_Module_BG_SerialJumpers.jpeg" width="300" height="340" /> 
-<img src="images/V2_Serial_Enable.jpeg" width="340" height="340" /> 
+<img src="images/V2_Serial_Enable.jpeg" width="450" height="340" /> 
 
 You are now ready to go over to [Compiling and Programming](Compiling.md).
 

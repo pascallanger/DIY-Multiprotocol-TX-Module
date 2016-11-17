@@ -211,25 +211,25 @@
 	#define	BIND_pin		PA0
 	#define	LED_pin			PA1						
 	//
-	#define	PPM_pin			PA8			//PPM  5V tolerant													
+	#define	PPM_pin			PA8								//PPM  5V tolerant													
 	//
-	#define	S1_pin			PA4			//Dial switch pins	
+	#define	S1_pin			PA4								//Dial switch pins	
 	#define	S2_pin			PA5							
 	#define	S3_pin			PA6
 	#define	S4_pin			PA7	
 	//
-	#define	PE1_pin			PB4			//PE1						
-	#define	PE2_pin			PB5			//PE2
+	#define	PE1_pin			PB4								//PE1
+	#define	PE2_pin			PB5								//PE2
 	//CS pins
-	#define	CC25_CSN_pin	PB6		//CC2500
-	#define	NRF_CSN_pin		PB7		//NRF24L01
-	#define	CYRF_RST_pin	PB8		//CYRF RESET
-	#define	A7105_CSN_pin	PB9		//A7105
-	#define	CYRF_CSN_pin	PB12	//CYRF CSN
+	#define	CC25_CSN_pin	PB6								//CC2500
+	#define	NRF_CSN_pin		PB7								//NRF24L01
+	#define	CYRF_RST_pin	PB8								//CYRF RESET
+	#define	A7105_CSN_pin	PB9								//A7105
+	#define	CYRF_CSN_pin	PB12							//CYRF CSN
 	//SPI pins	
-	#define	SCK_pin			PB13		//SCK
-	#define	SDO_pin			PB14		//MISO	
-	#define	SDI_pin			PB15		//MOSI							
+	#define	SCK_pin			PB13							//SCK
+	#define	SDO_pin			PB14							//MISO
+	#define	SDI_pin			PB15							//MOSI			
 	//
 	#define	TX_INV_pin		PB3
 	#define	RX_INV_pin		PB1

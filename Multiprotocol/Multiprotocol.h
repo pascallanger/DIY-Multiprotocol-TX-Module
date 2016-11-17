@@ -211,12 +211,18 @@ struct PPM_Parameters
 #define TX_RX_PAUSE_on		protocol_flags2 |= _BV(4)
 #define IS_TX_RX_PAUSE_on	( ( protocol_flags2 & _BV(4) ) !=0 )
 #define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
+//Signal OK
+#define INPUT_SIGNAL_off	protocol_flags2 &= ~_BV(5)
+#define INPUT_SIGNAL_on		protocol_flags2 |= _BV(5)
+#define IS_INPUT_SIGNAL_on	( ( protocol_flags2 & _BV(5) ) !=0 )
+#define IS_INPUT_SIGNAL_off	( ( protocol_flags2 & _BV(5) ) ==0 )
 
 //********************
 //*** Blink timing ***
 //********************
 #define BLINK_BIND_TIME				100
 #define BLINK_SERIAL_TIME			500
+#define BLINK_PPM_TIME				1000
 #define BLINK_BAD_PROTO_TIME_LOW	1000
 #define BLINK_BAD_PROTO_TIME_HIGH	50
 
@@ -406,6 +412,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			DSM2_11 	1
 			DSMX_22 	2
 			DSMX_11 	3
+			DSM_AUTO	4
 		sub_protocol==YD717
 			YD717		0
 			SKYWLKR		1

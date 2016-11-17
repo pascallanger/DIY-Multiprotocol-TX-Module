@@ -724,7 +724,7 @@ void Serial_write( uint8_t byte )
 	else
 	{
 		byteLo |= 0xFE ;	// Stop bit
-	}	
+	}
 	byte <<= 1 ;
 	#ifdef INVERT_SERIAL
 		byte |= 1 ;		// Start bit

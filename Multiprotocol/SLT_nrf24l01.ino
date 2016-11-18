@@ -24,10 +24,11 @@
 #define SLT_TXID_SIZE 4
 
 enum {
-	SLT_BIND=0,
+	SLT_BUILD=0,
 	SLT_DATA1,
 	SLT_DATA2,
-	SLT_DATA3
+	SLT_DATA3,
+	SLT_BIND
 };
 
 static void __attribute__((unused)) SLT_init()
@@ -86,7 +87,7 @@ static void __attribute__((unused)) SLT_set_freq(void)
 static void __attribute__((unused)) SLT_wait_radio()
 {
 	if (packet_sent)
-		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS))) ;
+		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)));
 	packet_sent = 0;
 }
 
@@ -102,7 +103,12 @@ static void __attribute__((unused)) SLT_send_data(uint8_t *data, uint8_t len)
 
 static void __attribute__((unused)) SLT_build_packet()
 {
-	// aileron, elevator, throttle, rudder, gear, pitch
+	// Set radio channel - once per packet batch
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+	if (++hopping_frequency_no >= SLT_NFREQCHANNELS)
+		hopping_frequency_no = 0;
+
+		// aileron, elevator, throttle, rudder, gear, pitch
 	uint8_t e = 0; // byte where extension 2 bits for every 10-bit channel are packed
 	for (uint8_t i = 0; i < 4; ++i)
 	{
@@ -115,68 +121,61 @@ static void __attribute__((unused)) SLT_build_packet()
 	// 8-bit channels
 	packet[5] = convert_channel_8b(AUX1);
 	packet[6] = convert_channel_8b(AUX2);
-
-	// Set radio channel - once per packet batch
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
-	if (++hopping_frequency_no >= SLT_NFREQCHANNELS)
-		hopping_frequency_no = 0;
 }
 
 static void __attribute__((unused)) SLT_send_bind_packet()
 {
 	SLT_wait_radio();
-	BIND_IN_PROGRESS;		//Limit TX power to bind level
+	BIND_IN_PROGRESS;				//Limit TX power to bind level
 	NRF24L01_SetPower();
 	BIND_DONE;
-	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t *)"\x7E\xB8\x63\xA9", 4);
+	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t *)"\x7E\xB8\x63\xA9", SLT_TXID_SIZE);
 
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x50);
 	SLT_send_data(rx_tx_addr, SLT_TXID_SIZE);
 
-	// W²ait until the packet's sent before changing TX address!
-	SLT_wait_radio();
+	SLT_wait_radio();				//Wait until the packet's sent before changing TX address!
 
-	NRF24L01_SetPower();	//Change power back to normal level
+	NRF24L01_SetPower();			//Change power back to normal level
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, SLT_TXID_SIZE);
 }
 
 uint16_t SLT_callback()
 {
-	uint16_t delay_us = 20000;		// 3 packets with 1ms intervals every 22ms
 	switch (phase)
 	{
-		case SLT_BIND:
-			SLT_send_bind_packet();
-			phase = SLT_DATA1;
-			delay_us = 19000;
-			break;
-		case SLT_DATA1:
+		case SLT_BUILD:
 			SLT_build_packet();
+			phase++;
+			return 1000;
+		case SLT_DATA1:
 			SLT_send_data(packet, SLT_PAYLOADSIZE);
-			phase = SLT_DATA2;
-			delay_us = 1000;
-			break;
+			phase++;
+			return 1000;
 		case SLT_DATA2:
 			SLT_send_data(packet, SLT_PAYLOADSIZE);
-			phase = SLT_DATA3;
-			delay_us = 1000;
-			break;
+			phase++;
+			return 1000;
 		case SLT_DATA3:
 			SLT_send_data(packet, SLT_PAYLOADSIZE);
 			if (++packet_count >= 100)
 			{
 				packet_count = 0;
-				phase = SLT_BIND;
-				delay_us = 1000;
+				phase++;
+				return 1000;
 			}
 			else
 			{
 				NRF24L01_SetPower();	// Set tx_power
-				phase = SLT_DATA1;
+				phase = SLT_BUILD;
+				return 19000;
 			}
-			break;
+		case SLT_BIND:
+			SLT_send_bind_packet();
+			phase = SLT_BUILD;
+			return 18000;
 	}
-	return delay_us;
+	return 19000;
 }
 
 uint16_t initSLT()

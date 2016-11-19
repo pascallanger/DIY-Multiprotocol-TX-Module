@@ -56,6 +56,7 @@
 //PPM values used to compare
 #define PPM_MIN_COMMAND 1250
 #define PPM_SWITCH		1550
+#define PPM_SWITCH_B	1450
 #define PPM_MAX_COMMAND 1750
 
 //Channel definitions

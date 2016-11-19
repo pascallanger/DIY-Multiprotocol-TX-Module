@@ -60,7 +60,7 @@
 //Comment the protocols you are not using with "//" to save Flash space.
 
 //The protocols below need an A7105 to be installed
-//	#define	JOYSWAY_A7105_INO
+	#define	JOYSWAY_A7105_INO
 
 	#define	FLYSKY_A7105_INO
 	#define	HUBSAN_A7105_INO

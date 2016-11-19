@@ -196,14 +196,11 @@ static void __attribute__((unused)) V2X2_send_packet(uint8_t bind)
 			// Channel 11
 			if (Servo_AUX7) flags2 |= JXD_FLAG_EMERGENCY;
 
-/*			// Channel 12 down
-			if (num_channels < 11 || Channels[CHANNEL11] >= CHAN_MIN_VALUE/2) *flags2 &= ~FLAG_CAMERA_DN;
-			else *flags2 |= JXD_FLAG_CAMERA_DN;
-
+			// Channel 12 down
+			if (Servo_data[AUX8] < PPM_SWITCH_B)		flags2 |= JXD_FLAG_CAMERA_DN;
 			// Channel 12 up
-			if (num_channels < 11 || Channels[CHANNEL11] <= CHAN_MAX_VALUE/2) *flags2 &= ~FLAG_CAMERA_UP;
-			else *flags2 |= JXD_FLAG_CAMERA_UP;
-*/
+			if (Servo_data[AUX8] > PPM_SWITCH)			flags2 |= JXD_FLAG_CAMERA_UP;
+
 		} else {
 			// Channel 10
 			if (Servo_AUX6)

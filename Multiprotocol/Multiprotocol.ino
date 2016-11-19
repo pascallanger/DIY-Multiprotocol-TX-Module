@@ -477,13 +477,15 @@ void Update_All()
 			}
 			update_aux_flags();
 			PPM_FLAG_off;	// wait for next frame before update
+			INPUT_SIGNAL_on;								//valid signal received
+			last_signal=millis();
 		}
 	#endif //ENABLE_PPM
-	update_led_status();
 	#if defined(TELEMETRY)
 		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
 			TelemetryUpdate();
 	#endif 
+	update_led_status();
 }
 
 // Update Servo_AUX flags based on servo AUX positions
@@ -508,23 +510,32 @@ static void update_aux_flags(void)
 // Update led status based on binding and serial
 static void update_led_status(void)
 {
+	if(IS_INPUT_SIGNAL_on)
+		if(millis()-last_signal>50)
+			INPUT_SIGNAL_off;						//no valid signal (PPM or Serial) received for 50ms
 	if(blink<millis())
 	{
-		if(cur_protocol[1]==0)							//No valid serial received at least once
-			blink+=BLINK_SERIAL_TIME;    			     //blink slowly while waiting a valid serial input
+		if(IS_INPUT_SIGNAL_off)
+		{
+			if(mode_select==MODE_SERIAL)
+				blink+=BLINK_SERIAL_TIME;				//blink slowly if no valid serial input
+			else
+				blink+=BLINK_PPM_TIME;					//blink more slowly if no valid PPM input
+		}
 		else
-			if(remote_callback == 0)
-			{ // Invalid protocol
+		if(remote_callback == 0)
+		{ // Invalid protocol
 			if(IS_LED_on)             //flash to indicate invalid protocol
 				blink+=BLINK_BAD_PROTO_TIME_LOW;
 			else
 				blink+=BLINK_BAD_PROTO_TIME_HIGH;
 		}
-			else
-				if(IS_BIND_DONE_on)
-					LED_off;							//bind completed -> led on
 		else
+		{
+			if(IS_BIND_DONE_on)
+				LED_off;							//bind completed force led on
 			blink+=BLINK_BIND_TIME;         //blink fastly during binding
+		}
 		LED_toggle;
 	}
 }
@@ -1150,25 +1161,27 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 		#endif
 	#endif
 	{	// Interrupt on PPM pin
-		static int8_t chan=-1;
+		static int8_t chan=0,bad_frame=1;
 		static uint16_t Prev_TCNT1=0;
 		uint16_t Cur_TCNT1;
 	
 		Cur_TCNT1=TCNT1-Prev_TCNT1; // Capture current Timer1 value
 		if(Cur_TCNT1<1000)
-			chan=-1;				// bad frame
+			bad_frame=1;					// bad frame
 		else
 			if(Cur_TCNT1>4840)
-			{
-				chan=0;				// start of frame
-				PPM_FLAG_on;		// full frame present (even at startup since PPM_data has been initialized)
+			{  //start of frame
+				if(chan>3)
+					PPM_FLAG_on;			// good frame received if at least 4 channels have been seen
+				chan=0;						// reset channel counter
+				bad_frame=0;
 			}
 			else
-				if(chan!=-1)		// need to wait for start of frame
+				if(bad_frame==0)			// need to wait for start of frame
 				{  //servo values between 500us and 2420us will end up here
 					PPM_data[chan]= Cur_TCNT1>>1;;
 					if(chan++>=NUM_CHN)
-						chan=-1;	// don't accept any new channels
+						bad_frame=1;		// don't accept any new channels
 				}
 		Prev_TCNT1+=Cur_TCNT1;
 	}

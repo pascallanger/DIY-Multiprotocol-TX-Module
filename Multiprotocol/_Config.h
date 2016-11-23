@@ -91,7 +91,6 @@
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
 
-
 /**************************/
 /*** TELEMETRY SETTINGS ***/
 /**************************/
@@ -218,6 +217,9 @@ const PPM_Parameters PPM_prot[15]=	{
 		JC3015_2
 		MK33041
 		Q242
+	MODE_SLT
+		SLT
+		VISTA
 	MODE_CG023
 		CG023
 		YD829

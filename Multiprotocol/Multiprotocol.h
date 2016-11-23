@@ -94,6 +94,11 @@ enum SYMAX
 	SYMAX	= 0,
 	SYMAX5C	= 1
 };
+enum SLT
+{
+	SLT		= 0,
+	VISTA	= 1
+};
 enum CX10
 {
     CX10_GREEN	= 0,
@@ -434,6 +439,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			JC3015_2	5
 			MK33041		6
 			Q242		7
+		sub_protocol==SLT
+			SLT			0
+			VISTA		1
 		sub_protocol==CG023
 			CG023		0
 			YD829		1

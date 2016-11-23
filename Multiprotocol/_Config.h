@@ -75,7 +75,7 @@
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO
 #define	CG023_NRF24L01_INO
-#define	CX10_NRF24L01_INO
+#define	CX10_NRF24L01_INO		// Include Q2X2 protocol
 #define	ESKY_NRF24L01_INO
 #define	HISKY_NRF24L01_INO
 #define	KN_NRF24L01_INO
@@ -212,11 +212,13 @@ const PPM_Parameters PPM_prot[15]=	{
 		CX10_GREEN
 		CX10_BLUE
 		DM007
-		Q282
 		JC3015_1
 		JC3015_2
 		MK33041
+	MODE_Q2X2
+		Q222
 		Q242
+		Q282
 	MODE_SLT
 		SLT
 		VISTA

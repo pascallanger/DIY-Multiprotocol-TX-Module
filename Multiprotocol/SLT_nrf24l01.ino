@@ -222,6 +222,7 @@ uint16_t initSLT()
 	if(sub_protocol == VISTA)
 		memcpy(hopping_frequency+6,"\x13\x0F\x0B\x10\x08\x16\x1D\x24\x06",9);
 	SLT_init();
+	SLT_build_packet();
 	phase = SLT_BIND;
 	return 50000;
 }

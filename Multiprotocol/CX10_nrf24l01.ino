@@ -22,7 +22,7 @@
 #define CX10_BIND_COUNT		4360   // 6 seconds
 #define CX10_PACKET_SIZE	15
 #define CX10A_PACKET_SIZE	19       // CX10 blue board packets have 19-byte payload
-#define Q282_PACKET_SIZE	21
+#define Q2X2_PACKET_SIZE	21
 #define CX10_PACKET_PERIOD	1316  // Timeout for callback in uSec
 #define CX10A_PACKET_PERIOD	6000
 
@@ -91,6 +91,7 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			break;
 		case Q282:
 		case Q242:
+		case Q222:
 			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
 			//FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 			flags2 = GET_FLAG(Servo_AUX1, 0x80)		// Channel 5 - FLIP
@@ -111,13 +112,19 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 				flags2 |= video_state
 						|GET_FLAG(Servo_AUX3,0x10);	// Channel 7 - picture
 			}
-			else
+			else if(sub_protocol==Q282)
 			{
 				flags=2;
 				flags2|= GET_FLAG(Servo_AUX3,0x01)	// Channel 7 - picture
 						|GET_FLAG(Servo_AUX4,0x10);	// Channel 8 - video
 				packet[17]=0x00;
 				packet[18]=0x00;
+			}
+			else
+			{	// Q222
+				flags=0;
+				packet[15]=0x0C;
+				packet[16]=0x07;
 			}
 			if(Servo_AUX6)	flags |=0x80;			// Channel 10 - RTH
 			break;
@@ -233,28 +240,23 @@ uint16_t CX10_callback()
 static void __attribute__((unused)) CX10_initialize_txid()
 {
 	rx_tx_addr[1]%= 0x30;
-	if(sub_protocol==Q282)
+	if(sub_protocol&0x08)	//Q2X2 protocols
 	{
-		hopping_frequency[0] = 0x46;
-		hopping_frequency[1] = 0x48;
-		hopping_frequency[2] = 0x4a;
-		hopping_frequency[3] = 0x4c;
+		uint8_t offset=0;	//Q282
+		if(sub_protocol==Q242)
+			offset=2;
+		if(sub_protocol==Q222)
+			offset=3;
+		for(uint8_t i=0;i<4;i++)
+			hopping_frequency[i]=0x46+2*i+offset;
 	}
 	else
-		if(sub_protocol==Q242)
-		{
-			hopping_frequency[0] = 0x48;
-			hopping_frequency[1] = 0x4a;
-			hopping_frequency[2] = 0x4c;
-			hopping_frequency[3] = 0x4e;
-		}
-		else
-		{
-			hopping_frequency[0] = 0x03 + (rx_tx_addr[0] & 0x0F);
-			hopping_frequency[1] = 0x16 + (rx_tx_addr[0] >> 4);
-			hopping_frequency[2] = 0x2D + (rx_tx_addr[1] & 0x0F);
-			hopping_frequency[3] = 0x40 + (rx_tx_addr[1] >> 4);
-		}
+	{
+		hopping_frequency[0] = 0x03 + (rx_tx_addr[0] & 0x0F);
+		hopping_frequency[1] = 0x16 + (rx_tx_addr[0] >> 4);
+		hopping_frequency[2] = 0x2D + (rx_tx_addr[1] & 0x0F);
+		hopping_frequency[3] = 0x40 + (rx_tx_addr[1] >> 4);
+	}
 }
 
 uint16_t initCX10(void)
@@ -272,8 +274,8 @@ uint16_t initCX10(void)
 	}
 	else
 	{
-		if(sub_protocol==Q282||sub_protocol==Q242)
-			packet_length = Q282_PACKET_SIZE;
+		if(sub_protocol&0x08)	//Q2X2 protocols
+			packet_length = Q2X2_PACKET_SIZE;
 		else
 		    packet_length = CX10_PACKET_SIZE;
 		packet_period = CX10_PACKET_PERIOD;

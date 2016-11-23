@@ -47,6 +47,7 @@ enum PROTOCOLS
 	MODE_HONTAI		= 26,	// =>NRF24L01
 	MODE_OPENLRS	= 27,	// =>OpenLRS hardware
 	MODE_AFHDS2A	= 28,	// =>A7105
+	MODE_Q2X2		= 29,	// =>NRF24L01, extension of CX-10 protocol
 };
 
 enum Flysky
@@ -101,14 +102,18 @@ enum SLT
 };
 enum CX10
 {
-    CX10_GREEN	= 0,
-    CX10_BLUE	= 1,	// also compatible with CX10-A, CX12
-    DM007		= 2,
-	Q282		= 3,
+	CX10_GREEN	= 0,
+	CX10_BLUE	= 1,	// also compatible with CX10-A, CX12
+	DM007		= 2,
 	JC3015_1	= 4,
 	JC3015_2	= 5,
 	MK33041		= 6,
-	Q242		= 7
+};
+enum Q2X2
+{
+	Q222		= 8,
+	Q242		= 9,
+	Q282		= 10,
 };
 enum CG023
 {
@@ -398,6 +403,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					HONTAI		26
 					OpenLRS		27
 					AFHDS2A		28
+					Q2X2		29
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -434,11 +440,14 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CX10_GREEN	0
 			CX10_BLUE	1	// also compatible with CX10-A, CX12
 			DM007		2
-			Q282		3
+			---			3
 			JC3015_1	4
 			JC3015_2	5
 			MK33041		6
-			Q242		7
+		sub_protocol==Q2X2
+			Q222		0
+			Q242		1
+			Q282		2
 		sub_protocol==SLT
 			SLT			0
 			VISTA		1

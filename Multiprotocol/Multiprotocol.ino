@@ -761,6 +761,8 @@ static void protocol_init()
 					break;
 			#endif
 			#if defined(CX10_NRF24L01_INO)
+				case MODE_Q2X2:
+					sub_protocol|=0x08;		// Increase the number of sub_protocols for CX-10
 				case MODE_CX10:
 					next_callback=initCX10();
 					remote_callback = CX10_callback;

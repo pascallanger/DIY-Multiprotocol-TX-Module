@@ -112,7 +112,7 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 				flags2 |= video_state
 						|GET_FLAG(Servo_AUX3,0x10);	// Channel 7 - picture
 			}
-			else if(sub_protocol==Q282)
+			else if(sub_protocol==Q242)
 			{
 				flags=2;
 				flags2|= GET_FLAG(Servo_AUX3,0x01)	// Channel 7 - picture
@@ -123,6 +123,7 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			else
 			{	// Q222
 				flags=0;
+				packet[12] &= ~CX10_FLAG_FLIP;
 			}
 			if(Servo_AUX6)	flags |=0x80;			// Channel 10 - RTH
 			break;

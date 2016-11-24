@@ -123,8 +123,6 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			else
 			{	// Q222
 				flags=0;
-				packet[15]=0x0C;
-				packet[16]=0x07;
 			}
 			if(Servo_AUX6)	flags |=0x80;			// Channel 10 - RTH
 			break;

@@ -233,7 +233,7 @@ uint16_t initSLT()
 	if(sub_protocol == VISTA)
 	{
 		memcpy(rx_tx_addr,"\x00\x00\x23\x00",SLT_TXID_SIZE);
-		memcpy(hopping_frequency,"\x03\x0A\x11\x18\x1F\x26\x13\x0F\x0B\x10\x08\x16\x1D\x24\x06",9);
+		memcpy(hopping_frequency,"\x03\x0A\x11\x18\x1F\x26\x13\x0F\x0B\x10\x08\x16\x1D\x24\x06",15);
 	}
 	else
 		SLT_set_freq();

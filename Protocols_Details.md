@@ -67,7 +67,7 @@ Extended limits supported
 
 Telemetry enabled for battery voltage and RX&TX RSSI using FrSky Hub protocol
 
-Option values =0->50Hz, =1->400Hz, =2->5Hz
+Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 70 gives 400Hz (max). Specific refresh rate value can be calculated like this option=(refresh_rate-50)/5.
 
 RX_Num is used to give a number a given RX. You must use a different RX_Num per RX. A maximum of 16 AFHDS2A RXs are supported.
 

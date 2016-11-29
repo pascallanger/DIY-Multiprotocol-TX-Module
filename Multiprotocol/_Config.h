@@ -178,6 +178,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		V9X9
 		V6X6
 		V912
+		CX20
 	MODE_HUBSAN
 		NONE
 	MODE_FRSKYD

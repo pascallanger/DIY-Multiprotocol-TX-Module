@@ -217,6 +217,14 @@ void A7105_Init(void)
 	for (uint8_t i = 0; i < 0x32; i++)
 	{
 		uint8_t val=pgm_read_byte_near(&A7105_Regs[i]);
+		#ifdef FLYSKY_A7105_INO
+			if(protocol==MODE_FLYSKY && sub_protocol==CX20)
+			{
+				if(i==0x0E) val=0x01
+				if(i==0x1F) val=0x1F
+				if(i==0x20) val=0x1E
+			}
+		#endif
 		if( val != 0xFF)
 			A7105_WriteReg(i, val);
 	}

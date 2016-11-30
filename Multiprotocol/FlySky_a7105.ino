@@ -121,9 +121,8 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 			break;
 			
 		case CX20:
-			packet_count++;
 			packet[19] = 0x00; // unknown
-			packet[20] = (packet_count<<4)|0x0A;
+			packet[20] = (hopping_frequency_no<<4)|0x0A;
 			break;
 		default:
 			break; 
@@ -164,10 +163,10 @@ uint16_t ReadFlySky()
 	else
 	{
 		flysky_build_packet(0);
-        A7105_WriteData(21, hopping_frequency[hopping_frequency_no]);
-        hopping_frequency_no = (hopping_frequency_no + 1) & 0x0F;
+        A7105_WriteData(21, hopping_frequency[hopping_frequency_no & 0x0F]);
 		A7105_SetPower();
     }
+    hopping_frequency_no++;
 
 	if(sub_protocol==CX20)
 		return 3984;
@@ -199,24 +198,28 @@ uint16_t initFlySky()
 	chanrow=rx_tx_addr[3] & 0x0F;
 	chanoffset=rx_tx_addr[3]/16;
 	
+	if(sub_protocol==CX20)
+	{//Haven't figured yet the relation between TX ID and Frequencies
+		memcpy(rx_tx_addr,"\x06\x35\x89\x72",4);
+	}
 	// Build frequency hop table
 	for(uint8_t i=0;i<16;i++)
 	{
 		temp=pgm_read_byte_near(&tx_channels[chanrow>>1][i>>2]);
-		if(i&0x01)
+		if(i&0x02)
 			temp&=0x0F;
 		else
 			temp>>=4;
 		temp*=0x0A;
-		if(i&0x02)
+		if(i&0x01)
 			temp+=0x50;
 		hopping_frequency[((chanrow&1)?15-i:i)]=temp-chanoffset;
 	}
 	hopping_frequency_no=0;
 	if(sub_protocol==CX20)
 	{//Haven't figured yet the relation between TX ID and Frequencies
-		memcpy(rx_tx_addr,"\x06\x35\x89\x72",4);
-		memcpy(hopping_frequency,"\x35\x85\x21\x71\x2B\x7B\x3A\x53\x49\x26\x0D\x5D\x3F\x8F\x17\x6",16);
+		hopping_frequency[0]=0x3A;
+		hopping_frequency[3]=0x99;
 	}
 	packet_count=0;
 	if(IS_AUTOBIND_FLAG_on)

@@ -196,11 +196,6 @@ uint16_t initFlySky()
 	if ((rx_tx_addr[3]&0xF0) > 0x90) // limit offset to 9 as higher values don't work with some RX (ie V912)
 		rx_tx_addr[3]=rx_tx_addr[3]-0x70;
 
-	if(sub_protocol==CX20)
-	{//Haven't figured yet the relation between TX ID and Frequencies
-		memcpy(rx_tx_addr,"\x06\x35\x89\x72",4);
-	}
-	
 	// Build frequency hop table
 	chanrow=rx_tx_addr[3] & 0x0F;
 	chanoffset=rx_tx_addr[3]/16;
@@ -214,14 +209,16 @@ uint16_t initFlySky()
 		temp*=0x0A;
 		if(i&0x01)
 			temp+=0x50;
+		if(sub_protocol==CX20)
+		{//Might need more dumps to be 100% sure but this is how it looks like to work
+			if(temp==0x0A)
+				temp+=0x37;
+			if(temp==0xA0)
+				temp-=0x73;
+		}
 		hopping_frequency[((chanrow&1)?15-i:i)]=temp-chanoffset;
 	}
 	hopping_frequency_no=0;
-	if(sub_protocol==CX20)
-	{//Haven't figured yet the relation between TX ID and Frequencies
-		hopping_frequency[0]=0x3A;
-		hopping_frequency[3]=0x99;
-	}
 	packet_count=0;
 	if(IS_AUTOBIND_FLAG_on)
 		bind_counter = FLYSKY_BIND_COUNT;

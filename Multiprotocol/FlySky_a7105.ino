@@ -195,14 +195,15 @@ uint16_t initFlySky()
 	
 	if ((rx_tx_addr[3]&0xF0) > 0x90) // limit offset to 9 as higher values don't work with some RX (ie V912)
 		rx_tx_addr[3]=rx_tx_addr[3]-0x70;
-	chanrow=rx_tx_addr[3] & 0x0F;
-	chanoffset=rx_tx_addr[3]/16;
-	
+
 	if(sub_protocol==CX20)
 	{//Haven't figured yet the relation between TX ID and Frequencies
 		memcpy(rx_tx_addr,"\x06\x35\x89\x72",4);
 	}
+	
 	// Build frequency hop table
+	chanrow=rx_tx_addr[3] & 0x0F;
+	chanoffset=rx_tx_addr[3]/16;
 	for(uint8_t i=0;i<16;i++)
 	{
 		temp=pgm_read_byte_near(&tx_channels[chanrow>>1][i>>2]);

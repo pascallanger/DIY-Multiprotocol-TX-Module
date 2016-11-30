@@ -169,7 +169,7 @@ uint16_t ReadFlySky()
 		A7105_SetPower();
     }
 
-	if(sub_protocol=CX20)
+	if(sub_protocol==CX20)
 		return 3984;
 	else
 		return 1510;	//1460 on deviation but not working with the latest V911 bricks... Turnigy 9X v2 is 1533, Flysky TX for 9XR/9XR Pro is 1510, V911 TX is 1490.

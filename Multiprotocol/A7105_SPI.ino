@@ -220,9 +220,9 @@ void A7105_Init(void)
 		#ifdef FLYSKY_A7105_INO
 			if(protocol==MODE_FLYSKY && sub_protocol==CX20)
 			{
-				if(i==0x0E) val=0x01
-				if(i==0x1F) val=0x1F
-				if(i==0x20) val=0x1E
+				if(i==0x0E) val=0x01;
+				if(i==0x1F) val=0x1F;
+				if(i==0x20) val=0x1E;
 			}
 		#endif
 		if( val != 0xFF)

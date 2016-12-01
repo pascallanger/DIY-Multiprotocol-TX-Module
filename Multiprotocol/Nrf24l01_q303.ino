@@ -2,7 +2,7 @@
 
 #include "iface_nrf24l01.h"
 
-#define Q303_BIND_COUNT 1200
+#define Q303_BIND_COUNT 2335
 
 #define Q303_PACKET_SIZE  10
 #define Q303_PACKET_PERIOD   1500  // Timeout for callback in uSec
@@ -12,6 +12,15 @@
 
 static uint8_t tx_addr[5];
 static uint8_t current_chan;
+/*
+static const struct {
+    u8 txid[sizeof(txid)];
+    u8 rfchan[NUM_RF_CHANNELS];
+} q303_tx_rf_map[] =  {
+	{{0xb8, 0x69, 0x64, 0x67}, {0x48, 0x4a, 0x4c, 0x46}}, // tx2
+	{{0xAE, 0x89, 0x97, 0x87}, {0x4A, 0x4C, 0x4E, 0x48}}
+}; // tx1
+*/
 uint8_t txid[4] = {0xAE, 0x89, 0x97, 0x87};
 static uint8_t rf_chans[4] = {0x4A, 0x4C, 0x4E, 0x48};
 
@@ -44,10 +53,10 @@ static void send_packet(uint8_t bind)
 		memset(&packet[5], 0, 5);
 	}
 	else {
-		aileron  = 			map(Servo_data[AILERON], 1000, 2000, 0, 1000);
+		aileron  = 1000 -	map(Servo_data[AILERON], 1000, 2000, 0, 1000);
 		elevator = 1000 - 	map(Servo_data[ELEVATOR], 1000, 2000, 0, 1000);
 		throttle = 			map(Servo_data[THROTTLE], 1000, 2000, 0, 1000);
-		rudder   = 1000 - 	map(Servo_data[RUDDER], 1000, 2000, 0, 1000);
+		rudder   = 		 	map(Servo_data[RUDDER], 1000, 2000, 0, 1000);
 
 		packet[0] = 0x55;
 		packet[1] = aileron >> 2     ;     // 8 bits
@@ -125,20 +134,21 @@ static uint16_t q303_init()
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
 
+	XN297_SetScrambledMode(XN297_UNSCRAMBLED);
 	XN297_SetTXAddr((uint8_t *) "\xCC\xCC\xCC\xCC\xCC", 5);
 	NRF24L01_FlushTx();
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, Q303_RF_BIND_CHANNEL);
-	NRF24L01_SetBitrate(NRF24L01_BR_250K);
+	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);
+	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);
+	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00); // no retransmits	NRF24L01_SetBitrate(NRF24L01_BR_250K);
 	NRF24L01_SetPower();
 
-	// this sequence necessary for module from stock tx
-	NRF24L01_ReadReg(NRF24L01_1D_FEATURE);
 	NRF24L01_Activate(0x73);                          // Activate feature register
-	NRF24L01_ReadReg(NRF24L01_1D_FEATURE);
 	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);       // Disable dynamic payload length on all pipes
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x00);     // Set feature bits on
+	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);     // Set feature bits on
+	NRF24L01_Activate(0x73);
+	
 	NRF24L01_Activate(0x53); // switch bank back
 
 	BIND_IN_PROGRESS;

@@ -128,6 +128,7 @@
 	#define SPORT_TELEMETRY	
 	#define HUB_TELEMETRY
 	#define AFHDS2A_TELEMETRY
+//	#define ENABLE_BAYANG_TELEMETRY		// uncomment to enable bayang telemtry for H101 acro firmware - https://github.com/bikemike/H101-acro/tree/telemetry
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -233,11 +234,16 @@ const PPM_Parameters PPM_prot[15]=	{
 		CX10_GREEN
 		CX10_BLUE
 		DM007
-		Q282
 		JC3015_1
 		JC3015_2
 		MK33041
+	MODE_Q2X2
+		Q222
 		Q242
+		Q282
+	MODE_SLT
+		SLT
+		VISTA
 	MODE_CG023
 		CG023
 		YD829
@@ -281,7 +287,10 @@ const PPM_Parameters PPM_prot[15]=	{
 		FORMAT_X5C1
 		FQ777-951
 	MODE_AFHDS2A
-		NONE
+		PWM_IBUS
+		PPM_IBUS
+		PWM_SBUS
+		PPM_SBUS
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

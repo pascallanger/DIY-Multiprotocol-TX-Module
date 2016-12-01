@@ -54,7 +54,7 @@
 //Global constants/variables
 uint32_t MProtocol_id;//tx id,
 uint32_t MProtocol_id_master;
-uint32_t blink=0; 
+uint32_t blink=0,last_signal=0;
 //
 uint16_t counter;
 uint8_t channel;
@@ -482,7 +482,11 @@ void Update_All()
 		}
 	#endif //ENABLE_PPM
 	#if defined(TELEMETRY)
-		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
+		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) 
+			#ifdef ENABLE_BAYANG_TELEMETRY
+				|| (protocol==MODE_BAYANG)
+			#endif
+		)
 			TelemetryUpdate();
 	#endif 
 	update_led_status();
@@ -848,6 +852,8 @@ static void protocol_init()
 					break;
 			#endif
 			#if defined(CX10_NRF24L01_INO)
+				case MODE_Q2X2:
+					sub_protocol|=0x08;		// Increase the number of sub_protocols for CX-10
 				case MODE_CX10:
 					next_callback=initCX10();
 					remote_callback = CX10_callback;
@@ -1069,7 +1075,11 @@ void Mprotocol_serial_init()
 	{
 	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) )
 		initTXSerial( SPEED_9600 ) ;
-	if(protocol==MODE_FRSKYX)
+	if(protocol==MODE_FRSKYX
+		#ifdef ENABLE_BAYANG_TELEMETRY
+			|| protocol==MODE_BAYANG
+		#endif
+	)
 		initTXSerial( SPEED_57600 ) ;
 	if(protocol==MODE_DSM)
 		initTXSerial( SPEED_125K ) ;

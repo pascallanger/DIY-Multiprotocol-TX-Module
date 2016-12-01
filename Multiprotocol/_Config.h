@@ -91,7 +91,7 @@
 //	#define	BlueFly_NRF24L01_INO	//probleme gene id
 //	#define	FBL100_NRF24L01_INO	// finir id 				//!\\			//pb voie ???
 //	#define	INAV_NRF24L01_INO	//	a faire
-	#define	Q303_NRF24L01_INO	
+//	#define	Q303_NRF24L01_INO	
 	
 	#define	BAYANG_NRF24L01_INO
 	#define	CG023_NRF24L01_INO
@@ -140,6 +140,19 @@
 //If you do not plan to use the Serial mode comment this line using "//" to save Flash space
 #define ENABLE_SERIAL
 
+/******************************/
+/*** NUNCHUCK MODE SETTINGS ***/
+/******************************/
+//In this section you can configure the NUNCHUCK.
+//If you do not plan to use the NUNCHUCK mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
+//#define ENABLE_NUNCHUCK
+const uint8_t color[] = {
+	0,		255,	0,		0,		255,	100,	// 	VERT		
+	255,	255,	0,		127,	255,	0,		// 	rouge		
+	0,		0,		255,	0,		255,	255,	// 	BLEU		
+	255,	255,	255,	255,	255,	255,	//  BLANC		
+	255,	255,	0,		127,	255,	0,		// 	jaune		
+};
 
 /*************************/
 /*** PPM MODE SETTINGS ***/
@@ -200,6 +213,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		V9X9
 		V6X6
 		V912
+		CX20
 	MODE_HUBSAN
 		NONE
 	MODE_FRSKYD

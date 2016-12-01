@@ -55,7 +55,6 @@ const uint8_t PROGMEM V912_X17_SEQ[10] =  { 0x14, 0x31, 0x40, 0x49, 0x49,    // 
 
 static void __attribute__((unused)) flysky_apply_extension_flags()
 {
-	static uint8_t seq_counter;
 	switch(sub_protocol)
 	{
 		case V9X9:
@@ -100,9 +99,9 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 			break;
 			
 		case V912:
-			seq_counter++;
-			if( seq_counter > 9)
-				seq_counter = 0;
+			packet_count++;
+			if( packet_count > 9)
+				packet_count = 0;
 			packet[12] |= 0x20; // bit 6 is always set ?
 			packet[13] = 0x00;  // unknown
 			packet[14] = 0x00;
@@ -112,8 +111,8 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 				packet[14] |= FLAG_V912_TOPBTN;
 			packet[15] = 0x27; // [15] and [16] apparently hold an analog channel with a value lower than 1000
 			packet[16] = 0x03; // maybe it's there for a pitch channel for a CP copter ?
-			packet[17] = pgm_read_byte( &V912_X17_SEQ[seq_counter] ) ; // not sure what [17] & [18] are for
-			if(seq_counter == 0)                    // V912 Rx does not even read those bytes... [17-20]
+			packet[17] = pgm_read_byte( &V912_X17_SEQ[packet_count] ) ; // not sure what [17] & [18] are for
+			if(packet_count == 0)                    // V912 Rx does not even read those bytes... [17-20]
 				packet[18] = 0x02;
 			else
 				packet[18] = 0x00;
@@ -121,6 +120,10 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 			packet[20] = 0x00; // unknown
 			break;
 			
+		case CX20:
+			packet[19] = 0x00; // unknown
+			packet[20] = (hopping_frequency_no<<4)|0x0A;
+			break;
 		default:
 			break; 
 	}
@@ -160,11 +163,15 @@ uint16_t ReadFlySky()
 	else
 	{
 		flysky_build_packet(0);
-        A7105_WriteData(21, hopping_frequency[hopping_frequency_no]);
-        hopping_frequency_no = (hopping_frequency_no + 1) & 0x0F;
+        A7105_WriteData(21, hopping_frequency[hopping_frequency_no & 0x0F]);
 		A7105_SetPower();
     }
-	return 1510;	//1460 on deviation but not working with the latest V911 bricks... Turnigy 9X v2 is 1533, Flysky TX for 9XR/9XR Pro is 1510, V911 TX is 1490.
+    hopping_frequency_no++;
+
+	if(sub_protocol==CX20)
+		return 3984;
+	else
+		return 1510;	//1460 on deviation but not working with the latest V911 bricks... Turnigy 9X v2 is 1533, Flysky TX for 9XR/9XR Pro is 1510, V911 TX is 1490.
 }
 
 const uint8_t PROGMEM tx_channels[8][4] = {
@@ -188,24 +195,31 @@ uint16_t initFlySky()
 	
 	if ((rx_tx_addr[3]&0xF0) > 0x90) // limit offset to 9 as higher values don't work with some RX (ie V912)
 		rx_tx_addr[3]=rx_tx_addr[3]-0x70;
+
+	// Build frequency hop table
 	chanrow=rx_tx_addr[3] & 0x0F;
 	chanoffset=rx_tx_addr[3]/16;
-	
-	// Build frequency hop table
 	for(uint8_t i=0;i<16;i++)
 	{
 		temp=pgm_read_byte_near(&tx_channels[chanrow>>1][i>>2]);
-		if(i&0x01)
+		if(i&0x02)
 			temp&=0x0F;
 		else
 			temp>>=4;
 		temp*=0x0A;
-		if(i&0x02)
+		if(i&0x01)
 			temp+=0x50;
+		if(sub_protocol==CX20)
+		{//Might need more dumps to be 100% sure but this is how it looks like to work
+			if(temp==0x0A)
+				temp+=0x37;
+			if(temp==0xA0)
+				temp-=0x73;
+		}
 		hopping_frequency[((chanrow&1)?15-i:i)]=temp-chanoffset;
 	}
 	hopping_frequency_no=0;
-	
+	packet_count=0;
 	if(IS_AUTOBIND_FLAG_on)
 		bind_counter = FLYSKY_BIND_COUNT;
 	else

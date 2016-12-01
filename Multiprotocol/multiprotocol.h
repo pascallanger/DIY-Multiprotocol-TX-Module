@@ -71,7 +71,8 @@ enum Flysky
 	Flysky=0,
 	V9X9=1,
 	V6X6=2,
-	V912=3
+	V912	= 3,
+	CX20	= 4
 };
 enum AFHDS2A
 {
@@ -300,14 +301,14 @@ struct PPM_Parameters
 //***  AUX flags  ***
 //*******************
 #define GET_FLAG(ch, mask) ( ch ? mask : 0)
-#define Servo_AUX1	Servo_AUX & _BV(0)
-#define Servo_AUX2	Servo_AUX & _BV(1)
-#define Servo_AUX3	Servo_AUX & _BV(2)
-#define Servo_AUX4	Servo_AUX & _BV(3)
-#define Servo_AUX5	Servo_AUX & _BV(4)
-#define Servo_AUX6	Servo_AUX & _BV(5)
-#define Servo_AUX7	Servo_AUX & _BV(6)
-#define Servo_AUX8	Servo_AUX & _BV(7)
+#define Servo_AUX1	(Servo_AUX & _BV(0))
+#define Servo_AUX2	(Servo_AUX & _BV(1))
+#define Servo_AUX3	(Servo_AUX & _BV(2))
+#define Servo_AUX4	(Servo_AUX & _BV(3))
+#define Servo_AUX5	(Servo_AUX & _BV(4))
+#define Servo_AUX6	(Servo_AUX & _BV(5))
+#define Servo_AUX7	(Servo_AUX & _BV(6))
+#define Servo_AUX8	(Servo_AUX & _BV(7))
 
 //************************
 //***  Power settings  ***
@@ -475,6 +476,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			V9x9	1
 			V6x6	2
 			V912	3
+			CX20		4
 		sub_protocol==Hisky
 			Hisky	0
 			HK310	1

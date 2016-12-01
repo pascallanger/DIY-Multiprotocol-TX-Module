@@ -31,6 +31,18 @@
 #include "TX_Def.h"
 #include "Validate.h"
 
+#ifdef ENABLE_NUNCHUCK
+	#undef ENABLE_SERIAL
+	#undef ENABLE_PPM
+	
+	#undef TELEMETRY
+	
+	#undef CYRF6936_INSTALLED
+	#undef CC2500_INSTALLED
+	#undef NRF24L01_INSTALLED
+	
+#endif
+
 #ifndef STM32_BOARD
 	#include <avr/eeprom.h>
 #else
@@ -163,7 +175,7 @@ void_function_t remote_callback = 0;
 // Init
 void setup()
 {
-		// General pinout
+	// General pinout
 	#ifdef ORANGE_TX
 		//XMEGA
 		PORTD.OUTSET = 0x17 ;
@@ -277,7 +289,7 @@ void setup()
 	for(uint8_t i=0;i<NUM_CHN;i++)
 		Servo_data[i]=1500;
 	Servo_data[THROTTLE]=servo_min_100;
-	#ifdef ENABLE_PPM
+	#if defined (ENABLE_PPM) || defined(ENABLE_NUNCHUCK)
 		memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
 	#endif
 
@@ -309,9 +321,9 @@ void setup()
 
 	//Init RF modules
 	modules_reset();
-
+	
+	//Init the seed with a random value created from watchdog timer for all protocols requiring random values
 	#ifndef ORANGE_TX
-		//Init the seed with a random value created from watchdog timer for all protocols requiring random values
 		#ifdef STM32_BOARD
 			randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));			
 		#else
@@ -371,6 +383,11 @@ void setup()
 			servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
 			Mprotocol_serial_init(); // Configure serial and enable RX interrupt
 		#endif //ENABLE_SERIAL
+		
+		#ifdef ENABLE_NUNCHUCK
+			analogReference(INTERNAL);
+			nunchuck_init();
+		#endif //ENABLE_NUNCHUCK
 	}
 }
 

@@ -110,6 +110,34 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
  ? | ? | ? | ? | ? | ? | ? 
 
 ##NRF24L01 RF Module
+###BAYANG
+####Sub_protocol Normal
+Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
+
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
+
+####Sub_protocol Telemetry
+Add telemetry for https://github.com/bikemike/H101-acro/tree/telemetry
+CH11|CH12|CH13
+---|---|---
+Data Select|Data adjust|FlightMode
+
+Data select : 5 steps(use a POT for this)
+	- min =previous data set
+	- low = first item in data set
+	- mid = second item in data set
+	- high= third item in data set
+	- max = next data set
+Data adjust : 3 steps
+	- min=decrease current data value
+	- mid=neutral
+	- max=increase current data value
+Flight Mode : 4 steps
+
 ###BLUEFLY
 Autobind
 
@@ -127,7 +155,7 @@ CH1|CH2|CH3|CH4
 A|E|T|R
 
 ###CG023
-###Sub_protocol H8_3D
+####Sub_protocol H8_3D
 Models: EAchine H8 mini 3D, JJRC H20/H22, JJRC H11D
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11

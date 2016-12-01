@@ -411,7 +411,9 @@ uint16_t ReadDsm()
 				if(len==10 && DSM_Check_RX_packet())
 				{
 					pkt[0]=0x80;
+#if defined(TELEMETRY)
 					telemetry_link=1;						// send received data on serial
+#endif 
 					phase++;
 					return 2000;
 				}
@@ -493,7 +495,9 @@ uint16_t ReadDsm()
 					len=MAX_PKT-2;
 				CYRF_ReadDataPacketLen(pkt+1, len);
 				pkt[0]=CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;// store RSSI of the received telemetry signal
+#if defined(TELEMETRY)
 				telemetry_link=1;
+#endif 
 			}
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation
 			if (phase == DSM_CH2_READ_A && (sub_protocol==DSM2_22 || sub_protocol==DSMX_22) && DSM_num_ch < 8)	// 22ms mode

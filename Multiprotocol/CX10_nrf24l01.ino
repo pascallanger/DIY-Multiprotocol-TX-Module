@@ -60,9 +60,6 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 	uint16_t aileron=Servo_data[AILERON];
 	uint16_t elevator=3000-Servo_data[ELEVATOR];
 	uint16_t rudder=3000-Servo_data[RUDDER];
-	packet[9+offset]= lowByte(Servo_data[THROTTLE]);
-	packet[10+offset]= highByte(Servo_data[THROTTLE]);
-
     // Channel 5 - flip flag
 	packet[12+offset] = GET_FLAG(Servo_AUX1,CX10_FLAG_FLIP); // flip flag applied on rudder
 
@@ -85,9 +82,9 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			break;
 		case Q282:
 		case Q242:
-		case Q222:
 			aileron = 3000 - aileron;
 			rudder = 3000 - rudder;
+		case Q222:
 			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
 			//FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 			flags2 = GET_FLAG(Servo_AUX1, 0x80)		// Channel 5 - FLIP
@@ -152,6 +149,8 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 	packet[6+offset]= highByte(aileron);
 	packet[7+offset]= lowByte(elevator);
 	packet[8+offset]= highByte(elevator);
+	packet[9+offset] = lowByte(Servo_data[THROTTLE]);
+	packet[10+offset]= highByte(Servo_data[THROTTLE]);
 	packet[11+offset]= lowByte(rudder);
 	packet[12+offset]|= highByte(rudder);
 	packet[13+offset]=flags;

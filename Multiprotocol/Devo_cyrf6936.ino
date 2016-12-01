@@ -13,7 +13,7 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(DEVO_CYRF6936_INO) && defined(CYRF6936_INSTALLED)
+#if defined(DEVO_CYRF6936_INO) 
  
 #include "iface_cyrf6936.h"
 

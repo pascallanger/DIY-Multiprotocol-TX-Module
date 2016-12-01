@@ -31,17 +31,6 @@
 #include "TX_Def.h"
 #include "Validate.h"
 
-#ifdef ENABLE_NUNCHUCK
-	#undef ENABLE_SERIAL
-	#undef ENABLE_PPM
-	
-	#undef TELEMETRY
-	
-	#undef CYRF6936_INSTALLED
-	#undef CC2500_INSTALLED
-	#undef NRF24L01_INSTALLED
-	
-#endif
 
 #ifndef STM32_BOARD
 	#include <avr/eeprom.h>

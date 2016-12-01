@@ -856,7 +856,7 @@ multi.bootloader.lock_bits=0x0F
 multi.build.board=AVR_PRO
 multi.build.core=arduino
 multi.build.variant=eightanaloginputs
-
+## --------------------------------------------------
 multi.menu.cpu.16MHzatmega328=ATmega328 (3.3V, 16 MHz)
 
 multi.menu.cpu.16MHzatmega328.upload.maximum_size=32768

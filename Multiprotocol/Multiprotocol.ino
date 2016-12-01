@@ -248,6 +248,11 @@ void setup()
 		// Timer1 config
 		TCCR1A = 0;
 		TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
+#ifdef ENABLE_NUNCHUCK
+		TCCR2A = 0; 			//default
+		TCCR2B = 0b00000010; 	// clk/8
+		TIMSK2 = 0b00000001; 	// TOIE2  
+#endif
 		
 		// Random
 		random_init();
@@ -1158,6 +1163,20 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 /**  Interrupt routines  **/
 /**************************/
 /**************************/
+
+//NUNCHUCK
+#ifdef ENABLE_NUNCHUCK
+ISR (TIMER2_OVF_vect) {
+	static uint16_t Prev_TCNT2=0;
+	// le flag OVF est mis à zéro par la fonction ISR
+	TCNT2 = 62; 
+	// 256-200 --> 200X50ns = 100 us
+	if (Prev_TCNT2++ > 10000) {
+		Prev_TCNT2 = 0;
+		nunchuck_update();
+	} 
+}
+#endif
 
 //PPM
 #ifdef ENABLE_PPM

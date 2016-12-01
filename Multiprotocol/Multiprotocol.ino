@@ -62,6 +62,9 @@ uint8_t  packet[40];
 uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
 uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
+#if defined(REVERSE_AILERON) || defined(REVERSE_ELEVATOR) || defined(REVERSE_THROTTLE) || defined(REVERSE_RUDDER)
+	uint16_t servo_mid;
+#endif
 
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
@@ -353,7 +356,7 @@ void setup()
 		#endif
 
 		#if defined(TELEMETRY)
-			PPM_Telemetry_serial_init();		// Configure serial for telemetry
+			PPM_Telemetry_serial_init();// Configure serial for telemetry
 		#endif
 	}
 	else
@@ -365,9 +368,12 @@ void setup()
 			protocol=0;
 			servo_max_100=SERIAL_MAX_100; servo_min_100=SERIAL_MIN_100;
 			servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
-			Mprotocol_serial_init(); // Configure serial and enable RX interrupt
+			Mprotocol_serial_init(); 	// Configure serial and enable RX interrupt
 		#endif //ENABLE_SERIAL
 	}
+	#if defined(REVERSE_AILERON) || defined(REVERSE_ELEVATOR) || defined(REVERSE_THROTTLE) || defined(REVERSE_RUDDER)
+		servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
+	#endif
 }
 
 // Main
@@ -455,14 +461,12 @@ void Update_All()
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)		// Serial mode and something has been received
 		{
 			update_serial_data();							// Update protocol and data
-			update_aux_flags();
 			if(IS_CHANGE_PROTOCOL_FLAG_on)
 			{ // Protocol needs to be changed
 				LED_off;									//led off during protocol init
 				modules_reset();							//reset all modules
 				protocol_init();							//init new protocol
 			}
-
 			INPUT_SIGNAL_on;								//valid signal received
 			last_signal=millis();
 		}
@@ -480,12 +484,12 @@ void Update_All()
 				else if(temp_ppm>PPM_MAX_125) temp_ppm=PPM_MAX_125;
 				Servo_data[i]= temp_ppm ;
 			}
-			update_aux_flags();
 			PPM_FLAG_off;									// wait for next frame before update
 			INPUT_SIGNAL_on;								//valid signal received
 			last_signal=millis();
 		}
 	#endif //ENABLE_PPM
+	update_channels_aux();
 	#if defined(TELEMETRY)
 		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
 			TelemetryUpdate();
@@ -493,9 +497,23 @@ void Update_All()
 	update_led_status();
 }
 
-// Update Servo_AUX flags based on servo AUX positions
-static void update_aux_flags(void)
+// Update channels direction and Servo_AUX flags based on servo AUX positions
+static void update_channels_aux(void)
 {
+	//Reverse channels direction
+	#ifdef REVERSE_AILERON
+		Servo_data[AILERON]=servo_mid-Servo_data[AILERON];
+	#endif
+	#ifdef REVERSE_ELEVATOR
+		Servo_data[ELEVATOR]=servo_mid-Servo_data[ELEVATOR];
+	#endif
+	#ifdef REVERSE_THROTTLE
+		Servo_data[THROTTLE]=servo_mid-Servo_data[THROTTLE];
+	#endif
+	#ifdef REVERSE_RUDDER
+		Servo_data[RUDDER]=servo_mid-Servo_data[RUDDER];
+	#endif
+	//Calc AUX flags
 	Servo_AUX=0;
 	for(uint8_t i=0;i<8;i++)
 		if(Servo_data[AUX1+i]>PPM_SWITCH)

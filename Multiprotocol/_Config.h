@@ -35,6 +35,12 @@
 //Default is AETR.
 #define AETR
 
+//Uncomment to reverse the direction of the specified channel for all protocols
+//#define REVERSE_AILERON
+//#define REVERSE_ELEVATOR
+//#define REVERSE_THROTTLE
+//#define REVERSE_RUDDER
+
 
 /**************************/
 /*** RF CHIPS INSTALLED ***/

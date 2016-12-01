@@ -51,7 +51,7 @@ static void bluefly_init() {
     NRF24L01_WriteReg(NRF24L01_05_RF_CH, 81); // binding packet must be set in channel 81
 
     // 2-bytes CRC, radio on
-    NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP));
+    NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
     NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address (byte -2)
     NRF24L01_SetBitrate(NRF24L01_BR_250K);           // BlueFly - 250kbps
     NRF24L01_SetPower();
@@ -63,7 +63,7 @@ static void bluefly_ch_data() {
     uint32_t temp;
     int i;
     for (i = 0; i< 8; ++i) {
-		temp = (uint32_t)Servo_data[ch[i]] * 300/PPM_MAX + 500; // 200-800 range
+		temp = map(limit_channel_100(i),servo_min_100,servo_max_100,200,800); // 200-800 range
 		if (temp < 0)
 			ch_data_bluefly[i] = 0;
 		else if (temp > 1000)
@@ -140,6 +140,7 @@ static uint16_t bluefly_cb() {
 }
 
 static uint16_t BlueFly_setup() {
+	MProtocol_id = (MProtocol_id |  ((uint32_t)txid[3]<<32));
 	hopping_frequency_start = ((MProtocol_id >> 8) % 47) + 2; 
     bluefly_binding_packet();
 	bluefly_init();

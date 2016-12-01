@@ -15,6 +15,8 @@
 // compatible with WLToys V2x2, JXD JD38x, JD39x, JJRC H6C, Yizhan Tarantula X6 ...
 // Last sync with hexfet new_protocols/v202_nrf24l01.c dated 2015-03-15
 
+// ajout jdx506 : https://github.com/DeviationTX/deviation/compare/master...goebish:protocol_jxd_506
+
 #if defined(V2X2_NRF24L01_INO)
 
 
@@ -40,7 +42,12 @@ enum {
 	// flags going to byte 10
 	V2X2_FLAG_HEADLESS  = 0x02,
 	V2X2_FLAG_MAG_CAL_X = 0x08,
-	V2X2_FLAG_MAG_CAL_Y = 0x20
+	V2X2_FLAG_MAG_CAL_Y = 0x20,
+	//
+	JXD_FLAG_START_STOP= 0x40, // arm / disarm JXD-506
+	JXD_FLAG_EMERGENCY = 0x80, // JXD-506
+	JXD_FLAG_CAMERA_UP = 0x01, // JXD-506   
+	JXD_FLAG_CAMERA_DN = 0x02, // JXD-506
 };
 
 //
@@ -182,12 +189,26 @@ static void __attribute__((unused)) V2X2_send_packet(uint8_t bind)
 		// Channel 9
 		if (Servo_AUX5)
 			flags2 = V2X2_FLAG_HEADLESS;
-		// Channel 10
-		if (Servo_AUX6)
-			flags2 |= V2X2_FLAG_MAG_CAL_X;
-		// Channel 11
-		if (Servo_AUX7)
-			flags2 |= V2X2_FLAG_MAG_CAL_Y;
+		
+		if(sub_protocol == FORMAT_JXD506) {
+			// Channel 10
+			if (Servo_AUX6) flags2 |= JXD_FLAG_START_STOP;
+			// Channel 11
+			if (Servo_AUX7) flags2 |= JXD_FLAG_EMERGENCY;
+
+			// Channel 12 down
+			if (Servo_data[AUX8] < PPM_SWITCH_B)		flags2 |= JXD_FLAG_CAMERA_DN;
+			// Channel 12 up
+			if (Servo_data[AUX8] > PPM_SWITCH)			flags2 |= JXD_FLAG_CAMERA_UP;
+
+		} else {
+			// Channel 10
+			if (Servo_AUX6)
+				flags2 |= V2X2_FLAG_MAG_CAL_X;
+			// Channel 11
+			if (Servo_AUX7)
+				flags2 |= V2X2_FLAG_MAG_CAL_Y;
+		}
 	}
 	// TX id
 	packet[7] = rx_tx_addr[1];

@@ -112,9 +112,9 @@ static const uint8_t * rf_udi_channels = NULL;
 
 static uint8_t packet_udi_ack()
 {
-	switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT))) {
-		case BV(NRF24L01_07_TX_DS):		return PKT_ACKED;
-		case BV(NRF24L01_07_MAX_RT):	return PKT_TIMEOUT;
+	switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (_BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_MAX_RT))) {
+		case _BV(NRF24L01_07_TX_DS):		return PKT_ACKED;
+		case _BV(NRF24L01_07_MAX_RT):	return PKT_TIMEOUT;
 	}
 	return PKT_PENDING;
 }
@@ -207,7 +207,7 @@ static void UDI_init2()
 
     // Turn radio power on
     NRF24L01_SetTxRxMode(TX_EN);
-    uint8_t config = BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP);
+    uint8_t config = _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP);
     NRF24L01_WriteReg(NRF24L01_00_CONFIG, config);
     // Implicit delay in callback
     // delayMicroseconds(150);
@@ -239,15 +239,11 @@ static void add_pkt_checksum()
 
 static uint8_t convert_channel(uint8_t num, uint8_t chn_max, uint8_t sign_ofs)
 {
-    uint32_t ch = Servo_data[num];
-    if (ch < PPM_MIN) {
-        ch = PPM_MIN;
-    } else if (ch > PPM_MAX) {
-        ch = PPM_MAX;
-    }
+    uint32_t ch = map(limit_channel_100(num),servo_min_100,servo_max_100,-1000, 1000);
+	
     uint32_t chn_val;
-    if (sign_ofs) chn_val = (((ch * chn_max / PPM_MAX) + sign_ofs) >> 1);
-    else chn_val = (ch * chn_max / PPM_MAX);
+    if (sign_ofs) chn_val = (((ch * chn_max / servo_max_100) + sign_ofs) >> 1);
+    else chn_val = (ch * chn_max / servo_max_100);
     if (chn_val < 0) chn_val = 0;
     else if (chn_val > chn_max) chn_val = chn_max;
     return (uint8_t) chn_val;
@@ -260,8 +256,8 @@ static void read_controls(uint8_t* throttle, uint8_t* rudder, uint8_t* elevator,
     // Protocol is registered AETRG, that is
     // Aileron is channel 0, Elevator - 1, Throttle - 2, Rudder - 3
     // Sometimes due to imperfect calibration or mixer settings
-    // throttle can be less than PPM_MIN or larger than
-    // PPM_MAX. As we have no space here, we hard-limit
+    // throttle can be less than servo_min_100 or larger than
+    // servo_max_100. As we have no space here, we hard-limit
     // channels values by min..max range
 
     // Channel 3: throttle is 0-100
@@ -277,28 +273,28 @@ static void read_controls(uint8_t* throttle, uint8_t* rudder, uint8_t* elevator,
     *aileron = convert_channel(AILERON, 0x3f, 0x20);
 
     // Channel 5
-    if (Servo_data[AUX1] <= 0) *flags &= ~UDI_FLIP360;
-    else *flags |= UDI_FLIP360;
+    if (Servo_AUX1) *flags |= UDI_FLIP360;
+    else *flags &= ~UDI_FLIP360;
 
     // Channel 6
-    if (Servo_data[AUX2] <= 0) *flags &= ~UDI_FLIP;
-    else *flags |= UDI_FLIP;
+    if (Servo_AUX2) *flags |= UDI_FLIP;
+    else *flags &= ~UDI_FLIP;
 
     // Channel 7
-    if (Servo_data[AUX3] <= 0) *flags &= ~UDI_CAMERA;
-    else *flags |= UDI_CAMERA;
+    if (Servo_AUX3) *flags |= UDI_CAMERA;
+    else *flags &= ~UDI_CAMERA;
 
     // Channel 8
-    if (Servo_data[AUX4] <= 0) *flags &= ~UDI_VIDEO;
-    else *flags |= UDI_VIDEO;
+    if (Servo_AUX4) *flags |= UDI_VIDEO;
+    else *flags &= ~UDI_VIDEO;
 
     // Channel 9
-    if (Servo_data[AUX5] <= 0) *flags &= ~UDI_LIGHTS;
-    else *flags |= UDI_LIGHTS;
+    if (Servo_AUX5) *flags |= UDI_LIGHTS;
+    else *flags &= ~UDI_LIGHTS;
 
     // Channel 10
-    if (Servo_data[AUX6] <= 0) *flags &= ~UDI_MODE2;
-    else *flags |= UDI_MODE2;
+    if (Servo_AUX6) *flags |= UDI_MODE2;
+    else *flags &= ~UDI_MODE2;
 }
 
 static void send_udi_packet(uint8_t bind)
@@ -325,7 +321,7 @@ static void send_udi_packet(uint8_t bind)
         packet[5] = randoms[1];
         packet[6] = randoms[2];
         if (sub_protocol == U839_2014) {
-            packet[7] = (packet_counter < 4) ? 0x3f : 0x04; // first four packets use 0x3f here, then 0x04
+            packet[7] = (packet_count < 4) ? 0x3f : 0x04; // first four packets use 0x3f here, then 0x04
         }
     } else if (bind == 2) {
         // Bind phase 2
@@ -374,7 +370,7 @@ static void send_udi_packet(uint8_t bind)
     uint8_t status = NRF24L01_ReadReg(NRF24L01_07_STATUS);
     NRF24L01_WriteReg(NRF24L01_07_STATUS,status);
 
-    if (packet_sent && bind && (status & BV(NRF24L01_07_TX_DS))) {
+    if (packet_sent && bind && (status & _BV(NRF24L01_07_TX_DS))) {
         bind_step_success = 1;
     }
 
@@ -396,7 +392,7 @@ static void send_udi_packet(uint8_t bind)
     }
     NRF24L01_FlushTx();
     NRF24L01_WritePayload(packet, payload_size);
-    ++packet_counter;
+    ++packet_count;
     packet_sent = 1;
 }
 
@@ -433,7 +429,7 @@ static uint16_t UDI_callback() {
 		break;
 	case UDI_BIND1_RX:
 		// Check if data has been received
-		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR) ) {
+		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR) ) {
 			uint8_t data[UDI_PAYLOADSIZE];
 			NRF24L01_ReadPayload(data, payload_size);
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x4E); // On original TX this is done on LAST packet check only !
@@ -514,7 +510,7 @@ static uint16_t UDI_callback() {
 
 	case UDI_BIND2_RX:
 		// Check if data has been received
-		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR) ) {
+		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR) ) {
 			uint8_t data[UDI_PAYLOADSIZE];
 			NRF24L01_ReadPayload(data, payload_size);
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x4E);
@@ -570,7 +566,7 @@ static uint16_t UDI_callback() {
 
 static uint16_t UDI_setup()
 {
-    packet_counter = 0;
+    packet_count = 0;
     UDI_init();
     phase = UDI_INIT2;
     

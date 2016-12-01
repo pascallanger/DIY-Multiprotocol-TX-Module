@@ -1,0 +1,5468 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252"><title>Lua Generateur</title>
+<style>
+	a { color:red; }
+	td, h2, h3, h4 { text-align:center; }
+	.sepe { background-color:orange; }
+	.sepa { background-color:red; }
+    .black_overlay{
+        display: none;
+		position: fixed;
+		top: 0px;
+        left: 0%;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        z-index:1001;
+        -moz-opacity: 0.8;
+        opacity:.80;
+        filter: alpha(opacity=80);
+    }
+    .white_content {
+        display: none;
+		position: fixed;
+       top: 13%;
+        left: 25%;
+        width: 50%;
+        height: 60%;
+        padding: 16px;
+        border: 16px solid orange;
+        background-color: white;
+        z-index:1002;
+        overflow: auto;
+    }
+	.gene {
+		position:absolute; top:60; right:15;
+		text-align:right;
+		border-width:5px;
+		border-style:groove;
+		border-color:red;
+        padding: 16px;
+	}
+</style>
+
+</head><body><h2><a onclick="document.getElementById('light').style.display='block';document.getElementById('fade').style.display='block'">Script LUA</a></h2>
+<div class="gene">
+<form method="post">Programmation : <select name="source">		<option value="1" selected="selected">d'origine</option>
+		<option value="0"> PY</option>
+	</select><br>
+
+T : <select name="T">
+	<option value="1" selected="selected"> Input 1</option>
+	<option value="2"> Input 2</option>
+	<option value="3"> Input 3</option>
+	<option value="4"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+A : <select name="A">
+	<option value="1"> Input 1</option>
+	<option value="2" selected="selected"> Input 2</option>
+	<option value="3"> Input 3</option>
+	<option value="4"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+E : <select name="E">
+	<option value="1"> Input 1</option>
+	<option value="2"> Input 2</option>
+	<option value="3" selected="selected"> Input 3</option>
+	<option value="4"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+R : <select name="R">
+	<option value="1"> Input 1</option>
+	<option value="2"> Input 2</option>
+	<option value="3"> Input 3</option>
+	<option value="4" selected="selected"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+FLIP : <select name="FLIP">
+	<option value="1"> Input 1</option>
+	<option value="2"> Input 2</option>
+	<option value="3"> Input 3</option>
+	<option value="4"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94" selected="selected"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+HEADLESS : <select name="HEADLESS">
+	<option value="1" selected="selected"> Input 1</option>
+	<option value="2"> Input 2</option>
+	<option value="3"> Input 3</option>
+	<option value="4"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+LIGHT : <select name="LIGHT">
+	<option value="1"> Input 1</option>
+	<option value="2"> Input 2</option>
+	<option value="3"> Input 3</option>
+	<option value="4"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96" selected="selected"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+VIDEO : <select name="VIDEO">
+	<option value="1" selected="selected"> Input 1</option>
+	<option value="2"> Input 2</option>
+	<option value="3"> Input 3</option>
+	<option value="4"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+PICTURE : <select name="PICTURE">
+	<option value="1" selected="selected"> Input 1</option>
+	<option value="2"> Input 2</option>
+	<option value="3"> Input 3</option>
+	<option value="4"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+DEFAULT : <select name="DEFAULT">
+	<option value="1"> Input 1</option>
+	<option value="2"> Input 2</option>
+	<option value="3"> Input 3</option>
+	<option value="4"> Input 4</option>
+	<option value="5"> Input 5</option>
+	<option value="6"> Input 6</option>
+	<option value="7"> Input 7</option>
+	<option value="8"> Input 8</option>
+	<option value="9"> Input 9</option>
+	<option value="10"> Input 10</option>
+	<option value="11"> Input 11</option>
+	<option value="12"> Input 12</option>
+	<option value="92" selected="selected"> SA</option>
+	<option value="93"> SB</option>
+	<option value="94"> SC</option>
+	<option value="95"> SD</option>
+	<option value="96"> SE</option>
+	<option value="97"> SF</option>
+	<option value="98"> SG</option>
+	<option value="99"> SH</option>
+	<option value="100"> LS1</option>
+	<option value="101"> LS2</option>
+	<option value="102"> LS3</option>
+	<option value="103"> LS4</option>
+	<option value="104"> LS5</option>
+	<option value="105"> LS6</option>
+	<option value="106"> LS7</option>
+	<option value="107"> LS8</option>
+	<option value="108"> LS9</option>
+	<option value="109"> LS10</option>
+	<option value="110"> LS11</option>
+	<option value="111"> LS12</option>
+	<option value="112"> LS13</option>
+	<option value="113"> LS14</option>
+	<option value="114"> LS15</option>
+	<option value="115"> LS16</option>
+	<option value="116"> LS17</option>
+	<option value="117"> LS18</option>
+	<option value="118"> LS19</option>
+	<option value="119"> LS20</option>
+	<option value="120"> LS21</option>
+	<option value="121"> LS22</option>
+	<option value="122"> LS23</option>
+	<option value="123"> LS24</option>
+	<option value="124"> LS25</option>
+	<option value="125"> LS26</option>
+	<option value="126"> LS27</option>
+	<option value="127"> LS28</option>
+	<option value="128"> LS29</option>
+	<option value="129"> LS30</option>
+	<option value="130"> LS31</option>
+	<option value="131"> LS32</option>
+	<option value="132"> LS33</option>
+</select><br>
+<br>
+<input value="Créer" type="submit">
+</form></div>
+<table border="0"><tbody><tr>
+			<td>0</td>	<!--- n° proto/sub -->
+			<td>SERIAL</td>	<!--- nom proto -->
+			<td>0.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; </td>	<!--- puce RF -->
+			<td class="sepa"></td><td><a onclick="document.getElementById('light1').style.display='block';document.getElementById('fade').style.display='block'"></a></td><td></td><td width="110"></td>
+			<td>42</td>	<!--- n° proto/sub -->
+			<td>ESKY</td>	<!--- nom proto -->
+			<td>16.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>7</td><td><a onclick="document.getElementById('light43').style.display='block';document.getElementById('fade').style.display='block'">ESKY</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>1</td>	<!--- n° proto/sub -->
+			<td>FLYSKY</td>	<!--- nom proto -->
+			<td>1.0</td>
+			<!--- id proto . sub -->
+			<td>FLYSKY</td>	<!--- nom sub -->
+			<td> &nbsp; A7105</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light2').style.display='block';document.getElementById('fade').style.display='block'">FLYSKY</a></td><td></td><td width="110"></td>
+			<td>43</td>	<!--- n° proto/sub -->
+			<td>MT99XX</td>	<!--- nom proto -->
+			<td>17.0</td>
+			<!--- id proto . sub -->
+			<td>MT99</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light44').style.display='block';document.getElementById('fade').style.display='block'">MT99XX</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>2</td>	<!--- n° proto/sub -->
+			<td>FLYSKY</td>	<!--- nom proto -->
+			<td>1.1</td>
+			<!--- id proto . sub -->
+			<td>V9X9</td>	<!--- nom sub -->
+			<td> &nbsp; A7105</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light3').style.display='block';document.getElementById('fade').style.display='block'">FLYSKY =&gt; V9X9</a></td><td></td><td width="110"></td>
+			<td>44</td>	<!--- n° proto/sub -->
+			<td>MT99XX</td>	<!--- nom proto -->
+			<td>17.1</td>
+			<!--- id proto . sub -->
+			<td>H7</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light45').style.display='block';document.getElementById('fade').style.display='block'">MT99XX =&gt; H7</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>3</td>	<!--- n° proto/sub -->
+			<td>FLYSKY</td>	<!--- nom proto -->
+			<td>1.2</td>
+			<!--- id proto . sub -->
+			<td>V6X6</td>	<!--- nom sub -->
+			<td> &nbsp; A7105</td>	<!--- puce RF -->
+			<td>13</td><td><a onclick="document.getElementById('light4').style.display='block';document.getElementById('fade').style.display='block'">FLYSKY =&gt; V6X6</a></td><td></td><td width="110"></td>
+			<td>45</td>	<!--- n° proto/sub -->
+			<td>MT99XX</td>	<!--- nom proto -->
+			<td>17.2</td>
+			<!--- id proto . sub -->
+			<td>YZ</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light46').style.display='block';document.getElementById('fade').style.display='block'">MT99XX =&gt; YZ</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>4</td>	<!--- n° proto/sub -->
+			<td>FLYSKY</td>	<!--- nom proto -->
+			<td>1.3</td>
+			<!--- id proto . sub -->
+			<td>V912</td>	<!--- nom sub -->
+			<td> &nbsp; A7105</td>	<!--- puce RF -->
+			<td>7</td><td><a onclick="document.getElementById('light5').style.display='block';document.getElementById('fade').style.display='block'">FLYSKY =&gt; V912</a></td><td></td><td width="110"></td>
+			<td>46</td>	<!--- n° proto/sub -->
+			<td>MT99XX</td>	<!--- nom proto -->
+			<td>17.3</td>
+			<!--- id proto . sub -->
+			<td>LS</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light47').style.display='block';document.getElementById('fade').style.display='block'">MT99XX =&gt; LS</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>5</td>	<!--- n° proto/sub -->
+			<td>HUBSAN</td>	<!--- nom proto -->
+			<td>2.0</td>
+			<!--- id proto . sub -->
+			<td>H107</td>	<!--- nom sub -->
+			<td> &nbsp; A7105</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light6').style.display='block';document.getElementById('fade').style.display='block'">HUBSAN</a></td><td></td><td width="110"></td>
+			<td>47</td>	<!--- n° proto/sub -->
+			<td>MJXQ</td>	<!--- nom proto -->
+			<td>18.0</td>
+			<!--- id proto . sub -->
+			<td>WLH08</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>14</td><td><a onclick="document.getElementById('light48').style.display='block';document.getElementById('fade').style.display='block'">MJXQ</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>6</td>	<!--- n° proto/sub -->
+			<td>HUBSAN</td>	<!--- nom proto -->
+			<td>2.1</td>
+			<!--- id proto . sub -->
+			<td>H301</td>	<!--- nom sub -->
+			<td> &nbsp; A7105</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light7').style.display='block';document.getElementById('fade').style.display='block'">HUBSAN =&gt; H301</a></td><td></td><td width="110"></td>
+			<td>48</td>	<!--- n° proto/sub -->
+			<td>MJXQ</td>	<!--- nom proto -->
+			<td>18.1</td>
+			<!--- id proto . sub -->
+			<td>X600</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>14</td><td><a onclick="document.getElementById('light49').style.display='block';document.getElementById('fade').style.display='block'">MJXQ =&gt; X600</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>7</td>	<!--- n° proto/sub -->
+			<td>HUBSAN</td>	<!--- nom proto -->
+			<td>2.2</td>
+			<!--- id proto . sub -->
+			<td>H501</td>	<!--- nom sub -->
+			<td> &nbsp; A7105</td>	<!--- puce RF -->
+			<td>14</td><td><a onclick="document.getElementById('light8').style.display='block';document.getElementById('fade').style.display='block'">HUBSAN =&gt; H501</a></td><td></td><td width="110"></td>
+			<td>49</td>	<!--- n° proto/sub -->
+			<td>MJXQ</td>	<!--- nom proto -->
+			<td>18.2</td>
+			<!--- id proto . sub -->
+			<td>X800</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>14</td><td><a onclick="document.getElementById('light50').style.display='block';document.getElementById('fade').style.display='block'">MJXQ =&gt; X800</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>8</td>	<!--- n° proto/sub -->
+			<td>FRSKYD</td>	<!--- nom proto -->
+			<td>3.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; CC2500</td>	<!--- puce RF -->
+			<td>8</td><td><a onclick="document.getElementById('light9').style.display='block';document.getElementById('fade').style.display='block'">FRSKYD</a></td><td></td><td width="110"></td>
+			<td>50</td>	<!--- n° proto/sub -->
+			<td>MJXQ</td>	<!--- nom proto -->
+			<td>18.3</td>
+			<!--- id proto . sub -->
+			<td>H26D</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>14</td><td><a onclick="document.getElementById('light51').style.display='block';document.getElementById('fade').style.display='block'">MJXQ =&gt; H26D</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>9</td>	<!--- n° proto/sub -->
+			<td>HISKY</td>	<!--- nom proto -->
+			<td>4.0</td>
+			<!--- id proto . sub -->
+			<td>HISKY</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light10').style.display='block';document.getElementById('fade').style.display='block'">HISKY</a></td><td></td><td width="110"></td>
+			<td>51</td>	<!--- n° proto/sub -->
+			<td>MJXQ</td>	<!--- nom proto -->
+			<td>18.4</td>
+			<!--- id proto . sub -->
+			<td>E010</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>14</td><td><a onclick="document.getElementById('light52').style.display='block';document.getElementById('fade').style.display='block'">MJXQ =&gt; E010</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>10</td>	<!--- n° proto/sub -->
+			<td>HISKY</td>	<!--- nom proto -->
+			<td>4.1</td>
+			<!--- id proto . sub -->
+			<td>HK310</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light11').style.display='block';document.getElementById('fade').style.display='block'">HISKY =&gt; HK310</a></td><td></td><td width="110"></td>
+			<td>52</td>	<!--- n° proto/sub -->
+			<td>SHENQI</td>	<!--- nom proto -->
+			<td>19.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>5</td><td><a onclick="document.getElementById('light53').style.display='block';document.getElementById('fade').style.display='block'">Shenqi</a></td><td>Auto</td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>11</td>	<!--- n° proto/sub -->
+			<td>V2X2</td>	<!--- nom proto -->
+			<td>5.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light12').style.display='block';document.getElementById('fade').style.display='block'">V2X2</a></td><td></td><td width="110"></td>
+			<td>53</td>	<!--- n° proto/sub -->
+			<td>FY326</td>	<!--- nom proto -->
+			<td>20.0</td>
+			<!--- id proto . sub -->
+			<td>FY326</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light54').style.display='block';document.getElementById('fade').style.display='block'">Fy326</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>12</td>	<!--- n° proto/sub -->
+			<td>DSM</td>	<!--- nom proto -->
+			<td>6.0</td>
+			<!--- id proto . sub -->
+			<td>DSM2_22</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light13').style.display='block';document.getElementById('fade').style.display='block'">DSM</a></td><td></td><td width="110"></td>
+			<td>54</td>	<!--- n° proto/sub -->
+			<td>FY326</td>	<!--- nom proto -->
+			<td>20.1</td>
+			<!--- id proto . sub -->
+			<td>FY319</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light55').style.display='block';document.getElementById('fade').style.display='block'">Fy326 =&gt; FY319</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>13</td>	<!--- n° proto/sub -->
+			<td>DSM</td>	<!--- nom proto -->
+			<td>6.1</td>
+			<!--- id proto . sub -->
+			<td>DSM2_11</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light14').style.display='block';document.getElementById('fade').style.display='block'">DSM =&gt; DSM2_11</a></td><td></td><td width="110"></td>
+			<td>55</td>	<!--- n° proto/sub -->
+			<td>SFHSS</td>	<!--- nom proto -->
+			<td>21.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; CC2500</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light56').style.display='block';document.getElementById('fade').style.display='block'">SFHSS</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>14</td>	<!--- n° proto/sub -->
+			<td>DSM</td>	<!--- nom proto -->
+			<td>6.2</td>
+			<!--- id proto . sub -->
+			<td>DSMX_22</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light15').style.display='block';document.getElementById('fade').style.display='block'">DSM =&gt; DSMX_22</a></td><td></td><td width="110"></td>
+			<td>56</td>	<!--- n° proto/sub -->
+			<td>J6PRO</td>	<!--- nom proto -->
+			<td>22.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>13</td><td><a onclick="document.getElementById('light57').style.display='block';document.getElementById('fade').style.display='block'">J6PRO</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>15</td>	<!--- n° proto/sub -->
+			<td>DSM</td>	<!--- nom proto -->
+			<td>6.3</td>
+			<!--- id proto . sub -->
+			<td>DSMX_11</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light16').style.display='block';document.getElementById('fade').style.display='block'">DSM =&gt; DSMX_11</a></td><td></td><td width="110"></td>
+			<td>57</td>	<!--- n° proto/sub -->
+			<td>FQ777</td>	<!--- nom proto -->
+			<td>23.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light58').style.display='block';document.getElementById('fade').style.display='block'">FQ777</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>16</td>	<!--- n° proto/sub -->
+			<td>DSM</td>	<!--- nom proto -->
+			<td>6.4</td>
+			<!--- id proto . sub -->
+			<td>AUTO</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light17').style.display='block';document.getElementById('fade').style.display='block'">DSM =&gt; AUTO</a></td><td></td><td width="110"></td>
+			<td>58</td>	<!--- n° proto/sub -->
+			<td>ASSAN</td>	<!--- nom proto -->
+			<td>24.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>11</td><td><a onclick="document.getElementById('light59').style.display='block';document.getElementById('fade').style.display='block'">ASSAN</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>17</td>	<!--- n° proto/sub -->
+			<td>DEVO</td>	<!--- nom proto -->
+			<td>7.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light18').style.display='block';document.getElementById('fade').style.display='block'">DEVO</a></td><td></td><td width="110"></td>
+			<td>59</td>	<!--- n° proto/sub -->
+			<td>FRSKYV</td>	<!--- nom proto -->
+			<td>25.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; CC2500</td>	<!--- puce RF -->
+			<td>4</td><td><a onclick="document.getElementById('light60').style.display='block';document.getElementById('fade').style.display='block'">FRSKYV = FrSky 1 way</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>18</td>	<!--- n° proto/sub -->
+			<td>YD717</td>	<!--- nom proto -->
+			<td>8.0</td>
+			<!--- id proto . sub -->
+			<td>YD717</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light19').style.display='block';document.getElementById('fade').style.display='block'">YD717</a></td><td>Auto</td><td width="110"></td>
+			<td>60</td>	<!--- n° proto/sub -->
+			<td>HONTAI</td>	<!--- nom proto -->
+			<td>26.0</td>
+			<!--- id proto . sub -->
+			<td>HONTAI</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light61').style.display='block';document.getElementById('fade').style.display='block'">HONTAI</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>19</td>	<!--- n° proto/sub -->
+			<td>YD717</td>	<!--- nom proto -->
+			<td>8.1</td>
+			<!--- id proto . sub -->
+			<td>SKYWLKR</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light20').style.display='block';document.getElementById('fade').style.display='block'">YD717 =&gt; SKYWLKR</a></td><td>Auto</td><td width="110"></td>
+			<td>61</td>	<!--- n° proto/sub -->
+			<td>HONTAI</td>	<!--- nom proto -->
+			<td>26.1</td>
+			<!--- id proto . sub -->
+			<td>JJRCX1</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>7</td><td><a onclick="document.getElementById('light62').style.display='block';document.getElementById('fade').style.display='block'">HONTAI =&gt; JJRCX1</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>20</td>	<!--- n° proto/sub -->
+			<td>YD717</td>	<!--- nom proto -->
+			<td>8.2</td>
+			<!--- id proto . sub -->
+			<td>SYMAX4</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light21').style.display='block';document.getElementById('fade').style.display='block'">YD717 =&gt; SYMAX4</a></td><td>Auto</td><td width="110"></td>
+			<td>62</td>	<!--- n° proto/sub -->
+			<td>HONTAI</td>	<!--- nom proto -->
+			<td>26.2</td>
+			<!--- id proto . sub -->
+			<td>X5C1</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light63').style.display='block';document.getElementById('fade').style.display='block'">HONTAI =&gt; X5C1</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>21</td>	<!--- n° proto/sub -->
+			<td>YD717</td>	<!--- nom proto -->
+			<td>8.3</td>
+			<!--- id proto . sub -->
+			<td>XINXUN</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light22').style.display='block';document.getElementById('fade').style.display='block'">YD717 =&gt; XINXUN</a></td><td>Auto</td><td width="110"></td>
+			<td>63</td>	<!--- n° proto/sub -->
+			<td>HONTAI</td>	<!--- nom proto -->
+			<td>26.3</td>
+			<!--- id proto . sub -->
+			<td>FQ777</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light64').style.display='block';document.getElementById('fade').style.display='block'">HONTAI =&gt; FQ777</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>22</td>	<!--- n° proto/sub -->
+			<td>YD717</td>	<!--- nom proto -->
+			<td>8.4</td>
+			<!--- id proto . sub -->
+			<td>NIHUI</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light23').style.display='block';document.getElementById('fade').style.display='block'">YD717 =&gt; NIHUI</a></td><td>Auto</td><td width="110"></td>
+			<td>64</td>	<!--- n° proto/sub -->
+			<td>OPENLRS</td>	<!--- nom proto -->
+			<td>27.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; Other</td>	<!--- puce RF -->
+			<td class="sepa"></td><td><a onclick="document.getElementById('light65').style.display='block';document.getElementById('fade').style.display='block'">OPENLRS</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>23</td>	<!--- n° proto/sub -->
+			<td>KN</td>	<!--- nom proto -->
+			<td>9.0</td>
+			<!--- id proto . sub -->
+			<td>WLTOYS</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light24').style.display='block';document.getElementById('fade').style.display='block'">KN</a></td><td></td><td width="110"></td>
+			<td>65</td>	<!--- n° proto/sub -->
+			<td>JOYSWAY</td>	<!--- nom proto -->
+			<td class="sepe">40.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; A7105</td>	<!--- puce RF -->
+			<td>5</td><td><a onclick="document.getElementById('light66').style.display='block';document.getElementById('fade').style.display='block'">Joysway</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>24</td>	<!--- n° proto/sub -->
+			<td>KN</td>	<!--- nom proto -->
+			<td>9.1</td>
+			<!--- id proto . sub -->
+			<td>FEILUN</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>12</td><td><a onclick="document.getElementById('light25').style.display='block';document.getElementById('fade').style.display='block'">KN =&gt; FEILUN</a></td><td></td><td width="110"></td>
+			<td>66</td>	<!--- n° proto/sub -->
+			<td>WK2X01</td>	<!--- nom proto -->
+			<td class="sepe">41.0</td>
+			<!--- id proto . sub -->
+			<td>WK2801</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light67').style.display='block';document.getElementById('fade').style.display='block'">WK2x01</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>25</td>	<!--- n° proto/sub -->
+			<td>SYMAX</td>	<!--- nom proto -->
+			<td>10.0</td>
+			<!--- id proto . sub -->
+			<td>SYMAX</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light26').style.display='block';document.getElementById('fade').style.display='block'">Symax</a></td><td>Auto</td><td width="110"></td>
+			<td>67</td>	<!--- n° proto/sub -->
+			<td>WK2X01</td>	<!--- nom proto -->
+			<td class="sepe">41.1</td>
+			<!--- id proto . sub -->
+			<td>WK2601</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>8</td><td><a onclick="document.getElementById('light68').style.display='block';document.getElementById('fade').style.display='block'">WK2x01 =&gt; WK2601</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>26</td>	<!--- n° proto/sub -->
+			<td>SYMAX</td>	<!--- nom proto -->
+			<td>10.1</td>
+			<!--- id proto . sub -->
+			<td>SYMAX5C</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light27').style.display='block';document.getElementById('fade').style.display='block'">Symax =&gt; SYMAX5C</a></td><td>Auto</td><td width="110"></td>
+			<td>68</td>	<!--- n° proto/sub -->
+			<td>WK2X01</td>	<!--- nom proto -->
+			<td class="sepe">41.2</td>
+			<!--- id proto . sub -->
+			<td>WK2401</td>	<!--- nom sub -->
+			<td> &nbsp; CYRF6936</td>	<!--- puce RF -->
+			<td>5</td><td><a onclick="document.getElementById('light69').style.display='block';document.getElementById('fade').style.display='block'">WK2x01 =&gt; WK2401</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>27</td>	<!--- n° proto/sub -->
+			<td>SLT</td>	<!--- nom proto -->
+			<td>11.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>7</td><td><a onclick="document.getElementById('light28').style.display='block';document.getElementById('fade').style.display='block'">SLT</a></td><td>Auto</td><td width="110"></td>
+			<td>69</td>	<!--- n° proto/sub -->
+			<td>SKYARTEC</td>	<!--- nom proto -->
+			<td class="sepe">42.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; CC2500</td>	<!--- puce RF -->
+			<td>8</td><td><a onclick="document.getElementById('light70').style.display='block';document.getElementById('fade').style.display='block'">SKYARTEC</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>28</td>	<!--- n° proto/sub -->
+			<td>CX10</td>	<!--- nom proto -->
+			<td>12.0</td>
+			<!--- id proto . sub -->
+			<td>GREEN</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>7</td><td><a onclick="document.getElementById('light29').style.display='block';document.getElementById('fade').style.display='block'">CX10</a></td><td>Auto</td><td width="110"></td>
+			<td>70</td>	<!--- n° proto/sub -->
+			<td>UDI</td>	<!--- nom proto -->
+			<td class="sepe">44.0</td>
+			<!--- id proto . sub -->
+			<td>U816_V1</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>11</td><td><a onclick="document.getElementById('light71').style.display='block';document.getElementById('fade').style.display='block'">UDI</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>29</td>	<!--- n° proto/sub -->
+			<td>CX10</td>	<!--- nom proto -->
+			<td>12.1</td>
+			<!--- id proto . sub -->
+			<td>BLUE</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light30').style.display='block';document.getElementById('fade').style.display='block'">CX10 =&gt; BLUE</a></td><td>Auto</td><td width="110"></td>
+			<td>71</td>	<!--- n° proto/sub -->
+			<td>UDI</td>	<!--- nom proto -->
+			<td class="sepe">44.1</td>
+			<!--- id proto . sub -->
+			<td>U816_V2</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>11</td><td><a onclick="document.getElementById('light72').style.display='block';document.getElementById('fade').style.display='block'">UDI =&gt; U816_V2</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>30</td>	<!--- n° proto/sub -->
+			<td>CX10</td>	<!--- nom proto -->
+			<td>12.2</td>
+			<!--- id proto . sub -->
+			<td>DM007</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light31').style.display='block';document.getElementById('fade').style.display='block'">CX10 =&gt; DM007</a></td><td>Auto</td><td width="110"></td>
+			<td>72</td>	<!--- n° proto/sub -->
+			<td>UDI</td>	<!--- nom proto -->
+			<td class="sepe">44.2</td>
+			<!--- id proto . sub -->
+			<td>U839_2014</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>11</td><td><a onclick="document.getElementById('light73').style.display='block';document.getElementById('fade').style.display='block'">UDI =&gt; U839_2014</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>31</td>	<!--- n° proto/sub -->
+			<td>CX10</td>	<!--- nom proto -->
+			<td>12.3</td>
+			<!--- id proto . sub -->
+			<td>Q282</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>13</td><td><a onclick="document.getElementById('light32').style.display='block';document.getElementById('fade').style.display='block'">CX10 =&gt; Q282 and Q242</a></td><td>Auto</td><td width="110"></td>
+			<td>73</td>	<!--- n° proto/sub -->
+			<td>FBL100</td>	<!--- nom proto -->
+			<td class="sepe">45.0</td>
+			<!--- id proto . sub -->
+			<td>FBL100</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light74').style.display='block';document.getElementById('fade').style.display='block'">FBL100</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>32</td>	<!--- n° proto/sub -->
+			<td>CX10</td>	<!--- nom proto -->
+			<td>12.4</td>
+			<!--- id proto . sub -->
+			<td>JC3015_1</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light33').style.display='block';document.getElementById('fade').style.display='block'">CX10 =&gt; JC3015_1</a></td><td>Auto</td><td width="110"></td>
+			<td>74</td>	<!--- n° proto/sub -->
+			<td>FBL100</td>	<!--- nom proto -->
+			<td class="sepe">45.1</td>
+			<!--- id proto . sub -->
+			<td>HP100</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light75').style.display='block';document.getElementById('fade').style.display='block'">FBL100 =&gt; HP100</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>33</td>	<!--- n° proto/sub -->
+			<td>CX10</td>	<!--- nom proto -->
+			<td>12.5</td>
+			<!--- id proto . sub -->
+			<td>JC3015_2</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light34').style.display='block';document.getElementById('fade').style.display='block'">CX10 =&gt; JC3015_2</a></td><td>Auto</td><td width="110"></td>
+			<td>75</td>	<!--- n° proto/sub -->
+			<td>HM830</td>	<!--- nom proto -->
+			<td class="sepe">50.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>6</td><td><a onclick="document.getElementById('light76').style.display='block';document.getElementById('fade').style.display='block'">HM830</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>34</td>	<!--- n° proto/sub -->
+			<td>CX10</td>	<!--- nom proto -->
+			<td>12.6</td>
+			<!--- id proto . sub -->
+			<td>MK33041</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>11</td><td><a onclick="document.getElementById('light35').style.display='block';document.getElementById('fade').style.display='block'">CX10 =&gt; MK33041</a></td><td>Auto</td><td width="110"></td>
+			<td>76</td>	<!--- n° proto/sub -->
+			<td>CFLIE</td>	<!--- nom proto -->
+			<td class="sepe">51.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>5</td><td><a onclick="document.getElementById('light77').style.display='block';document.getElementById('fade').style.display='block'">CFLIE</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>35</td>	<!--- n° proto/sub -->
+			<td>CX10</td>	<!--- nom proto -->
+			<td>12.7</td>
+			<!--- id proto . sub -->
+			<td>Q242</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>13</td><td><a onclick="document.getElementById('light36').style.display='block';document.getElementById('fade').style.display='block'">CX10 =&gt; Q282 and Q242</a></td><td>Auto</td><td width="110"></td>
+			<td>77</td>	<!--- n° proto/sub -->
+			<td>H377</td>	<!--- nom proto -->
+			<td class="sepe">52.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>9</td><td><a onclick="document.getElementById('light78').style.display='block';document.getElementById('fade').style.display='block'">H377</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>36</td>	<!--- n° proto/sub -->
+			<td>CG023</td>	<!--- nom proto -->
+			<td>13.0</td>
+			<!--- id proto . sub -->
+			<td>CG023</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light37').style.display='block';document.getElementById('fade').style.display='block'">CG023</a></td><td>Auto</td><td width="110"></td>
+			<td>78</td>	<!--- n° proto/sub -->
+			<td>ESKY150</td>	<!--- nom proto -->
+			<td class="sepe">53.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>5</td><td><a onclick="document.getElementById('light79').style.display='block';document.getElementById('fade').style.display='block'">ESKY150</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>37</td>	<!--- n° proto/sub -->
+			<td>CG023</td>	<!--- nom proto -->
+			<td>13.1</td>
+			<!--- id proto . sub -->
+			<td>YD829</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light38').style.display='block';document.getElementById('fade').style.display='block'">CG023 =&gt; YD829</a></td><td>Auto</td><td width="110"></td>
+			<td>79</td>	<!--- n° proto/sub -->
+			<td>BLUEFLY</td>	<!--- nom proto -->
+			<td class="sepe">54.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>7</td><td><a onclick="document.getElementById('light80').style.display='block';document.getElementById('fade').style.display='block'">BLUEFLY</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>38</td>	<!--- n° proto/sub -->
+			<td>CG023</td>	<!--- nom proto -->
+			<td>13.2</td>
+			<!--- id proto . sub -->
+			<td>H8_3D</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>10</td><td><a onclick="document.getElementById('light39').style.display='block';document.getElementById('fade').style.display='block'">CG023 =&gt; H8_3D</a></td><td>Auto</td><td width="110"></td>
+			<td>80</td>	<!--- n° proto/sub -->
+			<td>NE260</td>	<!--- nom proto -->
+			<td class="sepe">55.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>5</td><td><a onclick="document.getElementById('light81').style.display='block';document.getElementById('fade').style.display='block'">NE260</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>39</td>	<!--- n° proto/sub -->
+			<td>BAYANG</td>	<!--- nom proto -->
+			<td>14.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>11</td><td><a onclick="document.getElementById('light40').style.display='block';document.getElementById('fade').style.display='block'">BAYANG</a></td><td>Auto</td><td width="110"></td>
+			<td>81</td>	<!--- n° proto/sub -->
+			<td>AFHDS2A</td>	<!--- nom proto -->
+			<td class="sepe">56.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; A7105</td>	<!--- puce RF -->
+			<td>15</td><td><a onclick="document.getElementById('light82').style.display='block';document.getElementById('fade').style.display='block'">Flysky AFHDS2A</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>40</td>	<!--- n° proto/sub -->
+			<td>FRSKYX</td>	<!--- nom proto -->
+			<td>15.0</td>
+			<!--- id proto . sub -->
+			<td>CH_16</td>	<!--- nom sub -->
+			<td> &nbsp; CC2500</td>	<!--- puce RF -->
+			<td>16</td><td><a onclick="document.getElementById('light41').style.display='block';document.getElementById('fade').style.display='block'">FRSKYX</a></td><td></td><td width="110"></td>
+			<td>82</td>	<!--- n° proto/sub -->
+			<td>INAV</td>	<!--- nom proto -->
+			<td class="sepe">57.0</td>
+			<!--- id proto . sub -->
+			<td>. . . . .</td>	<!--- nom sub -->
+			<td> &nbsp; NRF24L01</td>	<!--- puce RF -->
+			<td>1</td><td><a onclick="document.getElementById('light83').style.display='block';document.getElementById('fade').style.display='block'">INAV</a></td><td></td><td width="110"></td>		</tr>
+		<tr>
+
+			<td>41</td>	<!--- n° proto/sub -->
+			<td>FRSKYX</td>	<!--- nom proto -->
+			<td>15.1</td>
+			<!--- id proto . sub -->
+			<td>CH_8</td>	<!--- nom sub -->
+			<td> &nbsp; CC2500</td>	<!--- puce RF -->
+			<td>8</td><td><a onclick="document.getElementById('light42').style.display='block';document.getElementById('fade').style.display='block'">FRSKYX =&gt; CH_8</a></td><td></td><td width="110"></td></tr></tbody></table><br>
+
+	    <div id="light1" class="white_content">
+		<h2>SERIAL</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+</tr><tr></tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light1').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light2" class="white_content">
+		<h2>FLYSKY</h2>
+		<h3>FLYSKY</h3>
+		<br><br>
+		<br>
+		
+		Extended limits supported<br>Note that the RX ouput will be AETR.<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light2').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light3" class="white_content">
+		<h2>FLYSKY</h2>
+		<h3>V9X9</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light3').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light4" class="white_content">
+		<h2>FLYSKY</h2>
+		<h3>V6X6</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>XCAL</td>
+		<td>YCAL</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light4').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light5" class="white_content">
+		<h2>FLYSKY</h2>
+		<h3>V912</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>BTMBTN</td>
+		<td>TOPBTN</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light5').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light6" class="white_content">
+		<h2>HUBSAN</h2>
+		<h3>H107</h3>
+		<br><br>
+		<br>
+		
+		Models: Hubsan H102D, H107/L/C/D and Hubsan H107P/C+/D+<br>Autobind protocol<br>Telemetry enabled for battery voltage and TX RSSI<br>Option=vTX frequency (H107D) 5645 - 5900 MHz<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light6').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light7" class="white_content">
+		<h2>HUBSAN</h2>
+		<h3>H301</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>LED</td>
+		<td>STAB</td>
+		<td>RTH</td>
+		<td>VIDEO</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light7').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light8" class="white_content">
+		<h2>HUBSAN</h2>
+		<h3>H501</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH0</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>RTH</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>GPS_HOLD</td>
+		<td>ALT_HOLD</td>
+		<td>SNAPSHOT</td>
+		<td>---</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light8').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light9" class="white_content">
+		<h2>FRSKYD</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<u><b>Modèle :</b></u> FrSky receivers D4R and D8R. DIY RX-F801 and RX-F802 receivers.<br>
+		<u><b>Option :</b></u> fine frequency tuning. This value is different 
+for each board. To determine the option value, find the two limits where
+ the RX loses connection then set the option value to half way between 
+them. If you have a 4in1 V2 board the value is around 40.<br>
+		Extended limits supported<br>Telemetry enabled for A0, A1, RSSI, TSSI and Hub<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+</tr><tr>		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light9').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light10" class="white_content">
+		<h2>HISKY</h2>
+		<h3>HISKY</h3>
+		<br><br>
+		<br>
+		
+		GYRO: -100%=6G, +100%=3G<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>GEAR</td>
+		<td>PITCH</td>
+		<td>GYRO</td>
+		<td>CH8</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light10').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light11" class="white_content">
+		<h2>HISKY</h2>
+		<h3>HK310</h3>
+		<br><br>
+		<u><b>Modèle :</b></u> RX HK-3000, HK3100 and XY3000 (TX are HK-300, HK-310 and TL-3C)<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH0</td>
+		<td>CH14</td>
+</tr><tr>		<td></td>
+		<td></td>
+		<td></td>
+		<td>T</td>
+		<td>R</td>
+		<td>AUX</td>
+		<td>T_FSAFE</td>
+		<td>R_FSAFE</td>
+		<td>AUX_FSAFE</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light11').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light12" class="white_content">
+		<h2>V2X2</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<u><b>Modèle :</b></u> WLToys V202/252/272, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...<br>
+		
+		PICTURE: also automatic Missile Launcher and Hoist in one direction<br>VIDEO: also Sprayer, Bubbler, Missile Launcher(1), and Hoist in the other dir<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>MAG_CAL_X</td>
+		<td>MAG_CAL_Y</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light12').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light13" class="white_content">
+		<h2>DSM</h2>
+		<h3>DSM2_22</h3>
+		<br><br>
+		<br>
+		
+		Extended limits supported<br>Telemetry enabled for TSSI and plugins<br>option=number of channels from 4 to 12. An invalid option value will end up with 6 channels.<br>Notes:<br>-
+ model/type/number of channels indicated on the RX can be different from
+ what the RX is in fact wanting to see. So don't hesitate to test 
+different combinations until you have something working. Using Auto is 
+the best way to find these settings.<br>- RX ouput will always be TAER independently of the input AETR, RETA...<br>DSM2, Resolution 1024, refresh rate 22ms<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light13').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light14" class="white_content">
+		<h2>DSM</h2>
+		<h3>DSM2_11</h3>
+		<br><br>
+		<br>
+		
+		DSM2, Resolution 2048, refresh rate 11ms<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light14').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light15" class="white_content">
+		<h2>DSM</h2>
+		<h3>DSMX_22</h3>
+		<br><br>
+		<br>
+		
+		DSMX, Resolution 2048, refresh rate 22ms<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light15').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light16" class="white_content">
+		<h2>DSM</h2>
+		<h3>DSMX_11</h3>
+		<br><br>
+		<br>
+		
+		DSMX, Resolution 2048, refresh rate 11ms<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light16').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light17" class="white_content">
+		<h2>DSM</h2>
+		<h3>AUTO</h3>
+		<br><br>
+		<br>
+		
+		The "AUTO" feature enables the TX to automatically choose what are the
+ best settings for your DSM RX and update your model protocol settings 
+accordingly.<br>The current radio firmware which are able to use the 
+"AUTO" feature are ersky9x (9XR Pro, 9Xtreme, Taranis, ...) and er9x for
+ M128 (9XR) and M2561.<br>For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx".<br>Also
+ on er9x you will need to be sure to match the polarity of the telemetry
+ serial (normal or inverted by bitbashing), while on ersky9x you can set
+ "Invert COM1" accordinlgy.<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light17').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light18" class="white_content">
+		<h2>DEVO</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Extended limits supported<br>Note that the RX ouput will be EATR.<br>Bind procedure using serial:<br>-
+ With the TX off, put the binding plug in and power on the RX (RX LED 
+slow blink), then power it down and remove the binding plug. Receiver 
+should now be in autobind mode.<br>- Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).<br>- Turn on RX (RX LED fast blink).<br>- Turn on TX (RX LED solid, TX LED fast blink).<br>- Wait for bind on the TX to complete (TX LED solid).<br>- Make sure to set the RX_Num value for model match.<br>- Change option to 1 to use the global ID.<br>- Do not touch option/RX_Num anymore.<br>Bind procedure using PPM:<br>-
+ With the TX off, put the binding plug in and power on the RX (RX LED 
+slow blink), then power it down and remove the binding plug. Receiver 
+should now be in autobind mode.<br>- Turn on RX (RX LED fast blink).<br>- Turn the dial to the model number running protocol DEVO on the module.<br>- Press the bind button and turn on the TX. TX is now in autobind mode.<br>- Release bind button after 1 second: RX LED solid, TX LED fast blink.<br>- Wait for bind on the TX to complete (TX LED solid).<br>- Press the bind button for 1 second. TX/RX is now in fixed ID mode.<br>- To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).<br>-
+ Note: Autobind/fixed ID mode is linked to the dial number. Which means 
+that you can have multiple dial numbers set to the same protocol DEVO 
+with different RX_Num and have different bind modes at the same time. It
+ enables PPM users to get model match under DEVO.<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light18').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light19" class="white_content">
+		<h2>YD717</h2>
+		<h3>YD717</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light19').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light20" class="white_content">
+		<h2>YD717</h2>
+		<h3>SKYWLKR</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light20').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light21" class="white_content">
+		<h2>YD717</h2>
+		<h3>SYMAX4</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light21').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light22" class="white_content">
+		<h2>YD717</h2>
+		<h3>XINXUN</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light22').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light23" class="white_content">
+		<h2>YD717</h2>
+		<h3>NIHUI</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light23').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light24" class="white_content">
+		<h2>KN</h2>
+		<h3>WLTOYS</h3>
+		<br><br>
+		<br>
+		
+		Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO: -100%=6G, +100%=3G<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>DR</td>
+		<td>THOLD</td>
+		<td>IDLEUP</td>
+		<td>GYRO</td>
+		<td>Ttrim</td>
+		<td>Atrim</td>
+		<td>Etrim</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light24').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light25" class="white_content">
+		<h2>KN</h2>
+		<h3>FEILUN</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>DR</td>
+		<td>THOLD</td>
+		<td>IDLEUP</td>
+		<td>GYRO</td>
+		<td>Ttrim</td>
+		<td>Atrim</td>
+		<td>Etrim</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light25').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light26" class="white_content">
+		<h2>SYMAX</h2>
+		<h3>SYMAX</h3>
+		<u><b>Autobind</b></u><br><br>
+		<u><b>Modèle :</b></u> Syma X5C-1/X11/X11C/X12<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td></td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light26').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light27" class="white_content">
+		<h2>SYMAX</h2>
+		<h3>SYMAX5C</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		Model: Syma X5C (original) and X2<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td></td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light27').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light28" class="white_content">
+		<h2>SLT</h2>
+		<h3>. . . . .</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>GEAR</td>
+		<td>PITCH</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light28').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light29" class="white_content">
+		<h2>CX10</h2>
+		<h3>GREEN</h3>
+		<u><b>Autobind</b></u><br><br>
+		<u><b>Modèle :</b></u> Cheerson CX-10 green pcb<br>
+		
+		Extended limits supported<br>Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>RATE</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light29').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light30" class="white_content">
+		<h2>CX10</h2>
+		<h3>BLUE</h3>
+		<u><b>Autobind</b></u><br><br>
+		<u><b>Modèle :</b></u> Cheerson CX-10 blue pcb &amp; some newer red pcb, CX-10A, CX-10C, CX11, CX12, Floureon FX10, JJRC DHD D1<br>
+		
+		Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3 or headless for CX-10A<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>RATE</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light30').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light31" class="white_content">
+		<h2>CX10</h2>
+		<h3>DM007</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>MODE</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light31').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light32" class="white_content">
+		<h2>CX10</h2>
+		<h3>Q282</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		Model: JXD 509 is using Q282 with CH12=Start/Stop motors<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>XCAL</td>
+		<td>YCAL</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light32').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light33" class="white_content">
+		<h2>CX10</h2>
+		<h3>JC3015_1</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>MODE</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light33').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light34" class="white_content">
+		<h2>CX10</h2>
+		<h3>JC3015_2</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>MODE</td>
+		<td>LED</td>
+		<td>DFLIP</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light34').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light35" class="white_content">
+		<h2>CX10</h2>
+		<h3>MK33041</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>MODE</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light35').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light36" class="white_content">
+		<h2>CX10</h2>
+		<h3>Q242</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		Model: JXD 509 is using Q282 with CH12=Start/Stop motors<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>XCAL</td>
+		<td>YCAL</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light36').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light37" class="white_content">
+		<h2>CG023</h2>
+		<h3>CG023</h3>
+		<u><b>Autobind</b></u><br><br>
+		<u><b>Modèle :</b></u> EAchine CG023/CG031/3D X4<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGHT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light37').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light38" class="white_content">
+		<h2>CG023</h2>
+		<h3>YD829</h3>
+		<u><b>Autobind</b></u><br><br>
+		<u><b>Modèle :</b></u> Attop YD-822/YD-829/YD-829C ...<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td></td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light38').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light39" class="white_content">
+		<h2>CG023</h2>
+		<h3>H8_3D</h3>
+		<u><b>Autobind</b></u><br><br>
+		<u><b>Modèle :</b></u> EAchine H8 mini 3D, JJRC H20/H22<br>
+		
+		JJRC H20: OPT1=Headless, OPT2=RTH<br>JJRC H22: OPT1=RTH, OPT2=180/360Â° flip mode<br>H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360Â° flip mode<br>CAL: calibrate accelerometers<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LIGTH</td>
+		<td>OPT1</td>
+		<td>OPT2</td>
+		<td>CAL</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light39').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light40" class="white_content">
+		<h2>BAYANG</h2>
+		<h3>. . . . .</h3>
+		<u><b>Autobind</b></u><br><br>
+		<u><b>Modèle :</b></u> EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>RTH</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>INVERTED</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light40').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light41" class="white_content">
+		<h2>FRSKYX</h2>
+		<h3>CH_16</h3>
+		<br><br>
+		<u><b>Modèle :</b></u> FrSky receivers X4R, X6R and X8R.<br>
+		<u><b>Option :</b></u> fine frequency tuning. This value is different 
+for each board. To determine the option value, find the two limits where
+ the RX loses connection then set the option value to half way between 
+them. If you have a 4in1 V2 board the value is around 40.<br>
+		Extended limits supported<br>Telemetry enabled for A1 (RxBatt), A2, RSSI, TSSI and Hub<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH13</td>
+		<td>CH14</td>
+		<td>CH15</td>
+		<td>CH16</td>
+</tr><tr>		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>----</td>
+		<td>----</td>
+		<td>----</td>
+		<td>----</td>
+		<td>----</td>
+		<td>----</td>
+		<td>----</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light41').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light42" class="white_content">
+		<h2>FRSKYX</h2>
+		<h3>CH_8</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+</tr><tr>		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light42').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light43" class="white_content">
+		<h2>ESKY</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>GYRO</td>
+		<td>PITCH</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light43').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light44" class="white_content">
+		<h2>MT99XX</h2>
+		<h3>MT99</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light44').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light45" class="white_content">
+		<h2>MT99XX</h2>
+		<h3>H7</h3>
+		<u><b>Autobind</b></u><br><br>
+		<u><b>Modèle :</b></u> Eachine H7, Cheerson CX023<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light45').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light46" class="white_content">
+		<h2>MT99XX</h2>
+		<h3>YZ</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		Model: Yi Zhan i6S<br>Only one model can be flown at the same time since the ID is hardcoded.<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light46').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light47" class="white_content">
+		<h2>MT99XX</h2>
+		<h3>LS</h3>
+		<u><b>Autobind</b></u><br><br>
+		<u><b>Modèle :</b></u> LS114, 124, 215<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>INVERT</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light47').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light48" class="white_content">
+		<h2>MJXQ</h2>
+		<h3>WLH08</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH13</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>AUTOFLIP</td>
+		<td>PAN</td>
+		<td>TILT</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light48').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light49" class="white_content">
+		<h2>MJXQ</h2>
+		<h3>X600</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH13</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>AUTOFLIP</td>
+		<td>PAN</td>
+		<td>TILT</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light49').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light50" class="white_content">
+		<h2>MJXQ</h2>
+		<h3>X800</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH13</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>AUTOFLIP</td>
+		<td>PAN</td>
+		<td>TILT</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light50').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light51" class="white_content">
+		<h2>MJXQ</h2>
+		<h3>H26D</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH13</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>AUTOFLIP</td>
+		<td>PAN</td>
+		<td>TILT</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light51').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light52" class="white_content">
+		<h2>MJXQ</h2>
+		<h3>E010</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH13</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>AUTOFLIP</td>
+		<td>PAN</td>
+		<td>TILT</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light52').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light53" class="white_content">
+		<h2>SHENQI</h2>
+		<h3>. . . . .</h3>
+		<u><b>Autobind</b></u><br><br>
+		<br>
+		
+		Model: Shenqiwei 1/20 Mini Motorcycle<br>Throttle +100%=full forward,0%=stop,-100%=full backward.<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH14</td>
+</tr><tr>		<td></td>
+		<td> </td>
+		<td>T</td>
+		<td>R</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light53').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light54" class="white_content">
+		<h2>FY326</h2>
+		<h3>FY326</h3>
+		<br><br>
+		<br>
+		
+		Autobind<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>Calibrate</td>
+		<td>Expert</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light54').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light55" class="white_content">
+		<h2>FY326</h2>
+		<h3>FY319</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>Calibrate</td>
+		<td>Expert</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light55').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light56" class="white_content">
+		<h2>SFHSS</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<u><b>Modèle :</b></u> Futaba RXs and XK models.<br>
+		<u><b>Option :</b></u> fine frequency tuning. This value is different 
+for each board. To determine the option value, find the two limits where
+ the RX loses connection then set the option value to half way between 
+them. If you have a 4in1 V2 board the value is around 40.<br>
+		***<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light56').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light57" class="white_content">
+		<h2>J6PRO</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH14</td>
+</tr><tr>		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light57').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light58" class="white_content">
+		<h2>FQ777</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Model: FQ777-124<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>RTH</td>
+		<td>HEADLESS</td>
+		<td>EXPERT</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light58').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light59" class="white_content">
+		<h2>ASSAN</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Extended limits supported<br>The transmitter must be close to the receiver while binding.<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH14</td>
+</tr><tr>		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light59').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light60" class="white_content">
+		<h2>FRSKYV</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<u><b>Modèle :</b></u> FrSky receivers V8R4, V8R7 and V8FR.<br>
+		<u><b>Option :</b></u> fine frequency tuning. This value is different 
+for each board. To determine the option value, find the two limits where
+ the RX loses connection then set the option value to half way between 
+them. If you have a 4in1 V2 board the value is around 40.<br>
+		Extended limits supported<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+</tr><tr>		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light60').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light61" class="white_content">
+		<h2>HONTAI</h2>
+		<h3>HONTAI</h3>
+		<br><br>
+		<br>
+		
+		Autobind protocol<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>CAL</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light61').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light62" class="white_content">
+		<h2>HONTAI</h2>
+		<h3>JJRCX1</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH6</td>
+		<td>CH0</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>ARM</td>
+		<td></td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light62').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light63" class="white_content">
+		<h2>HONTAI</h2>
+		<h3>X5C1</h3>
+		<br><br>
+		<br>
+		
+		X5C1 clone<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>LED</td>
+		<td>PICTURE</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>RTH</td>
+		<td>CAL</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light63').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light64" class="white_content">
+		<h2>HONTAI</h2>
+		<h3>FQ777</h3>
+		<br><br>
+		<br>
+		
+		Format FQ777-951C<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP</td>
+		<td>SNAPSHOT</td>
+		<td>VIDEO</td>
+		<td>HEADLESS</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light64').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light65" class="white_content">
+		<h2>OPENLRS</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Empty protocol<br><br>
+		<table border="01"><tbody><tr>
+</tr><tr></tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light65').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light66" class="white_content">
+		<h2>JOYSWAY</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light66').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light67" class="white_content">
+		<h2>WK2X01</h2>
+		<h3>WK2801</h3>
+		<br><br>
+		<br>
+		
+		Autobind<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light67').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light68" class="white_content">
+		<h2>WK2X01</h2>
+		<h3>WK2601</h3>
+		<br><br>
+		<br>
+		
+		Option:<br>0 = 5+1<br>2 = 6+1<br>..1 = HÃ©licoptÃ¨re (. = autres options pour ce mode)<br>.01 = HÃ©licoptÃ¨re normal<br>.11 = HÃ©licoptÃ¨re avec pit inversÃ©<br>0.1 = Pitch curve -100<br>1.1 = Pitch curve 100<br>CONF:	Option 1 = Rate Throtle<br>Option 2 = Pitch<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH14</td>
+</tr><tr>		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light68').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light69" class="white_content">
+		<h2>WK2X01</h2>
+		<h3>WK2401</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH14</td>
+</tr><tr>		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>---</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light69').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light70" class="white_content">
+		<h2>SKYARTEC</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH14</td>
+</tr><tr>		<td>? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ?</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light70').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light71" class="white_content">
+		<h2>UDI</h2>
+		<h3>U816_V1</h3>
+		<br><br>
+		<br>
+		
+		Modele: Known UDI 2.4GHz protocol variants, all using BK2421<br>* UDI U819 coaxial 3ch helicoper<br>* UDI U816/817/818 quadcopters<br>- "V1" with orange LED on TX, U816 RX labeled '' , U817/U818 RX labeled 'UD-U817B'<br>- "V2" with red LEDs on TX, U816 RX labeled '', U817/U818 RX labeled 'UD-U817OG'<br>- "V3" with green LEDs on TX. Did not get my hands on yet.<br>* U830 mini quadcopter with tilt steering ("Protocol 2014")<br>* U839 nano quadcopter ("Protocol 2014")<br>Autobind<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP 360</td>
+		<td>FLIP</td>
+		<td>VIDEO</td>
+		<td>LED</td>
+		<td>MODE 2</td>
+		<td>---</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light71').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light72" class="white_content">
+		<h2>UDI</h2>
+		<h3>U816_V2</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP 360</td>
+		<td>FLIP</td>
+		<td>VIDEO</td>
+		<td>LED</td>
+		<td>MODE 2</td>
+		<td>---</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light72').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light73" class="white_content">
+		<h2>UDI</h2>
+		<h3>U839_2014</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>FLIP 360</td>
+		<td>FLIP</td>
+		<td>VIDEO</td>
+		<td>LED</td>
+		<td>MODE 2</td>
+		<td>---</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light73').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light74" class="white_content">
+		<h2>FBL100</h2>
+		<h3>FBL100</h3>
+		<br><br>
+		<br>
+		
+		Autobind<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ?</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light74').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light75" class="white_content">
+		<h2>FBL100</h2>
+		<h3>HP100</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ? </td>
+		<td> ?</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light75').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light76" class="white_content">
+		<h2>HM830</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Modele: HM Hobby HM830 RC Paper Airplane<br>Autobind<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>Turbo</td>
+		<td>T</td>
+		<td>Trim</td>
+		<td>Bouton</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light76').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light77" class="white_content">
+		<h2>CFLIE</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Modele: CrazyFlie Nano quad<br>Autobind<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light77').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light78" class="white_content">
+		<h2>H377</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light78').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light79" class="white_content">
+		<h2>ESKY150</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Autobind<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light79').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light80" class="white_content">
+		<h2>BLUEFLY</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Autobind<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>GEAR</td>
+		<td>PITCH</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light80').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light81" class="white_content">
+		<h2>NE260</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Modele: Nine Eagles SoloPro<br>Autobind<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH14</td>
+</tr><tr>		<td>A</td>
+		<td>E</td>
+		<td>T</td>
+		<td>R</td>
+		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light81').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light82" class="white_content">
+		<h2>AFHDS2A</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		Telemetry enabled for battery voltage and TX RSSI<br>Option= 0-PWM_IBUS 1-PPM_IBUS 2-PWM_SBUS 3-PPM_SBUS<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH1</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH13</td>
+		<td>CH14</td>
+		<td>CH15</td>
+</tr><tr>		<td>T</td>
+		<td>CH2</td>
+		<td>CH3</td>
+		<td>CH4</td>
+		<td>CH5</td>
+		<td>CH6</td>
+		<td>CH7</td>
+		<td>CH8</td>
+		<td>CH9</td>
+		<td>CH10</td>
+		<td>CH11</td>
+		<td>CH12</td>
+		<td>CH13</td>
+		<td>CH14</td>
+		<td>Failsave T</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light82').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+	    <div id="light83" class="white_content">
+		<h2>INAV</h2>
+		<h3>. . . . .</h3>
+		<br><br>
+		<br>
+		
+		En cours de passage<br><br>
+		<table border="01"><tbody><tr>
+		<td>CH14</td>
+</tr><tr>		<td>Reset/Bind</td>
+</tr></tbody></table>
+	<h4><a href="javascript:void(0)" onclick="document.getElementById('light83').style.display='none';document.getElementById('fade').style.display='none'">Close</a></h4></div>
+			
+<div id="fade" class="black_overlay"></div>
+    <div id="light" class="white_content">
+<h4><a href="javascript:void(0)" onclick="document.getElementById('light').style.display='none';document.getElementById('fade').style.display='none'">LUA Script &nbsp; &nbsp; &nbsp; Close</a></h4>
+<textarea cols="100" rows="20">-- Protocol Selected
+local PROTO_PAGE = 0
+local CONFIRMATION_PAGE = 1
+
+-- Navigation variables
+local page = PROTO_PAGE
+local dirty = true
+local edit = false
+local field = 0
+local fieldsMax = 0
+
+-- Model settings
+local ProtoId = 01
+local ProtoSub = 0
+local ProtoSubNb = 0
+
+-- Common functions
+local lastBlink = 0
+local function blinkChanged()
+  local time = getTime() % 128
+  local blink = (time - time % 64) / 64
+  if blink ~= lastBlink then
+    lastBlink = blink
+    return true
+  else
+    return false
+  end
+end
+
+local function fieldIncDec(event, value, max, force)
+  if edit or force==true then
+    if event == EVT_PLUS_BREAK then
+      value = (value + max)
+      dirty = true
+    elseif event == EVT_MINUS_BREAK then
+      value = (value + max + 2)
+      dirty = true
+    end
+    value = (value % (max+1))
+  end
+  return value
+end
+
+local function valueIncDec(event, value, min, max)
+  if edit then
+    if event == EVT_PLUS_FIRST or event == EVT_PLUS_REPT then
+      if value &lt; max then
+        value = (value + 1)
+        dirty = true
+      end
+    elseif event == EVT_MINUS_FIRST or event == EVT_MINUS_REPT then
+      if value &gt; min then
+        value = (value - 1)
+        dirty = true
+      end
+    end
+  end
+  return value
+end
+
+local function navigate(event, fieldMax, prevPage, nextPage)
+  if event == EVT_ENTER_BREAK then
+    edit = not edit
+    dirty = true
+  elseif edit then
+    if event == EVT_EXIT_BREAK then
+      edit = false
+      dirty = true  
+    elseif not dirty then
+      dirty = blinkChanged()
+    end
+  else
+    if event == EVT_PAGE_BREAK then     
+      page = nextPage
+      field = 0
+      dirty = true
+    elseif event == EVT_PAGE_LONG then
+      page = prevPage
+      field = 0
+      killEvents(event);
+      dirty = true
+    else
+      field = fieldIncDec(event, field, fieldMax, true)
+	end
+  end
+end
+
+local function getFieldFlags(position)
+  flags = 0
+  if field == position then
+    flags = INVERS
+    if edit then
+      flags = INVERS + BLINK
+    end
+  end
+  return flags
+end
+
+local function channelIncDec(event, value)
+  if not edit and event==EVT_MENU_BREAK then
+    servoPage = value
+    dirty = true
+  else
+    value = valueIncDec(event, value, 0, 15)
+  end
+  return value
+end
+
+-- Init function
+local function init()
+end
+
+-- Protocol Menu
+local ProtoItems = 
+{"FLYSKY","HUBSAN","FRSKYD","HISKY","V2X2","DSM","DEVO","YD717","KN","SYMAX","SLT","CX10","CG023","BAYANG","FRSKYX","ESKY","MT99XX","4","MJXQ","SHENQI","FY326","SFHSS","J6PRO","FQ777","ASSAN","FRSKYV","HONTAI","OPENLRS","JOYSWAY","WK2X01","SKYARTEC","UDI","FBL100","HM830","CFLIE","H377","ESKY150","BLUEFLY","NE260","AFHDS2A","INAV"}
+local
+ SubProtoItemsA = {"FLYSKY","V9X9","V6X6","V912"}
+local SubProtoItemsB = {"H107","H301","H501"}
+local SubProtoItemsC = {"HISKY","HK310"}
+local SubProtoItemsD = {"DSM2_22","DSM2_11","DSMX_22","DSMX_11","AUTO"}
+local SubProtoItemsE = {"YD717","SKYWLKR","SYMAX4","XINXUN","NIHUI"}
+local SubProtoItemsF = {"WLTOYS","FEILUN"}
+local SubProtoItemsG = {"SYMAX","SYMAX5C"}
+local SubProtoItemsH = 
+{"GREEN","BLUE","DM007","Q282","Q242","JC3015_1","JC3015_2","MK33041"}
+local SubProtoItemsI = {"CG023","YD829","H8_3D"}
+local SubProtoItemsJ = {"CH_16","CH_8"}
+local SubProtoItemsK = {"MT99","H7","YZ","LS"}
+local SubProtoItemsL = {"WLH08","X600","X800","H26D","E010"}
+local SubProtoItemsM = {"FY326","FY319"}
+local SubProtoItemsN = {"HONTAI","JJRCX1","X5C1","FQ777"}
+local SubProtoItemsO = {"WK2801","WK2401","WK2601"}
+local SubProtoItemsP = {"U816_V1","U816_V2","U839_2014"}
+local SubProtoItemsQ = {"FBL100","HP100"}
+
+local function drawEngineMenu()
+  lcd.clear()
+  lcd.drawText(1, 0, "What do you want ?", 0)
+  lcd.drawFilledRectangle(0, 0, LCD_W, 8, GREY_DEFAULT+FILL_WHITE)
+  lcd.drawNumber(12, 10, ProtoId, getFieldFlags(0)) 
+  lcd.drawLine(LCD_W/2-10, 8, LCD_W/2-10, LCD_H, DOTTED, 0)
+  lcd.drawText(17, 10, ProtoItems[ProtoId+1], 0)
+  
+  if ProtoId == 0 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 3
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsA[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsA
+  elseif ProtoId == 1 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 2
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsB[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsB
+  elseif ProtoId == 2 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 3 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 1
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsC[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsC
+  elseif ProtoId == 4 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 5 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 4
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsD[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsD
+  elseif ProtoId == 6 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 7 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 4
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsE[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsE
+  elseif ProtoId == 8 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 1
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsF[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsF
+  elseif ProtoId == 9 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 1
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsG[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsG
+  elseif ProtoId == 10 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 11 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 7
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsH[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsH
+  elseif ProtoId == 12 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 2
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsI[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsI
+  elseif ProtoId == 13 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 14 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 1
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsJ[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsJ
+  elseif ProtoId == 15 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 16 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 3
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsK[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsK
+  elseif ProtoId == 179999999999 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 17 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 4
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsL[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsL
+  elseif ProtoId == 18 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 19 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 1
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsM[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsM
+  elseif ProtoId == 20 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 21 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 22 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 23 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 24 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 25 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 3
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsN[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsN
+  elseif ProtoId == 26 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 39 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 40 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 2
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsO[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsO
+  elseif ProtoId == 41 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 43 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 2
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsP[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsP
+  elseif ProtoId == 44 then
+    ProtoSub = 0
+    fieldsMax = 1
+    ProtoSubNb = 1
+    lcd.drawNumber(12, 20, ProtoSub, getFieldFlags(1))
+    lcd.drawText(17, 20, SubProtoItemsQ[ProtoSub+1], getFieldFlags(1))
+    SubProtoItems = SubProtoItemsQ
+  elseif ProtoId == 49 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 50 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 51 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 52 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 53 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 54 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 55 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  elseif ProtoId == 56 then
+    ProtoSub = 0
+    fieldsMax = 0
+    ProtoSubNb = 0
+    SubProtoItems = {""}
+  end
+end
+local function engineMenu(event)
+  if dirty then
+    dirty = false
+    drawEngineMenu()
+  end
+
+  navigate(event, fieldsMax, page, page+1)
+
+  if field==0 then
+    ProtoId = fieldIncDec(event, ProtoId, 39)
+  elseif field==1 then
+    ProtoSub = fieldIncDec(event, ProtoSub, ProtoSubNb)
+  end
+end
+
+
+-- Confirmation Menu
+local function drawNextLine(x, y, label, channel)
+  lcd.drawText(x, y, label, 0);
+  if channel ~= nil then
+	lcd.drawSource(x+52, y, MIXSRC_CH1+channel, 0)
+  end
+  y = y + 8
+  if y &gt; 50 then
+    y = 12
+    x = 120
+  end
+  return x, y
+end
+local function drawConfirmationMenu()
+  local x = 22
+  local y = 12
+  lcd.clear()
+  lcd.drawText(48, 1, "Install switch?", 0);
+  lcd.drawFilledRectangle(0, 0, LCD_W, 9, 0)
+    x, y = drawNextLine(x, y, "Protocol: "..ProtoItems[ProtoId+1], nil)
+	x, y = drawNextLine(x, y, "Sub-Protocol: "..SubProtoItems[ProtoSub+1], 
+nil)
+  lcd.drawText(48, LCD_H-8, "[Enter Long] to confirm", 0);
+  fieldsMax = 0
+end
+
+local function applySettings()
+--  model.defaultInputs()
+--  model.deleteMixes()
+  if ProtoId == 0 then
+    if ProtoSub == 0 then	--proto FLYSKY 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto V9X9 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto V6X6 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="XCAL", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="YCAL", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 3 then	--proto V912 
+      model.insertMix(4, model.getMixesCount(4), { name="BTMBTN", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="TOPBTN", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 1 then
+    if ProtoSub == 0 then	--proto H107 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto H301 
+      model.insertMix(4, model.getMixesCount(4), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="STAB", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto H501 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="GPS_HOLD", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="ALT_HOLD", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="SNAPSHOT", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="", source=92,
+ weight=100, multiplex=ADD })
+      model.insertMix(13, model.getMixesCount(13), { name="Reset/Bind", 
+source=92, weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 2 then
+    if ProtoSub == 0 then	--proto FRSKYD 
+      model.insertMix(4, model.getMixesCount(4), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="---", 
+source=92, weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 3 then
+    if ProtoSub == 0 then	--proto HISKY 
+      model.insertMix(4, model.getMixesCount(4), { name="GEAR", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="PITCH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="GYRO", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto HK310 
+      model.insertMix(4, model.getMixesCount(4), { name="R", source=4, 
+weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="AUX", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="T_FSAFE", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="R_FSAFE", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 4 then
+    if ProtoSub == 0 then	--proto V2X2 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="MAG_CAL_X", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="MAG_CAL_Y", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 5 then
+    if ProtoSub == 0 then	--proto DSM2_22 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="CH9", 
+source=defaultChannel(8), weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="CH10", 
+source=defaultChannel(9), weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="CH11", 
+source=defaultChannel(10), weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="CH12", 
+source=defaultChannel(11), weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto DSM2_11 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="CH9", 
+source=defaultChannel(8), weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="CH10", 
+source=defaultChannel(9), weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="CH11", 
+source=defaultChannel(10), weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="CH12", 
+source=defaultChannel(11), weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto DSMX_22 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="CH9", 
+source=defaultChannel(8), weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="CH10", 
+source=defaultChannel(9), weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="CH11", 
+source=defaultChannel(10), weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="CH12", 
+source=defaultChannel(11), weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 3 then	--proto DSMX_11 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="CH9", 
+source=defaultChannel(8), weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="CH10", 
+source=defaultChannel(9), weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="CH11", 
+source=defaultChannel(10), weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="CH12", 
+source=defaultChannel(11), weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 4 then	--proto AUTO 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="CH9", 
+source=defaultChannel(8), weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="CH10", 
+source=defaultChannel(9), weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="CH11", 
+source=defaultChannel(10), weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="CH12", 
+source=defaultChannel(11), weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 6 then
+    if ProtoSub == 0 then	--proto DEVO 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 7 then
+    if ProtoSub == 0 then	--proto YD717 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto SKYWLKR 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto SYMAX4 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 3 then	--proto XINXUN 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 4 then	--proto NIHUI 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 8 then
+    if ProtoSub == 0 then	--proto WLTOYS 
+      model.insertMix(4, model.getMixesCount(4), { name="DR", source=92,
+ weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="THOLD", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="IDLEUP", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="GYRO", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="Ttrim", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="Atrim", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="Etrim", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto FEILUN 
+      model.insertMix(4, model.getMixesCount(4), { name="DR", source=92,
+ weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="THOLD", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="IDLEUP", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="GYRO", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="Ttrim", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="Atrim", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="Etrim", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 9 then
+    if ProtoSub == 0 then	--proto SYMAX 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="", source=92, 
+weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto SYMAX5C 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="", source=92, 
+weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 10 then
+    if ProtoSub == 0 then	--proto SLT 
+      model.insertMix(4, model.getMixesCount(4), { name="GEAR", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="PITCH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 11 then
+    if ProtoSub == 0 then	--proto GREEN 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="RATE", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto BLUE 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="RATE", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto DM007 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="MODE", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 3 then	--proto Q282 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="XCAL", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="YCAL", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 4 then	--proto JC3015_1 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="MODE", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 5 then	--proto JC3015_2 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="MODE", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="DFLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 6 then	--proto MK33041 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="MODE", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 7 then	--proto Q242 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="XCAL", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="YCAL", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 12 then
+    if ProtoSub == 0 then	--proto CG023 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGHT", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto YD829 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="", source=92, 
+weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto H8_3D 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LIGTH", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="OPT1", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="OPT2", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="CAL", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 13 then
+    if ProtoSub == 0 then	--proto BAYANG 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="INVERTED", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 14 then
+    if ProtoSub == 0 then	--proto CH_16 
+      model.insertMix(4, model.getMixesCount(4), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="----", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="----", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="----", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="----", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(13, model.getMixesCount(13), { name="----", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(14, model.getMixesCount(14), { name="----", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(15, model.getMixesCount(15), { name="----", 
+source=92, weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto CH_8 
+      model.insertMix(4, model.getMixesCount(4), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="---", 
+source=92, weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 15 then
+    if ProtoSub == 0 then	--proto ESKY 
+      model.insertMix(4, model.getMixesCount(4), { name="GYRO", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="PITCH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 16 then
+    if ProtoSub == 0 then	--proto MT99 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto H7 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto YZ 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 3 then	--proto LS 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="INVERT", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 17 then
+    if ProtoSub == 0 then	--proto WLH08 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="AUTOFLIP", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="PAN", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="TILT", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(13, model.getMixesCount(13), { name="Reset/Bind", 
+source=92, weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto X600 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="AUTOFLIP", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="PAN", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="TILT", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(13, model.getMixesCount(13), { name="Reset/Bind", 
+source=92, weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto X800 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="AUTOFLIP", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="PAN", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="TILT", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(13, model.getMixesCount(13), { name="Reset/Bind", 
+source=92, weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 3 then	--proto H26D 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="AUTOFLIP", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="PAN", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="TILT", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(13, model.getMixesCount(13), { name="Reset/Bind", 
+source=92, weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 4 then	--proto E010 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="AUTOFLIP", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="PAN", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="TILT", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(13, model.getMixesCount(13), { name="Reset/Bind", 
+source=92, weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 18 then
+    if ProtoSub == 0 then	--proto SHENQI 
+      model.insertMix(4, model.getMixesCount(4), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 19 then
+    if ProtoSub == 0 then	--proto FY326 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="Calibrate", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="Expert", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto FY319 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="Calibrate", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="Expert", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 20 then
+    if ProtoSub == 0 then	--proto SFHSS 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 21 then
+    if ProtoSub == 0 then	--proto J6PRO 
+      model.insertMix(4, model.getMixesCount(4), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 22 then
+    if ProtoSub == 0 then	--proto FQ777 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="EXPERT", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 23 then
+    if ProtoSub == 0 then	--proto ASSAN 
+      model.insertMix(4, model.getMixesCount(4), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 24 then
+    if ProtoSub == 0 then	--proto FRSKYV 
+    end
+  elseif ProtoId == 25 then
+    if ProtoSub == 0 then	--proto HONTAI 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="CAL", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto JJRCX1 
+      model.insertMix(4, model.getMixesCount(4), { name="", source=92, 
+weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="ARM", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto X5C1 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="PICTURE", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="RTH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="CAL", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 3 then	--proto FQ777 
+      model.insertMix(4, model.getMixesCount(4), { name="", source=92, 
+weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="SNAPSHOT", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="HEADLESS", 
+source=91, weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 26 then
+    if ProtoSub == 0 then	--proto OPENLRS 
+    end
+  elseif ProtoId == 39 then
+    if ProtoSub == 0 then	--proto JOYSWAY 
+      model.insertMix(4, model.getMixesCount(4), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 40 then
+    if ProtoSub == 0 then	--proto WK2801 
+      model.insertMix(4, model.getMixesCount(4), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto WK2601 
+      model.insertMix(4, model.getMixesCount(4), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto WK2401 
+      model.insertMix(4, model.getMixesCount(4), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 41 then
+    if ProtoSub == 0 then	--proto SKYARTEC 
+      model.insertMix(4, model.getMixesCount(4), { name=" ? ", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name=" ? ", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name=" ?", source=92,
+ weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 43 then
+    if ProtoSub == 0 then	--proto U816_V1 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP 360", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="MODE 2", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto U816_V2 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP 360", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="MODE 2", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 2 then	--proto U839_2014 
+      model.insertMix(4, model.getMixesCount(4), { name="FLIP 360", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="FLIP", 
+source=94, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="VIDEO", 
+source=0, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="LED", 
+source=96, weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="MODE 2", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="---", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="", source=92,
+ weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 44 then
+    if ProtoSub == 0 then	--proto FBL100 
+      model.insertMix(4, model.getMixesCount(4), { name=" ? ", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name=" ? ", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name=" ? ", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name=" ?", source=92,
+ weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+    if ProtoSub == 1 then	--proto HP100 
+      model.insertMix(4, model.getMixesCount(4), { name=" ? ", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name=" ? ", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name=" ? ", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name=" ?", source=92,
+ weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 49 then
+    if ProtoSub == 0 then	--proto HM830 
+      model.insertMix(4, model.getMixesCount(4), { name="Bouton", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 50 then
+    if ProtoSub == 0 then	--proto CFLIE 
+      model.insertMix(4, model.getMixesCount(4), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 51 then
+    if ProtoSub == 0 then	--proto H377 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 52 then
+    if ProtoSub == 0 then	--proto ESKY150 
+      model.insertMix(4, model.getMixesCount(4), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 53 then
+    if ProtoSub == 0 then	--proto BLUEFLY 
+      model.insertMix(4, model.getMixesCount(4), { name="GEAR", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="PITCH", 
+source=92, weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 54 then
+    if ProtoSub == 0 then	--proto NE260 
+      model.insertMix(4, model.getMixesCount(4), { name="", source=92, 
+weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 55 then
+    if ProtoSub == 0 then	--proto AFHDS2A 
+      model.insertMix(4, model.getMixesCount(4), { name="CH5", 
+source=defaultChannel(4), weight=100, multiplex=ADD })
+      model.insertMix(5, model.getMixesCount(5), { name="CH6", 
+source=defaultChannel(5), weight=100, multiplex=ADD })
+      model.insertMix(6, model.getMixesCount(6), { name="CH7", 
+source=defaultChannel(6), weight=100, multiplex=ADD })
+      model.insertMix(7, model.getMixesCount(7), { name="CH8", 
+source=defaultChannel(7), weight=100, multiplex=ADD })
+      model.insertMix(8, model.getMixesCount(8), { name="CH9", 
+source=defaultChannel(8), weight=100, multiplex=ADD })
+      model.insertMix(9, model.getMixesCount(9), { name="CH10", 
+source=defaultChannel(9), weight=100, multiplex=ADD })
+      model.insertMix(10, model.getMixesCount(10), { name="CH11", 
+source=defaultChannel(10), weight=100, multiplex=ADD })
+      model.insertMix(11, model.getMixesCount(11), { name="CH12", 
+source=defaultChannel(11), weight=100, multiplex=ADD })
+      model.insertMix(12, model.getMixesCount(12), { name="CH13", 
+source=defaultChannel(12), weight=100, multiplex=ADD })
+      model.insertMix(13, model.getMixesCount(13), { name="CH14", 
+source=defaultChannel(13), weight=100, multiplex=ADD })
+      model.insertMix(14, model.getMixesCount(14), { name="Failsave T", 
+source=92, weight=100, multiplex=ADD })
+    end
+  elseif ProtoId == 56 then
+    if ProtoSub == 0 then	--proto INAV 
+    end
+  end
+
+end
+
+local function confirmationMenu(event)
+  if dirty then
+    dirty = false
+    drawConfirmationMenu()
+  end
+
+  navigate(event, fieldsMax, PROTO_PAGE, page)
+
+  if event == EVT_EXIT_BREAK then
+    return 2
+  elseif event == EVT_ENTER_LONG then
+    killEvents(event)
+    applySettings()
+    return 2
+  else
+    return 0
+  end
+end
+
+-- Main
+local function run(event)
+  if event == nil then
+    error("Cannot be run as a model script!")
+  end
+  lcd.lock()
+  if page == PROTO_PAGE then
+    engineMenu(event)
+  elseif page == CONFIRMATION_PAGE then
+    return confirmationMenu(event)
+  end
+  return 0
+end
+
+return { init=init, run=run }
+</textarea>
+<h4><a href="javascript:void(0)" onclick="document.getElementById('light').style.display='none';document.getElementById('fade').style.display='none'">Liste Protocoles &nbsp; &nbsp; &nbsp; Close</a></h4>
+<textarea cols="80" rows="20">0.0 SERIAL         16.0 ESKY          
+1.0 FLYSKY         17.0 MT99          
+1.1 V9X9           17.1 H7            
+1.2 V6X6           17.2 YZ            
+1.3 V912           17.3 LS            
+2.0 H107           18.0 WLH08         
+2.1 H301           18.1 X600          
+2.2 H501           18.2 X800          
+3.0 FRSKYD         18.3 H26D          
+4.0 HISKY          18.4 E010          
+4.1 HK310          19.0 SHENQI        
+5.0 V2X2           20.0 FY326         
+6.0 DSM2_22        20.1 FY319         
+6.1 DSM2_11        21.0 SFHSS         
+6.2 DSMX_22        22.0 J6PRO         
+6.3 DSMX_11        23.0 FQ777         
+6.4 AUTO           24.0 ASSAN         
+7.0 DEVO           25.0 FRSKYV        
+8.0 YD717          26.0 HONTAI        
+8.1 SKYWLKR        26.1 JJRCX1        
+8.2 SYMAX4         26.2 X5C1          
+8.3 XINXUN         26.3 FQ777         
+8.4 NIHUI          27.0 OPENLRS       
+9.0 WLTOYS         40.0 JOYSWAY       
+9.1 FEILUN         41.0 WK2801        
+10.0 SYMAX         41.1 WK2601        
+10.1 SYMAX5C       41.2 WK2401        
+11.0 SLT           42.0 SKYARTEC      
+12.0 GREEN         44.0 U816_V1       
+12.1 BLUE          44.1 U816_V2       
+12.2 DM007         44.2 U839_2014     
+12.3 Q282          45.0 FBL100        
+12.4 JC3015_1      45.1 HP100         
+12.5 JC3015_2      50.0 HM830         
+12.6 MK33041       51.0 CFLIE         
+12.7 Q242          52.0 H377          
+13.0 CG023         53.0 ESKY150       
+13.1 YD829         54.0 BLUEFLY       
+13.2 H8_3D         55.0 NE260         
+14.0 BAYANG        56.0 AFHDS2A       
+15.0 CH_16         57.0 INAV          
+15.1 CH_8          </textarea>
+</div><script>
+function li() {
+	document.getElementById('light').style.display='block';
+	document.getElementById('fade').style.display='block';
+}
+	</script>
+</body></html>

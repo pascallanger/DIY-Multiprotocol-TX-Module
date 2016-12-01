@@ -18,24 +18,51 @@
 #if defined(HUBSAN_A7105_INO)
 
 #include "iface_a7105.h"
+enum {
+    FORMAT_H107 = 0,
+    FORMAT_H301,
+    FORMAT_H501,
+};
 
 enum{
-    // flags going to packet[9] (Normal)
+    // flags going to packet[9] (H107 Normal)
     HUBSAN_FLAG_VIDEO= 0x01,   // record video
     HUBSAN_FLAG_FLIP = 0x08,   // enable flips
     HUBSAN_FLAG_LED  = 0x04    // enable LEDs
 };
 
 enum{
-    // flags going to packet[9] (Plus series)
+    // flags going to packet[9] (H107 Plus series)
     HUBSAN_FLAG_HEADLESS = 0x08, // headless mode
 };
-
 enum{
-    // flags going to packet[13] (Plus series)
+    // flags going to packet[9] (H301)
+    FLAG_H301_VIDEO = 0x01,
+    FLAG_H301_STAB  = 0x02,
+    FLAG_H301_LED   = 0x10,
+    FLAG_H301_RTH   = 0x40,
+};
+enum{
+    // flags going to packet[13] (H107 Plus series)
     HUBSAN_FLAG_SNAPSHOT  = 0x01,
     HUBSAN_FLAG_FLIP_PLUS = 0x80,
 };
+enum{
+    // flags going to packet[9] (H501S)
+    FLAG_H501_VIDEO     = 0x01,
+    FLAG_H501_LED       = 0x04,
+    FLAG_H501_RTH       = 0x20,
+    FLAG_H501_HEADLESS1 = 0x40,
+    FLAG_H501_GPS_HOLD  = 0x80,
+};
+
+enum{
+    // flags going to packet[13] (H501S)
+    FLAG_H501_SNAPSHOT  = 0x01,
+    FLAG_H501_HEADLESS2 = 0x02,
+    FLAG_H501_ALT_HOLD  = 0x08,
+};
+
 
 uint32_t sessionid,id_data;
 
@@ -76,7 +103,7 @@ static void __attribute__((unused)) hubsan_build_bind_packet(uint8_t bind_state)
 	packet[3] = (sessionid >> 16) & 0xFF;
 	packet[4] = (sessionid >>  8) & 0xFF;
 	packet[5] = (sessionid >>  0) & 0xFF;
-	if(id_data == ID_NORMAL)
+    if(id_data == ID_NORMAL && sub_protocol != FORMAT_H501)
 	{
 		packet[6] = 0x08;
 		packet[7] = 0xe4;
@@ -89,7 +116,7 @@ static void __attribute__((unused)) hubsan_build_bind_packet(uint8_t bind_state)
 		packet[13] = 0x26;
 		packet[14] = 0x79;
 	}
-	else
+	else if(id_data == ID_PLUS || sub_protocol == FORMAT_H501) 
 	{ //ID_PLUS
 		if(phase >= BIND_3)
 		{
@@ -109,6 +136,7 @@ static void __attribute__((unused)) hubsan_build_bind_packet(uint8_t bind_state)
 static void __attribute__((unused)) hubsan_build_packet()
 {
 	static uint8_t vtx_freq = 0; 
+    static uint32_t h501_packet = 0;
 	memset(packet, 0, 16);
 	if(vtx_freq != option || packet_count==100) // set vTX frequency (H107D)
 	{
@@ -127,7 +155,7 @@ static void __attribute__((unused)) hubsan_build_packet()
 	packet[4] = 0xFF - convert_channel_8b(RUDDER);		//Rudder is reversed
 	packet[6] = 0xFF - convert_channel_8b(ELEVATOR);	//Elevator is reversed
 	packet[8] = convert_channel_8b(AILERON);			//Aileron
-	if(id_data == ID_NORMAL)
+	if(id_data == ID_NORMAL && sub_protocol == FORMAT_H107)  // H107/L/C/D, H102D
 	{
 		if( packet_count < 100)
 		{
@@ -151,21 +179,50 @@ static void __attribute__((unused)) hubsan_build_packet()
 		packet[13] = 0x26;
 		packet[14] = 0x79;
 	}
-	else
-	{ //ID_PLUS
-		packet[3] = 0x64;
-		packet[5] = 0x64;
-		packet[7] = 0x64;
-		packet[9] = 0x06;
-		//FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
-		if(Servo_AUX4)	packet[9] |= HUBSAN_FLAG_VIDEO;
-		if(Servo_AUX5)	packet[9] |= HUBSAN_FLAG_HEADLESS;
-		packet[10]= 0x19;
-		packet[12]= 0x5C; // ghost channel ?
-		packet[13] = 0;
-		if(Servo_AUX3)	packet[13]  = HUBSAN_FLAG_SNAPSHOT;
-		if(Servo_AUX1)	packet[13] |= HUBSAN_FLAG_FLIP_PLUS;
-		packet[14]= 0x49; // ghost channel ?
+    else if( sub_protocol == FORMAT_H301) {
+        if(packet_count < 100) {
+            packet[9] = FLAG_H301_STAB;
+            packet_count++;
+        } else {
+            packet[9] = 0;
+				if(Servo_AUX1)	packet[9] |= FLAG_H301_LED;
+				if(Servo_AUX2)	packet[9] |= FLAG_H301_STAB;
+				if(Servo_AUX3)	packet[9] |= FLAG_H301_RTH;
+				if(Servo_AUX4)	packet[9] |= FLAG_H301_VIDEO; // H102D
+        }
+		packet[10] = 0x18; // ?
+		packet[12] = 0x5c; // ?
+		packet[14] = 0xf6; // ?
+    }	else
+	{ //ID_PLUS +FORMAT_H501
+		packet[3] = sub_protocol == FORMAT_H501 ? 0x00 : 0x64;
+		packet[5] = sub_protocol == FORMAT_H501 ? 0x00 : 0x64;
+		packet[7] = sub_protocol == FORMAT_H501 ? 0x00 : 0x64;
+		if( sub_protocol == FORMAT_H501) { // H501S
+			packet[9] = 0x02;
+				if(Servo_AUX1)	packet[9] |= HUBSAN_FLAG_FLIP;
+				if(Servo_AUX2)	packet[9] |= FLAG_H501_LED;
+				if(Servo_AUX3)	packet[9] |= FLAG_H501_RTH;
+				if(Servo_AUX4)	packet[9] |= FLAG_H501_VIDEO;
+				if(Servo_AUX5)	packet[9] |= FLAG_H501_HEADLESS1;
+				if(Servo_AUX6)	packet[9] |= FLAG_H501_GPS_HOLD;
+			packet[13] = 0;
+				if(Servo_AUX5)	packet[9] |= FLAG_H501_HEADLESS2;
+				if(Servo_AUX7)	packet[9] |= FLAG_H501_ALT_HOLD;
+				if(Servo_AUX8)	packet[9] |= FLAG_H501_SNAPSHOT;
+		}
+		else { // H107P/C+/D+
+			packet[9] = 0x06;
+				//FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
+				if(Servo_AUX4)	packet[9] |= HUBSAN_FLAG_VIDEO;
+				if(Servo_AUX5)	packet[9] |= HUBSAN_FLAG_HEADLESS;
+			packet[10]= sub_protocol == FORMAT_H501 ? 0x1a : 0x19;
+			packet[12]= 0x5C; // ghost channel ?
+			packet[13] = 0;
+				if(Servo_AUX3)	packet[13]  = HUBSAN_FLAG_SNAPSHOT;
+				if(Servo_AUX1)	packet[13] |= HUBSAN_FLAG_FLIP_PLUS;
+			packet[14]= 0x49; // ghost channel ?
+		}
 		if(packet_count < 100)
 		{ // set channels to neutral for first 100 packets
 			packet[2] = 0x80; // throttle neutral is at mid stick on plus series
@@ -175,6 +232,18 @@ static void __attribute__((unused)) hubsan_build_packet()
 			packet[9] = 0x06;
 			packet[13]= 0x00;
 			packet_count++;
+		}
+		if(sub_protocol == FORMAT_H501) {
+			h501_packet++;
+			if(h501_packet == 10) {
+				memset(packet, 0, 16);
+				packet[0] = 0xe8;
+			}
+			else if(h501_packet == 20) {
+				memset(packet, 0, 16);
+				packet[0] = 0xe9;
+			}
+			if(h501_packet >= 20) h501_packet = 0;
 		}
 	}
 	hubsan_update_crc();
@@ -205,7 +274,7 @@ uint16_t ReadHubsan()
 	switch(phase) {
 		case BIND_1:
 			bind_count++;
-			if(bind_count >= 20)
+			if(bind_count >= 20 && sub_protocol != FORMAT_H501)
 			{
 				if(id_data == ID_NORMAL)
 					id_data = ID_PLUS;
@@ -218,7 +287,6 @@ uint16_t ReadHubsan()
 		case BIND_5:
 		case BIND_7:
 			hubsan_build_bind_packet(phase == BIND_7 ? 9 : (phase == BIND_5 ? 1 : phase + 1 - BIND_1));
-			A7105_Strobe(A7105_STANDBY);
 			A7105_WriteData(16, channel);
 			phase |= WAIT_WRITE;
 			return 3000;
@@ -253,7 +321,7 @@ uint16_t ReadHubsan()
 				phase = BIND_1;
 				return 4500; //No signal, restart binding procedure.  12msec elapsed since last write
 			}
-			A7105_ReadData();
+			A7105_ReadData(16);
 			phase++;
 			if (phase == BIND_5)
 				A7105_WriteID(((uint32_t)packet[2] << 24) | ((uint32_t)packet[3] << 16) | ((uint32_t)packet[4] << 8) | packet[5]);
@@ -264,7 +332,7 @@ uint16_t ReadHubsan()
 				phase = BIND_7;
 				return 15000; //22.5msec elapsed since last write
 			}
-			A7105_ReadData();
+			A7105_ReadData(16);
 			if(packet[1] == 9 && id_data == ID_NORMAL) {
 				phase = DATA_1;
 				A7105_WriteReg(A7105_1F_CODE_I, 0x0F);
@@ -286,8 +354,15 @@ uint16_t ReadHubsan()
 				if( phase == DATA_1)
 						A7105_SetPower(); //Keep transmit power in sync
 				hubsan_build_packet();
-				A7105_Strobe(A7105_STANDBY);
-				A7105_WriteData(16, phase == DATA_5 && id_data == ID_NORMAL ? channel + 0x23 : channel);
+	            u8 ch;
+	            if((phase == DATA_5 && id_data == ID_NORMAL) && sub_protocol == FORMAT_H107) {
+	                ch = channel + 0x23;
+	            }
+	            else {
+	                ch = channel;
+	            }
+	            A7105_WriteData( 16, ch);
+//				A7105_WriteData(16, phase == DATA_5 && id_data == ID_NORMAL ? channel + 0x23 : channel);
 				if (phase == DATA_5)
 					phase = DATA_1;
 				else
@@ -314,7 +389,7 @@ uint16_t ReadHubsan()
 					{
 						if( !(A7105_ReadReg(A7105_00_MODE) & 0x01))
 						{ // data received
-							A7105_ReadData();
+							A7105_ReadData(16);
 							if( hubsan_check_integrity() )
 							{
 								v_lipo=packet[13];// hubsan lipo voltage 8bits the real value is h_lipo/10(0x2A=42 -> 4.2V)
@@ -322,9 +397,10 @@ uint16_t ReadHubsan()
 							}	
 							A7105_Strobe(A7105_RX);
 							// Read TX RSSI
-							RSSI_dBm=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;		// value from A7105 is between 8 for maximum signal strength to 160 or less
-							if(RSSI_dBm<0) RSSI_dBm=0;
-							else if(RSSI_dBm>255) RSSI_dBm=255;
+							int16_t temp=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;		// value from A7105 is between 8 for maximum signal strength to 160 or less
+							if(temp<0) temp=0;
+							else if(temp>255) temp=255;
+							TX_RSSI=temp;
 							break;
 						}
 					}
@@ -343,7 +419,7 @@ uint16_t ReadHubsan()
 
 uint16_t initHubsan() {
 	const uint8_t allowed_ch[] = {0x14, 0x1e, 0x28, 0x32, 0x3c, 0x46, 0x50, 0x5a, 0x64, 0x6e, 0x78, 0x82};
-	A7105_Init(INIT_HUBSAN);	//hubsan_init();
+	A7105_Init();
 
 	sessionid = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
 	channel = allowed_ch[random(0xfefefefe) % sizeof(allowed_ch)];

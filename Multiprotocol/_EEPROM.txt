@@ -1,0 +1,4 @@
+0-4 rx Flysky afhds2a
+10+ 0-4 tx id
+     +10 réf gene id
+30+6 devo reset Autobind auto

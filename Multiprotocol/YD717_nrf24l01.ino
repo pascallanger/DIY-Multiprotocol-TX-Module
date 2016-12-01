@@ -34,16 +34,6 @@
 
 #define YD717_PAYLOADSIZE 8				// receive data pipes set to this size, but unused
 
-<<<<<<< HEAD
-enum {
-	YD717_INIT1 = 0,
-	YD717_BIND2,
-	YD717_BIND3,
-	YD717_DATA
-};
-
-=======
->>>>>>> refs/remotes/pascallanger/master
 static void __attribute__((unused)) yd717_send_packet(uint8_t bind)
 {
 	uint8_t rudder_trim, elevator_trim, aileron_trim;
@@ -149,11 +139,6 @@ static void __attribute__((unused)) yd717_init()
 	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);		// Set feature bits on
 	NRF24L01_Activate(0x73);
 
-<<<<<<< HEAD
-static void __attribute__((unused)) YD717_init1()
-{
-=======
->>>>>>> refs/remotes/pascallanger/master
 	// for bind packets set address to prearranged value known to receiver
 	uint8_t bind_rx_tx_addr[] = {0x65, 0x65, 0x65, 0x65, 0x65};
 
@@ -168,16 +153,6 @@ static void __attribute__((unused)) YD717_init1()
     NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, bind_rx_tx_addr, 5);
 }
 
-<<<<<<< HEAD
-static void __attribute__((unused)) YD717_init2()
-{
-    // set rx/tx address for data phase
-    NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);
-    NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
-}
-
-=======
->>>>>>> refs/remotes/pascallanger/master
 uint16_t yd717_callback()
 {
 	if(IS_BIND_DONE_on)

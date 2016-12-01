@@ -56,18 +56,23 @@ enum YD829_FLAGS {
 };
 
 enum H8_3D_FLAGS {
-    // flags going to packet[17]
-    H8_3D_FLAG_FLIP      = 0x01,
-    H8_3D_FLAG_RATE_MID  = 0x02,
-    H8_3D_FLAG_RATE_HIGH = 0x04,
-    H8_3D_FLAG_LIGTH	 = 0x08, // Light on H22
-    H8_3D_FLAG_HEADLESS  = 0x10, // RTH + headless on H8, headless on JJRC H20, RTH on H22
-    H8_3D_FLAG_RTH		 = 0x20, // 360 flip mode on H8 3D and H22, RTH on JJRC H20
+	// flags going to packet[17]
+	H8_3D_FLAG_FLIP      = 0x01,
+	H8_3D_FLAG_RATE_MID  = 0x02,
+	H8_3D_FLAG_RATE_HIGH = 0x04,
+	H8_3D_FLAG_LIGTH	 = 0x08, // Light on H22
+	H8_3D_FLAG_HEADLESS  = 0x10, // RTH + headless on H8, headless on JJRC H20, RTH on H22
+	H8_3D_FLAG_RTH		 = 0x20, // 360 flip mode on H8 3D and H22, RTH on JJRC H20
 };
 
 enum H8_3D_FLAGS_2 {
-    // flags going to packet[18]
-    H8_3D_FLAG_CALIBRATE = 0x20,  // accelerometer calibration
+	// flags going to packet[18]
+	H8_3D_FLAG_CAM_UP		= 0x04,
+	H8_3D_FLAG_CAM_DOWN		= 0x08,
+	H8_3D_FLAG_CALIBRATE2	= 0x10, // acc calib. (H11D, H20)
+	H8_3D_FLAG_CALIBRATE	= 0x20, // acc calib. (H8 3D), headless calib (H20)
+	H8_3D_FLAG_SNAPSHOT		= 0x40,
+	H8_3D_FLAG_VIDEO		= 0x80,
 };
 
 static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
@@ -119,8 +124,10 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 						| GET_FLAG(Servo_AUX2,H8_3D_FLAG_LIGTH) //H22 light
 						| GET_FLAG(Servo_AUX3,H8_3D_FLAG_HEADLESS)
 						| GET_FLAG(Servo_AUX4,H8_3D_FLAG_RTH); // 180/360 flip mode on H8 3D
-			if(Servo_AUX5)
-				packet[18] = H8_3D_FLAG_CALIBRATE;
+			packet[18] =  GET_FLAG(Servo_AUX5,H8_3D_FLAG_CALIBRATE)
+						| GET_FLAG(Servo_AUX5,H8_3D_FLAG_CALIBRATE2)
+						| GET_FLAG(Servo_AUX6,H8_3D_FLAG_SNAPSHOT)
+						| GET_FLAG(Servo_AUX7,H8_3D_FLAG_VIDEO);
 		}
 	    uint8_t  sum = packet[9];
 		for (uint8_t i=10; i < H8_3D_PACKET_SIZE-1; i++)

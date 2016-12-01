@@ -15,17 +15,6 @@
 /************************/
 /**  Convert routines  **/
 /************************/
-int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
-{
-//  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-	long y ;
-	x -= in_min ;
-	y = out_max - out_min ;
-	y *= x ;
-	x = y / (in_max - in_min) ;
-	return x  + out_min ;
-}
-
 // Channel value is converted to 8bit values full scale
 uint8_t convert_channel_8b(uint8_t num)
 {

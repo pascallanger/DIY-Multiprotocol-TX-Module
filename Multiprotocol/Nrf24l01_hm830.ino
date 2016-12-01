@@ -1,10 +1,11 @@
 /*
-	 This project is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-	 Deviation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-	 You should have received a copy of the GNU General Public License along with Deviation.  If not, see <http://www.gnu.org/licenses/>.
+	This project is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+	Deviation is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+	You should have received a copy of the GNU General Public License along with Deviation.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* This protocol is for the HM Hobby HM830 RC Paper Airplane 
+/* 
+	This protocol is for the HM Hobby HM830 RC Paper Airplane 
 	Protocol spec: 
 		Channel data:
 			AA BB CC DD EE FF GG
@@ -76,7 +77,7 @@ static uint8_t count;
 static uint8_t rf_ch[]     = {0x08, 0x35, 0x12, 0x3f, 0x1c, 0x49, 0x26};
 static uint8_t bind_addr[] = {0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xc2};
 
-static uint8_t crc8(uint32_t result, uint8_t *data, int len) {
+static uint8_t HM830_crc8(uint32_t result, uint8_t *data, int len) {
 	int polynomial = 0x01;
 	for(int i = 0; i < len; i++) {
 		result = result ^ data[i];
@@ -114,26 +115,26 @@ static void HM830_init() {
 
 static void build_bind_packet_hm830() {
 	for(int i = 0; i < 6; i++) { packet[i] = rx_tx_addr[i]; }
-	packet[6] = crc8(0xa5, packet, 6);
+	packet[6] = HM830_crc8(0xa5, packet, 6);
 }
 
 static void build_data_packet() {
 	uint8_t ail_sign = 0, trim_sign = 0;
 
-	throttle = (uint32_t)Servo_data[THROTTLE] * 50 / PPM_MAX + 50;
+	throttle = (uint32_t)map(limit_channel_100(THROTTLE),servo_min_100,servo_max_100,0,100);
 	if (throttle < 0) { throttle = 0; }
 
-	aileron = (uint32_t)Servo_data[AILERON] * 8 / PPM_MAX;
+	aileron = (uint32_t)map(limit_channel_100(AILERON),servo_min_100,servo_max_100,-8,8);
 	if (aileron < 0) {  aileron = -aileron; ail_sign = 1; }
 	if (aileron > 7) { aileron = 7; }
 
-	uint8_t turbo = (uint32_t)Servo_data[ELEVATOR] > 0 ? 1 : 0;
+	uint8_t turbo = Servo_data[ELEVATOR] > PPM_SWITCH ? 1 : 0;
 
-	uint8_t trim = ((uint32_t)Servo_data[RUDDER] * 0x1f / PPM_MAX);
+	uint8_t trim = map(limit_channel_100(RUDDER),servo_min_100,servo_max_100,-31,31);
 	if (trim < 0) {   trim = -trim; trim_sign = 1; }
 	if (trim > 0x1f) { trim = 0x1f; }
 
-	uint8_t rbutton = (uint32_t)Servo_data[4] > 0 ? 1 : 0;
+	uint8_t rbutton = Servo_data[4] > PPM_SWITCH ? 1 : 0;
 	packet[0] = throttle;
 	packet[1] = aileron;
 	if (ail_sign) { packet[1] |= 0x20; }
@@ -141,7 +142,7 @@ static void build_data_packet() {
 	if (rbutton) {  packet[1] |= 0x80; }
 	packet[5] = trim;
 	if (trim_sign) {  packet[5] |= 0x20;}
-	packet[6] = crc8(0xa5, packet, 6);
+	packet[6] = HM830_crc8(0xa5, packet, 6);
 }
 
 static void send_packet_hm830() {

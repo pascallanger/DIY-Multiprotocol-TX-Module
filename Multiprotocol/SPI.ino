@@ -15,72 +15,145 @@
 /********************/
 /**  SPI routines  **/
 /********************/
-#ifdef XMEGA
-	#define XNOP() NOP()
+#ifdef STM32_BOARD
+
+	SPIClass SPI_2(2); 							//Create an instance of the SPI Class called SPI_2 that uses the 2nd SPI Port
+
+	void initSPI2()
+	{
+		//SPI_DISABLE();
+		SPI_2.end();
+		SPI2_BASE->CR1 &= ~SPI_CR1_DFF_8_BIT;	//8 bits format This bit should be written only when SPI is disabled (SPE = ?0?) for correct operation.
+		SPI_2.begin();							//Initialize the SPI_2 port.
+
+		SPI_2.setBitOrder(MSBFIRST);			// Set the SPI_2 bit order
+		SPI_2.setDataMode(SPI_MODE0);			// Set the SPI_2 data mode 0
+		SPI_2.setClockDivider(SPI_CLOCK_DIV8);	// Set the speed (36 / 8 = 4.5 MHz SPI_2 speed)
+	}
+		
+	void SPI_Write(uint8_t command)
+	{//working OK	
+		SPI2_BASE->DR = command;				//Write the first data item to be transmitted into the SPI_DR register (this clears the TXE flag).
+		while (!(SPI2_BASE->SR & SPI_SR_RXNE));
+		command = SPI2_BASE->DR;				// ... and read the last received data.
+	}
+
+	uint8_t SPI_Read(void)
+	{
+		SPI_Write(0x00);		
+		return SPI2_BASE->DR;
+	}
+
+	uint8_t SPI_SDI_Read()
+	{	
+		uint8_t rx=0;
+		cli();	//Fix Hubsan droputs??
+		while(!(SPI2_BASE->SR & SPI_SR_TXE));
+		while((SPI2_BASE->SR & SPI_SR_BSY));	
+		//	
+		SPI_DISABLE();
+		SPI_SET_BIDIRECTIONAL();
+		volatile uint8_t x = SPI2_BASE->DR;
+		(void)x;
+		SPI_ENABLE();
+		//
+		SPI_DISABLE();				  
+		while(!(SPI2_BASE->SR& SPI_SR_RXNE));
+		rx=SPI2_BASE->DR;
+		SPI_SET_UNIDIRECTIONAL();
+		SPI_ENABLE();
+		sei();//fix Hubsan dropouts??
+		return rx;
+	}
+
+	void SPI_ENABLE()
+	{
+		SPI2_BASE->CR1 |= SPI_CR1_SPE;
+	}
+
+	void SPI_DISABLE()
+	{
+		SPI2_BASE->CR1 &= ~SPI_CR1_SPE;
+	}
+
+	void SPI_SET_BIDIRECTIONAL()
+	{
+		SPI2_BASE->CR1 |= SPI_CR1_BIDIMODE;
+		SPI2_BASE->CR1  &= ~ SPI_CR1_BIDIOE;//receive only
+	}
+
+	void SPI_SET_UNIDIRECTIONAL()
+	{
+		SPI2_BASE->CR1 &= ~SPI_CR1_BIDIMODE;
+	}
 #else
-	#define XNOP()
-#endif
+	#ifdef ORANGE_TX
+		#define XNOP() NOP()
+	#else
+		#define XNOP()
+	#endif
 
-void SPI_Write(uint8_t command)
-{
-	uint8_t n=8; 
-
-	SCLK_off;//SCK start low
-	XNOP();
-	SDI_off;
-	XNOP();
-	do
+	void SPI_Write(uint8_t command)
 	{
-		if(command&0x80)
-			SDI_on;
-		else
-			SDI_off;
-		XNOP();
-		SCLK_on;
-		XNOP();
-		XNOP();
-		command = command << 1;
-		SCLK_off;
-		XNOP();
-	}
-	while(--n) ;
-	SDI_on;
-}
+		uint8_t n=8; 
 
-uint8_t SPI_Read(void)
-{
-	uint8_t result=0,i;
-	for(i=0;i<8;i++)
+		SCLK_off;//SCK start low
+		XNOP();
+		SDI_off;
+		XNOP();
+		do
+		{
+			if(command&0x80)
+				SDI_on;
+			else
+				SDI_off;
+			XNOP();
+			SCLK_on;
+			XNOP();
+			XNOP();
+			command = command << 1;
+			SCLK_off;
+			XNOP();
+		}
+		while(--n) ;
+		SDI_on;
+	}
+
+	uint8_t SPI_Read(void)
 	{
-		result=result<<1;
-		if(SDO_1)
-			result |= 0x01;
-		SCLK_on;
-		XNOP();
-		XNOP();
-		NOP();
-		SCLK_off;
-		XNOP();
-		XNOP();
+		uint8_t result=0,i;
+		for(i=0;i<8;i++)
+		{
+			result=result<<1;
+			if(SDO_1)
+				result |= 0x01;
+			SCLK_on;
+			XNOP();
+			XNOP();
+			NOP();
+			SCLK_off;
+			XNOP();
+			XNOP();
+		}
+		return result;
 	}
-	return result;
-}
 
-#ifdef A7105_INSTALLED
-uint8_t SPI_SDIO_Read(void)
-{
-	uint8_t result=0;
-	SDI_input;
-	for(uint8_t i=0;i<8;i++)
-	{                    
-		result=result<<1;
-		if(SDI_1)  ///if SDIO =1 
-			result |= 0x01;
-		SCLK_on;
-		NOP();
-		SCLK_off;
+	#ifdef A7105_INSTALLED
+	uint8_t SPI_SDI_Read(void)
+	{
+		uint8_t result=0;
+		SDI_input;
+		for(uint8_t i=0;i<8;i++)
+		{                    
+			result=result<<1;
+			if(SDI_1)  ///if SDIO =1 
+				result |= 0x01;
+			SCLK_on;
+			NOP();
+			SCLK_off;
+		}
+		SDI_output;
+		return result;
 	}
-	SDI_output;
-	return result;
-}
-#endif
+	#endif
+#endif//STM32_BOARD

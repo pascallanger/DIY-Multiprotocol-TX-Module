@@ -189,9 +189,9 @@ static void ne260_init() {
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, vRX_DR | vTX_DS | vMAX_RT);        // reset the IRQ flags
 }
 
-static void send_data_packet() {
+static void send_ne_data_packet() {
 	for(int i = 0; i < 4; i++) {
-		uint32_t value = (uint32_t)Servo_data[NE_ch[i]] * 0x40 / PPM_MAX + 0x40;
+		uint32_t value = (uint32_t)map(limit_channel_100(NE_ch[i]),servo_min_100,servo_max_100,0,80);
 		if (value > 0x7f)
 			value = 0x7f;
 		else if(value < 0)
@@ -210,7 +210,7 @@ static void send_data_packet() {
 	NRF24L01_WritePayload((uint8_t*) packet, PACKET_NE_LENGTH);
 }
 
-static void send_bind_packet() {
+static void send_ne_bind_packet() {
 	packet[0] = 0xAA; //throttle
 	packet[1] = 0xAA; //rudder
 	packet[2] = 0xAA; //elevator
@@ -243,7 +243,7 @@ static uint16_t ne260_cb() {
 			}
 		}
 		NRF24L01_SetTxRxMode(TX_EN);
-		send_bind_packet();
+		send_ne_bind_packet();
 		state = NE260_BINDRX;
 		return 500;
 	} else if (state == NE260_BINDRX) {
@@ -259,7 +259,7 @@ static uint16_t ne260_cb() {
 	else if (state == NE260_DATA1) {	neChannel = 10;	state = NE260_DATA2;	}
 	else if (state == NE260_DATA2) {	neChannel = 30;	state = NE260_DATA3;	}
 	else if (state == NE260_DATA3) {	neChannel = 50;	state = NE260_DATA1;	}
-	send_data_packet();
+	send_ne_data_packet();
 	return 2500;
 }
 

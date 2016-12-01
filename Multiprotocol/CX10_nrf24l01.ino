@@ -25,10 +25,6 @@
 #define Q282_PACKET_SIZE	21
 #define CX10_PACKET_PERIOD	1316  // Timeout for callback in uSec
 #define CX10A_PACKET_PERIOD	6000
-<<<<<<< HEAD
-#define CX10A_BIND_COUNT	400   // 2 seconds
-=======
->>>>>>> refs/remotes/pascallanger/master
 
 #define CX10_INITIAL_WAIT     500
 
@@ -201,30 +197,15 @@ uint16_t CX10_callback()
 			}
 			break;
 		case CX10_BIND2:
-<<<<<<< HEAD
-			bind_counter--;
-			if(bind_counter==0)
-			{ // Needed for some CX-10A to properly finish the bind
-				CX10_init();
-				bind_counter=CX10A_BIND_COUNT;
-			}
-			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & BV(NRF24L01_07_RX_DR))
-=======
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
->>>>>>> refs/remotes/pascallanger/master
 			{ // RX fifo data ready
 				XN297_ReadPayload(packet, packet_length);
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_SetTxRxMode(TX_EN);
 				if(packet[9] == 1)
 				{
-<<<<<<< HEAD
-					phase = CX10_BIND1;
-					bind_counter=0;
-=======
 					BIND_DONE;
 					phase = CX10_DATA;
->>>>>>> refs/remotes/pascallanger/master
 				}
 			}
 			else
@@ -234,11 +215,7 @@ uint16_t CX10_callback()
 				NRF24L01_FlushTx();
 				NRF24L01_SetTxRxMode(TX_EN);
 				CX10_Write_Packet(1);
-<<<<<<< HEAD
-				delayMicroseconds(400);				// 300µs in deviation but not working so using 400µs instead
-=======
 				delayMicroseconds(400);
->>>>>>> refs/remotes/pascallanger/master
 				// switch to RX mode
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_FlushRx();
@@ -288,10 +265,6 @@ uint16_t initCX10(void)
 		packet_period = CX10A_PACKET_PERIOD;
 
 		phase = CX10_BIND2;
-<<<<<<< HEAD
-		bind_counter=CX10A_BIND_COUNT;
-=======
->>>>>>> refs/remotes/pascallanger/master
 
 		for(uint8_t i=0; i<4; i++)
 			packet[5+i] = 0xff; // clear aircraft id

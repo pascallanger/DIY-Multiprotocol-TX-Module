@@ -62,9 +62,7 @@ uint8_t  packet[40];
 uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
 uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
-#if defined(REVERSE_AILERON) || defined(REVERSE_ELEVATOR) || defined(REVERSE_THROTTLE) || defined(REVERSE_RUDDER)
-	uint16_t servo_mid;
-#endif
+uint16_t servo_mid;
 
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
@@ -371,9 +369,7 @@ void setup()
 			Mprotocol_serial_init(); 	// Configure serial and enable RX interrupt
 		#endif //ENABLE_SERIAL
 	}
-	#if defined(REVERSE_AILERON) || defined(REVERSE_ELEVATOR) || defined(REVERSE_THROTTLE) || defined(REVERSE_RUDDER)
-		servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
-	#endif
+	servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
 }
 
 // Main

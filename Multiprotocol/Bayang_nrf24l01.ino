@@ -92,7 +92,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 		packet[11] = val & 0xFF;
 	}
 	packet[12] = rx_tx_addr[2];	// txid[2]
-	packet[13] = 0x0A;
+	packet[13] = sub_protocol==H8S3D?0x34:0x0A;
 	packet[14] = 0;
     for (uint8_t i=0; i < BAYANG_PACKET_SIZE-1; i++)
 		packet[14] += packet[i];

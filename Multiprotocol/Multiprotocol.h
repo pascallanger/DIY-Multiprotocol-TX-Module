@@ -122,6 +122,11 @@ enum CG023
     YD829	= 1,
     H8_3D	= 2
 };
+enum BAYANG
+{
+    BAYANG	= 0,
+    H8S3D	= 1
+};
 enum MT99XX
 {
 	MT99	= 0,
@@ -457,6 +462,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CG023		0
 			YD829		1
 			H8_3D		2
+		sub_protocol==BAYANG
+			BAYANG		0
+			H8S3D		1
 		sub_protocol==MT99XX
 			MT99		0
 			H7			1

@@ -240,6 +240,11 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
 
+###Sub_protocol H8S3D
+Model: H8S 3D
+
+Same channels assignement as above.
+
 ##CG023
 Models: EAchine CG023/CG031/3D X4
 

@@ -307,11 +307,12 @@ CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
-###Sub_protocol Q282 and Q242
+##Q2X2
+###Sub_protocol Q222, Q242 and Q282
 
-CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---
-FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 
 Model: JXD 509 is using Q282 with CH12=Start/Stop motors
 
@@ -359,7 +360,7 @@ A|E|T|R|GEAR|PITCH|GYRO|CH8
 
 GYRO: -100%=6G, +100%=3G
 
-###HK310
+###Sub_protocol HK310
 Models: RX HK-3000, HK3100 and XY3000 (TX are HK-300, HK-310 and TL-3C)
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8

@@ -15,7 +15,22 @@ uint8_t tpsc=0, tpsz=0;
 uint8_t data[6];  //nunchuck
 boolean c=false, z=false,	 cl=false, zl=false, op=false;
 
+uint8_t batteryTX = 255;
+
+
 void nunchuck_init() {
+	analogReference(INTERNAL);
+	pinMode(BUZZER_PIN, OUTPUT);	digitalWrite(BUZZER_PIN, BUZZER_INIT);
+	
+	
+	/**  Interrupt routines  **/
+	TCCR2A = 0b00000010;													//	COM 2A1, 2A0, 2B1, 2B0, - , - , WGM21, WGM20
+	TCCR2B = 0b00000110;	// Clock / 256 soit 16 micro-s et WGM22 = 0		// FOC2A, FOC2B, -  , - , WGM22, CS22, CS21, CS20
+	TIMSK2 = 0b00000010;	// Interruption locale autorisée par OCIE2A		// -  , - , -  , - , - , OCIE2B, OCIE2A, TOIE2
+	OCR2A = 250;			// Interruption du compte à ...
+	sei();					// autorisation générale des interruptions
+	
+	
 	strip.begin();
 		strip.setPixelColor(0, color[0], color[0+1], color[0+2]);
 		strip.setBrightness(200);
@@ -82,13 +97,19 @@ void nunchuck_update() {
 	}
 }
 
-/*
 #define DIVISOR_PERCENTS (32)
 #define PERCENT_TO_BYTE(P) ((int8_t)((((int)P) * DIVISOR_PERCENTS) / 100))
 #define BYTE_TO_PERCENT(P) ((int8_t)((((int)P) * 100) / DIVISOR_PERCENTS))
 int16_t expo(int8_t a, int32_t x) {
-  return (((BYTE_TO_PERCENT(a) * x  * x) / 100) * x) / (((int32_t)MAX_LEVEL) * MAX_LEVEL)
+  return (((BYTE_TO_PERCENT(a) * x  * x) / 100) * x) / (((int32_t)servo_max_125) * servo_max_125)
     + (100 - BYTE_TO_PERCENT(a)) * x / 100;
 }
-*/
+
+/**  Interrupt routines  4ms **/
+ISR (TIMER2_OVF_vect) {
+	batteryTX = map(analogRead(VBAT_PIN), 0,1023, 0,430);
+	if(batteryTX < VBAT_LIM) {			digitalWrite(BUZZER_PIN, !BUZZER_INIT);	}
+	else if(batteryTX < VBAT_VAL) {		digitalWrite(BUZZER_PIN, !digitalRead(BUZZER_PIN));	}
+	nunchuck_update();
+}
 #endif

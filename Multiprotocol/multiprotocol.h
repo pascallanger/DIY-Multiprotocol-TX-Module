@@ -138,6 +138,12 @@ enum CG023
     YD829 = 1,
     H8_3D = 2
 };
+enum BAYANG
+{
+    BAYANG	= 0,
+	BAYANG_TELEM = 1,
+    H8S3D	= 2
+};
 enum MT99XX
 {
 	MT99	= 0,
@@ -167,11 +173,6 @@ enum HONTAI
 	FORMAT_FQ777	= 3
 };
 
-enum BAYANG
-{
-	BAYANG = 0,
-	BAYANG_TELEM = 1
-};
 enum HUBSAN
 {
 	H107	= 0,
@@ -517,6 +518,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CG023		0
 			YD829		1
 			H8_3D		2
+		sub_protocol==BAYANG
+			BAYANG			0
+			BAYANG TELEM	1
+			H8S3D			2
 		sub_protocol==MT99XX
 			MT99		0
 			H7			1

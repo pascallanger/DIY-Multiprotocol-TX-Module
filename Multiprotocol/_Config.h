@@ -34,6 +34,11 @@
 //Default is AETR.
 #define EATR
 
+//Uncomment to reverse the direction of the specified channel for all protocols
+//#define REVERSE_AILERON
+//#define REVERSE_ELEVATOR
+//#define REVERSE_THROTTLE
+//#define REVERSE_RUDDER
 
 //Modify the channel for a software reset modul: AUX...(channel number - 4)
 //Default is AUX10 (channel 14).
@@ -95,7 +100,7 @@
 	
 	#define	BAYANG_NRF24L01_INO
 	#define	CG023_NRF24L01_INO
-	#define	CX10_NRF24L01_INO
+	#define	CX10_NRF24L01_INO		// Include Q2X2 protocol
 	#define	ESKY_NRF24L01_INO
 //	#define	HISKY_NRF24L01_INO
 	#define	KN_NRF24L01_INO
@@ -145,7 +150,12 @@
 /******************************/
 //In this section you can configure the NUNCHUCK.
 //If you do not plan to use the NUNCHUCK mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
-//#define ENABLE_NUNCHUCK
+#define ENABLE_NUNCHUCK
+#define VBAT_PIN 3 // for Tx adapters with battery
+#define VBAT_VAL 340 // for Tx adapters with battery (attention pont divisieur pour avoir 1,1V max ,~=3,404V)
+#define VBAT_LIM 330 // for Tx adapters with battery (attention pont divisieur pour avoir 1,1V max , ~=3,302V)
+#define BUZZER_PIN 14	//A0
+#define BUZZER_INIT HIGH
 const uint8_t color[] = {
 	0,		255,	0,		0,		255,	100,	// 	VERT		
 	255,	255,	0,		127,	255,	0,		// 	rouge		
@@ -204,7 +214,7 @@ const PPM_Parameters PPM_prot[15]=	{
 /*	11	*/	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	12	*/	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	13	*/	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	14	*/	{MODE_BAYANG,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{MODE_BAYANG,	BAYANG		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	15	*/	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}
 };
 /* Available protocols and associated sub protocols to pick and choose from
@@ -263,7 +273,9 @@ const PPM_Parameters PPM_prot[15]=	{
 		YD829
 		H8_3D
 	MODE_BAYANG
-		NONE
+		BAYANG
+		BAYANG TELEMETRY
+		H8S3D
 	MODE_FRSKYX
 		CH_16
 		CH_8

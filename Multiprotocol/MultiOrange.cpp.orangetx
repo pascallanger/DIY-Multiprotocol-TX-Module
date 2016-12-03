@@ -11,7 +11,7 @@
 #include <avr/interrupt.h>
 
 static void protocol_init(void) ;
-static void update_aux_flags(void) ;
+static void update_channels_aux(void) ;
 static uint32_t random_id(uint16_t adress, uint8_t create_new) ;
 static void update_serial_data(void) ;
 static void Mprotocol_serial_init(void) ;

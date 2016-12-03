@@ -66,6 +66,7 @@ uint8_t packet[40];
 uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
 uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
+uint16_t servo_mid;
 
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
@@ -248,11 +249,6 @@ void setup()
 		// Timer1 config
 		TCCR1A = 0;
 		TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
-#ifdef ENABLE_NUNCHUCK
-		TCCR2A = 0; 			//default
-		TCCR2B = 0b00000010; 	// clk/8
-		TIMSK2 = 0b00000001; 	// TOIE2  
-#endif
 		
 		// Random
 		random_init();
@@ -283,7 +279,7 @@ void setup()
 	for(uint8_t i=0;i<NUM_CHN;i++)
 		Servo_data[i]=1500;
 	Servo_data[THROTTLE]=servo_min_100;
-	#if defined (ENABLE_PPM) || defined(ENABLE_NUNCHUCK)
+	#ifdef ENABLE_PPM
 		memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
 	#endif
 
@@ -377,12 +373,12 @@ void setup()
 			servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
 			Mprotocol_serial_init(); // Configure serial and enable RX interrupt
 		#endif //ENABLE_SERIAL
-		
-		#ifdef ENABLE_NUNCHUCK
-			analogReference(INTERNAL);
-			nunchuck_init();
-		#endif //ENABLE_NUNCHUCK
 	}
+	servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
+	
+	#ifdef ENABLE_NUNCHUCK
+		nunchuck_init();
+	#endif //ENABLE_NUNCHUCK
 }
 
 // Main
@@ -470,7 +466,7 @@ void Update_All()
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
 		{
 			update_serial_data(); // Update protocol and data
-			update_aux_flags();
+
 		}
 	#endif //ENABLE_SERIAL
 	#ifdef ENABLE_PPM
@@ -486,12 +482,12 @@ void Update_All()
 				else if(temp_ppm>PPM_MAX_125) temp_ppm=PPM_MAX_125;
 				Servo_data[i]= temp_ppm ;
 			}
-			update_aux_flags();
 			PPM_FLAG_off;	// wait for next frame before update
 			INPUT_SIGNAL_on;								//valid signal received
 			last_signal=millis();
 		}
 	#endif //ENABLE_PPM
+	update_channels_aux();
 	#if defined(TELEMETRY)
 		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) 
 			#ifdef ENABLE_BAYANG_TELEMETRY
@@ -503,9 +499,23 @@ void Update_All()
 	update_led_status();
 }
 
-// Update Servo_AUX flags based on servo AUX positions
-static void update_aux_flags(void)
+// Update channels direction and Servo_AUX flags based on servo AUX positions
+static void update_channels_aux(void)
 {
+	//Reverse channels direction
+	#ifdef REVERSE_AILERON
+		Servo_data[AILERON]=servo_mid-Servo_data[AILERON];
+	#endif
+	#ifdef REVERSE_ELEVATOR
+		Servo_data[ELEVATOR]=servo_mid-Servo_data[ELEVATOR];
+	#endif
+	#ifdef REVERSE_THROTTLE
+		Servo_data[THROTTLE]=servo_mid-Servo_data[THROTTLE];
+	#endif
+	#ifdef REVERSE_RUDDER
+		Servo_data[RUDDER]=servo_mid-Servo_data[RUDDER];
+	#endif
+	//Calc AUX flags
 	Servo_AUX=0;
 	for(uint8_t i=0;i<8;i++)
 		if(Servo_data[AUX1+i]>PPM_SWITCH)
@@ -1163,20 +1173,6 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 /**  Interrupt routines  **/
 /**************************/
 /**************************/
-
-//NUNCHUCK
-#ifdef ENABLE_NUNCHUCK
-ISR (TIMER2_OVF_vect) {
-	static uint16_t Prev_TCNT2=0;
-	// le flag OVF est mis à zéro par la fonction ISR
-	TCNT2 = 62; 
-	// 256-200 --> 200X50ns = 100 us
-	if (Prev_TCNT2++ > 10000) {
-		Prev_TCNT2 = 0;
-		nunchuck_update();
-	} 
-}
-#endif
 
 //PPM
 #ifdef ENABLE_PPM

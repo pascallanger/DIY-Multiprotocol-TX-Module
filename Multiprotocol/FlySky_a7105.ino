@@ -144,8 +144,11 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
     packet[4] = rx_tx_addr[0];
 	for(i = 0; i < 8; i++)
 	{
-		packet[5 + i*2]=Servo_data[CH_AETR[i]]&0xFF;		//low byte of servo timing(1000-2000us)
-		packet[6 + i*2]=(Servo_data[CH_AETR[i]]>>8)&0xFF;	//high byte of servo timing(1000-2000us)
+		uint16_t temp=Servo_data[CH_AETR[i]];
+		if(sub_protocol == CX20 && CH_AETR[i] == ELEVATOR)
+			temp=servo_mid-temp;		//reverse channel
+		packet[5 + i*2]=temp&0xFF;		//low byte of servo timing(1000-2000us)
+		packet[6 + i*2]=(temp>>8)&0xFF;	//high byte of servo timing(1000-2000us)
 	}
     flysky_apply_extension_flags();
 }

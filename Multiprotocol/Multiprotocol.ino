@@ -411,7 +411,10 @@ void loop()
 		{
 			TX_MAIN_PAUSE_on;
 			tx_pause();
-			next_callback=remote_callback();
+			if(IS_INPUT_SIGNAL_on)
+				next_callback=remote_callback();
+			else
+				next_callback=2000;					// No PPM/serial signal check again in 2ms...
 			TX_MAIN_PAUSE_off;
 			tx_resume();
 			while(next_callback>4000)
@@ -520,8 +523,8 @@ static void update_channels_aux(void)
 static void update_led_status(void)
 {
 	if(IS_INPUT_SIGNAL_on)
-		if(millis()-last_signal>50)
-			INPUT_SIGNAL_off;						//no valid signal (PPM or Serial) received for 50ms
+		if(millis()-last_signal>70)
+			INPUT_SIGNAL_off;							//no valid signal (PPM or Serial) received for 70ms
 	if(blink<millis())
 	{
 		if(IS_INPUT_SIGNAL_off)

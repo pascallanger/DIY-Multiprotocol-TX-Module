@@ -42,7 +42,7 @@ uint8_t frame[18];
 
 #ifdef BASH_SERIAL
 // For bit-bashed serial output
-	struct t_serial_bash
+	volatile struct t_serial_bash
 	{
 		uint8_t head ;
 		uint8_t tail ;

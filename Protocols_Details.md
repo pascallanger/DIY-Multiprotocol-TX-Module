@@ -62,6 +62,11 @@ CH5|CH6
 ---|---
 BTMBTN|TOPBTN
 
+###CX20
+Model: Cheerson Cx-20
+CH5|CH6|CH7
+---|---|---
+
 ##FLYSKY AFHDS2A
 Extended limits supported
 

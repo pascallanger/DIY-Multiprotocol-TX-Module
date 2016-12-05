@@ -84,7 +84,7 @@ The Rx powers up in binding mode so the transmitter should be set to autobind.  
 AETR are simple +100% mixes.  Note that the model expects Elevator (CH2) to be reversed, which is handled in the module firmware, so no need to reverse it on the Tx.
 
 ###Flight modes
-CH5 is used to transmit the flight mode to the APM flight controller.  The original Tx uses a 3-pos switch (SWA) and a 2-pos switch (SWB) to achieve six different combinations, but only five are used (two are the same).  Flight modes are selected based on a signal on CH5 within a specific range.
+CH5 is used to transmit the flight mode to the APM flight controller by setting the output to a value in a pre-defined range.  The original Tx uses a 3-pos switch (SWA) and a 2-pos switch (SWB) to achieve six different combinations, but only five are used - with SWA at 0, 1500 is sent when SWB is at 0 and 1, leaving flight mode 3 unused.  However, in the stock CX-20 flight controller settings, both flight mode 3 and 4 are set to the same flight mode, meaning we can configure our new Tx settings to send a value for mode 3 without changing the standard flight mode behaviour.  Afterwards, you can optionally use Mission Planner to assign a new flight mode to mode 3 or mode 4, or reconfigure them altogether.
 
 The values, modes, and switch positions for the stock Tx are:
 
@@ -92,8 +92,8 @@ Mode|Stock Tx PWM Value|CX-20 Mode|SWA|SWB
 ---|---|---|---|---
 1|1100|Return to Home|2|0
 2|1300|Altitude Sensor|2|1
-3|1400|Manual|0|0
-4|1500|Manual|0|1
+3||||
+4|1500|Manual|0|0 or 1
 5|1700|Direction Lock|1|1
 6|1900|Stable|1|0
 
@@ -107,7 +107,7 @@ Direction Locked|Simple
 Altitude Sensor|Altitude Hold
 Return to Home|RTL (Return to Launch)
 
-The flight modes can be mapped as-is, but you could easily use Mission Planner to add an additional mode instead of duplicating Manual/Stabilize. Either way you will need to set your Tx up to provide these (or very similar) outputs on CH5.
+We need to set the Tx up to output these values on CH5 (or very similar values - more information, including the PWM width ranges is documented in the [Arducopter Wiki](http://ardupilot.org/copter/docs/common-rc-transmitter-flight-mode-configuration.html#common-rc-transmitter-flight-mode-configuration)).
 
 One easy way to acheive this is to configure six logical switches mapped to two physical switches, for example the 3-way ID switch and the AIL D/R switch, then configure the logical switches to activate a flgiht mode and to apply a specific weight to the CH5 output.
 
@@ -145,6 +145,8 @@ CH5|-80%|HALF|L1|REPLACE
  |+0%|HALF|L4|REPLACE
  |+40%|HALF|L5|REPLACE
  |+80%|HALF|L6|REPLACE
+
+**NB** The weight values in this table will get you in the ball park, and will most likely work fine.  Because transmitters can vary they should be double-checked in the Mission Planer Radio Calibration screen, and tweaked as necessary.
 
 ### CH6 and CH7
 CH6 and CH7 can be assigned to switches or pots to provide additionaly functionality such as PID tuning, gimbal control, or APM auto-tune or auto-land.

@@ -43,6 +43,10 @@ V2b
 
 <img src="images/V2b_Serial_Enable.jpeg" width="220" height="340" /> 
 
+V2c
+
+<img src="images/V2c_Serial_Enable.jpeg" width="220" height="340" /> 
+
 You are now ready to go over to [Compiling and Programming](Compiling.md).
 
 #### **Version 1 (V1) module** 

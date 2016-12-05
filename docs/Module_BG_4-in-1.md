@@ -28,14 +28,18 @@ If you are only planning on using the PPM interface with transmitter you are rea
 ###Enabling Serial and Telemetry interface
 If you have a transmitter that can support serial communication with the board then you need to wire up the board appropriately. There are two versions of the module and the steps are slightly different.
 
-Check which module you have and based on the pictures below.  If you purchased the module after June 2016 then it is likely that you have V2 type module.  
+Check which module you have and based on the pictures below.  If you purchased the module after June 2016 then it is likely that you have a V2 type module.  
 
 #### **Version 2 (V2) type modules** 
 
 Solder two bridges over the pads shown in the pictures below. 
  
+V2a
+
 <img src="images/V2a_Serial_Enable.jpeg" width="300" height="340" /> 
 <img src="images/V2a_zoom_Serial_Enable.jpeg" width="450" height="340" /> 
+
+V2b
 
 <img src="images/V2b_Serial_Enable.jpeg" width="220" height="340" /> 
 

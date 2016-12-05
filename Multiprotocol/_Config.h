@@ -175,7 +175,7 @@ const PPM_Parameters PPM_prot[15]=	{
 /*	11	*/	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	12	*/	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	13	*/	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	14	*/	{MODE_BAYANG,	BAYANG			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{MODE_BAYANG,	BAYANG		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	15	*/	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}
 };
 /* Available protocols and associated sub protocols to pick and choose from

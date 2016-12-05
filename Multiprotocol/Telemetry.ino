@@ -818,7 +818,7 @@ ISR(TIMER0_COMPB_vect)
 		else
 		{
 			// prepare next byte and allow for 2 stop bits
-			struct t_serial_bash *ptr = &SerialControl ;
+			volatile struct t_serial_bash *ptr = &SerialControl ;
 			if ( ptr->head != ptr->tail )
 			{
 				GPIOR0 = ptr->data[ptr->tail] ;
@@ -869,7 +869,7 @@ ISR(TIMER0_OVF_vect)
 	if ( --GPIOR1 == 0 )
 	{
 		// prepare next byte
-		struct t_serial_bash *ptr = &SerialControl ;
+		volatile struct t_serial_bash *ptr = &SerialControl ;
 		if ( ptr->head != ptr->tail )
 		{
 			GPIOR0 = ptr->data[ptr->tail] ;

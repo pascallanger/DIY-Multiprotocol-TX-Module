@@ -70,6 +70,111 @@ The next screen shows and example of how the expo (50%) was set up on the stick 
 The next screen shows the mixer menu with the mode change on momentary switch SH and High-Low rates on switch SC:  
 <img src="images/Inductrix_Mixer.png" Width="600" Height="200" />  
 
+# Cheerson CX-20 / Quanum Nova
+<img src="http://uaequadcopters.com/images/products/Large/932-cheersoncx20dronquad.jpg" Width="200" Height="155" />
+##Channel Map
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|MODE|AUX1|AUX2
+
+##Binding
+The Rx powers up in binding mode so the transmitter should be set to autobind.  If the Tx signal is lost due to power-off or going out of range the Rx will not re-bind, and requires power-cycling before it will bind again.
+
+##Tx Setup
+AETR are simple +100% mixes.  Note that the model expects Elevator (CH2) to be reversed, which is handled in the module firmware, so no need to reverse it on the Tx.
+
+###Flight modes
+CH5 is used to transmit the flight mode to the APM flight controller by setting the output to a value in a pre-defined range.  The original Tx uses a 3-pos switch (SWA) and a 2-pos switch (SWB) to achieve six different combinations, but only five are used - with SWA at 0, 1500 is sent when SWB is at 0 and 1, leaving flight mode 3 unused.  However, in the stock CX-20 flight controller settings, both flight mode 3 and 4 are set to the same flight mode, meaning we can configure our new Tx settings to send a value for mode 3 without changing the standard flight mode behaviour.  Afterwards, you can optionally use Mission Planner to assign a new flight mode to mode 3 or mode 4, or reconfigure them altogether.
+
+The values, modes, and switch positions for the stock Tx are:
+
+Mode|Stock Tx PWM Value|CX-20 Mode|SWA|SWB
+---|---|---|---|---
+1|1100|Return to Home|2|0
+2|1300|Altitude Sensor|2|1
+3||||
+4|1500|Manual|0|0 or 1
+5|1700|Direction Lock|1|1
+6|1900|Stable|1|0
+
+**NB** The CX-20 uses flight mode names which are different to the standard APM flight mode names. The CX-20 modes map to APM modes as follows:
+
+CX-20 Mode|APM Mode
+---|---
+Manual|Stabilize
+Stable|Loiter
+Direction Locked|Simple
+Altitude Sensor|Altitude Hold
+Return to Home|RTL (Return to Launch)
+
+We need to set the Tx up to output these values on CH5 (or very similar values - more information, including the PWM width ranges is documented in the [Arducopter Wiki](http://ardupilot.org/copter/docs/common-rc-transmitter-flight-mode-configuration.html#common-rc-transmitter-flight-mode-configuration)).
+
+One easy way to acheive this is to configure six logical switches mapped to two physical switches, for example the 3-way ID switch and the AIL D/R switch, then configure the logical switches to activate a flgiht mode and to apply a specific weight to the CH5 output.
+
+To simply map the old Tx modes to the new Tx using the same switch positions, use the following configuration. The stock SWA switch is replaced with the ID0/1/2 switch, SWB is replaced with the AIL D/R switch.
+
+####Logical switches:
+
+Switch|Function|V1|V2
+---|---|---|---
+L. Switch 1|AND|ID2|!AIL
+L. Switch 2|AND|ID2|AIL
+L. Switch 3|AND|ID0|!AIL
+L. Switch 4|AND|ID0|AIL
+L. Switch 5|AND|ID1|AIL
+L. Switch 6|AND|ID1|!AIL
+
+####Flight modes (using CX-20 names):
+
+Mode|Name|Switch
+---|---|---
+1|RTL|L1
+2|AltSen|L2
+3|Manual|L3
+4|Manual|L4
+5|DirLock|L5
+6|Stable|L6
+
+####Mixer setup:
+
+Channel|Weight|Source|Switch|Multiplex
+---|---|---|---|---
+CH5|-80%|HALF|L1|REPLACE
+ |-40%|HALF|L2|REPLACE
+ |-20%|HALF|L3|REPLACE
+ |+0%|HALF|L4|REPLACE
+ |+40%|HALF|L5|REPLACE
+ |+80%|HALF|L6|REPLACE
+
+**NB** The weight values in this table will get you in the ball park, and will most likely work fine.  Because transmitters can vary they should be double-checked in the Mission Planer Radio Calibration screen, and tweaked as necessary.
+
+### CH6 and CH7
+CH6 and CH7 can be assigned to switches or pots to provide additionaly functionality such as PID tuning, gimbal control, or APM auto-tune or auto-land.
+
+Replicating the stock setup of two pots, you would assign:
+
+Channel|Weight|Source|Multiplex
+---|---|---|---|---
+CH6|+100%|P1|ADD
+CH7|+100%|P3|ADD
+
+##Full Mixer Setup
+
+Channel|Source|Weight|Switch|Multiplex
+---|---|---|---|---
+CH1|+100%|Aileron||
+CH2|+100%|Elevator||
+CH3|+100%|Throttle||
+CH4|+100%|Rudder||
+CH5|-80%|HALF|L1|REPLACE
+ |-40%|HALF|L2|REPLACE
+ |-20%|HALF|L3|REPLACE
+ |+0%|HALF|L4|REPLACE
+ |+40%|HALF|L5|REPLACE
+ |+80%|HALF|L6|REPLACE
+CH6|+100%|P1|
+CH7|+100%|P3|
+
+Once you have configured the mixes you should connect Mission Planner to your CX-20 and use the Radio Calibration screen to verify that the channels are correctly assigned, and that the flight modes are correct.  Mission planner will give the exact PWM value on CH5, allowing the weights to be adjusted if needed.
 
 
-  

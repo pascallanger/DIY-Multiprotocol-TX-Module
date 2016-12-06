@@ -196,7 +196,9 @@ uint16_t initFlySky()
 
 	A7105_Init();
 	
-	if ((rx_tx_addr[3]&0xF0) > 0x90) // limit offset to 9 as higher values don't work with some RX (ie V912)
+	// limit offset to 9 as higher values don't work with some RX (ie V912)
+	// limit offset to 9 as CX20 repeats the same channels after that
+	if ((rx_tx_addr[3]&0xF0) > 0x90)
 		rx_tx_addr[3]=rx_tx_addr[3]-0x70;
 
 	// Build frequency hop table
@@ -213,11 +215,18 @@ uint16_t initFlySky()
 		if(i&0x01)
 			temp+=0x50;
 		if(sub_protocol==CX20)
-		{//Might need more dumps to be 100% sure but this is how it looks like to work
+		{
 			if(temp==0x0A)
 				temp+=0x37;
 			if(temp==0xA0)
-				temp-=0x73;
+			{
+				if (chanoffset<4)
+					temp=0x37;
+				else if (chanoffset<9)
+					temp=0x2D;
+				else
+					temp=0x29;
+			}
 		}
 		hopping_frequency[((chanrow&1)?15-i:i)]=temp-chanoffset;
 	}

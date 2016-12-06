@@ -21,7 +21,10 @@
 	float    telemetry_voltage      = 0.f;
 	uint8_t  telemetry_rx_rssi      = 100;
 	#ifdef ENABLE_BAYANG_TELEMETRY
+		uint16_t telemetry_rx_recv_pps  = 100;
 		uint8_t  telemetry_tx_rssi      = 100;
+		uint16_t telemetry_tx_recv_pps  = 100;
+		uint16_t telemetry_tx_sent_pps  = 100;
 		uint8_t  telemetry_datamode     = 0;
 		uint8_t  telemetry_dataitem     = 0;
 		float    telemetry_data[3]      = {0};
@@ -51,7 +54,7 @@ uint8_t frame[18];
 
 #ifdef BASH_SERIAL
 // For bit-bashed serial output
-	struct t_serial_bash
+	volatile struct t_serial_bash
 	{
 		uint8_t head ;
 		uint8_t tail ;
@@ -71,12 +74,12 @@ void DSM_frame()
 #endif
 
 #if defined AFHDS2A_TELEMETRY
-void AFHDSA_short_frame()
-{
-	Serial_write(0xAA);					// Telemetry packet
-	for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
-		Serial_write(pkt[i]);
-}
+	void AFHDSA_short_frame()
+	{
+		Serial_write(0xAA);					// Telemetry packet
+		for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
+			Serial_write(pkt[i]);
+	}
 #endif
 
 void frskySendStuffed()
@@ -371,10 +374,7 @@ void sportSendFrame()
 				case 2: //BATT
 					frame[2] = 0x04;
 					frame[3] = 0xf1;
-					if (protocol == MODE_BAYANG)
-						frame[4] = telemetry_voltage/4.f * 255.f/3.3f;//a1;
-					else
-						frame[4] = telemetry_voltage;
+					frame[4] = telemetry_voltage/4.f * 255.f/3.3f;//a1;
 					break;
 				case 3: //FCS VOLTAGE
 					frame[2] = 0x10;
@@ -447,12 +447,14 @@ void sportSendFrame()
 				case 12: // xjt t1
 					frame[2] = 0x02;
 					frame[3] = 0x00;
-					frame[4] = 0;
+					frame[4] = telemetry_tx_sent_pps >> 1; // divided by 2
+					frame[5] = telemetry_rx_recv_pps >> 1; // divided by 2
 					break;								
 				case 13: // xjt t2
 					frame[2] = 0x05;
 					frame[3] = 0x00;
-					frame[4] = 0;
+					frame[4] = telemetry_tx_recv_pps >> 1; // divided by 2
+					frame[5] = 0;
 					break;
 				default:
 					if(sport)
@@ -963,7 +965,7 @@ ISR(TIMER0_COMPB_vect)
 		else
 		{
 			// prepare next byte and allow for 2 stop bits
-			struct t_serial_bash *ptr = &SerialControl ;
+			volatile struct t_serial_bash *ptr = &SerialControl ;
 			if ( ptr->head != ptr->tail )
 			{
 				GPIOR0 = ptr->data[ptr->tail] ;
@@ -1014,7 +1016,7 @@ ISR(TIMER0_OVF_vect)
 	if ( --GPIOR1 == 0 )
 	{
 		// prepare next byte
-		struct t_serial_bash *ptr = &SerialControl ;
+		volatile struct t_serial_bash *ptr = &SerialControl ;
 		if ( ptr->head != ptr->tail )
 		{
 			GPIOR0 = ptr->data[ptr->tail] ;

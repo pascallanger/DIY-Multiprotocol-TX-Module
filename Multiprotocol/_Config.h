@@ -151,6 +151,7 @@
 //In this section you can configure the NUNCHUCK.
 //If you do not plan to use the NUNCHUCK mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
 #define ENABLE_NUNCHUCK
+//	pont diviseur		VCC --------------- 240K ------------- analogRead(0) -------------- 75K ----------- GND
 #define VBAT_PIN 3 // for Tx adapters with battery
 #define VBAT_VAL 340 // for Tx adapters with battery (attention pont divisieur pour avoir 1,1V max ,~=3,404V)
 #define VBAT_LIM 330 // for Tx adapters with battery (attention pont divisieur pour avoir 1,1V max , ~=3,302V)

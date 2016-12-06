@@ -265,11 +265,7 @@ uint16_t BAYANG_callback()
 #ifdef ENABLE_BAYANG_TELEMETRY
 		if(sub_protocol == BAYANG_TELEM)
 		{
-			Bayang_process();
-			// Return 0 here so that Bayang_process is called as often as possible
-			// to check for the incomming telemetry data. When telemetry is enabled
-			// the packet period is handled in the Bayang_process function.
-			return 0; 
+			return Bayang_process();
 		}
 		else
 #endif
@@ -317,6 +313,9 @@ uint16_t initBAYANG(void)
 
 #ifdef ENABLE_BAYANG_TELEMETRY
 	extern float    telemetry_voltage;
+extern uint16_t  telemetry_rx_recv_pps;
+extern uint16_t  telemetry_tx_recv_pps;
+extern uint16_t  telemetry_tx_sent_pps;
 	extern uint8_t  telemetry_rx_rssi;
 	extern uint8_t  telemetry_tx_rssi;
 	extern uint8_t  telemetry_datamode;
@@ -326,13 +325,21 @@ uint16_t initBAYANG(void)
 	extern uint16_t telemetry_flighttime;
 	extern uint8_t  telemetry_flightmode;
 
-	uint8_t telemetry_tx_rssi_count;
-	uint8_t telemetry_tx_rssi_next;
-
-
+	uint16_t telemetry_tx_sent_pkt_count;
+	uint32_t telemetry_tx_sent_pps_time;
+	uint16_t telemetry_tx_recv_pkt_count;
+	uint32_t telemetry_tx_recv_pps_time;
+	
+	
+	
+	
+	
+	
+	
+	static uint32_t bayang_tx_time = 0;
 	uint8_t BAYANG_recv_packet() {
 		uint8_t received = 0;
-		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) {
+		if (NRF24L01_Strobe(NRF24L01_FF_NOP) & _BV(NRF24L01_07_RX_DR)) {
 			int sum = 0;
 			uint16_t roll, pitch, yaw, throttle;
 
@@ -357,7 +364,13 @@ uint16_t initBAYANG(void)
 					v.bytes[1] = packet[2];
 					telemetry_voltage = v.v / 100.f;
 
-					telemetry_rx_rssi = packet[3];
+					telemetry_rx_recv_pps = packet[3]*2;
+					telemetry_rx_rssi = (uint8_t)(telemetry_rx_recv_pps*100/telemetry_tx_sent_pps);
+					if (telemetry_rx_rssi > 100)
+						telemetry_rx_rssi = 100;
+					telemetry_tx_rssi = (uint8_t)(telemetry_tx_recv_pps*100/telemetry_rx_recv_pps);
+					if (telemetry_tx_rssi > 100)
+						telemetry_tx_rssi = 100;
 					
 
 					v.bytes[0] = packet[4];
@@ -401,60 +414,83 @@ uint16_t initBAYANG(void)
 	BayangState Bayang_state = BAYANG_STATE_IDLE;
 	uint32_t Bayang_next_send = 0;
 
-	void Bayang_process() {
+	uint16_t Bayang_process() {
 		uint32_t time_micros = micros();
 		
+		uint16_t callback_period = 30; // asap
 		if (BAYANG_STATE_TRANSMITTING == Bayang_state) {
-			if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)) {
+			if (NRF24L01_Strobe(NRF24L01_FF_NOP) & _BV(NRF24L01_07_TX_DS) || time_micros - bayang_tx_time > 1100) {
 				// send finished, switch to rx to receive telemetry
 				XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
 				NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-				NRF24L01_FlushTx();
 				NRF24L01_FlushRx();
 				
-				telemetry_tx_rssi_count++;
+			Bayang_state = BAYANG_STATE_RECEIEVING;
 				
-				Bayang_state = BAYANG_STATE_RECEIEVING;
+			callback_period = Bayang_next_send - time_micros - 550; // wait a while for quad to receive then send a packet
 			}
 		}
 		else if (BAYANG_STATE_RECEIEVING == Bayang_state) {
+		uint8_t change_state = 1;
 			// 250us is about the time it takes to read a packet over spi
-			if (time_micros > (Bayang_next_send-250)) {
-				// didnt receive telemetry in time
-				Bayang_state = BAYANG_STATE_IDLE;
-
+			if (time_micros > (Bayang_next_send-250))
+			{				
 				// if it's been a while since receiving telemetry data,
 				// stop sending the telemetry data to the transmitter
-				if (millis() - bayang_telemetry_last_rx > 1000)
+				if (time_micros - bayang_telemetry_last_rx > 1000000)
 					telemetry_lost = 1;
 			}
-			else if (BAYANG_recv_packet()) {
-				telemetry_tx_rssi_next++;
+		else if (BAYANG_recv_packet())
+		{
+			telemetry_tx_recv_pkt_count++;
 				// received telemetry packet
 				telemetry_lost = 0;
-				bayang_telemetry_last_rx = millis();
+			bayang_telemetry_last_rx = time_micros;
 			}
 			else
 			{
-				return;
+				change_state = 0;
 			}
 		
-			if (100 == telemetry_tx_rssi_count)
+			if (telemetry_tx_recv_pps_time < time_micros)
 			{
-				telemetry_tx_rssi = telemetry_tx_rssi_next;
-				telemetry_tx_rssi_next = 0;
-				telemetry_tx_rssi_count = 0;
+				telemetry_tx_recv_pps = telemetry_tx_recv_pps + telemetry_tx_recv_pkt_count - telemetry_tx_recv_pps/10;
+				telemetry_tx_recv_pkt_count = 0;
+				telemetry_tx_recv_pps_time += 100000;
 			}
 			
+			if (change_state)
+			{
 			Bayang_state = BAYANG_STATE_IDLE;
-			XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-			NRF24L01_FlushRx();
+				XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+				NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+				NRF24L01_FlushRx();
+			}
 		}
-		else if (time_micros > Bayang_next_send) {
+		else if (time_micros > Bayang_next_send)
+		{
+			bayang_tx_time = time_micros;
+
 			BAYANG_send_packet(0);
 			Bayang_state = BAYANG_STATE_TRANSMITTING;
 			Bayang_next_send = time_micros + BAYANG_PACKET_PERIOD_TELEM;
+			callback_period = 600; // takes about 1ms to send(spi transfer + tx send)
+	
+			telemetry_tx_sent_pkt_count++;
+			if (telemetry_tx_sent_pps_time < time_micros)
+			{
+				telemetry_tx_sent_pps = telemetry_tx_sent_pps + telemetry_tx_sent_pkt_count - telemetry_tx_sent_pps/10;
+				telemetry_tx_sent_pkt_count = 0;
+				telemetry_tx_sent_pps_time += 100000;
+			}
+	
+			
 		}
+		else
+		{
+			callback_period = Bayang_next_send - time_micros;
+		}
+	return callback_period;
 	}
 #endif //ENABLE_BAYANG_TELEMETRY
 #endif

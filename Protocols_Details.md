@@ -245,6 +245,9 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
 
+Option=0 -> normal Bayang protocol
+
+Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage, A2=compensated battery voltage
 ###Sub_protocol H8S3D
 Model: H8S 3D
 

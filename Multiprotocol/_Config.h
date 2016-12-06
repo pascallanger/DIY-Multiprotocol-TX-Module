@@ -62,7 +62,7 @@
 //All the protocols will not fit in the Atmega328p module so you need to pick and choose.
 //Comment the protocols you are not using with "//" to save Flash space.
 
-//The protocols below need an A7105 to be installed
+/*//The protocols below need an A7105 to be installed
 #define	FLYSKY_A7105_INO
 #define	HUBSAN_A7105_INO
 #define	AFHDS2A_A7105_INO
@@ -77,10 +77,10 @@
 #define	FRSKYV_CC2500_INO
 #define	FRSKYX_CC2500_INO
 #define	SFHSS_CC2500_INO
-
+*/
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO
-#define	CG023_NRF24L01_INO
+/*#define	CG023_NRF24L01_INO
 #define	CX10_NRF24L01_INO		// Include Q2X2 protocol
 #define	ESKY_NRF24L01_INO
 #define	HISKY_NRF24L01_INO
@@ -96,6 +96,7 @@
 #define	FQ777_NRF24L01_INO
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
+*/
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/
@@ -110,10 +111,14 @@
 //#define INVERT_TELEMETRY
 
 //Comment a line to disable a protocol telemetry
-#define DSM_TELEMETRY	
-#define SPORT_TELEMETRY	
-#define HUB_TELEMETRY
-#define AFHDS2A_TELEMETRY
+#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
+#define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
+#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded
+#define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
+#define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/

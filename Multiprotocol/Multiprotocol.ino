@@ -146,7 +146,8 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 		volatile uint8_t tx_head=0;
 		volatile uint8_t tx_tail=0;
 	#endif // BASH_SERIAL
-	uint8_t v_lipo;
+	uint8_t v_lipo1;
+	uint8_t v_lipo2;
 	int16_t RSSI_dBm;
 	uint8_t TX_RSSI;
 	uint8_t telemetry_link=0; 
@@ -490,7 +491,7 @@ void Update_All()
 	#endif //ENABLE_PPM
 	update_channels_aux();
 	#if defined(TELEMETRY)
-		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
+		if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
 			TelemetryUpdate();
 	#endif
 	update_led_status();
@@ -999,7 +1000,7 @@ void Mprotocol_serial_init()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) )
+	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) )
 		initTXSerial( SPEED_9600 ) ;
 	if(protocol==MODE_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;

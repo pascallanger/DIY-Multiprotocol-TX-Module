@@ -20,7 +20,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #include "iface_nrf24l01.h"
 
 #define BAYANG_BIND_COUNT		1000
-#define BAYANG_PACKET_PERIOD	2000
+#define BAYANG_PACKET_PERIOD	1000
 #define BAYANG_INITIAL_WAIT		500
 #define BAYANG_PACKET_SIZE		15
 #define BAYANG_RF_NUM_CHANNELS	4
@@ -43,7 +43,12 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	uint8_t i;
 	if (bind)
 	{
-		packet[0]= 0xA4;
+	#ifdef BAYANG_HUB_TELEMETRY
+		if(option)
+			packet[0]= 0xA3;	// telemetry is enabled
+		else
+	#endif
+			packet[0]= 0xA4;
 		for(i=0;i<5;i++)
 			packet[i+1]=rx_tx_addr[i];
 		for(i=0;i<4;i++)
@@ -97,20 +102,64 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
     for (uint8_t i=0; i < BAYANG_PACKET_SIZE-1; i++)
 		packet[14] += packet[i];
 
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? BAYANG_RF_BIND_CHANNEL:hopping_frequency[hopping_frequency_no++]);
+	hopping_frequency_no%=BAYANG_RF_NUM_CHANNELS;
+
+	// clear packet status bits and TX FIFO
+	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+	NRF24L01_FlushTx();
+
+	XN297_WritePayload(packet, BAYANG_PACKET_SIZE);
+
+    NRF24L01_SetTxRxMode(TXRX_OFF);
+    NRF24L01_SetTxRxMode(TX_EN);
+
 	// Power on, TX mode, 2byte CRC
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? BAYANG_RF_BIND_CHANNEL:hopping_frequency[hopping_frequency_no++]);
-	hopping_frequency_no%=BAYANG_RF_NUM_CHANNELS;
-	
-	// clear packet status bits and TX FIFO
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-	XN297_WritePayload(packet, BAYANG_PACKET_SIZE);
+	#ifdef BAYANG_HUB_TELEMETRY
+    if (option)
+	{	// switch radio to rx as soon as packet is sent
+        
+		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)));
+		NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x03);
+    }
+	#endif
 
 	NRF24L01_SetPower();	// Set tx_power
 }
+
+#ifdef BAYANG_HUB_TELEMETRY
+static void __attribute__((unused)) check_rx(void)
+{
+	if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
+	{ // data received from model
+		XN297_ReadPayload(packet, BAYANG_PACKET_SIZE);
+		NRF24L01_WriteReg(NRF24L01_07_STATUS, 255);
+
+		NRF24L01_FlushRx();
+		uint8_t check = packet[0];
+		for (uint8_t i=1; i < BAYANG_PACKET_SIZE-1; i++)
+			check += packet[i];
+		// decode data , check sum is ok as well, since there is no crc
+		if (packet[0] == 0x85 && packet[14] == check)
+		{
+			// uncompensated battery volts*100/2
+			v_lipo1 = (packet[3]<<7) + (packet[4]>>2);
+			// compensated battery volts*100/2
+			v_lipo2 = (packet[5]<<7) + (packet[6]>>2);
+			// reception in packets / sec
+			RSSI_dBm = packet[7];
+			//Flags
+			//uint8_t flags = packet[3] >> 3;
+			// battery low: flags & 1
+			telemetry_counter++;
+			telemetry_link=1;
+		}
+	}
+}
+#endif
 
 static void __attribute__((unused)) BAYANG_init()
 {
@@ -124,24 +173,59 @@ static void __attribute__((unused)) BAYANG_init()
     NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
     NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
+    NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, BAYANG_PACKET_SIZE);
     NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
     NRF24L01_SetPower();
+    NRF24L01_Activate(0x73);    // Activate feature register
+    NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00); // Disable dynamic payload length on all pipes
+    NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
+    NRF24L01_Activate(0x73);
 }
 
 uint16_t BAYANG_callback()
 {
 	if(IS_BIND_DONE_on)
-		BAYANG_send_packet(0);
+	{
+		if(packet_count==0)
+			BAYANG_send_packet(0);
+		packet_count++;
+		#ifdef BAYANG_HUB_TELEMETRY
+			if (option)
+			{	// telemetry is enabled 
+				state++;
+				if (state > 1000)
+				{
+					//calculate telemetry reception packet rate - packets per 1000ms
+					TX_RSSI = telemetry_counter;
+					telemetry_counter = 0;
+					state = 0;
+				}
+
+				if (packet_count > 1)
+					check_rx();
+
+				packet_count %= 5;
+			}
+			else
+		#endif
+				packet_count%=2;
+	}
 	else
 	{
 		if (bind_counter == 0)
 		{
 			XN297_SetTXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
+			#ifdef BAYANG_HUB_TELEMETRY
+				XN297_SetRXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
+			#endif
 			BIND_DONE;
 		}
 		else
 		{
-			BAYANG_send_packet(1);
+			if(packet_count==0)
+				BAYANG_send_packet(1);
+			packet_count++;
+			packet_count%=4;
 			bind_counter--;
 		}
 	}
@@ -164,6 +248,10 @@ uint16_t initBAYANG(void)
     bind_counter = BAYANG_BIND_COUNT;
 	BAYANG_initialize_txid();
 	BAYANG_init();
+	packet_count=0;
+#ifdef BAYANG_HUB_TELEMETRY
+	init_hub_telemetry();
+#endif
 	return BAYANG_INITIAL_WAIT+BAYANG_PACKET_PERIOD;
 }
 

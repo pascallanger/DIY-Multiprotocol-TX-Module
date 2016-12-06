@@ -52,7 +52,7 @@ uint8_t frame[18];
 	} SerialControl ;
 #endif
 
-#if defined DSM_TELEMETRY
+#ifdef DSM_TELEMETRY
 void DSM_frame()
 {
 	Serial_write(0xAA);					// Telemetry packet
@@ -61,7 +61,7 @@ void DSM_frame()
 }
 #endif
 
-#if defined AFHDS2A_TELEMETRY
+#ifdef AFHDS2A_FW_TELEMETRY
 void AFHDSA_short_frame()
 {
 	Serial_write(0xAA);					// Telemetry packet
@@ -127,6 +127,16 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 	}
 }
 
+void init_hub_telemetry()
+{
+	telemetry_link=0;
+	telemetry_counter=0;
+	v_lipo1=0;
+	v_lipo2=0;
+	RSSI_dBm=0;
+	TX_RSSI=0;
+}
+
 void frsky_link_frame()
 {
 	frame[0] = 0xFE;
@@ -139,14 +149,14 @@ void frsky_link_frame()
 		frame[4] = (uint8_t)RSSI_dBm;
 	}
 	else
-		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A)
+		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A||protocol==MODE_BAYANG)
 		{	
-			frame[1] = v_lipo*2; //v_lipo; common 0x2A=42/10=4.2V
-			frame[2] = frame[1];			
-			frame[3] = protocol==MODE_HUBSAN?0x00:(uint8_t)RSSI_dBm;
+			frame[1] = v_lipo1;
+			frame[2] = v_lipo2;			
+			frame[3] = (uint8_t)RSSI_dBm;
 			frame[4] = TX_RSSI;
 		}
-	frame[5] = frame[6] = frame[7] = frame[8] = 0;			
+	frame[5] = frame[6] = frame[7] = frame[8] = 0;
 	frskySendStuffed();
 }
 
@@ -494,15 +504,15 @@ void TelemetryUpdate()
 			return;
 		}
 	#endif
-    #if defined AFHDS2A_TELEMETRY     
+    #if defined AFHDS2A_FW_TELEMETRY     
         if(telemetry_link == 2 && protocol == MODE_AFHDS2A)
-            {
-                AFHDSA_short_frame();
-                telemetry_link=0;
-            }
+		{
+			AFHDSA_short_frame();
+			telemetry_link=0;
+		}
     #endif        
 		if(telemetry_link && protocol != MODE_FRSKYX )
-		{	// FrSkyD + Hubsan + AFHDS2A
+		{	// FrSkyD + Hubsan + AFHDS2A + Bayang
 			frsky_link_frame();
 			telemetry_link=0;
 			return;

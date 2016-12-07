@@ -285,8 +285,6 @@ H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), O
 CAL: calibrate accelerometers
 
 ##CX10
-Extended limits supported
-
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6

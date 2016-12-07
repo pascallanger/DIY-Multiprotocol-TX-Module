@@ -57,9 +57,10 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 	packet[3] = rx_tx_addr[2];
 	packet[4] = rx_tx_addr[3];
 	// packet[5] to [8] (aircraft id) is filled during bind for blue board
-	uint16_t aileron=Servo_data[AILERON];
-	uint16_t elevator=3000-Servo_data[ELEVATOR];
-	uint16_t rudder=3000-Servo_data[RUDDER];
+	uint16_t aileron=map(limit_channel_100(AILERON),servo_min_100,servo_max_100,1000,2000);
+	uint16_t elevator=map(limit_channel_100(ELEVATOR),servo_min_100,servo_max_100,2000,1000);
+	uint16_t throttle=map(limit_channel_100(THROTTLE),servo_min_100,servo_max_100,1000,2000);
+	uint16_t rudder=map(limit_channel_100(RUDDER),servo_min_100,servo_max_100,2000,1000);
     // Channel 5 - flip flag
 	packet[12+offset] = GET_FLAG(Servo_AUX1,CX10_FLAG_FLIP); // flip flag applied on rudder
 
@@ -82,8 +83,6 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			break;
 		case Q282:
 		case Q242:
-			aileron = 3000 - aileron;
-			rudder = 3000 - rudder;
 		case Q222:
 			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
 			//FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
@@ -149,8 +148,8 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 	packet[6+offset] = highByte(aileron);
 	packet[7+offset] = lowByte(elevator);
 	packet[8+offset] = highByte(elevator);
-	packet[9+offset] = lowByte(Servo_data[THROTTLE]);
-	packet[10+offset]= highByte(Servo_data[THROTTLE]);
+	packet[9+offset] = lowByte(throttle);
+	packet[10+offset]= highByte(throttle);
 	packet[11+offset]= lowByte(rudder);
 	packet[12+offset]|= highByte(rudder);
 	packet[13+offset]=flags;

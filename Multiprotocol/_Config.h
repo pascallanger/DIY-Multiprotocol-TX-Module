@@ -62,7 +62,7 @@
 //All the protocols will not fit in the Atmega328p module so you need to pick and choose.
 //Comment the protocols you are not using with "//" to save Flash space.
 
-/*//The protocols below need an A7105 to be installed
+//The protocols below need an A7105 to be installed
 #define	FLYSKY_A7105_INO
 #define	HUBSAN_A7105_INO
 #define	AFHDS2A_A7105_INO
@@ -77,10 +77,10 @@
 #define	FRSKYV_CC2500_INO
 #define	FRSKYX_CC2500_INO
 #define	SFHSS_CC2500_INO
-*/
+
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO
-/*#define	CG023_NRF24L01_INO
+#define	CG023_NRF24L01_INO
 #define	CX10_NRF24L01_INO		// Include Q2X2 protocol
 #define	ESKY_NRF24L01_INO
 #define	HISKY_NRF24L01_INO
@@ -96,7 +96,7 @@
 #define	FQ777_NRF24L01_INO
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
-*/
+
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/

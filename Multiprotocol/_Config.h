@@ -63,7 +63,7 @@
 //Comment the protocols you are not using with "//" to save Flash space.
 
 //The protocols below need an A7105 to be installed
-#define	FLYSKY_A7105_INO
+/*#define	FLYSKY_A7105_INO
 #define	HUBSAN_A7105_INO
 #define	AFHDS2A_A7105_INO
 
@@ -90,13 +90,15 @@
 #define	V2X2_NRF24L01_INO
 #define	YD717_NRF24L01_INO
 #define	MT99XX_NRF24L01_INO
+*/
 #define	MJXQ_NRF24L01_INO
+/*
 #define	SHENQI_NRF24L01_INO
 #define	FY326_NRF24L01_INO
 #define	FQ777_NRF24L01_INO
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
-
+*/
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/

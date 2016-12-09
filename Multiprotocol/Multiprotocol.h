@@ -132,7 +132,8 @@ enum MT99XX
 	MT99	= 0,
 	H7		= 1,
 	YZ		= 2,
-	LS		= 3
+	LS		= 3,
+	FY805	= 4
 };
 enum MJXQ
 {
@@ -470,6 +471,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			H7			1
 			YZ			2
 			LS			3
+			FY805		4
 		sub_protocol==MJXQ
 			WLH08		0
 			X600		1

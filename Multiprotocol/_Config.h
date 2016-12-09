@@ -251,6 +251,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		H7
 		YZ
 		LS
+		FY805
 	MODE_MJXQ
 		WLH08
 		X600

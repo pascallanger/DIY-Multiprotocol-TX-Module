@@ -146,9 +146,9 @@ static void __attribute__((unused)) check_rx(void)
 		if (packet[0] == 0x85 && packet[14] == check)
 		{
 			// uncompensated battery volts*100/4
-			v_lipo1 = (packet[3]<<7) + (packet[4]>>2);
+			v_lipo1 = (packet[3]<<6) + (packet[4]>>3);
 			// compensated battery volts*100/4
-			v_lipo2 = (packet[5]<<7) + (packet[6]>>2);
+			v_lipo2 = (packet[5]<<6) + (packet[6]>>3);
 			// reception in packets / sec
 			RSSI_dBm = packet[7];
 			//Flags

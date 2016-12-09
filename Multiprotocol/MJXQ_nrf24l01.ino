@@ -36,31 +36,6 @@ const uint8_t PROGMEM MJXQ_map_rfchan[][4] = {
 				{0x0A, 0x3C, 0x36, 0x3F},
 				{0x0A, 0x43, 0x36, 0x3F}	};
 
-const uint8_t PROGMEM E010_map_txid[][2] = {
-					{0x4F, 0x1C},
-					{0x90, 0x1C},
-					{0x24, 0x36},
-					{0x7A, 0x40},
-					{0x61, 0x31},
-					{0x5D, 0x37},
-					{0xFD, 0x4F},
-					{0x86, 0x3C},
-					{0x41, 0x22},
-					{0xEE, 0xB3},
-					{0x9A, 0xB2} };
-					
-const uint8_t PROGMEM E010_map_rfchan[][4] = {
-					{0x3A, 0x35, 0x4A, 0x45},
-					{0x2E, 0x36, 0x3E, 0x46},
-					{0x32, 0x3E, 0x42, 0x4E},
-					{0x2E, 0x3C, 0x3E, 0x4C},
-					{0x2F, 0x3B, 0x3F, 0x4B},
-					{0x33, 0x3B, 0x43, 0x4B},
-					{0x33, 0x3B, 0x43, 0x4B},
-					{0x34, 0x3E, 0x44, 0x4E},
-					{0x3F, 0x34, 0x2F, 0x44},
-					{0x39, 0x3E, 0x49, 0x4E},
-					{0x36, 0x3E, 0x46, 0x2E} };
 
 #define MJXQ_PAN_TILT_COUNT	16   // for H26D - match stock tx timing
 #define MJXQ_PAN_DOWN		0x08
@@ -190,19 +165,13 @@ static void __attribute__((unused)) MJXQ_init()
 	if (sub_protocol == WLH08)
 		memcpy(hopping_frequency, "\x12\x22\x32\x42", MJXQ_RF_NUM_CHANNELS);
 	else
-		if (sub_protocol == H26D)
+		if (sub_protocol == H26D || sub_protocol == E010)
 			memcpy(hopping_frequency, "\x36\x3e\x46\x2e", MJXQ_RF_NUM_CHANNELS);
 		else
-			if(sub_protocol == E010)
-			{
-				for(uint8_t i=0;i<4;i++)
-					hopping_frequency[i]=pgm_read_byte_near( &E010_map_rfchan[rx_tx_addr[3]%11][i] );
-			}
-			else
-			{
-				memcpy(hopping_frequency, "\x0a\x35\x42\x3d", MJXQ_RF_NUM_CHANNELS);
-				memcpy(addr, "\x6d\x6a\x73\x73\x73", MJXQ_ADDRESS_LENGTH);
-			}
+		{
+			memcpy(hopping_frequency, "\x0a\x35\x42\x3d", MJXQ_RF_NUM_CHANNELS);
+			memcpy(addr, "\x6d\x6a\x73\x73\x73", MJXQ_ADDRESS_LENGTH);
+		}
 
 	
 	NRF24L01_Initialize();
@@ -246,9 +215,8 @@ static void __attribute__((unused)) MJXQ_initialize_txid()
 	rx_tx_addr[2]=rx_tx_addr[3];	// Make use of RX_Num
 	if (sub_protocol == E010)
 	{
-		for(uint8_t i=0;i<2;i++)
-			rx_tx_addr[i]=pgm_read_byte_near( &E010_map_txid[rx_tx_addr[3]%11][i] );
-		rx_tx_addr[2]=0;
+		rx_tx_addr[1]=(rx_tx_addr[1]&0xF0)|0x0C;
+		rx_tx_addr[2]<<=4;			// Make use of RX_Num
 	}
 	else
 		for(uint8_t i=0;i<3;i++)

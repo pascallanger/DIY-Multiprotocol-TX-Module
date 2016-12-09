@@ -413,6 +413,8 @@ Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ###Sub_protocol H26D
 ###Sub_protocol E010
+11 TX IDs available, change RX_Num value 0..10 to cycle through them
+
 If the E010 does not respond well to inputs or hard to bind, set Power to Low.
 ##MT99XX
 Autobind protocol
@@ -437,6 +439,8 @@ A|E|T|R|FLIP|INVERT|PICTURE|VIDEO|HEADLESS
 
 ###Sub_protocol FY805
 Model: FY805
+
+Only 1 ID available
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---

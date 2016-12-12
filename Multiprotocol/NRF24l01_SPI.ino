@@ -27,6 +27,7 @@ uint8_t rf_setup;
 void NRF24L01_Initialize()
 {
     rf_setup = 0x09;
+	XN297_SetScrambledMode(XN297_SCRAMBLED);
 }  
 
 void NRF24L01_WriteReg(uint8_t reg, uint8_t data)
@@ -75,15 +76,6 @@ uint8_t NRF24L01_ReadReg(uint8_t reg)
 }
 */
 
-static uint8_t __attribute__((unused)) NRF24L01_ReadPayloadLength()
-{
-	NRF_CSN_off;
-    SPI_Write(R_RX_PL_WID);
-    uint8_t len = SPI_Read();
-	NRF_CSN_on; 
-    return len;
-}
-
 static void NRF24L01_ReadPayload(uint8_t * data, uint8_t length)
 {
 	NRF_CSN_off;
@@ -108,6 +100,20 @@ void NRF24L01_FlushTx()
 void NRF24L01_FlushRx()
 {
 	NRF24L01_Strobe(FLUSH_RX);
+}
+
+static uint8_t __attribute__((unused)) NRF24L01_GetStatus()
+{
+	return SPI_Read();
+}
+
+static uint8_t __attribute__((unused)) NRF24L01_GetDynamicPayloadSize()
+{
+	NRF_CSN_off;
+    SPI_Write(R_RX_PL_WID);
+    uint8_t len = SPI_Read();
+	NRF_CSN_on; 
+    return len;
 }
 
 void NRF24L01_Activate(uint8_t code)
@@ -381,9 +387,9 @@ void XN297_ReadPayload(uint8_t* msg, uint8_t len)
 	NRF24L01_ReadPayload(msg, len);
 	for(uint8_t i=0; i<len; i++)
 	{
-		msg[i] = bit_reverse(msg[i]);
 		if(xn297_scramble_enabled)
-			msg[i] ^= bit_reverse(xn297_scramble[i+xn297_addr_len]);
+			msg[i] ^= xn297_scramble[i+xn297_addr_len];
+		msg[i] = bit_reverse(msg[i]);
 	}
 }
 

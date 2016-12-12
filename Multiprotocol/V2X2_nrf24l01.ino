@@ -21,12 +21,13 @@
 #include "iface_nrf24l01.h"
 
 
-#define BIND_COUNT 1000
+#define V2X2_BIND_COUNT 1000
 // Timeout for callback in uSec, 4ms=4000us for V202
-#define PACKET_PERIOD 4000
+#define V2X2_PACKET_PERIOD 4000
 //
 // Time to wait for packet to be sent (no ACK, so very short)
-#define PACKET_CHKTIME  100
+#define V2X2_PACKET_CHKTIME  100
+#define V2X2_PAYLOADSIZE 16
 
 // 
 enum {
@@ -40,11 +41,15 @@ enum {
 	// flags going to byte 10
 	V2X2_FLAG_HEADLESS  = 0x02,
 	V2X2_FLAG_MAG_CAL_X = 0x08,
-	V2X2_FLAG_MAG_CAL_Y = 0x20
+	V2X2_FLAG_MAG_CAL_Y = 0x20,
+    V2X2_FLAG_EMERGENCY = 0x80,	// JXD-506
+    // flags going to byte 11 (JXD-506)
+    V2X2_FLAG_START_STOP = 0x40,
+    V2X2_FLAG_CAMERA_UP  = 0x01,   
+    V2X2_FLAG_CAMERA_DN  = 0x02,
 };
 
 //
-#define V2X2_PAYLOADSIZE 16
 
 enum {
 	V202_INIT2 = 0,
@@ -54,8 +59,6 @@ enum {
 	V202_DATA//4
 };
 
-// static u32 bind_count;
-
 // This is frequency hopping table for V202 protocol
 // The table is the first 4 rows of 32 frequency hopping
 // patterns, all other rows are derived from the first 4.
@@ -64,7 +67,7 @@ enum {
 // number in this case.
 // The pattern is defined by 5 least significant bits of
 // sum of 3 bytes comprising TX id
-static const uint8_t freq_hopping[][16] = {
+const uint8_t PROGMEM freq_hopping[][16] = {
 	{ 0x27, 0x1B, 0x39, 0x28, 0x24, 0x22, 0x2E, 0x36,
 		0x19, 0x21, 0x29, 0x14, 0x1E, 0x12, 0x2D, 0x18 }, //  00
 	{ 0x2E, 0x33, 0x25, 0x38, 0x19, 0x12, 0x18, 0x16,
@@ -123,12 +126,12 @@ static void __attribute__((unused)) V2X2_set_tx_id(void)
 {
 	uint8_t sum;
 	sum = rx_tx_addr[1] + rx_tx_addr[2] + rx_tx_addr[3];
-	// Base row is defined by lowest 2 bits
-	const uint8_t *fh_row = freq_hopping[sum & 0x03];
 	// Higher 3 bits define increment to corresponding row
 	uint8_t increment = (sum & 0x1e) >> 2;
+	// Base row is defined by lowest 2 bits
+	sum &=0x03;
 	for (uint8_t i = 0; i < 16; ++i) {
-		uint8_t val = fh_row[i] + increment;
+		uint8_t val = pgm_read_byte_near(&freq_hopping[sum][i]) + increment;
 		// Strange avoidance of channels divisible by 16
 		hopping_frequency[i] = (val & 0x0f) ? val : val - 3;
 	}
@@ -182,23 +185,44 @@ static void __attribute__((unused)) V2X2_send_packet(uint8_t bind)
 		// Channel 9
 		if (Servo_AUX5)
 			flags2 = V2X2_FLAG_HEADLESS;
-		// Channel 10
-		if (Servo_AUX6)
-			flags2 |= V2X2_FLAG_MAG_CAL_X;
-		// Channel 11
-		if (Servo_AUX7)
-			flags2 |= V2X2_FLAG_MAG_CAL_Y;
+		if(sub_protocol==JXD506)
+		{
+			// Channel 11
+			if (Servo_AUX7)
+				flags2 |= V2X2_FLAG_EMERGENCY;
+		}
+		else
+		{
+			// Channel 10
+			if (Servo_AUX6)
+				flags2 |= V2X2_FLAG_MAG_CAL_X;
+			// Channel 11
+			if (Servo_AUX7)
+				flags2 |= V2X2_FLAG_MAG_CAL_Y;
+		}
 	}
 	// TX id
 	packet[7] = rx_tx_addr[1];
 	packet[8] = rx_tx_addr[2];
 	packet[9] = rx_tx_addr[3];
-	// empty
+	// flags
 	packet[10] = flags2;
 	packet[11] = 0x00;
 	packet[12] = 0x00;
 	packet[13] = 0x00;
-	//
+	if(sub_protocol==JXD506)
+	{
+		// Channel 10
+		if (Servo_AUX6)
+			packet[11] = V2X2_FLAG_START_STOP;
+		// Channel 12
+		if(Servo_data[AUX8] > PPM_MAX_COMMAND)
+			packet[11] |= V2X2_FLAG_CAMERA_UP;
+		else if(Servo_data[AUX8] < PPM_MIN_COMMAND)
+			packet[11] |= V2X2_FLAG_CAMERA_DN;
+		packet[12] = 0x40;
+		packet[13] = 0x40;
+	}
 	packet[14] = flags;
 	V2X2_add_pkt_checksum();
 
@@ -229,7 +253,7 @@ uint16_t ReadV2x2()
 			break;
 		case V202_BIND2:
 			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED) {
-				return PACKET_CHKTIME;
+				return V2X2_PACKET_CHKTIME;
 			}
 			V2X2_send_packet(1);
 			if (--counter == 0) {
@@ -239,13 +263,13 @@ uint16_t ReadV2x2()
 			break;
 		case V202_DATA:
 			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED) {
-				return PACKET_CHKTIME;
+				return V2X2_PACKET_CHKTIME;
 			}
 			V2X2_send_packet(0);
 			break;
 	}
 	// Packet every 4ms
-	return PACKET_PERIOD;
+	return V2X2_PACKET_PERIOD;
 }
 
 uint16_t initV2x2()
@@ -254,7 +278,7 @@ uint16_t initV2x2()
 	//
 	if (IS_AUTOBIND_FLAG_on)
 	{
-		counter = BIND_COUNT;
+		counter = V2X2_BIND_COUNT;
 		phase = V202_INIT2;
 	}
 	else

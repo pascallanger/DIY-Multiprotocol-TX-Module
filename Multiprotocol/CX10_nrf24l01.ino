@@ -92,19 +92,7 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 					|GET_FLAG(Servo_AUX7, 0x04)		// Channel 11 - XCAL
 					|GET_FLAG(Servo_AUX8, 0x02);	// Channel 12 - YCAL or Start/Stop motors on JXD 509
 	
-			flags=3;	// expert Q282 & Q222
-			if(sub_protocol==Q282)
-			{
-				if(Servo_AUX4)						// Channel 8 - video
-				{
-					if (!(video_state & 0x20)) video_state ^= 0x21;
-				}
-				else
-					if (video_state & 0x20) video_state &= 0x01;
-				flags2 |= video_state
-						|GET_FLAG(Servo_AUX3,0x10);	// Channel 7 - picture
-			}
-			else if(sub_protocol==Q242)
+			if(sub_protocol==Q242)
 			{
 				flags=2;
 				flags2|= GET_FLAG(Servo_AUX3,0x01)	// Channel 7 - picture
@@ -113,7 +101,16 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 				packet[18]=0x00;
 			}
 			else
-			{	// Q222
+			{ // Q282 & Q222
+				flags=3;							// expert
+				if(Servo_AUX4)						// Channel 8 - Q282 video / Q222 Module 1
+				{
+					if (!(video_state & 0x20)) video_state ^= 0x21;
+				}
+				else
+					if (video_state & 0x20) video_state &= 0x01;
+				flags2 |= video_state
+						|GET_FLAG(Servo_AUX3,0x10);	// Channel 7 - Q282 picture / Q222 Module 2
 			}
 			if(Servo_AUX6)	flags |=0x80;			// Channel 10 - RTH
 			break;

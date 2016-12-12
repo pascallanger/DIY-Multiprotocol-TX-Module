@@ -488,6 +488,13 @@ PICTURE: also automatic Missile Launcher and Hoist in one direction
 
 VIDEO: also Sprayer, Bubbler, Missile Launcher(1), and Hoist in the other dir
 
+###Sub_protocol JXD506
+Model: JXD 506
+
+CH10|CH11|CH12
+---|---|---
+Start/Stop|EMERGENCY|CAMERA_UP/DN
+
 ##YD717
 Autobind protocol
 

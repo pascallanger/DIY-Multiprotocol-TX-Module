@@ -87,14 +87,14 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
 			//FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 			flags2 = GET_FLAG(Servo_AUX1, 0x80)		// Channel 5 - FLIP
-					|GET_FLAG(Servo_AUX2, 0x40)		// Channel 6 - LED
+					|GET_FLAG(!Servo_AUX2, 0x40)	// Channel 6 - LED
 					|GET_FLAG(Servo_AUX5, 0x08)		// Channel 9 - HEADLESS
 					|GET_FLAG(Servo_AUX7, 0x04)		// Channel 11 - XCAL
 					|GET_FLAG(Servo_AUX8, 0x02);	// Channel 12 - YCAL or Start/Stop motors on JXD 509
 	
+			flags=3;	// expert Q282 & Q222
 			if(sub_protocol==Q282)
 			{
-				flags=3;
 				if(Servo_AUX4)						// Channel 8 - video
 				{
 					if (!(video_state & 0x20)) video_state ^= 0x21;
@@ -114,7 +114,6 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			}
 			else
 			{	// Q222
-				flags=0;
 			}
 			if(Servo_AUX6)	flags |=0x80;			// Channel 10 - RTH
 			break;

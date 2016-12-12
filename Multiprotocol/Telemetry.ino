@@ -17,8 +17,13 @@
 //**************************
 #if defined TELEMETRY
 
+#if defined MULTI_TELEMETRY
+	#define MULTI_TIME 1000*1000*1000 // 1s
+	uint32_t lastMulti = 0;
+#endif
+
 #if defined SPORT_TELEMETRY	
-	#define SPORT_TIME 12000
+    #define SPORT_TIME 12000  //12ms
 	#define FRSKY_SPORT_PACKET_SIZE   8
 	uint32_t last = 0;
 	uint8_t sport_counter=0;
@@ -524,6 +529,13 @@ void TelemetryUpdate()
 			return;
 		}
 	#endif
+    #if defined MULTI_TELEMETRY
+        {
+            uint32_t now = micros();
+            if ((now - lastMulti) > MULTI_TIME) {
+                sendMultiStatus();
+            }
+        }
 }
 
 

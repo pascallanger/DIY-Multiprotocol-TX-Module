@@ -270,11 +270,11 @@ CH5|CH6|CH7|CH8|CH9
 FLIP||PICTURE|VIDEO|HEADLESS
 
 ###Sub_protocol H8_3D
-Models: EAchine H8 mini 3D, JJRC H20/H22
+Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
 
-CH5|CH6|CH7|CH8|CH9
----|---|---|---|---
-FLIP|LIGTH|OPT1|OPT2|CAL
+CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---
+FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
 
 JJRC H20: OPT1=Headless, OPT2=RTH
 
@@ -282,7 +282,8 @@ JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
 
 H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360° flip mode
 
-CAL: calibrate accelerometers
+CAL1: H8 3D acc calib, H20 headless calib
+CAL2: H11D/H20 acc calib
 
 ##CX10
 Autobind protocol

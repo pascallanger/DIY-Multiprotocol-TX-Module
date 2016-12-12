@@ -406,6 +406,8 @@ ARM|
 
 ###Sub_protocol X5C1 clone
 
+###Sub_protocol FQ777_951
+
 ##MJXQ
 Autobind protocol
 
@@ -420,7 +422,7 @@ Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ###Sub_protocol H26D
 ###Sub_protocol E010
-11 TX IDs available, change RX_Num value 0..10 to cycle through them
+14 TX IDs available, change RX_Num value 0..10 to cycle through them
 
 If the E010 does not respond well to inputs or hard to bind, set Power to Low.
 ##MT99XX

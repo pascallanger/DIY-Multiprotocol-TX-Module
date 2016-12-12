@@ -19,9 +19,9 @@
 
 #define HONTAI_BIND_COUNT 80
 #define HONTAI_PACKET_PERIOD    13500
-
+#define FQ777_951_PACKET_PERIOD	10000
 #define HONTAI_INITIAL_WAIT       500
-#define HONTAI_BIND_HONTAI_PACKET_SIZE   10
+#define HONTAI_BIND_PACKET_SIZE   10
 #define HONTAI_PACKET_SIZE        12
 #define HONTAI_RF_BIND_CHANNEL    0
 
@@ -61,61 +61,72 @@ static void __attribute__((unused)) crc16(uint8_t *data_p, uint8_t length)
 
 static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 {
-	uint8_t packet_size;
 	if (bind)
 	{
 		memcpy(packet, rx_tx_addr, 5);
 		memset(&packet[5], 0, 3);
-		packet_size=HONTAI_BIND_HONTAI_PACKET_SIZE;
 	}
 	else
 	{
-		if(sub_protocol == FORMAT_JJRCX1)
-			packet[0] = GET_FLAG(Servo_AUX2, 0x02);						// Arm
-		else
-			packet[0] = 0x0b;
-
-		packet[1] = 0x00;
-		packet[2] = 0x00;
-		packet[3] = (convert_channel_8b_scale(THROTTLE, 0, 127) << 1)	// Throttle
-					| GET_FLAG(Servo_AUX3, 0x01);						// Picture
+		memset(packet,0,HONTAI_PACKET_SIZE);
+		packet[3] = convert_channel_8b_scale(THROTTLE, 0, 127) << 1;	// Throttle
 		packet[4] = convert_channel_8b_scale(AILERON, 63, 0);			// Aileron
-		if(sub_protocol == FORMAT_HONTAI)
-		{
-			packet[4] |= GET_FLAG(Servo_AUX6, 0x80)						// RTH
-					| GET_FLAG(Servo_AUX5, 0x40);						// Headless
-		}
-		else
-		{
-			packet[4] |= 0x80;											// not sure what this bit does
-			if (sub_protocol == FORMAT_X5C1)
-				packet[4] |= GET_FLAG(Servo_AUX2, 0x40);				// Lights (X5C1)
-		}
-		packet[5] = convert_channel_8b_scale(ELEVATOR, 0, 63)			// Elevator
-				| GET_FLAG(Servo_AUX7, 0x80)							// Calibrate
-				| GET_FLAG(Servo_AUX1, 0x40);							// Flip
-		packet[6] = convert_channel_8b_scale(RUDDER, 0, 63)				// Rudder
-				| GET_FLAG(Servo_AUX4, 0x80);							// Video
+		packet[5] = convert_channel_8b_scale(ELEVATOR, 0, 63);			// Elevator
+		packet[6] = convert_channel_8b_scale(RUDDER, 0, 63);			// Rudder
 		if(sub_protocol == FORMAT_X5C1)
 			packet[7] = convert_channel_8b_scale(AILERON, 0, 63)-31;	// Aileron trim
 		else
 			packet[7] = convert_channel_8b_scale(AILERON, 0, 32)-16;	// Aileron trim
-		if(sub_protocol == FORMAT_HONTAI)
-			packet[8] = convert_channel_8b_scale(RUDDER, 0, 32)-16;		// Rudder trim
-		else
-		{
-			packet[8] = 0xc0											// Always in expert mode
-					| GET_FLAG(Servo_AUX6, 0x02)						// RTH
-					| GET_FLAG(Servo_AUX5, 0x01);						// Headless
-		}
+		packet[8] = convert_channel_8b_scale(RUDDER, 0, 32)-16;			// Rudder trim
 		if (sub_protocol == FORMAT_X5C1)
 			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 63)-31;	// Elevator trim
 		else
 			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 32)-16;	// Elevator trim
-
-		packet_size=HONTAI_PACKET_SIZE;
+		switch(sub_protocol)
+		{
+			case FORMAT_HONTAI:
+				packet[0]  = 0x0B;
+				packet[3] |= GET_FLAG(Servo_AUX3, 0x01);				// Picture
+				packet[4] |= GET_FLAG(Servo_AUX6, 0x80)					// RTH
+						  |  GET_FLAG(Servo_AUX5, 0x40);				// Headless
+				packet[5] |= GET_FLAG(Servo_AUX7, 0x80)					// Calibrate
+						  |  GET_FLAG(Servo_AUX1, 0x40);				// Flip
+				packet[6] |= GET_FLAG(Servo_AUX4, 0x80);				// Video
+				break;
+			case FORMAT_JJRCX1:
+				packet[0]  = GET_FLAG(Servo_AUX2, 0x02);				// Arm
+				packet[3] |= GET_FLAG(Servo_AUX3, 0x01);				// Picture
+				packet[4] |= 0x80;										// unknown
+				packet[5] |= GET_FLAG(Servo_AUX7, 0x80)					// Calibrate
+						  |  GET_FLAG(Servo_AUX1, 0x40);				// Flip
+				packet[6] |= GET_FLAG(Servo_AUX4, 0x80);				// Video
+				packet[8]  = 0xC0										// high rate, no rudder trim
+						  |  GET_FLAG(Servo_AUX6, 0x02)					// RTH
+						  |  GET_FLAG(Servo_AUX5, 0x01);				// Headless
+				break;
+			case FORMAT_X5C1:
+				packet[0]  = 0x0B;
+				packet[3] |= GET_FLAG(Servo_AUX3, 0x01);				// Picture
+				packet[4]  = 0x80										// unknown
+						  |  GET_FLAG(Servo_AUX2, 0x40);				// Lights
+				packet[5] |= GET_FLAG(Servo_AUX7, 0x80)					// Calibrate
+						  |  GET_FLAG(Servo_AUX1, 0x40);				// Flip
+				packet[6] |= GET_FLAG(Servo_AUX4, 0x80);				// Video
+				packet[8]  = 0xC0										// high rate, no rudder trim
+						  |  GET_FLAG(Servo_AUX6, 0x02)					// RTH
+						  |  GET_FLAG(Servo_AUX5, 0x01);				// Headless
+				break;
+			case FORMAT_FQ777_951:
+				packet[0]  = GET_FLAG(Servo_AUX3, 0x01)					// Picture
+						  |  GET_FLAG(Servo_AUX4, 0x02);				// Video
+				packet[3] |= GET_FLAG(Servo_AUX1, 0x01);				// Flip
+				packet[4] |= 0xC0;										// High rate (mid=0xa0, low=0x60)
+				packet[5] |= GET_FLAG(Servo_AUX7, 0x80);				// Calibrate
+				packet[6] |= GET_FLAG(Servo_AUX5, 0x40);				// Headless
+				break;
+		}
 	}
-	crc16(packet, packet_size);
+	crc16(packet, bind ? HONTAI_BIND_PACKET_SIZE:HONTAI_PACKET_SIZE);
 
 	// Power on, TX mode, 2byte CRC
 	if(sub_protocol == FORMAT_JJRCX1)
@@ -130,9 +141,9 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 	NRF24L01_FlushTx();
 
 	if(sub_protocol == FORMAT_JJRCX1)
-		NRF24L01_WritePayload(packet, packet_size);
+		NRF24L01_WritePayload(packet, bind ? HONTAI_BIND_PACKET_SIZE:HONTAI_PACKET_SIZE);
 	else
-		XN297_WritePayload(packet, packet_size);
+		XN297_WritePayload(packet, bind ? HONTAI_BIND_PACKET_SIZE:HONTAI_PACKET_SIZE);
 
 	NRF24L01_SetPower();
 }
@@ -170,11 +181,11 @@ static void __attribute__((unused)) HONTAI_init()
 	NRF24L01_Activate(0x73);								// Deactivate feature register
 }
 
-const uint8_t PROGMEM hopping_frequency_nonels[][3] = {
+const uint8_t PROGMEM HONTAI_hopping_frequency_nonels[][3] = {
 	{0x05, 0x19, 0x28},     // Hontai
 	{0x0a, 0x1e, 0x2d}};    // JJRC X1
 
-const uint8_t PROGMEM addr_vals[4][16] = {
+const uint8_t PROGMEM HONTAI_addr_vals[4][16] = {
 	{0x24, 0x26, 0x2a, 0x2c, 0x32, 0x34, 0x36, 0x4a, 0x4c, 0x4e, 0x54, 0x56, 0x5a, 0x64, 0x66, 0x6a},
 	{0x92, 0x94, 0x96, 0x9a, 0xa4, 0xa6, 0xac, 0xb2, 0xb4, 0xb6, 0xca, 0xcc, 0xd2, 0xd4, 0xd6, 0xda},
 	{0x93, 0x95, 0x99, 0x9b, 0xa5, 0xa9, 0xab, 0xad, 0xb3, 0xb5, 0xc9, 0xcb, 0xcd, 0xd3, 0xd5, 0xd9},
@@ -185,10 +196,10 @@ static void __attribute__((unused)) HONTAI_init2()
 	uint8_t data_tx_addr[5];
 
 	//TX address
-	data_tx_addr[0] = pgm_read_byte_near( &addr_vals[0][ rx_tx_addr[3]       & 0x0f]);
-	data_tx_addr[1] = pgm_read_byte_near( &addr_vals[1][(rx_tx_addr[3] >> 4) & 0x0f]);
-	data_tx_addr[2] = pgm_read_byte_near( &addr_vals[2][ rx_tx_addr[4]       & 0x0f]);
-	data_tx_addr[3] = pgm_read_byte_near( &addr_vals[3][(rx_tx_addr[4] >> 4) & 0x0f]);
+	data_tx_addr[0] = pgm_read_byte_near( &HONTAI_addr_vals[0][ rx_tx_addr[3]       & 0x0f]);
+	data_tx_addr[1] = pgm_read_byte_near( &HONTAI_addr_vals[1][(rx_tx_addr[3] >> 4) & 0x0f]);
+	data_tx_addr[2] = pgm_read_byte_near( &HONTAI_addr_vals[2][ rx_tx_addr[4]       & 0x0f]);
+	data_tx_addr[3] = pgm_read_byte_near( &HONTAI_addr_vals[3][(rx_tx_addr[4] >> 4) & 0x0f]);
 	data_tx_addr[4] = 0x24;
 	if(sub_protocol == FORMAT_JJRCX1)
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, data_tx_addr, sizeof(data_tx_addr));
@@ -197,14 +208,14 @@ static void __attribute__((unused)) HONTAI_init2()
 
 	//Hopping frequency table
 	for(uint8_t i=0;i<3;i++)
-		hopping_frequency[i]=pgm_read_byte_near( &hopping_frequency_nonels[sub_protocol == FORMAT_JJRCX1?1:0][i] );
+		hopping_frequency[i]=pgm_read_byte_near( &HONTAI_hopping_frequency_nonels[sub_protocol == FORMAT_JJRCX1?1:0][i] );
 	hopping_frequency_no=0;
 }
 
 static void __attribute__((unused)) HONTAI_initialize_txid()
 {
 	rx_tx_addr[4] = rx_tx_addr[2]; 
-	if(sub_protocol == FORMAT_HONTAI)
+	if(sub_protocol == FORMAT_HONTAI || sub_protocol == FORMAT_FQ777_951)
 	{
 		rx_tx_addr[0] = 0x4c; // first three bytes some kind of model id? - set same as stock tx
 		rx_tx_addr[1] = 0x4b;
@@ -233,7 +244,7 @@ uint16_t HONTAI_callback()
 	else
 		HONTAI_send_packet(0);
 
-	return HONTAI_PACKET_PERIOD;
+	return sub_protocol == FORMAT_FQ777_951 ? FQ777_951_PACKET_PERIOD : HONTAI_PACKET_PERIOD;
 }
 
 uint16_t initHONTAI()

@@ -314,13 +314,19 @@ CH5|CH6|CH7|CH8|CH9
 FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
 ##Q2X2
-###Sub_protocol Q222, Q242 and Q282
+###Sub_protocol Q242 and Q282
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 
 Model: JXD 509 is using Q282 with CH12=Start/Stop motors
+
+###Sub_protocol Q222
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|MODULE2|MODULE1|HEADLESS|RTH|XCAL|YCAL
 
 ###Sub_protocol JC3015_1
 

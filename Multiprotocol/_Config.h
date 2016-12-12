@@ -262,7 +262,8 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_SHENQI
 		NONE
 	MODE_FY326
-		NONE
+		FY326
+		FY319
 	MODE_SFHSS
 		NONE
 	MODE_J6PRO

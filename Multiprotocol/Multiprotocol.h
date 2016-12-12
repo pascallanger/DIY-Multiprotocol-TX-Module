@@ -159,6 +159,11 @@ enum V2X2
 	V2X2	= 0,
 	JXD506	= 1,
 };
+enum FY326
+{
+	FY326	= 0,
+	FY319	= 1,
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -498,6 +503,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==V2X2
 			V2X2		0
 			JXD506		1
+		sub_protocol==FY326
+			FY326		0
+			FY319		1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

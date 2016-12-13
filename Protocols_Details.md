@@ -421,8 +421,16 @@ Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ###Sub_protocol X800
 Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ###Sub_protocol H26D
+Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
+###Sub_protocol H26WH
+CH6|
+---|
+ARM|
+
+Only 1 TX ID available
+
 ###Sub_protocol E010
-14 TX IDs available, change RX_Num value 0..10 to cycle through them
+15 TX IDs available, change RX_Num value 0..14 to cycle through them
 
 If the E010 does not respond well to inputs or hard to bind, set Power to Low.
 ##MT99XX

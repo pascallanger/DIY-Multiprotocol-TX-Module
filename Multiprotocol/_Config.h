@@ -119,7 +119,7 @@
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-
+#define MULTI_TELEMETRY				// Send also Multi status and wrap other telemetry to allow TX to autodetect the format
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/

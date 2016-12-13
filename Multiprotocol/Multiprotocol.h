@@ -183,6 +183,18 @@ struct PPM_Parameters
 	uint8_t option;
 };
 
+// Telemetry
+
+enum MultiPacketTypes {
+    MULTI_TELEMETRY_STATUS  = 1,
+    MULTI_TELEMETRY_SPORT   = 2,
+    MULTI_TELEMETRY_HUB     = 3,
+    MULTI_TELEMETRY_DSM     = 4,
+    MULTI_TELEMETRY_DSMBIND = 5,
+    MULTI_TELEMETRY_AFHDS2A = 6,
+};
+
+
 // Macros
 #define NOP() __asm__ __volatile__("nop")
 
@@ -548,13 +560,15 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 
 Type = 0x01 Multimodule Status:
    [4] Flags
-
    0x01 = Input signal detected
    0x02 = Serial mode enabled
-   0x04 = protocol is invalid
+   0x04 = protocol is valid
    0x08 = module is in binding mode
+   [5] major
+   [6] mior
+   [7-8] patchlevel
+   version of multi code, should be displayed as major.minor.patchlevel
 
-   [5-8] uint32  - version of multi code
 
    more information can be added by specifing a longer length of the type, the TX will just ignore these bytes
 
@@ -562,7 +576,7 @@ Type = 0x01 Multimodule Status:
 Type 0x02 Frksy S.port telemetry
 Type 0x03 Frsky Hub telemetry
 
-	*No* usual frsky byte stuffing
+	*No* usual frsky byte stuffing and without start/stop byte (0x7e)
 
 
 Type 0x04 Spektrum telemetry data

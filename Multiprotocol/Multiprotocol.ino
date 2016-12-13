@@ -150,7 +150,8 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 		volatile uint8_t tx_head=0;
 		volatile uint8_t tx_tail=0;
 	#endif // BASH_SERIAL
-	uint8_t v_lipo;
+	uint8_t v_lipo1;
+	uint8_t v_lipo2;
 	int16_t RSSI_dBm;
 	uint8_t TX_RSSI;
 	uint8_t telemetry_link=0; 
@@ -333,7 +334,6 @@ void setup()
 			cur_protocol[1] = protocol;
 			sub_protocol   	=	PPM_prot[mode_select].sub_proto;
 			RX_num			=	PPM_prot[mode_select].rx_num;
-			MProtocol_id	=	RX_num + MProtocol_id_master;
 			option			=	PPM_prot[mode_select].option;
 			if(PPM_prot[mode_select].power)		POWER_FLAG_on;
 			if(PPM_prot[mode_select].autobind)	AUTOBIND_FLAG_on;
@@ -469,7 +469,8 @@ void Update_All()
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)	// Serial mode and something has been received
 		{
 			update_serial_data(); // Update protocol and data
-
+			INPUT_SIGNAL_on;								//valid signal received
+			last_signal=millis();
 		}
 	#endif //ENABLE_SERIAL
 	#ifdef ENABLE_PPM
@@ -492,11 +493,7 @@ void Update_All()
 	#endif //ENABLE_PPM
 	update_channels_aux();
 	#if defined(TELEMETRY)
-		if((protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) 
-			#ifdef ENABLE_BAYANG_TELEMETRY
-				|| (protocol==MODE_BAYANG)
-			#endif
-		)
+		if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
 			TelemetryUpdate();
 	#endif 
 	update_led_status();
@@ -528,9 +525,6 @@ static void update_channels_aux(void)
 	{ // Protocol needs to be changed
 		LED_off;									//led off during protocol init
 		modules_reset();							//reset all modules
-		#ifdef ENABLE_PPM
-			AUTOBIND_FLAG_on;
-		#endif //ENABLE_PPM
 		protocol_init();							//init new protocol
 	}
 }
@@ -646,6 +640,10 @@ static void protocol_init()
 		TX_MAIN_PAUSE_off;
 	#endif
 
+	//Set global ID and rx_tx_addr
+	MProtocol_id = RX_num + MProtocol_id_master;
+	set_rx_tx_addr(MProtocol_id);
+	
 	blink=millis();
 	if(IS_BIND_BUTTON_FLAG_on)
 		AUTOBIND_FLAG_on;
@@ -988,8 +986,6 @@ void update_serial_data()
 		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]
 		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
 		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
-		MProtocol_id=MProtocol_id_master+RX_num;//personalized RX bind + rx num
-		set_rx_tx_addr(MProtocol_id);			//set rx_tx_addr
 	}
 	else
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )	// Bind flag has been set
@@ -1097,13 +1093,9 @@ void Mprotocol_serial_init()
 #if defined(TELEMETRY)
 	void PPM_Telemetry_serial_init()
 	{
-	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) )
+	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) )
 		initTXSerial( SPEED_9600 ) ;
-	if(protocol==MODE_FRSKYX
-		#ifdef ENABLE_BAYANG_TELEMETRY
-			|| protocol==MODE_BAYANG
-		#endif
-	)
+	if(protocol==MODE_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;
 	if(protocol==MODE_DSM)
 		initTXSerial( SPEED_125K ) ;

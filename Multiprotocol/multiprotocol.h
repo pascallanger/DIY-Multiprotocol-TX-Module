@@ -141,15 +141,15 @@ enum CG023
 enum BAYANG
 {
     BAYANG	= 0,
-	BAYANG_TELEM = 1,
-    H8S3D	= 2
+    H8S3D	= 1
 };
 enum MT99XX
 {
 	MT99	= 0,
 	H7		= 1,
 	YZ		= 2,
-	LS		= 3
+	LS		= 3,
+	FY805	= 4
 };
 enum MJXQ
 {
@@ -170,7 +170,12 @@ enum HONTAI
     FORMAT_HONTAI	= 0,
 	FORMAT_JJRCX1	= 1,
 	FORMAT_X5C1		= 2,
-	FORMAT_FQ777	= 3
+	FORMAT_FQ777_951 =3
+};
+enum V2X2
+{
+	V2X2	= 0,
+	JXD506	= 1,
 };
 
 enum HUBSAN
@@ -520,22 +525,19 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			H8_3D		2
 		sub_protocol==BAYANG
 			BAYANG			0
-			BAYANG TELEM	1
-			H8S3D			2
+			H8S3D			1
 		sub_protocol==MT99XX
 			MT99		0
 			H7			1
 			YZ			2
 			LS			3
+			FY805		4
 		sub_protocol==MJXQ
 			WLH08		0
 			X600		1
 			X800		2
 			H26D		3
 			E010		4
-		sub_protocol==FY326
-			FY326		0
-			FY319		1
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1
@@ -543,15 +545,19 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			FORMAT_HONTAI	0
 			FORMAT_JJRCX1	1
 			FORMAT_X5C1		2
-			FQ777-521		3
-		sub_protocol==BAYANG
-			BAYANG			0
-			BAYANG_TELEM	1
+			FORMAT_FQ777_951 3
         sub_protocol==AFHDS2A
 			PWM_IBUS	0
 			PPM_IBUS	1
 			PWM_SBUS	2
 			PPM_SBUS	3
+		sub_protocol==V2X2
+			V2X2		0
+			JXD506		1
+		sub_protocol==FY326
+			FY326		0
+			FY319		1
+
     Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -127..127

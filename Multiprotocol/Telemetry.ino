@@ -18,24 +18,12 @@
 #if defined TELEMETRY
 
 #if defined SPORT_TELEMETRY	
-	float    telemetry_voltage      = 0.f;
-	uint8_t  telemetry_rx_rssi      = 100;
-	#ifdef ENABLE_BAYANG_TELEMETRY
-		uint16_t telemetry_rx_recv_pps  = 100;
-		uint8_t  telemetry_tx_rssi      = 100;
-		uint16_t telemetry_tx_recv_pps  = 100;
-		uint16_t telemetry_tx_sent_pps  = 100;
-		uint8_t  telemetry_datamode     = 0;
-		uint8_t  telemetry_dataitem     = 0;
-		float    telemetry_data[3]      = {0};
-		uint16_t telemetry_uptime       = 0;
-		uint16_t telemetry_flighttime   = 0;
-		uint8_t  telemetry_flightmode   = 0;
-	#endif
 	#define SPORT_TIME 12000
 	#define FRSKY_SPORT_PACKET_SIZE   8
 	uint32_t last = 0;
 	uint8_t sport_counter=0;
+	uint8_t RxBt = 0;
+	uint8_t rssi;
 	uint8_t sport = 0;
 #endif
 #if defined HUB_TELEMETRY
@@ -64,7 +52,7 @@ uint8_t frame[18];
 	} SerialControl ;
 #endif
 
-#if defined DSM_TELEMETRY
+#ifdef DSM_TELEMETRY
 void DSM_frame()
 {
 	Serial_write(0xAA);					// Telemetry packet
@@ -73,13 +61,13 @@ void DSM_frame()
 }
 #endif
 
-#if defined AFHDS2A_TELEMETRY
-	void AFHDSA_short_frame()
-	{
-		Serial_write(0xAA);					// Telemetry packet
-		for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
-			Serial_write(pkt[i]);
-	}
+#ifdef AFHDS2A_FW_TELEMETRY
+void AFHDSA_short_frame()
+{
+	Serial_write(0xAA);					// Telemetry packet
+	for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
+		Serial_write(pkt[i]);
+}
 #endif
 
 void frskySendStuffed()
@@ -139,6 +127,16 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 	}
 }
 
+void init_hub_telemetry()
+{
+	telemetry_link=0;
+	telemetry_counter=0;
+	v_lipo1=0;
+	v_lipo2=0;
+	RSSI_dBm=0;
+	TX_RSSI=0;
+}
+
 void frsky_link_frame()
 {
 	frame[0] = 0xFE;
@@ -151,14 +149,14 @@ void frsky_link_frame()
 		frame[4] = (uint8_t)RSSI_dBm;
 	}
 	else
-		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A)
+		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A||protocol==MODE_BAYANG)
 		{	
-			frame[1] = v_lipo*2; //v_lipo; common 0x2A=42/10=4.2V
-			frame[2] = frame[1];			
-			frame[3] = protocol==MODE_HUBSAN?0x00:(uint8_t)RSSI_dBm;
+			frame[1] = v_lipo1;
+			frame[2] = v_lipo2;			
+			frame[3] = (uint8_t)RSSI_dBm;
 			frame[4] = TX_RSSI;
 		}
-	frame[5] = frame[6] = frame[7] = frame[8] = 0;			
+	frame[5] = frame[6] = frame[7] = frame[8] = 0;
 	frskySendStuffed();
 }
 
@@ -331,182 +329,51 @@ void sportIdle()
 void sportSendFrame()
 {
 	uint8_t i;
-#ifdef ENABLE_BAYANG_TELEMETRY
-	uint32_t temp;
-	uint16_t temp16;
-	uint8_t* bytes;
-#endif
-
 	sport_counter = (sport_counter + 1) %36;
 	if(telemetry_lost)
 	{
 		sportIdle();
 		return;
 	}
-	
-	uint8_t num_frames = 6;
-	#ifdef ENABLE_BAYANG_TELEMETRY
-		if (protocol == MODE_BAYANG) {		num_frames = 14;	}
-	#endif
-	if(sport_counter<num_frames)
+	if(sport_counter<6)
 	{
 		frame[0] = 0x98;
 		frame[1] = 0x10;
 		for (i=5;i<8;i++)
 		frame[i]=0;
 	}
-	#ifdef ENABLE_BAYANG_TELEMETRY
-		if (protocol == MODE_BAYANG) {
-			switch (sport_counter)
-			{
-				case 0:
-					frame[2] = 0x05;
-					frame[3] = 0xf1;
-					frame[4] = 0x02 ;//dummy values if swr 20230f00
-					frame[5] = 0x23;
-					frame[6] = 0x0F;
-					break;
-				case 1: // RSSI
-					frame[2] = 0x01;
-					frame[3] = 0xf1;
-					frame[4] = telemetry_rx_rssi;
-					break;
-				case 2: //BATT
-					frame[2] = 0x04;
-					frame[3] = 0xf1;
-					frame[4] = telemetry_voltage/4.f * 255.f/3.3f;//a1;
-					break;
-				case 3: //FCS VOLTAGE
-					frame[2] = 0x10;
-					frame[3] = 0x02;
-					temp =  (uint32_t)(telemetry_voltage * 100);
-					bytes = (uint8_t *) &temp;
-					frame[4] = bytes[0];
-					frame[5] = bytes[1];
-					frame[6] = bytes[2];
-					frame[7] = bytes[3];
-					break;
-				case 4: //RPM (use this as vTX frequency)
-					frame[2] = 0x00;
-					frame[3] = 0x05;
-					frame[4] = 0;
-					frame[5] = 0;
-					frame[6] = 0;
-					frame[7] = 0;
-					//frskySerial.sendData(0x0500,temp);
-					break;
-				case 5: // xjt accx
-					frame[2] = 0x24;
-					frame[3] = 0x00;
-					temp16 = (uint16_t)(telemetry_data[0]*1000);
-					bytes = (uint8_t *) &temp16;
-					frame[4] = bytes[0];
-					frame[5] = bytes[1];
-					break;
-				case 6: // xjt accy
-					frame[2] = 0x25;
-					frame[3] = 0x00;
-					temp16 = (uint16_t)(telemetry_data[1]*1000);
-					bytes = (uint8_t *) &temp16;
-					frame[4] = bytes[0];
-					frame[5] = bytes[1];
-					break;
-				case 7: // xjt accz
-					frame[2] = 0x26;
-					frame[3] = 0x00;
-					temp16 = (uint16_t)(telemetry_data[2]*1000);
-					bytes = (uint8_t *) &temp16;
-					frame[4] = bytes[0];
-					frame[5] = bytes[1];
-					break;
-				case 8: // xjt gps hour minute
-					frame[2] = 0x17;
-					frame[3] = 0x00;
-					temp16 = telemetry_dataitem;            // hours
-					temp16 |= (telemetry_uptime / 60) << 8; // minutes
-					bytes = (uint8_t *) &temp16;
-					frame[4] = bytes[0];
-					frame[5] = bytes[1];
-					break;
-				case 9: // xjt gps seconds
-					frame[2] = 0x18;
-					frame[3] = 0x00;
-					frame[4] = telemetry_uptime % 60;
-					break;
-				case 10: // xjt gps day/month
-					frame[2] = 0x15;
-					frame[3] = 0x00;
-					frame[4] = telemetry_flighttime / 60;
-					frame[5] = telemetry_flighttime % 60;
-					break;
-				case 11: // xjt gps year
-					frame[2] = 0x16;
-					frame[3] = 0x00;
-					frame[4] = telemetry_flightmode;
-					break;
-				case 12: // xjt t1
-					frame[2] = 0x02;
-					frame[3] = 0x00;
-					frame[4] = telemetry_tx_sent_pps >> 1; // divided by 2
-					frame[5] = telemetry_rx_recv_pps >> 1; // divided by 2
-					break;								
-				case 13: // xjt t2
-					frame[2] = 0x05;
-					frame[3] = 0x00;
-					frame[4] = telemetry_tx_recv_pps >> 1; // divided by 2
-					frame[5] = 0;
-					break;
-				default:
-					if(sport)
-					{	
-						for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
-						frame[i]=pktx1[i];
-						sport=0;
-						break;
-					}
-					else
-					{
-						sportIdle();
-						return;
-					}
-			}
-		}
-		else
-	#endif
+	switch (sport_counter)
 	{
-		switch (sport_counter)
-		{
-			case 0:
-				frame[2] = 0x05;
-				frame[3] = 0xf1;
-				frame[4] = 0x02 ;//dummy values if swr 20230f00
-				frame[5] = 0x23;
-				frame[6] = 0x0F;
+		case 0:
+			frame[2] = 0x05;
+			frame[3] = 0xf1;
+			frame[4] = 0x02 ;//dummy values if swr 20230f00
+			frame[5] = 0x23;
+			frame[6] = 0x0F;
+			break;
+		case 2: // RSSI
+			frame[2] = 0x01;
+			frame[3] = 0xf1;
+			frame[4] = rssi;
+			break;
+		case 4: //BATT
+			frame[2] = 0x04;
+			frame[3] = 0xf1;
+			frame[4] = RxBt;//a1;
+			break;								
+		default:
+			if(sport)
+			{	
+				for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
+				frame[i]=pktx1[i];
+				sport=0;
 				break;
-			case 2: // RSSI
-				frame[2] = 0x01;
-				frame[3] = 0xf1;
-				frame[4] = telemetry_rx_rssi;
-				break;
-			case 4: //BATT
-				frame[2] = 0x04;
-				frame[3] = 0xf1;
-				frame[4] = RxBt;//a1;
-				break;
-			default:
-				if(sport)
-				{	
-					for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
-					frame[i]=pktx1[i];
-					sport=0;
-					break;
-				}
-				else
-				{
-					sportIdle();
-					return;
-				}						
-		}
+			}
+			else
+			{
+				sportIdle();
+				return;
+			}		
 	}
 	sportSend(frame);
 }	
@@ -603,18 +470,14 @@ void TelemetryUpdate()
 	#endif
 	 
 	#if defined SPORT_TELEMETRY
-		if (protocol==MODE_FRSKYX
-			#ifdef ENABLE_BAYANG_TELEMETRY
-				|| protocol == MODE_BAYANG
-			#endif
-		)
+		if (protocol==MODE_FRSKYX)
 		{	// FrSkyX
 			if(telemetry_link)
 			{		
 				if(pktt[4] & 0x80)
-					telemetry_rx_rssi=pktt[4] & 0x7F ;
+					rssi=pktt[4] & 0x7F ;
 				else 
-					telemetry_voltage = (pktt[4]<<1) + 1 ;
+					RxBt = (pktt[4]<<1) + 1 ;
 				if(pktt[6]<=6)
 					for (uint8_t i=0; i < pktt[6]; i++)
 						proces_sport_data(pktt[7+i]);
@@ -641,15 +504,15 @@ void TelemetryUpdate()
 			return;
 		}
 	#endif
-    #if defined AFHDS2A_TELEMETRY     
+    #if defined AFHDS2A_FW_TELEMETRY     
         if(telemetry_link == 2 && protocol == MODE_AFHDS2A)
-            {
-                AFHDSA_short_frame();
-                telemetry_link=0;
-            }
+		{
+			AFHDSA_short_frame();
+			telemetry_link=0;
+		}
     #endif        
 		if(telemetry_link && protocol != MODE_FRSKYX )
-		{	// FrSkyD + Hubsan + AFHDS2A
+		{	// FrSkyD + Hubsan + AFHDS2A + Bayang
 			frsky_link_frame();
 			telemetry_link=0;
 			return;
@@ -871,7 +734,7 @@ void Serial_write( uint8_t byte )
 	else
 	{
 		byteLo |= 0xFE ;	// Stop bit
-	}	
+	}
 	byte <<= 1 ;
 	#ifdef INVERT_SERIAL
 		byte |= 1 ;		// Start bit

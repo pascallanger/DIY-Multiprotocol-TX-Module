@@ -57,9 +57,10 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 	packet[3] = rx_tx_addr[2];
 	packet[4] = rx_tx_addr[3];
 	// packet[5] to [8] (aircraft id) is filled during bind for blue board
-	uint16_t aileron=Servo_data[AILERON];
-	uint16_t elevator=3000-Servo_data[ELEVATOR];
-	uint16_t rudder=3000-Servo_data[RUDDER];
+	uint16_t aileron=map(limit_channel_100(AILERON),servo_min_100,servo_max_100,1000,2000);
+	uint16_t elevator=map(limit_channel_100(ELEVATOR),servo_min_100,servo_max_100,2000,1000);
+	uint16_t throttle=map(limit_channel_100(THROTTLE),servo_min_100,servo_max_100,1000,2000);
+	uint16_t rudder=map(limit_channel_100(RUDDER),servo_min_100,servo_max_100,2000,1000);
     // Channel 5 - flip flag
 	packet[12+offset] = GET_FLAG(Servo_AUX1,CX10_FLAG_FLIP); // flip flag applied on rudder
 
@@ -82,30 +83,16 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			break;
 		case Q282:
 		case Q242:
-			aileron = 3000 - aileron;
-			rudder = 3000 - rudder;
 		case Q222:
 			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
 			//FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 			flags2 = GET_FLAG(Servo_AUX1, 0x80)		// Channel 5 - FLIP
-					|GET_FLAG(Servo_AUX2, 0x40)		// Channel 6 - LED
+					|GET_FLAG(!Servo_AUX2, 0x40)	// Channel 6 - LED
 					|GET_FLAG(Servo_AUX5, 0x08)		// Channel 9 - HEADLESS
 					|GET_FLAG(Servo_AUX7, 0x04)		// Channel 11 - XCAL
 					|GET_FLAG(Servo_AUX8, 0x02);	// Channel 12 - YCAL or Start/Stop motors on JXD 509
 	
-			if(sub_protocol==Q282)
-			{
-				flags=3;
-				if(Servo_AUX4)						// Channel 8 - video
-				{
-					if (!(video_state & 0x20)) video_state ^= 0x21;
-				}
-				else
-					if (video_state & 0x20) video_state &= 0x01;
-				flags2 |= video_state
-						|GET_FLAG(Servo_AUX3,0x10);	// Channel 7 - picture
-			}
-			else if(sub_protocol==Q242)
+			if(sub_protocol==Q242)
 			{
 				flags=2;
 				flags2|= GET_FLAG(Servo_AUX3,0x01)	// Channel 7 - picture
@@ -114,8 +101,16 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 				packet[18]=0x00;
 			}
 			else
-			{	// Q222
-				flags=0;
+			{ // Q282 & Q222
+				flags=3;							// expert
+				if(Servo_AUX4)						// Channel 8 - Q282 video / Q222 Module 1
+				{
+					if (!(video_state & 0x20)) video_state ^= 0x21;
+				}
+				else
+					if (video_state & 0x20) video_state &= 0x01;
+				flags2 |= video_state
+						|GET_FLAG(Servo_AUX3,0x10);	// Channel 7 - Q282 picture / Q222 Module 2
 			}
 			if(Servo_AUX6)	flags |=0x80;			// Channel 10 - RTH
 			break;
@@ -146,11 +141,11 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			break;
 	}
 	packet[5+offset] = lowByte(aileron);
-	packet[6+offset]= highByte(aileron);
-	packet[7+offset]= lowByte(elevator);
-	packet[8+offset]= highByte(elevator);
-	packet[9+offset] = lowByte(Servo_data[THROTTLE]);
-	packet[10+offset]= highByte(Servo_data[THROTTLE]);
+	packet[6+offset] = highByte(aileron);
+	packet[7+offset] = lowByte(elevator);
+	packet[8+offset] = highByte(elevator);
+	packet[9+offset] = lowByte(throttle);
+	packet[10+offset]= highByte(throttle);
 	packet[11+offset]= lowByte(rudder);
 	packet[12+offset]|= highByte(rudder);
 	packet[13+offset]=flags;

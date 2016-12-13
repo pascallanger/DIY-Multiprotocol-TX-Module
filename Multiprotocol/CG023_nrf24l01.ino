@@ -67,12 +67,12 @@ enum H8_3D_FLAGS {
 
 enum H8_3D_FLAGS_2 {
 	// flags going to packet[18]
+    H8_3D_FLAG_VIDEO      = 0x80,
+    H8_3D_FLAG_PICTURE    = 0x40,
+    H8_3D_FLAG_CALIBRATE1 = 0x20,  // H8 3D acc calibration, H20 headless calib
+    H8_3D_FLAG_CALIBRATE2 = 0x10,  // H11D and H20 acc calibration
+    H8_3D_FLAG_CAM_DN     = 0x08,
 	H8_3D_FLAG_CAM_UP		= 0x04,
-	H8_3D_FLAG_CAM_DOWN		= 0x08,
-	H8_3D_FLAG_CALIBRATE2	= 0x10, // acc calib. (H11D, H20)
-	H8_3D_FLAG_CALIBRATE	= 0x20, // acc calib. (H8 3D), headless calib (H20)
-	H8_3D_FLAG_SNAPSHOT		= 0x40,
-	H8_3D_FLAG_VIDEO		= 0x80,
 };
 
 static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
@@ -122,12 +122,16 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 			packet[17] = 					  H8_3D_FLAG_RATE_HIGH
 						| GET_FLAG(Servo_AUX1,H8_3D_FLAG_FLIP)
 						| GET_FLAG(Servo_AUX2,H8_3D_FLAG_LIGTH) //H22 light
-						| GET_FLAG(Servo_AUX3,H8_3D_FLAG_HEADLESS)
-						| GET_FLAG(Servo_AUX4,H8_3D_FLAG_RTH); // 180/360 flip mode on H8 3D
-			packet[18] =  GET_FLAG(Servo_AUX5,H8_3D_FLAG_CALIBRATE)
-						| GET_FLAG(Servo_AUX5,H8_3D_FLAG_CALIBRATE2)
-						| GET_FLAG(Servo_AUX6,H8_3D_FLAG_SNAPSHOT)
-						| GET_FLAG(Servo_AUX7,H8_3D_FLAG_VIDEO);
+						| GET_FLAG(Servo_AUX5,H8_3D_FLAG_HEADLESS)
+						| GET_FLAG(Servo_AUX6,H8_3D_FLAG_RTH); // 180/360 flip mode on H8 3D
+			packet[18] =  GET_FLAG(Servo_AUX3,H8_3D_FLAG_PICTURE)
+						| GET_FLAG(Servo_AUX4,H8_3D_FLAG_VIDEO)
+						| GET_FLAG(Servo_AUX7,H8_3D_FLAG_CALIBRATE1)
+						| GET_FLAG(Servo_AUX8,H8_3D_FLAG_CALIBRATE2);
+			if(Servo_data[AUX9]<PPM_MIN_COMMAND)
+				packet[18] |= H8_3D_FLAG_CAM_DN;
+			if(Servo_data[AUX9]>PPM_MAX_COMMAND)
+				packet[18] |= H8_3D_FLAG_CAM_UP;
 		}
 	    uint8_t  sum = packet[9];
 		for (uint8_t i=10; i < H8_3D_PACKET_SIZE-1; i++)

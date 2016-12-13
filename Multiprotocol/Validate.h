@@ -85,24 +85,34 @@
 //Make sure telemetry is selected correctly
 #ifndef TELEMETRY
 	#undef INVERT_TELEMETRY
-	#undef DSM_TELEMETRY	
-	#undef SPORT_TELEMETRY	
+	#undef AFHDS2A_FW_TELEMETRY
+	#undef AFHDS2A_HUB_TELEMETRY
+	#undef BAYANG_HUB_TELEMETRY
+	#undef HUBSAN_HUB_TELEMETRY
 	#undef HUB_TELEMETRY
-	#undef AFHDS2A_TELEMETRY
+	#undef SPORT_TELEMETRY	
+	#undef DSM_TELEMETRY	
 #else
-	#if not defined(DSM_CYRF6936_INO)
-		#undef DSM_TELEMETRY
+	#if not defined(BAYANG_NRF24L01_INO)
+		#undef BAYANG_HUB_TELEMETRY
 	#endif
-	#if not defined(FRSKYD_CC2500_INO) && not defined(HUBSAN_A7105_INO) && not defined(AFHDS2A_A7105_INO)
+	#if not defined(HUBSAN_A7105_INO)
+		#undef HUBSAN_HUB_TELEMETRY
+	#endif
+	#if not defined(AFHDS2A_A7105_INO)
+		#undef 	AFHDS2A_HUB_TELEMETRY
+		#undef 	AFHDS2A_FW_TELEMETRY
+	#endif
+	#if not defined(FRSKYD_CC2500_INO)
 		#undef HUB_TELEMETRY
 	#endif
 	#if not defined(FRSKYX_CC2500_INO)
 		#undef SPORT_TELEMETRY
 	#endif
-	#if not defined(AFHDS2A_A7105_INO)
-		#undef 	AFHDS2A_TELEMETRY
+	#if not defined(DSM_CYRF6936_INO)
+		#undef DSM_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(AFHDS2A_TELEMETRY)
+	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 	#endif

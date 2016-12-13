@@ -129,11 +129,14 @@
 //#define INVERT_TELEMETRY
 
 //Comment a line to disable a protocol telemetry
-	#define DSM_TELEMETRY	
-	#define SPORT_TELEMETRY	
-	#define HUB_TELEMETRY
-	#define AFHDS2A_TELEMETRY
-//	#define ENABLE_BAYANG_TELEMETRY		// uncomment to enable bayang telemtry for H101 acro firmware - https://github.com/bikemike/H101-acro/tree/telemetry
+	#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
+	#define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
+	#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded
+	#define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
+	#define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+	#define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+	#define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -233,7 +236,8 @@ const PPM_Parameters PPM_prot[15]=	{
 		Hisky
 		HK310
 	MODE_V2X2
-		NONE
+		V2X2
+		JXD506
 	MODE_DSM
 		DSM2_22
 		DSM2_11
@@ -275,7 +279,6 @@ const PPM_Parameters PPM_prot[15]=	{
 		H8_3D
 	MODE_BAYANG
 		BAYANG
-		BAYANG TELEMETRY
 		H8S3D
 	MODE_FRSKYX
 		CH_16
@@ -287,6 +290,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		H7
 		YZ
 		LS
+		FY805
 	MODE_MJXQ
 		WLH08
 		X600
@@ -312,7 +316,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		FORMAT_HONTAI
 		FORMAT_JJRCX1
 		FORMAT_X5C1
-		FQ777-951
+		FORMAT_FQ777_951
 	MODE_AFHDS2A
 		PWM_IBUS
 		PPM_IBUS

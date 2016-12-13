@@ -20,6 +20,7 @@
 #include "iface_nrf24l01.h"
 
 #define MT99XX_BIND_COUNT		928
+#define MT99XX_PACKET_PERIOD_FY805 2460
 #define MT99XX_PACKET_PERIOD_MT 2625
 #define MT99XX_PACKET_PERIOD_YZ 3125
 #define MT99XX_INITIAL_WAIT     500
@@ -45,6 +46,11 @@ enum{
     FLAG_LS_SNAPSHOT= 0x20,
     FLAG_LS_VIDEO   = 0x40,
     FLAG_LS_FLIP    = 0x80,
+};
+
+enum{
+    // flags going to packet[7] (FY805)
+    FLAG_FY805_HEADLESS= 0x10,
 };
 
 enum {
@@ -89,17 +95,28 @@ static void __attribute__((unused)) MT99XX_send_packet()
 				packet[6] |= 0x40 | FLAG_MT_RATE2
 				  | GET_FLAG( Servo_AUX3, FLAG_MT_SNAPSHOT )
 				  | GET_FLAG( Servo_AUX4, FLAG_MT_VIDEO );	// max rate on MT99xx
-			else //LS
-			{
-				packet[6] |= FLAG_LS_RATE							// max rate
-					| GET_FLAG( Servo_AUX2, FLAG_LS_INVERT )		//INVERT
-					| GET_FLAG( Servo_AUX3, FLAG_LS_SNAPSHOT )		//SNAPSHOT
-					| GET_FLAG( Servo_AUX4, FLAG_LS_VIDEO )			//VIDEO
-					| GET_FLAG( Servo_AUX5, FLAG_LS_HEADLESS );		//HEADLESS
-				packet[7] = ls_mys_byte[ls_counter++];
-				if(ls_counter >= sizeof(ls_mys_byte))
-					ls_counter=0;
-			}
+			else
+				if(sub_protocol==FY805)
+				{
+					packet[6]=0x20;
+					//Rate 0x01?
+					//Flip ?
+					packet[7]=0x01
+						|GET_FLAG( Servo_AUX1, FLAG_MT_FLIP )
+						|GET_FLAG( Servo_AUX5, FLAG_FY805_HEADLESS );	//HEADLESS
+					checksum_offset=0;
+				}
+				else //LS
+				{
+					packet[6] |= FLAG_LS_RATE							// max rate
+						| GET_FLAG( Servo_AUX2, FLAG_LS_INVERT )		//INVERT
+						| GET_FLAG( Servo_AUX3, FLAG_LS_SNAPSHOT )		//SNAPSHOT
+						| GET_FLAG( Servo_AUX4, FLAG_LS_VIDEO )			//VIDEO
+						| GET_FLAG( Servo_AUX5, FLAG_LS_HEADLESS );		//HEADLESS
+					packet[7] = ls_mys_byte[ls_counter++];
+					if(ls_counter >= sizeof(ls_mys_byte))
+						ls_counter=0;
+				}
 
 		uint8_t result=checksum_offset;
 		for(uint8_t i=0; i<8; i++)
@@ -135,7 +152,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	if(sub_protocol == LS)
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x2D); // LS always transmits on the same channel
 	else
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no] + channel_offset);
+		if(sub_protocol==FY805)
+			NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x4B); // FY805 always transmits on the same channel
+		else
+			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no] + channel_offset);
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 	XN297_WritePayload(packet, MT99XX_PACKET_SIZE);
@@ -184,10 +204,17 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 		rx_tx_addr[2] = 0x00;
 	}
 	else
-		if(sub_protocol == LS)
-			rx_tx_addr[0] = 0xCC;
-		else //MT99 & H7
+		if(sub_protocol == FY805)
+		{
+			rx_tx_addr[0] = 0x81; // test (SB id)
+			rx_tx_addr[1] = 0x0F;
 			rx_tx_addr[2] = 0x00;
+		}
+		else
+			if(sub_protocol == LS)
+				rx_tx_addr[0] = 0xCC;
+			else //MT99 & H7
+				rx_tx_addr[2] = 0x00;
 	checksum_offset = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2];
 	channel_offset = (((checksum_offset & 0xf0)>>4) + (checksum_offset & 0x0f)) % 8;
 }
@@ -209,7 +236,10 @@ uint16_t MT99XX_callback()
 			if(sub_protocol == LS)
 				NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x2D); // LS always transmits on the same channel
 			else
-				NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+				if(sub_protocol==FY805)
+					NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x4B); // FY805 always transmits on the same channel
+				else
+					NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 			NRF24L01_FlushTx();
 			XN297_WritePayload(packet, MT99XX_PACKET_SIZE); // bind packet
@@ -255,6 +285,12 @@ uint16_t initMT99XX(void)
 			packet[1] = 0x14;
 			packet[2] = 0x05;
 			packet[3] = 0x11;
+			break;
+		case FY805:
+			packet_period = MT99XX_PACKET_PERIOD_FY805;
+			packet[1] = 0x15;
+			packet[2] = 0x12;
+			packet[3] = 0x17;
 			break;
 	}
 	packet[4] = rx_tx_addr[0];

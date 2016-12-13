@@ -249,7 +249,7 @@ static void __attribute__((unused)) hubsan_build_packet()
 	hubsan_update_crc();
 }
 
-#if defined(TELEMETRY)
+#ifdef HUBSAN_HUB_TELEMETRY
 static uint8_t __attribute__((unused)) hubsan_check_integrity() 
 {
     if( (packet[0]&0xFE) != 0xE0 )
@@ -263,7 +263,7 @@ static uint8_t __attribute__((unused)) hubsan_check_integrity()
 
 uint16_t ReadHubsan() 
 {
-#if defined(TELEMETRY)
+#ifdef HUBSAN_HUB_TELEMETRY
 	static uint8_t rfMode=0;
 #endif
 	static uint8_t txState=0;
@@ -348,7 +348,7 @@ uint16_t ReadHubsan()
 		case DATA_4:
 		case DATA_5:
 			if( txState == 0) { // send packet
-#if defined(TELEMETRY)
+#ifdef HUBSAN_HUB_TELEMETRY
 				rfMode = A7105_TX;
 #endif
 				if( phase == DATA_1)
@@ -370,7 +370,7 @@ uint16_t ReadHubsan()
 				delay=3000;
 			}
 			else {
-#if defined(TELEMETRY)
+#ifdef HUBSAN_HUB_TELEMETRY
 				if( rfMode == A7105_TX)
 				{// switch to rx mode 3ms after packet sent
 					for( i=0; i<10; i++)
@@ -392,7 +392,7 @@ uint16_t ReadHubsan()
 							A7105_ReadData(16);
 							if( hubsan_check_integrity() )
 							{
-								v_lipo=packet[13];// hubsan lipo voltage 8bits the real value is h_lipo/10(0x2A=42 -> 4.2V)
+								v_lipo1=packet[13]*2;// hubsan lipo voltage 8bits the real value is h_lipo/10(0x2A=42 -> 4.2V)
 								telemetry_link=1;
 							}	
 							A7105_Strobe(A7105_RX);
@@ -428,8 +428,8 @@ uint16_t initHubsan() {
 	phase = BIND_1;
 	packet_count=0;
 	id_data=ID_NORMAL;
-#if defined(TELEMETRY)
-	telemetry_link=0;
+#ifdef HUBSAN_HUB_TELEMETRY
+	init_hub_telemetry();
 #endif
 	return 10000;
 }

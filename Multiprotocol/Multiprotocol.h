@@ -141,7 +141,8 @@ enum MJXQ
 	X600	= 1,
 	X800	= 2,
 	H26D	= 3,
-	E010	= 4
+	E010	= 4,
+	H26WH	= 5,
 };
 enum FRSKYX
 {
@@ -489,6 +490,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			X800		2
 			H26D		3
 			E010		4
+			H26WH		5
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1

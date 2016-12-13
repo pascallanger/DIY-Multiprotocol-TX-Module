@@ -48,25 +48,28 @@ const uint8_t PROGMEM E010_map_txid[][2] = {
 					{0x41, 0x22},
 					{0xEE, 0xB3},
 					{0x9A, 0xB2},
-					{0xCD, 0x01},
 					{0xC0, 0x44},
-					{0xD7, 0x6E} };
+					{0x2A, 0xFE},
+					{0xD7, 0x6E},
+					{0x3C, 0xCD} // for this ID rx_tx_addr[2]=0x01
+					};
 					
-const uint8_t PROGMEM E010_map_rfchan[][4] = {
-					{0x3A, 0x35, 0x4A, 0x45},
-					{0x2E, 0x36, 0x3E, 0x46},
-					{0x32, 0x3E, 0x42, 0x4E},
-					{0x2E, 0x3C, 0x3E, 0x4C},
-					{0x2F, 0x3B, 0x3F, 0x4B},
-					{0x33, 0x3B, 0x43, 0x4B},
-					{0x33, 0x3B, 0x43, 0x4B},
-					{0x34, 0x3E, 0x44, 0x4E},
-					{0x3F, 0x34, 0x2F, 0x44},
-					{0x39, 0x3E, 0x49, 0x4E},
-					{0x2E, 0x36, 0x3E, 0x46},
-					{0x2E, 0x36, 0x3E, 0x46},
-					{0x2E, 0x36, 0x3E, 0x46},
-					{0x3A, 0x41, 0x4A, 0x51} };
+const uint8_t PROGMEM E010_map_rfchan[][2] = {
+					{0x3A, 0x35},
+					{0x2E, 0x36},
+					{0x32, 0x3E},
+					{0x2E, 0x3C},
+					{0x2F, 0x3B},
+					{0x33, 0x3B},
+					{0x33, 0x3B},
+					{0x34, 0x3E},
+					{0x34, 0x2F},
+					{0x39, 0x3E},
+					{0x2E, 0x36},
+					{0x2E, 0x36},
+					{0x2E, 0x36},
+					{0x3A, 0x41},
+					{0x32, 0x3E} };
 
 #define MJXQ_PAN_TILT_COUNT	16   // for H26D - match stock tx timing
 #define MJXQ_PAN_DOWN		0x08
@@ -115,14 +118,17 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	packet[14] = 0xC0;							// bind value
 
 // Servo_AUX1	FLIP
-// Servo_AUX2	LED
+// Servo_AUX2	LED / ARM
 // Servo_AUX3	PICTURE
 // Servo_AUX4	VIDEO
 // Servo_AUX5	HEADLESS
 // Servo_AUX6	RTH
 // Servo_AUX7	AUTOFLIP	// X800, X600
+// Servo_AUX8	PAN
+// Servo_AUX9	TILT
 	switch(sub_protocol)
 	{
+		case H26WH:
 		case H26D:
 			packet[10]=MJXQ_pan_tilt_value();
 			// fall through on purpose - no break
@@ -136,7 +142,13 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 						| GET_FLAG(Servo_AUX1, 0x01)	//FLIP
 						| GET_FLAG(Servo_AUX3, 0x08)	//PICTURE
 						| GET_FLAG(Servo_AUX4, 0x10)	//VIDEO
-						| GET_FLAG(!Servo_AUX2, 0x20);	// air/ground mode
+						| GET_FLAG(!Servo_AUX2, 0x20);	// LED or air/ground mode
+				if(sub_protocol==H26WH)
+				{
+					packet[10] |=0x40;					//High rate
+					packet[14] &= ~0x24;				// unset air/ground & arm flags
+					packet[14] |= GET_FLAG(Servo_AUX2, 0x02);	// arm
+				}
 			}
 			break;
 		case X600:
@@ -169,23 +181,23 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	for (uint8_t i=1; i < MJXQ_PACKET_SIZE-1; i++) sum += packet[i];
 	packet[15] = sum;
 
-	// Power on, TX mode, 2byte CRC
-	if (sub_protocol == H26D)
-		NRF24L01_SetTxRxMode(TX_EN);
-	else
-		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++ / 2]);
 	hopping_frequency_no %= 2 * MJXQ_RF_NUM_CHANNELS;	// channels repeated
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 
-	if (sub_protocol == H26D)
+	// Power on, TX mode, 2byte CRC and send packet
+	if (sub_protocol == H26D || sub_protocol == H26WH)
+	{
+		NRF24L01_SetTxRxMode(TX_EN);
 		NRF24L01_WritePayload(packet, MJXQ_PACKET_SIZE);
+	}
 	else
+	{
+		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 		XN297_WritePayload(packet, MJXQ_PACKET_SIZE);
-
+	}
 	NRF24L01_SetPower();
 }
 
@@ -196,25 +208,18 @@ static void __attribute__((unused)) MJXQ_init()
 	if (sub_protocol == WLH08)
 		memcpy(hopping_frequency, "\x12\x22\x32\x42", MJXQ_RF_NUM_CHANNELS);
 	else
-		if (sub_protocol == H26D)
-			memcpy(hopping_frequency, "\x36\x3e\x46\x2e", MJXQ_RF_NUM_CHANNELS);
+		if (sub_protocol == H26D || sub_protocol == H26D || sub_protocol == E010)
+			memcpy(hopping_frequency, "\x2e\x36\x3e\x46", MJXQ_RF_NUM_CHANNELS);
 		else
-			if(sub_protocol == E010)
-			{
-				for(uint8_t i=0;i<4;i++)
-					hopping_frequency[i]=pgm_read_byte_near( &E010_map_rfchan[rx_tx_addr[3]%14][i] );
-			}
-			else
-			{
-				memcpy(hopping_frequency, "\x0a\x35\x42\x3d", MJXQ_RF_NUM_CHANNELS);
-				memcpy(addr, "\x6d\x6a\x73\x73\x73", MJXQ_ADDRESS_LENGTH);
-			}
-
+		{
+			memcpy(hopping_frequency, "\x0a\x35\x42\x3d", MJXQ_RF_NUM_CHANNELS);
+			memcpy(addr, "\x6d\x6a\x73\x73\x73", MJXQ_ADDRESS_LENGTH);
+		}
 	
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
 
-	if (sub_protocol == H26D)
+	if (sub_protocol == H26D || sub_protocol == H26WH)
 	{
 		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW,		0x03);		// 5-byte RX/TX address
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, MJXQ_ADDRESS_LENGTH);
@@ -238,27 +243,52 @@ static void __attribute__((unused)) MJXQ_init()
 
 static void __attribute__((unused)) MJXQ_init2()
 {
-	if (sub_protocol == H26D)
-		memcpy(hopping_frequency, "\x32\x3e\x42\x4e", MJXQ_RF_NUM_CHANNELS);
-	else
-		if (sub_protocol != WLH08 && sub_protocol != E010)
+	switch(sub_protocol)
+	{
+		case H26D:
+			memcpy(hopping_frequency, "\x32\x3e\x42\x4e", MJXQ_RF_NUM_CHANNELS);
+			break;
+		case H26WH:
+			memcpy(hopping_frequency, "\x37\x32\x47\x42", MJXQ_RF_NUM_CHANNELS);
+			break;
+		case E010:
+			for(uint8_t i=0;i<2;i++)
+			{
+				hopping_frequency[i]=pgm_read_byte_near( &E010_map_rfchan[rx_tx_addr[3]%15][i] );
+				hopping_frequency[i+2]=hopping_frequency[i]+0x10;
+			}
+			break;
+		case WLH08:
+			// do nothing
+			break;
+		default:
 			for(uint8_t i=0;i<MJXQ_RF_NUM_CHANNELS;i++)
 				hopping_frequency[i]=pgm_read_byte_near( &MJXQ_map_rfchan[rx_tx_addr[3]%3][i] );
+			break;
+	}
 }
 
 static void __attribute__((unused)) MJXQ_initialize_txid()
 {
-	rx_tx_addr[0]&=0xF8;
-	rx_tx_addr[2]=rx_tx_addr[3];	// Make use of RX_Num
-	if (sub_protocol == E010)
+	switch(sub_protocol)
 	{
-		for(uint8_t i=0;i<2;i++)
-			rx_tx_addr[i]=pgm_read_byte_near( &E010_map_txid[rx_tx_addr[3]%14][i] );
-		rx_tx_addr[2]=0;
+		case H26WH:
+			memcpy(rx_tx_addr, "\xa4\x03\x00", 3); 
+			break;
+		case E010:
+			for(uint8_t i=0;i<2;i++)
+				rx_tx_addr[i]=pgm_read_byte_near( &E010_map_txid[rx_tx_addr[3]%15][i] );
+			rx_tx_addr[2]=(rx_tx_addr[3]%15 == 14)?1:0;
+			break;
+		case WLH08:
+			rx_tx_addr[0]&=0xF8;
+			rx_tx_addr[2]=rx_tx_addr[3];	// Make use of RX_Num
+			break;
+		default:
+			for(uint8_t i=0;i<3;i++)
+				rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[3]%3][i] );
+			break;
 	}
-	else
-		for(uint8_t i=0;i<3;i++)
-			rx_tx_addr[i]=pgm_read_byte_near( &MJXQ_map_txid[rx_tx_addr[3]%3][i] );
 }
 
 uint16_t MJXQ_callback()

@@ -5,7 +5,7 @@
 Multiprotocol source can be compiled using the Arduino IDE using STM32 Core (Maple) and Arduino ARM-Cortex-M3 libraries.  
 
 ###Install the Arduino IDE and the Multiprotocol project
-1. Download the Arduino IDE. The currently supported Arduino version is 1.6.5.[update now supports Arduino 1.6.11] available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
+1. Download the Arduino IDE. The currently supported Arduino version is 1.6.11 available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
 1. Download the [STM32 Core](https://github.com/rogerclarkmelbourne/Arduino_STM32/archive/master.zip) and copy the Arduino_STM32 folder to:
   - OSX: ```Arduino.app/Contents/Java/hardware```  (you can open Arduino.app by Ctl Clicking on Arduino.app and selecting "Show Package Contents") 
   - Windows: ```C:\Program Files (x86)\Arduino\hardware``` 

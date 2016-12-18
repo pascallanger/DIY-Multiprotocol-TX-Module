@@ -5,7 +5,7 @@
 **This page describes the basic Compiling and Programming process.  There are some other more advanced processes that have some superior features described under the [Advanced Topics](Advanced_Topics.md) page.** Some options are: 
  - Using an FTDI cable to upload firmware over the module - Tx pins
 
-**If you wish to upload one of prepare binary files please see the page [Manually programming and setting fuses](Advanced_Manually_Setting_ATmega328_Fuses.md).** 
+**If you wish to upload one of prepared binary files please see the page [Manually programming and setting fuses](Advanced_Manually_Setting_ATmega328_Fuses.md).** 
 
 Multiprotocol source can be compiled using the Arduino IDE.  
 

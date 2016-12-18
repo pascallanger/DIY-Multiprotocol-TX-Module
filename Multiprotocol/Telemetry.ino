@@ -125,7 +125,11 @@ void DSM_frame()
 #ifdef AFHDS2A_FW_TELEMETRY
 void AFHDSA_short_frame()
 {
+#if defined MULTI_TELEMETRY
     multi_send_header(MULTI_TELEMETRY_AFHDS2A, 29);
+#else
+    Serial_write(0xAA);                    // Telemetry packet
+#endif
 	for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
 		Serial_write(pkt[i]);
 }

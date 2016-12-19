@@ -51,9 +51,9 @@ const uint8_t PROGMEM E010_map_txid[][2] = {
 					{0xC0, 0x44},
 					{0x2A, 0xFE},
 					{0xD7, 0x6E},
-					{0x3C, 0xCD} // for this ID rx_tx_addr[2]=0x01
+					{0x3C, 0xCD}, // for this ID rx_tx_addr[2]=0x01
+					{0xF5, 0x2B} // for this ID rx_tx_addr[2]=0x02
 					};
-					
 const uint8_t PROGMEM E010_map_rfchan[][2] = {
 					{0x3A, 0x35},
 					{0x2E, 0x36},
@@ -65,11 +65,13 @@ const uint8_t PROGMEM E010_map_rfchan[][2] = {
 					{0x34, 0x3E},
 					{0x34, 0x2F},
 					{0x39, 0x3E},
+					{0x2E, 0x38},
 					{0x2E, 0x36},
-					{0x2E, 0x36},
-					{0x2E, 0x36},
+					{0x2E, 0x38},
 					{0x3A, 0x41},
-					{0x32, 0x3E} };
+					{0x32, 0x3E},
+					{0x33, 0x3F}
+					};
 
 #define MJXQ_PAN_TILT_COUNT	16   // for H26D - match stock tx timing
 #define MJXQ_PAN_DOWN		0x08
@@ -254,7 +256,7 @@ static void __attribute__((unused)) MJXQ_init2()
 		case E010:
 			for(uint8_t i=0;i<2;i++)
 			{
-				hopping_frequency[i]=pgm_read_byte_near( &E010_map_rfchan[rx_tx_addr[3]%15][i] );
+				hopping_frequency[i]=pgm_read_byte_near( &E010_map_rfchan[rx_tx_addr[3]&0x0F][i] );
 				hopping_frequency[i+2]=hopping_frequency[i]+0x10;
 			}
 			break;
@@ -277,8 +279,11 @@ static void __attribute__((unused)) MJXQ_initialize_txid()
 			break;
 		case E010:
 			for(uint8_t i=0;i<2;i++)
-				rx_tx_addr[i]=pgm_read_byte_near( &E010_map_txid[rx_tx_addr[3]%15][i] );
-			rx_tx_addr[2]=(rx_tx_addr[3]%15 == 14)?1:0;
+				rx_tx_addr[i]=pgm_read_byte_near( &E010_map_txid[rx_tx_addr[3]&0x0F][i] );
+			if((rx_tx_addr[3]&0x0E) == 0x0E)
+				rx_tx_addr[2]=(rx_tx_addr[3]&0x01)+1;
+			else
+				rx_tx_addr[2]=0;
 			break;
 		case WLH08:
 			rx_tx_addr[0]&=0xF8;

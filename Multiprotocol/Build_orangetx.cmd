@@ -11,10 +11,10 @@ if exist .dep (make clean)
 md .dep
 make
 if exist MultiOrange.hex (
-objcopy -I ihex MultiOrange.hex -O binary MultiOrange.bin
+avr-objcopy -I ihex MultiOrange.hex -O binary MultiOrange.bin
 echo.
 echo Compilation OK.
-echo Use MultiOrange.hex to program your OrangeTX module.
+echo Use MultiOrange.hex or MultiOrange.bin to program your OrangeTX module.
 echo.
 )
 pause

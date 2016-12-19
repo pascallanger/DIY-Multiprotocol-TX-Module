@@ -852,7 +852,13 @@ static void protocol_init()
 					remote_callback = HONTAI_callback;
 					break;
 			#endif
-		#endif
+			#if defined(CABELL_NRF24L01_INO)
+				case MODE_CABELL:
+					next_callback=initCABELL();
+					remote_callback = CABELL_callback;
+					break;
+			#endif
+ 		#endif
 	}
 
 	if(next_callback>32000)

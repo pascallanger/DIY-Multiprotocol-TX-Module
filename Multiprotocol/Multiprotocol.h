@@ -55,6 +55,7 @@ enum PROTOCOLS
 	MODE_OPENLRS	= 27,	// =>OpenLRS hardware
 	MODE_AFHDS2A	= 28,	// =>A7105
 	MODE_Q2X2		= 29,	// =>NRF24L01, extension of CX-10 protocol
+	MODE_CABELL		= 30,	// =>NRF24L01
 };
 
 enum Flysky
@@ -172,6 +173,11 @@ enum FY326
 {
 	FY326	= 0,
 	FY319	= 1,
+};
+enum CABELL
+{
+  CABELL_V3     = 0,
+  CABELL_UNBIND = 7
 };
 
 #define NONE 		0
@@ -442,6 +448,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					OpenLRS		27
 					AFHDS2A		28
 					Q2X2		29
+					CABELL		30
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -529,6 +536,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==FY326
 			FY326		0
 			FY319		1
+		sub_protocol==CABELL
+			CABELL_V3		0,
+			CABELL_UNBIND 	7
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

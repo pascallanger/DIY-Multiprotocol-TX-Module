@@ -183,6 +183,18 @@ struct PPM_Parameters
 	uint8_t option;
 };
 
+// Telemetry
+
+enum MultiPacketTypes {
+    MULTI_TELEMETRY_STATUS  = 1,
+    MULTI_TELEMETRY_SPORT   = 2,
+    MULTI_TELEMETRY_HUB     = 3,
+    MULTI_TELEMETRY_DSM     = 4,
+    MULTI_TELEMETRY_DSMBIND = 5,
+    MULTI_TELEMETRY_AFHDS2A = 6,
+};
+
+
 // Macros
 #define NOP() __asm__ __volatile__("nop")
 
@@ -522,4 +534,64 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 	1843	+100%
 	2047	+125%
    Channels bits are concatenated to fit in 22 bytes like in SBUS protocol
+*/
+/*
+  Multiprotocol telemetry definition
+
+  Serial: 100000 Baud 8e2 (same as input)
+
+  TLV Protocol (type, length, value), allows a TX to ignore unknown messages
+
+  Format: header (4 byte) + data (variable)
+
+   [0] = 'M' (0x4d)
+   [1] = 'P' (0x50)
+
+
+   The first byte is deliberatly chosen to be different from other telemetry protocols
+   (e.g. 0xAA for DSM/Multi, 0xAA for FlySky and 0x7e for Frsky) to allow a TX to detect
+   the telemetry format of older versions
+
+   [2] Type (see below)
+   [3] Length (excluding the 4 header bytes)
+
+   [4-xx] data
+
+
+Type = 0x01 Multimodule Status:
+   [4] Flags
+   0x01 = Input signal detected
+   0x02 = Serial mode enabled
+   0x04 = protocol is valid
+   0x08 = module is in binding mode
+   [5] major
+   [6] mior
+   [7-8] patchlevel
+   version of multi code, should be displayed as major.minor.patchlevel
+
+
+   more information can be added by specifing a longer length of the type, the TX will just ignore these bytes
+
+
+Type 0x02 Frksy S.port telemetry
+Type 0x03 Frsky Hub telemetry
+
+	*No* usual frsky byte stuffing and without start/stop byte (0x7e)
+
+
+Type 0x04 Spektrum telemetry data
+   data[0] RSSI
+   data[1-15] telemetry data
+
+Type 0x05 DSM bind data
+	data[0-16] DSM bind data
+
+    technically DSM bind data is only 10 bytes but multi send 16
+    like with telemtry, check length field)
+
+Type 0x06 Flysky AFHDS2 telemetry data
+   length: 29
+   data[0] = RSSI value
+   data[1-28] telemetry data
+
 */

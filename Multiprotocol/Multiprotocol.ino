@@ -490,7 +490,9 @@ void Update_All()
 	#endif //ENABLE_PPM
 	update_channels_aux();
 	#if defined(TELEMETRY)
+		#if !defined(MULTI_TELEMETRY)
 		if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
+		#endif
 			TelemetryUpdate();
 	#endif
 	update_led_status();

@@ -78,8 +78,8 @@ static void multi_send_status()
     multi_send_header(MULTI_TELEMETRY_STATUS, 5);
 
     // Build flags
-    uint8_t flags;
-    if (millis()-last_signal<70)
+    uint8_t flags=0;
+    if (IS_INPUT_SIGNAL_on)
         flags |= 0x01;
     if (mode_select==MODE_SERIAL)
         flags |= 0x02;
@@ -89,50 +89,50 @@ static void multi_send_status()
         flags |= 0x08;
     Serial_write(flags);
 
-    // Version number: 1.15.0
-    Serial_write(1);
-    Serial_write(15);
-    Serial_write(0);
+    // Version number example: 1.16.1
+    Serial_write(VERSION_MAJOR);
+    Serial_write(VERSION_MINOR);
+    Serial_write(VERSION_PATCH_LEVEL);
     Serial_write(0);
 }
 #endif
 
 #ifdef DSM_TELEMETRY
-#if defined MULTI_TELEMETRY
-void DSM_frame()
-{
-    if (pkt[0] == 0x80) {
-        multi_send_header(MULTI_TELEMETRY_DSMBIND, 10);
-	for (uint8_t i = 1; i < 11; i++) // 10 byte of DSM bind response
-            Serial_write(pkt[i]);
+	#ifdef MULTI_TELEMETRY
+		void DSM_frame()
+		{
+			if (pkt[0] == 0x80) {
+				multi_send_header(MULTI_TELEMETRY_DSMBIND, 10);
+			for (uint8_t i = 1; i < 11; i++) // 10 byte of DSM bind response
+					Serial_write(pkt[i]);
 
-    } else {
-        multi_send_header(MULTI_TELEMETRY_DSM, 17);
-        for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
-            Serial_write(pkt[i]);
-    }
-}
-#else
-void DSM_frame()
-{
-	Serial_write(0xAA);					// Telemetry packet
-	for (uint8_t i = 0; i < 17; i++)	// RSSI value followed by 16 bytes of telemetry data
-		Serial_write(pkt[i]);
-}
-#endif
+			} else {
+				multi_send_header(MULTI_TELEMETRY_DSM, 17);
+				for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
+					Serial_write(pkt[i]);
+			}
+		}
+	#else
+		void DSM_frame()
+		{
+			Serial_write(0xAA);					// Telemetry packet
+			for (uint8_t i = 0; i < 17; i++)	// RSSI value followed by 16 bytes of telemetry data
+				Serial_write(pkt[i]);
+		}
+	#endif
 #endif
 
 #ifdef AFHDS2A_FW_TELEMETRY
-void AFHDSA_short_frame()
-{
-#if defined MULTI_TELEMETRY
-    multi_send_header(MULTI_TELEMETRY_AFHDS2A, 29);
-#else
-    Serial_write(0xAA);                    // Telemetry packet
-#endif
-	for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
-		Serial_write(pkt[i]);
-}
+	void AFHDSA_short_frame()
+	{
+		#if defined MULTI_TELEMETRY
+			multi_send_header(MULTI_TELEMETRY_AFHDS2A, 29);
+		#else
+			Serial_write(0xAA);                    // Telemetry packet
+		#endif
+		for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
+			Serial_write(pkt[i]);
+	}
 #endif
 
 void frskySendStuffed()
@@ -222,11 +222,11 @@ void frsky_link_frame()
 			frame[4] = TX_RSSI;
 		}
 	frame[5] = frame[6] = frame[7] = frame[8] = 0;
-#if defined MULTI_TELEMETRY
-    multi_send_frskyhub();
-#else
-	frskySendStuffed();
-#endif
+	#if defined MULTI_TELEMETRY
+		multi_send_frskyhub();
+	#else
+		frskySendStuffed();
+	#endif
 }
 
 #if defined HUB_TELEMETRY
@@ -292,11 +292,11 @@ void frsky_user_frame()
 		if(!indx)
 			return;
 		frame[1] = indx;
-#if defined MULTI_TELEMETRY
-        multi_send_frskyhub();
-#else
-		frskySendStuffed();
-#endif
+		#if defined MULTI_TELEMETRY
+			multi_send_frskyhub();
+		#else
+			frskySendStuffed();
+		#endif
 	}
 	else
 		pass=0;
@@ -368,60 +368,59 @@ pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 				
 		*/
 #ifdef MULTI_TELEMETRY
-void sportSend(uint8_t *p)
-{
-    multi_send_header(MULTI_TELEMETRY_SPORT, 9);
-	uint16_t crc_s = 0;
-	Serial_write(p[0]) ;
-	for (uint8_t i = 1; i < 9; i++)
+	void sportSend(uint8_t *p)
 	{
-		if (i == 8)
-			p[i] = 0xff - crc_s;
-			Serial_write(p[i]);
-
-		if (i>0)
+		multi_send_header(MULTI_TELEMETRY_SPORT, 9);
+		uint16_t crc_s = 0;
+		Serial_write(p[0]) ;
+		for (uint8_t i = 1; i < 9; i++)
 		{
-			crc_s += p[i]; //0-1FF
-			crc_s += crc_s >> 8; //0-100
-			crc_s &= 0x00ff;
+			if (i == 8)
+				p[i] = 0xff - crc_s;
+				Serial_write(p[i]);
+
+			if (i>0)
+			{
+				crc_s += p[i]; //0-1FF
+				crc_s += crc_s >> 8; //0-100
+				crc_s &= 0x00ff;
+			}
 		}
 	}
-}
-
 #else
-void sportSend(uint8_t *p)
-{
-	uint16_t crc_s = 0;
-	Serial_write(START_STOP);//+9
-	Serial_write(p[0]) ;
-	for (uint8_t i = 1; i < 9; i++)
+	void sportSend(uint8_t *p)
 	{
-		if (i == 8)
-			p[i] = 0xff - crc_s;
-		
-		if ((p[i] == START_STOP) || (p[i] == BYTESTUFF))
+		uint16_t crc_s = 0;
+		Serial_write(START_STOP);//+9
+		Serial_write(p[0]) ;
+		for (uint8_t i = 1; i < 9; i++)
 		{
-			Serial_write(BYTESTUFF);//stuff again
-			Serial_write(STUFF_MASK ^ p[i]);
-		} 
-		else			
-			Serial_write(p[i]);					
-		
-		if (i>0)
-		{
-			crc_s += p[i]; //0-1FF
-			crc_s += crc_s >> 8; //0-100
-			crc_s &= 0x00ff;
+			if (i == 8)
+				p[i] = 0xff - crc_s;
+			
+			if ((p[i] == START_STOP) || (p[i] == BYTESTUFF))
+			{
+				Serial_write(BYTESTUFF);//stuff again
+				Serial_write(STUFF_MASK ^ p[i]);
+			} 
+			else			
+				Serial_write(p[i]);					
+			
+			if (i>0)
+			{
+				crc_s += p[i]; //0-1FF
+				crc_s += crc_s >> 8; //0-100
+				crc_s &= 0x00ff;
+			}
 		}
 	}
-}
 #endif
 
 void sportIdle()
 {
-#if !defined MULTI_TELEMETRY
-	Serial_write(START_STOP);
-#endif
+	#if !defined MULTI_TELEMETRY
+		Serial_write(START_STOP);
+	#endif
 }	
 
 void sportSendFrame()

@@ -491,7 +491,7 @@ void Update_All()
 	update_channels_aux();
 	#if defined(TELEMETRY)
 		#if !defined(MULTI_TELEMETRY)
-		if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
+			if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
 		#endif
 			TelemetryUpdate();
 	#endif
@@ -1004,12 +1004,21 @@ void Mprotocol_serial_init()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) )
-		initTXSerial( SPEED_9600 ) ;
-	if(protocol==MODE_FRSKYX)
-		initTXSerial( SPEED_57600 ) ;
-	if(protocol==MODE_DSM)
-		initTXSerial( SPEED_125K ) ;
+	#ifdef MULTI_TELEMETRY
+		Mprotocol_serial_init();
+		#ifndef ORANGE_TX
+			#ifndef STM32_BOARD
+				UCSR0B &= ~(_BV(RXEN0)|_BV(RXCIE0));//rx disable and interrupt
+			#endif
+		#endif
+	#else
+		if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) )
+			initTXSerial( SPEED_9600 ) ;
+		if(protocol==MODE_FRSKYX)
+			initTXSerial( SPEED_57600 ) ;
+		if(protocol==MODE_DSM)
+			initTXSerial( SPEED_125K ) ;
+	#endif
 }
 #endif
 

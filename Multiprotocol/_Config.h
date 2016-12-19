@@ -89,7 +89,6 @@
 #define	SYMAX_NRF24L01_INO
 #define	V2X2_NRF24L01_INO
 #define	YD717_NRF24L01_INO
-
 #define	MT99XX_NRF24L01_INO
 #define	MJXQ_NRF24L01_INO
 #define	SHENQI_NRF24L01_INO
@@ -111,6 +110,10 @@
 //For ER9X and ERSKY9X it must be commented. For OpenTX it must be uncommented.
 //#define INVERT_TELEMETRY
 
+//Uncomment to send also Multi status and wrap other telemetry to allow TX to autodetect the format
+//Only for newest OpenTX version
+//#define MULTI_TELEMETRY
+
 //Comment a line to disable a protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
 #define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
@@ -119,7 +122,6 @@
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-#define MULTI_TELEMETRY				// Send also Multi status and wrap other telemetry to allow TX to autodetect the format
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/

@@ -14,6 +14,13 @@
  */
 
 //******************
+// Version
+//******************
+#define VERSION_MAJOR		1
+#define VERSION_MINOR		16
+#define VERSION_PATCH_LEVEL	1
+
+//******************
 // Protocols
 //******************
 enum PROTOCOLS
@@ -565,7 +572,7 @@ Type = 0x01 Multimodule Status:
    0x04 = protocol is valid
    0x08 = module is in binding mode
    [5] major
-   [6] mior
+   [6] minor
    [7-8] patchlevel
    version of multi code, should be displayed as major.minor.patchlevel
 

@@ -66,3 +66,18 @@ uint16_t limit_channel_100(uint8_t ch)
 	return Servo_data[ch];
 }
 
+/******************************/
+/**  FrSky D and X routines  **/
+/******************************/
+void Frsky_init_hop(void)
+{
+	uint8_t channel = rx_tx_addr[0]&0x07;
+	uint8_t channel_spacing = (rx_tx_addr[1]&0x7F)+64;
+	for(uint8_t i=0;i<50;i++)
+	{
+		hopping_frequency[i]=i>47?0:channel;
+		channel=(channel+channel_spacing) % 0xEB;
+		if((channel==0x00) || (channel==0x5A) || (channel==0xDC))
+			channel++;
+	}
+}

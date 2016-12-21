@@ -73,8 +73,8 @@
 #define	J6PRO_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
-#define	FRSKYD_CC2500_INO
 #define	FRSKYV_CC2500_INO
+#define	FRSKYD_CC2500_INO
 #define	FRSKYX_CC2500_INO
 #define	SFHSS_CC2500_INO
 

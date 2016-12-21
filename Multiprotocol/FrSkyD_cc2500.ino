@@ -50,16 +50,6 @@ static void __attribute__((unused)) frsky2way_init(uint8_t bind)
 	//#######END INIT########		
 }
 	
-static uint8_t __attribute__((unused)) get_chan_num(uint16_t idx)
-{
-	uint8_t ret = (idx * 0x1e) % 0xeb;
-	if(idx == 3 || idx == 23 || idx == 47)
-		ret++;
-	if(idx > 47)
-		return 0;
-	return ret;
-}
-
 static void __attribute__((unused)) frsky2way_build_bind_packet()
 {
 	//11 03 01 d7 2d 00 00 1e 3c 5b 78 00 00 00 00 00 00 01
@@ -71,11 +61,11 @@ static void __attribute__((unused)) frsky2way_build_bind_packet()
 	packet[4] = rx_tx_addr[2];
 	uint16_t idx = ((state -FRSKY_BIND) % 10) * 5;
 	packet[5] = idx;
-	packet[6] = get_chan_num(idx++);
-	packet[7] = get_chan_num(idx++);
-	packet[8] = get_chan_num(idx++);
-	packet[9] = get_chan_num(idx++);
-	packet[10] = get_chan_num(idx++);
+	packet[6] = hopping_frequency[idx++];
+	packet[7] = hopping_frequency[idx++];
+	packet[8] = hopping_frequency[idx++];
+	packet[9] = hopping_frequency[idx++];
+	packet[10] = hopping_frequency[idx++];
 	packet[11] = 0x00;
 	packet[12] = 0x00;
 	packet[13] = 0x00;
@@ -124,6 +114,7 @@ static void __attribute__((unused)) frsky2way_data_frame()
 
 uint16_t initFrSky_2way()
 {
+	Frsky_init_hop();
 	if(IS_AUTOBIND_FLAG_on)
 	{
 		frsky2way_init(1);
@@ -169,7 +160,7 @@ uint16_t ReadFrSky_2way()
 	{	//telemetry receive
 		CC2500_SetTxRxMode(RX_EN);
 		CC2500_Strobe(CC2500_SIDLE);
-		CC2500_WriteReg(CC2500_0A_CHANNR, get_chan_num(counter % 47));
+		CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[counter % 47]);
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);
 		state++;
 		return 1300;
@@ -191,7 +182,7 @@ uint16_t ReadFrSky_2way()
 			CC2500_SetPower();	// Set tx_power
 		}
 		CC2500_Strobe(CC2500_SIDLE);
-		CC2500_WriteReg(CC2500_0A_CHANNR, get_chan_num(counter % 47));
+		CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[counter % 47]);
 		if ( prev_option != option )
 		{
 			CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 

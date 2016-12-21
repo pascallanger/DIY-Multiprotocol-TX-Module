@@ -76,7 +76,7 @@ uint16_t packet_period;
 uint8_t  packet_count;
 uint8_t  packet_sent;
 uint8_t  packet_length;
-uint8_t  hopping_frequency[23];
+uint8_t  hopping_frequency[50];
 uint8_t  *hopping_frequency_ptr;
 uint8_t  hopping_frequency_no=0;
 uint8_t  rf_ch_num;

@@ -96,6 +96,7 @@
 #define	FQ777_NRF24L01_INO
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
+#define CABELL_NRF24L01_INO
 
 
 /**************************/

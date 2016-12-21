@@ -34,28 +34,28 @@
 	#endif
 
 	// Dial
-	#define MODE_DIAL1_pin	4          //D4 = PD4
-	#define MODE_DIAL1_port	PORTD
-	#define MODE_DIAL1_ipr  PIND
-	#define MODE_DIAL2_pin	5          //D5 = PD5
-	#define MODE_DIAL2_port	PORTD
-	#define MODE_DIAL2_ipr  PIND
-	#define MODE_DIAL3_pin	6          //D6 = PD6
-	#define MODE_DIAL3_port	PORTD
-	#define MODE_DIAL3_ipr  PIND
-	#define MODE_DIAL4_pin	7          //D7 = PD7
-	#define MODE_DIAL4_port	PORTD
-	#define MODE_DIAL4_ipr  PIND
+	#define MODE_DIAL1_pin	2
+	#define MODE_DIAL1_port	PORTB
+	#define MODE_DIAL1_ipr  PINB
+	#define MODE_DIAL2_pin	3
+	#define MODE_DIAL2_port	PORTB
+	#define MODE_DIAL2_ipr  PINB
+	#define MODE_DIAL3_pin	4
+	#define MODE_DIAL3_port	PORTB
+	#define MODE_DIAL3_ipr  PINB
+	#define MODE_DIAL4_pin	0
+	#define MODE_DIAL4_port	PORTC
+	#define MODE_DIAL4_ipr  PINC
 
 	// PPM
 	#define PPM_pin	 3										//D3 = PD3
 	#define PPM_port PORTD
 
 	// SDIO
-	#define SDI_pin	 3										//D11 = PB3 = MOSI
-	#define SDI_port PORTB
-	#define SDI_ipr  PINB
-	#define SDI_ddr  DDRB
+	#define SDI_pin	 5										//D5 = PD5
+	#define SDI_port PORTD
+	#define SDI_ipr  PIND
+	#define SDI_ddr  DDRD
 	#ifdef ORANGE_TX
 		#define SDI_on	SDI_port.OUTSET = _BV(SDI_pin)
 		#define SDI_off SDI_port.OUTCLR = _BV(SDI_pin)
@@ -69,9 +69,9 @@
 	#define SDI_output	SDI_ddr |=  _BV(SDI_pin)
 
 	//SDO
-	#define SDO_pin		4									//D12 = PB4 = MISO
-	#define SDO_port	PORTB
-	#define SDO_ipr		PINB
+	#define SDO_pin		6									//D6 = PD6
+	#define SDO_port	PORTD
+	#define SDO_ipr		PIND
 	#ifdef ORANGE_TX
 		#define SDO_1 (SDO_port.IN & _BV(SDO_pin))
 		#define SDO_0 (SDO_port.IN & _BV(SDO_pin)) == 0x00
@@ -81,14 +81,14 @@
 	#endif
 
 	// SCLK
-	#define SCLK_port PORTB
-	#define SCLK_ddr DDRB
+	#define SCLK_port PORTD
+	#define SCLK_ddr DDRD
 	#ifdef ORANGE_TX
-		#define SCLK_pin	7							 	//PD7 
+		#define SCLK_pin	7								//PD7
 		#define SCLK_on		SCLK_port.OUTSET = _BV(SCLK_pin)
 		#define SCLK_off	SCLK_port.OUTCLR = _BV(SCLK_pin)
 	#else
-		#define SCLK_pin	5								//D13 = PB5 = SCLK
+		#define SCLK_pin	4								//D4 = PD4
 		#define SCLK_output	SCLK_ddr  |=  _BV(SCLK_pin)
 		#define SCLK_on		SCLK_port |=  _BV(SCLK_pin)
 		#define SCLK_off	SCLK_port &= ~_BV(SCLK_pin)
@@ -103,28 +103,22 @@
 	#define A7105_CSN_off	A7105_CSN_port &= ~_BV(A7105_CSN_pin)
 
 	// CC2500
-	#define CC25_CSN_pin	3								//A3 = PC3 = CSN
-	#define CC25_CSN_port	PORTC
-	#define CC25_CSN_ddr	DDRC
+	#define CC25_CSN_pin	7								//D7 = PD7
+	#define CC25_CSN_port	PORTD
+	#define CC25_CSN_ddr	DDRD
 	#define CC25_CSN_output	CC25_CSN_ddr  |=  _BV(CC25_CSN_pin)
 	#define CC25_CSN_on		CC25_CSN_port |=  _BV(CC25_CSN_pin)
 	#define CC25_CSN_off	CC25_CSN_port &= ~_BV(CC25_CSN_pin)
 
 	// NRF24L01
-  // pin  D10 is CE which is set to HIGH in setup.  In normal multi module not use as CE is hard wired
-  #define NRF_CE_pin   2               //D10 = PB2 = CE
-  #define NRF_CE_port  PORTB
-  #define NRF_CE_ddr   DDRB
-  #define NRF_CE_output  NRF_CE_ddr  |=  _BV(NRF_CE_pin)
-  #define NRF_CE_on    NRF_CE_port |=  _BV(NRF_CE_pin)
-  #define NRF_CE_off   NRF_CE_port &= ~_BV(NRF_CE_pin)
-
-	#define NRF_CSN_pin		0								//A0 = PC0 = CSN
-	#define NRF_CSN_port	PORTC
-	#define NRF_CSN_ddr		DDRC
-	#define NRF_CSN_output	NRF_CSN_ddr  |=  _BV(NRF_CSN_pin) ; NRF_CE_output ; NRF_CE_on    // Turn CE on so it stays on becasue it is not hard wired like the normal MULTI board
-	#define NRF_CSN_on		NRF_CSN_port |=  _BV(NRF_CSN_pin) 
+	#define NRF_CSN_pin		0								//D8 = PB0
+	#define NRF_CSN_port	PORTB
+	#define NRF_CSN_ddr		DDRB
+	#define NRF_CSN_output	NRF_CSN_ddr  |=  _BV(NRF_CSN_pin)
+	#define NRF_CSN_on		NRF_CSN_port |=  _BV(NRF_CSN_pin)
 	#define NRF_CSN_off		NRF_CSN_port &= ~_BV(NRF_CSN_pin)
+	#define NRF_CE_on
+	#define NRF_CE_off
 
 	// CYRF6936
 	#ifdef ORANGE_TX
@@ -162,7 +156,7 @@
 		#define PE2_on
 		#define PE2_off
 	#else
-		#define PE1_pin		4								//A4 = PC4
+		#define PE1_pin		1								//A1 = PC1
 		#define PE1_port	PORTC
 		#define PE1_ddr		DDRC
 		#define	PE1_output	PE1_ddr  |=  _BV(PE1_pin)
@@ -188,9 +182,9 @@
 		#define LED_output	LED_port.DIRSET	= _BV(LED_pin)
 		#define IS_LED_on	(LED_port.OUT & _BV(LED_pin))
 	#else
-		#define LED_pin		1								//A1 = PC1
-		#define LED_port	PORTC
-		#define LED_ddr		DDRC
+		#define LED_pin		5								//D13 = PB5
+		#define LED_port	PORTB
+		#define LED_ddr		DDRB
 		#define LED_on		LED_port |= _BV(LED_pin)
 		#define LED_off		LED_port &= ~_BV(LED_pin)
 		#define LED_toggle	LED_port ^= _BV(LED_pin)
@@ -204,10 +198,10 @@
 		#define BIND_port			PORTD
 		#define IS_BIND_BUTTON_on	( (BIND_port.IN & _BV(BIND_pin)) == 0x00 )
 	#else
-		#define BIND_pin			1						//A1 = PC1
-		#define BIND_port			PORTC
-		#define BIND_ipr			PINC
-		#define BIND_ddr			DDRC
+		#define BIND_pin			5						//D13 = PB5
+		#define BIND_port			PORTB
+		#define BIND_ipr			PINB
+		#define BIND_ddr			DDRB
 		#define BIND_SET_INPUT		BIND_ddr &= ~_BV(BIND_pin)
 		#define BIND_SET_OUTPUT		BIND_ddr |=  _BV(BIND_pin)
 		#define BIND_SET_PULLUP		BIND_port |= _BV(BIND_pin)

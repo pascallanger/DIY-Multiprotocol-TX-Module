@@ -1,12 +1,4 @@
 /*
- To use this software, you must adhere to the license terms described below, and assume all responsibility for the use
- of the software.  The user is responsible for all consequences or damage that may result from using this software.
- The user is responsible for ensuring that the hardware used to run this software complies with local regulations and that 
- any radio signal generated from use of this software is legal for that user to generate.  The author(s) of this software 
- assume no liability whatsoever.  The author(s) of this software is not responsible for legal or civil consequences of 
- using this software, including, but not limited to, any damages cause by lost control of a vehicle using this software.  
- If this software is copied or modified, this disclaimer must accompany all copies.
- 
  This project is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or

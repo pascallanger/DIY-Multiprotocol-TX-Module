@@ -49,9 +49,9 @@
 //If a chip is not installed all associated protocols are disabled.
 //4-in-1 modules have all RF chips installed
 //!!!If a RF chip is present it MUST be marked as installed!!! or weird things will happen you have been warned.
-//#define A7105_INSTALLED
-//#define CYRF6936_INSTALLED
-//#define CC2500_INSTALLED
+#define A7105_INSTALLED
+#define CYRF6936_INSTALLED
+#define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
 
 
@@ -95,8 +95,7 @@
 #define	FY326_NRF24L01_INO
 #define	FQ777_NRF24L01_INO
 #define	ASSAN_NRF24L01_INO
-#define HONTAI_NRF24L01_INO
-#define CABELL_NRF24L01_INO
+#define	HONTAI_NRF24L01_INO
 
 
 /**************************/
@@ -140,7 +139,7 @@
 /*************************/
 //In this section you can configure all details about PPM.
 //If you do not plan to use the PPM mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
-//#define ENABLE_PPM
+#define ENABLE_PPM
 
 /*** TX END POINTS ***/
 //It is important for the module to know the endpoints of your radio.
@@ -289,9 +288,6 @@ const PPM_Parameters PPM_prot[15]=	{
 		PPM_IBUS
 		PWM_SBUS
 		PPM_SBUS
-	MODE_CABELL
-		CABELL_V3
-		CABELL_UNBIND
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

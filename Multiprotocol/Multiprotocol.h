@@ -16,9 +16,10 @@
 //******************
 // Version
 //******************
-#define VERSION_MAJOR		1
-#define VERSION_MINOR		16
-#define VERSION_PATCH_LEVEL	1
+#define VERSION_MAJOR			1
+#define VERSION_MINOR			1
+#define VERSION_PATCH_LEVEL_H	6
+#define VERSION_PATCH_LEVEL_L	2
 
 //******************
 // Protocols

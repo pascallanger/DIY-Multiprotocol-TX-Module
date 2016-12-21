@@ -289,6 +289,9 @@ const PPM_Parameters PPM_prot[15]=	{
 		PPM_IBUS
 		PWM_SBUS
 		PPM_SBUS
+	MODE_CABELL
+		CABELL_V3
+		CABELL_UNBIND
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

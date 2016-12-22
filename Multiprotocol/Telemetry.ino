@@ -89,11 +89,11 @@ static void multi_send_status()
         flags |= 0x08;
     Serial_write(flags);
 
-    // Version number example: 1.16.1
+    // Version number example: 1.1.6.1
     Serial_write(VERSION_MAJOR);
     Serial_write(VERSION_MINOR);
-    Serial_write(VERSION_PATCH_LEVEL_H);
-    Serial_write(VERSION_PATCH_LEVEL_L);
+    Serial_write(VERSION_REVISION);
+    Serial_write(VERSION_PATCH_LEVEL);
 }
 #endif
 

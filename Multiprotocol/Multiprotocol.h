@@ -16,10 +16,10 @@
 //******************
 // Version
 //******************
-#define VERSION_MAJOR			1
-#define VERSION_MINOR			1
-#define VERSION_PATCH_LEVEL_H	6
-#define VERSION_PATCH_LEVEL_L	2
+#define VERSION_MAJOR		1
+#define VERSION_MINOR		1
+#define VERSION_REVISION	6
+#define VERSION_PATCH_LEVEL	3
 
 //******************
 // Protocols
@@ -574,9 +574,9 @@ Type = 0x01 Multimodule Status:
    0x08 = module is in binding mode
    [5] major
    [6] minor
-   [7-8] patchlevel
-   version of multi code, should be displayed as major.minor.patchlevel
-
+   [7] revision
+   [8] patchlevel,
+   version of multi code, should be displayed as major.minor.revision.patchlevel
 
    more information can be added by specifing a longer length of the type, the TX will just ignore these bytes
 

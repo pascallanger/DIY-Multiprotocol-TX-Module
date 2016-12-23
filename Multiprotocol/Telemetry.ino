@@ -101,22 +101,25 @@ static void multi_send_status()
 	#ifdef MULTI_TELEMETRY
 		void DSM_frame()
 		{
-			if (pkt[0] == 0x80) {
+			if (pkt[0] == 0x80)
+			{
 				multi_send_header(MULTI_TELEMETRY_DSMBIND, 10);
-			for (uint8_t i = 1; i < 11; i++) // 10 byte of DSM bind response
+				for (uint8_t i = 1; i < 11; i++) 	// 10 bytes of DSM bind response
 					Serial_write(pkt[i]);
 
-			} else {
+			}
+			else
+			{
 				multi_send_header(MULTI_TELEMETRY_DSM, 17);
-				for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
+				for (uint8_t i = 0; i < 17; i++)	// RSSI value followed by 16 bytes of telemetry data
 					Serial_write(pkt[i]);
 			}
 		}
 	#else
 		void DSM_frame()
 		{
-			Serial_write(0xAA);					// Telemetry packet
-			for (uint8_t i = 0; i < 17; i++)	// RSSI value followed by 16 bytes of telemetry data
+			Serial_write(0xAA);						// Telemetry packet
+			for (uint8_t i = 0; i < 17; i++)		// RSSI value followed by 16 bytes of telemetry data
 				Serial_write(pkt[i]);
 		}
 	#endif
@@ -128,9 +131,9 @@ static void multi_send_status()
 		#if defined MULTI_TELEMETRY
 			multi_send_header(MULTI_TELEMETRY_AFHDS2A, 29);
 		#else
-			Serial_write(0xAA);                    // Telemetry packet
+			Serial_write(0xAA);						// Telemetry packet
 		#endif
-		for (uint8_t i = 0; i < 29; i++)	// RSSI value followed by 4*7 bytes of telemetry data
+		for (uint8_t i = 0; i < 29; i++)			// RSSI value followed by 4*7 bytes of telemetry data
 			Serial_write(pkt[i]);
 	}
 #endif

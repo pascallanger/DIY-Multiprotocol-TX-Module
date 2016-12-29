@@ -284,6 +284,7 @@ uint16_t ReadFrSkyX()
 
 uint16_t initFrSkyX()
 {
+	set_rx_tx_addr(MProtocol_id_master);
 	Frsky_init_hop();
 	while(!chanskip)
 		chanskip=random(0xfefefefe)%47;

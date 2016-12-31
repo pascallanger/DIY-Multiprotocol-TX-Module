@@ -80,8 +80,8 @@
 //The protocols below need a CC2500 to be installed
 	#define	SKYARTEC_CC2500_INO
 
-	#define	FRSKYD_CC2500_INO
 	#define	FRSKYV_CC2500_INO
+	#define	FRSKYD_CC2500_INO
 	#define	FRSKYX_CC2500_INO
 	#define SFHSS_CC2500_INO
 
@@ -127,6 +127,10 @@
 //Uncomment to invert the polarity of the telemetry serial signal.
 //For ER9X and ERSKY9X it must be commented. For OpenTX it must be uncommented.
 //#define INVERT_TELEMETRY
+
+//Uncomment to send also Multi status and wrap other telemetry to allow TX to autodetect the format
+//Only for newest OpenTX version
+//#define MULTI_TELEMETRY
 
 //Comment a line to disable a protocol telemetry
 	#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
@@ -297,6 +301,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		X800
 		H26D
 		E010
+		H26WH
 	MODE_SHENQI
 		NONE
 	MODE_FY326

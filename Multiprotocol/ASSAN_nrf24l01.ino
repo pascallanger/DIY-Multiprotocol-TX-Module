@@ -51,12 +51,14 @@ void ASSAN_init()
 void ASSAN_send_packet()
 {
 	uint16_t temp;
-	for(uint8_t i=0;i<10;i++)
+	for(uint8_t i=0;i<8;i++)
 	{
 		temp=Servo_data[i]<<3;
 		packet[2*i]=temp>>8;
 		packet[2*i+1]=temp;
 	}
+	for(uint8_t i=0;i<ASSAN_ADDRESS_LENGTH;i++)
+		packet[16+i]=packet[23-i];
  	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// Clear data ready, data sent, and retransmit
 	NRF24L01_FlushTx();
 	NRF24L01_WritePayload(packet, ASSAN_PACKET_SIZE);
@@ -87,7 +89,7 @@ uint16_t ASSAN_callback()
 					//Prepare bind packet
 					memset(packet,0x05,ASSAN_PACKET_SIZE-5);
 					packet[15]=0x99;
-					for(uint8_t i=0;i<4;i++)
+					for(uint8_t i=0;i<ASSAN_ADDRESS_LENGTH;i++)
 						packet[16+i]=packet[23-i];
 					packet_count=0;
 					delayMilliseconds(260);
@@ -143,7 +145,7 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	uint8_t freq=0,freq2;
 	for(uint8_t i=0;i<4;i++)
 	{
-		uint8_t temp=rx_tx_addr[0];
+		uint8_t temp=rx_tx_addr[i];
 		packet[i+20]=temp;
 		packet[i+24]=temp+1;
 		freq+=temp;
@@ -160,7 +162,7 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 		freq2+=freq*2-5;
 	}
 	while( (freq2>118) || (freq2<freq+1) || (freq2==2*freq) );
-	hopping_frequency[1]=freq2;			// Add some random to the second channel
+	hopping_frequency[1]=freq2;
 }
 
 uint16_t initASSAN()

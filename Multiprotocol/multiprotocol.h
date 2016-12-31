@@ -14,18 +14,26 @@
  */
 
 //******************
+// Version
+//******************
+#define VERSION_MAJOR		1
+#define VERSION_MINOR			1
+#define VERSION_REVISION	6
+#define VERSION_PATCH_LEVEL	3
+
+//******************
 // Protocols				max 31 x2
 //******************
 enum PROTOCOLS
 {
-	MODE_JOYSWAY	= 40,	// =>A7105
-	MODE_WK2x01 	= 41,	// =>CYRF6936
-	MODE_SKYARTEC	= 42,	// =>CC2500
+	MODE_JOYSWAY	= 48,	// =>A7105
+	MODE_WK2x01 	= 49,	// =>CYRF6936
+	MODE_SKYARTEC	= 50,	// =>CC2500
 	
-	MODE_UDI		= 44,	// =>NRF24L01
-	MODE_FBL100		= 45,	// =>NRF24L01
+	MODE_FBL100		= 59,	// =>NRF24L01
+	MODE_UDI		= 60,	// =>NRF24L01
 	
-	MODE_HM830		= 50,	// =>NRF24L01
+	MODE_HM830		= 40,	// =>NRF24L01
 	MODE_CFLIE		= 51,	// =>NRF24L01
 	MODE_H377		= 52,	// =>NRF24L01
 	MODE_ESKY150	= 53,	// =>NRF24L01
@@ -158,7 +166,7 @@ enum MJXQ
 	X800	= 2,
 	H26D	= 3,
 	E010	= 4,
-	H26WH	= 5
+	H26WH	= 5,
 };
 enum FRSKYX
 {
@@ -177,21 +185,17 @@ enum V2X2
 	V2X2	= 0,
 	JXD506	= 1,
 };
+enum FY326
+{
+	FY326	= 0,
+	FY319	= 1,
+};
 
 enum HUBSAN
 {
 	H107	= 0,
 	H301	= 1,
 	H501	= 2
-};
-enum FY326
-{
-	FY326	= 0,
-	FY319	= 1
-};
-enum V2X2 {
-	FORMAT_V202		= 0,
-	FORMAT_JXD506	= 1,
 };
 enum WK2X01
 {
@@ -211,6 +215,11 @@ enum FBL100
     FBL100 = 0,
     HP100 = 1
 };
+enum Q303
+{
+    FORMAT_Q303 = 0,
+    FORMAT_CX35 = 1
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -227,6 +236,18 @@ struct PPM_Parameters
 	uint8_t autobind : 1;
 	uint8_t option;
 };
+
+// Telemetry
+
+enum MultiPacketTypes {
+    MULTI_TELEMETRY_STATUS  = 1,
+    MULTI_TELEMETRY_SPORT   = 2,
+    MULTI_TELEMETRY_HUB     = 3,
+    MULTI_TELEMETRY_DSM     = 4,
+    MULTI_TELEMETRY_DSMBIND = 5,
+    MULTI_TELEMETRY_AFHDS2A = 6,
+};
+
 
 // Macros
 #define NOP() __asm__ __volatile__("nop")
@@ -538,6 +559,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			X800		2
 			H26D		3
 			E010		4
+			H26WH		5
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1
@@ -570,4 +592,63 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 	2047	+125%
    Channels bits are concatenated to fit in 22 bytes like in SBUS protocol
 */
+/*
+  Multiprotocol telemetry definition
 
+  Serial: 100000 Baud 8e2 (same as input)
+
+  TLV Protocol (type, length, value), allows a TX to ignore unknown messages
+
+  Format: header (4 byte) + data (variable)
+
+   [0] = 'M' (0x4d)
+   [1] = 'P' (0x50)
+
+
+   The first byte is deliberatly chosen to be different from other telemetry protocols
+   (e.g. 0xAA for DSM/Multi, 0xAA for FlySky and 0x7e for Frsky) to allow a TX to detect
+   the telemetry format of older versions
+
+   [2] Type (see below)
+   [3] Length (excluding the 4 header bytes)
+
+   [4-xx] data
+
+
+Type = 0x01 Multimodule Status:
+   [4] Flags
+   0x01 = Input signal detected
+   0x02 = Serial mode enabled
+   0x04 = protocol is valid
+   0x08 = module is in binding mode
+   [5] major
+   [6] minor
+   [7-8] patchlevel
+   version of multi code, should be displayed as major.minor.patchlevel
+
+
+   more information can be added by specifing a longer length of the type, the TX will just ignore these bytes
+
+
+Type 0x02 Frksy S.port telemetry
+Type 0x03 Frsky Hub telemetry
+
+	*No* usual frsky byte stuffing and without start/stop byte (0x7e)
+
+
+Type 0x04 Spektrum telemetry data
+   data[0] RSSI
+   data[1-15] telemetry data
+
+Type 0x05 DSM bind data
+	data[0-16] DSM bind data
+
+    technically DSM bind data is only 10 bytes but multi send 16
+    like with telemtry, check length field)
+
+Type 0x06 Flysky AFHDS2 telemetry data
+   length: 29
+   data[0] = RSSI value
+   data[1-28] telemetry data
+
+*/

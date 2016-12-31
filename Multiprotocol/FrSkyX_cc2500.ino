@@ -26,29 +26,11 @@ uint8_t ctr;
 uint8_t seq_last_sent;
 uint8_t seq_last_rcvd;
 
-const PROGMEM uint8_t hop_data[]={
-	0x02,	0xD4,	0xBB,	0xA2,	0x89,
-	0x70,	0x57,	0x3E,	0x25,	0x0C,
-	0xDE,	0xC5,	0xAC,	0x93,	0x7A,
-	0x61,	0x48,	0x2F,	0x16,	0xE8,
-	0xCF,	0xB6,	0x9D,	0x84,	0x6B,
-	0x52,	0x39,	0x20,	0x07,	0xD9,
-	0xC0,	0xA7,	0x8E,	0x75,	0x5C,
-	0x43,	0x2A,	0x11,	0xE3,	0xCA,
-	0xB1,	0x98,	0x7F,	0x66,	0x4D,
-	0x34,	0x1B,	0x00,	0x1D,	0x03 
-};
-
-static uint8_t __attribute__((unused)) hop(uint8_t byte)
-{
-	return pgm_read_byte_near(&hop_data[byte]);
-}
-
 static void __attribute__((unused)) set_start(uint8_t ch )
 {
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_WriteReg(CC2500_25_FSCAL1, calData[ch]);
-	CC2500_WriteReg(CC2500_0A_CHANNR, ch==47? 0:hop(ch));
+	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[ch]);
 }		
 
 static void __attribute__((unused)) frskyX_init()
@@ -87,19 +69,14 @@ static void __attribute__((unused)) frskyX_init()
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	CC2500_Strobe(CC2500_SIDLE);    
 	//
-	for(uint8_t c=0;c < 47;c++)
+	for(uint8_t c=0;c < 48;c++)
 	{//calibrate hop channels
 		CC2500_Strobe(CC2500_SIDLE);    
-		CC2500_WriteReg(CC2500_0A_CHANNR,hop(c));
+		CC2500_WriteReg(CC2500_0A_CHANNR,hopping_frequency[c]);
 		CC2500_Strobe(CC2500_SCAL);
 		delayMicroseconds(900);//
 		calData[c] = CC2500_ReadReg(CC2500_25_FSCAL1);
 	}
-	CC2500_Strobe(CC2500_SIDLE);    	
-	CC2500_WriteReg(CC2500_0A_CHANNR,0x00);
-	CC2500_Strobe(CC2500_SCAL);
-	delayMicroseconds(900);
-	calData[47] = CC2500_ReadReg(CC2500_25_FSCAL1);
 	//#######END INIT########		
 }
 
@@ -148,11 +125,11 @@ static void __attribute__((unused)) frskyX_build_bind_packet()
 	packet[4] = rx_tx_addr[2];
 	int idx = ((state -FRSKY_BIND) % 10) * 5;
 	packet[5] = idx;	
-	packet[6] = hop(idx++);
-	packet[7] = hop(idx++);
-	packet[8] = hop(idx++);
-	packet[9] = hop(idx++);
-	packet[10] = hop(idx++);
+	packet[6] = hopping_frequency[idx++];
+	packet[7] = hopping_frequency[idx++];
+	packet[8] = hopping_frequency[idx++];
+	packet[9] = hopping_frequency[idx++];
+	packet[10] = hopping_frequency[idx++];
 	packet[11] = 0x02;
 	packet[12] = RX_num;
 	//
@@ -307,16 +284,19 @@ uint16_t ReadFrSkyX()
 
 uint16_t initFrSkyX()
 {
+	set_rx_tx_addr(MProtocol_id_master);
+	Frsky_init_hop();
 	while(!chanskip)
 		chanskip=random(0xfefefefe)%47;
 	while((chanskip-ctr)%4)
 		ctr=(ctr+1)%4;
-	
 	counter_rst=(chanskip-ctr)>>2;
+
 	//for test***************
 	//rx_tx_addr[3]=0xB3;
 	//rx_tx_addr[2]=0xFD;
 	//************************
+	hopping_frequency[47]=0;
 	frskyX_init();
 	CC2500_SetTxRxMode(TX_EN);
 	//

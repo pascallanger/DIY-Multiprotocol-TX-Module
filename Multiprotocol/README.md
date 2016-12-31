@@ -263,6 +263,14 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|AHOLD|FLIP|SNAPSHOT|VIDEO|HEADLESS|RTH|GIMBAL
 
+####Sub_protocol CX35
+
+Autobind
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|FLIP|SNAPSHOT|VIDEO|HEADLESS|RTH| on Q303, full range on CX35
+
 ###UDI
 Modele: Known UDI 2.4GHz protocol variants, all using BK2421
 * UDI U819 coaxial 3ch helicoper

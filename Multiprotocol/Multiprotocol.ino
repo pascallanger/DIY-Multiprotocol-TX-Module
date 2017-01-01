@@ -1064,7 +1064,13 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 			return id;
 	}
 	// Generate a random ID
-	id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
+	#if defined STM32_BOARD
+		#define STM32_UUID ((uint32_t *)0x1FFFF7E8)
+		if (!create_new)
+			id = STM32_UUID[0] ^ STM32_UUID[1] ^ STM32_UUID[2];
+	#else
+		id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
+	#endif
 	for(uint8_t i=0;i<4;i++)
 	{
 		eeprom_write_byte((EE_ADDR)adress+i,id);

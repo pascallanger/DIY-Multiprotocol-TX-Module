@@ -483,13 +483,13 @@ void Update_All()
 		}
 	#endif //ENABLE_PPM
 	#ifdef ENABLE_BIND_CH
-	if(IS_AUTOBIND_FLAG_on && IS_CH16_PREV_off && Servo_data[BIND_CH-1]>PPM_MAX_COMMAND && Servo_data[THROTTLE]<(servo_min_100+25))
+	if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Servo_data[BIND_CH-1]>PPM_MAX_COMMAND && Servo_data[THROTTLE]<(servo_min_100+25))
 	{ // Autobind is on and CH16 went up and Throttle is low
 		CHANGE_PROTOCOL_FLAG_on;							//reload protocol to rebind
-		CH16_PREV_on;
+		BIND_CH_PREV_on;
 	}
-	if(IS_CH16_PREV_on && Servo_data[15]<PPM_MIN_COMMAND)
-		CH16_PREV_off;
+	if(IS_BIND_CH_PREV_on && Servo_data[BIND_CH-1]<PPM_MIN_COMMAND)
+		BIND_CH_PREV_off;
 	#endif //ENABLE_BIND_CH
 	if(IS_CHANGE_PROTOCOL_FLAG_on)
 	{ // Protocol needs to be changed or relaunched for bind

@@ -266,10 +266,10 @@ enum MultiPacketTypes {
 #define IS_INPUT_SIGNAL_on	( ( protocol_flags2 & _BV(5) ) !=0 )
 #define IS_INPUT_SIGNAL_off	( ( protocol_flags2 & _BV(5) ) ==0 )
 //CH16
-#define CH16_PREV_off		protocol_flags2 &= ~_BV(6)
-#define CH16_PREV_on		protocol_flags2 |= _BV(6)
-#define IS_CH16_PREV_on		( ( protocol_flags2 & _BV(6) ) !=0 )
-#define IS_CH16_PREV_off	( ( protocol_flags2 & _BV(6) ) ==0 )
+#define BIND_CH_PREV_off	protocol_flags2 &= ~_BV(6)
+#define BIND_CH_PREV_on		protocol_flags2 |= _BV(6)
+#define IS_BIND_CH_PREV_on	( ( protocol_flags2 & _BV(6) ) !=0 )
+#define IS_BIND_CH_PREV_off	( ( protocol_flags2 & _BV(6) ) ==0 )
 
 //********************
 //*** Blink timing ***

@@ -41,8 +41,11 @@
 //#define REVERSE_THROTTLE
 //#define REVERSE_RUDDER
 
-//Comment to disable the bind feature on channel 16
-#define ENABLE_BIND_CH16
+//Comment to disable the bind feature on a channel
+#define ENABLE_BIND_CH
+//Set the channel number used for bind. Default is 16.
+#define BIND_CH	16
+
 
 /**************************/
 /*** RF CHIPS INSTALLED ***/

@@ -460,12 +460,6 @@ void Update_All()
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)		// Serial mode and something has been received
 		{
 			update_serial_data();							// Update protocol and data
-			if(IS_CHANGE_PROTOCOL_FLAG_on)
-			{ // Protocol needs to be changed
-				LED_off;									//led off during protocol init
-				modules_reset();							//reset all modules
-				protocol_init();							//init new protocol
-			}
 			INPUT_SIGNAL_on;								//valid signal received
 			last_signal=millis();
 		}
@@ -488,6 +482,21 @@ void Update_All()
 			last_signal=millis();
 		}
 	#endif //ENABLE_PPM
+	#ifdef ENABLE_BIND_CH16
+	if(IS_AUTOBIND_FLAG_on && IS_CH16_PREV_off && Servo_data[15]>PPM_MAX_COMMAND && Servo_data[THROTTLE]<(servo_min_100+25))
+	{ // Autobind is on and CH16 went up and Throttle is low
+		CHANGE_PROTOCOL_FLAG_on;							//reload protocol to rebind
+		CH16_PREV_on;
+	}
+	if(IS_CH16_PREV_on && Servo_data[15]<PPM_MIN_COMMAND)
+		CH16_PREV_off;
+	#endif //ENABLE_BIND_CH16
+	if(IS_CHANGE_PROTOCOL_FLAG_on)
+	{ // Protocol needs to be changed or relaunched for bind
+		LED_off;											//led off during protocol init
+		modules_reset();									//reset all modules
+		protocol_init();									//init new protocol
+	}
 	update_channels_aux();
 	#if defined(TELEMETRY)
 		#if !defined(MULTI_TELEMETRY)

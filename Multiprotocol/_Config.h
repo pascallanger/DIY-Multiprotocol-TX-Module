@@ -41,6 +41,8 @@
 //#define REVERSE_THROTTLE
 //#define REVERSE_RUDDER
 
+//Comment to disable the bind feature on channel 16
+#define ENABLE_BIND_CH16
 
 /**************************/
 /*** RF CHIPS INSTALLED ***/
@@ -106,9 +108,12 @@
 //If you do not plan using the telemetry comment this global setting using "//" and skip to the next section.
 #define TELEMETRY
 
-//Uncomment to invert the polarity of the telemetry serial signal.
-//For ER9X and ERSKY9X it must be commented. For OpenTX it must be uncommented.
-//#define INVERT_TELEMETRY
+//Comment to invert the polarity of the output telemetry serial signal.
+//This function takes quite some flash space and processor power on an atmega.
+//For OpenTX and ersky9x it must be uncommented.
+//On a 9XR_PRO running ersky9x both commented and uncommented will work depending on the radio setting Invert COM1 under the Telemetry menu.
+//For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
+#define INVERT_TELEMETRY
 
 //Uncomment to send also Multi status and wrap other telemetry to allow TX to autodetect the format
 //Only for newest OpenTX version

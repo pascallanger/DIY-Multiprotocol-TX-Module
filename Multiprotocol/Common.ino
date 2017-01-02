@@ -71,13 +71,21 @@ uint16_t limit_channel_100(uint8_t ch)
 /******************************/
 void Frsky_init_hop(void)
 {
+	uint8_t val;
 	uint8_t channel = rx_tx_addr[0]&0x07;
-	uint8_t channel_spacing = (rx_tx_addr[1]&0x7F)+64;
-	for(uint8_t i=0;i<50;i++)
+	uint8_t channel_spacing = rx_tx_addr[1];
+	//Filter bad tables
+	if(channel_spacing<0x02) channel_spacing+=0x02;
+	if(channel_spacing>0xE9) channel_spacing-=0xE7;
+	if(channel_spacing%0x2F==0) channel_spacing++;
+		
+	hopping_frequency[0]=channel;
+	for(uint8_t i=1;i<50;i++)
 	{
-		hopping_frequency[i]=i>47?0:channel;
 		channel=(channel+channel_spacing) % 0xEB;
-		if((channel==0x00) || (channel==0x5A) || (channel==0xDC))
-			channel++;
+		val=channel;
+		if((val==0x00) || (val==0x5A) || (val==0xDC))
+			val++;
+		hopping_frequency[i]=i>47?0:val;
 	}
 }

@@ -626,6 +626,7 @@ static void protocol_init()
 {
 	uint16_t next_callback=0;		// Default is immediate call back
 	remote_callback = 0;
+	CHANGE_PROTOCOL_FLAG_off;
 
 	// reset telemetry
 	#ifdef TELEMETRY

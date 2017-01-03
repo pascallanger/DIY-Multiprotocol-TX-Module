@@ -300,9 +300,11 @@ const PPM_Parameters PPM_prot[15]=	{
 		PPM_SBUS
 	MODE_WK2X01
 		WK2801
-		WK2601
 		WK2401
-		
+		W6_5_1
+		W6_6_1
+		W6_HEL
+		W6_HEL_I
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

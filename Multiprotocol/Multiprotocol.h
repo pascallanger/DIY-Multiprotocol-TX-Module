@@ -178,8 +178,11 @@ enum FY326
 enum WK2x01
 {
 	WK2801	= 0,
-	WK2601	= 1,
-	WK2401	= 2,
+	WK2401	= 1,
+	W6_5_1	= 2,
+	W6_6_1	= 3,
+	W6_HEL	= 4,
+	W6_HEL_I= 5,
 };
 
 #define NONE 		0
@@ -545,8 +548,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			FY319		1
 		sub_protocol==WK2x01
 			WK2801		0
-			WK2601		1
-			WK2401		2
+			WK2401		1
+			W6_5_1		2
+			W6_6_1		3
+			W6_HEL		4
+			W6_HEL_I	5
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

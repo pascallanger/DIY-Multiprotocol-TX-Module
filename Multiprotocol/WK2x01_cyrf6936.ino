@@ -201,7 +201,7 @@ static void __attribute__((unused)) WK_channels_heli_2601(uint8_t frame, int16_t
 	//pitch is controlled by rx
 	//we can only control fmode, pit-reverse and pit/thr rate
 	uint8_t pit_rev = 0;
-	if ((option/10)%10)
+	if (sub_protocol==W6_HEL_I)
 		pit_rev = 1;
 	int16_t pit_rate = WK_get_channel(5, 0x400, 0, 0x400);
 	uint8_t fmode = 1;
@@ -214,7 +214,7 @@ static void __attribute__((unused)) WK_channels_heli_2601(uint8_t frame, int16_t
 	{
 		//Pitch curve and range
 		*v1 = pit_rate;
-		*v2 = ((option/100) ? -100 : 100) * 0x400 / 100 + 0x400;
+		*v2 = (int16_t)(option) * 0x400 / 100 + 0x400;
 	}
 	packet[7] = (pit_rev << 2);		//reverse bits
 	packet[8] = fmode ? 0x02 : 0x00;
@@ -239,12 +239,12 @@ static void __attribute__((unused)) WK_build_data_pkt_2601()
 		v1 = WK_get_channel(6, 0x200, 0x200, 0x200);
 		v2 = 0;
 	}
-	if (option%10 == 1)
-		WK_channels_heli_2601(frame, &v1, &v2);
-	else if (option%10 == 2)
+	if (sub_protocol == W6_5_1)
+		WK_channels_5plus1_2601(frame, &v1, &v2);
+	else if (sub_protocol == W6_6_1)
 		WK_channels_6plus1_2601(frame, &v1, &v2);
 	else
-		WK_channels_5plus1_2601(frame, &v1, &v2);
+		WK_channels_heli_2601(frame, &v1, &v2);
 	if (v1 > 1023)
 		v1 = 1023;
 	if (v2 > 1023)
@@ -404,10 +404,10 @@ uint16_t WK_cb()
 		packet_sent = 1;
 		if(sub_protocol == WK2801)
 			WK_BuildPacket_2801();
-		else if(sub_protocol == WK2601)
-			WK_BuildPacket_2601();
-		else
+		else if(sub_protocol == WK2401)
 			WK_BuildPacket_2401();
+		else
+			WK_BuildPacket_2601();
 		packet_count = (packet_count + 1) % 12;
 		CYRF_WriteDataPacket(packet);
 		return 1600;

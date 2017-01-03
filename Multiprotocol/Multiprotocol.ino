@@ -756,6 +756,13 @@ static void protocol_init()
 					remote_callback = ReadJ6Pro;
 					break;
 			#endif
+			#if defined(WK2x01_CYRF6936_INO)
+				case MODE_WK2x01:
+					PE2_on;	//antenna RF4
+					next_callback = WK_setup();
+					remote_callback = WK_cb;
+					break;
+			#endif
 		#endif
 		#ifdef NRF24L01_INSTALLED
 			#if defined(HISKY_NRF24L01_INO)

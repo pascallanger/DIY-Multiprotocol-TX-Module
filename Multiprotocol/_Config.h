@@ -76,6 +76,7 @@
 #define	DEVO_CYRF6936_INO
 #define	DSM_CYRF6936_INO
 #define	J6PRO_CYRF6936_INO
+#define	WK2x01_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
 #define	FRSKYV_CC2500_INO
@@ -297,6 +298,11 @@ const PPM_Parameters PPM_prot[15]=	{
 		PPM_IBUS
 		PWM_SBUS
 		PPM_SBUS
+	MODE_WK2X01
+		WK2801
+		WK2601
+		WK2401
+		
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...
@@ -308,6 +314,7 @@ const PPM_Parameters PPM_prot[15]=	{
 // Auto Bind	AUTOBIND or NO_AUTOBIND
 // For protocols which does not require binding at each power up (like Flysky, FrSky...), you might still want a bind to be initiated each time you power up the TX.
 // As an example, it's usefull for the WLTOYS F929/F939/F949/F959 (all using the Flysky protocol) which requires a bind at each power up.
+// It also enables the Bind from channel feature, allowing to execute a bind by toggling a designated channel.
 
 // Option: the value is between -127 and +127.
 // The option value is only valid for some protocols, read this page for more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md

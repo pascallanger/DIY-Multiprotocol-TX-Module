@@ -749,18 +749,33 @@ static void protocol_init()
 					remote_callback = devo_callback;
 					break;
 			#endif
+			#if defined(WK2x01_CYRF6936_INO)
+				case MODE_WK2x01:
+					#ifdef ENABLE_PPM
+						if(mode_select) //PPM mode
+						{
+							if(IS_BIND_BUTTON_FLAG_on)
+							{
+								eeprom_write_byte((EE_ADDR)(30+mode_select),0x00);	// reset to autobind mode for the current model
+								option=0;
+							}
+							else
+							{	
+								option=eeprom_read_byte((EE_ADDR)(30+mode_select));	// load previous mode: autobind or fixed id
+								if(option!=1) option=0;								// if not fixed id mode then it should be autobind
+							}
+						}
+					#endif //ENABLE_PPM
+					PE2_on;	//antenna RF4
+					next_callback = WK_setup();
+					remote_callback = WK_cb;
+					break;
+			#endif
 			#if defined(J6PRO_CYRF6936_INO)
 				case MODE_J6PRO:
 					PE2_on;	//antenna RF4
 					next_callback = initJ6Pro();
 					remote_callback = ReadJ6Pro;
-					break;
-			#endif
-			#if defined(WK2x01_CYRF6936_INO)
-				case MODE_WK2x01:
-					PE2_on;	//antenna RF4
-					next_callback = WK_setup();
-					remote_callback = WK_cb;
 					break;
 			#endif
 		#endif

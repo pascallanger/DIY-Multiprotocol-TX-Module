@@ -289,8 +289,37 @@ static void __attribute__((unused)) WK_build_beacon_pkt_2801()
 {
 	WK_last_beacon ^= 1;
 	uint8_t en = 0;
-	uint8_t bind_state=0x99;	//Ignoring WK2801 bind process which is the same as Devo
+	uint8_t bind_state;
 
+	#ifdef ENABLE_PPM
+	if(mode_select && option==0 && IS_BIND_DONE_on) 			//PPM mode and option not already set and bind is finished
+	{
+		BIND_SET_INPUT;
+		BIND_SET_PULLUP;										// set pullup
+		if(IS_BIND_BUTTON_on)
+		{
+			eeprom_write_byte((EE_ADDR)(30+mode_select),0x01);	// Set fixed id mode for the current model
+			option=1;
+		}
+		BIND_SET_OUTPUT;
+	}
+	#endif //ENABLE_PPM
+    if(prev_option!=option && IS_BIND_DONE_on)
+	{
+		set_rx_tx_addr(MProtocol_id);
+		rx_tx_addr[2]=rx_tx_addr[3]<<4;		// Make use of RX_Num
+		bind_counter = WK_BIND_COUNT / 8 + 1;
+	}
+	if (option)
+	{
+        if (bind_counter)
+            bind_state = 0xe4;
+        else
+            bind_state = 0x1b;
+    }
+	else
+        bind_state = 0x99;
+	
 	for (uint8_t i = 0; i < 4; i++)
 	{	// failsafe info: WARNING All channels are set to 0 instead of midstick and 0 for throttle
 		packet[i+1] = 0;
@@ -439,18 +468,27 @@ uint16_t WK_setup() {
 	packet_count = 0;
 	packet_sent = 0;
 	WK_last_beacon = 0;
+	prev_option=option;
+	if(sub_protocol!=WK2801 || option==0)
+	{
+		CYRF_GetMfgData(cyrfmfg_id);
+		rx_tx_addr[2]=(hopping_frequency[0] ^ cyrfmfg_id[0] ^ cyrfmfg_id[3])<<4;
+		rx_tx_addr[1]=hopping_frequency[1] ^ cyrfmfg_id[1] ^ cyrfmfg_id[4];
+		rx_tx_addr[0]=hopping_frequency[2] ^ cyrfmfg_id[2] ^ cyrfmfg_id[5];
+		if(sub_protocol == WK2401)
+			rx_tx_addr[0] |= 0x01;			//ID must be odd for 2401
 
-	CYRF_GetMfgData(cyrfmfg_id);
-	rx_tx_addr[2]=(hopping_frequency[0] ^ cyrfmfg_id[0] ^ cyrfmfg_id[3])<<4;
-	rx_tx_addr[1]=hopping_frequency[1] ^ cyrfmfg_id[1] ^ cyrfmfg_id[4];
-	rx_tx_addr[0]=hopping_frequency[2] ^ cyrfmfg_id[2] ^ cyrfmfg_id[5];
-	if(sub_protocol == WK2401)
-		rx_tx_addr[0] |= 0x01;	//ID must be odd for 2401
-
-	bind_counter = WK_BIND_COUNT;
-	phase = WK_BIND;
-	BIND_IN_PROGRESS;
-	//Ignoring WK2801 bind process which is the same as Devo
+		bind_counter = WK_BIND_COUNT;
+		phase = WK_BIND;
+		BIND_IN_PROGRESS;
+	}
+	else
+	{
+		rx_tx_addr[2]=rx_tx_addr[3]<<4;		// Make use of RX_Num
+		bind_counter = 0;
+		phase = WK_BOUND_1;
+		BIND_DONE;
+	}
 	return 2800;
 }
 

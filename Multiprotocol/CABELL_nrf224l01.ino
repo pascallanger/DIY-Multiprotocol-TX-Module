@@ -89,8 +89,6 @@ static uint8_t __attribute__((unused)) CABELL_getNextChannel (uint8_t seqArray[]
 static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 {  
   CABELL_RxTxPacket_t TxPacket;
-  static uint8_t currentChannel = 0;
-  uint8_t maskFirstPacketOnChannelBit = 0x80;
 
   uint8_t channelReduction = constrain((option & CABELL_OPTION_MASK_CHANNEL_REDUCTION),0,CABELL_NUM_CHANNELS-CABELL_MIN_CHANNELS);  // Max 12 - cannot reduce below 4 channels
   if (bindMode) {
@@ -161,8 +159,8 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
   rf_ch_num = CABELL_getNextChannel (hopping_frequency,CABELL_NUM_CHANNELS, rf_ch_num);
   NRF24L01_WriteReg(NRF24L01_05_RF_CH,rf_ch_num); 
 
-  NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
   NRF24L01_FlushTx();   //just in case things got hung up
+  NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
  
   uint8_t* p = reinterpret_cast<uint8_t*>(&TxPacket.RxMode);
   *p &= 0x7F;                  // Make sure 8th bit is clear

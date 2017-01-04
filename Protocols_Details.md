@@ -31,8 +31,23 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 
 ## Useful notes and definitions
 - **Extended limits supported** - A command range of -125%..+125% will be transmitted. Otherwise the default is -100%..+100% only.
-- **Autobind protocol** - The transmitter will automatically initiate a bind sequence on power up.  This is for models where the receiver expects to rebind every time it is powered up. In these protocols you do not need to press the bind button at power up to bind, it will be done automatically.
 - **Channel Order** - The channel order assumed in all the documentation is AETR and it is highly recommended that you keep it this way.  You can change this in the compilation settings.  However, please indicate your channel order in all questions and posts on the forum pages. 
+- **Autobind protocol**:
+
+1. The transmitter will automatically initiate a bind sequence on power up.  This is for models where the receiver expects to rebind every time it is powered up. In these protocols you do not need to press the bind button at power up to bind, it will be done automatically.
+2. Enable Bind from channel feature:
+
+* Bind from channel can be globally enabled/disabled in _config.h using ENABLE_BIND_CH.
+* Bind from channel can be locally enabled/disabled by setting Autobind to Y/N per model for serial or per dial switch number for ppm.
+* Bind channel can be choosen on any channel between 5 and 16 using BIND_CH in _config.h.
+* Bind will only happen if all these elements are happening at the same time:
+ - Autobind = Y
+ - Throttle = LOW (<-95%)
+ - Bind channel is going from -100% to +100%
+* Additional notes:
+ - It's recommended to combine Throttle cut with another button to drive the bind channel. This will prevent to launch a bind while flying...
+ - Bind channel does not have to be assigned to a free channel. Since it only acts when Throttle is Low (and throttle cut active), it could be used on the same channel as Flip for example since you are not going to flip your model when Throttle is low... Same goes for RTH and such other features.
+ - Using channel 16 for the bind channel seems the most relevant as only one protocol so far is using 16 channels which is FrSkyX. But even on FrSkyX this feature won't have any impact since there is NO valid reason to have Autobind set to Y for such a protocol.
 
 
 ***
@@ -224,6 +239,51 @@ Also on er9x you will need to be sure to match the polarity of the telemetry ser
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+##WK2X01
+Extended limits supported
+Autobind protocol
+
+Note: RX ouput will always be AETR independently of the input AETR, RETA...
+
+###WK2801
+This roughly corresponds to the number of channels supported, but many of the newer 6-channel receivers actually support the WK2801 protocol. It is recommended to try the WK2801 protocol 1st when working with older Walkera models before attempting the WK2601 or WK2401 mode, as the WK2801 is a superior protocol. The WK2801 protocol supports up to 8 channels.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+###WK2401
+The WK2401 protocol is used to control older Walkera models.
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+###W6_5_1
+WK2601 5+1: AIL, ELE, THR, RUD, GYRO (ch 7) are proportional. Gear (ch 5) is binary. Ch 6 is disabled
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|GEAR|DIS|GYRO
+
+###W6_6_1
+WK2601 6+1: AIL, ELE, THR, RUD, COL (ch 6), GYRO (ch 7) are proportional. Gear (ch 5) is binary. **This mode is highly experimental.**
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|GEAR|COL|GYRO
+
+###W6_HEL and W6HEL_I
+WK2601 Heli: AIL, ELE, THR, RUD, GYRO are proportional. Gear (ch 5) is binary. COL (ch 6) is linked to Thr. If Ch6 >= 0, the receiver will apply a 3D curve to the Thr. If Ch6 < 0, the receiver will apply normal curves to the Thr. The value of Ch6 defines the ratio of COL to THR.
+
+W6HEL_I: Invert COL servo
+
+option= maximum range of COL servo
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|GEAR|COL|GYRO
 
 ***
 #NRF24L01 RF Module

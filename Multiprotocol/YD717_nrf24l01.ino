@@ -18,10 +18,9 @@
 
 #include "iface_nrf24l01.h"
 
-#define YD717_BIND_COUNT		60
+#define YD717_BIND_COUNT		120
 #define YD717_PACKET_PERIOD		8000	// Timeout for callback in uSec, 8ms=8000us for YD717
 #define YD717_INITIAL_WAIT		50000	// Initial wait before starting callbacks
-#define YD717_PACKET_CHKTIME	500		// Time to wait if packet not yet acknowledged or timed out    
 
 // Stock tx fixed frequency is 0x3C. Receiver only binds on this freq.
 #define YD717_RF_CHANNEL 0x3C
@@ -125,32 +124,32 @@ static void __attribute__((unused)) yd717_init()
 	// CRC, radio on
 	NRF24L01_SetTxRxMode(TX_EN);
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_PWR_UP)); 
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// Disable Acknoledgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x00);		// Disable all data pipes
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);		// 5-byte RX/TX address
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);	// No retransmit
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, YD717_RF_CHANNEL);      // Channel 3C
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);				// 1Mbps
+	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x3F);				// Enable Acknowledgement on all data pipes
+	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x3F);			// Enable all data pipes
+	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);			// 5-byte RX/TX address
+	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x1A);		// 500uS retransmit t/o, 10 tries
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, YD717_RF_CHANNEL);	// Channel 3C
+	NRF24L01_SetBitrate(NRF24L01_BR_1M);					// 1Mbps
 	NRF24L01_SetPower();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// Clear data ready, data sent, and retransmit
+	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent and retransmit
 
-	NRF24L01_Activate(0x73);							// Activate feature register
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3F);			// Enable dynamic payload length on all pipes
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);		// Set feature bits on
+	NRF24L01_Activate(0x73);								// Activate feature register
+	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3F);				// Enable dynamic payload length on all pipes
+	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);			// Set feature bits on
 	NRF24L01_Activate(0x73);
 
 	// for bind packets set address to prearranged value known to receiver
-	uint8_t bind_rx_tx_addr[] = {0x65, 0x65, 0x65, 0x65, 0x65};
-
+	uint8_t bind_rx_tx_addr[5];
+	uint8_t offset=5;
 	if( sub_protocol==SYMAX4 )
-		for(uint8_t i=0; i < 5; i++)
-			bind_rx_tx_addr[i]  = 0x60;
+		offset=0;
 	else
 		if( sub_protocol==NIHUI )
-			for(uint8_t i=0; i < 5; i++)
-				bind_rx_tx_addr[i]  = 0x64;
-
+			offset=4;
+	for(uint8_t i=0; i < 5; i++)
+		bind_rx_tx_addr[i]  = 0x60 + offset;
     NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, bind_rx_tx_addr, 5);
+    NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, bind_rx_tx_addr, 5);
 }
 
 uint16_t yd717_callback()
@@ -162,6 +161,7 @@ uint16_t yd717_callback()
 		if (bind_counter == 0)
 		{
 			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);	// set address
+			NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);
 			yd717_send_packet(0);
 			BIND_DONE;							// bind complete
 		}

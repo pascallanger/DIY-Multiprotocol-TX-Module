@@ -112,5 +112,3 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|U301|Dual INPUT-XOR|SN74LVC2G00DCTR|SSOP-8|[296-13257-1-ND](https://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G00DCTR/296-13257-1-ND/484537)
 1|CON401|ANT.conn SMD|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
 
-
-

@@ -16,7 +16,7 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 1. [Transmitters and serial/telemetry options](docs/Transmitters.md)
 1. [Module Hardware options](docs/Hardware.md)
 1. Compiling and programming the module
-  * [4in1/ATmega328](docs/Compiling.md)
+  * [4in1/DIY Mutliprotocol module based on ATmega328](docs/Compiling.md)
   * [STM32](docs/Compiling_STM32.md).
 1. [Transmitter Setup](docs/Transmitters.md) 
 1. [How to for popular models](docs/Models.md)

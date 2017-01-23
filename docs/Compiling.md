@@ -1,7 +1,5 @@
 # Compiling and Programming (ATmega 328P)
 
-**If you are Compling for the STM32 version of the Multiprotocol Module please go to the dedicated [Compiling and Programming STM32](Compiling_STM32.md) page.** 
-
 **Prepared binary files are available for quick tests in the [release section](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases), if you want to test one of them see the page [Manually programming and setting fuses](Advanced_Manually_Setting_ATmega328_Fuses.md).** 
 
 Multiprotocol source are compiled using the well known Arduino IDE.

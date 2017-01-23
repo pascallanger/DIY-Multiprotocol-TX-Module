@@ -84,7 +84,9 @@ If the output indicates that the firmware has been uploaded successfully - give 
 
 But don't forget to visit the Advanced section as some extra steps are needed to use your module at his full potential.
 
-If you get an error that indicates a valid microprocessor was not found there is something wrong with:
+If you get an error that indicates "warning : Can not Set sck period . usbasp please check for firmware update ." just ignore it, everything is fine.
+
+If you get an error that indicates a valid microcontroller was not found there is something wrong with:
  - your connections, 
  - your programmer, or
  - your board

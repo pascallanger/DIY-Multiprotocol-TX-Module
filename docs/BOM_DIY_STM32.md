@@ -20,7 +20,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|K201|USB Receptacle|USB||[732-2735-ND](https://www.digikey.com/product-search/en?keywords=651005136421)
 1|SV201|Jumper|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV202|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
-1|SV203|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
+1|SV203|Pin header|2x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV204|Pin header|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 3|C101, 102, 103|Cap Tantal|22uF/16V|1206|[478-8254-1-ND](https://www.digikey.com/product-detail/en/avx-corporation/F931C226MAA/478-8254-1-ND/4005702)
 7|C201, 202, 204, 205, 206, 209, 301|Cap Cera|0.1uF|0805|[311-1361-1-ND](https://www.digikey.com/product-detail/en/yageo/CC0805ZRY5V9BB104/311-1361-1-ND/2103145)
@@ -34,7 +34,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 2|LED101, LED201|Red/Green Led|LED3mm|||
 2|R101, 201|SMD Resistor|1K|0805|[311-1.0KARCT-ND](https://www.digikey.com/product-detail/en/yageo/RC0805JR-071KL/311-1.0KARCT-ND/731165)
 1|R202|SMD Resistor|1.5K|0805|[311-1.5KARCT-ND](https://www.digikey.com/product-search/en?keywords=311-1.5KARCT-ND)
-2|R203, 204|SMD Resistor|22K|0805|[311-22KARCT-ND](https://www.digikey.com/product-search/en?keywords=311-22KARCT-ND)
+2|R203, 204|SMD Resistor|22|0805|[311-22ARCT-ND](https://www.digikey.com/product-search/en?keywords=311-22ARCT-ND)
 1|R205|SMD Resistor|100K|0805|[311-100KARCT-ND](https://www.digikey.com/product-search/en?keywords=311-100KARCT-ND)
 2|R206, R207|SMD Resistor|10K|0805|[RMCF0805JT10K0CT-ND](https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT10K0/RMCF0805JT10K0CT-ND/1942577)
 2|R301, R305|SMD Resistor|4.7K|0805|[311-4.70KCRCT-ND](https://www.digikey.com/product-detail/en/yageo/RC0805FR-074K7L/311-4.70KCRCT-ND/730876)

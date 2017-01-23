@@ -20,8 +20,8 @@ Here are some fuse settings for common configurations:
 Board|Low Fuse|High Fuse|Extended Fuse
 -----|--------|---------|-------------
 Arduino Pro Mini with Arduino bootloader|0xFF|0xD2|0xFD
-DIY 3.2d PCB without bootloader |0xFF|0xD3|0xFD
-DIY 3.2d PCB with [custom mikeb bootloader](Advanced_ATmega_Serial_Uploader.md) |0xFF|0xD6|0xFD
+DIY 2.3d PCB without bootloader |0xFF|0xD3|0xFD
+DIY 2.3d PCB with [custom mikeb bootloader](Advanced_ATmega_Serial_Uploader.md) |0xFF|0xD6|0xFD
 Banggood 4-in-1 module without bootloader |0xFF|0xD3|0xFD
 Banggood 4-in-1 module with [custom mikeb bootloader](Advanced_ATmega_Serial_Uploader.md) |0xFF|0xD6|0xFD
 

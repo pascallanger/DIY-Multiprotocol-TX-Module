@@ -86,4 +86,4 @@ V2.3d Board Schematic
 <img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/PCB%20v2.3d/Schematic_v2.3d.jpg" width="1000" height="500" /> 
 
 ## <a name="STM32_Schematic"></a> PCB STM32 V1.0t Schematic
-<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB%20v1.0t/Schematic_Multiprotocol_STM32_MB_1.0_t.jpg" width="1000" height="500" /> 
+<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 

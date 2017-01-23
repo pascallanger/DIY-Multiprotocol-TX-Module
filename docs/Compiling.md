@@ -3,79 +3,40 @@
 **If you are Compling for the STM32 version of the Multiprotocol Module please go to the dedicated [Compiling and Programming STM32](Compiling_STM32.md) page.** 
 
 **This page describes the basic Compiling and Programming process.  There are some other more advanced processes that have some superior features described under the [Advanced Topics](Advanced_Topics.md) page.** Some options are: 
+ - How to flash more protocols
  - Using an FTDI cable to upload firmware over the module - Tx pins
 
 **If you wish to upload one of prepared binary files please see the page [Manually programming and setting fuses](Advanced_Manually_Setting_ATmega328_Fuses.md).** 
 
-Multiprotocol source can be compiled using the Arduino IDE.  
+Multiprotocol source can be compiled using the Arduino IDE.
 
 ##Install the Arduino IDE and the Multiprotocol project
-1. Download the Arduino IDE. The currently supported Arduino version is 1.6.10. available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.10-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.10-macosx.zip)
+1. Download the Arduino IDE. The currently supported Arduino version is 1.6.12. available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
 1. Download the zip file with the Multiprotocol module source code from [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/archive/master.zip)
 1. Unzip and copy the source code folder **Multiprotocol** to a folder of your choosing
 1. Click on the **Multiprotocol.ino** file in the **Multiprotocol** folder and the Arduino environment should appear and the Multiprotocol project will be loaded.
 
-##Prepare the Arduino IDE:
-The Arduino IDE must be customized to optimally compile the firmware. The following additions to the environment will remove the Arduino bootloader to free up additional memory for protocols.
-###Mac OSX:
-1. Using finder navigate to ```Applications``` folder
-1. Ctl-Click on the Arduino application and select **Show Package Contents**.
-1. Browse to ```Contents/Java/hardware/arduino/avr`` and double click on boards.txt
-1. Copy and paste the following text into the end of the file and save it: 
-
-```
-##############################################################
-## Multi 4-in-1 (3.3V, 16 MHz) w/ ATmega328
-## --------------------------------------------------
-multi.name=Multi 4-in-1
-
-multi.upload.tool=avrdude
-multi.upload.protocol=arduino
-
-multi.bootloader.tool=avrdude
-multi.bootloader.unlock_bits=0x3F
-multi.bootloader.lock_bits=0x0F
-
-multi.build.board=AVR_PRO
-multi.build.core=arduino
-multi.build.variant=eightanaloginputs
-multi.build.extra_flags=-Wl,--relax
-
-multi.menu.cpu.16MHzatmega328=ATmega328 (3.3V, 16 MHz)
-
-multi.menu.cpu.16MHzatmega328.upload.maximum_size=32768
-multi.menu.cpu.16MHzatmega328.upload.maximum_data_size=2048
-multi.menu.cpu.16MHzatmega328.upload.speed=57600
-
-multi.menu.cpu.16MHzatmega328.bootloader.low_fuses=0xFF
-multi.menu.cpu.16MHzatmega328.bootloader.high_fuses=0xD3
-multi.menu.cpu.16MHzatmega328.bootloader.extended_fuses=0xFD
-
-multi.menu.cpu.16MHzatmega328.build.mcu=atmega328p
-multi.menu.cpu.16MHzatmega328.build.f_cpu=16000000L
-##############################################################   
-```
-
-Close and reopen the Arduino IDE and load the Multiprotocol project.
-
-### Windows:
-Using File Explorer navigate to 
-
-```C:\Program Files(x86)\Arduino\hardware\arduino\avr ```
-
-Open ```boards.txt``` in your favourite text editor (Notepad)
-
-Copy and paste the "Multi 4-in-1" text listed above into the end of the file and save it.
-
-Close and reopen the Arduino IDE and load the Multiprotocol project.
-
 ## Common process for OSX and Windows
-If you have module with an Arduino Pro-Mini then scroll down to [Programming Arduino Pro-Mini Boards](#Programming_Arduino_Pro_Mini)
+If you have built a module with an Arduino Pro-Mini, you have 2 options to upload the firmware. Using an USBASP as explained below or using a USB to serial converter as explained here [Programming Arduino Pro-Mini Boards](#Programming_Arduino_Pro_Mini)
 
-If you are using one of the DIY Mulitprotocol modules with the ATmega soldered directly to a PCB (like the 3.2d board or the Banggood readymade 4-in-1 module) then follow these instructions.  
-###Preparing for ATMega328P microcontroller
-1. Under the Tools -> Board select the Multi 4-in-1 board
-1. Under Tools -> Programmer select your programmer (probably USBASP)
+If you are using the Banggood readymade 4-in-1 module or one of the DIY Mulitprotocol modules (like the 2.3d board) then follow these instructions.
+###Material you need to upload the firmware
+1. USBASP like this : <img src="images/USBasp_Programmer.jpeg" width="200" height="200" /> [(example ebay link)](http://www.ebay.fr/itm/USBasp-USBISP-10-Pin-USB-Programmer-3-3V-5V-w-Cable-51-AVR-Atmega8-Programmer-/282247870975?hash=item41b748b9ff:g:utUAAOSwKOJYHE0L)
+1. 10pin to 6pin adapter: <img src="images/10pin_2_6pin.JPG" width="150" height="150" /> [(example ebay link)](http://www.ebay.fr/itm/10-Pin-a-6-Pin-Carte-Adaptateur-M-F-pour-AVRISP-USBASP-STK500-Noir-Bleu-WT-/291862396761?hash=item43f45abf59:g:gXsAAOSwMgdXyGnh)
+1. 6 pin header like this one: <img src="images/6pin_header.jpg" width="100" height="100" /> [(example Digi-Key link)](http://www.digikey.com/products/en?keywords=3M%20961206-6404-AR)
+
+The 6 Pin header needs to be solder on the board like indicated by the red rectangle:
+* Banggood readymade 4-in-1 module:
+<img src="images/V2b_ISP.jpeg" width="189" height="200" />
+* DIY Mulitprotocol modules (like the 2.3d board):
+<img src="images/MPTM_PCB_2.3d_ISP.png" width="486" height="201" />
+
+If you are looking for a good working USBASP Windows driver, [use this one](http://www.protostack.com/download/USBasp-win-driver-x86-x64-v3.0.7.zip).
+
+###Configuring Arduino IDE for ATMega328P microcontroller
+1. Under Tools -> Board select the Arduino Pro or Pro Mini
+1. Under Tools -> Processor select the ATmega328 (5V, 16MHz)
+1. Under Tools -> Programmer select your programmer type (probably USBASP)
 
 <a name="CustomizeFirmareToYourNeeds"></a>
 ###Customize the firmware to your hardware and your needs
@@ -83,24 +44,24 @@ On all modules with ATMega microprocessors, the memory required for all the prot
 
 Before customizing your firmware it would be good to review the protocol on the [Protocol Details](../Protocols_Details.md) page and to identify the protocols you would like to support on your module.  
 
-At the same time make a note of RF modules required by your protocols.  For example, if you do not wish to use the FlySky or the Husan protocols then you do not need to compile support the the A7105 RF Module into your firmware.  Similarly, if you have no need to bind with ASSAN RC receivers then you do not need to compile the ASSAN protocol into your firmware. 
+At the same time make a note of RF modules required by your protocols.  For example, if you do not wish to use the FlySky or the Hubsan protocols then you do not need to compile support for the A7105 RF Module into your firmware.  Similarly, if you have no need to bind with ASSAN RC receivers then you do not need to compile the ASSAN protocol into your firmware. 
 
-If you plan to use the PPM communication interface with your transmitter, then you need to perform protocol selection with the 16 position switch on your module.  This will limit the available protocols you can usefully include on your firmware to 15.  You should make a list of your 15 chosen protocols, sub protocols and options like this:
+If you plan to use the PPM communication interface with your transmitter, then you need to perform protocol selection with the 16 position dial switch on your module.  This will limit the available protocols you can usefully include on your firmware to 15.  You should make a list of your 15 chosen protocols, sub protocols and options like this:
 
 Switch Position|Protocol|Sub-Protocol|Option|Notes
 ---------------|--------|------------|------|-----
-1.|DSM|DSM2|2|6 channels @ 22ms
-2.|DSM|DSMX|6|6 channels @ 11ms
+1.|DSM|DSM2_22|2|6 channels @ 22ms
+2.|DSM|DSMX_11|6|6 channels @ 11ms
 ....|...|...|...|...
 ....|...|...|...|...
 15.|FRSKYX|CH_16| |FrSky X receiver 16 chan
 
 
-With the above information (required RF modules, selected protocols and 16 pos switch mapping) you are ready to customize your firmware.  
+With the above information (required RF modules, selected protocols and 16 pos switch mapping) you are ready to customize your firmware.
 
 All customization is done by editing the ```_Config.h  ``` file in the Multiprotocol Arduino project.  
 
-In the Arduino IDE and click on the down arrow on the far right of the tab bar to show a list of project files (see the red circle on the screenshot below).  Scroll down and select the _Config.h file.
+In the Arduino IDE, click on the down arrow on the far right of the tab bar to show a list of project files (see the red circle on the screenshot below).  Scroll down and select the _Config.h file.
 <img src="images/Arduino.png" width="600" height="400" />
 
 Comment out any of the RF modules that you do not need by typing ```// ``` at the begining of the line that reads : 

@@ -13,7 +13,7 @@ The procedure below will guide you through all the steps to upload successfully 
 ## Upload the firmware
 
 ###Material you need to upload the firmware
-1. USBASP programmer supporting 3.3V: <img src="images/USBasp_Programmer.jpeg" width="200" height="200" /> [(example ebay link)](http://www.ebay.fr/itm/USBasp-USBISP-10-Pin-USB-Programmer-3-3V-5V-w-Cable-51-AVR-Atmega8-Programmer-/282247870975?hash=item41b748b9ff:g:utUAAOSwKOJYHE0L)
+1. USBASP programmer supporting 3.3V: <img src="USBasp_Programmer_jumper.png" width="200" height="200" /> [(example aliexpress link)](https://www.aliexpress.com/item/USBasp-USB-ISP-3-3V-5V-AVR-Programmer-USB-ATMEGA8-ATMEGA128-New-10PIN-Wire-Support/2036402518.html?spm=2114.30010308.8.10.jIbHzs)
 1. 10pin to 6pin adapter: <img src="images/10pin_2_6pin.JPG" width="150" height="150" /> [(example ebay link)](http://www.ebay.fr/itm/10-Pin-a-6-Pin-Carte-Adaptateur-M-F-pour-AVRISP-USBASP-STK500-Noir-Bleu-WT-/291862396761?hash=item43f45abf59:g:gXsAAOSwMgdXyGnh)
 1. 6 pin header like this one: <img src="images/6pin_header.jpg" width="100" height="100" /> [(example Digi-Key link)](http://www.digikey.com/products/en?keywords=3M%20961206-6404-AR)
 
@@ -28,7 +28,7 @@ The 6 Pin header needs to be solder on the board like indicated by the red recta
 ###Connect the programmer
 
 1. Before you connect the programmer make sure that you have selected the 3.3V mode and not 5V. The RF Modules are not 5V tolerant and you will break them with 5V.  On most programmers this is done by moving a jumper.
-<img src="images/USBasp_Programmer_jumper.png" width="366" height="200" />
+<img src="images/USBasp_Programmer_jumper.png" width="200" height="200" />
 1. Please re-read item 1. above before going on.
 1. Turn the rotary switch on the DIY Multiprotocol module to the 0 position. If you do not have a switch for Serial mode only then it is the same as being in the 0 position. The upload will not work if the switch is in any other position.
 1. Connect the 6-pin programming connector to the 6-pin ASP IVR connector on the DIY Multiprotocol board. Be sure to match the ground pin of the programmer connector to the ground pin on the board.

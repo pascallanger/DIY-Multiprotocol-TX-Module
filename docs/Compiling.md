@@ -63,7 +63,7 @@ In the Arduino IDE, click on the down arrow on the far right of the tab bar to s
 
 The file has different sections which are explained in details. The best is to go through them one by one carefully and apply the configuration which matches your needs.
 
-Most of the default settings should get you started quickly. But on modules with ATMega microcontrollers, the memory required for all the protocols exceeds the available 32k of flash memory.  You therefore need to select which protocols you wish to use in order to fit them into the available memory.
+Most of the default settings should get you started quickly. But on modules with ATMega microcontrollers, the memory required for all the protocols exceeds the available 32KB of flash memory.  You therefore need to select which protocols you wish to use in order to fit them into the available memory.
 
 To fill in the "PROTOCOLS TO INCLUDE" section, it would be good to review all the available protocols on the [Protocol Details](../Protocols_Details.md) page and identify which one you would like to add on your module.  
 

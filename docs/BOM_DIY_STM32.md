@@ -9,6 +9,9 @@ Digikey may not be your preferred supplier, but you should find enough informati
 ## BOM DIY STM32 PCB V1.0t - the USB version
  This BOM is for the board with the USB port for firmware uploading that looks like this - check carefully:
  
+The board is available at OSHpark [here](https://oshpark.com/shared_projects/GX51nEoH)
+ 
+ 
 <img src="images/Board_PCB_STM32_USB-1.png" width="300" height="400"/> <img src="images/Board_PCB_STM32_USB-2.png" width="300" height="400"/> 
 
 Qty|Part|Description|Value|Package|Digikey Part Number

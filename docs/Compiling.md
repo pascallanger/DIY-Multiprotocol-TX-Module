@@ -1,7 +1,5 @@
 # Compiling and Programming (ATmega 328P)
 
-**Prepared binary files are available for quick tests in the [release section](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases), if you want to test one of them see the page [Manually programming and setting fuses](Advanced_Manually_Setting_ATmega328_Fuses.md).** 
-
 Multiprotocol source are compiled using the well known Arduino IDE.
 
 The procedure below will guide you through all the steps to upload successfully a customized firmware.

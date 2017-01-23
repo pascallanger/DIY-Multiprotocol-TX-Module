@@ -106,7 +106,7 @@ First, we need to append some text to the Arduino file boards.txt.
 #### On Windows
 1. Close the Arduino IDE
 1. Search Windows for the application WordPad (DO NOT USE Notepad). Right click on WordPad and select "Run as Administrator".
-<img src="WordPad_Admin.jpg"/>
+<img src="images/WordPad_Admin.jpg"/>
 1. Open the file ```boards.txt``` located in this folder ```C:\Program Files(x86)\Arduino\hardware\arduino\avr ``` or the equivalent if you have installed Aduino in a different directory.
 1. Append the following text into the end of the file and save it:
 

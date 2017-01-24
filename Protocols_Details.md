@@ -546,6 +546,38 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP||||HEADLESS
 
+##Q303
+Autobind protocol
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+###Sub_protocol Q303
+CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---
+AHOLD|FLIP|PICTURE|VIDEO|HEADLESS|RTH|GIMBAL
+
+GIMBAL needs 3 position -100%/0%/100%
+
+###Sub_protocol CX35
+CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---
+ARM|VTX|PICTURE|VIDEO||RTH|GIMBAL
+
+ARM is 2 positions: land / take off
+
+Each toggle of VTX will increment the channel.
+
+Gimbal is full range.
+
+###Sub_protocol CX10D and Sub_protocol CX10WD
+CH5|CH6
+---|---
+ARM|FLIP
+
+ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
+
 ##Shenqi
 Autobind protocol
 

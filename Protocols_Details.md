@@ -554,6 +554,8 @@ CH1|CH2|CH3|CH4
 A|E|T|R
 
 ###Sub_protocol Q303
+Q303 warning: this sub_protocol is known to not work at all/properly with 4in1 RF modules.
+
 CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---
 AHOLD|FLIP|PICTURE|VIDEO|HEADLESS|RTH|GIMBAL

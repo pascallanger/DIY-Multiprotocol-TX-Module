@@ -80,9 +80,7 @@ If there is another error carefully read it, go to the line number indicated and
 
 1. You are now ready to flash the firmware.  In the Arduino IDE click **Sketch -> Upload Using Programmer**.
 
-If the output indicates that the firmware has been uploaded successfully - give yourself a pat on the back.  Well done, you have successfully programmed your DIY Multiprotocol module and you are ready to go on to the final step [Setting up your Transmitter](TransmitterSetup.md) before you can begin to fly!!!!
-
-But don't forget to visit the Advanced section as some extra steps are needed to use your module at his full potential.
+If the output indicates that the firmware has been uploaded successfully - give yourself a pat on the back.  Well done, you have successfully programmed your DIY Multiprotocol module. You can already go to the final step [Setting up your Transmitter](TransmitterSetup.md) and begin to fly!!!! But don't forget to visit the next Advanced section which has some extra steps needed to use your module at his full potential.
 
 **Troubleshooting**
 

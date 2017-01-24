@@ -21,12 +21,12 @@
 #define Q303_INITIAL_WAIT		500
 #define Q303_RF_BIND_CHANNEL	0x02
 
-#define Q303_BTN_TAKEOFF  1
-#define Q303_BTN_DESCEND  2
-#define Q303_BTN_SNAPSHOT 4
-#define Q303_BTN_VIDEO	8
-#define Q303_BTN_RTH	  16
-#define Q303_BTN_VTX	  32
+#define Q303_BTN_TAKEOFF	1
+#define Q303_BTN_DESCEND	2
+#define Q303_BTN_SNAPSHOT	4
+#define Q303_BTN_VIDEO		8
+#define Q303_BTN_RTH		16
+#define Q303_BTN_VTX		32
 
 static uint8_t __attribute__((unused)) cx10wd_getButtons()
 {
@@ -34,21 +34,21 @@ static uint8_t __attribute__((unused)) cx10wd_getButtons()
 	#define CX10D_FLAG_LAND		0x80
 	#define CX10WD_FLAG_TAKEOFF	0x40
 
-	static uint8_t Q303_BTN_state;
+	static uint8_t BTN_state;
 	static uint8_t command;
 
 	// startup
 	if(packet_count < 50)
 	{
-		Q303_BTN_state = 0;
+		BTN_state = 0;
 		command = 0;
 		packet_count++;
 	}
 	// auto land
-	else if(GET_FLAG(!Servo_AUX1,1) && !(Q303_BTN_state & Q303_BTN_DESCEND))
+	else if((Servo_data[AUX1] < PPM_MIN_COMMAND) && !(BTN_state & Q303_BTN_DESCEND))
 	{
-		Q303_BTN_state |= Q303_BTN_DESCEND;
-		Q303_BTN_state &= ~Q303_BTN_TAKEOFF;
+		BTN_state |= Q303_BTN_DESCEND;
+		BTN_state &= ~Q303_BTN_TAKEOFF;
 		switch(sub_protocol)
 		{
 			case CX10WD:
@@ -60,10 +60,10 @@ static uint8_t __attribute__((unused)) cx10wd_getButtons()
 		}
 	}
 	// auto take off
-	else if(GET_FLAG(Servo_AUX1,1) && !(Q303_BTN_state & Q303_BTN_TAKEOFF))
+	else if(Servo_AUX1 && !(BTN_state & Q303_BTN_TAKEOFF))
 	{
-		Q303_BTN_state |= Q303_BTN_TAKEOFF;
-		Q303_BTN_state &= ~Q303_BTN_DESCEND;
+		BTN_state |= Q303_BTN_TAKEOFF;
+		BTN_state &= ~Q303_BTN_DESCEND;
 		command ^= CX10WD_FLAG_TAKEOFF;
 	}
 
@@ -80,12 +80,12 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 	#define CX35_CMD_RTH		0x11
 	#define CX35_CMD_VTX		0x10
 	
-	static uint8_t Q303_BTN_state;
+	static uint8_t BTN_state;
 	static uint8_t command;
 	// simulate 2 keypress on rate button just after bind
 	if(packet_count < 50)
 	{
-		Q303_BTN_state = 0;
+		BTN_state = 0;
 		packet_count++;
 		command = 0x00; // startup
 	}
@@ -100,66 +100,66 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 		command |= 0x20; // 2nd keypress
 	}
 	// descend
-	else if(!(GET_FLAG(Servo_AUX1, 1)) && !(Q303_BTN_state & Q303_BTN_DESCEND))
+	else if(!(GET_FLAG(Servo_AUX1, 1)) && !(BTN_state & Q303_BTN_DESCEND))
 	{
-		Q303_BTN_state |= Q303_BTN_DESCEND;
-		Q303_BTN_state &= ~Q303_BTN_TAKEOFF;
+		BTN_state |= Q303_BTN_DESCEND;
+		BTN_state &= ~Q303_BTN_TAKEOFF;
 		command = CX35_CMD_DESCEND;
 	}
 	// take off
-	else if(GET_FLAG(Servo_AUX1,1) && !(Q303_BTN_state & Q303_BTN_TAKEOFF))
+	else if(GET_FLAG(Servo_AUX1,1) && !(BTN_state & Q303_BTN_TAKEOFF))
 	{
-		Q303_BTN_state |= Q303_BTN_TAKEOFF;
-		Q303_BTN_state &= ~Q303_BTN_DESCEND;
+		BTN_state |= Q303_BTN_TAKEOFF;
+		BTN_state &= ~Q303_BTN_DESCEND;
 		command = CX35_CMD_TAKEOFF;
 	}
 	// RTH
-	else if(GET_FLAG(Servo_AUX6,1) && !(Q303_BTN_state & Q303_BTN_RTH))
+	else if(GET_FLAG(Servo_AUX6,1) && !(BTN_state & Q303_BTN_RTH))
 	{
-		Q303_BTN_state |= Q303_BTN_RTH;
+		BTN_state |= Q303_BTN_RTH;
 		if(command == CX35_CMD_RTH)
 			command |= 0x20;
 		else
 			command = CX35_CMD_RTH;
 	}
-	else if(!(GET_FLAG(Servo_AUX6,1)) && (Q303_BTN_state & Q303_BTN_RTH))
+	else if(!(GET_FLAG(Servo_AUX6,1)) && (BTN_state & Q303_BTN_RTH))
 	{
-		Q303_BTN_state &= ~Q303_BTN_RTH;
+		BTN_state &= ~Q303_BTN_RTH;
 		if(command == CX35_CMD_RTH)
 			command |= 0x20;
 		else
 			command = CX35_CMD_RTH;
 	}
 	// video
-	else if(GET_FLAG(Servo_AUX4,1) && !(Q303_BTN_state & Q303_BTN_VIDEO))
+	else if(GET_FLAG(Servo_AUX4,1) && !(BTN_state & Q303_BTN_VIDEO))
 	{
-		Q303_BTN_state |= Q303_BTN_VIDEO;
+		BTN_state |= Q303_BTN_VIDEO;
 		if(command == CX35_CMD_VIDEO)
 			command |= 0x20;
 		else
 			command = CX35_CMD_VIDEO;
 	}
-	else if(!(GET_FLAG(Servo_AUX4,1)) && (Q303_BTN_state & Q303_BTN_VIDEO))
+	else if(!(GET_FLAG(Servo_AUX4,1)) && (BTN_state & Q303_BTN_VIDEO))
 	{
-		Q303_BTN_state &= ~Q303_BTN_VIDEO;
+		BTN_state &= ~Q303_BTN_VIDEO;
 		if(command == CX35_CMD_VIDEO)
 			command |= 0x20;
 		else
 			command = CX35_CMD_VIDEO;
 	}
 	// snapshot
-	else if(GET_FLAG(Servo_AUX3,1) && !(Q303_BTN_state & Q303_BTN_SNAPSHOT))
+	else if(GET_FLAG(Servo_AUX3,1) && !(BTN_state & Q303_BTN_SNAPSHOT))
 	{
-		Q303_BTN_state |= Q303_BTN_SNAPSHOT;
+		BTN_state |= Q303_BTN_SNAPSHOT;
 		if(command == CX35_CMD_SNAPSHOT)
 			command |= 0x20;
 		else
 			command = CX35_CMD_SNAPSHOT;
 	}
 	// vtx channel
-	else if(GET_FLAG(Servo_AUX2,1) && !(Q303_BTN_state & Q303_BTN_VTX))
+	else if(GET_FLAG(Servo_AUX2,1) && !(BTN_state & Q303_BTN_VTX))
 	{
-		Q303_BTN_state |= Q303_BTN_VTX;
+		BTN_state |= Q303_BTN_VTX;
 		if(command == CX35_CMD_VTX)
 			command |= 0x20;
 		else
@@ -167,9 +167,9 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 	}
 
 	if(!(GET_FLAG(Servo_AUX3,1)))
-		Q303_BTN_state &= ~Q303_BTN_SNAPSHOT;
+		BTN_state &= ~Q303_BTN_SNAPSHOT;
 	if(!(GET_FLAG(Servo_AUX2,1)))
-		Q303_BTN_state &= ~Q303_BTN_VTX;
+		BTN_state &= ~Q303_BTN_VTX;
 
 	return command;
 }

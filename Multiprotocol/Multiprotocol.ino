@@ -884,6 +884,12 @@ static void protocol_init()
 					remote_callback = HONTAI_callback;
 					break;
 			#endif
+			#if defined(Q303_NRF24L01_INO)
+				case MODE_Q303:
+					next_callback=initQ303();
+					remote_callback = Q303_callback;
+					break;
+			#endif
 		#endif
 	}
 

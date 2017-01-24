@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	4
+#define VERSION_PATCH_LEVEL	5
 
 //******************
 // Protocols
@@ -57,6 +57,7 @@ enum PROTOCOLS
 	MODE_AFHDS2A	= 28,	// =>A7105
 	MODE_Q2X2		= 29,	// =>NRF24L01, extension of CX-10 protocol
 	MODE_WK2x01		= 30,	// =>CYRF6936
+	MODE_Q303		= 31,	// =>NRF24L01
 };
 
 enum Flysky
@@ -183,6 +184,13 @@ enum WK2x01
 	W6_6_1	= 3,
 	W6_HEL	= 4,
 	W6_HEL_I= 5,
+};
+enum Q303
+{
+	Q303	= 0,
+	CX35	= 1,
+	CX10D	= 2,
+	CX10WD	= 3,
 };
 
 #define NONE 		0
@@ -459,6 +467,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					AFHDS2A		28
 					Q2X2		29
 					WK2x01		30
+					Q303		31
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -553,6 +562,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			W6_6_1		3
 			W6_HEL		4
 			W6_HEL_I	5
+		sub_protocol==Q303
+			Q303		0
+			CX35		1
+			CX10D		2
+			CX10WD		3
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

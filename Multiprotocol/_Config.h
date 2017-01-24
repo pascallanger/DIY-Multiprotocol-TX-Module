@@ -102,7 +102,7 @@
 #define	FQ777_NRF24L01_INO
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
-
+#define Q303_NRF24L01_INO
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/
@@ -305,6 +305,11 @@ const PPM_Parameters PPM_prot[15]=	{
 		W6_6_1
 		W6_HEL
 		W6_HEL_I
+	MODE_Q303
+		Q303
+		CX35
+		CX10D
+		CX10WD
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

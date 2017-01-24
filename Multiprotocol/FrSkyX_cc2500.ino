@@ -21,8 +21,6 @@
 #include "iface_cc2500.h"
 
 uint8_t chanskip;
-uint8_t counter_rst;
-uint8_t ctr;
 uint8_t seq_last_sent;
 uint8_t seq_last_rcvd;
 
@@ -155,8 +153,8 @@ static void __attribute__((unused)) frskyX_data_frame()
 	packet[2] = rx_tx_addr[2];
 	packet[3] = 0x02;
 	//  
-	packet[4] = (ctr<<6)+hopping_frequency_no; 
-	packet[5] = counter_rst;
+	packet[4] = (chanskip<<6)|hopping_frequency_no; 
+	packet[5] = chanskip>>2;
 	packet[6] = RX_num;
 	//packet[7] = FLAGS 00 - standard packet
 	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
@@ -288,9 +286,6 @@ uint16_t initFrSkyX()
 	Frsky_init_hop();
 	while(!chanskip)
 		chanskip=random(0xfefefefe)%47;
-	while((chanskip-ctr)%4)
-		ctr=(ctr+1)%4;
-	counter_rst=(chanskip-ctr)>>2;
 
 	//for test***************
 	//rx_tx_addr[3]=0xB3;

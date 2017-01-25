@@ -37,10 +37,12 @@ If you don't know which one to take the 1st line is the one you want.
 1. In the **AVR type** drop down select **ATmega328P** and click on **Fuses**
 1. In the **ATmega328P Fuses** window which just open click on read fuses.
 1. If you get an error there is something wrong with your connections, your programmer, or your board. Verify everything and go back to the 1st bullet point.
-1. Set the 3 Fuse values and make sure to click on **apply** 
+1. Set the 3 Fuse values
   <img src="images/AVR8BurnOMat-fuses.png" />
+1. Click on **apply**
 1. Click on **write fuses**
-1. You are done with Fuses and can close the **ATmega328P Fuses** window
+1. If you get an error there is something wrong with your connections, your programmer, or your board. Verify everything and go back to the 1st bullet point.
+1. You are done with setting the Fuses and can close the **ATmega328P Fuses** window
 
 ## Upload the firmware
 1. Follow this section: [Connect the programmer](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling.md#connect-the-programmer)
@@ -50,4 +52,4 @@ If you don't know which one to take the 1st line is the one you want.
 1. Under **Flash** select the file you've just downloaded
 1. Under **Flash** click on **Write**
 1. If you get an error there is something wrong with your connections, your programmer, or your board. Verify everything and go back to the 1st bullet point.
-1. You are done. Your module should be programmed and ready to operate.
+1. You are done with uploading the firmware. Your module is ready to operate.

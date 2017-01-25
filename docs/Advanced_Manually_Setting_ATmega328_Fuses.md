@@ -12,9 +12,9 @@ There are many different options to upload a .hex firmware file to the MULTI-Mod
 1. Launch AVR8 Burn-O-Mat.
 1. You should now have a window which looks like this: 
   <img src="images/AVR8BurnOMat-main.png" />
-1. click on **Settings->AVRDUDE** and fill in the details about avrdude location using the installation path written previously: 
+1. click on **Settings->AVRDUDE** and fill in the details about avrdude location using the installation path written previously as well as selecting USBASP for the programmer: 
   <img src="images/AVR8BurnOMat-settings.png" />
-
+1. 
 
 
 ## Fuse settings

@@ -18,6 +18,7 @@
 - The protocol/mode selection must be done before the power is applied to the module
 - Often the signal is not sent to the module until the transmitter has performed safety checks (like switch and throttle position settings)
 - Check that at least one of the protocol selection pins is connected to GND.
+- Some radios have an open collector output (Futaba, Graupner...), in this case add a 4.7K resistor between PPM and BATT.
 
 ###Input Mode - Serial
 - Make sure you have done the serial mods as indicated in the [hardware page for your board] (Hardware.md).

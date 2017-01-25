@@ -24,7 +24,15 @@ For 9XR/9XR Pro, a new 3D printed module is available which makes use of the bui
 ##Different working modes
 
 ###PPM interface
-If you are only planning on using the PPM interface with transmitter you are ready to program the module as described in Compiling and Programming the module.
+If you are only planning on using the PPM interface with your transmitter, you need to connect it as described:
+
+<img src="images/PPM.jpg" width="437" height="340" />
+
+Some radios have an open collector output (Futaba, Graupner...), in this case you should add a 4.7K resistor between PPM and BATT.
+
+This is valid for any version of the module.
+
+You are now ready to go over to [Compiling and Programming](Compiling.md).
 
 ###Enabling Serial and Telemetry interface
 If you have a transmitter that can support serial communication with the board then you need to wire up the board appropriately. There are two versions of the module and the steps are slightly different.
@@ -38,6 +46,8 @@ Serial is already enabled and ready to be used.
 Written on PCB back JRFM_V1.2
 
 <img src="images/v1.2_ISP.jpg" width="340" height="340" /> 
+
+You are now ready to go over to [Compiling and Programming](Compiling.md).
 
 #### **Version 1.1 (V1.1) type modules** 
 

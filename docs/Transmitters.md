@@ -12,7 +12,7 @@ The DIY Mulitprotocol module supports industry standard PPM interface that works
 
 When using the standard PPM Tx output, the protocol selection is achieved through a 16 position rotary switch on the module. This enables 15 (0=serial) protocol/sub-protocol/options combinations to be selected.  Binding is achieved by pressing a bind button on the back of the module (see picture below) 
 
-<img src="images/4-in-1_Module_PPM_Controls.jpg" width="150" height="180" /> 
+<img src="images/PPM.png" width="338" height="200" /> 
 
 Since the module supports literally hundreds of protocol/sub-protocol/options combinations, you must select which of these will map to the 15 positions on the switch.  Refer to the [Compiling and Programming](Compiling.md) page for information on how to do his.
 

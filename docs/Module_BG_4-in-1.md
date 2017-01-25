@@ -30,9 +30,9 @@ If you are only planning on using the PPM interface with your transmitter, you n
 
 Some radios have an open collector output (Futaba, Graupner...), in this case you should add a 4.7K resistor between PPM and BATT.
 
-This is valid for any version of the module.
+The same plug is available on all versions of the module with the same signal locations.
 
-You are now ready to go over to [Compiling and Programming](Compiling.md).
+If you wish to add an external device reading the telemetry, you need to enable serial mode as explained in the next topics otherwise you are now ready to go over to [Compiling and Programming](Compiling.md).
 
 ###Serial mode
 If you have a transmitter that can support serial communication with the board then you need to wire up the board appropriately. There are three versions of the module and the steps are slightly different.

@@ -2,7 +2,10 @@
 
 **If you are Compling for the Arduino ATmega328p version of the Multiprotocol Module please go to the dedicated [Compiling and Programming ATmega328](Compiling.md) page.**
 
-Multiprotocol source can be compiled using the Arduino IDE using STM32 Core (Maple) and Arduino ARM-Cortex-M3 libraries.  
+## IMPORTANT NOTE:
+Multiprotocol source can be compiled using the Arduino IDE using STM32 Core (Maple) and Arduino ARM-Cortex-M3 libraries. 
+On all modules with STM32F103 microcontroller, the program flash memory on the microcontroller is large enough to accommodate all the protocols.  You do not have to make choices on which protocols to upload.  Also, it is likely that you used the Banggood 4-in-1 RF module and you will therefore have access to all the RF modules.. 
+
 
 ###Install the Arduino IDE and the Multiprotocol project
 1. Download the Arduino IDE. The currently supported Arduino version is 1.6.11 available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
@@ -19,76 +22,17 @@ Multiprotocol source can be compiled using the Arduino IDE using STM32 Core (Map
 
  > ```//void __irq_usart2(void) { usart_irq(&usart2_rb, USART2_BASE); } ``` 
  
- > ```//void __irq_usart3(void) { usart_irq(&usart3_rb, USART3_BASE); } ```  
+ > ```//void __irq_usart3(void) { usart_irq(&usart3_rb, USART3_BASE); } ``` 
+ 
+ 
+ Now connect the flashing cable/FTDI to the multimodule,as described [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling_STM32.md#option-1-flashing-with-tx-powerhighly-recommended).
+ 
+ 
 1. Run the IDE, and on the **Tools** menu, select **Board** and then **Boards manager**. Click on the Arduino DUE (32 Bits ARM-Cortex M3) from the list of available boards. You must do this step, it installs the arm-none-eabi-g++ toolchain!
 1. Close and reopen the Arduino IDE and load the Multiprotocol project.
 1. In arduino IDE under the **Tools** -> **Board:** select the **Generic STM32F103C series** board
 1. Click on the **Verify** button to test compile the before you make any changes.  If there are errors check the process above and be sure to have the right version of the Arduino IDE.
 
-
-## Common process for OSX and Windows
-
-###Customize the firmware to your hardware and your needs
-On all modules with STM32F103 microcontroller, the program flash memory on the microcontroller is large enough to accommodate all the protocols.  You do not have to make choices on which protocols to upload.  Also, it is likely that you used the Banggood 4-in-1 RF module and you will therefore have access to all the RF modules.  However, you can follow these instructions to select only a subset protocols. 
-
-If you plan to use the PPM mode then you should follow the instructions to customize the protocol selection switch to protocol mapping.  
-
-Before customizing your firmware it would be good to review the protocol on the [Protocol Details](../Protocols_Details.md) page and to identify the protocols you would like to support on your module.  
-
-At the same time make a note of RF modules required by your protocols.  For example, if you do not wish to use the FlySky or the Husan protocols then you do not need to compile support the the A7105 RF Module into your firmware.  Similarly, if you have no need to bind with ASSAN RC receivers then you do not need to compile the ASSAN protocol into your firmware. 
-
-If you plan to use the PPM communication interface with your transmitter, then you need to perform protocol selection with the 16 position switch on your module.  This will limit the available protocols you can usefully access in PPM mode on your module to 15 (this limitation does not apply to Serial mode).  You should make a list of your 15 chosen protocols, sub protocols and options like this:
-
-Switch Position|Protocol|Sub-Protocol|Option|Notes
----------------|--------|------------|------|-----
-1.|DSM|DSM2|2|6 channels @ 22ms
-2.|DSM|DSMX|6|6 channels @ 11ms
-....|...|...|...|...
-....|...|...|...|...
-15.|FRSKYX|CH_16| |FrSky X receiver 16 chan
-
-
-With the above information (required RF modules, selected protocols and 16 pos switch mapping) you are ready to customize your firmware.  
-
-All customization is done by editing the ```_Config.h  ``` file in the Multiprotocol Arduino project.  
-
-In the Arduino IDE and click on the down arrow on the far right of the tab bar to show a list of project files (see the red circle on the screenshot below).  Scroll down and select the _Config.h file.
-<img src="images/Arduino.png" width="600" height="400" />
-
-It is unlikely that you would need to do this, but you can comment out any of the RF modules that you do not need by typing ```// ``` at the begining of the line that reads : 
-```#define <RF Module name>_INSTALLED ``` .  The following line shows the CC2500 module removed 
-
-> ```#define A7105_INSTALLED ```
-
-> ```#define CYRF6936_INSTALLED ```
-
-> **```//#define CC2500_INSTALLED ```**
-
-> ```#define NFR24L01_INSTALLED ```
-
-Again it is unlikely that you would want to do this, but you can scroll down to the available protocols and comment out all the protocols you will not require.  The following example shows the DEVO protocol commented out.
-
-> **```#ifdef	CYRF6936_INSTALLED ```
-
-> **``` //	#define	DEVO_CYRF6936_INO ```**
-
-> ``` 	#define	DSM_CYRF6936_INO ```
-
-> ```	#define J6PRO_CYRF6936_INO ```
-
-> ``` #endif ```**
-
-Look for the line containing ```#define INVERT_TELEMETRY``` and make sure that it is uncommented: 
-> ```#define INVERT_TELEMETRY ``` 
-
- Scroll down to the bottom of the file and list your switch mapping to your desired **protocol/sub-protocol/options**.  You typically only need to change the three relevant columns.  On models that require a rebind on every start-up (like Syma quads) you can change the **```NO_AUTOBIND ```** to **```AUTOBIND ```**.
-
-Finally, if you have not already done so, specify the correct board for the compiler.  Under **Tools** -> **Board:** select the  **Generic STM32F103C series** board.   You can now compile the firmware by clicking on the check mark (Tooltip: Verify) on the menu bar.  If everything goes according to plan you should see something like the following line in the lower pane of the window:
-
-> Sketch uses 32,464 bytes (99%) of program storage space. Maximum is 32,768 bytes.
-> Global variables use 1,219 bytes (59%) of dynamic memory, leaving 829 bytes for local variables. Maximum is 2,048 bytes.
-
-If you get an error carefully read the error to see the approximate line number where the error occured and correct it. 
 
 ###Preparing for STM32 microcontroller for firmware flashing
 

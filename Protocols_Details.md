@@ -124,7 +124,10 @@ Models: FrSky receivers V8R4, V8R7 and V8FR.
 
 Extended limits supported
 
-Option=fine frequency tuning. This value is different for each board. To determine this value, find the two limits where the RX loses connection then set the option value to half way between them. If you have a 4in1 V2 board the value is around 40 or -40.
+Option for this protocol is fine frequency tuning. This value is different for each Module. To determine this value:
+ - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
+ - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
+ - set the value to half way between min and max.
 
 CH1|CH2|CH3|CH4
 ---|---|---|---
@@ -137,7 +140,10 @@ Extended limits supported
 
 Telemetry enabled for A0, A1, RSSI, TSSI and Hub
 
-Option=fine frequency tuning. This value is different for each board. To determine this value, find the two limits where the RX loses connection then set the option value to half way between them. If you have a 4in1 V2 board the value is around 40 or -40.
+Option for this protocol is fine frequency tuning. This value is different for each Module. To determine this value:
+ - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
+ - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
+ - set the value to half way between min and max.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
@@ -150,7 +156,10 @@ Extended limits supported
 
 Telemetry enabled for A1 (RxBatt), A2, RSSI, TSSI and Hub
 
-Option=fine frequency tuning. This value is different for each board. To determine this value, find the two limits where the RX loses connection then set the option value to half way between them. If you have a 4in1 V2 board the value is around 40 or -40.
+Option for this protocol is fine frequency tuning. This value is different for each Module. To determine this value:
+ - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
+ - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
+ - set the value to half way between min and max.
 
 ###Sub_protocol CH_16
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
@@ -165,7 +174,10 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ##SFHSS
 Models: Futaba RXs and XK models.
 
-Option=fine frequency tuning. This value is different for each board. To determine this value, find the two limits where the RX loses connection then set the option value to half way between them. If you have a 4in1 V2 board the value is around 40 or -40.
+Option for this protocol is fine frequency tuning. This value is different for each Module. To determine this value:
+ - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
+ - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
+ - set the value to half way between min and max.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---

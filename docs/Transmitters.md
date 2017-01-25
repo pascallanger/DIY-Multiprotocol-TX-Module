@@ -10,9 +10,11 @@ Any Tx providing a PPM output (like a trainer port, or a transmitter with a RF m
 ##PPM
 The DIY Mulitprotocol module supports industry standard PPM interface that works with all transmitters with either a module bay, and/or a trainer port.  Even the older 72MHz FM radios support this standard.
 
-When using the standard PPM Tx output, the protocol selection is achieved through a 16 position rotary switch on the module. This enables 15 (0=serial) protocol/sub-protocol/options combinations to be selected.  Binding is achieved by pressing a bind button on the back of the module (see picture below) 
+<img src="images/PPM.png" width="338" height="200" /> 
 
-<img src="images/4-in-1_Module_PPM_Controls.jpg" width="150" height="180" /> 
+The same module plug is available on all versions of the module with the same signal locations. Some radios have an open collector output (Futaba, Graupner...), in this case you should add a 4.7K resistor between PPM and BATT.
+
+When using the standard PPM Tx output, the protocol selection is achieved through a 16 position rotary switch on the module. This enables 15 (0=serial) protocol/sub-protocol/options combinations to be selected.  Binding is achieved by pressing a bind button on the back of the module (see picture below) 
 
 Since the module supports literally hundreds of protocol/sub-protocol/options combinations, you must select which of these will map to the 15 positions on the switch.  Refer to the [Compiling and Programming](Compiling.md) page for information on how to do his.
 

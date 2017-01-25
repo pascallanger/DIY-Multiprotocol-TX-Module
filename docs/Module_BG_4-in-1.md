@@ -26,7 +26,7 @@ For 9XR/9XR Pro, a new 3D printed module is available which makes use of the bui
 ###PPM mode
 If you are only planning on using the PPM interface with your transmitter, you need to connect it as described:
 
-<img src="images/PPM.png" width="437" height="340" />
+<img src="images/PPM.png" width="574" height="340" />
 
 Some radios have an open collector output (Futaba, Graupner...), in this case you should add a 4.7K resistor between PPM and BATT.
 
@@ -75,5 +75,9 @@ You are now ready to go over to [Compiling and Programming](Compiling.md).
 Solder bridges and resistors as illustrated in the picture below.
 
 <img src="images/V1_Serial_Enable.jpeg" width="360" height="340" /> 
+
+If your module is always/sometime binding at power up without pressing the button replace the BIND led resistor (on the board back) of 1.2K by a 4.7K. Just to be safe it is recommended to do the modification anyway.
+
+It's known that the A7105 of this version is not able to receive telemetry. The only protocol affected so far is AFHDS2A.
 
 You are now ready to go over to [Compiling and Programming](Compiling.md).

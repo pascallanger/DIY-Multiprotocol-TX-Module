@@ -13,23 +13,41 @@ There are many different options to upload a .hex firmware file to the MULTI-Mod
   <img src="images/AVR8BurnOMat-main.png" />
 1. Click on **Settings->AVRDUDE** and fill in the details about avrdude location using the installation path written previously as well as selecting USBASP for the programmer: 
   <img src="images/AVR8BurnOMat-settings.png" />
-1. Once done click on OK
-1. You are now done with all the installations and ready to program your Multi-module
-
-1. Download the [latest release firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) you want to burn and store it in a knwon location
-1. Follow this section: [Connect the programmer](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling.md#connect-the-programmer)
+1. Once done click on OK.
+1. You are now done with all the installations/configuration and ready to program your Multi-module.
 
 ## Fuse settings
 The fuse settings have to be done only once for all.
 
 Here are some fuse settings for common configurations:
 
-Board|Low Fuse|High Fuse|Extended Fuse
+Board|Extended Fuse (efuse)|High Fuse (hfuse)|Low Fuse (lfuse)
 -----|--------|---------|-------------
-Banggood 4-in-1 module |0xFF|0xD3|0xFD
-Arduino Pro Mini |0xFF|0xD3|0xFD
-DIY 2.3d PCB |0xFF|0xD3|0xFD
-DIY 2.3d PCB with [custom mikeb bootloader](Advanced_ATmega_Serial_Uploader.md) |0xFF|0xD6|0xFD
-Banggood 4-in-1 module with [custom mikeb bootloader](Advanced_ATmega_Serial_Uploader.md) |0xFF|0xD6|0xFD
+Banggood 4-in-1 module |0xFD|0xD3|0xFF
+Arduino Pro Mini |0xFD|0xD3|0xFF
+DIY 2.3d PCB |0xFD|0xD3|0xFF
+DIY 2.3d PCB with [custom mikeb bootloader](Advanced_ATmega_Serial_Uploader.md) |0xFD|0xD6|0xFF
+Banggood 4-in-1 module with [custom mikeb bootloader](Advanced_ATmega_Serial_Uploader.md) |0xFD|0xD6|0xFF
 
-If you don't know the 1st line is the one you want.
+If you don't know which one to take the 1st line is the one you want.
+
+###Burn the fuses
+1. Follow this section: [Connect the programmer](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling.md#connect-the-programmer)
+1. Launch AVR8 Burn-O-Mat.
+1. In the **AVR type** drop down select **ATmega328P** and click on **Fuses**
+1. In the **ATmega328P Fuses** window which just open click on read fuses.
+1. If you get an error there is something wrong with your connections, your programmer, or your board. Verify everything and go back to the 1st bullet point.
+1. Set the 3 Fuse values and make sure to click on **apply** 
+  <img src="images/AVR8BurnOMat-fuses.png" />
+1. Click on **write fuses**
+1. You are done with Fuses and can close the **ATmega328P Fuses** window
+
+## Upload the firmware
+1. Follow this section: [Connect the programmer](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling.md#connect-the-programmer)
+1. Download the [latest release firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) you want to burn and store it in a knwon location
+1. Launch AVR8 Burn-O-Mat.
+1. In the **AVR type** drop down select **ATmega328P**
+1. Under **Flash** select the file you've just downloaded
+1. Under **Flash** click on **Write**
+1. If you get an error there is something wrong with your connections, your programmer, or your board. Verify everything and go back to the 1st bullet point.
+1. You are done. Your module should be programmed and ready to operate.

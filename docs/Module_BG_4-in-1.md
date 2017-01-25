@@ -23,7 +23,7 @@ For 9XR/9XR Pro, a new 3D printed module is available which makes use of the bui
 
 ##Different working modes
 
-###PPM interface
+###PPM mode
 If you are only planning on using the PPM interface with your transmitter, you need to connect it as described:
 
 <img src="images/PPM.png" width="437" height="340" />
@@ -34,8 +34,8 @@ This is valid for any version of the module.
 
 You are now ready to go over to [Compiling and Programming](Compiling.md).
 
-###Enabling Serial and Telemetry interface
-If you have a transmitter that can support serial communication with the board then you need to wire up the board appropriately. There are two versions of the module and the steps are slightly different.
+###Serial mode
+If you have a transmitter that can support serial communication with the board then you need to wire up the board appropriately. There are three versions of the module and the steps are slightly different.
 
 Check which module you have and based on the pictures below.  If you purchased the module after June 2016 then it is likely that you have a V1.1 type module. If you have purchased the version with case it is likely that you have a V1.2 type module.
 

@@ -17,7 +17,7 @@ Plus a module case that fits your module like the one [here](https://www.xtremep
   or you can 3D print your own from a selection on Thingiverse ([Example 1](http://www.thingiverse.com/thing:1852868) [Example 2](http://www.thingiverse.com/thing:1661833)).  
  [<img src="http://thingiverse-production-new.s3.amazonaws.com/renders/55/1c/cb/0a/e4/5d2c2b06be7f3f6f8f0ab4638dd7c6fc_preview_featured.jpg" width="250" height="200" /> ](http://www.thingiverse.com/thing:1852868)
 
-For 9XR/9XR Pro, a new 3D printed module is available which makes use of the built in antenna in the handle. This means nothing is getting out of the radio back! You can find all details of this module case on [thingiverse](http://www.thingiverse.com/thing:2050717).
+For 9XR/9XR Pro, a new 3D printed module is available which makes use of the built in antenna in the handle. This means nothing is getting out of the radio back! You can find all details of this module case on [Thingiverse](http://www.thingiverse.com/thing:2050717).
 
 <img src="images/9XR_module.jpg" width="113" height="200" /> <img src="images/9XR_module_connector.jpg" width="274" height="200" /> 
 
@@ -30,9 +30,9 @@ If you are only planning on using the PPM interface with your transmitter, you n
 
 Some radios have an open collector output (Futaba, Graupner...), in this case you should add a 4.7K resistor between PPM and BATT.
 
-This is valid for any version of the module.
+The same plug is available on all versions of the module with the same signal locations.
 
-You are now ready to go over to [Compiling and Programming](Compiling.md).
+If you wish to add an external device reading the telemetry, you need to enable serial mode as explained in the next topics otherwise you are now ready to go over to [Compiling and Programming](Compiling.md).
 
 ###Serial mode
 If you have a transmitter that can support serial communication with the board then you need to wire up the board appropriately. There are three versions of the module and the steps are slightly different.

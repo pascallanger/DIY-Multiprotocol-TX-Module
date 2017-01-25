@@ -1,17 +1,16 @@
 # Compatible Transmitters
 
 
-There are two different options for the interface between the MULTI-Module and the transmitter: PPM and Serial. The considerations are different for each.
+There are two different modes to interface the MULTI-Module and the transmitter: PPM and Serial. The considerations are different for each.
 - **PPM** is more generic, easy to implement and will work with most transmitters. 
 - **Serial** requires custom firmware on the transmitter but brings added functionality including protocol selection through the Tx interface and the option of telemetry (with the right transmitter firmware).
 
-Any Tx that provides a PPM output (like a trainer port, or a transmitter with a RF module bay) is compatible with the MULTI-module.  In practice, most of the documentation on this site is focused on building modules that slip into your transmitter’s module bay. 
- 
+Any Tx providing a PPM output (like a trainer port, or a transmitter with a RF module bay) is compatible with the MULTI-module.
 
 ##PPM
 The DIY Mulitprotocol module supports industry standard PPM interface that works with all transmitters with either a module bay, and/or a trainer port.  Even the older 72MHz FM radios support this standard.
 
-When using the standard PPM Tx output, the protocol selection is achieved through a 16 position rotary switch on the module. This enables 15 protocol/sub-protocol/options combinations to be selected.  Binding is achieved by pressing a bind button on the back of the module (see picture below) 
+When using the standard PPM Tx output, the protocol selection is achieved through a 16 position rotary switch on the module. This enables 15 (0=serial) protocol/sub-protocol/options combinations to be selected.  Binding is achieved by pressing a bind button on the back of the module (see picture below) 
 
 <img src="images/4-in-1_Module_PPM_Controls.jpg" width="150" height="180" /> 
 
@@ -36,10 +35,10 @@ This serial protocol does not require any hardware modifications, but **will** r
 
 Transmitter|Firmware Options|Telemetry Enabled
 :----------|:---------------|:----------------
-[FrSky Taranis/Plus/9XE](Tx-Taranis.md)| erSky9x, OpenTx 2.1.8 Multi|Yes - native
-[Turnigy 9X/9xR](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod), No DSM telem
+[FrSky Taranis/Plus/9XE](Tx-Taranis.md)| erSky9x, OpenTx 2.1.9 Multi|Yes - native
+[Turnigy 9X/9xR](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod)
 [Turnigy 9XR-Pro](Tx-erSky9X.md)|erSky9x|Yes - native
-[FrSky TH9x](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod), No DSM telem
+[FlySky TH9x](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod)
 [SKY board](Tx-erSky9X.md)|erSky9x|Yes - native
 [AR9X board](Tx-erSky9X.md)|erSky9x|Yes - native
 [9Xtreme board](Tx-erSky9X.md)|erSky9x|Yes - native
@@ -66,15 +65,10 @@ You can see Midelic's original instructions [here](http://www.rcgroups.com/forum
 
 
 ##Other Notes:  
-- er9X and erSky9X firmware already supports Multiprotocol Module as a standard feature.  At time of writing it looks like that the next major release of OpenTx - OpenTx 2.2 - will have DIY Mulitprotocol support as a standard feature.  
+- er9X and erSky9X firmware already supports Multiprotocol Module as a standard feature.  The next major release of OpenTx - OpenTx 2.2 - will have DIY Mulitprotocol support as a standard feature.  
 
 - Owners of Walkera Devo transmitters should look at the [Deviation-Tx](http://www.deviationtx.com) project for how to achieve the same end goal with your transmitters. 
 
 - To enable telemetry on a Turnigy 9X or 9XR you need to modify your TX [read this.](#Telemetry_Mod).
 
-- DSM telemetry is not available on er9x due to a lack of flash space.
-
-- Enabling telemetry on a 9XR PRO and may be other TXs does not require any hardware modifications. The additional required serial pin is already available on the TX back module pins.
-
 - Once the TX is telemetry enabled, it just needs to be configured on the model (see er9x/ersky9x documentation).
-

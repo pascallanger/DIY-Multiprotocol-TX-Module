@@ -6,6 +6,13 @@ If you are looking for the BOM for the DIY ATmega328 3.2d version click [here](B
 
 Digikey may not be your preferred supplier, but you should find enough information on their page to cross reference parts.
 
+## IMPORTANT NOTE
+If your TX is Turnigy 9X,9XR,9XR+, the instalation of the inverter chip SN74LVC2G00DCTR ,it is  **OPTIONAL** not required.
+
+Aditinally in order to have telemetry you need to bridge solder **SJ1/SJ301** on the back of the board depending on which board version you have.
+
+The inverted telemetry signal is required only by TARANIS TX so for this to work propperly , the inverter chip is necessary to be installed.
+
 ## BOM DIY STM32 PCB V1.0t - the USB version
  This BOM is for the board with the USB port for firmware uploading that looks like this - check carefully:
  

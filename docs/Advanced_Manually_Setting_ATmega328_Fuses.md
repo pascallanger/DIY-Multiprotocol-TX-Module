@@ -1,6 +1,7 @@
 #Manually Uploading HEX files and setting Fuses on ATmega328
 
-First, the .hex files provided are only for tests purpose as the recommended method is to use [Compiling and Programming](Compiling.md).
+
+**The .hex files provided are only for tests purpose as the recommended method is to use [Compiling and Programming](Compiling.md).**
 
 There are many different options to upload a .hex firmware file to the MULTI-Module and to set the correct fuses.  This document outlines an approach that uses a USBASP programmer and which is equally compatible with OSX, Windows and Linux operating systems.
 

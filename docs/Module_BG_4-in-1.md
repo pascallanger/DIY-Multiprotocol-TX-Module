@@ -48,12 +48,12 @@ V1.1a
 <img src="images/V2a_Serial_Enable.jpeg" width="300" height="340" /> 
 <img src="images/V2a_zoom_Serial_Enable.jpeg" width="450" height="340" /> 
 
-V1.1b
+V1.1b (also called 1.2)
+This revision has a 1.2 printed on the board and replaces the 5V linear regulator with a swichting regulator. 
 
 <img src="images/V2b_Serial_Enable.jpeg" width="220" height="340" /> 
 
-V1.1c (also called 1.2)
-This revision has a 1.2 printed on the board and replaces the 5V linear regulator with a swichting regulator. 
+V1.1c
 
 <img src="images/V2c_Serial_Enable.jpeg" width="220" height="340" /> 
 

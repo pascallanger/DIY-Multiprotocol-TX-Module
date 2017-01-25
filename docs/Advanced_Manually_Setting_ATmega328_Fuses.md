@@ -37,11 +37,13 @@ If you don't know which one to take the 1st line is the one you want.
 1. Launch AVR8 Burn-O-Mat.
 1. In the **AVR type** drop down select **ATmega328P** and click on **Fuses**
 1. In the **ATmega328P Fuses** window which just open click on read fuses.
+1. Ignore the error "warning : Can not Set sck period . usbasp please check for firmware update .".
 1. If you get an error there is something wrong with your connections, your programmer, or your board. Verify everything and go back to the 1st bullet point.
 1. Set the 3 Fuse values
   <img src="images/AVR8BurnOMat-fuses.png" />
 1. Click on **apply**
 1. Click on **write fuses**
+1. Ignore the error "warning : Can not Set sck period . usbasp please check for firmware update .".
 1. If you get an error there is something wrong with your connections, your programmer, or your board. Verify everything and go back to the 1st bullet point.
 1. You are done with setting the Fuses and can close the **ATmega328P Fuses** window
 
@@ -52,5 +54,6 @@ If you don't know which one to take the 1st line is the one you want.
 1. In the **AVR type** drop down select **ATmega328P**
 1. Under **Flash** select the file you've just downloaded
 1. Under **Flash** click on **Write**
+1. Ignore the error "warning : Can not Set sck period . usbasp please check for firmware update .".
 1. If you get an error there is something wrong with your connections, your programmer, or your board. Verify everything and go back to the 1st bullet point.
 1. You are done with uploading the firmware. Your module is ready to operate.

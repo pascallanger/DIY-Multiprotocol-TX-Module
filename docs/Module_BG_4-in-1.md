@@ -76,4 +76,8 @@ Solder bridges and resistors as illustrated in the picture below.
 
 <img src="images/V1_Serial_Enable.jpeg" width="360" height="340" /> 
 
+If your module is always/sometime binding at power up without pressing the button replace the BIND led resistor (on the board back) of 1.2K by a 4.7K.
+
+It's known that the A7105 of this version is not able to receive telemetry. The only protocol affected so far is AFHDS2A.
+
 You are now ready to go over to [Compiling and Programming](Compiling.md).

@@ -44,7 +44,8 @@ V2b
 
 <img src="images/V2b_Serial_Enable.jpeg" width="220" height="340" /> 
 
-V2c
+V2c (also called 1.2)
+This revision has a 1.2 printed on the board and replaces the 5V linear regulator with a swichting regulator. 
 
 <img src="images/V2c_Serial_Enable.jpeg" width="220" height="340" /> 
 

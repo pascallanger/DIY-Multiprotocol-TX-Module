@@ -96,7 +96,7 @@ There are three options for flashing the firmware.  The first (and strongly reco
 
 The third method is definitely the easiest in the long-term, but it does require setting up the bootloader on the STM32 MCU.
 
-####Option 1: Flashing with Tx power
+####Option 1: Flashing with Tx power(highly recommended)
 
 1. Put the module in the Tx 
 1. Place a jumper over the BOOT0 pins 
@@ -109,6 +109,10 @@ The third method is definitely the easiest in the long-term, but it does require
 1. Click "Upload" and the sketch will be uploaded normally.   This is valid for  all arduino versions. 
 1. Once the firmware has uploaded, remove the BOOT0 jumper. 
 
+If you have the module inside a box and to be inserted in TX bay, you may build a flashing cable like in the picture below.
+You can attach and solder a 5 pin header female and top outside the box.
+
+[<img src="images/Multi_STM32_ flashing.jpg" width="400" height="600" />]
 
 ####Option 2: Flashing without Tx power
 

@@ -35,7 +35,7 @@ Check which module you have and based on the pictures below.  If you purchased t
 
 Serial is already enabled and ready to be used.
  
-V1.2
+Written on PCB back JRFM_V1.2
 
 <img src="images/v1.2_ISP.jpg" width="340" height="340" /> 
 
@@ -48,8 +48,9 @@ V1.1a
 <img src="images/V2a_Serial_Enable.jpeg" width="300" height="340" /> 
 <img src="images/V2a_zoom_Serial_Enable.jpeg" width="450" height="340" /> 
 
-V1.1b (also called 1.2)
-This revision has a 1.2 printed on the board and replaces the 5V linear regulator with a swichting regulator. 
+V1.1b
+
+Written on PCB back 1.2
 
 <img src="images/V2b_Serial_Enable.jpeg" width="220" height="340" /> 
 

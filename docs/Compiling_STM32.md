@@ -96,11 +96,13 @@ This method use USB connector on the STM32 V1.0 board or on the maple clone boar
 1. After that select the correct serial port and and upload sketches normally in Arduino using USB port
 
 ###Flashing binary file:  
-If you want to flash a pre-compiled binary file (like the Release .bin files) you need specialized software and the FTDI cable.  
+If you want to flash a pre-compiled binary file (like the Release .bin files) you need specialized software and the same FTDI cable setup already posted [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling_STM32.md#option-1-flashing-with-tx-powerhighly-recommended).  
 
-1. Set BOOT0 jumper  
-1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V)  
+1. Set BOOT0 jumper(skip this step if you aready made  your own cable ,see above)  
+1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND pins when flashing with TX power).
+1. Insert first FTDI serial to USB port.Start TX (only if using flashing with TX power method)
 1. The other steps regarding power supply the same as previous recommandation regarding jumpers  
+
 For uploading binaries(.bin files) there is a specialized software you need to install on your computer.  
 
 #### Windows:

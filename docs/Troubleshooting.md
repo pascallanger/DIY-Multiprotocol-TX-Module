@@ -33,6 +33,11 @@ If your module is always/sometime binding at power up without pressing the butto
  - Arduino Pro Mini with an external status LED: to work around this issue connect a 10K resistor between D13 and 3.3V.
  - 4in1 module V1 (check 4in1 pictures): to solve this issue, replacing the BIND led resistor (on the board back) of 1.2K by a 4.7K.
 
+FrSky & SFHSS bind issues are ususally due to Option=fine frequency tuning not set properly. This value is different for each Module. To determine this value:
+ - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
+ - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
+ - set the value to half way between min and max.
+
 ##Report issues
 You can report your problem using the [GitHub issue](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.
 Please provide the following information:

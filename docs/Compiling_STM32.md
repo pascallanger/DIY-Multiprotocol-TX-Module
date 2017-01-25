@@ -110,9 +110,14 @@ The third method is definitely the easiest in the long-term, but it does require
 1. Once the firmware has uploaded, remove the BOOT0 jumper. 
 
 If you have the module inside a box and to be inserted in TX bay, you may build a flashing cable like in the picture below.
-You can attach and solder a 5 pin header female and top outside the box.
+You can attach and solder a 5 pin header female and top outside the box.**ALways insert first the USB serial device in USB port , and TX start after.**
 
-[<img src="images/Multi_STM32_ flashing.jpg" width="400" height="600" />]
+[<img src="images/Multi_STM32_ flashing.jpg" />]
+
+See below my module for reference
+
+[<img src="images/Multi_STM32 module.JPG"  width="600" height="400" />]
+
 
 ####Option 2: Flashing without Tx power
 

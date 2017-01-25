@@ -93,7 +93,7 @@ void Frsky_init_hop(void)
 		val=channel;
 		if((val==0x00) || (val==0x5A) || (val==0xDC))
 			val++;
-		hopping_frequency[i]=i>47?0:val;
+		hopping_frequency[i]=i>46?0:val;
 	}
 }
 #endif

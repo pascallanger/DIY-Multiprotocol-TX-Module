@@ -291,7 +291,6 @@ uint16_t initFrSkyX()
 	//rx_tx_addr[3]=0xB3;
 	//rx_tx_addr[2]=0xFD;
 	//************************
-	hopping_frequency[47]=0;
 	frskyX_init();
 	CC2500_SetTxRxMode(TX_EN);
 	//

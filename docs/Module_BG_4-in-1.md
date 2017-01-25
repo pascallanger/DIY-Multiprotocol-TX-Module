@@ -2,25 +2,26 @@
 #4-in-1 Banggood module
 Currently the form factor of this module is designed for the JR-style module bay. Many of the popular RC transmitters use the JR-style module bay: FrSky Taranis, FlySky Th9x, Turnigy 9X/R/Pro
 ##What you need
-1. The ready-made module is available from Banggood.com [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html)  
- <img src="images/4-in-1_Module_BG.jpeg" width="200" height="200" /> 
-1. A module case that fits your receiver like the one [here](https://www.xtremepowersystems.net/proddetail.php?prod=XPS-J1CASE)  
+1. A fully assembled module + case available from Banggood.com [here](http://www.banggood.com/CC2500-NRF24L01-A7105-CYRF693-4-In-1-RF-Module-With-Case-For-Futaba-JR-Frsky-Transmitter-p-1116892.html)
+
+<img src="images/4-in-1_Module_Case_BG.jpeg" width="221" height="200" /> 
+
+or
+
+1. The ready-made module available from Banggood.com [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html)  
+
+<img src="images/4-in-1_Module_BG.jpeg" width="200" height="200" />
+ 
+1. A module case that fits your module like the one [here](https://www.xtremepowersystems.net/proddetail.php?prod=XPS-J1CASE)  
  <img src="https://www.xtremepowersystems.net/prodimages/j1case.jpg" width="200" height="180" />  
   or you can 3D print your own from a selection on Thingiverse ([Example 1](http://www.thingiverse.com/thing:1852868) [Example 2](http://www.thingiverse.com/thing:1661833)).  
  [<img src="http://thingiverse-production-new.s3.amazonaws.com/renders/55/1c/cb/0a/e4/5d2c2b06be7f3f6f8f0ab4638dd7c6fc_preview_featured.jpg" width="250" height="200" /> ](http://www.thingiverse.com/thing:1852868)
-1. 3x2 header pins (to solder onto the board for programming) 
-1. AVR ISP programmer like the popular USBASP programming dongle that is 3.3V safe - available from many sellers on [ebay.](http://www.ebay.com/sch/i.html?_odkw=usbasp+progammer&_osacat=0&_from=R40&_trksid=p2045573.m570.l1313.TR3.TRC2.A0.H0.Xusbasp+progammer+3.3V.TRS1&_nkw=usbasp+progammer+3.3V&_sacat=0)  There are reports that some of the cheap programmers are not safe to use with 3.3V units (like this unit).  Look for USBAsp programmers with the “LC Technologies” label.  Also, you will need a 10-pin to 6-pin connector to connect the USBASP to the board. 
 
+For 9XR/9XR Pro, a new 3D printed module is available which makes use of the built in antenna in the handle. This means nothing is getting out of the radio back! You can find all details of this module case on [thingiverse](http://www.thingiverse.com/thing:2050717).
 
-##Build instructions
-The assembly process is trivial but it does depend on:
-- The communication interface between your transmitter and the module, and
-- The version of the module you have
+<img src="images/9XR_module.jpg" width="113" height="200" /> <img src="images/9XR_module_connector.jpg" width="274" height="200" /> 
 
-###Common steps
-
-1. Solder the 3x2 header pins onto the module as shown below {insert picture of module with pins}.  These header pins are required to program the microcontroller. 
-1. Fit the module into the module case. This may require some careful filing or sanding of the module to ensure a nice fit.
+##Different working modes
 
 ###PPM interface
 If you are only planning on using the PPM interface with transmitter you are ready to program the module as described in Compiling and Programming the module.

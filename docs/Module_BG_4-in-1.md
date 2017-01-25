@@ -26,7 +26,7 @@ For 9XR/9XR Pro, a new 3D printed module is available which makes use of the bui
 ###PPM interface
 If you are only planning on using the PPM interface with your transmitter, you need to connect it as described:
 
-<img src="images/PPM.jpg" width="437" height="340" />
+<img src="images/PPM.png" width="437" height="340" />
 
 Some radios have an open collector output (Futaba, Graupner...), in this case you should add a 4.7K resistor between PPM and BATT.
 

@@ -31,7 +31,7 @@ If you have a transmitter that can support serial communication with the board t
 
 Check which module you have and based on the pictures below.  If you purchased the module after June 2016 then it is likely that you have a V1.1 type module. If you have purchased the version with case it is likely that you have a V1.2 type module.
 
-#### **Version 1.1 (V1.1) type modules** 
+#### **Version 1.2 (V1.2) type modules** 
 
 Serial is already enabled and ready to be used.
  

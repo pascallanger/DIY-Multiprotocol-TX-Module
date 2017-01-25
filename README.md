@@ -5,7 +5,7 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 
 ## Quicklinks
 * [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) and [instructions to upload .hex files](docs/Advanced_Manually_Setting_ATmega328_Fuses.md)
-* [Forum on rcroups](http://www.rcgroups.com/forums/showthread.php?t=2165676)
+* [Forum on rcgroups](http://www.rcgroups.com/forums/showthread.php?t=2165676)
 * [Available Protocols list](Protocols_Details.md)
 * [The old documentation](docs/README-old.md)
 

@@ -73,6 +73,6 @@ You are now ready to go over to [Compiling and Programming](Compiling.md).
 #### **Version 1.0 (V1.0) module** 
 
 Solder bridges and resistors as illustrated in the picture below.
-<img src="images/V1_Serial_Enable.jpeg" width="500" height="340" /> 
+<img src="images/V1_Serial_Enable.jpeg" width="360" height="340" /> 
 
 You are now ready to go over to [Compiling and Programming](Compiling.md).

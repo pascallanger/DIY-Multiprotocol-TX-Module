@@ -4,8 +4,21 @@
 
 ## IMPORTANT NOTE:
 Multiprotocol source can be compiled using the Arduino IDE using STM32 Core (Maple) and Arduino ARM-Cortex-M3 libraries. 
-On all modules with STM32F103 microcontroller, the program flash memory on the microcontroller is large enough to accommodate all the protocols.  You do not have to make choices on which protocols to upload.  Also, it is likely that you used the Banggood 4-in-1 RF module and you will therefore have access to all the RF modules.. 
+On all modules with STM32F103 microcontroller, the program flash memory on the microcontroller is large enough to accommodate all the protocols.  You do not have to make choices on which protocols to upload.  Also, it is likely that you used the Banggood 4-in-1 RF module and you will therefore have access to all the RF modules.Now for programmng multimodule with STM32 chip  you have 2 options presented below.
 
+1. Compiling and flashing in Arduino IDE.
+
+1. Flashing precompiled binaries from [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases)
+
+ - If using one of these TX with multimodule like Turnigy 9X,9XR,9X+ the binary file for flashing is **Multiprotocol_V1.X.X_STM32.bin**.
+
+ - If using TARANIS TX the binary file  is **Multiprotocol_V1.X.X_STM32_INV.bin**
+
+Flashing precompiled **binaries** is done very simple with the cable setup presented below and an utility(GUI) **ST Flash Loader Demonstrator.**
+
+
+
+##Compiling source and flashing in Arduino.
 
 ###Install the Arduino IDE and the Multiprotocol project
 1. Download the Arduino IDE. The currently supported Arduino version is 1.6.11 available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
@@ -24,17 +37,13 @@ On all modules with STM32F103 microcontroller, the program flash memory on the m
  
  > ```//void __irq_usart3(void) { usart_irq(&usart3_rb, USART3_BASE); } ``` 
  
- 
- Now connect the flashing cable/FTDI to the multimodule,as described [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling_STM32.md#option-1-flashing-with-tx-powerhighly-recommended).
- 
- 
 1. Run the IDE, and on the **Tools** menu, select **Board** and then **Boards manager**. Click on the Arduino DUE (32 Bits ARM-Cortex M3) from the list of available boards. You must do this step, it installs the arm-none-eabi-g++ toolchain!
 1. Close and reopen the Arduino IDE and load the Multiprotocol project.
 1. In arduino IDE under the **Tools** -> **Board:** select the **Generic STM32F103C series** board
-1. Click on the **Verify** button to test compile the before you make any changes.  If there are errors check the process above and be sure to have the right version of the Arduino IDE.
+1. Click on the **Verify** button to test compile the before you make any changes.  If there are errors check the process above and be sure to have the right version of the Arduino IDE.The binary file generated location is presented at the at the bottom of Arduino IDE compiling whindow.Now continue with flashing procedure.
 
 
-###Preparing for STM32 microcontroller for firmware flashing
+### Flashing the multimodule
 
 There are three options for flashing the firmware.  The first (and strongly recommended) is flashing it while it is plugged into and powered by the transmitter.  The second is flashing it out of the transmitter (the power is supplied by the 3.3V FTDI cable).  The second option is very risky because if the 3.3V bridge jumper is not removed after flashing it will fry your RF module - **you have been warned**.  The third is preparing the board for flashing with a USB cable. 
 
@@ -43,11 +52,12 @@ The third method is definitely the easiest in the long-term, but it does require
 ####Option 1: Flashing with Tx power(highly recommended)
 
 1. Put the module in the Tx 
-1. Place a jumper over the BOOT0 pins 
+1. Place a jumper over the BOOT0 pins.Skip this one if you made your own cable for flashing ,see below. 
 1. Connect your 3.3V/5V FTDI cable (USB - TTL serial) to  Multiprotocol serial port.  Connect only RX, TX and GND.  **Do not connect the 5V or 3.3V between the FTDI cable and the module - the power will be supplied by the transmitter**.  Connect the pins as follows:   
   - Module RX pin to FTDI TX pin
   - Module TX pin to FTDI Rx pin
-  - Module GND to FTDI GND   
+  - Module GND to FTDI GND 
+  
 1. In arduino IDE under the **Tools** -> **Board:** check that you have selected the **Generic STM32F103C series** board 
 1. Under **Tools** -> **Upload Method:** select **Serial** 
 1. Click "Upload" and the sketch will be uploaded normally.   This is valid for  all arduino versions. 
@@ -70,7 +80,7 @@ The key difference of this method is that the 3.3V FTDI cable must also provide 
 **If the module is powered through the transmitter and this jumper is enabled, then it will feed 5V throughout the 3.3V circuit and this will fry your RF modules.  Do not plug the module into the transmitter before removing this jumper!**  
 
 1. Remove the module from the transmitter bay
-1. Set BOOT0 jumper 
+1. Set BOOT0 jumper Skip this step if you made your own cable a presented above.
 1. Set the 3.3V jumper. 
 1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V).  Connect the pins as follows:   
   - Module RX pin to FTDI TX pin
@@ -95,7 +105,8 @@ This method use USB connector on the STM32 V1.0 board or on the maple clone boar
 1. In Arduino IDE under "Upload method" select STM32duino-bootloader.
 1. After that select the correct serial port and and upload sketches normally in Arduino using USB port
 
-###Flashing binary file:  
+## Flashing precompiled binaries: 
+
 If you want to flash a pre-compiled binary file (like the Release .bin files) you need specialized software and the same FTDI cable setup already posted [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling_STM32.md#option-1-flashing-with-tx-powerhighly-recommended).  
 
 1. Set BOOT0 jumper(skip this step if you aready made  your own cable ,see above)  
@@ -106,7 +117,7 @@ If you want to flash a pre-compiled binary file (like the Release .bin files) yo
 For uploading binaries(.bin files) there is a specialized software you need to install on your computer.  
 
 #### Windows:
-Download the ST Flash Loader Demonstrator from here: http://www.st.com/content/st_com/en/products/development-tools/software-development-tools/stm32-software-development-tools/stm32-programmers/flasher-stm32.html
+Download the **ST Flash Loader Demonstrator** from here: http://www.st.com/content/st_com/en/products/development-tools/software-development-tools/stm32-software-development-tools/stm32-programmers/flasher-stm32.html
 
 Run the ST Flash Loader program. There are many tutorials on the web on how to use this program.For example
 

@@ -15,6 +15,36 @@ RCGroups page: None
 
 #Manually setting fuses on ATmega328
 This document describes a relatively simple process to set the fuses on ATmega328 using the flexibility of the command line.  It does not require installation of AVRdude because it uses the AVRdude that is bundled with the Arduino IDE.   See the [Advanced Manually Setting ATmega328 Fuses](Advanced_Manually_Setting_ATmega328_Fuses.md) page for more details.  
-Created and supported by: hpnuts 
+
+Created and supported by: hpnuts
+
+## Flashing Multi_STM32 module.
+
+####Flashing without Tx power
+This is another method of Flshing Multi_STM32 which is riskier.This method is for skilled users who understand the task.
+
+The key difference of this method is that the 3.3V FTDI cable must also provide power to the 5V circuitry during the flashing process.  To do this, a jumper must be enabled connecting the 3.3V VCC to the 5V line.  The risk is to forget 3.3V jumper in, after flashing  and when TX restarted.
+
+**If the module is powered through the transmitter and this jumper(3.3V) is enabled, then it will feed 5V throughout the 3.3V circuit and this will fry your RF modules.  Do not plug the module into the transmitter before removing this jumper!**  
+
+**YOU HAVE BEEN WARNED!!!.**
+
+1. Remove the module from the transmitter bay
+1. Set BOOT0 jumper Skip this step if you made your own cable.
+1. Set the 3.3V jumper. 
+1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V).  Connect the pins as follows:   
+  - Module RX pin to FTDI TX pin
+  - Module TX pin to FTDI Rx pin
+  - Module GND to FTDI GND 
+  - Module 5V to FTDI 3.3V FTDI power supply.
+1. In arduino IDE under the **Tools** -> **Board:** check that you have selected the **Generic STM32F103C series** board 
+1. Under **Tools** -> **Upload Method:** select **Serial**. 
+1. Click "Upload" and the sketch will be uploaded normally.
+1. Once the firmware has uploaded:   
+   - Remove the 3.3V jumper!!!! 
+   - Remove the BOOT0 jumper
+   - Check that you removed the 3.3V jumper
+1. Insert the module into the transmitter bay
+
 
 RCGroups page: No rcgroups page

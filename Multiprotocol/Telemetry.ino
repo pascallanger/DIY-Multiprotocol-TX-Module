@@ -17,8 +17,8 @@
 //**************************
 #if defined TELEMETRY
 
-#if defined MULTI_TELEMETRY
-	#define MULTI_TIME 250 //in ms
+#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
+	#define MULTI_TIME 500 //in ms
 	uint32_t lastMulti = 0;
 #endif
 
@@ -57,20 +57,17 @@ uint8_t frame[18];
 	} SerialControl ;
 #endif
 
-#ifdef MULTI_TELEMETRY
+#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
 static void multi_send_header(uint8_t type, uint8_t len)
 {
-    Serial_write('M');
-    Serial_write('P');
-    Serial_write(type);
-    Serial_write(len);
-}
-
-static void multi_send_frskyhub()
-{
-    multi_send_header(MULTI_TELEMETRY_HUB, 9);
-    for (uint8_t i = 0; i < 9; i++)
-        Serial_write(frame[i]);
+	Serial_write('M');
+	#ifdef MULTI_TELEMETRY
+		Serial_write('P');
+		Serial_write(type);
+	#else
+		(void)type;
+	#endif
+	Serial_write(len);
 }
 
 static void multi_send_status()
@@ -136,6 +133,15 @@ static void multi_send_status()
 		for (uint8_t i = 0; i < 29; i++)			// RSSI value followed by 4*7 bytes of telemetry data
 			Serial_write(pkt[i]);
 	}
+#endif
+
+#ifdef MULTI_TELEMETRY
+static void multi_send_frskyhub()
+{
+    multi_send_header(MULTI_TELEMETRY_HUB, 9);
+    for (uint8_t i = 0; i < 9; i++)
+        Serial_write(frame[i]);
+}
 #endif
 
 void frskySendStuffed()
@@ -538,45 +544,33 @@ void TelemetryUpdate()
 		h = SerialControl.head ;
 		t = SerialControl.tail ;
 		if ( h >= t )
-		{
 			t += 64 - h ;
-		}
 		else
-		{
 			t -= h ;
-		}
 		if ( t < 32 )
-		{
 			return ;
-		}
-
 	#else
 		uint8_t h ;
 		uint8_t t ;
 		h = tx_head ;
 		t = tx_tail ;
 		if ( h >= t )
-		{
 			t += TXBUFFER_SIZE - h ;
-		}
 		else
-		{
 			t -= h ;
-		}
 		if ( t < 16 )
-		{
 			return ;
-		}
 	#endif
-    #if defined MULTI_TELEMETRY
-        {
-            uint32_t now = millis();
-            if ((now - lastMulti) > MULTI_TIME) {
-                multi_send_status();
-                lastMulti = now;
-                return;
-            }
-        }
+	#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
+		{
+			uint32_t now = millis();
+			if ((now - lastMulti) > MULTI_TIME)
+			{
+				multi_send_status();
+				lastMulti = now;
+				return;
+			}
+		}
 	#endif
 	 
 	#if defined SPORT_TELEMETRY

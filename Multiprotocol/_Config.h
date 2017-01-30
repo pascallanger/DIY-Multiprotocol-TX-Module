@@ -120,8 +120,11 @@
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
 #define INVERT_TELEMETRY
 
-//Uncomment to send also Multi status and wrap other telemetry to allow TX to autodetect the format
-//Only for newest OpenTX version
+//Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
+#define MULTI_STATUS
+
+//Uncomment to send Multi status and wrap other telemetry to allow TX to autodetect the format
+//Only for newest OpenTX version, not supported by er9x/ersky9x
 //#define MULTI_TELEMETRY
 
 //Comment a line to disable a protocol telemetry
@@ -132,6 +135,7 @@
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -258,6 +262,8 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_FRSKYX
 		CH_16
 		CH_8
+		EU_16
+		EU_8
 	MODE_ESKY
 		NONE
 	MODE_MT99XX

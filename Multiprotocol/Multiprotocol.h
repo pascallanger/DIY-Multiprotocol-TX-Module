@@ -19,8 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	5
-
+#define VERSION_PATCH_LEVEL	8
 //******************
 // Protocols
 //******************
@@ -158,6 +157,8 @@ enum FRSKYX
 {
 	CH_16	= 0,
 	CH_8	= 1,
+	EU_16	= 2,
+	EU_8	= 3,
 };
 enum HONTAI
 {
@@ -539,6 +540,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1
+			EU_16		2
+			EU_8		3
 		sub_protocol==HONTAI
 			FORMAT_HONTAI	0
 			FORMAT_JJRCX1	1
@@ -581,17 +584,39 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Channels bits are concatenated to fit in 22 bytes like in SBUS protocol
 */
 /*
-  Multiprotocol telemetry definition
+  Multimodule Status
+  Based on #define MULTI_STATUS
+
+  Serial: 100000 Baud 8e2 (same as input)
+
+  Format: header (2 bytes) + data (variable)
+   [0] = 'M' (0x4d)
+   [1] Length (excluding the 2 header bytes)
+   [2-xx] data
+
+  Type = 0x01 Multimodule Status:
+   [2] Flags
+   0x01 = Input signal detected
+   0x02 = Serial mode enabled
+   0x04 = protocol is valid
+   0x08 = module is in binding mode
+   [3] major
+   [4] minor
+   [5] revision
+   [6] patchlevel,
+   version of multi code, should be displayed as major.minor.revision.patchlevel
+*/
+/*
+  Multiprotocol telemetry definition for OpenTX
+  Based on #define MULTI_TELEMETRY enables OpenTX to get the multimodule status and select the correct telemetry type automatically.
 
   Serial: 100000 Baud 8e2 (same as input)
 
   TLV Protocol (type, length, value), allows a TX to ignore unknown messages
 
   Format: header (4 byte) + data (variable)
-
    [0] = 'M' (0x4d)
    [1] = 'P' (0x50)
-
 
    The first byte is deliberatly chosen to be different from other telemetry protocols
    (e.g. 0xAA for DSM/Multi, 0xAA for FlySky and 0x7e for Frsky) to allow a TX to detect
@@ -602,8 +627,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 
    [4-xx] data
 
-
-Type = 0x01 Multimodule Status:
+  Type = 0x01 Multimodule Status:
    [4] Flags
    0x01 = Input signal detected
    0x02 = Serial mode enabled
@@ -618,23 +642,23 @@ Type = 0x01 Multimodule Status:
    more information can be added by specifing a longer length of the type, the TX will just ignore these bytes
 
 
-Type 0x02 Frksy S.port telemetry
-Type 0x03 Frsky Hub telemetry
+  Type 0x02 Frksy S.port telemetry
+  Type 0x03 Frsky Hub telemetry
 
 	*No* usual frsky byte stuffing and without start/stop byte (0x7e)
 
 
-Type 0x04 Spektrum telemetry data
+  Type 0x04 Spektrum telemetry data
    data[0] RSSI
    data[1-15] telemetry data
 
-Type 0x05 DSM bind data
+  Type 0x05 DSM bind data
 	data[0-16] DSM bind data
 
     technically DSM bind data is only 10 bytes but multi send 16
     like with telemtry, check length field)
 
-Type 0x06 Flysky AFHDS2 telemetry data
+  Type 0x06 Flysky AFHDS2 telemetry data
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data

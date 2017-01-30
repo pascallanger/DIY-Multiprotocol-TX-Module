@@ -19,26 +19,7 @@
 
 static void __attribute__((unused)) frsky2way_init(uint8_t bind)
 {
-	// Configure cc2500 for tx mode
-	//
-	for(uint8_t i=0;i<36;i++)
-	{
-		uint8_t reg=pgm_read_byte_near(&cc2500_conf[i][0]);
-		uint8_t val=pgm_read_byte_near(&cc2500_conf[i][1]);
-		
-		if(reg==CC2500_0C_FSCTRL0)
-			val=option;
-		else
-			if(reg==CC2500_1B_AGCCTRL2)
-				val=bind ? 0x43 : 0x03;
-		CC2500_WriteReg(reg,val);
-	}
-	prev_option = option ;
-
-	CC2500_SetTxRxMode(TX_EN);
-	CC2500_SetPower();
-	
-	CC2500_Strobe(CC2500_SIDLE);	
+	FRSKY_init_cc2500(FRSKYD_cc2500_conf);	
 
 	CC2500_WriteReg(CC2500_09_ADDR, bind ? 0x03 : rx_tx_addr[3]);
 	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05);

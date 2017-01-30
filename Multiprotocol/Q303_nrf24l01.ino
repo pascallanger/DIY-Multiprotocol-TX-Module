@@ -191,10 +191,10 @@ static void __attribute__((unused)) Q303_send_packet(uint8_t bind)
 		{
 			case Q303:
 			case CX35:
-				aileron  = convert_channel_16b(AILERON,  1000, 0);
+				aileron  = convert_channel_16b(AILERON,  0, 1000);
 				elevator = convert_channel_16b(ELEVATOR, 1000, 0);
 				throttle = convert_channel_16b(THROTTLE, 0, 1000);
-				rudder   = convert_channel_16b(RUDDER,   0, 1000);
+				rudder   = convert_channel_16b(RUDDER,   1000, 0);
 				if(sub_protocol == CX35)
 					aileron = 1000 - aileron;
 				packet[1] = aileron >> 2;			// 8 bits
@@ -208,10 +208,10 @@ static void __attribute__((unused)) Q303_send_packet(uint8_t bind)
 				break;
 			case CX10D:
 			case CX10WD:
-				aileron  = convert_channel_16b(AILERON,  1000, 2000);
+				aileron  = convert_channel_16b(AILERON,  2000, 1000);
 				elevator = convert_channel_16b(ELEVATOR, 2000, 1000);
 				throttle = convert_channel_16b(THROTTLE, 1000, 2000);
-				rudder   = convert_channel_16b(RUDDER,   2000, 1000);
+				rudder   = convert_channel_16b(RUDDER,   1000, 2000);
 				packet[1] = aileron & 0xff;
 				packet[2] = aileron >> 8;
 				packet[3] = elevator & 0xff;

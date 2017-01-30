@@ -120,3 +120,8 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|Y2|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)
 1|U1|Dual INPUT-XOR|SN74LVC2G00DCTR|SSOP-8|[296-13257-1-ND](https://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G00DCTR/296-13257-1-ND/484537)
 1|U.FL|SMD ant. conn.|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
+
+
+## <a name="STM32_Schematic"></a> PCB STM32 V1.0t Schematic
+<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 
+

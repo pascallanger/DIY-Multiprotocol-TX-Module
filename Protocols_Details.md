@@ -162,11 +162,29 @@ Option for this protocol is fine frequency tuning. This value is different for e
  - set the value to half way between min and max.
 
 ###Sub_protocol CH_16
+FCC protocol 16 channels protocol.
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
 ###Sub_protocol CH_8
+FCC protocol 8 channels protocol.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+###Sub_protocol EU_16
+EU-LBT 16 channels protocol. Note that the LBT part is not implemented, the TX transmits right away.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
+###Sub_protocol EU_8
+EU-LBT 8 channels protocol. Note that the LBT part is not implemented, the TX transmits right away.
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8

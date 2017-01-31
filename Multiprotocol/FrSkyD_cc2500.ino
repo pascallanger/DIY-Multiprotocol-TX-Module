@@ -158,6 +158,7 @@ uint16_t ReadFrSky_2way()
 				#if defined(TELEMETRY)
 					if(pkt[len-1] & 0x80)
 					{//with valid crc
+						packet_count=0;
 						frsky_check_telemetry(pkt,len);	//check if valid telemetry packets and buffer them.
 					}
 				#endif

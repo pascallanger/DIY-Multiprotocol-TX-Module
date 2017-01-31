@@ -221,7 +221,7 @@ uint16_t ReadFrSkyX()
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
 			if (len && (len<=(0x0E + 3)))				//Telemetry frame is 17
 			{
-				counter=0;
+				packet_count=0;
 				CC2500_ReadData(pkt, len);
 				#if defined TELEMETRY
 					frsky_check_telemetry(pkt,len);	//check if valid telemetry packets
@@ -231,13 +231,13 @@ uint16_t ReadFrSkyX()
 			} 
 			else
 			{
-				counter++;
+				packet_count++;
 				// restart sequence on missed packet - might need count or timeout instead of one missed
-				if(counter>100)
+				if(packet_count>100)
 				{//~1sec
 					seq_last_sent = 0;
 					seq_last_rcvd = 8;
-					counter=0;
+					packet_count=0;
 					#if defined TELEMETRY
 						telemetry_lost=1;
 					#endif
@@ -254,6 +254,7 @@ uint16_t initFrSkyX()
 {
 	set_rx_tx_addr(MProtocol_id_master);
 	Frsky_init_hop();
+	packet_count=0;
 	while(!chanskip)
 		chanskip=random(0xfefefefe)%47;
 

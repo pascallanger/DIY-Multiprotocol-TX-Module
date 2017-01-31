@@ -121,13 +121,14 @@
 #define INVERT_TELEMETRY
 
 //Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
+//Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
 #define MULTI_STATUS
 
-//Uncomment to send Multi status and wrap other telemetry to allow TX to autodetect the format
-//Only for newest OpenTX version, not supported by er9x/ersky9x
+//Uncomment to send Multi status and allow OpenTX to autodetect the telemetry format
+//Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/ersky9x use MULTI_STATUS instead.
 //#define MULTI_TELEMETRY
 
-//Comment a line to disable a protocol telemetry
+//Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
 #define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
 #define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded
@@ -329,5 +330,5 @@ const PPM_Parameters PPM_prot[15]=	{
 // As an example, it's usefull for the WLTOYS F929/F939/F949/F959 (all using the Flysky protocol) which requires a bind at each power up.
 // It also enables the Bind from channel feature, allowing to execute a bind by toggling a designated channel.
 
-// Option: the value is between -127 and +127.
+// Option: the value is between -128 and +127.
 // The option value is only valid for some protocols, read this page for more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md

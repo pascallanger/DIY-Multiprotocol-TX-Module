@@ -573,7 +573,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
-   option_protocol value is -127..127
+   option_protocol value is -128..127
   Stream[4] to [25] = Channels
    16 Channels on 11 bits (0..2047)
 	0		-125%

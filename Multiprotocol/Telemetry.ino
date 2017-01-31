@@ -176,7 +176,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		for (uint8_t i=3;i<len;i++)
 			pktt[i]=pkt[i];				 
 		telemetry_link=1;
-		if(pktt[6])
+		if(pktt[6]>0 && pktt[6]<=10)	//increment only for valid hub frames
 			telemetry_counter=(telemetry_counter+1)%32;
 		//
 #if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
@@ -253,19 +253,7 @@ void frsky_user_frame()
 			case 0:
 				indexx=pktt[6];
 				for(i=0;i<indexx;i++)
-				{
-//					if(pktt[j]==0x5E)
-//					{
-//						if(c++)
-//						{
-//							c=0;
-//							n++;
-//							j++;
-//						}
-//					}
 					pktx[i]=pktt[j++];
-				}	
-//				indexx = indexx-n;
 				pass=1;
 				
 			case 1:
@@ -613,6 +601,7 @@ void TelemetryUpdate()
 		{
 			AFHDSA_short_frame();
 			telemetry_link=0;
+			return;
 		}
     #endif        
 		if(telemetry_link && protocol != MODE_FRSKYX )

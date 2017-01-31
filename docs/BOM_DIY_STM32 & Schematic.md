@@ -122,6 +122,8 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|U.FL|SMD ant. conn.|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
 
 
+All diagrams and eagle files [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/STM32%20PCB)
+
 ## <a name="STM32_Schematic"></a> PCB STM32 V1.0t Schematic
 <img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 
 

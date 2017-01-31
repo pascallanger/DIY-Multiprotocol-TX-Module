@@ -121,10 +121,11 @@
 #define INVERT_TELEMETRY
 
 //Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
+//Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
 #define MULTI_STATUS
 
 //Uncomment to send Multi status and wrap other telemetry to allow TX to autodetect the format
-//Only for newest OpenTX version, not supported by er9x/ersky9x
+//For OpenTX version 2.2 RC9 and newer, not supported by er9x/ersky9x use MULTI_STATUS instead
 //#define MULTI_TELEMETRY
 
 //Comment a line to disable a protocol telemetry

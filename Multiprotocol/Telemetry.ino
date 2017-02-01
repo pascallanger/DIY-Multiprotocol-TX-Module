@@ -162,7 +162,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 {
 	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len ==(pkt[0] + 3))
 	{	   
-		telemetry_link=1;				// telemetry data is available
+		telemetry_link=1;								// Telemetry data is available
 		/*preious version
 		RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
 		if(pktt[len-2] >=128) RSSI_dBm -= 164;
@@ -173,10 +173,12 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		else
 			TX_RSSI += 128;
 		TX_LQI = pkt[len-1]&0x7F;
-		if(pkt[6]>0 && pkt[6]<=10)		// increment only for valid size hub frames
-			telemetry_counter=(telemetry_counter+1)%32;
 		for (uint8_t i=3;i<len-2;i++)
-			pktt[i]=pkt[i];				// buffer telemetry values to be sent 
+			pktt[i]=pkt[i];								// Buffer telemetry values to be sent 
+		if(pktt[6]>0 && pktt[6]<=10)// && pktt[7] == telemetry_counter )
+			telemetry_counter=(telemetry_counter+1)%32;	// Request next telemetry frame
+		else
+			pktt[6]=0; 									// Discard packet
 		//
 #if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
 		telemetry_lost=0;
@@ -244,7 +246,7 @@ void frsky_link_frame()
 #if defined HUB_TELEMETRY
 void frsky_user_frame()
 {
-	if(pktt[6]>0 && pktt[6]<=10)
+	if(pktt[6])
 	{//only send valid hub frames
 		frame[0] = 0xFD;				// user frame
 		if(pktt[6]>USER_MAX_BYTES)

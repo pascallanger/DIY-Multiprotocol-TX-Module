@@ -11,7 +11,7 @@ Digikey may not be your preferred supplier, but you should find enough informati
 ## IMPORTANT NOTE on Telemetry
 In the case of the Turnigy 9X/9XR/9XR Pro you don't need to invert the telemetry signal therefore the instalation of the inverter chip SN74LVC2G86DCUR is  **OPTIONAL**. In this case and in order to have telemetry you need to solder **SJ1/SJ301** on the back of the board depending on which board version you have.
 
-The inverted telemetry signal is required by TARANIS TX and other boards so for telemetry to work propperly, the inverter chip must be installed.
+The inverted telemetry signal is required by TARANIS TX and other boards so for telemetry to work properly the inverter chip must be installed.
 
 ## BOM DIY STM32 PCB V1.0t - the USB version
  This BOM is for the board with the USB port for firmware uploading that looks like this - check carefully:

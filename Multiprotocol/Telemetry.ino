@@ -175,7 +175,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		TX_LQI = pkt[len-1]&0x7F;
 		for (uint8_t i=3;i<len-2;i++)
 			pktt[i]=pkt[i];								// Buffer telemetry values to be sent 
-		if(pktt[6]>0 && pktt[6]<=10)// && pktt[7] == telemetry_counter )
+		if(pktt[6]>0 && pktt[6]<=10) // && (pktt[7]&0x1F) == telemetry_counter )
 			telemetry_counter=(telemetry_counter+1)%32;	// Request next telemetry frame
 		else
 			pktt[6]=0; 									// Discard packet

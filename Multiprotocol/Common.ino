@@ -55,10 +55,16 @@ void convert_channel_HK310(uint8_t num, uint8_t *low, uint8_t *high)
 	*high=(uint8_t)(temp>>8);
 }
 
-// Channel value is converted to 10bit values
+// Channel value is converted to 16bit values
 uint16_t convert_channel_16b(uint8_t num, int16_t out_min, int16_t out_max)
 {
 	return (uint16_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,out_min,out_max));
+}
+
+// Channel value is converted to 16bit values with no limit
+uint16_t convert_channel_16b_nolim(uint8_t num, int16_t out_min, int16_t out_max)
+{
+	return (uint16_t) (map(Servo_data[num],servo_min_100,servo_max_100,out_min,out_max));
 }
 
 // Channel value is limited to PPM_100

@@ -29,7 +29,7 @@ The schematic for the board is [here](#V23D_Schematic).  Please note that is is 
 ###STM32 powered PCB V1.0t
 1. STM32 (32-bit) powered PCB V1.0t supporting the 4-in-1 RF module available from OSHPark [here](https://oshpark.com/shared_projects/GX51nEoH).  
 2. The 4-in-1 RF module is available [here](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html) 
-1. The BOM for this board V1.0t is available [here](BOM_DIY_STM32.md).
+1. The BOM for this board V1.0t is available [here](BOM_DIY_STM32 & Schematic.md).
 
 The schematic for the board is [here](#STM32_Schematic)
 

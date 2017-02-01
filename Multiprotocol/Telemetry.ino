@@ -28,7 +28,6 @@
 	uint32_t last = 0;
 	uint8_t sport_counter=0;
 	uint8_t RxBt = 0;
-	uint8_t rssi;
 	uint8_t sport = 0;
 #endif
 #if defined HUB_TELEMETRY
@@ -159,25 +158,25 @@ void frskySendStuffed()
 	Serial_write(START_STOP);
 }
 
-void compute_RSSIdbm()
-{
-	
-	RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
-	if(pktt[len-2] >=128)
-		RSSI_dBm -= 164;
-	else
-		RSSI_dBm += 130;
-}
-
 void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 {
 	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len ==(pkt[0] + 3))
 	{	   
-		for (uint8_t i=3;i<len;i++)
-			pktt[i]=pkt[i];				 
-		telemetry_link=1;
-		if(pktt[6]>0 && pktt[6]<=10)	//increment only for valid hub frames
+		telemetry_link=1;				// telemetry data is available
+		/*preious version
+		RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
+		if(pktt[len-2] >=128) RSSI_dBm -= 164;
+		else RSSI_dBm += 130;*/
+		TX_RSSI = pkt[len-2];
+		if(TX_RSSI >=128)
+			TX_RSSI -= 128;
+		else
+			TX_RSSI += 128;
+		TX_LQI = pkt[len-1]&0x7F;
+		if(pkt[6]>0 && pkt[6]<=10)		// increment only for valid size hub frames
 			telemetry_counter=(telemetry_counter+1)%32;
+		for (uint8_t i=3;i<len-2;i++)
+			pktt[i]=pkt[i];				// buffer telemetry values to be sent 
 		//
 #if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
 		telemetry_lost=0;
@@ -201,36 +200,40 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 	}
 }
 
-void init_hub_telemetry()
+void init_frskyd_link_telemetry()
 {
 	telemetry_link=0;
 	telemetry_counter=0;
 	v_lipo1=0;
 	v_lipo2=0;
-	RSSI_dBm=0;
+	RX_RSSI=0;
 	TX_RSSI=0;
+	RX_LQI=0;
+	TX_LQI=0;
 }
 
 void frsky_link_frame()
 {
-	frame[0] = 0xFE;
+	frame[0] = 0xFE;			// Link frame
 	if (protocol==MODE_FRSKYD)
 	{		
-		compute_RSSIdbm();				
-		frame[1] = pktt[3];
-		frame[2] = pktt[4];
-		frame[3] = pktt[5];
-		frame[4] = (uint8_t)RSSI_dBm;
+		frame[1] = pktt[3];		// A1
+		frame[2] = pktt[4];		// A2
+		frame[3] = pktt[5];		// RX_RSSI
+		telemetry_link++;		// Send hub if available
 	}
 	else
 		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A||protocol==MODE_BAYANG)
 		{	
 			frame[1] = v_lipo1;
 			frame[2] = v_lipo2;			
-			frame[3] = (uint8_t)RSSI_dBm;
-			frame[4] = TX_RSSI;
+			frame[3] = RX_RSSI;
+			telemetry_link=0;
 		}
-	frame[5] = frame[6] = frame[7] = frame[8] = 0;
+	frame[4] = TX_RSSI;
+	frame[5] = RX_LQI;
+	frame[6] = TX_LQI;
+	frame[7] = frame[8] = 0;
 	#if defined MULTI_TELEMETRY
 		multi_send_frskyhub();
 	#else
@@ -241,54 +244,26 @@ void frsky_link_frame()
 #if defined HUB_TELEMETRY
 void frsky_user_frame()
 {
-	uint8_t indexx = 0,  j=8, i;
-	//uint8_t c=0, n=0;
-	
 	if(pktt[6]>0 && pktt[6]<=10)
-	{//only valid hub frames	  
-		frame[0] = 0xFD;
-		frame[2] = pktt[7];		
-		switch(pass)
+	{//only send valid hub frames
+		frame[0] = 0xFD;				// user frame
+		if(pktt[6]>USER_MAX_BYTES)
 		{
-			case 0:
-				indexx=pktt[6];
-				for(i=0;i<indexx;i++)
-					pktx[i]=pktt[j++];
-				pass=1;
-				
-			case 1:
-				indx=indexx;
-				prev_index = indexx; 
-				if(indx<USER_MAX_BYTES)
-				{   			
-					for(i=0;i<indx;i++)
-						frame[i+3]=pktx[i];
-					pktt[6]=0;
-					pass=0;
-				}
-				else
-				{
-					indx = USER_MAX_BYTES;
-					for(i=0;i<indx;i++)
-						frame[i+3]=pktx[i];
-					pass=2;
-				}			
-				break;
-			case 2:		
-				indx = prev_index - indx;
-				prev_index=0;
-				if(indx<=(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
-					for(i=0;i<indx;i++)
-						frame[i+3]=pktx[USER_MAX_BYTES+i];
-				pass=0;
-				pktt[6]=0; 
-				break;
-			default:
-				break;
+			frame[1]=USER_MAX_BYTES;	// packet size
+			pktt[6]-=USER_MAX_BYTES;
+			telemetry_link++;			// 2 packets need to be sent
 		}
-		if(!indx)
-			return;
-		frame[1] = indx;
+		else
+		{
+			frame[1]=pktt[6];			// packet size
+			telemetry_link=0;			// only 1 packet or processing second packet
+		}
+		frame[2] = pktt[7];
+		for(uint8_t i=0;i<USER_MAX_BYTES;i++)
+			frame[i+3]=pktt[i+8];
+		if(telemetry_link)				// prepare the content of second packet
+			for(uint8_t i=8;i<USER_MAX_BYTES+8;i++)
+				pktt[i]=pktt[i+USER_MAX_BYTES];
 		#if defined MULTI_TELEMETRY
 			multi_send_frskyhub();
 		#else
@@ -296,10 +271,8 @@ void frsky_user_frame()
 		#endif
 	}
 	else
-		pass=0;
+		telemetry_link=0;
 }	   
-#endif
-
 /*
 HuB RX packets.
 pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09 
@@ -314,6 +287,8 @@ pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 0A     0F          5E 3A 06 00 5E 5E 3B 09 00 5E
 05     10          5E 06 16 72 5E 5E 3A 06 00 5E
 */
+#endif
+
 
 #if defined SPORT_TELEMETRY
 /* SPORT details serial
@@ -448,7 +423,7 @@ void sportSendFrame()
 		case 2: // RSSI
 			frame[2] = 0x01;
 			frame[3] = 0xf1;
-			frame[4] = rssi;
+			frame[4] = RX_RSSI;
 			break;
 		case 4: //BATT
 			frame[2] = 0x04;
@@ -567,7 +542,7 @@ void TelemetryUpdate()
 			if(telemetry_link)
 			{		
 				if(pktt[4] & 0x80)
-					rssi=pktt[4] & 0x7F ;
+					RX_RSSI=pktt[4] & 0x7F ;
 				else 
 					RxBt = (pktt[4]<<1) + 1 ;
 				if(pktt[6]<=6)
@@ -589,7 +564,7 @@ void TelemetryUpdate()
 	#endif					
 
 	#if defined DSM_TELEMETRY
-		if(telemetry_link && protocol == MODE_DSM )
+		if(telemetry_link && protocol == MODE_DSM)
 		{	// DSM
 			DSM_frame();
 			telemetry_link=0;
@@ -604,15 +579,14 @@ void TelemetryUpdate()
 			return;
 		}
     #endif        
-		if(telemetry_link && protocol != MODE_FRSKYX )
+		if(telemetry_link == 1 && protocol != MODE_FRSKYX)
 		{	// FrSkyD + Hubsan + AFHDS2A + Bayang
 			frsky_link_frame();
-			telemetry_link=0;
 			return;
 		}
 	#if defined HUB_TELEMETRY
-		if(!telemetry_link && protocol == MODE_FRSKYD)
-		{	// FrSky
+		if(telemetry_link > 1 && protocol == MODE_FRSKYD)
+		{	// FrSkyD
 			frsky_user_frame();
 			return;
 		}

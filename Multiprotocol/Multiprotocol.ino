@@ -148,8 +148,10 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	#endif // BASH_SERIAL
 	uint8_t v_lipo1;
 	uint8_t v_lipo2;
-	int16_t RSSI_dBm;
+	uint8_t RX_RSSI;
 	uint8_t TX_RSSI;
+	uint8_t RX_LQI;
+	uint8_t TX_LQI;
 	uint8_t telemetry_link=0; 
 	uint8_t telemetry_counter=0;
 	uint8_t telemetry_lost;

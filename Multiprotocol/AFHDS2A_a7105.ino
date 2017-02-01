@@ -110,11 +110,11 @@ static void AFHDS2A_update_telemetry()
 				v_lipo1 = packet[index+2];
 				telemetry_link=1;
 				break;
-			/*case AFHDS2A_SENSOR_RX_ERR_RATE:
-				// packet[index+2];
-				break;*/
+			case AFHDS2A_SENSOR_RX_ERR_RATE:
+				RX_LQI=packet[index+2];
+				break;
 			case AFHDS2A_SENSOR_RX_RSSI:
-				RSSI_dBm = -packet[index+2];
+				RX_RSSI = -packet[index+2];
 				break;
 			case 0xff:
 				return;
@@ -352,7 +352,7 @@ uint16_t initAFHDS2A()
 	}
 	hopping_frequency_no = 0;
 #if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)
-	init_hub_telemetry();
+	init_frskyd_link_telemetry();
 #endif
 	return 50000;
 }

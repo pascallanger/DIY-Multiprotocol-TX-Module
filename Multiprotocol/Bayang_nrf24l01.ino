@@ -150,7 +150,7 @@ static void __attribute__((unused)) check_rx(void)
 			// compensated battery volts*100/2
 			v_lipo2 = (packet[5]<<7) + (packet[6]>>2);
 			// reception in packets / sec
-			RSSI_dBm = packet[7];
+			RX_RSSI = packet[7];
 			//Flags
 			//uint8_t flags = packet[3] >> 3;
 			// battery low: flags & 1
@@ -252,7 +252,7 @@ uint16_t initBAYANG(void)
 	BAYANG_init();
 	packet_count=0;
 #ifdef BAYANG_HUB_TELEMETRY
-	init_hub_telemetry();
+	init_frskyd_link_telemetry();
 	telemetry_lost=1;	// do not send telemetry to TX right away until we have a TX_RSSI value to prevent warning message...
 #endif
 	return BAYANG_INITIAL_WAIT+BAYANG_PACKET_PERIOD;

@@ -97,6 +97,7 @@ uint16_t initFrSky_2way()
 {
 	Frsky_init_hop();
 	packet_count=0;
+	init_frskyd_link_telemetry();
 	if(IS_AUTOBIND_FLAG_on)
 	{
 		frsky2way_init(1);

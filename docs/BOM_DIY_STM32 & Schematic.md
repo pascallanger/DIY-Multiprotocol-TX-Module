@@ -2,22 +2,22 @@
 
 Here is the bill of materials for the STM32 version of the DIY  MPTM. There are three versions. Carefully compare your board with the pictures below to determine which version you have. 
 
+All diagrams and eagle files are available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/STM32%20PCB)
+
 If you are looking for the BOM for the DIY ATmega328 3.2d version click [here](BOM_DIY_ATmega.md).
 
 Digikey may not be your preferred supplier, but you should find enough information on their page to cross reference parts.
 
-## IMPORTANT NOTE
-If your TX is Turnigy 9X,9XR,9XR+, the instalation of the inverter chip SN74LVC2G00DCTR ,it is  **OPTIONAL** not required.
+## IMPORTANT NOTE on Telemetry
+In the case of the Turnigy 9X/9XR/9XR Pro you don't need to invert the telemetry signal therefore the instalation of the inverter chip SN74LVC2G00DCTR is  **OPTIONAL**. In this case and in order to have telemetry you need to solder **SJ1/SJ301** on the back of the board depending on which board version you have.
 
-Aditionally in order to have telemetry you need to bridge solder **SJ1/SJ301** on the back of the board depending on which board version you have.
-
-The inverted telemetry signal is required only by TARANIS TX so for this to work propperly , the inverter chip is necessary to be installed.
+The inverted telemetry signal is required by TARANIS TX and other boards so for telemetry to work propperly, the inverter chip must be installed.
 
 ## BOM DIY STM32 PCB V1.0t - the USB version
  This BOM is for the board with the USB port for firmware uploading that looks like this - check carefully:
  
 The board is available at OSHpark [here](https://oshpark.com/shared_projects/GX51nEoH)
- 
+
  
 <img src="images/Board_PCB_STM32_USB-1.png" width="300" height="400"/> <img src="images/Board_PCB_STM32_USB-2.png" width="300" height="400"/> 
 
@@ -54,6 +54,10 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|Y201|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)
 1|U301|Dual INPUT-XOR|SN74LVC2G00DCTR|SSOP-8|[296-13257-1-ND](https://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G00DCTR/296-13257-1-ND/484537)
 1|CON401|ANT.conn SMD|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
+
+PCB STM32 V1.0t Schematic
+<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 
+
 
 ## BOM DIY STM32 PCB - the V0.8
  This BOM is for the board that looks like the image below (avialble from OSHpark [here](https://oshpark.com/shared_projects/3IU1JXoN)) - check carefully:
@@ -120,10 +124,3 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|Y2|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)
 1|U1|Dual INPUT-XOR|SN74LVC2G00DCTR|SSOP-8|[296-13257-1-ND](https://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G00DCTR/296-13257-1-ND/484537)
 1|U.FL|SMD ant. conn.|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
-
-
-All diagrams and eagle files [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/STM32%20PCB)
-
-## <a name="STM32_Schematic"></a> PCB STM32 V1.0t Schematic
-<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 
-

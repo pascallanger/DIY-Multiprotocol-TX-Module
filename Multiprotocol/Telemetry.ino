@@ -175,9 +175,11 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		TX_LQI = pkt[len-1]&0x7F;
 		for (uint8_t i=3;i<len-2;i++)
 			pktt[i]=pkt[i];								// Buffer telemetry values to be sent 
-		uint8_t next_sequence = (telemetry_counter+1)%32;
+		/*uint8_t next_sequence = (telemetry_counter+1)%32;
 		if((pktt[6]>0 && pktt[6]<=10) && ( pktt[7] & 0x1F ) == next_sequence )
-			telemetry_counter = next_sequence ;			// Request next telemetry frame
+			telemetry_counter = next_sequence ;			// Request next telemetry frame*/
+		if(pktt[6]>0 && pktt[6]<=10) // && (pktt[7]&0x1F) == telemetry_counter )
+			telemetry_counter=(telemetry_counter+1)%32;	// Request next telemetry frame
 		else
 			pktt[6]=0; 									// Discard packet
 		//
@@ -583,6 +585,11 @@ void TelemetryUpdate()
 			return;
 		}
     #endif        
+	if(telemetry_link == 1 && protocol != MODE_FRSKYX)
+	{	// FrSkyD + Hubsan + AFHDS2A + Bayang
+		frsky_link_frame();
+		return;
+	}
 	#if defined HUB_TELEMETRY
 		if(telemetry_link > 1 && protocol == MODE_FRSKYD)
 		{	// FrSkyD
@@ -590,11 +597,6 @@ void TelemetryUpdate()
 			return;
 		}
 	#endif
-	if(telemetry_link == 1 && protocol != MODE_FRSKYX)
-	{	// FrSkyD + Hubsan + AFHDS2A + Bayang
-		frsky_link_frame();
-		return;
-	}
 }
 
 

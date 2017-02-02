@@ -53,7 +53,7 @@ If you see ```NO MULTI_TELEMETRY``` or no ```NO TELEMETRY``` in the setup screen
 
 <img width="594" height="213" src="images/X7-no-telemetry.png" />
 
-you are missing the ```MULTI_TELEMETRY``` and/or ```INVERT_TELEMTRY``` option in your ```_Config.h``` and/or [you need to hardware modifications to enable telemetry](Hardware.md). With the option enabled, the right telemetry type is automatically detected and you will see the status of the module:
+you are missing the ```MULTI_TELEMETRY``` and/or ```INVERT_TELEMTRY``` option in your ```_Config.h``` and/or [you need to hardware modifications to enable telemetry](Hardware.md). OpenTX also shows the ```NO TELEMETRY``` message if no module status has been received in the last 2s which can indicate a non working module if the telemetry status worked before.  With the option enabled, the right telemetry type is automatically detected and you will see the status of the module:
 
 <img width="580" height="210" src="images/X7-protocol-invalid.png">
 

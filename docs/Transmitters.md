@@ -37,7 +37,8 @@ This serial protocol does not require any hardware modifications, but **will** r
 
 Transmitter|Firmware Options|Telemetry Enabled
 :----------|:---------------|:----------------
-[FrSky Taranis/Plus/9XE](Tx-Taranis.md)| erSky9x, OpenTx 2.1.9 Multi|Yes - native
+[FrSky Taranis X9D/X9D+/9XE](Tx-Taranis.md)| erSky9x, OpenTx 2.1.9 Multi, OpenTX 2.2 (multimodule option)|Yes - native
+[Frsky Taranis Q X7/Horus](Tx-Taranis.md)| OpenTX 2.2 (multimodule option)| Yes - native
 [Turnigy 9X/9xR](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod)
 [Turnigy 9XR-Pro](Tx-erSky9X.md)|erSky9x|Yes - native
 [FlySky TH9x](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod)

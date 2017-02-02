@@ -413,7 +413,7 @@ void loop()
 		{
 			TX_MAIN_PAUSE_on;
 			tx_pause();
-			if(IS_INPUT_SIGNAL_on)
+			if(IS_INPUT_SIGNAL_on && remote_callback!=0)
 				next_callback=remote_callback();
 			else
 				next_callback=2000;					// No PPM/serial signal check again in 2ms...
@@ -430,9 +430,11 @@ void loop()
 					TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag
 				#endif
 				sei();								// enable global int
-				Update_All();
-				if(IS_CHANGE_PROTOCOL_FLAG_on)
-					break; // Protocol has been changed
+				if(Update_All())					// Protocol changed?
+				{
+					next_callback=0;				// Launch new protocol ASAP
+					break;
+				}
 				#ifndef STM32_BOARD	
 					while((TIFR1 & OCF1A_bm) == 0);	// wait 2ms...
 				#else
@@ -456,7 +458,7 @@ void loop()
 	}
 }
 
-void Update_All()
+uint8_t Update_All()
 {
 	#ifdef ENABLE_SERIAL
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)		// Serial mode and something has been received
@@ -484,6 +486,7 @@ void Update_All()
 			last_signal=millis();
 		}
 	#endif //ENABLE_PPM
+	update_channels_aux();
 	#ifdef ENABLE_BIND_CH
 		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Servo_data[BIND_CH-1]>PPM_MAX_COMMAND && Servo_data[THROTTLE]<(servo_min_100+25))
 		{ // Autobind is on and BIND_CH went up and Throttle is low
@@ -498,8 +501,8 @@ void Update_All()
 		LED_off;											//led off during protocol init
 		modules_reset();									//reset all modules
 		protocol_init();									//init new protocol
+		return 1;
 	}
-	update_channels_aux();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
 			if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
@@ -507,6 +510,7 @@ void Update_All()
 				TelemetryUpdate();
 	#endif
 	update_led_status();
+	return 0;
 }
 
 // Update channels direction and Servo_AUX flags based on servo AUX positions

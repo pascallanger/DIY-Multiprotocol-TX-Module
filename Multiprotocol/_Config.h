@@ -70,37 +70,37 @@
 //The protocols below need an A7105 to be installed
 #define	FLYSKY_A7105_INO
 #define	HUBSAN_A7105_INO
-//#define	AFHDS2A_A7105_INO
+#define	AFHDS2A_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
-//#define	DEVO_CYRF6936_INO
+#define	DEVO_CYRF6936_INO
 #define	DSM_CYRF6936_INO
-//#define	J6PRO_CYRF6936_INO
-//#define	WK2x01_CYRF6936_INO
+#define	J6PRO_CYRF6936_INO
+#define	WK2x01_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
-//#define	FRSKYV_CC2500_INO
+#define	FRSKYV_CC2500_INO
 #define	FRSKYD_CC2500_INO
-//#define	FRSKYX_CC2500_INO
-//#define	SFHSS_CC2500_INO
+#define	FRSKYX_CC2500_INO
+#define	SFHSS_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO
 #define	CG023_NRF24L01_INO
 #define	CX10_NRF24L01_INO		// Include Q2X2 protocol
-//#define	ESKY_NRF24L01_INO
+#define	ESKY_NRF24L01_INO
 #define	HISKY_NRF24L01_INO
-//#define	KN_NRF24L01_INO
-//#define	SLT_NRF24L01_INO
+#define	KN_NRF24L01_INO
+#define	SLT_NRF24L01_INO
 #define	SYMAX_NRF24L01_INO
 #define	V2X2_NRF24L01_INO
 #define	YD717_NRF24L01_INO
 #define	MT99XX_NRF24L01_INO
 #define	MJXQ_NRF24L01_INO
 #define	SHENQI_NRF24L01_INO
-//#define	FY326_NRF24L01_INO
-//#define	FQ777_NRF24L01_INO
-//#define	ASSAN_NRF24L01_INO
+#define	FY326_NRF24L01_INO
+#define	FQ777_NRF24L01_INO
+#define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
 #define Q303_NRF24L01_INO
 

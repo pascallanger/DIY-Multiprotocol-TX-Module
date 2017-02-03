@@ -177,26 +177,33 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		TX_LQI = pkt[len-1]&0x7F;
 		for (uint8_t i=3;i<len-2;i++)
 			pktt[i]=pkt[i];								// Buffer telemetry values to be sent 
-		if((pktt[6]>0 && pktt[6]<=10) && ( pktt[7] & 0x1F ) == (telemetry_counter & 0x1F) )
+		
+		if(pktt[6]>0 && pktt[6]<=10)
 		{
-			uint8_t topBit = 0 ;
-			if ( telemetry_counter & 0x80 )
+			if (protocol==MODE_FRSKYD)
 			{
-				if ( ( telemetry_counter & 0x1F ) != RetrySequence )
+				if ( ( pktt[7] & 0x1F ) == (telemetry_counter & 0x1F) )
 				{
-					topBit = 0x80 ;
+					uint8_t topBit = 0 ;
+					if ( telemetry_counter & 0x80 )
+					{
+						if ( ( telemetry_counter & 0x1F ) != RetrySequence )
+						{
+							topBit = 0x80 ;
+						}
+					}
+					telemetry_counter = ( (telemetry_counter+1)%32 ) | topBit ;	// Request next telemetry frame
+				}
+				else
+				{
+					// incorrect sequence
+					RetrySequence = pktt[7] & 0x1F ;
+					telemetry_counter |= 0x80 ;
 				}
 			}
-			telemetry_counter = ( (telemetry_counter+1)%32 ) | topBit ;	// Request next telemetry frame
 		}
 		else
 		{
-			if(pktt[6]>0 && pktt[6]<=10)
-			{
-				// incorrect sequence
-				RetrySequence = pktt[7] & 0x1F ;
-				telemetry_counter |= 0x80 ;
-			}
 			pktt[6]=0; 									// Discard packet
 		}
 		//

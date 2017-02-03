@@ -17,6 +17,8 @@
 //**************************
 #if defined TELEMETRY
 
+uint8_t RetrySequence ;
+
 #if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
 	#define MULTI_TIME 500 //in ms
 	uint32_t lastMulti = 0;
@@ -50,7 +52,7 @@ uint8_t frame[18];
 	{
 		uint8_t head ;
 		uint8_t tail ;
-		uint8_t data[64] ;
+		uint8_t data[128] ;
 		uint8_t busy ;
 		uint8_t speed ;
 	} SerialControl ;
@@ -162,7 +164,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 {
 	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len ==(pkt[0] + 3))
 	{	   
-		telemetry_link=1;								// Telemetry data is available
+		telemetry_link|=1;								// Telemetry data is available
 		/*preious version
 		RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
 		if(pktt[len-2] >=128) RSSI_dBm -= 164;
@@ -175,13 +177,28 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		TX_LQI = pkt[len-1]&0x7F;
 		for (uint8_t i=3;i<len-2;i++)
 			pktt[i]=pkt[i];								// Buffer telemetry values to be sent 
-		/*uint8_t next_sequence = (telemetry_counter+1)%32;
-		if((pktt[6]>0 && pktt[6]<=10) && ( pktt[7] & 0x1F ) == next_sequence )
-			telemetry_counter = next_sequence ;			// Request next telemetry frame*/
-		if(pktt[6]>0 && pktt[6]<=10) // && (pktt[7]&0x1F) == telemetry_counter )
-			telemetry_counter=(telemetry_counter+1)%32;	// Request next telemetry frame
+		if((pktt[6]>0 && pktt[6]<=10) && ( pktt[7] & 0x1F ) == (telemetry_counter & 0x1F) )
+		{
+			uint8_t topBit = 0 ;
+			if ( telemetry_counter & 0x80 )
+			{
+				if ( ( telemetry_counter & 0x1F ) != RetrySequence )
+				{
+					topBit = 0x80 ;
+				}
+			}
+			telemetry_counter = ( (telemetry_counter+1)%32 ) | topBit ;	// Request next telemetry frame
+		}
 		else
+		{
+			if(pktt[6]>0 && pktt[6]<=10)
+			{
+				// incorrect sequence
+				RetrySequence = pktt[7] & 0x1F ;
+				telemetry_counter |= 0x80 ;
+			}
 			pktt[6]=0; 									// Discard packet
+		}
 		//
 #if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
 		telemetry_lost=0;
@@ -225,7 +242,8 @@ void frsky_link_frame()
 		frame[1] = pktt[3];		// A1
 		frame[2] = pktt[4];		// A2
 		frame[3] = pktt[5];		// RX_RSSI
-		telemetry_link++;		// Send hub if available
+		telemetry_link &= ~1 ;		// Sent
+		telemetry_link |= 2 ;		// Send hub if available
 	}
 	else
 		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A||protocol==MODE_BAYANG)
@@ -256,18 +274,17 @@ void frsky_user_frame()
 		{
 			frame[1]=USER_MAX_BYTES;	// packet size
 			pktt[6]-=USER_MAX_BYTES;
-			telemetry_link++;			// 2 packets need to be sent
+			telemetry_link |= 2 ;			// 2 packets need to be sent
 		}
 		else
 		{
 			frame[1]=pktt[6];			// packet size
-			pktt[6]=0;
 			telemetry_link=0;			// only 1 packet or processing second packet
 		}
 		frame[2] = pktt[7];
 		for(uint8_t i=0;i<USER_MAX_BYTES;i++)
 			frame[i+3]=pktt[i+8];
-		if(telemetry_link)				// prepare the content of second packet
+		if(telemetry_link & 2)				// prepare the content of second packet
 			for(uint8_t i=8;i<USER_MAX_BYTES+8;i++)
 				pktt[i]=pktt[i+USER_MAX_BYTES];
 		#if defined MULTI_TELEMETRY
@@ -513,10 +530,10 @@ void TelemetryUpdate()
 		h = SerialControl.head ;
 		t = SerialControl.tail ;
 		if ( h >= t )
-			t += 64 - h ;
+			t += 128 - h ;
 		else
 			t -= h ;
-		if ( t < 32 )
+		if ( t < 64 )
 			return ;
 	#else
 		uint8_t h ;
@@ -527,7 +544,7 @@ void TelemetryUpdate()
 			t += TXBUFFER_SIZE - h ;
 		else
 			t -= h ;
-		if ( t < 16 )
+		if ( t < 32 )
 			return ;
 	#endif
 	#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
@@ -585,13 +602,14 @@ void TelemetryUpdate()
 			return;
 		}
     #endif        
-	if(telemetry_link == 1 && protocol != MODE_FRSKYX)
-	{	// FrSkyD + Hubsan + AFHDS2A + Bayang
-		frsky_link_frame();
-		return;
-	}
+
+		if((telemetry_link & 1 )&& protocol != MODE_FRSKYX)
+		{	// FrSkyD + Hubsan + AFHDS2A + Bayang
+			frsky_link_frame();
+			return;
+		}
 	#if defined HUB_TELEMETRY
-		if(telemetry_link > 1 && protocol == MODE_FRSKYD)
+		if((telemetry_link & 2) && protocol == MODE_FRSKYD)
 		{	// FrSkyD
 			frsky_user_frame();
 			return;
@@ -812,7 +830,7 @@ void Serial_write( uint8_t byte )
 	#ifdef INVERT_SERIAL
 		byte |= 1 ;		// Start bit
 	#endif
-	uint8_t next = (SerialControl.head + 2) & 0x3f ;
+	uint8_t next = (SerialControl.head + 2) & 0x7f ;
 	if ( next != SerialControl.tail )
 	{
 		SerialControl.data[SerialControl.head] = byte ;
@@ -906,7 +924,7 @@ ISR(TIMER0_COMPB_vect)
 			{
 				GPIOR0 = ptr->data[ptr->tail] ;
 				GPIOR2 = ptr->data[ptr->tail+1] ;
-				ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
+				ptr->tail = ( ptr->tail + 2 ) & 0x7F ;
 				GPIOR1 = 8 ;
 				OCR0A = OCR0B + 40 ;
 				OCR0B = OCR0A + 8 * 20 ;
@@ -957,7 +975,7 @@ ISR(TIMER0_OVF_vect)
 		{
 			GPIOR0 = ptr->data[ptr->tail] ;
 			GPIOR2 = ptr->data[ptr->tail+1] ;
-			ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
+			ptr->tail = ( ptr->tail + 2 ) & 0x7F ;
 			GPIOR1 = 10 ;
 		}
 		else

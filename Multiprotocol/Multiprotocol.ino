@@ -141,7 +141,7 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	uint8_t pass = 0;
 	uint8_t pktt[MAX_PKT];//telemetry receiving packets
 	#ifndef BASH_SERIAL
-		#define TXBUFFER_SIZE 32
+		#define TXBUFFER_SIZE 64
 		volatile uint8_t tx_buff[TXBUFFER_SIZE];
 		volatile uint8_t tx_head=0;
 		volatile uint8_t tx_tail=0;

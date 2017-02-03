@@ -9,7 +9,7 @@ If you are looking for the BOM for the DIY ATmega328 3.2d version click [here](B
 Digikey may not be your preferred supplier, but you should find enough information on their page to cross reference parts.
 
 ## IMPORTANT NOTE on Telemetry
-In the case of the Turnigy 9X/9XR/9XR Pro you don't need to invert the telemetry signal therefore the instalation of the inverter chip SN74LVC2G86DCUR is  **OPTIONAL**. In this case and in order to have telemetry you need to solder **SJ1/SJ301** on the back of the board depending on which board version you have.
+In the case of the Turnigy 9X/9XR/9XR Pro you don't need to invert the telemetry signal therefore the instalation of the inverter chip SN74LVC2G86DCTR is  **OPTIONAL**. In this case and in order to have telemetry you need to solder **SJ1/SJ301** on the back of the board depending on which board version you have.
 
 The inverted telemetry signal is required by TARANIS TX and other boards so for telemetry to work properly the inverter chip must be installed.
 
@@ -38,7 +38,8 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|IC101|Voltage reg 5V|AMS1117-50|SOT223|[LM1117MP-5.0/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MP-5.0-NOPB/LM1117MP-5.0-NOPBCT-ND/363589)
 1|IC102|Voltage reg 3.3V|AMS1117-33|SOT223|[LM1117MPX-3.3/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MPX-3.3-NOPB/LM1117MPX-3.3-NOPBCT-ND/1010516)
 1|L101|High Freq Inductor|10uH|1812|[CM453232-100KLCT-ND](https://www.digikey.com/product-detail/en/bourns-inc/CM453232-100KL/CM453232-100KLCT-ND/3437938)
-2|LED101, LED201|Red/Green Led|LED3mm|||
+1|LED101|Green Led|LED3mm||[516-3191-1-ND](http://www.digikey.com/products/en?keywords=516-3191-1-ND)
+1|LED102|Red Led|LED3mm||[16-1750-1-ND](http://www.digikey.com/products/en?keywords=516-1750-1-ND)
 2|R101, 201|SMD Resistor|1K|0805|[311-1.0KARCT-ND](https://www.digikey.com/product-detail/en/yageo/RC0805JR-071KL/311-1.0KARCT-ND/731165)
 1|R202|SMD Resistor|1.5K|0805|[311-1.5KARCT-ND](https://www.digikey.com/product-search/en?keywords=311-1.5KARCT-ND)
 2|R203, 204|SMD Resistor|22|0805|[311-22ARCT-ND](https://www.digikey.com/product-search/en?keywords=311-22ARCT-ND)
@@ -52,7 +53,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|IC201|STM32F103CBT6||LQFP48|[STM32F103CBT6](https://www.digikey.com/product-detail/en/stmicroelectronics/STM32F103CBT6/497-6288-ND/1754420)
 1|M401|4-in-1 RF Module|||[Banggood 4-in-1 Module](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html)
 1|Y201|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)
-1|U301|Dual INPUT-XOR|SN74LVC2G86DCUR|VSSOP-8|[296-13275-1-ND](http://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G86DCUR/296-13275-1-ND/484303)
+1|U301|Dual INPUT-XOR|SN74LVC2G86DCTR|SSM8|[296-13274-1-ND](http://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G86DCTR/296-13274-1-ND/484501)
 1|CON401|ANT.conn SMD|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
 
 PCB STM32 V1.0t Schematic
@@ -76,11 +77,12 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|C203|Cap Ceramic|4u7|0805|[311-1371-1-ND](https://www.digikey.com/product-detail/en/yageo/CC0805ZRY5V6BB475/311-1371-1-ND/2103155)
 1|C207|Cap Ceramic|1uF|0805|[311-1365-1-ND](https://www.digikey.com/product-detail/en/yageo/CC0805KKX7R7BB105/311-1365-1-ND/2103149)
 1|C208|Cap Ceramic|10nF|0805|[311-1085-1-ND](http://www.digikey.com/product-detail/en/yageo/CC0603KRX7R9BB103/311-1085-1-ND/302995)
-1|D301, D302, D303|Diode Shottky|BAT48|SOD123|[497-5712-1-ND](http://www.digikey.com/products/en?keywords=497-5712-1-ND)
+3|D301, D302, D303|Diode Shottky|BAT48|SOD123|[497-5712-1-ND](http://www.digikey.com/products/en?keywords=497-5712-1-ND)
 1|IC101|Voltage reg 5V|AMS1117-50|SOT223|[LM1117MP-5.0/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MP-5.0-NOPB/LM1117MP-5.0-NOPBCT-ND/363589)
 1|IC102|Voltage reg 3.3V|AMS1117-33|SOT223|[LM1117MPX-3.3/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MPX-3.3-NOPB/LM1117MPX-3.3-NOPBCT-ND/1010516)
 1|L101|High Freq Inductor|10uH|1812|[CM453232-100KLCT-ND](https://www.digikey.com/product-detail/en/bourns-inc/CM453232-100KL/CM453232-100KLCT-ND/3437938)
-1|LED101, LED102|Red/Green Led|LED3mm|||
+1|LED101|Green Led|LED3mm||[516-3191-1-ND](http://www.digikey.com/products/en?keywords=516-3191-1-ND)
+1|LED102|Red Led|LED3mm||[16-1750-1-ND](http://www.digikey.com/products/en?keywords=516-1750-1-ND)
 2|R302, R303|SMD Resistor|2.2K|0805|[RMCF0805JT2K20CT-ND ](https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT2K20/RMCF0805JT2K20CT-ND/1942563)
 3|R202, R203|SMD Resistor|10K|0805|[RMCF0805JT10K0CT-ND](https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT10K0/RMCF0805JT10K0CT-ND/1942577)
 1|R301, R305|SMD Resistor|4.7K|0805|[311-4.70KCRCT-ND](https://www.digikey.com/product-detail/en/yageo/RC0805FR-074K7L/311-4.70KCRCT-ND/730876)
@@ -91,7 +93,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|IC201|STM32F103CBT6||LQFP48|[STM32F103CBT6](https://www.digikey.com/product-detail/en/stmicroelectronics/STM32F103CBT6/497-6288-ND/1754420)
 1|M401|4-in-1 RF Module|||[Banggood 4-in-1 Module](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html)
 1|Y201|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)
-1|U301|Dual INPUT-XOR|SN74LVC2G86DCUR|VSSOP-8|[296-13275-1-ND](http://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G86DCUR/296-13275-1-ND/484303)
+1|U301|Dual INPUT-XOR|SN74LVC2G86DCTR|SSM8|[296-13274-1-ND](http://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G86DCTR/296-13274-1-ND/484501)
 1|CON401|SMD ant. conn.|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
 
 ## BOM DIY STM32 PCB - the first Version
@@ -111,7 +113,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|JP1|Pin header|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|JP2|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|L1|High Freq Inductor|10uH|1812|[CM453232-100KLCT-ND](https://www.digikey.com/product-detail/en/bourns-inc/CM453232-100KL/CM453232-100KLCT-ND/3437938)
-1|LED|Red Led|LED3mm|||
+1|LED|Red Led|LED3mm||[16-1750-1-ND](http://www.digikey.com/products/en?keywords=516-1750-1-ND)
 2|R1,R8|SMD Resistor|2.2K|0805|[RMCF0805JT2K20CT-ND ](https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT2K20/RMCF0805JT2K20CT-ND/1942563)
 3|R2,R5,R10|SMD Resistor|10K|0805|[RMCF0805JT10K0CT-ND](https://www.digikey.com/product-detail/en/stackpole-electronics-inc/RMCF0805JT10K0/RMCF0805JT10K0CT-ND/1942577)
 1|R3|SMD Resistor|4.7K|0805|[311-4.70KCRCT-ND](https://www.digikey.com/product-detail/en/yageo/RC0805FR-074K7L/311-4.70KCRCT-ND/730876)
@@ -122,5 +124,5 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|MCU|STM32F103CBT6||LQFP48|[STM32F103CBT6](https://www.digikey.com/product-detail/en/stmicroelectronics/STM32F103CBT6/497-6288-ND/1754420)
 1|U$1|4-in-1 RF Module|||[Banggood 4-in-1 Module](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html)
 1|Y2|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)
-1|U301|Dual INPUT-XOR|SN74LVC2G86DCUR|VSSOP-8|[296-13275-1-ND](http://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G86DCUR/296-13275-1-ND/484303)
+1|U301|Dual INPUT-XOR|SN74LVC2G86DCTR|SSM8|[296-13274-1-ND](http://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G86DCTR/296-13274-1-ND/484501)
 1|U.FL|SMD ant. conn.|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)

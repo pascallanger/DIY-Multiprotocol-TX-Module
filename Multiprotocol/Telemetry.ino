@@ -165,7 +165,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len ==(pkt[0] + 3))
 	{	   
 		telemetry_link|=1;								// Telemetry data is available
-		/*preious version
+		/*previous version
 		RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
 		if(pktt[len-2] >=128) RSSI_dBm -= 164;
 		else RSSI_dBm += 130;*/
@@ -199,6 +199,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 					// incorrect sequence
 					RetrySequence = pktt[7] & 0x1F ;
 					telemetry_counter |= 0x80 ;
+					pktt[6]=0 ;							// Discard current packet and wait for retransmit
 				}
 			}
 		}

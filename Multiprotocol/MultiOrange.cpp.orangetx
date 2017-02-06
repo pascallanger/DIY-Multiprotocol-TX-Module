@@ -139,7 +139,7 @@ void init()
 
 #include "Multiprotocol.ino"
 #include "SPI.ino"
-#include "Convert.ino"
+#include "Common.ino"
 #include "Arduino.ino"
 
 #include "cyrf6936_SPI.ino"

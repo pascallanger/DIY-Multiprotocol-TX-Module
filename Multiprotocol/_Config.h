@@ -17,16 +17,6 @@
 /** Multiprotocol module configuration file ***/
 /**********************************************/
 
-/********************/
-/***  BOARD TYPE  ***/
-/********************/
-//Uncomment one of the line below if you have a different module not based on the original Multi Atmega328p design which includes the 4-in-1.
-//If you don't know then leave them commented.
-#ifdef __arm__
-	#define STM32_BOARD	// Let's automatically select this board if arm is selected since this is the only one for now...
-#endif
-
-
 /*******************/
 /*** TX SETTINGS ***/
 /*******************/
@@ -114,9 +104,9 @@
 
 //Comment to invert the polarity of the output telemetry serial signal.
 //This function takes quite some flash space and processor power on an atmega.
-//For OpenTX and ersky9x it must be uncommented.
+//For OpenTX it must be uncommented.
 //On a 9XR_PRO running ersky9x both commented and uncommented will work depending on the radio setting Invert COM1 under the Telemetry menu.
-//On other addon/replacement boards like the 9xtreme board or the Ar9x board, you need to uncomment the line below.
+//On other addon/replacement boards like the 9xtreme board or the Ar9x board running ersky9x, you need to uncomment the line below.
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
 //#define INVERT_TELEMETRY
 

@@ -26,6 +26,9 @@
 
 //Multiprotocol module configuration file
 #include "_Config.h"
+#ifdef __arm__
+	#define STM32_BOARD	// Let's automatically select this board if arm is selected since this is the only one for now...
+#endif
 #include "Pins.h"
 #include "TX_Def.h"
 #include "Validate.h"

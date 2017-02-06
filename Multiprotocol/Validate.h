@@ -78,8 +78,12 @@
 	#undef HUB_TELEMETRY
 	#undef SPORT_TELEMETRY
 	#undef DSM_TELEMETRY
+	#undef MULTI_STATUS
 	#undef MULTI_TELEMETRY
 #else
+	#if defined MULTI_TELEMETRY && not defined INVERT_TELEMETRY
+		#warning MULTI_TELEMETRY has been defined but not INVERT_TELEMETRY. They should be both enabled for OpenTX telemetry and status to work.
+	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY
 	#endif

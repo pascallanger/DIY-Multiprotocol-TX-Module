@@ -56,7 +56,7 @@
 //!!!If a RF chip is present it MUST be marked as installed!!! or weird things will happen you have been warned.
 #define A7105_INSTALLED
 #define CYRF6936_INSTALLED
-//#define CC2500_INSTALLED
+#define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
 
 
@@ -122,7 +122,7 @@
 
 //Uncomment to send also Multi status and wrap other telemetry to allow TX to autodetect the format
 //Only for newest OpenTX version
-#define MULTI_TELEMETRY
+//#define MULTI_TELEMETRY
 
 //Comment a line to disable a protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
@@ -149,7 +149,7 @@
 /*************************/
 //In this section you can configure all details about PPM.
 //If you do not plan to use the PPM mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
-//#define ENABLE_PPM
+#define ENABLE_PPM
 
 /*** TX END POINTS ***/
 //It is important for the module to know the endpoints of your radio.

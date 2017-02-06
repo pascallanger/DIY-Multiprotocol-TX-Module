@@ -17,16 +17,6 @@
 #define _IFACE_CC2500_H_
 
 enum {
-	FRSKY_BIND		= 0,
-	FRSKY_BIND_DONE	= 1000,
-	FRSKY_DATA1,
-	FRSKY_DATA2,
-	FRSKY_DATA3,
-	FRSKY_DATA4,
-	FRSKY_DATA5
-};
-
-enum {
     CC2500_00_IOCFG2           = 0x00,        // GDO2 output pin configuration
     CC2500_01_IOCFG1           = 0x01,        // GDO1 output pin configuration
     CC2500_02_IOCFG0           = 0x02,        // GDO0 output pin configuration

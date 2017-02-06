@@ -505,7 +505,16 @@ uint8_t Update_All()
 			BIND_CH_PREV_on;
 		}
 		if(IS_BIND_CH_PREV_on && Servo_data[BIND_CH-1]<PPM_MIN_COMMAND)
+		{
 			BIND_CH_PREV_off;
+			#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO)
+			if(protocol==MODE_FRSKYD || protocol==MODE_FRSKYX || protocol==MODE_FRSKYV)
+				BIND_DONE;
+			else
+			#endif
+			if(bind_counter>2)
+				bind_counter=2;
+		}
 	#endif //ENABLE_BIND_CH
 	if(IS_CHANGE_PROTOCOL_FLAG_on)
 	{ // Protocol needs to be changed or relaunched for bind
@@ -964,10 +973,20 @@ void update_serial_data()
 		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
 	}
 	else
-		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )	// Bind flag has been set
+		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
 			CHANGE_PROTOCOL_FLAG_on;			//restart protocol with bind
 		else
-			CHANGE_PROTOCOL_FLAG_off;			//no need to restart
+			if( ((rx_ok_buff[1]&0x80)==0) && ((cur_protocol[1]&0x80)!=0) )	// Bind flag has been reset
+			{
+				#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO)
+				if(protocol==MODE_FRSKYD || protocol==MODE_FRSKYX || protocol==MODE_FRSKYV)
+					BIND_DONE;
+				else
+				#endif
+				if(bind_counter>2)
+					bind_counter=2;
+			}
+			
 	//store current protocol values
 	for(uint8_t i=0;i<3;i++)
 		cur_protocol[i] =  rx_ok_buff[i];

@@ -82,6 +82,16 @@ uint16_t limit_channel_100(uint8_t ch)
 /**  FrSky D and X routines  **/
 /******************************/
 #if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO)
+enum {
+	FRSKY_BIND		= 0,
+	FRSKY_BIND_DONE	= 1000,
+	FRSKY_DATA1,
+	FRSKY_DATA2,
+	FRSKY_DATA3,
+	FRSKY_DATA4,
+	FRSKY_DATA5
+};
+
 void Frsky_init_hop(void)
 {
 	uint8_t val;

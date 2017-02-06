@@ -183,7 +183,10 @@ uint16_t ReadFrSkyX()
 			frskyX_build_bind_packet();
 			CC2500_Strobe(CC2500_SIDLE);
 			CC2500_WriteData(packet, packet[0]+1);
-			state++;
+			if(IS_BIND_DONE_on)
+				state = FRSKY_BIND_DONE;
+			else
+				state++;
 			return 9000;
 		case FRSKY_BIND_DONE:
 			initialize_data(0);

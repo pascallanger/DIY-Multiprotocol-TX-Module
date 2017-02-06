@@ -120,7 +120,10 @@ uint16_t ReadFrSky_2way()
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);		
 		CC2500_Strobe(CC2500_SFRX);//0x3A
 		CC2500_WriteData(packet, packet[0]+1);
-		state++;
+		if(IS_BIND_DONE_on)
+			state = FRSKY_BIND_DONE;
+		else
+			state++;
 		return 9000;
 	}
 	if (state == FRSKY_BIND_DONE)

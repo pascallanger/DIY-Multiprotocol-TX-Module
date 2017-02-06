@@ -4,7 +4,7 @@ The choice of **Multiprotocol Transmitter Module (MULTI-Module)** hardware is th
 
 There are currently four common hardware options.  They are (click on the pictures for more info):
 
-1. A ready-made MULTI-Module from Banggood.com (see [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html)) that integrates the microprocessor with all four supported RF modules and a hardware antenna switcher.  
+1. A ready-made 4-in-1 MULTI-Module which integrates the microcontroller with all four supported RF modules and a hardware antenna switcher.  
 [<img src="images/4-in-1_Module_BG.jpeg" width="200" height="200" />](Module_BG_4-in-1.md)
 1. A DIY MULTI-Module made using one of the PCBs that are available and soldering on your own components. The picture below shows an example of one before RF modules have been soldered on.  
 [<img src="images/Multiprotocol_3.2.jpeg" width="150" height="200" />](Module_Build_yourself_PCB.md)

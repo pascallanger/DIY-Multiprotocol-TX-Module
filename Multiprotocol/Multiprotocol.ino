@@ -140,7 +140,18 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	#endif
 	uint8_t pass = 0;
 	uint8_t pktt[MAX_PKT];//telemetry receiving packets
-	#ifndef BASH_SERIAL
+	#ifdef BASH_SERIAL
+	// For bit-bashed serial output
+		#define TXBUFFER_SIZE 128
+		volatile struct t_serial_bash
+		{
+			uint8_t head ;
+			uint8_t tail ;
+			uint8_t data[TXBUFFER_SIZE] ;
+			uint8_t busy ;
+			uint8_t speed ;
+		} SerialControl ;
+	#else
 		#define TXBUFFER_SIZE 64
 		volatile uint8_t tx_buff[TXBUFFER_SIZE];
 		volatile uint8_t tx_head=0;
@@ -640,7 +651,17 @@ static void protocol_init()
 		pass=0;
 		telemetry_link=0;
 		telemetry_lost=1;
-		#ifndef BASH_SERIAL
+		#ifdef BASH_SERIAL
+			TIMSK0 = 0 ;			// Stop all timer 0 interrupts
+			#ifdef INVERT_SERIAL
+				SERIAL_TX_off;
+			#else
+				SERIAL_TX_on;
+			#endif
+			SerialControl.tail=0;
+			SerialControl.head=0;
+			SerialControl.busy=0;
+		#else
 			tx_tail=0;
 			tx_head=0;
 		#endif

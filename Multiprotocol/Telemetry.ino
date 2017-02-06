@@ -46,18 +46,6 @@ uint8_t pktx1[MAX_PKTX];
 uint8_t indx;
 uint8_t frame[18];
 
-#ifdef BASH_SERIAL
-// For bit-bashed serial output
-	volatile struct t_serial_bash
-	{
-		uint8_t head ;
-		uint8_t tail ;
-		uint8_t data[128] ;
-		uint8_t busy ;
-		uint8_t speed ;
-	} SerialControl ;
-#endif
-
 #if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
 static void multi_send_header(uint8_t type, uint8_t len)
 {

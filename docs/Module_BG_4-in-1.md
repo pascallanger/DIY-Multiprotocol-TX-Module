@@ -8,7 +8,7 @@ A fully assembled module + case available from Banggood.com [here](http://www.ba
 
 Or
 
-The ready-made module available from Banggood.com [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html)  
+The ready-made module available [here](http://www.banggood.com/2_4G-CC2500-A7105-Flysky-Frsky-Devo-DSM2-Multiprotocol-TX-Module-With-Antenna-p-1048377.html) or [here](http://www.gearbest.com/multi-rotor-parts/pp_554427.html)
 
 <img src="images/4-in-1_Module_BG.jpeg" width="200" height="200" />
  

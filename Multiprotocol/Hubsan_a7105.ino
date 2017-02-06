@@ -32,10 +32,42 @@ enum{
 };
 
 enum{
+    // flags going to packet[9] (H301)
+    HUBSAN_FLAG_H301_VIDEO = 0x01,
+    HUBSAN_FLAG_H301_STAB  = 0x02,
+    HUBSAN_FLAG_H301_LED   = 0x10,
+    HUBSAN_FLAG_H301_RTH   = 0x40,
+};
+
+
+enum{
     // flags going to packet[13] (Plus series)
     HUBSAN_FLAG_SNAPSHOT  = 0x01,
     HUBSAN_FLAG_FLIP_PLUS = 0x80,
 };
+
+enum{
+    // flags going to packet[9] (H501S)
+    HUBSAN_FLAG_H501_VIDEO     = 0x01,
+    HUBSAN_FLAG_H501_LED       = 0x04,
+    HUBSAN_FLAG_H501_RTH       = 0x20,
+    HUBSAN_FLAG_H501_HEADLESS1 = 0x40,
+    HUBSAN_FLAG_H501_GPS_HOLD  = 0x80,
+};
+
+enum {
+    HUBSAN_FORMAT_H107 = 0,
+    HUBSAN_FORMAT_H301,
+    HUBSAN_FORMAT_H501,
+};
+
+enum{
+    // flags going to packet[13] (H501S)
+    HUBSAN_FLAG_H501_SNAPSHOT  = 0x01,
+    HUBSAN_FLAG_H501_HEADLESS2 = 0x02,
+    HUBSAN_FLAG_H501_ALT_HOLD  = 0x08,
+};
+
 
 uint32_t sessionid,id_data;
 
@@ -76,7 +108,7 @@ static void __attribute__((unused)) hubsan_build_bind_packet(uint8_t bind_state)
 	packet[3] = (sessionid >> 16) & 0xFF;
 	packet[4] = (sessionid >>  8) & 0xFF;
 	packet[5] = (sessionid >>  0) & 0xFF;
-	if(id_data == ID_NORMAL)
+	if(id_data == ID_NORMAL && (sub_protocol != HUBSAN_FORMAT_H501))
 	{
 		packet[6] = 0x08;
 		packet[7] = 0xe4;
@@ -89,8 +121,8 @@ static void __attribute__((unused)) hubsan_build_bind_packet(uint8_t bind_state)
 		packet[13] = 0x26;
 		packet[14] = 0x79;
 	}
-	else
-	{ //ID_PLUS
+	else if(id_data == ID_PLUS || (sub_protocol == HUBSAN_FORMAT_H501))
+	{ //ID_PLUS or H501
 		if(phase >= BIND_3)
 		{
 			packet[7] = 0x62;
@@ -108,7 +140,8 @@ static void __attribute__((unused)) hubsan_build_bind_packet(uint8_t bind_state)
 //ii : aileron   observed range: 0x45 - 0xc3 (smaller is right)69-195-50%
 static void __attribute__((unused)) hubsan_build_packet()
 {
-	static uint8_t vtx_freq = 0; 
+  static uint32_t h501_packet = 0;
+	static uint8_t vtx_freq = 0;
 	memset(packet, 0, 16);
 	if(vtx_freq != option || packet_count==100) // set vTX frequency (H107D)
 	{
@@ -117,7 +150,8 @@ static void __attribute__((unused)) hubsan_build_packet()
 		packet[1] = (vtx_freq>0xF2)?0x17:0x16;
 		packet[2] = vtx_freq+0x0D;	// 5645 - 5900 MHz
 		packet[3] = 0x82;
-		packet_count++;      
+		packet_count++;
+		h501_packet = 0;
 	}
 	else //20 00 00 00 80 00 7d 00 84 02 64 db 04 26 79 7b
 	{
@@ -127,7 +161,7 @@ static void __attribute__((unused)) hubsan_build_packet()
 	packet[4] = 0xFF - convert_channel_8b(RUDDER);		//Rudder is reversed
 	packet[6] = 0xFF - convert_channel_8b(ELEVATOR);	//Elevator is reversed
 	packet[8] = convert_channel_8b(AILERON);			//Aileron
-	if(id_data == ID_NORMAL)
+	if(id_data == ID_NORMAL && (sub_protocol == HUBSAN_FORMAT_H107)) // H107/L/C/D, H102D
 	{
 		if( packet_count < 100)
 		{
@@ -145,27 +179,58 @@ static void __attribute__((unused)) hubsan_build_packet()
 			if(Servo_AUX4)	packet[9] |= HUBSAN_FLAG_VIDEO; // H102D
 		}
 		packet[10] = 0x64;
-		//const uint32_t txid = 0xdb042679; 
+		//const uint32_t txid = 0xdb042679;
 		packet[11] = 0xDB;
 		packet[12] = 0x04;
 		packet[13] = 0x26;
 		packet[14] = 0x79;
 	}
-	else
-	{ //ID_PLUS
-		packet[3] = 0x64;
-		packet[5] = 0x64;
-		packet[7] = 0x64;
-		packet[9] = 0x06;
-		//FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
-		if(Servo_AUX4)	packet[9] |= HUBSAN_FLAG_VIDEO;
-		if(Servo_AUX5)	packet[9] |= HUBSAN_FLAG_HEADLESS;
-		packet[10]= 0x19;
-		packet[12]= 0x5C; // ghost channel ?
-		packet[13] = 0;
-		if(Servo_AUX3)	packet[13]  = HUBSAN_FLAG_SNAPSHOT;
-		if(Servo_AUX1)	packet[13] |= HUBSAN_FLAG_FLIP_PLUS;
-		packet[14]= 0x49; // ghost channel ?
+	else if(sub_protocol == HUBSAN_FORMAT_H301)
+	{
+		if(packet_count < 100)
+		{
+			packet[9] = HUBSAN_FLAG_H301_STAB;
+			packet_count++;
+		}
+		else
+		{
+			packet[9] = HUBSAN_FLAG_H301_LED;
+      if(Servo_AUX1) packet[9] |= HUBSAN_FLAG_H301_STAB; // channel 6
+      if(Servo_AUX4) packet[9] |= HUBSAN_FLAG_H301_VIDEO; // channel 8
+      if(Servo_AUX6) packet[9] |= HUBSAN_FLAG_H301_RTH; // channel 10
+		}
+		packet[10] = 0x18; // ?
+		packet[12] = 0x5c; // ?
+		packet[14] = 0xf6; // ?
+	} // 364
+	else if(id_data == ID_PLUS || (sub_protocol == HUBSAN_FORMAT_H501))
+	{
+		packet[3] = sub_protocol == HUBSAN_FORMAT_H501 ? 0x00 : 0x64;
+		packet[5] = sub_protocol == HUBSAN_FORMAT_H501 ? 0x00 : 0x64;
+		packet[7] = sub_protocol == HUBSAN_FORMAT_H501 ? 0x00 : 0x64;
+    if( sub_protocol == HUBSAN_FORMAT_H501)
+		{ // H501S
+			packet[9] = 0x02;
+			if(Servo_AUX1) packet[9] |= HUBSAN_FLAG_H501_LED; // channel 5
+			if(Servo_AUX4) packet[9] |= HUBSAN_FLAG_H501_VIDEO; // channel 8
+			if(Servo_AUX6) packet[9] |= HUBSAN_FLAG_H501_RTH; // channel 10
+			if(Servo_AUX7) packet[9] |= HUBSAN_FLAG_H501_GPS_HOLD; // channel 11
+			if(Servo_AUX5) packet[9] |= HUBSAN_FLAG_H501_HEADLESS1; // channel 9
+			packet[13] = HUBSAN_FLAG_H501_HEADLESS2; // channel 9
+			if(Servo_AUX2) packet[13] |= HUBSAN_FLAG_H501_ALT_HOLD; // channel 6
+			if(Servo_AUX3) packet[13] |= HUBSAN_FLAG_H501_SNAPSHOT; // channel 7
+		}
+		else
+		{ // H107P / C+ / D+
+			packet[9] = 0x06;
+			if(Servo_AUX4) packet[9] |= HUBSAN_FLAG_VIDEO; // channel 8
+			if(Servo_AUX5) packet[9] |= HUBSAN_FLAG_HEADLESS; // channel 9
+			packet[10] = sub_protocol == HUBSAN_FORMAT_H501 ? 0x1a : 0x19;
+			packet[12] = 0x5C; // ghost channel ?
+			packet[13] = HUBSAN_FLAG_SNAPSHOT; // channel 7
+			if(Servo_AUX2) packet[13] |= HUBSAN_FLAG_FLIP_PLUS; // channel 6
+			packet[14] = 0x49; // ghost channel ?
+		}
 		if(packet_count < 100)
 		{ // set channels to neutral for first 100 packets
 			packet[2] = 0x80; // throttle neutral is at mid stick on plus series
@@ -176,23 +241,39 @@ static void __attribute__((unused)) hubsan_build_packet()
 			packet[13]= 0x00;
 			packet_count++;
 		}
-	}
+		if(sub_protocol == HUBSAN_FORMAT_H501)
+		{
+			h501_packet++;
+			if(h501_packet == 10)
+			{
+				memset(packet, 0, 16);
+				packet[0] = 0xe8;
+			}
+			else if(h501_packet == 20)
+			{
+				memset(packet, 0, 16);
+				packet[0] = 0xe9;
+			}
+			if(h501_packet >= 20) h501_packet = 0;
+		}
+  }
 	hubsan_update_crc();
-}
+} // 414
 
 #ifdef HUBSAN_HUB_TELEMETRY
-static uint8_t __attribute__((unused)) hubsan_check_integrity() 
+static uint8_t __attribute__((unused)) hubsan_check_integrity()
 {
     if( (packet[0]&0xFE) != 0xE0 )
 		return 0;
-	uint8_t sum = 0;
+		uint8_t sum = 0;
     for(uint8_t i = 0; i < 15; i++)
         sum += packet[i];
 	return ( packet[15] == (uint8_t)(-sum) );
 }
 #endif
 
-uint16_t ReadHubsan() 
+// 440
+uint16_t ReadHubsan()
 {
 #ifdef HUBSAN_HUB_TELEMETRY
 	static uint8_t rfMode=0;
@@ -205,13 +286,13 @@ uint16_t ReadHubsan()
 	switch(phase) {
 		case BIND_1:
 			bind_count++;
-			if(bind_count >= 20)
+			if(bind_count == 20 &&sub_protocol != HUBSAN_FORMAT_H501)
 			{
 				if(id_data == ID_NORMAL)
 					id_data = ID_PLUS;
 				else
 					id_data = ID_NORMAL;
-				A7105_WriteID(id_data);    
+				A7105_WriteID(id_data);
 				bind_count = 0;
 			}
 		case BIND_3:
@@ -300,7 +381,7 @@ uint16_t ReadHubsan()
 					{
 						if( !(A7105_ReadReg(A7105_00_MODE) & 0x01)) {// wait for tx completion
 							A7105_SetTxRxMode(RX_EN);
-							A7105_Strobe(A7105_RX); 
+							A7105_Strobe(A7105_RX);
 							rfMode = A7105_RX;
 							break;
 						}
@@ -340,6 +421,7 @@ uint16_t ReadHubsan()
 	return 0;
 }
 
+// 577
 uint16_t initHubsan() {
 	const uint8_t allowed_ch[] = {0x14, 0x1e, 0x28, 0x32, 0x3c, 0x46, 0x50, 0x5a, 0x64, 0x6e, 0x78, 0x82};
 	A7105_Init();
@@ -351,10 +433,13 @@ uint16_t initHubsan() {
 	phase = BIND_1;
 	packet_count=0;
 	id_data=ID_NORMAL;
+// 605 - 613 left out on purpose
 #ifdef HUBSAN_HUB_TELEMETRY
 	init_hub_telemetry();
 #endif
 	return 10000;
 }
+
+
 
 #endif

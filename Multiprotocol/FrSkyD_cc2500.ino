@@ -105,8 +105,7 @@ uint16_t initFrSky_2way()
 	}
 	else
 	{
-		frsky2way_init(0);
-		state = FRSKY_DATA2;
+		state = FRSKY_BIND_DONE;
 	}
 	return 10000;
 }	

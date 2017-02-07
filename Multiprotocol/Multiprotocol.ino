@@ -235,17 +235,17 @@ void setup()
 		// outputs
 		SDI_output;
 		SCLK_output;
-		#ifdef A7105_INSTALLED
+		#ifdef A7105_CSN_pin
 			A7105_CSN_output;
 		#endif
-		#ifdef CC2500_INSTALLED
+		#ifdef CC25_CSN_pin
 			CC25_CSN_output;
 		#endif
-		#ifdef CYRF6936_INSTALLED
+		#ifdef CYRF_CSN_pin
 			CYRF_RST_output;
 			CYRF_CSN_output;
 		#endif
-		#ifdef NRF24L01_INSTALLED
+		#ifdef NRF_CSN_pin
 			NRF_CSN_output;
 		#endif
 		PE1_output;
@@ -268,16 +268,16 @@ void setup()
 	#endif
 
 	// Set Chip selects
-	#ifdef A7105_INSTALLED
+	#ifdef A7105_CSN_pin
 		A7105_CSN_on;
 	#endif
-	#ifdef CC2500_INSTALLED
+	#ifdef CC25_CSN_pin
 		CC25_CSN_on;
 	#endif
-	#ifdef CYRF6936_INSTALLED
+	#ifdef CYRF_CSN_pin
 		CYRF_CSN_on;
 	#endif
-	#ifdef NRF24L01_INSTALLED
+	#ifdef NRF_CSN_pin
 		NRF_CSN_on;
 	#endif
 	//	Set SPI lines

@@ -334,7 +334,7 @@ static void __attribute__((unused)) Q303_initialize_txid()
 			// not thoroughly figured out rx_tx_addr/channels mapping yet
 			// for now 5 msb of rx_tx_addr[1] must be cleared
 			rx_tx_addr[1] &= 7;
-			offset = 6+((rx_tx_addr[1] & 7)*3);
+			offset = 6+(rx_tx_addr[1]*3);
 			hopping_frequency[0] = 0x14; // works only if rx_tx_addr[1] < 8
 			for(i=1; i<16; i++)
 			{

@@ -70,9 +70,11 @@ static void multi_send_status()
     if (mode_select==MODE_SERIAL)
         flags |= 0x02;
     if (remote_callback != 0)
-        flags |= 0x04;
-    if (!IS_BIND_DONE_on)
-        flags |= 0x08;
+    {
+	    flags |= 0x04;
+		if (!IS_BIND_DONE_on)
+			flags |= 0x08;
+	}
     Serial_write(flags);
 
     // Version number example: 1.1.6.1

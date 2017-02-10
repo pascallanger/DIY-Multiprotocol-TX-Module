@@ -22,6 +22,7 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
 
 ###Install the Arduino IDE and the Multiprotocol project
 1. Download the Arduino IDE. The currently supported Arduino version is 1.6.11 available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
+1. It is recommended to upgrade Java to the [latest version](https://www.java.com/en/download/)
 1. Download the [STM32 Core](https://github.com/rogerclarkmelbourne/Arduino_STM32/archive/master.zip) and copy the Arduino_STM32 folder to:
   - OSX: ```Arduino.app/Contents/Java/hardware```  (you can open Arduino.app by Ctl Clicking on Arduino.app and selecting "Show Package Contents") 
   - Windows: ```C:\Program Files (x86)\Arduino\hardware``` 
@@ -96,7 +97,7 @@ This method use USB connector on the STM32 V1.0 board or on the maple clone boar
 
 Notes:
 - When you use multiSTM32_USB for the first time,the USB drivers are not recognized and port is not open/recognized(arduino IDE port selection is grey/unavailable). After this first time use, any subsequent update of the program, you'll have to select the correct serial port and  upload sketches normally in Arduino using USB port.
-- If the initial upload fails, update your Java version to the latest: https://www.java.com/en/download/
+- If the initial upload fails, make sure you are running the latest [Java version](https://www.java.com/en/download/)
 
 ## Flashing precompiled binaries: 
 

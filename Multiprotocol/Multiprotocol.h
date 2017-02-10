@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	16
+#define VERSION_PATCH_LEVEL	17
 //******************
 // Protocols
 //******************
@@ -284,11 +284,17 @@ enum MultiPacketTypes {
 #define INPUT_SIGNAL_on		protocol_flags2 |= _BV(5)
 #define IS_INPUT_SIGNAL_on	( ( protocol_flags2 & _BV(5) ) !=0 )
 #define IS_INPUT_SIGNAL_off	( ( protocol_flags2 & _BV(5) ) ==0 )
-//CH16
+//Bind from channel
 #define BIND_CH_PREV_off	protocol_flags2 &= ~_BV(6)
 #define BIND_CH_PREV_on		protocol_flags2 |= _BV(6)
 #define IS_BIND_CH_PREV_on	( ( protocol_flags2 & _BV(6) ) !=0 )
 #define IS_BIND_CH_PREV_off	( ( protocol_flags2 & _BV(6) ) ==0 )
+//Wait for bind
+#define WAIT_BIND_off		protocol_flags2 &= ~_BV(7)
+#define WAIT_BIND_on		protocol_flags2 |= _BV(7)
+#define IS_WAIT_BIND_on		( ( protocol_flags2 & _BV(7) ) !=0 )
+#define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
+
 
 //********************
 //*** Blink timing ***
@@ -296,8 +302,11 @@ enum MultiPacketTypes {
 #define BLINK_BIND_TIME				100
 #define BLINK_SERIAL_TIME			500
 #define BLINK_PPM_TIME				1000
-#define BLINK_BAD_PROTO_TIME_LOW	1000
 #define BLINK_BAD_PROTO_TIME_HIGH	50
+#define BLINK_BAD_PROTO_TIME_LOW	1000
+#define BLINK_WAIT_BIND_TIME_HIGH	1000
+#define BLINK_WAIT_BIND_TIME_LOW	100
+
 
 //*******************
 //***  AUX flags  ***
@@ -600,6 +609,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    0x02 = Serial mode enabled
    0x04 = protocol is valid
    0x08 = module is in binding mode
+   0x10 = module waits a bind event to load the protocol
    [3] major
    [4] minor
    [5] revision
@@ -633,6 +643,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    0x02 = Serial mode enabled
    0x04 = protocol is valid
    0x08 = module is in binding mode
+   0x10 = module waits a bind event to load the protocol
    [5] major
    [6] minor
    [7] revision

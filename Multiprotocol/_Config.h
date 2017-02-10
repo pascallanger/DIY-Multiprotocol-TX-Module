@@ -31,10 +31,23 @@
 //#define REVERSE_THROTTLE
 //#define REVERSE_RUDDER
 
-//Comment to disable the bind feature on a channel
+
+/*************************/
+/*** BIND FROM CHANNEL ***/
+/*************************/
+//Bind from channel enables you to bind when a specified channel is giong from low to high. This feature is only active
+// if you specify AUTOBIND in PPM mode or set AutoBind to YES for serial mode. It also requires that the throttle channel is low.
+
+//Comment to globaly disable the bind feature from a channel.
 #define ENABLE_BIND_CH
+
 //Set the channel number used for bind. Default is 16.
 #define BIND_CH	16
+
+//Comment to disable the wait for bind feature. This feature will not activate the selected
+// protocol unless a bind is requested using bind from channel or the GUI "Bind" button.
+//The goal is to prevent binding other people's model when powering up the TX, changing model or scanning through protocols.
+#define WAIT_FOR_BIND
 
 
 /**************************/
@@ -56,6 +69,7 @@
 //In this section select the protocols you want to be accessible when using the module.
 //All the protocols will not fit in the Atmega328p module so you need to pick and choose.
 //Comment the protocols you are not using with "//" to save Flash space.
+
 
 //The protocols below need an A7105 to be installed
 #define	FLYSKY_A7105_INO
@@ -93,6 +107,7 @@
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
 #define Q303_NRF24L01_INO
+
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/

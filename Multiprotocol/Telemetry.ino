@@ -72,8 +72,11 @@ static void multi_send_status()
     if (remote_callback != 0)
     {
 	    flags |= 0x04;
-		if (!IS_BIND_DONE_on)
-			flags |= 0x08;
+		if (IS_WAIT_BIND_on)
+			flags |= 0x10;
+		else
+			if (!IS_BIND_DONE_on)
+				flags |= 0x08;
 	}
     Serial_write(flags);
 

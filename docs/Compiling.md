@@ -6,6 +6,7 @@ The procedure below will guide you through all the steps to upload successfully 
 
 ##Install the Arduino IDE and the Multiprotocol project firmware
 1. Download and install the Arduino IDE. The currently supported Arduino version is 1.6.12. available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
+1. It is recommended to upgrade Java to the [latest version](https://www.java.com/en/download/)
 1. Download the zip file with the Multiprotocol module source code from [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/archive/master.zip)
 1. Unzip and copy the source code folder **Multiprotocol** to a folder of your choosing
 1. Click on the **Multiprotocol.ino** file in the **Multiprotocol** folder and the Arduino environment should appear and the Multiprotocol project will be loaded.

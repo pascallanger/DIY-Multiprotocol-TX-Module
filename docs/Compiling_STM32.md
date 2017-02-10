@@ -94,8 +94,9 @@ This method use USB connector on the STM32 V1.0 board or on the maple clone boar
 1. Open Arduino IDE,browse to multiprotocol folder,load the sketch multiprotocol.ino.
 1. In Arduino IDE under "Upload method" select **STM32duino**-bootloader.Wait until upload is complete.
 
-Note: When you use first time multiSTM32_USB ,the USB drivers are not recognized and port is not open/recognized(arduino IDE port selection is grey/unavailable).
- After this first time use, any subsequent updating of the program you have to select the correct serial port and and upload sketches normally in Arduino using USB port.
+Notes:
+- When you use multiSTM32_USB for the first time,the USB drivers are not recognized and port is not open/recognized(arduino IDE port selection is grey/unavailable). After this first time use, any subsequent update of the program, you'll have to select the correct serial port and  upload sketches normally in Arduino using USB port.
+- If the initial upload fails, update your Java version to the latest: https://www.java.com/en/download/
 
 ## Flashing precompiled binaries: 
 

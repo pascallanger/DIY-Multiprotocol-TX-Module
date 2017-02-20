@@ -22,8 +22,11 @@
 #ifdef ORANGE_TX
 	#undef ENABLE_PPM			// Disable PPM for OrangeTX module
 	#undef A7105_INSTALLED		// Disable A7105 for OrangeTX module
+	#undef A7105_CSN_pin
 	#undef CC2500_INSTALLED		// Disable CC2500 for OrangeTX module
+	#undef CC25_CSN_pin
 	#undef NRF24L01_INSTALLED	// Disable NRF for OrangeTX module
+	#undef NRF_CSN_pin
 	#define TELEMETRY			// Enable telemetry
 	#define INVERT_TELEMETRY	// Enable invert telemetry
 	#define DSM_TELEMETRY		// Enable DSM telemetry

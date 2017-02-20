@@ -152,7 +152,7 @@ multi.menu.cpu.16MHzatmega328.build.f_cpu=16000000L
 
 ### Burn Bootloader
 1. Open the Arduino IDE and load the Multiprotocol project.
-1. Select under **Tools -> Board** the new entry **4-in-1 Multi**
+1. Select under **Tools -> Board** the new entry **Multi 4-in-1**
 1. Select under **Tools -> Programmer** the entry **USBasp**
 1. Click on **Tools -> Burn Bootloader**.  Do not worry it will return an error that no bootloader was found. In fact we are interrested by the first few lines indicating that the fuses were set correctly.
 1. At this stage your flash module is empty so it's normal if the status LED does not do anything.

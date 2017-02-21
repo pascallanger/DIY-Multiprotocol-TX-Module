@@ -131,7 +131,8 @@ Option for this protocol is fine frequency tuning. This value is different for e
  - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
  - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
  - set the value to half way between min and max.
-
+ - [video showing the process](https://youtu.be/C483uNWwAaM)
+ 
 CH1|CH2|CH3|CH4
 ---|---|---|---
 CH1|CH2|CH3|CH4
@@ -147,6 +148,7 @@ Option for this protocol is fine frequency tuning. This value is different for e
  - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
  - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
  - set the value to half way between min and max.
+ - [video showing the process](https://youtu.be/C483uNWwAaM)
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
@@ -163,6 +165,7 @@ Option for this protocol is fine frequency tuning. This value is different for e
  - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
  - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
  - set the value to half way between min and max.
+ - [video showing the process](https://youtu.be/C483uNWwAaM)
 
 ###Sub_protocol CH_16 - *0*
 FCC protocol 16 channels @18ms.
@@ -199,6 +202,7 @@ Option for this protocol is fine frequency tuning. This value is different for e
  - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
  - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
  - set the value to half way between min and max.
+ - [video showing the process](https://youtu.be/C483uNWwAaM)
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---

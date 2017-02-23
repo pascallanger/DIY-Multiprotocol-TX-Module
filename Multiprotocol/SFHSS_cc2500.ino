@@ -156,10 +156,10 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 static void __attribute__((unused)) SFHSS_build_data_packet()
 {
 	uint8_t ch_offset = phase == SFHSS_DATA1 ? 0 : 4;
-	uint16_t ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],1000,2000);
-	uint16_t ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],1000,2000);
-	uint16_t ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],1000,2000);
-	uint16_t ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],1000,2000);
+	uint16_t ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],2000,1000);
+	uint16_t ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],2000,1000);
+	uint16_t ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],2000,1000);
+	uint16_t ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],2000,1000);
 
 	packet[0] = 0x81; // can be 80 or 81 for Orange, only 81 for XK
 	packet[1] = rx_tx_addr[0];

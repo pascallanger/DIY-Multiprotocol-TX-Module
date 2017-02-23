@@ -50,9 +50,9 @@
 #define WAIT_FOR_BIND
 
 
-/**************************/
-/*** RF CHIPS INSTALLED ***/
-/**************************/
+/****************/
+/*** RF CHIPS ***/
+/****************/
 //There are 4 RF components supported. If one of them is not installed you must comment it using "//".
 //If a chip is not installed all associated protocols are disabled.
 //4-in-1 modules have all RF chips installed
@@ -62,6 +62,14 @@
 #define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
 
+//Low power is reducing the transmit power of the multi module. This setting is configurable per model in PPM (table below) or Serial mode (radio GUI).
+//It can be activated when flying indoor or small models since the distance is short or if a model is causing issues when flying closed to the TX.
+//By default low power is completly disabled on all rf chips to prevent mistakes, but you can enable it by uncommenting the lines below: 
+//#define A7105_ENABLE_LOW_POWER
+//#define CYRF6936_ENABLE_LOW_POWER
+//#define CC2500_ENABLE_LOW_POWER
+//#define NRF24L01_ENABLE_LOW_POWER
+
 
 /****************************/
 /*** PROTOCOLS TO INCLUDE ***/
@@ -69,7 +77,6 @@
 //In this section select the protocols you want to be accessible when using the module.
 //All the protocols will not fit in the Atmega328p module so you need to pick and choose.
 //Comment the protocols you are not using with "//" to save Flash space.
-
 
 //The protocols below need an A7105 to be installed
 #define	FLYSKY_A7105_INO

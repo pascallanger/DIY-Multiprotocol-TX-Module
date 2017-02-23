@@ -160,7 +160,11 @@ void NRF24L01_SetPower()
 {
 	uint8_t power=NRF_BIND_POWER;
 	if(IS_BIND_DONE_on)
-		power=IS_POWER_FLAG_on?NRF_HIGH_POWER:NRF_LOW_POWER;
+		#ifdef NRF24L01_ENABLE_LOW_POWER
+			power=IS_POWER_FLAG_on?NRF_HIGH_POWER:NRF_LOW_POWER;
+		#else
+			power=NRF_HIGH_POWER;
+		#endif
 	if(IS_RANGE_FLAG_on)
 		power=NRF_POWER_0;
 	rf_setup = (rf_setup & 0xF9) | (power << 1);

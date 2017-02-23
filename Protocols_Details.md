@@ -198,6 +198,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ##SFHSS - *21*
 Models: Futaba RXs and XK models.
 
+Extended limits supported
+
 Option for this protocol is fine frequency tuning. This value is different for each Module. To determine this value:
  - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
  - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.

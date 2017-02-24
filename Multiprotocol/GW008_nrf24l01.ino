@@ -147,6 +147,7 @@ uint16_t GW008_callback()
 
 uint16_t initGW008()
 {
+	BIND_IN_PROGRESS;	// autobind protocol
 	GW008_initialize_txid();
 	phase = GW008_BIND1;
 	GW008_init();

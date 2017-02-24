@@ -491,6 +491,15 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|RTH|HEADLESS|EXPERT
 
+##GW008 - *32*
+Model: Global Drone GW008 from Banggood
+
+There are 3 versions of this small quad, this protocol is for the one with a XNS104 IC in the stock Tx and PAN159CY IC in the quad. The xn297 version is compatible with the CX10 protocol (green pcb). The LT8910 version is not supported yet.
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|FLIP
+
 ##HISKY - *4*
 ###Sub_protocol Hisky - *0*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8

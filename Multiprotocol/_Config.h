@@ -175,7 +175,7 @@
 #define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012µs)
 //#define TX_DEVO7		//DEVO					(1120<->1920µs)
 //#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
-//#define TX_HISKY		//HISKY					(1100<->1900µs)
+//#define TX_HISKY		//HISKY					(1120<->1920µs)
 //#define TX_MPX		//Multiplex MC2020		(1250<->1950µs)
 //#define TX_CUSTOM		//Custom
 

@@ -10,8 +10,8 @@
 #if defined(TX_DEVO7)
 	#define PPM_MAX_100	1920	//	100%
 	#define PPM_MIN_100	1120	//	100%
-	#define PPM_MAX_125	2100	//	125%
-	#define PPM_MIN_125	900		//	125%
+	#define PPM_MAX_125	2120	//	125%
+	#define PPM_MIN_125	920		//	125%
 #endif
 
 // SPEKTRUM PPM and channels
@@ -24,10 +24,10 @@
 
 // HISKY
 #if defined(TX_HISKY)
-	#define PPM_MAX_100	1900	//	100%
-	#define PPM_MIN_100	1100	//	100%
-	#define PPM_MAX_125	2000	//	125%
-	#define PPM_MIN_125	1000	//	125%
+	#define PPM_MAX_100	1920	//	100%
+	#define PPM_MIN_100	1120	//	100%
+	#define PPM_MAX_125	2020	//	125%
+	#define PPM_MIN_125	1020	//	125%
 #endif
 
 // Multiplex MC2020

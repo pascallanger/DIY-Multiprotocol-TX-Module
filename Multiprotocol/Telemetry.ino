@@ -433,7 +433,7 @@ void sportSendFrame()
 		frame[0] = 0x98;
 		frame[1] = 0x10;
 		for (i=5;i<8;i++)
-		frame[i]=0;
+			frame[i]=0;
 	}
 	switch (sport_counter)
 	{
@@ -448,6 +448,9 @@ void sportSendFrame()
 			frame[2] = 0x01;
 			frame[3] = 0xf1;
 			frame[4] = RX_RSSI;
+			frame[4] = TX_RSSI;
+			frame[5] = RX_LQI;
+			frame[6] = TX_LQI;
 			break;
 		case 4: //BATT
 			frame[2] = 0x04;

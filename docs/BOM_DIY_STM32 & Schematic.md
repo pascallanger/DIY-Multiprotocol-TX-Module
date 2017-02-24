@@ -100,6 +100,9 @@ Qty|Part|Description|Value|Package|Digikey Part Number
  This BOM is for the board that looks like this - check carefully:
  
 <img src="https://camo.githubusercontent.com/9b8dc4eb5618583ebe8fc01f03f2da75766080b3/68747470733a2f2f36343464623464653335303563343061303434342d33323737323362636532393865336666353831336662343262616565666261612e73736c2e6366312e7261636b63646e2e636f6d2f66326435393865616364386539656562633338313861646634373737373139392e706e67"  width="300" height="400"/>
+<img
+src="https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/2026cfd1d0187a770570052590168df1.png" width="300" height="400"/>
+
 
 Qty|Part|Description|Value|Package|Digikey Part Number
 ---|----|-----------|-----|-------|-------------------
@@ -126,3 +129,6 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|Y2|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)
 1|U301|Dual INPUT-XOR|SN74LVC2G86DCTR|SSM8|[296-13274-1-ND](http://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G86DCTR/296-13274-1-ND/484501)
 1|U.FL|SMD ant. conn.|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
+
+PCB STM32 V0.1 Schematic
+<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB/v0.1/Schematic_Multiprotocol_STM32_MB_v0.1.png" width="1000" height="500" /> 

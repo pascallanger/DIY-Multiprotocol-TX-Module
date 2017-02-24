@@ -448,9 +448,9 @@ void sportSendFrame()
 			frame[2] = 0x01;
 			frame[3] = 0xf1;
 			frame[4] = RX_RSSI;
-			frame[4] = TX_RSSI;
-			frame[5] = RX_LQI;
-			frame[6] = TX_LQI;
+			frame[5] = TX_RSSI;
+			frame[6] = RX_LQI;
+			frame[7] = TX_LQI;
 			break;
 		case 4: //BATT
 			frame[2] = 0x04;

@@ -114,7 +114,7 @@
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
 #define Q303_NRF24L01_INO
-
+#define GW008_NRF24L01_INO
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/
@@ -222,8 +222,15 @@ const PPM_Parameters PPM_prot[15]=	{
 		CX20
 	MODE_HUBSAN
 		NONE
+	MODE_FRSKYV
+		NONE
 	MODE_FRSKYD
 		NONE
+	MODE_FRSKYX
+		CH_16
+		CH_8
+		EU_16
+		EU_8
 	MODE_HISKY
 		Hisky
 		HK310
@@ -272,11 +279,6 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_BAYANG
 		BAYANG
 		H8S3D
-	MODE_FRSKYX
-		CH_16
-		CH_8
-		EU_16
-		EU_8
 	MODE_ESKY
 		NONE
 	MODE_MT99XX
@@ -305,8 +307,6 @@ const PPM_Parameters PPM_prot[15]=	{
 		NONE
 	MODE_ASSAN
 		NONE
-	MODE_FRSKYV
-		NONE
 	MODE_HONTAI
 		FORMAT_HONTAI
 		FORMAT_JJRCX1
@@ -329,6 +329,8 @@ const PPM_Parameters PPM_prot[15]=	{
 		CX35
 		CX10D
 		CX10WD
+	MODE_GW008
+		NONE
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

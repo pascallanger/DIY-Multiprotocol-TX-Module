@@ -69,6 +69,7 @@
 	#undef	ASSAN_NRF24L01_INO
 	#undef	HONTAI_NRF24L01_INO
 	#undef	Q303_NRF24L01_INO
+	#undef	GW008_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly

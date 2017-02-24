@@ -60,9 +60,9 @@ static void __attribute__((unused)) ssv_pack_dpl(uint8_t addr[], uint8_t pid, ui
 
 	crc.val=0x3c18;
 	for (i = 0; i < 7; ++i)
-		crc.val=crc16_update(crc.val,header[i]);
+		crc.val=crc16_update(crc.val,header[i],8);
 	for (i = 0; i < *len; ++i)
-		crc.val=crc16_update(crc.val,payload[i]);
+		crc.val=crc16_update(crc.val,payload[i],8);
 
 	// encode payload and crc
 	// xor with this:

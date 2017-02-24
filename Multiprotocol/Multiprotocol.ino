@@ -941,6 +941,12 @@ static void protocol_init()
 						remote_callback = Q303_callback;
 						break;
 				#endif
+				#if defined(GW008_NRF24L01_INO)
+					case MODE_GW008:
+						next_callback=initGW008();
+						remote_callback = GW008_callback;
+						break;
+				#endif
 			#endif
 		}
 	}

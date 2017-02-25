@@ -1,8 +1,11 @@
 /*
+ Protocol by Dennis Cabell, 2017
+ KE8FZX
+  
  To use this software, you must adhere to the license terms described below, and assume all responsibility for the use
  of the software.  The user is responsible for all consequences or damage that may result from using this software.
  The user is responsible for ensuring that the hardware used to run this software complies with local regulations and that 
- any radio signal generated from use of this software is legal for that user to generate.  The author(s) of this software 
+ any radio signal generated or recieved from use of this software is legal for that user to generate.  The author(s) of this software 
  assume no liability whatsoever.  The author(s) of this software is not responsible for legal or civil consequences of 
  using this software, including, but not limited to, any damages cause by lost control of a vehicle using this software.  
  If this software is copied or modified, this disclaimer must accompany all copies.
@@ -20,18 +23,22 @@ Multiprotocol is distributed in the hope that it will be useful,
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// 
-// My own personal protocol
+
 
 #if defined(CABELL_NRF24L01_INO)
 
 #include "iface_nrf24l01.h"
 
-#define CABELL_BIND_COUNT     2000   // At least 2000 so that if TX toggles the serial bind flag then bind mode is never exited
-#define CABELL_PACKET_PERIOD  3000   // Do not set too low or else next packet may not be finished transmitting before the channel is changed next time around
-#define CABELL_NUM_CHANNELS   16
-#define CABELL_MIN_CHANNELS   4
-#define CABELL_PAYLOAD_BYTES  24  // 12 bits per value
+#define CABELL_BIND_COUNT       2000   // At least 2000 so that if TX toggles the serial bind flag then bind mode is never exited
+#define CABELL_PACKET_PERIOD    3000   // Do not set too low or else next packet may not be finished transmitting before the channel is changed next time around
+
+#define CABELL_NUM_CHANNELS     16                  // The maximum number of RC channels that can be sent in one packet
+#define CABELL_MIN_CHANNELS     4                   // The minimum number of channels that must be included in a packet, the number of channels cannot be reduced any further than this
+#define CABELL_PAYLOAD_BYTES    24                  // 12 bits per value * 16 channels
+
+#define CABELL_RADIO_CHANNELS         9                  // This is 1/5 of the total number of radio channels used for FHSS
+#define CABELL_RADIO_MIN_CHANNEL_NUM  3                   // Channel 0 is right on the boarder of allowed frequency range, so move up to avoid bleeding over
+
 #define CABELL_BIND_RADIO_ADDR  0xA4B7C123F7LL
 
 #define CABELL_OPTION_MASK_CHANNEL_REDUCTION     0x0F
@@ -66,8 +73,8 @@ static uint8_t __attribute__((unused)) CABELL_getNextChannel (uint8_t seqArray[]
    * Each time the channel is changes, bands change in a way so that the next channel will be in a
    * different non-adjacent band. Both the band changes and the index in seqArray is incremented.
    */
-  prevChannel = constrain(prevChannel,1,seqArraySize * 5);    // Constain the values just in case something bogus was sent in.
-  prevChannel--;                                              // Subtract one becasue 1 was added to the return value
+  prevChannel -= CABELL_RADIO_MIN_CHANNEL_NUM;                             // Subtract CABELL_RADIO_MIN_CHANNEL_NUM becasue it was added to the return value
+  prevChannel = constrain(prevChannel,0,(seqArraySize * 5)     );    // Constrain the values just in case something bogus was sent in.
   
   uint8_t currBand = prevChannel / seqArraySize;             
   uint8_t nextBand = (currBand + 3) % 5;
@@ -82,7 +89,7 @@ static uint8_t __attribute__((unused)) CABELL_getNextChannel (uint8_t seqArray[]
   uint8_t nextChannalSeqArrayPosition = prevChannalSeqArrayPosition + 1;
   if (nextChannalSeqArrayPosition >= seqArraySize) nextChannalSeqArrayPosition = 0;
 
-  return (seqArraySize * nextBand) + seqArray[nextChannalSeqArrayPosition] + 1;   // Add one so we dont use channel 0 as it may bleed below 2.400 GHz
+  return (seqArraySize * nextBand) + seqArray[nextChannalSeqArrayPosition] + CABELL_RADIO_MIN_CHANNEL_NUM;   // Add CABELL_RADIO_MIN_CHANNEL_NUM so we dont use channel 0 as it may bleed below 2.400 GHz
 }
 
 //-----------------------------------------------------------------------------------------
@@ -156,7 +163,7 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
   } 
 
   // Set channel for next transmission
-  rf_ch_num = CABELL_getNextChannel (hopping_frequency,CABELL_NUM_CHANNELS, rf_ch_num);
+  rf_ch_num = CABELL_getNextChannel (hopping_frequency,CABELL_RADIO_CHANNELS, rf_ch_num);
   NRF24L01_WriteReg(NRF24L01_05_RF_CH,rf_ch_num); 
 
   NRF24L01_FlushTx();   //just in case things got hung up
@@ -235,8 +242,8 @@ static void __attribute__((unused)) CABELL_setAddress()
     CABELL_addr = CABELL_BIND_RADIO_ADDR;    //static addr for binding
   }
 
-  CABELL_getChannelSequence(hopping_frequency,CABELL_NUM_CHANNELS,CABELL_addr);            // Get the sequence for hopping through channels
-  rf_ch_num = CABELL_getNextChannel (hopping_frequency,CABELL_NUM_CHANNELS, 1);            // initialize the channel sequence
+  CABELL_getChannelSequence(hopping_frequency,CABELL_RADIO_CHANNELS,CABELL_addr);            // Get the sequence for hopping through channels
+  rf_ch_num = CABELL_RADIO_MIN_CHANNEL_NUM;            // initialize the channel sequence
   
   packet_count=0;  
   

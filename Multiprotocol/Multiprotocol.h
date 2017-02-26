@@ -55,7 +55,7 @@ enum PROTOCOLS
 	MODE_OPENLRS	= 27,	// =>OpenLRS hardware
 	MODE_AFHDS2A	= 28,	// =>A7105
 	MODE_Q2X2		= 29,	// =>NRF24L01, extension of CX-10 protocol
-	MODE_CABELL		= 30,	// =>NRF24L01
+	MODE_CABELL		= 33,	// =>NRF24L01
 };
 
 enum Flysky
@@ -448,7 +448,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					OpenLRS		27
 					AFHDS2A		28
 					Q2X2		29
-					CABELL		30
+					CABELL		33
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

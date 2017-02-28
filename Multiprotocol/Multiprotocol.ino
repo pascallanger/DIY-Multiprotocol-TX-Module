@@ -478,6 +478,7 @@ uint8_t Update_All()
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)		// Serial mode and something has been received
 		{
 			update_serial_data();							// Update protocol and data
+			update_channels_aux();
 			INPUT_SIGNAL_on;								//valid signal received
 			last_signal=millis();
 		}
@@ -485,7 +486,7 @@ uint8_t Update_All()
 	#ifdef ENABLE_PPM
 		if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)		// PPM mode and a full frame has been received
 		{
-			for(uint8_t i=0;i<NUM_CHN;i++)
+			for(uint8_t i=0;i<MAX_PPM_CHANNELS;i++)
 			{ // update servo data without interrupts to prevent bad read in protocols
 				uint16_t temp_ppm ;
 				cli();										// disable global int
@@ -496,11 +497,11 @@ uint8_t Update_All()
 				Servo_data[i]= temp_ppm ;
 			}
 			PPM_FLAG_off;									// wait for next frame before update
+			update_channels_aux();
 			INPUT_SIGNAL_on;								//valid signal received
 			last_signal=millis();
 		}
 	#endif //ENABLE_PPM
-	update_channels_aux();
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
@@ -1222,7 +1223,7 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 		else
 			if(Cur_TCNT1>4840)
 			{  //start of frame
-				if(chan>3)
+				if(chan>=MIN_PPM_CHANNELS)
 					PPM_FLAG_on;			// good frame received if at least 4 channels have been seen
 				chan=0;						// reset channel counter
 				bad_frame=0;
@@ -1231,7 +1232,7 @@ static uint32_t random_id(uint16_t adress, uint8_t create_new)
 				if(bad_frame==0)			// need to wait for start of frame
 				{  //servo values between 500us and 2420us will end up here
 					PPM_data[chan]= Cur_TCNT1>>1;;
-					if(chan++>=NUM_CHN)
+					if(chan++>=MAX_PPM_CHANNELS)
 						bad_frame=1;		// don't accept any new channels
 				}
 		Prev_TCNT1+=Cur_TCNT1;

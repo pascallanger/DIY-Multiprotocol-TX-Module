@@ -38,6 +38,14 @@
 	#define PPM_MIN_125 1150 // 125%
 #endif
 
+// Walkera PL0811-01H
+#if defined(TX_WALKERA)
+	#define PPM_MAX_100 1800 // 100%
+	#define PPM_MIN_100 1000 // 100%
+	#define PPM_MAX_125 1900 // 125%
+	#define PPM_MIN_125 900  // 125%
+#endif
+
 //Serial MIN MAX values
 #define SERIAL_MAX_100	2012	//	100%
 #define SERIAL_MIN_100	988		//	100%

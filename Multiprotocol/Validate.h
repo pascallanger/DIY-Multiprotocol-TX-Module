@@ -129,3 +129,16 @@
 		#error BIND_CH must be below or equal to 16.
 	#endif
 #endif
+
+#if MIN_PPM_CHANNELS>16
+	#error MIN_PPM_CHANNELS must be below or equal to 16. The default for this value is 4.
+#endif
+#if MIN_PPM_CHANNELS<2
+	#error MIN_PPM_CHANNELS must be larger than 1. The default for this value is 4.
+#endif
+#if MAX_PPM_CHANNELS<MIN_PPM_CHANNELS
+	#error MAX_PPM_CHANNELS must be higher than MIN_PPM_CHANNELS. The default for this value is 16.
+#endif
+#if MAX_PPM_CHANNELS>16
+	#error MAX_PPM_CHANNELS must be below or equal to 16. The default for this value is 16.
+#endif

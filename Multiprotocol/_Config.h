@@ -177,6 +177,7 @@
 //#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
 //#define TX_HISKY		//HISKY					(1120<->1920µs)
 //#define TX_MPX		//Multiplex MC2020		(1250<->1950µs)
+//#define TX_WALKERA	//Walkera PL0811-01H	(1000<->1800µs)
 //#define TX_CUSTOM		//Custom
 
 // The lines below are used to set the end points in microseconds (µs) if you have selected TX_CUSTOM.
@@ -191,6 +192,13 @@
 	#define PPM_MAX_125	2000	//	125%
 	#define PPM_MIN_125	1000	//	125%
 #endif
+
+// The line below is used to set the minimum number of channels which the module should receive to consider a PPM frame valid.
+// The default value is 4 to receive at least AETR for flying models but you could also connect the PPM from a car radio which has only 3 channels by changing this number to 3.
+#define MIN_PPM_CHANNELS 4
+// The line below is used to set the maximum number of channels which the module should work with. Any channels received above this number are discarded.
+// The default value is 16 to receive all possible channels but you might want to filter some "bad" channels from the PPM frame like the ones above 6 on the Walkera PL0811.
+#define MAX_PPM_CHANNELS 16
 
 //The table below indicates which protocol to run when a specific position on the dial has been selected.
 //All fields and values are explained below. Everything is configurable from here like in the Serial mode.

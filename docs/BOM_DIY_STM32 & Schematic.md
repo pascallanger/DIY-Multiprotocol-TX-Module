@@ -26,7 +26,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|K201|USB Receptacle|USB||[732-2735-ND](https://www.digikey.com/product-search/en?keywords=651005136421)
 1|SV201|Jumper|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV202|Pin header|1x4||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
-1|SV203|Pin header|2x3| for future use NOT ISP|[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
+1|SV203|Pin header for future use, **NOT ISP**|2x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 1|SV204|Pin header|1x3||[S1011EC-40-ND](https://www.digikey.com/product-detail/en/sullins-connector-solutions/PRPC040SAAN-RC/S1011EC-40-ND/2775214)
 3|C101, 102, 103|Cap Tantalum|22uF/16V (Band is +)|1206|[478-8254-1-ND](https://www.digikey.com/product-detail/en/avx-corporation/F931C226MAA/478-8254-1-ND/4005702)
 7|C201, 202, 204, 205, 206, 209, 301|Cap Ceramic|0.1uF|0805|[311-1361-1-ND](https://www.digikey.com/product-detail/en/yageo/CC0805ZRY5V9BB104/311-1361-1-ND/2103145)

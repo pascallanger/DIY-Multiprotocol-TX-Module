@@ -1,27 +1,29 @@
 {
   "packages": [
-	{
-	  "name": "MULTI",
-	  "maintainer": "Pascal",
+    {
+      "name": "myboard",
+      "maintainer": "Jane Developer",
+      "websiteURL": "https://github.com/janedeveloper/myboard",
+      "email": "jane@janedeveloper.org",
       "help": {
-        "online": "https://www.rcgroups.com/forums/showthread.php?2165676-DIY-Multiprotocol-TX-Module/page555"
+        "online": "http://janedeveloper.org/forum/myboard"
       },
-	  "websiteURL": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module",
-	  "platforms": [
+      "platforms": [
         {
-          "name": "Multi 4in1 Atmega328p",
+          "name": "My Board",
           "architecture": "avr",
           "version": "1.0.0",
-          "category": "Multi",
-		  "help": {
-			"online": "https://www.rcgroups.com/forums/showthread.php?2165676-DIY-Multiprotocol-TX-Module/page555"
-		  },
-          "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module",
-          "archiveFileName": "multi_avr-1.0.0.zip",
+          "category": "Contributed",
+          "help": {
+            "online": "http://janedeveloper.org/forum/myboard"
+          },
+          "url": "https://janedeveloper.github.io/myboard/myboard-1.0.0.zip",
+          "archiveFileName": "myboard-1.0.0.zip",
           "checksum": "SHA-256:ec3ff8a1dc96d3ba6f432b9b837a35fd4174a34b3d2927de1d51010e8b94f9f1",
           "size": "15005",
           "boards": [
-            {"name": "Multi 4in1 Atmega328p"},
+            {"name": "My Board"},
+            {"name": "My Board Pro"}
           ],
           "toolsDependencies": [
             {
@@ -37,47 +39,20 @@
           ]
         },
         {
-          "name": "Multi 4in1 STM32",
-          "architecture": "stm32",
-          "version": "1.0.0",
-          "category": "Multi",
-		  "help": {
-			"online": "https://www.rcgroups.com/forums/showthread.php?2165676-DIY-Multiprotocol-TX-Module/page555"
-		  },
-          "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module",
-          "archiveFileName": "multi_stm32-1.0.0.zip",
-          "checksum": "SHA-256:ec3ff8a1dc96d3ba6f432b9b837a35fd4174a34b3d2927de1d51010e8b94f9f1",
-          "size": "15005",
+          "name": "My Board",
+          "architecture": "avr",
+          "version": "1.0.1",
+          "category": "Contributed",
+          "help": {
+            "online": "http://janedeveloper.org/forum/myboard"
+          },
+          "url": "https://janedeveloper.github.io/myboard/myboard-1.0.1.zip",
+          "archiveFileName": "myboard-1.0.1.zip",
+          "checksum": "SHA-256:9c86ee28a7ce9fe33e8b07ec643316131e0031b0d22e63bb398902a5fdadbca9",
+          "size": "15125",
           "boards": [
-            {"name": "Multi 4in1 STM32"},
-          ],
-          "toolsDependencies": [
-            {
-              "packager": "arduino",
-              "name": "avr-gcc",
-              "version": "4.8.1-arduino5"
-            },
-            {
-              "packager": "arduino",
-              "name": "avrdude",
-              "version": "6.0.1-arduino5"
-            }
-          ]
-        },
-        {
-          "name": "Multi 4in1 OrangeTX",
-          "architecture": "xmega",
-          "version": "1.0.0",
-          "category": "Multi",
-		  "help": {
-			"online": "https://www.rcgroups.com/forums/showthread.php?2165676-DIY-Multiprotocol-TX-Module/page555"
-		  },
-          "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module",
-          "archiveFileName": "multi_xmega-1.0.0.zip",
-          "checksum": "SHA-256:ec3ff8a1dc96d3ba6f432b9b837a35fd4174a34b3d2927de1d51010e8b94f9f1",
-          "size": "15005",
-          "boards": [
-            {"name": "Multi 4in1 OrangeTX"},
+            {"name": "My Board"},
+            {"name": "My Board Pro"}
           ],
           "toolsDependencies": [
             {

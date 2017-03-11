@@ -204,7 +204,7 @@ static void __attribute__((unused)) CABELL_getChannelSequence (uint8_t outArray[
     outArray[i-1] = i-1;            //  Initialize array with the sequence
   }
   
-  permutation = constrain(permutation,1,numChannelsFactorial);    // k must be between 1 and n! or this algorithm will infinate loop
+  permutation = (permutation % numChannelsFactorial) + 1;    // permutation must be between 1 and n! or this algorithm will infinate loop
 
   //Rearrange the array elements based on the permutation selected
   for (i=0, permutation--; i<numChannels; i++ ) {

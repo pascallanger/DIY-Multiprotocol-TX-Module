@@ -176,8 +176,9 @@ enum FY326
 };
 enum CABELL
 {
-  CABELL_V3     = 0,
-  CABELL_UNBIND = 7
+  CABELL_V3            = 0,
+  CABELL_SET_FAIL_SAFE = 6,
+  CABELL_UNBIND        = 7
 };
 
 #define NONE 		0
@@ -537,8 +538,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			FY326		0
 			FY319		1
 		sub_protocol==CABELL
-			CABELL_V3		0,
-			CABELL_UNBIND 	7
+			CABELL_V3		         0,
+			CABELL_SET_FAIL_SAFE 6,
+			CABELL_UNBIND 	     7
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

@@ -50,6 +50,7 @@ typedef struct {
    enum RxMode_t : uint8_t {   // Note bit 8 is used to indicate if the packet is the first of 2 on the channel.  Mask out this bit before using the enum
          normal = 0,
          bind   = 1,
+         setFailSafe = 2,
          unBind = 127
    } RxMode;
    uint8_t  reserved = 0;
@@ -108,7 +109,11 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
     TxPacket.RxMode     = CABELL_RxTxPacket_t::RxMode_t::unBind;
     TxPacket.option     = option & (~CABELL_OPTION_MASK_CHANNEL_REDUCTION);   //remove channel reduction if in unBind mode
   } else {
-    TxPacket.RxMode     = (bindMode) ?  CABELL_RxTxPacket_t::RxMode_t::bind : CABELL_RxTxPacket_t::RxMode_t::normal;
+    if (sub_protocol == CABELL_SET_FAIL_SAFE) {
+      TxPacket.RxMode     = CABELL_RxTxPacket_t::RxMode_t::setFailSafe;
+    } else {
+      TxPacket.RxMode     = (bindMode) ?  CABELL_RxTxPacket_t::RxMode_t::bind : CABELL_RxTxPacket_t::RxMode_t::normal;
+    }
     TxPacket.option     = (bindMode) ? (option & (~CABELL_OPTION_MASK_CHANNEL_REDUCTION)) : option;   //remove channel reduction if in bind mode
   }
   TxPacket.reserved   = 0;

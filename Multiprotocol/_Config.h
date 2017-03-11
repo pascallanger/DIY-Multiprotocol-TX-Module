@@ -291,6 +291,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		PPM_SBUS
 	MODE_CABELL
 		CABELL_V3
+		CABELL_SET_FAIL_SAFE
 		CABELL_UNBIND
 */
 

@@ -110,11 +110,11 @@ static void AFHDS2A_update_telemetry()
 				v_lipo1 = packet[index+2];
 				telemetry_link=1;
 				break;
-			/*case AFHDS2A_SENSOR_RX_ERR_RATE:
-				// packet[index+2];
-				break;*/
+			case AFHDS2A_SENSOR_RX_ERR_RATE:
+				RX_LQI=packet[index+2];
+				break;
 			case AFHDS2A_SENSOR_RX_RSSI:
-				RSSI_dBm = -packet[index+2];
+				RX_RSSI = -packet[index+2];
 				break;
 			case 0xff:
 				return;
@@ -260,7 +260,7 @@ uint16_t ReadAFHDS2A()
 			while ((uint16_t)micros()-start < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
-			A7105_SetTxRxMode(RX_EN);
+			A7105_SetTxRxMode(TXRX_OFF);					// Turn LNA off since we are in near range and we want to prevent swamping
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;
 			phase++;
@@ -352,7 +352,7 @@ uint16_t initAFHDS2A()
 	}
 	hopping_frequency_no = 0;
 #if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)
-	init_hub_telemetry();
+	init_frskyd_link_telemetry();
 #endif
 	return 50000;
 }

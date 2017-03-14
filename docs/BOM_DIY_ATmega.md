@@ -6,7 +6,7 @@ If you are looking for the BOM for the DIY STM32 version click [here](BOM_DIY_ST
 
 Digikey may not be your preferred supplier, but you should find enough information on their page to cross reference parts.
 
-## BOM DIY ATmega PCB - V3.2d
+## BOM DIY ATmega PCB - V2.3d
  This BOM is for the board that looks like this - check carefully:
  
 <img src="images/MPTM_PCB_3.2d.png" />

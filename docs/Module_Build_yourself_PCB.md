@@ -4,9 +4,9 @@ Currently the form factor of this module is designed for the JR-style module bay
 ##What you need
 First you must choose the PCB onto which to solder all the components. There are two PCB options:
  - ATmega (8-bit) powered PCB V2.3d supporting individual RF modules
- - STM32 (32-bit) powered PCB supporting the 4-in-1 RF module
+ - STM32 (32-bit) powered PCB V1.0t supporting the 4-in-1 RF module
 
-The **ATmega-based board** has been designed to accept individual RF modules.  This way you can select just the module or modules you want.  The downside is that each module requires its own antenna.  It can become cumbersome with 4 antennas protruding from the module.  It is possible to soder the 4-in-1 module to the PCB using thin insulated wire. This 4-in-1 module requires only one antenna.  Finally, the Atmega board has a 32k flash memory.  This is big enough to accommodate more than 15 protocols, but it cannot accommodate all the available protocols.
+The **ATmega-based board** has been designed to accept individual RF modules.  This way you can select just the module or modules you want.  The downside is that each module requires its own antenna.  It can become cumbersome with 4 antennas protruding from the module.  It is possible to soder the 4-in-1 module to the PCB using thin insulated wire. This 4-in-1 module requires only one antenna.  Finally, the Atmega board has a 32KB flash memory.  This is big enough to accommodate more than 15 protocols, but it cannot accommodate all the available protocols.
 
 <img src="images/MPTM_with_RF_modules.jpeg" width="150" height="120" />
 
@@ -27,20 +27,20 @@ The **STM32-based** board has been designed to accept the 4-in-1 RF module with 
 The schematic for the board is [here](#V23D_Schematic).  Please note that is is the general schematic - there will be some minor differences (like solder jumpers) between this and the board.
 
 ###STM32 powered PCB
-1. STM32 (32-bit) powered PCB supporting the 4-in-1 RF module available from OSHPark [here](https://oshpark.com/shared_projects/GX51nEoH).  
+1. The latest STM32 (32-bit) powered PCB V1.0t supporting the 4-in-1 RF module available from OSHPark [here](https://oshpark.com/shared_projects/GX51nEoH).  
 2. The 4-in-1 RF module is available [here](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html) 
-1. The BOM for this board is available [here](BOM_DIY_STM32.md). The github project page for the STM32 module is [here](https://github.com/midelic/DIY-Multiprotocol-TX-Module).
-
-The schematic for the board is [here](#STM32_Schematic)
+1. The schematic and BOM for this board V1.0t and older boards are available [here](BOM_DIY_STM32 & Schematic.md).
 
 ###Common parts
-1. A module case that fits your receiver like the one [here](https://www.xtremepowersystems.net/proddetail.php?prod=XPS-J1CASE)  
+1. A module case that fits your module like the one [here](https://www.xtremepowersystems.net/proddetail.php?prod=XPS-J1CASE)  
  <img src="https://www.xtremepowersystems.net/prodimages/j1case.jpg" width="200" height="180" />  
   or you can 3D print your own from a selection on Thingiverse ([Example 1](http://www.thingiverse.com/thing:1852868) [Example 2](http://www.thingiverse.com/thing:1661833)).  
- [<img src="http://thingiverse-production-new.s3.amazonaws.com/renders/55/1c/cb/0a/e4/5d2c2b06be7f3f6f8f0ab4638dd7c6fc_preview_featured.jpg" width="250" height="200" /> ](http://www.thingiverse.com/thing:1852868)
-1. A 2.4GHz antenna and pigtail
-1. AVR ISP programmer like the popular USBASP programming dongle that is 3.3V safe - available from many sellers on [ebay.](http://www.ebay.com/sch/i.html?_odkw=usbasp+progammer&_osacat=0&_from=R40&_trksid=p2045573.m570.l1313.TR3.TRC2.A0.H0.Xusbasp+progammer+3.3V.TRS1&_nkw=usbasp+progammer+3.3V&_sacat=0)  There are reports that some of the cheap programmers are not safe to use with 3.3V units (like this unit).  Look for USBAsp programmers with the “LC Technologies” label. {Pascal to confirm these reports are true} Also, you will need a 10-pin to 6-pin connector to connect the USBASP to the board. 
+ [<img src="http://thingiverse-production-new.s3.amazonaws.com/renders/55/1c/cb/0a/e4/5d2c2b06be7f3f6f8f0ab4638dd7c6fc_preview_featured.jpg" width="250" height="200" /> ](http://www.thingiverse.com/thing:1852868)  
+  For 9XR/9XR Pro, a new 3D printed module is available which makes use of the built in antenna in the handle. This means nothing is getting out of the radio back! You can find all details of this module case on [Thingiverse](http://www.thingiverse.com/thing:2050717).  
+ <img src="images/9XR_module.jpg" width="113" height="200" /> <img src="images/9XR_module_connector.jpg" width="274" height="200" /> 
 
+
+1. A 2.4GHz antenna and pigtail
 
 ##Build instructions
 If you got this far you already know what you are doing!!
@@ -51,7 +51,7 @@ If you got this far you already know what you are doing!!
 1. Fit the module into the module case. This may require some careful filing or sanding of the module to ensure a nice fit.
 
 ###PPM interface
-If you are only planning on using the PPM interface with transmitter you are ready to program the module as described in Compiling and Programming the module.
+If you are only planning on using the PPM interface with transmitter you are ready to program the module as described in [Compiling and Programming](Compiling.md) the module.
 
 ###Enabling Serial and Telemetry interface
 If you have a transmitter that can support serial communication with the board then you need to solder some jumpers.
@@ -75,22 +75,15 @@ You are now ready to go over to [Compiling and Programming](Compiling.md).
 
 #### **STM32 board** 
 
-You need to solder bridges over jumpers to connect pin 5 from the transmitter to the RX pin on the MCU.  Depending on which version of the board you have the jumpers are labled SJ1 or SJ301.  Check the images below to determine your board version and the location of the solder jumper.  
-
-<img src="https://camo.githubusercontent.com/3573273fdb73ef287df888e708d34a9db3df203f/68747470733a2f2f36343464623464653335303563343061303434342d33323737323362636532393865336666353831336662343262616565666261612e73736c2e6366312e7261636b63646e2e636f6d2f32303236636664316430313837613737303537303035323539303136386466312e706e67" width="250" height="340" /> <img src="https://camo.githubusercontent.com/666a6792bebd76a8edfe389ee4246baf7dbad5bb/68747470733a2f2f36343464623464653335303563343061303434342d33323737323362636532393865336666353831336662343262616565666261612e73736c2e6366312e7261636b63646e2e636f6d2f66386237336232316439633765313537323963386237623839616565353339622e706e67" width="250" height="340" /> <img src="images/STM32_Board_V1.0_Jumper.png" width="250" height="340" />  
-
 You are now ready to go over to [Compiling and Programming STM32](Compiling_STM32.md).
 
 #Reference Schematic <a name="Schematic"></a>
 Here is the schematic you can use to troubleshoot the module
-##  <a name="V32D_Schematic"></a> PCB 3.2d Schematic
+##  <a name="V23D_Schematic"></a> PCB 2.3d Schematic
 General module schematic (reference)
 <img src="images/DIY_Mulitprotocol_Module_Schematic.jpeg" width="1000" height="500" /> 
-V3.2d Board Schematic
+V2.3d Board Schematic
 <img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/PCB%20v2.3d/Schematic_v2.3d.jpg" width="1000" height="500" /> 
 
-## <a name="STM32_Schematic"></a> PCB STM32 Schematic
-<img src="http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a9220887-113-multi-STM32.png" width="1000" height="500" /> 
-
-
-
+## <a name="STM32_Schematic"></a> PCB STM32 V1.0t Schematic
+<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 

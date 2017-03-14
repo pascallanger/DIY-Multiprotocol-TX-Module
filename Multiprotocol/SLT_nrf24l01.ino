@@ -20,20 +20,15 @@
 
 // For code readability
 #define SLT_PAYLOADSIZE 7
-#define SLT_VISTA_PAYLOADSIZE 11
 #define SLT_NFREQCHANNELS 15
 #define SLT_TXID_SIZE 4
 
 enum {
-    // flags going to packet[6]
-    SLT_VISTA_FLAG_FLIP		= 0x04,
-    SLT_VISTA_FLAG_MODE		= 0x20
-};
-
-enum {
-	SLT_BIND=0,
-	SLT_BUILD,
-	SLT_DATA,
+	SLT_BUILD=0,
+	SLT_DATA1,
+	SLT_DATA2,
+	SLT_DATA3,
+	SLT_BIND
 };
 
 static void __attribute__((unused)) SLT_init()
@@ -108,37 +103,24 @@ static void __attribute__((unused)) SLT_send_data(uint8_t *data, uint8_t len)
 
 static void __attribute__((unused)) SLT_build_packet()
 {
-	// aileron, elevator, throttle, rudder, gear, pitch
+	// Set radio channel - once per packet batch
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+	if (++hopping_frequency_no >= SLT_NFREQCHANNELS)
+		hopping_frequency_no = 0;
+
+		// aileron, elevator, throttle, rudder, gear, pitch
 	uint8_t e = 0; // byte where extension 2 bits for every 10-bit channel are packed
 	for (uint8_t i = 0; i < 4; ++i)
 	{
 		uint16_t v = convert_channel_10b(CH_AETR[i]);
-		if(sub_protocol==VISTA && CH_AETR[i]==THROTTLE)
-			v = (uint16_t) map(limit_channel_100(THROTTLE),servo_min_100,servo_max_100,850,150);	// Throttel is between 850=0% and 150=100%
 		packet[i] = v;
 		e = (e >> 2) | (uint8_t) ((v >> 2) & 0xC0);
 	}
 	// Extra bits for AETR
 	packet[4] = e;
-	if(sub_protocol==SLT)
-	{
-		// 8-bit channels
-		packet[5] = convert_channel_8b(AUX1);
-		packet[6] = convert_channel_8b(AUX2);
-	}
-	else
-	{ // VISTA
-		packet[5] = 0xA6;
-		packet[6] = 0x00;
-		if(Servo_AUX1)
-			packet[6] = SLT_VISTA_FLAG_FLIP;
-		if(Servo_AUX2)
-			packet[6] |= SLT_VISTA_FLAG_MODE;
-		packet[7] = 0x00;
-		packet[8] = 0x7F;
-		packet[9] = 0xAA;
-		packet[10] = 0x00;
-	}
+	// 8-bit channels
+	packet[5] = convert_channel_8b(AUX1);
+	packet[6] = convert_channel_8b(AUX2);
 }
 
 static void __attribute__((unused)) SLT_send_bind_packet()
@@ -162,83 +144,47 @@ uint16_t SLT_callback()
 {
 	switch (phase)
 	{
-		case SLT_BIND:
-			bind_phase = 0;
-			SLT_send_bind_packet();
-			if(sub_protocol == VISTA)
+		case SLT_BUILD:
+			SLT_build_packet();
+			phase++;
+			return 1000;
+		case SLT_DATA1:
+			SLT_send_data(packet, SLT_PAYLOADSIZE);
+			phase++;
+			return 1000;
+		case SLT_DATA2:
+			SLT_send_data(packet, SLT_PAYLOADSIZE);
+			phase++;
+			return 1000;
+		case SLT_DATA3:
+			SLT_send_data(packet, SLT_PAYLOADSIZE);
+			if (++packet_count >= 100)
 			{
-				phase=SLT_DATA;
+				packet_count = 0;
+				phase++;
 				return 1000;
 			}
-			phase++;					// SLT_BUILD
-			return 18000;
-		case SLT_BUILD:
-			if(sub_protocol==SLT)
-			{ // Set radio channel - once per packet batch
-				NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
-				if (++hopping_frequency_no >= SLT_NFREQCHANNELS)
-					hopping_frequency_no = 0;
-			}
-			SLT_build_packet();
-			packet_count=0;
-			phase++;					// SLT_DATA
-			return 1000;
-		case SLT_DATA:
-			if(sub_protocol==VISTA)
-			{	// Change radio channel every 9 packets
-				NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
-				rf_ch_num++;
-				if(rf_ch_num>=9)
-				{
-					if (++hopping_frequency_no >= SLT_NFREQCHANNELS)
-						hopping_frequency_no = 0;
-					rf_ch_num=0;
-				}
-			}
-			SLT_send_data(packet, sub_protocol == VISTA?SLT_VISTA_PAYLOADSIZE:SLT_PAYLOADSIZE);
-			packet_count++;
-			if(packet_count >= (sub_protocol == VISTA?5:3))
-			{ // repeat the same data packet 3(SLT) or 5(VISTA) times
-				bind_phase++;
+			else
+			{
 				NRF24L01_SetPower();	// Set tx_power
-				phase = SLT_BUILD;		// Refresh data
-				if(sub_protocol == VISTA)
-					return 1000;
-				else
-					if(bind_phase>=100)
-					{ //SLT sends bind packet every 2.2s
-						phase=SLT_BIND;
-						return 1000;
-					}
+				phase = SLT_BUILD;
 				return 19000;
 			}
-			if(sub_protocol == VISTA)
-			{ //VISTA sends bind packet every 1.5s
-				if(bind_phase>=150)
-					phase=SLT_BIND;
-				else
-					return 2000;
-			}
-			return 1000;
+		case SLT_BIND:
+			SLT_send_bind_packet();
+			phase = SLT_BUILD;
+			return 18000;
 	}
-	return 1000;
+	return 19000;
 }
 
 uint16_t initSLT()
 {
 	packet_count = 0;
 	packet_sent = 0;
-	rf_ch_num=0;
 	hopping_frequency_no = 0;
-	if(sub_protocol == VISTA)
-	{
-		memcpy(rx_tx_addr,"\x00\x00\x23\x00",SLT_TXID_SIZE);
-		memcpy(hopping_frequency,"\x03\x0A\x11\x18\x1F\x26\x13\x0F\x0B\x10\x08\x16\x1D\x24\x06",15);
-	}
-	else
-		SLT_set_freq();
+	SLT_set_freq();
 	SLT_init();
-	SLT_build_packet();
 	phase = SLT_BIND;
 	return 50000;
 }

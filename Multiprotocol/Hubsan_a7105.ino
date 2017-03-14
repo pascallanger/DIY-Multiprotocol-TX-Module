@@ -352,7 +352,7 @@ uint16_t initHubsan() {
 	packet_count=0;
 	id_data=ID_NORMAL;
 #ifdef HUBSAN_HUB_TELEMETRY
-	init_hub_telemetry();
+	init_frskyd_link_telemetry();
 #endif
 	return 10000;
 }

@@ -17,9 +17,9 @@
 // Version
 //******************
 #define VERSION_MAJOR		1
-#define VERSION_MINOR		16
-#define VERSION_PATCH_LEVEL	1
-
+#define VERSION_MINOR		1
+#define VERSION_REVISION	6
+#define VERSION_PATCH_LEVEL	20
 //******************
 // Protocols
 //******************
@@ -55,6 +55,9 @@ enum PROTOCOLS
 	MODE_OPENLRS	= 27,	// =>OpenLRS hardware
 	MODE_AFHDS2A	= 28,	// =>A7105
 	MODE_Q2X2		= 29,	// =>NRF24L01, extension of CX-10 protocol
+	MODE_WK2x01		= 30,	// =>CYRF6936
+	MODE_Q303		= 31,	// =>NRF24L01
+	MODE_GW008		= 32,	// =>NRF24L01
 	MODE_CABELL		= 33,	// =>NRF24L01
 };
 
@@ -156,6 +159,8 @@ enum FRSKYX
 {
 	CH_16	= 0,
 	CH_8	= 1,
+	EU_16	= 2,
+	EU_8	= 3,
 };
 enum HONTAI
 {
@@ -173,6 +178,22 @@ enum FY326
 {
 	FY326	= 0,
 	FY319	= 1,
+};
+enum WK2x01
+{
+	WK2801	= 0,
+	WK2401	= 1,
+	W6_5_1	= 2,
+	W6_6_1	= 3,
+	W6_HEL	= 4,
+	W6_HEL_I= 5,
+};
+enum Q303
+{
+	Q303	= 0,
+	CX35	= 1,
+	CX10D	= 2,
+	CX10WD	= 3,
 };
 enum CABELL
 {
@@ -271,6 +292,17 @@ enum MultiPacketTypes {
 #define INPUT_SIGNAL_on		protocol_flags2 |= _BV(5)
 #define IS_INPUT_SIGNAL_on	( ( protocol_flags2 & _BV(5) ) !=0 )
 #define IS_INPUT_SIGNAL_off	( ( protocol_flags2 & _BV(5) ) ==0 )
+//Bind from channel
+#define BIND_CH_PREV_off	protocol_flags2 &= ~_BV(6)
+#define BIND_CH_PREV_on		protocol_flags2 |= _BV(6)
+#define IS_BIND_CH_PREV_on	( ( protocol_flags2 & _BV(6) ) !=0 )
+#define IS_BIND_CH_PREV_off	( ( protocol_flags2 & _BV(6) ) ==0 )
+//Wait for bind
+#define WAIT_BIND_off		protocol_flags2 &= ~_BV(7)
+#define WAIT_BIND_on		protocol_flags2 |= _BV(7)
+#define IS_WAIT_BIND_on		( ( protocol_flags2 & _BV(7) ) !=0 )
+#define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
+
 
 //********************
 //*** Blink timing ***
@@ -278,8 +310,11 @@ enum MultiPacketTypes {
 #define BLINK_BIND_TIME				100
 #define BLINK_SERIAL_TIME			500
 #define BLINK_PPM_TIME				1000
-#define BLINK_BAD_PROTO_TIME_LOW	1000
 #define BLINK_BAD_PROTO_TIME_HIGH	50
+#define BLINK_BAD_PROTO_TIME_LOW	1000
+#define BLINK_WAIT_BIND_TIME_HIGH	1000
+#define BLINK_WAIT_BIND_TIME_LOW	100
+
 
 //*******************
 //***  AUX flags  ***
@@ -449,6 +484,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					OpenLRS		27
 					AFHDS2A		28
 					Q2X2		29
+					WK2x01		30
+					Q303		31
+					GW008		32
 					CABELL		33
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
@@ -521,6 +559,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1
+			EU_16		2
+			EU_8		3
 		sub_protocol==HONTAI
 			FORMAT_HONTAI	0
 			FORMAT_JJRCX1	1
@@ -537,6 +577,18 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==FY326
 			FY326		0
 			FY319		1
+		sub_protocol==WK2x01
+			WK2801		0
+			WK2401		1
+			W6_5_1		2
+			W6_6_1		3
+			W6_HEL		4
+			W6_HEL_I	5
+		sub_protocol==Q303
+			Q303		0
+			CX35		1
+			CX10D		2
+			CX10WD		3
 		sub_protocol==CABELL
 			CABELL_V3		         0,
 			CABELL_SET_FAIL_SAFE 6,
@@ -544,7 +596,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
-   option_protocol value is -127..127
+   option_protocol value is -128..127
   Stream[4] to [25] = Channels
    16 Channels on 11 bits (0..2047)
 	0		-125%
@@ -555,17 +607,40 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Channels bits are concatenated to fit in 22 bytes like in SBUS protocol
 */
 /*
-  Multiprotocol telemetry definition
+  Multimodule Status
+  Based on #define MULTI_STATUS
+
+  Serial: 100000 Baud 8e2 (same as input)
+
+  Format: header (2 bytes) + data (variable)
+   [0] = 'M' (0x4d)
+   [1] Length (excluding the 2 header bytes)
+   [2-xx] data
+
+  Type = 0x01 Multimodule Status:
+   [2] Flags
+   0x01 = Input signal detected
+   0x02 = Serial mode enabled
+   0x04 = protocol is valid
+   0x08 = module is in binding mode
+   0x10 = module waits a bind event to load the protocol
+   [3] major
+   [4] minor
+   [5] revision
+   [6] patchlevel,
+   version of multi code, should be displayed as major.minor.revision.patchlevel
+*/
+/*
+  Multiprotocol telemetry definition for OpenTX
+  Based on #define MULTI_TELEMETRY enables OpenTX to get the multimodule status and select the correct telemetry type automatically.
 
   Serial: 100000 Baud 8e2 (same as input)
 
   TLV Protocol (type, length, value), allows a TX to ignore unknown messages
 
   Format: header (4 byte) + data (variable)
-
    [0] = 'M' (0x4d)
    [1] = 'P' (0x50)
-
 
    The first byte is deliberatly chosen to be different from other telemetry protocols
    (e.g. 0xAA for DSM/Multi, 0xAA for FlySky and 0x7e for Frsky) to allow a TX to detect
@@ -576,39 +651,39 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 
    [4-xx] data
 
-
-Type = 0x01 Multimodule Status:
+  Type = 0x01 Multimodule Status:
    [4] Flags
    0x01 = Input signal detected
    0x02 = Serial mode enabled
    0x04 = protocol is valid
    0x08 = module is in binding mode
+   0x10 = module waits a bind event to load the protocol
    [5] major
    [6] minor
-   [7-8] patchlevel
-   version of multi code, should be displayed as major.minor.patchlevel
-
+   [7] revision
+   [8] patchlevel,
+   version of multi code, should be displayed as major.minor.revision.patchlevel
 
    more information can be added by specifing a longer length of the type, the TX will just ignore these bytes
 
 
-Type 0x02 Frksy S.port telemetry
-Type 0x03 Frsky Hub telemetry
+  Type 0x02 Frksy S.port telemetry
+  Type 0x03 Frsky Hub telemetry
 
 	*No* usual frsky byte stuffing and without start/stop byte (0x7e)
 
 
-Type 0x04 Spektrum telemetry data
+  Type 0x04 Spektrum telemetry data
    data[0] RSSI
    data[1-15] telemetry data
 
-Type 0x05 DSM bind data
+  Type 0x05 DSM bind data
 	data[0-16] DSM bind data
 
     technically DSM bind data is only 10 bytes but multi send 16
     like with telemtry, check length field)
 
-Type 0x06 Flysky AFHDS2 telemetry data
+  Type 0x06 Flysky AFHDS2 telemetry data
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data

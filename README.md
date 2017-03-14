@@ -1,3 +1,5 @@
+If you like this project and want to support further development [<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)EUR [<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=FR&item_name=DIY%20Multiprotocol&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)USD
+
 # Overview of the MULTI-Module
 The **Multiprotocol Tx Module** (or **MULTI-Module**) is a 2.4GHz transmitter module which enables almost any TX to control lot of different models available on the market.  
 
@@ -5,7 +7,7 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 
 ## Quicklinks
 * [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) and [instructions to upload .hex files](docs/Advanced_Manually_Setting_ATmega328_Fuses.md)
-* [Forum on rcroups](http://www.rcgroups.com/forums/showthread.php?t=2165676)
+* [Forum on rcgroups](http://www.rcgroups.com/forums/showthread.php?t=2165676)
 * [Available Protocols list](Protocols_Details.md)
 * [The old documentation](docs/README-old.md)
 
@@ -15,11 +17,10 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 1. [Available protocols](Protocols_Details.md)
 1. [Transmitters and serial/telemetry options](docs/Transmitters.md)
 1. [Module Hardware options](docs/Hardware.md)
-1. [Compiling and programming the module (ATmega328)](docs/Compiling.md) and [Compiling STM32](docs/Compiling_STM32.md).
+1. Compiling and programming the module
+  * [4in1/DIY Mutliprotocol module based on ATmega328](docs/Compiling.md)
+  * [DIY Mutliprotocol module based on STM32](docs/Compiling_STM32.md)
 1. [Transmitter Setup](docs/Transmitters.md) 
-   - [Taranis](docs/Tx-Taranis.md)
-   - [FlySky TH9X, Turnigy 9X/R](docs/Tx-FlyskyTH9X.md)
-   - [erSky Transmitters](docs/Tx-erSky9X.md)
 1. [How to for popular models](docs/Models.md)
 1. [Troubleshooting](docs/Troubleshooting.md)
 2. [Advanced Topics (not for the fainthearted!)](docs/Advanced_Topics.md)
@@ -39,10 +40,10 @@ A functioning MULTI-Module consists of (see image below):
   * MULTI-firmware loaded on to the microprocessor.  At a high level, this firmware performs a few different functions: 
      * It interfaces with signals from the host Tx and decodes these for transmission to the model, it manages the activation of the correct hardware RF module for each protocol
      * It implements the unique communication protocols for each receiver/model and manages the all-important binding process with a receiver/model
-     * In the case of some protocols (for example DSMX and FrSky) it receives and decodes the telemetry information and makes this available to the receiver.
+     * In the case of some protocols (for example DSMX and FrSky) it receives and decodes the telemetry information and makes this available to the radio.
 1. The physical 2.4GHz antenna (or in some cases multiple antennas) for the modules
 
-On of the most attractive features of the MULTI-module is the ability to send telemetry signals back to the transmitter. The MULTI-Module is fully telemetry capable for all protocols that support telemetry.  Your ability to use the telemetry information depends on the your transmitter hardware and your transmitter firmware.
+One of the most attractive features of the MULTI-module is the ability to send telemetry signals back to the transmitter. The MULTI-Module is fully telemetry capable for all protocols that support telemetry.  Your ability to use the telemetry information depends on  your radio hardware and firmware.
 
 In constructing a functioning MULTI-Module there are important choices to be made and tradeoffs to be aware of.  The most important are:
 
@@ -60,7 +61,7 @@ For more information on these options see the [hardware](docs/Hardware.md) page
 
 ##**Choice 2:** Which RF modules to include in the MULTI-Module
 
-This depends on your specific needs.  However, recent the availability of the 4-in-1 RF modules from Banggood for less than $35 makes it easy to “have it all”.  Most manufacturers of RC systems (Spektrum, FrSky, FlySky) and toys (Syma, Hubsan, Horizon Hobby, etc.) use one of these four RF chips to manage the RF link between the transmitter and the reciever/model.  Here is an incomplete list of the RF modules and some of the most popular toys that use them.  For the complete list see the [Protocol Details](Protocols_Details.md) page.
+This depends on your specific needs.  However, recent the availability of the 4-in-1 RF modules from Banggood for less than $35 makes it easy to “have it all”.  Most manufacturers of RC systems (Spektrum, FrSky, FlySky) and toys (Syma, Hubsan, etc.) use one of these four RF chips to manage the RF link between the transmitter and the reciever/model.  Here is an incomplete list of the RF modules and some of the most popular toys that use them.  For the complete list see the [Protocol Details](Protocols_Details.md) page.
 
 Manufacturer|RF Chip|Example Protocols
 :-----------|-------|:-------
@@ -81,14 +82,14 @@ For example, if you have no interest in binding your Tx to an model with and FrS
 
 ##**Choice 3:** Which protocols to upload to the MULTI-Module
 
-Of course there always a catch. In this case it is the 32K memory limit on the ATmega328 processor. Due to the amazing work done by devs on this project, the memory required by all the possible protocols exceeds this limit considerably. This means that you will need to make a choice of which protocols you will compile into your firmware.  Fortunately, the process of selecting and compiling is not too difficult and it is fully documented on the [Compiling and Programming](docs/Compiling.md) page.
+Of course there is always a catch. In this case it is the 32KB memory limit on the ATmega328 processor. Due to the amazing work done by devs on this project, the memory required by all the possible protocols exceeds this limit considerably. This means that you will need to make a choice of which protocols you will compile into your firmware.  Fortunately, the process of selecting and compiling is not too difficult and it is fully documented on the [Compiling and Programming](docs/Compiling.md) page.
 Also, the lead dev Pascal Langer (rcgroups:hpnuts) makes this process even easier for many users by making compiled binaries available for three popular combinations of RF modules.  These are always “fresh” (based on the latest stable firmware) and available on the [Releases](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) page.
 
-Midelic has ported a version the firmware to an STM32 ARM microcontroller.  If you go the route of building this version of the DIY MULTI-Module then the memory limits do not apply.  
+An alternatice is to use a STM32 ARM microcontroller based module. If you go the route of building this version of the DIY MULTI-Module then the memory limits do not apply anymore.
 
-##**Choice 4:** Choosing the type of interface between the MULTI-Module and your Tx (PPM or Serial)
+##**Choice 4:** Choosing the type of interface between the MULTI-Module and your radio (PPM or Serial)
 
-The all the MULTI-Module options supports industry standard PPM interface that works with all transmitters with either:  
+The MULTI-Module supports industry standard PPM interface that works with all transmitters with either:  
  - a module bay or
  - a trainer port or
  - any PPM signal that can be accessed inside the Tx.
@@ -96,7 +97,7 @@ The all the MULTI-Module options supports industry standard PPM interface that w
 Most of the older FM radios support the PPM interface.
 
 If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX firmwares (Frsky Taranis, Horus or the FlySky TH9X or the Turnigy 9X family) you have the additional option to use a serial protocol to communicate between your Tx and the MULTI-Module. (Owners of Walkera Devo transmitters should look at the [Deviation Tx](http://www.deviationtx.com) project for how to achieve the same end goal). This serial protocol does not require any hardware modifications, but will likely require updating the firmware on your radio. For those willing to do this, there are some nice advantages:
-  - The model and protocol selection and binding is done from the Model Settings menu on the Tx
+  - The model protocol selection and binding is done from the Model Settings menu on the Tx
   - For telemetry capable transmitters, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work).  Click on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page for more details.
 
 #How to get started?
@@ -120,4 +121,4 @@ A very big thanks to all the people who have shared their time so graciously to 
 
 Your help would be greatly appreciated.  If protocol reverse-engineering and dev is not your thing then any help with testing and contributing to the documentation would be amazing.  Given the number of different Tx/module hardware/RF module/protocol/model combinations the process of testing and documenting is a major bottleneck for the developers.  Anything you can do to help will free them up to do even greater things. 
 
-If you like this project and want to support further development EUR[<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted) USD[<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=FR&item_name=DIY%20Multiprotocol&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)
+If you like this project and want to support further development [<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)EUR [<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=FR&item_name=DIY%20Multiprotocol&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)USD

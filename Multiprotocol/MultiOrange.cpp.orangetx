@@ -34,6 +34,8 @@ extern uint16_t DevoInit(void) ;
 extern uint16_t devo_callback(void) ;
 extern uint16_t initJ6Pro(void) ;
 extern uint16_t ReadJ6Pro(void) ;
+extern uint16_t WK_setup(void) ;
+extern uint16_t WK_cb(void) ;
 
 extern void randomSeed(unsigned int seed) ;
 extern long random(long howbig) ;
@@ -46,7 +48,7 @@ extern void delayMilliseconds(unsigned long ms) ;
 extern void init(void) ;
 
 extern void modules_reset() ;
-extern void Update_All() ;
+extern uint8_t Update_All() ;
 extern void tx_pause() ;
 extern void tx_resume() ;
 extern void TelemetryUpdate() ;
@@ -139,13 +141,14 @@ void init()
 
 #include "Multiprotocol.ino"
 #include "SPI.ino"
-#include "Convert.ino"
+#include "Common.ino"
 #include "Arduino.ino"
 
 #include "cyrf6936_SPI.ino"
 #include "DSM_cyrf6936.ino"
 #include "Devo_cyrf6936.ino"
 #include "J6Pro_cyrf6936.ino"
+#include "WK2x01_cyrf6936.ino"
 
 #include "Telemetry.ino"
 

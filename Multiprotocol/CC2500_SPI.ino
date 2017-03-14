@@ -145,7 +145,11 @@ void CC2500_SetPower()
 {
 	uint8_t power=CC2500_BIND_POWER;
 	if(IS_BIND_DONE_on)
-		power=IS_POWER_FLAG_on?CC2500_HIGH_POWER:CC2500_LOW_POWER;
+		#ifdef CC2500_ENABLE_LOW_POWER
+			power=IS_POWER_FLAG_on?CC2500_HIGH_POWER:CC2500_LOW_POWER;
+		#else
+			power=CC2500_HIGH_POWER;
+		#endif
 	if(IS_RANGE_FLAG_on)
 		power=CC2500_RANGE_POWER;
 	if(prev_power != power)

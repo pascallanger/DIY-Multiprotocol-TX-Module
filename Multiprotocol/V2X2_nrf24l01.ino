@@ -252,19 +252,18 @@ uint16_t ReadV2x2()
 			return 150;
 			break;
 		case V202_BIND2:
-			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED) {
+			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
 				return V2X2_PACKET_CHKTIME;
-			}
 			V2X2_send_packet(1);
-			if (--counter == 0) {
+			if (--bind_counter == 0)
+			{
 				phase = V202_DATA;
 				BIND_DONE;
 			}
 			break;
 		case V202_DATA:
-			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED) {
+			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
 				return V2X2_PACKET_CHKTIME;
-			}
 			V2X2_send_packet(0);
 			break;
 	}
@@ -278,7 +277,7 @@ uint16_t initV2x2()
 	//
 	if (IS_AUTOBIND_FLAG_on)
 	{
-		counter = V2X2_BIND_COUNT;
+		bind_counter = V2X2_BIND_COUNT;
 		phase = V202_INIT2;
 	}
 	else

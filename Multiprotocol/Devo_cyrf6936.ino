@@ -134,7 +134,7 @@ static void __attribute__((unused)) DEVO_build_data_pkt()
 	uint8_t sign = 0x0b;
 	for (uint8_t i = 0; i < 4; i++)
 	{
-		int16_t value=map(Servo_data[CH_EATR[ch_idx * 4 + i]],servo_min_125,servo_max_125,-1600,1600);//range -1600..+1600
+		int16_t value=map(Servo_data[CH_EATR[ch_idx * 4 + i]],servo_min_100,servo_max_100,-1600,1600);//range -1600..+1600
 		if(value < 0)
 		{
 			value = -value;

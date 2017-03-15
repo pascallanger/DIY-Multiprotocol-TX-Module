@@ -106,11 +106,11 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
   uint8_t packetSize = sizeof(TxPacket) - ((((channelReduction - (channelReduction%2))/ 2)) * 3);      // reduce 3 bytes per 2 channels, but not last channel if it is odd
   uint8_t maxPayloadValueIndex = sizeof(TxPacket.payloadValue) - (sizeof(TxPacket) - packetSize);
 
-  if (sub_protocol == CABELL_UNBIND) {
+  if ((sub_protocol == CABELL_UNBIND) && !bindMode) {
     TxPacket.RxMode     = CABELL_RxTxPacket_t::RxMode_t::unBind;
-    TxPacket.option     = option & (~CABELL_OPTION_MASK_CHANNEL_REDUCTION);   //remove channel reduction if in unBind mode
+    TxPacket.option     = option;
   } else {
-    if (sub_protocol == CABELL_SET_FAIL_SAFE) {
+    if (sub_protocol == CABELL_SET_FAIL_SAFE && !bindMode) {
       TxPacket.RxMode     = CABELL_RxTxPacket_t::RxMode_t::setFailSafe;
     } else {
       TxPacket.RxMode     = (bindMode) ?  CABELL_RxTxPacket_t::RxMode_t::bind : CABELL_RxTxPacket_t::RxMode_t::normal;

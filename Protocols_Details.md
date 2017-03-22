@@ -106,7 +106,7 @@ Note that the RX ouput will be AETR.
 ### Sub_protocol PWM_SBUS - *2*
 ### Sub_protocol PPM_SBUS - *3*
 
-##HUBSAN - *2*
+## HUBSAN - *2*
 Models: Hubsan H102D, H107/L/C/D and Hubsan H107P/C+/D+
 
 Autobind protocol
@@ -346,7 +346,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ***
-#NRF24L01 RF Module
+# NRF24L01 RF Module
 
 ## ASSAN - *24*
 Extended limits supported
@@ -404,7 +404,7 @@ FLIP||PICTURE|VIDEO|HEADLESS
 Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---
+---|---|---|---|---|---|---|---|---
 FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
 
 JJRC H20: OPT1=Headless, OPT2=RTH
@@ -520,7 +520,7 @@ Models: RX HK-3000, HK3100 and XY3000 (TX are HK-300, HK-310 and TL-3C)
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
-|||T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
+| | |T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
 
 ## KN - *9*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
@@ -670,7 +670,7 @@ Models: Syma X5C-1/X11/X11C/X12
 ### Sub_protocol SYMAX5C - *1*
 Model: Syma X5C (original) and X2
 
-##V2X2 - *5*
+## V2X2 - *5*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y

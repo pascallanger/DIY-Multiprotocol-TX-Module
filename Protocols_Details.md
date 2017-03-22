@@ -1,4 +1,4 @@
-#Protocols details
+# Protocols details
 Here are detailed descriptions of every supported protocols (sorted by RF modules) as well as the available options for each protocol.
 
  If you want to see a list of models that use these protocols see the [Models](docs/Models.md) page.
@@ -52,9 +52,9 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 
 
 ***
-#A7105 RF Module
+# A7105 RF Module
 
-##FLYSKY - *1*
+## FLYSKY - *1*
 Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
@@ -63,30 +63,30 @@ A|E|T|R|CH5|CH6|CH7|CH8
 
 Note that the RX ouput will be AETR.
 
-###Sub_protocol Flysky - *0*
+### Sub_protocol Flysky - *0*
 
-###Sub_protocol V9X9 - *1*
+### Sub_protocol V9X9 - *1*
 CH5|CH6|CH7|CH8
 ---|---|---|---
 FLIP|LIGHT|PICTURE|VIDEO
 
-###Sub_protocol V6X6 - *2*
+### Sub_protocol V6X6 - *2*
 CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---
 FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 
-###Sub_protocol V912 - *3*
+### Sub_protocol V912 - *3*
 CH5|CH6
 ---|---
 BTMBTN|TOPBTN
 
-###Sub_protocol CX20 - *4*
+### Sub_protocol CX20 - *4*
 Model: Cheerson Cx-20
 
 CH5|CH6|CH7
 ---|---|---
 
-##FLYSKY AFHDS2A - *28*
+## FLYSKY AFHDS2A - *28*
 Extended limits supported
 
 Telemetry enabled for battery voltage and RX&TX RSSI using FrSky Hub protocol
@@ -101,10 +101,10 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 
 Note that the RX ouput will be AETR.
 
-###Sub_protocol PWM_IBUS - *0*
-###Sub_protocol PPM_IBUS - *1*
-###Sub_protocol PWM_SBUS - *2*
-###Sub_protocol PPM_SBUS - *3*
+### Sub_protocol PWM_IBUS - *0*
+### Sub_protocol PPM_IBUS - *1*
+### Sub_protocol PWM_SBUS - *2*
+### Sub_protocol PPM_SBUS - *3*
 
 ##HUBSAN - *2*
 Models: Hubsan H102D, H107/L/C/D and Hubsan H107P/C+/D+
@@ -120,9 +120,9 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
 ***
-#CC2500 RF Module
+# CC2500 RF Module
 
-##FRSKYV = FrSky 1 way - *25*
+## FRSKYV = FrSky 1 way - *25*
 Models: FrSky receivers V8R4, V8R7 and V8FR.
 
 Extended limits supported
@@ -137,7 +137,7 @@ CH1|CH2|CH3|CH4
 ---|---|---|---
 CH1|CH2|CH3|CH4
 
-##FRSKYD - *3*
+## FRSKYD - *3*
 Models: FrSky receivers D4R and D8R. DIY RX-F801 and RX-F802 receivers. Also known as D8.
 
 Extended limits supported
@@ -154,7 +154,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
-##FRSKYX - *15*
+## FRSKYX - *15*
 Models: FrSky receivers X4R, X6R and X8R. Also known as D16.
 
 Extended limits supported
@@ -167,35 +167,35 @@ Option for this protocol is fine frequency tuning. This value is different for e
  - set the value to half way between min and max.
  - [video showing the process](https://youtu.be/C483uNWwAaM)
 
-###Sub_protocol CH_16 - *0*
+### Sub_protocol CH_16 - *0*
 FCC protocol 16 channels @18ms.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
-###Sub_protocol CH_8 - *1*
+### Sub_protocol CH_8 - *1*
 FCC protocol 8 channels @9ms.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
-###Sub_protocol EU_16 - *2*
+### Sub_protocol EU_16 - *2*
 EU-LBT protocol 16 channels @18ms. Note that the LBT part is not implemented, the TX transmits right away.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
-###Sub_protocol EU_8 - *3*
+### Sub_protocol EU_8 - *3*
 EU-LBT protocol 8 channels @9ms. Note that the LBT part is not implemented, the TX transmits right away.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
-##SFHSS - *21*
+## SFHSS - *21*
 Models: Futaba RXs and XK models.
 
 Extended limits supported
@@ -211,9 +211,9 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 A|E|T|R|CH5|CH6|CH7|CH8
 
 ***
-#CYRF6936 RF Module
+# CYRF6936 RF Module
 
-##DEVO - *7*
+## DEVO - *7*
 Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
@@ -243,13 +243,13 @@ Bind procedure using PPM:
 - To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
 - Note: Autobind/fixed ID mode is linked to the dial number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
 
-##WK2X01 - *30*
+## WK2X01 - *30*
 Extended limits supported
 Autobind protocol
 
 Note: RX ouput will always be AETR independently of the input AETR, RETA...
 
-###Sub_protocol WK2801 - *0*
+### Sub_protocol WK2801 - *0*
 This roughly corresponds to the number of channels supported, but many of the newer 6-channel receivers actually support the WK2801 protocol. It is recommended to try the WK2801 protocol 1st when working with older Walkera models before attempting the WK2601 or WK2401 mode, as the WK2801 is a superior protocol. The WK2801 protocol supports up to 8 channels.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
@@ -277,28 +277,28 @@ Bind procedure using PPM:
 - To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
 - Note: Autobind/fixed ID mode is linked to the dial number. Which means that you can have multiple dial numbers set to the same protocol WK2X01 and sub_protocol WK2801 with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match.
 
-###Sub_protocol WK2401 - *1*
+### Sub_protocol WK2401 - *1*
 The WK2401 protocol is used to control older Walkera models.
 
 CH1|CH2|CH3|CH4
 ---|---|---|---
 A|E|T|R
 
-###Sub_protocol W6_5_1 - *2*
+### Sub_protocol W6_5_1 - *2*
 WK2601 5+1: AIL, ELE, THR, RUD, GYRO (ch 7) are proportional. Gear (ch 5) is binary. Ch 6 is disabled
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
 A|E|T|R|GEAR|DIS|GYRO
 
-###Sub_protocol W6_6_1 - *3*
+### Sub_protocol W6_6_1 - *3*
 WK2601 6+1: AIL, ELE, THR, RUD, COL (ch 6), GYRO (ch 7) are proportional. Gear (ch 5) is binary. **This mode is highly experimental.**
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
 A|E|T|R|GEAR|COL|GYRO
 
-###Sub_protocol W6_HEL - *4* and W6HEL_I - *5*
+### Sub_protocol W6_HEL - *4* and W6HEL_I - *5*
 WK2601 Heli: AIL, ELE, THR, RUD, GYRO are proportional. Gear (ch 5) is binary. COL (ch 6) is linked to Thr. If Ch6 >= 0, the receiver will apply a 3D curve to the Thr. If Ch6 < 0, the receiver will apply normal curves to the Thr. The value of Ch6 defines the ratio of COL to THR.
 
 W6HEL_I: Invert COL servo
@@ -309,7 +309,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
 A|E|T|R|GEAR|COL|GYRO
 
-##DSM - *6*
+## DSM - *6*
 Extended limits supported
 
 Telemetry enabled for TSSI and plugins
@@ -324,22 +324,22 @@ Notes:
  - model/type/number of channels indicated on the RX can be different from what the RX is in fact wanting to see. So don't hesitate to test different combinations until you have something working. Using Auto is the best way to find these settings.
  - RX ouput will always be TAER independently of the input AETR, RETA...
 
-###Sub_protocol DSM2_22 - *0*
+### Sub_protocol DSM2_22 - *0*
 DSM2, Resolution 1024, refresh rate 22ms
-###Sub_protocol DSM2_11 - *1*
+### Sub_protocol DSM2_11 - *1*
 DSM2, Resolution 2048, refresh rate 11ms
-###Sub_protocol DSMX_22 - *2*
+### Sub_protocol DSMX_22 - *2*
 DSMX, Resolution 2048, refresh rate 22ms
-###Sub_protocol DSMX_11 - *3*
+### Sub_protocol DSMX_11 - *3*
 DSMX, Resolution 2048, refresh rate 11ms
-###Sub_protocol AUTO - *4*
+### Sub_protocol AUTO - *4*
 The "AUTO" feature enables the TX to automatically choose what are the best settings for your DSM RX and update your model protocol settings accordingly.
 
 The current radio firmware which are able to use the "AUTO" feature are ersky9x (9XR Pro, 9Xtreme, Taranis, ...) and er9x for M128 (9XR) and M2561.
 For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx".
 Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on ersky9x you can set "Invert COM1" accordinlgy.
 
-##J6Pro - *22*
+## J6Pro - *22*
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
@@ -348,7 +348,7 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ***
 #NRF24L01 RF Module
 
-##ASSAN - *24*
+## ASSAN - *24*
 Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
@@ -357,7 +357,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 The transmitter must be close to the receiver while binding.
 
-##BAYANG - *14*
+## BAYANG - *14*
 Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
 Autobind protocol
@@ -366,41 +366,41 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
 
-###Sub_protocol BAYANG - *0*
+### Sub_protocol BAYANG - *0*
 Option=0 -> normal Bayang protocol
 
 Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage, A2=compensated battery voltage
 
-###Sub_protocol H8S3D - *1*
+### Sub_protocol H8S3D - *1*
 Model: H8S 3D
 
 Same channels assignement as above.
 
-##DM002 - *33*
+## DM002 - *33*
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT|HEADLESS
 
-##CG023 - *13*
+## CG023 - *13*
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
-###Sub_protocol CG023 - *0*
+### Sub_protocol CG023 - *0*
 Models: EAchine CG023/CG031/3D X4
 
-###Sub_protocol YD829 - *1*
+### Sub_protocol YD829 - *1*
 Models: Attop YD-822/YD-829/YD-829C ...
 
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP||PICTURE|VIDEO|HEADLESS
 
-###Sub_protocol H8_3D - *2*
+### Sub_protocol H8_3D - *2*
 Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
@@ -416,7 +416,7 @@ H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), O
 CAL1: H8 3D acc calib, H20 headless calib
 CAL2: H11D/H20 acc calib
 
-##CX10 - *12*
+## CX10 - *12*
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6
@@ -425,12 +425,12 @@ A|E|T|R|FLIP|RATE
 
 Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3
 
-###Sub_protocol GREEN - *0*
+### Sub_protocol GREEN - *0*
 Models: Cheerson CX-10 green pcb
 
 Same channels assignement as above.
 
-###Sub_protocol BLUE - *1*
+### Sub_protocol BLUE - *1*
 Models: Cheerson CX-10 blue pcb & some newer red pcb, CX-10A, CX-10C, CX11, CX12, Floureon FX10, JJRC DHD D1
 
 CH5|CH6|CH7|CH8
@@ -439,39 +439,39 @@ FLIP|RATE|PICTURE|VIDEO
 
 Rate: -100%=rate 1, 0%=rate 2, +100%=rate 3 or headless for CX-10A
 
-###Sub_protocol DM007 - *2*
+### Sub_protocol DM007 - *2*
 
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP|MODE|PICTURE|VIDEO|HEADLESS
 
-###Sub_protocol JC3015_1 - *4*
+### Sub_protocol JC3015_1 - *4*
 
 CH5|CH6|CH7|CH8
 ---|---|---|---
 FLIP|MODE|PICTURE|VIDEO
 
-###Sub_protocol JC3015_2 - *5*
+### Sub_protocol JC3015_2 - *5*
 
 CH5|CH6|CH7|CH8
 ---|---|---|---
 FLIP|MODE|LED|DFLIP
 
-###Sub_protocol MK33041 - *6*
+### Sub_protocol MK33041 - *6*
 
 CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---
 FLIP|MODE|PICTURE|VIDEO|HEADLESS|RTH
 
-##Q2X2 - *29*
-###Sub_protocol Q222 - *0*
+## Q2X2 - *29*
+### Sub_protocol Q222 - *0*
 Models: Q222 v1 and V686 v2
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LED|MODULE2|MODULE1|HEADLESS|RTH|XCAL|YCAL
 
-###Sub_protocol Q242 - *1* and Q282 - *2*
+### Sub_protocol Q242 - *1* and Q282 - *2*
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|---|---|---
@@ -479,26 +479,26 @@ A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 
 Model: JXD 509 is using Q282 with CH12=Start/Stop motors
 
-##ESKY - *16*
+## ESKY - *16*
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|GYRO|PITCH
 
-##FY326 - *20*
+## FY326 - *20*
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|RTH|HEADLESS|EXPERT|CALIBRATE
 
-##FQ777 - *23*
+## FQ777 - *23*
 Model: FQ777-124 (with SV7241A)
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|RTH|HEADLESS|EXPERT
 
-##GW008 - *32*
+## GW008 - *32*
 Model: Global Drone GW008 from Banggood
 
 There are 3 versions of this small quad, this protocol is for the one with a XNS104 IC in the stock Tx and PAN159CY IC in the quad. The xn297 version is compatible with the CX10 protocol (green pcb). The LT8910 version is not supported yet.
@@ -507,96 +507,96 @@ CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|FLIP
 
-##HISKY - *4*
-###Sub_protocol Hisky - *0*
+## HISKY - *4*
+### Sub_protocol Hisky - *0*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|GEAR|PITCH|GYRO|CH8
 
 GYRO: -100%=6G, +100%=3G
 
-###Sub_protocol HK310 - *1*
+### Sub_protocol HK310 - *1*
 Models: RX HK-3000, HK3100 and XY3000 (TX are HK-300, HK-310 and TL-3C)
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 |||T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
 
-##KN - *9*
+## KN - *9*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim
 
 Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO: -100%=6G, +100%=3G
 
-###Sub_protocol WLTOYS - *0*
-###Sub_protocol FEILUN - *1*
+### Sub_protocol WLTOYS - *0*
+### Sub_protocol FEILUN - *1*
 Same channels assignement as above.
 
-##HONTAI - *26*
+## HONTAI - *26*
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|CAL
 
-###Sub_protocol HONTAI - *0*
-###Sub_protocol JJRCX1 - *1*
+### Sub_protocol HONTAI - *0*
+### Sub_protocol JJRCX1 - *1*
 CH6|
 ---|
 ARM|
 
-###Sub_protocol X5C1 clone - *2*
+### Sub_protocol X5C1 clone - *2*
 
-###Sub_protocol FQ777_951 - *3*
+### Sub_protocol FQ777_951 - *3*
 
-##MJXQ - *18*
+## MJXQ - *18*
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
 ---|---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT
 
-###Sub_protocol WLH08 - *0*
-###Sub_protocol X600 - *1*
+### Sub_protocol WLH08 - *0*
+### Sub_protocol X600 - *1*
 Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
-###Sub_protocol X800 - *2*
+### Sub_protocol X800 - *2*
 Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
-###Sub_protocol H26D - *3*
+### Sub_protocol H26D - *3*
 Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
-###Sub_protocol E010 - *4*
+### Sub_protocol E010 - *4*
 15 TX IDs available, change RX_Num value 0..14 to cycle through them
 
 If the E010 does not respond well to inputs or hard to bind, set Power to Low.
-###Sub_protocol H26WH - *5*
+### Sub_protocol H26WH - *5*
 CH6|
 ---|
 ARM|
 
 Only 1 TX ID available
 
-##MT99XX - *17*
+## MT99XX - *17*
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS
 
-###Sub_protocol MT99 - *0*
+### Sub_protocol MT99 - *0*
 Models: MT99xx
-###Sub_protocol H7 - *1*
+### Sub_protocol H7 - *1*
 Models: Eachine H7, Cheerson CX023
-###Sub_protocol YZ - *2*
+### Sub_protocol YZ - *2*
 Model: Yi Zhan i6S
 Only one model can be flown at the same time since the ID is hardcoded.
-###Sub_protocol LS - *3*
+### Sub_protocol LS - *3*
 Models: LS114, 124, 215
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|INVERT|PICTURE|VIDEO|HEADLESS
 
-###Sub_protocol FY805 - *4*
+### Sub_protocol FY805 - *4*
 Model: FY805
 
 Only 1 ID available
@@ -605,14 +605,14 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP||||HEADLESS
 
-##Q303 - *31*
+## Q303 - *31*
 Autobind protocol
 
 CH1|CH2|CH3|CH4
 ---|---|---|---
 A|E|T|R
 
-###Sub_protocol Q303 - *0*
+### Sub_protocol Q303 - *0*
 Q303 warning: this sub_protocol is known to not work at all/properly with 4in1 RF modules.
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11
@@ -621,7 +621,7 @@ AHOLD|FLIP|PICTURE|VIDEO|HEADLESS|RTH|GIMBAL
 
 GIMBAL needs 3 position -100%/0%/100%
 
-###Sub_protocol CX35 - *1*
+### Sub_protocol CX35 - *1*
 CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---
 ARM|VTX|PICTURE|VIDEO||RTH|GIMBAL
@@ -632,14 +632,14 @@ Each toggle of VTX will increment the channel.
 
 Gimbal is full range.
 
-###Sub_protocol CX10D  - *2* and Sub_protocol CX10WD - *3*
+### Sub_protocol CX10D  - *2* and Sub_protocol CX10WD - *3*
 CH5|CH6
 ---|---
 ARM|FLIP
 
 ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
 
-##Shenqi - *19*
+## Shenqi - *19*
 Autobind protocol
 
 Model: Shenqiwei 1/20 Mini Motorcycle
@@ -650,24 +650,24 @@ CH1|CH2|CH3|CH4
 
 Throttle +100%=full forward,0%=stop,-100%=full backward.
 
-##SLT - *11*
+## SLT - *11*
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|GEAR|PITCH
 
-##Symax - *10*
+## Symax - *10*
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
 
-###Sub_protocol SYMAX - *0*
+### Sub_protocol SYMAX - *0*
 Models: Syma X5C-1/X11/X11C/X12
 
-###Sub_protocol SYMAX5C - *1*
+### Sub_protocol SYMAX5C - *1*
 Model: Syma X5C (original) and X2
 
 ##V2X2 - *5*
@@ -675,32 +675,30 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
 
-###Sub_protocol V2x2 - *0*
+### Sub_protocol V2x2 - *0*
 Models: WLToys V202/252/272, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...
 
 PICTURE: also automatic Missile Launcher and Hoist in one direction
 
 VIDEO: also Sprayer, Bubbler, Missile Launcher(1), and Hoist in the other dir
 
-###Sub_protocol JXD506 - *1*
+### Sub_protocol JXD506 - *1*
 Model: JXD 506
 
 CH10|CH11|CH12
 ---|---|---
 Start/Stop|EMERGENCY|CAMERA_UP/DN
 
-##YD717 - *8*
+## YD717 - *8*
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 
-###Sub_protocol YD717 - *0*
-###Sub_protocol SKYWLKR - *1*
-###Sub_protocol SYMAX4 - *2*
-###Sub_protocol XINXUN - *3*
-###Sub_protocol NIHUI - *4*
+### Sub_protocol YD717 - *0*
+### Sub_protocol SKYWLKR - *1*
+### Sub_protocol SYMAX4 - *2*
+### Sub_protocol XINXUN - *3*
+### Sub_protocol NIHUI - *4*
 Same channels assignement as above.
-
-

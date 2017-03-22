@@ -71,6 +71,23 @@
 //#define NRF24L01_ENABLE_LOW_POWER
 
 
+/*****************/
+/*** GLOBAL ID ***/
+/*****************/
+//A global ID is used by most protocols to bind and retain the bind to models. To prevent duplicate IDs, it is automatically
+// generated using a random 32 bits number the first time the eeprom is initialized.
+//If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
+// then you can force the ID to a certain known value using the lines below.
+//Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
+//#define FORCE_GLOBAL_ID	0x12345678
+
+//Protocols using the CYRF6936 (DSM, Devo, Walkera...) are using the CYRF ID instead which should prevent duplicated IDs.
+//If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
+// then you can force the ID to a certain known value using the lines below.
+//Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
+//#define FORCE_CYRF_ID	"\x12\x34\x56\x78\x9A\xBC"
+
+
 /****************************/
 /*** PROTOCOLS TO INCLUDE ***/
 /****************************/
@@ -115,6 +132,7 @@
 #define	HONTAI_NRF24L01_INO
 #define Q303_NRF24L01_INO
 #define GW008_NRF24L01_INO
+#define DM002_NRF24L01_INO
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/
@@ -210,8 +228,8 @@ const PPM_Parameters PPM_prot[15]=	{
 /*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
-/*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	6	*/	{MODE_DSM	,	DSMX_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
+/*	7	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},
 /*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	10	*/	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -338,6 +356,8 @@ const PPM_Parameters PPM_prot[15]=	{
 		CX10D
 		CX10WD
 	MODE_GW008
+		NONE
+	MODE_DM002
 		NONE
 */
 

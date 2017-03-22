@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	20
+#define VERSION_PATCH_LEVEL	21
 //******************
 // Protocols
 //******************
@@ -58,6 +58,7 @@ enum PROTOCOLS
 	MODE_WK2x01		= 30,	// =>CYRF6936
 	MODE_Q303		= 31,	// =>NRF24L01
 	MODE_GW008		= 32,	// =>NRF24L01
+	MODE_DM002		= 33,	// =>NRF24L01
 };
 
 enum Flysky
@@ -480,6 +481,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					WK2x01		30
 					Q303		31
 					GW008		32
+					DM002		33
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

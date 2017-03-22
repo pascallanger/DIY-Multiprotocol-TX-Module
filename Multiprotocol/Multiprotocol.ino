@@ -22,13 +22,22 @@
 */
 #include <avr/pgmspace.h>
 //#define DEBUG_TX
+//#define USE_MY_CONFIG
 #include "Multiprotocol.h"
 
 //Multiprotocol module configuration file
 #include "_Config.h"
+// Let's automatically select the board
+// if arm is selected
 #ifdef __arm__
-	#define STM32_BOARD	// Let's automatically select this board if arm is selected since this is the only one for now...
+	#define STM32_BOARD
 #endif
+
+//Personal config file
+#if defined USE_MY_CONFIG || __has_include("_MyConfig.h")
+	#include "_MyConfig.h"
+#endif
+
 #include "Pins.h"
 #include "TX_Def.h"
 #include "Validate.h"
@@ -948,6 +957,12 @@ static void protocol_init()
 						remote_callback = GW008_callback;
 						break;
 				#endif
+				#if defined(DM002_NRF24L01_INO)
+					case MODE_DM002:
+						next_callback=initDM002();
+						remote_callback = DM002_callback;
+						break;
+				#endif
 			#endif
 		}
 	}
@@ -1158,35 +1173,41 @@ static uint32_t random_value(void)
 }
 #endif
 
-static uint32_t random_id(uint16_t adress, uint8_t create_new)
+static uint32_t random_id(uint16_t address, uint8_t create_new)
 {
-	uint32_t id=0;
+	#ifndef FORCE_GLOBAL_ID
+		uint32_t id=0;
 
-	if(eeprom_read_byte((EE_ADDR)(adress+10))==0xf0 && !create_new)
-	{  // TXID exists in EEPROM
-		for(uint8_t i=4;i>0;i--)
+		if(eeprom_read_byte((EE_ADDR)(address+10))==0xf0 && !create_new)
+		{  // TXID exists in EEPROM
+			for(uint8_t i=4;i>0;i--)
+			{
+				id<<=8;
+				id|=eeprom_read_byte((EE_ADDR)address+i-1);
+			}	
+			if(id!=0x2AD141A7)	//ID with seed=0
+				return id;
+		}
+		// Generate a random ID
+		#if defined STM32_BOARD
+			#define STM32_UUID ((uint32_t *)0x1FFFF7E8)
+			if (!create_new)
+				id = STM32_UUID[0] ^ STM32_UUID[1] ^ STM32_UUID[2];
+		#else
+			id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
+		#endif
+		for(uint8_t i=0;i<4;i++)
 		{
-			id<<=8;
-			id|=eeprom_read_byte((EE_ADDR)adress+i-1);
+			eeprom_write_byte((EE_ADDR)address+i,id);
+			id>>=8;
 		}	
-		if(id!=0x2AD141A7)	//ID with seed=0
-			return id;
-	}
-	// Generate a random ID
-	#if defined STM32_BOARD
-		#define STM32_UUID ((uint32_t *)0x1FFFF7E8)
-		if (!create_new)
-			id = STM32_UUID[0] ^ STM32_UUID[1] ^ STM32_UUID[2];
+		eeprom_write_byte((EE_ADDR)(address+10),0xf0);//write bind flag in eeprom.
+		return id;
 	#else
-		id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
+		(void)address;
+		(void)create_new;
+		return FORCE_GLOBAL_ID;
 	#endif
-	for(uint8_t i=0;i<4;i++)
-	{
-		eeprom_write_byte((EE_ADDR)adress+i,id);
-		id>>=8;
-	}	
-	eeprom_write_byte((EE_ADDR)(adress+10),0xf0);//write bind flag in eeprom.
-	return id;
 }
 
 /**************************/

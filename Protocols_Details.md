@@ -376,6 +376,13 @@ Model: H8S 3D
 
 Same channels assignement as above.
 
+##DM002 - *33*
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|FLIP|LIGHT|HEADLESS
+
 ##CG023 - *13*
 Autobind protocol
 

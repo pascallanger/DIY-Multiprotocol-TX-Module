@@ -50,8 +50,8 @@ static void __attribute__((unused)) DM002_send_packet(uint8_t bind)
 		packet[1]=convert_channel_8b_scale(THROTTLE,0,200);
 		// Other channels min 0x57, mid 0x7F, max 0xA7
 		packet[2] = convert_channel_8b_scale(RUDDER,0x57,0xA7);
-		packet[3] = convert_channel_8b_scale(ELEVATOR, 0x57,0xA7);
-		packet[4] = convert_channel_8b_scale(AILERON, 0x57,0xA7);
+		packet[3] = convert_channel_8b_scale(AILERON, 0x57,0xA7);
+		packet[4] = convert_channel_8b_scale(ELEVATOR, 0xA7, 0x57);
 		// Features
 		packet[9] =  GET_FLAG(Servo_AUX1,DM002_FLAG_FLIP)
 					| GET_FLAG(Servo_AUX2,DM002_FLAG_LED)

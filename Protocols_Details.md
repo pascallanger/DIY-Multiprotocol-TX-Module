@@ -379,9 +379,11 @@ Same channels assignement as above.
 ## DM002 - *33*
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|FLIP|LIGHT|HEADLESS
+**Only 2 TX IDs available, change RX_Num value 0-1 to cycle through them
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
+A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
 
 ## CG023 - *13*
 Autobind protocol

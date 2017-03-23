@@ -133,17 +133,16 @@ uint16_t DM002_callback()
 static void __attribute__((unused)) DM002_initialize_txid()
 {
 	// Only 2 IDs/RFs are available, RX_NUM is used to switch between them
-	
-	// RF channels
 	if(rx_tx_addr[3]&1)
+	{
 		memcpy(hopping_frequency,(uint8_t *)"\x34\x39\x43\x48",4);
-	else
-		memcpy(hopping_frequency,(uint8_t *)"\x35\x39\x3B\x3D",4);
-	// TX IDs
-	if(rx_tx_addr[3]&1)
 		memcpy(rx_tx_addr,(uint8_t *)"\x47\x93\x00\x00\xD5",5);
+	}
 	else
+	{
+		memcpy(hopping_frequency,(uint8_t *)"\x35\x39\x3B\x3D",4);
 		memcpy(rx_tx_addr,(uint8_t *)"\xAC\xA1\x00\x00\xD5",5);
+	}
 }
 
 uint16_t initDM002(void)

@@ -29,7 +29,12 @@ enum DM002_FLAGS {
     // flags going to packet[9]
     DM002_FLAG_FLIP		= 0x01, 
     DM002_FLAG_LED		= 0x02, 
-    DM002_FLAG_HEADLESS	= 0x10,
+    DM002_FLAG_MEDIUM	= 0x04, 
+    DM002_FLAG_HIGH		= 0x08, 
+    DM002_FLAG_RTH		= 0x10,
+    DM002_FLAG_HEADLESS	= 0x20,
+    DM002_FLAG_CAMERA1	= 0x40,
+    DM002_FLAG_CAMERA2	= 0x80,
 };
 
 static void __attribute__((unused)) DM002_send_packet(uint8_t bind)
@@ -53,9 +58,13 @@ static void __attribute__((unused)) DM002_send_packet(uint8_t bind)
 		packet[3] = convert_channel_8b_scale(AILERON, 0x57,0xA7);
 		packet[4] = convert_channel_8b_scale(ELEVATOR, 0xA7, 0x57);
 		// Features
-		packet[9] =  GET_FLAG(Servo_AUX1,DM002_FLAG_FLIP)
-					| GET_FLAG(Servo_AUX2,DM002_FLAG_LED)
-					| GET_FLAG(Servo_AUX3,DM002_FLAG_HEADLESS);
+		packet[9] =   GET_FLAG(Servo_AUX1,DM002_FLAG_FLIP)
+					| GET_FLAG(!Servo_AUX2,DM002_FLAG_LED)
+					| GET_FLAG(Servo_AUX3,DM002_FLAG_CAMERA1)
+					| GET_FLAG(Servo_AUX4,DM002_FLAG_CAMERA2)
+					| GET_FLAG(Servo_AUX5,DM002_FLAG_HEADLESS)
+					| GET_FLAG(Servo_AUX6,DM002_FLAG_RTH)
+					| GET_FLAG(!Servo_AUX7,DM002_FLAG_HIGH);
 		// Packet counter
 		if(packet_count&0x03)
 		{
@@ -123,10 +132,18 @@ uint16_t DM002_callback()
 
 static void __attribute__((unused)) DM002_initialize_txid()
 {
-	// lani TXID
-	memcpy(rx_tx_addr,(uint8_t *)"\xAC\xA1\x00\x00\xD5",5);
-	// lani hopping_frequency
-	memcpy(hopping_frequency,(uint8_t *)"\x35\x39\x3B\x3D",4);
+	// Only 2 IDs/RFs are available, RX_NUM is used to switch between them
+	
+	// RF channels
+	if(rx_tx_addr[3]&1)
+		memcpy(hopping_frequency,(uint8_t *)"\x34\x39\x43\x48",4);
+	else
+		memcpy(hopping_frequency,(uint8_t *)"\x35\x39\x3B\x3D",4);
+	// TX IDs
+	if(rx_tx_addr[3]&1)
+		memcpy(rx_tx_addr,(uint8_t *)"\x47\x93\x00\x00\xD5",5);
+	else
+		memcpy(rx_tx_addr,(uint8_t *)"\xAC\xA1\x00\x00\xD5",5);
 }
 
 uint16_t initDM002(void)

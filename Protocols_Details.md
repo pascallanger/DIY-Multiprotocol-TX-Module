@@ -379,7 +379,7 @@ Same channels assignement as above.
 ## DM002 - *33*
 Autobind protocol
 
-**Only 2 TX IDs available, change RX_Num value 0-1 to cycle through them
+**Only 2 TX IDs available, change RX_Num value 0-1 to cycle through them**
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----

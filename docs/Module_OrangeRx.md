@@ -1,4 +1,4 @@
-#OrangeRx Transmitter module
+# OrangeRx Transmitter module
 
 The OrangeRx transmitter module uses an Atmel XMega MCU.  This requires a PDI programmer to flash firmware, the USBASP programmers do not work. 
 

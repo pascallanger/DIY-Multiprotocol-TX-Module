@@ -1,9 +1,10 @@
-#PPM Setup
+# PPM Setup
 
 The Multiprotocol Module is compatible with any transmitter that is able to generate a PPM (Pulse Postion Modulation) output.  This includes all transmitters with a module bay or a trainer port.  It supports up to 16 channels from a PPM frame in the normal or inverted format (sometimes called positive or negative format in some transmitters).
 If you want the best performance you can set the number of channels and framerate corresponding to the number of channels of the specific receiver/model.
 
-##PPM Connections
+## PPM Connections
+
 If you do not have a module bay, there are only three wires you need to connect to get PPM to work.  (The pins are numbered from top to bottom) 
 - PPM on pin 1
 - vbat on pin 3
@@ -12,7 +13,7 @@ If you do not have a module bay, there are only three wires you need to connect 
 Note: vbat should be between 6V and 13V when using the 4-in-1 and 2.3 PCB boards. If you built a module from scratch it depends on the voltage regulator you chose.
 
 
-##Enabling PPM mode in your transmitter
+## Enabling PPM mode in your transmitter
 
 1. Enable the default Tx mode to be AETR. If you do not want to change the default channel order on your Tx you must remember to change the channel order for each new model using the module to AETR under the Model Mixer menu. (**This is really important - this is for all protocols - even for DSM as the MULTI-module firware will change the transmitted channel order according to the protocol.**)  
 1. The default PPM settings is 8 channels with a frame period of 22.5 ms (sometimes called the frame rate).  If you want to optimize performance you should change the channels to the actual number of channels required by your model.  The corresponding frame period should be set to (number of channels + 1) * 2.5 ms.  For example:
@@ -29,7 +30,7 @@ The default mapping of protocols to switch positions can be viewed on the Protoc
 
 The mapping of protocols to protocol selection switch positions can be changed in configuration settings as described on the [Compiling and Programming page](Compiling.md).
 
-##Binding in PPM mode
+## Binding in PPM mode
 
 In PPM mode follow the standard transmitter - receiver binding process: 
  1. Switch off the transmitter
@@ -41,7 +42,7 @@ In PPM mode follow the standard transmitter - receiver binding process:
 
 If you are having trouble binding to a consumer quad check the section below on [Getting your Bind Timing right](Bind_Timing.md). For more details on setting up specific receivers or models, check out the [Protocol Details page](Protocol_Details.md).
 
-##Telemetry in PPM mode
+## Telemetry in PPM mode
 
 Telemetry is available as a serial stream on the TX pin of the Atmega328p in the FrSky HUB format. The serial parameters are based on the protocol selected by the protocol selection dial. 
 

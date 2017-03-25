@@ -4,7 +4,8 @@ Multiprotocol source are compiled using the well known Arduino IDE.
 
 The procedure below will guide you through all the steps to upload successfully a customized firmware.
 
-##Install the Arduino IDE and the Multiprotocol project firmware
+## Install the Arduino IDE and the Multiprotocol project firmware
+
 1. Download and install the Arduino IDE. The currently supported Arduino version is 1.6.12. available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
 1. It is recommended to upgrade Java to the [latest version](https://www.java.com/en/download/)
 1. Download the zip file with the Multiprotocol module source code from [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/archive/master.zip)
@@ -13,7 +14,8 @@ The procedure below will guide you through all the steps to upload successfully 
 
 ## Upload the firmware
 
-###Material you need to upload the firmware
+### Material you need to upload the firmware
+
 1. USBASP programmer supporting 3.3V: <img src="images/USBasp_Programmer.jpeg" width="200" height="200" /> [(example aliexpress link)](https://www.aliexpress.com/item/USBasp-USB-ISP-3-3V-5V-AVR-Programmer-USB-ATMEGA8-ATMEGA128-New-10PIN-Wire-Support/2036402518.html?spm=2114.30010308.8.10.jIbHzs). There are reports that some of the cheap programmers are not safe to use with 3.3V units, usually the black PCB versions are ok.
 1. 10pin to 6pin adapter: <img src="images/10pin_2_6pin.JPG" width="150" height="150" /> [(example ebay link)](http://www.ebay.fr/itm/10-Pin-a-6-Pin-Carte-Adaptateur-M-F-pour-AVRISP-USBASP-STK500-Noir-Bleu-WT-/291862396761?hash=item43f45abf59:g:gXsAAOSwMgdXyGnh)
 1. 6 pin header like this one: <img src="images/6pin_header.jpg" width="100" height="100" /> [(example Digi-Key link)](http://www.digikey.com/products/en?keywords=3M%20961206-6404-AR)
@@ -26,10 +28,10 @@ The 6 Pin header needs to be solder on the board like indicated by the red recta
 * Arduino Pro Mini module:
 <img src="images/ProMini_ISP.png" width="195" height="200" />
 
-###Connect the programmer
+### Connect the programmer
 
 1. Before you connect the programmer make sure that you have selected the 3.3V mode and not 5V. The RF Modules are not 5V tolerant and you will break them with 5V.  On most programmers this is done by moving a jumper.
-<img src="images/USBasp_Programmer_jumper.png" width="200" height="200" />
+     <img src="images/USBasp_Programmer_jumper.png" width="200" height="200" />
 1. Please re-read item 1. above before going on.
 1. Turn the rotary switch on the DIY Multiprotocol module to the 0 position. If you do not have a switch for Serial mode only then it is the same as being in the 0 position. The upload will not work if the switch is in any other position.
 1. Connect the 6-pin programming connector to the 6-pin ASP IVR connector on the DIY Multiprotocol board. Be sure to match the ground pin of the programmer connector to the ground pin on the board.
@@ -46,13 +48,16 @@ You are now ready to plug in the USB programmer to the computer
 
 If you are looking for a good working USBASP Windows driver, [use this one](http://www.protostack.com/download/USBasp-win-driver-x86-x64-v3.0.7.zip).
 
-###Configure Arduino IDE for Multiprotocol
+### Configure Arduino IDE for Multiprotocol
+
 1. Under Tools -> Board select the Arduino Pro or Pro Mini
 1. Under Tools -> Processor select the ATmega328 (5V, 16MHz)
 1. Under Tools -> Programmer select your programmer type (probably USBASP from the shopping list above)
 
 <a name="CustomizeFirmareToYourNeeds"></a>
-###Customize the firmware to match your hardware and your needs
+
+### Customize the firmware to match your hardware and your needs
+
 All customization is done by editing the ```_Config.h  ``` file in the Multiprotocol Arduino project.  
 
 In the Arduino IDE, click on the down arrow on the far right of the tab bar to show a list of project files (see the red circle on the screenshot below).  Scroll down and select the _Config.h file.
@@ -75,7 +80,7 @@ If you see something like the following, your firmware is still too big and you 
 
 If there is another error carefully read it, go to the line number indicated and correct your typo.
 
-###Flash the firmware
+### Flash the firmware
 
 1. If you have a 4in1 Multiprotocol module you can skip this step. If you've just finished to build your DIY Multiprotocol module (like v2.3d), the first step is to flash the fuses of the microcontroller. This needs to be done only once. For this purpose, click on **Tools -> Burn Bootloader** 
 
@@ -93,6 +98,7 @@ If you get an error that indicates a valid microcontroller was not found there i
  - your board
 
 <a name="AdvancedSettings"></a>
+
 ## Advanced settings
 
 So you followed the previous steps and your module is working.
@@ -101,9 +107,11 @@ Below are some extra steps which will:
  - Permit to flash even more protocols (extra 2KB)
 
 ### Arduino Boards.txt modification
+
 First, we need to append some text to the Arduino file boards.txt.
 
 #### On Windows
+
 1. Close the Arduino IDE
 1. Search Windows for the application WordPad (DO NOT USE Notepad). Right click on WordPad and select "Run as Administrator":
 <img src="images/WordPad_Admin.jpg" height="200" />
@@ -144,6 +152,7 @@ multi.menu.cpu.16MHzatmega328.build.f_cpu=16000000L
 ```
 
 #### On Mac OSX:
+
 1. Close the Arduino IDE
 1. Using finder navigate to ```Applications``` folder
 1. Ctl-Click on the Arduino application and select **Show Package Contents**.
@@ -151,6 +160,7 @@ multi.menu.cpu.16MHzatmega328.build.f_cpu=16000000L
 1. Copy and paste the "Multi 4-in-1" text listed above into the end of the file and save it.
 
 ### Burn Bootloader
+
 1. Open the Arduino IDE and load the Multiprotocol project.
 1. Select under **Tools -> Board** the new entry **Multi 4-in-1**
 1. Select under **Tools -> Programmer** the entry **USBasp**
@@ -158,6 +168,7 @@ multi.menu.cpu.16MHzatmega328.build.f_cpu=16000000L
 1. At this stage your flash module is empty so it's normal if the status LED does not do anything.
 
 ### Flash the firmware
+
 Scroll back to the section [Customize the firmware to your hardware and your needs](#CustomizeFirmareToYourNeeds) above and follow the instructions.
 
 You are done good fly!!!

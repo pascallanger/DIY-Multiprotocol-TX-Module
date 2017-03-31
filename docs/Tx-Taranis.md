@@ -17,15 +17,19 @@ The MULTI-module can be used with all transmitters and firmwares in PPM mode.  T
 ## PPM Mode
 Please refer to the [PPM Setup](PPM_Setup.md) page. 
 
-##Serial mode
-###Enabling Serial Mode
+## Serial mode
+### Enabling Serial Mode
 To operate in serial mode, you need one of these firmwares:
  1. erSky9x
- 1. OpenTx supporting the MULTI-Module (Version 2.1.8 Multi or later)
+ 1. OpenTx supporting the MULTI-Module (Version 2.1.8 Multi or later, 2.2 recommended)
 
 Check and upload a supported firmware.  The latest available version at time of writing are:
  - erSky9x Revision 218 or later - the hex files are available [here](http://www.er9x.com) (Mike's latests test versions are available [here](http://openrcforums.com/forum/viewtopic.php?f=7&t=4676)).  
- - OpenTx 2.1.8 Multi or later - the hex files are available [here](http://plaisthos.de/opentx/)
+ - OpenTx 2.2RC10 or later  [www.open-tx.org](http://www.open-tx.org/)
+ 
+   Please make sure that the "multimodule" option in OpenTX Companion is checked:
+  
+   <img src="images/opentx-config-multi.png">
 
 Tutorials for uploading new firmware using the SD Card are available [here](http://www.dronetrest.com/t/how-to-upgrade-firmware-for-frsky-taranis-x9d/959) or the CompanionTx or eepe software (recommended) are available [here](http://open-txu.org/home/undergraduate-courses/fund-of-opentx/part-2-flashing-opentx/). 
 
@@ -43,12 +47,12 @@ First, confirm that the MULTI-Module has the required physical connections betwe
  The Red LED on the MULTI-Module should briefly flash and then stay on.  This confirms that the MULTI-Module module has established serial communication with the Tx.  
  4. If the red LED on the module continues to flash at a period of about 1s then it signals that serial communication has not been established.  Check your settings under the model menu as described above and check that the protocol selection switch on the module is at 0 (zero).  If there is still no communication, power down and power up the Tx.  Finally check that you have correctly enabled your module for serial as described in specific pages for your module hardware (under the section "Enabling Serial") linked [here](Hardware.md)
  
-###Protocol Selection in Serial mode
+### Protocol Selection in Serial mode
 To select the protocol, scroll through the available options under the Model Settings menu.  Depending on which protocol you have selected you may be required to select a sup-protocol and options.  For example, the FrSky protocol has three sub-protocols FrSkyV, FrSkyD and FrSkyX.  Each of the sub-protocols may have options that specify the number of channels and the packet frame rate, etc.  
 
 The following picture shows DSM – DSMX – Option 6 (6 channels and 11ms frame rate). Check out the [Protocol Details](Protocol_Details.md) page for detailed information and suggestions regarding the sub-protocols and options.
 
-###Protcol Status in Serial mode (OpenTX)
+### Protcol Status in Serial mode (OpenTX)
 If you see ```NO MULTI_TELEMETRY``` or no ```NO TELEMETRY``` in the setup screen of the external module, like this:
 
 <img width="594" height="213" src="images/X7-no-telemetry.png" />
@@ -64,7 +68,7 @@ you are missing the ```MULTI_TELEMETRY``` and/or ```INVERT_TELEMTRY``` option in
 (Module is currently binding and code on the module is running V1.1.6.10)
 
 
-###Binding in Serial mode
+### Binding in Serial mode
 1. Switch on the model or put the receiver into bind mode
 1. On the transmitter go to the Model Settings menu and scroll down to the [Bind] menu option and press Enter.
 1. Press Enter again to exit Bind mode

@@ -47,8 +47,8 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
  
  **usart_irq(&usart3_rb, USART3_BASE);**
  
-**}
-*/**
+**}**
+***/**
  
  
 1. Run the IDE, and on the **Tools** menu, select **Board** and then **Boards manager**. Click on the Arduino DUE (32 Bits ARM-Cortex M3) from the list of available boards. You must do this step, it installs the arm-none-eabi-g++ toolchain!
@@ -93,7 +93,7 @@ This method use USB connector on the STM32 V1.0 board or on the maple clone boar
 1. Install first maple USB driver by running the batch file found in Arduino STM32 package folder "..\hardware\Arduino_STM32\drivers\win\install_drivers.bat"  
 1. Download the free STM32 flash loader demonstrator from [ST.com](http://www.st.com/en/development-tools/flasher-stm32.html) and using a USB-TTL device (like FTDI cable) flash the STM32duino bootloader available from Roger Clark's great STM32 site [here](https://github.com/rogerclarkmelbourne/STM32duino-bootloader/tree/master/STM32F1/binaries) .Use bootloader **generic_boot20_pa1.bin**
 1. Open Arduino IDE,browse to multiprotocol folder,load the sketch multiprotocol.ino.
-1. In Arduino IDE under "Upload method" select **STM32duino**-bootloader.Wait until upload is complete.
+1. In Arduino IDE under "Upload method" select **STM32duino**-bootloader.Click upload ,wait until upload is complete.
 
 Notes:
 - When you use multiSTM32_USB for the first time,the USB drivers are not recognized and port is not open/recognized(arduino IDE port selection is grey/unavailable). After this first time use, any subsequent update of the program, you'll have to select the correct serial port and  upload sketches normally in Arduino using USB port.

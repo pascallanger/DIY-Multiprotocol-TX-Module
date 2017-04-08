@@ -13,6 +13,12 @@ In the case of the Turnigy 9X/9XR/9XR Pro you don't need to invert the telemetry
 
 The inverted telemetry signal is required by TARANIS TX and other boards so for telemetry to work properly the inverter chip must be installed.
 
+## BOM DIY STM32 PCB V1.1t -  USB version update
+The board is available at OSHpark [here](https://oshpark.com/shared_projects/eWtNW6jo)
+
+<img src="images/Board_PCB_STM32_USB_V1.1-2.png" width="300" height="400"/> <img src="images/Board_PCB_STM32_USB_V1.1-1.png" width="300" height="400"/> 
+
+
 ## BOM DIY STM32 PCB V1.0t - the USB version
 This BOM is for the board with the USB port which allows firmware upload.
 
@@ -98,9 +104,8 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 ## BOM DIY STM32 PCB - the first Version
  This BOM is for the board that looks like this - check carefully:
  
-<img src="https://camo.githubusercontent.com/9b8dc4eb5618583ebe8fc01f03f2da75766080b3/68747470733a2f2f36343464623464653335303563343061303434342d33323737323362636532393865336666353831336662343262616565666261612e73736c2e6366312e7261636b63646e2e636f6d2f66326435393865616364386539656562633338313861646634373737373139392e706e67"  width="300" height="400"/>
 <img
-src="https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/2026cfd1d0187a770570052590168df1.png" width="300" height="400"/>
+src="https://644db4de3505c40a0444-327723bce298e3ff5813fb42baeefbaa.ssl.cf1.rackcdn.com/2026cfd1d0187a770570052590168df1.png" width="300" height="400"/> <img src="https://camo.githubusercontent.com/9b8dc4eb5618583ebe8fc01f03f2da75766080b3/68747470733a2f2f36343464623464653335303563343061303434342d33323737323362636532393865336666353831336662343262616565666261612e73736c2e6366312e7261636b63646e2e636f6d2f66326435393865616364386539656562633338313861646634373737373139392e706e67"  width="300" height="400"/> 
 
 
 Qty|Part|Description|Value|Package|Digikey Part Number

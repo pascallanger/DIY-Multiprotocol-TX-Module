@@ -19,7 +19,7 @@ The board is available at OSHpark [here](https://oshpark.com/shared_projects/eWt
 <img src="images/Board_PCB_STM32_USB_V1.1-2.png" width="300" height="400"/> <img src="images/Board_PCB_STM32_USB_V1.1-1.png" width="300" height="400"/> 
 
 
-## BOM DIY STM32 PCB V1.0t - the USB version
+## BOM DIY STM32 PCB V1.0t & V1.1 - the USB version
 This BOM is for the board with the USB port which allows firmware upload.
 
 The board is available at OSHpark [here](https://oshpark.com/shared_projects/GX51nEoH)
@@ -39,7 +39,7 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|C203|Cap Ceramic|4u7|0805|[311-1371-1-ND](https://www.digikey.com/product-detail/en/yageo/CC0805ZRY5V6BB475/311-1371-1-ND/2103155)
 1|C207|Cap Ceramic|1uF|0805|[311-1365-1-ND](https://www.digikey.com/product-detail/en/yageo/CC0805KKX7R7BB105/311-1365-1-ND/2103149)
 1|C208|Cap Ceramic|10nF|0805|[311-1136-1-ND](http://www.digikey.com/products/en?keywords=311-1136-1-ND)
-4|D201,301,302,303|Diode Shottky|BAT48|SOD123|[497-5712-1-ND](http://www.digikey.com/products/en?keywords=497-5712-1-ND)
+5|D101*201,301,302,303|Diode Shottky|BAT48|SOD123|[497-5712-1-ND](http://www.digikey.com/products/en?keywords=497-5712-1-ND)
 1|IC101|Voltage reg 5V|AMS1117-50|SOT223|[LM1117MP-5.0/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MP-5.0-NOPB/LM1117MP-5.0-NOPBCT-ND/363589)
 1|IC102|Voltage reg 3.3V|AMS1117-33|SOT223|[LM1117MPX-3.3/NOPBCT-ND](https://www.digikey.com/product-detail/en/texas-instruments/LM1117MPX-3.3-NOPB/LM1117MPX-3.3-NOPBCT-ND/1010516)
 1|L101|High Freq Inductor|10uH|1812|[CM453232-100KLCT-ND](https://www.digikey.com/product-detail/en/bourns-inc/CM453232-100KL/CM453232-100KLCT-ND/3437938)
@@ -60,6 +60,8 @@ Qty|Part|Description|Value|Package|Digikey Part Number
 1|Y201|8mHz Resonator|8mHz||[490-1195-1-ND](https://www.digikey.com/product-detail/en/murata-electronics-north-america/CSTCE8M00G55-R0/490-1195-1-ND/584632)
 1|U301|Dual INPUT-XOR|SN74LVC2G86DCTR|SSM8|[296-13274-1-ND](http://www.digikey.com/product-detail/en/texas-instruments/SN74LVC2G86DCTR/296-13274-1-ND/484501)
 1|CON401|ANT.conn SMD|||[WM5587CT-ND](https://www.digikey.com/product-detail/en/molex-llc/0734120110/WM5587CT-ND/1894612)
+
+* Diode D101 is only required for the V1.1 board
 
 PCB STM32 V1.0t Schematic
 <img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 

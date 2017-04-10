@@ -34,7 +34,7 @@
 #endif
 
 //Personal config file
-#if defined USE_MY_CONFIG || __has_include("_MyConfig.h")
+#if defined USE_MY_CONFIG
 	#include "_MyConfig.h"
 #endif
 
@@ -207,6 +207,7 @@ void setup()
 		TCC1.CTRLA = 0x0B ;	// Event3 (prescale of 16)
 	#elif defined STM32_BOARD
 		//STM32
+		afio_cfg_debug_ports(AFIO_DEBUG_NONE);
 		pinMode(A7105_CSN_pin,OUTPUT);
 		pinMode(CC25_CSN_pin,OUTPUT);
 		pinMode(NRF_CSN_pin,OUTPUT);

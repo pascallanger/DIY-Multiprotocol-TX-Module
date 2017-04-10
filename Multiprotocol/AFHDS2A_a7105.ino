@@ -260,6 +260,7 @@ uint16_t ReadAFHDS2A()
 			while ((uint16_t)micros()-start < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
+			A7105_SetPower();
 			A7105_SetTxRxMode(TXRX_OFF);					// Turn LNA off since we are in near range and we want to prevent swamping
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;
@@ -325,6 +326,7 @@ uint16_t ReadAFHDS2A()
 			while ((uint16_t)micros()-start < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
+			A7105_SetPower();
 			A7105_SetTxRxMode(RX_EN);
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;

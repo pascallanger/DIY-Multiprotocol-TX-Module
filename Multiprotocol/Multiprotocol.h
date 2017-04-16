@@ -198,6 +198,7 @@ enum Q303
 enum CABELL
 {
   CABELL_V3            = 0,
+  CABELL_V3_TELEMETRY  = 1,
   CABELL_SET_FAIL_SAFE = 6,
   CABELL_UNBIND        = 7
 };
@@ -590,9 +591,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CX10D		2
 			CX10WD		3
 		sub_protocol==CABELL
-			CABELL_V3		         0,
+			CABELL_V3            0,
+			CABELL_V3_TELEMETRY  1,
 			CABELL_SET_FAIL_SAFE 6,
-			CABELL_UNBIND 	     7
+			CABELL_UNBIND        7
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

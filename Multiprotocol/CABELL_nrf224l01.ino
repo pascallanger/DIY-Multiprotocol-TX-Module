@@ -48,10 +48,12 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 typedef struct {
    enum RxMode_t : uint8_t {   // Note bit 8 is used to indicate if the packet is the first of 2 on the channel.  Mask out this bit before using the enum
-         normal = 0,
-         bind   = 1,
-         setFailSafe = 2,
-         unBind = 127
+         normal                 = 0,
+         bind                   = 1,
+         setFailSafe            = 2,
+         normalWithTelemetry    = 3,
+         telemetryResponse      = 4,
+         unBind                 = 127
    } RxMode;
    uint8_t  reserved = 0;
    uint8_t  option;
@@ -95,8 +97,57 @@ static uint8_t __attribute__((unused)) CABELL_getNextChannel (uint8_t seqArray[]
 }
 
 //-----------------------------------------------------------------------------------------
+#if defined(TELEMETRY) && defined(HUB_TELEMETRY)
+static void __attribute__((unused)) CABELL_get_telemetry()
+{
+  static unsigned long telemetryProcessingTime = 50;  // initial guess.  This will get adjusted below once telemetry packts are recieved
+  
+  // calculate TX rssi based on telemetry packets recieved per half second.  Cannot use full second count because telemetry_counter is not large enough
+  state++;
+  if (state > (500000 / CABELL_PACKET_PERIOD))
+  {
+    //calculate telemetry reception RSSI - based on packet rape per 1000ms where 255 is 100%
+    state--;  //This is the number of packets expected
+    TX_RSSI = constrain(((uint16_t)(((float)telemetry_counter / (float)state * (float)255))),0,255);
+    telemetry_counter = 0;
+    state = 0;
+    telemetry_lost=0;
+//    Serial.print(TX_RSSI);
+//    Serial.print(" ");
+//    Serial.println(RX_RSSI);
+  }
+
+  // Process incomming telementry packet of it was recieved
+  if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))  { // data received from model
+    unsigned long telemetryProcessingStart = micros();
+    NRF24L01_ReadPayload(packet, 2);
+    if ((packet[0] & 0x7F) == CABELL_RxTxPacket_t::RxMode_t::telemetryResponse)  // ignore first bit in compare becasue it toggles with each packet
+    {
+      RX_RSSI = packet[1];
+      telemetry_counter++;      
+      if(telemetry_lost==0) telemetry_link=1;
+      telemetryProcessingTime = micros() - telemetryProcessingStart;
+    }
+  } else {
+    // If no telemetry packet was recieved then delay by the typical telemetry packet processing time
+    // This is done to try to keep the sendPacket process timing more consistent. Since the SPI payload read takes some time
+    delayMicroseconds(telemetryProcessingTime);
+  }
+
+  NRF24L01_SetTxRxMode(TX_EN);  
+  NRF24L01_FlushRx(); 
+}
+#endif
+
+//-----------------------------------------------------------------------------------------
 static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 {  
+  #if defined(TELEMETRY) && defined(HUB_TELEMETRY)
+    if (sub_protocol == CABELL_V3_TELEMETRY)  { // check for incommimg packet and switch radio back to TX mode if we were listening for telemetry      
+      CABELL_get_telemetry();
+    }
+  #endif
+
   CABELL_RxTxPacket_t TxPacket;
 
   uint8_t channelReduction = constrain((option & CABELL_OPTION_MASK_CHANNEL_REDUCTION),0,CABELL_NUM_CHANNELS-CABELL_MIN_CHANNELS);  // Max 12 - cannot reduce below 4 channels
@@ -113,7 +164,17 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
     if (sub_protocol == CABELL_SET_FAIL_SAFE && !bindMode) {
       TxPacket.RxMode     = CABELL_RxTxPacket_t::RxMode_t::setFailSafe;
     } else {
-      TxPacket.RxMode     = (bindMode) ?  CABELL_RxTxPacket_t::RxMode_t::bind : CABELL_RxTxPacket_t::RxMode_t::normal;
+      if (bindMode) {
+        TxPacket.RxMode     = CABELL_RxTxPacket_t::RxMode_t::bind;        
+      } else {
+        switch (sub_protocol) {
+          case CABELL_V3_TELEMETRY : TxPacket.RxMode = CABELL_RxTxPacket_t::RxMode_t::normalWithTelemetry;
+                                     break;
+                                     
+          default                  : TxPacket.RxMode     = CABELL_RxTxPacket_t::RxMode_t::normal;  
+                                     break;
+        }      
+      }
     }
     TxPacket.option     = (bindMode) ? (option & (~CABELL_OPTION_MASK_CHANNEL_REDUCTION)) : option;   //remove channel reduction if in bind mode
   }
@@ -143,11 +204,6 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
         case 13       : holdValue = 1000 + rx_tx_addr[2]; break;
         case 14       : holdValue = 1000 + rx_tx_addr[3]; break;
         case 15       : holdValue = 1000 + rx_tx_addr[4]; break;
-//        case 11       : holdValue = 1000 + ((((uint64_t)CABELL_normal_addr)>>32) & 0x00000000000000FF); break;
-//        case 12       : holdValue = 1000 + ((((uint64_t)CABELL_normal_addr)>>24) & 0x00000000000000FF); break;
-//        case 13       : holdValue = 1000 + ((((uint64_t)CABELL_normal_addr)>>16) & 0x00000000000000FF); break;
-//        case 14       : holdValue = 1000 + ((((uint64_t)CABELL_normal_addr)>>8)  & 0x00000000000000FF); break;
-//        case 15       : holdValue = 1000 + ((((uint64_t)CABELL_normal_addr))     & 0x00000000000000FF); break;
       }
     }
 
@@ -181,6 +237,22 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
                                // This is a work around for a reported bug in clone NRF24L01 chips that mis-took this case for a re-transmit of the same packet.
 
   NRF24L01_WritePayload((uint8_t*)&TxPacket, packetSize);
+
+  #if defined(TELEMETRY) && defined(HUB_TELEMETRY)
+    if (sub_protocol == CABELL_V3_TELEMETRY)  { // switch radio to rx as soon as packet is sent  
+      // calculate transmit time based on packet size and data rate of 1MB per sec
+      // This is done becasue polling the status register during xmit casued issues.
+      // The status register will still be chaecked after the delay to be sure xmit is complete
+      // bits = packstsize * 8  +  73 bits overhead
+      // at 1 MB per sec, one bit is 1 uS
+      // then add 150 uS which is 130 uS to begin the xmit and 10 uS fudge factor
+      delayMicroseconds(((unsigned long)packetSize * 8ul)  +  73ul + 150ul)   ;
+      while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS))) delayMicroseconds(5);
+      NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x0F);  // RX mode with 16 bit CRC
+    }
+  #endif
+
+  CABELL_SetPower();
 }
 
 //-----------------------------------------------------------------------------------------
@@ -263,7 +335,11 @@ static void __attribute__((unused)) CABELL_init()
 {
   NRF24L01_Initialize();
   CABELL_SetPower();
-  NRF24L01_SetBitrate(NRF24L01_BR_250K);
+  if (sub_protocol == CABELL_V3_TELEMETRY) {
+    NRF24L01_SetBitrate(NRF24L01_BR_1M);             // telemeetry needs higfher data rate for there to be time for the round trip in teh 3ms interval
+  } else {
+    NRF24L01_SetBitrate(NRF24L01_BR_250K);           // slower data rate when not in telemetry mode gives better range/reliability
+  }
   NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowledgement on all data pipes  
   NRF24L01_SetTxRxMode(TX_EN);   //Power up and 16 bit CRC
 
@@ -272,7 +348,7 @@ static void __attribute__((unused)) CABELL_init()
   NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
   NRF24L01_FlushTx();
   NRF24L01_FlushRx();
-  NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x02);
+  NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);
   NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, 0x20);     // 32 byte packet length
   NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, 0x20);     // 32 byte packet length
   NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);
@@ -334,6 +410,11 @@ uint16_t initCABELL(void)
     bind_counter = CABELL_BIND_COUNT;
   }
   CABELL_init();
+  #if defined(TELEMETRY) && defined(HUB_TELEMETRY)
+    init_frskyd_link_telemetry();
+    telemetry_lost=1; // do not send telemetry to TX right away until we have a TX_RSSI value to prevent warning message...
+  #endif
+  
   return CABELL_PACKET_PERIOD;
 }
 

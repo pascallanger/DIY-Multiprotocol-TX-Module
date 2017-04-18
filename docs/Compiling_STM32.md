@@ -18,9 +18,9 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
 
 
 
-##Compiling source and flashing in Arduino.
+## Compiling source and flashing in Arduino.
 
-###Install the Arduino IDE and the Multiprotocol project
+### Install the Arduino IDE and the Multiprotocol project
 1. Download the Arduino IDE. The currently supported Arduino version is 1.6.11 available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
 1. It is recommended to upgrade Java to the [latest version](https://www.java.com/en/download/)
 1. Download the [STM32 Core](https://github.com/rogerclarkmelbourne/Arduino_STM32/archive/master.zip) and copy the Arduino_STM32 folder to:
@@ -32,7 +32,7 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
 1. Unzip and copy the source code folder ```Multiprotocol``` to a folder of your choosing
 1. Click on the ```Multiprotocol.ino file``` in the ```Multiprotocol``` folder and the Arduino environment should appear and the Multiprotocol project will be loaded.
 
-###Prepare the Arduino IDE:
+### Prepare the Arduino IDE:
 
 1. In order to compile successfully you need also to modify a maple library file. In ```....\hardware\Arduino_STM32\STM32F1\cores\maple\libmaple\usart_f1.c``` comment out the 2 functions as shown below. This is required to have low-level access to the USART interrupt. 
 
@@ -63,7 +63,7 @@ There are three options for flashing the firmware. But We will present here only
 The first (and strongly recommended) is flashing it while it is plugged into and powered by the transmitter.The second is preparing the board for flashing with a USB cable. 
 The second  method is definitely the easiest in the long-term, but it does require the USB bord and setting up the bootloader on the STM32 MCU.
 
-####Option 1: Flashing with Tx power(highly recommended)
+### Option 1: Flashing with Tx power(highly recommended)
 
 1. Put the module in the Tx 
 1. Place a jumper over the BOOT0 pins.Skip this one if you made your own cable for flashing ,see below. 
@@ -86,7 +86,7 @@ See below my module for reference
 
 [<img src="images/Multi_STM32 module.JPG"  width="600" height="400" />]
 
-####Option 2: Flashing with USB cable.
+### Option 2: Flashing with USB cable.
 
 This method use USB connector on the STM32 V1.0 board or on the maple clone board.  
 

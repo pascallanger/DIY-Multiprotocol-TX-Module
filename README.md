@@ -47,7 +47,7 @@ One of the most attractive features of the MULTI-module is the ability to send t
 
 In constructing a functioning MULTI-Module there are important choices to be made and tradeoffs to be aware of.  The most important are:
 
-##**Choice 1:** Which MULTI-Module hardware option 
+## **Choice 1:** Which MULTI-Module hardware option 
 
 There are currently four generic paths to get your hands on an MULTI-Module.  These are outlined in detail on the [hardware](docs/Hardware.md) page.  Here they are, in order of increasing difficulty:
   - **Ready-made MULTI-Module** - Available from Banggood which includes a 4-in-1 RF module and an antenna switcher
@@ -59,35 +59,35 @@ The last option is where it all started and how the pioneers in this project mad
 
 For more information on these options see the [hardware](docs/Hardware.md) page
 
-##**Choice 2:** Which RF modules to include in the MULTI-Module
+## **Choice 2:** Which RF modules to include in the MULTI-Module
 
 This depends on your specific needs.  However, recent the availability of the 4-in-1 RF modules from Banggood for less than $35 makes it easy to “have it all”.  Most manufacturers of RC systems (Spektrum, FrSky, FlySky) and toys (Syma, Hubsan, etc.) use one of these four RF chips to manage the RF link between the transmitter and the reciever/model.  Here is an incomplete list of the RF modules and some of the most popular toys that use them.  For the complete list see the [Protocol Details](Protocols_Details.md) page.
 
 Manufacturer|RF Chip|Example Protocols
 :-----------|-------|:-------
-Cyprus Semiconductor| CYRF6936|DSM/DSMX
- | |Walkera Devo
- | |J6Pro
-Texas Instruments|CC2500|FrSky
- | |Futaba SFHSS
-Amiccom|A7105|FlySky
- | |FlySky AFHDS2A
- | |Hubsan
-Nordic Semiconductor|NRF24L01|HiSky
- | |Syma
- | |ASSAN
- | |and most other Chinese models
+Cyprus Semiconductor | CYRF6936 | DSM/DSMX
+ | | Walkera Devo
+ | | J6Pro
+Texas Instruments | CC2500 | FrSky
+ | | Futaba SFHSS
+Amiccom | A7105 | FlySky
+ | | FlySky AFHDS2A
+ | | Hubsan
+Nordic Semiconductor | NRF24L01 | HiSky
+ | | Syma
+ | | ASSAN
+ | | and most other Chinese models
 
 For example, if you have no interest in binding your Tx to an model with and FrSky or Futaba SFHSS receiver you do not need to include the CC2500 RF module in your system.
 
-##**Choice 3:** Which protocols to upload to the MULTI-Module
+## **Choice 3:** Which protocols to upload to the MULTI-Module
 
 Of course there is always a catch. In this case it is the 32KB memory limit on the ATmega328 processor. Due to the amazing work done by devs on this project, the memory required by all the possible protocols exceeds this limit considerably. This means that you will need to make a choice of which protocols you will compile into your firmware.  Fortunately, the process of selecting and compiling is not too difficult and it is fully documented on the [Compiling and Programming](docs/Compiling.md) page.
 Also, the lead dev Pascal Langer (rcgroups:hpnuts) makes this process even easier for many users by making compiled binaries available for three popular combinations of RF modules.  These are always “fresh” (based on the latest stable firmware) and available on the [Releases](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) page.
 
 An alternatice is to use a STM32 ARM microcontroller based module. If you go the route of building this version of the DIY MULTI-Module then the memory limits do not apply anymore.
 
-##**Choice 4:** Choosing the type of interface between the MULTI-Module and your radio (PPM or Serial)
+## **Choice 4:** Choosing the type of interface between the MULTI-Module and your radio (PPM or Serial)
 
 The MULTI-Module supports industry standard PPM interface that works with all transmitters with either:  
  - a module bay or
@@ -100,7 +100,7 @@ If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX f
   - The model protocol selection and binding is done from the Model Settings menu on the Tx
   - For telemetry capable transmitters, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work).  Click on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page for more details.
 
-#How to get started?
+# How to get started?
 1. Browse the [Protocols](Protocols_Details.md) page to see which protocols you would like on your module
 1. Go to the [Hardware Options](docs/Hardware.md) page to decide which of the MULTI-Module hardware options appeals to you and which RF modules you plan to integrate
 1. Once you have your module, you should review what jumper settings or modifications are required to the module to support serial communication and possibly telemetry

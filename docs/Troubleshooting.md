@@ -46,7 +46,7 @@ FrSky & SFHSS bind issues are ususally due to Option=fine frequency tuning not s
  - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
  - set the value to half way between min and max.
 
-##Report issues
+## Report issues
 
 You can report your problem using the [GitHub issue](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.
 Please provide the following information:

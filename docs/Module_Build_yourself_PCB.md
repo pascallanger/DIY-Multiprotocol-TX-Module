@@ -1,8 +1,3 @@
-![](images/DIY_Mulitprotocol_Module_Schematic.jpeg =500x)
-
-BLABLABLA
-
-![](images/DIY_Mulitprotocol_Module_Schematic.jpeg)
 
 # DIY MULTI-module by soldering components on a PCB
 Currently the form factor of this module is designed for the JR-style module bay. Many of the popular RC transmitters use the JR-style module bay: FrSky Taranis, FlySky Th9x, Turnigy 9X/R/Pro
@@ -84,9 +79,6 @@ You are now ready to go over to [Compiling and Programming STM32](Compiling_STM3
 Here is the schematic you can use to troubleshoot the module
 ##  <a name="V23D_Schematic"></a> PCB 2.3d Schematic
 General module schematic (reference)
-
-
-
 <img src="images/DIY_Mulitprotocol_Module_Schematic.jpeg" width="1000" height="500" /> 
 V2.3d Board Schematic
 <img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/PCB%20v2.3d/Schematic_v2.3d.jpg" width="1000" height="500" /> 

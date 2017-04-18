@@ -1,10 +1,11 @@
 
 # DIY MULTI-module by soldering components on a PCB
 Currently the form factor of this module is designed for the JR-style module bay. Many of the popular RC transmitters use the JR-style module bay: FrSky Taranis, FlySky Th9x, Turnigy 9X/R/Pro
+
 ## What you need
 First you must choose the PCB onto which to solder all the components. There are two PCB options:
- - ATmega (8-bit) powered PCB V2.3d supporting individual RF modules
- - STM32 (32-bit) powered PCB V1.0t supporting the 4-in-1 RF module
+- ATmega (8-bit) powered PCB V2.3d supporting individual RF modules
+- STM32 (32-bit) powered PCB V1.0t supporting the 4-in-1 RF module
 
 The **ATmega-based board** has been designed to accept individual RF modules.  This way you can select just the module or modules you want.  The downside is that each module requires its own antenna.  It can become cumbersome with 4 antennas protruding from the module.  It is possible to soder the 4-in-1 module to the PCB using thin insulated wire. This 4-in-1 module requires only one antenna.  Finally, the Atmega board has a 32KB flash memory.  This is big enough to accommodate more than 15 protocols, but it cannot accommodate all the available protocols.
 

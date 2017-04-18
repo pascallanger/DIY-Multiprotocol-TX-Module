@@ -16,7 +16,7 @@ The procedure below will guide you through all the steps to upload successfully 
 ### Material you need to upload the firmware
 
 1. USBASP programmer supporting 3.3V:
-[[images/USBasp_Programmer.jpeg]]
+<img src="images/USBasp_Programmer.jpeg" width="200" height="200" />
 [(example aliexpress link)](https://www.aliexpress.com/item/USBasp-USB-ISP-3-3V-5V-AVR-Programmer-USB-ATMEGA8-ATMEGA128-New-10PIN-Wire-Support/2036402518.html?spm=2114.30010308.8.10.jIbHzs)
 There are reports that some of the cheap programmers are not safe to use with 3.3V units, usually the black PCB versions are ok.
 1. 10pin to 6pin adapter:

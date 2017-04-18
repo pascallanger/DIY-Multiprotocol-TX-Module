@@ -32,12 +32,9 @@ A functioning MULTI-Module consists of (see image below):
 1.  A host RC Tx
 
 1. A Multiprotocol Transmitter Module (MULTI-Module) that connects to a host transmitter.  This module is typically comprised of
-
-  * A microcontroller (currently ATMega328P or STM32) that interfaces with the Tx, controls the module functions and forwards the RC commands to the RF hardware
-
-  * One or more (but at least one) RF modules that provide the capability to communicate with RC receivers.  To communicate with the receiver the RF module in the Tx must match with the RF module type in the receiver.  The four most common 2.4GHz RF chips on the market are supported TI CC2500, Nordic NRF24L01, Cypress CYRF6936, and the Amiccom A7105
-
-  * MULTI-firmware loaded on to the microprocessor.  At a high level, this firmware performs a few different functions: 
+   * A microcontroller (currently ATMega328P or STM32) that interfaces with the Tx, controls the module functions and forwards the RC commands to the RF hardware
+   * One or more (but at least one) RF modules that provide the capability to communicate with RC receivers.  To communicate with the receiver the RF module in the Tx must match with the RF module type in the receiver.  The four most common 2.4GHz RF chips on the market are supported TI CC2500, Nordic NRF24L01, Cypress CYRF6936, and the Amiccom A7105
+   * MULTI-firmware loaded on to the microprocessor.  At a high level, this firmware performs a few different functions: 
      * It interfaces with signals from the host Tx and decodes these for transmission to the model, it manages the activation of the correct hardware RF module for each protocol
      * It implements the unique communication protocols for each receiver/model and manages the all-important binding process with a receiver/model
      * In the case of some protocols (for example DSMX and FrSky) it receives and decodes the telemetry information and makes this available to the radio.

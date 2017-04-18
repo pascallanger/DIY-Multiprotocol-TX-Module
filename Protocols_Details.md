@@ -37,18 +37,18 @@ Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
 
 1. The transmitter will automatically initiate a bind sequence on power up.  This is for models where the receiver expects to rebind every time it is powered up. In these protocols you do not need to press the bind button at power up to bind, it will be done automatically.
 2. Enable Bind from channel feature:
-* Bind from channel can be globally enabled/disabled in _config.h using ENABLE_BIND_CH.
-* Bind from channel can be locally enabled/disabled by setting Autobind to Y/N per model for serial or per dial switch number for ppm.
-* Bind channel can be choosen on any channel between 5 and 16 using BIND_CH in _config.h.
-* Bind will only happen if all these elements are happening at the same time:
- - Autobind = Y
- - Throttle = LOW (<-95%)
- - Bind channel is going from -100% to +100%
+   * Bind from channel can be globally enabled/disabled in _config.h using ENABLE_BIND_CH.
+   * Bind from channel can be locally enabled/disabled by setting Autobind to Y/N per model for serial or per dial switch number for ppm.
+   * Bind channel can be choosen on any channel between 5 and 16 using BIND_CH in _config.h.
+   * Bind will only happen if all these elements are happening at the same time:
+    - Autobind = Y
+    - Throttle = LOW (<-95%)
+    - Bind channel is going from -100% to +100%
 
- * Additional notes:
- - It's recommended to combine Throttle cut with another button to drive the bind channel. This will prevent to launch a bind while flying...
- - Bind channel does not have to be assigned to a free channel. Since it only acts when Throttle is Low (and throttle cut active), it could be used on the same channel as Flip for example since you are not going to flip your model when Throttle is low... Same goes for RTH and such other features.
- - Using channel 16 for the bind channel seems the most relevant as only one protocol so far is using 16 channels which is FrSkyX. But even on FrSkyX this feature won't have any impact since there is NO valid reason to have Autobind set to Y for such a protocol.
+* Additional notes:
+  - It's recommended to combine Throttle cut with another button to drive the bind channel. This will prevent to launch a bind while flying...
+  - Bind channel does not have to be assigned to a free channel. Since it only acts when Throttle is Low (and throttle cut active), it could be used on the same channel as Flip for example since you are not going to flip your model when Throttle is low... Same goes for RTH and such other features.
+  - Using channel 16 for the bind channel seems the most relevant as only one protocol so far is using 16 channels which is FrSkyX. But even on FrSkyX this feature won't have any impact since there is NO valid reason to have Autobind set to Y for such a protocol.
 
 
 # A7105 RF Module

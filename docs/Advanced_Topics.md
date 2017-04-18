@@ -36,17 +36,17 @@ The key difference of this method is that the 3.3V FTDI cable must also provide 
 1. Set the 3.3V jumper. 
 1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND,5V).
 Connect the pins as follows:   
-..* Module RX pin to FTDI TX pin
-..* Module TX pin to FTDI Rx pin
-..* Module GND to FTDI GND 
-..* Module 5V to FTDI 3.3V FTDI power supply
+   * Module RX pin to FTDI TX pin
+   * Module TX pin to FTDI Rx pin
+   * Module GND to FTDI GND 
+   * Module 5V to FTDI 3.3V FTDI power supply
 1. In arduino IDE under the **Tools** -> **Board:** check that you have selected the **Generic STM32F103C series** board 
 1. Under **Tools** -> **Upload Method:** select **Serial**. 
 1. Click "Upload" and the sketch will be uploaded normally.
 1. Once the firmware has uploaded:   
-..* Remove the 3.3V jumper!!!! 
-..* Remove the BOOT0 jumper
-..* Check that you removed the 3.3V jumper
+   * Remove the 3.3V jumper!!!! 
+   * Remove the BOOT0 jumper
+   * Check that you removed the 3.3V jumper
 1. Insert the module into the transmitter bay
 
 

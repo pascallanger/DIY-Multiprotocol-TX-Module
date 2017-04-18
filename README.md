@@ -63,20 +63,20 @@ For more information on these options see the [hardware](docs/Hardware.md) page
 
 This depends on your specific needs.  However, recent the availability of the 4-in-1 RF modules from Banggood for less than $35 makes it easy to “have it all”.  Most manufacturers of RC systems (Spektrum, FrSky, FlySky) and toys (Syma, Hubsan, etc.) use one of these four RF chips to manage the RF link between the transmitter and the reciever/model.  Here is an incomplete list of the RF modules and some of the most popular toys that use them.  For the complete list see the [Protocol Details](Protocols_Details.md) page.
 
-Manufacturer|RF Chip|Example Protocols
-:-----------|-------|:-------
-Cyprus Semiconductor|CYRF6936|DSM/DSMX
-||Walkera Devo
-||J6Pro
-Texas Instruments|CC2500|FrSky
-||Futaba SFHSS
-Amiccom|A7105|FlySky
-||FlySky AFHDS2A
-||Hubsan
-Nordic Semiconductor|NRF24L01|HiSky
-||Syma
-||ASSAN
-||and most other Chinese models
+|Manufacturer|RF Chip|Example Protocols|
+|:-----------|-------|:-------|
+|Cyprus Semiconductor|CYRF6936|DSM/DSMX|
+|||Walkera Devo|
+|||J6Pro|
+|Texas Instruments|CC2500|FrSky|
+|||Futaba SFHSS|
+|Amiccom|A7105|FlySky|
+|||FlySky AFHDS2A|
+|||Hubsan|
+|Nordic Semiconductor|NRF24L01|HiSky|
+|||Syma|
+|||ASSAN|
+|||and most other Chinese models|
 
 For example, if you have no interest in binding your Tx to an model with and FrSky or Futaba SFHSS receiver you do not need to include the CC2500 RF module in your system.
 

@@ -17,16 +17,22 @@ The procedure below will guide you through all the steps to upload successfully 
 
 1. USBASP programmer supporting 3.3V:
 
-<img src="images/USBasp_Programmer.jpeg" width="200" height="200" /> [(example aliexpress link)](https://www.aliexpress.com/item/USBasp-USB-ISP-3-3V-5V-AVR-Programmer-USB-ATMEGA8-ATMEGA128-New-10PIN-Wire-Support/2036402518.html?spm=2114.30010308.8.10.jIbHzs)
+<img src="images/USBasp_Programmer.jpeg" width="200" height="200" />
+
+[(example aliexpress link)](https://www.aliexpress.com/item/USBasp-USB-ISP-3-3V-5V-AVR-Programmer-USB-ATMEGA8-ATMEGA128-New-10PIN-Wire-Support/2036402518.html?spm=2114.30010308.8.10.jIbHzs)
 There are reports that some of the cheap programmers are not safe to use with 3.3V units, usually the black PCB versions are ok.
 
 1. 10pin to 6pin adapter:
 
-<img src="images/10pin_2_6pin.JPG" width="150" height="150" /> [(example ebay link)](http://www.ebay.fr/itm/10-Pin-a-6-Pin-Carte-Adaptateur-M-F-pour-AVRISP-USBASP-STK500-Noir-Bleu-WT-/291862396761?hash=item43f45abf59:g:gXsAAOSwMgdXyGnh)
+<img src="images/10pin_2_6pin.JPG" width="150" height="150" />
+
+[(example ebay link)](http://www.ebay.fr/itm/10-Pin-a-6-Pin-Carte-Adaptateur-M-F-pour-AVRISP-USBASP-STK500-Noir-Bleu-WT-/291862396761?hash=item43f45abf59:g:gXsAAOSwMgdXyGnh)
 
 1. 6 pin header like this one:
 
-<img src="images/6pin_header.jpg" width="100" height="100" /> [(example Digi-Key link)](http://www.digikey.com/products/en?keywords=3M%20961206-6404-AR)
+<img src="images/6pin_header.jpg" width="100" height="100" />
+
+[(example Digi-Key link)](http://www.digikey.com/products/en?keywords=3M%20961206-6404-AR)
 
 The 6 Pin header needs to be solder on the board like indicated by the red rectangle:
 * Banggood readymade 4-in-1 module:
@@ -41,17 +47,24 @@ The 6 Pin header needs to be solder on the board like indicated by the red recta
 ### Connect the programmer
 
 1. Before you connect the programmer make sure that you have selected the 3.3V mode and not 5V. The RF Modules are not 5V tolerant and you will break them with 5V.  On most programmers this is done by moving a jumper.
+
 <img src="images/USBasp_Programmer_jumper.png" width="200" height="200" />
+
 1. Please re-read item 1. above before going on.
 1. Turn the rotary switch on the DIY Multiprotocol module to the 0 position. If you do not have a switch for Serial mode only then it is the same as being in the 0 position. The upload will not work if the switch is in any other position.
 1. Connect the 6-pin programming connector to the 6-pin ASP IVR connector on the DIY Multiprotocol board. Be sure to match the ground pin of the programmer connector to the ground pin on the board.
 
 The images below indicates the pin layout and the location of the ground pin on the board:
 * Banggood readymade 4-in-1 module:
+
 <img src="images/V2b_ISP.jpeg" width="189" height="200" />
+
 * DIY Mulitprotocol modules (like the 2.3d board):
+
 <img src="images/MPTM_PCB_2.3d_ISP.png" width="486" height="201" />
+
 * Arduino Pro Mini module:
+
 <img src="images/ProMini_ISP.png" width="195" height="200" />
 
 You are now ready to plug in the USB programmer to the computer
@@ -117,7 +130,9 @@ First, we need to append some text to the Arduino file boards.txt.
 #### On Windows
 1. Close the Arduino IDE
 1. Search Windows for the application WordPad (DO NOT USE Notepad). Right click on WordPad and select "Run as Administrator":
+
 <img src="images/WordPad_Admin.jpg" height="200" />
+
 1. Open the file ```boards.txt``` located in this folder ```C:\Program Files(x86)\Arduino\hardware\arduino\avr ``` or the equivalent if you have installed Aduino in a different directory.
 1. Append the following text into the end of the file and save it:
 

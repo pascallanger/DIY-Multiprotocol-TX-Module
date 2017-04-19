@@ -111,45 +111,44 @@ First, we need to append some text to the Arduino file boards.txt.
 1. Search Windows for the application WordPad (DO NOT USE Notepad). <br> Right click on WordPad and select "Run as Administrator": <br> <img src="images/WordPad_Admin.jpg" height="200" /> <br>
 1. Open the file ```boards.txt``` located in this folder ```C:\Program Files(x86)\Arduino\hardware\arduino\avr ``` or the equivalent if you have installed Aduino in a different directory.
 1. Append the following text into the end of the file and save it:
-
-```
-##############################################################
-## Multi 4-in-1 (3.3V, 16 MHz) w/ ATmega328
-## --------------------------------------------------
-multi.name=Multi 4-in-1
-
-multi.upload.tool=avrdude
-multi.upload.protocol=arduino
-
-multi.bootloader.tool=avrdude
-multi.bootloader.unlock_bits=0x3F
-multi.bootloader.lock_bits=0x0F
-
-multi.build.board=AVR_PRO
-multi.build.core=arduino
-multi.build.variant=eightanaloginputs
-multi.build.extra_flags=-Wl,--relax
-
-multi.menu.cpu.16MHzatmega328=ATmega328 (3.3V, 16 MHz)
-
-multi.menu.cpu.16MHzatmega328.upload.maximum_size=32768
-multi.menu.cpu.16MHzatmega328.upload.maximum_data_size=2048
-multi.menu.cpu.16MHzatmega328.upload.speed=57600
-
-multi.menu.cpu.16MHzatmega328.bootloader.low_fuses=0xFF
-multi.menu.cpu.16MHzatmega328.bootloader.high_fuses=0xD3
-multi.menu.cpu.16MHzatmega328.bootloader.extended_fuses=0xFD
-
-multi.menu.cpu.16MHzatmega328.build.mcu=atmega328p
-multi.menu.cpu.16MHzatmega328.build.f_cpu=16000000L
-##############################################################   
-```
+   ```
+   ##############################################################
+   ## Multi 4-in-1 (3.3V, 16 MHz) w/ ATmega328
+   ## --------------------------------------------------
+   multi.name=Multi 4-in-1
+   
+   multi.upload.tool=avrdude
+   multi.upload.protocol=arduino
+   
+   multi.bootloader.tool=avrdude
+   multi.bootloader.unlock_bits=0x3F
+   multi.bootloader.lock_bits=0x0F
+   
+   multi.build.board=AVR_PRO
+   multi.build.core=arduino
+   multi.build.variant=eightanaloginputs
+   multi.build.extra_flags=-Wl,--relax
+   
+   multi.menu.cpu.16MHzatmega328=ATmega328 (3.3V, 16 MHz)
+   
+   multi.menu.cpu.16MHzatmega328.upload.maximum_size=32768
+   multi.menu.cpu.16MHzatmega328.upload.maximum_data_size=2048
+   multi.menu.cpu.16MHzatmega328.upload.speed=57600
+   
+   multi.menu.cpu.16MHzatmega328.bootloader.low_fuses=0xFF
+   multi.menu.cpu.16MHzatmega328.bootloader.high_fuses=0xD3
+   multi.menu.cpu.16MHzatmega328.bootloader.extended_fuses=0xFD
+   
+   multi.menu.cpu.16MHzatmega328.build.mcu=atmega328p
+   multi.menu.cpu.16MHzatmega328.build.f_cpu=16000000L
+   ##############################################################   
+   ```
 
 #### On Mac OSX:
 1. Close the Arduino IDE
 1. Using finder navigate to ```Applications``` folder
 1. Ctl-Click on the Arduino application and select **Show Package Contents**.
-1. Browse to ```Contents/Java/hardware/arduino/avr`` and double click on boards.txt
+1. Browse to ```Contents/Java/hardware/arduino/avr``` and double click on boards.txt
 1. Copy and paste the "Multi 4-in-1" text listed above into the end of the file and save it.
 
 ### Burn Bootloader

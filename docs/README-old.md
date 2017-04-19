@@ -12,15 +12,15 @@ The source code is partly based on the Deviation TX project, thanks to all the d
 
 ## Contents
 
-[Compatible TX](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compatible-tx)
+[Compatible TX](README-old.md#compatible-tx)
 
-[Protocols](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#protocols)
+[Protocols](README-old.md#protocols)
 
-[Hardware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#hardware)
+[Hardware](README-old.md#hardware)
 
-[Compilation and programmation](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#compilation-and-programmation)
+[Compilation and programmation](README-old.md#compilation-and-programmation)
 
-[Troubleshooting](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module#troubleshooting)
+[Troubleshooting](README-old.md#troubleshooting)
 
 ## Compatible TX
 
@@ -293,9 +293,7 @@ This module can be purchased [here](http://www.banggood.com/2_4G-CC2500-A7105-Fl
 
 If you want to enable serial mode for er9x/ersky9x/Taranis/... and depending on your board revision, you have to do one of these modifications:
 - 1st revision, add 2 resistors as shown here: ![Screenshot](http://static.rcgroups.net/forums/attachments/4/0/8/5/8/3/a8895038-170-4in1%20module.jpg)
-- 2nd revision, solder pads together as shown:
-
-<img src="http://static.rcgroups.net/forums/attachments/4/8/3/5/8/4/a9206217-177-IMG_5790.jpg" width="350">
+- 2nd revision, solder pads together as shown: <br> <img src="http://static.rcgroups.net/forums/attachments/4/8/3/5/8/4/a9206217-177-IMG_5790.jpg" width="350">
 
 Note: if you have the 1st board revision (check pictures above), sometime bind occures at power up even without pressing the bind button or not having an autobind protocol. To solve this issue, replacing the BIND led resistor (on the board back) of 1.2K by a 4.7K.
 

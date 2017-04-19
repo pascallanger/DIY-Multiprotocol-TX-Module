@@ -8,8 +8,8 @@ On all modules with STM32F103 microcontroller, the program flash memory on the m
 
 1. Compiling and flashing in Arduino IDE.
 1. Flashing precompiled binaries from [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases)
- - If using one of these TX with multimodule like Turnigy 9X,9XR,9X+ the binary file for flashing is **Multiprotocol_V1.X.X_STM32.bin**.
- - If using TARANIS TX the binary file  is **Multiprotocol_V1.X.X_STM32_INV.bin**
+   - If using one of these TX with multimodule like Turnigy 9X,9XR,9X+ the binary file for flashing is **Multiprotocol_V1.X.X_STM32.bin**.
+   - If using TARANIS TX the binary file  is **Multiprotocol_V1.X.X_STM32_INV.bin**
 
 Flashing precompiled **binaries** is done very simple with the cable setup presented below and an utility(GUI) **ST Flash Loader Demonstrator.**
 
@@ -19,9 +19,9 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
 1. Download the Arduino IDE. The currently supported Arduino version is 1.6.11 available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.6.12-windows.exe) and [Mac OSX](http://arduino.cc/download_handler.php?f=/arduino-1.6.12-macosx.zip)
 1. It is recommended to upgrade Java to the [latest version](https://www.java.com/en/download/)
 1. Download the [STM32 Core](https://github.com/rogerclarkmelbourne/Arduino_STM32/archive/master.zip) and copy the Arduino_STM32 folder to:
-  - OSX: ```Arduino.app/Contents/Java/hardware```  (you can open Arduino.app by Ctl Clicking on Arduino.app and selecting "Show Package Contents") 
-  - Windows: ```C:\Program Files (x86)\Arduino\hardware``` 
-  - Make sure the folder tree structure is like this .....\hardware\Arduino_STM32\.....and **NOT** ...... \hardware\Arduino_STM32-master\Arduino_STM32-master\......So move the folders /rename accordingly.
+   - OSX: ```Arduino.app/Contents/Java/hardware```  (you can open Arduino.app by Ctl Clicking on Arduino.app and selecting "Show Package Contents") 
+   - Windows: ```C:\Program Files (x86)\Arduino\hardware``` 
+   - Make sure the folder tree structure is like this .....\hardware\Arduino_STM32\.....and **NOT** ...... \hardware\Arduino_STM32-master\Arduino_STM32-master\......So move the folders /rename accordingly.
 1. Download the zip file with the Multiprotocol module source code from [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)
 1. Unzip and copy the source code folder ```Multiprotocol``` to a folder of your choosing
 1. Click on the ```Multiprotocol.ino file``` in the ```Multiprotocol``` folder and the Arduino environment should appear and the Multiprotocol project will be loaded.
@@ -61,9 +61,9 @@ The second  method is definitely the easiest in the long-term, but it does requi
 1. Put the module in the Tx 
 1. Place a jumper over the BOOT0 pins.Skip this one if you made your own cable for flashing ,see below. 
 1. Connect your 3.3V/5V FTDI cable (USB - TTL serial) to  Multiprotocol serial port.  Connect only RX, TX and GND.  **Do not connect the 5V or 3.3V between the FTDI cable and the module - the power will be supplied by the transmitter**.  Connect the pins as follows:   
-  - Module RX pin to FTDI TX pin
-  - Module TX pin to FTDI Rx pin
-  - Module GND to FTDI GND 
+   - Module RX pin to FTDI TX pin
+   - Module TX pin to FTDI Rx pin
+   - Module GND to FTDI GND 
 1. In arduino IDE under the **Tools** -> **Board:** check that you have selected the **Generic STM32F103C series** board 
 1. Under **Tools** -> **Upload Method:** select **Serial** 
 1. Click "Upload" and the sketch will be uploaded normally.   This is valid for  all arduino versions. 
@@ -111,7 +111,7 @@ Run the ST Flash Loader program. There are many tutorials on the web on how to u
 #### OSX:
 To be checked.
 
-###Report issues for the STM32 board
+### Report issues for the STM32 board
 You can report your problem using the [GitHub issue](https://github.com/midelic/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.
 Please provide the following information:
 

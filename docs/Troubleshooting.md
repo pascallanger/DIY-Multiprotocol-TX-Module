@@ -4,18 +4,18 @@
 
 ### Green LED
 
-- Off: no power to the module
-- On: module is powered up 
+- **_Off_**: no power to the module
+- **_On_**: module is powered up 
 
 ### Red LED (bind LED)
 
-- Off: program not running or a protocol selected with the associated module not installed
-- Flash(on=0.05s,off=1s): invalid protocol selected (excluded from compilation or invalid protocol number)
-- Inverted Flash(on=1s,off=0.1s): module is waiting for a bind event (Bind from channel or Bind in radio GUI) to launch the protocol in bind mode
-- Fast blink(on=0.1s,off=0.1s): bind in progress
-- Slow blink(on=0.5s,off=0.5s): serial has been selected but no valid signal is being seen on the RX pin.
-- Slower blink(on=1s,off=1s): PPM has been selected but no valid signal is being seen on the PPM pin.
-- On: Module is in normal operation mode (transmitting control signals).
+- **_Off_**: program not running or a protocol selected with the associated module not installed
+- **_Flash(on=0.05s,off=1s)_**: invalid protocol selected (excluded from compilation or invalid protocol number)
+- **_Inverted Flash(on=1s,off=0.1s)_**: module is waiting for a bind event (Bind from channel or Bind in radio GUI) to launch the protocol in bind mode
+- **_Fast blink(on=0.1s,off=0.1s)_**: bind in progress
+- **_Slow blink(on=0.5s,off=0.5s)_**: serial has been selected but no valid signal is being seen on the RX pin.
+- **_Slower blink(on=1s,off=1s)_**: PPM has been selected but no valid signal is being seen on the PPM pin.
+- **_On_**: Module is in normal operation mode (transmitting control signals).
 
 ## Protocol selection
 

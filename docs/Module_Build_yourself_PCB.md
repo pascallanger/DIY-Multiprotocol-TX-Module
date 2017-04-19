@@ -75,7 +75,7 @@ Here is the schematic you can use to troubleshoot the module
 General module schematic (reference)
 <img src="images/DIY_Mulitprotocol_Module_Schematic.jpeg" width="1000" height="500" /> 
 V2.3d Board Schematic
-<img src="PCB%20v2.3d/Schematic_v2.3d.jpg" width="1000" height="500" /> 
+<img src="../PCB%20v2.3d/Schematic_v2.3d.jpg" width="1000" height="500" /> 
 
 ## <a name="STM32_Schematic"></a> PCB STM32 V1.0t Schematic
-<img src="STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 
+<img src="../STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 

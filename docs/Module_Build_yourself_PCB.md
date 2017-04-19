@@ -33,12 +33,7 @@ The schematic for the board is [here](#V23D_Schematic).  Please note that is is 
 1. The schematic and BOM for this board V1.0t and older boards are available [here](BOM_DIY_STM32 & Schematic.md).
 
 ### Common parts
-1. A module case that fits your module like the one [here](https://www.xtremepowersystems.net/proddetail.php?prod=XPS-J1CASE)  
- <img src="https://www.xtremepowersystems.net/prodimages/j1case.jpg" width="200" height="180" />  
-  or you can 3D print your own from a selection on Thingiverse ([Example 1](http://www.thingiverse.com/thing:1852868) [Example 2](http://www.thingiverse.com/thing:1661833)).  
- [<img src="http://thingiverse-production-new.s3.amazonaws.com/renders/55/1c/cb/0a/e4/5d2c2b06be7f3f6f8f0ab4638dd7c6fc_preview_featured.jpg" width="250" height="200" /> ](http://www.thingiverse.com/thing:1852868)  
-  For 9XR/9XR Pro, a new 3D printed module is available which makes use of the built in antenna in the handle. This means nothing is getting out of the radio back! You can find all details of this module case on [Thingiverse](http://www.thingiverse.com/thing:2050717).  
- <img src="images/9XR_module.jpg" width="113" height="200" /> <img src="images/9XR_module_connector.jpg" width="274" height="200" /> 
+1. A module case that fits your module like the one [here](https://www.xtremepowersystems.net/proddetail.php?prod=XPS-J1CASE) <br> <img src="https://www.xtremepowersystems.net/prodimages/j1case.jpg" width="200" height="180" /> <br> or you can 3D print your own from a selection on Thingiverse ([Example 1](http://www.thingiverse.com/thing:1852868) [Example 2](http://www.thingiverse.com/thing:1661833)). <br> [<img src="http://thingiverse-production-new.s3.amazonaws.com/renders/55/1c/cb/0a/e4/5d2c2b06be7f3f6f8f0ab4638dd7c6fc_preview_featured.jpg" width="250" height="200" /> ](http://www.thingiverse.com/thing:1852868) <br> For 9XR/9XR Pro, a new 3D printed module is available which makes use of the built in antenna in the handle. This means nothing is getting out of the radio back! You can find all details of this module case on [Thingiverse](http://www.thingiverse.com/thing:2050717). <br> <img src="images/9XR_module.jpg" width="113" height="200" /> <img src="images/9XR_module_connector.jpg" width="274" height="200" /> 
 1. A 2.4GHz antenna and pigtail
 
 ## Build instructions
@@ -59,14 +54,12 @@ If you have a transmitter that can support serial communication with the board t
 #### **ATmega V2.3d board** 
 
 There are four solder type jumpers on the bottom side of the board near the lower left corner when the bottom of the board is facing towards you. The silkscreen shows which jumper is which. These four jumpers enable the board to be configured in several ways as explaned below.
-
-    (J-1)	Use (PPM V/V) if the incoming PPM signal is at a higher voltage level, leave open if ~~5V.
-
+```
+	(J-1)	Use (PPM V/V) if the incoming PPM signal is at a higher voltage level, leave open if ~~5V.
 	(J-2)	Use (Jumper 2) to connect the incomming PPM signal to the RX pin on the processor
-
 	(J-3)	Short (TELEM) only if you have done a telemetry mod to your radio, leave open if not needed. When connected, pin 2 of the two pin header (P3) is also connected.
-
-	(J-4) Use (MOD) only to connect the transmitter pin 2 to pin 1 of the two pin header (P3).
+	(J-4)	Use (MOD) only to connect the transmitter pin 2 to pin 1 of the two pin header (P3).
+```
 
 **It is most likely J-2 will be the only one needing to be shorted for the serial method of sending model protocols.  If you plan to use telemetry you will also need to solder J-3**
 
@@ -82,7 +75,7 @@ Here is the schematic you can use to troubleshoot the module
 General module schematic (reference)
 <img src="images/DIY_Mulitprotocol_Module_Schematic.jpeg" width="1000" height="500" /> 
 V2.3d Board Schematic
-<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/PCB%20v2.3d/Schematic_v2.3d.jpg" width="1000" height="500" /> 
+<img src="PCB%20v2.3d/Schematic_v2.3d.jpg" width="1000" height="500" /> 
 
 ## <a name="STM32_Schematic"></a> PCB STM32 V1.0t Schematic
-<img src="https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 
+<img src="STM32%20PCB/Schematic_Multiprotocol_STM32_MB_v1.0_t.jpg" width="1000" height="500" /> 

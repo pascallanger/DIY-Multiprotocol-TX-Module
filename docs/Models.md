@@ -165,10 +165,10 @@ CH6 and CH7 can be assigned to switches or pots to provide additionaly functiona
 
 Replicating the stock setup of two pots, you would assign:
 
-Channel | Weight | Source | Multiplex
---- | --- | --- | --- | ---
-CH6 | +100% | P1 | ADD
-CH7 | +100% | P3 | ADD
+Channel|Weight|Source|Multiplex
+---|---|---|---
+CH6|+100%|P1|ADD
+CH7|+100%|P3|ADD
 
 ## Full Mixer Setup
 

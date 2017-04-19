@@ -1,4 +1,4 @@
-#Manually Uploading HEX files and setting Fuses on ATmega328
+# Manually Uploading HEX files and setting Fuses on ATmega328
 
 
 **The .hex files provided are only for tests purpose. The recommended method is to use [Compiling and Programming](Compiling.md).**
@@ -32,7 +32,7 @@ Banggood 4-in-1 module with [custom mikeb bootloader](Advanced_ATmega_Serial_Upl
 
 If you don't know which one to take the 1st line is the one you want.
 
-###Burn the fuses
+### Burn the fuses
 1. Follow this section: [Connect the programmer](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling.md#connect-the-programmer)
 1. Launch AVR8 Burn-O-Mat.
 1. In the **AVR type** drop down select **ATmega328P** and click on **Fuses**

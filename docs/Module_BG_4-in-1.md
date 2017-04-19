@@ -1,7 +1,7 @@
 
-#4-in-1 module
+# 4-in-1 module
 Currently the form factor of this module is designed for the JR-style module bay. Many of the popular RC transmitters use the JR-style module bay: FrSky Taranis, FlySky Th9x, Turnigy 9X/R/Pro
-##What you need
+## What you need
 A fully assembled module + case available from Banggood.com [here](http://www.banggood.com/CC2500-NRF24L01-A7105-CYRF693-4-In-1-RF-Module-With-Case-For-Futaba-JR-Frsky-Transmitter-p-1116892.html)
 
 <img src="images/4-in-1_Module_Case_BG.jpeg" width="221" height="200" /> 
@@ -21,9 +21,9 @@ For 9XR/9XR Pro, a new 3D printed module is available which makes use of the bui
 
 <img src="images/9XR_module.jpg" width="113" height="200" /> <img src="images/9XR_module_connector.jpg" width="274" height="200" /> 
 
-##Different working modes
+## Different working modes
 
-###PPM mode
+### PPM mode
 If you are only planning on using the PPM interface with your transmitter, you need to connect it as described:
 
 <img src="images/PPM.png" width="574" height="340" />
@@ -34,7 +34,7 @@ The same plug is available on all versions of the module with the same signal lo
 
 If you wish to add an external device reading the telemetry, you need to enable serial mode as explained in the next topics otherwise you are now ready to go over to [Compiling and Programming](Compiling.md).
 
-###Serial mode
+### Serial mode
 If you have a transmitter that can support serial communication with the board then you need to wire up the board appropriately. There are three versions of the module and the steps are slightly different.
 
 Check which module you have and based on the pictures below.  If you purchased the module after June 2016 then it is likely that you have a V1.1 type module. If you have purchased the version with case it is likely that you have a V1.2 type module.

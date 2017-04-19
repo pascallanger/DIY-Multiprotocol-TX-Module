@@ -44,10 +44,10 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
 **}**
 ***/**
  
-1. Run the IDE, and on the **Tools** menu, select **Board** and then **Boards manager**. Click on the Arduino DUE (32 Bits ARM-Cortex M3) from the list of available boards. You must do this step, it installs the arm-none-eabi-g++ toolchain!
+1. Run the IDE, and on the **Tools** menu, select **Board** and then **Boards manager**. <br> Click on the Arduino DUE (32 Bits ARM-Cortex M3) from the list of available boards. You must do this step, it installs the arm-none-eabi-g++ toolchain!
 1. Close and reopen the Arduino IDE and load the Multiprotocol project.
 1. In arduino IDE under the **Tools** -> **Board:** select the **Generic STM32F103C series** board
-1. Click on the **Verify** button to test compile the before you make any changes.  If there are any errors check the process above and be sure to have the right version of the Arduino IDE.The binary file generated location is presented at the bottom of Arduino IDE compiling window.Now continue with flashing procedure.
+1. Click on the **Verify** button to test compile the before you make any changes. <br> If there are any errors check the process above and be sure to have the right version of the Arduino IDE.The binary file generated location is presented at the bottom of Arduino IDE compiling window.Now continue with flashing procedure.
 
 
 ### Flashing the multimodule
@@ -60,7 +60,7 @@ The second  method is definitely the easiest in the long-term, but it does requi
 
 1. Put the module in the Tx 
 1. Place a jumper over the BOOT0 pins.Skip this one if you made your own cable for flashing ,see below. 
-1. Connect your 3.3V/5V FTDI cable (USB - TTL serial) to  Multiprotocol serial port.  Connect only RX, TX and GND.  **Do not connect the 5V or 3.3V between the FTDI cable and the module - the power will be supplied by the transmitter**.  Connect the pins as follows:   
+1. Connect your 3.3V/5V FTDI cable (USB - TTL serial) to  Multiprotocol serial port. <br> Connect only RX, TX and GND.  **Do not connect the 5V or 3.3V between the FTDI cable and the module - the power will be supplied by the transmitter**.  Connect the pins as follows:   
    - Module RX pin to FTDI TX pin
    - Module TX pin to FTDI Rx pin
    - Module GND to FTDI GND 

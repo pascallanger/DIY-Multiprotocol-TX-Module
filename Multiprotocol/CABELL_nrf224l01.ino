@@ -65,7 +65,6 @@ typedef struct {
                            *   mask 0x80>>7   Unused by RX.  Contains max power override flag for Multiprotocol T module
                            */  
    uint8_t  modelNum;
-   uint16_t checkSum; 
    uint8_t  payloadValue [CABELL_PAYLOAD_BYTES] = {0}; //12 bits per channel value, unsigned
 } CABELL_RxTxPacket_t;     
 
@@ -180,7 +179,7 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
   }
   TxPacket.reserved   = 0;
   TxPacket.modelNum   = RX_num;
-  TxPacket.checkSum   = TxPacket.modelNum + TxPacket.option + TxPacket.RxMode  + TxPacket.reserved;    // Start Calculate checksum
+  uint16_t checkSum   = TxPacket.modelNum + TxPacket.option + TxPacket.RxMode  + TxPacket.reserved;    // Start Calculate checksum
 
   int adjusted_x;
   int payloadIndex = 0;
@@ -221,8 +220,11 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
   }
   
   for(int x = 0; x < maxPayloadValueIndex ; x++) {
-    TxPacket.checkSum = TxPacket.checkSum + TxPacket.payloadValue[x];  // Finish Calculate checksum 
+    checkSum += TxPacket.payloadValue[x];  // Finish Calculate checksum 
   } 
+
+  TxPacket.checkSum_MSB = checkSum >> 8;
+  TxPacket.checkSum_LSB = checkSum & 0x00FF;
 
   // Set channel for next transmission
   rf_ch_num = CABELL_getNextChannel (hopping_frequency,CABELL_RADIO_CHANNELS, rf_ch_num);

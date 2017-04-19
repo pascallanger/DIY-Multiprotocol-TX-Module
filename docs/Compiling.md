@@ -70,7 +70,7 @@ If there is another error carefully read it, go to the line number indicated and
 1. If you have a 4in1 Multiprotocol module you can skip this step. If you've just finished to build your DIY Multiprotocol module (like v2.3d), the first step is to flash the fuses of the microcontroller. This needs to be done only once. For this purpose, click on **Tools -> Burn Bootloader** 
 1. You are now ready to flash the firmware.  In the Arduino IDE click **Sketch -> Upload Using Programmer**.
 
-If the output indicates that the firmware has been uploaded successfully - give yourself a pat on the back.  Well done, you have successfully programmed your DIY Multiprotocol module. You can already go to the final step [Setting up your Transmitter](TransmitterSetup.md) and begin to fly!!!! But don't forget to visit the next topic [Advanced settings](#AdvancedSettings) which has some extra steps needed to use your module at his full potential.
+If the output indicates that the firmware has been uploaded successfully - give yourself a pat on the back.  Well done, you have successfully programmed your DIY Multiprotocol module. You can already go to the final step [Setting up your Transmitter](Transmitters.md#compatible-transmitters) and begin to fly!!!! But don't forget to visit the next topic [Advanced settings](#AdvancedSettings) which has some extra steps needed to use your module at his full potential.
 
 **Troubleshooting**
 

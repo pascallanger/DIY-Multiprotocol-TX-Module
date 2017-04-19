@@ -29,7 +29,7 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
 ### Prepare the Arduino IDE:
 
 1. In order to compile successfully you need also to modify a maple library file. In ```....\hardware\Arduino_STM32\STM32F1\cores\maple\libmaple\usart_f1.c``` comment out the 2 functions as shown below. This is required to have low-level access to the USART interrupt. <br>
-   ```C
+   ```
    /* void __irq_usart2(void){
    usart_irq(&usart2_rb, USART2_BASE);
    }
@@ -75,7 +75,7 @@ See below my module for reference
 #### Option 2: Flashing with USB cable.
 
 This method use USB connector on the STM32 V1.0 board or on the maple clone board.  
-1. Install first maple USB driver by running the batch file found in Arduino STM32 package folder "..\hardware\Arduino_STM32\drivers\win\install_drivers.bat"  
+1. Install first maple USB driver by running the batch file found in Arduino STM32 package folder ```..\hardware\Arduino_STM32\drivers\win\install_drivers.bat```
 1. Download the free STM32 flash loader demonstrator from [ST.com](http://www.st.com/en/development-tools/flasher-stm32.html) and using a USB-TTL device (like FTDI cable) flash the STM32duino bootloader available from Roger Clark's great STM32 site [here](https://github.com/rogerclarkmelbourne/STM32duino-bootloader/tree/master/STM32F1/binaries) .Use bootloader **generic_boot20_pa1.bin**
 1. Open Arduino IDE,browse to multiprotocol folder,load the sketch multiprotocol.ino.
 1. In Arduino IDE under "Upload method" select **STM32duino**-bootloader.Click upload ,wait until upload is complete.
@@ -86,7 +86,7 @@ Notes:
 
 ## Flashing precompiled binaries: 
 
-If you want to flash a pre-compiled binary file (like the Release .bin files) you need specialized software and the same FTDI cable setup already posted [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Compiling_STM32.md#option-1-flashing-with-tx-powerhighly-recommended).  
+If you want to flash a pre-compiled binary file (like the Release .bin files) you need specialized software and the same FTDI cable setup already posted [here](Compiling_STM32.md#option-1-flashing-with-tx-powerhighly-recommended).  
 
 1. Set BOOT0 jumper(skip this step if you aready made  your own cable ,see above)  
 1. Connect your 3.3V FTDI cable (USB - TTL serial) to  Multiprotocol serial port (RX,TX,GND pins when flashing with TX power).
@@ -98,9 +98,7 @@ For uploading binaries(.bin files) there is a specialized software you need to i
 #### Windows:
 Download the **ST Flash Loader Demonstrator** from here: http://www.st.com/content/st_com/en/products/development-tools/software-development-tools/stm32-software-development-tools/stm32-programmers/flasher-stm32.html
 
-Run the ST Flash Loader program. There are many tutorials on the web on how to use this program.For example
-
-[here](http://www.scienceprog.com/flashing-programs-to-stm32-embedded-bootloader)
+Run the ST Flash Loader program. There are many tutorials on the web on how to use this program.For example: [here](http://www.scienceprog.com/flashing-programs-to-stm32-embedded-bootloader)
 
 #### OSX:
 To be checked.

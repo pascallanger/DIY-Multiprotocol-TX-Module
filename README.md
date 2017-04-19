@@ -18,8 +18,8 @@ The source code is partly based on the [Deviation TX project](http://www.deviati
 1. [Transmitters and serial/telemetry options](docs/Transmitters.md)
 1. [Module Hardware options](docs/Hardware.md)
 1. Compiling and programming the module
-    * [4in1/DIY Mutliprotocol module based on ATmega328](docs/Compiling.md)
-    * [DIY Mutliprotocol module based on STM32](docs/Compiling_STM32.md)
+    * [4in1/DIY Multiprotocol module based on ATmega328](docs/Compiling.md)
+    * [DIY Multiprotocol module based on STM32](docs/Compiling_STM32.md)
 1. [Transmitter Setup](docs/Transmitters.md) 
 1. [How to for popular models](docs/Models.md)
 1. [Troubleshooting](docs/Troubleshooting.md)
@@ -105,7 +105,7 @@ If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX f
 1. Finally, you should visit the setup page for your transmitter by clicking on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page to configure the last few settings before you can fly to your heart’s content!!!!!
 
 # Troubleshooting
-Visit the [Troubleshooting](docs/Troubleshooting.md) page.  Please bear in mind that the MULTI-Module is a complex system of hardware and software and it make take some patience to get it up and running.  Also remember that the developers of the system are actual users of the system.  This means that at any moment in time the system is working perfectly for them.  A corollary to this is that if you are struggling there are likely two scenarios.  First, that the problem is with your hardware or with your configuration, second, and much more unlikely but not impossible scenario, is that you are struggling with a new undiscovered bug.  (The author of this documentation speaks from experience ;-)   Please check the RC Groups forum and search for keywords relating to your problem before posting a reply.  When you do post a reply please so humbly and respectfully – you will find many helpful people there.  In your reply please include as much relevant information as possible and attach compilation output and _Config.h files as text attachments to keep the forum clean.
+Visit the [Troubleshooting](docs/Troubleshooting.md) page.  Please bear in mind that the MULTI-Module is a complex system of hardware and software and it make take some patience to get it up and running.  Also remember that the developers of the system are actual users of the system.  This means that at any moment in time the system is working perfectly for them.  A corollary to this is that if you are struggling there are likely two scenarios.  First, that the problem is with your hardware or with your configuration, second, and much more unlikely but not impossible scenario, is that you are struggling with a new undiscovered bug.  (The author of this documentation speaks from experience ;-)   Please check the RC Groups forum and search for keywords relating to your problem before posting a reply.  When you do post a reply please so humbly and respectfully – you will find many helpful people there.  In your reply please include as much relevant information as possible and attach compilation output and ```_Config.h``` files as text attachments to keep the forum clean.
 # A final word
 A very big thanks to all the people who have shared their time so graciously to create this great project.  If you come across them on RC Groups, please be kind and show appreciation.  In no particular order:
 * Pascal Langer (rcgroups: hpnuts)

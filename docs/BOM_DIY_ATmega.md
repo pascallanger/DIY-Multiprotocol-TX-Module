@@ -2,7 +2,7 @@
 
 Here is the bill of materials for the ATmega328 version of the DIY  MPTM. 
 
-If you are looking for the BOM for the DIY STM32 version click [here](BOM_DIY_STM32 & Schematic.md).
+If you are looking for the BOM for the DIY STM32 version click [here](BOM_DIY_STM32%20&amp;%20Schematic.md).
 
 Digikey may not be your preferred supplier, but you should find enough information on their page to cross reference parts.
 

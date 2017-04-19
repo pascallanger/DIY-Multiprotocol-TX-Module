@@ -247,7 +247,7 @@ void frsky_link_frame()
 		telemetry_link |= 2 ;		// Send hub if available
 	}
 	else
-		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A||protocol==MODE_BAYANG)
+		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A||protocol==MODE_BAYANG||protocol==MODE_CABELL)
 		{	
 			frame[1] = v_lipo1;
 			frame[2] = v_lipo2;			

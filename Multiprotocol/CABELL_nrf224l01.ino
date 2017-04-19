@@ -36,8 +36,9 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define CABELL_MIN_CHANNELS     4                   // The minimum number of channels that must be included in a packet, the number of channels cannot be reduced any further than this
 #define CABELL_PAYLOAD_BYTES    24                  // 12 bits per value * 16 channels
 
-#define CABELL_RADIO_CHANNELS         9                  // This is 1/5 of the total number of radio channels used for FHSS
-#define CABELL_RADIO_MIN_CHANNEL_NUM  3                   // Channel 0 is right on the boarder of allowed frequency range, so move up to avoid bleeding over
+#define CABELL_RADIO_CHANNELS           9                  // This is 1/5 of the total number of radio channels used for FHSS
+#define CABELL_RADIO_MIN_CHANNEL_NUM    3                   // Channel 0 is right on the boarder of allowed frequency range, so move up to avoid bleeding over
+#define CABELL_TELEMETRY_PACKET_LENGTH  4
 
 #define CABELL_BIND_RADIO_ADDR  0xA4B7C123F7LL
 
@@ -121,10 +122,12 @@ static void __attribute__((unused)) CABELL_get_telemetry()
   // Process incomming telementry packet of it was recieved
   if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))  { // data received from model
     unsigned long telemetryProcessingStart = micros();
-    NRF24L01_ReadPayload(packet, 2);
+    NRF24L01_ReadPayload(packet, CABELL_TELEMETRY_PACKET_LENGTH);
     if ((packet[0] & 0x7F) == CABELL_RxTxPacket_t::RxMode_t::telemetryResponse)  // ignore first bit in compare becasue it toggles with each packet
     {
-      RX_RSSI = packet[1];
+      RX_RSSI = packet[1];   // Packet rate 0 to 255 where 255 is 100% packet rate
+      v_lipo1 = packet[2];   // Directly from analog input of reciever, but reduced to 8-bit depth (0 to 255).  Scaling depends on the input to the analog pin of the reciever.
+      v_lipo2 = packet[3];   // Directly from analog input of reciever, but reduced to 8-bit depth (0 to 255).  Scaling depends on the input to the analog pin of the reciever.
       telemetry_counter++;      
       if(telemetry_lost==0) telemetry_link=1;
       telemetryProcessingTime = micros() - telemetryProcessingStart;

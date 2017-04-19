@@ -65,6 +65,8 @@ typedef struct {
                            *   mask 0x80>>7   Unused by RX.  Contains max power override flag for Multiprotocol T module
                            */  
    uint8_t  modelNum;
+   uint8_t  checkSum_LSB; 
+   uint8_t  checkSum_MSB; 
    uint8_t  payloadValue [CABELL_PAYLOAD_BYTES] = {0}; //12 bits per channel value, unsigned
 } CABELL_RxTxPacket_t;     
 

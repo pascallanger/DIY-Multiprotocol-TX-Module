@@ -2,7 +2,7 @@
 
 The choice of **Multiprotocol Transmitter Module (MULTI-Module)** hardware is the single biggest choice you will make.  Due to the growing popularity of this project the number of hardware choices is growing almost monthly.  
 
-There are currently four common hardware options.  They are (**click on the pictures for more info**):
+There are currently four common hardware options.  They are (`click on the pictures for more info`):
 
 1. A ready-made 4-in-1 MULTI-Module which integrates the microcontroller with all four supported RF modules and a hardware antenna switcher.  
 [<img src="images/4-in-1_Module_BG.jpeg" width="200" height="200" />](Module_BG_4-in-1.md)

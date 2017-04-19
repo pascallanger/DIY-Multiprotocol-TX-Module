@@ -1,4 +1,4 @@
-#Bill of Materials DIY STM32 Module 
+# Bill of Materials DIY STM32 Module 
 
 Here is the bill of materials for the STM32 version of the DIY  MPTM. There are three versions. Carefully compare your board with the pictures below to determine which version you have. 
 

@@ -15,13 +15,13 @@ The procedure below will guide you through all the steps to upload successfully 
 
 ### Material you need to upload the firmware
 
-1. USBASP programmer supporting 3.3V: <br> <img src="images/USBasp_Programmer.jpeg" width="200" height="200"/> <br> [(example aliexpress link)](https://www.aliexpress.com/item/USBasp-USB-ISP-3-3V-5V-AVR-Programmer-USB-ATMEGA8-ATMEGA128-New-10PIN-Wire-Support/2036402518.html?spm=2114.30010308.8.10.jIbHzs) <br> There are reports that some of the cheap programmers are not safe to use with 3.3V units, usually the black PCB versions are ok. <br> <br>
-1. 10pin to 6pin adapter: <br> <img src="images/10pin_2_6pin.JPG" width="150" height="150"/> <br> [(example ebay link)](http://www.ebay.fr/itm/10-Pin-a-6-Pin-Carte-Adaptateur-M-F-pour-AVRISP-USBASP-STK500-Noir-Bleu-WT-/291862396761?hash=item43f45abf59:g:gXsAAOSwMgdXyGnh) <br> <br>
-1. 6 pin header like this one: <br> <img src="images/6pin_header.jpg" width="100" height="100"/> <br> [(example Digi-Key link)](http://www.digikey.com/products/en?keywords=3M%20961206-6404-AR) <br> <br>
+1. USBASP programmer supporting 3.3V: <br> <img src="images/USBasp_Programmer.jpeg" width="200" height="200"/> <br> [(example aliexpress link)](https://www.aliexpress.com/item/USBasp-USB-ISP-3-3V-5V-AVR-Programmer-USB-ATMEGA8-ATMEGA128-New-10PIN-Wire-Support/2036402518.html?spm=2114.30010308.8.10.jIbHzs) <br> There are reports that some of the cheap programmers are not safe to use with 3.3V units, usually the black PCB versions are ok. <br>
+1. 10pin to 6pin adapter: <br> <img src="images/10pin_2_6pin.JPG" width="150" height="150"/> <br> [(example ebay link)](http://www.ebay.fr/itm/10-Pin-a-6-Pin-Carte-Adaptateur-M-F-pour-AVRISP-USBASP-STK500-Noir-Bleu-WT-/291862396761?hash=item43f45abf59:g:gXsAAOSwMgdXyGnh) <br>
+1. 6 pin header like this one: <br> <img src="images/6pin_header.jpg" width="100" height="100"/> <br> [(example Digi-Key link)](http://www.digikey.com/products/en?keywords=3M%20961206-6404-AR) <br>
 1. The 6 Pin header needs to be solder on the board like indicated by the red rectangle:
-   * Banggood readymade 4-in-1 module: <br><img src="images/V2b_ISP.jpeg" width="189" height="200"/> <br> <br>
-   * DIY Mulitprotocol modules (like the 2.3d board): <br><img src="images/MPTM_PCB_2.3d_ISP.png" width="486" height="201"/> <br> <br>
-   * Arduino Pro Mini module: <br><img src="images/ProMini_ISP.png" width="195" height="200"/> <br> <br>
+   * Banggood readymade 4-in-1 module: <br><img src="images/V2b_ISP.jpeg" width="189" height="200"/> <br>
+   * DIY Mulitprotocol modules (like the 2.3d board): <br><img src="images/MPTM_PCB_2.3d_ISP.png" width="486" height="201"/> <br>
+   * Arduino Pro Mini module: <br><img src="images/ProMini_ISP.png" width="195" height="200"/> <br>
 
 ### Connect the programmer
 
@@ -108,10 +108,7 @@ First, we need to append some text to the Arduino file boards.txt.
 
 #### On Windows
 1. Close the Arduino IDE
-1. Search Windows for the application WordPad (DO NOT USE Notepad). Right click on WordPad and select "Run as Administrator":
-
-<img src="images/WordPad_Admin.jpg" height="200" />
-
+1. Search Windows for the application WordPad (DO NOT USE Notepad). <br> Right click on WordPad and select "Run as Administrator": <br> <img src="images/WordPad_Admin.jpg" height="200" /> <br>
 1. Open the file ```boards.txt``` located in this folder ```C:\Program Files(x86)\Arduino\hardware\arduino\avr ``` or the equivalent if you have installed Aduino in a different directory.
 1. Append the following text into the end of the file and save it:
 

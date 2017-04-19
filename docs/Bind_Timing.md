@@ -1,4 +1,4 @@
-#Getting your Bind timing right. 
+# Getting your Bind timing right. 
 On many consumer models it it important for the Tx to send a bind signal in a narrow window once the model has powered up.  
 
 If the bind signal is not recieved during this window, the bind sequence times out.  Try this:  

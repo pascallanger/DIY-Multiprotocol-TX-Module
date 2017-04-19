@@ -98,9 +98,7 @@ For uploading binaries(.bin files) there is a specialized software you need to i
 #### Windows:
 Download the **ST Flash Loader Demonstrator** from here: http://www.st.com/content/st_com/en/products/development-tools/software-development-tools/stm32-software-development-tools/stm32-programmers/flasher-stm32.html
 
-Run the ST Flash Loader program. There are many tutorials on the web on how to use this program.For example
-
-[here](http://www.scienceprog.com/flashing-programs-to-stm32-embedded-bootloader)
+Run the ST Flash Loader program. There are many tutorials on the web on how to use this program.For example: [here](http://www.scienceprog.com/flashing-programs-to-stm32-embedded-bootloader)
 
 #### OSX:
 To be checked.

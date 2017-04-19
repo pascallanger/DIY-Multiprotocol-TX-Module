@@ -10,10 +10,8 @@ There are many different options to upload a .hex firmware file to the MULTI-Mod
 1. Make sure to write down the location of your installation since you need to know where avrdude is installed to configure the AVR8 Burn-O-Mat. For example on a default windows installation, avrdude.exe is located in "C:\Program Files (x86)\Arduino\hardware\tools\avr\bin" where "C:\Program Files (x86)\Arduino" is the installation path.
 1. Install [AVR8 Burn-O-Mat](http://avr8-burn-o-mat.brischalle.de/avr8_burn_o_mat_avrdude_gui_en.php) which is available for all platforms. Installation instructions are on the software page (Don't forget to install [Java](http://java.sun.com/javase/downloads) as explained).
 1. Launch AVR8 Burn-O-Mat.
-1. You should now have a window which looks like this: 
-  <img src="images/AVR8BurnOMat-main.png" />
-1. Click on **Settings->AVRDUDE** and fill in the details about avrdude location using the installation path written previously as well as selecting USBASP for the programmer: 
-  <img src="images/AVR8BurnOMat-settings.png" />
+1. You should now have a window which looks like this: <br> <img src="images/AVR8BurnOMat-main.png" />
+1. Click on **Settings->AVRDUDE** and fill in the details about avrdude location using the installation path written previously as well as selecting USBASP for the programmer: <br> <img src="images/AVR8BurnOMat-settings.png" />
 1. Once done click on OK.
 1. You are now done with all the installations/configuration and ready to program your Multi-module.
 
@@ -39,8 +37,7 @@ If you don't know which one to take the 1st line is the one you want.
 1. In the **ATmega328P Fuses** window which just open click on read fuses.
 1. Ignore the error "warning : Can not Set sck period . usbasp please check for firmware update .".
 1. If you get an error there is something wrong with your connections, your programmer, or your board. Verify everything and go back to the 1st bullet point.
-1. Set the 3 Fuse values
-  <img src="images/AVR8BurnOMat-fuses.png" />
+1. Set the 3 Fuse values <br> <img src="images/AVR8BurnOMat-fuses.png" />
 1. Click on **apply**
 1. Click on **write fuses**
 1. Ignore the error "warning : Can not Set sck period . usbasp please check for firmware update .".

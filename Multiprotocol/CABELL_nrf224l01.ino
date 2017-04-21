@@ -62,14 +62,14 @@ typedef struct {
                            *   mask 0x30>>4 : Reciever outout mode
                            *                  0 = Single PPM on individual pins for each channel 
                            *                  1 = SUM PPM on channel 1 pin
-                           *   mask 0x40>>7   Unused 
+                           *   mask 0x40>>6   Unused 
                            *   mask 0x80>>7   Unused by RX.  Contains max power override flag for Multiprotocol T module
                            */  
    uint8_t  modelNum;
    uint8_t  checkSum_LSB; 
    uint8_t  checkSum_MSB; 
    uint8_t  payloadValue [CABELL_PAYLOAD_BYTES] = {0}; //12 bits per channel value, unsigned
-} CABELL_RxTxPacket_t;     
+} CABELL_RxTxPacket_t;   
 
 //-----------------------------------------------------------------------------------------
 static uint8_t __attribute__((unused)) CABELL_getNextChannel (uint8_t seqArray[], uint8_t seqArraySize, uint8_t prevChannel) {

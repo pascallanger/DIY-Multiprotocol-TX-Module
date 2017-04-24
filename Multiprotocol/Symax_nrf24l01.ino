@@ -319,12 +319,12 @@ uint16_t symax_callback()
 			return SYMAX_FIRST_PACKET_DELAY;
 			break;
 		case SYMAX_BIND2:
-			counter = SYMAX_BIND_COUNT;
+			bind_counter = SYMAX_BIND_COUNT;
 			phase = SYMAX_BIND3;
 			SYMAX_send_packet(1);
 			break;
 		case SYMAX_BIND3:
-			if (counter == 0)
+			if (bind_counter == 0)
 			{
 				symax_init2();
 				phase = SYMAX_DATA;
@@ -333,7 +333,7 @@ uint16_t symax_callback()
 			else
 			{
 				SYMAX_send_packet(1);
-				counter--;
+				bind_counter--;
 			}
 			break;
 		case SYMAX_DATA:

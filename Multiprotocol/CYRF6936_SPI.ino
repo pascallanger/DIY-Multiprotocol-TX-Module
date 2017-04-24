@@ -78,6 +78,7 @@ uint8_t CYRF_Reset()
 */
 void CYRF_GetMfgData(uint8_t data[])
 {
+#ifndef FORCE_CYRF_ID
 	/* Fuses power on */
 	CYRF_WriteRegister(CYRF_25_MFG_ID, 0xFF);
 
@@ -85,6 +86,9 @@ void CYRF_GetMfgData(uint8_t data[])
 
 	/* Fuses power off */
 	CYRF_WriteRegister(CYRF_25_MFG_ID, 0x00); 
+#else
+	memcpy(data,FORCE_CYRF_ID,6);
+#endif
 }
 
 /*
@@ -133,7 +137,11 @@ void CYRF_SetPower(uint8_t val)
 {
 	uint8_t power=CYRF_BIND_POWER;
 	if(IS_BIND_DONE_on)
-		power=IS_POWER_FLAG_on?CYRF_HIGH_POWER:CYRF_LOW_POWER;
+		#ifdef CYRF6936_ENABLE_LOW_POWER
+			power=IS_POWER_FLAG_on?CYRF_HIGH_POWER:CYRF_LOW_POWER;
+		#else
+			power=CYRF_HIGH_POWER;
+		#endif
 	if(IS_RANGE_FLAG_on)
 		power=CYRF_RANGE_POWER;
 	power|=val;

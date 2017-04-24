@@ -17,16 +17,6 @@
 /** Multiprotocol module configuration file ***/
 /**********************************************/
 
-/********************/
-/***  BOARD TYPE  ***/
-/********************/
-//Uncomment one of the line below if you have a different module not based on the original Multi Atmega328p design which includes the 4-in-1.
-//If you don't know then leave them commented.
-#ifdef __arm__
-	#define STM32_BOARD	// Let's automatically select this board if arm is selected since this is the only one for now...
-#endif
-
-
 /*******************/
 /*** TX SETTINGS ***/
 /*******************/
@@ -41,15 +31,28 @@
 //#define REVERSE_THROTTLE
 //#define REVERSE_RUDDER
 
-//Comment to disable the bind feature on a channel
+
+/*************************/
+/*** BIND FROM CHANNEL ***/
+/*************************/
+//Bind from channel enables you to bind when a specified channel is giong from low to high. This feature is only active
+// if you specify AUTOBIND in PPM mode or set AutoBind to YES for serial mode. It also requires that the throttle channel is low.
+
+//Comment to globaly disable the bind feature from a channel.
 #define ENABLE_BIND_CH
+
 //Set the channel number used for bind. Default is 16.
 #define BIND_CH	16
 
+//Comment to disable the wait for bind feature. This feature will not activate the selected
+// protocol unless a bind is requested using bind from channel or the GUI "Bind" button.
+//The goal is to prevent binding other people's model when powering up the TX, changing model or scanning through protocols.
+#define WAIT_FOR_BIND
 
-/**************************/
-/*** RF CHIPS INSTALLED ***/
-/**************************/
+
+/****************/
+/*** RF CHIPS ***/
+/****************/
 //There are 4 RF components supported. If one of them is not installed you must comment it using "//".
 //If a chip is not installed all associated protocols are disabled.
 //4-in-1 modules have all RF chips installed
@@ -58,6 +61,31 @@
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
+
+//Low power is reducing the transmit power of the multi module. This setting is configurable per model in PPM (table below) or Serial mode (radio GUI).
+//It can be activated when flying indoor or small models since the distance is short or if a model is causing issues when flying closed to the TX.
+//By default low power is completly disabled on all rf chips to prevent mistakes, but you can enable it by uncommenting the lines below: 
+//#define A7105_ENABLE_LOW_POWER
+//#define CYRF6936_ENABLE_LOW_POWER
+//#define CC2500_ENABLE_LOW_POWER
+//#define NRF24L01_ENABLE_LOW_POWER
+
+
+/*****************/
+/*** GLOBAL ID ***/
+/*****************/
+//A global ID is used by most protocols to bind and retain the bind to models. To prevent duplicate IDs, it is automatically
+// generated using a random 32 bits number the first time the eeprom is initialized.
+//If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
+// then you can force the ID to a certain known value using the lines below.
+//Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
+//#define FORCE_GLOBAL_ID	0x12345678
+
+//Protocols using the CYRF6936 (DSM, Devo, Walkera...) are using the CYRF ID instead which should prevent duplicated IDs.
+//If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
+// then you can force the ID to a certain known value using the lines below.
+//Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
+//#define FORCE_CYRF_ID	"\x12\x34\x56\x78\x9A\xBC"
 
 
 /****************************/
@@ -102,7 +130,9 @@
 #define	FQ777_NRF24L01_INO
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
-
+#define Q303_NRF24L01_INO
+#define GW008_NRF24L01_INO
+#define DM002_NRF24L01_INO
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/
@@ -114,17 +144,21 @@
 
 //Comment to invert the polarity of the output telemetry serial signal.
 //This function takes quite some flash space and processor power on an atmega.
-//For OpenTX and ersky9x it must be uncommented.
+//For OpenTX it must be uncommented.
 //On a 9XR_PRO running ersky9x both commented and uncommented will work depending on the radio setting Invert COM1 under the Telemetry menu.
-//On other addon/replacement boards like the 9xtreme board or the Ar9x board, you need to uncomment the line below.
+//On other addon/replacement boards like the 9xtreme board or the Ar9x board running ersky9x, you need to uncomment the line below.
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
-#define INVERT_TELEMETRY
+//#define INVERT_TELEMETRY
 
-//Uncomment to send also Multi status and wrap other telemetry to allow TX to autodetect the format
-//Only for newest OpenTX version
+//Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
+//Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
+#define MULTI_STATUS
+
+//Uncomment to send Multi status and allow OpenTX to autodetect the telemetry format
+//Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/ersky9x use MULTI_STATUS instead.
 //#define MULTI_TELEMETRY
 
-//Comment a line to disable a protocol telemetry
+//Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
 #define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
 #define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded
@@ -132,6 +166,7 @@
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -158,8 +193,9 @@
 #define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012µs)
 //#define TX_DEVO7		//DEVO					(1120<->1920µs)
 //#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
-//#define TX_HISKY		//HISKY					(1100<->1900µs)
+//#define TX_HISKY		//HISKY					(1120<->1920µs)
 //#define TX_MPX		//Multiplex MC2020		(1250<->1950µs)
+//#define TX_WALKERA	//Walkera PL0811-01H	(1000<->1800µs)
 //#define TX_CUSTOM		//Custom
 
 // The lines below are used to set the end points in microseconds (µs) if you have selected TX_CUSTOM.
@@ -175,6 +211,13 @@
 	#define PPM_MIN_125	1000	//	125%
 #endif
 
+// The line below is used to set the minimum number of channels which the module should receive to consider a PPM frame valid.
+// The default value is 4 to receive at least AETR for flying models but you could also connect the PPM from a car radio which has only 3 channels by changing this number to 3.
+#define MIN_PPM_CHANNELS 4
+// The line below is used to set the maximum number of channels which the module should work with. Any channels received above this number are discarded.
+// The default value is 16 to receive all possible channels but you might want to filter some "bad" channels from the PPM frame like the ones above 6 on the Walkera PL0811.
+#define MAX_PPM_CHANNELS 16
+
 //The table below indicates which protocol to run when a specific position on the dial has been selected.
 //All fields and values are explained below. Everything is configurable from here like in the Serial mode.
 //Example: You can associate multiple times the same protocol to different dial positions to take advantage of the model match (RX_Num)
@@ -185,8 +228,8 @@ const PPM_Parameters PPM_prot[15]=	{
 /*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
-/*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	6	*/	{MODE_DSM	,	DSMX_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
+/*	7	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},
 /*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	10	*/	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -205,8 +248,15 @@ const PPM_Parameters PPM_prot[15]=	{
 		CX20
 	MODE_HUBSAN
 		NONE
+	MODE_FRSKYV
+		NONE
 	MODE_FRSKYD
 		NONE
+	MODE_FRSKYX
+		CH_16
+		CH_8
+		EU_16
+		EU_8
 	MODE_HISKY
 		Hisky
 		HK310
@@ -255,9 +305,6 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_BAYANG
 		BAYANG
 		H8S3D
-	MODE_FRSKYX
-		CH_16
-		CH_8
 	MODE_ESKY
 		NONE
 	MODE_MT99XX
@@ -286,8 +333,6 @@ const PPM_Parameters PPM_prot[15]=	{
 		NONE
 	MODE_ASSAN
 		NONE
-	MODE_FRSKYV
-		NONE
 	MODE_HONTAI
 		FORMAT_HONTAI
 		FORMAT_JJRCX1
@@ -305,6 +350,15 @@ const PPM_Parameters PPM_prot[15]=	{
 		W6_6_1
 		W6_HEL
 		W6_HEL_I
+	MODE_Q303
+		Q303
+		CX35
+		CX10D
+		CX10WD
+	MODE_GW008
+		NONE
+	MODE_DM002
+		NONE
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...
@@ -318,5 +372,5 @@ const PPM_Parameters PPM_prot[15]=	{
 // As an example, it's usefull for the WLTOYS F929/F939/F949/F959 (all using the Flysky protocol) which requires a bind at each power up.
 // It also enables the Bind from channel feature, allowing to execute a bind by toggling a designated channel.
 
-// Option: the value is between -127 and +127.
+// Option: the value is between -128 and +127.
 // The option value is only valid for some protocols, read this page for more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md

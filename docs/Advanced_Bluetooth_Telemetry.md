@@ -1,5 +1,6 @@
-#Bluetooth Telemetry in PPM Mode
-###Telemetry
+# Bluetooth Telemetry in PPM Mode
+
+## Telemetry
 
 There are 4 protocols supporting telemetry: Hubsan, DSM, FrSkyD and FrSkyX.
 
@@ -11,7 +12,7 @@ FrSkyD displays full telemetry (A0, A1, RX RSSI, TX RSSI and Hub).
 
 FrSkyX displays full telemetry (A1, A2, RX RSSI, TX RSSI and Hub).
 
-### If used in PPM mode
+## If used in PPM mode
 
 Telemetry is available as a serial output on the TX pin of the Atmega328p using the FrSky hub format for Hubsan, FrSkyD, FrSkyX and DSM format for DSM2/X.  The serial paramets depends on the protocol:
 

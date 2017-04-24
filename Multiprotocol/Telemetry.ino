@@ -17,8 +17,10 @@
 //**************************
 #if defined TELEMETRY
 
-#if defined MULTI_TELEMETRY
-	#define MULTI_TIME 250 //in ms
+uint8_t RetrySequence ;
+
+#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
+	#define MULTI_TIME 500 //in ms
 	uint32_t lastMulti = 0;
 #endif
 
@@ -28,7 +30,6 @@
 	uint32_t last = 0;
 	uint8_t sport_counter=0;
 	uint8_t RxBt = 0;
-	uint8_t rssi;
 	uint8_t sport = 0;
 #endif
 #if defined HUB_TELEMETRY
@@ -45,32 +46,17 @@ uint8_t pktx1[MAX_PKTX];
 uint8_t indx;
 uint8_t frame[18];
 
-#ifdef BASH_SERIAL
-// For bit-bashed serial output
-	volatile struct t_serial_bash
-	{
-		uint8_t head ;
-		uint8_t tail ;
-		uint8_t data[64] ;
-		uint8_t busy ;
-		uint8_t speed ;
-	} SerialControl ;
-#endif
-
-#ifdef MULTI_TELEMETRY
+#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
 static void multi_send_header(uint8_t type, uint8_t len)
 {
-    Serial_write('M');
-    Serial_write('P');
-    Serial_write(type);
-    Serial_write(len);
-}
-
-static void multi_send_frskyhub()
-{
-    multi_send_header(MULTI_TELEMETRY_HUB, 9);
-    for (uint8_t i = 0; i < 9; i++)
-        Serial_write(frame[i]);
+	Serial_write('M');
+	#ifdef MULTI_TELEMETRY
+		Serial_write('P');
+		Serial_write(type);
+	#else
+		(void)type;
+	#endif
+	Serial_write(len);
 }
 
 static void multi_send_status()
@@ -84,9 +70,14 @@ static void multi_send_status()
     if (mode_select==MODE_SERIAL)
         flags |= 0x02;
     if (remote_callback != 0)
-        flags |= 0x04;
-    if (!IS_BIND_DONE_on)
-        flags |= 0x08;
+    {
+	    flags |= 0x04;
+		if (IS_WAIT_BIND_on)
+			flags |= 0x10;
+		else
+			if (!IS_BIND_DONE_on)
+				flags |= 0x08;
+	}
     Serial_write(flags);
 
     // Version number example: 1.1.6.1
@@ -138,6 +129,15 @@ static void multi_send_status()
 	}
 #endif
 
+#ifdef MULTI_TELEMETRY
+static void multi_send_frskyhub()
+{
+    multi_send_header(MULTI_TELEMETRY_HUB, 9);
+    for (uint8_t i = 0; i < 9; i++)
+        Serial_write(frame[i]);
+}
+#endif
+
 void frskySendStuffed()
 {
 	Serial_write(START_STOP);
@@ -153,25 +153,53 @@ void frskySendStuffed()
 	Serial_write(START_STOP);
 }
 
-void compute_RSSIdbm()
-{
-	
-	RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
-	if(pktt[len-2] >=128)
-		RSSI_dBm -= 164;
-	else
-		RSSI_dBm += 130;
-}
-
 void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 {
 	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len ==(pkt[0] + 3))
 	{	   
-		for (uint8_t i=3;i<len;i++)
-			pktt[i]=pkt[i];				 
-		telemetry_link=1;
-		if(pktt[6])
-			telemetry_counter=(telemetry_counter+1)%32;
+		telemetry_link|=1;								// Telemetry data is available
+		/*previous version
+		RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
+		if(pktt[len-2] >=128) RSSI_dBm -= 164;
+		else RSSI_dBm += 130;*/
+		TX_RSSI = pkt[len-2];
+		if(TX_RSSI >=128)
+			TX_RSSI -= 128;
+		else
+			TX_RSSI += 128;
+		TX_LQI = pkt[len-1]&0x7F;
+		for (uint8_t i=3;i<len-2;i++)
+			pktt[i]=pkt[i];								// Buffer telemetry values to be sent 
+		
+		if(pktt[6]>0 && pktt[6]<=10)
+		{
+			if (protocol==MODE_FRSKYD)
+			{
+				if ( ( pktt[7] & 0x1F ) == (telemetry_counter & 0x1F) )
+				{
+					uint8_t topBit = 0 ;
+					if ( telemetry_counter & 0x80 )
+					{
+						if ( ( telemetry_counter & 0x1F ) != RetrySequence )
+						{
+							topBit = 0x80 ;
+						}
+					}
+					telemetry_counter = ( (telemetry_counter+1)%32 ) | topBit ;	// Request next telemetry frame
+				}
+				else
+				{
+					// incorrect sequence
+					RetrySequence = pktt[7] & 0x1F ;
+					telemetry_counter |= 0x80 ;
+					pktt[6]=0 ;							// Discard current packet and wait for retransmit
+				}
+			}
+		}
+		else
+		{
+			pktt[6]=0; 									// Discard packet
+		}
 		//
 #if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
 		telemetry_lost=0;
@@ -195,36 +223,41 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 	}
 }
 
-void init_hub_telemetry()
+void init_frskyd_link_telemetry()
 {
 	telemetry_link=0;
 	telemetry_counter=0;
 	v_lipo1=0;
 	v_lipo2=0;
-	RSSI_dBm=0;
+	RX_RSSI=0;
 	TX_RSSI=0;
+	RX_LQI=0;
+	TX_LQI=0;
 }
 
 void frsky_link_frame()
 {
-	frame[0] = 0xFE;
+	frame[0] = 0xFE;			// Link frame
 	if (protocol==MODE_FRSKYD)
 	{		
-		compute_RSSIdbm();				
-		frame[1] = pktt[3];
-		frame[2] = pktt[4];
-		frame[3] = pktt[5];
-		frame[4] = (uint8_t)RSSI_dBm;
+		frame[1] = pktt[3];		// A1
+		frame[2] = pktt[4];		// A2
+		frame[3] = pktt[5];		// RX_RSSI
+		telemetry_link &= ~1 ;		// Sent
+		telemetry_link |= 2 ;		// Send hub if available
 	}
 	else
 		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A||protocol==MODE_BAYANG)
 		{	
 			frame[1] = v_lipo1;
 			frame[2] = v_lipo2;			
-			frame[3] = (uint8_t)RSSI_dBm;
-			frame[4] = TX_RSSI;
+			frame[3] = RX_RSSI;
+			telemetry_link=0;
 		}
-	frame[5] = frame[6] = frame[7] = frame[8] = 0;
+	frame[4] = TX_RSSI;
+	frame[5] = RX_LQI;
+	frame[6] = TX_LQI;
+	frame[7] = frame[8] = 0;
 	#if defined MULTI_TELEMETRY
 		multi_send_frskyhub();
 	#else
@@ -235,66 +268,26 @@ void frsky_link_frame()
 #if defined HUB_TELEMETRY
 void frsky_user_frame()
 {
-	uint8_t indexx = 0,  j=8, i;
-	//uint8_t c=0, n=0;
-	
-	if(pktt[6]>0 && pktt[6]<=10)
-	{//only valid hub frames	  
-		frame[0] = 0xFD;
-		frame[2] = pktt[7];		
-		switch(pass)
+	if(pktt[6])
+	{//only send valid hub frames
+		frame[0] = 0xFD;				// user frame
+		if(pktt[6]>USER_MAX_BYTES)
 		{
-			case 0:
-				indexx=pktt[6];
-				for(i=0;i<indexx;i++)
-				{
-//					if(pktt[j]==0x5E)
-//					{
-//						if(c++)
-//						{
-//							c=0;
-//							n++;
-//							j++;
-//						}
-//					}
-					pktx[i]=pktt[j++];
-				}	
-//				indexx = indexx-n;
-				pass=1;
-				
-			case 1:
-				indx=indexx;
-				prev_index = indexx; 
-				if(indx<USER_MAX_BYTES)
-				{   			
-					for(i=0;i<indx;i++)
-						frame[i+3]=pktx[i];
-					pktt[6]=0;
-					pass=0;
-				}
-				else
-				{
-					indx = USER_MAX_BYTES;
-					for(i=0;i<indx;i++)
-						frame[i+3]=pktx[i];
-					pass=2;
-				}			
-				break;
-			case 2:		
-				indx = prev_index - indx;
-				prev_index=0;
-				if(indx<=(MAX_PKTX-USER_MAX_BYTES))	//10-6=4
-					for(i=0;i<indx;i++)
-						frame[i+3]=pktx[USER_MAX_BYTES+i];
-				pass=0;
-				pktt[6]=0; 
-				break;
-			default:
-				break;
+			frame[1]=USER_MAX_BYTES;	// packet size
+			pktt[6]-=USER_MAX_BYTES;
+			telemetry_link |= 2 ;			// 2 packets need to be sent
 		}
-		if(!indx)
-			return;
-		frame[1] = indx;
+		else
+		{
+			frame[1]=pktt[6];			// packet size
+			telemetry_link=0;			// only 1 packet or processing second packet
+		}
+		frame[2] = pktt[7];
+		for(uint8_t i=0;i<USER_MAX_BYTES;i++)
+			frame[i+3]=pktt[i+8];
+		if(telemetry_link & 2)				// prepare the content of second packet
+			for(uint8_t i=8;i<USER_MAX_BYTES+8;i++)
+				pktt[i]=pktt[i+USER_MAX_BYTES];
 		#if defined MULTI_TELEMETRY
 			multi_send_frskyhub();
 		#else
@@ -302,10 +295,8 @@ void frsky_user_frame()
 		#endif
 	}
 	else
-		pass=0;
+		telemetry_link=0;
 }	   
-#endif
-
 /*
 HuB RX packets.
 pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09 
@@ -320,6 +311,8 @@ pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 0A     0F          5E 3A 06 00 5E 5E 3B 09 00 5E
 05     10          5E 06 16 72 5E 5E 3A 06 00 5E
 */
+#endif
+
 
 #if defined SPORT_TELEMETRY
 /* SPORT details serial
@@ -440,7 +433,7 @@ void sportSendFrame()
 		frame[0] = 0x98;
 		frame[1] = 0x10;
 		for (i=5;i<8;i++)
-		frame[i]=0;
+			frame[i]=0;
 	}
 	switch (sport_counter)
 	{
@@ -454,7 +447,10 @@ void sportSendFrame()
 		case 2: // RSSI
 			frame[2] = 0x01;
 			frame[3] = 0xf1;
-			frame[4] = rssi;
+			frame[4] = RX_RSSI;
+			frame[5] = TX_RSSI;
+			frame[6] = RX_LQI;
+			frame[7] = TX_LQI;
 			break;
 		case 4: //BATT
 			frame[2] = 0x04;
@@ -538,45 +534,33 @@ void TelemetryUpdate()
 		h = SerialControl.head ;
 		t = SerialControl.tail ;
 		if ( h >= t )
-		{
-			t += 64 - h ;
-		}
+			t += 128 - h ;
 		else
-		{
 			t -= h ;
-		}
-		if ( t < 32 )
-		{
+		if ( t < 64 )
 			return ;
-		}
-
 	#else
 		uint8_t h ;
 		uint8_t t ;
 		h = tx_head ;
 		t = tx_tail ;
 		if ( h >= t )
-		{
 			t += TXBUFFER_SIZE - h ;
-		}
 		else
-		{
 			t -= h ;
-		}
-		if ( t < 16 )
-		{
+		if ( t < 32 )
 			return ;
-		}
 	#endif
-    #if defined MULTI_TELEMETRY
-        {
-            uint32_t now = millis();
-            if ((now - lastMulti) > MULTI_TIME) {
-                multi_send_status();
-                lastMulti = now;
-                return;
-            }
-        }
+	#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
+		{
+			uint32_t now = millis();
+			if ((now - lastMulti) > MULTI_TIME)
+			{
+				multi_send_status();
+				lastMulti = now;
+				return;
+			}
+		}
 	#endif
 	 
 	#if defined SPORT_TELEMETRY
@@ -585,10 +569,10 @@ void TelemetryUpdate()
 			if(telemetry_link)
 			{		
 				if(pktt[4] & 0x80)
-					rssi=pktt[4] & 0x7F ;
+					RX_RSSI=pktt[4] & 0x7F ;
 				else 
 					RxBt = (pktt[4]<<1) + 1 ;
-				if(pktt[6]<=6)
+				if(pktt[6] && pktt[6]<=6)
 					for (uint8_t i=0; i < pktt[6]; i++)
 						proces_sport_data(pktt[7+i]);
 				telemetry_link=0;
@@ -607,7 +591,7 @@ void TelemetryUpdate()
 	#endif					
 
 	#if defined DSM_TELEMETRY
-		if(telemetry_link && protocol == MODE_DSM )
+		if(telemetry_link && protocol == MODE_DSM)
 		{	// DSM
 			DSM_frame();
 			telemetry_link=0;
@@ -619,17 +603,18 @@ void TelemetryUpdate()
 		{
 			AFHDSA_short_frame();
 			telemetry_link=0;
+			return;
 		}
     #endif        
-		if(telemetry_link && protocol != MODE_FRSKYX )
+
+		if((telemetry_link & 1 )&& protocol != MODE_FRSKYX)
 		{	// FrSkyD + Hubsan + AFHDS2A + Bayang
 			frsky_link_frame();
-			telemetry_link=0;
 			return;
 		}
 	#if defined HUB_TELEMETRY
-		if(!telemetry_link && protocol == MODE_FRSKYD)
-		{	// FrSky
+		if((telemetry_link & 2) && protocol == MODE_FRSKYD)
+		{	// FrSkyD
 			frsky_user_frame();
 			return;
 		}
@@ -849,7 +834,7 @@ void Serial_write( uint8_t byte )
 	#ifdef INVERT_SERIAL
 		byte |= 1 ;		// Start bit
 	#endif
-	uint8_t next = (SerialControl.head + 2) & 0x3f ;
+	uint8_t next = (SerialControl.head + 2) & 0x7f ;
 	if ( next != SerialControl.tail )
 	{
 		SerialControl.data[SerialControl.head] = byte ;
@@ -943,7 +928,7 @@ ISR(TIMER0_COMPB_vect)
 			{
 				GPIOR0 = ptr->data[ptr->tail] ;
 				GPIOR2 = ptr->data[ptr->tail+1] ;
-				ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
+				ptr->tail = ( ptr->tail + 2 ) & 0x7F ;
 				GPIOR1 = 8 ;
 				OCR0A = OCR0B + 40 ;
 				OCR0B = OCR0A + 8 * 20 ;
@@ -994,7 +979,7 @@ ISR(TIMER0_OVF_vect)
 		{
 			GPIOR0 = ptr->data[ptr->tail] ;
 			GPIOR2 = ptr->data[ptr->tail+1] ;
-			ptr->tail = ( ptr->tail + 2 ) & 0x3F ;
+			ptr->tail = ( ptr->tail + 2 ) & 0x7F ;
 			GPIOR1 = 10 ;
 		}
 		else

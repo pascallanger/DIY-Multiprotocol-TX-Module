@@ -77,13 +77,9 @@ static void __attribute__((unused)) WK_build_bind_pkt(const uint8_t *init)
 	WK_add_pkt_crc(init[4]);
 }
 
-static int16_t __attribute__((unused)) WK_map_16(int32_t x, int32_t in_min, int32_t in_max, int32_t out_min, int32_t out_max)
-{
-	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
 static int16_t __attribute__((unused)) WK_get_channel(uint8_t ch, int32_t scale, int16_t center, int16_t range)
 {
-	int16_t value = WK_map_16(Servo_data[CH_AETR[ch]],servo_min_100,servo_max_100,-scale,scale)+center;
+	int16_t value = map(Servo_data[CH_AETR[ch]],servo_min_100,servo_max_100,-scale,scale)+center;
 	if (value < center - range) value = center - range;
 	if (value > center + range) value = center + range;
 	return value;
@@ -270,7 +266,7 @@ static void __attribute__((unused)) WK_build_data_pkt_2801()
 	for (uint8_t i = 0; i < 8; i++)
 	{
 		if (i == 4) { offset = 1; }
-		int16_t value = WK_get_channel(i, 0x190, 0, 0x3FF);
+		int16_t value = WK_get_channel(i, 0x1C2, 0, 0x3FF);
 		uint16_t mag = value < 0 ? -value : value;
 		packet[i+offset] = mag & 0xff;
 		msb = (msb << 2) | ((mag >> 8) & 0x03);

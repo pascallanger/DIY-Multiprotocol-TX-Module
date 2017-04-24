@@ -121,8 +121,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	#ifdef BAYANG_HUB_TELEMETRY
     if (option)
 	{	// switch radio to rx as soon as packet is sent
-        
-		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)));
+ 		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)));
 		NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x03);
     }
 	#endif
@@ -131,7 +130,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 }
 
 #ifdef BAYANG_HUB_TELEMETRY
-static void __attribute__((unused)) check_rx(void)
+static void __attribute__((unused)) BAYANG_check_rx(void)
 {
 	if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 	{ // data received from model
@@ -150,7 +149,7 @@ static void __attribute__((unused)) check_rx(void)
 			// compensated battery volts*100/2
 			v_lipo2 = (packet[5]<<7) + (packet[6]>>2);
 			// reception in packets / sec
-			RSSI_dBm = packet[7];
+			RX_RSSI = packet[7];
 			//Flags
 			//uint8_t flags = packet[3] >> 3;
 			// battery low: flags & 1
@@ -204,7 +203,7 @@ uint16_t BAYANG_callback()
 				}
 
 				if (packet_count > 1)
-					check_rx();
+					BAYANG_check_rx();
 
 				packet_count %= 5;
 			}
@@ -252,7 +251,7 @@ uint16_t initBAYANG(void)
 	BAYANG_init();
 	packet_count=0;
 #ifdef BAYANG_HUB_TELEMETRY
-	init_hub_telemetry();
+	init_frskyd_link_telemetry();
 	telemetry_lost=1;	// do not send telemetry to TX right away until we have a TX_RSSI value to prevent warning message...
 #endif
 	return BAYANG_INITIAL_WAIT+BAYANG_PACKET_PERIOD;

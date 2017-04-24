@@ -21,8 +21,6 @@
 #include "iface_cc2500.h"
 
 uint8_t chanskip;
-uint8_t counter_rst;
-uint8_t ctr;
 uint8_t seq_last_sent;
 uint8_t seq_last_rcvd;
 
@@ -35,39 +33,7 @@ static void __attribute__((unused)) set_start(uint8_t ch )
 
 static void __attribute__((unused)) frskyX_init()
 {
-	for(uint8_t i=0;i<36;i++)
-	{
-		uint8_t reg=pgm_read_byte_near(&cc2500_conf[i][0]);
-		uint8_t val=pgm_read_byte_near(&cc2500_conf[i][1]);
-		
-		if(reg==CC2500_06_PKTLEN)
-			val=0x1E;
-		else
-		if(reg==CC2500_08_PKTCTRL0)
-			val=0x01;
-		else
-		if(reg==CC2500_0B_FSCTRL1)
-			val=0x0A;
-		else
-		if(reg==CC2500_10_MDMCFG4)
-			val=0x7B;
-		else
-		if(reg==CC2500_11_MDMCFG3)
-			val=0x61;
-		else
-		if(reg==CC2500_12_MDMCFG2)
-			val=0x13;
-		else
-		if(reg==CC2500_15_DEVIATN)
-			val=0x51;
-		
-		CC2500_WriteReg(reg,val);
-	}
-
-	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x04);			
-	prev_option = option ;
-	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-	CC2500_Strobe(CC2500_SIDLE);    
+	FRSKY_init_cc2500((sub_protocol&2)?FRSKYXEU_cc2500_conf:FRSKYX_cc2500_conf); // LBT or FCC
 	//
 	for(uint8_t c=0;c < 48;c++)
 	{//calibrate hop channels
@@ -117,14 +83,14 @@ static uint16_t  __attribute__((unused)) scaleForPXX( uint8_t i )
 
 static void __attribute__((unused)) frskyX_build_bind_packet()
 {
-	packet[0] = 0x1D;       
-	packet[1] = 0x03;          
-	packet[2] = 0x01;               
-	//	
+	packet[0] = (sub_protocol & 2 ) ? 0x20 : 0x1D ; // LBT or FCC
+	packet[1] = 0x03;
+	packet[2] = 0x01;
+	//
 	packet[3] = rx_tx_addr[3];
 	packet[4] = rx_tx_addr[2];
 	int idx = ((state -FRSKY_BIND) % 10) * 5;
-	packet[5] = idx;	
+	packet[5] = idx;
 	packet[6] = hopping_frequency[idx++];
 	packet[7] = hopping_frequency[idx++];
 	packet[8] = hopping_frequency[idx++];
@@ -133,11 +99,12 @@ static void __attribute__((unused)) frskyX_build_bind_packet()
 	packet[11] = 0x02;
 	packet[12] = RX_num;
 	//
-	memset(&packet[13], 0, 15);	
-	uint16_t lcrc = crc_x(&packet[3], 25);	
+	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
+	memset(&packet[13], 0, limit - 13);
+	uint16_t lcrc = crc_x(&packet[3], limit-3);
 	//
-	packet[28] = lcrc >> 8;
-	packet[29] = lcrc;
+	packet[limit++] = lcrc >> 8;
+	packet[limit] = lcrc;
 	//
 }
 
@@ -150,13 +117,13 @@ static void __attribute__((unused)) frskyX_data_frame()
 	uint16_t chan_1 ; 
 	uint8_t startChan = 0;
 	//
-	packet[0] = 0x1D; 
+	packet[0] = (sub_protocol & 2 ) ? 0x20 : 0x1D ; // LBT or FCC
 	packet[1] = rx_tx_addr[3];
 	packet[2] = rx_tx_addr[2];
 	packet[3] = 0x02;
 	//  
-	packet[4] = (ctr<<6)+hopping_frequency_no; 
-	packet[5] = counter_rst;
+	packet[4] = (chanskip<<6)|hopping_frequency_no; 
+	packet[5] = chanskip>>2;
 	packet[6] = RX_num;
 	//packet[7] = FLAGS 00 - standard packet
 	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
@@ -190,17 +157,18 @@ static void __attribute__((unused)) frskyX_data_frame()
 	else if (seq_last_rcvd == 0x00)
 		seq_last_sent = 1;
 	
-	if(sub_protocol== CH_8 )// in X8 mode send only 8ch every 9ms
+	if(sub_protocol & 1 )// in X8 mode send only 8ch every 9ms
 		lpass = 0 ;
 	else
 		lpass += 1 ;
 	
-	for (uint8_t i=22;i<28;i++)
+	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
+	for (uint8_t i=22;i<limit;i++)
 		packet[i]=0;
-	uint16_t lcrc = crc_x(&packet[3], 25);
+	uint16_t lcrc = crc_x(&packet[3], limit-3);
 	
-	packet[28]=lcrc>>8;//high byte
-	packet[29]=lcrc;//low byte
+	packet[limit++]=lcrc>>8;//high byte
+	packet[limit]=lcrc;//low byte
 }
 
 uint16_t ReadFrSkyX()
@@ -215,7 +183,10 @@ uint16_t ReadFrSkyX()
 			frskyX_build_bind_packet();
 			CC2500_Strobe(CC2500_SIDLE);
 			CC2500_WriteData(packet, packet[0]+1);
-			state++;
+			if(IS_BIND_DONE_on)
+				state = FRSKY_BIND_DONE;
+			else
+				state++;
 			return 9000;
 		case FRSKY_BIND_DONE:
 			initialize_data(0);
@@ -253,7 +224,7 @@ uint16_t ReadFrSkyX()
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
 			if (len && (len<=(0x0E + 3)))				//Telemetry frame is 17
 			{
-				counter=0;
+				packet_count=0;
 				CC2500_ReadData(pkt, len);
 				#if defined TELEMETRY
 					frsky_check_telemetry(pkt,len);	//check if valid telemetry packets
@@ -263,13 +234,13 @@ uint16_t ReadFrSkyX()
 			} 
 			else
 			{
-				counter++;
+				packet_count++;
 				// restart sequence on missed packet - might need count or timeout instead of one missed
-				if(counter>100)
+				if(packet_count>100)
 				{//~1sec
 					seq_last_sent = 0;
 					seq_last_rcvd = 8;
-					counter=0;
+					packet_count=0;
 					#if defined TELEMETRY
 						telemetry_lost=1;
 					#endif
@@ -286,19 +257,15 @@ uint16_t initFrSkyX()
 {
 	set_rx_tx_addr(MProtocol_id_master);
 	Frsky_init_hop();
+	packet_count=0;
 	while(!chanskip)
 		chanskip=random(0xfefefefe)%47;
-	while((chanskip-ctr)%4)
-		ctr=(ctr+1)%4;
-	counter_rst=(chanskip-ctr)>>2;
 
 	//for test***************
 	//rx_tx_addr[3]=0xB3;
 	//rx_tx_addr[2]=0xFD;
 	//************************
-	hopping_frequency[47]=0;
 	frskyX_init();
-	CC2500_SetTxRxMode(TX_EN);
 	//
 	if(IS_AUTOBIND_FLAG_on)
 	{	   

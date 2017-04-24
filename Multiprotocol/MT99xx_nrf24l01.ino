@@ -261,7 +261,8 @@ uint16_t initMT99XX(void)
     bind_counter = MT99XX_BIND_COUNT;
 
 	memcpy(hopping_frequency,"\x02\x48\x0C\x3e\x16\x34\x20\x2A\x2A\x20\x34\x16\x3e\x0c\x48\x02",16);
-
+	hopping_frequency_no=0;
+	
 	MT99XX_initialize_txid();
 	MT99XX_init();
 

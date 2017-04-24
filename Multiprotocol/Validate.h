@@ -22,8 +22,11 @@
 #ifdef ORANGE_TX
 	#undef ENABLE_PPM			// Disable PPM for OrangeTX module
 	#undef A7105_INSTALLED		// Disable A7105 for OrangeTX module
+	#undef A7105_CSN_pin
 	#undef CC2500_INSTALLED		// Disable CC2500 for OrangeTX module
+	#undef CC25_CSN_pin
 	#undef NRF24L01_INSTALLED	// Disable NRF for OrangeTX module
+	#undef NRF_CSN_pin
 	#define TELEMETRY			// Enable telemetry
 	#define INVERT_TELEMETRY	// Enable invert telemetry
 	#define DSM_TELEMETRY		// Enable DSM telemetry
@@ -65,6 +68,9 @@
 	#undef	FQ777_NRF24L01_INO
 	#undef	ASSAN_NRF24L01_INO
 	#undef	HONTAI_NRF24L01_INO
+	#undef	Q303_NRF24L01_INO
+	#undef	GW008_NRF24L01_INO
+	#undef	DM002_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly
@@ -77,8 +83,12 @@
 	#undef HUB_TELEMETRY
 	#undef SPORT_TELEMETRY
 	#undef DSM_TELEMETRY
+	#undef MULTI_STATUS
 	#undef MULTI_TELEMETRY
 #else
+	#if defined MULTI_TELEMETRY && not defined INVERT_TELEMETRY
+		#warning MULTI_TELEMETRY has been defined but not INVERT_TELEMETRY. They should be both enabled for OpenTX telemetry and status to work.
+	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY
 	#endif
@@ -98,7 +108,7 @@
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY)
+	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 	#endif
@@ -119,4 +129,17 @@
 	#if BIND_CH>16
 		#error BIND_CH must be below or equal to 16.
 	#endif
+#endif
+
+#if MIN_PPM_CHANNELS>16
+	#error MIN_PPM_CHANNELS must be below or equal to 16. The default for this value is 4.
+#endif
+#if MIN_PPM_CHANNELS<2
+	#error MIN_PPM_CHANNELS must be larger than 1. The default for this value is 4.
+#endif
+#if MAX_PPM_CHANNELS<MIN_PPM_CHANNELS
+	#error MAX_PPM_CHANNELS must be higher than MIN_PPM_CHANNELS. The default for this value is 16.
+#endif
+#if MAX_PPM_CHANNELS>16
+	#error MAX_PPM_CHANNELS must be below or equal to 16. The default for this value is 16.
 #endif

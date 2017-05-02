@@ -99,7 +99,7 @@ static uint8_t __attribute__((unused)) CABELL_getNextChannel (uint8_t seqArray[]
 }
 
 //-----------------------------------------------------------------------------------------
-#if defined(TELEMETRY) && defined(HUB_TELEMETRY)
+#if defined TELEMETRY 
 static void __attribute__((unused)) CABELL_get_telemetry()
 {
   static unsigned long telemetryProcessingTime = 50;  // initial guess.  This will get adjusted below once telemetry packts are recieved
@@ -108,7 +108,7 @@ static void __attribute__((unused)) CABELL_get_telemetry()
   state++;
   if (state > (500000 / CABELL_PACKET_PERIOD))
   {
-    //calculate telemetry reception RSSI - based on packet rape per 1000ms where 255 is 100%
+    //calculate telemetry reception RSSI - based on packet rate per 1000ms where 255 is 100%
     state--;  //This is the number of packets expected
     TX_RSSI = constrain(((uint16_t)(((float)telemetry_counter / (float)state * (float)255))),0,255);
     telemetry_counter = 0;
@@ -146,7 +146,7 @@ static void __attribute__((unused)) CABELL_get_telemetry()
 //-----------------------------------------------------------------------------------------
 static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 {  
-  #if defined(TELEMETRY) && defined(HUB_TELEMETRY)
+  #if defined TELEMETRY  
     if (sub_protocol == CABELL_V3_TELEMETRY)  { // check for incommimg packet and switch radio back to TX mode if we were listening for telemetry      
       CABELL_get_telemetry();
     }
@@ -245,7 +245,7 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 
   NRF24L01_WritePayload((uint8_t*)&TxPacket, packetSize);
 
-  #if defined(TELEMETRY) && defined(HUB_TELEMETRY)
+  #if defined TELEMETRY 
     if (sub_protocol == CABELL_V3_TELEMETRY)  { // switch radio to rx as soon as packet is sent  
       // calculate transmit time based on packet size and data rate of 1MB per sec
       // This is done becasue polling the status register during xmit casued issues.
@@ -417,7 +417,7 @@ uint16_t initCABELL(void)
     bind_counter = CABELL_BIND_COUNT;
   }
   CABELL_init();
-  #if defined(TELEMETRY) && defined(HUB_TELEMETRY)
+  #if defined TELEMETRY 
     init_frskyd_link_telemetry();
     telemetry_lost=1; // do not send telemetry to TX right away until we have a TX_RSSI value to prevent warning message...
   #endif

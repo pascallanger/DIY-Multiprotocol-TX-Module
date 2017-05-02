@@ -52,9 +52,6 @@ One of the most annoying functions on the Syma X5C is that the motors stop when 
 ## Binding
 For telemetry enabled modules, you should just let the remote autodetect the settings. Otherwise choose DSMX 22ms with 6ch or 7ch. To bind the model, keep the transmitter off, power on the Inductrix. Wait until it flashes fast and then power up the Tx and use Bind.
 
-## Tx Setup
-Remember that 100% on your transmitter using the MULTI-Module corresponds to 125% on the DSM receiver side.  On some functions sending 100% will confuse the model. Conversely 80% on your Tx is interpreted to be 100% at the model. Consider this when implementing the suggestions below.
-
 ### Throttle
 For Inductrix FPV you might need to adjust the lower end of throttle to be a higher than default, otherwise motors will be spinning on minimal throttle.  One way to do this is to set the throttle to 80% output (100% of DSM output) and then to enable the **Throttle Idle Trim Only** under the Model Setup menu.  See image below:  
 

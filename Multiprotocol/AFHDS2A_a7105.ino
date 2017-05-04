@@ -245,7 +245,7 @@ uint16_t ReadAFHDS2A()
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 				if(packet[0] == 0xbc && packet[9] == 0x01)
 				{
-					uint8_t temp=50+RX_num*4;
+					uint8_t temp=AFHDS2A_EEPROM_OFFSET+RX_num*4;
 					uint8_t i;
 					for(i=0; i<4; i++)
 					{
@@ -361,7 +361,7 @@ uint16_t initAFHDS2A()
 	{
 		phase = AFHDS2A_DATA;
 		//Read RX ID from EEPROM based on RX_num, RX_num must be uniq for each RX
-		uint8_t temp=50+RX_num*4;
+		uint8_t temp=AFHDS2A_EEPROM_OFFSET+RX_num*4;
 		for(uint8_t i=0;i<4;i++)
 			rx_id[i]=eeprom_read_byte((EE_ADDR)(temp+i));
 	}

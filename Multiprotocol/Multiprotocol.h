@@ -243,7 +243,6 @@ struct PPM_Parameters
 };
 
 // Telemetry
-
 enum MultiPacketTypes
 {
 	MULTI_TELEMETRY_STATUS			= 1,
@@ -254,7 +253,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_AFHDS2A			= 6,
 	MULTI_TELEMETRY_CONFIG			= 7,
 	MULTI_TELEMETRY_SYNC			= 8,
-	MULTI_TELEMETRY_SPORT_POLLING	= 9,
+    MULTI_COMMAND_CONFIG    		= 0x80,
 };
 
 // Macros
@@ -330,6 +329,12 @@ enum MultiPacketTypes
 #define WAIT_BIND_on		protocol_flags2 |= _BV(7)
 #define IS_WAIT_BIND_on		( ( protocol_flags2 & _BV(7) ) !=0 )
 #define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
+
+//Configuration
+#define IS_TELEMTRY_INVERSION_ON	(multi_config & 0x01)
+#define IS_MULTI_TELEMETRY_ON		(multi_config & 0x02)
+#define IS_EXTRA_TELEMETRY_ON       (multi_config & 0x04)
+
 
 // Failsafe
 #define FAILSAFE_CHANNEL_HOLD		2047
@@ -489,9 +494,9 @@ enum {
 #define SPEED_125K	3
 
 /** EEPROM Layout */
-#define EEPROM_ID_OFFSET		10		// Module ID (4 bytes)
-#define EEPROM_ID_VALID_OFFSET	20		// 1 byte flag that ID is valid
-#define MODELMODE_EEPROM_OFFSET	30		// Autobind mode, 1 byte per model, end is 46
+#define EEPROM_ID_OFFSET			10		// Module ID (4 bytes)
+#define EEPROM_ID_VALID_OFFSET		20		// 1 byte flag that ID is valid
+#define MODELMODE_EEPROM_OFFSET 	30      // Autobind mode, 1 byte per model, end is 46
 #define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 byte per model id, end is 114
 #define CONFIG_EEPROM_OFFSET 	120		// Current configuration of the multimodule
 
@@ -768,5 +773,30 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data
+
+ Type 0x08 Input synchronisation
+    Informs the TX about desired rate and current delay
+    length: 4
+    data[0-1]     Desired refresh rate in µs
+    data[2-3]     Time (µs) between last serial servo input received and servo input needed (lateness), TX should adjust its
+                  sending time to minimise this value.
+	data[4]		  Interval of this message in ms
+	data[5]		  Input delay target in 10µs
+
+   Note that there are protocols (AFHDS2A) that have a refresh rate that is smaller than the maximum achievable
+   refresh rate via the serial protocol, in this case, the TX should double the rate and also subract this
+   refresh rate from the input lag if the input lag is more than the desired refresh rate.
+
+   The remote should try to get to zero of  (inputdelay+target*10).
+
+Commands from TX to module use values > 127 for command type
+
+ Type 0x80 Module Configuration
+   This sent from the TX to Multi to configure inversion and multi telemetry type
+   length: 1
+   data[0] flags
+     0x01 Telemetry inversion (1 = inverted)
+     0x02 Use Multi telemetry protocol (if 0 use multi status)
+     0x04 Send extra telemetry (type 0x08) to allow input synchronisation
 
 */

@@ -79,12 +79,10 @@ uint8_t frame[18];
 static void multi_send_header(uint8_t type, uint8_t len)
 {
 	Serial_write('M');
-	#ifdef MULTI_TELEMETRY
+	if (IS_MULTI_TELEMETRY_ON) {
 		Serial_write('P');
 		Serial_write(type);
-	#else
-		(void)type;
-	#endif
+    }
 	Serial_write(len);
 }
 

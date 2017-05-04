@@ -217,6 +217,11 @@
 /**************************/
 //In this section you can configure the telemetry.
 
+// Allow settings of configuration from TX side (serial inversion (not on AVR!), and telemetry type)
+// Allows the same firmware to be used for ersky9x/9x and OpenTX, defaults to er9x/ersky9x when no configuration from
+// TX is sent
+#define ALLOW_CONFIGURATION
+
 //If you do not plan using the telemetry comment this global setting using "//" and skip to the next section.
 #define TELEMETRY
 
@@ -234,7 +239,7 @@
 
 //Uncomment to send Multi status and allow OpenTX to autodetect the telemetry format
 //Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/ersky9x use MULTI_STATUS instead.
-//#define MULTI_TELEMETRY
+#define MULTI_TELEMETRY
 
 //Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded

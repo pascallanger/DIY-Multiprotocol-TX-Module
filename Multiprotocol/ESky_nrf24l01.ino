@@ -143,6 +143,7 @@ uint16_t ESKY_callback()
 	{
 		if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
 			return ESKY_PACKET_CHKTIME;
+        telemetry_set_input_sync(ESKY_PACKET_PERIOD);
 		ESKY_send_packet(0);
 	}
 	else

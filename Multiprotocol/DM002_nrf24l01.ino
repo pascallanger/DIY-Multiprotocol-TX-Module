@@ -112,9 +112,10 @@ static void __attribute__((unused)) DM002_init()
 
 uint16_t DM002_callback()
 {
-	if(IS_BIND_DONE)
+    if(IS_BIND_DONE) {
+        telemetry_set_input_sync(DM002_PACKET_PERIOD);
 		DM002_send_packet(0);
-	else
+	} else
 	{
 		if (bind_counter == 0)
 		{

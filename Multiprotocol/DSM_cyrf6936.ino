@@ -436,6 +436,7 @@ uint16_t ReadDsm()
 			DSM_set_sop_data_crc();
 			return 10000;
 		case DSM_CH1_WRITE_A:
+		    telemetry_set_input_sync(11000); //Always request 11ms spacing even if we don't use half of it in 22ms mode
 		case DSM_CH1_WRITE_B:
 		case DSM_CH2_WRITE_A:
 		case DSM_CH2_WRITE_B:

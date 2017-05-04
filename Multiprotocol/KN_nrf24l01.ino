@@ -321,6 +321,7 @@ uint16_t kn_callback()
 				packet_sent = 0;
 				hopping_frequency_no++;
 				if(hopping_frequency_no >= KN_RF_CH_COUNT) hopping_frequency_no = 0;
+				telemetry_set_input_sync(packet_count * packet_period);
 				kn_update_packet_control_data();
 				NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
 			}

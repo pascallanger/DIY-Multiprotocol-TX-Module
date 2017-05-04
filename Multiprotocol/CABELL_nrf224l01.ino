@@ -403,6 +403,7 @@ static void CABELL_SetPower()    // This over-ride the standard Set Power to all
 //-----------------------------------------------------------------------------------------
 uint16_t CABELL_callback()
 {
+    telemetry_set_input_sync(CABELL_PACKET_PERIOD);
 	if (IS_BIND_DONE)
 	{
 		CABELL_send_packet(0);  // packet_period is set/adjusted in CABELL_send_packet

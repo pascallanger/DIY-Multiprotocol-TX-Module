@@ -68,6 +68,7 @@
 uint32_t MProtocol_id;//tx id,
 uint32_t MProtocol_id_master;
 uint32_t blink=0,last_signal=0;
+uint32_t last_serial_input=0;
 //
 uint16_t counter;
 uint8_t  channel;
@@ -521,11 +522,11 @@ void loop()
 				next_callback=2000;					// No PPM/serial signal check again in 2ms...
 			TX_MAIN_PAUSE_off;
 			tx_resume();
-			while(next_callback>4000)
+			while(next_callback>1000)
 			{ // start to wait here as much as we can...
-				next_callback-=2000;				// We will wait below for 2ms
+				next_callback-=500;				// We will wait below for 0.5ms
 				cli();								// Disable global int due to RW of 16 bits registers
-				OCR1A += 2000*2 ;					// set compare A for callback
+				OCR1A += 500*2 ;					// set compare A for callback
 				#ifndef STM32_BOARD	
 					TIFR1=OCF1A_bm;					// clear compare A=callback flag
 				#else
@@ -537,13 +538,13 @@ void loop()
 					next_callback=0;				// Launch new protocol ASAP
 					break;
 				}
-				#ifndef STM32_BOARD	
-					while((TIFR1 & OCF1A_bm) == 0);	// wait 2ms...
+				#ifndef STM32_BOARD
+					while((TIFR1 & OCF1A_bm) == 0);	// wait 0.5ms...
 				#else
-					while((TIMER2_BASE->SR & TIMER_SR_CC1IF)==0);//2ms wait
+					while((TIMER2_BASE->SR & TIMER_SR_CC1IF)==0);//0.5ms wait
 				#endif
 			}
-			// at this point we have a maximum of 4ms in next_callback
+			// at this point we have a maximum of 1ms in next_callback
 			next_callback *= 2 ;
 			cli();									// Disable global int due to RW of 16 bits registers
 			OCR1A+= next_callback ;					// set compare A for callback
@@ -659,7 +660,7 @@ static void update_channels_aux(void)
 static void update_led_status(void)
 {
 	if(IS_INPUT_SIGNAL_on)
-		if(millis()-last_signal>70)
+		if(millis()-last_signal> 70)
 			INPUT_SIGNAL_off;							//no valid signal (PPM or Serial) received for 70ms
 	if(blink<millis())
 	{
@@ -1178,7 +1179,7 @@ void parse_multi_frame()
 				if(bind_counter>2)
 					bind_counter=2;
 			}
-			
+
 	//store current protocol values
 	for(uint8_t i=0;i<3;i++)
 		cur_protocol[i] =  rx_ok_buff[i];
@@ -1256,6 +1257,7 @@ void read_multimodule_config() {
 
 void parse_serial_multi_command()
 {
+	debug("multi command type %d, len %d", rx_buff[2], rx_buff[3]);
 	// Header 'M', 'P, Type, Len
 	if (rx_buff[1] != 'P')
 		return;
@@ -1274,6 +1276,7 @@ void parse_serial_multi_command()
             Serial_write (newconfig);
 			if (newconfig != multi_config)
 			{
+				debug("New multimodule config: %x -> %x", multi_config, newconfig);
 				multi_config = newconfig;
 				eeprom_write_byte(CONFIG_EEPROM_OFFSET, newconfig);
 				// Reinit serial port to enable/disable inversion
@@ -1282,8 +1285,8 @@ void parse_serial_multi_command()
 		}
 		break;
 #endif
-		default:
-			;
+    default:
+        ;
 	}
 }
 #endif
@@ -1346,6 +1349,13 @@ void modules_reset()
 			}
 		#endif // CHECK_FOR_BOOTLOADER
 	#elif defined STM32_BOARD
+        if (IS_TELEMTRY_INVERSION_ON) {
+            TX_INV_on;//activated inverter for both serial TX and RX signals
+            RX_INV_on;
+        } else {
+            TX_INV_off;
+            RX_INV_off;
+        }
 		#ifdef CHECK_FOR_BOOTLOADER
 			if ( boot )
 			{
@@ -1529,7 +1539,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	#ifndef FORCE_GLOBAL_ID
 		uint32_t id=0;
 
-		if(eeprom_read_byte((EE_ADDR)(address+10))==0xf0 && !create_new)
+		if(eeprom_read_byte((EE_ADDR)(address+EEPROM_ID_VALID_OFFSET))==0xf0 && !create_new)
 		{  // TXID exists in EEPROM
 			for(uint8_t i=4;i>0;i--)
 			{
@@ -1662,8 +1672,11 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			else
 			{
 				rx_buff[idx++]=UDR0;		// Store received byte
-				if(idx>=RXBUFFER_SIZE || (rx_buff[0] == 'M' && idx >= 4 && rx_buff[3] == idx-4)) // A full frame has been received or a long enough multicommand message
+
+				if(idx>=RXBUFFER_SIZE || (rx_buff[0] == 'M' && idx >= 4 && rx_buff[3] == idx-4))
 				{
+                    // A full frame has been received or a long enough multicommand message
+					last_serial_input=TCNT1;
 					if(!IS_RX_DONOTUPDTAE_on)
 					{ //Good frame received and main is not working on the buffer
 						memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer

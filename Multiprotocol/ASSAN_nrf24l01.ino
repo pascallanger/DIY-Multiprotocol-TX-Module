@@ -127,6 +127,7 @@ uint16_t ASSAN_callback()
 			phase=ASSAN_DATA2;
 			return 2000;
 		case ASSAN_DATA2:
+		    telemetry_set_input_sync(12000);
 		case ASSAN_DATA3:
 			ASSAN_send_packet();
 			phase++;	// DATA 3 or 4

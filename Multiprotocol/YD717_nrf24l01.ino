@@ -154,9 +154,10 @@ static void __attribute__((unused)) yd717_init()
 
 uint16_t yd717_callback()
 {
-	if(IS_BIND_DONE)
+	if(IS_BIND_DONE) {
+	    telemetry_set_input_sync(YD717_PACKET_PERIOD);
 		yd717_send_packet(0);
-	else
+	} else
 	{
 		if (bind_counter == 0)
 		{

@@ -310,6 +310,7 @@ uint16_t ReadFrSkyX()
 				CC2500_Strobe(CC2500_SFRX);			//flush the RXFIFO
 			}
 			frskyX_data_frame();
+			telemetry_set_input_sync(9000);
 			if ( FrX_send_seq != 0x08 )
 			{
 				FrX_send_seq = ( FrX_send_seq + 1 ) & 0x03 ;

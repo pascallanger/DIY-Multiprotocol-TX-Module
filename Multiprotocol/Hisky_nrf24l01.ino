@@ -223,6 +223,10 @@ uint16_t hisky_cb()
 		default:
 			//Send normal packet
 			phase = 0;
+			if (sub_protocol==HK310)
+			    telemetry_set_input_sync(5000);
+			else
+			    telemetry_set_input_sync(9000);
 			NRF24L01_WritePayload(packet,10);
 			break;
 	}

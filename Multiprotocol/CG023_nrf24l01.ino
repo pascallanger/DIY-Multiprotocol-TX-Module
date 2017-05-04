@@ -145,6 +145,7 @@ uint16_t CG023_callback()
 			BIND_DONE;
 		else
 		{
+		    telemetry_set_input_sync(packet_period);
 			CG023_send_packet(1);
 			bind_counter--;
 		}

@@ -203,6 +203,7 @@ uint16_t ReadJ6Pro()
         case J6PRO_CHAN_1:
             //Keep transmit power updated
             CYRF_SetPower(0x28);
+            telemetry_set_input_sync(24550);
             j6pro_build_data_packet();
             //return 3400;
         case J6PRO_CHAN_2:

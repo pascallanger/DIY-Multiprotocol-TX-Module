@@ -24,7 +24,11 @@ uint8_t RetrySequence ;
 	#define INPUT_SYNC_TIME			100	//in ms
 	#define INPUT_ADDITIONAL_DELAY	100	// in 10µs, 100 => 1000 µs
 	uint32_t lastMulti = 0;
+	uint32_t lastInputSync = 0;
+	uint16_t inputDelay = 0;
+	uint16_t inputRefreshRate = 9000;
 #endif // MULTI_TELEMETRY/MULTI_STATUS
+
 
 #if defined SPORT_TELEMETRY	
 	#define SPORT_TIME 12000	//12ms
@@ -84,6 +88,38 @@ static void multi_send_header(uint8_t type, uint8_t len)
 		Serial_write(type);
     }
 	Serial_write(len);
+}
+
+inline void telemetry_set_input_sync(uint16_t refreshRate)
+{
+    static int c=0;
+#if defined(STM32_BOARD)
+    if (c++%2==0)
+        SPI_CSN_on;
+    else
+       SPI_CSN_off;
+#endif
+    // Only record input Delay after a frame has really been received
+    // Otherwise protocols with faster refresh rates then the TX sends (e.g. 3ms vs 6ms) will screw up the calcualtion
+    inputRefreshRate = refreshRate;
+    if (last_serial_input != 0) {
+        inputDelay = (TCNT1 - last_serial_input)/2;
+        if(inputDelay > 0x8000)
+            inputDelay =inputDelay - 0x8000;
+        last_serial_input=0;
+    }
+
+}
+
+static void mult_send_inputsync()
+{
+    multi_send_header(MULTI_TELEMETRY_INPUTSYNC, 6);
+    Serial_write(inputRefreshRate >> 8);
+    Serial_write(inputRefreshRate & 0xff);
+    Serial_write(inputDelay >> 8);
+    Serial_write(inputDelay & 0xff);
+    Serial_write(INPUT_SYNC_TIME);
+    Serial_write(INPUT_ADDITIONAL_DELAY);
 }
 
 static void multi_send_status()
@@ -847,6 +883,10 @@ void TelemetryUpdate()
 				multi_send_status();
 				lastMulti = now;
 				return;
+			} else if (IS_EXTRA_TELEMETRY_ON && now - lastInputSync > INPUT_SYNC_TIME) {
+			    mult_send_inputsync();
+			    lastInputSync = now;
+			    return;
 			}
 		}
 	#endif

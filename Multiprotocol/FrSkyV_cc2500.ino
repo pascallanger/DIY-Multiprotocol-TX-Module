@@ -125,6 +125,7 @@ uint16_t ReadFRSKYV()
 			prev_option=option;
 		}
 		CC2500_WriteReg(CC2500_0A_CHANNR, chan * 5 + 6);
+		telemetry_set_input_sync(9006);
 		FRSKYV_build_data_packet();
 
 		if (phase == FRSKYV_DATA5)

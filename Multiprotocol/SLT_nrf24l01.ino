@@ -145,6 +145,7 @@ uint16_t SLT_callback()
 	switch (phase)
 	{
 		case SLT_BUILD:
+		    telemetry_set_input_sync(22000);
 			SLT_build_packet();
 			phase++;
 			return 1000;

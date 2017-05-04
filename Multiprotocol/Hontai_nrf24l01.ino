@@ -231,6 +231,7 @@ static void __attribute__((unused)) HONTAI_initialize_txid()
 
 uint16_t HONTAI_callback()
 {
+    uint16_t packet_period = (sub_protocol == FORMAT_FQ777_951) ? FQ777_951_PACKET_PERIOD : HONTAI_PACKET_PERIOD;
 	if(bind_counter!=0)
 	{
 		HONTAI_send_packet(1);
@@ -241,10 +242,12 @@ uint16_t HONTAI_callback()
 			BIND_DONE;
 		}
 	}
-	else
+	else {
+	    telemetry_set_input_sync(packet_period);
 		HONTAI_send_packet(0);
+	}
 
-	return sub_protocol == FORMAT_FQ777_951 ? FQ777_951_PACKET_PERIOD : HONTAI_PACKET_PERIOD;
+	return packet_period;
 }
 
 uint16_t initHONTAI()

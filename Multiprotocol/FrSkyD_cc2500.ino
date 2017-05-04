@@ -156,6 +156,7 @@ uint16_t ReadFrSky_2way()
 	{
 		if (state == FRSKY_DATA1)
 		{
+		telemetry_set_input_sync(9000);
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
 			if (len && len<=(0x11+3))// 20bytes
 			{		

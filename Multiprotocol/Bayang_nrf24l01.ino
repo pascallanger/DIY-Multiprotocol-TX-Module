@@ -249,8 +249,10 @@ uint16_t BAYANG_callback()
 {
 	if(IS_BIND_DONE)
 	{
-		if(packet_count==0)
+		if(packet_count==0) {
+			telemetry_set_input_sync(10000);
 			BAYANG_send_packet(0);
+		}
 		packet_count++;
 		#ifdef BAYANG_HUB_TELEMETRY
 			if (option)

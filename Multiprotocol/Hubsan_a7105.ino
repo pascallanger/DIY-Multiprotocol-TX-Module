@@ -361,6 +361,7 @@ uint16_t ReadHubsan()
 #endif
 				if( phase == DATA_1)
 						A7105_SetPower(); //Keep transmit power in sync
+			    telemetry_set_input_sync(10000);
 				hubsan_build_packet();
 				A7105_Strobe(A7105_STANDBY);
 				uint8_t ch;

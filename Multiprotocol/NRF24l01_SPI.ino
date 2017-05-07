@@ -134,6 +134,7 @@ void NRF24L01_SetBitrate(uint8_t bitrate)
     // Bit 0 goes to RF_DR_HIGH, bit 1 - to RF_DR_LOW
     rf_setup = (rf_setup & 0xD7) | ((bitrate & 0x02) << 4) | ((bitrate & 0x01) << 3);
     NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
+    prev_power = NRF_POWER_0;          // Power setting was just reset.  This will get updated in the next call to SetPower
 }
 
 /*

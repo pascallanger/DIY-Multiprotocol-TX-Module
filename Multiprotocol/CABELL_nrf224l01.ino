@@ -45,7 +45,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define CABELL_OPTION_MASK_CHANNEL_REDUCTION     0x0F
 #define CABELL_OPTION_MASK_RECIEVER_OUTPUT_MODE  0x30
 #define CABELL_OPTION_SHIFT_RECIEVER_OUTPUT_MODE 4
-#define CABELL_OPTION_MASK_MAX_POWER_OVERRIDE    0x80
+#define CABELL_OPTION_MASK_MAX_POWER_OVERRIDE    0x40
 
 typedef struct {
    enum RxMode_t : uint8_t {   // Note bit 8 is used to indicate if the packet is the first of 2 on the channel.  Mask out this bit before using the enum
@@ -60,10 +60,12 @@ typedef struct {
    uint8_t  option;
                           /*   mask 0x0F    : Channel reduction.  The number of channels to not send (subtracted frim the 16 max channels) at least 4 are always sent
                            *   mask 0x30>>4 : Reciever outout mode
-                           *                  0 = Single PPM on individual pins for each channel 
-                           *                  1 = SUM PPM on channel 1 pin
-                           *   mask 0x40>>6   Unused 
-                           *   mask 0x80>>7   Unused by RX.  Contains max power override flag for Multiprotocol T module
+                           *                  0 (00) = Single PPM on individual pins for each channel 
+                           *                  1 (01) = SUM PPM on channel 1 pin
+                           *                  2 (10) = Future use.  Reserved for SBUS output
+                           *                  3 (11) = Unused
+                           *   mask 0x40>>6   Contains max power override flag for Multiprotocol TX module. Also sent to RX
+                           *   mask 0x80>>7   Unused 
                            */  
    uint8_t  modelNum;
    uint8_t  checkSum_LSB; 
@@ -258,8 +260,8 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
       NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x0F);  // RX mode with 16 bit CRC
     }
   #endif
-
   CABELL_SetPower();
+
 }
 
 //-----------------------------------------------------------------------------------------
@@ -364,6 +366,7 @@ static void __attribute__((unused)) CABELL_init()
   NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3F);     // Enable dynamic payload length on all pipes
   NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x04);   // Enable dynamic Payload Length
   NRF24L01_Activate(0x73);
+  prev_power = NRF_POWER_0;
 }
 
 //-----------------------------------------------------------------------------------------
@@ -371,7 +374,7 @@ static void CABELL_SetPower()    // This over-ride the standard Set Power to all
                           // Note that on many modules max power may actually be worse than the normal high power setting
                           // test and only use max if it helps the range
 {
-  if(IS_BIND_DONE_on && !IS_RANGE_FLAG_on && (option & CABELL_OPTION_MASK_MAX_POWER_OVERRIDE)) {   // If we are not in range or bind mode and power setting override is in effect, then set max power, else standard pawer logic
+  if(IS_BIND_DONE_on && !IS_RANGE_FLAG_on && ((option & CABELL_OPTION_MASK_MAX_POWER_OVERRIDE) != 0)) {   // If we are not in range or bind mode and power setting override is in effect, then set max power, else standard pawer logic
     if(prev_power != NRF_POWER_3)   // prev_power is global variable for NRF24L01; NRF_POWER_3 is max power
     {
       uint8_t rf_setup = NRF24L01_ReadReg(NRF24L01_06_RF_SETUP);

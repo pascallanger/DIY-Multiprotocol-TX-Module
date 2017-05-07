@@ -505,7 +505,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
+			if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) || (protocol==MODE_CABELL) )
 		#endif
 				TelemetryUpdate();
 	#endif

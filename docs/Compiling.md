@@ -25,7 +25,10 @@ The procedure below will guide you through all the steps to upload successfully 
 
 ### Connect the programmer
 
-1. Before you connect the programmer make sure that you have selected the 3.3V mode and not 5V. The RF Modules are not 5V tolerant and you will break them with 5V.  On most programmers this is done by moving a jumper. <br> <img src="images/USBasp_Programmer_jumper.png" width="200" height="200" />
+1. Before you connect the programmer make sure that you have selected the 3.3V mode and not 5V. The RF Modules are not 5V tolerant and you will break them with 5V.  On most programmers this is done by moving a jumper.
+
+<img src="images/USBasp_Programmer_jumper.png" width="200" height="200" />
+
 1. Please re-read item 1. above before going on.
 1. Turn the rotary switch on the DIY Multiprotocol module to the 0 position. If you do not have a switch for Serial mode only then it is the same as being in the 0 position. The upload will not work if the switch is in any other position.
 1. Connect the 6-pin programming connector to the 6-pin ASP IVR connector on the DIY Multiprotocol board. Be sure to match the ground pin of the programmer connector to the ground pin on the board.
@@ -48,7 +51,8 @@ If you are looking for a good working USBASP Windows driver, [use this one](http
 ### Customize the firmware to match your hardware and your needs
 All customization is done by editing the ```_Config.h  ``` file in the Multiprotocol Arduino project.  
 
-In the Arduino IDE, click on the down arrow on the far right of the tab bar to show a list of project files (see the red circle on the screenshot below).  Scroll down and select the _Config.h file. <br> <img src="images/Arduino.png" width="600" height="400" />
+In the Arduino IDE, click on the down arrow on the far right of the tab bar to show a list of project files (see the red circle on the screenshot below).  Scroll down and select the _Config.h file.
+<img src="images/Arduino.png" width="600" height="400" />
 
 The file has different sections which are explained in details. The best is to go through them one by one carefully and apply the configuration which matches your needs.
 
@@ -56,7 +60,9 @@ Most of the default settings should get you started quickly. But on modules with
 
 To fill in the "PROTOCOLS TO INCLUDE" section, it would be good to review all the available protocols on the [Protocol Details](../Protocols_Details.md) page and identify which one you would like to add on your module.  
 
-To check that the program will compile correctly and fit in the Atmega press the Check mark as shown below. <br> <img src="images/Arduino_check.jpg" width="99" height="130" />
+To check that the program will compile correctly and fit in the Atmega press the Check mark as shown below.
+
+<img src="images/Arduino_check.jpg" width="99" height="130" />
 
 If you see something like the following, your firmware is still too big and you need to deselect additional protocols:
 > Sketch uses 34,096 bytes (104%) of program storage space. Maximum is 32,768 bytes.

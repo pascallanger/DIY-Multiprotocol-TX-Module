@@ -28,7 +28,7 @@
 
 ### Input Mode - Serial
 
-- Make sure you have done the serial mods as indicated in the [hardware page for your board] (Hardware.md).
+- Make sure you have done the serial mods as indicated in the [hardware page for your board](Hardware.md).
 - Protocol selection dial must be in the 0 position or leave all 4 selection pins unconnected.
 - Often the signal is not sent to the module until the transmitter has performed safety checks (like switch and throttle position settings)
 

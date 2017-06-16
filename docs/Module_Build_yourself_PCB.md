@@ -30,7 +30,7 @@ The schematic for the board is [here](#V23D_Schematic).  Please note that is is 
 ### STM32 powered PCB
 1. The latest STM32 (32-bit) powered PCB V1.0t supporting the 4-in-1 RF module available from OSHPark [here](https://oshpark.com/shared_projects/GX51nEoH).  
 2. The 4-in-1 RF module is available [here](http://www.banggood.com/DIY-2_4G-CC2500-NRF24L01-A7105-CYRF6936-Multi-RF-4-IN-1-Wireless-Module-p-1046308.html) 
-1. The schematic and BOM for this board V1.0t and older boards are available ![here](BOM_DIY_STM32%20\&%20Schematic.md).
+1. The schematic and BOM for this board V1.0t and older boards are available [here](BOM_DIY_STM32%20\&%20Schematic.md).
 
 ### Common parts
 1. A module case that fits your module like the one [here](https://www.xtremepowersystems.net/proddetail.php?prod=XPS-J1CASE) <br> <img src="https://www.xtremepowersystems.net/prodimages/j1case.jpg" width="200" height="180" /> <br> or you can 3D print your own from a selection on Thingiverse ([Example 1](http://www.thingiverse.com/thing:1852868) [Example 2](http://www.thingiverse.com/thing:1661833)). <br> [<img src="http://thingiverse-production-new.s3.amazonaws.com/renders/55/1c/cb/0a/e4/5d2c2b06be7f3f6f8f0ab4638dd7c6fc_preview_featured.jpg" width="250" height="200" /> ](http://www.thingiverse.com/thing:1852868) <br> For 9XR/9XR Pro, a new 3D printed module is available which makes use of the built in antenna in the handle. This means nothing is getting out of the radio back! You can find all details of this module case on [Thingiverse](http://www.thingiverse.com/thing:2050717). <br> <img src="images/9XR_module.jpg" width="113" height="200" /> <img src="images/9XR_module_connector.jpg" width="274" height="200" /> 

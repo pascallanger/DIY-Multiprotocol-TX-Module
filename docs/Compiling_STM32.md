@@ -77,12 +77,13 @@ See below my module for reference
 This method use USB connector on the STM32 V1.0 board or on the maple clone board.  
 1. Install first maple USB driver by running the batch file found in Arduino STM32 package folder ```..\hardware\Arduino_STM32\drivers\win\install_drivers.bat```
 1. Download the free STM32 flash loader demonstrator from [ST.com](http://www.st.com/en/development-tools/flasher-stm32.html) and using a USB-TTL device (like FTDI cable) flash the STM32duino bootloader available from Roger Clark's great STM32 site [here](https://github.com/rogerclarkmelbourne/STM32duino-bootloader/tree/master/STM32F1/binaries) .Use bootloader **generic_boot20_pa1.bin**
-1. Open Arduino IDE,browse to multiprotocol folder,load the sketch multiprotocol.ino.
+1. Open Arduino IDE,browse to multiprotocol folder,load the sketch multiprotocol.ino.Select the serial COM port(see notes below)
 1. In Arduino IDE under "Upload method" select **STM32duino**-bootloader.Click upload ,wait until upload is complete.
 
 Notes:
-- When you use multiSTM32_USB for the first time,the USB drivers are not recognized and port is not open/recognized(arduino IDE port selection is grey/unavailable). After this first time use, any subsequent update of the program, you'll have to select the correct serial port and  upload sketches normally in Arduino using USB port.
+- When you use multiSTM32_USB for the first time,the USB drivers are not recognized and com port is not open/recognized(arduino IDE port selection is grey/unavailable). After this first time use, any subsequent update of the program, you'll have to select the correct serial port and  upload sketches normally in Arduino using USB port.
 - If the initial upload fails, make sure you are running the latest [Java version](https://www.java.com/en/download/)
+- If using Banggood  multi_STM32-USB module follow instructions from step3(as the USB drivers are probably already installed)
 
 ## Flashing precompiled binaries: 
 

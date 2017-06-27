@@ -83,7 +83,7 @@ This method use USB connector on the STM32 V1.0 board or on the maple clone boar
 Notes:
 - When you use multiSTM32_USB for the first time,the USB drivers are not recognized and com port is not open/recognized(arduino IDE port selection is grey/unavailable). After this first time use, any subsequent update of the program, you'll have to select the correct serial port and  upload sketches normally in Arduino using USB port.
 - If the initial upload fails, make sure you are running the latest [Java version](https://www.java.com/en/download/)
-- If using Banggood  multi_STM32-USB module follow instructions from step3(as the USB drivers are probably already installed)
+- If using Banggood  multi_STM32-USB module follow instructions from step1(USB drivers on your computer) and jump after to step 3(most probably bootloader is installed on multi and no need installed again)
 
 ## Flashing precompiled binaries: 
 

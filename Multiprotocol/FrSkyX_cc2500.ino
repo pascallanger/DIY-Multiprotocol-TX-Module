@@ -156,6 +156,8 @@ static void __attribute__((unused)) frskyX_data_frame()
 		seq_last_sent = (seq_last_sent + 1) % 4;
 	else if (seq_last_rcvd == 0x00)
 		seq_last_sent = 1;
+  else
+    seq_last_rcvd = 8;
 	
 	if(sub_protocol & 1 )// in X8 mode send only 8ch every 9ms
 		lpass = 0 ;

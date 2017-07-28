@@ -106,6 +106,19 @@ uint8_t  RX_num;
 	uint8_t calData[48];
 #endif
 
+#ifdef CHECK_FOR_BOOTLOADER
+uint8_t BootTimer ;
+uint8_t BootState ;
+uint8_t NotBootChecking ;
+uint8_t BootCount ;
+
+#define BOOT_WAIT_30_IDLE		0
+#define BOOT_WAIT_30_DATA		1
+#define BOOT_WAIT_20				2
+#define BOOT_READY					3
+
+#endif
+
 //Channel mapping for protocols
 const uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8, AUX9, AUX10};
 const uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
@@ -392,11 +405,90 @@ void setup()
 			protocol=0;
 			servo_max_100=SERIAL_MAX_100; servo_min_100=SERIAL_MIN_100;
 			servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
+#ifdef CHECK_FOR_BOOTLOADER
+			Mprotocol_serial_init(1); 	// Configure serial and enable RX interrupt
+#else
 			Mprotocol_serial_init(); 	// Configure serial and enable RX interrupt
+#endif
 		#endif //ENABLE_SERIAL
 	}
 	servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
 }
+
+
+
+#ifdef CHECK_FOR_BOOTLOADER
+void pollBoot()
+{
+	uint8_t rxchar ;
+	uint8_t lState = BootState ;
+	uint8_t millisTime = millis() ;	// Call this once only
+#ifdef ORANGE_TX
+  if ( USARTC0.STATUS & USART_RXCIF_bm )
+#else
+	if ( UCSR0A & ( 1 << RXC0 ) )
+#endif
+	{
+		rxchar = UDR0 ;
+		BootCount += 1 ;
+		if ( ( lState == BOOT_WAIT_30_IDLE ) || ( lState == BOOT_WAIT_30_DATA ) )
+		{
+			if ( lState == BOOT_WAIT_30_IDLE )	// Waiting for 0x30
+			{
+				BootTimer = millisTime ;	// Start timeout
+			}
+			if ( rxchar == 0x30 )
+			{
+				lState = BOOT_WAIT_20 ;
+			}
+			else
+			{
+				lState = BOOT_WAIT_30_DATA ;
+			}
+		}
+		else if ( lState == BOOT_WAIT_20 )	// Waiting for 0x20
+		{
+			if ( rxchar == 0x20 )
+			{
+				lState = BOOT_READY ;
+			}
+		}
+	}
+	else // No byte received
+	{
+		if ( lState != BOOT_WAIT_30_IDLE )	// Something received
+		{
+			uint8_t time = millisTime - BootTimer ;
+			if ( time > 5 )
+			{
+				if ( BootCount > 2 )
+				{ // Run normally
+					NotBootChecking = 0xFF ;
+					Mprotocol_serial_init( 0 ) ;
+				}
+				else if ( lState == BOOT_READY )
+				{
+					cli();					// Disable global int due to RW of 16 bits registers
+					void (*p)() ;
+#ifndef ORANGE_TX
+					p = (void (*)())0x3F00 ;	// Word address (0x7E00 byte)
+#else
+					p = (void (*)())0x4000 ;	// Word address (0x8000 byte)
+#endif
+					(*p)() ;
+					// go to boot
+				}
+				else
+				{
+					lState = BOOT_WAIT_30_IDLE ;
+					BootCount = 0 ;
+				}
+			}
+		}
+	}
+	BootState = lState ;
+}
+#endif
 
 // Main
 // Protocol scheduler
@@ -485,6 +577,13 @@ void loop()
 uint8_t Update_All()
 {
 	#ifdef ENABLE_SERIAL
+#ifdef CHECK_FOR_BOOTLOADER
+		if ( (mode_select==MODE_SERIAL) && (NotBootChecking == 0) )
+		{
+			pollBoot() ;
+		}
+		else
+#endif
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)		// Serial mode and something has been received
 		{
 			update_serial_data();							// Update protocol and data
@@ -1093,7 +1192,11 @@ void modules_reset()
 	prev_power=0xFD;		// unused power value
 }
 
+#ifdef CHECK_FOR_BOOTLOADER
+void Mprotocol_serial_init( uint8_t boot )
+#else
 void Mprotocol_serial_init()
+#endif
 {
 	#ifdef ORANGE_TX
 		PORTC.OUTSET = 0x08 ;
@@ -1103,12 +1206,23 @@ void Mprotocol_serial_init()
 		USARTC0.BAUDCTRLB = 0 ;
 		
 		USARTC0.CTRLB = 0x18 ;
-		USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+		USARTC0.CTRLA = (USARTC0.CTRLA & 0xCC) | 0x11 ;
 		USARTC0.CTRLC = 0x2B ;
 		UDR0 ;
 		#ifdef INVERT_SERIAL
 			PORTC.PIN3CTRL |= 0x40 ;
 		#endif
+#ifdef CHECK_FOR_BOOTLOADER
+		if ( boot )
+		{
+			USARTC0.BAUDCTRLB = 0 ;
+			USARTC0.BAUDCTRLA = 33 ;		// 57600
+			USARTC0.CTRLA = (USARTC0.CTRLA & 0xC0) ;
+			USARTC0.CTRLC = 0x03 ;	// 8 bit, no parity, 1 stop
+			USARTC0.CTRLB = 0x18 ;		// Enable Tx and Rx
+			PORTC.PIN3CTRL &= ~0x40 ;
+		}
+#endif // CHECK_FOR_BOOTLOADER
 	#elif defined STM32_BOARD
 		usart2_begin(100000,SERIAL_8E2);
 		usart3_begin(100000,SERIAL_8E2);
@@ -1132,6 +1246,16 @@ void Mprotocol_serial_init()
 				initTXSerial( SPEED_100K ) ;
 			#endif //TELEMETRY
 		#endif //DEBUG_TX
+#ifdef CHECK_FOR_BOOTLOADER
+		if ( boot )
+		{
+			UBRR0H = 0 ;
+			UBRR0L = 33 ;		// 57600
+			UCSR0C &= ~_BV(UPM01) ;	// No parity
+			UCSR0B &= ~_BV(RXCIE0);// No rx interrupt
+		  UCSR0A |= _BV(U2X0); //Double speed mode USART0
+		}
+#endif // CHECK_FOR_BOOTLOADER
 	#endif //ORANGE_TX
 }
 

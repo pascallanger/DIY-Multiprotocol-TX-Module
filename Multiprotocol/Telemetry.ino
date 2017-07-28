@@ -31,6 +31,18 @@ uint8_t RetrySequence ;
 	uint8_t sport_counter=0;
 	uint8_t RxBt = 0;
 	uint8_t sport = 0;
+
+struct t_fx_rx_packet
+{
+	uint8_t validSequence ;
+	uint8_t count ;
+	uint8_t payload[6] ;
+} ;
+
+// Store for out of sequence packet
+struct t_fx_rx_packet FrskyxRxTelemetry ;
+
+
 #endif
 #if defined HUB_TELEMETRY
 	#define USER_MAX_BYTES 6
@@ -205,19 +217,73 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		telemetry_lost=0;
 		if (protocol==MODE_FRSKYX)
 		{
-			if ((pktt[5] >> 4 & 0x0f) == 0x08)
-			{  
-				seq_last_sent = 8;
-				seq_last_rcvd = 0;
-				pass=0;
-			} 
-			else
+			uint16_t lcrc = crc_x(&pkt[3], len-7) ;
+			if ( ( (lcrc >> 8) == pkt[len-4]) && ( (lcrc & 0x00FF ) == pkt[len-3]) )
 			{
-				if ((pktt[5] >> 4 & 0x03) == (seq_last_rcvd + 1) % 4)
-					seq_last_rcvd = (seq_last_rcvd + 1) % 4;
+				// Check if in sequence
+				if ( (pkt[5] & 0x0F) == 0x08 )
+				{
+					FrX_receive_seq = 0x08 ;
+				}
+				else if ( (pkt[5] & 0x03) == (FrX_receive_seq & 0x03 ) )
+				{
+					// OK to process
+					FrX_receive_seq = ( FrX_receive_seq + 1 ) & 0x03 ;
+					if ( FrskyxRxTelemetry.validSequence & 0x80 )
+					{
+						FrX_receive_seq = ( FrskyxRxTelemetry.validSequence + 1 ) & 3 ;
+					}
+				}
 				else
-					pass=0;//reset if sequence wrong
+				{
+					// Save and request correct packet
+					struct t_fx_rx_packet *p ;
+					uint8_t count ;
+		// pkt[4] RSSI
+		// pkt[5] sequence control
+		// pkt[6] payload count
+		// pkt[7-12] payload			
+					pktt[6] = 0 ; // Don't process
+					p = &FrskyxRxTelemetry ;
+					count = pkt[6] ;
+					if ( count <= 6 )
+					{
+						p->count = count ;
+						for ( uint8_t i = 0 ; i < count ; i += 1 )
+						{
+							p->payload[i] = pkt[i+7] ;
+						}
+						p->validSequence = 0x80 | ( pkt[5] & 0x03 ) ;
+					}
+					FrX_receive_seq = ( FrX_receive_seq & 0x03 ) | 0x04 ;	// Request re-transmission
+				}
+
+				if (((pktt[5] >> 4) & 0x0f) == 0x08)
+				{
+					FrX_send_seq = 0 ;
+//					FrX_receive_seq = 0x08 ;
+				}
 			}
+			
+//			packet[21] = (FrX_receive_seq << 4) | FrX_send_seq ;//8 at start
+//			if ( FrX_send_seq != 0x08 )
+//			{
+//				FrX_send_seq = ( FrX_send_seq + 1 ) & 0x03 ;
+//			}
+			 
+//			if ((pktt[5] >> 4 & 0x0f) == 0x08)
+//			{  
+//				seq_last_sent = 8;
+//				seq_last_rcvd = 0;
+//				pass=0;
+//			} 
+//			else
+//			{
+//				if ((pktt[5] >> 4 & 0x03) == (seq_last_rcvd + 1) % 4)
+//					seq_last_rcvd = (seq_last_rcvd + 1) % 4;
+//				else
+//					pass=0;//reset if sequence wrong
+//			}
 		}
 #endif
 	}
@@ -573,8 +639,20 @@ void TelemetryUpdate()
 				else 
 					RxBt = (pktt[4]<<1) + 1 ;
 				if(pktt[6] && pktt[6]<=6)
+				{
 					for (uint8_t i=0; i < pktt[6]; i++)
 						proces_sport_data(pktt[7+i]);
+					if ( FrskyxRxTelemetry.validSequence & 0x80 )
+					{
+						// Process out of sequence packet
+						for (uint8_t i=0; i < FrskyxRxTelemetry.count ; i++)
+						{
+							proces_sport_data( FrskyxRxTelemetry.payload[i] ) ;
+						}
+//						FrX_receive_seq = ( FrskyxRxTelemetry.validSequence + 1 ) & 3 ;
+						FrskyxRxTelemetry.validSequence = 0 ;
+					}
+				}
 				telemetry_link=0;
 			}
 			uint32_t now = micros();

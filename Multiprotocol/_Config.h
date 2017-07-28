@@ -49,6 +49,15 @@
 //The goal is to prevent binding other people's model when powering up the TX, changing model or scanning through protocols.
 #define WAIT_FOR_BIND
 
+/*************************/
+/*** BOOTLOADER USE     ***/
+/*************************/
+#define CHECK_FOR_BOOTLOADER
+//Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
+//1. Start ersky9x in bootloader mode and copy the multi.hex file into the firmware directory on the SD card.
+//2. Disconnect the USB, then press EXIT LONG while holding the horizontal trims APART to enter "maintenance mode".
+//3. Select "Update Multi", then HEX mode, then select the file and start the flash.
+//4. When finished, EXIT back to reboot in normal mode.
 
 /****************/
 /*** RF CHIPS ***/

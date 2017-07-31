@@ -425,6 +425,8 @@ void pollBoot()
 	uint8_t millisTime = millis() ;	// Call this once only
 #ifdef ORANGE_TX
   if ( USARTC0.STATUS & USART_RXCIF_bm )
+#elif defined STM32_BOARD
+  if ( USART2_BASE->SR & USART_SR_RXNE )
 #else
 	if ( UCSR0A & ( 1 << RXC0 ) )
 #endif
@@ -461,13 +463,61 @@ void pollBoot()
 			uint8_t time = millisTime - BootTimer ;
 			if ( time > 5 )
 			{
+#ifdef	STM32_BOARD
+				if ( BootCount > 4 )
+#else
 				if ( BootCount > 2 )
+#endif
 				{ // Run normally
 					NotBootChecking = 0xFF ;
 					Mprotocol_serial_init( 0 ) ;
 				}
 				else if ( lState == BOOT_READY )
 				{
+#ifdef	STM32_BOARD
+#define SCS_BASE            (0xE000E000)                              /*!< System Control Space Base Address */
+#define SCB_BASE            (SCS_BASE +  0x0D00)                      /*!< System Control Block Base Address */
+#define SCB                 ((SCB_Type *)           SCB_BASE)         /*!< SCB configuration struct          */
+#define     __I     volatile                /*!< defines 'read only' permissions      */
+#define     __IO    volatile                  /*!< defines 'read / write' permissions   */
+typedef struct
+{
+  __I  uint32_t CPUID;                        /*!< Offset: 0x00  CPU ID Base Register                                  */
+  __IO uint32_t ICSR;                         /*!< Offset: 0x04  Interrupt Control State Register                      */
+  __IO uint32_t VTOR;                         /*!< Offset: 0x08  Vector Table Offset Register                          */
+  __IO uint32_t AIRCR;                        /*!< Offset: 0x0C  Application Interrupt / Reset Control Register        */
+  __IO uint32_t SCR;                          /*!< Offset: 0x10  System Control Register                               */
+  __IO uint32_t CCR;                          /*!< Offset: 0x14  Configuration Control Register                        */
+  __IO uint8_t  SHP[12];                      /*!< Offset: 0x18  System Handlers Priority Registers (4-7, 8-11, 12-15) */
+  __IO uint32_t SHCSR;                        /*!< Offset: 0x24  System Handler Control and State Register             */
+  __IO uint32_t CFSR;                         /*!< Offset: 0x28  Configurable Fault Status Register                    */
+  __IO uint32_t HFSR;                         /*!< Offset: 0x2C  Hard Fault Status Register                            */
+  __IO uint32_t DFSR;                         /*!< Offset: 0x30  Debug Fault Status Register                           */
+  __IO uint32_t MMFAR;                        /*!< Offset: 0x34  Mem Manage Address Register                           */
+  __IO uint32_t BFAR;                         /*!< Offset: 0x38  Bus Fault Address Register                            */
+  __IO uint32_t AFSR;                         /*!< Offset: 0x3C  Auxiliary Fault Status Register                       */
+  __I  uint32_t PFR[2];                       /*!< Offset: 0x40  Processor Feature Register                            */
+  __I  uint32_t DFR;                          /*!< Offset: 0x48  Debug Feature Register                                */
+  __I  uint32_t ADR;                          /*!< Offset: 0x4C  Auxiliary Feature Register                            */
+  __I  uint32_t MMFR[4];                      /*!< Offset: 0x50  Memory Model Feature Register                         */
+  __I  uint32_t ISAR[5];                      /*!< Offset: 0x60  ISA Feature Register                                  */
+} SCB_Type;
+#define SCB_AIRCR_VECTKEY_Pos              16                                             /*!< SCB AIRCR: VECTKEY Position */
+#define SCB_AIRCR_SYSRESETREQ_Pos           2                                             /*!< SCB AIRCR: SYSRESETREQ Position */
+#define SCB_AIRCR_PRIGROUP_Pos              8                                             /*!< SCB AIRCR: PRIGROUP Position */
+#define SCB_AIRCR_PRIGROUP_Msk             (7ul << SCB_AIRCR_PRIGROUP_Pos)                /*!< SCB AIRCR: PRIGROUP Mask */
+#define SCB_AIRCR_SYSRESETREQ_Msk          (1ul << SCB_AIRCR_SYSRESETREQ_Pos)             /*!< SCB AIRCR: SYSRESETREQ Mask */
+
+//				  NVIC_SystemReset() ;
+//static __INLINE void NVIC_SystemReset(void)
+					{
+  					SCB->AIRCR = ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |
+                 (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
+                 SCB_AIRCR_SYSRESETREQ_Msk) ;                   /* Keep priority group unchanged */
+					  asm("dsb");
+					  while(1) ;                                                    /* wait until reset */
+					}
+#else
 					cli();					// Disable global int due to RW of 16 bits registers
 					void (*p)() ;
 #ifndef ORANGE_TX
@@ -477,6 +527,7 @@ void pollBoot()
 #endif
 					(*p)() ;
 					// go to boot
+#endif
 				}
 				else
 				{
@@ -1224,9 +1275,23 @@ void Mprotocol_serial_init()
 		}
 #endif // CHECK_FOR_BOOTLOADER
 	#elif defined STM32_BOARD
+#ifdef CHECK_FOR_BOOTLOADER
+		if ( boot )
+		{
+			usart2_begin(57600,SERIAL_8N1);
+			USART2_BASE->CR1 &= ~USART_CR1_RXNEIE ;
+			(void)UDR0 ;
+		}
+		else
+		{
+			usart2_begin(100000,SERIAL_8E2);
+			USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
+		}
+#else
 		usart2_begin(100000,SERIAL_8E2);
-		usart3_begin(100000,SERIAL_8E2);
 		USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
+#endif // CHECK_FOR_BOOTLOADER
+		usart3_begin(100000,SERIAL_8E2);
 		USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable 
 		USART2_BASE->CR1 &= ~ USART_CR1_TE;//disable transmit
 	#else

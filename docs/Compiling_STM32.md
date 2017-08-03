@@ -46,9 +46,10 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
 
 ### Flashing the multimodule
 
-There are three options for flashing the firmware. But We will present here only 2 methods ,the third one is presented in advanced topics.
+There are three options for flashing the firmware. But We will present here only 3 methods ,the 4-th one is presented in advanced topics.
 The first (and strongly recommended) is flashing it while it is plugged into and powered by the transmitter.The second is preparing the board for flashing with a USB cable. 
 The second  method is definitely the easiest in the long-term, but it does require the USB bord and setting up the bootloader on the STM32 MCU.
+The third method is also highly recommended and involving flashing using TX (firmware).At this methid is available for 9X ,9X pro ,Taranis with ersky9X fimrware.
 
 #### Option 1: Flashing with Tx power(highly recommended)
 
@@ -85,6 +86,14 @@ Notes:
 - More  explanations how all these work you find [here](http://www.stm32duino.com/viewtopic.php?f=32&t=1774_)
 - If the initial upload fails, make sure you are running the latest [Java version](https://www.java.com/en/download/)
 - If using Banggood  multiSTM32_USB module, follow instructions from step1(USB drivers on your computer) and jump after, to step 3(most probably generic bootloader is installed on multi module and no need to be installed again).I don't have one for test so this is an educated guess.
+
+#### Option 3: Flashing with TX(firmware)
+1. Flash new STM32 bootloader(StmBoot) on multimodule.You have 2 options here.
+- Flash precompiled binary **StmBoot.ino.generic_stm32f103c** using ST Flash loader demonstrator and  USB serial, with same custom cable presented above.This process is the same as flashing with precompiled binaries.
+- Compile Stmboot files ,**Stmboot.ino** file using arduino IDE ,select Tools ,Upload method ,**"Serial" **and press upload button.All this setup is  using the same custom cable and USB-serial device(FTDI) as before.
+1. Compile multiprotocol source in arduino IDE ,choose this time Upload method **STM32duino bootloader** ,select **"Export compiled Binary"** to show the binary file in the same folder as source.
+1.Take this resulted binary file and move it to TX SD card ,firmware folder.
+
 
 ## Flashing precompiled binaries: 
 

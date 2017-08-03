@@ -89,10 +89,14 @@ Notes:
 
 #### Option 3: Flashing with TX(firmware)
 1. Flash new STM32 bootloader(StmBoot) on multimodule.You have 2 options here.
+
 - Flash precompiled binary **StmBoot.ino.generic_stm32f103c** using ST Flash loader demonstrator and  USB serial, with same custom cable presented above.This process is the same as flashing with precompiled binaries.
 - Compile Stmboot files ,**Stmboot.ino** file using arduino IDE ,select Tools ,Upload method ,**"Serial" **and press upload button.All this setup is  using the same custom cable and USB-serial device(FTDI) as before.
+
 1. Compile multiprotocol source in arduino IDE ,choose this time Upload method **STM32duino bootloader** ,select **"Export compiled Binary"** to show the binary file in the same folder as source.
-1.Take this resulted binary file and move it to TX SD card ,firmware folder.
+1. Take this resulted binary file and move it to TX SD card ,firmware folder.
+1. Now flash the TX with the last TX firmware(for ersky9x is version P221 "e2" test version and higher).
+1. Enter in TX maintenance mode(for ersky9X start TX with both bottom trims pushed outwards).Select **Update multi** press menu button then the multiprotocol.bin file (see the correct name) select also the right com port,update and press menu for flashing. You'll see a bar fill slowly .Wait for the procces to be complete
 
 
 ## Flashing precompiled binaries: 

@@ -87,17 +87,18 @@ Notes:
 - If the initial upload fails, make sure you are running the latest [Java version](https://www.java.com/en/download/)
 - If using Banggood  multiSTM32_USB module, follow instructions from step1(USB drivers on your computer) and jump after, to step 3(most probably generic bootloader is installed on multi module and no need to be installed again).I don't have one for test so this is an educated guess.
 
-#### Option 3: Flashing with TX(firmware)
-1. Flash new STM32 bootloader(StmBoot) on multimodule.You have 2 options here.
+#### Option 3: Flashing with TX radio(firmware)
+1. Flash new STM32 bootloader(StmBoot) on multimodule.You have 2 options here.You can use one or the other.
 
-- Flash precompiled binary **StmBoot.ino.generic_stm32f103c** using ST Flash loader demonstrator and  USB serial, with same custom cable presented above.This process is the same as flashing with precompiled binaries.
-- Compile Stmboot files ,**Stmboot.ino** file using arduino IDE ,select Tools ,Upload method ,**"Serial" **and press upload button.All this setup is  using the same custom cable and USB-serial device(FTDI) as before.
+- Flash precompiled binary **StmBoot.ino.generic_stm32f103c** using **ST Flash loader demonstrator** and  USB serial device(FTDI) , with same custom cable presented above.This process is the same as flashing with precompiled binaries.For BG(green) module you can folow the paper instructions for flashing coming with the module using bridge pins  provided.
+- Or you can compile Stmboot files yourself ,**Stmboot.ino** file using arduino IDE ,select Tools ,Upload method ,**"Serial" **and press upload button.All this setup is  using the same custom cable and USB-serial device(FTDI) as before.
+- After this process is complete switch off TX,remove cables FTDI serila device and/or mutimodule jumper used for flashing.The multimodule should be back inthe same state as before.
 
 1. Compile multiprotocol source in arduino IDE ,choose this time Upload method **STM32duino bootloader** ,select **"Export compiled Binary"** to show the binary file in the same folder as source.
-1. Take this resulted binary file and move it to TX SD card ,firmware folder.
-1. Now flash the TX with the last TX firmware(for ersky9x is version P221 "e2" test version and higher).
-1. Enter in TX maintenance mode(for ersky9X start TX with both bottom trims pushed outwards).Select **Update multi** press menu button then the multiprotocol.bin file (see the correct name) select also the right com port,update and press menu for flashing. You'll see a bar fill slowly .Wait for the procces to be complete
-
+1. Take copy of the resulted binary file, to TX radio SD card ,the firmware folder.
+1. Now flash the TX radio  with the last firmware(for ersky9x is version P221 "e2" test version and higher).
+1. Enter in TX radio maintenance mode(for ersky9X start TX radio with both bottom trims pushed outwards).Select **Update multi** press menu button select also the right com port,update ,then the multiprotocol.bin file (see the correct name) and press menu and again  for flashing. You'll see a bar fill slowly .Wait for the procces to be complete.Press exit( or switch off TX) several times to come out of the maintenace mode.
+1. Any subsequent update of the multiprotocol will follow 2-3 and 5-6 steps.There is no need anymore USB serial device or cables for flashing.
 
 ## Flashing precompiled binaries: 
 

@@ -1,4 +1,3 @@
-I've updated ersky9x for the 9Xtreme to support flashing an internal Multi module, worked fine using COM2.
 
 To use this bootloader, you will need first to flash it to the module. 
 Download the source files from the Github repository. Double click on the StmBoot.ino file to open the Arduino IDE. I'm assuming you already have this configured for building for the STM processor as it is needed for the Multi code.
@@ -11,7 +10,7 @@ Next, build the Multi code for flashing using a bootloader, in "Tools", set the 
 then use the "Export compiled binary" option to build the Multi firmware. This will put a .bin file in the sketch directory, you may wish to rename the file to have a shorter filename.
  Copy this file to "FIRMWARE" directory of the SD card in your radio.
 
-You will also need to update the ersky9x firmware on your radio with the P221 "e2" test version (which I'll post soon). 
+You will also need to update the ersky9x firmware on your radio with the P221 "e2" test version and higher.
 Start the radio in "maintenance mode", select "Update Multi", select the flashing options that depend on how your module is installed, and choose "Update". 
 Select the file you put on the SD card and confirm to start flashing.
 

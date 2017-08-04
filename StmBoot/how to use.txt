@@ -10,7 +10,7 @@ Next, build the Multi code for flashing using a bootloader, in "Tools", set the 
 then use the "Export compiled binary" option to build the Multi firmware. This will put a .bin file in the sketch directory, you may wish to rename the file to have a shorter filename.
  Copy this file to "FIRMWARE" directory of the SD card in your radio.
 
-You will also need to update the ersky9x firmware on your radio with the P221 "e2" test version and higher.
+You will also need to update the ersky9x firmware on your radio with the P221 "e2" test version or higher.
 Start the radio in "maintenance mode", select "Update Multi", select the flashing options that depend on how your module is installed, and choose "Update". 
 Select the file you put on the SD card and confirm to start flashing.
 

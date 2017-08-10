@@ -5,7 +5,7 @@
  To use this software, you must adhere to the license terms described below, and assume all responsibility for the use
  of the software.  The user is responsible for all consequences or damage that may result from using this software.
  The user is responsible for ensuring that the hardware used to run this software complies with local regulations and that 
- any radio signal generated or recieved from use of this software is legal for that user to generate.  The author(s) of this software 
+ any radio signal generated or received from use of this software is legal for that user to generate.  The author(s) of this software 
  assume no liability whatsoever.  The author(s) of this software is not responsible for legal or civil consequences of 
  using this software, including, but not limited to, any damages cause by lost control of a vehicle using this software.  
  If this software is copied or modified, this disclaimer must accompany all copies.
@@ -23,6 +23,8 @@ Multiprotocol is distributed in the hope that it will be useful,
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+ // The Receiver for this protocol is available at: https://github.com/soligen2010/RC_RX_CABELL_V3_FHSS
 
 
 #if defined(CABELL_NRF24L01_INO)
@@ -58,13 +60,13 @@ typedef struct {
    } RxMode;
    uint8_t  reserved = 0;
    uint8_t  option;
-                          /*   mask 0x0F    : Channel reduction.  The number of channels to not send (subtracted frim the 16 max channels) at least 4 are always sent
-                           *   mask 0x30>>4 : Reciever outout mode
+                          /*   mask 0x0F    : Channel reduction.  The number of channels to not send (subtracted from the 16 max channels) at least 4 are always sent
+                           *   mask 0x30>>4 : Receiver output mode
                            *                  0 (00) = Single PPM on individual pins for each channel 
                            *                  1 (01) = SUM PPM on channel 1 pin
                            *                  2 (10) = Future use.  Reserved for SBUS output
                            *                  3 (11) = Unused
-                           *   mask 0x40>>6   Contains max power override flag for Multiprotocol TX module. Also sent to RX
+                           *   mask 0x40>>6   Contains max power override flag for Multi-protocol TX module. Also sent to RX
                            *   mask 0x80>>7   Unused 
                            */  
    uint8_t  modelNum;
@@ -81,7 +83,7 @@ static uint8_t __attribute__((unused)) CABELL_getNextChannel (uint8_t seqArray[]
    * Each time the channel is changes, bands change in a way so that the next channel will be in a
    * different non-adjacent band. Both the band changes and the index in seqArray is incremented.
    */
-  prevChannel -= CABELL_RADIO_MIN_CHANNEL_NUM;                             // Subtract CABELL_RADIO_MIN_CHANNEL_NUM becasue it was added to the return value
+  prevChannel -= CABELL_RADIO_MIN_CHANNEL_NUM;                             // Subtract CABELL_RADIO_MIN_CHANNEL_NUM because it was added to the return value
   prevChannel = constrain(prevChannel,0,(seqArraySize * 5)     );    // Constrain the values just in case something bogus was sent in.
   
   uint8_t currBand = prevChannel / seqArraySize;             
@@ -114,19 +116,19 @@ static void __attribute__((unused)) CABELL_get_telemetry()
     telemetry_lost=0;
   }
 
-  // Process incomming telementry packet of it was recieved
+  // Process incoming telemetry packet of it was received
   if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))  { // data received from model
     NRF24L01_ReadPayload(packet, CABELL_TELEMETRY_PACKET_LENGTH);
-    if ((packet[0] & 0x7F) == CABELL_RxTxPacket_t::RxMode_t::telemetryResponse)  // ignore high order bit in compare becasue it toggles with each packet
+    if ((packet[0] & 0x7F) == CABELL_RxTxPacket_t::RxMode_t::telemetryResponse)  // ignore high order bit in compare because it toggles with each packet
     {
       RX_RSSI = packet[1];   // Packet rate 0 to 255 where 255 is 100% packet rate
-      v_lipo1 = packet[2];   // Directly from analog input of reciever, but reduced to 8-bit depth (0 to 255).  Scaling depends on the input to the analog pin of the reciever.
-      v_lipo2 = packet[3];   // Directly from analog input of reciever, but reduced to 8-bit depth (0 to 255).  Scaling depends on the input to the analog pin of the reciever.
+      v_lipo1 = packet[2];   // Directly from analog input of receiver, but reduced to 8-bit depth (0 to 255).  Scaling depends on the input to the analog pin of the receiver.
+      v_lipo2 = packet[3];   // Directly from analog input of receiver, but reduced to 8-bit depth (0 to 255).  Scaling depends on the input to the analog pin of the receiver.
       telemetry_counter++;      
       if(telemetry_lost==0) telemetry_link=1;
     }
   } else {
-    // If no telemetry packet was recieved then delay by the typical telemetry packet processing time
+    // If no telemetry packet was received then delay by the typical telemetry packet processing time
     // This is done to try to keep the sendPacket process timing more consistent. Since the SPI payload read takes some time
     delayMicroseconds(50);
   }
@@ -139,7 +141,7 @@ static void __attribute__((unused)) CABELL_get_telemetry()
 static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 {  
   #if defined TELEMETRY  
-    if (!bindMode && (sub_protocol == CABELL_V3_TELEMETRY))  { // check for incommimg packet and switch radio back to TX mode if we were listening for telemetry      
+    if (!bindMode && (sub_protocol == CABELL_V3_TELEMETRY))  { // check for incoming packet and switch radio back to TX mode if we were listening for telemetry      
       CABELL_get_telemetry();
     }
   #endif
@@ -232,7 +234,7 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
  
   uint8_t* p = reinterpret_cast<uint8_t*>(&TxPacket.RxMode);
   *p &= 0x7F;                  // Make sure 8th bit is clear
-  *p |= (packet_count++)<<7;   // This causes the 8th bit of the first byte to toggle with each xmit so consecrutive payloads are not identical.
+  *p |= (packet_count++)<<7;   // This causes the 8th bit of the first byte to toggle with each xmit so consecutive payloads are not identical.
                                // This is a work around for a reported bug in clone NRF24L01 chips that mis-took this case for a re-transmit of the same packet.
 
   CABELL_SetPower();
@@ -241,8 +243,8 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
   #if defined TELEMETRY 
     if (!bindMode && (sub_protocol == CABELL_V3_TELEMETRY))   { // switch radio to rx as soon as packet is sent  
       // calculate transmit time based on packet size and data rate of 1MB per sec
-      // This is done becasue polling the status register during xmit casued issues.
-      // bits = packstsize * 8  +  73 bits overhead
+      // This is done because polling the status register during xmit caused issues.
+      // bits = packst_size * 8  +  73 bits overhead
       // at 250 Kbs per sec, one bit is 4 uS
       // then add 140 uS which is 130 uS to begin the xmit and 10 uS fudge factor
       delayMicroseconds(((((unsigned long)packetSize * 8ul)  +  73ul) * 4ul) + 140ul)   ;
@@ -262,10 +264,10 @@ static void __attribute__((unused)) CABELL_getChannelSequence (uint8_t outArray[
    * There are numChannels! permutations for arranging the channels
    * one of these permutations will be calculated based on the permutation input
    * permutation should be between 1 and numChannels! but the routine will constrain it
-   * if these bounds are exceeded.  Typically the radio's unique TX ID shouldbe used.
+   * if these bounds are exceeded.  Typically the radio's unique TX ID should be used.
    * 
-   * The maximum numChannels is 20.  Anything larget than this will cause the uint64_t
-   * variables to overflow, yielding unknown resutls (possibly infinate loop?).  Therefor
+   * The maximum numChannels is 20.  Anything larger than this will cause the uint64_t
+   * variables to overflow, yielding unknown results (possibly infinite loop?).  Therefor
    * this routine constrains the value.
    */  
   uint64_t i;   //iterator counts numChannels
@@ -280,7 +282,7 @@ static void __attribute__((unused)) CABELL_getChannelSequence (uint8_t outArray[
     outArray[i-1] = i-1;            //  Initialize array with the sequence
   }
   
-  permutation = (permutation % numChannelsFactorial) + 1;    // permutation must be between 1 and n! or this algorithm will infinate loop
+  permutation = (permutation % numChannelsFactorial) + 1;    // permutation must be between 1 and n! or this algorithm will infinite loop
 
   //Rearrange the array elements based on the permutation selected
   for (i=0, permutation--; i<numChannels; i++ ) {
@@ -336,7 +338,7 @@ static void __attribute__((unused)) CABELL_init()
   NRF24L01_Initialize();
   CABELL_SetPower();
   NRF24L01_SetBitrate(NRF24L01_BR_250K);           // slower data rate gives better range/reliability
-  NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowledgement on all data pipes  
+  NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowledgment on all data pipes  
   NRF24L01_SetTxRxMode(TX_EN);   //Power up and 16 bit CRC
 
   CABELL_setAddress();
@@ -361,7 +363,7 @@ static void CABELL_SetPower()    // This over-ride the standard Set Power to all
                           // Note that on many modules max power may actually be worse than the normal high power setting
                           // test and only use max if it helps the range
 {
-  if(IS_BIND_DONE_on && !IS_RANGE_FLAG_on && ((option & CABELL_OPTION_MASK_MAX_POWER_OVERRIDE) != 0)) {   // If we are not in range or bind mode and power setting override is in effect, then set max power, else standard pawer logic
+  if(IS_BIND_DONE_on && !IS_RANGE_FLAG_on && ((option & CABELL_OPTION_MASK_MAX_POWER_OVERRIDE) != 0)) {   // If we are not in range or bind mode and power setting override is in effect, then set max power, else standard power logic
     if(prev_power != NRF_POWER_3)   // prev_power is global variable for NRF24L01; NRF_POWER_3 is max power
     {
       uint8_t rf_setup = NRF24L01_ReadReg(NRF24L01_06_RF_SETUP);

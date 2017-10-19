@@ -136,7 +136,8 @@ enum CG023
 enum BAYANG
 {
     BAYANG	= 0,
-    H8S3D	= 1
+    H8S3D	= 1,
+    X16_AH  = 2,
 };
 enum MT99XX
 {
@@ -537,6 +538,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==BAYANG
 			BAYANG		0
 			H8S3D		1
+            X16_AH      2
 		sub_protocol==MT99XX
 			MT99		0
 			H7			1

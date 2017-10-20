@@ -71,14 +71,14 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	else
 	{
 		uint16_t val;
-        switch (sub_protocol) {
-            case X16_AH:
-                packet[0] = 0xA6;
-                break;
-            default:
-                packet[0] = 0xA5;
-                break;
-        }
+		switch (sub_protocol) {
+			case X16_AH:
+				packet[0] = 0xA6;
+				break;
+			default:
+				packet[0] = 0xA5;
+				break;
+		}
 		packet[1] = 0xFA;		// normal mode is 0xf7, expert 0xfa
 		//Flags packet[2]
 		packet[2] = 0x00;
@@ -131,7 +131,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	}
 	
 	packet[14] = 0;
-    for (uint8_t i=0; i < BAYANG_PACKET_SIZE-1; i++)
+	for (uint8_t i=0; i < BAYANG_PACKET_SIZE-1; i++)
 		packet[14] += packet[i];
 
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? bayang_bind_chan:hopping_frequency[hopping_frequency_no++]);
@@ -143,19 +143,19 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 
 	XN297_WritePayload(packet, BAYANG_PACKET_SIZE);
 
-    NRF24L01_SetTxRxMode(TXRX_OFF);
-    NRF24L01_SetTxRxMode(TX_EN);
+	NRF24L01_SetTxRxMode(TXRX_OFF);
+	NRF24L01_SetTxRxMode(TX_EN);
 
 	// Power on, TX mode, 2byte CRC
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 
 	#ifdef BAYANG_HUB_TELEMETRY
-    if (option)
+	if (option)
 	{	// switch radio to rx as soon as packet is sent
- 		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)));
+		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)));
 		NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x03);
-    }
+	}
 	#endif
 
 	NRF24L01_SetPower();	// Set tx_power
@@ -202,16 +202,16 @@ static void __attribute__((unused)) BAYANG_init()
 
 	NRF24L01_FlushTx();
 	NRF24L01_FlushRx();
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
+	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
-    NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
-    NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, BAYANG_PACKET_SIZE);
-    NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
-    NRF24L01_SetPower();
-    NRF24L01_Activate(0x73);    // Activate feature register
-    NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00); // Disable dynamic payload length on all pipes
-    NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
-    NRF24L01_Activate(0x73);
+	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
+	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, BAYANG_PACKET_SIZE);
+	NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
+	NRF24L01_SetPower();
+	NRF24L01_Activate(0x73);    // Activate feature register
+	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00); // Disable dynamic payload length on all pipes
+	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
+	NRF24L01_Activate(0x73);
 }
 
 uint16_t BAYANG_callback()

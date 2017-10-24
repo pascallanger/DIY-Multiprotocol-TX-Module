@@ -305,6 +305,7 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_BAYANG
 		BAYANG
 		H8S3D
+		X16_AH
 	MODE_ESKY
 		NONE
 	MODE_MT99XX

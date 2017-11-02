@@ -209,6 +209,11 @@
 	#define PPM_MIN_100	1100	//	100%
 	#define PPM_MAX_125	2000	//	125%
 	#define PPM_MIN_125	1000	//	125%
+	
+	#define PPM_MAP		1		// MAP PPM to SERIAL
+	#define PPM_CHG		5		// channel for switch ELEVATOR / RUDDER
+	#define PPM_CHG_A	ELEVATOR		// channel for switch ELEVATOR / RUDDER
+	#define PPM_CHG_B	AILERON		// channel for switch ELEVATOR / RUDDER
 #endif
 
 // The line below is used to set the minimum number of channels which the module should receive to consider a PPM frame valid.

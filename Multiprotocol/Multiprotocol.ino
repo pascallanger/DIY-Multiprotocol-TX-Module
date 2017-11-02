@@ -359,8 +359,13 @@ void setup()
 		if(PPM_prot[mode_select].power)		POWER_FLAG_on;
 		if(PPM_prot[mode_select].autobind)	AUTOBIND_FLAG_on;
 		mode_select++;
-		servo_max_100=PPM_MAX_100; servo_min_100=PPM_MIN_100;
-		servo_max_125=PPM_MAX_125; servo_min_125=PPM_MIN_125;
+		#ifdef PPM_MAP
+			servo_max_100=SERIAL_MAX_100; servo_min_100=SERIAL_MIN_100;
+			servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
+		#else
+			servo_max_100=PPM_MAX_100; servo_min_100=PPM_MIN_100;
+			servo_max_125=PPM_MAX_125; servo_min_125=PPM_MIN_125;
+		#endif // PPM_MAP
 
 		protocol_init();
 
@@ -496,15 +501,30 @@ uint8_t Update_All()
 	#ifdef ENABLE_PPM
 		if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)		// PPM mode and a full frame has been received
 		{
+			#ifdef PPM_CHG
+				boolean PPM_CHG_is_on = (PPM_data[PPM_CHG-1]>PPM_MAX_COMMAND) ? 1 : 0;
+			#endif // PPM_CHG
 			for(uint8_t i=0;i<MAX_PPM_CHANNELS;i++)
 			{ // update servo data without interrupts to prevent bad read in protocols
 				uint16_t temp_ppm ;
 				cli();										// disable global int
 				temp_ppm = PPM_data[i] ;
 				sei();										// enable global int
-				if(temp_ppm<PPM_MIN_125) temp_ppm=PPM_MIN_125;
-				else if(temp_ppm>PPM_MAX_125) temp_ppm=PPM_MAX_125;
-				Servo_data[i]= temp_ppm ;
+					#ifdef PPM_MAP
+					temp_ppm = map(temp_ppm, PPM_MIN_100, PPM_MAX_100, SERIAL_MIN_100, SERIAL_MAX_100);
+					if(temp_ppm<SERIAL_MIN_125) temp_ppm=SERIAL_MIN_125;
+					else if(temp_ppm>SERIAL_MAX_125) temp_ppm=SERIAL_MAX_125;
+				#else
+					if(temp_ppm<PPM_MIN_125) temp_ppm=PPM_MIN_125;
+					else if(temp_ppm>PPM_MAX_125) temp_ppm=PPM_MAX_125;
+					#endif // PPM_MAP
+					#ifdef PPM_CHG
+					if(PPM_CHG_is_on && i == PPM_CHG_A) {	Servo_data[PPM_CHG_B]= temp_ppm ;	} else
+					if(PPM_CHG_is_on && i == PPM_CHG_B) {	Servo_data[PPM_CHG_A]= temp_ppm ;	} else
+				#endif // PPM_CHG
+				{
+					Servo_data[i]= temp_ppm ;
+				}
 			}
 			PPM_FLAG_off;									// wait for next frame before update
 			update_channels_aux();

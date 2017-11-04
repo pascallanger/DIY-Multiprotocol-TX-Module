@@ -96,6 +96,41 @@
 //Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
 //#define FORCE_CYRF_ID	"\x12\x34\x56\x78\x9A\xBC"
 
+/**************************/
+/*** FAILSAFE SETTINGS  ***/
+/**************************/
+#define AFHDS2A_FAILSAFE
+#ifdef AFHDS2A_FAILSAFE
+/*
+	Failsafe Min/Max values 962 <-> 2038
+*/
+const int8_t AFHDS2AFailsafeMIN = -105;
+const int8_t AFHDS2AFailsafeMAX = 105;
+//
+const int8_t AFHDS2AFailsafe[14]=	{
+/*
+ Failsafe examples
+ 988 <-> 2012µs -100% =  988 = 1500 + (2012-988)/2 * (-100/100) = 1500 - 512 =  988
+ 988 <-> 2012µs    0% = 1500 = 1500 + (2012-988)/2 * (   0/100) = 1500 +   0 = 1500
+ 988 <-> 2012µs  100% = 2012 = 1500 + (2012-988)/2 * ( 100/100) = 1500 + 512 = 2012
+ 988 <-> 2012µs -105% =  962 = 1500 + (2012-988)/2 * (-105/100) = 1500 - 538 =  962
+*/
+/* ch  1 */ -1,
+/* ch  2 */ -1,
+/* ch  3 */ -105,
+/* ch  4 */ -1,
+/* ch  5 */ -1,
+/* ch  6 */ -1,
+/* ch  7 */ -1,
+/* ch  8 */ -1,
+/* ch  9 */ -1,
+/* ch 10 */ -1,
+/* ch 11 */ -1,
+/* ch 12 */ -1,
+/* ch 13 */ -1,
+/* ch 14 */ -1
+};
+#endif
 
 /****************************/
 /*** PROTOCOLS TO INCLUDE ***/

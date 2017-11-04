@@ -209,7 +209,7 @@ uint16_t ReadFrSkyX()
 			//
 //			frskyX_data_frame();
 			state++;
-			return 5500;
+			return 5200;
 		case FRSKY_DATA2:
 			CC2500_SetTxRxMode(RX_EN);
 			CC2500_Strobe(CC2500_SIDLE);
@@ -218,7 +218,7 @@ uint16_t ReadFrSkyX()
 		case FRSKY_DATA3:		
 			CC2500_Strobe(CC2500_SRX);
 			state++;
-			return 2800;
+			return 3100;
 		case FRSKY_DATA4:
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
 			if (len && (len<=(0x0E + 3)))				//Telemetry frame is 17
@@ -240,7 +240,7 @@ uint16_t ReadFrSkyX()
 //					seq_last_sent = 0;
 //					seq_last_rcvd = 8;
 					FrX_send_seq = 0x08 ;
-					FrX_receive_seq = 0 ;
+//					FrX_receive_seq = 0 ;
 					packet_count=0;
 					#if defined TELEMETRY
 						telemetry_lost=1;
@@ -285,8 +285,8 @@ uint16_t initFrSkyX()
 	}
 //	seq_last_sent = 0;
 //	seq_last_rcvd = 8;
-	uint8_t FrX_send_seq = 0x08 ;
-	uint8_t FrX_receive_seq = 0 ;
+	FrX_send_seq = 0x08 ;
+	FrX_receive_seq = 0 ;
 	return 10000;
 }	
 #endif

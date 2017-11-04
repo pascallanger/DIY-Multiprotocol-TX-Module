@@ -32,16 +32,28 @@ uint8_t RetrySequence ;
 	uint8_t RxBt = 0;
 	uint8_t sport = 0;
 
-struct t_fx_rx_packet
+//struct t_fx_rx_packet
+//{
+//	uint8_t validSequence ;
+//	uint8_t count ;
+//	uint8_t payload[6] ;
+//} ;
+
+// Store for out of sequence packet
+//struct t_fx_rx_packet FrskyxRxTelemetry ;
+
+uint8_t FrskyxRxTelemetryValidSequence ;
+
+struct t_fx_rx_frame
 {
-	uint8_t validSequence ;
+	uint8_t valid ;
 	uint8_t count ;
 	uint8_t payload[6] ;
 } ;
 
-// Store for out of sequence packet
-struct t_fx_rx_packet FrskyxRxTelemetry ;
-
+// Store for FrskyX telemetry
+struct t_fx_rx_frame FrskyxRxFrames[4] ;
+uint8_t NextFxFrameToForward ;
 
 #endif
 #if defined HUB_TELEMETRY
@@ -53,8 +65,9 @@ struct t_fx_rx_packet FrskyxRxTelemetry ;
 #define BYTESTUFF               0x7d
 #define STUFF_MASK              0x20
 #define MAX_PKTX 10
+#define FX_BUFFERS	4
 uint8_t pktx[MAX_PKTX];
-uint8_t pktx1[MAX_PKTX];
+uint8_t pktx1[FRSKY_SPORT_PACKET_SIZE*FX_BUFFERS];
 uint8_t indx;
 uint8_t frame[18];
 
@@ -167,7 +180,8 @@ void frskySendStuffed()
 
 void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 {
-	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len ==(pkt[0] + 3))
+	uint8_t clen = pkt[0] + 3 ;
+	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len == clen )
 	{	   
 		telemetry_link|=1;								// Telemetry data is available
 		/*previous version
@@ -217,34 +231,38 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		telemetry_lost=0;
 		if (protocol==MODE_FRSKYX)
 		{
-			uint16_t lcrc = crc_x(&pkt[3], len-7) ;
+			uint16_t lcrc = crc_x(&pkt[3], len-7 ) ;
+//			if ( ( sub_protocol & 2 ) == 0 )
+//			{
+//				if ( ( (lcrc >> 8) == pkt[len-4]) && ( (lcrc & 0x00FF ) == pkt[len-3]) )
+//				{
+//					lcrc = 0 ;
+//				}
+//				else
+//				{
+//					lcrc = 1 ;
+//				}
+//			}
+//			if ( lcrc == 0 )
+			
 			if ( ( (lcrc >> 8) == pkt[len-4]) && ( (lcrc & 0x00FF ) == pkt[len-3]) )
 			{
 				// Check if in sequence
 				if ( (pkt[5] & 0x0F) == 0x08 )
 				{
 					FrX_receive_seq = 0x08 ;
+					NextFxFrameToForward = 0 ;
+					FrskyxRxFrames[0].valid = 0 ;
+					FrskyxRxFrames[1].valid = 0 ;
+					FrskyxRxFrames[2].valid = 0 ;
+					FrskyxRxFrames[3].valid = 0 ;
 				}
 				else if ( (pkt[5] & 0x03) == (FrX_receive_seq & 0x03 ) )
 				{
 					// OK to process
-					FrX_receive_seq = ( FrX_receive_seq + 1 ) & 0x03 ;
-					if ( FrskyxRxTelemetry.validSequence & 0x80 )
-					{
-						FrX_receive_seq = ( FrskyxRxTelemetry.validSequence + 1 ) & 3 ;
-					}
-				}
-				else
-				{
-					// Save and request correct packet
-					struct t_fx_rx_packet *p ;
+					struct t_fx_rx_frame *p ;
 					uint8_t count ;
-		// pkt[4] RSSI
-		// pkt[5] sequence control
-		// pkt[6] payload count
-		// pkt[7-12] payload			
-					pktt[6] = 0 ; // Don't process
-					p = &FrskyxRxTelemetry ;
+					p = &FrskyxRxFrames[FrX_receive_seq & 3] ;
 					count = pkt[6] ;
 					if ( count <= 6 )
 					{
@@ -253,8 +271,75 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 						{
 							p->payload[i] = pkt[i+7] ;
 						}
-						p->validSequence = 0x80 | ( pkt[5] & 0x03 ) ;
 					}
+					else
+					{
+						p->count = 0 ;
+					}
+					p->valid = 1 ;
+					
+					
+					
+					FrX_receive_seq = ( FrX_receive_seq + 1 ) & 0x03 ;
+
+					if ( FrskyxRxTelemetryValidSequence & 0x80 )
+					{
+						FrX_receive_seq = ( FrskyxRxTelemetryValidSequence + 1 ) & 3 ;
+						FrskyxRxTelemetryValidSequence &= 0x7F ;
+					}
+
+//					if ( FrskyxRxTelemetry.validSequence & 0x80 )
+//					{
+//						FrX_receive_seq = ( FrskyxRxTelemetry.validSequence + 1 ) & 3 ;
+
+//						FrskyxRxTelemetry.validSequence &= 0x7F ;
+
+//					}
+				}
+				else
+				{
+					// Save and request correct packet
+//					struct t_fx_rx_packet *p ;
+					struct t_fx_rx_frame *q ;
+					uint8_t count ;
+		// pkt[4] RSSI
+		// pkt[5] sequence control
+		// pkt[6] payload count
+		// pkt[7-12] payload			
+					pktt[6] = 0 ; // Don't process
+					if ( (pkt[5] & 0x03) == ( ( FrX_receive_seq +1 ) & 3 ) )
+					{
+						q = &FrskyxRxFrames[(pkt[5] & 0x03)] ;
+						count = pkt[6] ;
+						if ( count <= 6 )
+						{
+							q->count = count ;
+							for ( uint8_t i = 0 ; i < count ; i += 1 )
+							{
+								q->payload[i] = pkt[i+7] ;
+							}
+						}
+						else
+						{
+							q->count = 0 ;
+						}
+						q->valid = 1 ;
+					
+						FrskyxRxTelemetryValidSequence = 0x80 | ( pkt[5] & 0x03 ) ;
+					}
+					 
+					 
+//					p = &FrskyxRxTelemetry ;
+//					count = pkt[6] ;
+//					if ( count <= 6 )
+//					{
+//						p->count = count ;
+//						for ( uint8_t i = 0 ; i < count ; i += 1 )
+//						{
+//							p->payload[i] = pkt[i+7] ;
+//						}
+//						p->validSequence = 0x80 | ( pkt[5] & 0x03 ) ;
+//					}
 					FrX_receive_seq = ( FrX_receive_seq & 0x03 ) | 0x04 ;	// Request re-transmission
 				}
 
@@ -429,12 +514,25 @@ pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 0x34	0x0A	0xC3	0x56	0xF3
 				
 		*/
+
+const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
+																		0xC6, 0x67, 0x48, 0xE9, 0x6A, 0xCB,
+                                    0xAC, 0x0D, 0x8E, 0x2F, 0xD0, 0x71,
+                                    0xF2, 0x53, 0x34, 0x95, 0x16, 0xB7,
+																		0x98, 0x39, 0xBA, 0x1B } ;
+
+
 #ifdef MULTI_TELEMETRY
 	void sportSend(uint8_t *p)
 	{
 		multi_send_header(MULTI_TELEMETRY_SPORT, 9);
 		uint16_t crc_s = 0;
-		Serial_write(p[0]) ;
+		uint8_t x = p[0] ;
+		if ( x <= 0x1B )
+		{
+			x = pgm_read_byte_near( &Indices[x] ) ;
+		}
+		Serial_write(x) ;
 		for (uint8_t i = 1; i < 9; i++)
 		{
 			if (i == 8)
@@ -528,7 +626,13 @@ void sportSendFrame()
 			{	
 				for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
 				frame[i]=pktx1[i];
-				sport=0;
+				sport -= 1 ;
+				if ( sport )
+				{
+					uint8_t j = sport * FRSKY_SPORT_PACKET_SIZE ;
+					for (i=0;i<j;i++)
+					pktx1[i] = pktx1[i+FRSKY_SPORT_PACKET_SIZE] ;
+				}
 				break;
 			}
 			else
@@ -572,19 +676,20 @@ void proces_sport_data(uint8_t data)
 	} // end switch
 	if (indx >= FRSKY_SPORT_PACKET_SIZE)
 	{//8 bytes no crc 
-		if ( sport )
+		if ( sport < FX_BUFFERS )
 		{
-			// overrun!
-		}
-		else
-		{
+			uint8_t dest = sport * FRSKY_SPORT_PACKET_SIZE ;
 			uint8_t i ;
 			for ( i = 0 ; i < FRSKY_SPORT_PACKET_SIZE ; i += 1 )
 			{
-				pktx1[i] = pktx[i] ;	// Double buffer
+				pktx1[dest++] = pktx[i] ;	// Triple buffer
 			}
-			sport = 1;//ok to send
+			sport += 1 ;//ok to send
 		}
+//		else
+//		{
+//			// Overrun
+//		}
 		pass = 0;//reset
 	}
 }
@@ -600,11 +705,14 @@ void TelemetryUpdate()
 		h = SerialControl.head ;
 		t = SerialControl.tail ;
 		if ( h >= t )
-			t += 128 - h ;
+			t += 192 - h ;
 		else
 			t -= h ;
+//		if ( t < 32 )
 		if ( t < 64 )
+		{
 			return ;
+		}
 	#else
 		uint8_t h ;
 		uint8_t t ;
@@ -615,7 +723,9 @@ void TelemetryUpdate()
 		else
 			t -= h ;
 		if ( t < 32 )
+		{
 			return ;
+		}
 	#endif
 	#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
 		{
@@ -632,27 +742,62 @@ void TelemetryUpdate()
 	#if defined SPORT_TELEMETRY
 		if (protocol==MODE_FRSKYX)
 		{	// FrSkyX
+//			struct t_fx_rx_frame *p ;
+//			uint8_t count ;
+			
+			for(;;)
+			{
+				struct t_fx_rx_frame *p ;
+				uint8_t count ;
+				p = &FrskyxRxFrames[NextFxFrameToForward] ;
+				if ( p->valid )
+				{
+					count = p->count ;
+					for (uint8_t i=0; i < count ; i++)
+						proces_sport_data(p->payload[i]) ;
+					p->valid = 0 ;	// Sent on
+					NextFxFrameToForward = ( NextFxFrameToForward + 1 ) & 3 ;
+				}
+				else
+				{
+					break ;
+				}
+			}
+			 
+//			p = &FrskyxRxFrames[NextFxFrameToForward] ;
+//			if ( p->valid )
+//			{
+//				count = p->count ;
+//				for (uint8_t i=0; i < count ; i++)
+//					proces_sport_data(p->payload[i]) ;
+//				p->valid = 0 ;	// Sent on
+//				NextFxFrameToForward = ( NextFxFrameToForward + 1 ) & 3 ;
+//			}
+			
 			if(telemetry_link)
 			{		
 				if(pktt[4] & 0x80)
 					RX_RSSI=pktt[4] & 0x7F ;
 				else 
 					RxBt = (pktt[4]<<1) + 1 ;
-				if(pktt[6] && pktt[6]<=6)
-				{
-					for (uint8_t i=0; i < pktt[6]; i++)
-						proces_sport_data(pktt[7+i]);
-					if ( FrskyxRxTelemetry.validSequence & 0x80 )
-					{
-						// Process out of sequence packet
-						for (uint8_t i=0; i < FrskyxRxTelemetry.count ; i++)
-						{
-							proces_sport_data( FrskyxRxTelemetry.payload[i] ) ;
-						}
-//						FrX_receive_seq = ( FrskyxRxTelemetry.validSequence + 1 ) & 3 ;
-						FrskyxRxTelemetry.validSequence = 0 ;
-					}
-				}
+				
+//				if(pktt[6] && pktt[6]<=6)
+//				{
+//					for (uint8_t i=0; i < pktt[6]; i++)
+//						proces_sport_data(pktt[7+i]);
+//					if ( FrskyxRxTelemetry.validSequence & 0x80 )
+//					{
+//						// Process out of sequence packet
+//						for (uint8_t i=0; i < FrskyxRxTelemetry.count ; i++)
+//						{
+//							proces_sport_data( FrskyxRxTelemetry.payload[i] ) ;
+//						}
+////						FrX_receive_seq = ( FrskyxRxTelemetry.validSequence + 1 ) & 3 ;
+//						FrskyxRxTelemetry.validSequence = 0 ;
+//					}
+//				}
+
+
 				telemetry_link=0;
 			}
 			uint32_t now = micros();
@@ -1006,7 +1151,13 @@ ISR(TIMER0_COMPB_vect)
 			{
 				GPIOR0 = ptr->data[ptr->tail] ;
 				GPIOR2 = ptr->data[ptr->tail+1] ;
-				ptr->tail = ( ptr->tail + 2 ) & 0x7F ;
+				uint8_t nextTail ;
+				nextTail = ptr->tail + 2 ;
+				if ( nextTail > 192 )
+				{
+					nextTail = 0 ;
+				}
+				ptr->tail = nextTail ;
 				GPIOR1 = 8 ;
 				OCR0A = OCR0B + 40 ;
 				OCR0B = OCR0A + 8 * 20 ;

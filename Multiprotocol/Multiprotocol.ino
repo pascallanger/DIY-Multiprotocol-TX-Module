@@ -23,6 +23,11 @@
 #include <avr/pgmspace.h>
 //#define DEBUG_TX
 //#define USE_MY_CONFIG
+
+#ifdef ARDUINO_AVR_XMEGA32D4
+#include "MultiOrange.h"
+#endif
+
 #include "Multiprotocol.h"
 
 //Multiprotocol module configuration file
@@ -167,7 +172,7 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	uint8_t pktt[MAX_PKT];//telemetry receiving packets
 	#ifdef BASH_SERIAL
 	// For bit-bashed serial output
-		#define TXBUFFER_SIZE 128
+		#define TXBUFFER_SIZE 192
 		volatile struct t_serial_bash
 		{
 			uint8_t head ;
@@ -177,7 +182,7 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 			uint8_t speed ;
 		} SerialControl ;
 	#else
-		#define TXBUFFER_SIZE 64
+		#define TXBUFFER_SIZE 96
 		volatile uint8_t tx_buff[TXBUFFER_SIZE];
 		volatile uint8_t tx_head=0;
 		volatile uint8_t tx_tail=0;

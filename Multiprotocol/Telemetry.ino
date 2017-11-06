@@ -31,7 +31,11 @@ uint8_t RetrySequence ;
 	uint8_t sport_counter=0;
 	uint8_t RxBt = 0;
 	uint8_t sport = 0;
-
+#define MAX_PKTX 10
+#define FX_BUFFERS	4
+uint8_t pktx[MAX_PKTX];
+uint8_t pktx1[FRSKY_SPORT_PACKET_SIZE*FX_BUFFERS];
+uint8_t indx;
 //struct t_fx_rx_packet
 //{
 //	uint8_t validSequence ;
@@ -64,11 +68,6 @@ uint8_t NextFxFrameToForward ;
 #define START_STOP              0x7e
 #define BYTESTUFF               0x7d
 #define STUFF_MASK              0x20
-#define MAX_PKTX 10
-#define FX_BUFFERS	4
-uint8_t pktx[MAX_PKTX];
-uint8_t pktx1[FRSKY_SPORT_PACKET_SIZE*FX_BUFFERS];
-uint8_t indx;
 uint8_t frame[18];
 
 #if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )

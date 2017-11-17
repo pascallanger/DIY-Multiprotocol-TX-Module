@@ -30,6 +30,7 @@
 #define SYMAX_FLAG_VIDEO			0x02
 #define SYMAX_FLAG_PICTURE			0x04
 #define SYMAX_FLAG_HEADLESS			0x08
+#define SYMAX_XTRM_RATES			0x10
 
 #define SYMAX_PAYLOADSIZE			10		// receive data pipes set to this size, but unused
 #define SYMAX_MAX_PACKET_LENGTH		16		// X11,X12,X5C-1 10-byte, X5C 16-byte
@@ -58,6 +59,7 @@ static void __attribute__((unused)) SYMAX_read_controls()
 {
 	// Protocol is registered AETRF, that is
 	// Aileron is channel 1, Elevator - 2, Throttle - 3, Rudder - 4, Flip control - 5
+	// Extended (trim-added) Rates - 6, Photo - 7, Video - 8, Headless - 9
 	aileron  = convert_channel_s8b(AILERON);
 	elevator = convert_channel_s8b(ELEVATOR);
 	throttle = convert_channel_8b(THROTTLE);
@@ -67,6 +69,9 @@ static void __attribute__((unused)) SYMAX_read_controls()
 	// Channel 5
 	if (Servo_AUX1)
 		flags = SYMAX_FLAG_FLIP;
+	// Channel 6
+	if (Servo_AUX2)
+		flags |= SYMAX_XTRM_RATES;
 	// Channel 7
 	if (Servo_AUX3)
 		flags |= SYMAX_FLAG_PICTURE;
@@ -76,6 +81,7 @@ static void __attribute__((unused)) SYMAX_read_controls()
 	// Channel 9
 	if (Servo_AUX5)
 		flags |= SYMAX_FLAG_HEADLESS;
+	    flags &= ~SYMAX_XTRM_RATES;	// Extended rates & headless incompatible
 }
 
 #define X5C_CHAN2TRIM(X) ((((X) & 0x80 ? 0xff - (X) : 0x80 + (X)) >> 2) + 0x20)
@@ -98,9 +104,15 @@ static void __attribute__((unused)) SYMAX_build_packet_x5c(uint8_t bind)
 		packet[1] = rudder;
 		packet[2] = elevator ^ 0x80;  // reversed from default
 		packet[3] = aileron;
-		packet[4] = X5C_CHAN2TRIM(rudder ^ 0x80);// drive trims for extra control range
-		packet[5] = X5C_CHAN2TRIM(elevator);
-		packet[6] = X5C_CHAN2TRIM(aileron ^ 0x80);
+		if (flags & SYMAX_XTRM_RATES) {	// drive trims for extra control range
+			packet[4] = X5C_CHAN2TRIM(rudder ^ 0x80);
+			packet[5] = X5C_CHAN2TRIM(elevator);
+			packet[6] = X5C_CHAN2TRIM(aileron ^ 0x80);
+		} else {
+			packet[4] = 0x00;
+			packet[5] = 0x00;
+			packet[6] = 0x00;
+		}
 		packet[7] = 0xae;
 		packet[8] = 0xa9;
 		packet[9] = 0x00;
@@ -138,9 +150,14 @@ static void __attribute__((unused)) SYMAX_build_packet(uint8_t bind)
 		packet[2] = rudder;
 		packet[3] = aileron;
 		packet[4] = (flags & SYMAX_FLAG_VIDEO   ? 0x80 : 0x00) | (flags & SYMAX_FLAG_PICTURE ? 0x40 : 0x00);
-		packet[5] = (elevator >> 2) | 0xc0; //always high rates (bit 7 is rate control)
-		packet[6] = (rudder >> 2)  | (flags & SYMAX_FLAG_FLIP ? 0x40 : 0x00);
-		packet[7] = (aileron >> 2) | (flags & SYMAX_FLAG_HEADLESS ? 0x80 : 0x00);
+		packet[5] = 0xc0;	//always high rates (bit 7 is rate control)
+		packet[6] = flags & SYMAX_FLAG_FLIP ? 0x40 : 0x00;
+		packet[7] = flags & SYMAX_FLAG_HEADLESS ? 0x80 : 0x00;
+		if (flags & SYMAX_XTRM_RATES) {	    // use trims to extend controls
+			packet[5] |= elevator >> 2;
+			packet[6] |= rudder >> 2;
+			packet[7] |= aileron >> 2;
+		}
 		packet[8] = 0x00;
 	}
 	packet[9] = SYMAX_checksum(packet);

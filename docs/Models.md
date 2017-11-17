@@ -7,9 +7,9 @@ The Deviation project (on which this project was based) have a useful list of mo
 <img src="http://img2.cheapdrone.co.uk/images/upload/2014/12/X5C%203/SKU115108-7.jpg" Width="200" Height="200" />
 
 ## Channel Map
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|FLIP|RATES|PICTURE|VIDEO
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|RATES|PICTURE|VIDEO|HEADLESS
 
 ## Binding
 There are no special binding instructions.  The model powers up in Autobind mode and expects the bind sequence from the transmitter within the first 4-5 seconds. 
@@ -44,6 +44,25 @@ One of the most annoying functions on the Syma X5C is that the motors stop when 
 1. In the mixer menu add a line under Throttle and mix in a value of between 4 and 6 to be added to the throttle value if the switch is activated.  What this does is effectively prevents the throttle from going down to less than this value.
 1. When you want to fly in "idle-up" mode flick the switch and your stabilization will always be active.  
 1. Remeber to switch off idle-up as soon as the quad lands (or crashes - to avoid damage to the motors)
+
+### Additional notes on rates:
+
+The SymaX driver can add full trim to the control output.  Doing so enables
+dramatic rates, steep angles, and high speeds.  If CH6 is low, the usual Syma
+full rates will be in effect.  If CH6 is high, the SymaX extreme trim rates will be
+in effect.  Be cautious when first trying out the extreme rates.
+
+The extreme rates do not work with with headless mode because in this
+mode the trim and the primary control directions may not be aligned - the
+primary control directions will be based on the headless mode, but the trims
+remain based upon the quadcopter's heading.  So extreme rates are disabled
+when headless mode is selected.
+
+Be aware that the use of extreme rates and the resulting steep angles will
+disorient the gyro responsible for maintaining headless mode, and that the
+direction the quadcopter thinks you selected for headless mode may not be
+correct after especially wild flights.
+
 
 # Inductrix (Horizon Hobby)
 

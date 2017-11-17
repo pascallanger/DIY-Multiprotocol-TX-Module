@@ -179,12 +179,26 @@ static void AFHDS2A_build_packet(uint8_t type)
 			packet[0] = 0x56;
 			for(uint8_t ch=0; ch<14; ch++)
 			{
-				/*if((Model.limits[ch].flags & CH_FAILSAFE_EN))
+#ifdef AFHDS2A_FAILSAFE
+				int8_t failsafe = AFHDS2AFailsafe[ch];
+				//
+				if(failsafe != -1)
 				{
-					packet[9 + ch*2] = Servo_data[CH_AETR[ch]] & 0xff;
-					packet[10+ ch*2] = (Servo_data[CH_AETR[ch]] >> 8) & 0xff;
+					//
+					if (failsafe > AFHDS2AFailsafeMAX)
+						failsafe = AFHDS2AFailsafeMAX;
+					//
+					if (failsafe < AFHDS2AFailsafeMIN)
+						failsafe = AFHDS2AFailsafeMIN;
+					//
+					double scale = (float)failsafe/(float)100;
+					int16_t failsafeMicros = 1500 + ((float)512 * scale);
+					//
+					packet[9 + ch*2] =  failsafeMicros & 0xff;
+					packet[10+ ch*2] = ( failsafeMicros >> 8) & 0xff;
 				}
-				else*/
+				else
+#endif
 				{
 					packet[9 + ch*2] = 0xff;
 					packet[10+ ch*2] = 0xff;

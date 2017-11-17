@@ -49,6 +49,15 @@
 //The goal is to prevent binding other people's model when powering up the TX, changing model or scanning through protocols.
 #define WAIT_FOR_BIND
 
+/*************************/
+/*** BOOTLOADER USE     ***/
+/*************************/
+#define CHECK_FOR_BOOTLOADER
+//Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
+//1. Start ersky9x in bootloader mode and copy the multi.hex file into the firmware directory on the SD card.
+//2. Disconnect the USB, then press EXIT LONG while holding the horizontal trims APART to enter "maintenance mode".
+//3. Select "Update Multi", then HEX mode, then select the file and start the flash.
+//4. When finished, EXIT back to reboot in normal mode.
 
 /****************/
 /*** RF CHIPS ***/
@@ -87,6 +96,41 @@
 //Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
 //#define FORCE_CYRF_ID	"\x12\x34\x56\x78\x9A\xBC"
 
+/**************************/
+/*** FAILSAFE SETTINGS  ***/
+/**************************/
+#define AFHDS2A_FAILSAFE
+#ifdef AFHDS2A_FAILSAFE
+/*
+	Failsafe Min/Max values 962 <-> 2038
+*/
+const int8_t AFHDS2AFailsafeMIN = -105;
+const int8_t AFHDS2AFailsafeMAX = 105;
+//
+const int8_t AFHDS2AFailsafe[14]=	{
+/*
+ Failsafe examples
+ 988 <-> 2012µs -100% =  988 = 1500 + (2012-988)/2 * (-100/100) = 1500 - 512 =  988
+ 988 <-> 2012µs    0% = 1500 = 1500 + (2012-988)/2 * (   0/100) = 1500 +   0 = 1500
+ 988 <-> 2012µs  100% = 2012 = 1500 + (2012-988)/2 * ( 100/100) = 1500 + 512 = 2012
+ 988 <-> 2012µs -105% =  962 = 1500 + (2012-988)/2 * (-105/100) = 1500 - 538 =  962
+*/
+/* ch  1 */ -1,
+/* ch  2 */ -1,
+/* ch  3 */ -105,
+/* ch  4 */ -1,
+/* ch  5 */ -1,
+/* ch  6 */ -1,
+/* ch  7 */ -1,
+/* ch  8 */ -1,
+/* ch  9 */ -1,
+/* ch 10 */ -1,
+/* ch 11 */ -1,
+/* ch 12 */ -1,
+/* ch 13 */ -1,
+/* ch 14 */ -1
+};
+#endif
 
 /****************************/
 /*** PROTOCOLS TO INCLUDE ***/

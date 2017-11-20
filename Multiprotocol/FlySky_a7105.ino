@@ -133,7 +133,7 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
 {
     uint8_t i;
 	//servodata timing range for flysky.
-	////-100% =~ 0x03e8//=1000us(min)
+	//-100% =~ 0x03e8//=1000us(min)
 	//+100% =~ 0x07ca//=1994us(max)
 	//Center = 0x5d9//=1497us(center)
 	//channel order AIL;ELE;THR;RUD;AUX1;AUX2;AUX3;AUX4
@@ -147,6 +147,8 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
 		uint16_t temp=Servo_data[CH_AETR[i]];
 		if(sub_protocol == CX20 && CH_AETR[i] == ELEVATOR)
 			temp=servo_mid-temp;		//reverse channel
+		if(mode_select != MODE_SERIAL)	//if in PPM mode extend the output to 1000...2000µs
+			temp=map(temp,servo_min_100,servo_max_100,1000,2000);
 		packet[5 + i*2]=temp&0xFF;		//low byte of servo timing(1000-2000us)
 		packet[6 + i*2]=(temp>>8)&0xFF;	//high byte of servo timing(1000-2000us)
 	}

@@ -17,7 +17,7 @@
           "help": {
             "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
           },
-          "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
+          "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
           "archiveFileName": "package_multi_4in1_board_v1.0.0.zip",
           "checksum": "SHA256:7EA99161FEE2B35D999C69C2C681A326C5A939328DFBCA0A7168AFAC4FB46D06",
           "size": "2479",

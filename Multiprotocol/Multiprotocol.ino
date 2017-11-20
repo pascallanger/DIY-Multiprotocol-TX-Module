@@ -23,6 +23,9 @@
 #include <avr/pgmspace.h>
 //#define DEBUG_TX
 //#define USE_MY_CONFIG
+#ifdef ARDUINO_AVR_XMEGA32D4
+#include "MultiOrange.h"
+#endif
 #include "Multiprotocol.h"
 
 //Multiprotocol module configuration file
@@ -106,6 +109,18 @@ uint8_t  RX_num;
 	uint8_t calData[48];
 #endif
 
+#ifdef CHECK_FOR_BOOTLOADER
+	uint8_t BootTimer ;
+	uint8_t BootState ;
+	uint8_t NotBootChecking ;
+	uint8_t BootCount ;
+
+	#define BOOT_WAIT_30_IDLE	0
+	#define BOOT_WAIT_30_DATA	1
+	#define BOOT_WAIT_20		2
+	#define BOOT_READY			3
+#endif
+
 //Channel mapping for protocols
 const uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8, AUX9, AUX10};
 const uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, AUX1, AUX2, AUX3, AUX4, AUX5, AUX6, AUX7, AUX8};
@@ -154,7 +169,7 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	uint8_t pktt[MAX_PKT];//telemetry receiving packets
 	#ifdef BASH_SERIAL
 	// For bit-bashed serial output
-		#define TXBUFFER_SIZE 128
+		#define TXBUFFER_SIZE 192
 		volatile struct t_serial_bash
 		{
 			uint8_t head ;
@@ -164,7 +179,7 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 			uint8_t speed ;
 		} SerialControl ;
 	#else
-		#define TXBUFFER_SIZE 64
+		#define TXBUFFER_SIZE 96
 		volatile uint8_t tx_buff[TXBUFFER_SIZE];
 		volatile uint8_t tx_head=0;
 		volatile uint8_t tx_tail=0;
@@ -392,7 +407,11 @@ void setup()
 			protocol=0;
 			servo_max_100=SERIAL_MAX_100; servo_min_100=SERIAL_MIN_100;
 			servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
-			Mprotocol_serial_init(); 	// Configure serial and enable RX interrupt
+			#ifdef CHECK_FOR_BOOTLOADER
+				Mprotocol_serial_init(1); 	// Configure serial and enable RX interrupt
+			#else
+				Mprotocol_serial_init(); 	// Configure serial and enable RX interrupt
+			#endif
 		#endif //ENABLE_SERIAL
 	}
 	servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
@@ -485,6 +504,11 @@ void loop()
 uint8_t Update_All()
 {
 	#ifdef ENABLE_SERIAL
+		#ifdef CHECK_FOR_BOOTLOADER
+			if ( (mode_select==MODE_SERIAL) && (NotBootChecking == 0) )
+				pollBoot() ;
+			else
+		#endif
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)		// Serial mode and something has been received
 		{
 			update_serial_data();							// Update protocol and data
@@ -1093,7 +1117,11 @@ void modules_reset()
 	prev_power=0xFD;		// unused power value
 }
 
-void Mprotocol_serial_init()
+#ifdef CHECK_FOR_BOOTLOADER
+	void Mprotocol_serial_init( uint8_t boot )
+#else
+	void Mprotocol_serial_init()
+#endif
 {
 	#ifdef ORANGE_TX
 		PORTC.OUTSET = 0x08 ;
@@ -1103,18 +1131,41 @@ void Mprotocol_serial_init()
 		USARTC0.BAUDCTRLB = 0 ;
 		
 		USARTC0.CTRLB = 0x18 ;
-		USARTC0.CTRLA = (USARTC0.CTRLA & 0xCF) | 0x10 ;
+		USARTC0.CTRLA = (USARTC0.CTRLA & 0xCC) | 0x11 ;
 		USARTC0.CTRLC = 0x2B ;
 		UDR0 ;
 		#ifdef INVERT_SERIAL
 			PORTC.PIN3CTRL |= 0x40 ;
 		#endif
+		#ifdef CHECK_FOR_BOOTLOADER
+			if ( boot )
+			{
+				USARTC0.BAUDCTRLB = 0 ;
+				USARTC0.BAUDCTRLA = 33 ;		// 57600
+				USARTC0.CTRLA = (USARTC0.CTRLA & 0xC0) ;
+				USARTC0.CTRLC = 0x03 ;			// 8 bit, no parity, 1 stop
+				USARTC0.CTRLB = 0x18 ;			// Enable Tx and Rx
+				PORTC.PIN3CTRL &= ~0x40 ;
+			}
+		#endif // CHECK_FOR_BOOTLOADER
 	#elif defined STM32_BOARD
-		usart2_begin(100000,SERIAL_8E2);
+		#ifdef CHECK_FOR_BOOTLOADER
+			if ( boot )
+			{
+				usart2_begin(57600,SERIAL_8N1);
+				USART2_BASE->CR1 &= ~USART_CR1_RXNEIE ;
+				(void)UDR0 ;
+			}
+			else
+		#endif // CHECK_FOR_BOOTLOADER
+		{
+			usart2_begin(100000,SERIAL_8E2);
+			USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
+		}
 		usart3_begin(100000,SERIAL_8E2);
-		USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
-		USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable 
-		USART2_BASE->CR1 &= ~ USART_CR1_TE;//disable transmit
+
+		USART3_BASE->CR1 &= ~ USART_CR1_RE;		//disable 
+		USART2_BASE->CR1 &= ~ USART_CR1_TE;		//disable transmit
 	#else
 		//ATMEGA328p
 		#include <util/setbaud.h>	
@@ -1123,7 +1174,7 @@ void Mprotocol_serial_init()
 		UCSR0A = 0 ;	// Clear X2 bit
 		//Set frame format to 8 data bits, even parity, 2 stop bits
 		UCSR0C = _BV(UPM01)|_BV(USBS0)|_BV(UCSZ01)|_BV(UCSZ00);
-		while ( UCSR0A & (1 << RXC0) )//flush receive buffer
+		while ( UCSR0A & (1 << RXC0) )	//flush receive buffer
 			UDR0;
 		//enable reception and RC complete interrupt
 		UCSR0B = _BV(RXEN0)|_BV(RXCIE0);//rx enable and interrupt
@@ -1132,8 +1183,129 @@ void Mprotocol_serial_init()
 				initTXSerial( SPEED_100K ) ;
 			#endif //TELEMETRY
 		#endif //DEBUG_TX
+		#ifdef CHECK_FOR_BOOTLOADER
+			if ( boot )
+			{
+				UBRR0H = 0;
+				UBRR0L = 33;			// 57600
+				UCSR0C &= ~_BV(UPM01);	// No parity
+				UCSR0B &= ~_BV(RXCIE0);	// No rx interrupt
+				UCSR0A |= _BV(U2X0);	// Double speed mode USART0
+			}
+		#endif // CHECK_FOR_BOOTLOADER
 	#endif //ORANGE_TX
 }
+
+#ifdef CHECK_FOR_BOOTLOADER
+void pollBoot()
+{
+	uint8_t rxchar ;
+	uint8_t lState = BootState ;
+	uint8_t millisTime = millis();				// Call this once only
+
+	#ifdef ORANGE_TX
+	if ( USARTC0.STATUS & USART_RXCIF_bm )
+	#elif defined STM32_BOARD
+	if ( USART2_BASE->SR & USART_SR_RXNE )
+	#else
+	if ( UCSR0A & ( 1 << RXC0 ) )
+	#endif
+	{
+		rxchar = UDR0 ;
+		BootCount += 1 ;
+		if ( ( lState == BOOT_WAIT_30_IDLE ) || ( lState == BOOT_WAIT_30_DATA ) )
+		{
+			if ( lState == BOOT_WAIT_30_IDLE )	// Waiting for 0x30
+				BootTimer = millisTime ;		// Start timeout
+			if ( rxchar == 0x30 )
+				lState = BOOT_WAIT_20 ;
+			else
+				lState = BOOT_WAIT_30_DATA ;
+		}
+		else
+			if ( lState == BOOT_WAIT_20 && rxchar == 0x20 )	// Waiting for 0x20
+				lState = BOOT_READY ;
+	}
+	else // No byte received
+	{
+		if ( lState != BOOT_WAIT_30_IDLE )		// Something received
+		{
+			uint8_t time = millisTime - BootTimer ;
+			if ( time > 5 )
+			{
+				#ifdef	STM32_BOARD
+				if ( BootCount > 4 )
+				#else
+				if ( BootCount > 2 )
+				#endif
+				{ // Run normally
+					NotBootChecking = 0xFF ;
+					Mprotocol_serial_init( 0 ) ;
+				}
+				else if ( lState == BOOT_READY )
+				{
+					#ifdef	STM32_BOARD
+						#define SCS_BASE	(0xE000E000)			/*!< System Control Space Base Address */
+						#define SCB_BASE	(SCS_BASE +  0x0D00)	/*!< System Control Block Base Address */
+						#define SCB			((SCB_Type *) SCB_BASE)	/*!< SCB configuration struct          */
+						#define __I  volatile						/*!< defines 'read only' permissions      */
+						#define __IO volatile						/*!< defines 'read / write' permissions   */
+						typedef struct
+						{
+							__I  uint32_t CPUID;	/*!< Offset: 0x00  CPU ID Base Register                                  */
+							__IO uint32_t ICSR;		/*!< Offset: 0x04  Interrupt Control State Register                      */
+							__IO uint32_t VTOR;		/*!< Offset: 0x08  Vector Table Offset Register                          */
+							__IO uint32_t AIRCR;	/*!< Offset: 0x0C  Application Interrupt / Reset Control Register        */
+							__IO uint32_t SCR;		/*!< Offset: 0x10  System Control Register                               */
+							__IO uint32_t CCR;		/*!< Offset: 0x14  Configuration Control Register                        */
+							__IO uint8_t  SHP[12];	/*!< Offset: 0x18  System Handlers Priority Registers (4-7, 8-11, 12-15) */
+							__IO uint32_t SHCSR;	/*!< Offset: 0x24  System Handler Control and State Register             */
+							__IO uint32_t CFSR;		/*!< Offset: 0x28  Configurable Fault Status Register                    */
+							__IO uint32_t HFSR;		/*!< Offset: 0x2C  Hard Fault Status Register                            */
+							__IO uint32_t DFSR;		/*!< Offset: 0x30  Debug Fault Status Register                           */
+							__IO uint32_t MMFAR;	/*!< Offset: 0x34  Mem Manage Address Register                           */
+							__IO uint32_t BFAR;		/*!< Offset: 0x38  Bus Fault Address Register                            */
+							__IO uint32_t AFSR;		/*!< Offset: 0x3C  Auxiliary Fault Status Register                       */
+							__I  uint32_t PFR[2];	/*!< Offset: 0x40  Processor Feature Register                            */
+							__I  uint32_t DFR;		/*!< Offset: 0x48  Debug Feature Register                                */
+							__I  uint32_t ADR;		/*!< Offset: 0x4C  Auxiliary Feature Register                            */
+							__I  uint32_t MMFR[4];	/*!< Offset: 0x50  Memory Model Feature Register                         */
+							__I  uint32_t ISAR[5];	/*!< Offset: 0x60  ISA Feature Register                                  */
+						} SCB_Type;
+						#define SCB_AIRCR_VECTKEY_Pos		16									/*!< SCB AIRCR: VECTKEY Position */
+						#define SCB_AIRCR_SYSRESETREQ_Pos	2									/*!< SCB AIRCR: SYSRESETREQ Position */
+						#define SCB_AIRCR_PRIGROUP_Pos		8									/*!< SCB AIRCR: PRIGROUP Position */
+						#define SCB_AIRCR_PRIGROUP_Msk		(7ul << SCB_AIRCR_PRIGROUP_Pos)		/*!< SCB AIRCR: PRIGROUP Mask */
+						#define SCB_AIRCR_SYSRESETREQ_Msk	(1ul << SCB_AIRCR_SYSRESETREQ_Pos)	/*!< SCB AIRCR: SYSRESETREQ Mask */
+
+						// NVIC_SystemReset
+						SCB->AIRCR = ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |
+						(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
+						SCB_AIRCR_SYSRESETREQ_Msk);		/* Keep priority group unchanged */
+						asm("dsb");
+						while(1);						/* wait until reset */
+					#else
+						cli();							// Disable global int due to RW of 16 bits registers
+						void (*p)();
+						#ifndef ORANGE_TX
+							p = (void (*)())0x3F00 ;	// Word address (0x7E00 byte)
+						#else
+							p = (void (*)())0x4000 ;	// Word address (0x8000 byte)
+						#endif
+						(*p)() ;						// go to boot
+					#endif
+				}
+				else
+				{
+					lState = BOOT_WAIT_30_IDLE ;
+					BootCount = 0 ;
+				}
+			}
+		}
+	}
+	BootState = lState ;
+}
+#endif //CHECK_FOR_BOOTLOADER
 
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()

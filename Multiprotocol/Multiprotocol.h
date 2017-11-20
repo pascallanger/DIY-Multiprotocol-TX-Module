@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	21
+#define VERSION_PATCH_LEVEL	23
 //******************
 // Protocols
 //******************
@@ -136,7 +136,8 @@ enum CG023
 enum BAYANG
 {
     BAYANG	= 0,
-    H8S3D	= 1
+    H8S3D	= 1,
+    X16_AH  = 2,
 };
 enum MT99XX
 {
@@ -393,7 +394,7 @@ enum CC2500_POWER
 	CC2500_POWER_16 = 0xFE,	//   0dbm
 	CC2500_POWER_17 = 0xFF	//  +1dbm
 };
-#define CC2500_HIGH_POWER	CC2500_POWER_16
+#define CC2500_HIGH_POWER	CC2500_POWER_17
 #define CC2500_LOW_POWER	CC2500_POWER_13
 #define CC2500_RANGE_POWER	CC2500_POWER_1
 #define CC2500_BIND_POWER	CC2500_POWER_1
@@ -537,6 +538,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==BAYANG
 			BAYANG		0
 			H8S3D		1
+			X16_AH		2
 		sub_protocol==MT99XX
 			MT99		0
 			H7			1

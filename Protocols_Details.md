@@ -361,9 +361,9 @@ Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|----
-A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|---
+A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED|TAKE_OFF
 
 ### Sub_protocol BAYANG - *0*
 Option=0 -> normal Bayang protocol
@@ -372,6 +372,11 @@ Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver
 
 ### Sub_protocol H8S3D - *1*
 Model: H8S 3D
+
+Same channels assignement as above.
+
+### Sub_protocol X16_AH - *2*
+Model: X16 AH
 
 Same channels assignement as above.
 
@@ -663,7 +668,7 @@ Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
+A|E|T|R|FLIP|RATES|PICTURE|VIDEO|HEADLESS
 
 ### Sub_protocol SYMAX - *0*
 Models: Syma X5C-1/X11/X11C/X12

@@ -6,7 +6,7 @@ The board definition is installed using the Arduino IDE Boards Manager.
 
 1. Open the Arduino IDE
 2. Go to File->Preferences (or Ctrl+Comma)
-3. Locate the 'Aditional Boards Manager URLs' field and paste in this URL: https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders/package_multi_4in1_board_index.json
+3. Locate the 'Aditional Boards Manager URLs' field and paste in this URL: https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module/master/BootLoaders/package_multi_4in1_board_index.json
 4. Click OK to save the change
 5. Click Tools->Board [Board Name]->Boards Manager
 6. Scroll to the bottom of the list of boards and click on 'Multi 4-in-1 Boards' then click the Install button

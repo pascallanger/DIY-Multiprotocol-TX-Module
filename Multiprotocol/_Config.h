@@ -103,42 +103,42 @@
 
 //The protocols below need an A7105 to be installed
 #define	FLYSKY_A7105_INO
-#define	HUBSAN_A7105_INO
-#define	AFHDS2A_A7105_INO
+//#define	HUBSAN_A7105_INO
+//#define	AFHDS2A_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
-#define	DEVO_CYRF6936_INO
-#define	DSM_CYRF6936_INO
-#define	J6PRO_CYRF6936_INO
-#define	WK2x01_CYRF6936_INO
+//#define	DEVO_CYRF6936_INO
+//#define	DSM_CYRF6936_INO
+//#define	J6PRO_CYRF6936_INO
+//#define	WK2x01_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
-#define	FRSKYV_CC2500_INO
+//#define	FRSKYV_CC2500_INO
 #define	FRSKYD_CC2500_INO
 #define	FRSKYX_CC2500_INO
 #define	SFHSS_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO
-#define	CG023_NRF24L01_INO
-#define	CX10_NRF24L01_INO		// Include Q2X2 protocol
-#define	ESKY_NRF24L01_INO
-#define	HISKY_NRF24L01_INO
-#define	KN_NRF24L01_INO
-#define	SLT_NRF24L01_INO
-#define	SYMAX_NRF24L01_INO
-#define	V2X2_NRF24L01_INO
-#define	YD717_NRF24L01_INO
-#define	MT99XX_NRF24L01_INO
+//#define	CG023_NRF24L01_INO
+//#define	CX10_NRF24L01_INO		// Include Q2X2 protocol
+//#define	ESKY_NRF24L01_INO
+//#define	HISKY_NRF24L01_INO
+//#define	KN_NRF24L01_INO
+//#define	SLT_NRF24L01_INO
+//#define	SYMAX_NRF24L01_INO
+//#define	V2X2_NRF24L01_INO
+//#define	YD717_NRF24L01_INO
+//#define	MT99XX_NRF24L01_INO
 #define	MJXQ_NRF24L01_INO
-#define	SHENQI_NRF24L01_INO
-#define	FY326_NRF24L01_INO
-#define	FQ777_NRF24L01_INO
-#define	ASSAN_NRF24L01_INO
-#define	HONTAI_NRF24L01_INO
-#define Q303_NRF24L01_INO
-#define GW008_NRF24L01_INO
-#define DM002_NRF24L01_INO
+//#define	SHENQI_NRF24L01_INO
+//#define	FY326_NRF24L01_INO
+//#define	FQ777_NRF24L01_INO
+//#define	ASSAN_NRF24L01_INO
+//#define	HONTAI_NRF24L01_INO
+//#define Q303_NRF24L01_INO
+//#define GW008_NRF24L01_INO
+//#define DM002_NRF24L01_INO
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
@@ -201,13 +201,13 @@ const int8_t AFHDS2AFailsafe[14]=	{
 //#define MULTI_TELEMETRY
 
 //Comment a line to disable a specific protocol telemetry
-#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
+//#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
 #define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
-#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded
+//#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded
 #define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
-#define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-#define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-#define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+//#define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+//#define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+//#define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 
 
 /****************************/
@@ -225,7 +225,7 @@ const int8_t AFHDS2AFailsafe[14]=	{
 /*************************/
 //In this section you can configure all details about PPM.
 //If you do not plan to use the PPM mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
-#define ENABLE_PPM
+//#define ENABLE_PPM
 
 /*** TX END POINTS ***/
 //It is important for the module to know the endpoints of your radio.

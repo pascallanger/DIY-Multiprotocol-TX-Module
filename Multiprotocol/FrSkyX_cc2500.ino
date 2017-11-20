@@ -154,17 +154,7 @@ static void __attribute__((unused)) frskyX_data_frame()
 		packet[9+i+2]=chan_1>>4;
 	}
 
-<<<<<<< HEAD
 	packet[21] = (FrX_receive_seq << 4) | FrX_send_seq ;//8 at start
-=======
-	packet[21] = seq_last_sent << 4 | seq_last_rcvd;//8 at start
-	if (seq_last_sent < 0x08 && seq_last_rcvd < 8)
-		seq_last_sent = (seq_last_sent + 1) % 4;
-	else if (seq_last_rcvd == 0x00)
-		seq_last_sent = 1;
-	else
-		seq_last_rcvd = 8;
->>>>>>> dd3f8b4717c03dc2f86701191dc8b265d4706751
 	
 	if(sub_protocol & 1 )// in X8 mode send only 8ch every 9ms
 		lpass = 0 ;

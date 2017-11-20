@@ -155,17 +155,24 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 // Values grow down and to the right.
 static void __attribute__((unused)) SFHSS_build_data_packet()
 {
+	const uint8_t SFHSS_ident[4][3]={
+		{ 0x81, 0x00, 0x00},	//XK
+		{ 0x81, 0x42, 0x07},	//T8J
+		{ 0x81, 0x0F, 0x09},	//T10J
+		{ 0x82, 0x9A, 0x06}		//TM-FH
+	};
+
 	uint8_t ch_offset = phase == SFHSS_DATA1 ? 0 : 4;
 	uint16_t ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],2020,1020);
 	uint16_t ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],2020,1020);
 	uint16_t ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],2020,1020);
 	uint16_t ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],2020,1020);
 
-	packet[0] = 0x81; // can be 80 or 81 for Orange, only 81 for XK
+	packet[0] = SFHSS_ident[sub_protocol][0]; // can be 80 or 81 for Orange
 	packet[1] = rx_tx_addr[0];
 	packet[2] = rx_tx_addr[1];
-	packet[3] = 0x0f; //10J
-	packet[4] = 0x09; //10J
+	packet[3] = SFHSS_ident[sub_protocol][1];
+	packet[4] = SFHSS_ident[sub_protocol][2];
 	packet[5] = (rf_ch_num << 3) | ((ch1 >> 9) & 0x07);
 	packet[6] = (ch1 >> 1);
 	packet[7] = (ch1 << 7) | ((ch2 >> 5) & 0x7F );

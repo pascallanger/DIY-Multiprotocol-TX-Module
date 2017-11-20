@@ -19,8 +19,8 @@
           },
           "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
           "archiveFileName": "package_multi_4in1_board_v1.0.0.zip",
-          "checksum": "SHA-256:714AD7FD60B55C92E2D7E24ED89F8A042C31765E32C9AD2919D82055C9ED719F",
-          "size": "3103",
+          "checksum": "SHA-256:7B8A93E4EDFA8EF63884A6B152C0DAFF24E067FA4F779A52AE77BFC8F23DCB72",
+          "size": "3135",
           "boards": [
             {"name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"}
           ],

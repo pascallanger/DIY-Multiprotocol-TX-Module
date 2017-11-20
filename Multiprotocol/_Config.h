@@ -368,7 +368,10 @@ const PPM_Parameters PPM_prot[15]=	{
 		FY326
 		FY319
 	MODE_SFHSS
-		NONE
+		XK
+		T10J
+		T8J
+		TM_FH
 	MODE_J6PRO
 		NONE
 	MODE_FQ777

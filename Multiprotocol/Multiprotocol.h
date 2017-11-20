@@ -196,6 +196,13 @@ enum Q303
 	CX10D	= 2,
 	CX10WD	= 3,
 };
+enum SFHSS
+{
+	XK		= 0,
+	T10J	= 1,
+	T8J		= 2,
+	TM_FH	= 3,
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -585,6 +592,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CX35		1
 			CX10D		2
 			CX10WD		3
+		sub_protocol==SFHSS
+			XK			0
+			T10J		1
+			T8J			2
+			TM_FH		3
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

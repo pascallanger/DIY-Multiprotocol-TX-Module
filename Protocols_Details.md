@@ -209,18 +209,6 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
-### Sub_protocol XK - *0*
-XK transmitter
-
-### Sub_protocol T8J - *1*
-Futaba T8J transmitter
-
-### Sub_protocol T10J - *2*
-Futaba T10J transmitter
-
-### Sub_protocol TM-FH - *3*
-Futaba TM-FH transmitter
-
 ***
 # CYRF6936 RF Module
 

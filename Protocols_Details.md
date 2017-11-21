@@ -209,6 +209,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
+Channels 9 to 16 are used as failsafe values for the channels 1 to 8.
+
 ***
 # CYRF6936 RF Module
 

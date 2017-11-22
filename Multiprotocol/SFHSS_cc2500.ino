@@ -148,20 +148,20 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 		command|=0x02;									// Assuming packet[0] == 0x81
 	counter&=0x3FF;										// Reset failsafe counter
 	if(counter&1) command|=0x08;						// Transmit lower and upper channels twice in a row
+
+	uint8_t ch_offset = ((command&0x08) >> 1) | ((command&0x04) << 1);	// CH1..CH4 or CH5..CH8, if failsafe CH9..CH12 or CH13..CH16
+	ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],2020,1020);
+	ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],2020,1020);
+	ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],2020,1020);
+	ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],2020,1020);
+
 	if(command&0x04)
-	{//Failsafe data
-		ch1=0x400;	// Centered
-		ch2=0x400;	// Centered
-		ch3=(command&0x08)?0x400:0xC00;	// Centered or zero if throttle channel
-		ch4=0x400;	// Centered
-	}
-	else
-	{//Normal data
-		uint8_t ch_offset = (command&0x08) >> 1;			// CH1..CH4 or CH5..CH8
-		ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],2020,1020);
-		ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],2020,1020);
-		ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],2020,1020);
-		ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],2020,1020);
+	{//Failsafe data are coded for sbus: (ch_value-880)/0.625
+		ch1=((ch1-880)<<3)/5;
+		ch2=((ch2-880)<<3)/5;
+		ch3=((ch3-880)<<3)/5;
+		if((command&0x08)==0) ch3|=0x800;	// Special flag for throttle which appears on dumps...
+		ch4=((ch4-880)<<3)/5;
 	}
 
 	// XK		[0]=0x81 [3]=0x00 [4]=0x00

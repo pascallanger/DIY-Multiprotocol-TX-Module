@@ -143,6 +143,10 @@
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
+//SHFSS failsafe is by default using the values of channels 9 to 16
+//You can uncomment the setting below to not use channels 9 to 16 but just bring down throttle
+//#define SFHSS_FAILSAFE_THROTTLE
+
 #define AFHDS2A_FAILSAFE
 #ifdef AFHDS2A_FAILSAFE
 /*

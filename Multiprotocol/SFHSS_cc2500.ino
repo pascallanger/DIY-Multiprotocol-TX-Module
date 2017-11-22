@@ -157,11 +157,16 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 
 	if(command&0x04)
 	{//Failsafe data are coded for sbus: (ch_value-880)/0.625
-		ch1=((ch1-880)<<3)/5;
-		ch2=((ch2-880)<<3)/5;
-		ch3=((ch3-880)<<3)/5;
-		if((command&0x08)==0) ch3|=0x800;	// Special flag for throttle which appears on dumps...
-		ch4=((ch4-880)<<3)/5;
+		#ifndef SFHSS_FAILSAFE_THROTTLE
+			ch1=((ch1-880)<<3)/5;
+			ch2=((ch2-880)<<3)/5;
+			ch3=((ch3-880)<<3)/5;
+			if((command&0x08)==0) ch3|=0x800;			// Special flag for throttle which appears on dumps...
+			ch4=((ch4-880)<<3)/5;
+		#else
+			ch1=1024;ch2=1024;ch4=1024;					// All channels centered
+			ch3=((command&0x08)==0)?0xF70:1024;			// except throttle value set to 970 with 0x800 flag set
+		#endif
 	}
 
 	// XK		[0]=0x81 [3]=0x00 [4]=0x00

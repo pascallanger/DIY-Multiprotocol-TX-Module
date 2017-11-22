@@ -7,21 +7,10 @@ The Deviation project (on which this project was based) have a useful list of mo
 <img src="http://img2.cheapdrone.co.uk/images/upload/2014/12/X5C%203/SKU115108-7.jpg" Width="200" Height="200" />
 
 ## Channel Map
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|RATES|PICTURE|VIDEO|HEADLESS
-=======
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|FLIP|RATES|PICTURE|VIDEO
->>>>>>> dd3f8b4717c03dc2f86701191dc8b265d4706751
-=======
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|FLIP|RATES|PICTURE|VIDEO
->>>>>>> af88abb13fb63cc2cc399b4bd3b72d4747b7a7cf
 
 ## Binding
 There are no special binding instructions.  The model powers up in Autobind mode and expects the bind sequence from the transmitter within the first 4-5 seconds. 
@@ -57,8 +46,6 @@ One of the most annoying functions on the Syma X5C is that the motors stop when 
 1. When you want to fly in "idle-up" mode flick the switch and your stabilization will always be active.  
 1. Remeber to switch off idle-up as soon as the quad lands (or crashes - to avoid damage to the motors)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 ### Additional notes on rates:
 
 The SymaX driver can add full trim to the control output.  Doing so enables
@@ -78,10 +65,6 @@ direction the quadcopter thinks you selected for headless mode may not be
 correct after especially wild flights.
 
 
-=======
->>>>>>> dd3f8b4717c03dc2f86701191dc8b265d4706751
-=======
->>>>>>> af88abb13fb63cc2cc399b4bd3b72d4747b7a7cf
 # Inductrix (Horizon Hobby)
 
 <img src="https://s7d5.scene7.com/is/image/horizonhobby/BLH8700_a0" Width="200" Height="200" />

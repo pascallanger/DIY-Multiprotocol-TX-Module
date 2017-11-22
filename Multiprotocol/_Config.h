@@ -130,15 +130,15 @@
 //#define	V2X2_NRF24L01_INO
 //#define	YD717_NRF24L01_INO
 //#define	MT99XX_NRF24L01_INO
-#define	MJXQ_NRF24L01_INO
+//#define	MJXQ_NRF24L01_INO
 //#define	SHENQI_NRF24L01_INO
 //#define	FY326_NRF24L01_INO
 //#define	FQ777_NRF24L01_INO
 //#define	ASSAN_NRF24L01_INO
 //#define	HONTAI_NRF24L01_INO
-//#define Q303_NRF24L01_INO
-//#define GW008_NRF24L01_INO
-//#define DM002_NRF24L01_INO
+//#define	Q303_NRF24L01_INO
+//#define	GW008_NRF24L01_INO
+//#define	DM002_NRF24L01_INO
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
@@ -368,10 +368,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		FY326
 		FY319
 	MODE_SFHSS
-		XK
-		T10J
-		T8J
-		TM_FH
+		NONE
 	MODE_J6PRO
 		NONE
 	MODE_FQ777

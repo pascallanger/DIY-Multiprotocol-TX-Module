@@ -22,7 +22,7 @@
 */
 #include <avr/pgmspace.h>
 //#define DEBUG_TX
-//#define USE_MY_CONFIG
+#define USE_MY_CONFIG
 #ifdef ARDUINO_AVR_XMEGA32D4
 #include "MultiOrange.h"
 #endif

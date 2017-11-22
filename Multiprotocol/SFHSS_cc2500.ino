@@ -127,25 +127,42 @@ static void __attribute__((unused)) SFHSS_calc_next_chan()
 // Values grow down and to the right.
 static void __attribute__((unused)) SFHSS_build_data_packet()
 {
+	uint16_t ch1,ch2,ch3,ch4;
 	// command.bit0 is the packet number indicator: =0 -> SFHSS_DATA1, =1 -> SFHSS_DATA2
 	// command.bit1 is unknown but seems to be linked to the payload[0].bit0 but more dumps are needed: payload[0]=0x82 -> =0, payload[0]=0x81 -> =1
 	// command.bit2 is the failsafe transmission indicator: =0 -> normal data, =1->failsafe data
 	// command.bit3 is the channels indicator: =0 -> CH1-4, =1 -> CH5-8
+	
+	//Coding below matches the Futaba T8J transmission scheme DATA1->CH1-4, DATA2->CH5-8, DATA1->CH5-8, DATA2->CH1-4,...
+	// XK, T10J and TM-FH are different with a classic DATA1->CH1-4, DATA2->CH5-8,...
+	//Failsafe is sent twice every couple of seconds (unknown but >5s) 
+	
 	uint8_t command= (phase == SFHSS_DATA1) ? 0 : 1;	// Building packet for Data1 or Data2
 	counter+=command;
-	if(counter&1) command|=0x08;						// Transmit lower and upper channels twice in a row
-	if((counter&0x3FE)==0x3FE)
-	{
-		command|=0x04;									// Transmit failsafe data every 7s
-		counter&=0x3FF;									// Reset counter
+	if( (counter&0x3FC) == 0x3FC )
+	{	// Transmit failsafe data twice every 7s
+		if( ((counter&1)^(command&1)) == 0 )
+			command|=0x04;								// Failsafe
 	}
 	else
 		command|=0x02;									// Assuming packet[0] == 0x81
-	uint8_t ch_offset = ((command&0x08) >> 1) + ((command&0x04)<<1);	// CH1..CH8 when failsafe is off, CH9..CH16 when failsafe is on
-	uint16_t ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],2020,1020);
-	uint16_t ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],2020,1020);
-	uint16_t ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],2020,1020);
-	uint16_t ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],2020,1020);
+	counter&=0x3FF;										// Reset failsafe counter
+	if(counter&1) command|=0x08;						// Transmit lower and upper channels twice in a row
+	if(command&0x04)
+	{//Failsafe data
+		ch1=0x400;	// Centered
+		ch2=0x400;	// Centered
+		ch3=(command&0x08)?0x400:0xC00;	// Centered or zero if throttle channel
+		ch4=0x400;	// Centered
+	}
+	else
+	{//Normal data
+		uint8_t ch_offset = (command&0x08) >> 1;			// CH1..CH4 or CH5..CH8
+		ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],2020,1020);
+		ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],2020,1020);
+		ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],2020,1020);
+		ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],2020,1020);
+	}
 
 	// XK		[0]=0x81 [3]=0x00 [4]=0x00
 	// T8J		[0]=0x81 [3]=0x42 [4]=0x07

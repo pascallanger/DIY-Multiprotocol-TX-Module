@@ -1,0 +1,23 @@
+//#define FORCE_GLOBAL_ID	0x12345678
+
+#if not defined STM32_BOARD
+	// #undef	AFHDS2A_A7105_INO
+
+	// #undef	DEVO_CYRF6936_INO
+	// #undef	J6PRO_CYRF6936_INO
+	// #undef	WK2x01_CYRF6936_INO
+
+	// #undef	FRSKYV_CC2500_INO
+	// #undef	FRSKYX_CC2500_INO
+
+	// #undef	KN_NRF24L01_INO
+	// #undef	SLT_NRF24L01_INO
+
+	// #undef	FY326_NRF24L01_INO
+	// #undef	FQ777_NRF24L01_INO
+	// #undef	ASSAN_NRF24L01_INO
+	// #undef	HONTAI_NRF24L01_INO
+	// #undef	Q303_NRF24L01_INO
+	// #undef	GW008_NRF24L01_INO
+	// #undef	DM002_NRF24L01_INO
+#endif

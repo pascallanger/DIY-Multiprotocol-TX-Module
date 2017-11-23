@@ -224,7 +224,7 @@ uint16_t ReadSFHSS()
 
 		/* Work cycle: 6.8ms */
 #define SFHSS_PACKET_PERIOD	6800
-#define SFHSS_DATA2_TIMING	1650	// Adjust this value between 1600 and 1650 if your RX(s) are not operating properly
+#define SFHSS_DATA2_TIMING	1630	// Adjust this value between 1600 and 1650 if your RX(s) are not operating properly
 		case SFHSS_DATA1:
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();

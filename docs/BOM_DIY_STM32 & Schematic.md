@@ -7,6 +7,7 @@ All diagrams and eagle files are available [here](https://github.com/pascallange
 If you are looking for the BOM for the DIY ATmega328 3.2d version click [here](BOM_DIY_ATmega.md).
 
 Digikey may not be your preferred supplier, but you should find enough information on their page to cross reference parts.
+If digikey is your prefered supplier, their is a link to shared carts to make checkout easier at the begining of the BOM.
 
 ## IMPORTANT NOTE on Telemetry
 In the case of the Turnigy 9X/9XR/9XR Pro you don't need to invert the telemetry signal therefore the instalation of the inverter chip SN74LVC2G86DCTR is  **OPTIONAL**. In this case and in order to have telemetry you need to solder **SJ1/SJ301** on the back of the board depending on which board version you have.
@@ -25,6 +26,12 @@ This BOM is for the board with the USB port which allows firmware upload.
 The board is available at OSHpark [here](https://oshpark.com/shared_projects/GX51nEoH)
 
 <img src="images/Board_PCB_STM32_USB-1.png" width="300" height="400"/> <img src="images/Board_PCB_STM32_USB-2.png" width="300" height="400"/> 
+
+Digikey BOM shared cart for building 1 module [here](http://www.digikey.com/short/3dn71h)
+
+Digikey BOM shared cart for building 3 modules [here](http://www.digikey.com/short/3dnt2r)
+
+Please Note - With the Digikey shared carts it is cheaper to order 10 piece stips with some parts like resistors and capacitors. These extra parts are not reflected or needed in the followong BOM list.
 
 Qty|Part|Description|Value|Package|Digikey Part Number
 ---|----|-----------|-----|-------|-------------------

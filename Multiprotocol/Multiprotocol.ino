@@ -539,7 +539,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
+			if( (protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) || (protocol==MODE_CABELL) )
 		#endif
 				TelemetryUpdate();
 	#endif
@@ -988,6 +988,12 @@ static void protocol_init()
 						remote_callback = DM002_callback;
 						break;
 				#endif
+				#if defined(CABELL_NRF24L01_INO)
+					case MODE_CABELL:
+						next_callback=initCABELL();
+						remote_callback = CABELL_callback;
+						break;
+				#endif
 			#endif
 		}
 	}
@@ -1310,7 +1316,7 @@ void pollBoot()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) )
+	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) || (protocol==MODE_CABELL) )
 		initTXSerial( SPEED_9600 ) ;
 	if(protocol==MODE_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;

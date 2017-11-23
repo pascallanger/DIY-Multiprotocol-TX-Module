@@ -382,14 +382,22 @@ Model: X16 AH
 
 Same channels assignement as above.
 
-## DM002 - *33*
-Autobind protocol
+## Cabell - *34*
+Homegrown protocol with variable number of channels (4-16) and telemetry.
 
-**Only 2 TX IDs available, change RX_Num value 0-1 to cycle through them**
+RXs details are located here: https://github.com/soligen2010/RC_RX_CABELL_V3_FHSS
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
----|---|---|---|---|---|---|---|---|----|----
-A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
+### Sub_protocol CABELL_V3 - *0*
+
+### Sub_protocol CABELL_V3_TELEMETRY - *1*
+
+### Sub_protocol CABELL_SET_FAIL_SAFE - *6*
+
+### Sub_protocol CABELL_UNBIND - *7*
 
 ## CG023 - *13*
 Autobind protocol
@@ -471,21 +479,14 @@ CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---
 FLIP|MODE|PICTURE|VIDEO|HEADLESS|RTH
 
-## Q2X2 - *29*
-### Sub_protocol Q222 - *0*
-Models: Q222 v1 and V686 v2
+## DM002 - *33*
+Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|MODULE2|MODULE1|HEADLESS|RTH|XCAL|YCAL
+**Only 2 TX IDs available, change RX_Num value 0-1 to cycle through them**
 
-### Sub_protocol Q242 - *1* and Q282 - *2*
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
-
-Model: JXD 509 is using Q282 with CH12=Start/Stop motors
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
+A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
 
 ## ESKY - *16*
 
@@ -612,6 +613,22 @@ Only 1 ID available
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP||||HEADLESS
+
+## Q2X2 - *29*
+### Sub_protocol Q222 - *0*
+Models: Q222 v1 and V686 v2
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|MODULE2|MODULE1|HEADLESS|RTH|XCAL|YCAL
+
+### Sub_protocol Q242 - *1* and Q282 - *2*
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
+
+Model: JXD 509 is using Q282 with CH12=Start/Stop motors
 
 ## Q303 - *31*
 Autobind protocol

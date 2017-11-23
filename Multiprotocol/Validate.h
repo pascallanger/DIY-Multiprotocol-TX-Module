@@ -79,6 +79,7 @@
 	#undef	Q303_NRF24L01_INO
 	#undef	GW008_NRF24L01_INO
 	#undef	DM002_NRF24L01_INO
+	#undef	CABELL_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly
@@ -87,6 +88,7 @@
 	#undef AFHDS2A_FW_TELEMETRY
 	#undef AFHDS2A_HUB_TELEMETRY
 	#undef BAYANG_HUB_TELEMETRY
+	#undef CABELL_HUB_TELEMETRY
 	#undef HUBSAN_HUB_TELEMETRY
 	#undef HUB_TELEMETRY
 	#undef SPORT_TELEMETRY
@@ -99,6 +101,9 @@
 	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY
+	#endif
+	#if not defined(CABELL_NRF24L01_INO)
+		#undef CABELL_HUB_TELEMETRY
 	#endif
 	#if not defined(HUBSAN_A7105_INO)
 		#undef HUBSAN_HUB_TELEMETRY
@@ -116,7 +121,7 @@
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS)
+	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 	#endif

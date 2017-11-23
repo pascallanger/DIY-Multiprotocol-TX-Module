@@ -139,6 +139,7 @@
 #define	Q303_NRF24L01_INO
 #define	GW008_NRF24L01_INO
 #define	DM002_NRF24L01_INO
+#define CABELL_NRF24L01_INO
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
@@ -212,7 +213,7 @@ const int8_t AFHDS2AFailsafe[14]=	{
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-
+#define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -405,6 +406,11 @@ const PPM_Parameters PPM_prot[15]=	{
 		NONE
 	MODE_DM002
 		NONE
+	MODE_CABELL
+		CABELL_V3
+		CABELL_V3_TELEMETRY
+		CABELL_SET_FAIL_SAFE
+		CABELL_UNBIND
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

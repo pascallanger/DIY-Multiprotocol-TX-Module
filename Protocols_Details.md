@@ -383,7 +383,7 @@ Model: X16 AH
 Same channels assignement as above.
 
 ## Cabell - *34*
-Homegrown protocol with variable number of channels (4-16) and telemetry.
+Homegrown protocol with variable number of channels (4-16) and telemetry (RSSI, V1, V2).
 
 RXs details are located here: https://github.com/soligen2010/RC_RX_CABELL_V3_FHSS
 

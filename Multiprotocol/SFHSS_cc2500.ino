@@ -156,16 +156,24 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 	ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],2020,1020);
 
 	if(command&0x04)
-	{//Failsafe data are coded for sbus: (ch_value-880)/0.625
-		#ifndef SFHSS_FAILSAFE_THROTTLE
-			ch1=((ch1-880)<<3)/5;
-			ch2=((ch2-880)<<3)/5;
-			ch3=((ch3-880)<<3)/5;
-			if((command&0x08)==0) ch3|=0x800;			// Special flag for throttle which appears on dumps...
-			ch4=((ch4-880)<<3)/5;
+	{	//Failsafe data are:
+		// 0 to 1023 -> no output on channel
+		// 1024-2047 -> hold output on channel
+		// 2048-4095 -> channel_output=(data&0x3FF)*5/4+880 in µs
+		// Notes:
+		//    2048-2559 -> does not look valid since it only covers the range from 1520µs to 2160µs 
+		//    2560-3583 -> valid for any channel values from 880µs to 2160µs
+		//    3584-4095 -> looks to be used for the throttle channel with values ranging from 880µs to 1520µs
+		#ifdef SFHSS_FAILSAFE_CH9_16
+			ch1=((5360-ch1)<<2)/5;						//((1520*2-ch1)<<2)/5+1856;
+			ch2=((5360-ch2)<<2)/5;
+			ch3=((5360-ch3)<<2)/5;
+			if((command&0x08)==0 && ch3<3072)			// Throttle
+				ch3+=1024;
+			ch4=((5360-ch4)<<2)/5;
 		#else
-			ch1=1024;ch2=1024;ch4=1024;					// All channels centered
-			ch3=((command&0x08)==0)?0xF70:1024;			// except throttle value set to 970 with 0x800 flag set
+			ch1=1024;ch2=1024;ch4=1024;					// All channels hold their positions
+			ch3=((command&0x08)==0)?3664:1024;			// except throttle value set to 980µs
 		#endif
 	}
 
@@ -216,7 +224,7 @@ uint16_t ReadSFHSS()
 
 		/* Work cycle: 6.8ms */
 #define SFHSS_PACKET_PERIOD	6800
-#define SFHSS_DATA2_TIMING	1630									// original 1650
+#define SFHSS_DATA2_TIMING	1650	// Adjust this value between 1600 and 1650 if your RX(s) are not operating properly
 		case SFHSS_DATA1:
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();

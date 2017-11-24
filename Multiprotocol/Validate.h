@@ -4,7 +4,7 @@
 #endif
 #if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 	//Atmega328p
-	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO)
+	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_MULTI_NO_BOOT) && not defined(ARDUINO_MULTI_FLASH_FROM_TX) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO)
 		#error You must select one of these boards: "Multi 4-in-1", "Arduino Pro or Pro Mini" or "Arduino Mini"
 	#endif
 	#if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
@@ -16,6 +16,14 @@
 	#ifndef ARDUINO_GENERIC_STM32F103C
 		#error You must select the board type "Generic STM32F103C series"
 	#endif
+#endif
+
+//Change/Force configuration for the bootloader option
+#if defined ARDUINO_MULTI_FLASH_FROM_TX
+	#define CHECK_FOR_BOOTLOADER
+#endif
+#if defined ARDUINO_MULTI_NO_BOOT
+	#undef CHECK_FOR_BOOTLOADER
 #endif
 
 //Change/Force configuration if OrangeTX
@@ -70,6 +78,7 @@
 	#undef	HONTAI_NRF24L01_INO
 	#undef	Q303_NRF24L01_INO
 	#undef	GW008_NRF24L01_INO
+	#undef	DM002_NRF24L01_INO
 	#undef	CABELL_NRF24L01_INO
 #endif
 
@@ -79,6 +88,7 @@
 	#undef AFHDS2A_FW_TELEMETRY
 	#undef AFHDS2A_HUB_TELEMETRY
 	#undef BAYANG_HUB_TELEMETRY
+	#undef CABELL_HUB_TELEMETRY
 	#undef HUBSAN_HUB_TELEMETRY
 	#undef HUB_TELEMETRY
 	#undef SPORT_TELEMETRY
@@ -91,6 +101,9 @@
 	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY
+	#endif
+	#if not defined(CABELL_NRF24L01_INO)
+		#undef CABELL_HUB_TELEMETRY
 	#endif
 	#if not defined(HUBSAN_A7105_INO)
 		#undef HUBSAN_HUB_TELEMETRY
@@ -108,7 +121,7 @@
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS)
+	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 	#endif

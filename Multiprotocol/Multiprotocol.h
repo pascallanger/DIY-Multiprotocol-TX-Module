@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	20
+#define VERSION_PATCH_LEVEL	29
 //******************
 // Protocols
 //******************
@@ -58,6 +58,7 @@ enum PROTOCOLS
 	MODE_WK2x01		= 30,	// =>CYRF6936
 	MODE_Q303		= 31,	// =>NRF24L01
 	MODE_GW008		= 32,	// =>NRF24L01
+	MODE_DM002		= 33,	// =>NRF24L01
 	MODE_CABELL		= 34,	// =>NRF24L01
 };
 
@@ -136,7 +137,8 @@ enum CG023
 enum BAYANG
 {
     BAYANG	= 0,
-    H8S3D	= 1
+    H8S3D	= 1,
+    X16_AH  = 2,
 };
 enum MT99XX
 {
@@ -197,10 +199,10 @@ enum Q303
 };
 enum CABELL
 {
-  CABELL_V3            = 0,
-  CABELL_V3_TELEMETRY  = 1,
-  CABELL_SET_FAIL_SAFE = 6,
-  CABELL_UNBIND        = 7
+	CABELL_V3			= 0,
+	CABELL_V3_TELEMETRY	= 1,
+	CABELL_SET_FAIL_SAFE= 6,
+	CABELL_UNBIND		= 7,
 };
 
 #define NONE 		0
@@ -400,7 +402,7 @@ enum CC2500_POWER
 	CC2500_POWER_16 = 0xFE,	//   0dbm
 	CC2500_POWER_17 = 0xFF	//  +1dbm
 };
-#define CC2500_HIGH_POWER	CC2500_POWER_16
+#define CC2500_HIGH_POWER	CC2500_POWER_17
 #define CC2500_LOW_POWER	CC2500_POWER_13
 #define CC2500_RANGE_POWER	CC2500_POWER_1
 #define CC2500_BIND_POWER	CC2500_POWER_1
@@ -488,7 +490,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					WK2x01		30
 					Q303		31
 					GW008		32
-					CABELL		33
+					DM002		33
+					CABELL		34
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -544,6 +547,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==BAYANG
 			BAYANG		0
 			H8S3D		1
+			X16_AH		2
 		sub_protocol==MT99XX
 			MT99		0
 			H7			1
@@ -591,10 +595,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CX10D		2
 			CX10WD		3
 		sub_protocol==CABELL
-			CABELL_V3            0,
-			CABELL_V3_TELEMETRY  1,
-			CABELL_SET_FAIL_SAFE 6,
-			CABELL_UNBIND        7
+			CABELL_V3				0
+			CABELL_V3_TELEMETRY		1
+			CABELL_SET_FAIL_SAFE	6
+			CABELL_UNBIND			7
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

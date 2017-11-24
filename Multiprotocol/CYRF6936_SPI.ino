@@ -78,6 +78,7 @@ uint8_t CYRF_Reset()
 */
 void CYRF_GetMfgData(uint8_t data[])
 {
+#ifndef FORCE_CYRF_ID
 	/* Fuses power on */
 	CYRF_WriteRegister(CYRF_25_MFG_ID, 0xFF);
 
@@ -85,6 +86,9 @@ void CYRF_GetMfgData(uint8_t data[])
 
 	/* Fuses power off */
 	CYRF_WriteRegister(CYRF_25_MFG_ID, 0x00); 
+#else
+	memcpy(data,FORCE_CYRF_ID,6);
+#endif
 }
 
 /*

@@ -1,4 +1,4 @@
-#ATmega Serial Uploader
+# ATmega Serial Uploader
 
 Mike Blandford adapted the optiboot bootloader for the 4-in-1 module to allow flashing of the module using a standard Arduino USB to serial adapter or FTDI adapter.  No need to open the module case. Once set up is very easy to use: 
 
@@ -22,7 +22,7 @@ While the bootloader is running, if it detects a communication problem, it confi
 
 This bootloader is for reading and writing the flash only, the EEPROM is not supported, neither is reading/writing the fuses, but it only uses 512 bytes of flash.
 
-##Install the bootloader
+## Install the bootloader
 To get the bootloader onto the ATmega you need to connect an flashing tool (like USBasp) to the 6-pin ISP connector on the board.
 Simply flash the .hex file to get the bootloader on the chip, and change the high fuse at the same time.
 

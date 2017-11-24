@@ -21,8 +21,11 @@
 #include "iface_cc2500.h"
 
 uint8_t chanskip;
-uint8_t seq_last_sent;
-uint8_t seq_last_rcvd;
+//uint8_t seq_last_sent;
+//uint8_t seq_last_rcvd;
+
+uint8_t FrX_send_seq ;
+uint8_t FrX_receive_seq ;
 
 static void __attribute__((unused)) set_start(uint8_t ch )
 {
@@ -151,11 +154,7 @@ static void __attribute__((unused)) frskyX_data_frame()
 		packet[9+i+2]=chan_1>>4;
 	}
 
-	packet[21] = seq_last_sent << 4 | seq_last_rcvd;//8 at start
-	if (seq_last_sent < 0x08 && seq_last_rcvd < 8)
-		seq_last_sent = (seq_last_sent + 1) % 4;
-	else if (seq_last_rcvd == 0x00)
-		seq_last_sent = 1;
+	packet[21] = (FrX_receive_seq << 4) | FrX_send_seq ;//8 at start
 	
 	if(sub_protocol & 1 )// in X8 mode send only 8ch every 9ms
 		lpass = 0 ;
@@ -208,9 +207,9 @@ uint16_t ReadFrSkyX()
 			CC2500_Strobe(CC2500_SIDLE);		
 			CC2500_WriteData(packet, packet[0]+1);
 			//
-			frskyX_data_frame();
+//			frskyX_data_frame();
 			state++;
-			return 5500;
+			return 5200;
 		case FRSKY_DATA2:
 			CC2500_SetTxRxMode(RX_EN);
 			CC2500_Strobe(CC2500_SIDLE);
@@ -219,7 +218,7 @@ uint16_t ReadFrSkyX()
 		case FRSKY_DATA3:		
 			CC2500_Strobe(CC2500_SRX);
 			state++;
-			return 3000;
+			return 3100;
 		case FRSKY_DATA4:
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
 			if (len && (len<=(0x0E + 3)))				//Telemetry frame is 17
@@ -238,8 +237,10 @@ uint16_t ReadFrSkyX()
 				// restart sequence on missed packet - might need count or timeout instead of one missed
 				if(packet_count>100)
 				{//~1sec
-					seq_last_sent = 0;
-					seq_last_rcvd = 8;
+//					seq_last_sent = 0;
+//					seq_last_rcvd = 8;
+					FrX_send_seq = 0x08 ;
+//					FrX_receive_seq = 0 ;
 					packet_count=0;
 					#if defined TELEMETRY
 						telemetry_lost=1;
@@ -247,8 +248,13 @@ uint16_t ReadFrSkyX()
 				}
 				CC2500_Strobe(CC2500_SFRX);			//flush the RXFIFO
 			}
+			frskyX_data_frame();
+			if ( FrX_send_seq != 0x08 )
+			{
+				FrX_send_seq = ( FrX_send_seq + 1 ) & 0x03 ;
+			}
 			state = FRSKY_DATA1;
-			return 300;
+			return 500;
 	}		
 	return 1;		
 }
@@ -277,8 +283,10 @@ uint16_t initFrSkyX()
 		state = FRSKY_DATA1;
 		initialize_data(0);
 	}
-	seq_last_sent = 0;
-	seq_last_rcvd = 8;
+//	seq_last_sent = 0;
+//	seq_last_rcvd = 8;
+	FrX_send_seq = 0x08 ;
+	FrX_receive_seq = 0 ;
 	return 10000;
 }	
 #endif

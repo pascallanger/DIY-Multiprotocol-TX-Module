@@ -1,0 +1,33 @@
+{
+  "packages": [
+    {
+      "name": "Multi 4-in-1",
+      "maintainer": "Pascal Langer",
+      "websiteURL": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module",
+      "email": "pascal_langer@yahoo.fr",
+      "help": {
+        "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+      },
+      "platforms": [
+        {
+          "name": "Multi 4-in-1 Boards",
+          "architecture": "avr",
+          "version": "1.0",
+          "category": "Contributed",
+          "help": {
+            "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+          },
+          "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
+          "archiveFileName": "package_multi_4in1_board_v1.0.0.zip",
+          "checksum": "SHA-256:61AB463B5B91BCCBF285EB4C801B37E4F46138CA8762E4C04CCB09C2FF157CB7",
+          "size": "3161",
+          "boards": [
+            {"name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"}
+          ],
+          "toolsDependencies": []
+        }
+      ],
+      "tools": []
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+# See: https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
+# See: http://code.google.com/p/arduino/wiki/Platforms
+
+##############################################################
+
+menu.bootloader=Bootloader
+
+##############################################################
+## Multi 4-in-1 (3.3V, 16 MHz) w/ ATmega328p
+## --------------------------------------------------
+multiatmega328p.name=Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)
+
+multiatmega328p.upload.tool=arduino:avrdude
+multiatmega328p.upload.protocol=arduino
+multiatmega328p.upload.speed=57600
+multiatmega328p.upload.maximum_data_size=2048
+
+multiatmega328p.build.mcu=atmega328p
+multiatmega328p.build.f_cpu=16000000L
+multiatmega328p.build.core=arduino:arduino
+multiatmega328p.build.variant=arduino:eightanaloginputs
+multiatmega328p.build.extra_flags=-Wl,--relax
+multiatmega328p.build.board=MULTI_AVR
+
+multiatmega328p.bootloader.tool=arduino:avrdude
+multiatmega328p.bootloader.low_fuses=0xFF
+multiatmega328p.bootloader.extended_fuses=0xFD
+multiatmega328p.bootloader.unlock_bits=0x3F
+multiatmega328p.bootloader.lock_bits=0x0F
+
+multiatmega328p.menu.bootloader.none=No bootloader
+multiatmega328p.menu.bootloader.none.build.board=MULTI_NO_BOOT
+
+multiatmega328p.menu.bootloader.none.upload.maximum_size=32768
+multiatmega328p.menu.bootloader.none.bootloader.file=Multi4in1/AtmegaMultiEmpty.hex
+multiatmega328p.menu.bootloader.none.bootloader.high_fuses=0xD7
+
+multiatmega328p.menu.bootloader.optiboot=Flash from TX
+multiatmega328p.menu.bootloader.optiboot.build.board=MULTI_FLASH_FROM_TX
+
+multiatmega328p.menu.bootloader.optiboot.upload.maximum_size=32256
+multiatmega328p.menu.bootloader.optiboot.bootloader.file=Multi4in1/AtmegaMultiBoot.hex
+multiatmega328p.menu.bootloader.optiboot.bootloader.high_fuses=0xD6
+
+##############################################################

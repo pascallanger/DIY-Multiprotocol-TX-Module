@@ -179,12 +179,26 @@ static void AFHDS2A_build_packet(uint8_t type)
 			packet[0] = 0x56;
 			for(uint8_t ch=0; ch<14; ch++)
 			{
-				/*if((Model.limits[ch].flags & CH_FAILSAFE_EN))
+#ifdef AFHDS2A_FAILSAFE
+				int8_t failsafe = AFHDS2AFailsafe[ch];
+				//
+				if(failsafe != -1)
 				{
-					packet[9 + ch*2] = Servo_data[CH_AETR[ch]] & 0xff;
-					packet[10+ ch*2] = (Servo_data[CH_AETR[ch]] >> 8) & 0xff;
+					//
+					if (failsafe > AFHDS2AFailsafeMAX)
+						failsafe = AFHDS2AFailsafeMAX;
+					//
+					if (failsafe < AFHDS2AFailsafeMIN)
+						failsafe = AFHDS2AFailsafeMIN;
+					//
+					double scale = (float)failsafe/(float)100;
+					int16_t failsafeMicros = 1500 + ((float)512 * scale);
+					//
+					packet[9 + ch*2] =  failsafeMicros & 0xff;
+					packet[10+ ch*2] = ( failsafeMicros >> 8) & 0xff;
 				}
-				else*/
+				else
+#endif
 				{
 					packet[9 + ch*2] = 0xff;
 					packet[10+ ch*2] = 0xff;
@@ -260,6 +274,7 @@ uint16_t ReadAFHDS2A()
 			while ((uint16_t)micros()-start < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
+			A7105_SetPower();
 			A7105_SetTxRxMode(TXRX_OFF);					// Turn LNA off since we are in near range and we want to prevent swamping
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;
@@ -325,6 +340,7 @@ uint16_t ReadAFHDS2A()
 			while ((uint16_t)micros()-start < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
+			A7105_SetPower();
 			A7105_SetTxRxMode(RX_EN);
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;

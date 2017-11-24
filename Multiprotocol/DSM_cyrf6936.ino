@@ -273,14 +273,10 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		uint16_t value = 0xffff;;	
 		if (idx != 0xff)
 		{
-			if (!IS_BIND_DONE_on)
-			{ // Failsafe position during binding
-				value=max/2;				//all channels to middle
-				if(idx==0)
-					value=1;				//except throttle
-			}
-			else
-				value=map(Servo_data[CH_TAER[idx]],servo_min_125,servo_max_125,0,max);
+			/* Spektrum own remotes transmit normal values during bind and actually
+			 * use this (e.g. Nano CP X) to select the transmitter mode (e.g. computer vs
+			 * non-computer radio, so always end normal output */
+			value=map(Servo_data[CH_TAER[idx]],servo_min_125,servo_max_125,0,max);
 			value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);
 		}	  
 		packet[i*2+2] = (value >> 8) & 0xff;

@@ -7,7 +7,7 @@ There are two different modes to interface the MULTI-Module and the transmitter:
 
 Any Tx providing a PPM output (like a trainer port, or a transmitter with a RF module bay) is compatible with the MULTI-module.
 
-##PPM
+## PPM
 The DIY Mulitprotocol module supports industry standard PPM interface that works with all transmitters with either a module bay, and/or a trainer port.  Even the older 72MHz FM radios support this standard.
 
 <img src="images/PPM.png" width="338" height="200" /> 
@@ -22,7 +22,7 @@ Even in PPM mode it may still be possible to access telemetry information from s
 
 For transmitter setup using the PPM protocol go to the [PPM Setup page](PPM_Setup.md)
 
-##Serial
+## Serial
 Transmitters that run er9X, erSky9X or OpenTx firmwares (like the FrSky Taranis, FlySky TH9X and Turnigy 9X family of transmitters) have the option of using a fast serial communication protocol between the Tx and the DIY Multiprotocol module.  Using this serial communication protocol has some significant advantages:
 
 1. selecting the specific radio protocol (e.g. DSM) and the sub protocol (e.g. DSMX22) is done directly in the menu system of the Tx (see the picture below) 
@@ -50,7 +50,7 @@ Transmitter|Firmware Options|Telemetry Enabled
 Click on your transmitter above to view specific setup instructions.
 
 
-##Telemetry  
+## Telemetry  
 
 To enable serial telemetry you need one of the radios and firmwares listed in the table above and **may** require modifications to your Tx. See the table above.  Before attempting telemetry check the following:  
 
@@ -59,7 +59,7 @@ To enable serial telemetry you need one of the radios and firmwares listed in th
 1. Your transmitter hardware is telemetry enabled, or you have done the required mods.  Check the table above.
 
 <a name="Telemetry_Mod"></a>   
-##Optional Telemetry mod for 9X/R TH9X transmitters
+## Optional Telemetry mod for 9X/R TH9X transmitters
 The telemetry mod for these transmitters has evolved.  The original and popular "FrSky Telemetry Mod" requires 2 pins on the transmitter module board to be modified (RX on pin 5 and TX on pin 2).  All the recent MULTI-Module hardware options supports serial transmission on pin 1 (the same pin as the PPM signal) so, in this case, only the mod on pin 5 is required. 
 
 A good tutorial to follow is Oscar Liang's [here](http://blog.oscarliang.net/turnigy-9x-advance-mod/) but when you get to wiring up the Tx Module bay pins, you only need to perform the steps relevant for Pin 5.
@@ -67,7 +67,7 @@ A good tutorial to follow is Oscar Liang's [here](http://blog.oscarliang.net/tur
 You can see Midelic's original instructions [here](http://www.rcgroups.com/forums/showpost.php?p=28359305&postcount=2)  
 
 
-##Other Notes:  
+## Other Notes:  
 - er9X and erSky9X firmware already supports Multiprotocol Module as a standard feature.  The next major release of OpenTx - OpenTx 2.2 - will have DIY Mulitprotocol support as a standard feature.  
 
 - Owners of Walkera Devo transmitters should look at the [Deviation-Tx](http://www.deviationtx.com) project for how to achieve the same end goal with your transmitters. 

@@ -49,6 +49,13 @@
 //The goal is to prevent binding other people's model when powering up the TX, changing model or scanning through protocols.
 #define WAIT_FOR_BIND
 
+/*************************/
+/*** BOOTLOADER USE     ***/
+/*************************/
+//Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
+//Check https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders
+//To enable this feature remove the "//" on the next line. It is automatically enabled/disabled when you use the AVR Multi boards.
+//#define CHECK_FOR_BOOTLOADER
 
 /****************/
 /*** RF CHIPS ***/
@@ -70,6 +77,22 @@
 //#define CC2500_ENABLE_LOW_POWER
 //#define NRF24L01_ENABLE_LOW_POWER
 
+
+/*****************/
+/*** GLOBAL ID ***/
+/*****************/
+//A global ID is used by most protocols to bind and retain the bind to models. To prevent duplicate IDs, it is automatically
+// generated using a random 32 bits number the first time the eeprom is initialized.
+//If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
+// then you can force the ID to a certain known value using the lines below.
+//Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
+//#define FORCE_GLOBAL_ID	0x12345678
+
+//Protocols using the CYRF6936 (DSM, Devo, Walkera...) are using the CYRF ID instead which should prevent duplicated IDs.
+//If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
+// then you can force the ID to a certain known value using the lines below.
+//Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
+//#define FORCE_CYRF_ID	"\x12\x34\x56\x78\x9A\xBC"
 
 /****************************/
 /*** PROTOCOLS TO INCLUDE ***/
@@ -113,9 +136,50 @@
 #define	FQ777_NRF24L01_INO
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
-#define Q303_NRF24L01_INO
-#define GW008_NRF24L01_INO
+#define	Q303_NRF24L01_INO
+#define	GW008_NRF24L01_INO
+#define	DM002_NRF24L01_INO
 #define CABELL_NRF24L01_INO
+
+/**************************/
+/*** FAILSAFE SETTINGS  ***/
+/**************************/
+//SHFSS failsafe is by default set to all channels hold their positions except throttle forced to low (980µs)
+//You can uncomment the setting below to use channels 9(1) to 16(8) instead
+//#define SFHSS_FAILSAFE_CH9_16
+
+#define AFHDS2A_FAILSAFE
+#ifdef AFHDS2A_FAILSAFE
+/*
+	Failsafe Min/Max values 962 <-> 2038
+*/
+const int8_t AFHDS2AFailsafeMIN = -105;
+const int8_t AFHDS2AFailsafeMAX = 105;
+//
+const int8_t AFHDS2AFailsafe[14]=	{
+/*
+ Failsafe examples
+ 988 <-> 2012µs -100% =  988 = 1500 + (2012-988)/2 * (-100/100) = 1500 - 512 =  988
+ 988 <-> 2012µs    0% = 1500 = 1500 + (2012-988)/2 * (   0/100) = 1500 +   0 = 1500
+ 988 <-> 2012µs  100% = 2012 = 1500 + (2012-988)/2 * ( 100/100) = 1500 + 512 = 2012
+ 988 <-> 2012µs -105% =  962 = 1500 + (2012-988)/2 * (-105/100) = 1500 - 538 =  962
+*/
+/* ch  1 */ -1,
+/* ch  2 */ -1,
+/* ch  3 */ -105,
+/* ch  4 */ -1,
+/* ch  5 */ -1,
+/* ch  6 */ -1,
+/* ch  7 */ -1,
+/* ch  8 */ -1,
+/* ch  9 */ -1,
+/* ch 10 */ -1,
+/* ch 11 */ -1,
+/* ch 12 */ -1,
+/* ch 13 */ -1,
+/* ch 14 */ -1
+};
+#endif
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/
@@ -149,7 +213,7 @@
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-
+#define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -160,7 +224,6 @@
 
 //If you do not plan to use the Serial mode comment this line using "//" to save Flash space
 #define ENABLE_SERIAL
-
 
 /*************************/
 /*** PPM MODE SETTINGS ***/
@@ -211,8 +274,8 @@ const PPM_Parameters PPM_prot[15]=	{
 /*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
-/*	7	*/	{MODE_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	6	*/	{MODE_DSM	,	DSMX_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
+/*	7	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},
 /*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	10	*/	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -288,6 +351,7 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_BAYANG
 		BAYANG
 		H8S3D
+		X16_AH
 	MODE_ESKY
 		NONE
 	MODE_MT99XX
@@ -339,6 +403,8 @@ const PPM_Parameters PPM_prot[15]=	{
 		CX10D
 		CX10WD
 	MODE_GW008
+		NONE
+	MODE_DM002
 		NONE
 	MODE_CABELL
 		CABELL_V3

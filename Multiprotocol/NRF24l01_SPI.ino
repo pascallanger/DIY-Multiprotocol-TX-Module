@@ -27,6 +27,7 @@ uint8_t rf_setup;
 void NRF24L01_Initialize()
 {
     rf_setup = 0x09;
+	prev_power = 0x00;	// Make sure prev_power is inline with current power
 	XN297_SetScrambledMode(XN297_SCRAMBLED);
 }  
 
@@ -133,8 +134,8 @@ void NRF24L01_SetBitrate(uint8_t bitrate)
 
     // Bit 0 goes to RF_DR_HIGH, bit 1 - to RF_DR_LOW
     rf_setup = (rf_setup & 0xD7) | ((bitrate & 0x02) << 4) | ((bitrate & 0x01) << 3);
-    NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
-    prev_power = NRF_POWER_0;          // Power setting was just reset.  This will get updated in the next call to SetPower
+    prev_power=(rf_setup>>1)&0x03;	// Make sure prev_power is inline with current power
+	NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
 }
 
 /*
@@ -168,9 +169,9 @@ void NRF24L01_SetPower()
 		#endif
 	if(IS_RANGE_FLAG_on)
 		power=NRF_POWER_0;
-	rf_setup = (rf_setup & 0xF9) | (power << 1);
 	if(prev_power != power)
 	{
+		rf_setup = (rf_setup & 0xF9) | (power << 1);
 		NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
 		prev_power=power;
 	}

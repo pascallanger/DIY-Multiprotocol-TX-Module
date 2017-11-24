@@ -30,7 +30,11 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
 
 1. In order to compile successfully you need also to modify a maple library file. In ```....\hardware\Arduino_STM32\STM32F1\cores\maple\libmaple\usart_f1.c``` comment out the 2 functions as shown below. This is required to have low-level access to the USART interrupt. <br>
    ```
-   /* void __irq_usart2(void){
+   /* void __irq_usart1(void){
+   usart_irq(&usart1_rb, USART1_BASE);
+   }
+   
+   void __irq_usart2(void){
    usart_irq(&usart2_rb, USART2_BASE);
    }
     

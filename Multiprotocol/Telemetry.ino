@@ -20,54 +20,47 @@
 uint8_t RetrySequence ;
 
 #if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
-	#define MULTI_TIME 500 //in ms
+	#define MULTI_TIME				500	//in ms
+	#define INPUT_SYNC_TIME			100	//in ms
+	#define INPUT_ADDITIONAL_DELAY	100	// in 10µs, 100 => 1000 µs
 	uint32_t lastMulti = 0;
-#endif
+#endif // MULTI_TELEMETRY/MULTI_STATUS
 
 #if defined SPORT_TELEMETRY	
-    #define SPORT_TIME 12000  //12ms
+	#define SPORT_TIME 12000	//12ms
 	#define FRSKY_SPORT_PACKET_SIZE   8
+	#define FX_BUFFERS	4
 	uint32_t last = 0;
 	uint8_t sport_counter=0;
 	uint8_t RxBt = 0;
 	uint8_t sport = 0;
-#define MAX_PKTX 10
-#define FX_BUFFERS	4
-uint8_t pktx[MAX_PKTX];
-uint8_t pktx1[FRSKY_SPORT_PACKET_SIZE*FX_BUFFERS];
-uint8_t indx;
-//struct t_fx_rx_packet
-//{
-//	uint8_t validSequence ;
-//	uint8_t count ;
-//	uint8_t payload[6] ;
-//} ;
+	uint8_t pktx1[FRSKY_SPORT_PACKET_SIZE*FX_BUFFERS];
 
-// Store for out of sequence packet
-//struct t_fx_rx_packet FrskyxRxTelemetry ;
+	// Store for out of sequence packet
+	uint8_t FrskyxRxTelemetryValidSequence ;
+	struct t_fx_rx_frame
+	{
+		uint8_t valid ;
+		uint8_t count ;
+		uint8_t payload[6] ;
+	} ;
 
-uint8_t FrskyxRxTelemetryValidSequence ;
+	// Store for FrskyX telemetry
+	struct t_fx_rx_frame FrskyxRxFrames[4] ;
+	uint8_t NextFxFrameToForward ;
+#endif // SPORT_TELEMETRY
 
-struct t_fx_rx_frame
-{
-	uint8_t valid ;
-	uint8_t count ;
-	uint8_t payload[6] ;
-} ;
-
-// Store for FrskyX telemetry
-struct t_fx_rx_frame FrskyxRxFrames[4] ;
-uint8_t NextFxFrameToForward ;
-
-#endif
 #if defined HUB_TELEMETRY
 	#define USER_MAX_BYTES 6
 	uint8_t prev_index;
-#endif
+#endif // HUB_TELEMETRY
 
-#define START_STOP              0x7e
-#define BYTESTUFF               0x7d
-#define STUFF_MASK              0x20
+#define START_STOP	0x7e
+#define BYTESTUFF	0x7d
+#define STUFF_MASK	0x20
+#define MAX_PKTX	10
+uint8_t pktx[MAX_PKTX];
+uint8_t indx;
 uint8_t frame[18];
 
 #if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
@@ -85,30 +78,30 @@ static void multi_send_header(uint8_t type, uint8_t len)
 
 static void multi_send_status()
 {
-    multi_send_header(MULTI_TELEMETRY_STATUS, 5);
+	multi_send_header(MULTI_TELEMETRY_STATUS, 5);
 
-    // Build flags
-    uint8_t flags=0;
-    if (IS_INPUT_SIGNAL_on)
-        flags |= 0x01;
-    if (mode_select==MODE_SERIAL)
-        flags |= 0x02;
-    if (remote_callback != 0)
-    {
-	    flags |= 0x04;
+	// Build flags
+	uint8_t flags=0;
+	if (IS_INPUT_SIGNAL_on)
+		flags |= 0x01;
+	if (mode_select==MODE_SERIAL)
+		flags |= 0x02;
+	if (remote_callback != 0)
+	{
+		flags |= 0x04;
 		if (IS_WAIT_BIND_on)
 			flags |= 0x10;
 		else
 			if (!IS_BIND_DONE_on)
 				flags |= 0x08;
 	}
-    Serial_write(flags);
+	Serial_write(flags);
 
-    // Version number example: 1.1.6.1
-    Serial_write(VERSION_MAJOR);
-    Serial_write(VERSION_MINOR);
-    Serial_write(VERSION_REVISION);
-    Serial_write(VERSION_PATCH_LEVEL);
+	// Version number example: 1.1.6.1
+	Serial_write(VERSION_MAJOR);
+	Serial_write(VERSION_MINOR);
+	Serial_write(VERSION_REVISION);
+	Serial_write(VERSION_PATCH_LEVEL);
 }
 #endif
 
@@ -156,9 +149,9 @@ static void multi_send_status()
 #ifdef MULTI_TELEMETRY
 static void multi_send_frskyhub()
 {
-    multi_send_header(MULTI_TELEMETRY_HUB, 9);
-    for (uint8_t i = 0; i < 9; i++)
-        Serial_write(frame[i]);
+	multi_send_header(MULTI_TELEMETRY_HUB, 9);
+	for (uint8_t i = 0; i < 9; i++)
+		Serial_write(frame[i]);
 }
 #endif
 
@@ -169,8 +162,8 @@ void frskySendStuffed()
 	{
 		if ((frame[i] == START_STOP) || (frame[i] == BYTESTUFF))
 		{
-			Serial_write(BYTESTUFF);	    	  
-			frame[i] ^= STUFF_MASK;	
+			Serial_write(BYTESTUFF);
+			frame[i] ^= STUFF_MASK;
 		}
 		Serial_write(frame[i]);
 	}
@@ -181,12 +174,8 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 {
 	uint8_t clen = pkt[0] + 3 ;
 	if(pkt[1] == rx_tx_addr[3] && pkt[2] == rx_tx_addr[2] && len == clen )
-	{	   
+	{
 		telemetry_link|=1;								// Telemetry data is available
-		/*previous version
-		RSSI_dBm = (((uint16_t)(pktt[len-2])*18)>>4);
-		if(pktt[len-2] >=128) RSSI_dBm -= 164;
-		else RSSI_dBm += 130;*/
 		TX_RSSI = pkt[len-2];
 		if(TX_RSSI >=128)
 			TX_RSSI -= 128;
@@ -204,12 +193,8 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 				{
 					uint8_t topBit = 0 ;
 					if ( telemetry_counter & 0x80 )
-					{
 						if ( ( telemetry_counter & 0x1F ) != RetrySequence )
-						{
 							topBit = 0x80 ;
-						}
-					}
 					telemetry_counter = ( (telemetry_counter+1)%32 ) | topBit ;	// Request next telemetry frame
 				}
 				else
@@ -222,28 +207,14 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 			}
 		}
 		else
-		{
 			pktt[6]=0; 									// Discard packet
-		}
 		//
 #if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
 		telemetry_lost=0;
 		if (protocol==MODE_FRSKYX)
 		{
 			uint16_t lcrc = crc_x(&pkt[3], len-7 ) ;
-//			if ( ( sub_protocol & 2 ) == 0 )
-//			{
-//				if ( ( (lcrc >> 8) == pkt[len-4]) && ( (lcrc & 0x00FF ) == pkt[len-3]) )
-//				{
-//					lcrc = 0 ;
-//				}
-//				else
-//				{
-//					lcrc = 1 ;
-//				}
-//			}
-//			if ( lcrc == 0 )
-			
+
 			if ( ( (lcrc >> 8) == pkt[len-4]) && ( (lcrc & 0x00FF ) == pkt[len-3]) )
 			{
 				// Check if in sequence
@@ -267,18 +238,12 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 					{
 						p->count = count ;
 						for ( uint8_t i = 0 ; i < count ; i += 1 )
-						{
 							p->payload[i] = pkt[i+7] ;
-						}
 					}
 					else
-					{
 						p->count = 0 ;
-					}
 					p->valid = 1 ;
-					
-					
-					
+		
 					FrX_receive_seq = ( FrX_receive_seq + 1 ) & 0x03 ;
 
 					if ( FrskyxRxTelemetryValidSequence & 0x80 )
@@ -287,24 +252,16 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 						FrskyxRxTelemetryValidSequence &= 0x7F ;
 					}
 
-//					if ( FrskyxRxTelemetry.validSequence & 0x80 )
-//					{
-//						FrX_receive_seq = ( FrskyxRxTelemetry.validSequence + 1 ) & 3 ;
-
-//						FrskyxRxTelemetry.validSequence &= 0x7F ;
-
-//					}
 				}
 				else
 				{
 					// Save and request correct packet
-//					struct t_fx_rx_packet *p ;
 					struct t_fx_rx_frame *q ;
 					uint8_t count ;
-		// pkt[4] RSSI
-		// pkt[5] sequence control
-		// pkt[6] payload count
-		// pkt[7-12] payload			
+					// pkt[4] RSSI
+					// pkt[5] sequence control
+					// pkt[6] payload count
+					// pkt[7-12] payload			
 					pktt[6] = 0 ; // Don't process
 					if ( (pkt[5] & 0x03) == ( ( FrX_receive_seq +1 ) & 3 ) )
 					{
@@ -319,55 +276,18 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 							}
 						}
 						else
-						{
 							q->count = 0 ;
-						}
 						q->valid = 1 ;
 					
 						FrskyxRxTelemetryValidSequence = 0x80 | ( pkt[5] & 0x03 ) ;
 					}
 					 
-					 
-//					p = &FrskyxRxTelemetry ;
-//					count = pkt[6] ;
-//					if ( count <= 6 )
-//					{
-//						p->count = count ;
-//						for ( uint8_t i = 0 ; i < count ; i += 1 )
-//						{
-//							p->payload[i] = pkt[i+7] ;
-//						}
-//						p->validSequence = 0x80 | ( pkt[5] & 0x03 ) ;
-//					}
-					FrX_receive_seq = ( FrX_receive_seq & 0x03 ) | 0x04 ;	// Request re-transmission
+					 FrX_receive_seq = ( FrX_receive_seq & 0x03 ) | 0x04 ;	// Request re-transmission
 				}
 
 				if (((pktt[5] >> 4) & 0x0f) == 0x08)
-				{
 					FrX_send_seq = 0 ;
-//					FrX_receive_seq = 0x08 ;
-				}
 			}
-			
-//			packet[21] = (FrX_receive_seq << 4) | FrX_send_seq ;//8 at start
-//			if ( FrX_send_seq != 0x08 )
-//			{
-//				FrX_send_seq = ( FrX_send_seq + 1 ) & 0x03 ;
-//			}
-			 
-//			if ((pktt[5] >> 4 & 0x0f) == 0x08)
-//			{  
-//				seq_last_sent = 8;
-//				seq_last_rcvd = 0;
-//				pass=0;
-//			} 
-//			else
-//			{
-//				if ((pktt[5] >> 4 & 0x03) == (seq_last_rcvd + 1) % 4)
-//					seq_last_rcvd = (seq_last_rcvd + 1) % 4;
-//				else
-//					pass=0;//reset if sequence wrong
-//			}
 		}
 #endif
 	}
@@ -446,7 +366,7 @@ void frsky_user_frame()
 	}
 	else
 		telemetry_link=0;
-}	   
+}
 /*
 HuB RX packets.
 pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09 
@@ -514,23 +434,19 @@ pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 				
 		*/
 
-const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
-																		0xC6, 0x67, 0x48, 0xE9, 0x6A, 0xCB,
-                                    0xAC, 0x0D, 0x8E, 0x2F, 0xD0, 0x71,
-                                    0xF2, 0x53, 0x34, 0x95, 0x16, 0xB7,
-																		0x98, 0x39, 0xBA, 0x1B } ;
-
-
 #ifdef MULTI_TELEMETRY
+	const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
+										0xC6, 0x67, 0x48, 0xE9, 0x6A, 0xCB,
+										0xAC, 0x0D, 0x8E, 0x2F, 0xD0, 0x71,
+										0xF2, 0x53, 0x34, 0x95, 0x16, 0xB7,
+										0x98, 0x39, 0xBA, 0x1B } ;
 	void sportSend(uint8_t *p)
 	{
 		multi_send_header(MULTI_TELEMETRY_SPORT, 9);
 		uint16_t crc_s = 0;
 		uint8_t x = p[0] ;
 		if ( x <= 0x1B )
-		{
 			x = pgm_read_byte_near( &Indices[x] ) ;
-		}
 		Serial_write(x) ;
 		for (uint8_t i = 1; i < 9; i++)
 		{
@@ -540,8 +456,8 @@ const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
 
 			if (i>0)
 			{
-				crc_s += p[i]; //0-1FF
-				crc_s += crc_s >> 8; //0-100
+				crc_s += p[i];			//0-1FF
+				crc_s += crc_s >> 8;	//0-100
 				crc_s &= 0x00ff;
 			}
 		}
@@ -661,7 +577,7 @@ void proces_sport_data(uint8_t data)
 				pass = 1;
 				break;		
 			}
-			if(data == BYTESTUFF)//if they are stuffed
+			if(data == BYTESTUFF)	//if they are stuffed
 				pass=2;
 			else
 				if (indx < MAX_PKTX)		
@@ -680,9 +596,7 @@ void proces_sport_data(uint8_t data)
 			uint8_t dest = sport * FRSKY_SPORT_PACKET_SIZE ;
 			uint8_t i ;
 			for ( i = 0 ; i < FRSKY_SPORT_PACKET_SIZE ; i += 1 )
-			{
 				pktx1[dest++] = pktx[i] ;	// Triple buffer
-			}
 			sport += 1 ;//ok to send
 		}
 //		else
@@ -704,10 +618,9 @@ void TelemetryUpdate()
 		h = SerialControl.head ;
 		t = SerialControl.tail ;
 		if ( h >= t )
-			t += 192 - h ;
+			t += TXBUFFER_SIZE - h ;
 		else
 			t -= h ;
-//		if ( t < 32 )
 		if ( t < 64 )
 		{
 			return ;
@@ -741,9 +654,6 @@ void TelemetryUpdate()
 	#if defined SPORT_TELEMETRY
 		if (protocol==MODE_FRSKYX)
 		{	// FrSkyX
-//			struct t_fx_rx_frame *p ;
-//			uint8_t count ;
-			
 			for(;;)
 			{
 				struct t_fx_rx_frame *p ;
@@ -763,40 +673,12 @@ void TelemetryUpdate()
 				}
 			}
 			 
-//			p = &FrskyxRxFrames[NextFxFrameToForward] ;
-//			if ( p->valid )
-//			{
-//				count = p->count ;
-//				for (uint8_t i=0; i < count ; i++)
-//					proces_sport_data(p->payload[i]) ;
-//				p->valid = 0 ;	// Sent on
-//				NextFxFrameToForward = ( NextFxFrameToForward + 1 ) & 3 ;
-//			}
-			
 			if(telemetry_link)
 			{		
 				if(pktt[4] & 0x80)
 					RX_RSSI=pktt[4] & 0x7F ;
 				else 
 					RxBt = (pktt[4]<<1) + 1 ;
-				
-//				if(pktt[6] && pktt[6]<=6)
-//				{
-//					for (uint8_t i=0; i < pktt[6]; i++)
-//						proces_sport_data(pktt[7+i]);
-//					if ( FrskyxRxTelemetry.validSequence & 0x80 )
-//					{
-//						// Process out of sequence packet
-//						for (uint8_t i=0; i < FrskyxRxTelemetry.count ; i++)
-//						{
-//							proces_sport_data( FrskyxRxTelemetry.payload[i] ) ;
-//						}
-////						FrX_receive_seq = ( FrskyxRxTelemetry.validSequence + 1 ) & 3 ;
-//						FrskyxRxTelemetry.validSequence = 0 ;
-//					}
-//				}
-
-
 				telemetry_link=0;
 			}
 			uint32_t now = micros();
@@ -810,7 +692,7 @@ void TelemetryUpdate()
 				#endif
 			}
 		}
-	#endif					
+	#endif // SPORT_TELEMETRY
 
 	#if defined DSM_TELEMETRY
 		if(telemetry_link && protocol == MODE_DSM)
@@ -820,14 +702,14 @@ void TelemetryUpdate()
 			return;
 		}
 	#endif
-    #if defined AFHDS2A_FW_TELEMETRY     
-        if(telemetry_link == 2 && protocol == MODE_AFHDS2A)
+	#if defined AFHDS2A_FW_TELEMETRY
+		if(telemetry_link == 2 && protocol == MODE_AFHDS2A)
 		{
 			AFHDSA_short_frame();
 			telemetry_link=0;
 			return;
 		}
-    #endif        
+	#endif
 
 		if((telemetry_link & 1 )&& protocol != MODE_FRSKYX)
 		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell
@@ -849,6 +731,19 @@ void TelemetryUpdate()
 /**  Serial TX routines  **/
 /**************************/
 /**************************/
+
+#ifdef SERIAL_DEBUG
+	void StatusSerial_write(uint8_t data)
+	{
+		uint8_t nextHead ;
+		nextHead = tx_debug_head + 1 ;
+		if ( nextHead >= TXBUFFER_SIZE )
+			nextHead = 0 ;
+		tx_debug_buff[nextHead]=data;
+		tx_debug_head = nextHead ;
+		tx_debug_resume();
+	}
+#endif // SERIAL_DEBUG
 
 #ifndef BASH_SERIAL
 	// Routines for normal serial output
@@ -969,11 +864,34 @@ void TelemetryUpdate()
 		#endif		
 	}
 	#ifdef STM32_BOARD
+		#if defined(SERIAL_DEBUG)
+			void __irq_usart1()
+			{	// Transmit interrupt
+				if(USART1_BASE->SR & USART_SR_TXE)
+				{
+					if(tx_debug_head!=tx_debug_tail)
+					{
+						if(++tx_debug_tail>=TXBUFFER_SIZE)				//head
+							tx_debug_tail=0;
+						USART1_BASE->DR=tx_debug_buff[tx_debug_tail];	//clears TXE bit
+					}
+					if (tx_debug_tail == tx_debug_head)
+						tx_debug_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
+				}
+			}
+			void usart1_begin(uint32_t baud,uint32_t config )
+			{
+				usart_init(USART1);
+				usart_config_gpios_async(USART1,GPIOA,PIN_MAP[PA10].gpio_bit,GPIOA,PIN_MAP[PA9].gpio_bit,config);
+				usart_set_baud_rate(USART1, STM32_PCLK1, baud);
+				usart_enable(USART1);
+			}
+		#endif
 		void usart2_begin(uint32_t baud,uint32_t config )
 		{
 			usart_init(USART2); 
 			usart_config_gpios_async(USART2,GPIOA,PIN_MAP[PA3].gpio_bit,GPIOA,PIN_MAP[PA2].gpio_bit,config);
-			usart_set_baud_rate(USART2, STM32_PCLK1, baud);//
+			usart_set_baud_rate(USART2, STM32_PCLK1, baud);
 			usart_enable(USART2);
 		}
 		void usart3_begin(uint32_t baud,uint32_t config )
@@ -1120,9 +1038,7 @@ ISR(TIMER0_COMPA_vect)
 		GPIOR1 = 3 ;
 	}
 	else
-	{
 		OCR0A += 20 ;
-	}
 }
 
 ISR(TIMER0_COMPB_vect)
@@ -1150,12 +1066,9 @@ ISR(TIMER0_COMPB_vect)
 			{
 				GPIOR0 = ptr->data[ptr->tail] ;
 				GPIOR2 = ptr->data[ptr->tail+1] ;
-				uint8_t nextTail ;
-				nextTail = ptr->tail + 2 ;
-				if ( nextTail > 192 )
-				{
+				uint8_t nextTail = ptr->tail + 2 ;
+				if ( nextTail > TXBUFFER_SIZE )
 					nextTail = 0 ;
-				}
 				ptr->tail = nextTail ;
 				GPIOR1 = 8 ;
 				OCR0A = OCR0B + 40 ;
@@ -1170,44 +1083,36 @@ ISR(TIMER0_COMPB_vect)
 		}
 	}
 	else
-	{
 		OCR0B += 20 ;
-	}
 }
 
 ISR(TIMER0_OVF_vect)
 {
 	uint8_t byte ;
 	if ( GPIOR1 > 2 )
-	{
 		byte = GPIOR0 ;
-	}
 	else
-	{
 		byte = GPIOR2 ;
-	}
 	if ( byte & 0x01 )
 		SERIAL_TX_on;
 	else
 		SERIAL_TX_off;
 	byte /= 2 ;		// Generates shorter code than byte >>= 1
 	if ( GPIOR1 > 2 )
-	{
 		GPIOR0 = byte ;
-	}
 	else
-	{
 		GPIOR2 = byte ;
-	}
 	if ( --GPIOR1 == 0 )
-	{
-		// prepare next byte
+	{	// prepare next byte
 		volatile struct t_serial_bash *ptr = &SerialControl ;
 		if ( ptr->head != ptr->tail )
 		{
 			GPIOR0 = ptr->data[ptr->tail] ;
 			GPIOR2 = ptr->data[ptr->tail+1] ;
-			ptr->tail = ( ptr->tail + 2 ) & 0x7F ;
+			uint8_t nextTail = ptr->tail + 2 ;
+			if ( nextTail > TXBUFFER_SIZE )
+				nextTail = 0 ;
+			ptr->tail = nextTail ;
 			GPIOR1 = 10 ;
 		}
 		else

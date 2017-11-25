@@ -90,6 +90,8 @@ Global variables use 1083 bytes (52%) of dynamic memory, leaving 965 bytes for l
 You can proceed to the next step.
 
 ## Compiling and uploading the firmware
+If you have already burned the bootloader, and are simply recompiling firmware to re-flash using your TX, you can skip straight to [Flash from TX](#flash-from-tx).
+
 ### Connect the programmer
 1. Before you connect the programmer make sure that you have selected the 3.3V mode and not 5V. The RF Modules are not 5V tolerant and you will break them with 5V.  On most programmers this is done by moving a jumper. <br> <img src="images/USBasp_Programmer_jumper.png" width="200" height="200" />
 1. Please re-read item 1. above before going on, it's important.
@@ -105,6 +107,8 @@ The images below indicate the pin layout and the location of the ground pin on t
 You are now ready to plug in the USB programmer to the computer.  If you are looking for a good working USBasp Windows driver, [use this one](http://www.protostack.com/download/USBasp-win-driver-x86-x64-v3.0.7.zip).
 
 ### Burn bootloader and set fuses
+The bootloader only needs to be burned once, unless you decide to switch from one option to the other (or it is accidentally erased).  If you have already burned the bootloader / set the fuses you can skip this step.
+
 There are two bootloader options:
    * **'No bootloader'** maximises flash space for protocols
    * **'Flash from TX'** (highly recommended) installs a small (512 byte) bootloader which allows flashing the module firmware using from a radio running ersky9x
@@ -129,6 +133,8 @@ You are now ready to upload the firmware to the multiprotocol module.  There are
 You can disconnect the programmer now as it is not needed any more.
 
 #### Upload using Arduino IDE
+**Note:** If you have burned the 'Upload from TX' bootloader and you then upload firmware to your module using **Upload Using Programmer**, you will erase the bootloader.  That's just the way the Arduino IDE works - avrdude will erase the entire flash memory prior to writing the new code, *including the bootloader*, and the upload will not put it back.  If this happens you can [burn it again](#burn-bootloader-and-set-fuses).
+
 1. In the Arduino IDE click **Sketch -> Upload Using Programmer**, or press **Ctrl+Shift+U**.
 
 If the output indicates that the firmware has been uploaded successfully - give yourself a pat on the back.  Well done, you have successfully programmed your DIY Multiprotocol module. You can already go to the final step [Setting up your Transmitter](Transmitters.md#compatible-transmitters) and begin to fly!!!!

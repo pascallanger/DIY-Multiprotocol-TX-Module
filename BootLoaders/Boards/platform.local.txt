@@ -1,1 +1,3 @@
-# Empty
+## Save hex
+recipe.output.tmp_file={build.project_name}.hex
+recipe.output.save_file=multifw.hex

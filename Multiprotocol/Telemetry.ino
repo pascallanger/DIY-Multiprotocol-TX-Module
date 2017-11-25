@@ -974,7 +974,9 @@ void Serial_write( uint8_t byte )
 	#ifdef INVERT_SERIAL
 		byte |= 1 ;		// Start bit
 	#endif
-	uint8_t next = (SerialControl.head + 2) & 0x7f ;
+	uint8_t next = SerialControl.head + 2;
+	if(next>TXBUFFER_SIZE)
+		next=0;
 	if ( next != SerialControl.tail )
 	{
 		SerialControl.data[SerialControl.head] = byte ;

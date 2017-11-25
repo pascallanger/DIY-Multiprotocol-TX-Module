@@ -327,7 +327,7 @@ enum FailSafeMode {
 #define IS_EXTRA_TELEMETRY_ON       (multi_config & 0x04)
 
 // Failsafe
-#define	failsafeToPPM(i)			(Failsafe_data[i]* 5/8+860)
+#define failsafeToPPM(i)			(Failsafe_data[i]* 5/8+860)
 #define isNormalFailsafeChanel(i)	(Failsafe_data[i] != FAILSAFE_CHANNEL_HOLD && Failsafe_data[i] != FAILSAFE_CHANNEL_NOPULSES)
 
 

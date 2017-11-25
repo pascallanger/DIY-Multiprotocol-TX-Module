@@ -184,8 +184,8 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 	packet[0] = 0x81;	// can be 80 or 81 for Orange, only 81 for XK
 	packet[1] = rx_tx_addr[0];
 	packet[2] = rx_tx_addr[1];
-	packet[3] = rx_tx_addr[2];	// ID?
-	packet[4] = rx_tx_addr[3];	// ID?
+	packet[3] = 0x00;	// unknown but prevents some receivers to bind if not 0
+	packet[4] = 0x00;	// unknown but prevents some receivers to bind if not 0
 	packet[5] = (rf_ch_num << 3) | ((ch1 >> 9) & 0x07);
 	packet[6] = (ch1 >> 1);
 	packet[7] = (ch1 << 7) | ((ch2 >> 5) & 0x7F );
@@ -224,7 +224,7 @@ uint16_t ReadSFHSS()
 
 		/* Work cycle: 6.8ms */
 #define SFHSS_PACKET_PERIOD	6800
-#define SFHSS_DATA2_TIMING	1630	// Adjust this value between 1600 and 1650 if your RX(s) are not operating properly
+#define SFHSS_DATA2_TIMING	1625	// Adjust this value between 1600 and 1650 if your RX(s) are not operating properly
 		case SFHSS_DATA1:
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();
@@ -255,7 +255,7 @@ static void __attribute__((unused)) SFHSS_get_tx_id()
 	uint8_t run_count = 0;
 	// add guard for bit count
 	fixed_id = 1 ^ (MProtocol_id & 1);
-	for (uint8_t i = 0; i < 32; ++i)
+	for (uint8_t i = 0; i < 16; ++i)
 	{
 		fixed_id = (fixed_id << 1) | (MProtocol_id & 1);
 		MProtocol_id >>= 1;
@@ -272,10 +272,8 @@ static void __attribute__((unused)) SFHSS_get_tx_id()
 			run_count = 0;
 	}
 	//    fixed_id = 0xBC11;
-	rx_tx_addr[0] = fixed_id >> 24;
-	rx_tx_addr[1] = fixed_id >> 16;
-	rx_tx_addr[2] = fixed_id >> 8;
-	rx_tx_addr[3] = fixed_id >> 0;
+	rx_tx_addr[0] = fixed_id >> 8;
+	rx_tx_addr[1] = fixed_id >> 0;
 }
 
 uint16_t initSFHSS()

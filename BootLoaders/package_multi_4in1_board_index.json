@@ -10,7 +10,7 @@
       },
       "platforms": [
         {
-          "name": "Multi 4-in-1 Boards",
+          "name": "Multi 4-in-1 AVR Board",
           "architecture": "avr",
           "version": "1.0",
           "category": "Contributed",
@@ -19,8 +19,8 @@
           },
           "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
           "archiveFileName": "package_multi_4in1_board_v1.0.0.zip",
-          "checksum": "SHA-256:61AB463B5B91BCCBF285EB4C801B37E4F46138CA8762E4C04CCB09C2FF157CB7",
-          "size": "3161",
+          "checksum": "SHA-256:18388AD5C6FDBA45474D1B69D7521A5AFBCF5A2790D9EB0D91E07508BC2B40F9",
+          "size": "3201",
           "boards": [
             {"name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"}
           ],

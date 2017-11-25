@@ -294,7 +294,7 @@ static void __attribute__((unused)) WK_build_beacon_pkt_2801()
 		BIND_SET_PULLUP;										// set pullup
 		if(IS_BIND_BUTTON_on)
 		{
-			eeprom_write_byte((EE_ADDR)(30+mode_select),0x01);	// Set fixed id mode for the current model
+			eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select),0x01);	// Set fixed id mode for the current model
 			option=1;
 		}
 		BIND_SET_OUTPUT;

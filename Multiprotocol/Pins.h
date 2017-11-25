@@ -207,14 +207,14 @@
 	#endif
 #else //STM32_BOARD
 	#define	BIND_pin		PA0
-	#define	LED_pin			PA1						
+	#define	LED_pin			PA1
 	//
-	#define	PPM_pin			PA8								//PPM  5V tolerant													
+	#define	PPM_pin			PA8								//PPM  5V tolerant
 	//
-	#define	S1_pin			PA4								//Dial switch pins	
-	#define	S2_pin			PA5							
+	#define	S1_pin			PA4								//Dial switch pins
+	#define	S2_pin			PA5
 	#define	S3_pin			PA6
-	#define	S4_pin			PA7	
+	#define	S4_pin			PA7
 	//
 	#define	PE1_pin			PB4								//PE1
 	#define	PE2_pin			PB5								//PE2
@@ -224,10 +224,11 @@
 	#define	CYRF_RST_pin	PB8								//CYRF RESET
 	#define	A7105_CSN_pin	PB9								//A7105
 	#define	CYRF_CSN_pin	PB12							//CYRF CSN
+	#define SPI_CSN_pin		PA15
 	//SPI pins	
 	#define	SCK_pin			PB13							//SCK
 	#define	SDO_pin			PB14							//MISO
-	#define	SDI_pin			PB15							//MOSI			
+	#define	SDI_pin			PB15							//MOSI
 	//
 	#define	TX_INV_pin		PB3
 	#define	RX_INV_pin		PB1
@@ -238,40 +239,43 @@
 	#define	PE2_on  		digitalWrite(PE2_pin,HIGH)
 	#define	PE2_off 		digitalWrite(PE2_pin,LOW)
 
-	#define	A7105_CSN_on	digitalWrite(A7105_CSN_pin,HIGH)			
-	#define	A7105_CSN_off	digitalWrite(A7105_CSN_pin,LOW)		
+	#define	A7105_CSN_on	digitalWrite(A7105_CSN_pin,HIGH)
+	#define	A7105_CSN_off	digitalWrite(A7105_CSN_pin,LOW)
 
 	#define NRF_CE_on
 	#define	NRF_CE_off
 
-	#define	SCK_on			digitalWrite(SCK_pin,HIGH)			
-	#define	SCK_off			digitalWrite(SCK_pin,LOW)		
+	#define	SCK_on			digitalWrite(SCK_pin,HIGH)
+	#define	SCK_off			digitalWrite(SCK_pin,LOW)
 
-	#define	SDI_on			digitalWrite(SDI_pin,HIGH)			
-	#define	SDI_off			digitalWrite(SDI_pin,LOW)		
+	#define	SDI_on			digitalWrite(SDI_pin,HIGH)
+	#define	SDI_off			digitalWrite(SDI_pin,LOW)
 
-	#define	SDI_1			(digitalRead(SDI_pin)==HIGH)	
-	#define	SDI_0			(digitalRead(SDI_pin)==LOW)			
+	#define	SDI_1			(digitalRead(SDI_pin)==HIGH)
+	#define	SDI_0			(digitalRead(SDI_pin)==LOW)
 
-	#define	CC25_CSN_on		digitalWrite(CC25_CSN_pin,HIGH)		
-	#define	CC25_CSN_off	digitalWrite(CC25_CSN_pin,LOW)	
+	#define	CC25_CSN_on		digitalWrite(CC25_CSN_pin,HIGH)
+	#define	CC25_CSN_off	digitalWrite(CC25_CSN_pin,LOW)
 
-	#define	NRF_CSN_on		digitalWrite(NRF_CSN_pin,HIGH)		
-	#define	NRF_CSN_off		digitalWrite(NRF_CSN_pin,LOW)	
+	#define	NRF_CSN_on		digitalWrite(NRF_CSN_pin,HIGH)
+	#define	NRF_CSN_off		digitalWrite(NRF_CSN_pin,LOW)
 
-	#define	CYRF_CSN_on		digitalWrite(CYRF_CSN_pin,HIGH)		
+	#define	CYRF_CSN_on		digitalWrite(CYRF_CSN_pin,HIGH)
 	#define	CYRF_CSN_off	digitalWrite(CYRF_CSN_pin,LOW)
 
-	#define	CYRF_RST_HI		digitalWrite(CYRF_RST_pin,HIGH)	//reset cyrf 
+	#define	SPI_CSN_on		digitalWrite(SPI_CSN_pin,HIGH)
+	#define	SPI_CSN_off		digitalWrite(SPI_CSN_pin,LOW)
+
+	#define	CYRF_RST_HI		digitalWrite(CYRF_RST_pin,HIGH)	//reset cyrf
 	#define	CYRF_RST_LO		digitalWrite(CYRF_RST_pin,LOW)	//
 
-	#define	SDO_1			(digitalRead(SDO_pin)==HIGH)		
-	#define	SDO_0			(digitalRead(SDO_pin)==LOW)	
+	#define	SDO_1			(digitalRead(SDO_pin)==HIGH)
+	#define	SDO_0			(digitalRead(SDO_pin)==LOW)
 
-	#define	TX_INV_on		digitalWrite(TX_INV_pin,HIGH)		
+	#define	TX_INV_on		digitalWrite(TX_INV_pin,HIGH)
 	#define	TX_INV_off		digitalWrite(TX_INV_pin,LOW)
 
-	#define	RX_INV_on		digitalWrite(RX_INV_pin,HIGH)		
+	#define	RX_INV_on		digitalWrite(RX_INV_pin,HIGH)
 	#define	RX_INV_off		digitalWrite(RX_INV_pin,LOW)
 
 	#define	LED_on			digitalWrite(LED_pin,HIGH)

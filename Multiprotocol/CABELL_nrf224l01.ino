@@ -124,7 +124,7 @@ static void __attribute__((unused)) CABELL_get_telemetry()
 	if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) 
 	{ // data received from model
 		NRF24L01_ReadPayload(packet, CABELL_TELEMETRY_PACKET_LENGTH);
-		if ((packet[0] & 0x7F) == CABELL_RxTxPacket_t::RxMode_t::telemetryResponse)	// ignore high order bit in compare because it toggles with each packet
+		if ((packet[0] & 0x7F) == CABELL_RxTxPacket_t::telemetryResponse)	// ignore high order bit in compare because it toggles with each packet
 		{
 			RX_RSSI = packet[1];	// Packet rate 0 to 255 where 255 is 100% packet rate
 			v_lipo1 = packet[2];	// Directly from analog input of receiver, but reduced to 8-bit depth (0 to 255).  Scaling depends on the input to the analog pin of the receiver.
@@ -164,26 +164,26 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 
 	if ((sub_protocol == CABELL_UNBIND) && !bindMode)
 	{
-		TxPacket.RxMode = CABELL_RxTxPacket_t::RxMode_t::unBind;
+		TxPacket.RxMode = CABELL_RxTxPacket_t::unBind;
 		TxPacket.option = option;
 	}
 	else
 	{
 		if (sub_protocol == CABELL_SET_FAIL_SAFE && !bindMode)
-			TxPacket.RxMode = CABELL_RxTxPacket_t::RxMode_t::setFailSafe;
+			TxPacket.RxMode = CABELL_RxTxPacket_t::setFailSafe;
 		else
 		{
 			if (bindMode)
-				TxPacket.RxMode = CABELL_RxTxPacket_t::RxMode_t::bind;        
+				TxPacket.RxMode = CABELL_RxTxPacket_t::bind;        
 			else
 			{
 				switch (sub_protocol)
 				{
 					case CABELL_V3_TELEMETRY:
-						TxPacket.RxMode = CABELL_RxTxPacket_t::RxMode_t::normalWithTelemetry;
+						TxPacket.RxMode = CABELL_RxTxPacket_t::normalWithTelemetry;
 						break;
 					default:
-						TxPacket.RxMode = CABELL_RxTxPacket_t::RxMode_t::normal;  
+						TxPacket.RxMode = CABELL_RxTxPacket_t::normal;  
 						break;
 				}      
 			}

@@ -53,7 +53,7 @@
 /*** BOOTLOADER USE     ***/
 /*************************/
 //Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
-//Check https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders
+//Instructions: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders#compiling--uploading-firmware-with-the-flash-from-tx-bootloader
 //To enable this feature remove the "//" on the next line. It is automatically enabled/disabled when you use the AVR Multi boards.
 //#define CHECK_FOR_BOOTLOADER
 

@@ -333,7 +333,7 @@ enum FailSafeMode {
 
 //Status messages
 #if defined(STM32_BOARD) && defined (SERIAL_DEBUG)
-	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial1.write(buf);}
+	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
 #else
 	#define debug(...)
 	#undef SERIAL_DEBUG

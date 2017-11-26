@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_TX
-//#define SERIAL_DEBUG		// Only for STM32_BOARD on usart1
+//#define SERIAL_DEBUG		// Only for STM32_BOARD compiled with Serial mode usart1, compiled with STM32 bootloader USB serial
 
 #define USE_MY_CONFIG
 
@@ -207,7 +207,7 @@ void setup()
 {
 	// Setup diagnostic uart before anything else
 	#ifdef SERIAL_DEBUG
-		Serial1.begin(115200,SERIAL_8N1);
+		Serial.begin(115200,SERIAL_8N1);
 		debug("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
 	#endif
 

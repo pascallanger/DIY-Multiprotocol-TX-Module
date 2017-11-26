@@ -61,9 +61,6 @@
 	void ISR_COMPB();
 	extern "C"
 	{
-		#ifdef SERIAL_DEBUG
-			void __irq_usart1(void);
-		#endif
 		void __irq_usart2(void);
 		void __irq_usart3(void);
 	}
@@ -190,11 +187,6 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 		volatile uint8_t tx_head=0;
 		volatile uint8_t tx_tail=0;
 	#endif // BASH_SERIAL
-	#ifdef SERIAL_DEBUG
-		volatile uint8_t tx_debug_buff[TXBUFFER_SIZE];
-		volatile uint8_t tx_debug_head=0;
-		volatile uint8_t tx_debug_tail=0;
-    #endif // SERIAL_DEBUG
 	uint8_t v_lipo1;
 	uint8_t v_lipo2;
 	uint8_t RX_RSSI;
@@ -215,8 +207,7 @@ void setup()
 {
 	// Setup diagnostic uart before anything else
 	#ifdef SERIAL_DEBUG
-		usart1_begin(115200,SERIAL_8N1);
-		tx_debug_resume();
+		Serial1.begin(115200,SERIAL_8N1);
 		debug("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
 	#endif
 
@@ -700,18 +691,6 @@ inline void tx_resume()
 		}
 	#endif
 }
-
-#ifdef SERIAL_DEBUG
-	inline void tx_debug_resume()
-	{
-		USART1_BASE->CR1 |= USART_CR1_TXEIE;
-	}
-
-	inline void tx_debug_pause()
-	{
-		USART1_BASE->CR1 &= ~ USART_CR1_TXEIE;
-	}
-#endif // SERIAL_DEBUG
 
 #ifdef STM32_BOARD	
 void start_timer2()

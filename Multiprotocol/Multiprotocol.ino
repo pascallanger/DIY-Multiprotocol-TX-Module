@@ -21,20 +21,23 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <avr/pgmspace.h>
+
 //#define DEBUG_TX
-//#define USE_MY_CONFIG
-#ifdef ARDUINO_AVR_XMEGA32D4
-#include "MultiOrange.h"
+//#define SERIAL_DEBUG		// Only for STM32_BOARD on usart1
+
+#define USE_MY_CONFIG
+
+#ifdef __arm__// Let's automatically select the board if arm is selected
+	#define STM32_BOARD
 #endif
+#ifdef ARDUINO_AVR_XMEGA32D4
+	#include "MultiOrange.h"
+#endif
+
 #include "Multiprotocol.h"
 
 //Multiprotocol module configuration file
 #include "_Config.h"
-// Let's automatically select the board
-// if arm is selected
-#ifdef __arm__
-	#define STM32_BOARD
-#endif
 
 //Personal config file
 #if defined USE_MY_CONFIG
@@ -58,6 +61,9 @@
 	void ISR_COMPB();
 	extern "C"
 	{
+		#ifdef SERIAL_DEBUG
+			void __irq_usart1(void);
+		#endif
 		void __irq_usart2(void);
 		void __irq_usart3(void);
 	}
@@ -184,6 +190,11 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 		volatile uint8_t tx_head=0;
 		volatile uint8_t tx_tail=0;
 	#endif // BASH_SERIAL
+	#ifdef SERIAL_DEBUG
+		volatile uint8_t tx_debug_buff[TXBUFFER_SIZE];
+		volatile uint8_t tx_debug_head=0;
+		volatile uint8_t tx_debug_tail=0;
+    #endif // SERIAL_DEBUG
 	uint8_t v_lipo1;
 	uint8_t v_lipo2;
 	uint8_t RX_RSSI;
@@ -193,7 +204,7 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	uint8_t telemetry_link=0; 
 	uint8_t telemetry_counter=0;
 	uint8_t telemetry_lost;
-#endif 
+#endif // TELEMETRY
 
 // Callback
 typedef uint16_t (*void_function_t) (void);//pointer to a function with no parameters which return an uint16_t integer
@@ -202,6 +213,13 @@ void_function_t remote_callback = 0;
 // Init
 void setup()
 {
+	// Setup diagnostic uart before anything else
+	#ifdef SERIAL_DEBUG
+		usart1_begin(115200,SERIAL_8N1);
+		tx_debug_resume();
+		debug("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
+	#endif
+
 	// General pinout
 	#ifdef ORANGE_TX
 		//XMEGA
@@ -227,14 +245,15 @@ void setup()
 		pinMode(CC25_CSN_pin,OUTPUT);
 		pinMode(NRF_CSN_pin,OUTPUT);
 		pinMode(CYRF_CSN_pin,OUTPUT);
+		pinMode(SPI_CSN_pin,OUTPUT);
 		pinMode(CYRF_RST_pin,OUTPUT);
 		pinMode(PE1_pin,OUTPUT);
 		pinMode(PE2_pin,OUTPUT);
+		pinMode(TX_INV_pin,OUTPUT);
+		pinMode(RX_INV_pin,OUTPUT);
 		#if defined TELEMETRY
-			pinMode(TX_INV_pin,OUTPUT);
-			pinMode(RX_INV_pin,OUTPUT);
 			#if defined INVERT_SERIAL
-				TX_INV_on;//activated inverter for both serial TX and RX signals
+				TX_INV_on;	//activate inverter for both serial TX and RX signals
 				RX_INV_on;
 			#else
 				TX_INV_off;
@@ -287,7 +306,7 @@ void setup()
 		// Timer1 config
 		TCCR1A = 0;
 		TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
-		
+
 		// Random
 		random_init();
 	#endif
@@ -341,6 +360,7 @@ void setup()
 			((MODE_DIAL3_ipr & _BV(MODE_DIAL3_pin)) ? 0 : 4) +
 			((MODE_DIAL4_ipr & _BV(MODE_DIAL4_pin)) ? 0 : 8);
 	#endif
+    debug("Mode switch reads as %d", mode_select);
 
 	// Update LED
 	LED_off;
@@ -360,6 +380,8 @@ void setup()
 
 	// Read or create protocol id
 	MProtocol_id_master=random_id(10,false);
+
+	debug("Module Id: %lx", MProtocol_id_master);
 	
 #ifdef ENABLE_PPM
 	//Protocol and interrupts initialization
@@ -415,6 +437,7 @@ void setup()
 		#endif //ENABLE_SERIAL
 	}
 	servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
+	debug("init complete");
 }
 
 // Main
@@ -539,7 +562,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
+			if( (protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) || (protocol==MODE_CABELL) )
 		#endif
 				TelemetryUpdate();
 	#endif
@@ -678,6 +701,18 @@ inline void tx_resume()
 	#endif
 }
 
+#ifdef SERIAL_DEBUG
+	inline void tx_debug_resume()
+	{
+		USART1_BASE->CR1 |= USART_CR1_TXEIE;
+	}
+
+	inline void tx_debug_pause()
+	{
+		USART1_BASE->CR1 &= ~ USART_CR1_TXEIE;
+	}
+#endif // SERIAL_DEBUG
+
 #ifdef STM32_BOARD	
 void start_timer2()
 {	
@@ -764,7 +799,7 @@ static void protocol_init()
 				#if defined(HUBSAN_A7105_INO)
 					case MODE_HUBSAN:
 						PE1_off;	//antenna RF1
-						if(IS_BIND_BUTTON_FLAG_on) random_id(10,true); // Generate new ID if bind button is pressed.
+						if(IS_BIND_BUTTON_FLAG_on) random_id(EEPROM_ID_OFFSET,true); // Generate new ID if bind button is pressed.
 						next_callback = initHubsan();
 						remote_callback = ReadHubsan;
 						break;
@@ -820,12 +855,12 @@ static void protocol_init()
 							{
 								if(IS_BIND_BUTTON_FLAG_on)
 								{
-									eeprom_write_byte((EE_ADDR)(30+mode_select),0x00);	// reset to autobind mode for the current model
+									eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select),0x00);	// reset to autobind mode for the current model
 									option=0;
 								}
 								else
 								{	
-									option=eeprom_read_byte((EE_ADDR)(30+mode_select));	// load previous mode: autobind or fixed id
+									option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select));	// load previous mode: autobind or fixed id
 									if(option!=1) option=0;								// if not fixed id mode then it should be autobind
 								}
 							}
@@ -842,12 +877,12 @@ static void protocol_init()
 							{
 								if(IS_BIND_BUTTON_FLAG_on)
 								{
-									eeprom_write_byte((EE_ADDR)(30+mode_select),0x00);	// reset to autobind mode for the current model
+									eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select),0x00);	// reset to autobind mode for the current model
 									option=0;
 								}
 								else
 								{	
-									option=eeprom_read_byte((EE_ADDR)(30+mode_select));	// load previous mode: autobind or fixed id
+									option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select));	// load previous mode: autobind or fixed id
 									if(option!=1) option=0;								// if not fixed id mode then it should be autobind
 								}
 							}
@@ -988,6 +1023,12 @@ static void protocol_init()
 						remote_callback = DM002_callback;
 						break;
 				#endif
+				#if defined(CABELL_NRF24L01_INO)
+					case MODE_CABELL:
+						next_callback=initCABELL();
+						remote_callback = CABELL_callback;
+						break;
+				#endif
 			#endif
 		}
 	}
@@ -1045,6 +1086,7 @@ void update_serial_data()
 		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]
 		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
 		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
+		debug("New protocol selected: %d, sub proto %d, rxnum %d", protocol, sub_protocol, RX_num);
 	}
 	else
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
@@ -1064,7 +1106,7 @@ void update_serial_data()
 	//store current protocol values
 	for(uint8_t i=0;i<3;i++)
 		cur_protocol[i] =  rx_ok_buff[i];
-	
+
 	// decode channel values
 	volatile uint8_t *p=rx_ok_buff+3;
 	uint8_t dec=-3;
@@ -1310,7 +1352,7 @@ void pollBoot()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) )
+	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) || (protocol==MODE_CABELL) )
 		initTXSerial( SPEED_9600 ) ;
 	if(protocol==MODE_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;
@@ -1357,7 +1399,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			{
 				id<<=8;
 				id|=eeprom_read_byte((EE_ADDR)address+i-1);
-			}	
+			}
 			if(id!=0x2AD141A7)	//ID with seed=0
 				return id;
 		}
@@ -1373,7 +1415,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		{
 			eeprom_write_byte((EE_ADDR)address+i,id);
 			id>>=8;
-		}	
+		}
 		eeprom_write_byte((EE_ADDR)(address+10),0xf0);//write bind flag in eeprom.
 		return id;
 	#else

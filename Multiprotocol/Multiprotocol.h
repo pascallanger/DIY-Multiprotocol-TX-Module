@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	25
+#define VERSION_PATCH_LEVEL	30
 //******************
 // Protocols
 //******************
@@ -59,6 +59,7 @@ enum PROTOCOLS
 	MODE_Q303		= 31,	// =>NRF24L01
 	MODE_GW008		= 32,	// =>NRF24L01
 	MODE_DM002		= 33,	// =>NRF24L01
+	MODE_CABELL		= 34,	// =>NRF24L01
 };
 
 enum Flysky
@@ -196,6 +197,13 @@ enum Q303
 	CX10D	= 2,
 	CX10WD	= 3,
 };
+enum CABELL
+{
+	CABELL_V3			= 0,
+	CABELL_V3_TELEMETRY	= 1,
+	CABELL_SET_FAIL_SAFE= 6,
+	CABELL_UNBIND		= 7,
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -216,14 +224,29 @@ struct PPM_Parameters
 // Telemetry
 
 enum MultiPacketTypes {
-    MULTI_TELEMETRY_STATUS  = 1,
-    MULTI_TELEMETRY_SPORT   = 2,
-    MULTI_TELEMETRY_HUB     = 3,
-    MULTI_TELEMETRY_DSM     = 4,
-    MULTI_TELEMETRY_DSMBIND = 5,
-    MULTI_TELEMETRY_AFHDS2A = 6,
+	MULTI_TELEMETRY_STATUS  = 1,
+	MULTI_TELEMETRY_SPORT   = 2,
+	MULTI_TELEMETRY_HUB     = 3,
+	MULTI_TELEMETRY_DSM     = 4,
+	MULTI_TELEMETRY_DSMBIND = 5,
+	MULTI_TELEMETRY_AFHDS2A = 6,
+	MULTI_TELEMETRY_INPUTSYNC=8,
+	MULTI_COMMAND_CONFIG    = 0x80,
+	MULTI_COMMAND_FAILSAFE	 =0x81,
 };
 
+enum FailSafeMode {
+	FAILSAFE_NOTSET 	= 0,
+	FAILSAFE_HOLD		= 1,
+	FAILSAFE_CUSTOM		= 2,
+	FAILSAFE_NOPULSES	= 3,
+	FAILSAFE_RECEIVER	= 4,
+	// Use during update so we can get away with only one copy of Failsafe channels
+	FAILSEFASE_INVALID	= 0xfe
+};
+
+#define FAILSAFE_CHANNEL_HOLD	0
+#define	FAILSAFE_CHANNEL_NOPULSES	2047
 
 // Macros
 #define NOP() __asm__ __volatile__("nop")
@@ -298,6 +321,23 @@ enum MultiPacketTypes {
 #define IS_WAIT_BIND_on		( ( protocol_flags2 & _BV(7) ) !=0 )
 #define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
 
+//Configuration
+#define IS_TELEMTRY_INVERSION_ON	(multi_config & 0x01)
+#define IS_MULTI_TELEMETRY_ON		(multi_config & 0x02)
+#define IS_EXTRA_TELEMETRY_ON       (multi_config & 0x04)
+
+// Failsafe
+#define failsafeToPPM(i)			(Failsafe_data[i]* 5/8+860)
+#define isNormalFailsafeChanel(i)	(Failsafe_data[i] != FAILSAFE_CHANNEL_HOLD && Failsafe_data[i] != FAILSAFE_CHANNEL_NOPULSES)
+
+
+//Status messages
+#if defined(STM32_BOARD) && defined (SERIAL_DEBUG)
+	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); for(int i=0;buf[i] !=0; i++) StatusSerial_write(buf[i]);}
+#else
+	#define debug(...)
+	#undef SERIAL_DEBUG
+#endif
 
 //********************
 //*** Blink timing ***
@@ -435,6 +475,14 @@ enum {
 #define SPEED_57600	2
 #define SPEED_125K	3
 
+/** EEPROM Layout */
+#define EEPROM_ID_OFFSET		10		// Module ID (4 bytes)
+#define EEPROM_ID_VALID_OFFSET	20		// 1 byte flag that ID is valid
+#define MODELMODE_EEPROM_OFFSET	30		// Autobind mode, 1 byte per model, end is 46
+#define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 byte per model id, end is 114
+#define CONFIG_EEPROM_OFFSET 	120		// Current configuration of the multimodule
+
+
 //****************************************
 //*** MULTI protocol serial definition ***
 //****************************************
@@ -483,6 +531,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					Q303		31
 					GW008		32
 					DM002		33
+					CABELL		34
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -585,6 +634,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CX35		1
 			CX10D		2
 			CX10WD		3
+		sub_protocol==CABELL
+			CABELL_V3				0
+			CABELL_V3_TELEMETRY		1
+			CABELL_SET_FAIL_SAFE	6
+			CABELL_UNBIND			7
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
@@ -623,7 +677,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    version of multi code, should be displayed as major.minor.revision.patchlevel
 */
 /*
-  Multiprotocol telemetry definition for OpenTX
+  Multiprotocol telemetry/command definition for OpenTX
   Based on #define MULTI_TELEMETRY enables OpenTX to get the multimodule status and select the correct telemetry type automatically.
 
   Serial: 100000 Baud 8e2 (same as input)
@@ -642,6 +696,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    [3] Length (excluding the 4 header bytes)
 
    [4-xx] data
+
+  Commands from TX to multi cannot be longer than 22 bytes (RXLen -4byte header)
 
   Type = 0x01 Multimodule Status:
    [4] Flags
@@ -672,12 +728,53 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Type 0x05 DSM bind data
 	data[0-16] DSM bind data
 
-    technically DSM bind data is only 10 bytes but multi send 16
-    like with telemtry, check length field)
+    technically DSM bind data is only 10 bytes but multi sends 16
+    like with telemtery, check length field)
 
   Type 0x06 Flysky AFHDS2 telemetry data
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data
+
+
+ Type 0x08 Input synchronisation
+    Informs the TX about desired rate and current delay
+    length: 4
+    data[0-1]     Desired refresh rate in µs
+    data[2-3]     Time (µs) between last serial servo input received and servo input needed (lateness), TX should adjust its
+                  sending time to minimise this value.
+	data[4]		  Interval of this message in ms
+ 	data[5]		  Input delay target in 10µs
+
+   Note that there are protocols (AFHDS2A) that have a refresh rate that is smaller than the maximum achievable
+   refresh rate via the serial protocol, in this case, the TX should double the rate and also subract this
+   refresh rate from the input lag if the input lag is more than the desired refresh rate.
+
+   The remote should try to get to zero of  (inputdelay+target*10).
+
+Commands from TX to module use values > 127 for command type
+
+ Type 0x80 Module Configuration
+   This sent from the TX to Multi to configure inversion and multi telemetry type
+   length: 1
+   data[0] flags
+     0x01 Telemetry inversion (1 = inverted)
+     0x02 Use Multi telemetry protocol (if 0 use multi status)
+     0x04 Send extra telemetry (type 0x08) to allow input synchronisation
+
+
+ Type 0x81 Failsafe data
+	length: 23
+	data[0] Failsafe mode:
+		 0 - Failsafe not set
+		 1 - Failsafe hold, keep last received values
+		 2 - Failsafe custom, use the values from the channels
+		 3 - Failsafe nopulses, stop sending pulses from the receiver
+		 4 - Failsafe receiver, use receiver stored values
+
+		Many of these many modes don't work with all protocols, fallback to best
+		available method
+	data[1-22] Failsafe data, encoded like normal channel data, with the expection
+		that 0 means hold for that channel and 2047 means no pulses
 
 */

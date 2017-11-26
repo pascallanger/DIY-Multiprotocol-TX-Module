@@ -81,7 +81,7 @@ static void __attribute__((unused)) SYMAX_read_controls()
 	if (Servo_AUX5)
 	{
 		flags |= SYMAX_FLAG_HEADLESS;
-	    flags &= ~SYMAX_XTRM_RATES;	// Extended rates & headless incompatible
+		flags &= ~SYMAX_XTRM_RATES;	// Extended rates & headless incompatible
 	}
 }
 
@@ -158,7 +158,7 @@ static void __attribute__((unused)) SYMAX_build_packet(uint8_t bind)
 		packet[6] = flags & SYMAX_FLAG_FLIP ? 0x40 : 0x00;
 		packet[7] = flags & SYMAX_FLAG_HEADLESS ? 0x80 : 0x00;
 		if (flags & SYMAX_XTRM_RATES)
-		{	    // use trims to extend controls
+		{	// use trims to extend controls
 			packet[5] |= elevator >> 2;
 			packet[6] |= rudder >> 2;
 			packet[7] |= aileron >> 2;

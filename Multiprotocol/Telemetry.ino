@@ -975,7 +975,7 @@ void Serial_write( uint8_t byte )
 		byte |= 1 ;		// Start bit
 	#endif
 	uint8_t next = SerialControl.head + 2;
-	if(next>TXBUFFER_SIZE)
+	if(next>=TXBUFFER_SIZE)
 		next=0;
 	if ( next != SerialControl.tail )
 	{
@@ -1069,7 +1069,7 @@ ISR(TIMER0_COMPB_vect)
 				GPIOR0 = ptr->data[ptr->tail] ;
 				GPIOR2 = ptr->data[ptr->tail+1] ;
 				uint8_t nextTail = ptr->tail + 2 ;
-				if ( nextTail > TXBUFFER_SIZE )
+				if ( nextTail >= TXBUFFER_SIZE )
 					nextTail = 0 ;
 				ptr->tail = nextTail ;
 				GPIOR1 = 8 ;
@@ -1112,7 +1112,7 @@ ISR(TIMER0_OVF_vect)
 			GPIOR0 = ptr->data[ptr->tail] ;
 			GPIOR2 = ptr->data[ptr->tail+1] ;
 			uint8_t nextTail = ptr->tail + 2 ;
-			if ( nextTail > TXBUFFER_SIZE )
+			if ( nextTail >= TXBUFFER_SIZE )
 				nextTail = 0 ;
 			ptr->tail = nextTail ;
 			GPIOR1 = 10 ;

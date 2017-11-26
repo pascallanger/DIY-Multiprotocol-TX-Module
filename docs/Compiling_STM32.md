@@ -29,17 +29,15 @@ Flashing precompiled **binaries** is done very simple with the cable setup prese
 ### Prepare the Arduino IDE:
 
 1. In order to compile successfully you need also to modify a maple library file. In ```....\hardware\Arduino_STM32\STM32F1\cores\maple\libmaple\usart_f1.c``` comment out the 2 functions as shown below. This is required to have low-level access to the USART interrupt. <br>
-   ```
-/*
-void __irq_usart2(void) {
-    usart_irq(&usart2_rb, &usart2_wb, USART2_BASE);
-}
+   ``` /*
+   void __irq_usart2(void) {
+      usart_irq(&usart2_rb, &usart2_wb, USART2_BASE);
+   }
 
-void __irq_usart3(void) {
-    usart_irq(&usart3_rb, &usart3_wb, USART3_BASE);
-}
-*/
-   ```
+    void __irq_usart3(void) {
+      usart_irq(&usart3_rb, &usart3_wb, USART3_BASE);
+   }
+   */ ```
 1. Run the IDE, and on the **Tools** menu, select **Board** and then **Boards manager**. <br> Click on the Arduino DUE (32 Bits ARM-Cortex M3) from the list of available boards. You must do this step, it installs the arm-none-eabi-g++ toolchain!
 1. Close and reopen the Arduino IDE and load the Multiprotocol project.
 1. In arduino IDE under the **Tools** -> **Board:** select the **Generic STM32F103C series** board

@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_TX
-//#define SERIAL_DEBUG		// Only for STM32_BOARD compiled with Serial mode usart1, compiled with STM32 bootloader USB serial
+//#define SERIAL_DEBUG		// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
 #define USE_MY_CONFIG
 
@@ -208,6 +208,7 @@ void setup()
 	// Setup diagnostic uart before anything else
 	#ifdef SERIAL_DEBUG
 		Serial.begin(115200,SERIAL_8N1);
+		while (!Serial); // wait for serial port to connect...
 		debug("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
 	#endif
 
@@ -428,7 +429,7 @@ void setup()
 		#endif //ENABLE_SERIAL
 	}
 	servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
-	debug("init complete");
+	debug("Init complete");
 }
 
 // Main

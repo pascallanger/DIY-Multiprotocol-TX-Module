@@ -208,7 +208,7 @@ void setup()
 	// Setup diagnostic uart before anything else
 	#ifdef SERIAL_DEBUG
 		Serial.begin(115200,SERIAL_8N1);
-		while (!Serial); // wait for serial port to connect...
+		while (!Serial); // Wait for ever for the serial port to connect...
 		debug("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
 	#endif
 
@@ -1007,6 +1007,12 @@ static void protocol_init()
 					case MODE_CABELL:
 						next_callback=initCABELL();
 						remote_callback = CABELL_callback;
+						break;
+				#endif
+				#if defined(ESKY150_NRF24L01_INO)
+					case MODE_ESKY150:
+						next_callback=initESKY150();
+						remote_callback = ESKY150_callback;
 						break;
 				#endif
 			#endif

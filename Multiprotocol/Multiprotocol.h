@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	30
+#define VERSION_PATCH_LEVEL	31
 //******************
 // Protocols
 //******************
@@ -60,6 +60,7 @@ enum PROTOCOLS
 	MODE_GW008		= 32,	// =>NRF24L01
 	MODE_DM002		= 33,	// =>NRF24L01
 	MODE_CABELL		= 34,	// =>NRF24L01
+	MODE_ESKY150	= 35,	// =>NRF24L01
 };
 
 enum Flysky
@@ -532,6 +533,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					GW008		32
 					DM002		33
 					CABELL		34
+					ESKY150		35
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

@@ -494,6 +494,17 @@ CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|GYRO|PITCH
 
+## ESKY150 - *35*
+ESky protocol for small models since 2014 (150, 300, 150X, ...)
+
+Number of channels are set with option. option=0 4 channels and option=1 7 channels. An invalid option value will end up with 4 channels.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|FMODE|AUX6|AUX7
+
+FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..100%=>3
+
 ## FY326 - *20*
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9

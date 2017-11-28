@@ -18,12 +18,18 @@
 	#endif
 #endif
 
-//Change/Force configuration for the bootloader option
+// Automatically enable CHECK_FOR_BOOTLOADER if a FLASH_FROM_TX board is selected
 #if defined(ARDUINO_MULTI_FLASH_FROM_TX) || defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX)
 	#define CHECK_FOR_BOOTLOADER
 #endif
-#if defined (ARDUINO_MULTI_NO_BOOT) || defined(ARDUINO_MULTI_STM32_NO_BOOT)
-	#undef CHECK_FOR_BOOTLOADER
+
+// Error if CHECK_FOR_BOOTLOADER is enabled but the 'Flash from TX' bootloader or upload method isn't selected.
+#if (defined(ARDUINO_MULTI_NO_BOOT) || defined(ARDUINO_MULTI_STM32_NO_BOOT)) && defined(CHECK_FOR_BOOTLOADER)
+  #if defined(STM32_BOARD)
+    #error "You have enabled CHECK_FOR_BOOTLOADER but not selected the 'Flash from TX' upload method."
+  #else
+    #error "You have enabled CHECK_FOR_BOOTLOADER but not selected the 'Flash from TX' bootloader."
+  #endif
 #endif
 
 //Change/Force configuration if OrangeTX

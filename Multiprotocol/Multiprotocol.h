@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	31
+#define VERSION_PATCH_LEVEL	33
 //******************
 // Protocols
 //******************
@@ -140,6 +140,7 @@ enum BAYANG
     BAYANG	= 0,
     H8S3D	= 1,
     X16_AH  = 2,
+	IRDRONE = 3,
 };
 enum MT99XX
 {
@@ -590,6 +591,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			BAYANG		0
 			H8S3D		1
 			X16_AH		2
+			IRDRONE		3
 		sub_protocol==MT99XX
 			MT99		0
 			H7			1

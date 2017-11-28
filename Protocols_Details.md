@@ -363,9 +363,9 @@ Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
----|---|---|---|---|---|---|---|---|----|---
-A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED|TAKE_OFF
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
 
 ### Sub_protocol BAYANG - *0*
 Option=0 -> normal Bayang protocol
@@ -380,7 +380,16 @@ Same channels assignement as above.
 ### Sub_protocol X16_AH - *2*
 Model: X16 AH
 
-Same channels assignement as above.
+CH11
+----
+TAKE_OFF
+
+### Sub_protocol IRDRONE - *3*
+Model: IRDRONE
+
+CH11|CH12
+----|----
+TAKE_OFF|EMG_STOP
 
 ## Cabell - *34*
 Homegrown protocol with variable number of channels (4-16) and telemetry (RSSI, V1, V2).
@@ -482,7 +491,7 @@ FLIP|MODE|PICTURE|VIDEO|HEADLESS|RTH
 ## DM002 - *33*
 Autobind protocol
 
-**Only 2 TX IDs available, change RX_Num value 0-1 to cycle through them**
+**Only 3 TX IDs available, change RX_Num value 0-1-2 to cycle through them**
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----

@@ -53,9 +53,9 @@
 /*** BOOTLOADER USE     ***/
 /*************************/
 //Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
-//Check https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders
-//To enable this feature remove the "//" on the next line. It is automatically enabled/disabled when you use the AVR Multi boards.
-//#define CHECK_FOR_BOOTLOADER
+//Instructions: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders#compiling--uploading-firmware-with-the-flash-from-tx-bootloader
+//To enable this feature remove the "//" on the next line.  Requires a compatible bootloader or upload method to be selected when you use the Multi 4-in-1 Boards Manager definitions.
+#define CHECK_FOR_BOOTLOADER
 
 /****************/
 /*** RF CHIPS ***/
@@ -103,44 +103,44 @@
 
 //The protocols below need an A7105 to be installed
 #define	FLYSKY_A7105_INO
-//#define	HUBSAN_A7105_INO
-//#define	AFHDS2A_A7105_INO
+#define	HUBSAN_A7105_INO
+#define	AFHDS2A_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
-//#define	DEVO_CYRF6936_INO
-//#define	DSM_CYRF6936_INO
-//#define	J6PRO_CYRF6936_INO
-//#define	WK2x01_CYRF6936_INO
+#define	DEVO_CYRF6936_INO
+#define	DSM_CYRF6936_INO
+#define	J6PRO_CYRF6936_INO
+#define	WK2x01_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
-//#define	FRSKYV_CC2500_INO
+#define	FRSKYV_CC2500_INO
 #define	FRSKYD_CC2500_INO
 #define	FRSKYX_CC2500_INO
 #define	SFHSS_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO
-//#define	CG023_NRF24L01_INO
-//#define	CX10_NRF24L01_INO		// Include Q2X2 protocol
-//#define	ESKY_NRF24L01_INO
-//#define	HISKY_NRF24L01_INO
-//#define	KN_NRF24L01_INO
-//#define	SLT_NRF24L01_INO
-//#define	SYMAX_NRF24L01_INO
-//#define	V2X2_NRF24L01_INO
-//#define	YD717_NRF24L01_INO
-//#define	MT99XX_NRF24L01_INO
+#define	CG023_NRF24L01_INO
+#define	CX10_NRF24L01_INO		// Include Q2X2 protocol
+#define	ESKY_NRF24L01_INO
+#define	HISKY_NRF24L01_INO
+#define	KN_NRF24L01_INO
+#define	SLT_NRF24L01_INO
+#define	SYMAX_NRF24L01_INO
+#define	V2X2_NRF24L01_INO
+#define	YD717_NRF24L01_INO
+#define	MT99XX_NRF24L01_INO
 #define	MJXQ_NRF24L01_INO
-//#define	SHENQI_NRF24L01_INO
-//#define	FY326_NRF24L01_INO
-//#define	FQ777_NRF24L01_INO
-//#define	ASSAN_NRF24L01_INO
-//#define	HONTAI_NRF24L01_INO
-//#define	Q303_NRF24L01_INO
-//#define	GW008_NRF24L01_INO
-//#define	DM002_NRF24L01_INO
-//#define CABELL_NRF24L01_INO
-
+#define	SHENQI_NRF24L01_INO
+#define	FY326_NRF24L01_INO
+#define	FQ777_NRF24L01_INO
+#define	ASSAN_NRF24L01_INO
+#define	HONTAI_NRF24L01_INO
+#define	Q303_NRF24L01_INO
+#define	GW008_NRF24L01_INO
+#define	DM002_NRF24L01_INO
+#define	CABELL_NRF24L01_INO
+#define	ESKY150_NRF24L01_INO
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
@@ -412,6 +412,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		CABELL_V3_TELEMETRY
 		CABELL_SET_FAIL_SAFE
 		CABELL_UNBIND
+	MODE_ESKY150
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

@@ -13,16 +13,16 @@
 #endif
 #if defined (STM32_BOARD) && not defined (ORANGE_TX)
 	//STM32
-	#ifndef ARDUINO_GENERIC_STM32F103C
-		#error You must select the board type "Generic STM32F103C series"
+	#if not defined(ARDUINO_GENERIC_STM32F103C) && not defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX) && not defined(ARDUINO_MULTI_STM32_NO_BOOT)
+		#error You must select one of these boards: "Multi 4-in-1 (STM32F103CB)" or "Generic STM32F103C series"
 	#endif
 #endif
 
 //Change/Force configuration for the bootloader option
-#if defined ARDUINO_MULTI_FLASH_FROM_TX
+#if defined(ARDUINO_MULTI_FLASH_FROM_TX) || defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX)
 	#define CHECK_FOR_BOOTLOADER
 #endif
-#if defined ARDUINO_MULTI_NO_BOOT
+#if defined (ARDUINO_MULTI_NO_BOOT) || defined(ARDUINO_MULTI_STM32_NO_BOOT)
 	#undef CHECK_FOR_BOOTLOADER
 #endif
 

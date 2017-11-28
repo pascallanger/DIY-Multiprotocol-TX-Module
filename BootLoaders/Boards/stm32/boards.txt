@@ -1,0 +1,64 @@
+# See: https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
+# See: http://code.google.com/p/arduino/wiki/Platforms
+
+##############################################################
+
+menu.upload_method=Upload method
+menu.bootloader=Bootloader
+
+##############################################################
+## Multi 4-in-1 STM32 
+## --------------------------------------------------
+multistm32f103c.name=Multi 4-in-1 (STM32F103CB)
+
+multistm32f103c.vid.0=0x1EAF
+multistm32f103c.pid.0=0x0004
+multistm32f103c.build.variant=generic_stm32f103c
+multistm32f103c.build.vect=VECT_TAB_ADDR=0x8000000
+multistm32f103c.build.core=maple
+multistm32f103c.build.board=MULTI_STM32_FLASH_FROM_TX
+multistm32f103c.upload.use_1200bps_touch=false
+multistm32f103c.upload.file_type=bin
+multistm32f103c.upload.auto_reset=true
+multistm32f103c.upload.tool=maple_upload
+multistm32f103c.upload.protocol=maple_dfu
+
+multistm32f103c.build.cpu_flags=-DMCU_STM32F103CB
+multistm32f103c.build.ldscript=ld/jtag.ld
+multistm32f103c.upload.maximum_size=131072
+multistm32f103c.upload.maximum_data_size=20480
+
+multistm32f103c.build.f_cpu=72000000L
+multistm32f103c.build.flags.optimize=-Os
+multistm32f103c.build.flags.ldspecs=
+
+multistm32f103c.bootloader.tool=serial_upload
+
+#---------------------------- UPLOAD METHODS ---------------------------
+
+multistm32f103c.menu.upload_method.TxFlashMethod=Flash from Tx
+multistm32f103c.menu.upload_method.TxFlashMethod.upload.tool=tx_upload
+multistm32f103c.menu.upload_method.TxFlashMethod.build.upload_flags=-DSERIAL_USB -DGENERIC_BOOTLOADER
+multistm32f103c.menu.upload_method.TxFlashMethod.build.vect=VECT_TAB_ADDR=0x8002000
+multistm32f103c.menu.upload_method.TxFlashMethod.build.ldscript=ld/bootloader_20.ld
+multistm32f103c.menu.upload_method.TxFlashMethod.build.board=MULTI_STM32_FLASH_FROM_TX
+multistm32f103c.menu.upload_method.TxFlashMethod.bootloader.file=Multi4in1/StmMultiBoot.bin
+
+multistm32f103c.menu.upload_method.DFUUploadMethod=Upload via USB
+multistm32f103c.menu.upload_method.DFUUploadMethod.upload.protocol=maple_dfu
+multistm32f103c.menu.upload_method.DFUUploadMethod.upload.tool=maple_upload
+multistm32f103c.menu.upload_method.DFUUploadMethod.build.upload_flags=-DSERIAL_USB -DGENERIC_BOOTLOADER
+multistm32f103c.menu.upload_method.DFUUploadMethod.build.vect=VECT_TAB_ADDR=0x8002000
+multistm32f103c.menu.upload_method.DFUUploadMethod.build.ldscript=ld/bootloader_20.ld
+multistm32f103c.menu.upload_method.DFUUploadMethod.build.board=MULTI_STM32_NO_BOOT
+multistm32f103c.menu.upload_method.DFUUploadMethod.upload.usbID=1EAF:0003
+multistm32f103c.menu.upload_method.DFUUploadMethod.upload.altID=2
+multistm32f103c.menu.upload_method.DFUUploadMethod.bootloader.file=Multi4in1/StmMultiUSB.bin
+
+multistm32f103c.menu.upload_method.serialMethod=Upload via Serial (FTDI)
+multistm32f103c.menu.upload_method.serialMethod.upload.protocol=maple_serial
+multistm32f103c.menu.upload_method.serialMethod.upload.tool=serial_upload
+multistm32f103c.menu.upload_method.serialMethod.build.upload_flags=-DCONFIG_MAPLE_MINI_NO_DISABLE_DEBUG
+multistm32f103c.menu.upload_method.serialMethod.build.board=MULTI_STM32_NO_BOOT
+
+##############################################################

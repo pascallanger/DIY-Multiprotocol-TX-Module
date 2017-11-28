@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	32
+#define VERSION_PATCH_LEVEL	33
 //******************
 // Protocols
 //******************

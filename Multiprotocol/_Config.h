@@ -353,6 +353,7 @@ const PPM_Parameters PPM_prot[15]=	{
 		BAYANG
 		H8S3D
 		X16_AH
+		IRDRONE
 	MODE_ESKY
 		NONE
 	MODE_MT99XX

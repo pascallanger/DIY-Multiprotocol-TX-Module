@@ -88,7 +88,7 @@ There are three methods to upload firmware to an STM32 module:
 
 **Note:** 'Flash from TX' is only available with radios running ersky9x r221e2 or newer
 
-**Flash from TX** is highly recommended if your transmitter supports it, **Upload via USB** is recommended for all others.  **Upload via Serial** can be used if your module does not have a working USB port and your trasmitter does not run ersky9x.
+**Flash from TX** is highly recommended if your transmitter supports it, **Upload via USB** is recommended for all others.  **Upload via Serial** can be used if your module does not have a working USB port and your transmitter does not run ersky9x.
 
 1. Under **Tools -> Upload Method** select an upload method
 

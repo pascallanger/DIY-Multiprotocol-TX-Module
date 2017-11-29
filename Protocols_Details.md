@@ -425,22 +425,6 @@ CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP||PICTURE|VIDEO|HEADLESS
 
-### Sub_protocol H8_3D - *2*
-Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
-
-CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---|---
-FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
-
-JJRC H20: OPT1=Headless, OPT2=RTH
-
-JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
-
-H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360° flip mode
-
-CAL1: H8 3D acc calib, H20 headless calib
-CAL2: H11D/H20 acc calib
-
 ## CX10 - *12*
 Autobind protocol
 
@@ -535,6 +519,34 @@ There are 3 versions of this small quad, this protocol is for the one with a XNS
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|FLIP
+
+## H8_3D - *36*
+Autobind protocol
+
+### Sub_protocol H8_3D - *0*
+Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
+
+CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---
+FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
+
+JJRC H20: OPT1=Headless, OPT2=RTH
+
+JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
+
+H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360° flip mode
+
+CAL1: H8 3D acc calib, H20/H20H headless calib
+CAL2: H11D/H20/H20H acc calib
+
+### Sub_protocol H20H - *1*
+CH6=Motors on/off
+
+### Sub_protocol H20 Mini - *2*
+**Only 3 TX IDs available, change RX_Num value 0-1-2 to cycle through them**
+
+### Sub_protocol H30 Mini - *3*
+**Only 4 TX IDs available, change RX_Num value 0-1-2_3 to cycle through them**
 
 ## HISKY - *4*
 ### Sub_protocol Hisky - *0*

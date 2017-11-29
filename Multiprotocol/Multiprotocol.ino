@@ -1015,6 +1015,12 @@ static void protocol_init()
 						remote_callback = ESKY150_callback;
 						break;
 				#endif
+				#if defined(H8_3D_NRF24L01_INO)
+					case MODE_H8_3D:
+						next_callback=initH8_3D();
+						remote_callback = H8_3D_callback;
+						break;
+				#endif
 			#endif
 		}
 	}

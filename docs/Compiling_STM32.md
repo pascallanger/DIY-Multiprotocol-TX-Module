@@ -16,7 +16,7 @@ Multiprotocol firmware is compiled using the Arduino IDE. The guide below will w
 1. [Preparing to upload the firmware](#preparing-to-upload-the-firmware)
    1. [Connect the programmer](#connect-the-programmer)
    1. [Select an upload method](#select-an-upload-method)
-   1. [Burn bootloader](#burn-bootloader)
+   1. [Burn the bootloader](#burn-the-bootloader)
 1. [Uploading the firmware](#uploading-the-firmware)
       1. [Flash from TX](#flash-from-tx)
       1. [Upload via USB](#upload-via-usb)
@@ -88,7 +88,7 @@ There are three methods to upload firmware to an STM32 module:
 
 **Note:** 'Flash from TX' is only available with radios running ersky9x r221e2 or newer
 
-**Flash from TX** is highly recommended if your transmitter supports it, **Upload via USB** is recommended for all others.  **Upload via Serial** can be used if your module does not have a working USB port and your trasmitter does not run ersky9x.
+**Flash from TX** is highly recommended if your transmitter supports it, **Upload via USB** is recommended for all others.  **Upload via Serial** can be used if your module does not have a working USB port and your transmitter does not run ersky9x.
 
 1. Under **Tools -> Upload Method** select an upload method
 
@@ -116,7 +116,7 @@ In order to flash the bootloader the **BOOT0** jumper must be installed.
 1. Switch on the transmitter
 1. Verify that you have selected the correct upload method under **Tools -> Upload Method**
 1. Verify that you have selected **stm32flash (FTDI)** as the programmer under **Tools -> Programmer**
-1. Verify that the USB-to-TTL adapter is correctly connected to your module
+1. Verify that the USB-to-TTL adapter is correctly connected to your module and you have selected the correct port under **Tools -> Port**
 1. Click on **Tools -> Burn Bootloader** 
 
 Output will look similar to this:
@@ -152,9 +152,9 @@ Starting execution at address 0x08000000... done.
 Assuming the process is successful:
 1. Power off the transmitter
 1. Remove the **BOOT0** jumper
-1. Disconnect the USB-to-TTL adapter now
+1. Disconnect the USB-to-TTL adapter
 
-## Uploading the firmare
+## Uploading the firmware
 Follow the instructions which apply to the **Upload method** you previously selected.
 * [Flash from TX](#flash-from-tx)
 * [Upload via USB](#upload-via-usb)
@@ -181,7 +181,7 @@ In order for these devices to be correctly identified in Windows it is necessary
 1. Download and install the legacy Windows XP drivers from [here](https://github.com/rogerclarkmelbourne/Arduino_STM32/tree/master/drivers/win/win_xp_legacy)
 
 ### Upload the firmware via USB
-**Note:** Power to the module will be supplied via the USB cable.  If the module is installed in a transmitter, the trasnmitter should be switched off.
+**Note:** Power to the module will be supplied via the USB cable.  If the module is installed in a transmitter, the transmitter should be switched off.
 
 1. Connect the USB cable to the Multiprotocol module
 1. Verify that a Maple device appears in Device Manager (**Maple DFU** for a module with only a bootloader, **Maple Serial** for a module with a bootloader and firmware)

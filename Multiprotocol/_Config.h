@@ -141,12 +141,13 @@
 #define	DM002_NRF24L01_INO
 #define	CABELL_NRF24L01_INO
 #define	ESKY150_NRF24L01_INO
+#define	H8_3D_NRF24L01_INO
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
 //SHFSS failsafe is by default set to all channels hold their positions except throttle forced to low (980µs)
-//You can uncomment the setting below to use channels 9(1) to 16(8) instead
+//You can uncomment the setting below to use channels 9(1) to 16(8) as failsafe instead
 //#define SFHSS_FAILSAFE_CH9_16
 
 #define AFHDS2A_FAILSAFE
@@ -348,7 +349,6 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_CG023
 		CG023
 		YD829
-		H8_3D
 	MODE_BAYANG
 		BAYANG
 		H8S3D
@@ -414,6 +414,11 @@ const PPM_Parameters PPM_prot[15]=	{
 		CABELL_SET_FAIL_SAFE
 		CABELL_UNBIND
 	MODE_ESKY150
+	MODE_H8_3D
+		H8_3D
+		H20H
+		H20 Mini
+		H30 Mini
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

@@ -84,7 +84,7 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 				packet[13] |= FLAG_V6X6_HLESS1;
 				packet[14] |= FLAG_V6X6_HLESS2;
 			}
-			if(Servo_AUX6) //use option to manipulate these bytes
+			if(Servo_AUX6)
 				packet[14] |= FLAG_V6X6_RTH;
 			if(Servo_AUX7) 
 				packet[14] |= FLAG_V6X6_XCAL;

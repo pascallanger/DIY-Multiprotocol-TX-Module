@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_TX
-//#define SERIAL_DEBUG		// Only for STM32_BOARD on usart1
+//#define SERIAL_DEBUG		// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
 #define USE_MY_CONFIG
 
@@ -61,9 +61,6 @@
 	void ISR_COMPB();
 	extern "C"
 	{
-		#ifdef SERIAL_DEBUG
-			void __irq_usart1(void);
-		#endif
 		void __irq_usart2(void);
 		void __irq_usart3(void);
 	}
@@ -190,11 +187,6 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 		volatile uint8_t tx_head=0;
 		volatile uint8_t tx_tail=0;
 	#endif // BASH_SERIAL
-	#ifdef SERIAL_DEBUG
-		volatile uint8_t tx_debug_buff[TXBUFFER_SIZE];
-		volatile uint8_t tx_debug_head=0;
-		volatile uint8_t tx_debug_tail=0;
-    #endif // SERIAL_DEBUG
 	uint8_t v_lipo1;
 	uint8_t v_lipo2;
 	uint8_t RX_RSSI;
@@ -215,8 +207,8 @@ void setup()
 {
 	// Setup diagnostic uart before anything else
 	#ifdef SERIAL_DEBUG
-		usart1_begin(115200,SERIAL_8N1);
-		tx_debug_resume();
+		Serial.begin(115200,SERIAL_8N1);
+		while (!Serial); // Wait for ever for the serial port to connect...
 		debug("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
 	#endif
 
@@ -437,7 +429,7 @@ void setup()
 		#endif //ENABLE_SERIAL
 	}
 	servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
-	debug("init complete");
+	debug("Init complete");
 }
 
 // Main
@@ -700,18 +692,6 @@ inline void tx_resume()
 		}
 	#endif
 }
-
-#ifdef SERIAL_DEBUG
-	inline void tx_debug_resume()
-	{
-		USART1_BASE->CR1 |= USART_CR1_TXEIE;
-	}
-
-	inline void tx_debug_pause()
-	{
-		USART1_BASE->CR1 &= ~ USART_CR1_TXEIE;
-	}
-#endif // SERIAL_DEBUG
 
 #ifdef STM32_BOARD	
 void start_timer2()
@@ -1027,6 +1007,18 @@ static void protocol_init()
 					case MODE_CABELL:
 						next_callback=initCABELL();
 						remote_callback = CABELL_callback;
+						break;
+				#endif
+				#if defined(ESKY150_NRF24L01_INO)
+					case MODE_ESKY150:
+						next_callback=initESKY150();
+						remote_callback = ESKY150_callback;
+						break;
+				#endif
+				#if defined(H8_3D_NRF24L01_INO)
+					case MODE_H8_3D:
+						next_callback=initH8_3D();
+						remote_callback = H8_3D_callback;
 						break;
 				#endif
 			#endif

@@ -37,10 +37,10 @@ enum BAYANG_FLAGS {
 	BAYANG_FLAG_PICTURE		= 0x20, 
 	// flags going to packet[3]
 	BAYANG_FLAG_INVERTED	= 0x80, // inverted flight on Floureon H101
-	BAYANG_FLAG_TAKE_OFF    = 0x20, // take off / landing on X16 AH
+	BAYANG_FLAG_TAKE_OFF	= 0x20, // take off / landing on X16 AH
+	BAYANG_FLAG_EMG_STOP	= 0x04,
 };
 
-uint8_t bayang_bind_chan;
 static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 {
 	uint8_t i;
@@ -62,6 +62,10 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 				packet[10] = 0x00;
 				packet[11] = 0x00;
 				break;
+			case IRDRONE:
+				packet[10] = 0x30;
+				packet[11] = 0x01;
+				break;
 			default:
 				packet[10] = rx_tx_addr[0];	// txid[0]
 				packet[11] = rx_tx_addr[1];	// txid[1]
@@ -73,6 +77,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 		uint16_t val;
 		switch (sub_protocol) {
 			case X16_AH:
+			case IRDRONE:
 				packet[0] = 0xA6;
 				break;
 			default:
@@ -99,6 +104,8 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 			packet[3] = BAYANG_FLAG_INVERTED;
 		if(Servo_AUX7)
 			packet[3] |= BAYANG_FLAG_TAKE_OFF;
+		if(Servo_AUX8)
+			packet[3] |= BAYANG_FLAG_EMG_STOP;
 		//Aileron
 		val = convert_channel_10b(AILERON);
 		packet[4] = (val>>8) + ((val>>2) & 0xFC);
@@ -126,6 +133,10 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 			packet[12] = 0;
 			packet[13] = 0;
 			break;
+		case IRDRONE:
+			packet[12] = 0xE0;
+			packet[13] = 0x2E;
+			break;
 		default:
 			packet[12] = rx_tx_addr[2];	// txid[2]
 			packet[13] = 0x0A;
@@ -135,7 +146,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	for (uint8_t i=0; i < BAYANG_PACKET_SIZE-1; i++)
 		packet[14] += packet[i];
 
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? bayang_bind_chan:hopping_frequency[hopping_frequency_no++]);
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? rf_ch_num:hopping_frequency[hopping_frequency_no++]);
 	hopping_frequency_no%=BAYANG_RF_NUM_CHANNELS;
 
 	// clear packet status bits and TX FIFO
@@ -203,16 +214,28 @@ static void __attribute__((unused)) BAYANG_init()
 
 	NRF24L01_FlushTx();
 	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
+	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     	// Clear data ready, data sent, and retransmit
+	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      	// No Auto Acknowldgement on all data pipes
+	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  	// Enable data pipe 0 only
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, BAYANG_PACKET_SIZE);
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
+	NRF24L01_SetBitrate(NRF24L01_BR_1M);             	// 1Mbps
+	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);	// No retransmits
 	NRF24L01_SetPower();
-	NRF24L01_Activate(0x73);    // Activate feature register
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00); // Disable dynamic payload length on all pipes
+	NRF24L01_Activate(0x73);							// Activate feature register
+	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);			// Disable dynamic payload length on all pipes
 	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
 	NRF24L01_Activate(0x73);
+	
+	switch (sub_protocol)
+	{
+		case X16_AH:
+		case IRDRONE:
+			rf_ch_num = BAYANG_RF_BIND_CHANNEL_X16_AH;
+			break;
+		default:
+			rf_ch_num = BAYANG_RF_BIND_CHANNEL;
+			break;
+	}
 }
 
 uint16_t BAYANG_callback()
@@ -270,7 +293,7 @@ static void __attribute__((unused)) BAYANG_initialize_txid()
 {
 	//Could be using txid[0..2] but using rx_tx_addr everywhere instead...
 	hopping_frequency[0]=0;
-	hopping_frequency[1]=(rx_tx_addr[0]&0x1F)+0x10;
+	hopping_frequency[1]=(rx_tx_addr[3]&0x1F)+0x10;
 	hopping_frequency[2]=hopping_frequency[1]+0x20;
 	hopping_frequency[3]=hopping_frequency[2]+0x20;
 	hopping_frequency_no=0;
@@ -283,14 +306,6 @@ uint16_t initBAYANG(void)
 	BAYANG_initialize_txid();
 	BAYANG_init();
 	packet_count=0;
-	switch (sub_protocol) {
-		case X16_AH:
-			bayang_bind_chan = BAYANG_RF_BIND_CHANNEL_X16_AH;
-			break;
-		default:
-			bayang_bind_chan = BAYANG_RF_BIND_CHANNEL;
-			break;
-	}
 	#ifdef BAYANG_HUB_TELEMETRY
 		init_frskyd_link_telemetry();
 		telemetry_lost=1;	// do not send telemetry to TX right away until we have a TX_RSSI value to prevent warning message...

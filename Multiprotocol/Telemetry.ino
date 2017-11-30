@@ -732,19 +732,6 @@ void TelemetryUpdate()
 /**************************/
 /**************************/
 
-#ifdef SERIAL_DEBUG
-	void StatusSerial_write(uint8_t data)
-	{
-		uint8_t nextHead ;
-		nextHead = tx_debug_head + 1 ;
-		if ( nextHead >= TXBUFFER_SIZE )
-			nextHead = 0 ;
-		tx_debug_buff[nextHead]=data;
-		tx_debug_head = nextHead ;
-		tx_debug_resume();
-	}
-#endif // SERIAL_DEBUG
-
 #ifndef BASH_SERIAL
 	// Routines for normal serial output
 	void Serial_write(uint8_t data)
@@ -864,29 +851,6 @@ void TelemetryUpdate()
 		#endif		
 	}
 	#ifdef STM32_BOARD
-		#if defined(SERIAL_DEBUG)
-			void __irq_usart1()
-			{	// Transmit interrupt
-				if(USART1_BASE->SR & USART_SR_TXE)
-				{
-					if(tx_debug_head!=tx_debug_tail)
-					{
-						if(++tx_debug_tail>=TXBUFFER_SIZE)				//head
-							tx_debug_tail=0;
-						USART1_BASE->DR=tx_debug_buff[tx_debug_tail];	//clears TXE bit
-					}
-					if (tx_debug_tail == tx_debug_head)
-						tx_debug_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
-				}
-			}
-			void usart1_begin(uint32_t baud,uint32_t config )
-			{
-				usart_init(USART1);
-				usart_config_gpios_async(USART1,GPIOA,PIN_MAP[PA10].gpio_bit,GPIOA,PIN_MAP[PA9].gpio_bit,config);
-				usart_set_baud_rate(USART1, STM32_PCLK1, baud);
-				usart_enable(USART1);
-			}
-		#endif
 		void usart2_begin(uint32_t baud,uint32_t config )
 		{
 			usart_init(USART2); 
@@ -975,7 +939,7 @@ void Serial_write( uint8_t byte )
 		byte |= 1 ;		// Start bit
 	#endif
 	uint8_t next = SerialControl.head + 2;
-	if(next>TXBUFFER_SIZE)
+	if(next>=TXBUFFER_SIZE)
 		next=0;
 	if ( next != SerialControl.tail )
 	{
@@ -1069,7 +1033,7 @@ ISR(TIMER0_COMPB_vect)
 				GPIOR0 = ptr->data[ptr->tail] ;
 				GPIOR2 = ptr->data[ptr->tail+1] ;
 				uint8_t nextTail = ptr->tail + 2 ;
-				if ( nextTail > TXBUFFER_SIZE )
+				if ( nextTail >= TXBUFFER_SIZE )
 					nextTail = 0 ;
 				ptr->tail = nextTail ;
 				GPIOR1 = 8 ;
@@ -1112,7 +1076,7 @@ ISR(TIMER0_OVF_vect)
 			GPIOR0 = ptr->data[ptr->tail] ;
 			GPIOR2 = ptr->data[ptr->tail+1] ;
 			uint8_t nextTail = ptr->tail + 2 ;
-			if ( nextTail > TXBUFFER_SIZE )
+			if ( nextTail >= TXBUFFER_SIZE )
 				nextTail = 0 ;
 			ptr->tail = nextTail ;
 			GPIOR1 = 10 ;

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	30
+#define VERSION_PATCH_LEVEL	34
 //******************
 // Protocols
 //******************
@@ -60,6 +60,8 @@ enum PROTOCOLS
 	MODE_GW008		= 32,	// =>NRF24L01
 	MODE_DM002		= 33,	// =>NRF24L01
 	MODE_CABELL		= 34,	// =>NRF24L01
+	MODE_ESKY150	= 35,	// =>NRF24L01
+	MODE_H8_3D		= 36,	// =>NRF24L01
 };
 
 enum Flysky
@@ -132,13 +134,13 @@ enum CG023
 {
     CG023	= 0,
     YD829	= 1,
-    H8_3D	= 2
 };
 enum BAYANG
 {
     BAYANG	= 0,
     H8S3D	= 1,
     X16_AH  = 2,
+	IRDRONE = 3,
 };
 enum MT99XX
 {
@@ -203,6 +205,13 @@ enum CABELL
 	CABELL_V3_TELEMETRY	= 1,
 	CABELL_SET_FAIL_SAFE= 6,
 	CABELL_UNBIND		= 7,
+};
+enum H8_3D
+{
+	H8_3D	= 0,
+	H20H	= 1,
+	H20MINI	= 2,
+	H30MINI	= 3,
 };
 
 #define NONE 		0
@@ -333,7 +342,7 @@ enum FailSafeMode {
 
 //Status messages
 #if defined(STM32_BOARD) && defined (SERIAL_DEBUG)
-	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); for(int i=0;buf[i] !=0; i++) StatusSerial_write(buf[i]);}
+	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
 #else
 	#define debug(...)
 	#undef SERIAL_DEBUG
@@ -532,6 +541,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					GW008		32
 					DM002		33
 					CABELL		34
+					ESKY150		35
+					H8_3D		36
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -583,11 +594,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==CG023
 			CG023		0
 			YD829		1
-			H8_3D		2
 		sub_protocol==BAYANG
 			BAYANG		0
 			H8S3D		1
 			X16_AH		2
+			IRDRONE		3
 		sub_protocol==MT99XX
 			MT99		0
 			H7			1
@@ -639,6 +650,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			CABELL_V3_TELEMETRY		1
 			CABELL_SET_FAIL_SAFE	6
 			CABELL_UNBIND			7
+		sub_protocol==H8_3D
+			H8_3D		0
+			H20H		1
+			H20MINI		2
+			H30MINI		3
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

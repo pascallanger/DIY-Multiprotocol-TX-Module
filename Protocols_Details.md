@@ -363,9 +363,9 @@ Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
----|---|---|---|---|---|---|---|---|----|---
-A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED|TAKE_OFF
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
 
 ### Sub_protocol BAYANG - *0*
 Option=0 -> normal Bayang protocol
@@ -380,7 +380,16 @@ Same channels assignement as above.
 ### Sub_protocol X16_AH - *2*
 Model: X16 AH
 
-Same channels assignement as above.
+CH11
+----
+TAKE_OFF
+
+### Sub_protocol IRDRONE - *3*
+Model: IRDRONE
+
+CH11|CH12
+----|----
+TAKE_OFF|EMG_STOP
 
 ## Cabell - *34*
 Homegrown protocol with variable number of channels (4-16) and telemetry (RSSI, V1, V2).
@@ -415,22 +424,6 @@ Models: Attop YD-822/YD-829/YD-829C ...
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP||PICTURE|VIDEO|HEADLESS
-
-### Sub_protocol H8_3D - *2*
-Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
-
-CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---|---
-FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
-
-JJRC H20: OPT1=Headless, OPT2=RTH
-
-JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
-
-H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360° flip mode
-
-CAL1: H8 3D acc calib, H20 headless calib
-CAL2: H11D/H20 acc calib
 
 ## CX10 - *12*
 Autobind protocol
@@ -482,7 +475,7 @@ FLIP|MODE|PICTURE|VIDEO|HEADLESS|RTH
 ## DM002 - *33*
 Autobind protocol
 
-**Only 2 TX IDs available, change RX_Num value 0-1 to cycle through them**
+**Only 3 TX IDs available, change RX_Num value 0-1-2 to cycle through them**
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
@@ -493,6 +486,17 @@ A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|GYRO|PITCH
+
+## ESKY150 - *35*
+ESky protocol for small models since 2014 (150, 300, 150X, ...)
+
+Number of channels are set with option. option=0 4 channels and option=1 7 channels. An invalid option value will end up with 4 channels.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|FMODE|AUX6|AUX7
+
+FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..100%=>3
 
 ## FY326 - *20*
 
@@ -515,6 +519,34 @@ There are 3 versions of this small quad, this protocol is for the one with a XNS
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|FLIP
+
+## H8_3D - *36*
+Autobind protocol
+
+### Sub_protocol H8_3D - *0*
+Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
+
+CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---
+FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
+
+JJRC H20: OPT1=Headless, OPT2=RTH
+
+JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
+
+H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360° flip mode
+
+CAL1: H8 3D acc calib, H20/H20H headless calib
+CAL2: H11D/H20/H20H acc calib
+
+### Sub_protocol H20H - *1*
+CH6=Motors on/off
+
+### Sub_protocol H20 Mini - *2*
+**Only 3 TX IDs available, change RX_Num value 0-1-2 to cycle through them**
+
+### Sub_protocol H30 Mini - *3*
+**Only 4 TX IDs available, change RX_Num value 0-1-2_3 to cycle through them**
 
 ## HISKY - *4*
 ### Sub_protocol Hisky - *0*

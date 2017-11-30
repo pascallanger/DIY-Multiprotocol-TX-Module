@@ -147,7 +147,7 @@
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
 //SHFSS failsafe is by default set to all channels hold their positions except throttle forced to low (980µs)
-//You can uncomment the setting below to use channels 9(1) to 16(8) instead
+//You can uncomment the setting below to use channels 9(1) to 16(8) as failsafe instead
 //#define SFHSS_FAILSAFE_CH9_16
 
 #define AFHDS2A_FAILSAFE

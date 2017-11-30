@@ -25,8 +25,6 @@
 //#define DEBUG_TX
 //#define SERIAL_DEBUG		// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
-#define USE_MY_CONFIG
-
 #ifdef __arm__// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
 #endif
@@ -40,7 +38,7 @@
 #include "_Config.h"
 
 //Personal config file
-#if defined USE_MY_CONFIG
+#if __has_include("_MyConfig.h")
 	#include "_MyConfig.h"
 #endif
 

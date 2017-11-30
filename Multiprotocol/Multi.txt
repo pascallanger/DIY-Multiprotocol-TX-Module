@@ -1,5 +1,5 @@
 1,Flysky,Flysky,V9x9,V6x6,V912,CX20
-2,Hubsan
+2,Hubsan,H107,H301,H501
 3,FrskyD
 4,Hisky,Hisky,HK310
 5,V2x2,V2x2,JXD506

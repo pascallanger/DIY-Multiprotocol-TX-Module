@@ -106,17 +106,33 @@ Note that the RX ouput will be AETR.
 ### Sub_protocol PPM_SBUS - *3*
 
 ## HUBSAN - *2*
-Models: Hubsan H102D, H107/L/C/D and Hubsan H107P/C+/D+
-
-Autobind protocol
 
 Telemetry enabled for battery voltage and TX RSSI
 
 Option=vTX frequency (H107D) 5645 - 5900 MHz
 
+### Sub_protocol H107 - *0*
+Autobind protocol
+
+Models: Hubsan H102D, H107/L/C/D and H107P/C+/D+
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
+
+### Sub_protocol H301 - *1*
+Models: Hubsan H301
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|RTH|LIGHT|STAB|VIDEO
+
+### Sub_protocol H501 - *1*
+Models: Hubsan H501S
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS1|HEADLESS2|GPS_HOLD|ALT_HOLD
 
 ***
 # CC2500 RF Module

@@ -294,6 +294,8 @@ void A7105_Init(void)
 	A7105_SetTxRxMode(TX_EN);
 	A7105_SetPower();
 
+	A7105_AdjustLOBaseFreq(A7105_FREQ_OFFSET);
+	
 	A7105_Strobe(A7105_STANDBY);
 }
 #endif

@@ -394,19 +394,25 @@ TAKE_OFF|EMG_STOP
 ## Cabell - *34*
 Homegrown protocol with variable number of channels (4-16) and telemetry (RSSI, V1, V2).
 
+It is a FHSS protocol developed by Dennis Cabell (KE8FZX) using the NRF24L01+ 2.4 GHz transceiver. 45 channels are used frequency hop from 2.403 through 2.447 GHz. The reason for using 45 channels is to keep operation within the overlap area between the 2.4 GHz ISM band (governed in the USA by FCC part 15) and the HAM portion of the band (governed in the USA by FCC part 97). This allows part 15 compliant use of the protocol, while allowing licensed amateur radio operators to operate under the less restrictive part 97 rules if desired.
+
 RXs details are located here: https://github.com/soligen2010/RC_RX_CABELL_V3_FHSS
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+CH1|CH2|CH3|CH4|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14 |CH15 |CH16
+---|---|---|---|----|----|----|----|----|----|----|----|----|-----|-----|-----
+ A | E | T | R |AUX1|AUX2|AUX3|AUX4|AUX5|AUX6|AUX7|AUX8|AUX9|AUX10|AUX11|AUX12
 
 ### Sub_protocol CABELL_V3 - *0*
+4 to 16 channels without telemetry
 
 ### Sub_protocol CABELL_V3_TELEMETRY - *1*
+4 to 16 channels with telemetry (RSSI, V1, V2). V1 & V2 can be used to return any analog voltage between 0 and 5 volts, so can be used for battery voltage or any other sensor they provides an analog voltage.
 
 ### Sub_protocol CABELL_SET_FAIL_SAFE - *6*
+Stores failsafe values in the RX.  THe channel values are set when the sub-protocol is changed to 6, so hold sticks in place as the sub-protocol is changed.
 
 ### Sub_protocol CABELL_UNBIND - *7*
+The receiver bound to the model is un-bound.  This happens immediately when the sub-protocol is set to 7.
 
 ## CG023 - *13*
 Autobind protocol

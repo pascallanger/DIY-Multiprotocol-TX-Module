@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	36
+#define VERSION_PATCH_LEVEL	37
 //******************
 // Protocols
 //******************
@@ -378,6 +378,8 @@ enum FailSafeMode {
 #define Servo_AUX6	(Servo_AUX & _BV(5))
 #define Servo_AUX7	(Servo_AUX & _BV(6))
 #define Servo_AUX8	(Servo_AUX & _BV(7))
+#define Servo_AUX9	(Servo_data[AUX9 ]>PPM_SWITCH)
+#define Servo_AUX10	(Servo_data[AUX10]>PPM_SWITCH)
 
 //************************
 //***  Power settings  ***

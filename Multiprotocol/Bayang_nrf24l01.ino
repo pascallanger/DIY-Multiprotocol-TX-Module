@@ -75,7 +75,9 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	else
 	{
 		uint16_t val;
-		switch (sub_protocol) {
+		uint8_t dyntrim = 1;
+		switch (sub_protocol)
+		{
 			case X16_AH:
 			case IRDRONE:
 				packet[0] = 0xA6;
@@ -97,22 +99,27 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 		if(Servo_AUX4)
 			packet[2] |= BAYANG_FLAG_VIDEO;
 		if(Servo_AUX5)
+		{
 			packet[2] |= BAYANG_FLAG_HEADLESS;
+			dyntrim = 0;
+		}
 		//Flags packet[3]
 		packet[3] = 0x00;
 		if(Servo_AUX6)
 			packet[3] = BAYANG_FLAG_INVERTED;
 		if(Servo_AUX7)
-			packet[3] |= BAYANG_FLAG_TAKE_OFF;
+			dyntrim = 0;
 		if(Servo_AUX8)
+			packet[3] |= BAYANG_FLAG_TAKE_OFF;
+		if(Servo_AUX9)
 			packet[3] |= BAYANG_FLAG_EMG_STOP;
 		//Aileron
 		val = convert_channel_10b(AILERON);
-		packet[4] = (val>>8) + ((val>>2) & 0xFC);
+		packet[4] = (val>>8) + (dyntrim ? ((val>>2) & 0xFC) : 0x7C);
 		packet[5] = val & 0xFF;
 		//Elevator
 		val = convert_channel_10b(ELEVATOR);
-		packet[6] = (val>>8) + ((val>>2) & 0xFC);
+		packet[6] = (val>>8) + (dyntrim ? ((val>>2) & 0xFC) : 0x7C);
 		packet[7] = val & 0xFF;
 		//Throttle
 		val = convert_channel_10b(THROTTLE);
@@ -120,7 +127,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 		packet[9] = val & 0xFF;
 		//Rudder
 		val = convert_channel_10b(RUDDER);
-		packet[10] = (val>>8) + (val>>2 & 0xFC);
+		packet[10] = (val>>8) + (dyntrim ? ((val>>2) & 0xFC) : 0x7C);
 		packet[11] = val & 0xFF;
 	}
 	switch (sub_protocol)

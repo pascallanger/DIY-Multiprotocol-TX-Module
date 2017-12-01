@@ -106,17 +106,33 @@ Note that the RX ouput will be AETR.
 ### Sub_protocol PPM_SBUS - *3*
 
 ## HUBSAN - *2*
-Models: Hubsan H102D, H107/L/C/D and Hubsan H107P/C+/D+
-
-Autobind protocol
 
 Telemetry enabled for battery voltage and TX RSSI
 
 Option=vTX frequency (H107D) 5645 - 5900 MHz
 
+### Sub_protocol H107 - *0*
+Autobind protocol
+
+Models: Hubsan H102D, H107/L/C/D and H107P/C+/D+
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
+
+### Sub_protocol H301 - *1*
+Models: Hubsan H301
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|RTH|LIGHT|STAB|VIDEO
+
+### Sub_protocol H501 - *1*
+Models: Hubsan H501S
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS1|HEADLESS2|GPS_HOLD|ALT_HOLD
 
 ***
 # CC2500 RF Module
@@ -363,9 +379,11 @@ Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|----
-A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
+A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED|RATE
+
+RATE: -100%(default)=>higher rates by enabling dynamic trims (except for Headless), 100%=>disable dynamic trims
 
 ### Sub_protocol BAYANG - *0*
 Option=0 -> normal Bayang protocol
@@ -380,33 +398,39 @@ Same channels assignement as above.
 ### Sub_protocol X16_AH - *2*
 Model: X16 AH
 
-CH11
+CH12
 ----
 TAKE_OFF
 
 ### Sub_protocol IRDRONE - *3*
 Model: IRDRONE
 
-CH11|CH12
+CH12|CH13
 ----|----
 TAKE_OFF|EMG_STOP
 
 ## Cabell - *34*
 Homegrown protocol with variable number of channels (4-16) and telemetry (RSSI, V1, V2).
 
-RXs details are located here: https://github.com/soligen2010/RC_RX_CABELL_V3_FHSS
+It is a FHSS protocol developed by Dennis Cabell (KE8FZX) using the NRF24L01+ 2.4 GHz transceiver. 45 channels are used frequency hop from 2.403 through 2.447 GHz. The reason for using 45 channels is to keep operation within the overlap area between the 2.4 GHz ISM band (governed in the USA by FCC part 15) and the HAM portion of the band (governed in the USA by FCC part 97). This allows part 15 compliant use of the protocol, while allowing licensed amateur radio operators to operate under the less restrictive part 97 rules if desired.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+Additional details about configuring and using the protocol are available at the RX project at: https://github.com/soligen2010/RC_RX_CABELL_V3_FHSS
+
+CH1|CH2|CH3|CH4|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14 |CH15 |CH16
+---|---|---|---|----|----|----|----|----|----|----|----|----|-----|-----|-----
+ A | E | T | R |AUX1|AUX2|AUX3|AUX4|AUX5|AUX6|AUX7|AUX8|AUX9|AUX10|AUX11|AUX12
 
 ### Sub_protocol CABELL_V3 - *0*
+4 to 16 channels without telemetry
 
 ### Sub_protocol CABELL_V3_TELEMETRY - *1*
+4 to 16 channels with telemetry (RSSI, V1, V2). V1 & V2 can be used to return any analog voltage between 0 and 5 volts, so can be used for battery voltage or any other sensor that provides an analog voltage.
 
 ### Sub_protocol CABELL_SET_FAIL_SAFE - *6*
+Stores failsafe values in the RX.  The channel values are set when the sub-protocol is changed to 6, so hold sticks in place as the sub-protocol is changed.
 
 ### Sub_protocol CABELL_UNBIND - *7*
+The receiver bound to the model is un-bound.  This happens immediately when the sub-protocol is set to 7.
 
 ## CG023 - *13*
 Autobind protocol
@@ -594,9 +618,11 @@ ARM|
 ## MJXQ - *18*
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
+---|---|---|---|---|---|---|---|---|----|----|----|----|----
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT|RATE
+
+RATE: -100%(default)=>higher rates by enabling dynamic trims (except for Headless), 100%=>disable dynamic trims
 
 ### Sub_protocol WLH08 - *0*
 ### Sub_protocol X600 - *1*

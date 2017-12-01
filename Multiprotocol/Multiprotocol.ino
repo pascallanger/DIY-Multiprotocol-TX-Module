@@ -38,8 +38,8 @@
 #include "_Config.h"
 
 //Personal config file
-#if __has_include("_MyConfig.h")
-	#include "_MyConfig.h"
+#if __has_include("_MyConfig.h") || defined(USE_MY_CONFIG)
+#include "_MyConfig.h"
 #endif
 
 #include "Pins.h"
@@ -194,6 +194,13 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	uint8_t telemetry_link=0; 
 	uint8_t telemetry_counter=0;
 	uint8_t telemetry_lost;
+	#ifdef SPORT_POLLING
+		#define MAX_SPORT_BUFFER 64
+		uint8_t	SportData[MAX_SPORT_BUFFER];
+		bool	ok_to_send = false;
+		uint8_t	sport_idx = 0;
+		uint8_t	sport_index = 0;
+	#endif
 #endif // TELEMETRY
 
 // Callback
@@ -670,7 +677,9 @@ inline void tx_resume()
 {
 	#ifdef TELEMETRY
 	// Resume telemetry by enabling transmitter interrupt
+		#ifndef SPORT_POLLING
 		if(!IS_TX_PAUSE_on)
+		#endif
 		{
 			#ifdef ORANGE_TX
 				cli() ;
@@ -1195,8 +1204,9 @@ void modules_reset()
 			USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
 		}
 		usart3_begin(100000,SERIAL_8E2);
-
-		USART3_BASE->CR1 &= ~ USART_CR1_RE;		//disable 
+		#ifndef SPORT_POLLING
+			USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable
+		#endif		
 		USART2_BASE->CR1 &= ~ USART_CR1_TE;		//disable transmit
 	#else
 		//ATMEGA328p

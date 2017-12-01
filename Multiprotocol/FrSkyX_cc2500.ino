@@ -1,4 +1,3 @@
-
 /*  **************************
 	* By Midelic on RCGroups *
 	**************************
@@ -164,6 +163,30 @@ static void __attribute__((unused)) frskyX_data_frame()
 	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
 	for (uint8_t i=22;i<limit;i++)
 		packet[i]=0;
+	#if defined SPORT_POLLING
+		uint8_t idxs=0;
+		if(ok_to_send)
+			for (uint8_t i=23;i<limit;i++)
+			{//
+				if(sport_index==sport_idx)
+				{//no new data
+					ok_to_send=false;
+					break;
+				}
+				packet[i]=SportData[sport_index];	
+				sport_index= (sport_index+1)& (MAX_SPORT_BUFFER-1);
+				idxs++;
+			}
+		packet[22]= idxs;
+		#ifdef SERIAL_DEBUG
+			for(uint8_t i=0;i<idxs;i++)
+			{
+				Serial.print(packet[23+i],HEX);
+				Serial.print(" ");	
+			}		
+			Serial.println(" ");
+		#endif
+	#endif // SPORT_POLLING
 	uint16_t lcrc = crc_x(&packet[3], limit-3);
 	
 	packet[limit++]=lcrc>>8;//high byte

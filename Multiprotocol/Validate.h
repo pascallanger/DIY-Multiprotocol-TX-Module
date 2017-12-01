@@ -137,6 +137,10 @@
 	#endif
 #endif
 
+#if not defined (SPORT_TELEMETRY) || not defined (STM32_BOARD)
+	#undef SPORT_POLLING
+#endif
+
 //Make sure TX is defined correctly
 #ifndef AILERON
 	#error You must select a correct channel order.

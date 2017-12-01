@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	35
+#define VERSION_PATCH_LEVEL	38
 //******************
 // Protocols
 //******************
@@ -71,6 +71,12 @@ enum Flysky
 	V6X6	= 2,
 	V912	= 3,
 	CX20	= 4
+};
+enum Hubsan
+{
+	H107	= 0,
+	H301	= 1,
+	H501	= 2,
 };
 enum AFHDS2A
 {
@@ -372,6 +378,8 @@ enum FailSafeMode {
 #define Servo_AUX6	(Servo_AUX & _BV(5))
 #define Servo_AUX7	(Servo_AUX & _BV(6))
 #define Servo_AUX8	(Servo_AUX & _BV(7))
+#define Servo_AUX9	(Servo_data[AUX9 ]>PPM_SWITCH)
+#define Servo_AUX10	(Servo_data[AUX10]>PPM_SWITCH)
 
 //************************
 //***  Power settings  ***
@@ -555,6 +563,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			V6x6		2
 			V912		3
 			CX20		4
+		sub_protocol==Hubsan
+			H107		0
+			H301		1
+			H501		2
 		sub_protocol==Hisky
 			Hisky		0
 			HK310		1

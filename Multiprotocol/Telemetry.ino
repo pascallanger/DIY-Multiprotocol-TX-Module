@@ -48,6 +48,18 @@ uint8_t RetrySequence ;
 	// Store for FrskyX telemetry
 	struct t_fx_rx_frame FrskyxRxFrames[4] ;
 	uint8_t NextFxFrameToForward ;
+	#ifdef SPORT_POLLING
+		uint8_t sport_rx_index[28] ;
+		uint8_t ukindex ;
+		uint8_t kindex ;
+		uint8_t TxData[2];
+		uint8_t SportIndexPolling;
+		uint8_t RxData[16] ;
+		volatile uint8_t RxIndex=0 ;
+		uint8_t sport_bytes=0;
+		uint8_t skipped_id;
+		uint8_t rx_counter=0;
+	#endif
 #endif // SPORT_TELEMETRY
 
 #if defined HUB_TELEMETRY
@@ -433,13 +445,15 @@ pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 0x34	0x0A	0xC3	0x56	0xF3
 				
 		*/
+#if defined SPORT_POLLING || defined MULTI_TELEMETRY
+const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
+									0xC6, 0x67, 0x48, 0xE9, 0x6A, 0xCB,
+									0xAC, 0x0D, 0x8E, 0x2F, 0xD0, 0x71,
+									0xF2, 0x53, 0x34, 0x95, 0x16, 0xB7,
+									0x98, 0x39, 0xBA, 0x1B } ;
+#endif
 
 #ifdef MULTI_TELEMETRY
-	const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
-										0xC6, 0x67, 0x48, 0xE9, 0x6A, 0xCB,
-										0xAC, 0x0D, 0x8E, 0x2F, 0xD0, 0x71,
-										0xF2, 0x53, 0x34, 0x95, 0x16, 0xB7,
-										0x98, 0x39, 0xBA, 0x1B } ;
 	void sportSend(uint8_t *p)
 	{
 		multi_send_header(MULTI_TELEMETRY_SPORT, 9);
@@ -489,7 +503,157 @@ pkt[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 			}
 		}
 	}
+	
 #endif
+
+#if defined  SPORT_POLLING
+uint8_t nextID()
+{
+	uint8_t i ;
+	uint8_t poll_idx ; 
+	if (phase)
+	{
+		poll_idx = 99 ;
+		for ( i = 0 ; i < 28 ; i++ )
+		{
+			if ( sport_rx_index[kindex] )
+			{
+				poll_idx = kindex ;
+			}
+			kindex++ ;
+			if ( kindex>= 28 )
+			{
+				kindex = 0 ;
+				phase = 0 ;
+				break ;
+			}
+			if ( poll_idx != 99 )
+			{
+				break ;
+			}
+		}
+		if ( poll_idx != 99 )
+		{
+			return poll_idx ;
+		}
+	}
+	if ( phase == 0 )
+	{
+		for ( i = 0 ; i < 28 ; i++ )
+		{
+			if ( sport_rx_index[ukindex] == 0 )
+			{
+				poll_idx = ukindex ;
+				phase = 1 ;
+			}
+			ukindex++;
+			if (ukindex >= 28 )
+			{
+				ukindex = 0 ;
+			}
+			if ( poll_idx != 99 )
+			{
+				return poll_idx ;
+			}
+		}
+		if ( poll_idx == 99 )
+		{
+			phase = 1 ;
+			return 0 ;
+		}
+	}
+	return poll_idx ;
+}
+
+void pollSport()
+{
+	uint8_t pindex = nextID() ;
+	TxData[0]  = START_STOP;
+	TxData[1] = pgm_read_byte_near(&Indices[pindex]) ;
+	if(!telemetry_lost && ((TxData[1] &0x1F)== skipped_id ||TxData[1]==0x98))
+	{//98 ID(RSSI/RxBat and SWR ) and ID's from sport telemetry
+		pindex = nextID() ;	
+		TxData[1] = pgm_read_byte_near(&Indices[pindex]);
+	}		
+	SportIndexPolling = pindex ;
+	RxIndex = 0;
+	Serial_write(TxData[0]);
+	Serial_write(TxData[1]);
+}
+
+bool checkSportPacket()
+{
+	uint8_t *packet = RxData ;
+	uint16_t crc = 0 ;
+	if ( RxIndex < 8 )
+		return 0 ;
+	for ( uint8_t i = 0 ; i<8 ; i += 1 )
+	{
+		crc += packet[i]; 
+		crc += crc >> 8; 
+		crc &= 0x00ff;
+	}
+	return (crc == 0x00ff) ;
+}
+
+uint8_t unstuff()
+{
+	uint8_t i ;
+	uint8_t j ;
+	j = 0 ;
+	for ( i = 0 ; i < RxIndex ; i += 1 )
+	{
+		if ( RxData[i] == BYTESTUFF )
+		{
+			i += 1 ;
+			RxData[j] = RxData[i] ^ STUFF_MASK ; ;
+		}
+		else
+			RxData[j] = RxData[i] ;
+		j += 1 ;
+	}
+	return j ;
+}
+
+void processSportData(uint8_t *p)
+{	
+
+	RxIndex = unstuff() ;
+	uint8_t x=checkSportPacket() ;
+	if (x)
+	{
+		SportData[sport_idx]=0x7E;
+		sport_idx =(sport_idx+1) & (MAX_SPORT_BUFFER-1);
+		SportData[sport_idx]=TxData[1]&0x1F;
+		sport_idx =(sport_idx+1) & (MAX_SPORT_BUFFER-1);	
+		
+		for(uint8_t i=0;i<(RxIndex-1);i++)
+		{//no crc		
+			if(p[i]==START_STOP || p[i]==BYTESTUFF)
+			{//stuff back
+				SportData[sport_idx]=BYTESTUFF;
+				sport_idx =(sport_idx+1) & (MAX_SPORT_BUFFER-1);
+				SportData[sport_idx]=p[i]^STUFF_MASK;
+			}
+			else
+				SportData[sport_idx]=p[i];
+			sport_idx =(sport_idx+1) & (MAX_SPORT_BUFFER-1);
+		}
+		sport_rx_index[SportIndexPolling] = 1 ;	
+		ok_to_send=true;
+		RxIndex =0 ; 
+	}
+}
+
+inline void rx_pause()
+{
+	USART3_BASE->CR1 &= ~ USART_CR1_RXNEIE;	//disable rx interrupt on USART3	
+}
+inline void rx_resume()
+{
+	USART3_BASE->CR1 |= USART_CR1_RXNEIE;	//enable rx interrupt on USART3
+}	
+#endif//end SPORT_POLLING
 
 void sportIdle()
 {
@@ -500,11 +664,18 @@ void sportIdle()
 
 void sportSendFrame()
 {
+	#if defined SPORT_POLLING
+		rx_pause();
+	#endif
 	uint8_t i;
 	sport_counter = (sport_counter + 1) %36;
 	if(telemetry_lost)
 	{
-		sportIdle();
+		#ifdef SPORT_POLLING
+			pollSport();
+		#else
+			sportIdle();
+         #endif
 		return;
 	}
 	if(sport_counter<6)
@@ -542,6 +713,9 @@ void sportSendFrame()
 				for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
 				frame[i]=pktx1[i];
 				sport -= 1 ;
+				#ifdef SPORT_POLLING
+					skipped_id=frame[0];
+				#endif
 				if ( sport )
 				{
 					uint8_t j = sport * FRSKY_SPORT_PACKET_SIZE ;
@@ -552,7 +726,11 @@ void sportSendFrame()
 			}
 			else
 			{
-				sportIdle();
+				#ifdef SPORT_POLLING
+					pollSport();
+				#else
+					sportIdle();
+				#endif
 				return;
 			}		
 	}
@@ -684,6 +862,9 @@ void TelemetryUpdate()
 			uint32_t now = micros();
 			if ((now - last) > SPORT_TIME)
 			{
+				#if defined SPORT_POLLING
+					processSportData(RxData);	//process arrived data before polling
+				#endif
 				sportSendFrame();
 				#ifdef STM32_BOARD
 					last=now;
@@ -831,21 +1012,39 @@ void TelemetryUpdate()
 	#endif
 	{	// Transmit interrupt
 		#ifdef STM32_BOARD
+			#ifdef SPORT_POLLING		
+				if(USART3_BASE->SR & USART_SR_RXNE) 
+				{
+					USART3_BASE->SR &= ~USART_SR_RXNE;
+					if (RxIndex < 16 )
+					{
+						if(RxData[0]==TxData[0] && RxData[1]==TxData[1])
+							RxIndex=0;
+						RxData[RxIndex++] = USART3_BASE->DR & 0xFF ;					
+					}
+				}
+			#endif
 			if(USART3_BASE->SR & USART_SR_TXE)
 			{
+				USART3_BASE->SR &= ~USART_SR_TXE;	
 		#endif
-		if(tx_head!=tx_tail)
-		{
-			if(++tx_tail>=TXBUFFER_SIZE)//head 
-				tx_tail=0;
-			#ifdef STM32_BOARD	
-				USART3_BASE->DR=tx_buff[tx_tail];//clears TXE bit				
-			#else
-				UDR0=tx_buff[tx_tail];
-			#endif
-		}
-		if (tx_tail == tx_head)
-			tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
+				if(tx_head!=tx_tail)
+				{
+					if(++tx_tail>=TXBUFFER_SIZE)//head 
+						tx_tail=0;
+					#ifdef STM32_BOARD	
+						USART3_BASE->DR=tx_buff[tx_tail];//clears TXE bit				
+					#else
+						UDR0=tx_buff[tx_tail];
+					#endif
+				}
+				if (tx_tail == tx_head)
+				{
+					tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
+					#ifdef  SPORT_POLLING
+						rx_resume();
+					#endif
+				}
 		#ifdef STM32_BOARD	
 			}
 		#endif		

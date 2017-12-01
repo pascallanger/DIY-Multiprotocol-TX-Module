@@ -229,6 +229,12 @@ const int8_t AFHDS2AFailsafe[14]=	{
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 
+//SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
+//This is useful for passing sport control frames from Tx to rx(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
+//Using this feature on turnigy 9XR_PRO requires uncomment INVERT_TELEMETRY as this TX output on telemetry pin only inverted signal.
+//!This is a work in progress!
+//#define SPORT_POLLING
+
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
 /****************************/

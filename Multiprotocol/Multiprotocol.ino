@@ -38,8 +38,8 @@
 #include "_Config.h"
 
 //Personal config file
-#if __has_include("_MyConfig.h")
-	#include "_MyConfig.h"
+#if __has_include("_MyConfig.h") || defined(USE_MY_CONFIG)
+#include "_MyConfig.h"
 #endif
 
 #include "Pins.h"

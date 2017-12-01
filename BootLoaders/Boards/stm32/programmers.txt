@@ -1,0 +1,5 @@
+stm32flash.name=stm32flash (FTDI)
+stm32flash.communication=serial
+stm32flash.protocol=stm32flash
+stm32flash.program.protocol=stm32flash
+stm32flash.program.tool=serial_upload

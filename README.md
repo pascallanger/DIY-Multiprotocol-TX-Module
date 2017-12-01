@@ -79,10 +79,9 @@ For example, if you have no interest in binding your Tx to an model with and FrS
 
 ## **Choice 3:** Which protocols to upload to the MULTI-Module
 
-Of course there is always a catch. In this case it is the 32KB memory limit on the ATmega328 processor. Due to the amazing work done by devs on this project, the memory required by all the possible protocols exceeds this limit considerably. This means that you will need to make a choice of which protocols you will compile into your firmware.  Fortunately, the process of selecting and compiling is not too difficult and it is fully documented on the [Compiling and Programming](docs/Compiling.md) page.
-Also, the lead dev Pascal Langer (rcgroups:hpnuts) makes this process even easier for many users by making compiled binaries available for three popular combinations of RF modules.  These are always “fresh” (based on the latest stable firmware) and available on the [Releases](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) page.
+In the case of the ATmega328, the memory required by all the possible protocols exceeds the 32KB flash limit considerably. This means that you will need to make a choice of which protocols you will compile into your firmware.  Fortunately, the process of selecting and compiling is not too difficult and it is fully documented on the [Compiling and Programming](docs/Compiling.md) page.
 
-An alternatice is to use a STM32 ARM microcontroller based module. If you go the route of building this version of the DIY MULTI-Module then the memory limits do not apply anymore.
+An alternative is to use a STM32 ARM microcontroller based module which can hold all the protocols.
 
 ## **Choice 4:** Choosing the type of interface between the MULTI-Module and your radio (PPM or Serial)
 

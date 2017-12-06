@@ -90,6 +90,9 @@ static void multi_send_header(uint8_t type, uint8_t len)
 
 static void multi_send_status()
 {
+	#ifdef SPORT_POLLING
+		rx_pause();
+	#endif
 	multi_send_header(MULTI_TELEMETRY_STATUS, 5);
 
 	// Build flags

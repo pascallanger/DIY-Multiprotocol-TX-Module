@@ -159,7 +159,7 @@
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
 //The module is using the same default failsafe values for all protocols which currently supports it:
-//  Devo, SFHSS and AFHDS2A
+//  Devo, WK2x01, SFHSS, HISKY/HK310 and AFHDS2A
 //All channels are centered except throttle which is forced low.
 //If you want to diasble failsafe globally comment the line below using "//".
 #define FAILSAFE_ENABLE

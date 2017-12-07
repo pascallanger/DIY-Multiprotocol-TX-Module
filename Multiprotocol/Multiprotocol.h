@@ -676,9 +676,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    [2] Flags
    0x01 = Input signal detected
    0x02 = Serial mode enabled
-   0x04 = protocol is valid
-   0x08 = module is in binding mode
-   0x10 = module waits a bind event to load the protocol
+   0x04 = Protocol is valid
+   0x08 = Module is in binding mode
+   0x10 = Module waits a bind event to load the protocol
+   0x20 = Failsafe supported by currently running protocol
    [3] major
    [4] minor
    [5] revision

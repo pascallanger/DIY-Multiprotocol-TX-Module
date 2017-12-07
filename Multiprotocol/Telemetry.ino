@@ -109,6 +109,9 @@ static void multi_send_status()
 		else
 			if (!IS_BIND_DONE_on)
 				flags |= 0x08;
+		//Failsafe supported
+		if((protocol==MODE_HISKY && sub_protocol==HK310) || protocol==MODE_DEVO || protocol==MODE_SFHSS || protocol==MODE_WK2x01 || protocol==MODE_AFHDS2A) //|| protocol==MODE_FRSKYX)
+			flags |= 0x20;
 	}
 	Serial_write(flags);
 

@@ -38,7 +38,7 @@ This serial protocol does not require any hardware modifications, but **will** r
 Transmitter|Firmware Options|Telemetry Enabled
 :----------|:---------------|:----------------
 [FrSky Taranis X9D/X9D+/9XE](Tx-Taranis.md)| erSky9x, OpenTx 2.1.9 Multi, OpenTX 2.2 (multimodule option)|Yes - native
-[Frsky Taranis Q X7/Horus](Tx-Taranis.md)| OpenTX 2.2 (multimodule option)| Yes - native
+[Frsky Taranis Q X7/Horus](Tx-Taranis.md)| ersky9x, OpenTX 2.2 (multimodule option)| Yes - native
 [Turnigy 9X/9xR](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod)
 [Turnigy 9XR-Pro](Tx-erSky9X.md)|erSky9x|Yes - native
 [FlySky TH9x](Tx-FlyskyTH9X.md)|er9x|[Mod required](#Telemetry_Mod)
@@ -68,7 +68,6 @@ You can see Midelic's original instructions [here](http://www.rcgroups.com/forum
 
 
 ## Other Notes:  
-- er9X and erSky9X firmware already supports Multiprotocol Module as a standard feature.  The next major release of OpenTx - OpenTx 2.2 - will have DIY Mulitprotocol support as a standard feature.  
 
 - Owners of Walkera Devo transmitters should look at the [Deviation-Tx](http://www.deviationtx.com) project for how to achieve the same end goal with your transmitters. 
 

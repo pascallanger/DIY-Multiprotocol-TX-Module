@@ -1,6 +1,8 @@
-# Compiling and Programming (ATmega 328P)
+# Compiling and Programming (ATmega328p)
 
 Multiprotocol firmware is compiled using the Arduino IDE.  The guide below will walk you through all the steps to compile and upload your customized firmware.
+
+**These instructions are for the Atmega328p version of the Multiprotocol module.**  If you are compling for the STM32 version please go to the dedicated [STM32](Compiling_STM32.md) page.
 
 ## Index
 1. [Tools Required](#tools-required)

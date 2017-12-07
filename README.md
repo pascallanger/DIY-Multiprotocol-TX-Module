@@ -1,9 +1,21 @@
-If you like this project and want to support further development [<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)EUR [<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=FR&item_name=DIY%20Multiprotocol&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)USD
+# Multiprotocol TX Module
+<img align="right" width=300 src="docs/images/multi.png" />
 
-# Overview of the MULTI-Module
-The **Multiprotocol Tx Module** (or **MULTI-Module**) is a 2.4GHz transmitter module which enables almost any TX to control lot of different models available on the market.  
+The **Multiprotocol Tx Module** (or **MULTI-Module**) is a 2.4GHz transmitter module which enables almost any transmitter to control many different receivers and models, including many popular helicopters, planes, quadcopters, and miniquads.
 
 The source code is partly based on the [Deviation TX project](http://www.deviationtx.com), thanks to all the developers for their great job on protocols.
+
+If you like this project and want to support further development please consider making a [donation](docs/Donations.md).  
+
+<table cellspacing=0>
+  <tr>
+    <td align=center width=200><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&amount=5&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"><img src="docs/images/donate_button.png" border="0" name="submit" title="PayPal - Donate €5" alt="Donate €5"/></a><br><b>€5</b></td>
+    <td align=center width=200><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&amount=10&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"><img src="docs/images/donate_button.png" border="0" name="submit" title="PayPal - Donate €10" alt="Donate €10"/></a><br><b>€10</b></td>
+    <td align=center width=200><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&amount=15&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"><img src="docs/images/donate_button.png" border="0" name="submit" title="PayPal - Donate €15" alt="Donate €10"/></a><br><b>€15</b></td>
+    <td align=center width=200><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&amount=25&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"><img src="docs/images/donate_button.png" border="0" name="submit" title="PayPal - Donate €25" alt="Donate €25"/></a><br><b>€25</b></td>
+    <td align=center width=200><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"><img src="docs/images/donate_button.png" border="0" name="submit" title="PayPal - Donate" alt="Donate"/></a><br><b>Other</b></td>
+  </tr>
+</table>
 
 ## Quicklinks
 * [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) and [instructions to upload .hex files](docs/Advanced_Manually_Setting_ATmega328_Fuses.md)
@@ -93,7 +105,7 @@ The MULTI-Module supports industry standard PPM interface that works with all tr
 Most of the older FM radios support the PPM interface.
 
 If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX firmwares (Frsky Taranis, Horus or the FlySky TH9X or the Turnigy 9X family) you have the additional option to use a serial protocol to communicate between your Tx and the MULTI-Module. (Owners of Walkera Devo transmitters should look at the [Deviation Tx](http://www.deviationtx.com) project for how to achieve the same end goal). This serial protocol does not require any hardware modifications, but will likely require updating the firmware on your radio. For those willing to do this, there are some nice advantages:
-  - The model protocol selection and binding is done from the Model Settings menu on the Tx
+  - The model protocol selection, associated parameters, failsafe and binding is done from the Model Settings menu on the Tx
   - For telemetry capable transmitters, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work).  Click on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page for more details.
 
 # How to get started?
@@ -104,7 +116,7 @@ If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX f
 1. Finally, you should visit the setup page for your transmitter by clicking on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page to configure the last few settings before you can fly to your heart’s content!!!!!
 
 # Troubleshooting
-Visit the [Troubleshooting](docs/Troubleshooting.md) page.  Please bear in mind that the MULTI-Module is a complex system of hardware and software and it make take some patience to get it up and running.  Also remember that the developers of the system are actual users of the system.  This means that at any moment in time the system is working perfectly for them.  A corollary to this is that if you are struggling there are likely two scenarios.  First, that the problem is with your hardware or with your configuration, second, and much more unlikely but not impossible scenario, is that you are struggling with a new undiscovered bug.  (The author of this documentation speaks from experience ;-)   Please check the RC Groups forum and search for keywords relating to your problem before posting a reply.  When you do post a reply please so humbly and respectfully – you will find many helpful people there.  In your reply please include as much relevant information as possible and attach compilation output and ```_Config.h``` files as text attachments to keep the forum clean.
+Visit the [Troubleshooting](docs/Troubleshooting.md) page.  Please bear in mind that the MULTI-Module is a complex system of hardware and software and it may take some patience to get it up and running.  Also remember that the developers of the system are actual users of the system.  This means that at any moment in time the system is working perfectly for them.  A corollary to this is that if you are struggling there are likely two scenarios.  First, that the problem is with your hardware or with your configuration, second, and much more unlikely but not impossible scenario, is that you are struggling with a new undiscovered bug.  (The author of this documentation speaks from experience ;-)   Please check the RC Groups forum and search for keywords relating to your problem before posting a reply.  When you do post a reply please so humbly and respectfully – you will find many helpful people there.  In your reply please include as much relevant information as possible and attach compilation output and ```_Config.h``` files as text attachments to keep the forum clean.
 # A final word
 A very big thanks to all the people who have shared their time so graciously to create this great project.  If you come across them on RC Groups, please be kind and show appreciation.  In no particular order:
 * Pascal Langer (rcgroups: hpnuts)
@@ -117,4 +129,4 @@ A very big thanks to all the people who have shared their time so graciously to 
 
 Your help would be greatly appreciated.  If protocol reverse-engineering and dev is not your thing then any help with testing and contributing to the documentation would be amazing.  Given the number of different Tx/module hardware/RF module/protocol/model combinations the process of testing and documenting is a major bottleneck for the developers.  Anything you can do to help will free them up to do even greater things. 
 
-If you like this project and want to support further development [<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)EUR [<img style="float:right" src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate" />](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=FR&item_name=DIY%20Multiprotocol&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted)USD
+If you like this project and want to support further development please consider making a [donation](docs/Donations.md).

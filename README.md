@@ -105,7 +105,7 @@ The MULTI-Module supports industry standard PPM interface that works with all tr
 Most of the older FM radios support the PPM interface.
 
 If you are the owner of a transmitter that supports the er9X/erSky9X or OpenTX firmwares (Frsky Taranis, Horus or the FlySky TH9X or the Turnigy 9X family) you have the additional option to use a serial protocol to communicate between your Tx and the MULTI-Module. (Owners of Walkera Devo transmitters should look at the [Deviation Tx](http://www.deviationtx.com) project for how to achieve the same end goal). This serial protocol does not require any hardware modifications, but will likely require updating the firmware on your radio. For those willing to do this, there are some nice advantages:
-  - The model protocol selection and binding is done from the Model Settings menu on the Tx
+  - The model protocol selection, associated parameters, failsafe and binding is done from the Model Settings menu on the Tx
   - For telemetry capable transmitters, the telemetry integration is done seamlessly with the Tx firmware. (Note that FrSky TH9X/Turnigy 9X/R transmitters require a telemetry mod to be done before telemetry can work).  Click on the link corressponding to your Tx on the [Transmitters](docs/Transmitters.md) page for more details.
 
 # How to get started?

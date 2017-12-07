@@ -164,8 +164,8 @@
 //If you want to diasble failsafe globally comment the line below using "//".
 #define FAILSAFE_ENABLE
 
-//Failsafe throttle low value.
-//Value between -125% and +125%
+//Failsafe throttle low value in percentage.
+//Value between -125% and +125%. Default -100.
 #define FAILSAFE_THROTTLE_LOW -100
 
 //The radio using serial protocol can set failsafe data (ersky9x only for now).

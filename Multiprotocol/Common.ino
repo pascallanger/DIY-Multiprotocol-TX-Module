@@ -12,6 +12,21 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#ifdef FAILSAFE_ENABLE
+void InitFailsafe()
+{
+	for(uint8_t i=0;i<NUM_CHN;i++)
+		Failsafe_data[i]=1024;
+	Failsafe_data[THROTTLE]=FAILSAFE_THROTTLE_LOW;	//0=-125%, 204=-100%
+	FAILSAFE_VALUES_on;
+	#ifdef FAILSAFE_SERIAL_ONLY
+		if(mode_select == MODE_SERIAL)
+			FAILSAFE_VALUES_off;
+	#endif
+}
+#endif
+
 /************************/
 /**  Convert routines  **/
 /************************/
@@ -54,6 +69,15 @@ void convert_channel_HK310(uint8_t num, uint8_t *low, uint8_t *high)
 	*low=(uint8_t)(temp&0xFF);
 	*high=(uint8_t)(temp>>8);
 }
+// Failsafe value is converted for HK310
+#ifdef FAILSAFE_ENABLE
+void convert_failsafe_HK310(uint8_t num, uint8_t *low, uint8_t *high)
+{
+	uint16_t temp=0xFFFF-(3440+((Failsafe_data[num]*5)>>1))/3;
+	*low=(uint8_t)(temp&0xFF);
+	*high=(uint8_t)(temp>>8);
+}
+#endif
 
 // Channel value is converted to 16bit values
 uint16_t convert_channel_16b(uint8_t num, int16_t out_min, int16_t out_max)

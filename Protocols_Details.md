@@ -86,7 +86,7 @@ CH5|CH6|CH7
 ---|---|---
 
 ## FLYSKY AFHDS2A - *28*
-Extended limits supported
+Extended limits and failsafe supported
 
 Telemetry enabled for battery voltage and RX&TX RSSI using FrSky Hub protocol
 
@@ -213,7 +213,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.
 
-Extended limits supported
+Extended limits and failsafe supported
 
 Option for this protocol is fine frequency tuning. This value is different for each Module. To determine this value:
  - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
@@ -231,7 +231,7 @@ Channels 9 to 16 are used as failsafe values for the channels 1 to 8.
 # CYRF6936 RF Module
 
 ## DEVO - *7*
-Extended limits supported
+Extended limits and failsafe supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
@@ -267,6 +267,8 @@ Autobind protocol
 Note: RX ouput will always be AETR independently of the input AETR, RETA...
 
 ### Sub_protocol WK2801 - *0*
+Failsafe supported.
+
 This roughly corresponds to the number of channels supported, but many of the newer 6-channel receivers actually support the WK2801 protocol. It is recommended to try the WK2801 protocol 1st when working with older Walkera models before attempting the WK2601 or WK2401 mode, as the WK2801 is a superior protocol. The WK2801 protocol supports up to 8 channels.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
@@ -583,9 +585,11 @@ GYRO: -100%=6G, +100%=3G
 ### Sub_protocol HK310 - *1*
 Models: RX HK-3000, HK3100 and XY3000 (TX are HK-300, HK-310 and TL-3C)
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-| | |T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
+Failsafe supported
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+| | |T|R|AUX
 
 ## KN - *9*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11

@@ -158,42 +158,23 @@
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
-//SHFSS failsafe is by default set to all channels hold their positions except throttle forced to low (980µs)
-//You can uncomment the setting below to use channels 9(1) to 16(8) as failsafe instead
-//#define SFHSS_FAILSAFE_CH9_16
+//The module is using the same default failsafe values for all protocols which currently supports it:
+//  Devo, SFHSS and AFHDS2A
+//All channels are centered except throttle which is forced low.
+//If you want to diasble failsafe globally comment the line below using "//".
+#define FAILSAFE_ENABLE
 
-#define AFHDS2A_FAILSAFE
-#ifdef AFHDS2A_FAILSAFE
-/*
-	Failsafe Min/Max values 962 <-> 2038
-*/
-const int8_t AFHDS2AFailsafeMIN = -105;
-const int8_t AFHDS2AFailsafeMAX = 105;
-//
-const int8_t AFHDS2AFailsafe[14]=	{
-/*
- Failsafe examples
- 988 <-> 2012µs -100% =  988 = 1500 + (2012-988)/2 * (-100/100) = 1500 - 512 =  988
- 988 <-> 2012µs    0% = 1500 = 1500 + (2012-988)/2 * (   0/100) = 1500 +   0 = 1500
- 988 <-> 2012µs  100% = 2012 = 1500 + (2012-988)/2 * ( 100/100) = 1500 + 512 = 2012
- 988 <-> 2012µs -105% =  962 = 1500 + (2012-988)/2 * (-105/100) = 1500 - 538 =  962
-*/
-/* ch  1 */ -1,
-/* ch  2 */ -1,
-/* ch  3 */ -105,
-/* ch  4 */ -1,
-/* ch  5 */ -1,
-/* ch  6 */ -1,
-/* ch  7 */ -1,
-/* ch  8 */ -1,
-/* ch  9 */ -1,
-/* ch 10 */ -1,
-/* ch 11 */ -1,
-/* ch 12 */ -1,
-/* ch 13 */ -1,
-/* ch 14 */ -1
-};
-#endif
+//Failsafe throttle low value.
+//1=-125%, 204=-100%, 1024=0%, 1843=100%, 2046=+125%
+#define FAILSAFE_THROTTLE_LOW 204
+
+//The radio using serial protocol can set failsafe data (ersky9x only for now).
+// Two options are available:
+//  a. replace the default failsafe data with serial failsafe data when they are received.
+//  b. wait for the radio to provide failsafe before sending it. Enable advanced settings like "FAILSAFE NOT SET" or "FAILSAFE RX".
+// Option a. is the default since you have a protection even if no failsafe has been set on the radio.
+// You can force option b. by uncommenting the line below (remove the "//").
+//#define FAILSAFE_SERIAL_ONLY
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/

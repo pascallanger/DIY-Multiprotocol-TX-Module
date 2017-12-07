@@ -317,8 +317,17 @@ static void __attribute__((unused)) WK_build_beacon_pkt_2801()
         bind_state = 0x99;
 	
 	for (uint8_t i = 0; i < 4; i++)
-	{	// failsafe info: WARNING All channels are set to 0 instead of midstick and 0 for throttle
-		packet[i+1] = 0;
+	{
+		#ifdef FAILSAFE_ENABLE
+			uint16_t failsafe=Failsafe_data[CH_AETR[i + WK_last_beacon * 4]];
+			if(failsafe!=FAILSAFE_CHANNEL_HOLD && IS_FAILSAFE_VALUES_on)
+			{
+				packet[i+1] = failsafe>>3;	//0..255
+				en |= 1 << i;
+			}
+			else
+		#endif
+				packet[i+1] = 0;
 	}
 	packet[0] = en;
 	packet[5] = packet[4];
@@ -453,7 +462,8 @@ uint16_t WK_cb()
 	return 1200;
 }
 
-uint16_t WK_setup() {
+uint16_t WK_setup()
+{
 	wk2x01_cyrf_init();
 	CYRF_SetTxRxMode(TX_EN);
 

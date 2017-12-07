@@ -127,7 +127,7 @@ static void __attribute__((unused)) SFHSS_calc_next_chan()
 // Values grow down and to the right.
 static void __attribute__((unused)) SFHSS_build_data_packet()
 {
-	uint16_t ch1,ch2,ch3,ch4;
+	uint16_t ch[4];
 	// command.bit0 is the packet number indicator: =0 -> SFHSS_DATA1, =1 -> SFHSS_DATA2
 	// command.bit1 is unknown but seems to be linked to the payload[0].bit0 but more dumps are needed: payload[0]=0x82 -> =0, payload[0]=0x81 -> =1
 	// command.bit2 is the failsafe transmission indicator: =0 -> normal data, =1->failsafe data
@@ -139,44 +139,53 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 	
 	uint8_t command= (phase == SFHSS_DATA1) ? 0 : 1;	// Building packet for Data1 or Data2
 	counter+=command;
-	if( (counter&0x3FC) == 0x3FC )
-	{	// Transmit failsafe data twice every 7s
-		if( ((counter&1)^(command&1)) == 0 )
-			command|=0x04;								// Failsafe
-	}
-	else
-		command|=0x02;									// Assuming packet[0] == 0x81
+	#ifdef FAILSAFE_ENABLE
+		if( (counter&0x3FC) == 0x3FC && IS_FAILSAFE_VALUES_on)
+		{	// Transmit failsafe data twice every 7s
+			if( ((counter&1)^(command&1)) == 0 )
+				command|=0x04;							// Failsafe
+		}
+		else
+	#endif
+			command|=0x02;								// Assuming packet[0] == 0x81
 	counter&=0x3FF;										// Reset failsafe counter
 	if(counter&1) command|=0x08;						// Transmit lower and upper channels twice in a row
 
-	uint8_t ch_offset = ((command&0x08) >> 1) | ((command&0x04) << 1);	// CH1..CH4 or CH5..CH8, if failsafe CH9..CH12 or CH13..CH16
-	ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],2020,1020);
-	ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],2020,1020);
-	ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],2020,1020);
-	ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],2020,1020);
+	uint8_t ch_offset = (command&0x08) >> 1;			// CH1..CH4 or CH5..CH8
 
-	if(command&0x04)
-	{	//Failsafe data are:
-		// 0 to 1023 -> no output on channel
-		// 1024-2047 -> hold output on channel
-		// 2048-4095 -> channel_output=(data&0x3FF)*5/4+880 in µs
-		// Notes:
-		//    2048-2559 -> does not look valid since it only covers the range from 1520µs to 2160µs 
-		//    2560-3583 -> valid for any channel values from 880µs to 2160µs
-		//    3584-4095 -> looks to be used for the throttle channel with values ranging from 880µs to 1520µs
-		#ifdef SFHSS_FAILSAFE_CH9_16
-			ch1=((5360-ch1)<<2)/5;						//((1520*2-ch1)<<2)/5+1856;
-			ch2=((5360-ch2)<<2)/5;
-			ch3=((5360-ch3)<<2)/5;
-			if((command&0x08)==0 && ch3<3072)			// Throttle
-				ch3+=1024;
-			ch4=((5360-ch4)<<2)/5;
-		#else
-			ch1=1024;ch2=1024;ch4=1024;					// All channels hold their positions
-			ch3=((command&0x08)==0)?3664:1024;			// except throttle value set to 980µs
-		#endif
-	}
+	#ifdef FAILSAFE_ENABLE
+		if(command&0x04)
+		{	//Failsafe data are:
+			// 0 to 1023 -> no output on channel
+			// 1024-2047 -> hold output on channel
+			// 2048-4095 -> channel_output=(data&0x3FF)*5/4+880 in µs
+			// Notes:
+			//    2048-2559 -> does not look valid since it only covers the range from 1520µs to 2160µs 
+			//    2560-3583 -> valid for any channel values from 880µs to 2160µs
+			//    3584-4095 -> looks to be used for the throttle channel with values ranging from 880µs to 1520µs
+			for(uint8_t i=0;i<4;i++)
+			{
+				ch[i]=Failsafe_data[CH_AETR[ch_offset+i]];
+				if(ch[i]==FAILSAFE_CHANNEL_HOLD)
+					ch[i]=1024;
+				else if(ch[i]==FAILSAFE_CHANNEL_NOPULSES)
+					ch[i]=0;
+				else
+				{ //Use channel value
+					ch[i]=(ch[i]>>1)+2560;
+					if(CH_AETR[ch_offset+i]==THROTTLE && ch[i]<3072)		// Throttle
+						ch[i]+=1024;
+				}
+			}
+		}
+		else
+	#endif
+		{	//Normal data
+			for(uint8_t i=0;i<4;i++)
+				ch[i] = convert_channel_16b_nolim(CH_AETR[ch_offset+i],2020,1020);
+		}
 
+	
 	// XK		[0]=0x81 [3]=0x00 [4]=0x00
 	// T8J		[0]=0x81 [3]=0x42 [4]=0x07
 	// T10J		[0]=0x81 [3]=0x0F [4]=0x09
@@ -186,13 +195,13 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 	packet[2] = rx_tx_addr[1];
 	packet[3] = 0x00;	// unknown but prevents some receivers to bind if not 0
 	packet[4] = 0x00;	// unknown but prevents some receivers to bind if not 0
-	packet[5] = (rf_ch_num << 3) | ((ch1 >> 9) & 0x07);
-	packet[6] = (ch1 >> 1);
-	packet[7] = (ch1 << 7) | ((ch2 >> 5) & 0x7F );
-	packet[8] = (ch2 << 3) | ((ch3 >> 9) & 0x07 );
-	packet[9] = (ch3 >> 1);
-	packet[10] = (ch3 << 7) | ((ch4 >> 5) & 0x7F );
-	packet[11] = (ch4 << 3) | ((fhss_code >> 2) & 0x07 );
+	packet[5] = (rf_ch_num << 3) | ((ch[0] >> 9) & 0x07);
+	packet[6] = (ch[0] >> 1);
+	packet[7] = (ch[0] << 7) | ((ch[1] >> 5) & 0x7F );
+	packet[8] = (ch[1] << 3) | ((ch[2] >> 9) & 0x07 );
+	packet[9] = (ch[2] >> 1);
+	packet[10] = (ch[2] << 7) | ((ch[3] >> 5) & 0x7F );
+	packet[11] = (ch[3] << 3) | ((fhss_code >> 2) & 0x07 );
 	packet[12] = (fhss_code << 6) | command;
 }
 
@@ -285,7 +294,6 @@ uint16_t initSFHSS()
 
 	SFHSS_rf_init();
 	phase = SFHSS_START;
-
 	return 10000;
 }
 

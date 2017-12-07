@@ -245,23 +245,7 @@ enum MultiPacketTypes {
 	MULTI_TELEMETRY_DSM     = 4,
 	MULTI_TELEMETRY_DSMBIND = 5,
 	MULTI_TELEMETRY_AFHDS2A = 6,
-	MULTI_TELEMETRY_INPUTSYNC=8,
-	MULTI_COMMAND_CONFIG    = 0x80,
-	MULTI_COMMAND_FAILSAFE	 =0x81,
 };
-
-enum FailSafeMode {
-	FAILSAFE_NOTSET 	= 0,
-	FAILSAFE_HOLD		= 1,
-	FAILSAFE_CUSTOM		= 2,
-	FAILSAFE_NOPULSES	= 3,
-	FAILSAFE_RECEIVER	= 4,
-	// Use during update so we can get away with only one copy of Failsafe channels
-	FAILSEFASE_INVALID	= 0xfe
-};
-
-#define FAILSAFE_CHANNEL_HOLD	0
-#define	FAILSAFE_CHANNEL_NOPULSES	2047
 
 // Macros
 #define NOP() __asm__ __volatile__("nop")
@@ -301,9 +285,9 @@ enum FailSafeMode {
 #define BIND_DONE			protocol_flags |= _BV(7)
 #define IS_BIND_DONE_on		( ( protocol_flags & _BV(7) ) !=0 )
 //
-#define BAD_PROTO_off		protocol_flags2 &= ~_BV(0)
-#define BAD_PROTO_on		protocol_flags2 |= _BV(0)
-#define IS_BAD_PROTO_on		( ( protocol_flags2 & _BV(0) ) !=0 )
+#define FAILSAFE_VALUES_off	protocol_flags2 &= ~_BV(0)
+#define FAILSAFE_VALUES_on		protocol_flags2 |= _BV(0)
+#define IS_FAILSAFE_VALUES_on	( ( protocol_flags2 & _BV(0) ) !=0 )
 //
 #define RX_DONOTUPDTAE_off	protocol_flags2 &= ~_BV(1)
 #define RX_DONOTUPDTAE_on	protocol_flags2 |= _BV(1)
@@ -336,21 +320,15 @@ enum FailSafeMode {
 #define IS_WAIT_BIND_on		( ( protocol_flags2 & _BV(7) ) !=0 )
 #define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
 
-//Configuration
-#define IS_TELEMTRY_INVERSION_ON	(multi_config & 0x01)
-#define IS_MULTI_TELEMETRY_ON		(multi_config & 0x02)
-#define IS_EXTRA_TELEMETRY_ON       (multi_config & 0x04)
-
 // Failsafe
-#define failsafeToPPM(i)			(Failsafe_data[i]* 5/8+860)
-#define isNormalFailsafeChanel(i)	(Failsafe_data[i] != FAILSAFE_CHANNEL_HOLD && Failsafe_data[i] != FAILSAFE_CHANNEL_NOPULSES)
+#define FAILSAFE_CHANNEL_HOLD		0
+#define	FAILSAFE_CHANNEL_NOPULSES	2047
 
-
-//Status messages
+//Debug messages
 #if defined(STM32_BOARD) && defined (SERIAL_DEBUG)
 	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
 #else
-	#define debug(...)
+	#define debug(...) { }
 	#undef SERIAL_DEBUG
 #endif
 
@@ -364,7 +342,6 @@ enum FailSafeMode {
 #define BLINK_BAD_PROTO_TIME_LOW	1000
 #define BLINK_WAIT_BIND_TIME_HIGH	1000
 #define BLINK_WAIT_BIND_TIME_LOW	100
-
 
 //*******************
 //***  AUX flags  ***
@@ -509,8 +486,10 @@ enum {
 **************************
 Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Total of 26 bytes
-  Stream[0]   = 0x55	sub_protocol values are 0..31
-  Stream[0]   = 0x54	sub_protocol values are 32..63
+  Stream[0]   = 0x55	sub_protocol values are 0..31	Stream contains channels
+  Stream[0]   = 0x54	sub_protocol values are 32..63	Stream contains channels
+  Stream[0]   = 0x57	sub_protocol values are 0..31	Stream contains failsafe
+  Stream[0]   = 0x56	sub_protocol values are 32..63	Stream contains failsafe
    header
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
    sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54
@@ -671,14 +650,16 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
    option_protocol value is -128..127
-  Stream[4] to [25] = Channels
+  Stream[4] to [25] = Channels or failsafe depending on Steam[0]
    16 Channels on 11 bits (0..2047)
 	0		-125%
     204		-100%
 	1024	   0%
 	1843	+100%
 	2047	+125%
-   Channels bits are concatenated to fit in 22 bytes like in SBUS protocol
+   Values are concatenated to fit in 22 bytes like in SBUS protocol.
+   Failsafe values have exactly the same range/values than normal channels except the extremes where
+      0=hold, 2047=no pulse. If failsafe is not set or RX then failsafe packets should not be sent.
 */
 /*
   Multimodule Status
@@ -763,46 +744,5 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data
-
-
- Type 0x08 Input synchronisation
-    Informs the TX about desired rate and current delay
-    length: 4
-    data[0-1]     Desired refresh rate in µs
-    data[2-3]     Time (µs) between last serial servo input received and servo input needed (lateness), TX should adjust its
-                  sending time to minimise this value.
-	data[4]		  Interval of this message in ms
- 	data[5]		  Input delay target in 10µs
-
-   Note that there are protocols (AFHDS2A) that have a refresh rate that is smaller than the maximum achievable
-   refresh rate via the serial protocol, in this case, the TX should double the rate and also subract this
-   refresh rate from the input lag if the input lag is more than the desired refresh rate.
-
-   The remote should try to get to zero of  (inputdelay+target*10).
-
-Commands from TX to module use values > 127 for command type
-
- Type 0x80 Module Configuration
-   This sent from the TX to Multi to configure inversion and multi telemetry type
-   length: 1
-   data[0] flags
-     0x01 Telemetry inversion (1 = inverted)
-     0x02 Use Multi telemetry protocol (if 0 use multi status)
-     0x04 Send extra telemetry (type 0x08) to allow input synchronisation
-
-
- Type 0x81 Failsafe data
-	length: 23
-	data[0] Failsafe mode:
-		 0 - Failsafe not set
-		 1 - Failsafe hold, keep last received values
-		 2 - Failsafe custom, use the values from the channels
-		 3 - Failsafe nopulses, stop sending pulses from the receiver
-		 4 - Failsafe receiver, use receiver stored values
-
-		Many of these many modes don't work with all protocols, fallback to best
-		available method
-	data[1-22] Failsafe data, encoded like normal channel data, with the expection
-		that 0 means hold for that channel and 2047 means no pulses
 
 */

@@ -150,12 +150,25 @@ uint16_t hisky_cb()
 			case 4:
 				phase=6;
 				break;
-			case 7:		// build packet with failsafe every 100ms
-				convert_channel_HK310(hopping_frequency_no!=0?RUDDER:AUX2,&packet[0],&packet[1]);
-				convert_channel_HK310(hopping_frequency_no!=0?THROTTLE:AUX3,&packet[2],&packet[3]);
-				convert_channel_HK310(hopping_frequency_no!=0?AUX1:AUX4,&packet[4],&packet[5]);
-				packet[7]=hopping_frequency_no!=0?0x55:0xAA;
-				packet[8]=hopping_frequency_no!=0?0x67:0x5A;
+			case 7:	// build packet
+				#ifdef FAILSAFE_ENABLE
+					if(IS_FAILSAFE_VALUES_on && hopping_frequency_no==0)
+					{ //  send failsafe every 100ms
+						convert_failsafe_HK310(RUDDER,  &packet[0],&packet[1]);
+						convert_failsafe_HK310(THROTTLE,&packet[2],&packet[3]);
+						convert_failsafe_HK310(AUX1,    &packet[4],&packet[5]);
+						packet[7]=0xAA;
+						packet[8]=0x5A;
+					}
+					else
+				#endif
+					{
+						convert_channel_HK310(RUDDER,  &packet[0],&packet[1]);
+						convert_channel_HK310(THROTTLE,&packet[2],&packet[3]);
+						convert_channel_HK310(AUX1,    &packet[4],&packet[5]);
+						packet[7]=0x55;
+						packet[8]=0x67;
+					}
 				phase=8;
 				break;
 		}

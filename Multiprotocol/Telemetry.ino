@@ -228,7 +228,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		telemetry_lost=0;
 		if (protocol==MODE_FRSKYX)
 		{
-			uint16_t lcrc = crc_x(&pkt[3], len-7 ) ;
+			uint16_t lcrc = frskyX_crc_x(&pkt[3], len-7 ) ;
 
 			if ( ( (lcrc >> 8) == pkt[len-4]) && ( (lcrc & 0x00FF ) == pkt[len-3]) )
 			{

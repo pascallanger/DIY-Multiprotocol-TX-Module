@@ -79,6 +79,9 @@ uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
 uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
 uint16_t servo_mid;
+#ifdef FAILSAFE_ENABLE
+	uint16_t Failsafe_data[NUM_CHN];
+#endif
 
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
@@ -101,6 +104,7 @@ uint8_t  flags;
 uint16_t crc;
 uint8_t  crc8;
 uint16_t seed;
+uint16_t failsafe_count;
 //
 uint16_t state;
 uint8_t  len;
@@ -329,14 +333,6 @@ void setup()
 		SCLK_off;
 	#endif
 
-	// Set servos positions
-	for(uint8_t i=0;i<NUM_CHN;i++)
-		Servo_data[i]=1500;
-	Servo_data[THROTTLE]=servo_min_100;
-	#ifdef ENABLE_PPM
-		memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
-	#endif
-	
 	//Wait for every component to start
 	delayMilliseconds(100);
 	
@@ -358,6 +354,14 @@ void setup()
 			((MODE_DIAL4_ipr & _BV(MODE_DIAL4_pin)) ? 0 : 8);
 	#endif
     debug("Mode switch reads as %d", mode_select);
+
+	// Set default channels' value
+	for(uint8_t i=0;i<NUM_CHN;i++)
+		Servo_data[i]=1500;
+	Servo_data[THROTTLE]=servo_min_100;
+	#ifdef ENABLE_PPM
+		memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
+	#endif
 
 	// Update LED
 	LED_off;
@@ -754,6 +758,10 @@ static void protocol_init()
 		MProtocol_id = RX_num + MProtocol_id_master;
 		set_rx_tx_addr(MProtocol_id);
 		
+		#ifdef FAILSAFE_ENABLE
+			InitFailsafe();
+		#endif
+	
 		blink=millis();
 
 		if(IS_BIND_BUTTON_FLAG_on)
@@ -1077,7 +1085,16 @@ void update_serial_data()
 		POWER_FLAG_on;							//power high
 
 	option=rx_ok_buff[3];
-
+	
+	#ifdef FAILSAFE_ENABLE
+		bool failsafe=false;
+		if(rx_ok_buff[0]&0x02)
+		{ //packet contains failsafe instead of channels
+			failsafe=true;
+			rx_ok_buff[0]&=0xFD;					//remove the failsafe flag
+			FAILSAFE_VALUES_on;						//failsafe data has been received
+		}
+	#endif
 	if( (rx_ok_buff[0] != cur_protocol[0]) || ((rx_ok_buff[1]&0x5F) != (cur_protocol[1]&0x5F)) || ( (rx_ok_buff[2]&0x7F) != (cur_protocol[2]&0x7F) ) )
 	{ // New model has been selected
 		CHANGE_PROTOCOL_FLAG_on;				//change protocol
@@ -1106,7 +1123,7 @@ void update_serial_data()
 	for(uint8_t i=0;i<3;i++)
 		cur_protocol[i] =  rx_ok_buff[i];
 
-	// decode channel values
+	// decode channel/failsafe values
 	volatile uint8_t *p=rx_ok_buff+3;
 	uint8_t dec=-3;
 	for(uint8_t i=0;i<NUM_CHN;i++)
@@ -1118,7 +1135,13 @@ void update_serial_data()
 			p++;
 		}
 		p++;
-		Servo_data[i]=((((*((uint32_t *)p))>>dec)&0x7FF)*5)/8+860;	//value range 860<->2140 -125%<->+125%
+		uint16_t temp=((*((uint32_t *)p))>>dec)&0x7FF;
+		#ifdef FAILSAFE_ENABLE
+			if(failsafe)
+				Failsafe_data[i]=temp;				//value range 0..2047, 0=hold, 2047=no pulses
+			else
+		#endif
+				Servo_data[i]=(temp*5)/8+860;		//value range 860<->2140 -125%<->+125%
 	}
 	RX_DONOTUPDTAE_off;
 	#ifdef ORANGE_TX
@@ -1135,6 +1158,10 @@ void update_serial_data()
 		sei();
 	#else
 		UCSR0B |= _BV(RXCIE0) ;					// RX interrupt enable
+	#endif
+	#ifdef FAILSAFE_ENABLE
+		if(failsafe)
+			debug("RX_FS:%d,%d,%d,%d",Failsafe_data[0],Failsafe_data[1],Failsafe_data[2],Failsafe_data[3]);
 	#endif
 }
 
@@ -1501,7 +1528,11 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				idx=0;discard_frame=0;
 				RX_MISSED_BUFF_off;			// If rx_buff was good it's not anymore...
 				rx_buff[0]=UDR0;
-				if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
+				#ifdef FAILSAFE_ENABLE
+					if((rx_buff[0]&0xFC)==0x54)	// If 1st byte is 0x54, 0x55, 0x56 or 0x57 it looks ok
+				#else
+					if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
+				#endif
 				{
 					TX_RX_PAUSE_on;
 					tx_pause();

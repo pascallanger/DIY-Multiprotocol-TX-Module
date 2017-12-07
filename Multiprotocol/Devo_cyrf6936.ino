@@ -94,15 +94,29 @@ static void __attribute__((unused)) DEVO_add_pkt_suffix()
 static void __attribute__((unused)) DEVO_build_beacon_pkt(uint8_t upper)
 {
 	packet[0] = (DEVO_NUM_CHANNELS << 4) | 0x07;
-	uint8_t max = 8;
+	uint8_t max = 8, offset = 0, enable = 0;
 	if (upper)
 	{
 		packet[0] += 1;
 		max = 4;
+		offset = 8;
 	}
 	for(uint8_t i = 0; i < max; i++)
-		packet[i+1] = 0;
-	packet[9] = 0;
+	{
+		#ifdef FAILSAFE_ENABLE
+			uint16_t failsafe=Failsafe_data[CH_EATR[i+offset]];
+			if(i + offset < DEVO_NUM_CHANNELS && failsafe!=FAILSAFE_CHANNEL_HOLD && IS_FAILSAFE_VALUES_on)
+			{
+				enable |= 0x80 >> i;
+				packet[i+1] = ((failsafe*25)>>8)-100;
+			}
+			else
+		#else
+			(void)offset;
+		#endif
+				packet[i+1] = 0;
+	}
+	packet[9] = enable;
 	DEVO_add_pkt_suffix();
 }
 

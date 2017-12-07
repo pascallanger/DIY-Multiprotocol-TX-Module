@@ -995,6 +995,8 @@ void TelemetryUpdate()
 					#endif
 				#endif
 			}
+		#else
+			(void)speed;
 		#endif
 		#ifndef ORANGE_TX
 			#ifndef STM32_BOARD

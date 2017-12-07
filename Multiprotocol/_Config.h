@@ -63,7 +63,7 @@
 //Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
 //Instructions: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders#compiling--uploading-firmware-with-the-flash-from-tx-bootloader
 //To enable this feature remove the "//" on the next line.  Requires a compatible bootloader or upload method to be selected when you use the Multi 4-in-1 Boards Manager definitions.
-#define CHECK_FOR_BOOTLOADER
+//#define CHECK_FOR_BOOTLOADER
 
 /****************/
 /*** RF CHIPS ***/
@@ -165,8 +165,8 @@
 #define FAILSAFE_ENABLE
 
 //Failsafe throttle low value.
-//1=-125%, 204=-100%, 1024=0%, 1843=100%, 2046=+125%
-#define FAILSAFE_THROTTLE_LOW 204
+//Value between -125% and +125%
+#define FAILSAFE_THROTTLE_LOW -100
 
 //The radio using serial protocol can set failsafe data (ersky9x only for now).
 // Two options are available:
@@ -190,7 +190,7 @@
 //On a 9XR_PRO running ersky9x both commented and uncommented will work depending on the radio setting Invert COM1 under the Telemetry menu.
 //On other addon/replacement boards like the 9xtreme board or the Ar9x board running ersky9x, you need to uncomment the line below.
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
-//#define INVERT_TELEMETRY
+#define INVERT_TELEMETRY
 
 //Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
 //Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
@@ -201,20 +201,20 @@
 //#define MULTI_TELEMETRY
 
 //Comment a line to disable a specific protocol telemetry
-//#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
+#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
 #define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
-//#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded
+#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded
 #define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
-//#define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-//#define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-//#define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-//#define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 
 //SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
-//This is useful for passing sport control frames from Tx to rx(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
+//This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
 //Using this feature on turnigy 9XR_PRO requires uncomment INVERT_TELEMETRY as this TX output on telemetry pin only inverted signal.
 //!This is a work in progress!
-//#define SPORT_POLLING
+#define SPORT_POLLING
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -231,7 +231,7 @@
 /*************************/
 //In this section you can configure all details about PPM.
 //If you do not plan to use the PPM mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
-//#define ENABLE_PPM
+#define ENABLE_PPM
 
 /*** TX END POINTS ***/
 //It is important for the module to know the endpoints of your radio.

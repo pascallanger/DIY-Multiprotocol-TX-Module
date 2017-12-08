@@ -321,8 +321,8 @@ enum MultiPacketTypes {
 #define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
 
 // Failsafe
-#define FAILSAFE_CHANNEL_HOLD		0
-#define	FAILSAFE_CHANNEL_NOPULSES	2047
+#define FAILSAFE_CHANNEL_HOLD		2047
+#define	FAILSAFE_CHANNEL_NOPULSES	0
 
 //Debug messages
 #if defined(STM32_BOARD) && defined (SERIAL_DEBUG)

@@ -30,7 +30,7 @@ Multiprotocol firmware is compiled using the Arduino IDE. The guide below will w
 
 | **3.3V USB-TTL Adapter** | **4-pin Serial Programming Header** |
 |:---:|:--:|
-| <img src="images/FTDI_Adapter.jpeg" width="200" height="200"/> | <img src="images/4-pin-header.jpg" width="150" height="150"/> 
+| <img src="images/ch340g.jpg" width="200"/> | <img src="images/4-pin-header.jpg" width="150" height="150"/> 
 | [(example ebay link)](https://www.ebay.co.uk/itm/FTDI-USB-to-TTL-Serial-Converter-Adapter-FT232RL-Module-5V-and-3-3V-Arduino-ARM/231918152528) | [(example ebay link)](https://www.ebay.co.uk/itm/4x-826629-4-Pin-header-pin-strips-AMPMODU-MOD-II-male-PIN4-straight/192334571714) |
 
 The USB-TTL adapter can be either FTDI or CH340G, as long as it works.  It should have a switch or jumper to select 3.3V or 5V, which **must** be set to **3.3V**.
@@ -95,13 +95,22 @@ There are three methods to upload firmware to an STM32 module:
 The rest of this process will vary depending on the upload method you selected.
 
 ### Connect the programmer
-It is **strongly** recommended that you power your module from the transmitter when flashing it.  This ensures that the module cannot be inadvertently supplied with 5V, which will damage the RF modules.  This guide assumes that you will follow that advice, and instructs you to leave the V+ pin on the USB-to-TTL adapter disconnected.  You may choose to ignore that advice at your own risk!
+It is **strongly** recommended that you power your module from the transmitter when flashing it. This ensures that the module cannot be inadvertently supplied with 5V, which will damage the RF modules. This guide assumes that you will follow that advice, and instructs you to leave the V+ pin on the USB-to-TTL adapter disconnected. You may choose to ignore that advice at your own risk!
+
+The wiring for the USB-to-TTL adapter is:
+* USB-to-TTL TX pin <-> Module RX pin
+* USB-to-TTL RX pin <-> Module TX pin
+* USB-to-TTL GND pin <-> Module GND pin
+* USB-to-TTL VC pin <-> **Not Connected**
+
+**It is critical to ensure that the USB-to-TTL adapter is set to 3.3V**.
+
+| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Plus Module** |
+|:---:|:---:|:---:|
+| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-ch340g.jpg" height="200"/> | TBD |
 
 1. Put the module in the transmitter
-1. Connect the USB-to-TTL adapter to the module's 4-pin serial header as follows:
-   - USB-to-TTL TX pin <-> Module RX pin
-   - USB-to-TTL RX pin <-> Module TX pin 
-   - USB-to-TTL GND pin <-> Module GND pin
+1. Connect the USB-to-TTL adapter to the module as described above
 1. Plug the USB-to-TTL adapter into the PC
 1. In the Arduino IDE click **Tools -> Port** and choose the COM port which matches the USB-to-TTL adapter
 
@@ -110,9 +119,14 @@ If you are using **Upload via Serial** you can skip this step and proceed to [Up
 
 If you have selected either **Flash from TX** or **Upload via USB** the module will need to install the appropriate bootloader.  The bootloader only needs to be installed once unless you decide to switch from one upload method to the other.  
 
-In order to flash the bootloader the **BOOT0** jumper must be installed.
+In order to flash the bootloader the **BOOT0** jumper must be installed.  The location of **BOOT0** varies by hardware module.
 
-1. Install the **BOOT0** jumper
+| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Plus Module** |
+|:---:|:---:|:---:|
+| Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | TBD |
+| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | TBD |
+
+1. Install the **BOOT0** jumper as described above
 1. Switch on the transmitter
 1. Verify that you have selected the correct upload method under **Tools -> Upload Method**
 1. Verify that you have selected **stm32flash (FTDI)** as the programmer under **Tools -> Programmer**
@@ -216,7 +230,7 @@ Resetting USB to switch back to runtime mode
 error resetting after download: usb_reset: could not reset device, win error: The system cannot find the file specified.
 ```
 
-**Note:** The line `Reset via USB Serial Failed! Did you select the right serial port?` is expected because the uploader initially looks for a Maple Serial device, which isn't yet available, before failing back to Maple DFU.  The final line warning, stating that the device could not be reset, is also expected.
+**Note:** The line `Reset via USB Serial Failed! Did you select the right serial port?` is expected because the uploader initially looks for a Maple Serial device, which isn't yet available, before failing back to Maple DFU.  That error only appears the first time and won't appear when re-flashing firmware.  The final line warning, stating that the device could not be reset, is also expected.
 
 For subsequent firmware uploads you need only repeat steps 1-3 above, ensuring that you first select the correct COM port, which should be labelled **COMx (Multi 4-in-1 (STM32F103CB))**.
 

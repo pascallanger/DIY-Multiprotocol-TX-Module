@@ -117,7 +117,9 @@ The wiring for the USB-to-TTL adapter is:
 ### Burn the bootloader
 If you are using **Upload via Serial** you can skip this step and proceed to [Upload via Serial](#upload-via-serial).
 
-If you have selected either **Flash from TX** or **Upload via USB** the module will need to install the appropriate bootloader.  The bootloader only needs to be installed once unless you decide to switch from one upload method to the other.  
+If you have selected either **Flash from TX** or **Upload via USB** the module will need to install the appropriate bootloader, which is selected automatically based on the Upload Method selection.
+
+The bootloader only needs to be installed once unless you decide to switch from one upload method to the other.  
 
 In order to flash the bootloader the **BOOT0** jumper must be installed.  The location of **BOOT0** varies by hardware module.
 
@@ -128,7 +130,7 @@ In order to flash the bootloader the **BOOT0** jumper must be installed.  The lo
 
 1. Install the **BOOT0** jumper as described above
 1. Switch on the transmitter
-1. Verify that you have selected the correct upload method under **Tools -> Upload Method**
+1. Verify that you have selected the desired upload method under **Tools -> Upload Method**
 1. Verify that you have selected **stm32flash (FTDI)** as the programmer under **Tools -> Programmer**
 1. Verify that the USB-to-TTL adapter is correctly connected to your module and you have selected the correct port under **Tools -> Port**
 1. Click on **Tools -> Burn Bootloader** 

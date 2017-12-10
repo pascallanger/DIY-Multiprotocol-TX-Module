@@ -120,6 +120,7 @@ static void multi_send_status()
 				case MODE_DEVO:
 				case MODE_SFHSS:
 				case MODE_WK2x01:
+				case MODE_FRSKYX:
 					flags |= 0x20;	//Yes
 				default:
 					break;

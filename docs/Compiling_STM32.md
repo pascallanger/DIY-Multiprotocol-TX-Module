@@ -105,9 +105,9 @@ The wiring for the USB-to-TTL adapter is:
 
 **It is critical to ensure that the USB-to-TTL adapter is set to 3.3V**.
 
-| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Plus Module** |
+| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Module** |
 |:---:|:---:|:---:|
-| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-ch340g.jpg" height="200"/> | TBD |
+| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-ch340g.jpg" height="200"/> | <img src="images/irx4-ch340g.jpg" height="200"/> |
 
 1. Put the module in the transmitter
 1. Connect the USB-to-TTL adapter to the module as described above
@@ -123,10 +123,10 @@ The bootloader only needs to be installed once unless you decide to switch from 
 
 In order to flash the bootloader the **BOOT0** jumper must be installed.  The location of **BOOT0** varies by hardware module.
 
-| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Plus Module** |
+| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Module** |
 |:---:|:---:|:---:|
-| Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | TBD |
-| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | TBD |
+| Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | Bridge pins 1 and 2 as shown by the blue jumper. |
+| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | <img src="images/irx4-boot0.jpg" height="200"/>  |
 
 1. Install the **BOOT0** jumper as described above
 1. Switch on the transmitter
@@ -195,6 +195,8 @@ In order for these devices to be correctly identified in Windows it is necessary
 
 ##### Windows XP or older
 1. Download and install the legacy Windows XP drivers from [here](https://github.com/rogerclarkmelbourne/Arduino_STM32/tree/master/drivers/win/win_xp_legacy)
+
+**NOTE:** If you have installed the drivers and your module is not detected as a Maple device it most likely does not have a USB bootloader installed. Ready-made modules from Banggood **do not** come with a USB bootloader installed.  You will need to follow the procedure to [Burn a USB bootloader](#burn-the-bootloader) before you can upload firmware.
 
 ### Upload the firmware via USB
 **Note:** Power to the module will be supplied via the USB cable.  If the module is installed in a transmitter, the transmitter should be switched off.

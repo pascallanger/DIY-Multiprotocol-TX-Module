@@ -162,7 +162,11 @@ static void __attribute__((unused)) frskyX_data_frame()
 	//packet[7] = FLAGS 00 - standard packet
 	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
 	//20 - range check packet
-	packet[7] = FS_flag;
+	#ifdef FAILSAFE_ENABLE
+		packet[7] = FS_flag;
+	#else
+		packet[7] = 0;
+	#endif
 	packet[8] = 0;		
 	//
 	uint8_t startChan = chan_offset;	for(uint8_t i = 0; i <12 ; i+=3)

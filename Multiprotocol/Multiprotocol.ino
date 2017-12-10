@@ -1265,6 +1265,23 @@ void modules_reset()
 	#endif //ORANGE_TX
 }
 
+#ifdef STM32_BOARD
+	void usart2_begin(uint32_t baud,uint32_t config )
+	{
+		usart_init(USART2); 
+		usart_config_gpios_async(USART2,GPIOA,PIN_MAP[PA3].gpio_bit,GPIOA,PIN_MAP[PA2].gpio_bit,config);
+		usart_set_baud_rate(USART2, STM32_PCLK1, baud);
+		usart_enable(USART2);
+	}
+	void usart3_begin(uint32_t baud,uint32_t config )
+	{
+		usart_init(USART3);
+		usart_config_gpios_async(USART3,GPIOB,PIN_MAP[PB11].gpio_bit,GPIOB,PIN_MAP[PB10].gpio_bit,config);
+		usart_set_baud_rate(USART3, STM32_PCLK1, baud);
+		usart_enable(USART3);
+	}
+#endif
+
 #ifdef CHECK_FOR_BOOTLOADER
 void pollBoot()
 {

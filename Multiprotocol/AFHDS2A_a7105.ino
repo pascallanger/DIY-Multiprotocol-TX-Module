@@ -198,7 +198,7 @@ static void AFHDS2A_build_packet(uint8_t type)
 			packet[0] = 0xaa;
 			packet[9] = 0xfd;
 			packet[10]= 0xff;
-			uint16_t val_hz=5*(option & 0x7f)+50;			// option value should be between 0 and 70 which gives a value between 50 and 400Hz
+			uint16_t val_hz=5*(option & 0x7f)+50;	// option value should be between 0 and 70 which gives a value between 50 and 400Hz
 			if(val_hz<50 || val_hz>400) val_hz=50;	// default is 50Hz
 			packet[11]= val_hz;
 			packet[12]= val_hz >> 8;

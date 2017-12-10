@@ -43,7 +43,7 @@
 /*************************/
 /*** BIND FROM CHANNEL ***/
 /*************************/
-//Bind from channel enables you to bind when a specified channel is giong from low to high. This feature is only active
+//Bind from channel enables you to bind when a specified channel is going from low to high. This feature is only active
 // if you specify AUTOBIND in PPM mode or set AutoBind to YES for serial mode. It also requires that the throttle channel is low.
 
 //Comment to globaly disable the bind feature from a channel.
@@ -214,7 +214,7 @@
 //This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
 //Using this feature on turnigy 9XR_PRO requires uncomment INVERT_TELEMETRY as this TX output on telemetry pin only inverted signal.
 //!This is a work in progress!
-#define SPORT_POLLING
+//#define SPORT_POLLING
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/

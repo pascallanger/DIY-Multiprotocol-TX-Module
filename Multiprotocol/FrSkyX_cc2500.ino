@@ -74,14 +74,6 @@ static uint16_t __attribute__((unused)) frskyX_crc_x(uint8_t *data, uint8_t len)
 	return crc;
 }
 
- // 0-2047, 0 = 817, 1024 = 1500, 2047 = 2182
- //64=860,1024=1500,1984=2140//Taranis 125%
-
-static uint16_t  __attribute__((unused)) frskyX_scaleForPXX( uint8_t i )
-{	//mapped 860,2140(125%) range to 64,1984(PXX values);
-	return (uint16_t)(((Servo_data[i]-servo_min_125)*3)>>1)+64;
-}
-
 static void __attribute__((unused)) frskyX_build_bind_packet()
 {
 	packet[0] = (sub_protocol & 2 ) ? 0x20 : 0x1D ; // LBT or FCC
@@ -109,16 +101,57 @@ static void __attribute__((unused)) frskyX_build_bind_packet()
 	//
 }
 
+// 0-2047, 0 = 817, 1024 = 1500, 2047 = 2182
+//64=860,1024=1500,1984=2140//Taranis 125%
+static uint16_t  __attribute__((unused)) frskyX_scaleForPXX( uint8_t i )
+{	//mapped 860,2140(125%) range to 64,1984(PXX values);
+	uint16_t chan_val=(((Servo_data[i]-servo_min_125)*3)>>1)+64;
+	if(i>7) chan_val|=2048;   // upper channels offset
+	return chan_val;
+}
+#ifdef FAILSAFE_ENABLE
+static uint16_t  __attribute__((unused)) frskyX_scaleForPXX_FS( uint8_t i )
+{	//mapped 1,2046(125%) range to 64,1984(PXX values);
+	uint16_t chan_val=((Failsafe_data[i]*15)>>4)+64;
+	if(Failsafe_data[i]==FAILSAFE_CHANNEL_NOPULSES)
+		chan_val=FAILSAFE_CHANNEL_NOPULSES;
+	else if(Failsafe_data[i]==FAILSAFE_CHANNEL_HOLD)
+		chan_val=FAILSAFE_CHANNEL_HOLD;
+	if(i>7) chan_val|=2048;   // upper channels offset
+	return chan_val;
+}
+#endif
+
+#define FRX_FAILSAFE_TIME 1032
 static void __attribute__((unused)) frskyX_data_frame()
 {
 	//0x1D 0xB3 0xFD 0x02 0x56 0x07 0x15 0x00 0x00 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x08 0x00 0x00 0x00 0x00 0x00 0x00 0x96 0x12
 	//
-	static uint8_t lpass;
+	static uint8_t chan_offset=0;
 	uint16_t chan_0 ;
 	uint16_t chan_1 ; 
-	uint8_t startChan = 0;
 	//
-	packet[0] = (sub_protocol & 2 ) ? 0x20 : 0x1D ; // LBT or FCC
+    // data frames sent every 9ms; failsafe every 9 seconds
+	#ifdef FAILSAFE_ENABLE
+		static uint16_t failsafe_count=0;
+		static uint8_t FS_flag=0,failsafe_chan=0;
+		if (FS_flag == 0  &&  failsafe_count > FRX_FAILSAFE_TIME  &&  chan_offset == 0  &&  IS_FAILSAFE_VALUES_on)
+		{
+			FS_flag = 0x10;
+			failsafe_chan = 0;
+		} else if (FS_flag & 0x10 && failsafe_chan < (sub_protocol & 0x01 ? 8-1:16-1))
+		{
+			FS_flag = 0x10 | ((FS_flag + 2) & 0x0F);	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
+			failsafe_chan ++;
+		} else if (FS_flag & 0x10)
+		{
+			FS_flag = 0;
+			failsafe_count = 0;
+		}
+		failsafe_count++;
+	#endif
+	
+	packet[0] = (sub_protocol & 0x02 ) ? 0x20 : 0x1D ;	// LBT or FCC
 	packet[1] = rx_tx_addr[3];
 	packet[2] = rx_tx_addr[2];
 	packet[3] = 0x02;
@@ -129,35 +162,37 @@ static void __attribute__((unused)) frskyX_data_frame()
 	//packet[7] = FLAGS 00 - standard packet
 	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
 	//20 - range check packet
-	packet[7] = 0;
+	packet[7] = FS_flag;
 	packet[8] = 0;		
 	//
-	if ( lpass & 1 )
-		startChan += 8 ;
-	
-	for(uint8_t i = 0; i <12 ; i+=3)
-	{//12 bytes
-		chan_0 = frskyX_scaleForPXX(startChan);		 
-		if(lpass & 1 )
-			chan_0+=2048;			
-		startChan+=1;
+	uint8_t startChan = chan_offset;	for(uint8_t i = 0; i <12 ; i+=3)
+	{//12 bytes of channel data
+		#ifdef FAILSAFE_ENABLE
+			if( (FS_flag & 0x10) && ((failsafe_chan & 0x07) == (startChan & 0x07)) )
+				chan_0 = frskyX_scaleForPXX_FS(failsafe_chan);
+			else
+		#endif
+				chan_0 = frskyX_scaleForPXX(startChan);
+		startChan++;
 		//
-		chan_1 = frskyX_scaleForPXX(startChan);		
-		if(lpass & 1 )
-			chan_1+= 2048;		
-		startChan+=1;
+		#ifdef FAILSAFE_ENABLE
+			if( (FS_flag & 0x10) && ((failsafe_chan & 0x07) == (startChan & 0x07)) )
+				chan_1 = frskyX_scaleForPXX_FS(failsafe_chan);
+			else
+		#endif
+				chan_1 = frskyX_scaleForPXX(startChan);
+		startChan++;
 		//
-		packet[9+i] = lowByte(chan_0);//3 bytes*4
+		packet[9+i] = lowByte(chan_0);	//3 bytes*4
 		packet[9+i+1]=(((chan_0>>8) & 0x0F)|(chan_1 << 4));
 		packet[9+i+2]=chan_1>>4;
 	}
-
 	packet[21] = (FrX_receive_seq << 4) | FrX_send_seq ;//8 at start
 	
-	if(sub_protocol & 1 )// in X8 mode send only 8ch every 9ms
-		lpass = 0 ;
+	if(sub_protocol & 0x01 )			// in X8 mode send only 8ch every 9ms
+		chan_offset = 0 ;
 	else
-		lpass += 1 ;
+		chan_offset^=0x08;
 	
 	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
 	for (uint8_t i=22;i<limit;i++)

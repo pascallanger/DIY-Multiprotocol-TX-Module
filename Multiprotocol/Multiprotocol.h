@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	39
+#define VERSION_PATCH_LEVEL	40
 //******************
 // Protocols
 //******************
@@ -326,9 +326,11 @@ enum MultiPacketTypes {
 
 //Debug messages
 #if defined(STM32_BOARD) && defined (SERIAL_DEBUG)
-	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
+	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg, ##__VA_ARGS__); Serial.write(buf);}
+	#define debugln(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
 #else
 	#define debug(...) { }
+	#define debugln(...) { }
 	#undef SERIAL_DEBUG
 #endif
 

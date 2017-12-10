@@ -218,7 +218,7 @@ void setup()
 	#ifdef SERIAL_DEBUG
 		Serial.begin(115200,SERIAL_8N1);
 		while (!Serial); // Wait for ever for the serial port to connect...
-		debug("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
+		debugln("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
 	#endif
 
 	// General pinout
@@ -353,7 +353,7 @@ void setup()
 			((MODE_DIAL3_ipr & _BV(MODE_DIAL3_pin)) ? 0 : 4) +
 			((MODE_DIAL4_ipr & _BV(MODE_DIAL4_pin)) ? 0 : 8);
 	#endif
-    debug("Mode switch reads as %d", mode_select);
+    debugln("Mode switch reads as %d", mode_select);
 
 	// Set default channels' value
 	for(uint8_t i=0;i<NUM_CHN;i++)
@@ -382,7 +382,7 @@ void setup()
 	// Read or create protocol id
 	MProtocol_id_master=random_id(10,false);
 
-	debug("Module Id: %lx", MProtocol_id_master);
+	debugln("Module Id: %lx", MProtocol_id_master);
 	
 #ifdef ENABLE_PPM
 	//Protocol and interrupts initialization
@@ -438,7 +438,7 @@ void setup()
 		#endif //ENABLE_SERIAL
 	}
 	servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
-	debug("Init complete");
+	debugln("Init complete");
 }
 
 // Main
@@ -1102,7 +1102,7 @@ void update_serial_data()
 		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]
 		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
 		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
-		debug("New protocol selected: %d, sub proto %d, rxnum %d", protocol, sub_protocol, RX_num);
+		debugln("New protocol selected: %d, sub proto %d, rxnum %d", protocol, sub_protocol, RX_num);
 	}
 	else
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
@@ -1161,7 +1161,7 @@ void update_serial_data()
 	#endif
 	#ifdef FAILSAFE_ENABLE
 		if(failsafe)
-			debug("RX_FS:%d,%d,%d,%d",Failsafe_data[0],Failsafe_data[1],Failsafe_data[2],Failsafe_data[3]);
+			debugln("RX_FS:%d,%d,%d,%d",Failsafe_data[0],Failsafe_data[1],Failsafe_data[2],Failsafe_data[3]);
 	#endif
 }
 

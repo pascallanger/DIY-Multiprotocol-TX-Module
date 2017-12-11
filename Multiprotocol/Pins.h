@@ -21,14 +21,14 @@
 	#define SERIAL_TX_output SERIAL_TX_ddr	|= _BV(SERIAL_TX_pin)
 	#define SERIAL_TX_on	SERIAL_TX_port |=  _BV(SERIAL_TX_pin)
 	#define SERIAL_TX_off	SERIAL_TX_port &= ~_BV(SERIAL_TX_pin)
-	#ifdef DEBUG_TX
-		#define DEBUG_TX_on		SERIAL_TX_on
-		#define DEBUG_TX_off	SERIAL_TX_off
-		#define DEBUG_TX_toggle	SERIAL_TX_port ^=  _BV(SERIAL_TX_pin)
+	#ifdef DEBUG_PIN
+		#define DEBUG_PIN_on		SERIAL_TX_on
+		#define DEBUG_PIN_off		SERIAL_TX_off
+		#define DEBUG_PIN_toggle	SERIAL_TX_port ^=  _BV(SERIAL_TX_pin)
 	#else
-		#define DEBUG_TX_on
-		#define DEBUG_TX_off
-		#define DEBUG_TX_toggle
+		#define DEBUG_PIN_on
+		#define DEBUG_PIN_off
+		#define DEBUG_PIN_toggle
 	#endif
 
 	// Dial
@@ -288,6 +288,16 @@
 	#define BIND_SET_PULLUP		digitalWrite(BIND_pin,HIGH)	
 	#define BIND_SET_OUTPUT		pinMode(BIND_pin,OUTPUT)
 	#define IS_BIND_BUTTON_on	(digitalRead(BIND_pin)==LOW)
+
+	#ifdef DEBUG_PIN
+		#define DEBUG_PIN_on		digitalWrite(SPI_CSN_pin,HIGH)
+		#define DEBUG_PIN_off		digitalWrite(SPI_CSN_pin,LOW)
+		#define DEBUG_PIN_toggle	digitalWrite(SPI_CSN_pin,!digitalRead(SPI_CSN_pin))
+	#else
+		#define DEBUG_PIN_on
+		#define DEBUG_PIN_off
+		#define DEBUG_PIN_toggle
+	#endif
 
 	#define	cli() 			noInterrupts()
 	#define	sei() 			interrupts()

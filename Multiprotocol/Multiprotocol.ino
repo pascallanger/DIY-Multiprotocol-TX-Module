@@ -22,8 +22,8 @@
 */
 #include <avr/pgmspace.h>
 
-//#define DEBUG_TX
-//#define SERIAL_DEBUG	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
+//#define DEBUG_PIN		// Use pin TX for AVR and SPI_CS for STM32 => DEBUG_PIN_on, DEBUG_PIN_off, DEBUG_PIN_toggle
+//#define DEBUG_SERIAL	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
 #ifdef __arm__			// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
@@ -215,7 +215,7 @@ void_function_t remote_callback = 0;
 void setup()
 {
 	// Setup diagnostic uart before anything else
-	#ifdef SERIAL_DEBUG
+	#ifdef DEBUG_SERIAL
 		Serial.begin(115200,SERIAL_8N1);
 		while (!Serial); // Wait for ever for the serial port to connect...
 		debugln("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
@@ -469,6 +469,7 @@ void loop()
 		#else
 			if((TIMER2_BASE->SR & TIMER_SR_CC1IF)!=0)
 			{
+				debugln("Callback miss");
 				cli();
 				OCR1A = TCNT1;
 				sei();
@@ -1247,11 +1248,11 @@ void modules_reset()
 			UDR0;
 		//enable reception and RC complete interrupt
 		UCSR0B = _BV(RXEN0)|_BV(RXCIE0);//rx enable and interrupt
-		#ifndef DEBUG_TX
+		#ifndef DEBUG_PIN
 			#if defined(TELEMETRY)
 				initTXSerial( SPEED_100K ) ;
 			#endif //TELEMETRY
-		#endif //DEBUG_TX
+		#endif //DEBUG_PIN
 		#ifdef CHECK_FOR_BOOTLOADER
 			if ( boot )
 			{
@@ -1331,44 +1332,7 @@ void pollBoot()
 				else if ( lState == BOOT_READY )
 				{
 					#ifdef	STM32_BOARD
-						#define SCS_BASE	(0xE000E000)			/*!< System Control Space Base Address */
-						#define SCB_BASE	(SCS_BASE +  0x0D00)	/*!< System Control Block Base Address */
-						#define SCB			((SCB_Type *) SCB_BASE)	/*!< SCB configuration struct          */
-						#define __I  volatile						/*!< defines 'read only' permissions      */
-						#define __IO volatile						/*!< defines 'read / write' permissions   */
-						typedef struct
-						{
-							__I  uint32_t CPUID;	/*!< Offset: 0x00  CPU ID Base Register                                  */
-							__IO uint32_t ICSR;		/*!< Offset: 0x04  Interrupt Control State Register                      */
-							__IO uint32_t VTOR;		/*!< Offset: 0x08  Vector Table Offset Register                          */
-							__IO uint32_t AIRCR;	/*!< Offset: 0x0C  Application Interrupt / Reset Control Register        */
-							__IO uint32_t SCR;		/*!< Offset: 0x10  System Control Register                               */
-							__IO uint32_t CCR;		/*!< Offset: 0x14  Configuration Control Register                        */
-							__IO uint8_t  SHP[12];	/*!< Offset: 0x18  System Handlers Priority Registers (4-7, 8-11, 12-15) */
-							__IO uint32_t SHCSR;	/*!< Offset: 0x24  System Handler Control and State Register             */
-							__IO uint32_t CFSR;		/*!< Offset: 0x28  Configurable Fault Status Register                    */
-							__IO uint32_t HFSR;		/*!< Offset: 0x2C  Hard Fault Status Register                            */
-							__IO uint32_t DFSR;		/*!< Offset: 0x30  Debug Fault Status Register                           */
-							__IO uint32_t MMFAR;	/*!< Offset: 0x34  Mem Manage Address Register                           */
-							__IO uint32_t BFAR;		/*!< Offset: 0x38  Bus Fault Address Register                            */
-							__IO uint32_t AFSR;		/*!< Offset: 0x3C  Auxiliary Fault Status Register                       */
-							__I  uint32_t PFR[2];	/*!< Offset: 0x40  Processor Feature Register                            */
-							__I  uint32_t DFR;		/*!< Offset: 0x48  Debug Feature Register                                */
-							__I  uint32_t ADR;		/*!< Offset: 0x4C  Auxiliary Feature Register                            */
-							__I  uint32_t MMFR[4];	/*!< Offset: 0x50  Memory Model Feature Register                         */
-							__I  uint32_t ISAR[5];	/*!< Offset: 0x60  ISA Feature Register                                  */
-						} SCB_Type;
-						#define SCB_AIRCR_VECTKEY_Pos		16									/*!< SCB AIRCR: VECTKEY Position */
-						#define SCB_AIRCR_SYSRESETREQ_Pos	2									/*!< SCB AIRCR: SYSRESETREQ Position */
-						#define SCB_AIRCR_PRIGROUP_Pos		8									/*!< SCB AIRCR: PRIGROUP Position */
-						#define SCB_AIRCR_PRIGROUP_Msk		(7ul << SCB_AIRCR_PRIGROUP_Pos)		/*!< SCB AIRCR: PRIGROUP Mask */
-						#define SCB_AIRCR_SYSRESETREQ_Msk	(1ul << SCB_AIRCR_SYSRESETREQ_Pos)	/*!< SCB AIRCR: SYSRESETREQ Mask */
-
-						// NVIC_SystemReset
-						SCB->AIRCR = ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |
-						(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
-						SCB_AIRCR_SYSRESETREQ_Msk);		/* Keep priority group unchanged */
-						asm("dsb");
+						nvic_sys_reset();
 						while(1);						/* wait until reset */
 					#else
 						cli();							// Disable global int due to RW of 16 bits registers
@@ -1569,6 +1533,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		{
 			idx=UDR0;						// Dummy read
 			discard_frame=1;				// Error encountered discard full frame...
+			debugln("Bad frame");
 		}
 		if(discard_frame==1)
 		{

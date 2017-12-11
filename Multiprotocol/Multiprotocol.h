@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	40
+#define VERSION_PATCH_LEVEL	41
 //******************
 // Protocols
 //******************
@@ -325,13 +325,13 @@ enum MultiPacketTypes {
 #define	FAILSAFE_CHANNEL_NOPULSES	0
 
 //Debug messages
-#if defined(STM32_BOARD) && defined (SERIAL_DEBUG)
+#if defined(STM32_BOARD) && defined (DEBUG_SERIAL)
 	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg, ##__VA_ARGS__); Serial.write(buf);}
 	#define debugln(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
 #else
 	#define debug(...) { }
 	#define debugln(...) { }
-	#undef SERIAL_DEBUG
+	#undef DEBUG_SERIAL
 #endif
 
 //********************
@@ -411,16 +411,16 @@ enum NRF_POWER
 // The numbers do not take into account any outside amplifier
 enum CC2500_POWER
 {
-	CC2500_POWER_0  = 0x00,	// –55dbm or less
+	CC2500_POWER_0  = 0x00,	// -55dbm or less
 	CC2500_POWER_1  = 0x50,	// -30dbm
-	CC2500_POWER_2  = 0x44, // –28dbm
-	CC2500_POWER_3  = 0xC0, // –26dbm
-	CC2500_POWER_4  = 0x84, // –24dbm
-	CC2500_POWER_5  = 0x81, // –22dbm
-	CC2500_POWER_6  = 0x46, // –20dbm
-	CC2500_POWER_7  = 0x93, // –18dbm
-	CC2500_POWER_8  = 0x55, // –16dbm
-	CC2500_POWER_9  = 0x8D, // –14dbm
+	CC2500_POWER_2  = 0x44, // -28dbm
+	CC2500_POWER_3  = 0xC0, // -26dbm
+	CC2500_POWER_4  = 0x84, // -24dbm
+	CC2500_POWER_5  = 0x81, // -22dbm
+	CC2500_POWER_6  = 0x46, // -20dbm
+	CC2500_POWER_7  = 0x93, // -18dbm
+	CC2500_POWER_8  = 0x55, // -16dbm
+	CC2500_POWER_9  = 0x8D, // -14dbm
 	CC2500_POWER_10 = 0xC6,	// -12dbm
 	CC2500_POWER_11 = 0x97,	// -10dbm
 	CC2500_POWER_12 = 0x6E,	//  -8dbm

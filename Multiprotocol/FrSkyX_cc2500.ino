@@ -216,7 +216,7 @@ static void __attribute__((unused)) frskyX_data_frame()
 				idxs++;
 			}
 		packet[22]= idxs;
-		#ifdef SERIAL_DEBUG
+		#ifdef DEBUG_SERIAL
 			for(uint8_t i=0;i<idxs;i++)
 			{
 				Serial.print(packet[23+i],HEX);

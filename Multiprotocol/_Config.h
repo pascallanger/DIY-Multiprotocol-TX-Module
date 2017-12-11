@@ -237,15 +237,15 @@
 //It is important for the module to know the endpoints of your radio.
 //Below are some standard transmitters already preconfigured.
 //Uncomment only the one which matches your transmitter.
-#define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012µs)
-//#define TX_DEVO7		//DEVO					(1120<->1920µs)
-//#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
-//#define TX_HISKY		//HISKY					(1120<->1920µs)
-//#define TX_MPX		//Multiplex MC2020		(1250<->1950µs)
-//#define TX_WALKERA	//Walkera PL0811-01H	(1000<->1800µs)
+#define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012 microseconds)
+//#define TX_DEVO7		//DEVO					(1120<->1920 microseconds)
+//#define TX_SPEKTRUM	//Spektrum				(1100<->1900 microseconds)
+//#define TX_HISKY		//HISKY					(1120<->1920 microseconds)
+//#define TX_MPX		//Multiplex MC2020		(1250<->1950 microseconds)
+//#define TX_WALKERA	//Walkera PL0811-01H	(1000<->1800 microseconds)
 //#define TX_CUSTOM		//Custom
 
-// The lines below are used to set the end points in microseconds (µs) if you have selected TX_CUSTOM.
+// The lines below are used to set the end points in microseconds if you have selected TX_CUSTOM.
 // A few things to consider:
 //  - If you put too big values compared to your TX you won't be able to reach the extremes which is bad for throttle as an example
 //  - If you put too low values you won't be able to use your full stick range, it will be maxed out before reaching the ends

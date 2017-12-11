@@ -289,9 +289,9 @@ enum MultiPacketTypes {
 #define FAILSAFE_VALUES_on		protocol_flags2 |= _BV(0)
 #define IS_FAILSAFE_VALUES_on	( ( protocol_flags2 & _BV(0) ) !=0 )
 //
-#define RX_DONOTUPDTAE_off	protocol_flags2 &= ~_BV(1)
-#define RX_DONOTUPDTAE_on	protocol_flags2 |= _BV(1)
-#define IS_RX_DONOTUPDTAE_on	( ( protocol_flags2 & _BV(1) ) !=0 )
+#define RX_DONOTUPDATE_off	protocol_flags2 &= ~_BV(1)
+#define RX_DONOTUPDATE_on	protocol_flags2 |= _BV(1)
+#define IS_RX_DONOTUPDATE_on	( ( protocol_flags2 & _BV(1) ) !=0 )
 //
 #define RX_MISSED_BUFF_off	protocol_flags2 &= ~_BV(2)
 #define RX_MISSED_BUFF_on	protocol_flags2 |= _BV(2)

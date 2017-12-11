@@ -23,9 +23,9 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_TX
-//#define SERIAL_DEBUG		// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
+//#define SERIAL_DEBUG	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
-#ifdef __arm__// Let's automatically select the board if arm is selected
+#ifdef __arm__			// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
 #endif
 #ifdef ARDUINO_AVR_XMEGA32D4
@@ -139,7 +139,7 @@ uint8_t protocol_flags=0,protocol_flags2=0;
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
 
-#ifndef ORANGE_TX
+#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 //Random variable
 volatile uint32_t gWDT_entropy=0;
 #endif
@@ -1069,7 +1069,7 @@ static void protocol_init()
 
 void update_serial_data()
 {
-	RX_DONOTUPDTAE_on;
+	RX_DONOTUPDATE_on;
 	RX_FLAG_off;								//data is being processed
 	if(rx_ok_buff[1]&0x20)						//check range
 		RANGE_FLAG_on;
@@ -1091,8 +1091,8 @@ void update_serial_data()
 		if(rx_ok_buff[0]&0x02)
 		{ //packet contains failsafe instead of channels
 			failsafe=true;
-			rx_ok_buff[0]&=0xFD;					//remove the failsafe flag
-			FAILSAFE_VALUES_on;						//failsafe data has been received
+			rx_ok_buff[0]&=0xFD;				//remove the failsafe flag
+			FAILSAFE_VALUES_on;					//failsafe data has been received
 		}
 	#endif
 	if( (rx_ok_buff[0] != cur_protocol[0]) || ((rx_ok_buff[1]&0x5F) != (cur_protocol[1]&0x5F)) || ( (rx_ok_buff[2]&0x7F) != (cur_protocol[2]&0x7F) ) )
@@ -1138,12 +1138,12 @@ void update_serial_data()
 		uint16_t temp=((*((uint32_t *)p))>>dec)&0x7FF;
 		#ifdef FAILSAFE_ENABLE
 			if(failsafe)
-				Failsafe_data[i]=temp;				//value range 0..2047, 0=hold, 2047=no pulses
+				Failsafe_data[i]=temp;			//value range 0..2047, 0=no pulses, 2047=hold
 			else
 		#endif
-				Servo_data[i]=(temp*5)/8+860;		//value range 860<->2140 -125%<->+125%
+				Servo_data[i]=(temp*5)/8+860;	//value range 860<->2140 -125%<->+125%
 	}
-	RX_DONOTUPDTAE_off;
+	RX_DONOTUPDATE_off;
 	#ifdef ORANGE_TX
 		cli();
 	#else
@@ -1232,7 +1232,7 @@ void modules_reset()
 		}
 		usart3_begin(100000,SERIAL_8E2);
 		#ifndef SPORT_POLLING
-			USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable
+			USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable receive
 		#endif		
 		USART2_BASE->CR1 &= ~ USART_CR1_TE;		//disable transmit
 	#else
@@ -1415,23 +1415,6 @@ static void set_rx_tx_addr(uint32_t id)
 	rx_tx_addr[4] = (rx_tx_addr[2]&0xF0)|(rx_tx_addr[3]&0x0F);
 }
 
-#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
-static void random_init(void)
-{
-	cli();					// Temporarily turn off interrupts, until WDT configured
-	MCUSR = 0;				// Use the MCU status register to reset flags for WDR, BOR, EXTR, and POWR
-	WDTCSR |= _BV(WDCE);	// WDT control register, This sets the Watchdog Change Enable (WDCE) flag, which is  needed to set the prescaler
-	WDTCSR = _BV(WDIE);		// Watchdog interrupt enable (WDIE)
-	sei();					// Turn interupts on
-}
-
-static uint32_t random_value(void)
-{
-	while (!gWDT_entropy);
-	return gWDT_entropy;
-}
-#endif
-
 static uint32_t random_id(uint16_t address, uint8_t create_new)
 {
 	#ifndef FORCE_GLOBAL_ID
@@ -1571,7 +1554,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				rx_buff[idx++]=UDR0;		// Store received byte
 				if(idx>=RXBUFFER_SIZE)
 				{	// A full frame has been received
-					if(!IS_RX_DONOTUPDTAE_on)
+					if(!IS_RX_DONOTUPDATE_on)
 					{ //Good frame received and main is not working on the buffer
 						memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
 						RX_FLAG_on;			// flag for main to process servo data
@@ -1623,6 +1606,21 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 #endif //ENABLE_SERIAL
 
 #if not defined (ORANGE_TX) && not defined (STM32_BOARD)
+	static void random_init(void)
+	{
+		cli();					// Temporarily turn off interrupts, until WDT configured
+		MCUSR = 0;				// Use the MCU status register to reset flags for WDR, BOR, EXTR, and POWR
+		WDTCSR |= _BV(WDCE);	// WDT control register, This sets the Watchdog Change Enable (WDCE) flag, which is  needed to set the prescaler
+		WDTCSR = _BV(WDIE);		// Watchdog interrupt enable (WDIE)
+		sei();					// Turn interupts on
+	}
+
+	static uint32_t random_value(void)
+	{
+		while (!gWDT_entropy);
+		return gWDT_entropy;
+	}
+
 	// Random interrupt service routine called every time the WDT interrupt is triggered.
 	// It is only enabled at startup to generate a seed.
 	ISR(WDT_vect)

@@ -15,9 +15,26 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
+        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
         "archiveFileName": "package_multi_4in1_board_v1.0.0.zip",
         "checksum": "SHA-256:3DE301E9FC3C8A81CB2CEDE3458A68C626A9A5C37A73FA9C85BE9D841935684D",
+        "size": "3205",
+        "boards": [{
+          "name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"
+        }],
+        "toolsDependencies": []
+      },
+      {
+        "name": "Multi 4-in-1 AVR Board",
+        "architecture": "avr",
+        "version": "1.0.1",
+        "category": "Contributed",
+        "help": {
+          "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+        },
+        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_avr_board_v1.0.1.zip",
+        "archiveFileName": "package_multi_4in1_avr_board_v1.0.1.zip",
+        "checksum": "SHA-256:55A934434DEB78852429E9511DD525675B69EAE896C6F5E06A81A4D9E31B3FC9",
         "size": "3205",
         "boards": [{
           "name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"
@@ -32,7 +49,7 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_stm32_board_v1.0.0.zip",
+        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_stm32_board_v1.0.0.zip",
         "archiveFileName": "package_multi_4in1_stm32_board_v1.0.0.zip",
         "checksum": "SHA-256:7B661C6455F5AD7329E61EC297D4ADED9EF19F618E04E09A35A3C840977A56F5",
         "size": "10896168",
@@ -44,6 +61,44 @@
           "name": "arm-none-eabi-gcc",
           "version": "4.8.3-2014q1"
         }]
+      },
+      {
+        "name": "Multi 4-in-1 STM32 Board",
+        "architecture": "STM32F1",
+        "version": "1.0.1",
+        "category": "Contributed",
+        "help": {
+          "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+        },
+        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_stm32_board_v1.0.1.zip",
+        "archiveFileName": "package_multi_4in1_stm32_board_v1.0.1.zip",
+        "checksum": "SHA-256:74CA4970139499EF3CF4D21DA380AC2F4963DE23F46E722C6FDF48ED78F8C7B8",
+        "size": "10896168",
+        "boards": [{
+          "name": "Multi 4-in-1 (STM32F103C)"
+        }],
+        "toolsDependencies": [{
+          "packager": "arduino",
+          "name": "arm-none-eabi-gcc",
+          "version": "4.8.3-2014q1"
+        }]
+      },
+      {
+        "name": "Multi 4-in-1 Orange TX Board",
+        "architecture": "orangetx",
+        "version": "1.0.1",
+        "category": "Contributed",
+        "help": {
+          "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+        },
+        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_orangetx_board_v1.0.1.zip",
+        "archiveFileName": "package_multi_4in1_orangetx_board_v1.0.1.zip",
+        "checksum": "SHA-256:38143858BC5A4844F3F536A37AE3F7B2C36D75268F5A5DBACAFCD5980F65847B",
+        "size": "10896168",
+        "boards": [{
+          "name": "Multi 4-in-1 (Orange TX)"
+        }],
+        "toolsDependencies": []
       }
     ],
     "tools": []

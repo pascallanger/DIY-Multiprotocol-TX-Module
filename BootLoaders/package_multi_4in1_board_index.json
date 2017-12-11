@@ -32,10 +32,10 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_avr_board_v1.0.1.zip",
-        "archiveFileName": "package_multi_4in1_avr_board_v1.0.1.zip",
-        "checksum": "SHA-256:55A934434DEB78852429E9511DD525675B69EAE896C6F5E06A81A4D9E31B3FC9",
-        "size": "3205",
+        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_avr_board_v1.0.1.tar.gz",
+        "archiveFileName": "package_multi_4in1_avr_board_v1.0.1.tar.gz",
+        "checksum": "SHA-256:504A5C1ABFB366917FC35A3744CC21FA30D572AAA70007D2BC69277BC1D0E2C4",
+        "size": "3102",
         "boards": [{
           "name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"
         }],
@@ -70,10 +70,10 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_stm32_board_v1.0.1.zip",
-        "archiveFileName": "package_multi_4in1_stm32_board_v1.0.1.zip",
-        "checksum": "SHA-256:74CA4970139499EF3CF4D21DA380AC2F4963DE23F46E722C6FDF48ED78F8C7B8",
-        "size": "10896168",
+        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_stm32_board_v1.0.1.tar.gz",
+        "archiveFileName": "package_multi_4in1_stm32_board_v1.0.1.tar.gz",
+        "checksum": "SHA-256:9CC271776146A6CEC8CFB5B8DAB4DB7270C6589B43BA5759D65984AB2D89EA96",
+        "size": "10336733",
         "boards": [{
           "name": "Multi 4-in-1 (STM32F103C)"
         }],
@@ -84,19 +84,19 @@
         }]
       },
       {
-        "name": "Multi 4-in-1 Orange TX Board",
-        "architecture": "orangetx",
+        "name": "Multi 4-in-1 OrangeRX Board",
+        "architecture": "orangerx",
         "version": "1.0.1",
         "category": "Contributed",
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_orangetx_board_v1.0.1.zip",
-        "archiveFileName": "package_multi_4in1_orangetx_board_v1.0.1.zip",
-        "checksum": "SHA-256:38143858BC5A4844F3F536A37AE3F7B2C36D75268F5A5DBACAFCD5980F65847B",
-        "size": "10896168",
+        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
+        "archiveFileName": "package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
+        "checksum": "SHA-256:03D095CB9F79C881375B35C8F9671306224C03CE2F02117806E55903C77FF2D5",
+        "size": "162457",
         "boards": [{
-          "name": "Multi 4-in-1 (Orange TX)"
+          "name": "Multi 4-in-1 (OrangeRX)"
         }],
         "toolsDependencies": []
       }

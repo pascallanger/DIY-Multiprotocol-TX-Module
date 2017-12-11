@@ -1,4 +1,4 @@
-name=Multi 4-in-1 Orange
+name=Multi 4-in-1 OrangeRX
 version=1.0.1
 
 # this was borrowed from the installed version of 'platform.txt'

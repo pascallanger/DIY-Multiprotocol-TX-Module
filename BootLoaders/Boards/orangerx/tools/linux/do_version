@@ -6,7 +6,7 @@ SKETCH_PATH=$3
 MULTI_BOARD=$4
 EXPORT_FLAG=$5
 
-MULTI_TYPE=otx
+MULTI_TYPE=orx
 
 if [ -e "$BUILD_PATH/sketch/Multiprotocol.h" ]; then
         MAJOR_VERSION=$(grep "VERSION_MAJOR" "$BUILD_PATH/sketch/Multiprotocol.h" | awk -v N=3 '{print $N}')

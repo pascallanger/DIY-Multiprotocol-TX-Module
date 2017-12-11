@@ -4,10 +4,10 @@
 ##############################################################
 
 ##############################################################
-## Multi 4-in-1 (Orange TX)
+## Multi 4-in-1 (OrangeRX)
 ## --------------------------------------------------
-multixmega32d4.name=Multi 4-in-1 (Orange TX)
-multixmega32d4.build.board=MULTI_ORANGETX
+multixmega32d4.name=Multi 4-in-1 (OrangeRX)
+multixmega32d4.build.board=MULTI_ORANGERX
 multixmega32d4.upload.protocol=arduino
 multixmega32d4.upload.maximum_size=32768
 multixmega32d4.upload.speed=115200

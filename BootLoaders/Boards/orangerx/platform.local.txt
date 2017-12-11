@@ -1,6 +1,6 @@
 ## Save hex
 recipe.output.tmp_file={build.project_name}.hex
-recipe.output.save_file=multi-otx.hex
+recipe.output.save_file=multi-orx.hex
 
 ## Override some platform.txt settings to create a .bin instead of a .hex file
 ## The two lines below can be uncommented to have the compiler create a .bin file instead of a .hex file

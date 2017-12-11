@@ -28,7 +28,7 @@
 #ifdef __arm__// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
 #endif
-#if defined (ARDUINO_AVR_XMEGA32D4) || defined (ARDUINO_MULTI_ORANGETX)
+#if defined (ARDUINO_AVR_XMEGA32D4) || defined (ARDUINO_MULTI_ORANGERX)
 	#include "MultiOrange.h"
 #endif
 

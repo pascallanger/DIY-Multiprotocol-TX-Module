@@ -9,7 +9,7 @@ SET EXPORT_FLAG=%5
 
 REM ECHO Multi board: %MULTI_BOARD%
 
-SET MULTI_TYPE=otx
+SET MULTI_TYPE=orx
 
 IF EXIST "%1\sketch\Multiprotocol.h" (
   REM ECHO Getting Multi-MODULE firmware version from "%1\sketch\Multiprotocol.h"

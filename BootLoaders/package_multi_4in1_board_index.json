@@ -15,7 +15,7 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
         "archiveFileName": "package_multi_4in1_board_v1.0.0.zip",
         "checksum": "SHA-256:3DE301E9FC3C8A81CB2CEDE3458A68C626A9A5C37A73FA9C85BE9D841935684D",
         "size": "3205",
@@ -32,7 +32,7 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_avr_board_v1.0.1.tar.gz",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_avr_board_v1.0.1.tar.gz",
         "archiveFileName": "package_multi_4in1_avr_board_v1.0.1.tar.gz",
         "checksum": "SHA-256:504A5C1ABFB366917FC35A3744CC21FA30D572AAA70007D2BC69277BC1D0E2C4",
         "size": "3102",
@@ -49,7 +49,7 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_stm32_board_v1.0.0.zip",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_stm32_board_v1.0.0.zip",
         "archiveFileName": "package_multi_4in1_stm32_board_v1.0.0.zip",
         "checksum": "SHA-256:7B661C6455F5AD7329E61EC297D4ADED9EF19F618E04E09A35A3C840977A56F5",
         "size": "10896168",
@@ -70,7 +70,7 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_stm32_board_v1.0.1.tar.gz",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_stm32_board_v1.0.1.tar.gz",
         "archiveFileName": "package_multi_4in1_stm32_board_v1.0.1.tar.gz",
         "checksum": "SHA-256:9CC271776146A6CEC8CFB5B8DAB4DB7270C6589B43BA5759D65984AB2D89EA96",
         "size": "10336733",
@@ -91,7 +91,7 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/benlye/DIY-Multiprotocol-TX-Module/raw/board-updates-2/BootLoaders/package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
         "archiveFileName": "package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
         "checksum": "SHA-256:03D095CB9F79C881375B35C8F9671306224C03CE2F02117806E55903C77FF2D5",
         "size": "162457",

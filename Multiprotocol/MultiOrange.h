@@ -55,6 +55,9 @@ extern void TelemetryUpdate() ;
 extern uint16_t initDsm() ;
 extern uint16_t ReadDsm() ;
 
+extern void setup() ;
+extern void loop() ;
+
 #define yield()
 
 #define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
@@ -139,27 +142,29 @@ void init()
 	PORTA.PIN7CTRL = 0x18 ;
 }
 
-#include "Multiprotocol.ino"
-#include "SPI.ino"
-#include "Common.ino"
-#include "Arduino.ino"
+//#ifndef ARDUINO_AVR_XMEGA32D4
+//#include "Multiprotocol.ino"
+//#include "SPI.ino"
+//#include "Common.ino"
+//#include "Arduino.ino"
 
-#include "cyrf6936_SPI.ino"
-#include "DSM_cyrf6936.ino"
-#include "Devo_cyrf6936.ino"
-#include "J6Pro_cyrf6936.ino"
-#include "WK2x01_cyrf6936.ino"
+//#include "cyrf6936_SPI.ino"
+//#include "DSM_cyrf6936.ino"
+//#include "Devo_cyrf6936.ino"
+//#include "J6Pro_cyrf6936.ino"
+//#include "WK2x01_cyrf6936.ino"
 
-#include "Telemetry.ino"
+//#include "Telemetry.ino"
+//#endif
 
 
-int main(void)
-{
-	init() ;
-	setup() ;
-	for(;;)
-	{
-		loop() ;
-	}
-}
+//int main(void)
+//{
+//	init() ;
+//	setup() ;
+//	for(;;)
+//	{
+//		loop() ;
+//	}
+//}
 

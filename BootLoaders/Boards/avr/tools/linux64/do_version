@@ -1,0 +1,47 @@
+#!/bin/bash
+
+BUILD_PATH=$1
+PROJECT_NAME=$2
+SKETCH_PATH=$3
+MULTI_BOARD=$4
+EXPORT_FLAG=$5
+
+MULTI_TYPE=avr
+
+if [ -e "$BUILD_PATH/sketch/Multiprotocol.h" ]; then
+        MAJOR_VERSION=$(grep "VERSION_MAJOR" "$BUILD_PATH/sketch/Multiprotocol.h" | awk -v N=3 '{print $N}')
+        MINOR_VERSION=$(grep "VERSION_MINOR" "$BUILD_PATH/sketch/Multiprotocol.h" | awk -v N=3 '{print $N}')
+        REVISION_VERSION=$(grep "VERSION_REVISION" "$BUILD_PATH/sketch/Multiprotocol.h" | awk -v N=3 '{print $N}')
+        PATCH_VERSION=$(grep "VERSION_PATCH" "$BUILD_PATH/sketch/Multiprotocol.h" | awk -v N=3 '{print $N}')
+
+        MULTI_VERSION=$MAJOR_VERSION.$MINOR_VERSION.$REVISION_VERSION.$PATCH_VERSION
+else
+        MULTI_VERSION=
+fi
+
+if [ -e "$BUILD_PATH/$PROJECT_NAME.hex" ]; then
+        cp "$BUILD_PATH/$PROJECT_NAME.hex" "$BUILD_PATH/multi-$MULTI_TYPE-$MULTI_VERSION.hex"
+fi
+
+if [ -e "$BUILD_PATH/$PROJECT_NAME.bin" ]; then
+        cp "$BUILD_PATH/$PROJECT_NAME.bin" "$BUILD_PATH/multi-$MULTI_TYPE-$MULTI_VERSION.bin"
+fi
+
+if [ $# -eq 5 ]; then
+        if [ $EXPORT_FLAG == "EXPORT" ]; then
+
+                if [ -e "$BUILD_PATH/$PROJECT_NAME.hex" ]; then
+                        cp "$BUILD_PATH/$PROJECT_NAME.hex" "$SKETCH_PATH/multi-$MULTI_TYPE-$MULTI_VERSION.hex"
+                fi
+                if [ -e "$BUILD_PATH/$PROJECT_NAME.bin" ]; then
+                        cp "$BUILD_PATH/$PROJECT_NAME.bin" "$SKETCH_PATH/multi-$MULTI_TYPE-$MULTI_VERSION.bin"
+                fi
+
+                if [ -e "$SKETCH_PATH/multi-$MULTI_TYPE.hex" ]; then
+                        rm "$SKETCH_PATH/multi-$MULTI_TYPE.hex"
+                fi
+                if [ -e "$SKETCH_PATH/multi-$MULTI_TYPE.bin" ]; then
+                        rm "$SKETCH_PATH/multi-$MULTI_TYPE.bin"
+                fi
+        fi
+fi

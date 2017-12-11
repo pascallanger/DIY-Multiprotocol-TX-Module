@@ -103,7 +103,20 @@ recipe.size.regex.data=^(?:\.data|\.bss|\.noinit)\s+([0-9]+).*
 ## Save Compiled Binary
 recipe.output.tmp_file={build.project_name}.bin
 #recipe.output.save_file={build.project_name}.{build.variant}.bin
-recipe.output.save_file=multifw.bin
+recipe.output.save_file=multi-stm.bin
+
+## Copy hex
+# Make a copy of the compiled binary with the version number in the file name
+recipe.hooks.objcopy.postobjcopy.01.pattern.windows="{runtime.platform.path}/tools/win/do_version.bat" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board}
+recipe.hooks.objcopy.postobjcopy.01.pattern.linux="{runtime.platform.path}/tools/linux/do_version" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board}
+recipe.hooks.objcopy.postobjcopy.01.pattern.linux64="{runtime.platform.path}/tools/linux64/do_version" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board}
+recipe.hooks.objcopy.postobjcopy.01.pattern.macosx="{runtime.platform.path}/tools/macosx/do_version" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board}
+
+# If we're exporting the hex file, rename it with the version number
+recipe.hooks.savehex.postsavehex.01.pattern.windows="{runtime.platform.path}/tools/win/do_version.bat" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board} EXPORT
+recipe.hooks.savehex.postsavehex.01.pattern.linux="{runtime.platform.path}/tools/linux/do_version" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board} EXPORT
+recipe.hooks.savehex.postsavehex.01.pattern.linux64="{runtime.platform.path}/tools/linux64/do_version" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board} EXPORT
+recipe.hooks.savehex.postsavehex.01.pattern.macosx="{runtime.platform.path}/tools/macosx/do_version" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board} EXPORT
 
 # Uploader tools
 # -------------------

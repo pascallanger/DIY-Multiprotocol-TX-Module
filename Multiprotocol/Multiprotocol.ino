@@ -28,7 +28,7 @@
 #ifdef __arm__			// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
 #endif
-#ifdef ARDUINO_AVR_XMEGA32D4
+#if defined (ARDUINO_AVR_XMEGA32D4) || defined (ARDUINO_MULTI_ORANGERX)
 	#include "MultiOrange.h"
 #endif
 
@@ -49,7 +49,6 @@
 #ifndef STM32_BOARD
 	#include <avr/eeprom.h>
 #else
-	#include <arduino.h>
 	#include <libmaple/usart.h>
 	#include <libmaple/timer.h>
 	#include <SPI.h>	

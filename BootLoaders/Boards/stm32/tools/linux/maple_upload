@@ -2,22 +2,31 @@
 
 #set -e
 
-
-
 if [ $# -lt 4 ]; then
     echo "Usage: $0 $# <dummy_port> <altID> <usbID> <binfile>" >&2
     exit 1
 fi
+
 dummy_port="$1"; altID="$2"; usbID="$3"; binfile="$4"; dummy_port_fullpath="/dev/$1"
+
 if [ $# -eq 5 ]; then
     dfuse_addr="--dfuse-address $5"
 else
     dfuse_addr=""
 fi
 
-
 # Get the directory where the script is running.
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+# Get the right upload-reset tool
+uname -m | grep "x86_64" 2>&1 1>/dev/null
+if [ $? -eq 0 ]; then
+  # Do 64-bit stuff
+  RESET_UTIL=${DIR}/../linux64/upload-reset
+else
+  # Do 32-bit stuff
+  RESET_UTIL=${DIR}/upload-reset
+fi
 
 #  ----------------- IMPORTANT -----------------
 # The 2nd parameter to upload-reset is the delay after resetting before it exits
@@ -26,7 +35,7 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 # 750ms to 1500ms seems to work on my Mac
 
 
-"${DIR}/upload-reset" ${dummy_port_fullpath} 750
+"${RESET_UTIL}" ${dummy_port_fullpath} 750
 
 
 #DFU_UTIL=$(dirname $0)/dfu-util/dfu-util

@@ -172,7 +172,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ## FRSKYX - *15*
 Models: FrSky receivers X4R, X6R and X8R. Also known as D16.
 
-Extended limits supported
+Extended limits and failsafe supported
 
 Telemetry enabled for A1 (RxBatt), A2, RSSI, TSSI and Hub
 

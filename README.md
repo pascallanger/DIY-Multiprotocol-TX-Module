@@ -23,15 +23,15 @@ If you like this project and want to support further development please consider
 * [Available Protocols list](Protocols_Details.md)
 * [The old documentation](docs/README-old.md)
 
-
 ## Outline of the documentation
 1. Introduction (this page)
 1. [Available protocols](Protocols_Details.md)
 1. [Transmitters and serial/telemetry options](docs/Transmitters.md)
 1. [Module Hardware options](docs/Hardware.md)
 1. Compiling and programming the module
-    * [4in1/DIY Multiprotocol module based on ATmega328](docs/Compiling.md)
-    * [DIY Multiprotocol module based on STM32](docs/Compiling_STM32.md)
+    * [Atmega328p Multiprotocol Module](docs/Compiling.md)
+    * [STM32 Multiprotocol Module](docs/Compiling_STM32.md)
+    * [OrangeRX Module](docs/Compiling_OrangeTx.md)
 1. [Transmitter Setup](docs/Transmitters.md) 
 1. [How to for popular models](docs/Models.md)
 1. [Troubleshooting](docs/Troubleshooting.md)

@@ -1,16 +1,12 @@
-#define ARDUINO_AVR_PRO		1
-//#define __AVR_ATmega328P__	1
+//#define ARDUINO_AVR_PRO		1
 
 #define ORANGE_TX	1
-
-// For BLUE module use:
-//#define DSM_BLUE
 
 #include <stdlib.h>
 #include <string.h>
 #include <avr/interrupt.h>
 
-static void protocol_init(void) ;
+/*static void protocol_init(void) ;
 static void update_channels_aux(void) ;
 static uint32_t random_id(uint16_t adress, uint8_t create_new) ;
 static void update_serial_data(void) ;
@@ -57,7 +53,7 @@ extern uint16_t ReadDsm() ;
 
 extern void setup() ;
 extern void loop() ;
-
+*/
 #define yield()
 
 #define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
@@ -141,30 +137,3 @@ void init()
 	PORTA.PIN6CTRL = 0x18 ;
 	PORTA.PIN7CTRL = 0x18 ;
 }
-
-//#ifndef ARDUINO_AVR_XMEGA32D4
-//#include "Multiprotocol.ino"
-//#include "SPI.ino"
-//#include "Common.ino"
-//#include "Arduino.ino"
-
-//#include "cyrf6936_SPI.ino"
-//#include "DSM_cyrf6936.ino"
-//#include "Devo_cyrf6936.ino"
-//#include "J6Pro_cyrf6936.ino"
-//#include "WK2x01_cyrf6936.ino"
-
-//#include "Telemetry.ino"
-//#endif
-
-
-//int main(void)
-//{
-//	init() ;
-//	setup() ;
-//	for(;;)
-//	{
-//		loop() ;
-//	}
-//}
-

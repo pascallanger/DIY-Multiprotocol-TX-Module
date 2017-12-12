@@ -90,6 +90,10 @@
 // The offset is in +/-kHz. Default value is 0.
 #define A7105_FREQ_OFFSET 0
 
+//If you compile for the OrangeRX TX module you need to select the correct board type.
+//By default the compilation is done for the GREEN board, to switch to a BLUE board uncomment the line below by removing the "//"
+//#define ORANGE_TX_BLUE
+
 /*****************/
 /*** GLOBAL ID ***/
 /*****************/

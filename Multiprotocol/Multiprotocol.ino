@@ -392,7 +392,30 @@ void setup()
 		cur_protocol[1] = protocol;
 		sub_protocol   	=	PPM_prot[mode_select].sub_proto;
 		RX_num			=	PPM_prot[mode_select].rx_num;
-		option			=	PPM_prot[mode_select].option;
+
+		//Forced frequency tuning values for CC2500 protocols
+		#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
+			if(protocol==MODE_FRSKYD) 
+				option			=	FORCE_FRSKYD_TUNING;   // Use config-defined tuning value for FrSkyD
+			else
+		#endif
+		#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
+			if(protocol==MODE_FRSKYV)
+				option			=	FORCE_FRSKYV_TUNING;   // Use config-defined tuning value for FrSkyV
+			else
+		#endif
+		#if defined(FORCE_FRSKYX_TUNING) && defined(FRSKYX_CC2500_INO)
+			if(protocol==MODE_FRSKYX)
+				option			=	FORCE_FRSKYX_TUNING;   // Use config-defined tuning value for FrSkyX
+			else
+		#endif 
+		#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
+			if (protocol==MODE_SFHSS)
+				option			=	FORCE_SFHSS_TUNING;    // Use config-defined tuning value for SFHSS
+			else
+		#endif
+				option			=	PPM_prot[mode_select].option;   // Use radio-defined option value
+
 		if(PPM_prot[mode_select].power)		POWER_FLAG_on;
 		if(PPM_prot[mode_select].autobind)	AUTOBIND_FLAG_on;
 		mode_select++;
@@ -1084,7 +1107,28 @@ void update_serial_data()
 	else
 		POWER_FLAG_on;							//power high
 
-	option=rx_ok_buff[3];
+	//Forced frequency tuning values for CC2500 protocols
+	#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
+		if(protocol==MODE_FRSKYD) 
+			option=FORCE_FRSKYD_TUNING;   // Use config-defined tuning value for FrSkyD
+		else
+	#endif
+	#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
+		if(protocol==MODE_FRSKYV)
+			option=FORCE_FRSKYV_TUNING;   // Use config-defined tuning value for FrSkyV
+		else
+	#endif
+	#if defined(FORCE_FRSKYX_TUNING) && defined(FRSKYX_CC2500_INO)
+		if(protocol==MODE_FRSKYX)
+			option=FORCE_FRSKYX_TUNING;   // Use config-defined tuning value for FrSkyX
+		else
+	#endif 
+	#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
+		if (protocol==MODE_SFHSS)
+			option=FORCE_SFHSS_TUNING;    // Use config-defined tuning value for SFHSS
+		else
+	#endif
+			option=rx_ok_buff[3];   // Use radio-defined option value
 	
 	#ifdef FAILSAFE_ENABLE
 		bool failsafe=false;

@@ -43,6 +43,28 @@
 	#endif
 #endif
 
+// Check forced tuning values are valid
+#ifdef FORCE_FRSKYD_TUNING
+	#if ( FORCE_FRSKYD_TUNING < -127 ) || ( FORCE_FRSKYD_TUNING > 127 )
+		#error "The FrSkyD forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
+#ifdef FORCE_FRSKYV_TUNING
+	#if ( FORCE_FRSKYV_TUNING < -127 ) || ( FORCE_FRSKYV_TUNING > 127 )
+		#error "The FrSkyV forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
+#ifdef FORCE_FRSKYX_TUNING
+	#if ( FORCE_FRSKYX_TUNING < -127 ) || ( FORCE_FRSKYX_TUNING > 127 )
+		#error "The FrSkyX forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
+#ifdef FORCE_SFHSS_TUNING
+	#if ( FORCE_SFHSS_TUNING < -127 ) || ( FORCE_SFHSS_TUNING > 127 )
+		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
+
 //Change/Force configuration if OrangeTX
 #ifdef ORANGE_TX
 	#undef ENABLE_PPM			// Disable PPM for OrangeTX module

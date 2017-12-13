@@ -180,6 +180,19 @@
 // You can force option b. by uncommenting the line below (remove the "//").
 //#define FAILSAFE_SERIAL_ONLY
 
+/*******************************/
+/*** CC2500 FREQUENCY TUNING ***/
+/*******************************/
+//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, and SFHSS protocols needs to be tuned for each protocol.
+//Initial tuning should be done via the radio menu with a genuine FrSky or Futaba receiver.  
+//Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
+//For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
+//Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable.  Valid range is -127 to +127.
+//#define FORCE_FRSKYD_TUNING 0
+//#define FORCE_FRSKYV_TUNING 0
+//#define FORCE_FRSKYX_TUNING 0
+//#define FORCE_SFHSS_TUNING  0
+
 /**************************/
 /*** TELEMETRY SETTINGS ***/
 /**************************/

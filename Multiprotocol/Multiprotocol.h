@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	42
+#define VERSION_PATCH_LEVEL	43
 //******************
 // Protocols
 //******************
@@ -324,10 +324,14 @@ enum MultiPacketTypes {
 #define FAILSAFE_CHANNEL_HOLD		2047
 #define	FAILSAFE_CHANNEL_NOPULSES	0
 
-//Debug messages
+//********************
+//** Debug messages **
+//********************
 #if defined(STM32_BOARD) && defined (DEBUG_SERIAL)
+	uint16_t debug_time=0;
 	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg, ##__VA_ARGS__); Serial.write(buf);}
 	#define debugln(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
+	#define debug_time(msg)  { uint16_t debug_time_TCNT1=TCNT1; debug_time=debug_time_TCNT1-debug_time; debugln(msg "%u", debug_time); debug_time=debug_time_TCNT1; }
 #else
 	#define debug(...) { }
 	#define debugln(...) { }

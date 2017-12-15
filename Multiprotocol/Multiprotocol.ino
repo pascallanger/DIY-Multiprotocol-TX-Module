@@ -1102,7 +1102,7 @@ void update_serial_data()
 		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]
 		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
 		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
-		debugln("New protocol selected: %d, sub proto %d, rxnum %d", protocol, sub_protocol, RX_num);
+		debugln("New protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
 	}
 	else
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
@@ -1503,7 +1503,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 						uint16_t OCR1B;
 						OCR1B =TCNT1+(6500L);
 						timer.setCompare(TIMER_CH2,OCR1B);
-						timer.attachCompare2Interrupt(ISR_COMPB);
+						timer.attachInterrupt(TIMER_CH2,ISR_COMPB);
 					#else
 						OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
 						TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
@@ -1532,12 +1532,12 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		{
 			idx=UDR0;						// Dummy read
 			discard_frame=1;				// Error encountered discard full frame...
-			debugln("Bad frame");
+			debugln("Bad frame RX");
 		}
 		if(discard_frame==1)
 		{
 			#ifdef STM32_BOARD
-				detachInterrupt(2);			// Disable interrupt on ch2	
+				timer.detachInterrupt(TIMER_CH2);			// Disable interrupt on ch2	
 			#else							
 				CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
 			#endif
@@ -1561,7 +1561,8 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	{	// Timer1 compare B interrupt
 		discard_frame=1;
 		#ifdef STM32_BOARD
-			detachInterrupt(2);				// Disable interrupt on ch2
+			timer.detachInterrupt(TIMER_CH2);				// Disable interrupt on ch2
+			debugln("Bad frame timer");
 		#else
 			CLR_TIMSK1_OCIE1B;				// Disable interrupt on compare B match
 		#endif
@@ -1610,3 +1611,5 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		}
 	}
 #endif
+
+

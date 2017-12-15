@@ -377,8 +377,6 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 The transmitter must be close to the receiver while binding.
 
 ## BAYANG - *14*
-Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
-
 Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
@@ -388,6 +386,8 @@ A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED|RATE
 RATE: -100%(default)=>higher rates by enabling dynamic trims (except for Headless), 100%=>disable dynamic trims
 
 ### Sub_protocol BAYANG - *0*
+Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
+
 Option=0 -> normal Bayang protocol
 
 Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage, A2=compensated battery voltage
@@ -400,9 +400,9 @@ Same channels assignement as above.
 ### Sub_protocol X16_AH - *2*
 Model: X16 AH
 
-CH12
-----
-TAKE_OFF
+CH12|
+----|
+TAKE_OFF|
 
 ### Sub_protocol IRDRONE - *3*
 Model: IRDRONE

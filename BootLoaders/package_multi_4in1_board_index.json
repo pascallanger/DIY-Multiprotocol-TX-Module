@@ -34,8 +34,8 @@
         },
         "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_avr_board_v1.0.1.tar.gz",
         "archiveFileName": "package_multi_4in1_avr_board_v1.0.1.tar.gz",
-        "checksum": "SHA-256:504A5C1ABFB366917FC35A3744CC21FA30D572AAA70007D2BC69277BC1D0E2C4",
-        "size": "3102",
+        "checksum": "SHA-256:9bb29828476c141f5ef877e66b80ca969021d648acaf1ac5248676beb9ee3003",
+        "size": "3201",
         "boards": [{
           "name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"
         }],
@@ -72,8 +72,8 @@
         },
         "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_stm32_board_v1.0.1.tar.gz",
         "archiveFileName": "package_multi_4in1_stm32_board_v1.0.1.tar.gz",
-        "checksum": "SHA-256:9CC271776146A6CEC8CFB5B8DAB4DB7270C6589B43BA5759D65984AB2D89EA96",
-        "size": "10336733",
+        "checksum": "SHA-256:b522b5d3474308768c197a6897cad037fb54d6fac26c75678415a0908793bae3",
+        "size": "10332106",
         "boards": [{
           "name": "Multi 4-in-1 (STM32F103C)"
         }],
@@ -93,8 +93,8 @@
         },
         "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
         "archiveFileName": "package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
-        "checksum": "SHA-256:03D095CB9F79C881375B35C8F9671306224C03CE2F02117806E55903C77FF2D5",
-        "size": "162457",
+        "checksum": "SHA-256:7287ce61028b754bb8ff947317dd15773fc7eeecd752826c707fa356b9b36dc6",
+        "size": "161615",
         "boards": [{
           "name": "Multi 4-in-1 (OrangeRX)"
         }],

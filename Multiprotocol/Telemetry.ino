@@ -599,6 +599,8 @@ void pollSport()
 	RxIndex = 0;
 #ifdef MULTI_TELEMETRY
 	multi_send_header(MULTI_TELEMETRY_SPORT_POLLING, 1);
+#else
+    Serial_write(TxData[0]);
 #endif
 	Serial_write(TxData[1]);
 }

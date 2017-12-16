@@ -439,8 +439,8 @@ static inline void usart_disable_all(void) {
 /**
  * @brief Transmit one character on a serial port.
  *
- * This function blocks until the character has been queued
- * for transmission.
+ * This function blocks until the character has been successfully
+ * transmitted.
  *
  * @param dev Serial port to send on.
  * @param byte Byte to transmit.

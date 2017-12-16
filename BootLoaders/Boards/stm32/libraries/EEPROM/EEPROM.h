@@ -47,7 +47,6 @@ enum : uint16
 	EEPROM_BAD_ADDRESS		= ((uint16)0x0082),
 	EEPROM_BAD_FLASH		= ((uint16)0x0083),
 	EEPROM_NOT_INIT			= ((uint16)0x0084),
-	EEPROM_SAME_VALUE		= ((uint16)0x0085),
 	EEPROM_NO_VALID_PAGE	= ((uint16)0x00AB)
 	};
 
@@ -68,7 +67,6 @@ public:
 	uint16 read (uint16 address);
 	uint16 read (uint16 address, uint16 *data);
 	uint16 write(uint16 address, uint16 data);
-	uint16 update(uint16 address, uint16 data);
 	uint16 count(uint16 *);
 	uint16 maxcount(void);
 

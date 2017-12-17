@@ -20,12 +20,12 @@ IF DEFINED DEBUG (
 
 SET MULTI_TYPE=avr
 
-IF EXIST "%1\sketch\Multiprotocol.h" (
-  REM ECHO Getting Multi-MODULE firmware version from "%1\sketch\Multiprotocol.h"
-  FOR /F "tokens=* usebackq skip=2" %%A in (`find "#define VERSION_MAJOR" "%1\sketch\Multiprotocol.h"`) DO FOR /F "tokens=3" %%i in ("%%A") do SET MAJOR_VERSION=%%i
-  FOR /F "tokens=* usebackq skip=2" %%B in (`find "#define VERSION_MINOR" "%1\sketch\Multiprotocol.h"`) DO FOR /F "tokens=3" %%i in ("%%B") do SET MINOR_VERSION=%%i
-  FOR /F "tokens=* usebackq skip=2" %%C in (`find "#define VERSION_REVISION" "%1\sketch\Multiprotocol.h"`) DO FOR /F "tokens=3" %%i in ("%%C") do SET REVISION_VERSION=%%i
-  FOR /F "tokens=* usebackq skip=2" %%D in (`find "#define VERSION_PATCH_LEVEL" "%1\sketch\Multiprotocol.h"`) DO FOR /F "tokens=3" %%i in ("%%D") do SET PATCH_VERSION=%%i
+IF EXIST "%BUILD_PATH%\sketch\Multiprotocol.h" (
+  IF DEFINED DEBUG ECHO Getting Multi-MODULE firmware version from "%BUILD_PATH%\sketch\Multiprotocol.h"
+  FOR /F "tokens=* usebackq" %%A in (`%SystemRoot%\system32\findstr.exe /C:"#define VERSION_MAJOR" "%BUILD_PATH%\sketch\Multiprotocol.h"`) DO FOR /F "tokens=3" %%i in ("%%A") do SET MAJOR_VERSION=%%i
+  FOR /F "tokens=* usebackq" %%B in (`%SystemRoot%\system32\findstr.exe /C:"#define VERSION_MINOR" "%BUILD_PATH%\sketch\Multiprotocol.h"`) DO FOR /F "tokens=3" %%i in ("%%B") do SET MINOR_VERSION=%%i
+  FOR /F "tokens=* usebackq" %%C in (`%SystemRoot%\system32\findstr.exe /C:"#define VERSION_REVISION" "%BUILD_PATH%\sketch\Multiprotocol.h"`) DO FOR /F "tokens=3" %%i in ("%%C") do SET REVISION_VERSION=%%i
+  FOR /F "tokens=* usebackq" %%D in (`%SystemRoot%\system32\findstr.exe /C:"#define VERSION_PATCH_LEVEL" "%BUILD_PATH%\sketch\Multiprotocol.h"`) DO FOR /F "tokens=3" %%i in ("%%D") do SET PATCH_VERSION=%%i
   SET MULTI_VER=!MAJOR_VERSION!.!MINOR_VERSION!.!REVISION_VERSION!.!PATCH_VERSION!
 ) ELSE (
   SET MULTI_VER=

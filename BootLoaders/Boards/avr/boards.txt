@@ -29,14 +29,14 @@ multiatmega328p.bootloader.unlock_bits=0x3F
 multiatmega328p.bootloader.lock_bits=0x0F
 
 multiatmega328p.menu.bootloader.none=No bootloader
-multiatmega328p.menu.bootloader.none.build.board=MULTI_NO_BOOT
+multiatmega328p.menu.bootloader.none.build.board=MULTI_NO_BOOT=103
 
 multiatmega328p.menu.bootloader.none.upload.maximum_size=32768
 multiatmega328p.menu.bootloader.none.bootloader.file=Multi4in1/AtmegaMultiEmpty.hex
 multiatmega328p.menu.bootloader.none.bootloader.high_fuses=0xD7
 
 multiatmega328p.menu.bootloader.optiboot=Flash from TX
-multiatmega328p.menu.bootloader.optiboot.build.board=MULTI_FLASH_FROM_TX
+multiatmega328p.menu.bootloader.optiboot.build.board=MULTI_FLASH_FROM_TX=103
 
 multiatmega328p.menu.bootloader.optiboot.upload.maximum_size=32256
 multiatmega328p.menu.bootloader.optiboot.bootloader.file=Multi4in1/AtmegaMultiBoot.hex

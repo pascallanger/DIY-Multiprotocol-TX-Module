@@ -199,20 +199,18 @@ void usart_foreach(void (*fn)(usart_dev*)) {
 /*
  * Interrupt handlers.
  */
- 
+
 void __irq_usart1(void) {
     usart_irq(&usart1_rb, &usart1_wb, USART1_BASE);
 }
 
-/*
-void __irq_usart2(void) {
-    usart_irq(&usart2_rb, &usart2_wb, USART2_BASE);
-}
+//void __irq_usart2(void) {
+   // usart_irq(&usart2_rb, &usart2_wb, USART2_BASE);
+//}
 
-void __irq_usart3(void) {
-    usart_irq(&usart3_rb, &usart3_wb, USART3_BASE);
-}
-*/
+//void __irq_usart3(void) {
+   // usart_irq(&usart3_rb, &usart3_wb, USART3_BASE);
+//}
 
 #ifdef STM32_HIGH_DENSITY
 void __irq_uart4(void) {

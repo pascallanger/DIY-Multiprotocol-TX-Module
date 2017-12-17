@@ -32,15 +32,11 @@
 
 #include <libmaple/libmaple_types.h>
 #include <libmaple/delay.h>
-#include "Arduino.h"
 
 void delay(unsigned long ms) {
     uint32 start = millis();
-	do
-	{
-		yield();
-	}
-    while (millis() - start < ms);
+    while (millis() - start < ms)
+        ;
 }
 
 void delayMicroseconds(uint32 us) {

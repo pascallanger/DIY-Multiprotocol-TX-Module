@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2011 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -16,32 +16,21 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _ITOA_
-#define _ITOA_
+#include <stdlib.h>
 
-#ifdef __cplusplus
-extern "C"{
-#endif // __cplusplus
+void *operator new(size_t size) {
+  return malloc(size);
+}
 
-#if 0
+void *operator new[](size_t size) {
+  return malloc(size);
+}
 
-extern void itoa( int n, char s[] ) ;
+void operator delete(void * ptr) {
+  free(ptr);
+}
 
-#else
+void operator delete[](void * ptr) {
+  free(ptr);
+}
 
-extern char* itoa( int value, char *string, int radix ) ;
-extern char* ltoa( long value, char *string, int radix ) ;
-#if __GNUC__ > 4 || (__GNUC__ == 4 && (__GNUC_MINOR__ > 9 || \
-   (__GNUC_MINOR__ == 9 && __GNUC_PATCHLEVEL__ > 2)))
-extern char* utoa( unsigned value, char *string, int radix ) ;
-#else
-extern char* utoa( unsigned int value, char *string, int radix ) ;
-#endif
-extern char* ultoa( unsigned long value, char *string, int radix ) ;
-#endif /* 0 */
-
-#ifdef __cplusplus
-} // extern "C"
-#endif // __cplusplus
-
-#endif // _ITOA_

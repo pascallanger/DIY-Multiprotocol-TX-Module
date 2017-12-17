@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		1
 #define VERSION_REVISION	6
-#define VERSION_PATCH_LEVEL	43
+#define VERSION_PATCH_LEVEL	44
 //******************
 // Protocols
 //******************
@@ -238,16 +238,17 @@ struct PPM_Parameters
 
 // Telemetry
 
-enum MultiPacketTypes {
-	MULTI_TELEMETRY_STATUS        = 1,
-	MULTI_TELEMETRY_SPORT         = 2,
-	MULTI_TELEMETRY_HUB           = 3,
-	MULTI_TELEMETRY_DSM           = 4,
-	MULTI_TELEMETRY_DSMBIND       = 5,
-	MULTI_TELEMETRY_AFHDS2A       = 6,
-	MULTI_TELEMETRY_CONFIG        = 7,
-	MULTI_TELEMETRY_SYNC          = 8,
-	MULTI_TELEMETRY_SPORT_POLLING = 9,
+enum MultiPacketTypes
+{
+	MULTI_TELEMETRY_STATUS			= 1,
+	MULTI_TELEMETRY_SPORT			= 2,
+	MULTI_TELEMETRY_HUB				= 3,
+	MULTI_TELEMETRY_DSM				= 4,
+	MULTI_TELEMETRY_DSMBIND			= 5,
+	MULTI_TELEMETRY_AFHDS2A			= 6,
+	MULTI_TELEMETRY_CONFIG			= 7,
+	MULTI_TELEMETRY_SYNC			= 8,
+	MULTI_TELEMETRY_SPORT_POLLING	= 9,
 };
 
 // Macros

@@ -1537,7 +1537,12 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		if(discard_frame==1)
 		{
 			#ifdef STM32_BOARD
-				timer.detachInterrupt(TIMER_CH2);			// Disable interrupt on ch2	
+				//For whatever reason the line below does not stop the interrupt to be called
+				//timer.detachInterrupt(TIMER_CH2);			// Disable interrupt on ch2	
+				//So I'm pushing the comparator out (32ms from now) so it does not come to interfer
+				uint16_t OCR1B;
+				OCR1B=TCNT1;
+				timer.setCompare(TIMER_CH2,OCR1B);
 			#else							
 				CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
 			#endif
@@ -1561,7 +1566,9 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	{	// Timer1 compare B interrupt
 		discard_frame=1;
 		#ifdef STM32_BOARD
-			timer.detachInterrupt(TIMER_CH2);				// Disable interrupt on ch2
+			//For whatever reason the line below does not stop the interrupt to be called
+			//timer.detachInterrupt(TIMER_CH2);				// Disable interrupt on ch2
+			//So I leave the comparator as it is (32ms from now) so it does not come to interfer
 			debugln("Bad frame timer");
 		#else
 			CLR_TIMSK1_OCIE1B;				// Disable interrupt on compare B match

@@ -53,7 +53,8 @@
 	#include <libmaple/timer.h>
 	#include <SPI.h>	
 	#include <EEPROM.h>	
-	HardwareTimer timer(2);
+	HardwareTimer HWTimer2(2);
+	HardwareTimer HWTimer3(3);
 	void PPM_decode();
 	void ISR_COMPB();
 	extern "C"
@@ -270,8 +271,8 @@ void setup()
 		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
 		pinMode(PB1, INPUT_ANALOG); // set up pin for analog input
 
-		//select the counter clock.
-		start_timer2();//0.5us
+		//Timers
+		init_HWTimer();			//0.5us
 	#else
 		//ATMEGA328p
 		// all inputs
@@ -494,7 +495,7 @@ void loop()
 				#ifndef STM32_BOARD	
 					TIFR1=OCF1A_bm;					// clear compare A=callback flag
 				#else
-					TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag
+					TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	// clear compare flag on channel 1
 				#endif
 				sei();								// enable global int
 				if(Update_All())					// Protocol changed?
@@ -515,7 +516,7 @@ void loop()
 			#ifndef STM32_BOARD			
 				TIFR1=OCF1A_bm;						// clear compare A=callback flag
 			#else
-				TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag write zero 
+				TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	// clear compare flag on channel 1
 			#endif		
 			diff=OCR1A-TCNT1;						// compare timer and comparator
 			sei();									// enable global int
@@ -703,21 +704,6 @@ inline void tx_resume()
 		}
 	#endif
 }
-
-#ifdef STM32_BOARD	
-void start_timer2()
-{	
-	// Pause the timer while we're configuring it
-	timer.pause();
-	TIMER2_BASE->PSC = 35;			//36-1;for 72 MHZ /0.5sec/(35+1)
-	TIMER2_BASE->ARR = 0xFFFF;		//count till max
-	timer.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);
-	timer.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);
-	// Refresh the timer's count, prescale, and overflow
-	timer.refresh();
-	timer.resume();
-}
-#endif
 
 // Protocol start
 static void protocol_init()
@@ -1058,12 +1044,12 @@ static void protocol_init()
 	}
 	cli();										// disable global int
 	OCR1A = TCNT1 + next_callback*2;			// set compare A for callback
-	sei();										// enable global int
 	#ifndef STM32_BOARD
 		TIFR1 = OCF1A_bm ;						// clear compare A flag
 	#else
 		TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;		//clear compare Flag write zero 
 	#endif	
+	sei();										// enable global int
 	BIND_BUTTON_FLAG_off;						// do not bind/reset id anymore even if protocol change
 }
 
@@ -1279,6 +1265,28 @@ void modules_reset()
 		usart_config_gpios_async(USART3,GPIOB,PIN_MAP[PB11].gpio_bit,GPIOB,PIN_MAP[PB10].gpio_bit,config);
 		usart_set_baud_rate(USART3, STM32_PCLK1, baud);
 		usart_enable(USART3);
+	}
+	void init_HWTimer()
+	{	
+		// Pause the timer while we're configuring it
+		HWTimer2.pause();
+		TIMER2_BASE->PSC = 35;			//36-1;for 72 MHZ /0.5sec/(35+1)
+		TIMER2_BASE->ARR = 0xFFFF;		//count till max
+		HWTimer2.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);
+		// Refresh the timer's count, prescale, and overflow
+		HWTimer2.refresh();
+		HWTimer2.resume();
+
+		HWTimer3.pause();
+		TIMER3_BASE->PSC = 35;			//36-1;for 72 MHZ /0.5sec/(35+1)
+		TIMER3_BASE->ARR = 0xFFFF;		//count till max
+		HWTimer3.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);
+		TIMER3_BASE->SR &= ~TIMER_SR_CC2IF;					// Clear Timer3/Comp2 interrupt flag
+		HWTimer3.attachInterrupt(TIMER_CH2,ISR_COMPB);		// assign function to Timer2/Comp2 interrupt
+		TIMER3_BASE->DIER &= ~TIMER_DIER_CC2IE;				// disable Timer2/Comp2 interrupt
+		// Refresh the timer's count, prescale, and overflow
+		HWTimer3.refresh();
+		HWTimer3.resume();
 	}
 #endif
 
@@ -1500,10 +1508,9 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 					TX_RX_PAUSE_on;
 					tx_pause();
 					#if defined STM32_BOARD
-						uint16_t OCR1B;
-						OCR1B =TCNT1+(6500L);
-						timer.setCompare(TIMER_CH2,OCR1B);
-						timer.attachInterrupt(TIMER_CH2,ISR_COMPB);
+						TIMER3_BASE->CCR2=TIMER2_BASE->CNT+(6500L);	// Full message should be received within timer of 3250us
+						TIMER3_BASE->SR &= ~TIMER_SR_CC2IF;			// Clear Timer3/Comp2 interrupt flag
+						TIMER3_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer3/Comp2 interrupt
 					#else
 						OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
 						TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
@@ -1537,12 +1544,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		if(discard_frame==1)
 		{
 			#ifdef STM32_BOARD
-				//For whatever reason the line below does not stop the interrupt to be called
-				//timer.detachInterrupt(TIMER_CH2);			// Disable interrupt on ch2	
-				//So I'm pushing the comparator out (32ms from now) so it does not come to interfer
-				uint16_t OCR1B;
-				OCR1B=TCNT1;
-				timer.setCompare(TIMER_CH2,OCR1B);
+				TIMER3_BASE->DIER &= ~TIMER_DIER_CC2IE;	// Disable Timer3/Comp2 interrupt
 			#else							
 				CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
 			#endif
@@ -1566,12 +1568,10 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	{	// Timer1 compare B interrupt
 		discard_frame=1;
 		#ifdef STM32_BOARD
-			//For whatever reason the line below does not stop the interrupt to be called
-			//timer.detachInterrupt(TIMER_CH2);				// Disable interrupt on ch2
-			//So I leave the comparator as it is (32ms from now) so it does not come to interfer
+			TIMER3_BASE->DIER &= ~TIMER_DIER_CC2IE;	// Disable Timer3/Comp2 interrupt
 			debugln("Bad frame timer");
 		#else
-			CLR_TIMSK1_OCIE1B;				// Disable interrupt on compare B match
+			CLR_TIMSK1_OCIE1B;						// Disable interrupt on compare B match
 		#endif
 		tx_resume();
 	}

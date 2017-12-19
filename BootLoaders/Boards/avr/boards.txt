@@ -57,7 +57,7 @@ multiatmega328p.menu.bootloader.optiboot.bootloader.high_fuses=0xD6
 ## --------------------------------------------------
 multixmega32d4.name=Multi 4-in-1 (OrangeRX)
 
-multixmega32d4.build.board=MULTI_ORANGERX
+multixmega32d4.build.board=MULTI_ORANGERX=103
 multixmega32d4.build.mcu=atxmega32d4
 multixmega32d4.build.f_cpu=32000000L
 multixmega32d4.build.core=xmega

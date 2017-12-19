@@ -69,6 +69,8 @@ multixmega32d4.upload.maximum_size=32768
 multixmega32d4.upload.speed=57600
 
 multixmega32d4.bootloader.tool=arduino:avrdude
+multixmega32d4.bootloader.file=Multi4in1/OrangeMultiBoot.hex
+multixmega32d4.bootloader.lock_bits=0xFF
 
 multixmega32d4.board.compiler.c.flags=-c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto
 multixmega32d4.board.compiler.c.elf.flags=-Os -flto -Wl,--gc-sections

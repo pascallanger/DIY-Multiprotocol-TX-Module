@@ -22,13 +22,13 @@ multiatmega328p.build.variant=arduino:eightanaloginputs
 multiatmega328p.build.extra_flags=-Wl,--relax
 multiatmega328p.build.board=MULTI_AVR
 
-multiatmega328p.build.compiler.c.flags=-c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects
-multiatmega328p.compiler.c.elf.flags=-Os -g -flto -fuse-linker-plugin -Wl,--gc-sections
-multiatmega328p.compiler.S.flags=-c -g -x assembler-with-cpp -flto -MMD
-
-multiatmega328p.tools.avrdude.config.path={path}/etc/avrdude.conf
-multiatmega328p.tools.avrdude.erase.pattern="{cmd.path}" "-C{config.path}" {erase.verbose} -p{build.mcu} -c{protocol} {program.extra_params} -e -Ulock:w:{bootloader.unlock_bits}:m -Uefuse:w:{bootloader.extended_fuses}:m -Uhfuse:w:{bootloader.high_fuses}:m -Ulfuse:w:{bootloader.low_fuses}:m
-multiatmega328p.tools.avrdude.bootloader.pattern=
+multiatmega328p.board.compiler.c.flags=-c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects
+multiatmega328p.board.compiler.c.elf.flags=-Os -g -flto -fuse-linker-plugin -Wl,--gc-sections
+multiatmega328p.board.compiler.S.flags=-c -g -x assembler-with-cpp -flto -MMD
+multiatmega328p.board.recipe.output.save_file=multi-avr.hex
+multiatmega328p.board.tools.avrdude.config.path={path}/etc/avrdude.conf
+multiatmega328p.board.tools.avrdude.erase.pattern="{cmd.path}" "-C{config.path}" {erase.verbose} -p{build.mcu} -c{protocol} {program.extra_params} -e -Ulock:w:{bootloader.unlock_bits}:m -Uefuse:w:{bootloader.extended_fuses}:m -Uhfuse:w:{bootloader.high_fuses}:m -Ulfuse:w:{bootloader.low_fuses}:m
+multiatmega328p.board.tools.avrdude.bootloader.pattern="{cmd.path}" "-C{config.path}" {bootloader.verbose} -p{build.mcu} -c{protocol} {program.extra_params} "-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}:i" -Ulock:w:{bootloader.lock_bits}:m
 
 multiatmega328p.bootloader.tool=arduino:avrdude
 multiatmega328p.bootloader.low_fuses=0xFF
@@ -63,19 +63,20 @@ multixmega32d4.build.f_cpu=32000000L
 multixmega32d4.build.core=xmega
 multixmega32d4.build.variant=xmega32d4
 
-multixmega32d4.upload.tool=avrdude
+multixmega32d4.upload.tool=arduino:avrdude
 multixmega32d4.upload.protocol=avrispmkii
 multixmega32d4.upload.maximum_size=32768
 multixmega32d4.upload.speed=57600
 
 multixmega32d4.bootloader.tool=arduino:avrdude
 
-multixmega32d4.build.compiler.c.flags=-c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto
-multixmega32d4.compiler.c.elf.flags=-Os -flto -Wl,--gc-sections
-multixmega32d4.compiler.S.flags=-c -g -x assembler-with-cpp -flto
+multixmega32d4.board.compiler.c.flags=-c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto
+multixmega32d4.board.compiler.c.elf.flags=-Os -flto -Wl,--gc-sections
+multixmega32d4.board.compiler.S.flags=-c -g -x assembler-with-cpp -flto
+multixmega32d4.board.recipe.output.save_file=multi-orx.hex
 
-multixmega32d4.tools.avrdude.config.path={runtime.platform.path}/avrdude.conf
-multixmega32d4.tools.avrdude.erase.pattern="{cmd.path}" "-C{config.path}" {erase.verbose} -p{build.mcu} -c{protocol} {program.extra_params} -e -Ulock:w:{bootloader.unlock_bits}:m -Ufuse1:w:{bootloader.fuse1}:m -Ufuse2:w:{bootloader.fuse2}:m -Ufuse4:w:{bootloader.fuse4}:m -Ufuse5:w:{bootloader.fuse5}:m
-multixmega32d4.tools.avrdude.bootloader.pattern="{cmd.path}" "-C{config.path}" {bootloader.verbose} -p{build.mcu} -c{protocol} {program.extra_params} "-Uboot:w:{runtime.platform.path}/bootloaders/{bootloader.file}:i" -Ulock:w:{bootloader.lock_bits}:m
+multixmega32d4.board.tools.avrdude.config.path={runtime.platform.path}/avrdude_xmega.conf
+multixmega32d4.board.tools.avrdude.erase.pattern="{cmd.path}" "-C{config.path}" {erase.verbose} -p{build.mcu} -c{protocol} {program.extra_params} -e -Ulock:w:{bootloader.unlock_bits}:m -Ufuse1:w:{bootloader.fuse1}:m -Ufuse2:w:{bootloader.fuse2}:m -Ufuse4:w:{bootloader.fuse4}:m -Ufuse5:w:{bootloader.fuse5}:m
+multixmega32d4.board.tools.avrdude.bootloader.pattern="{cmd.path}" "-C{config.path}" {bootloader.verbose} -p{build.mcu} -c{protocol} {program.extra_params} "-Uboot:w:{runtime.platform.path}/bootloaders/{bootloader.file}:i" -Ulock:w:{bootloader.lock_bits}:m
 
 ##############################################################

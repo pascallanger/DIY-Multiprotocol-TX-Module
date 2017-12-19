@@ -6,6 +6,8 @@ SKETCH_PATH=$3
 MULTI_BOARD=$4
 EXPORT_FLAG=$5
 
+IFS== read MULTI_BOARD BOARD_VERSION <<< "$MULTI_BOARD"
+
 case "$MULTI_BOARD" in
         MULTI_NO_BOOT)
                 MULTI_TYPE=avr
@@ -23,6 +25,12 @@ case "$MULTI_BOARD" in
                 MULTI_TYPE=orx
                 ;;
 esac
+
+#echo "Build Path: $BUILD_PATH"
+#echo "Sketch Path: $SKETCH_PATH"
+#echo "Project Name: $PROJECT_NAME"
+#echo "Multi Board: $MULTI_BOARD"
+#echo "Multi Board Type: $MULTI_TYPE"
 
 if [ -e "$BUILD_PATH/sketch/Multiprotocol.h" ]; then
         MAJOR_VERSION=$(grep "VERSION_MAJOR" "$BUILD_PATH/sketch/Multiprotocol.h" | awk -v N=3 '{print $N}')

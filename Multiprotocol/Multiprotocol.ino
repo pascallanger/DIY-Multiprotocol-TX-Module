@@ -51,7 +51,8 @@
 #else
 	#include <libmaple/usart.h>
 	#include <libmaple/timer.h>
-	#include <SPI.h>	
+	//#include <libmaple/spi.h>
+	#include <SPI.h>
 	#include <EEPROM.h>	
 	HardwareTimer HWTimer2(2);
 	void PPM_decode();

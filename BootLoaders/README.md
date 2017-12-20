@@ -1,6 +1,8 @@
 # Arduino IDE board definitions for Multi 4-in-1
 Board definitions are available for the Atmega328p, STM32, and OrangeRX modules.  The board definitions make it easier to compile and install the multiprotocol module firmware.
 
+**Note:** The Orange RX module is now included in the **Multi 4-in-1 AVR Boards** package, it no longer has a dedicated package.  If you have the dedicated OrangeRX package installed you should remove it and install the most recent AVR package (v1.0.2 or newer).
+
 ## Installing
 The board definitions are installed using the Arduino IDE Boards Manager.
 
@@ -34,8 +36,8 @@ The board definitions are installed using the Arduino IDE Boards Manager.
 2. Scroll down the list to the **Multi 4-in-1** board headings verify that the boards you installed are available:
     ![Image](/docs/images/boards-menu.jpg)
     
-    * **Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)** for the Atmega module
     * **Multi 4-in-1 (STM32F103CB)** for the STM32 module
+    * **Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)** for the Atmega module
     * **Multi 4-in-1 (OrangeRX)** for the OrangeRX module
 
 ## Compiling and Uploading

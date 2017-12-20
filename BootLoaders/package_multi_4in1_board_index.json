@@ -8,14 +8,14 @@
       "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
     },
     "platforms": [{
-        "name": "Multi 4-in-1 AVR Board",
+        "name": "Multi 4-in-1 AVR Boards",
         "architecture": "avr",
         "version": "1.0.0",
         "category": "Contributed",
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_board_v1.0.0.zip",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/Archives/package_multi_4in1_board_v1.0.0.zip",
         "archiveFileName": "package_multi_4in1_board_v1.0.0.zip",
         "checksum": "SHA-256:3DE301E9FC3C8A81CB2CEDE3458A68C626A9A5C37A73FA9C85BE9D841935684D",
         "size": "3205",
@@ -25,20 +25,38 @@
         "toolsDependencies": []
       },
       {
-        "name": "Multi 4-in-1 AVR Board",
+        "name": "Multi 4-in-1 AVR Boards",
         "architecture": "avr",
         "version": "1.0.1",
         "category": "Contributed",
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_avr_board_v1.0.1.tar.gz",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/Archives/package_multi_4in1_avr_board_v1.0.1.tar.gz",
         "archiveFileName": "package_multi_4in1_avr_board_v1.0.1.tar.gz",
         "checksum": "SHA-256:9bb29828476c141f5ef877e66b80ca969021d648acaf1ac5248676beb9ee3003",
         "size": "3201",
         "boards": [{
           "name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"
         }],
+        "toolsDependencies": []
+      },
+      {
+        "name": "Multi 4-in-1 AVR Boards",
+        "architecture": "avr",
+        "version": "1.0.2",
+        "category": "Contributed",
+        "help": {
+          "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+        },
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/Archives/package_multi_4in1_avr_board_v1.0.2.tar.gz",
+        "archiveFileName": "package_multi_4in1_avr_board_v1.0.2.tar.gz",
+        "checksum": "SHA-256:b7e2fda37186bf696b7a769b12317737d513181096b33d9ad321ec2fd47f3f80",
+        "size": "164467",
+        "boards": [
+          {"name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"},
+          {"name": "Multi 4-in-1 (OrangeRX)"}
+        ],
         "toolsDependencies": []
       },
       {
@@ -49,7 +67,7 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_stm32_board_v1.0.0.zip",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/Archives/package_multi_4in1_stm32_board_v1.0.0.zip",
         "archiveFileName": "package_multi_4in1_stm32_board_v1.0.0.zip",
         "checksum": "SHA-256:7B661C6455F5AD7329E61EC297D4ADED9EF19F618E04E09A35A3C840977A56F5",
         "size": "10896168",
@@ -70,7 +88,7 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_stm32_board_v1.0.1.tar.gz",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/Archives/package_multi_4in1_stm32_board_v1.0.1.tar.gz",
         "archiveFileName": "package_multi_4in1_stm32_board_v1.0.1.tar.gz",
         "checksum": "SHA-256:b522b5d3474308768c197a6897cad037fb54d6fac26c75678415a0908793bae3",
         "size": "10332106",
@@ -91,10 +109,10 @@
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_stm32_board_v1.0.2.tar.gz",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/Archives/package_multi_4in1_stm32_board_v1.0.2.tar.gz",
         "archiveFileName": "package_multi_4in1_stm32_board_v1.0.2.tar.gz",
         "checksum": "SHA-256:26D21DBD2FE80680AC523B8BCA24B3ECF2C2016BAC626826D20B651E11278287",
-        "size": "103318646",
+        "size": "10318646",
         "boards": [{
           "name": "Multi 4-in-1 (STM32F103C)"
         }],
@@ -105,14 +123,35 @@
         }]
       },
       {
-        "name": "Multi 4-in-1 OrangeRX Board",
+        "name": "Multi 4-in-1 STM32 Board",
+        "architecture": "STM32F1",
+        "version": "1.0.3",
+        "category": "Contributed",
+        "help": {
+          "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+        },
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/Archives/package_multi_4in1_stm32_board_v1.0.3.tar.gz",
+        "archiveFileName": "package_multi_4in1_stm32_board_v1.0.3.tar.gz",
+        "checksum": "SHA-256:e48f1f30948b3f7be83e8b1fe2bb5c6b41be7c4d5da02503a0b4827c60926541",
+        "size": "10309833",
+        "boards": [{
+          "name": "Multi 4-in-1 (STM32F103C)"
+        }],
+        "toolsDependencies": [{
+          "packager": "arduino",
+          "name": "arm-none-eabi-gcc",
+          "version": "4.8.3-2014q1"
+        }]
+      },
+      {
+        "name": "Multi 4-in-1 OrangeRX Board - DEPRECATED, USE MULTI 4-IN-1 AVR BOARDS PACKAGE INSTEAD",
         "architecture": "orangerx",
         "version": "1.0.1",
         "category": "Contributed",
         "help": {
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
-        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/Archives/package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
         "archiveFileName": "package_multi_4in1_orangerx_board_v1.0.1.tar.gz",
         "checksum": "SHA-256:7287ce61028b754bb8ff947317dd15773fc7eeecd752826c707fa356b9b36dc6",
         "size": "161615",

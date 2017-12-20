@@ -18,6 +18,23 @@
 	#endif
 #endif
 
+// Check for minimum version of multi-module boards
+#define MIN_AVR_BOARD 102
+#define MIN_ORX_BOARD 102
+#define MIN_STM32_BOARD 103
+//AVR
+#if (defined(ARDUINO_MULTI_NO_BOOT) && ARDUINO_MULTI_NO_BOOT < MIN_AVR_BOARD) || (defined(ARDUINO_MULTI_FLASH_FROM_TX) && ARDUINO_MULTI_FLASH_FROM_TX < MIN_AVR_BOARD)
+	#error You need to update your Multi 4-in-1 board definition.  Open Boards Manager and update to the latest version of the Multi 4-in-1 AVR Boards.
+#endif
+//OrangeRX
+#if (defined(ARDUINO_MULTI_ORANGERX) && ARDUINO_MULTI_ORANGERX < MIN_ORX_BOARD)
+	#error You need to update your Multi 4-in-1 board definition.  Open Boards Manager and update to the latest version of the Multi 4-in-1 AVR Boards.
+#endif
+//STM32
+#if (defined(ARDUINO_MULTI_STM32_NO_BOOT) && ARDUINO_MULTI_STM32_NO_BOOT < MIN_STM32_BOARD) || (defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX) && ARDUINO_MULTI_STM32_FLASH_FROM_TX < MIN_STM32_BOARD)
+	#error You need to update your Multi 4-in-1 board definition.  Open Boards Manager and update to the latest version of the Multi 4-in-1 STM32 Board.
+#endif
+
 // Error if CHECK_FOR_BOOTLOADER is not enabled but a FLASH_FROM_TX board is selected
 #if (defined(ARDUINO_MULTI_FLASH_FROM_TX) || defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX)) &! defined(CHECK_FOR_BOOTLOADER)
 	#if defined(STM32_BOARD)

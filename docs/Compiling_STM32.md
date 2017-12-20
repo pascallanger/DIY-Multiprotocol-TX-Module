@@ -1,4 +1,4 @@
-# Compliling and Programming (STM32)
+# Compiling and Programming (STM32)
 
 Multiprotocol firmware is compiled using the Arduino IDE. The guide below will walk you through all the steps to compile and upload your customized firmware.
 

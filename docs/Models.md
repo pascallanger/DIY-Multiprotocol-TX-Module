@@ -7,7 +7,6 @@ The Deviation project (on which this project was based) have a useful list of mo
 <img src="http://img2.cheapdrone.co.uk/images/upload/2014/12/X5C%203/SKU115108-7.jpg" Width="200" Height="200" />
 
 ## Channel Map
-
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|RATES|PICTURE|VIDEO|HEADLESS

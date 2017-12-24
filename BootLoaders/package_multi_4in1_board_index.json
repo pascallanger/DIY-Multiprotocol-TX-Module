@@ -8,6 +8,7 @@
       "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
     },
     "platforms": [{
+
         "name": "Multi 4-in-1 AVR Boards",
         "architecture": "avr",
         "version": "1.0.0",
@@ -16,6 +17,7 @@
           "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
         },
         "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/raw/master/BootLoaders/Archives/package_multi_4in1_board_v1.0.0.zip",
+
         "archiveFileName": "package_multi_4in1_board_v1.0.0.zip",
         "checksum": "SHA-256:3DE301E9FC3C8A81CB2CEDE3458A68C626A9A5C37A73FA9C85BE9D841935684D",
         "size": "3205",
@@ -25,6 +27,7 @@
         "toolsDependencies": []
       },
       {
+
         "name": "Multi 4-in-1 AVR Boards",
         "architecture": "avr",
         "version": "1.0.1",
@@ -60,6 +63,7 @@
         "toolsDependencies": []
       },
       {
+
         "name": "Multi 4-in-1 STM32 Board",
         "architecture": "STM32F1",
         "version": "1.0.0",

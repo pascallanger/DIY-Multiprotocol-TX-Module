@@ -1,3 +1,4 @@
+
 ## Override some platform.txt settings to create a .bin instead of a .hex file
 ## The two lines below can be uncommented to have the compiler create a .bin file instead of a .hex file
 #compiler.elf2hex.flags=-O binary -R .eeprom
@@ -6,3 +7,4 @@
 ## Make a .bin version of the .hex file
 ## The line below can be uncommented to have a .bin file made as well as the .hex file
 #recipe.hooks.objcopy.postobjcopy.00.pattern.windows="{compiler.path}{compiler.objcopy.cmd}" -I ihex "{build.path}/{build.project_name}.hex" -O binary "{build.path}/{build.project_name}.bin"
+

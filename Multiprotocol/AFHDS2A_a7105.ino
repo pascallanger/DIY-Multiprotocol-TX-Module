@@ -179,37 +179,28 @@ static void AFHDS2A_build_packet(uint8_t type)
 			packet[0] = 0x56;
 			for(uint8_t ch=0; ch<14; ch++)
 			{
-#ifdef AFHDS2A_FAILSAFE
-				int8_t failsafe = AFHDS2AFailsafe[ch];
-				//
-				if(failsafe != -1)
-				{
-					//
-					if (failsafe > AFHDS2AFailsafeMAX)
-						failsafe = AFHDS2AFailsafeMAX;
-					//
-					if (failsafe < AFHDS2AFailsafeMIN)
-						failsafe = AFHDS2AFailsafeMIN;
-					//
-					double scale = (float)failsafe/(float)100;
-					int16_t failsafeMicros = 1500 + ((float)512 * scale);
-					//
-					packet[9 + ch*2] =  failsafeMicros & 0xff;
-					packet[10+ ch*2] = ( failsafeMicros >> 8) & 0xff;
-				}
-				else
-#endif
-				{
-					packet[9 + ch*2] = 0xff;
-					packet[10+ ch*2] = 0xff;
-				}
+
+				#ifdef FAILSAFE_ENABLE
+					uint16_t failsafeMicros = (Failsafe_data[CH_AETR[ch]]*5)/8+860;
+					if( failsafeMicros!=FAILSAFE_CHANNEL_HOLD+860)
+					{ // Failsafe values
+						packet[9 + ch*2] =  failsafeMicros & 0xff;
+						packet[10+ ch*2] = ( failsafeMicros >> 8) & 0xff;
+					}
+					else
+				#endif
+					{ // no values
+						packet[9 + ch*2] = 0xff;
+						packet[10+ ch*2] = 0xff;
+					}
+
 			}
 			break;
 		case AFHDS2A_PACKET_SETTINGS:
 			packet[0] = 0xaa;
 			packet[9] = 0xfd;
 			packet[10]= 0xff;
-			uint16_t val_hz=5*(option & 0x7f)+50;			// option value should be between 0 and 70 which gives a value between 50 and 400Hz
+			uint16_t val_hz=5*(option & 0x7f)+50;	// option value should be between 0 and 70 which gives a value between 50 and 400Hz
 			if(val_hz<50 || val_hz>400) val_hz=50;	// default is 50Hz
 			packet[11]= val_hz;
 			packet[12]= val_hz >> 8;
@@ -307,10 +298,15 @@ uint16_t ReadAFHDS2A()
 				hopping_frequency_no = 0;
 			if(!(packet_counter % 1313))
 				packet_type = AFHDS2A_PACKET_SETTINGS;
-			else if(!(packet_counter % 1569))
-				packet_type = AFHDS2A_PACKET_FAILSAFE;
 			else
-				packet_type = AFHDS2A_PACKET_STICKS;		// todo : check for settings changes
+			{
+				#ifdef FAILSAFE_ENABLE
+					if(!(packet_counter % 1569) && IS_FAILSAFE_VALUES_on)
+						packet_type = AFHDS2A_PACKET_FAILSAFE;
+					else
+				#endif
+						packet_type = AFHDS2A_PACKET_STICKS;		// todo : check for settings changes
+			}
 			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)) && data_rx==1)
 			{ // RX+FECF+CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);

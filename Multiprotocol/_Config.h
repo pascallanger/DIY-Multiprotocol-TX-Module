@@ -17,6 +17,14 @@
 /** Multiprotocol module configuration file ***/
 /**********************************************/
 
+/********************/
+/*** LOCAL CONFIG ***/
+/********************/
+//If you know parameters you want for sure to be enabled or disabled which survives in future, you can use a file named "_MyConfig.h".
+//An example is given within the file named "_MyConfig.h.example" which needs to be renamed if you want to use it.
+//To enable this config file remove the // from the line below. It's automatically loaded if the file exists for the AVR platform but not STM32...
+//#define USE_MY_CONFIG
+
 /*******************/
 /*** TX SETTINGS ***/
 /*******************/
@@ -35,7 +43,7 @@
 /*************************/
 /*** BIND FROM CHANNEL ***/
 /*************************/
-//Bind from channel enables you to bind when a specified channel is giong from low to high. This feature is only active
+//Bind from channel enables you to bind when a specified channel is going from low to high. This feature is only active
 // if you specify AUTOBIND in PPM mode or set AutoBind to YES for serial mode. It also requires that the throttle channel is low.
 
 //Comment to globaly disable the bind feature from a channel.
@@ -52,12 +60,10 @@
 /*************************/
 /*** BOOTLOADER USE     ***/
 /*************************/
-#define CHECK_FOR_BOOTLOADER
 //Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
-//1. Start ersky9x in bootloader mode and copy the multi.hex file into the firmware directory on the SD card.
-//2. Disconnect the USB, then press EXIT LONG while holding the horizontal trims APART to enter "maintenance mode".
-//3. Select "Update Multi", then HEX mode, then select the file and start the flash.
-//4. When finished, EXIT back to reboot in normal mode.
+//Instructions: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders#compiling--uploading-firmware-with-the-flash-from-tx-bootloader
+//To enable this feature remove the "//" on the next line.  Requires a compatible bootloader or upload method to be selected when you use the Multi 4-in-1 Boards Manager definitions.
+//#define CHECK_FOR_BOOTLOADER
 
 /****************/
 /*** RF CHIPS ***/
@@ -79,6 +85,14 @@
 //#define CC2500_ENABLE_LOW_POWER
 //#define NRF24L01_ENABLE_LOW_POWER
 
+//Fine tune of the A7105 LO base frequency
+// This is required for some A7105 modules and/or RXs with inaccurate crystal oscillator.
+// The offset is in +/-kHz. Default value is 0.
+#define A7105_FREQ_OFFSET 0
+
+//If you compile for the OrangeRX TX module you need to select the correct board type.
+//By default the compilation is done for the GREEN board, to switch to a BLUE board uncomment the line below by removing the "//"
+//#define ORANGE_TX_BLUE
 
 /*****************/
 /*** GLOBAL ID ***/
@@ -95,42 +109,6 @@
 // then you can force the ID to a certain known value using the lines below.
 //Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
 //#define FORCE_CYRF_ID	"\x12\x34\x56\x78\x9A\xBC"
-
-/**************************/
-/*** FAILSAFE SETTINGS  ***/
-/**************************/
-#define AFHDS2A_FAILSAFE
-#ifdef AFHDS2A_FAILSAFE
-/*
-	Failsafe Min/Max values 962 <-> 2038
-*/
-const int8_t AFHDS2AFailsafeMIN = -105;
-const int8_t AFHDS2AFailsafeMAX = 105;
-//
-const int8_t AFHDS2AFailsafe[14]=	{
-/*
- Failsafe examples
- 988 <-> 2012µs -100% =  988 = 1500 + (2012-988)/2 * (-100/100) = 1500 - 512 =  988
- 988 <-> 2012µs    0% = 1500 = 1500 + (2012-988)/2 * (   0/100) = 1500 +   0 = 1500
- 988 <-> 2012µs  100% = 2012 = 1500 + (2012-988)/2 * ( 100/100) = 1500 + 512 = 2012
- 988 <-> 2012µs -105% =  962 = 1500 + (2012-988)/2 * (-105/100) = 1500 - 538 =  962
-*/
-/* ch  1 */ -1,
-/* ch  2 */ -1,
-/* ch  3 */ -105,
-/* ch  4 */ -1,
-/* ch  5 */ -1,
-/* ch  6 */ -1,
-/* ch  7 */ -1,
-/* ch  8 */ -1,
-/* ch  9 */ -1,
-/* ch 10 */ -1,
-/* ch 11 */ -1,
-/* ch 12 */ -1,
-/* ch 13 */ -1,
-/* ch 14 */ -1
-};
-#endif
 
 /****************************/
 /*** PROTOCOLS TO INCLUDE ***/
@@ -174,9 +152,46 @@ const int8_t AFHDS2AFailsafe[14]=	{
 #define	FQ777_NRF24L01_INO
 #define	ASSAN_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
-#define Q303_NRF24L01_INO
-#define GW008_NRF24L01_INO
-#define DM002_NRF24L01_INO
+#define	Q303_NRF24L01_INO
+#define	GW008_NRF24L01_INO
+#define	DM002_NRF24L01_INO
+#define	CABELL_NRF24L01_INO
+#define	ESKY150_NRF24L01_INO
+#define	H8_3D_NRF24L01_INO
+
+/**************************/
+/*** FAILSAFE SETTINGS  ***/
+/**************************/
+//The module is using the same default failsafe values for all protocols which currently supports it:
+//  Devo, WK2x01, SFHSS, HISKY/HK310 and AFHDS2A
+//All channels are centered except throttle which is forced low.
+//If you want to diasble failsafe globally comment the line below using "//".
+#define FAILSAFE_ENABLE
+
+//Failsafe throttle low value in percentage.
+//Value between -125% and +125%. Default -100.
+#define FAILSAFE_THROTTLE_LOW -100
+
+//The radio using serial protocol can set failsafe data (ersky9x only for now).
+// Two options are available:
+//  a. replace the default failsafe data with serial failsafe data when they are received.
+//  b. wait for the radio to provide failsafe before sending it. Enable advanced settings like "FAILSAFE NOT SET" or "FAILSAFE RX".
+// Option a. is the default since you have a protection even if no failsafe has been set on the radio.
+// You can force option b. by uncommenting the line below (remove the "//").
+//#define FAILSAFE_SERIAL_ONLY
+
+/*******************************/
+/*** CC2500 FREQUENCY TUNING ***/
+/*******************************/
+//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, and SFHSS protocols needs to be tuned for each protocol.
+//Initial tuning should be done via the radio menu with a genuine FrSky or Futaba receiver.  
+//Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
+//For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
+//Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable.  Valid range is -127 to +127.
+//#define FORCE_FRSKYD_TUNING 0
+//#define FORCE_FRSKYV_TUNING 0
+//#define FORCE_FRSKYX_TUNING 0
+//#define FORCE_SFHSS_TUNING  0
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/
@@ -192,7 +207,7 @@ const int8_t AFHDS2AFailsafe[14]=	{
 //On a 9XR_PRO running ersky9x both commented and uncommented will work depending on the radio setting Invert COM1 under the Telemetry menu.
 //On other addon/replacement boards like the 9xtreme board or the Ar9x board running ersky9x, you need to uncomment the line below.
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
-//#define INVERT_TELEMETRY
+#define INVERT_TELEMETRY
 
 //Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
 //Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
@@ -210,7 +225,13 @@ const int8_t AFHDS2AFailsafe[14]=	{
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 
+//SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
+//This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
+//Using this feature on turnigy 9XR_PRO requires uncomment INVERT_TELEMETRY as this TX output on telemetry pin only inverted signal.
+//!This is a work in progress!
+//#define SPORT_POLLING
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -221,7 +242,6 @@ const int8_t AFHDS2AFailsafe[14]=	{
 
 //If you do not plan to use the Serial mode comment this line using "//" to save Flash space
 #define ENABLE_SERIAL
-
 
 /*************************/
 /*** PPM MODE SETTINGS ***/
@@ -234,15 +254,15 @@ const int8_t AFHDS2AFailsafe[14]=	{
 //It is important for the module to know the endpoints of your radio.
 //Below are some standard transmitters already preconfigured.
 //Uncomment only the one which matches your transmitter.
-#define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012µs)
-//#define TX_DEVO7		//DEVO					(1120<->1920µs)
-//#define TX_SPEKTRUM	//Spektrum				(1100<->1900µs)
-//#define TX_HISKY		//HISKY					(1120<->1920µs)
-//#define TX_MPX		//Multiplex MC2020		(1250<->1950µs)
-//#define TX_WALKERA	//Walkera PL0811-01H	(1000<->1800µs)
+#define TX_ER9X			//ER9X/ERSKY9X/OpenTX	( 988<->2012 microseconds)
+//#define TX_DEVO7		//DEVO					(1120<->1920 microseconds)
+//#define TX_SPEKTRUM	//Spektrum				(1100<->1900 microseconds)
+//#define TX_HISKY		//HISKY					(1120<->1920 microseconds)
+//#define TX_MPX		//Multiplex MC2020		(1250<->1950 microseconds)
+//#define TX_WALKERA	//Walkera PL0811-01H	(1000<->1800 microseconds)
 //#define TX_CUSTOM		//Custom
 
-// The lines below are used to set the end points in microseconds (µs) if you have selected TX_CUSTOM.
+// The lines below are used to set the end points in microseconds if you have selected TX_CUSTOM.
 // A few things to consider:
 //  - If you put too big values compared to your TX you won't be able to reach the extremes which is bad for throttle as an example
 //  - If you put too low values you won't be able to use your full stick range, it will be maxed out before reaching the ends
@@ -268,7 +288,7 @@ const int8_t AFHDS2AFailsafe[14]=	{
 const PPM_Parameters PPM_prot[15]=	{
 //	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	2	*/	{MODE_HUBSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	2	*/	{MODE_HUBSAN,	H107		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
 /*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -291,7 +311,9 @@ const PPM_Parameters PPM_prot[15]=	{
 		V912
 		CX20
 	MODE_HUBSAN
-		NONE
+		H107
+		H301
+		H501
 	MODE_FRSKYV
 		NONE
 	MODE_FRSKYD
@@ -345,10 +367,11 @@ const PPM_Parameters PPM_prot[15]=	{
 	MODE_CG023
 		CG023
 		YD829
-		H8_3D
 	MODE_BAYANG
 		BAYANG
 		H8S3D
+		X16_AH
+		IRDRONE
 	MODE_ESKY
 		NONE
 	MODE_MT99XX
@@ -403,6 +426,17 @@ const PPM_Parameters PPM_prot[15]=	{
 		NONE
 	MODE_DM002
 		NONE
+	MODE_CABELL
+		CABELL_V3
+		CABELL_V3_TELEMETRY
+		CABELL_SET_FAIL_SAFE
+		CABELL_UNBIND
+	MODE_ESKY150
+	MODE_H8_3D
+		H8_3D
+		H20H
+		H20 Mini
+		H30 Mini
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

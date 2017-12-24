@@ -105,9 +105,9 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	packet[1] = convert_channel_s8b(RUDDER);
 	packet[4] = 0x40;							// rudder does not work well with dyntrim
 	packet[2] = 0x80 ^ convert_channel_s8b(ELEVATOR);
-	packet[5] = GET_FLAG(Servo_AUX5, 1) ? 0x40 : MJXQ_CHAN2TRIM(packet[2]);	// trim elevator
+	packet[5] = (Servo_AUX5 || Servo_AUX10) ? 0x40 : MJXQ_CHAN2TRIM(packet[2]);	// trim elevator
 	packet[3] = convert_channel_s8b(AILERON);
-	packet[6] = GET_FLAG(Servo_AUX5, 1) ? 0x40 : MJXQ_CHAN2TRIM(packet[3]);	// trim aileron
+	packet[6] = (Servo_AUX5 || Servo_AUX10) ? 0x40 : MJXQ_CHAN2TRIM(packet[3]);	// trim aileron
 	packet[7] = rx_tx_addr[0];
 	packet[8] = rx_tx_addr[1];
 	packet[9] = rx_tx_addr[2];
@@ -128,6 +128,7 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 // Servo_AUX7	AUTOFLIP	// X800, X600
 // Servo_AUX8	PAN
 // Servo_AUX9	TILT
+// Servo_AUX10	XTRM		// Dyntrim, don't use if high.
 	switch(sub_protocol)
 	{
 		case H26WH:

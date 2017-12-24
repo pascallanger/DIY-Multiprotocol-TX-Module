@@ -86,7 +86,7 @@ CH5|CH6|CH7
 ---|---|---
 
 ## FLYSKY AFHDS2A - *28*
-Extended limits supported
+Extended limits and failsafe supported
 
 Telemetry enabled for battery voltage and RX&TX RSSI using FrSky Hub protocol
 
@@ -106,17 +106,33 @@ Note that the RX ouput will be AETR.
 ### Sub_protocol PPM_SBUS - *3*
 
 ## HUBSAN - *2*
-Models: Hubsan H102D, H107/L/C/D and Hubsan H107P/C+/D+
-
-Autobind protocol
 
 Telemetry enabled for battery voltage and TX RSSI
 
 Option=vTX frequency (H107D) 5645 - 5900 MHz
 
+### Sub_protocol H107 - *0*
+Autobind protocol
+
+Models: Hubsan H102D, H107/L/C/D and H107P/C+/D+
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
+
+### Sub_protocol H301 - *1*
+Models: Hubsan H301
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|RTH|LIGHT|STAB|VIDEO
+
+### Sub_protocol H501 - *1*
+Models: Hubsan H501S
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS1|HEADLESS2|GPS_HOLD|ALT_HOLD
 
 ***
 # CC2500 RF Module
@@ -156,7 +172,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ## FRSKYX - *15*
 Models: FrSky receivers X4R, X6R and X8R. Also known as D16.
 
-Extended limits supported
+Extended limits and failsafe supported
 
 Telemetry enabled for A1 (RxBatt), A2, RSSI, TSSI and Hub
 
@@ -197,7 +213,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.
 
-Extended limits supported
+Extended limits and failsafe supported
 
 Option for this protocol is fine frequency tuning. This value is different for each Module. To determine this value:
  - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
@@ -209,11 +225,13 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
+Channels 9 to 16 are used as failsafe values for the channels 1 to 8.
+
 ***
 # CYRF6936 RF Module
 
 ## DEVO - *7*
-Extended limits supported
+Extended limits and failsafe supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
@@ -249,6 +267,8 @@ Autobind protocol
 Note: RX ouput will always be AETR independently of the input AETR, RETA...
 
 ### Sub_protocol WK2801 - *0*
+Failsafe supported.
+
 This roughly corresponds to the number of channels supported, but many of the newer 6-channel receivers actually support the WK2801 protocol. It is recommended to try the WK2801 protocol 1st when working with older Walkera models before attempting the WK2601 or WK2401 mode, as the WK2801 is a superior protocol. The WK2801 protocol supports up to 8 channels.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
@@ -357,15 +377,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 The transmitter must be close to the receiver while binding.
 
 ## BAYANG - *14*
-Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
-
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|----
-A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
+A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED|RATE
+
+RATE: -100%(default)=>higher rates by enabling dynamic trims (except for Headless), 100%=>disable dynamic trims
 
 ### Sub_protocol BAYANG - *0*
+Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
+
 Option=0 -> normal Bayang protocol
 
 Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage, A2=compensated battery voltage
@@ -375,14 +397,42 @@ Model: H8S 3D
 
 Same channels assignement as above.
 
-## DM002 - *33*
-Autobind protocol
+### Sub_protocol X16_AH - *2*
+Model: X16 AH
 
-**Only 2 TX IDs available, change RX_Num value 0-1 to cycle through them**
+CH12|
+----|
+TAKE_OFF|
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
----|---|---|---|---|---|---|---|---|----|----
-A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
+### Sub_protocol IRDRONE - *3*
+Model: IRDRONE
+
+CH12|CH13
+----|----
+TAKE_OFF|EMG_STOP
+
+## Cabell - *34*
+Homegrown protocol with variable number of channels (4-16) and telemetry (RSSI, V1, V2).
+
+It is a FHSS protocol developed by Dennis Cabell (KE8FZX) using the NRF24L01+ 2.4 GHz transceiver. 45 channels are used frequency hop from 2.403 through 2.447 GHz. The reason for using 45 channels is to keep operation within the overlap area between the 2.4 GHz ISM band (governed in the USA by FCC part 15) and the HAM portion of the band (governed in the USA by FCC part 97). This allows part 15 compliant use of the protocol, while allowing licensed amateur radio operators to operate under the less restrictive part 97 rules if desired.
+
+Additional details about configuring and using the protocol are available at the RX project at: https://github.com/soligen2010/RC_RX_CABELL_V3_FHSS
+
+CH1|CH2|CH3|CH4|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14 |CH15 |CH16
+---|---|---|---|----|----|----|----|----|----|----|----|----|-----|-----|-----
+ A | E | T | R |AUX1|AUX2|AUX3|AUX4|AUX5|AUX6|AUX7|AUX8|AUX9|AUX10|AUX11|AUX12
+
+### Sub_protocol CABELL_V3 - *0*
+4 to 16 channels without telemetry
+
+### Sub_protocol CABELL_V3_TELEMETRY - *1*
+4 to 16 channels with telemetry (RSSI, V1, V2). V1 & V2 can be used to return any analog voltage between 0 and 5 volts, so can be used for battery voltage or any other sensor that provides an analog voltage.
+
+### Sub_protocol CABELL_SET_FAIL_SAFE - *6*
+Stores failsafe values in the RX.  The channel values are set when the sub-protocol is changed to 6, so hold sticks in place as the sub-protocol is changed.
+
+### Sub_protocol CABELL_UNBIND - *7*
+The receiver bound to the model is un-bound.  This happens immediately when the sub-protocol is set to 7.
 
 ## CG023 - *13*
 Autobind protocol
@@ -400,22 +450,6 @@ Models: Attop YD-822/YD-829/YD-829C ...
 CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---
 FLIP||PICTURE|VIDEO|HEADLESS
-
-### Sub_protocol H8_3D - *2*
-Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
-
-CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---|---
-FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
-
-JJRC H20: OPT1=Headless, OPT2=RTH
-
-JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
-
-H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360° flip mode
-
-CAL1: H8 3D acc calib, H20 headless calib
-CAL2: H11D/H20 acc calib
 
 ## CX10 - *12*
 Autobind protocol
@@ -464,27 +498,31 @@ CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---
 FLIP|MODE|PICTURE|VIDEO|HEADLESS|RTH
 
-## Q2X2 - *29*
-### Sub_protocol Q222 - *0*
-Models: Q222 v1 and V686 v2
+## DM002 - *33*
+Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|MODULE2|MODULE1|HEADLESS|RTH|XCAL|YCAL
+**Only 3 TX IDs available, change RX_Num value 0-1-2 to cycle through them**
 
-### Sub_protocol Q242 - *1* and Q282 - *2*
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
-
-Model: JXD 509 is using Q282 with CH12=Start/Stop motors
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
+A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
 
 ## ESKY - *16*
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|GYRO|PITCH
+
+## ESKY150 - *35*
+ESky protocol for small models since 2014 (150, 300, 150X, ...)
+
+Number of channels are set with option. option=0 4 channels and option=1 7 channels. An invalid option value will end up with 4 channels.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|FMODE|AUX6|AUX7
+
+FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..100%=>3
 
 ## FY326 - *20*
 
@@ -508,6 +546,34 @@ CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|FLIP
 
+## H8_3D - *36*
+Autobind protocol
+
+### Sub_protocol H8_3D - *0*
+Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
+
+CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---
+FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
+
+JJRC H20: OPT1=Headless, OPT2=RTH
+
+JJRC H22: OPT1=RTH, OPT2=180/360° flip mode
+
+H8 3D: OPT1=RTH then press a direction to enter headless mode (like stock TX), OPT2=switch 180/360° flip mode
+
+CAL1: H8 3D acc calib, H20/H20H headless calib
+CAL2: H11D/H20/H20H acc calib
+
+### Sub_protocol H20H - *1*
+CH6=Motors on/off
+
+### Sub_protocol H20 Mini - *2*
+**Only 3 TX IDs available, change RX_Num value 0-1-2 to cycle through them**
+
+### Sub_protocol H30 Mini - *3*
+**Only 4 TX IDs available, change RX_Num value 0-1-2_3 to cycle through them**
+
 ## HISKY - *4*
 ### Sub_protocol Hisky - *0*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
@@ -519,9 +585,11 @@ GYRO: -100%=6G, +100%=3G
 ### Sub_protocol HK310 - *1*
 Models: RX HK-3000, HK3100 and XY3000 (TX are HK-300, HK-310 and TL-3C)
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-| | |T|R|AUX|T_FSAFE|R_FSAFE|AUX_FSAFE
+Failsafe supported
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+| | |T|R|AUX
 
 ## KN - *9*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
@@ -554,9 +622,11 @@ ARM|
 ## MJXQ - *18*
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
+---|---|---|---|---|---|---|---|---|----|----|----|----|----
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT|RATE
+
+RATE: -100%(default)=>higher rates by enabling dynamic trims (except for Headless), 100%=>disable dynamic trims
 
 ### Sub_protocol WLH08 - *0*
 ### Sub_protocol X600 - *1*
@@ -605,6 +675,22 @@ Only 1 ID available
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP||||HEADLESS
+
+## Q2X2 - *29*
+### Sub_protocol Q222 - *0*
+Models: Q222 v1 and V686 v2
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|MODULE2|MODULE1|HEADLESS|RTH|XCAL|YCAL
+
+### Sub_protocol Q242 - *1* and Q282 - *2*
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
+
+Model: JXD 509 is using Q282 with CH12=Start/Stop motors
 
 ## Q303 - *31*
 Autobind protocol
@@ -663,7 +749,7 @@ Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP||PICTURE|VIDEO|HEADLESS
+A|E|T|R|FLIP|RATES|PICTURE|VIDEO|HEADLESS
 
 ### Sub_protocol SYMAX - *0*
 Models: Syma X5C-1/X11/X11C/X12

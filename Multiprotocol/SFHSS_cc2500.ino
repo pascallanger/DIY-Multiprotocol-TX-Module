@@ -23,14 +23,14 @@
 #define SFHSS_PACKET_LEN 13
 #define SFHSS_TX_ID_LEN   2
 
-uint8_t	fhss_code; // 0-27
+uint8_t	fhss_code=0; // 0-27
 
 enum {
     SFHSS_START = 0x00,
     SFHSS_CAL   = 0x01,
-    SFHSS_DATA1 = 0x02,	// do not change this value
-    SFHSS_DATA2 = 0x0B,	// do not change this value
-    SFHSS_TUNE  = 0x0F
+    SFHSS_DATA1 = 0x02,
+    SFHSS_DATA2 = 0x03,
+    SFHSS_TUNE  = 0x04
 };
 
 #define SFHSS_FREQ0_VAL 0xC4
@@ -122,58 +122,87 @@ static void __attribute__((unused)) SFHSS_calc_next_chan()
     }
 }
 
-/*// Channel values are 10-bit values between 86 and 906, 496 is the middle.
-// Values grow down and to the right.
-static void __attribute__((unused)) SFHSS_build_data_packet()
-{
-#define spacer1 0x02
-#define spacer2 (spacer1 << 4)
-    uint8_t ch_offset = phase == SFHSS_DATA1 ? 0 : 4;
-    uint16_t ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],86,906);
-    uint16_t ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],86,906);
-    uint16_t ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],86,906);
-    uint16_t ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],86,906);
-    
-    packet[0]  = 0x81; // can be 80 or 81 for Orange, only 81 for XK
-    packet[1]  = rx_tx_addr[0];
-    packet[2]  = rx_tx_addr[1];
-    packet[3]  = 0;
-    packet[4]  = 0;
-    packet[5]  = (rf_ch_num << 3) | spacer1 | ((ch1 >> 9) & 0x01);
-    packet[6]  = (ch1 >> 1);
-    packet[7]  = (ch1 << 7) | spacer2 | ((ch2 >> 5) & 0x1F);
-    packet[8]  = (ch2 << 3) | spacer1  | ((ch3 >> 9) & 0x01);
-    packet[9]  = (ch3 >> 1);
-    packet[10] = (ch3 << 7) | spacer2  | ((ch4 >> 5) & 0x1F);
-    packet[11] = (ch4 << 3) | ((fhss_code >> 2) & 0x07);
-    packet[12] = (fhss_code << 6) | phase;
-}
-*/
-
 // Channel values are 12-bit values between 1020 and 2020, 1520 is the middle.
 // Futaba @140% is 2070...1520...970
 // Values grow down and to the right.
 static void __attribute__((unused)) SFHSS_build_data_packet()
 {
-	uint8_t ch_offset = phase == SFHSS_DATA1 ? 0 : 4;
-	uint16_t ch1 = convert_channel_16b_nolim(CH_AETR[ch_offset+0],2020,1020);
-	uint16_t ch2 = convert_channel_16b_nolim(CH_AETR[ch_offset+1],2020,1020);
-	uint16_t ch3 = convert_channel_16b_nolim(CH_AETR[ch_offset+2],2020,1020);
-	uint16_t ch4 = convert_channel_16b_nolim(CH_AETR[ch_offset+3],2020,1020);
+	uint16_t ch[4];
+	// command.bit0 is the packet number indicator: =0 -> SFHSS_DATA1, =1 -> SFHSS_DATA2
+	// command.bit1 is unknown but seems to be linked to the payload[0].bit0 but more dumps are needed: payload[0]=0x82 -> =0, payload[0]=0x81 -> =1
+	// command.bit2 is the failsafe transmission indicator: =0 -> normal data, =1->failsafe data
+	// command.bit3 is the channels indicator: =0 -> CH1-4, =1 -> CH5-8
+	
+	//Coding below matches the Futaba T8J transmission scheme DATA1->CH1-4, DATA2->CH5-8, DATA1->CH5-8, DATA2->CH1-4,...
+	// XK, T10J and TM-FH are different with a classic DATA1->CH1-4, DATA2->CH5-8,...
+	//Failsafe is sent twice every couple of seconds (unknown but >5s) 
+	
+	uint8_t command= (phase == SFHSS_DATA1) ? 0 : 1;	// Building packet for Data1 or Data2
+	counter+=command;
+	#ifdef FAILSAFE_ENABLE
+		if( (counter&0x3FC) == 0x3FC && IS_FAILSAFE_VALUES_on)
+		{	// Transmit failsafe data twice every 7s
+			if( ((counter&1)^(command&1)) == 0 )
+				command|=0x04;							// Failsafe
+		}
+		else
+	#endif
+			command|=0x02;								// Assuming packet[0] == 0x81
+	counter&=0x3FF;										// Reset failsafe counter
+	if(counter&1) command|=0x08;						// Transmit lower and upper channels twice in a row
 
-	packet[0] = 0x81; // can be 80 or 81 for Orange, only 81 for XK
+	uint8_t ch_offset = (command&0x08) >> 1;			// CH1..CH4 or CH5..CH8
+
+	#ifdef FAILSAFE_ENABLE
+		if(command&0x04)
+		{	//Failsafe data are:
+			// 0 to 1023 -> no output on channel
+			// 1024-2047 -> hold output on channel
+			// 2048-4095 -> channel_output=(data&0x3FF)*5/4+880 in µs
+			// Notes:
+			//    2048-2559 -> does not look valid since it only covers the range from 1520µs to 2160µs 
+			//    2560-3583 -> valid for any channel values from 880µs to 2160µs
+			//    3584-4095 -> looks to be used for the throttle channel with values ranging from 880µs to 1520µs
+			for(uint8_t i=0;i<4;i++)
+			{
+				ch[i]=Failsafe_data[CH_AETR[ch_offset+i]];
+				if(ch[i]==FAILSAFE_CHANNEL_HOLD)
+					ch[i]=1024;
+				else if(ch[i]==FAILSAFE_CHANNEL_NOPULSES)
+					ch[i]=0;
+				else
+				{ //Use channel value
+					ch[i]=(ch[i]>>1)+2560;
+					if(CH_AETR[ch_offset+i]==THROTTLE && ch[i]<3072)		// Throttle
+						ch[i]+=1024;
+				}
+			}
+		}
+		else
+	#endif
+		{	//Normal data
+			for(uint8_t i=0;i<4;i++)
+				ch[i] = convert_channel_16b_nolim(CH_AETR[ch_offset+i],2020,1020);
+		}
+
+	
+	// XK		[0]=0x81 [3]=0x00 [4]=0x00
+	// T8J		[0]=0x81 [3]=0x42 [4]=0x07
+	// T10J		[0]=0x81 [3]=0x0F [4]=0x09
+	// TM-FH	[0]=0x82 [3]=0x9A [4]=0x06
+	packet[0] = 0x81;	// can be 80 or 81 for Orange, only 81 for XK
 	packet[1] = rx_tx_addr[0];
 	packet[2] = rx_tx_addr[1];
-	packet[3] = 0x0f; //10J
-	packet[4] = 0x09; //10J
-	packet[5] = (rf_ch_num << 3) | ((ch1 >> 9) & 0x07);
-	packet[6] = (ch1 >> 1);
-	packet[7] = (ch1 << 7) | ((ch2 >> 5) & 0x7F );
-	packet[8] = (ch2 << 3) | ((ch3 >> 9) & 0x07);
-	packet[9] = (ch3 >> 1);
-	packet[10] = (ch3 << 7) | ((ch4 >> 5) & 0x7F );
-	packet[11] = (ch4 << 3) | ((fhss_code >> 2) & 0x07 );
-	packet[12] = (fhss_code << 6) | phase;
+	packet[3] = 0x00;	// unknown but prevents some receivers to bind if not 0
+	packet[4] = 0x00;	// unknown but prevents some receivers to bind if not 0
+	packet[5] = (rf_ch_num << 3) | ((ch[0] >> 9) & 0x07);
+	packet[6] = (ch[0] >> 1);
+	packet[7] = (ch[0] << 7) | ((ch[1] >> 5) & 0x7F );
+	packet[8] = (ch[1] << 3) | ((ch[2] >> 9) & 0x07 );
+	packet[9] = (ch[2] >> 1);
+	packet[10] = (ch[2] << 7) | ((ch[3] >> 5) & 0x7F );
+	packet[11] = (ch[3] << 3) | ((fhss_code >> 2) & 0x07 );
+	packet[12] = (fhss_code << 6) | command;
 }
 
 static void __attribute__((unused)) SFHSS_send_packet()
@@ -197,28 +226,31 @@ uint16_t ReadSFHSS()
 			else
 			{
 				rf_ch_num = 0;
+				counter = 0;
 				phase = SFHSS_DATA1;
 			}
 			return 2000;
 
-		/* Work cycle, 6.8ms, second packet 1.65ms after first */
+		/* Work cycle: 6.8ms */
+#define SFHSS_PACKET_PERIOD	6800
+#define SFHSS_DATA2_TIMING	1625	// Adjust this value between 1600 and 1650 if your RX(s) are not operating properly
 		case SFHSS_DATA1:
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();
 			phase = SFHSS_DATA2;
-			return 1650;
+			return SFHSS_DATA2_TIMING;								// original 1650
 		case SFHSS_DATA2:
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();
 			SFHSS_calc_next_chan();
 			phase = SFHSS_TUNE;
-			return 2000;
+			return (SFHSS_PACKET_PERIOD -2000 -SFHSS_DATA2_TIMING);	// original 2000
 		case SFHSS_TUNE:
 			phase = SFHSS_DATA1;
 			SFHSS_tune_freq();
 			SFHSS_tune_chan_fast();
 			CC2500_SetPower();
-			return 3150;
+			return 2000;											// original 3150
 	}
 	return 0;
 }
@@ -226,9 +258,9 @@ uint16_t ReadSFHSS()
 // Generate internal id
 static void __attribute__((unused)) SFHSS_get_tx_id()
 {
-	uint32_t fixed_id;
 	// Some receivers (Orange) behaves better if they tuned to id that has
 	//  no more than 6 consecutive zeros and ones
+	uint32_t fixed_id;
 	uint8_t run_count = 0;
 	// add guard for bit count
 	fixed_id = 1 ^ (MProtocol_id & 1);
@@ -250,7 +282,7 @@ static void __attribute__((unused)) SFHSS_get_tx_id()
 	}
 	//    fixed_id = 0xBC11;
 	rx_tx_addr[0] = fixed_id >> 8;
-	rx_tx_addr[1] = fixed_id;
+	rx_tx_addr[1] = fixed_id >> 0;
 }
 
 uint16_t initSFHSS()
@@ -258,11 +290,10 @@ uint16_t initSFHSS()
 	BIND_DONE;	// Not a TX bind protocol
 	SFHSS_get_tx_id();
 
-	fhss_code=rx_tx_addr[2]%28; // Initialize it to random 0-27 inclusive
+	fhss_code=random(0xfefefefe)%28; // Initialize it to random 0-27 inclusive
 
 	SFHSS_rf_init();
 	phase = SFHSS_START;
-
 	return 10000;
 }
 

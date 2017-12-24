@@ -165,6 +165,33 @@ void A7105_Strobe(uint8_t address) {
 	SPI_Write(address);
 	A7105_CSN_on;
 }
+
+// Fine tune A7105 LO base frequency
+// this is required for some A7105 modules and/or RXs with inaccurate crystal oscillator
+// arg: offset in +/-kHz
+void A7105_AdjustLOBaseFreq(int16_t offset)
+{
+	// LO base frequency = 32e6*(bip+(bfp/(2^16)))
+	uint8_t bip;  // LO base frequency integer part
+	uint32_t bfp; // LO base frequency fractional part
+	if(offset < 0)
+	{
+		bip = 0x4a; // 2368 MHz
+		bfp = 0xffff+((offset<<11)/1000)+1;
+	}
+	else
+	{
+		bip = 0x4b; // 2400 MHz (default)
+		bfp = (offset<<11)/1000;
+	}
+	if(offset == 0)
+		bfp = 0x0002; // as per datasheet, not sure why recommended, but that's a +1kHz drift only ...
+	A7105_WriteReg( A7105_11_PLL_III, bip);
+	A7105_WriteReg( A7105_12_PLL_IV, (bfp >> 8) & 0xff);
+	A7105_WriteReg( A7105_13_PLL_V, bfp & 0xff);
+}
+
+
 #ifdef HUBSAN_A7105_INO
 const uint8_t PROGMEM HUBSAN_A7105_regs[] = {
 	0xFF, 0x63, 0xFF, 0x0F, 0xFF, 0xFF, 0xFF ,0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x05, 0x04, 0xFF,
@@ -267,6 +294,8 @@ void A7105_Init(void)
 	A7105_SetTxRxMode(TX_EN);
 	A7105_SetPower();
 
+	A7105_AdjustLOBaseFreq(A7105_FREQ_OFFSET);
+	
 	A7105_Strobe(A7105_STANDBY);
 }
 #endif

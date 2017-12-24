@@ -1,0 +1,39 @@
+/*
+   This file is meant to keep your settings after an upgrade of the multi source.
+   If you know parameters you want for sure to be enabled or disabled in future
+   then just force their values here.
+   To enable  a setting use #define <setting name>
+   To disable a setting use #undef  <setting name>
+*/
+
+//#define FORCE_GLOBAL_ID	0x12345678
+
+//Force bootloader
+#define CHECK_FOR_BOOTLOADER
+
+#if not defined STM32_BOARD
+// Everything here will only apply to Multi Atmega328p boards
+// Add or remove unwanted protocols to fit in flash
+	#undef	AFHDS2A_A7105_INO
+
+	#undef	DEVO_CYRF6936_INO
+	#undef	J6PRO_CYRF6936_INO
+	#undef	WK2x01_CYRF6936_INO
+
+	#undef	FRSKYV_CC2500_INO
+	#undef	FRSKYX_CC2500_INO
+
+	#undef	KN_NRF24L01_INO
+	#undef	SLT_NRF24L01_INO
+
+	#undef	FY326_NRF24L01_INO
+	#undef	FQ777_NRF24L01_INO
+	#undef	ASSAN_NRF24L01_INO
+	#undef	HONTAI_NRF24L01_INO
+	#undef	Q303_NRF24L01_INO
+	#undef	GW008_NRF24L01_INO
+	#undef	DM002_NRF24L01_INO
+	#undef	CABELL_NRF24L01_INO
+	#undef	ESKY150_NRF24L01_INO
+	#undef	H8_3D_NRF24L01_INO
+#endif

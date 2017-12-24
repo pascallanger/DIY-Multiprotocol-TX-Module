@@ -106,7 +106,7 @@ void CYRF_SetTxRxMode(uint8_t mode)
 		//Set the post tx/rx state
 		CYRF_WriteRegister(CYRF_0F_XACT_CFG, mode == TX_EN ? 0x28 : 0x2C); // 4=IDLE, 8=TX, C=RX
 		if(mode == TX_EN)
-#ifdef DSM_BLUE
+#ifdef ORANGE_TX_BLUE
 			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x20); // XOUT=1, PACTL=0
 		else
 			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x80);	// XOUT=0, PACTL=1

@@ -1,3 +1,4 @@
+
 /*********************************************************
 					Multiprotocol Tx code
                by Midelic and Pascal Langer(hpnuts)
@@ -21,26 +22,25 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <avr/pgmspace.h>
-//#define DEBUG_TX
-//#define USE_MY_CONFIG
 
-#ifdef ARDUINO_AVR_XMEGA32D4
-#include "MultiOrange.h"
+//#define DEBUG_PIN		// Use pin TX for AVR and SPI_CS for STM32 => DEBUG_PIN_on, DEBUG_PIN_off, DEBUG_PIN_toggle
+//#define DEBUG_SERIAL	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
+
+#ifdef __arm__			// Let's automatically select the board if arm is selected
+	#define STM32_BOARD
+#endif
+#if defined (ARDUINO_AVR_XMEGA32D4) || defined (ARDUINO_MULTI_ORANGERX)
+	#include "MultiOrange.h"
 #endif
 
 #include "Multiprotocol.h"
 
 //Multiprotocol module configuration file
 #include "_Config.h"
-// Let's automatically select the board
-// if arm is selected
-#ifdef __arm__
-	#define STM32_BOARD
-#endif
 
 //Personal config file
-#if defined USE_MY_CONFIG
-	#include "_MyConfig.h"
+#if __has_include("_MyConfig.h") || defined(USE_MY_CONFIG)
+#include "_MyConfig.h"
 #endif
 
 #include "Pins.h"
@@ -50,12 +50,12 @@
 #ifndef STM32_BOARD
 	#include <avr/eeprom.h>
 #else
-	#include <arduino.h>
 	#include <libmaple/usart.h>
 	#include <libmaple/timer.h>
-	#include <SPI.h>	
+	//#include <libmaple/spi.h>
+	#include <SPI.h>
 	#include <EEPROM.h>	
-	HardwareTimer timer(2);
+	HardwareTimer HWTimer2(2);
 	void PPM_decode();
 	void ISR_COMPB();
 	extern "C"
@@ -80,6 +80,9 @@ uint16_t Servo_data[NUM_CHN];
 uint8_t  Servo_AUX;
 uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
 uint16_t servo_mid;
+#ifdef FAILSAFE_ENABLE
+	uint16_t Failsafe_data[NUM_CHN];
+#endif
 
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
@@ -102,6 +105,7 @@ uint8_t  flags;
 uint16_t crc;
 uint8_t  crc8;
 uint16_t seed;
+uint16_t failsafe_count;
 //
 uint16_t state;
 uint8_t  len;
@@ -112,16 +116,15 @@ uint8_t  RX_num;
 #endif
 
 #ifdef CHECK_FOR_BOOTLOADER
-uint8_t BootTimer ;
-uint8_t BootState ;
-uint8_t NotBootChecking ;
-uint8_t BootCount ;
+	uint8_t BootTimer ;
+	uint8_t BootState ;
+	uint8_t NotBootChecking ;
+	uint8_t BootCount ;
 
-#define BOOT_WAIT_30_IDLE		0
-#define BOOT_WAIT_30_DATA		1
-#define BOOT_WAIT_20				2
-#define BOOT_READY					3
-
+	#define BOOT_WAIT_30_IDLE	0
+	#define BOOT_WAIT_30_DATA	1
+	#define BOOT_WAIT_20		2
+	#define BOOT_READY			3
 #endif
 
 //Channel mapping for protocols
@@ -137,7 +140,7 @@ uint8_t protocol_flags=0,protocol_flags2=0;
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
 
-#ifndef ORANGE_TX
+#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 //Random variable
 volatile uint32_t gWDT_entropy=0;
 #endif
@@ -196,7 +199,14 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	uint8_t telemetry_link=0; 
 	uint8_t telemetry_counter=0;
 	uint8_t telemetry_lost;
-#endif 
+	#ifdef SPORT_POLLING
+		#define MAX_SPORT_BUFFER 64
+		uint8_t	SportData[MAX_SPORT_BUFFER];
+		bool	ok_to_send = false;
+		uint8_t	sport_idx = 0;
+		uint8_t	sport_index = 0;
+	#endif
+#endif // TELEMETRY
 
 // Callback
 typedef uint16_t (*void_function_t) (void);//pointer to a function with no parameters which return an uint16_t integer
@@ -205,6 +215,13 @@ void_function_t remote_callback = 0;
 // Init
 void setup()
 {
+	// Setup diagnostic uart before anything else
+	#ifdef DEBUG_SERIAL
+		Serial.begin(115200,SERIAL_8N1);
+		while (!Serial); // Wait for ever for the serial port to connect...
+		debugln("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
+	#endif
+
 	// General pinout
 	#ifdef ORANGE_TX
 		//XMEGA
@@ -230,14 +247,15 @@ void setup()
 		pinMode(CC25_CSN_pin,OUTPUT);
 		pinMode(NRF_CSN_pin,OUTPUT);
 		pinMode(CYRF_CSN_pin,OUTPUT);
+		pinMode(SPI_CSN_pin,OUTPUT);
 		pinMode(CYRF_RST_pin,OUTPUT);
 		pinMode(PE1_pin,OUTPUT);
 		pinMode(PE2_pin,OUTPUT);
+		pinMode(TX_INV_pin,OUTPUT);
+		pinMode(RX_INV_pin,OUTPUT);
 		#if defined TELEMETRY
-			pinMode(TX_INV_pin,OUTPUT);
-			pinMode(RX_INV_pin,OUTPUT);
 			#if defined INVERT_SERIAL
-				TX_INV_on;//activated inverter for both serial TX and RX signals
+				TX_INV_on;	//activate inverter for both serial TX and RX signals
 				RX_INV_on;
 			#else
 				TX_INV_off;
@@ -254,8 +272,8 @@ void setup()
 		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
 		pinMode(PB1, INPUT_ANALOG); // set up pin for analog input
 
-		//select the counter clock.
-		start_timer2();//0.5us
+		//Timers
+		init_HWTimer();			//0.5us
 	#else
 		//ATMEGA328p
 		// all inputs
@@ -290,7 +308,7 @@ void setup()
 		// Timer1 config
 		TCCR1A = 0;
 		TCCR1B = (1 << CS11);	//prescaler8, set timer1 to increment every 0.5us(16Mhz) and start timer
-		
+
 		// Random
 		random_init();
 	#endif
@@ -316,14 +334,6 @@ void setup()
 		SCLK_off;
 	#endif
 
-	// Set servos positions
-	for(uint8_t i=0;i<NUM_CHN;i++)
-		Servo_data[i]=1500;
-	Servo_data[THROTTLE]=servo_min_100;
-	#ifdef ENABLE_PPM
-		memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
-	#endif
-	
 	//Wait for every component to start
 	delayMilliseconds(100);
 	
@@ -344,6 +354,15 @@ void setup()
 			((MODE_DIAL3_ipr & _BV(MODE_DIAL3_pin)) ? 0 : 4) +
 			((MODE_DIAL4_ipr & _BV(MODE_DIAL4_pin)) ? 0 : 8);
 	#endif
+    debugln("Mode switch reads as %d", mode_select);
+
+	// Set default channels' value
+	for(uint8_t i=0;i<NUM_CHN;i++)
+		Servo_data[i]=1500;
+	Servo_data[THROTTLE]=servo_min_100;
+	#ifdef ENABLE_PPM
+		memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
+	#endif
 
 	// Update LED
 	LED_off;
@@ -363,6 +382,8 @@ void setup()
 
 	// Read or create protocol id
 	MProtocol_id_master=random_id(10,false);
+
+	debugln("Module Id: %lx", MProtocol_id_master);
 	
 #ifdef ENABLE_PPM
 	//Protocol and interrupts initialization
@@ -373,7 +394,30 @@ void setup()
 		cur_protocol[1] = protocol;
 		sub_protocol   	=	PPM_prot[mode_select].sub_proto;
 		RX_num			=	PPM_prot[mode_select].rx_num;
-		option			=	PPM_prot[mode_select].option;
+
+		//Forced frequency tuning values for CC2500 protocols
+		#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
+			if(protocol==MODE_FRSKYD) 
+				option			=	FORCE_FRSKYD_TUNING;   // Use config-defined tuning value for FrSkyD
+			else
+		#endif
+		#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
+			if(protocol==MODE_FRSKYV)
+				option			=	FORCE_FRSKYV_TUNING;   // Use config-defined tuning value for FrSkyV
+			else
+		#endif
+		#if defined(FORCE_FRSKYX_TUNING) && defined(FRSKYX_CC2500_INO)
+			if(protocol==MODE_FRSKYX)
+				option			=	FORCE_FRSKYX_TUNING;   // Use config-defined tuning value for FrSkyX
+			else
+		#endif 
+		#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
+			if (protocol==MODE_SFHSS)
+				option			=	FORCE_SFHSS_TUNING;    // Use config-defined tuning value for SFHSS
+			else
+		#endif
+				option			=	PPM_prot[mode_select].option;   // Use radio-defined option value
+
 		if(PPM_prot[mode_select].power)		POWER_FLAG_on;
 		if(PPM_prot[mode_select].autobind)	AUTOBIND_FLAG_on;
 		mode_select++;
@@ -410,141 +454,16 @@ void setup()
 			protocol=0;
 			servo_max_100=SERIAL_MAX_100; servo_min_100=SERIAL_MIN_100;
 			servo_max_125=SERIAL_MAX_125; servo_min_125=SERIAL_MIN_125;
-#ifdef CHECK_FOR_BOOTLOADER
-			Mprotocol_serial_init(1); 	// Configure serial and enable RX interrupt
-#else
-			Mprotocol_serial_init(); 	// Configure serial and enable RX interrupt
-#endif
+			#ifdef CHECK_FOR_BOOTLOADER
+				Mprotocol_serial_init(1); 	// Configure serial and enable RX interrupt
+			#else
+				Mprotocol_serial_init(); 	// Configure serial and enable RX interrupt
+			#endif
 		#endif //ENABLE_SERIAL
 	}
 	servo_mid=servo_min_100+servo_max_100;	//In fact 2* mid_value
+	debugln("Init complete");
 }
-
-
-
-#ifdef CHECK_FOR_BOOTLOADER
-void pollBoot()
-{
-	uint8_t rxchar ;
-	uint8_t lState = BootState ;
-	uint8_t millisTime = millis() ;	// Call this once only
-#ifdef ORANGE_TX
-  if ( USARTC0.STATUS & USART_RXCIF_bm )
-#elif defined STM32_BOARD
-  if ( USART2_BASE->SR & USART_SR_RXNE )
-#else
-	if ( UCSR0A & ( 1 << RXC0 ) )
-#endif
-	{
-		rxchar = UDR0 ;
-		BootCount += 1 ;
-		if ( ( lState == BOOT_WAIT_30_IDLE ) || ( lState == BOOT_WAIT_30_DATA ) )
-		{
-			if ( lState == BOOT_WAIT_30_IDLE )	// Waiting for 0x30
-			{
-				BootTimer = millisTime ;	// Start timeout
-			}
-			if ( rxchar == 0x30 )
-			{
-				lState = BOOT_WAIT_20 ;
-			}
-			else
-			{
-				lState = BOOT_WAIT_30_DATA ;
-			}
-		}
-		else if ( lState == BOOT_WAIT_20 )	// Waiting for 0x20
-		{
-			if ( rxchar == 0x20 )
-			{
-				lState = BOOT_READY ;
-			}
-		}
-	}
-	else // No byte received
-	{
-		if ( lState != BOOT_WAIT_30_IDLE )	// Something received
-		{
-			uint8_t time = millisTime - BootTimer ;
-			if ( time > 5 )
-			{
-#ifdef	STM32_BOARD
-				if ( BootCount > 4 )
-#else
-				if ( BootCount > 2 )
-#endif
-				{ // Run normally
-					NotBootChecking = 0xFF ;
-					Mprotocol_serial_init( 0 ) ;
-				}
-				else if ( lState == BOOT_READY )
-				{
-#ifdef	STM32_BOARD
-#define SCS_BASE            (0xE000E000)                              /*!< System Control Space Base Address */
-#define SCB_BASE            (SCS_BASE +  0x0D00)                      /*!< System Control Block Base Address */
-#define SCB                 ((SCB_Type *)           SCB_BASE)         /*!< SCB configuration struct          */
-#define     __I     volatile                /*!< defines 'read only' permissions      */
-#define     __IO    volatile                  /*!< defines 'read / write' permissions   */
-typedef struct
-{
-  __I  uint32_t CPUID;                        /*!< Offset: 0x00  CPU ID Base Register                                  */
-  __IO uint32_t ICSR;                         /*!< Offset: 0x04  Interrupt Control State Register                      */
-  __IO uint32_t VTOR;                         /*!< Offset: 0x08  Vector Table Offset Register                          */
-  __IO uint32_t AIRCR;                        /*!< Offset: 0x0C  Application Interrupt / Reset Control Register        */
-  __IO uint32_t SCR;                          /*!< Offset: 0x10  System Control Register                               */
-  __IO uint32_t CCR;                          /*!< Offset: 0x14  Configuration Control Register                        */
-  __IO uint8_t  SHP[12];                      /*!< Offset: 0x18  System Handlers Priority Registers (4-7, 8-11, 12-15) */
-  __IO uint32_t SHCSR;                        /*!< Offset: 0x24  System Handler Control and State Register             */
-  __IO uint32_t CFSR;                         /*!< Offset: 0x28  Configurable Fault Status Register                    */
-  __IO uint32_t HFSR;                         /*!< Offset: 0x2C  Hard Fault Status Register                            */
-  __IO uint32_t DFSR;                         /*!< Offset: 0x30  Debug Fault Status Register                           */
-  __IO uint32_t MMFAR;                        /*!< Offset: 0x34  Mem Manage Address Register                           */
-  __IO uint32_t BFAR;                         /*!< Offset: 0x38  Bus Fault Address Register                            */
-  __IO uint32_t AFSR;                         /*!< Offset: 0x3C  Auxiliary Fault Status Register                       */
-  __I  uint32_t PFR[2];                       /*!< Offset: 0x40  Processor Feature Register                            */
-  __I  uint32_t DFR;                          /*!< Offset: 0x48  Debug Feature Register                                */
-  __I  uint32_t ADR;                          /*!< Offset: 0x4C  Auxiliary Feature Register                            */
-  __I  uint32_t MMFR[4];                      /*!< Offset: 0x50  Memory Model Feature Register                         */
-  __I  uint32_t ISAR[5];                      /*!< Offset: 0x60  ISA Feature Register                                  */
-} SCB_Type;
-#define SCB_AIRCR_VECTKEY_Pos              16                                             /*!< SCB AIRCR: VECTKEY Position */
-#define SCB_AIRCR_SYSRESETREQ_Pos           2                                             /*!< SCB AIRCR: SYSRESETREQ Position */
-#define SCB_AIRCR_PRIGROUP_Pos              8                                             /*!< SCB AIRCR: PRIGROUP Position */
-#define SCB_AIRCR_PRIGROUP_Msk             (7ul << SCB_AIRCR_PRIGROUP_Pos)                /*!< SCB AIRCR: PRIGROUP Mask */
-#define SCB_AIRCR_SYSRESETREQ_Msk          (1ul << SCB_AIRCR_SYSRESETREQ_Pos)             /*!< SCB AIRCR: SYSRESETREQ Mask */
-
-//				  NVIC_SystemReset() ;
-//static __INLINE void NVIC_SystemReset(void)
-					{
-  					SCB->AIRCR = ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |
-                 (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
-                 SCB_AIRCR_SYSRESETREQ_Msk) ;                   /* Keep priority group unchanged */
-					  asm("dsb");
-					  while(1) ;                                                    /* wait until reset */
-					}
-#else
-					cli();					// Disable global int due to RW of 16 bits registers
-					void (*p)() ;
-#ifndef ORANGE_TX
-					p = (void (*)())0x3F00 ;	// Word address (0x7E00 byte)
-#else
-					p = (void (*)())0x4000 ;	// Word address (0x8000 byte)
-#endif
-					(*p)() ;
-					// go to boot
-#endif
-				}
-				else
-				{
-					lState = BOOT_WAIT_30_IDLE ;
-					BootCount = 0 ;
-				}
-			}
-		}
-	}
-	BootState = lState ;
-}
-#endif
 
 // Main
 // Protocol scheduler
@@ -574,6 +493,7 @@ void loop()
 		#else
 			if((TIMER2_BASE->SR & TIMER_SR_CC1IF)!=0)
 			{
+				debugln("Callback miss");
 				cli();
 				OCR1A = TCNT1;
 				sei();
@@ -599,7 +519,7 @@ void loop()
 				#ifndef STM32_BOARD	
 					TIFR1=OCF1A_bm;					// clear compare A=callback flag
 				#else
-					TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag
+					TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
 				#endif
 				sei();								// enable global int
 				if(Update_All())					// Protocol changed?
@@ -620,7 +540,7 @@ void loop()
 			#ifndef STM32_BOARD			
 				TIFR1=OCF1A_bm;						// clear compare A=callback flag
 			#else
-				TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;	//clear compare Flag write zero 
+				TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
 			#endif		
 			diff=OCR1A-TCNT1;						// compare timer and comparator
 			sei();									// enable global int
@@ -633,13 +553,11 @@ void loop()
 uint8_t Update_All()
 {
 	#ifdef ENABLE_SERIAL
-#ifdef CHECK_FOR_BOOTLOADER
-		if ( (mode_select==MODE_SERIAL) && (NotBootChecking == 0) )
-		{
-			pollBoot() ;
-		}
-		else
-#endif
+		#ifdef CHECK_FOR_BOOTLOADER
+			if ( (mode_select==MODE_SERIAL) && (NotBootChecking == 0) )
+				pollBoot() ;
+			else
+		#endif
 		if(mode_select==MODE_SERIAL && IS_RX_FLAG_on)		// Serial mode and something has been received
 		{
 			update_serial_data();							// Update protocol and data
@@ -670,7 +588,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if((protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) )
+			if( (protocol==MODE_FRSKYD) || (protocol==MODE_BAYANG) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_FRSKYX) || (protocol==MODE_DSM) || (protocol==MODE_CABELL) )
 		#endif
 				TelemetryUpdate();
 	#endif
@@ -788,7 +706,9 @@ inline void tx_resume()
 {
 	#ifdef TELEMETRY
 	// Resume telemetry by enabling transmitter interrupt
+		#ifndef SPORT_POLLING
 		if(!IS_TX_PAUSE_on)
+		#endif
 		{
 			#ifdef ORANGE_TX
 				cli() ;
@@ -808,21 +728,6 @@ inline void tx_resume()
 		}
 	#endif
 }
-
-#ifdef STM32_BOARD	
-void start_timer2()
-{	
-	// Pause the timer while we're configuring it
-	timer.pause();
-	TIMER2_BASE->PSC = 35;			//36-1;for 72 MHZ /0.5sec/(35+1)
-	TIMER2_BASE->ARR = 0xFFFF;		//count till max
-	timer.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);
-	timer.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);
-	// Refresh the timer's count, prescale, and overflow
-	timer.refresh();
-	timer.resume();
-}
-#endif
 
 // Protocol start
 static void protocol_init()
@@ -863,6 +768,10 @@ static void protocol_init()
 		MProtocol_id = RX_num + MProtocol_id_master;
 		set_rx_tx_addr(MProtocol_id);
 		
+		#ifdef FAILSAFE_ENABLE
+			InitFailsafe();
+		#endif
+	
 		blink=millis();
 
 		if(IS_BIND_BUTTON_FLAG_on)
@@ -895,7 +804,7 @@ static void protocol_init()
 				#if defined(HUBSAN_A7105_INO)
 					case MODE_HUBSAN:
 						PE1_off;	//antenna RF1
-						if(IS_BIND_BUTTON_FLAG_on) random_id(10,true); // Generate new ID if bind button is pressed.
+						if(IS_BIND_BUTTON_FLAG_on) random_id(EEPROM_ID_OFFSET,true); // Generate new ID if bind button is pressed.
 						next_callback = initHubsan();
 						remote_callback = ReadHubsan;
 						break;
@@ -951,12 +860,12 @@ static void protocol_init()
 							{
 								if(IS_BIND_BUTTON_FLAG_on)
 								{
-									eeprom_write_byte((EE_ADDR)(30+mode_select),0x00);	// reset to autobind mode for the current model
+									eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select),0x00);	// reset to autobind mode for the current model
 									option=0;
 								}
 								else
 								{	
-									option=eeprom_read_byte((EE_ADDR)(30+mode_select));	// load previous mode: autobind or fixed id
+									option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select));	// load previous mode: autobind or fixed id
 									if(option!=1) option=0;								// if not fixed id mode then it should be autobind
 								}
 							}
@@ -973,12 +882,12 @@ static void protocol_init()
 							{
 								if(IS_BIND_BUTTON_FLAG_on)
 								{
-									eeprom_write_byte((EE_ADDR)(30+mode_select),0x00);	// reset to autobind mode for the current model
+									eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select),0x00);	// reset to autobind mode for the current model
 									option=0;
 								}
 								else
 								{	
-									option=eeprom_read_byte((EE_ADDR)(30+mode_select));	// load previous mode: autobind or fixed id
+									option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select));	// load previous mode: autobind or fixed id
 									if(option!=1) option=0;								// if not fixed id mode then it should be autobind
 								}
 							}
@@ -1119,6 +1028,24 @@ static void protocol_init()
 						remote_callback = DM002_callback;
 						break;
 				#endif
+				#if defined(CABELL_NRF24L01_INO)
+					case MODE_CABELL:
+						next_callback=initCABELL();
+						remote_callback = CABELL_callback;
+						break;
+				#endif
+				#if defined(ESKY150_NRF24L01_INO)
+					case MODE_ESKY150:
+						next_callback=initESKY150();
+						remote_callback = ESKY150_callback;
+						break;
+				#endif
+				#if defined(H8_3D_NRF24L01_INO)
+					case MODE_H8_3D:
+						next_callback=initH8_3D();
+						remote_callback = H8_3D_callback;
+						break;
+				#endif
 			#endif
 		}
 	}
@@ -1141,18 +1068,18 @@ static void protocol_init()
 	}
 	cli();										// disable global int
 	OCR1A = TCNT1 + next_callback*2;			// set compare A for callback
-	sei();										// enable global int
 	#ifndef STM32_BOARD
 		TIFR1 = OCF1A_bm ;						// clear compare A flag
 	#else
-		TIMER2_BASE->SR &= ~TIMER_SR_CC1IF;		//clear compare Flag write zero 
+		TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
 	#endif	
+	sei();										// enable global int
 	BIND_BUTTON_FLAG_off;						// do not bind/reset id anymore even if protocol change
 }
 
 void update_serial_data()
 {
-	RX_DONOTUPDTAE_on;
+	RX_DONOTUPDATE_on;
 	RX_FLAG_off;								//data is being processed
 	if(rx_ok_buff[1]&0x20)						//check range
 		RANGE_FLAG_on;
@@ -1167,8 +1094,38 @@ void update_serial_data()
 	else
 		POWER_FLAG_on;							//power high
 
-	option=rx_ok_buff[3];
-
+	//Forced frequency tuning values for CC2500 protocols
+	#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
+		if(protocol==MODE_FRSKYD) 
+			option=FORCE_FRSKYD_TUNING;   // Use config-defined tuning value for FrSkyD
+		else
+	#endif
+	#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
+		if(protocol==MODE_FRSKYV)
+			option=FORCE_FRSKYV_TUNING;   // Use config-defined tuning value for FrSkyV
+		else
+	#endif
+	#if defined(FORCE_FRSKYX_TUNING) && defined(FRSKYX_CC2500_INO)
+		if(protocol==MODE_FRSKYX)
+			option=FORCE_FRSKYX_TUNING;   // Use config-defined tuning value for FrSkyX
+		else
+	#endif 
+	#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
+		if (protocol==MODE_SFHSS)
+			option=FORCE_SFHSS_TUNING;    // Use config-defined tuning value for SFHSS
+		else
+	#endif
+			option=rx_ok_buff[3];   // Use radio-defined option value
+	
+	#ifdef FAILSAFE_ENABLE
+		bool failsafe=false;
+		if(rx_ok_buff[0]&0x02)
+		{ //packet contains failsafe instead of channels
+			failsafe=true;
+			rx_ok_buff[0]&=0xFD;				//remove the failsafe flag
+			FAILSAFE_VALUES_on;					//failsafe data has been received
+		}
+	#endif
 	if( (rx_ok_buff[0] != cur_protocol[0]) || ((rx_ok_buff[1]&0x5F) != (cur_protocol[1]&0x5F)) || ( (rx_ok_buff[2]&0x7F) != (cur_protocol[2]&0x7F) ) )
 	{ // New model has been selected
 		CHANGE_PROTOCOL_FLAG_on;				//change protocol
@@ -1176,6 +1133,7 @@ void update_serial_data()
 		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]
 		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
 		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
+		debugln("New protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
 	}
 	else
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
@@ -1195,8 +1153,8 @@ void update_serial_data()
 	//store current protocol values
 	for(uint8_t i=0;i<3;i++)
 		cur_protocol[i] =  rx_ok_buff[i];
-	
-	// decode channel values
+
+	// decode channel/failsafe values
 	volatile uint8_t *p=rx_ok_buff+3;
 	uint8_t dec=-3;
 	for(uint8_t i=0;i<NUM_CHN;i++)
@@ -1208,9 +1166,15 @@ void update_serial_data()
 			p++;
 		}
 		p++;
-		Servo_data[i]=((((*((uint32_t *)p))>>dec)&0x7FF)*5)/8+860;	//value range 860<->2140 -125%<->+125%
+		uint16_t temp=((*((uint32_t *)p))>>dec)&0x7FF;
+		#ifdef FAILSAFE_ENABLE
+			if(failsafe)
+				Failsafe_data[i]=temp;			//value range 0..2047, 0=no pulses, 2047=hold
+			else
+		#endif
+				Servo_data[i]=(temp*5)/8+860;	//value range 860<->2140 -125%<->+125%
 	}
-	RX_DONOTUPDTAE_off;
+	RX_DONOTUPDATE_off;
 	#ifdef ORANGE_TX
 		cli();
 	#else
@@ -1225,6 +1189,10 @@ void update_serial_data()
 		sei();
 	#else
 		UCSR0B |= _BV(RXCIE0) ;					// RX interrupt enable
+	#endif
+	#ifdef FAILSAFE_ENABLE
+		if(failsafe)
+			debugln("RX_FS:%d,%d,%d,%d",Failsafe_data[0],Failsafe_data[1],Failsafe_data[2],Failsafe_data[3]);
 	#endif
 }
 
@@ -1249,9 +1217,9 @@ void modules_reset()
 }
 
 #ifdef CHECK_FOR_BOOTLOADER
-void Mprotocol_serial_init( uint8_t boot )
+	void Mprotocol_serial_init( uint8_t boot )
 #else
-void Mprotocol_serial_init()
+	void Mprotocol_serial_init()
 #endif
 {
 	#ifdef ORANGE_TX
@@ -1268,37 +1236,36 @@ void Mprotocol_serial_init()
 		#ifdef INVERT_SERIAL
 			PORTC.PIN3CTRL |= 0x40 ;
 		#endif
-#ifdef CHECK_FOR_BOOTLOADER
-		if ( boot )
-		{
-			USARTC0.BAUDCTRLB = 0 ;
-			USARTC0.BAUDCTRLA = 33 ;		// 57600
-			USARTC0.CTRLA = (USARTC0.CTRLA & 0xC0) ;
-			USARTC0.CTRLC = 0x03 ;	// 8 bit, no parity, 1 stop
-			USARTC0.CTRLB = 0x18 ;		// Enable Tx and Rx
-			PORTC.PIN3CTRL &= ~0x40 ;
-		}
-#endif // CHECK_FOR_BOOTLOADER
+		#ifdef CHECK_FOR_BOOTLOADER
+			if ( boot )
+			{
+				USARTC0.BAUDCTRLB = 0 ;
+				USARTC0.BAUDCTRLA = 33 ;		// 57600
+				USARTC0.CTRLA = (USARTC0.CTRLA & 0xC0) ;
+				USARTC0.CTRLC = 0x03 ;			// 8 bit, no parity, 1 stop
+				USARTC0.CTRLB = 0x18 ;			// Enable Tx and Rx
+				PORTC.PIN3CTRL &= ~0x40 ;
+			}
+		#endif // CHECK_FOR_BOOTLOADER
 	#elif defined STM32_BOARD
-#ifdef CHECK_FOR_BOOTLOADER
-		if ( boot )
-		{
-			usart2_begin(57600,SERIAL_8N1);
-			USART2_BASE->CR1 &= ~USART_CR1_RXNEIE ;
-			(void)UDR0 ;
-		}
-		else
+		#ifdef CHECK_FOR_BOOTLOADER
+			if ( boot )
+			{
+				usart2_begin(57600,SERIAL_8N1);
+				USART2_BASE->CR1 &= ~USART_CR1_RXNEIE ;
+				(void)UDR0 ;
+			}
+			else
+		#endif // CHECK_FOR_BOOTLOADER
 		{
 			usart2_begin(100000,SERIAL_8E2);
 			USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
 		}
-#else
-		usart2_begin(100000,SERIAL_8E2);
-		USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
-#endif // CHECK_FOR_BOOTLOADER
 		usart3_begin(100000,SERIAL_8E2);
-		USART3_BASE->CR1 &= ~ USART_CR1_RE;//disable 
-		USART2_BASE->CR1 &= ~ USART_CR1_TE;//disable transmit
+		#ifndef SPORT_POLLING
+			USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable receive
+		#endif		
+		USART2_BASE->CR1 &= ~ USART_CR1_TE;		//disable transmit
 	#else
 		//ATMEGA328p
 		#include <util/setbaud.h>	
@@ -1307,32 +1274,140 @@ void Mprotocol_serial_init()
 		UCSR0A = 0 ;	// Clear X2 bit
 		//Set frame format to 8 data bits, even parity, 2 stop bits
 		UCSR0C = _BV(UPM01)|_BV(USBS0)|_BV(UCSZ01)|_BV(UCSZ00);
-		while ( UCSR0A & (1 << RXC0) )//flush receive buffer
+		while ( UCSR0A & (1 << RXC0) )	//flush receive buffer
 			UDR0;
 		//enable reception and RC complete interrupt
 		UCSR0B = _BV(RXEN0)|_BV(RXCIE0);//rx enable and interrupt
-		#ifndef DEBUG_TX
+		#ifndef DEBUG_PIN
 			#if defined(TELEMETRY)
 				initTXSerial( SPEED_100K ) ;
 			#endif //TELEMETRY
-		#endif //DEBUG_TX
-#ifdef CHECK_FOR_BOOTLOADER
-		if ( boot )
-		{
-			UBRR0H = 0 ;
-			UBRR0L = 33 ;		// 57600
-			UCSR0C &= ~_BV(UPM01) ;	// No parity
-			UCSR0B &= ~_BV(RXCIE0);// No rx interrupt
-		  UCSR0A |= _BV(U2X0); //Double speed mode USART0
-		}
-#endif // CHECK_FOR_BOOTLOADER
+		#endif //DEBUG_PIN
+		#ifdef CHECK_FOR_BOOTLOADER
+			if ( boot )
+			{
+				UBRR0H = 0;
+				UBRR0L = 33;			// 57600
+				UCSR0C &= ~_BV(UPM01);	// No parity
+				UCSR0B &= ~_BV(RXCIE0);	// No rx interrupt
+				UCSR0A |= _BV(U2X0);	// Double speed mode USART0
+			}
+		#endif // CHECK_FOR_BOOTLOADER
 	#endif //ORANGE_TX
 }
+
+#ifdef STM32_BOARD
+	void usart2_begin(uint32_t baud,uint32_t config )
+	{
+		usart_init(USART2); 
+		usart_config_gpios_async(USART2,GPIOA,PIN_MAP[PA3].gpio_bit,GPIOA,PIN_MAP[PA2].gpio_bit,config);
+		usart_set_baud_rate(USART2, STM32_PCLK1, baud);
+		usart_enable(USART2);
+	}
+	void usart3_begin(uint32_t baud,uint32_t config )
+	{
+		usart_init(USART3);
+		usart_config_gpios_async(USART3,GPIOB,PIN_MAP[PB11].gpio_bit,GPIOB,PIN_MAP[PB10].gpio_bit,config);
+		usart_set_baud_rate(USART3, STM32_PCLK1, baud);
+		usart_enable(USART3);
+	}
+	void init_HWTimer()
+	{	
+		HWTimer2.pause();									// Pause the timer2 while we're configuring it
+		
+		TIMER2_BASE->PSC = 35;								// 36-1;for 72 MHZ /0.5sec/(35+1)
+		TIMER2_BASE->ARR = 0xFFFF;							// Count until 0xFFFF
+		
+		HWTimer2.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);	// Main scheduler
+		HWTimer2.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);	// Serial check
+
+		TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;			// Clear Timer2/Comp2 interrupt flag
+		HWTimer2.attachInterrupt(TIMER_CH2,ISR_COMPB);		// Assign function to Timer2/Comp2 interrupt
+		TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer2/Comp2 interrupt
+		
+		HWTimer2.refresh();									// Refresh the timer's count, prescale, and overflow
+		HWTimer2.resume();
+	}
+#endif
+
+#ifdef CHECK_FOR_BOOTLOADER
+void pollBoot()
+{
+	uint8_t rxchar ;
+	uint8_t lState = BootState ;
+	uint8_t millisTime = millis();				// Call this once only
+
+	#ifdef ORANGE_TX
+	if ( USARTC0.STATUS & USART_RXCIF_bm )
+	#elif defined STM32_BOARD
+	if ( USART2_BASE->SR & USART_SR_RXNE )
+	#else
+	if ( UCSR0A & ( 1 << RXC0 ) )
+	#endif
+	{
+		rxchar = UDR0 ;
+		BootCount += 1 ;
+		if ( ( lState == BOOT_WAIT_30_IDLE ) || ( lState == BOOT_WAIT_30_DATA ) )
+		{
+			if ( lState == BOOT_WAIT_30_IDLE )	// Waiting for 0x30
+				BootTimer = millisTime ;		// Start timeout
+			if ( rxchar == 0x30 )
+				lState = BOOT_WAIT_20 ;
+			else
+				lState = BOOT_WAIT_30_DATA ;
+		}
+		else
+			if ( lState == BOOT_WAIT_20 && rxchar == 0x20 )	// Waiting for 0x20
+				lState = BOOT_READY ;
+	}
+	else // No byte received
+	{
+		if ( lState != BOOT_WAIT_30_IDLE )		// Something received
+		{
+			uint8_t time = millisTime - BootTimer ;
+			if ( time > 5 )
+			{
+				#ifdef	STM32_BOARD
+				if ( BootCount > 4 )
+				#else
+				if ( BootCount > 2 )
+				#endif
+				{ // Run normally
+					NotBootChecking = 0xFF ;
+					Mprotocol_serial_init( 0 ) ;
+				}
+				else if ( lState == BOOT_READY )
+				{
+					#ifdef	STM32_BOARD
+						nvic_sys_reset();
+						while(1);						/* wait until reset */
+					#else
+						cli();							// Disable global int due to RW of 16 bits registers
+						void (*p)();
+						#ifndef ORANGE_TX
+							p = (void (*)())0x3F00 ;	// Word address (0x7E00 byte)
+						#else
+							p = (void (*)())0x4000 ;	// Word address (0x8000 byte)
+						#endif
+						(*p)() ;						// go to boot
+					#endif
+				}
+				else
+				{
+					lState = BOOT_WAIT_30_IDLE ;
+					BootCount = 0 ;
+				}
+			}
+		}
+	}
+	BootState = lState ;
+}
+#endif //CHECK_FOR_BOOTLOADER
 
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) )
+	if( (protocol==MODE_FRSKYD) || (protocol==MODE_HUBSAN) || (protocol==MODE_AFHDS2A) || (protocol==MODE_BAYANG) || (protocol==MODE_CABELL) )
 		initTXSerial( SPEED_9600 ) ;
 	if(protocol==MODE_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;
@@ -1351,23 +1426,6 @@ static void set_rx_tx_addr(uint32_t id)
 	rx_tx_addr[4] = (rx_tx_addr[2]&0xF0)|(rx_tx_addr[3]&0x0F);
 }
 
-#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
-static void random_init(void)
-{
-	cli();					// Temporarily turn off interrupts, until WDT configured
-	MCUSR = 0;				// Use the MCU status register to reset flags for WDR, BOR, EXTR, and POWR
-	WDTCSR |= _BV(WDCE);	// WDT control register, This sets the Watchdog Change Enable (WDCE) flag, which is  needed to set the prescaler
-	WDTCSR = _BV(WDIE);		// Watchdog interrupt enable (WDIE)
-	sei();					// Turn interupts on
-}
-
-static uint32_t random_value(void)
-{
-	while (!gWDT_entropy);
-	return gWDT_entropy;
-}
-#endif
-
 static uint32_t random_id(uint16_t address, uint8_t create_new)
 {
 	#ifndef FORCE_GLOBAL_ID
@@ -1379,7 +1437,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			{
 				id<<=8;
 				id|=eeprom_read_byte((EE_ADDR)address+i-1);
-			}	
+			}
 			if(id!=0x2AD141A7)	//ID with seed=0
 				return id;
 		}
@@ -1395,7 +1453,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		{
 			eeprom_write_byte((EE_ADDR)address+i,id);
 			id>>=8;
-		}	
+		}
 		eeprom_write_byte((EE_ADDR)(address+10),0xf0);//write bind flag in eeprom.
 		return id;
 	#else
@@ -1481,15 +1539,18 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				idx=0;discard_frame=0;
 				RX_MISSED_BUFF_off;			// If rx_buff was good it's not anymore...
 				rx_buff[0]=UDR0;
-				if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
+				#ifdef FAILSAFE_ENABLE
+					if((rx_buff[0]&0xFC)==0x54)	// If 1st byte is 0x54, 0x55, 0x56 or 0x57 it looks ok
+				#else
+					if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
+				#endif
 				{
 					TX_RX_PAUSE_on;
 					tx_pause();
 					#if defined STM32_BOARD
-						uint16_t OCR1B;
-						OCR1B =TCNT1+(6500L);
-						timer.setCompare(TIMER_CH2,OCR1B);
-						timer.attachCompare2Interrupt(ISR_COMPB);
+						TIMER2_BASE->CCR2=TIMER2_BASE->CNT+(6500L);	// Full message should be received within timer of 3250us
+						TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer2/Comp2 interrupt flag
+						TIMER2_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer2/Comp2 interrupt
 					#else
 						OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
 						TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
@@ -1503,7 +1564,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				rx_buff[idx++]=UDR0;		// Store received byte
 				if(idx>=RXBUFFER_SIZE)
 				{	// A full frame has been received
-					if(!IS_RX_DONOTUPDTAE_on)
+					if(!IS_RX_DONOTUPDATE_on)
 					{ //Good frame received and main is not working on the buffer
 						memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
 						RX_FLAG_on;			// flag for main to process servo data
@@ -1518,11 +1579,12 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		{
 			idx=UDR0;						// Dummy read
 			discard_frame=1;				// Error encountered discard full frame...
+			debugln("Bad frame RX");
 		}
 		if(discard_frame==1)
 		{
 			#ifdef STM32_BOARD
-				detachInterrupt(2);			// Disable interrupt on ch2	
+				TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;	// Disable Timer2/Comp2 interrupt
 			#else							
 				CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
 			#endif
@@ -1546,15 +1608,31 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	{	// Timer1 compare B interrupt
 		discard_frame=1;
 		#ifdef STM32_BOARD
-			detachInterrupt(2);				// Disable interrupt on ch2
+			TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;	// Disable Timer2/Comp2 interrupt
+			debugln("Bad frame timer");
 		#else
-			CLR_TIMSK1_OCIE1B;				// Disable interrupt on compare B match
+			CLR_TIMSK1_OCIE1B;						// Disable interrupt on compare B match
 		#endif
 		tx_resume();
 	}
 #endif //ENABLE_SERIAL
 
 #if not defined (ORANGE_TX) && not defined (STM32_BOARD)
+	static void random_init(void)
+	{
+		cli();					// Temporarily turn off interrupts, until WDT configured
+		MCUSR = 0;				// Use the MCU status register to reset flags for WDR, BOR, EXTR, and POWR
+		WDTCSR |= _BV(WDCE);	// WDT control register, This sets the Watchdog Change Enable (WDCE) flag, which is  needed to set the prescaler
+		WDTCSR = _BV(WDIE);		// Watchdog interrupt enable (WDIE)
+		sei();					// Turn interupts on
+	}
+
+	static uint32_t random_value(void)
+	{
+		while (!gWDT_entropy);
+		return gWDT_entropy;
+	}
+
 	// Random interrupt service routine called every time the WDT interrupt is triggered.
 	// It is only enabled at startup to generate a seed.
 	ISR(WDT_vect)

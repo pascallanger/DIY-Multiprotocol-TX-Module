@@ -3,12 +3,10 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
-
  Multiprotocol is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
-
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,14 +21,14 @@
 	#define SERIAL_TX_output SERIAL_TX_ddr	|= _BV(SERIAL_TX_pin)
 	#define SERIAL_TX_on	SERIAL_TX_port |=  _BV(SERIAL_TX_pin)
 	#define SERIAL_TX_off	SERIAL_TX_port &= ~_BV(SERIAL_TX_pin)
-	#ifdef DEBUG_TX
-		#define DEBUG_TX_on		SERIAL_TX_on
-		#define DEBUG_TX_off	SERIAL_TX_off
-		#define DEBUG_TX_toggle	SERIAL_TX_port ^=  _BV(SERIAL_TX_pin)
+	#ifdef DEBUG_PIN
+		#define DEBUG_PIN_on		SERIAL_TX_on
+		#define DEBUG_PIN_off		SERIAL_TX_off
+		#define DEBUG_PIN_toggle	SERIAL_TX_port ^=  _BV(SERIAL_TX_pin)
 	#else
-		#define DEBUG_TX_on
-		#define DEBUG_TX_off
-		#define DEBUG_TX_toggle
+		#define DEBUG_PIN_on
+		#define DEBUG_PIN_off
+		#define DEBUG_PIN_toggle
 	#endif
 
 	// Dial
@@ -209,14 +207,14 @@
 	#endif
 #else //STM32_BOARD
 	#define	BIND_pin		PA0
-	#define	LED_pin			PA1						
+	#define	LED_pin			PA1
 	//
-	#define	PPM_pin			PA8								//PPM  5V tolerant													
+	#define	PPM_pin			PA8								//PPM  5V tolerant
 	//
-	#define	S1_pin			PA4								//Dial switch pins	
-	#define	S2_pin			PA5							
+	#define	S1_pin			PA4								//Dial switch pins
+	#define	S2_pin			PA5
 	#define	S3_pin			PA6
-	#define	S4_pin			PA7	
+	#define	S4_pin			PA7
 	//
 	#define	PE1_pin			PB4								//PE1
 	#define	PE2_pin			PB5								//PE2
@@ -226,10 +224,11 @@
 	#define	CYRF_RST_pin	PB8								//CYRF RESET
 	#define	A7105_CSN_pin	PB9								//A7105
 	#define	CYRF_CSN_pin	PB12							//CYRF CSN
+	#define SPI_CSN_pin		PA15
 	//SPI pins	
 	#define	SCK_pin			PB13							//SCK
 	#define	SDO_pin			PB14							//MISO
-	#define	SDI_pin			PB15							//MOSI			
+	#define	SDI_pin			PB15							//MOSI
 	//
 	#define	TX_INV_pin		PB3
 	#define	RX_INV_pin		PB1
@@ -240,40 +239,43 @@
 	#define	PE2_on  		digitalWrite(PE2_pin,HIGH)
 	#define	PE2_off 		digitalWrite(PE2_pin,LOW)
 
-	#define	A7105_CSN_on	digitalWrite(A7105_CSN_pin,HIGH)			
-	#define	A7105_CSN_off	digitalWrite(A7105_CSN_pin,LOW)		
+	#define	A7105_CSN_on	digitalWrite(A7105_CSN_pin,HIGH)
+	#define	A7105_CSN_off	digitalWrite(A7105_CSN_pin,LOW)
 
 	#define NRF_CE_on
 	#define	NRF_CE_off
 
-	#define	SCK_on			digitalWrite(SCK_pin,HIGH)			
-	#define	SCK_off			digitalWrite(SCK_pin,LOW)		
+	#define	SCK_on			digitalWrite(SCK_pin,HIGH)
+	#define	SCK_off			digitalWrite(SCK_pin,LOW)
 
-	#define	SDI_on			digitalWrite(SDI_pin,HIGH)			
-	#define	SDI_off			digitalWrite(SDI_pin,LOW)		
+	#define	SDI_on			digitalWrite(SDI_pin,HIGH)
+	#define	SDI_off			digitalWrite(SDI_pin,LOW)
 
-	#define	SDI_1			(digitalRead(SDI_pin)==HIGH)	
-	#define	SDI_0			(digitalRead(SDI_pin)==LOW)			
+	#define	SDI_1			(digitalRead(SDI_pin)==HIGH)
+	#define	SDI_0			(digitalRead(SDI_pin)==LOW)
 
-	#define	CC25_CSN_on		digitalWrite(CC25_CSN_pin,HIGH)		
-	#define	CC25_CSN_off	digitalWrite(CC25_CSN_pin,LOW)	
+	#define	CC25_CSN_on		digitalWrite(CC25_CSN_pin,HIGH)
+	#define	CC25_CSN_off	digitalWrite(CC25_CSN_pin,LOW)
 
-	#define	NRF_CSN_on		digitalWrite(NRF_CSN_pin,HIGH)		
-	#define	NRF_CSN_off		digitalWrite(NRF_CSN_pin,LOW)	
+	#define	NRF_CSN_on		digitalWrite(NRF_CSN_pin,HIGH)
+	#define	NRF_CSN_off		digitalWrite(NRF_CSN_pin,LOW)
 
-	#define	CYRF_CSN_on		digitalWrite(CYRF_CSN_pin,HIGH)		
+	#define	CYRF_CSN_on		digitalWrite(CYRF_CSN_pin,HIGH)
 	#define	CYRF_CSN_off	digitalWrite(CYRF_CSN_pin,LOW)
 
-	#define	CYRF_RST_HI		digitalWrite(CYRF_RST_pin,HIGH)	//reset cyrf 
+	#define	SPI_CSN_on		digitalWrite(SPI_CSN_pin,HIGH)
+	#define	SPI_CSN_off		digitalWrite(SPI_CSN_pin,LOW)
+
+	#define	CYRF_RST_HI		digitalWrite(CYRF_RST_pin,HIGH)	//reset cyrf
 	#define	CYRF_RST_LO		digitalWrite(CYRF_RST_pin,LOW)	//
 
-	#define	SDO_1			(digitalRead(SDO_pin)==HIGH)		
-	#define	SDO_0			(digitalRead(SDO_pin)==LOW)	
+	#define	SDO_1			(digitalRead(SDO_pin)==HIGH)
+	#define	SDO_0			(digitalRead(SDO_pin)==LOW)
 
-	#define	TX_INV_on		digitalWrite(TX_INV_pin,HIGH)		
+	#define	TX_INV_on		digitalWrite(TX_INV_pin,HIGH)
 	#define	TX_INV_off		digitalWrite(TX_INV_pin,LOW)
 
-	#define	RX_INV_on		digitalWrite(RX_INV_pin,HIGH)		
+	#define	RX_INV_on		digitalWrite(RX_INV_pin,HIGH)
 	#define	RX_INV_off		digitalWrite(RX_INV_pin,LOW)
 
 	#define	LED_on			digitalWrite(LED_pin,HIGH)
@@ -286,6 +288,16 @@
 	#define BIND_SET_PULLUP		digitalWrite(BIND_pin,HIGH)	
 	#define BIND_SET_OUTPUT		pinMode(BIND_pin,OUTPUT)
 	#define IS_BIND_BUTTON_on	(digitalRead(BIND_pin)==LOW)
+
+	#ifdef DEBUG_PIN
+		#define DEBUG_PIN_on		digitalWrite(SPI_CSN_pin,HIGH)
+		#define DEBUG_PIN_off		digitalWrite(SPI_CSN_pin,LOW)
+		#define DEBUG_PIN_toggle	digitalWrite(SPI_CSN_pin,!digitalRead(SPI_CSN_pin))
+	#else
+		#define DEBUG_PIN_on
+		#define DEBUG_PIN_off
+		#define DEBUG_PIN_toggle
+	#endif
 
 	#define	cli() 			noInterrupts()
 	#define	sei() 			interrupts()
@@ -310,9 +322,9 @@
 	#ifdef STM32_BOARD
 		#define OCR1A TIMER2_BASE->CCR1
 		#define TCNT1 TIMER2_BASE->CNT
-		#define UDR0 USART2_BASE->DR
 		#define TIFR1 TIMER2_BASE->SR
 		#define OCF1A_bm TIMER_SR_CC1IF
+		#define UDR0 USART2_BASE->DR
 		#define UCSR0B USART2_BASE->CR1
 		#define RXCIE0 USART_CR1_RXNEIE_BIT
 		#define TXCIE0 USART_CR1_TXEIE_BIT

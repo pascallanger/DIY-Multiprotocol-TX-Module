@@ -1,0 +1,13 @@
+#!/bin/bash
+port=$1
+addr=$2
+file=$3
+
+uname -m | grep "x86_64" 2>&1 1>/dev/null
+if [ $? -eq 0 ]; then
+  # Do 64-bit stuff
+  $(dirname $0)/../linux64/stm32flash/stm32flash -g $addr -b 57600 -w "$file" /dev/"$port"
+else
+  # Do 32-bit stuff
+  $(dirname $0)/stm32flash/stm32flash -g $addr -b 57600 -w "$file" /dev/"$port"
+fi

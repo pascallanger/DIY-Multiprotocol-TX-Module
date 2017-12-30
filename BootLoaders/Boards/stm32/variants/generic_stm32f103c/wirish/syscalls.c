@@ -76,7 +76,6 @@ void *_sbrk(int incr) {
     return ret;
 }
 
-
 __weak int _open(const char *path __attribute__((unused)), int flags __attribute__((unused)), ...) {
     return 1;
 }
@@ -86,11 +85,9 @@ __weak int _close(int fd __attribute__((unused))) {
 }
 
 __weak int _fstat(int fd __attribute__((unused)), struct stat *st) {
-
     st->st_mode = S_IFCHR;
     return 0;
 }
-
 
 __weak int _isatty(int fd __attribute__((unused))) {
     return 1;
@@ -101,7 +98,6 @@ __weak int isatty(int fd __attribute__((unused))) {
 }
 
 __weak int _lseek(int fd __attribute__((unused)), off_t pos __attribute__((unused)), int whence __attribute__((unused))) {
-
     return -1;
 }
 
@@ -110,18 +106,13 @@ __weak unsigned char getch(void) {
 }
 
 
-
 __weak int _read(int fd __attribute__((unused)), char *buf, size_t cnt __attribute__((unused))) {
-
-
     *buf = getch();
 
     return 1;
 }
 
-
 __weak void putch(unsigned char c __attribute__((unused))) {
-
 }
 
 __weak void cgets(char *s, int bufsize) {
@@ -164,9 +155,7 @@ __weak void cgets(char *s, int bufsize) {
     return;
 }
 
-
 __weak int _write(int fd __attribute__((unused)), const char *buf, size_t cnt) {
-
     int i;
 
     for (i = 0; i < cnt; i++)
@@ -176,16 +165,12 @@ __weak int _write(int fd __attribute__((unused)), const char *buf, size_t cnt) {
 }
 
 /* Override fgets() in newlib with a version that does line editing */
-
 __weak char *fgets(char *s, int bufsize, void *f __attribute__((unused))) {
-
     cgets(s, bufsize);
     return s;
 }
 
-
 __weak void _exit(int exitcode __attribute__((unused))) {
-
     while (1)
         ;
 }

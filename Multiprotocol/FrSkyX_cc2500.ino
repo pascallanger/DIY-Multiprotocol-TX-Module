@@ -1,4 +1,3 @@
-
 /*  **************************
 	* By Midelic on RCGroups *
 	**************************
@@ -351,5 +350,4 @@ uint16_t initFrSkyX()
 	FrX_receive_seq = 0 ;
 	return 10000;
 }	
-
 #endif

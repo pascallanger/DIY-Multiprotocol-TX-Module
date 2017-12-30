@@ -1,14 +1,11 @@
 #
-
 # Customized for the Atmega328p and OrangeRX (XMEGA) multi 4-in-1 boards.
 # Both are AVR boards but need different compiler and upload flags and parameters.
-
 #
 # For more info:
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Multi 4-in-1 AVR
-
 version=1.0.2
 
 compiler.warning_flags=-w
@@ -138,4 +135,5 @@ tools.avrdude_remote.upload.pattern=/usr/bin/run-avrdude /tmp/sketch.hex {upload
 # - from numeric vendor ID, set to Unknown otherwise
 build.usb_manufacturer="Unknown"
 build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}'
+
 

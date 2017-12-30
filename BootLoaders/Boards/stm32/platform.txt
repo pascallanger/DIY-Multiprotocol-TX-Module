@@ -1,4 +1,3 @@
-
 #
 # Customized for the STM32 multi 4-in-1 board.
 # Based on an STM32F103CB MCU.
@@ -7,7 +6,6 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Multi 4-in-1 STM32
-
 version=1.0.3
 
 compiler.warning_flags=-w -DDEBUG_LEVEL=DEBUG_NONE
@@ -50,7 +48,6 @@ build.hs_flag=
 build.upload_flags=
 build.extra_flags= {build.upload_flags} {build.cpu_flags} {build.hs_flag} {build.common_flags}
 
-
 # These can be overridden in platform.local.txt
 compiler.c.extra_flags=
 compiler.c.elf.extra_flags="-L{build.variant.path}/ld"
@@ -58,7 +55,6 @@ compiler.cpp.extra_flags=
 compiler.S.extra_flags=
 compiler.ar.extra_flags=
 compiler.elf2hex.extra_flags=
-
 
 compiler.libs.c.flags="-I{build.system.path}/libmaple" "-I{build.system.path}/libmaple/include" "-I{build.system.path}/libmaple/stm32f1/include"                                                           "-I{build.system.path}/libmaple/usb/stm32f1" "-I{build.system.path}/libmaple/usb/usb_lib" 
 
@@ -103,7 +99,6 @@ recipe.size.regex.data=^(?:\.data|\.bss|\.noinit)\s+([0-9]+).*
 ## Save Compiled Binary
 recipe.output.tmp_file={build.project_name}.bin
 #recipe.output.save_file={build.project_name}.{build.variant}.bin
-
 recipe.output.save_file=multi-stm.bin
 
 ## Copy hex
@@ -118,7 +113,6 @@ recipe.hooks.savehex.postsavehex.01.pattern.windows="{runtime.platform.path}/too
 recipe.hooks.savehex.postsavehex.01.pattern.linux="{runtime.platform.path}/tools/linux/do_version" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board} EXPORT
 recipe.hooks.savehex.postsavehex.01.pattern.linux64="{runtime.platform.path}/tools/linux64/do_version" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board} EXPORT
 recipe.hooks.savehex.postsavehex.01.pattern.macosx="{runtime.platform.path}/tools/macosx/do_version" "{build.path}" "{build.project_name}" "{build.source.path}" {build.board} EXPORT
-
 
 # Uploader tools
 # -------------------

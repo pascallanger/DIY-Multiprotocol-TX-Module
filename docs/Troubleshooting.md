@@ -46,12 +46,7 @@ If your module is always/sometime binding at power up without pressing the butto
  - check that your module case is not pressing the bind button.
 
 
-FrSky & SFHSS bind issues, heratic moves and telemetry losses are ususally due to Option=fine frequency tuning not set properly. This value is different for each RF module and some RXs. To determine this value:
- - find a value where the RX accepts to bind. A good start is to use one of these values -40, 0 and 40.
- - find the values min/max where the RX loses connection. In serial mode you can change the value and see the effect live.
- - set the value to half way between min and max ( (min+max)/2 ).
-
-Note: it's better to use a genuine RX to find the real RF module frequency tuning value for a given protocol. After that you should apply the same value for the all other RXs of that protocol and rebind them if they were already bound. This is because most of the none genuine RXs are doing an auto frequency tuning at bind time to compensate for frequency deviation. If you change the frequency tuning of the transmitter then the RX has to relearn it.
+FrSky & SFHSS & Corona bind issues, heratic moves and telemetry losses are ususally due to Option=fine frequency tuning not set properly. This value is different for each RF module and some RXs. To determine this value check this [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
 ## Report issues
 

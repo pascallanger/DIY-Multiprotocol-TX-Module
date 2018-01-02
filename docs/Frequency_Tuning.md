@@ -6,11 +6,12 @@ The protocols which require frequency tuning are:
 * **FrSkyV** (e.g. FrSky V8R4, V8R7 and V8FR receivers)
 * **FrSkyX** (e.g. FrSky X4R, X6R, X8R, and XSR receivers)
 * **S-FHSS** (e.g. Futaba S-FHSS receivers)
+* **Corona** (e.g. Corona V1 FSS and Corona V2 DSSS CR8D/CR6D/CR4D receivers)
 
 There is a [video](#video) at the end of this page which gives an example of the tuning process.
 
 ## More information
-Original FrSky and Futaba receivers have been frequency-tuned by the manufacturer at the factory.  Because of variations in the oscillator crystals used in multiprotocol modules it is necessary to fine-tune the module to match the manufacturer frequencies.  
+Original FrSky, Futaba and Corona receivers have been frequency-tuned by the manufacturer at the factory.  Because of variations in the oscillator crystals used in multiprotocol modules it is necessary to fine-tune the module to match the manufacturer frequencies.  
 
 'Compatible' receivers suffer the same variation in crystal oscillators as multiprotocol modules, but have to be compatible with genuine (manufacturer-tuned) transmitters so they will typically have auto-tuning built in, and will self-tune to the radio's frequency when they are bound.
 
@@ -60,7 +61,7 @@ These settings can also be used to force different tuning values for different m
 /*******************************/
 /*** CC2500 FREQUENCY TUNING ***/
 /*******************************/
-//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, and SFHSS protocols needs to be tuned for each protocol.
+//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, SFHSS and CORONA protocols needs to be tuned for each protocol.
 //Initial tuning should be done via the radio menu with a genuine FrSky or Futaba receiver.  
 //Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
 //Valid range is -127 to +127
@@ -69,6 +70,7 @@ These settings can also be used to force different tuning values for different m
 //#define FORCE_FRSKYV_TUNING 0
 //#define FORCE_FRSKYX_TUNING 0
 //#define FORCE_SFHSS_TUNING  0
+//#define FORCE_CORONA_TUNING  0
 ```
 
 ## Video

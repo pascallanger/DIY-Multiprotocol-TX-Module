@@ -332,7 +332,7 @@ static void __attribute__((unused)) CABELL_setAddress()
 
 	//  Serial.print("NORM ID: ");Serial.print((uint32_t)(CABELL_normal_addr>>32)); Serial.print("    ");Serial.println((uint32_t)((CABELL_normal_addr<<32)>>32));
 
-	if (IS_BIND_DONE_on)
+	if (IS_BIND_DONE)
 	{
 		CABELL_addr = (((uint64_t)rx_tx_addr[0]) << 32) + 
 			(((uint64_t)rx_tx_addr[1]) << 24) + 
@@ -386,7 +386,7 @@ static void CABELL_SetPower()    // This over-ride the standard Set Power to all
                           // Note that on many modules max power may actually be worse than the normal high power setting
                           // test and only use max if it helps the range
 {
-	if(IS_BIND_DONE_on && !IS_RANGE_FLAG_on && ((option & CABELL_OPTION_MASK_MAX_POWER_OVERRIDE) != 0))
+	if(IS_BIND_DONE && !IS_RANGE_FLAG_on && ((option & CABELL_OPTION_MASK_MAX_POWER_OVERRIDE) != 0))
 	{   // If we are not in range or bind mode and power setting override is in effect, then set max power, else standard power logic
 		if(prev_power != NRF_POWER_3)   // prev_power is global variable for NRF24L01; NRF_POWER_3 is max power
 		{
@@ -403,7 +403,7 @@ static void CABELL_SetPower()    // This over-ride the standard Set Power to all
 //-----------------------------------------------------------------------------------------
 uint16_t CABELL_callback()
 {
-	if (IS_BIND_DONE_on)
+	if (IS_BIND_DONE)
 	{
 		CABELL_send_packet(0);  // packet_period is set/adjusted in CABELL_send_packet
 		return packet_period;
@@ -424,7 +424,7 @@ uint16_t CABELL_callback()
 //-----------------------------------------------------------------------------------------
 uint16_t initCABELL(void)
 {
-	if (IS_BIND_DONE_on)
+	if (IS_BIND_DONE)
 		bind_counter = 0;
 	else  
 		bind_counter = CABELL_BIND_COUNT;

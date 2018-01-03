@@ -227,7 +227,7 @@ uint16_t initJ6Pro()
 {
     j6pro_cyrf_init();
 
-	if(IS_AUTOBIND_FLAG_on)
+	if(IS_BIND_IN_PROGRESS)
         phase = J6PRO_BIND;
     else
         phase = J6PRO_CHANSEL;

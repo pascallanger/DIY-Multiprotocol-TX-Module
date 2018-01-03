@@ -247,7 +247,7 @@ static void __attribute__((unused)) BAYANG_init()
 
 uint16_t BAYANG_callback()
 {
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 	{
 		if(packet_count==0)
 			BAYANG_send_packet(0);

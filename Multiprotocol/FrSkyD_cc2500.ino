@@ -100,7 +100,7 @@ uint16_t initFrSky_2way()
 	#if defined TELEMETRY
 		init_frskyd_link_telemetry();
 	#endif
-	if(IS_AUTOBIND_FLAG_on)
+	if(IS_BIND_IN_PROGRESS)
 	{
 		frsky2way_init(1);
 		state = FRSKY_BIND;
@@ -122,7 +122,7 @@ uint16_t ReadFrSky_2way()
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);		
 		CC2500_Strobe(CC2500_SFRX);//0x3A
 		CC2500_WriteData(packet, packet[0]+1);
-		if(IS_BIND_DONE_on)
+		if(IS_BIND_DONE)
 			state = FRSKY_BIND_DONE;
 		else
 			state++;

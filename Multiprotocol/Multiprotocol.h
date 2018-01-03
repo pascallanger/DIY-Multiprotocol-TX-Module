@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	0
+#define VERSION_PATCH_LEVEL	4
 //******************
 // Protocols
 //******************
@@ -62,6 +62,7 @@ enum PROTOCOLS
 	MODE_CABELL		= 34,	// =>NRF24L01
 	MODE_ESKY150	= 35,	// =>NRF24L01
 	MODE_H8_3D		= 36,	// =>NRF24L01
+	MODE_CORONA		= 37,	// =>CC2500
 };
 
 enum Flysky
@@ -219,6 +220,11 @@ enum H8_3D
 	H20MINI	= 2,
 	H30MINI	= 3,
 };
+enum CORONA
+{
+	COR_V1	= 0,
+	COR_V2	= 1,
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -287,7 +293,8 @@ enum MultiPacketTypes
 //Bind flag
 #define BIND_IN_PROGRESS	protocol_flags &= ~_BV(7)
 #define BIND_DONE			protocol_flags |= _BV(7)
-#define IS_BIND_DONE_on		( ( protocol_flags & _BV(7) ) !=0 )
+#define IS_BIND_DONE		( ( protocol_flags & _BV(7) ) !=0 )
+#define IS_BIND_IN_PROGRESS	( ( protocol_flags & _BV(7) ) ==0 )
 //
 #define FAILSAFE_VALUES_off	protocol_flags2 &= ~_BV(0)
 #define FAILSAFE_VALUES_on		protocol_flags2 |= _BV(0)
@@ -540,6 +547,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					CABELL		34
 					ESKY150		35
 					H8_3D		36
+					CORONA		37
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -656,6 +664,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			H20H		1
 			H20MINI		2
 			H30MINI		3
+		sub_protocol==CORONA
+			COR_V1		0
+			COR_V2		1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

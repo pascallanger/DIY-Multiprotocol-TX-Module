@@ -175,7 +175,7 @@ uint16_t initASSAN()
 	ASSAN_init();
 	hopping_frequency_no = 0;
 
-	if(IS_AUTOBIND_FLAG_on)
+	if(IS_BIND_IN_PROGRESS)
 		phase=ASSAN_BIND0;
 	else 
 		phase=ASSAN_DATA0;

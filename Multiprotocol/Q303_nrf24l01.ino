@@ -354,7 +354,7 @@ static void __attribute__((unused)) Q303_initialize_txid()
 
 uint16_t Q303_callback()
 {
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		Q303_send_packet(0);
 	else
 	{

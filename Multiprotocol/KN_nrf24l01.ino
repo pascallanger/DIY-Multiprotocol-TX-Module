@@ -287,7 +287,7 @@ uint16_t initKN()
 		packet_count  = KN_FX_PACKET_SEND_COUNT;
 	}
 	kn_init();
-	phase = IS_AUTOBIND_FLAG_on ? KN_PHASE_PRE_BIND : KN_PHASE_PRE_SEND;
+	phase = IS_BIND_IN_PROGRESS ? KN_PHASE_PRE_BIND : KN_PHASE_PRE_SEND;
 
 	return KN_INIT_WAIT_MS;
 }

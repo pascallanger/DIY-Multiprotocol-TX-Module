@@ -566,9 +566,8 @@ uint16_t initDsm()
 	//
 	DSM_update_channels();
 	//
-	if(IS_AUTOBIND_FLAG_on )
+	if(IS_BIND_IN_PROGRESS)
 	{
-		BIND_IN_PROGRESS;
 		DSM_initialize_bind_phase();		
 		phase = DSM_BIND_WRITE;
 		bind_counter=DSM_BIND_COUNT;

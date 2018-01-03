@@ -275,7 +275,7 @@ uint16_t initV2x2()
 {	
 	v202_init();
 	//
-	if (IS_AUTOBIND_FLAG_on)
+	if (IS_BIND_IN_PROGRESS)
 	{
 		bind_counter = V2X2_BIND_COUNT;
 		phase = V202_INIT2;

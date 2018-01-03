@@ -136,7 +136,7 @@ static void CYRF_SetPower_Value(uint8_t power)
 void CYRF_SetPower(uint8_t val)
 {
 	uint8_t power=CYRF_BIND_POWER;
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		#ifdef CYRF6936_ENABLE_LOW_POWER
 			power=IS_POWER_FLAG_on?CYRF_HIGH_POWER:CYRF_LOW_POWER;
 		#else

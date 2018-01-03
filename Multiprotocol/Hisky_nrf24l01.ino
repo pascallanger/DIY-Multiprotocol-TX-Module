@@ -253,7 +253,7 @@ uint16_t initHiSky()
 	hopping_frequency_no = 0;
 	binding_idx = 0;
 
-	if(IS_AUTOBIND_FLAG_on)
+	if(IS_BIND_IN_PROGRESS)
 		bind_counter = HISKY_BIND_COUNT;
 	else 
 		bind_counter = 0;

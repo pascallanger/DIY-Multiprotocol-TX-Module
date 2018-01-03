@@ -81,6 +81,11 @@
 		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_CORONA_TUNING
+	#if ( FORCE_CORONA_TUNING < -127 ) || ( FORCE_CORONA_TUNING > 127 )
+		#error "The CORONA forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 
 //Change/Force configuration if OrangeTX
 #ifdef ORANGE_TX
@@ -113,6 +118,7 @@
 	#undef	FRSKYV_CC2500_INO
 	#undef	FRSKYX_CC2500_INO
 	#undef	SFHSS_CC2500_INO
+	#undef	CORONA_CC2500_INO
 #endif
 #ifndef NRF24L01_INSTALLED
 	#undef	BAYANG_NRF24L01_INO

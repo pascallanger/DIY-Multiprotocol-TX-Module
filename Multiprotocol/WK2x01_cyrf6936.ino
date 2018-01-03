@@ -288,7 +288,7 @@ static void __attribute__((unused)) WK_build_beacon_pkt_2801()
 	uint8_t bind_state;
 
 	#ifdef ENABLE_PPM
-	if(mode_select && option==0 && IS_BIND_DONE_on) 			//PPM mode and option not already set and bind is finished
+	if(mode_select && option==0 && IS_BIND_DONE) 			//PPM mode and option not already set and bind is finished
 	{
 		BIND_SET_INPUT;
 		BIND_SET_PULLUP;										// set pullup
@@ -300,7 +300,7 @@ static void __attribute__((unused)) WK_build_beacon_pkt_2801()
 		BIND_SET_OUTPUT;
 	}
 	#endif //ENABLE_PPM
-    if(prev_option!=option && IS_BIND_DONE_on)
+    if(prev_option!=option && IS_BIND_DONE)
 	{
 		set_rx_tx_addr(MProtocol_id);
 		rx_tx_addr[2]=rx_tx_addr[3]<<4;		// Make use of RX_Num

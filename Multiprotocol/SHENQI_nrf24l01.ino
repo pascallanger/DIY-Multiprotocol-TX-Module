@@ -90,7 +90,7 @@ void SHENQI_send_packet()
 
 uint16_t SHENQI_callback()
 {
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		SHENQI_send_packet();
 	else
 	{

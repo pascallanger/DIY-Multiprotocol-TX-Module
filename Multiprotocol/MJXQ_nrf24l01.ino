@@ -299,7 +299,7 @@ static void __attribute__((unused)) MJXQ_initialize_txid()
 
 uint16_t MJXQ_callback()
 {
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		MJXQ_send_packet(0);
 	else
 	{

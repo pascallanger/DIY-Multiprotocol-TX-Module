@@ -133,6 +133,7 @@
 #define	FRSKYD_CC2500_INO
 #define	FRSKYX_CC2500_INO
 #define	SFHSS_CC2500_INO
+#define	CORONA_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO
@@ -158,6 +159,7 @@
 #define	CABELL_NRF24L01_INO
 #define	ESKY150_NRF24L01_INO
 #define	H8_3D_NRF24L01_INO
+
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
@@ -188,10 +190,11 @@
 //Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
 //For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
 //Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable.  Valid range is -127 to +127.
-//#define FORCE_FRSKYD_TUNING 0
-//#define FORCE_FRSKYV_TUNING 0
-//#define FORCE_FRSKYX_TUNING 0
-//#define FORCE_SFHSS_TUNING  0
+//#define FORCE_FRSKYD_TUNING	0
+//#define FORCE_FRSKYV_TUNING	0
+//#define FORCE_FRSKYX_TUNING	0
+//#define FORCE_SFHSS_TUNING	0
+//#define FORCE_CORONA_TUNING	0
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/
@@ -437,6 +440,9 @@ const PPM_Parameters PPM_prot[15]=	{
 		H20H
 		H20 Mini
 		H30 Mini
+	MODE_CORONA
+		COR_V1
+		COR_V2
 */
 
 // RX_Num is used for model match. Using RX_Num	values different for each receiver will prevent starting a model with the false config loaded...

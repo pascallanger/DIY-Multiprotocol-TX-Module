@@ -17,6 +17,10 @@
 /********************/
 #ifdef STM32_BOARD
 
+#ifdef DEBUG_SERIAL
+//	#define DEBUG_SPI
+#endif
+
 SPIClass SPI_2(2); 								//Create an instance of the SPI Class called SPI_2 that uses the 2nd SPI Port
 
 void initSPI2()
@@ -35,6 +39,9 @@ void initSPI2()
 void SPI_Write(uint8_t command)
 {//working OK	
 	SPI2_BASE->DR = command;					//Write the first data item to be transmitted into the SPI_DR register (this clears the TXE flag).
+	#ifdef DEBUG_SPI
+		debug("%02X ",command);
+	#endif
 	while (!(SPI2_BASE->SR & SPI_SR_RXNE));
 	command = SPI2_BASE->DR;					// ... and read the last received data.
 }

@@ -145,7 +145,7 @@ static void A7105_SetPower_Value(int power)
 void A7105_SetPower()
 {
 	uint8_t power=A7105_BIND_POWER;
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		#ifdef A7105_ENABLE_LOW_POWER
 			power=IS_POWER_FLAG_on?A7105_HIGH_POWER:A7105_LOW_POWER;
 		#else

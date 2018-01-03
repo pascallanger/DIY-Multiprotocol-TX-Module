@@ -112,7 +112,7 @@ static void __attribute__((unused)) DM002_init()
 
 uint16_t DM002_callback()
 {
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		DM002_send_packet(0);
 	else
 	{

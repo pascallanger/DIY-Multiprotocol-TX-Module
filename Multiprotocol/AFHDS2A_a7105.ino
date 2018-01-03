@@ -350,7 +350,7 @@ uint16_t initAFHDS2A()
 	AFHDS2A_calc_channels();
 	packet_count = 0;
 	bind_phase = 0;
-	if(IS_AUTOBIND_FLAG_on)
+	if(IS_BIND_IN_PROGRESS)
 		phase = AFHDS2A_BIND1;
 	else
 	{

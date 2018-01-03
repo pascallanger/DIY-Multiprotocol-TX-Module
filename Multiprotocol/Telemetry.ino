@@ -107,7 +107,7 @@ static void multi_send_status()
 		if (IS_WAIT_BIND_on)
 			flags |= 0x10;
 		else
-			if (!IS_BIND_DONE_on)
+			if (IS_BIND_IN_PROGRESS)
 				flags |= 0x08;
 		#ifdef FAILSAFE_ENABLE
 			//Is failsafe supported?
@@ -1052,7 +1052,6 @@ void TelemetryUpdate()
 			#endif
 			if(USART3_BASE->SR & USART_SR_TXE)
 			{
-				USART3_BASE->SR &= ~USART_SR_TXE;	
 		#endif
 				if(tx_head!=tx_tail)
 				{

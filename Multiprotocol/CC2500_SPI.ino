@@ -144,7 +144,7 @@ static void CC2500_SetPower_Value(uint8_t power)
 void CC2500_SetPower()
 {
 	uint8_t power=CC2500_BIND_POWER;
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		#ifdef CC2500_ENABLE_LOW_POWER
 			power=IS_POWER_FLAG_on?CC2500_HIGH_POWER:CC2500_LOW_POWER;
 		#else

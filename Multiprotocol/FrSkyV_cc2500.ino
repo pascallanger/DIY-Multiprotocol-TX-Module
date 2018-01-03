@@ -115,7 +115,7 @@ static void __attribute__((unused)) FRSKYV_build_data_packet()
 
 uint16_t ReadFRSKYV()
 {
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 	{	// Normal operation
 		uint8_t chan = FRSKYV_calc_channel();
 		CC2500_Strobe(CC2500_SIDLE);

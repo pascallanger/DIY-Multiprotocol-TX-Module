@@ -338,7 +338,12 @@ void setup()
 	
 	// Read status of bind button
 	if( IS_BIND_BUTTON_on )
-		BIND_BUTTON_FLAG_on;	// If bind button pressed save the status for protocol id reset under hubsan
+	{
+		BIND_BUTTON_FLAG_on;	// If bind button pressed save the status
+		BIND_IN_PROGRESS;		// Request bind
+	}
+	else
+		BIND_DONE;
 
 	// Read status of mode select binary switch
 	// after this mode_select will be one of {0000, 0001, ..., 1111}
@@ -397,28 +402,37 @@ void setup()
 		//Forced frequency tuning values for CC2500 protocols
 		#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
 			if(protocol==MODE_FRSKYD) 
-				option			=	FORCE_FRSKYD_TUNING;   // Use config-defined tuning value for FrSkyD
+				option			=	FORCE_FRSKYD_TUNING;		// Use config-defined tuning value for FrSkyD
 			else
 		#endif
 		#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
 			if(protocol==MODE_FRSKYV)
-				option			=	FORCE_FRSKYV_TUNING;   // Use config-defined tuning value for FrSkyV
+				option			=	FORCE_FRSKYV_TUNING;		// Use config-defined tuning value for FrSkyV
 			else
 		#endif
 		#if defined(FORCE_FRSKYX_TUNING) && defined(FRSKYX_CC2500_INO)
 			if(protocol==MODE_FRSKYX)
-				option			=	FORCE_FRSKYX_TUNING;   // Use config-defined tuning value for FrSkyX
+				option			=	FORCE_FRSKYX_TUNING;		// Use config-defined tuning value for FrSkyX
 			else
 		#endif 
 		#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
 			if (protocol==MODE_SFHSS)
-				option			=	FORCE_SFHSS_TUNING;    // Use config-defined tuning value for SFHSS
+				option			=	FORCE_SFHSS_TUNING;			// Use config-defined tuning value for SFHSS
 			else
 		#endif
-				option			=	PPM_prot[mode_select].option;   // Use radio-defined option value
+		#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)
+			if (protocol==MODE_CORONA)
+				option			=	FORCE_CORONA_TUNING;		// Use config-defined tuning value for CORONA
+			else
+		#endif
+				option			=	PPM_prot[mode_select].option;	// Use radio-defined option value
 
 		if(PPM_prot[mode_select].power)		POWER_FLAG_on;
-		if(PPM_prot[mode_select].autobind)	AUTOBIND_FLAG_on;
+		if(PPM_prot[mode_select].autobind)
+		{
+			AUTOBIND_FLAG_on;
+			BIND_IN_PROGRESS;	// Force a bind at protocol startup
+		}
 		mode_select++;
 		servo_max_100=PPM_MAX_100; servo_min_100=PPM_MIN_100;
 		servo_max_125=PPM_MAX_125; servo_min_125=PPM_MIN_125;
@@ -594,12 +608,14 @@ uint8_t Update_All()
 	#ifdef ENABLE_BIND_CH
 		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Servo_data[BIND_CH-1]>PPM_MAX_COMMAND && Servo_data[THROTTLE]<(servo_min_100+25))
 		{ // Autobind is on and BIND_CH went up and Throttle is low
-			CHANGE_PROTOCOL_FLAG_on;							//reload protocol to rebind
+			CHANGE_PROTOCOL_FLAG_on;							//reload protocol
+			BIND_IN_PROGRESS;									//enable bind
 			BIND_CH_PREV_on;
 		}
-		if(IS_BIND_CH_PREV_on && Servo_data[BIND_CH-1]<PPM_MIN_COMMAND)
-		{
+		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_on && Servo_data[BIND_CH-1]<PPM_MIN_COMMAND)
+		{ // Autobind is on and BIND_CH went down
 			BIND_CH_PREV_off;
+			//Request protocol to terminate bind
 			#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO)
 			if(protocol==MODE_FRSKYD || protocol==MODE_FRSKYX || protocol==MODE_FRSKYV)
 				BIND_DONE;
@@ -674,7 +690,7 @@ static void update_led_status(void)
 				}
 				else
 				{
-					if(IS_BIND_DONE_on)
+					if(IS_BIND_DONE)
 						LED_off;							//bind completed force led on
 					blink+=BLINK_BIND_TIME;					//blink fastly during binding
 				}
@@ -773,13 +789,6 @@ static void protocol_init()
 	
 		blink=millis();
 
-		if(IS_BIND_BUTTON_FLAG_on)
-			AUTOBIND_FLAG_on;
-		if(IS_AUTOBIND_FLAG_on)
-			BIND_IN_PROGRESS;			// Indicates bind in progress for blinking bind led
-		else
-			BIND_DONE;
-
 		PE1_on;							//NRF24L01 antenna RF3 by default
 		PE2_off;						//NRF24L01 antenna RF3 by default
 		
@@ -840,6 +849,14 @@ static void protocol_init()
 						PE2_on;
 						next_callback = initSFHSS();
 						remote_callback = ReadSFHSS;
+						break;
+				#endif
+				#if defined(CORONA_CC2500_INO)
+					case MODE_CORONA:
+						PE1_off;	//antenna RF2
+						PE2_on;
+						next_callback = initCORONA();
+						remote_callback = ReadCORONA;
 						break;
 				#endif
 			#endif
@@ -1050,8 +1067,8 @@ static void protocol_init()
 	}
 
 	#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
-		if( IS_AUTOBIND_FLAG_on && ! ( IS_BIND_CH_PREV_on || IS_BIND_BUTTON_FLAG_on || (cur_protocol[1]&0x80)!=0 ) )
-		{
+		if( IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && (cur_protocol[1]&0x80)==0 && mode_select == MODE_SERIAL)
+		{ // Autobind is active but no bind requested by either BIND_CH or BIND. But do not wait if in PPM mode...
 			WAIT_BIND_on;
 			return;
 		}
@@ -1084,7 +1101,7 @@ void update_serial_data()
 		RANGE_FLAG_on;
 	else
 		RANGE_FLAG_off;
-	if(rx_ok_buff[1]&0xC0)						//check autobind(0x40) & bind(0x80) together
+	if(rx_ok_buff[1]&0x40)						//check autobind
 		AUTOBIND_FLAG_on;
 	else
 		AUTOBIND_FLAG_off;
@@ -1096,30 +1113,35 @@ void update_serial_data()
 	//Forced frequency tuning values for CC2500 protocols
 	#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
 		if(protocol==MODE_FRSKYD) 
-			option=FORCE_FRSKYD_TUNING;   // Use config-defined tuning value for FrSkyD
+			option=FORCE_FRSKYD_TUNING;	// Use config-defined tuning value for FrSkyD
 		else
 	#endif
 	#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
 		if(protocol==MODE_FRSKYV)
-			option=FORCE_FRSKYV_TUNING;   // Use config-defined tuning value for FrSkyV
+			option=FORCE_FRSKYV_TUNING;	// Use config-defined tuning value for FrSkyV
 		else
 	#endif
 	#if defined(FORCE_FRSKYX_TUNING) && defined(FRSKYX_CC2500_INO)
 		if(protocol==MODE_FRSKYX)
-			option=FORCE_FRSKYX_TUNING;   // Use config-defined tuning value for FrSkyX
+			option=FORCE_FRSKYX_TUNING;	// Use config-defined tuning value for FrSkyX
 		else
 	#endif 
 	#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
 		if (protocol==MODE_SFHSS)
-			option=FORCE_SFHSS_TUNING;    // Use config-defined tuning value for SFHSS
+			option=FORCE_SFHSS_TUNING;	// Use config-defined tuning value for SFHSS
 		else
 	#endif
-			option=rx_ok_buff[3];   // Use radio-defined option value
+	#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)
+		if (protocol==MODE_CORONA)
+			option=FORCE_CORONA_TUNING;	// Use config-defined tuning value for CORONA
+		else
+	#endif
+			option=rx_ok_buff[3];		// Use radio-defined option value
 	
 	#ifdef FAILSAFE_ENABLE
 		bool failsafe=false;
 		if(rx_ok_buff[0]&0x02)
-		{ //packet contains failsafe instead of channels
+		{ // Packet contains failsafe instead of channels
 			failsafe=true;
 			rx_ok_buff[0]&=0xFD;				//remove the failsafe flag
 			FAILSAFE_VALUES_on;					//failsafe data has been received
@@ -1129,6 +1151,10 @@ void update_serial_data()
 	{ // New model has been selected
 		CHANGE_PROTOCOL_FLAG_on;				//change protocol
 		WAIT_BIND_off;
+		if(IS_AUTOBIND_FLAG_on)
+			BIND_IN_PROGRESS;					//launch bind right away if in autobind mode
+		else
+			BIND_DONE;
 		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]
 		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
 		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
@@ -1136,10 +1162,13 @@ void update_serial_data()
 	}
 	else
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
-			CHANGE_PROTOCOL_FLAG_on;			//restart protocol with bind
+		{ // Restart protocol with bind
+			CHANGE_PROTOCOL_FLAG_on;
+			BIND_IN_PROGRESS;
+		}
 		else
 			if( ((rx_ok_buff[1]&0x80)==0) && ((cur_protocol[1]&0x80)!=0) )	// Bind flag has been reset
-			{
+			{ // Request protocol to end bind
 				#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO)
 				if(protocol==MODE_FRSKYD || protocol==MODE_FRSKYX || protocol==MODE_FRSKYV)
 					BIND_DONE;

@@ -154,7 +154,7 @@ static void __attribute__((unused)) yd717_init()
 
 uint16_t yd717_callback()
 {
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		yd717_send_packet(0);
 	else
 	{

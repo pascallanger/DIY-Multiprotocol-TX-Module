@@ -234,7 +234,7 @@ uint16_t initFlySky()
 	}
 	hopping_frequency_no=0;
 	packet_count=0;
-	if(IS_AUTOBIND_FLAG_on)
+	if(IS_BIND_IN_PROGRESS)
 		bind_counter = FLYSKY_BIND_COUNT;
 	else
 		bind_counter = 0;

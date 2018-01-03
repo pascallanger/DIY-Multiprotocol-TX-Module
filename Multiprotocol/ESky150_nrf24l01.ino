@@ -150,7 +150,7 @@ uint8_t ESKY150_convert_2bit_channel(uint8_t num)
 
 uint16_t ESKY150_callback()
 {
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		ESKY150_send_packet();
 	else
 	{
@@ -169,7 +169,7 @@ uint16_t ESKY150_callback()
 uint16_t initESKY150(void)
 {
 	ESKY150_init();
-	if(IS_AUTOBIND_FLAG_on)
+	if(IS_BIND_IN_PROGRESS)
 	{
 		bind_counter=3000;
 		ESKY150_bind_init();

@@ -137,7 +137,7 @@ static void __attribute__((unused)) CG023_init()
 
 uint16_t CG023_callback()
 {
-	if(IS_BIND_DONE_on)
+	if(IS_BIND_DONE)
 		CG023_send_packet(0);
 	else
 	{

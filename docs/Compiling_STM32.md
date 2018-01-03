@@ -199,7 +199,7 @@ In order for these devices to be correctly identified in Windows it is necessary
 **NOTE:** If you have installed the drivers and your module is not detected as a Maple device it most likely does not have a USB bootloader installed. Ready-made modules from Banggood **do not** come with a USB bootloader installed.  You will need to follow the procedure to [Burn a USB bootloader](#burn-the-bootloader) before you can upload firmware.
 
 ### Upload the firmware via USB
-**Note:** Power to the module will be supplied via the USB cable.  If the module is installed in a transmitter, the transmitter should be switched off.
+**Note:** Some modules require external power in order for the USB port to work.  If your module does not power on with USB power alone, install it in the transmitter and switch the transmitter on.  It is generally safe for the module to recieve power from both USB and the transmitter.
 
 1. Connect the USB cable to the Multiprotocol module
 1. Verify that a Maple device appears in Device Manager (**Maple DFU** for a module with only a bootloader, **Maple Serial** for a module with a bootloader and firmware)
@@ -239,8 +239,6 @@ error resetting after download: usb_reset: could not reset device, win error: Th
 For subsequent firmware uploads you need only repeat steps 1-3 above, ensuring that you first select the correct COM port, which should be labelled **COMx (Multi 4-in-1 (STM32F103CB))**.
 
 <p align="center"><img src="images/maple-serial-port-select.jpg"/></p>
-
-If the module is installed in a transmitter, disconnect the USB cable before powering on the transmitter.
 
 ## Upload via Serial
 Upload via Serial follows the same process as burning the bootloader and uses the same USB-to-TTL adapter.

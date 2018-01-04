@@ -51,7 +51,7 @@ enum {
 };
 
 const uint8_t PROGMEM V912_X17_SEQ[10] =  { 0x14, 0x31, 0x40, 0x49, 0x49,    // sometime first byte is 0x15 ?
-										0x49, 0x49, 0x49, 0x49, 0x49, }; 
+											0x49, 0x49, 0x49, 0x49, 0x49, }; 
 
 static void __attribute__((unused)) flysky_apply_extension_flags()
 {
@@ -157,21 +157,24 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
 
 uint16_t ReadFlySky()
 {
-    if (bind_counter)
+	#ifndef FORCE_FLYSKY_TUNING
+		A7105_AdjustLOBaseFreq(1);
+	#endif
+	if(IS_BIND_DONE)
 	{
-        flysky_build_packet(1);
-        A7105_WriteData(21, 1);
-        bind_counter--;
-        if (! bind_counter)
-            BIND_DONE;
-    }
+		flysky_build_packet(1);
+		A7105_WriteData(21, 1);
+		bind_counter--;
+		if (bind_counter==0)
+			BIND_DONE;
+	}
 	else
 	{
 		flysky_build_packet(0);
-        A7105_WriteData(21, hopping_frequency[hopping_frequency_no & 0x0F]);
+		A7105_WriteData(21, hopping_frequency[hopping_frequency_no & 0x0F]);
 		A7105_SetPower();
-    }
-    hopping_frequency_no++;
+	}
+	hopping_frequency_no++;
 
 	if(sub_protocol==CX20)
 		return 3984;

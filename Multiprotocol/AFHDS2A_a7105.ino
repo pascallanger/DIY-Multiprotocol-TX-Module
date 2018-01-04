@@ -228,6 +228,9 @@ uint16_t ReadAFHDS2A()
 	static uint16_t packet_counter=0;
 	uint8_t data_rx;
 	uint16_t start;
+	#ifndef FORCE_AFHDS2A_TUNING
+		A7105_AdjustLOBaseFreq(1);
+	#endif
 	switch(phase)
 	{
 		case AFHDS2A_BIND1:

@@ -274,6 +274,9 @@ uint16_t ReadHubsan()
 	uint16_t delay;
 	uint8_t i;
 
+	#ifndef FORCE_HUBSAN_TUNING
+		A7105_AdjustLOBaseFreq(1);
+	#endif
 	switch(phase)
 	{
 		case BIND_1:

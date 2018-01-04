@@ -27,7 +27,7 @@ void InitFailsafe()
 {
 	for(uint8_t i=0;i<NUM_CHN;i++)
 		Failsafe_data[i]=1024;
-	Failsafe_data[THROTTLE]=(uint16_t)FAILSAFE_THROTTLE_LOW_VAL;	//0=-125%, 204=-100%
+	Failsafe_data[THROTTLE]=(uint16_t)FAILSAFE_THROTTLE_LOW_VAL;	//1=-125%, 204=-100%
 	FAILSAFE_VALUES_on;
 	#ifdef FAILSAFE_SERIAL_ONLY
 		if(mode_select == MODE_SERIAL)
@@ -35,6 +35,16 @@ void InitFailsafe()
 	#endif
 }
 #endif
+void InitChannel()
+{
+	for(uint8_t i=0;i<NUM_CHN;i++)
+		Channel_data[i]=1024;
+	#ifdef FAILSAFE_ENABLE
+		Channel_data[THROTTLE]=(uint16_t)FAILSAFE_THROTTLE_LOW_VAL;	//0=-125%, 204=-100%
+	#else
+		Channel_data[THROTTLE]=204;
+	#endif
+}
 
 /************************/
 /**  Convert routines  **/

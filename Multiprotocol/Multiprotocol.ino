@@ -76,6 +76,7 @@ uint8_t  packet[40];
 #define NUM_CHN 16
 // Servo data
 uint16_t Servo_data[NUM_CHN];
+uint16_t Channel_data[NUM_CHN];
 uint8_t  Servo_AUX;
 uint16_t servo_max_100,servo_min_100,servo_max_125,servo_min_125;
 uint16_t servo_mid;
@@ -364,6 +365,7 @@ void setup()
 	for(uint8_t i=0;i<NUM_CHN;i++)
 		Servo_data[i]=1500;
 	Servo_data[THROTTLE]=servo_min_100;
+	InitChannel();
 	#ifdef ENABLE_PPM
 		memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
 	#endif
@@ -1200,7 +1202,10 @@ void update_serial_data()
 				Failsafe_data[i]=temp;			//value range 0..2047, 0=no pulses, 2047=hold
 			else
 		#endif
+			{
+				Channel_data[i]=temp;			//value range 0..2047, 0=-125%, 2047=+125%
 				Servo_data[i]=(temp*5)/8+860;	//value range 860<->2140 -125%<->+125%
+			}
 	}
 	RX_DONOTUPDATE_off;
 	#ifdef ORANGE_TX

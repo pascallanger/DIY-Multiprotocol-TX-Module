@@ -86,6 +86,32 @@
 		#error "The CORONA forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_FLYSKY_TUNING
+	#if ( FORCE_FLYSKY_TUNING < -300 ) || ( FORCE_FLYSKY_TUNING > 300 )
+		#error "The Flysky forced frequency tuning value is outside of the range -300..300."
+	#endif
+#endif
+#ifdef FORCE_HUBSAN_TUNING
+	#if ( FORCE_HUBSAN_TUNING < -300 ) || ( FORCE_HUBSAN_TUNING > 300 )
+		#error "The Hubsan forced frequency tuning value is outside of the range -300..300."
+	#endif
+#endif
+#ifdef FORCE_AFHDS2A_TUNING
+	#if ( FORCE_AFHDS2A_TUNING < -300 ) || ( FORCE_AFHDS2A_TUNING > 300 )
+		#error "The AFHDS2A forced frequency tuning value is outside of the range -300..300."
+	#endif
+#endif
+#ifndef USE_A7105_CH15_TUNING
+	#ifndef FORCE_FLYSKY_TUNING
+		#define FORCE_FLYSKY_TUNING 0
+	#endif
+	#ifndef FORCE_HUBSAN_TUNING
+		#define FORCE_HUBSAN_TUNING 0
+	#endif
+	#ifndef FORCE_AFHDS2A_TUNING
+		#define FORCE_AFHDS2A_TUNING 0
+	#endif
+#endif
 
 //Change/Force configuration if OrangeTX
 #ifdef ORANGE_TX

@@ -52,6 +52,12 @@
 #define SERIAL_MAX_125	2140	//	125%
 #define SERIAL_MIN_125	860		//	125%
 
+//Channel MIN MAX values
+#define CHANNEL_MAX_100	1844	//	100%
+#define CHANNEL_MIN_100	204		//	100%
+#define CHANNEL_MAX_125	2047	//	125%
+#define CHANNEL_MIN_125	0		//	125%
+
 //PPM values used to compare
 #define PPM_MIN_COMMAND 1250
 #define PPM_SWITCH		1550

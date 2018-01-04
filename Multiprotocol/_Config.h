@@ -25,6 +25,16 @@
 //To enable this config file remove the // from the line below. It's automatically loaded if the file exists for the AVR platform but not STM32...
 //#define USE_MY_CONFIG
 
+
+/*************************/
+/*** BOOTLOADER USE     ***/
+/*************************/
+//Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
+//Instructions: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders#compiling--uploading-firmware-with-the-flash-from-tx-bootloader
+//To enable this feature remove the "//" on the next line.  Requires a compatible bootloader or upload method to be selected when you use the Multi 4-in-1 Boards Manager definitions.
+//#define CHECK_FOR_BOOTLOADER
+
+
 /*******************/
 /*** TX SETTINGS ***/
 /*******************/
@@ -57,13 +67,6 @@
 //The goal is to prevent binding other people's model when powering up the TX, changing model or scanning through protocols.
 #define WAIT_FOR_BIND
 
-/*************************/
-/*** BOOTLOADER USE     ***/
-/*************************/
-//Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
-//Instructions: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders#compiling--uploading-firmware-with-the-flash-from-tx-bootloader
-//To enable this feature remove the "//" on the next line.  Requires a compatible bootloader or upload method to be selected when you use the Multi 4-in-1 Boards Manager definitions.
-//#define CHECK_FOR_BOOTLOADER
 
 /****************/
 /*** RF CHIPS ***/
@@ -77,6 +80,36 @@
 #define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
 
+/** OrangeRX TX **/
+//If you compile for the OrangeRX TX module you need to select the correct board type.
+//By default the compilation is done for the GREEN board, to switch to a BLUE board uncomment the line below by removing the "//"
+//#define ORANGE_TX_BLUE
+
+/** CC2500 Fine Frequency Tuning **/
+//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, and SFHSS protocols needs to be tuned for each protocol.
+//Initial tuning should be done via the radio menu with a genuine FrSky or Futaba receiver.  
+//Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
+//For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
+//Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable. Valid range is -127 to +127.
+//#define FORCE_FRSKYD_TUNING	0
+//#define FORCE_FRSKYV_TUNING	0
+//#define FORCE_FRSKYX_TUNING	0
+//#define FORCE_SFHSS_TUNING	0
+//#define FORCE_CORONA_TUNING	0
+
+/** A7105 Fine Frequency Tuning **/
+//This is required in rare cases where some A7105 modules and/or RXs have an inaccurate crystal oscillator.
+//If using Serial mode only (for now), you can use CH15 to find the right tuning value. -100%=-300, 0%=default 0, +100%=+300.
+//Uncomment the line below (remove the "//") to enable this feature.
+//#define USE_A7105_CH15_TUNING
+
+//Once a good tuning value is found it can be set here and will override the frequency tuning for a specific protocol.
+//Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable. Valid range is -300 to +300 and default is 0.
+//#define FORCE_FLYSKY_TUNING	0
+//#define FORCE_HUBSAN_TUNING	0
+//#define FORCE_AFHDS2A_TUNING	0
+
+/** Low Power **/
 //Low power is reducing the transmit power of the multi module. This setting is configurable per model in PPM (table below) or Serial mode (radio GUI).
 //It can be activated when flying indoor or small models since the distance is short or if a model is causing issues when flying closed to the TX.
 //By default low power is completly disabled on all rf chips to prevent mistakes, but you can enable it by uncommenting the lines below: 
@@ -85,14 +118,6 @@
 //#define CC2500_ENABLE_LOW_POWER
 //#define NRF24L01_ENABLE_LOW_POWER
 
-//Fine tune of the A7105 LO base frequency
-// This is required for some A7105 modules and/or RXs with inaccurate crystal oscillator.
-// The offset is in +/-kHz. Default value is 0.
-#define A7105_FREQ_OFFSET 0
-
-//If you compile for the OrangeRX TX module you need to select the correct board type.
-//By default the compilation is done for the GREEN board, to switch to a BLUE board uncomment the line below by removing the "//"
-//#define ORANGE_TX_BLUE
 
 /*****************/
 /*** GLOBAL ID ***/
@@ -109,6 +134,7 @@
 // then you can force the ID to a certain known value using the lines below.
 //Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
 //#define FORCE_CYRF_ID	"\x12\x34\x56\x78\x9A\xBC"
+
 
 /****************************/
 /*** PROTOCOLS TO INCLUDE ***/
@@ -182,19 +208,6 @@
 // You can force option b. by uncommenting the line below (remove the "//").
 //#define FAILSAFE_SERIAL_ONLY
 
-/*******************************/
-/*** CC2500 FREQUENCY TUNING ***/
-/*******************************/
-//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, and SFHSS protocols needs to be tuned for each protocol.
-//Initial tuning should be done via the radio menu with a genuine FrSky or Futaba receiver.  
-//Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
-//For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
-//Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable.  Valid range is -127 to +127.
-//#define FORCE_FRSKYD_TUNING	0
-//#define FORCE_FRSKYV_TUNING	0
-//#define FORCE_FRSKYX_TUNING	0
-//#define FORCE_SFHSS_TUNING	0
-//#define FORCE_CORONA_TUNING	0
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/
@@ -236,6 +249,7 @@
 //!This is a work in progress!
 //#define SPORT_POLLING
 
+
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
 /****************************/
@@ -246,6 +260,7 @@
 //If you do not plan to use the Serial mode comment this line using "//" to save Flash space
 #define ENABLE_SERIAL
 
+
 /*************************/
 /*** PPM MODE SETTINGS ***/
 /*************************/
@@ -253,7 +268,7 @@
 //If you do not plan to use the PPM mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
 #define ENABLE_PPM
 
-/*** TX END POINTS ***/
+/** TX END POINTS **/
 //It is important for the module to know the endpoints of your radio.
 //Below are some standard transmitters already preconfigured.
 //Uncomment only the one which matches your transmitter.
@@ -278,6 +293,7 @@
 	#define PPM_MIN_125	1000	//	125%
 #endif
 
+/** Number of PPM Channels **/
 // The line below is used to set the minimum number of channels which the module should receive to consider a PPM frame valid.
 // The default value is 4 to receive at least AETR for flying models but you could also connect the PPM from a car radio which has only 3 channels by changing this number to 3.
 #define MIN_PPM_CHANNELS 4
@@ -285,6 +301,7 @@
 // The default value is 16 to receive all possible channels but you might want to filter some "bad" channels from the PPM frame like the ones above 6 on the Walkera PL0811.
 #define MAX_PPM_CHANNELS 16
 
+/** Dial Protocol Selector Settings **/
 //The table below indicates which protocol to run when a specific position on the dial has been selected.
 //All fields and values are explained below. Everything is configurable from here like in the Serial mode.
 //Example: You can associate multiple times the same protocol to different dial positions to take advantage of the model match (RX_Num)

@@ -1041,7 +1041,8 @@ void TelemetryUpdate()
 		#ifdef STM32_BOARD
 			#ifdef SPORT_POLLING		
 				if(USART3_BASE->SR & USART_SR_RXNE) 
-				{	
+				{
+				USART3_BASE->SR &= ~USART_SR_RXNE;//important	
 					if (RxIndex < 16 )
 					{
 						if(RxData[0]==TxData[0] && RxData[1]==TxData[1])

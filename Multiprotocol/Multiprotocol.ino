@@ -137,8 +137,11 @@ const uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, AUX1, AUX2, AUX3, 
 uint8_t mode_select;
 uint8_t protocol_flags=0,protocol_flags2=0;
 
+#ifdef ENABLE_PPM
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
+volatile uint8_t  PPM_chan_max=0;
+#endif
 
 #if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 //Random variable
@@ -363,12 +366,17 @@ void setup()
 
 	// Set default channels' value
 	for(uint8_t i=0;i<NUM_CHN;i++)
+	{
 		Servo_data[i]=1500;
+		#ifdef ENABLE_PPM
+			PPM_data[i]=PPM_MAX_100+PPM_MIN_100;
+		#endif
+	}
 	Servo_data[THROTTLE]=servo_min_100;
-	InitChannel();
 	#ifdef ENABLE_PPM
-		memcpy((void *)PPM_data,Servo_data, sizeof(Servo_data));
+		PPM_data[THROTTLE]=PPM_MIN_100*2;
 	#endif
+	InitChannel();
 
 	// Update LED
 	LED_off;
@@ -584,14 +592,22 @@ uint8_t Update_All()
 	#ifdef ENABLE_PPM
 		if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)		// PPM mode and a full frame has been received
 		{
-			for(uint8_t i=0;i<MAX_PPM_CHANNELS;i++)
-			{ // update servo data without interrupts to prevent bad read in protocols
+			for(uint8_t i=0;i<PPM_chan_max;i++)
+			{ // update servo data without interrupts to prevent bad read
 				uint16_t temp_ppm ;
 				cli();										// disable global int
-				temp_ppm = PPM_data[i] ;
+				temp_ppm = PPM_data[i];
 				sei();										// enable global int
-				if(temp_ppm<PPM_MIN_125) temp_ppm=PPM_MIN_125;
-				else if(temp_ppm>PPM_MAX_125) temp_ppm=PPM_MAX_125;
+				
+				uint16_t temp_ppm2;
+				temp_ppm2=map(temp_ppm,PPM_MIN_100,PPM_MAX_100,CHANNEL_MIN_100,CHANNEL_MAX_100);
+				if(temp_ppm2&0x8000) 				temp_ppm2=CHANNEL_MIN_125;
+				else if(temp_ppm2>CHANNEL_MAX_125)	temp_ppm2=CHANNEL_MAX_125;
+				Channel_data[i]=temp_ppm2;
+				
+				temp_ppm>>=1;
+				if(temp_ppm<PPM_MIN_125) 		temp_ppm=PPM_MIN_125;
+				else if(temp_ppm>PPM_MAX_125)	temp_ppm=PPM_MAX_125;
 				Servo_data[i]= temp_ppm ;
 			}
 			PPM_FLAG_off;									// wait for next frame before update
@@ -1525,20 +1541,23 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		uint16_t Cur_TCNT1;
 
 		Cur_TCNT1 = TCNT1 - Prev_TCNT1 ;	// Capture current Timer1 value
-		if(Cur_TCNT1<1000)
+		if(Cur_TCNT1<1600)
 			bad_frame=1;					// bad frame
 		else
-			if(Cur_TCNT1>4840)
+			if(Cur_TCNT1>4400)
 			{  //start of frame
 				if(chan>=MIN_PPM_CHANNELS)
+				{
 					PPM_FLAG_on;			// good frame received if at least 4 channels have been seen
+					if(chan>PPM_chan_max) PPM_chan_max=chan;	// Saving the number of channels received
+				}
 				chan=0;						// reset channel counter
 				bad_frame=0;
 			}
 			else
 				if(bad_frame==0)			// need to wait for start of frame
-				{  //servo values between 500us and 2420us will end up here
-					PPM_data[chan]= Cur_TCNT1>>1;;
+				{  //servo values between 800us and 2200us will end up here
+					PPM_data[chan]=Cur_TCNT1;
 					if(chan++>=MAX_PPM_CHANNELS)
 						bad_frame=1;		// don't accept any new channels
 				}

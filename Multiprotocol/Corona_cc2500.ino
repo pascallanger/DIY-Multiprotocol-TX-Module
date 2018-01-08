@@ -104,6 +104,12 @@ static void __attribute__((unused)) CORONA_init()
 // 8 Channels with direct values from PPM
 static void __attribute__((unused)) CORONA_send_packet()
 {
+	// Tune frequency if it has been changed
+	if ( prev_option != option )
+	{
+		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+		prev_option = option ;
+	}
 	if(IS_BIND_DONE)
 	{	
 		if(state==0 || sub_protocol==COR_V1)
@@ -124,12 +130,6 @@ static void __attribute__((unused)) CORONA_send_packet()
 			
 			packet[17] = 0x00;
 
-			// Tune frequency if it has been changed
-			if ( prev_option != option )
-			{
-				CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-				prev_option = option ;
-			}
 			// Packet period is based on hopping
 			switch(hopping_frequency_no)
 			{
@@ -217,7 +217,7 @@ uint16_t ReadCORONA()
 uint16_t initCORONA()
 {
 	if(sub_protocol==COR_V1)
-		bind_counter=700;		// Stay in bind mode for 5s
+		bind_counter=1400;		// Stay in bind mode for 5s
 	else
 		bind_counter=187;		// Stay in bind mode for 5s
 	state=400;					// Used by V2 to send RF channels + ID for 2.65s at startup

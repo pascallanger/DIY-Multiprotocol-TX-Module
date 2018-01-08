@@ -43,15 +43,15 @@ static void __attribute__((unused)) FY326_send_packet(uint8_t bind)
 	if(bind)
 		packet[1] = 0x55;
 	else
-		packet[1] =	  GET_FLAG(Servo_AUX3,	0x80)	// Headless
-					| GET_FLAG(Servo_AUX2,	0x40)	// RTH
-					| GET_FLAG(Servo_AUX1,	0x02)	// Flip
-					| GET_FLAG(Servo_AUX5,	0x01)	// Calibrate
-					| GET_FLAG(Servo_AUX4,	0x04);	// Expert
-	packet[2]  = convert_channel_8b_scale(AILERON, 0, 200);	// aileron
-	packet[3]  = convert_channel_8b_scale(ELEVATOR, 0, 200);		// elevator
-	packet[4]  = convert_channel_8b_scale(RUDDER, 0, 200);	// rudder
-	packet[5]  = convert_channel_8b_scale(THROTTLE, 0, 200);		// throttle
+		packet[1] =	  GET_FLAG(CH7_SW,	0x80)	// Headless
+					| GET_FLAG(CH6_SW,	0x40)	// RTH
+					| GET_FLAG(CH5_SW,	0x02)	// Flip
+					| GET_FLAG(CH9_SW,	0x01)	// Calibrate
+					| GET_FLAG(CH8_SW,	0x04);	// Expert
+	packet[2]  = convert_channel_16b_limit(AILERON, 0, 200);	// aileron
+	packet[3]  = convert_channel_16b_limit(ELEVATOR, 0, 200);		// elevator
+	packet[4]  = convert_channel_16b_limit(RUDDER, 0, 200);	// rudder
+	packet[5]  = convert_channel_16b_limit(THROTTLE, 0, 200);		// throttle
 	if(sub_protocol==FY319)
 	{
 		packet[6] = convert_channel_8b(AILERON);

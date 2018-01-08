@@ -57,18 +57,18 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 	packet[3] = rx_tx_addr[2];
 	packet[4] = rx_tx_addr[3];
 	// packet[5] to [8] (aircraft id) is filled during bind for blue board
-	uint16_t aileron=map(limit_channel_100(AILERON),servo_min_100,servo_max_100,1000,2000);
-	uint16_t elevator=map(limit_channel_100(ELEVATOR),servo_min_100,servo_max_100,2000,1000);
-	uint16_t throttle=map(limit_channel_100(THROTTLE),servo_min_100,servo_max_100,1000,2000);
-	uint16_t rudder=map(limit_channel_100(RUDDER),servo_min_100,servo_max_100,2000,1000);
+	uint16_t aileron= convert_channel_16b_limit(AILERON ,1000,2000);
+	uint16_t elevator=convert_channel_16b_limit(ELEVATOR,2000,1000);
+	uint16_t throttle=convert_channel_16b_limit(THROTTLE,1000,2000);
+	uint16_t rudder=  convert_channel_16b_limit(RUDDER  ,2000,1000);
     // Channel 5 - flip flag
-	packet[12+offset] = GET_FLAG(Servo_AUX1,CX10_FLAG_FLIP); // flip flag applied on rudder
+	packet[12+offset] = GET_FLAG(CH5_SW,CX10_FLAG_FLIP); // flip flag applied on rudder
 
 	// Channel 6 - rate mode is 2 lsb of packet 13
-	if(Servo_data[AUX2] > PPM_MAX_COMMAND)		// rate 3 / headless on CX-10A
+	if(CH6_SW)		// rate 3 / headless on CX-10A
 		flags = 0x02;
 	else
-		if(Servo_data[AUX2] < PPM_MIN_COMMAND)
+		if(Channel_data[CH6] < CHANNEL_MIN_COMMAND)
 			flags = 0x00;			// rate 1
 		else
 			flags = 0x01;			// rate 2
@@ -78,66 +78,66 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 	switch(sub_protocol)
 	{
 		case CX10_BLUE:
-			flags |= GET_FLAG(!Servo_AUX3, 0x10)	// Channel 7 - picture
-					|GET_FLAG( Servo_AUX4, 0x08);	// Channel 8 - video
+			flags |= GET_FLAG(!CH7_SW, 0x10)	// Channel 7 - picture
+					|GET_FLAG( CH8_SW, 0x08);	// Channel 8 - video
 			break;
 		case Q282:
 		case Q242:
 		case Q222:
 			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
 			//FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
-			flags2 = GET_FLAG(Servo_AUX1, 0x80)		// Channel 5 - FLIP
-					|GET_FLAG(!Servo_AUX2, 0x40)	// Channel 6 - LED
-					|GET_FLAG(Servo_AUX5, 0x08)		// Channel 9 - HEADLESS
-					|GET_FLAG(Servo_AUX7, 0x04)		// Channel 11 - XCAL
-					|GET_FLAG(Servo_AUX8, 0x02);	// Channel 12 - YCAL or Start/Stop motors on JXD 509
+			flags2 = GET_FLAG(CH5_SW, 0x80)		// Channel 5 - FLIP
+					|GET_FLAG(!CH6_SW, 0x40)	// Channel 6 - LED
+					|GET_FLAG(CH9_SW, 0x08)		// Channel 9 - HEADLESS
+					|GET_FLAG(CH11_SW, 0x04)		// Channel 11 - XCAL
+					|GET_FLAG(CH12_SW, 0x02);	// Channel 12 - YCAL or Start/Stop motors on JXD 509
 	
 			if(sub_protocol==Q242)
 			{
 				flags=2;
-				flags2|= GET_FLAG(Servo_AUX3,0x01)	// Channel 7 - picture
-						|GET_FLAG(Servo_AUX4,0x10);	// Channel 8 - video
+				flags2|= GET_FLAG(CH7_SW,0x01)	// Channel 7 - picture
+						|GET_FLAG(CH8_SW,0x10);	// Channel 8 - video
 				packet[17]=0x00;
 				packet[18]=0x00;
 			}
 			else
 			{ // Q282 & Q222
 				flags=3;							// expert
-				if(Servo_AUX4)						// Channel 8 - Q282 video / Q222 Module 1
+				if(CH8_SW)						// Channel 8 - Q282 video / Q222 Module 1
 				{
 					if (!(video_state & 0x20)) video_state ^= 0x21;
 				}
 				else
 					if (video_state & 0x20) video_state &= 0x01;
 				flags2 |= video_state
-						|GET_FLAG(Servo_AUX3,0x10);	// Channel 7 - Q282 picture / Q222 Module 2
+						|GET_FLAG(CH7_SW,0x10);	// Channel 7 - Q282 picture / Q222 Module 2
 			}
-			if(Servo_AUX6)	flags |=0x80;			// Channel 10 - RTH
+			if(CH10_SW)	flags |=0x80;			// Channel 10 - RTH
 			break;
 		case DM007:
 			aileron = 3000 - aileron;
 			//FLIP|MODE|PICTURE|VIDEO|HEADLESS
-			flags2=  GET_FLAG(Servo_AUX3,CX10_FLAG_SNAPSHOT)	// Channel 7 - picture
-					|GET_FLAG(Servo_AUX4,CX10_FLAG_VIDEO);		// Channel 8 - video
-			if(Servo_AUX5)	flags |= CX10_FLAG_HEADLESS;		// Channel 9 - headless
+			flags2=  GET_FLAG(CH7_SW,CX10_FLAG_SNAPSHOT)	// Channel 7 - picture
+					|GET_FLAG(CH8_SW,CX10_FLAG_VIDEO);		// Channel 8 - video
+			if(CH9_SW)	flags |= CX10_FLAG_HEADLESS;		// Channel 9 - headless
 			break;
 		case JC3015_2:
 			aileron = 3000 - aileron;
 			elevator = 3000 - elevator;
 			//FLIP|MODE|LED|DFLIP
-			if(Servo_AUX4)	packet[12] &= ~CX10_FLAG_FLIP;
+			if(CH8_SW)	packet[12] &= ~CX10_FLAG_FLIP;
 		case JC3015_1:
 			//FLIP|MODE|PICTURE|VIDEO
-			flags2=	 GET_FLAG(Servo_AUX3,_BV(3))	// Channel 7
-					|GET_FLAG(Servo_AUX4,_BV(4));	// Channel 8
+			flags2=	 GET_FLAG(CH7_SW,_BV(3))	// Channel 7
+					|GET_FLAG(CH8_SW,_BV(4));	// Channel 8
 			break;
 		case MK33041:
 			elevator = 3000 - elevator;
 			//FLIP|MODE|PICTURE|VIDEO|HEADLESS|RTH
-			flags|=GET_FLAG(Servo_AUX3,_BV(7))	// Channel 7 - picture
-				  |GET_FLAG(Servo_AUX6,_BV(2));	// Channel 10 - rth
-			flags2=GET_FLAG(Servo_AUX4,_BV(0))	// Channel 8 - video
-				  |GET_FLAG(Servo_AUX5,_BV(5));	// Channel 9 - headless
+			flags|=GET_FLAG(CH7_SW,_BV(7))	// Channel 7 - picture
+				  |GET_FLAG(CH10_SW,_BV(2));	// Channel 10 - rth
+			flags2=GET_FLAG(CH8_SW,_BV(0))	// Channel 8 - video
+				  |GET_FLAG(CH9_SW,_BV(5));	// Channel 9 - headless
 			break;
 	}
 	packet[5+offset] = lowByte(aileron);

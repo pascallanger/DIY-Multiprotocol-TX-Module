@@ -35,30 +35,73 @@ void InitFailsafe()
 	#endif
 }
 #endif
+#ifdef ENABLE_PPM
+void InitPPM()
+{
+	for(uint8_t i=0;i<NUM_CHN;i++)
+		PPM_data[i]=PPM_MAX_100+PPM_MIN_100;
+	PPM_data[THROTTLE]=PPM_MIN_100*2;
+}
+#endif
 void InitChannel()
 {
 	for(uint8_t i=0;i<NUM_CHN;i++)
 		Channel_data[i]=1024;
-	#ifdef FAILSAFE_ENABLE
+	#ifdef FAILSAFE_THROTTLE_LOW_VAL
 		Channel_data[THROTTLE]=(uint16_t)FAILSAFE_THROTTLE_LOW_VAL;	//0=-125%, 204=-100%
 	#else
 		Channel_data[THROTTLE]=204;
 	#endif
 }
-
 /************************/
 /**  Convert routines  **/
 /************************/
-// Channel value is converted to 8bit values full scale
+// Revert a channel and store it
+void reverse_channel(uint8_t num)
+{
+	uint16_t val=2048-Channel_data[num];
+	if(val>=2048) val=2047;
+	Channel_data[num]=val;
+}
+// Channel value is converted to ppm 860<->2140 -125%<->+125% and 988<->2012 -100%<->+100%
+uint16_t convert_channel_ppm(uint8_t num)
+{
+	uint16_t val=Channel_data[num];
+	return (((val<<2)+val)>>3)+860;									//value range 860<->2140 -125%<->+125%
+}
+// Channel value 100% is converted to 10bit values 0<->1023
+uint16_t convert_channel_10b(uint8_t num)
+{
+	uint16_t val=Channel_data[num];
+	val=((val<<2)+val)>>3;
+	if(val<=128) return 0;
+	if(val>=1152) return 1023;
+	return val-128;
+}
+// Channel value 100% is converted to 8bit values 0<->255
 uint8_t convert_channel_8b(uint8_t num)
 {
-	return (uint8_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,0,255));	
+	uint16_t val=Channel_data[num];
+	val=((val<<2)+val)>>5;
+	if(val<=32) return 0;
+	if(val>=288) return 255;
+	return val-32;
 }
 
-// Channel value is converted to 8bit values to provided values scale
-uint8_t convert_channel_8b_scale(uint8_t num,uint8_t min,uint8_t max)
+// Channel value 100% is converted to value scaled
+int16_t convert_channel_16b_limit(uint8_t num,int16_t min,int16_t max)
 {
-	return (uint8_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,min,max));	
+	int32_t val=limit_channel_100(num);			// 204<->1844
+	val=(val-CHANNEL_MIN_100)*(max-min)/(CHANNEL_MAX_100-CHANNEL_MIN_100)+min;
+	return (uint16_t)val;
+}
+
+// Channel value -125%<->125% is scaled to 16bit value with no limit
+int16_t convert_channel_16b_nolimit(uint8_t num, int16_t min, int16_t max)
+{
+	int32_t val=Channel_data[num];				// 0<->2047
+	val=(val-CHANNEL_MIN_100)*(max-min)/(CHANNEL_MAX_100-CHANNEL_MIN_100)+min;
+	return (uint16_t)val;
 }
 
 // Channel value is converted sign + magnitude 8bit values
@@ -69,27 +112,25 @@ uint8_t convert_channel_s8b(uint8_t num)
 	return (ch < 128 ? 127-ch : ch);	
 }
 
-// Channel value is converted to 10bit values
-uint16_t convert_channel_10b(uint8_t num)
+// Channel value is limited to 100%
+uint16_t limit_channel_100(uint8_t num)
 {
-	return (uint16_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,1,1023));
-}
-
-// Channel value is multiplied by 1.5
-uint16_t convert_channel_frsky(uint8_t num)
-{
-	return Servo_data[num] + Servo_data[num]/2;
+	if(Channel_data[num]>=CHANNEL_MAX_100)
+		return CHANNEL_MAX_100;
+	if (Channel_data[num]<=CHANNEL_MIN_100)
+		return CHANNEL_MIN_100;
+	return Channel_data[num];
 }
 
 // Channel value is converted for HK310
 void convert_channel_HK310(uint8_t num, uint8_t *low, uint8_t *high)
 {
-	uint16_t temp=0xFFFF-(4*Servo_data[num])/3;
+	uint16_t temp=0xFFFF-(3440+((Channel_data[num]*5)>>1))/3;
 	*low=(uint8_t)(temp&0xFF);
 	*high=(uint8_t)(temp>>8);
 }
-// Failsafe value is converted for HK310
 #ifdef FAILSAFE_ENABLE
+// Failsafe value is converted for HK310
 void convert_failsafe_HK310(uint8_t num, uint8_t *low, uint8_t *high)
 {
 	uint16_t temp=0xFFFF-(3440+((Failsafe_data[num]*5)>>1))/3;
@@ -98,27 +139,11 @@ void convert_failsafe_HK310(uint8_t num, uint8_t *low, uint8_t *high)
 }
 #endif
 
-// Channel value is converted to 16bit values
-uint16_t convert_channel_16b(uint8_t num, int16_t out_min, int16_t out_max)
+// Channel value for FrSky (PPM is multiplied by 1.5)
+uint16_t convert_channel_frsky(uint8_t num)
 {
-	return (uint16_t) (map(limit_channel_100(num),servo_min_100,servo_max_100,out_min,out_max));
-}
-
-// Channel value is converted to 16bit values with no limit
-uint16_t convert_channel_16b_nolim(uint8_t num, int16_t out_min, int16_t out_max)
-{
-	return (uint16_t) (map(Servo_data[num],servo_min_100,servo_max_100,out_min,out_max));
-}
-
-// Channel value is limited to PPM_100
-uint16_t limit_channel_100(uint8_t ch)
-{
-	if(Servo_data[ch]>servo_max_100)
-		return servo_max_100;
-	else
-		if (Servo_data[ch]<servo_min_100)
-			return servo_min_100;
-	return Servo_data[ch];
+	uint16_t val=Channel_data[num];
+	return ((val*15)>>4)+1290;
 }
 
 /******************************/

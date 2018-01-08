@@ -54,13 +54,13 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 	// throttle : 0x00 - 0xFF
 	throttle=convert_channel_8b(THROTTLE);
 	// rudder
-	rudder = convert_channel_8b_scale(RUDDER,0x44,0xBC);	// yaw right : 0x80 (neutral) - 0xBC (right)
+	rudder = convert_channel_16b_limit(RUDDER,0x44,0xBC);	// yaw right : 0x80 (neutral) - 0xBC (right)
 	if (rudder<=0x80)
 		rudder=0x80-rudder;							// yaw left : 0x00 (neutral) - 0x3C (left)
 	// elevator : 0xBB - 0x7F - 0x43
-	elevator = convert_channel_8b_scale(ELEVATOR, 0x43, 0xBB); 
+	elevator = convert_channel_16b_limit(ELEVATOR, 0x43, 0xBB); 
 	// aileron : 0x43 - 0x7F - 0xBB
-	aileron = convert_channel_8b_scale(AILERON, 0x43, 0xBB); 
+	aileron = convert_channel_16b_limit(AILERON, 0x43, 0xBB); 
 	
 	if (bind)
 		packet[0]= 0xaa;
@@ -86,20 +86,20 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 	{
 		// rate
 		packet[13] =					  CG023_FLAG_RATE_HIGH
-					| GET_FLAG(Servo_AUX1,CG023_FLAG_FLIP)
-					| GET_FLAG(Servo_AUX2,CG023_FLAG_LED_OFF)
-					| GET_FLAG(Servo_AUX3,CG023_FLAG_STILL)
-					| GET_FLAG(Servo_AUX4,CG023_FLAG_VIDEO)
-					| GET_FLAG(Servo_AUX5,CG023_FLAG_EASY);
+					| GET_FLAG(CH5_SW,CG023_FLAG_FLIP)
+					| GET_FLAG(CH6_SW,CG023_FLAG_LED_OFF)
+					| GET_FLAG(CH7_SW,CG023_FLAG_STILL)
+					| GET_FLAG(CH8_SW,CG023_FLAG_VIDEO)
+					| GET_FLAG(CH9_SW,CG023_FLAG_EASY);
 	}
 	else
 	{// YD829
 		// rate
 		packet[13] =					  YD829_FLAG_RATE_HIGH
-					| GET_FLAG(Servo_AUX1,YD829_FLAG_FLIP)
-					| GET_FLAG(Servo_AUX3,YD829_FLAG_STILL)
-					| GET_FLAG(Servo_AUX4,YD829_FLAG_VIDEO)
-					| GET_FLAG(Servo_AUX5,YD829_FLAG_HEADLESS);
+					| GET_FLAG(CH5_SW,YD829_FLAG_FLIP)
+					| GET_FLAG(CH7_SW,YD829_FLAG_STILL)
+					| GET_FLAG(CH8_SW,YD829_FLAG_VIDEO)
+					| GET_FLAG(CH9_SW,YD829_FLAG_HEADLESS);
 	}
 	packet[14] = 0;
 	

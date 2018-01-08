@@ -119,8 +119,8 @@ static void __attribute__((unused)) SLT_build_packet()
 	// Extra bits for AETR
 	packet[4] = e;
 	// 8-bit channels
-	packet[5] = convert_channel_8b(AUX1);
-	packet[6] = convert_channel_8b(AUX2);
+	packet[5] = convert_channel_8b(CH5);
+	packet[6] = convert_channel_8b(CH6);
 }
 
 static void __attribute__((unused)) SLT_send_bind_packet()

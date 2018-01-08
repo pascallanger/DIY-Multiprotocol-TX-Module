@@ -208,7 +208,7 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 			case 3	: adjusted_x = THROTTLE;	break;
 			default	: adjusted_x = x;			break;
 		}
-		holdValue = map(limit_channel_100(adjusted_x),servo_min_100,servo_max_100,1000,2000);			// valid channel values are 1000 to 2000
+		holdValue = convert_channel_16b_limit(adjusted_x,1000,2000);				// valid channel values are 1000 to 2000
 		if (bindMode)
 		{
 			switch (adjusted_x)

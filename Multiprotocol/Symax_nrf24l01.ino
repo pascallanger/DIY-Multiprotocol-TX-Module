@@ -66,19 +66,19 @@ static void __attribute__((unused)) SYMAX_read_controls()
 
 	flags=0;
 	// Channel 5
-	if (Servo_AUX1)
+	if (CH5_SW)
 		flags = SYMAX_FLAG_FLIP;
 	// Channel 6
-	if (Servo_AUX2)
+	if (CH6_SW)
 		flags |= SYMAX_XTRM_RATES;
 	// Channel 7
-	if (Servo_AUX3)
+	if (CH7_SW)
 		flags |= SYMAX_FLAG_PICTURE;
 	// Channel 8
-	if (Servo_AUX4)
+	if (CH8_SW)
 		flags |= SYMAX_FLAG_VIDEO;
 	// Channel 9
-	if (Servo_AUX5)
+	if (CH9_SW)
 	{
 		flags |= SYMAX_FLAG_HEADLESS;
 		flags &= ~SYMAX_XTRM_RATES;	// Extended rates & headless incompatible

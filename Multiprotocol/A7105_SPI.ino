@@ -195,7 +195,7 @@ void A7105_AdjustLOBaseFreq(uint8_t cmd)
 		}
 	}
 	if(offset==1024)	// Use channel 15 as an input
-		offset=map(Channel_data[14],CHANNEL_MIN_100,CHANNEL_MAX_100,-300,300);
+		offset=convert_channel_16b_nolimit(CH15,-300,300);
 
 	if(old_offset==offset)	// offset is the same as before...
 			return;

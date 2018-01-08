@@ -50,16 +50,13 @@ void ASSAN_init()
 
 void ASSAN_send_packet()
 {
-	uint16_t temp;
 	for(uint8_t i=0;i<8;i++)
 	{
-		if(mode_select != MODE_SERIAL)					// If in PPM mode extend the output to 1000...2000µs
-			temp=convert_channel_16b_nolim(i,1000,2000);
-		else
-			temp=Servo_data[i];
-		temp<<=3;
-		packet[2*i]=temp>>8;
-		packet[2*i+1]=temp;
+		uint16_t val=Channel_data[i];
+		val=((val<<2)+val)+(860<<3);					// PPM value <<3
+		
+		packet[2*i]=val>>8;
+		packet[2*i+1]=val;
 	}
 	for(uint8_t i=0;i<ASSAN_ADDRESS_LENGTH;i++)
 		packet[16+i]=packet[23-i];

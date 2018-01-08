@@ -74,7 +74,7 @@ static void __attribute__((unused)) H8_3D_send_packet(uint8_t bind)
 		packet[5] = hopping_frequency_no;
 		packet[7] = 0x03;
 
-		rudder = convert_channel_8b_scale(RUDDER,0x44,0xBC);			// yaw right : 0x80 (neutral) - 0xBC (right)
+		rudder = convert_channel_16b_limit(RUDDER,0x44,0xBC);			// yaw right : 0x80 (neutral) - 0xBC (right)
 		if(sub_protocol!=H20H)
 		{ // H8_3D, H20MINI, H30MINI
 			packet[6] = 0x08;
@@ -89,7 +89,7 @@ static void __attribute__((unused)) H8_3D_send_packet(uint8_t bind)
 		else
 		{ //H20H
 			packet[6] = hopping_frequency_no == 0 ? 8 - packet_count : 16 - packet_count;
-			packet[9] = convert_channel_8b_scale(THROTTLE, 0x43, 0xBB);	// throttle : 0x43 - 0x7F - 0xBB
+			packet[9] = convert_channel_16b_limit(THROTTLE, 0x43, 0xBB);	// throttle : 0x43 - 0x7F - 0xBB
 			packet[15]= 0x40;	// trims
 			packet[16]= 0x40;	// trims
 			rudder--;													// rudder : 0x43 - 0x7F - 0xBB
@@ -97,24 +97,24 @@ static void __attribute__((unused)) H8_3D_send_packet(uint8_t bind)
 				rudder=0x7F;	// Small deadband
 		}
 		packet[10] = rudder;
-		packet[11] = convert_channel_8b_scale(ELEVATOR, 0x43, 0xBB);	// elevator : 0x43 - 0x7F - 0xBB
-		packet[12] = convert_channel_8b_scale(AILERON,  0x43, 0xBB);	// aileron  : 0x43 - 0x7F - 0xBB
+		packet[11] = convert_channel_16b_limit(ELEVATOR, 0x43, 0xBB);	// elevator : 0x43 - 0x7F - 0xBB
+		packet[12] = convert_channel_16b_limit(AILERON,  0x43, 0xBB);	// aileron  : 0x43 - 0x7F - 0xBB
 		// neutral trims
 		packet[13] = 0x20;
 		packet[14] = 0x20;
 		// flags
 		packet[17] = 					  H8_3D_FLAG_RATE_HIGH
-					| GET_FLAG(Servo_AUX1,H8_3D_FLAG_FLIP)
-					| GET_FLAG(Servo_AUX2,H8_3D_FLAG_LIGTH) //H22 light
-					| GET_FLAG(Servo_AUX5,H8_3D_FLAG_HEADLESS)
-					| GET_FLAG(Servo_AUX6,H8_3D_FLAG_RTH); // 180/360 flip mode on H8 3D
-		packet[18] =  GET_FLAG(Servo_AUX3,H8_3D_FLAG_PICTURE)
-					| GET_FLAG(Servo_AUX4,H8_3D_FLAG_VIDEO)
-					| GET_FLAG(Servo_AUX7,H8_3D_FLAG_CALIBRATE1)
-					| GET_FLAG(Servo_AUX8,H8_3D_FLAG_CALIBRATE2);
-		if(Servo_data[AUX9]<PPM_MIN_COMMAND)
+					| GET_FLAG(CH5_SW,H8_3D_FLAG_FLIP)
+					| GET_FLAG(CH6_SW,H8_3D_FLAG_LIGTH) //H22 light
+					| GET_FLAG(CH9_SW,H8_3D_FLAG_HEADLESS)
+					| GET_FLAG(CH10_SW,H8_3D_FLAG_RTH); // 180/360 flip mode on H8 3D
+		packet[18] =  GET_FLAG(CH7_SW,H8_3D_FLAG_PICTURE)
+					| GET_FLAG(CH8_SW,H8_3D_FLAG_VIDEO)
+					| GET_FLAG(CH11_SW,H8_3D_FLAG_CALIBRATE1)
+					| GET_FLAG(CH12_SW,H8_3D_FLAG_CALIBRATE2);
+		if(Channel_data[CH13]<CHANNEL_MIN_COMMAND)
 			packet[18] |= H8_3D_FLAG_CAM_DN;
-		if(Servo_data[AUX9]>PPM_MAX_COMMAND)
+		if(CH13_SW)
 			packet[18] |= H8_3D_FLAG_CAM_UP;
 	}
 	uint8_t  sum = packet[9];

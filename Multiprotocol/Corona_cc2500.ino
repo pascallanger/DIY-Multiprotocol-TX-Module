@@ -120,8 +120,9 @@ static void __attribute__((unused)) CORONA_send_packet()
 			memset(packet+9, 0x00, 4);
 			for(uint8_t i=0; i<8; i++)
 			{	// Channel values are packed
-				packet[i+1] = Servo_data[i];
-				packet[9 + (i>>1)] |= (i&0x01)?(Servo_data[i]>>4)&0xF0:(Servo_data[i]>>8)&0x0F;
+				uint16_t val=convert_channel_ppm(i);
+				packet[i+1] = val;
+				packet[9 + (i>>1)] |= (i&0x01)?(val>>4)&0xF0:(val>>8)&0x0F;
 			}
 
 			//TX ID

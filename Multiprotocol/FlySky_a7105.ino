@@ -58,37 +58,37 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 	switch(sub_protocol)
 	{
 		case V9X9:
-			if(Servo_AUX1)
+			if(CH5_SW)
 				packet[12] |= FLAG_V9X9_FLIP;
-			if(Servo_AUX2)
+			if(CH6_SW)
 				packet[12] |= FLAG_V9X9_LED;
-			if(Servo_AUX3)
+			if(CH7_SW)
 				packet[10] |= FLAG_V9X9_CAMERA;
-			if(Servo_AUX4)
+			if(CH8_SW)
 				packet[10] |= FLAG_V9X9_VIDEO;
 			break;
 			
 		case V6X6:
 			packet[13] = 0x03; // 3 = 100% rate (0=40%, 1=60%, 2=80%)
 			packet[14] = 0x00;
-			if(Servo_AUX1) 
+			if(CH5_SW) 
 				packet[14] |= FLAG_V6X6_FLIP;
-			if(Servo_AUX2) 
+			if(CH6_SW) 
 				packet[14] |= FLAG_V6X6_LED;
-			if(Servo_AUX3) 
+			if(CH7_SW) 
 				packet[14] |= FLAG_V6X6_CAMERA;
-			if(Servo_AUX4) 
+			if(CH8_SW) 
 				packet[14] |= FLAG_V6X6_VIDEO;
-			if(Servo_AUX5)
+			if(CH9_SW)
 			{ 
 				packet[13] |= FLAG_V6X6_HLESS1;
 				packet[14] |= FLAG_V6X6_HLESS2;
 			}
-			if(Servo_AUX6)
+			if(CH10_SW)
 				packet[14] |= FLAG_V6X6_RTH;
-			if(Servo_AUX7) 
+			if(CH11_SW) 
 				packet[14] |= FLAG_V6X6_XCAL;
-			if(Servo_AUX8) 
+			if(CH12_SW) 
 				packet[14] |= FLAG_V6X6_YCAL;
 			packet[15] = 0x10; // unknown
 			packet[16] = 0x10; // unknown
@@ -105,9 +105,9 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 			packet[12] |= 0x20; // bit 6 is always set ?
 			packet[13] = 0x00;  // unknown
 			packet[14] = 0x00;
-			if(Servo_AUX1)
+			if(CH5_SW)
 				packet[14]  = FLAG_V912_BTMBTN;
-			if(Servo_AUX2)
+			if(CH6_SW)
 				packet[14] |= FLAG_V912_TOPBTN;
 			packet[15] = 0x27; // [15] and [16] apparently hold an analog channel with a value lower than 1000
 			packet[16] = 0x03; // maybe it's there for a pitch channel for a CP copter ?
@@ -136,7 +136,7 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
 	//-100% =~ 0x03e8//=1000us(min)
 	//+100% =~ 0x07ca//=1994us(max)
 	//Center = 0x5d9//=1497us(center)
-	//channel order AIL;ELE;THR;RUD;AUX1;AUX2;AUX3;AUX4
+	//channel order AIL;ELE;THR;RUD;CH5;CH6;CH7;CH8
     packet[0] = init ? 0xaa : 0x55;
     packet[1] = rx_tx_addr[3];
     packet[2] = rx_tx_addr[2];
@@ -144,11 +144,9 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
     packet[4] = rx_tx_addr[0];
 	for(i = 0; i < 8; i++)
 	{
-		uint16_t temp=Servo_data[CH_AETR[i]];
-		if(sub_protocol == CX20 && CH_AETR[i] == ELEVATOR)
-			temp=servo_mid-temp;		//reverse channel
-		if(mode_select != MODE_SERIAL)	//if in PPM mode extend the output to 1000...2000µs
-			temp=map(temp,servo_min_100,servo_max_100,1000,2000);
+		uint16_t temp=convert_channel_ppm(CH_AETR[i]);
+		if(sub_protocol == CX20 && CH_AETR[i]==ELEVATOR)
+			temp=3000-temp;
 		packet[5 + i*2]=temp&0xFF;		//low byte of servo timing(1000-2000us)
 		packet[6 + i*2]=(temp>>8)&0xFF;	//high byte of servo timing(1000-2000us)
 	}

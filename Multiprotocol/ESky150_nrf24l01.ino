@@ -84,19 +84,19 @@ static void __attribute__((unused)) ESKY150_bind_init()
 static void __attribute__((unused)) ESKY150_send_packet()
 {
 	// Build packet
-	uint16_t throttle=convert_channel_16b(THROTTLE,1000,2000);
-	uint16_t aileron=convert_channel_16b(AILERON,1000,2000);
-	uint16_t elevator=convert_channel_16b(ELEVATOR,1000,2000);
-	uint16_t rudder=convert_channel_16b(RUDDER,1000,2000);
+	uint16_t throttle=convert_channel_16b_limit(THROTTLE,1000,2000);
+	uint16_t aileron=convert_channel_16b_limit(AILERON,1000,2000);
+	uint16_t elevator=convert_channel_16b_limit(ELEVATOR,1000,2000);
+	uint16_t rudder=convert_channel_16b_limit(RUDDER,1000,2000);
 	//set unused channels to zero, for compatibility with older 4 channel models
 	uint8_t flight_mode=0;
 	uint16_t aux_ch6=0;
 	uint8_t aux_ch7=0;
 	if(option==1)
 	{
-		flight_mode=ESKY150_convert_2bit_channel(AUX1);
-		aux_ch6=convert_channel_16b(AUX2,1000,2000);
-		aux_ch7=ESKY150_convert_2bit_channel(AUX3);
+		flight_mode=ESKY150_convert_2bit_channel(CH5);
+		aux_ch6=convert_channel_16b_limit(CH6,1000,2000);
+		aux_ch7=ESKY150_convert_2bit_channel(CH7);
 	}
 	packet[0]  = hopping_frequency[0];
 	packet[1]  = hopping_frequency[1];
@@ -137,13 +137,13 @@ static void __attribute__((unused)) ESKY150_send_packet()
 
 uint8_t ESKY150_convert_2bit_channel(uint8_t num)
 {
-	if(Servo_data[num] > PPM_MAX_COMMAND)
+	if(Channel_data[num] > CHANNEL_MAX_COMMAND)
 		return 0x03;
 	else
-		if(Servo_data[num] < PPM_MIN_COMMAND)
+		if(Channel_data[num] < CHANNEL_MIN_COMMAND)
 			return 0x00;
 		else
-			if(Servo_data[num] > PPM_SWITCH)
+			if(Channel_data[num] > CHANNEL_SWITCH)
 				return 0x02;
 	return 0x01;	
 }

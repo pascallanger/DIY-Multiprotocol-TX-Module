@@ -125,15 +125,15 @@ static void __attribute__((unused)) FQ777_send_packet(uint8_t bind)
 			else // roll
 				trim_val = 0x60;
 
-		packet_ori[0] = convert_channel_8b_scale(THROTTLE,0,0x64);
-		packet_ori[1] = convert_channel_8b_scale(RUDDER,0,0x64);
-		packet_ori[2] = convert_channel_8b_scale(ELEVATOR,0,0x64);
-		packet_ori[3] = convert_channel_8b_scale(AILERON,0,0x64);
+		packet_ori[0] = convert_channel_16b_limit(THROTTLE,0,0x64);
+		packet_ori[1] = convert_channel_16b_limit(RUDDER,0,0x64);
+		packet_ori[2] = convert_channel_16b_limit(ELEVATOR,0,0x64);
+		packet_ori[3] = convert_channel_16b_limit(AILERON,0,0x64);
 		packet_ori[4] = trim_val; // calculated above
-		packet_ori[5] = GET_FLAG(Servo_AUX1, FQ777_FLAG_FLIP)
-				  | GET_FLAG(Servo_AUX3, FQ777_FLAG_HEADLESS)
-				  | GET_FLAG(!Servo_AUX2, FQ777_FLAG_RETURN)
-				  | GET_FLAG(Servo_AUX4,FQ777_FLAG_EXPERT);
+		packet_ori[5] = GET_FLAG(CH5_SW, FQ777_FLAG_FLIP)
+				  | GET_FLAG(CH7_SW, FQ777_FLAG_HEADLESS)
+				  | GET_FLAG(!CH6_SW, FQ777_FLAG_RETURN)
+				  | GET_FLAG(CH8_SW,FQ777_FLAG_EXPERT);
 		packet_ori[6] = 0x00;
 		// calculate checksum
 		uint8_t checksum = 0;

@@ -122,10 +122,10 @@ static void __attribute__((unused)) build_ch_data()
 	uint8_t i,j;
 	for (i = 0; i< 8; i++) {
 		j=CH_AETR[i];
-		temp=map(limit_channel_100(j),servo_min_100,servo_max_100,0,1000);            			
+		temp=convert_channel_16b_limit(j,0,1000);            			
 		if (j == THROTTLE) // It is clear that hisky's throttle stick is made reversely, so I adjust it here on purpose
 			temp = 1000 -temp;
-		if (j == AUX3)
+		if (j == CH7)
 			temp = temp < 400 ? 0 : 3; // Gyro mode, 0 - 6 axis, 3 - 3 axis 
 		packet[i] = (uint8_t)(temp&0xFF);
 		packet[i<4?8:9]>>=2;
@@ -156,7 +156,7 @@ uint16_t hisky_cb()
 					{ //  send failsafe every 100ms
 						convert_failsafe_HK310(RUDDER,  &packet[0],&packet[1]);
 						convert_failsafe_HK310(THROTTLE,&packet[2],&packet[3]);
-						convert_failsafe_HK310(AUX1,    &packet[4],&packet[5]);
+						convert_failsafe_HK310(CH5,    &packet[4],&packet[5]);
 						packet[7]=0xAA;
 						packet[8]=0x5A;
 					}
@@ -165,7 +165,7 @@ uint16_t hisky_cb()
 					{
 						convert_channel_HK310(RUDDER,  &packet[0],&packet[1]);
 						convert_channel_HK310(THROTTLE,&packet[2],&packet[3]);
-						convert_channel_HK310(AUX1,    &packet[4],&packet[5]);
+						convert_channel_HK310(CH5,    &packet[4],&packet[5]);
 						packet[7]=0x55;
 						packet[8]=0x67;
 					}

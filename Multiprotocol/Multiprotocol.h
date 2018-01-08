@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	5
+#define VERSION_PATCH_LEVEL	7
 //******************
 // Protocols
 //******************
@@ -364,16 +364,18 @@ enum MultiPacketTypes
 //***  AUX flags  ***
 //*******************
 #define GET_FLAG(ch, mask) ( ch ? mask : 0)
-#define Servo_AUX1	(Servo_AUX & _BV(0))
-#define Servo_AUX2	(Servo_AUX & _BV(1))
-#define Servo_AUX3	(Servo_AUX & _BV(2))
-#define Servo_AUX4	(Servo_AUX & _BV(3))
-#define Servo_AUX5	(Servo_AUX & _BV(4))
-#define Servo_AUX6	(Servo_AUX & _BV(5))
-#define Servo_AUX7	(Servo_AUX & _BV(6))
-#define Servo_AUX8	(Servo_AUX & _BV(7))
-#define Servo_AUX9	(Servo_data[AUX9 ]>PPM_SWITCH)
-#define Servo_AUX10	(Servo_data[AUX10]>PPM_SWITCH)
+#define CH5_SW	(Channel_AUX & _BV(0))
+#define CH6_SW	(Channel_AUX & _BV(1))
+#define CH7_SW	(Channel_AUX & _BV(2))
+#define CH8_SW	(Channel_AUX & _BV(3))
+#define CH9_SW	(Channel_AUX & _BV(4))
+#define CH10_SW	(Channel_AUX & _BV(5))
+#define CH11_SW	(Channel_AUX & _BV(6))
+#define CH12_SW	(Channel_AUX & _BV(7))
+#define CH13_SW	(Channel_data[CH13]>CHANNEL_SWITCH)
+#define CH14_SW	(Channel_data[CH14]>CHANNEL_SWITCH)
+#define CH15_SW	(Channel_data[CH15]>CHANNEL_SWITCH)
+#define CH16_SW	(Channel_data[CH16]>CHANNEL_SWITCH)
 
 //************************
 //***  Power settings  ***

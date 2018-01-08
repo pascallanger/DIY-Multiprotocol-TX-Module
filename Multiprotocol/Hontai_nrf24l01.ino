@@ -69,60 +69,60 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 	else
 	{
 		memset(packet,0,HONTAI_PACKET_SIZE);
-		packet[3] = convert_channel_8b_scale(THROTTLE, 0, 127) << 1;	// Throttle
-		packet[4] = convert_channel_8b_scale(AILERON, 63, 0);			// Aileron
-		packet[5] = convert_channel_8b_scale(ELEVATOR, 0, 63);			// Elevator
-		packet[6] = convert_channel_8b_scale(RUDDER, 0, 63);			// Rudder
+		packet[3] = convert_channel_16b_limit(THROTTLE, 0, 127) << 1;	// Throttle
+		packet[4] = convert_channel_16b_limit(AILERON, 63, 0);			// Aileron
+		packet[5] = convert_channel_16b_limit(ELEVATOR, 0, 63);			// Elevator
+		packet[6] = convert_channel_16b_limit(RUDDER, 0, 63);			// Rudder
 		if(sub_protocol == FORMAT_X5C1)
-			packet[7] = convert_channel_8b_scale(AILERON, 0, 63)-31;	// Aileron trim
+			packet[7] = convert_channel_16b_limit(AILERON, 0, 63)-31;	// Aileron trim
 		else
-			packet[7] = convert_channel_8b_scale(AILERON, 0, 32)-16;	// Aileron trim
-		packet[8] = convert_channel_8b_scale(RUDDER, 0, 32)-16;			// Rudder trim
+			packet[7] = convert_channel_16b_limit(AILERON, 0, 32)-16;	// Aileron trim
+		packet[8] = convert_channel_16b_limit(RUDDER, 0, 32)-16;			// Rudder trim
 		if (sub_protocol == FORMAT_X5C1)
-			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 63)-31;	// Elevator trim
+			packet[9] = convert_channel_16b_limit(ELEVATOR, 0, 63)-31;	// Elevator trim
 		else
-			packet[9] = convert_channel_8b_scale(ELEVATOR, 0, 32)-16;	// Elevator trim
+			packet[9] = convert_channel_16b_limit(ELEVATOR, 0, 32)-16;	// Elevator trim
 		switch(sub_protocol)
 		{
 			case FORMAT_HONTAI:
 				packet[0]  = 0x0B;
-				packet[3] |= GET_FLAG(Servo_AUX3, 0x01);				// Picture
-				packet[4] |= GET_FLAG(Servo_AUX6, 0x80)					// RTH
-						  |  GET_FLAG(Servo_AUX5, 0x40);				// Headless
-				packet[5] |= GET_FLAG(Servo_AUX7, 0x80)					// Calibrate
-						  |  GET_FLAG(Servo_AUX1, 0x40);				// Flip
-				packet[6] |= GET_FLAG(Servo_AUX4, 0x80);				// Video
+				packet[3] |= GET_FLAG(CH7_SW, 0x01);				// Picture
+				packet[4] |= GET_FLAG(CH10_SW, 0x80)					// RTH
+						  |  GET_FLAG(CH9_SW, 0x40);				// Headless
+				packet[5] |= GET_FLAG(CH11_SW, 0x80)					// Calibrate
+						  |  GET_FLAG(CH5_SW, 0x40);				// Flip
+				packet[6] |= GET_FLAG(CH8_SW, 0x80);				// Video
 				break;
 			case FORMAT_JJRCX1:
-				packet[0]  = GET_FLAG(Servo_AUX2, 0x02);				// Arm
-				packet[3] |= GET_FLAG(Servo_AUX3, 0x01);				// Picture
+				packet[0]  = GET_FLAG(CH6_SW, 0x02);				// Arm
+				packet[3] |= GET_FLAG(CH7_SW, 0x01);				// Picture
 				packet[4] |= 0x80;										// unknown
-				packet[5] |= GET_FLAG(Servo_AUX7, 0x80)					// Calibrate
-						  |  GET_FLAG(Servo_AUX1, 0x40);				// Flip
-				packet[6] |= GET_FLAG(Servo_AUX4, 0x80);				// Video
+				packet[5] |= GET_FLAG(CH11_SW, 0x80)					// Calibrate
+						  |  GET_FLAG(CH5_SW, 0x40);				// Flip
+				packet[6] |= GET_FLAG(CH8_SW, 0x80);				// Video
 				packet[8]  = 0xC0										// high rate, no rudder trim
-						  |  GET_FLAG(Servo_AUX6, 0x02)					// RTH
-						  |  GET_FLAG(Servo_AUX5, 0x01);				// Headless
+						  |  GET_FLAG(CH10_SW, 0x02)					// RTH
+						  |  GET_FLAG(CH9_SW, 0x01);				// Headless
 				break;
 			case FORMAT_X5C1:
 				packet[0]  = 0x0B;
-				packet[3] |= GET_FLAG(Servo_AUX3, 0x01);				// Picture
+				packet[3] |= GET_FLAG(CH7_SW, 0x01);				// Picture
 				packet[4]  = 0x80										// unknown
-						  |  GET_FLAG(Servo_AUX2, 0x40);				// Lights
-				packet[5] |= GET_FLAG(Servo_AUX7, 0x80)					// Calibrate
-						  |  GET_FLAG(Servo_AUX1, 0x40);				// Flip
-				packet[6] |= GET_FLAG(Servo_AUX4, 0x80);				// Video
+						  |  GET_FLAG(CH6_SW, 0x40);				// Lights
+				packet[5] |= GET_FLAG(CH11_SW, 0x80)					// Calibrate
+						  |  GET_FLAG(CH5_SW, 0x40);				// Flip
+				packet[6] |= GET_FLAG(CH8_SW, 0x80);				// Video
 				packet[8]  = 0xC0										// high rate, no rudder trim
-						  |  GET_FLAG(Servo_AUX6, 0x02)					// RTH
-						  |  GET_FLAG(Servo_AUX5, 0x01);				// Headless
+						  |  GET_FLAG(CH10_SW, 0x02)					// RTH
+						  |  GET_FLAG(CH9_SW, 0x01);				// Headless
 				break;
 			case FORMAT_FQ777_951:
-				packet[0]  = GET_FLAG(Servo_AUX3, 0x01)					// Picture
-						  |  GET_FLAG(Servo_AUX4, 0x02);				// Video
-				packet[3] |= GET_FLAG(Servo_AUX1, 0x01);				// Flip
+				packet[0]  = GET_FLAG(CH7_SW, 0x01)					// Picture
+						  |  GET_FLAG(CH8_SW, 0x02);				// Video
+				packet[3] |= GET_FLAG(CH5_SW, 0x01);				// Flip
 				packet[4] |= 0xC0;										// High rate (mid=0xa0, low=0x60)
-				packet[5] |= GET_FLAG(Servo_AUX7, 0x80);				// Calibrate
-				packet[6] |= GET_FLAG(Servo_AUX5, 0x40);				// Headless
+				packet[5] |= GET_FLAG(CH11_SW, 0x80);				// Calibrate
+				packet[6] |= GET_FLAG(CH9_SW, 0x40);				// Headless
 				break;
 		}
 	}

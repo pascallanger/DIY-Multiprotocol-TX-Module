@@ -6,54 +6,6 @@
 #include <string.h>
 #include <avr/interrupt.h>
 
-/*static void protocol_init(void) ;
-static void update_channels_aux(void) ;
-static uint32_t random_id(uint16_t adress, uint8_t create_new) ;
-static void update_serial_data(void) ;
-static void Mprotocol_serial_init(void) ;
-static void update_led_status(void) ;
-static void set_rx_tx_addr(uint32_t id) ;
-uint16_t limit_channel_100(uint8_t ch) ;
-void initTXSerial( uint8_t speed);
-void Serial_write(uint8_t data);
-
-extern void NRF24L01_Reset(void ) ;
-extern void A7105_Reset(void ) ;
-extern void CC2500_Reset(void ) ;
-extern uint8_t CYRF_Reset(void ) ;
-extern void CYRF_SetTxRxMode(uint8_t mode) ;
-
-extern void frskyUpdate(void) ;
-extern uint16_t initDsm2(void) ;
-extern uint16_t ReadDsm2(void) ;
-extern uint16_t DevoInit(void) ;
-extern uint16_t devo_callback(void) ;
-extern uint16_t initJ6Pro(void) ;
-extern uint16_t ReadJ6Pro(void) ;
-extern uint16_t WK_setup(void) ;
-extern uint16_t WK_cb(void) ;
-
-extern void randomSeed(unsigned int seed) ;
-extern long random(long howbig) ;
-extern long map(long x, long in_min, long in_max, long out_min, long out_max) ;
-
-extern uint32_t millis(void) ;
-extern uint32_t micros(void) ;
-extern void delayMicroseconds(uint16_t x) ;
-extern void delayMilliseconds(unsigned long ms) ;
-extern void init(void) ;
-
-extern void modules_reset() ;
-extern uint8_t Update_All() ;
-extern void tx_pause() ;
-extern void tx_resume() ;
-extern void TelemetryUpdate() ;
-extern uint16_t initDsm() ;
-extern uint16_t ReadDsm() ;
-
-extern void setup() ;
-extern void loop() ;
-*/
 #define yield()
 
 #define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )

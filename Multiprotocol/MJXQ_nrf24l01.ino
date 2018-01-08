@@ -80,19 +80,19 @@ const uint8_t PROGMEM E010_map_rfchan[][2] = {
 #define MJXQ_TILT_UP		0x10
 static uint8_t __attribute__((unused)) MJXQ_pan_tilt_value()
 {
-// Servo_AUX8	PAN			// H26D
-// Servo_AUX9	TILT
+// CH12_SW	PAN			// H26D
+// CH13_SW	TILT
 	uint8_t	pan = 0;
 	packet_count++;
 	if(packet_count & MJXQ_PAN_TILT_COUNT)
 	{
-		if(Servo_data[AUX8]>PPM_MAX_COMMAND)
+		if(CH12_SW)
 			pan=MJXQ_PAN_UP;
-		if(Servo_data[AUX8]<PPM_MIN_COMMAND)
+		if(Channel_data[CH12]<CHANNEL_MIN_COMMAND)
 			pan=MJXQ_PAN_DOWN;
-		if(Servo_data[AUX9]>PPM_MAX_COMMAND)
+		if(CH13_SW)
 			pan+=MJXQ_TILT_UP;
-		if(Servo_data[AUX9]<PPM_MIN_COMMAND)
+		if(Channel_data[CH13]<CHANNEL_MIN_COMMAND)
 			pan+=MJXQ_TILT_DOWN;
 	}
 	return pan;
@@ -105,9 +105,9 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	packet[1] = convert_channel_s8b(RUDDER);
 	packet[4] = 0x40;							// rudder does not work well with dyntrim
 	packet[2] = 0x80 ^ convert_channel_s8b(ELEVATOR);
-	packet[5] = (Servo_AUX5 || Servo_AUX10) ? 0x40 : MJXQ_CHAN2TRIM(packet[2]);	// trim elevator
+	packet[5] = (CH9_SW || CH14_SW) ? 0x40 : MJXQ_CHAN2TRIM(packet[2]);	// trim elevator
 	packet[3] = convert_channel_s8b(AILERON);
-	packet[6] = (Servo_AUX5 || Servo_AUX10) ? 0x40 : MJXQ_CHAN2TRIM(packet[3]);	// trim aileron
+	packet[6] = (CH9_SW || CH14_SW) ? 0x40 : MJXQ_CHAN2TRIM(packet[3]);	// trim aileron
 	packet[7] = rx_tx_addr[0];
 	packet[8] = rx_tx_addr[1];
 	packet[9] = rx_tx_addr[2];
@@ -119,16 +119,16 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 
 	packet[14] = 0xC0;							// bind value
 
-// Servo_AUX1	FLIP
-// Servo_AUX2	LED / ARM
-// Servo_AUX3	PICTURE
-// Servo_AUX4	VIDEO
-// Servo_AUX5	HEADLESS
-// Servo_AUX6	RTH
-// Servo_AUX7	AUTOFLIP	// X800, X600
-// Servo_AUX8	PAN
-// Servo_AUX9	TILT
-// Servo_AUX10	XTRM		// Dyntrim, don't use if high.
+// CH5_SW	FLIP
+// CH6_SW	LED / ARM
+// CH7_SW	PICTURE
+// CH8_SW	VIDEO
+// CH9_SW	HEADLESS
+// CH10_SW	RTH
+// CH11_SW	AUTOFLIP	// X800, X600
+// CH12_SW	PAN
+// CH13_SW	TILT
+// CH14_SW	XTRM		// Dyntrim, don't use if high.
 	switch(sub_protocol)
 	{
 		case H26WH:
@@ -137,45 +137,45 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 			// fall through on purpose - no break
 		case WLH08:
 		case E010:
-			packet[10] += GET_FLAG(Servo_AUX6, 0x02)	//RTH
-						| GET_FLAG(Servo_AUX5, 0x01);	//HEADLESS
+			packet[10] += GET_FLAG(CH10_SW, 0x02)	//RTH
+						| GET_FLAG(CH9_SW, 0x01);	//HEADLESS
 			if (!bind)
 			{
 				packet[14] = 0x04
-						| GET_FLAG(Servo_AUX1, 0x01)	//FLIP
-						| GET_FLAG(Servo_AUX3, 0x08)	//PICTURE
-						| GET_FLAG(Servo_AUX4, 0x10)	//VIDEO
-						| GET_FLAG(!Servo_AUX2, 0x20);	// LED or air/ground mode
+						| GET_FLAG(CH5_SW, 0x01)	//FLIP
+						| GET_FLAG(CH7_SW, 0x08)	//PICTURE
+						| GET_FLAG(CH8_SW, 0x10)	//VIDEO
+						| GET_FLAG(!CH6_SW, 0x20);	// LED or air/ground mode
 				if(sub_protocol==H26WH)
 				{
 					packet[10] |=0x40;					//High rate
 					packet[14] &= ~0x24;				// unset air/ground & arm flags
-					packet[14] |= GET_FLAG(Servo_AUX2, 0x02);	// arm
+					packet[14] |= GET_FLAG(CH6_SW, 0x02);	// arm
 				}
 			}
 			break;
 		case X600:
-			packet[10] = GET_FLAG(!Servo_AUX2, 0x02);	//LED
-			packet[11] = GET_FLAG(Servo_AUX6, 0x01);	//RTH
+			packet[10] = GET_FLAG(!CH6_SW, 0x02);	//LED
+			packet[11] = GET_FLAG(CH10_SW, 0x01);	//RTH
 			if (!bind)
 			{
 				packet[14] = 0x02						// always high rates by bit2 = 1
-						| GET_FLAG(Servo_AUX1, 0x04)	//FLIP
-						| GET_FLAG(Servo_AUX7, 0x10)	//AUTOFLIP
-						| GET_FLAG(Servo_AUX5, 0x20);	//HEADLESS
+						| GET_FLAG(CH5_SW, 0x04)	//FLIP
+						| GET_FLAG(CH11_SW, 0x10)	//AUTOFLIP
+						| GET_FLAG(CH9_SW, 0x20);	//HEADLESS
 			}
 			break;
 		case X800:
 		default:
 			packet[10] = 0x10
-					| GET_FLAG(!Servo_AUX2, 0x02)	//LED
-					| GET_FLAG(Servo_AUX7, 0x01);	//AUTOFLIP
+					| GET_FLAG(!CH6_SW, 0x02)	//LED
+					| GET_FLAG(CH11_SW, 0x01);	//AUTOFLIP
 			if (!bind)
 			{
 				packet[14] = 0x02						// always high rates by bit2 = 1
-						| GET_FLAG(Servo_AUX1, 0x04)	//FLIP
-						| GET_FLAG(Servo_AUX3, 0x08)	//PICTURE
-						| GET_FLAG(Servo_AUX4, 0x10);	//VIDEO
+						| GET_FLAG(CH5_SW, 0x04)	//FLIP
+						| GET_FLAG(CH7_SW, 0x08)	//PICTURE
+						| GET_FLAG(CH8_SW, 0x10);	//VIDEO
 			}
 			break;
 	}

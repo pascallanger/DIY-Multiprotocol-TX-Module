@@ -47,11 +47,11 @@ static void __attribute__((unused)) send_packet(uint8_t bind)
 	}
 	else
 	{
-		packet[1] = 0x01 | GET_FLAG(AUX1, 0x40); // flip
-		packet[2] = convert_channel_8b_scale(AILERON , 200, 0); // aileron
-		packet[3] = convert_channel_8b_scale(ELEVATOR, 0, 200); // elevator
-		packet[4] = convert_channel_8b_scale(RUDDER  , 200, 0); // rudder
-		packet[5] = convert_channel_8b_scale(THROTTLE, 0, 200); // throttle
+		packet[1] = 0x01 | GET_FLAG(CH5, 0x40); // flip
+		packet[2] = convert_channel_16b_limit(AILERON , 200, 0); // aileron
+		packet[3] = convert_channel_16b_limit(ELEVATOR, 0, 200); // elevator
+		packet[4] = convert_channel_16b_limit(RUDDER  , 200, 0); // rudder
+		packet[5] = convert_channel_16b_limit(THROTTLE, 0, 200); // throttle
 		packet[6] = 0xaa;
 		packet[7] = 0x02; // max rate
 		packet[8] = 0x00;

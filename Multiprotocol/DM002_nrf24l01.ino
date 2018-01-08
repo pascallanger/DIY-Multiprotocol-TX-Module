@@ -52,19 +52,19 @@ static void __attribute__((unused)) DM002_send_packet(uint8_t bind)
 	{
 		packet[0]=0x55;
 		// Throttle : 0 .. 200
-		packet[1]=convert_channel_8b_scale(THROTTLE,0,200);
+		packet[1]=convert_channel_16b_limit(THROTTLE,0,200);
 		// Other channels min 0x57, mid 0x7F, max 0xA7
-		packet[2] = convert_channel_8b_scale(RUDDER,0x57,0xA7);
-		packet[3] = convert_channel_8b_scale(AILERON, 0x57,0xA7);
-		packet[4] = convert_channel_8b_scale(ELEVATOR, 0xA7, 0x57);
+		packet[2] = convert_channel_16b_limit(RUDDER,0x57,0xA7);
+		packet[3] = convert_channel_16b_limit(AILERON, 0x57,0xA7);
+		packet[4] = convert_channel_16b_limit(ELEVATOR, 0xA7, 0x57);
 		// Features
-		packet[9] =   GET_FLAG(Servo_AUX1,DM002_FLAG_FLIP)
-					| GET_FLAG(!Servo_AUX2,DM002_FLAG_LED)
-					| GET_FLAG(Servo_AUX3,DM002_FLAG_CAMERA1)
-					| GET_FLAG(Servo_AUX4,DM002_FLAG_CAMERA2)
-					| GET_FLAG(Servo_AUX5,DM002_FLAG_HEADLESS)
-					| GET_FLAG(Servo_AUX6,DM002_FLAG_RTH)
-					| GET_FLAG(!Servo_AUX7,DM002_FLAG_HIGH);
+		packet[9] =   GET_FLAG(CH5_SW,DM002_FLAG_FLIP)
+					| GET_FLAG(!CH6_SW,DM002_FLAG_LED)
+					| GET_FLAG(CH7_SW,DM002_FLAG_CAMERA1)
+					| GET_FLAG(CH8_SW,DM002_FLAG_CAMERA2)
+					| GET_FLAG(CH9_SW,DM002_FLAG_HEADLESS)
+					| GET_FLAG(CH10_SW,DM002_FLAG_RTH)
+					| GET_FLAG(!CH11_SW,DM002_FLAG_HIGH);
 		// Packet counter
 		if(packet_count&0x03)
 		{

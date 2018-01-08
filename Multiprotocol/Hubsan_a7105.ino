@@ -162,11 +162,11 @@ static void __attribute__((unused)) hubsan_build_packet()
 		{
 			packet[9] = 0x02;
 			// Channel 5
-			if(Servo_AUX1)	packet[9] |= HUBSAN_FLAG_FLIP;
+			if(CH5_SW)	packet[9] |= HUBSAN_FLAG_FLIP;
 			// Channel 6
-			if(Servo_AUX2)	packet[9] |= HUBSAN_FLAG_LED;
+			if(CH6_SW)	packet[9] |= HUBSAN_FLAG_LED;
 			// Channel 8
-			if(Servo_AUX4)	packet[9] |= HUBSAN_FLAG_VIDEO; // H102D
+			if(CH8_SW)	packet[9] |= HUBSAN_FLAG_VIDEO; // H102D
 		}
 		packet[10] = 0x64;
 		//const uint32_t txid = 0xdb042679; 
@@ -183,10 +183,10 @@ static void __attribute__((unused)) hubsan_build_packet()
 		}
 		else
 		{
-            packet[9] = GET_FLAG(Servo_AUX2, FLAG_H301_LED)
-                      | GET_FLAG(Servo_AUX3, FLAG_H301_STAB)
-                      | GET_FLAG(Servo_AUX4, FLAG_H301_VIDEO)
-                      | GET_FLAG(Servo_AUX1, FLAG_H301_RTH);
+            packet[9] = GET_FLAG(CH6_SW, FLAG_H301_LED)
+                      | GET_FLAG(CH7_SW, FLAG_H301_STAB)
+                      | GET_FLAG(CH8_SW, FLAG_H301_VIDEO)
+                      | GET_FLAG(CH5_SW, FLAG_H301_RTH);
 		}
 		packet[10] = 0x18; // ?
 		packet[12] = 0x5c; // ?
@@ -201,27 +201,27 @@ static void __attribute__((unused)) hubsan_build_packet()
 		if(sub_protocol==H501)
 		{ // H501S
 			packet[9] = 0x02
-					   | GET_FLAG(Servo_AUX2, FLAG_H501_LED)
-					   | GET_FLAG(Servo_AUX4, FLAG_H501_VIDEO)
-					   | GET_FLAG(Servo_AUX1, FLAG_H501_RTH)
-					   | GET_FLAG(Servo_AUX7, FLAG_H501_GPS_HOLD)
-					   | GET_FLAG(Servo_AUX5, FLAG_H501_HEADLESS1);
+					   | GET_FLAG(CH6_SW, FLAG_H501_LED)
+					   | GET_FLAG(CH8_SW, FLAG_H501_VIDEO)
+					   | GET_FLAG(CH5_SW, FLAG_H501_RTH)
+					   | GET_FLAG(CH11_SW, FLAG_H501_GPS_HOLD)
+					   | GET_FLAG(CH9_SW, FLAG_H501_HEADLESS1);
 			//packet[10]= 0x1A;
-			packet[13] = GET_FLAG(Servo_AUX6, FLAG_H501_HEADLESS2)
-					   | GET_FLAG(Servo_AUX8, FLAG_H501_ALT_HOLD)
-					   | GET_FLAG(Servo_AUX3, FLAG_H501_SNAPSHOT);
+			packet[13] = GET_FLAG(CH10_SW, FLAG_H501_HEADLESS2)
+					   | GET_FLAG(CH12_SW, FLAG_H501_ALT_HOLD)
+					   | GET_FLAG(CH7_SW, FLAG_H501_SNAPSHOT);
 		}
 		else
 		{ // H107P/C+/D+
 			packet[9] = 0x06;
 			//FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
-			if(Servo_AUX4)	packet[9] |= HUBSAN_FLAG_VIDEO;
-			if(Servo_AUX5)	packet[9] |= HUBSAN_FLAG_HEADLESS;
+			if(CH8_SW)	packet[9] |= HUBSAN_FLAG_VIDEO;
+			if(CH9_SW)	packet[9] |= HUBSAN_FLAG_HEADLESS;
 			packet[10]= 0x19;
 			packet[12]= 0x5C; // ghost channel ?
 			packet[13] = 0;
-			if(Servo_AUX3)	packet[13]  = HUBSAN_FLAG_SNAPSHOT;
-			if(Servo_AUX1)	packet[13] |= HUBSAN_FLAG_FLIP_PLUS;
+			if(CH7_SW)	packet[13]  = HUBSAN_FLAG_SNAPSHOT;
+			if(CH5_SW)	packet[13] |= HUBSAN_FLAG_FLIP_PLUS;
 			packet[14]= 0x49; // ghost channel ?
 		}
 		if(packet_count < 100)

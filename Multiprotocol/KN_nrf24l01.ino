@@ -138,19 +138,19 @@ static void __attribute__((unused)) kn_update_packet_control_data()
 	packet[6]  = (value >> 8) & 0xFF;
 	packet[7]  = value & 0xFF;
 	// Trims, middle is 0x64 (100) range 0-200
-	packet[8]  = convert_channel_8b_scale(AUX5,0,200); // 0x64; // T
-	packet[9]  = convert_channel_8b_scale(AUX6,0,200); // 0x64; // A
-	packet[10] = convert_channel_8b_scale(AUX7,0,200); // 0x64; // E
+	packet[8]  = convert_channel_16b_limit(CH9,0,200); // 0x64; // T
+	packet[9]  = convert_channel_16b_limit(CH10,0,200); // 0x64; // A
+	packet[10] = convert_channel_16b_limit(CH11,0,200); // 0x64; // E
 	packet[11] = 0x64; // R
 
 	flags=0;
-	if (Servo_AUX1)
+	if (CH5_SW)
 		flags = KN_FLAG_DR;
-	if (Servo_AUX2)
+	if (CH6_SW)
 		flags |= KN_FLAG_TH;
-	if (Servo_AUX3)
+	if (CH7_SW)
 		flags |= KN_FLAG_IDLEUP;
-	if (Servo_AUX4)
+	if (CH8_SW)
 		flags |= KN_FLAG_GYRO3;
 
 	packet[12] = flags;

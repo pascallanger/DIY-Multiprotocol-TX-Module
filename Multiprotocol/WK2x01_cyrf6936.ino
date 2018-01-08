@@ -79,7 +79,7 @@ static void __attribute__((unused)) WK_build_bind_pkt(const uint8_t *init)
 
 static int16_t __attribute__((unused)) WK_get_channel(uint8_t ch, int32_t scale, int16_t center, int16_t range)
 {
-	int16_t value = map(Servo_data[CH_AETR[ch]],servo_min_100,servo_max_100,-scale,scale)+center;
+	int16_t value = convert_channel_16b_nolimit(CH_AETR[ch],-scale,scale)+center;
 	if (value < center - range) value = center - range;
 	if (value > center + range) value = center + range;
 	return value;

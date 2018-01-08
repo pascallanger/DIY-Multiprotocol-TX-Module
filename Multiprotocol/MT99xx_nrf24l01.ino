@@ -79,13 +79,13 @@ static void __attribute__((unused)) MT99XX_send_packet()
 
 	if(sub_protocol != YZ)
 	{ // MT99XX & H7 & LS
-		packet[0] = convert_channel_8b_scale(THROTTLE,0xE1,0x00); // throttle
-		packet[1] = convert_channel_8b_scale(RUDDER  ,0x00,0xE1); // rudder
-		packet[2] = convert_channel_8b_scale(AILERON ,0xE1,0x00); // aileron
-		packet[3] = convert_channel_8b_scale(ELEVATOR,0x00,0xE1); // elevator
+		packet[0] = convert_channel_16b_limit(THROTTLE,0xE1,0x00); // throttle
+		packet[1] = convert_channel_16b_limit(RUDDER  ,0x00,0xE1); // rudder
+		packet[2] = convert_channel_16b_limit(AILERON ,0xE1,0x00); // aileron
+		packet[3] = convert_channel_16b_limit(ELEVATOR,0x00,0xE1); // elevator
 		packet[4] = 0x20; // pitch trim (0x3f-0x20-0x00)
 		packet[5] = 0x20; // roll trim (0x00-0x20-0x3f)
-		packet[6] = GET_FLAG( Servo_AUX1, FLAG_MT_FLIP );
+		packet[6] = GET_FLAG( CH5_SW, FLAG_MT_FLIP );
 		packet[7] = h7_mys_byte[hopping_frequency_no];		// next rf channel index ?
 
 		if(sub_protocol==H7)
@@ -93,8 +93,8 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		else
 			if(sub_protocol==MT99)
 				packet[6] |= 0x40 | FLAG_MT_RATE2
-				  | GET_FLAG( Servo_AUX3, FLAG_MT_SNAPSHOT )
-				  | GET_FLAG( Servo_AUX4, FLAG_MT_VIDEO );	// max rate on MT99xx
+				  | GET_FLAG( CH7_SW, FLAG_MT_SNAPSHOT )
+				  | GET_FLAG( CH8_SW, FLAG_MT_VIDEO );	// max rate on MT99xx
 			else
 				if(sub_protocol==FY805)
 				{
@@ -102,17 +102,17 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					//Rate 0x01?
 					//Flip ?
 					packet[7]=0x01
-						|GET_FLAG( Servo_AUX1, FLAG_MT_FLIP )
-						|GET_FLAG( Servo_AUX5, FLAG_FY805_HEADLESS );	//HEADLESS
+						|GET_FLAG( CH5_SW, FLAG_MT_FLIP )
+						|GET_FLAG( CH9_SW, FLAG_FY805_HEADLESS );	//HEADLESS
 					checksum_offset=0;
 				}
 				else //LS
 				{
 					packet[6] |= FLAG_LS_RATE							// max rate
-						| GET_FLAG( Servo_AUX2, FLAG_LS_INVERT )		//INVERT
-						| GET_FLAG( Servo_AUX3, FLAG_LS_SNAPSHOT )		//SNAPSHOT
-						| GET_FLAG( Servo_AUX4, FLAG_LS_VIDEO )			//VIDEO
-						| GET_FLAG( Servo_AUX5, FLAG_LS_HEADLESS );		//HEADLESS
+						| GET_FLAG( CH6_SW, FLAG_LS_INVERT )		//INVERT
+						| GET_FLAG( CH7_SW, FLAG_LS_SNAPSHOT )		//SNAPSHOT
+						| GET_FLAG( CH8_SW, FLAG_LS_VIDEO )			//VIDEO
+						| GET_FLAG( CH9_SW, FLAG_LS_HEADLESS );		//HEADLESS
 					packet[7] = ls_mys_byte[ls_counter++];
 					if(ls_counter >= sizeof(ls_mys_byte))
 						ls_counter=0;
@@ -125,10 +125,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	}
 	else
 	{ // YZ
-		packet[0] = convert_channel_8b_scale(THROTTLE,0x00,0x64); // throttle
-		packet[1] = convert_channel_8b_scale(RUDDER  ,0x64,0x00); // rudder
-		packet[2] = convert_channel_8b_scale(ELEVATOR,0x00,0x64); // elevator
-		packet[3] = convert_channel_8b_scale(AILERON ,0x64,0x00); // aileron
+		packet[0] = convert_channel_16b_limit(THROTTLE,0x00,0x64); // throttle
+		packet[1] = convert_channel_16b_limit(RUDDER  ,0x64,0x00); // rudder
+		packet[2] = convert_channel_16b_limit(ELEVATOR,0x00,0x64); // elevator
+		packet[3] = convert_channel_16b_limit(AILERON ,0x64,0x00); // aileron
 		if(packet_count++ >= 23)
 		{
 			yz_seq_num ++;
@@ -138,11 +138,11 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		}
 		packet[4] = yz_p4_seq[yz_seq_num]; 
 		packet[5] = 0x02 // expert ? (0=unarmed, 1=normal)
-					| GET_FLAG(Servo_AUX4, 0x10)		//VIDEO
-					| GET_FLAG(Servo_AUX1, 0x80)		//FLIP
-					| GET_FLAG(Servo_AUX5, 0x04)		//HEADLESS
-					| GET_FLAG(Servo_AUX3, 0x20);		//SNAPSHOT
-		packet[6] =   GET_FLAG(Servo_AUX2, 0x80);		//LED
+					| GET_FLAG(CH8_SW, 0x10)		//VIDEO
+					| GET_FLAG(CH5_SW, 0x80)		//FLIP
+					| GET_FLAG(CH9_SW, 0x04)		//HEADLESS
+					| GET_FLAG(CH7_SW, 0x20);		//SNAPSHOT
+		packet[6] =   GET_FLAG(CH6_SW, 0x80);		//LED
 		packet[7] = packet[0];            
 		for(uint8_t idx = 1; idx < MT99XX_PACKET_SIZE-2; idx++)
 			packet[7] += packet[idx];

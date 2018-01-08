@@ -45,7 +45,7 @@ static uint8_t __attribute__((unused)) cx10wd_getButtons()
 		packet_count++;
 	}
 	// auto land
-	else if((Servo_data[AUX1] < PPM_MIN_COMMAND) && !(BTN_state & Q303_BTN_DESCEND))
+	else if((Channel_data[CH5]<CHANNEL_MIN_COMMAND) && !(BTN_state & Q303_BTN_DESCEND))
 	{
 		BTN_state |= Q303_BTN_DESCEND;
 		BTN_state &= ~Q303_BTN_TAKEOFF;
@@ -60,7 +60,7 @@ static uint8_t __attribute__((unused)) cx10wd_getButtons()
 		}
 	}
 	// auto take off
-	else if(Servo_AUX1 && !(BTN_state & Q303_BTN_TAKEOFF))
+	else if(CH5_SW && !(BTN_state & Q303_BTN_TAKEOFF))
 	{
 		BTN_state |= Q303_BTN_TAKEOFF;
 		BTN_state &= ~Q303_BTN_DESCEND;
@@ -100,21 +100,21 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 		command |= 0x20; // 2nd keypress
 	}
 	// descend
-	else if(!(GET_FLAG(Servo_AUX1, 1)) && !(BTN_state & Q303_BTN_DESCEND))
+	else if(!(GET_FLAG(CH5_SW, 1)) && !(BTN_state & Q303_BTN_DESCEND))
 	{
 		BTN_state |= Q303_BTN_DESCEND;
 		BTN_state &= ~Q303_BTN_TAKEOFF;
 		command = CX35_CMD_DESCEND;
 	}
 	// take off
-	else if(GET_FLAG(Servo_AUX1,1) && !(BTN_state & Q303_BTN_TAKEOFF))
+	else if(GET_FLAG(CH5_SW,1) && !(BTN_state & Q303_BTN_TAKEOFF))
 	{
 		BTN_state |= Q303_BTN_TAKEOFF;
 		BTN_state &= ~Q303_BTN_DESCEND;
 		command = CX35_CMD_TAKEOFF;
 	}
 	// RTH
-	else if(GET_FLAG(Servo_AUX6,1) && !(BTN_state & Q303_BTN_RTH))
+	else if(GET_FLAG(CH10_SW,1) && !(BTN_state & Q303_BTN_RTH))
 	{
 		BTN_state |= Q303_BTN_RTH;
 		if(command == CX35_CMD_RTH)
@@ -122,7 +122,7 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 		else
 			command = CX35_CMD_RTH;
 	}
-	else if(!(GET_FLAG(Servo_AUX6,1)) && (BTN_state & Q303_BTN_RTH))
+	else if(!(GET_FLAG(CH10_SW,1)) && (BTN_state & Q303_BTN_RTH))
 	{
 		BTN_state &= ~Q303_BTN_RTH;
 		if(command == CX35_CMD_RTH)
@@ -131,7 +131,7 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 			command = CX35_CMD_RTH;
 	}
 	// video
-	else if(GET_FLAG(Servo_AUX4,1) && !(BTN_state & Q303_BTN_VIDEO))
+	else if(GET_FLAG(CH8_SW,1) && !(BTN_state & Q303_BTN_VIDEO))
 	{
 		BTN_state |= Q303_BTN_VIDEO;
 		if(command == CX35_CMD_VIDEO)
@@ -139,7 +139,7 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 		else
 			command = CX35_CMD_VIDEO;
 	}
-	else if(!(GET_FLAG(Servo_AUX4,1)) && (BTN_state & Q303_BTN_VIDEO))
+	else if(!(GET_FLAG(CH8_SW,1)) && (BTN_state & Q303_BTN_VIDEO))
 	{
 		BTN_state &= ~Q303_BTN_VIDEO;
 		if(command == CX35_CMD_VIDEO)
@@ -148,7 +148,7 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 			command = CX35_CMD_VIDEO;
 	}
 	// snapshot
-	else if(GET_FLAG(Servo_AUX3,1) && !(BTN_state & Q303_BTN_SNAPSHOT))
+	else if(GET_FLAG(CH7_SW,1) && !(BTN_state & Q303_BTN_SNAPSHOT))
 	{
 		BTN_state |= Q303_BTN_SNAPSHOT;
 		if(command == CX35_CMD_SNAPSHOT)
@@ -157,7 +157,7 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 			command = CX35_CMD_SNAPSHOT;
 	}
 	// vtx channel
-	else if(GET_FLAG(Servo_AUX2,1) && !(BTN_state & Q303_BTN_VTX))
+	else if(GET_FLAG(CH6_SW,1) && !(BTN_state & Q303_BTN_VTX))
 	{
 		BTN_state |= Q303_BTN_VTX;
 		if(command == CX35_CMD_VTX)
@@ -166,9 +166,9 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 			command = CX35_CMD_VTX;
 	}
 
-	if(!(GET_FLAG(Servo_AUX3,1)))
+	if(!(GET_FLAG(CH7_SW,1)))
 		BTN_state &= ~Q303_BTN_SNAPSHOT;
-	if(!(GET_FLAG(Servo_AUX2,1)))
+	if(!(GET_FLAG(CH6_SW,1)))
 		BTN_state &= ~Q303_BTN_VTX;
 
 	return command;
@@ -191,10 +191,10 @@ static void __attribute__((unused)) Q303_send_packet(uint8_t bind)
 		{
 			case Q303:
 			case CX35:
-				aileron  = convert_channel_16b(AILERON,  0, 1000);
-				elevator = convert_channel_16b(ELEVATOR, 1000, 0);
-				throttle = convert_channel_16b(THROTTLE, 0, 1000);
-				rudder   = convert_channel_16b(RUDDER,   1000, 0);
+				aileron  = convert_channel_16b_limit(AILERON,  0, 1000);
+				elevator = convert_channel_16b_limit(ELEVATOR, 1000, 0);
+				throttle = convert_channel_16b_limit(THROTTLE, 0, 1000);
+				rudder   = convert_channel_16b_limit(RUDDER,   1000, 0);
 				if(sub_protocol == CX35)
 					aileron = 1000 - aileron;
 				packet[1] = aileron >> 2;			// 8 bits
@@ -208,10 +208,10 @@ static void __attribute__((unused)) Q303_send_packet(uint8_t bind)
 				break;
 			case CX10D:
 			case CX10WD:
-				aileron  = convert_channel_16b(AILERON,  2000, 1000);
-				elevator = convert_channel_16b(ELEVATOR, 2000, 1000);
-				throttle = convert_channel_16b(THROTTLE, 1000, 2000);
-				rudder   = convert_channel_16b(RUDDER,   1000, 2000);
+				aileron  = convert_channel_16b_limit(AILERON,  2000, 1000);
+				elevator = convert_channel_16b_limit(ELEVATOR, 2000, 1000);
+				throttle = convert_channel_16b_limit(THROTTLE, 1000, 2000);
+				rudder   = convert_channel_16b_limit(RUDDER,   1000, 2000);
 				packet[1] = aileron & 0xff;
 				packet[2] = aileron >> 8;
 				packet[3] = elevator & 0xff;
@@ -230,21 +230,21 @@ static void __attribute__((unused)) Q303_send_packet(uint8_t bind)
 				packet[6] = 0x10;					// trim(s) ?
 				packet[7] = 0x10;					// trim(s) ?
 				packet[8] = 0x03					// high rate (0-3)
-					| GET_FLAG(Servo_AUX1,   0x40)
-					| GET_FLAG(Servo_AUX6,	 0x80);
+					| GET_FLAG(CH5_SW,   0x40)
+					| GET_FLAG(CH10_SW,	 0x80);
 				packet[9] = 0x40					// always set
-					| GET_FLAG(Servo_AUX5,0x08)
-					| GET_FLAG(Servo_AUX2,	0x80)
-					| GET_FLAG(Servo_AUX3,0x10)
-					| GET_FLAG(Servo_AUX4,   0x01);
-				if(Servo_data[AUX7] < PPM_MIN_COMMAND)
+					| GET_FLAG(CH9_SW,0x08)
+					| GET_FLAG(CH6_SW,	0x80)
+					| GET_FLAG(CH7_SW,0x10)
+					| GET_FLAG(CH8_SW,   0x01);
+				if(Channel_data[CH11] < CHANNEL_MIN_COMMAND)
 					packet[9] |= 0x04;				// gimbal down
-				else if(Servo_data[AUX7] > PPM_MAX_COMMAND)
+				else if(CH11_SW)
 						packet[9] |= 0x20;			// gimbal up
 				break;
 
 			case CX35:
-				slider = convert_channel_16b(AUX7, 731, 342);
+				slider = convert_channel_16b_limit(CH11, 731, 342);
 				packet[6] = slider >> 2;
 				packet[7] = ((slider & 3) << 6)
 					| 0x3e;							// ?? 6 bit left (always 111110 ?)
@@ -253,13 +253,13 @@ static void __attribute__((unused)) Q303_send_packet(uint8_t bind)
 				break;
 
 			case CX10D:
-				packet[8] |= GET_FLAG(Servo_AUX2, 0x10);
+				packet[8] |= GET_FLAG(CH6_SW, 0x10);
 				packet[9] = 0x02; // rate (0-2)
 				packet[10]= cx10wd_getButtons();	// auto land / take off management
 				break;
 
 			case CX10WD:
-				packet[8] |= GET_FLAG(Servo_AUX2, 0x10);
+				packet[8] |= GET_FLAG(CH6_SW, 0x10);
 				packet[9]  = 0x02  // rate (0-2)
 						| cx10wd_getButtons();		// auto land / take off management
 				packet[10] = 0x00;

@@ -119,8 +119,9 @@ static void __attribute__((unused)) ESKY_send_packet(uint8_t bind)
 		{
 			for (uint8_t i = 0; i < 6; i++)
 			{
-				packet[i*2]   = Servo_data[CH_AETR[i]]>>8;	//high byte of servo timing(1000-2000us)
-				packet[i*2+1] = Servo_data[CH_AETR[i]]&0xFF;	//low byte of servo timing(1000-2000us)
+				uint16_t val=convert_channel_ppm(CH_AETR[i]);
+				packet[i*2]   = val>>8;		//high byte of servo timing(1000-2000us)
+				packet[i*2+1] = val&0xFF;	//low byte of servo timing(1000-2000us)
 			}
 		}
 		rf_ch = hopping_frequency[hopping_frequency_no];

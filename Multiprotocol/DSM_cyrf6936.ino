@@ -245,7 +245,6 @@ static void __attribute__((unused)) DSM_update_channels()
 
 static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 {
-	uint16_t max = 2047;
 	uint8_t bits = 11;
 
 	if(prev_option!=option)
@@ -261,10 +260,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		packet[0] = (0xff ^ cyrfmfg_id[2]);
 		packet[1] = (0xff ^ cyrfmfg_id[3]);
 		if(sub_protocol==DSM2_22)
-		{
-			max=1023;						// Only DSM_22 is using a resolution of 1024
-			bits=10;
-		}
+			bits=10;						// Only DSM_22 is using a resolution of 1024
 	}
 
 	for (uint8_t i = 0; i < 7; i++)
@@ -276,7 +272,8 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 			/* Spektrum own remotes transmit normal values during bind and actually
 			 * use this (e.g. Nano CP X) to select the transmitter mode (e.g. computer vs
 			 * non-computer radio, so always end normal output */
-			value=map(Servo_data[CH_TAER[idx]],servo_min_125,servo_max_125,0,max);
+			value=Channel_data[CH_TAER[idx]];
+			if(bits==10) value>>=1;
 			value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);
 		}	  
 		packet[i*2+2] = (value >> 8) & 0xff;

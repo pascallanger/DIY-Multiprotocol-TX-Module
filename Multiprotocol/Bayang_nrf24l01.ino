@@ -90,28 +90,28 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 
 		//Flags packet[2]
 		packet[2] = 0x00;
-		if(Servo_AUX1)
+		if(CH5_SW)
 			packet[2] = BAYANG_FLAG_FLIP;
-		if(Servo_AUX2)
+		if(CH6_SW)
 			packet[2] |= BAYANG_FLAG_RTH;
-		if(Servo_AUX3)
+		if(CH7_SW)
 			packet[2] |= BAYANG_FLAG_PICTURE;
-		if(Servo_AUX4)
+		if(CH8_SW)
 			packet[2] |= BAYANG_FLAG_VIDEO;
-		if(Servo_AUX5)
+		if(CH9_SW)
 		{
 			packet[2] |= BAYANG_FLAG_HEADLESS;
 			dyntrim = 0;
 		}
 		//Flags packet[3]
 		packet[3] = 0x00;
-		if(Servo_AUX6)
+		if(CH10_SW)
 			packet[3] = BAYANG_FLAG_INVERTED;
-		if(Servo_AUX7)
+		if(CH11_SW)
 			dyntrim = 0;
-		if(Servo_AUX8)
+		if(CH12_SW)
 			packet[3] |= BAYANG_FLAG_TAKE_OFF;
-		if(Servo_AUX9)
+		if(CH13_SW)
 			packet[3] |= BAYANG_FLAG_EMG_STOP;
 		//Aileron
 		val = convert_channel_10b(AILERON);

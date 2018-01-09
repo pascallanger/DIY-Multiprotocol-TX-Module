@@ -355,7 +355,8 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 Notes:
  - model/type/number of channels indicated on the RX can be different from what the RX is in fact wanting to see. So don't hesitate to test different combinations until you have something working. Using Auto is the best way to find these settings.
- - RX ouput will always be TAER independently of the input AETR, RETA...
+ - RX output will match the Spektrum standard TAER independently of the input configuration AETR, RETA...
+ - RX output will match the Spektrum standard throw (1500µs +/- 400µs -> 1100..1900µs) for a 100% input. This is true for both Serial and PPM input. For PPM, make sure the end points PPM_MIN_100 and PPM_MAX_100 in _config.h are matching your TX ouput. The maximum ouput is 1000..2000µs based on an input of 125%.
 
 ### Sub_protocol DSM2_22 - *0*
 DSM2, Resolution 1024, refresh rate 22ms
@@ -368,7 +369,7 @@ DSMX, Resolution 2048, refresh rate 11ms
 ### Sub_protocol AUTO - *4*
 The "AUTO" feature enables the TX to automatically choose what are the best settings for your DSM RX and update your model protocol settings accordingly.
 
-The current radio firmware which are able to use the "AUTO" feature are ersky9x (9XR Pro, 9Xtreme, Taranis, ...) and er9x for M128 (9XR) and M2561.
+The current radio firmware which are able to use the "AUTO" feature are ersky9x (9XR Pro, 9Xtreme, Taranis, ...), er9x for M128(9XR)&M2561 and OpenTX (mostly Taranis).
 For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx".
 Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on ersky9x you can set "Invert COM1" accordinlgy.
 

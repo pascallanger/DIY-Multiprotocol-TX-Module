@@ -269,10 +269,9 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		uint16_t value = 0xffff;;	
 		if (idx != 0xff)
 		{
-			/* Spektrum own remotes transmit normal values during bind and actually
-			 * use this (e.g. Nano CP X) to select the transmitter mode (e.g. computer vs
-			 * non-computer radio, so always end normal output */
-			value=Channel_data[CH_TAER[idx]];
+			/* Spektrum own remotes transmit normal values during bind and actually use this (e.g. Nano CP X) to
+			   select the transmitter mode (e.g. computer vs non-computer radio), so always send normal output */
+			value=convert_channel_16b_nolimit(CH_TAER[idx],0x150,0x6B0);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000µs based on Redcon 6 channel DSM2 RX
 			if(bits==10) value>>=1;
 			value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);
 		}	  

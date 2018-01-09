@@ -36,7 +36,7 @@ Flashing the bootloader is outside the scope of this documentation.  Full instru
 1. Double-click the **Multiprotocol.ino** file in the **Multiprotocol** folder to open the project in the Arduino IDE
 
 ### Install the Multi 4-in-1 board
-1. Follow [these instructions](/BootLoaders/README.md) to install the **Multi 4-in-1 OrangeRX Board** in the Arduino IDE
+1. Follow [these instructions](Arduino_IDE_Boards.md) to install the **Multi 4-in-1 OrangeRX Board** in the Arduino IDE
 
 ### Configure the Arduino IDE
 1. Under **Tools -> Board** select **'Multi 4-in-1 (OrangeRX)'**

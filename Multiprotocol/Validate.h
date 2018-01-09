@@ -225,8 +225,8 @@
 #ifndef AILERON
 	#error You must select a correct channel order.
 #endif
-#if not defined(PPM_MAX_100) || not defined(PPM_MIN_100) || not defined(PPM_MAX_125) || not defined(PPM_MIN_125)
-	#error You must set correct TX end points.
+#if not defined(PPM_MAX_100) || not defined(PPM_MIN_100)
+	#error You must set correct PPM end points for your TX.
 #endif
 
 #if defined(ENABLE_BIND_CH)

@@ -2,48 +2,36 @@
 #if defined(TX_ER9X)
 	#define PPM_MAX_100 2012	//	100%
 	#define PPM_MIN_100 988		//	100%
-	#define PPM_MAX_125	2140	//	125%
-	#define PPM_MIN_125	860		//	125%
 #endif
 
 // Devo PPM and channels
 #if defined(TX_DEVO7)
 	#define PPM_MAX_100	1920	//	100%
 	#define PPM_MIN_100	1120	//	100%
-	#define PPM_MAX_125	2120	//	125%
-	#define PPM_MIN_125	920		//	125%
 #endif
 
 // SPEKTRUM PPM and channels
 #if defined(TX_SPEKTRUM)
 	#define PPM_MAX_100	1900	//	100%
 	#define PPM_MIN_100	1100	//	100%
-	#define PPM_MAX_125	2000	//	125%
-	#define PPM_MIN_125	1000	//	125%
 #endif
 
 // HISKY
 #if defined(TX_HISKY)
 	#define PPM_MAX_100	1920	//	100%
 	#define PPM_MIN_100	1120	//	100%
-	#define PPM_MAX_125	2020	//	125%
-	#define PPM_MIN_125	1020	//	125%
 #endif
 
 // Multiplex MC2020
 #if defined(TX_MPX)
 	#define PPM_MAX_100 1950 // 100%
 	#define PPM_MIN_100 1250 // 100%
-	#define PPM_MAX_125 2050 // 125%
-	#define PPM_MIN_125 1150 // 125%
 #endif
 
 // Walkera PL0811-01H
 #if defined(TX_WALKERA)
 	#define PPM_MAX_100 1800 // 100%
 	#define PPM_MIN_100 1000 // 100%
-	#define PPM_MAX_125 1900 // 125%
-	#define PPM_MIN_125 900  // 125%
 #endif
 
 //Channel MIN MAX values

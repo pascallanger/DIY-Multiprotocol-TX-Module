@@ -55,7 +55,7 @@ The 4-pin header needs to be soldered onto the board as indicated by the red rec
 1. Double-click the **Multiprotocol.ino** file in the **Multiprotocol** folder to open the project in the Arduino IDE
 
 ### Install the Multi 4-in-1 board
-1. Follow [these instructions](/BootLoaders/README.md) to install the **Multi 4-in-1 STM32 Board** in the Arduino IDE
+1. Follow [these instructions](Arduino_IDE_Boards.md) to install the **Multi 4-in-1 STM32 Board** in the Arduino IDE
 
 ### Configure the Arduino IDE
 1. Under **Tools -> Board** select **Multi 4-in-1 (STM32FC103)**

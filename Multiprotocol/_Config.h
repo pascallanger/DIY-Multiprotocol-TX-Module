@@ -49,7 +49,8 @@
 //#define REVERSE_THROTTLE
 //#define REVERSE_RUDDER
 
-//DSM protocol is using by default the Spektrum throw of 1100..1900us @100%. For more throw, 1024..1976us @100%, remove the "//" on the line below. Be aware that too much throw can damage some UMX servos.
+//DSM protocol is using by default the Spektrum throw of 1100..1900us @100% and 1000..2000us @125%.
+//For more throw, 1024..1976us @100% and 904..2096us @125%, remove the "//" on the line below. Be aware that too much throw can damage some UMX servos. To achieve standard throw in this mode use a channel weight of 84%.
 //#define DSM_MAX_THROW
 
 /*************************/

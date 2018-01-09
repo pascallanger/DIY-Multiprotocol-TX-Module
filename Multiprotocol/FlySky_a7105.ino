@@ -158,7 +158,7 @@ uint16_t ReadFlySky()
 	#ifndef FORCE_FLYSKY_TUNING
 		A7105_AdjustLOBaseFreq(1);
 	#endif
-	if(IS_BIND_DONE)
+	if(IS_BIND_IN_PROGRESS)
 	{
 		flysky_build_packet(1);
 		A7105_WriteData(21, 1);

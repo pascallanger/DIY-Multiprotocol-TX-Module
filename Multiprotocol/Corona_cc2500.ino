@@ -24,7 +24,7 @@
 #define CORONA_BIND_CHANNEL_V1	0xD1
 #define CORONA_BIND_CHANNEL_V2	0xB8
 #define CORONA_COARSE			0x00
-
+#define CORONA_CHANNEL_TIMING	1500
 
 const PROGMEM uint8_t CORONA_init_values[] = {
   /* 00 */ 0x29, 0x2E, 0x06, 0x07, 0xD3, 0x91, 0xFF, 0x04,
@@ -102,7 +102,7 @@ static void __attribute__((unused)) CORONA_init()
 }
 
 // 8 Channels with direct values from PPM
-static void __attribute__((unused)) CORONA_send_packet()
+static void __attribute__((unused)) CORONA_build_packet()
 {
 	// Tune frequency if it has been changed
 	if ( prev_option != option )
@@ -114,9 +114,18 @@ static void __attribute__((unused)) CORONA_send_packet()
 	{	
 		if(state==0 || sub_protocol==COR_V1)
 		{	// Build standard packet
+
+			// Set channel
+			CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[hopping_frequency_no]);
+			hopping_frequency_no++;
+			hopping_frequency_no%=CORONA_RF_NUM_CHANNELS;
+			// Update power
+			CC2500_SetPower();
+
+			// Build packet
 			packet[0] = 0x10;		// 17 bytes to follow
 			
-			//Channels
+			// Channels
 			memset(packet+9, 0x00, 4);
 			for(uint8_t i=0; i<8; i++)
 			{	// Channel values are packed
@@ -125,7 +134,7 @@ static void __attribute__((unused)) CORONA_send_packet()
 				packet[9 + (i>>1)] |= (i&0x01)?(val>>4)&0xF0:(val>>8)&0x0F;
 			}
 
-			//TX ID
+			// TX ID
 			for(uint8_t i=0; i<CORONA_ADDRESS_LENGTH; i++)
 				packet[i+13] = rx_tx_addr[i];
 			
@@ -135,26 +144,22 @@ static void __attribute__((unused)) CORONA_send_packet()
 			switch(hopping_frequency_no)
 			{
 				case 0:
-					packet_period=sub_protocol==COR_V1?4991:4248;
+					packet_period=sub_protocol==COR_V1?4991-CORONA_CHANNEL_TIMING:4248-CORONA_CHANNEL_TIMING;
 					break;
 				case 1:
-					packet_period=sub_protocol==COR_V1?4991:4345;
+					packet_period=sub_protocol==COR_V1?4991-CORONA_CHANNEL_TIMING:4345-CORONA_CHANNEL_TIMING;
 					break;
 				case 2:
-					packet_period=sub_protocol==COR_V1?12520:13468;
+					packet_period=sub_protocol==COR_V1?12520-CORONA_CHANNEL_TIMING:13468-CORONA_CHANNEL_TIMING;
 					if(sub_protocol!=COR_V1)
 						packet[17] = 0x03;
 					break;
 			}
-			// Set channel
-			CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[hopping_frequency_no]);
-			hopping_frequency_no++;
-			hopping_frequency_no%=CORONA_RF_NUM_CHANNELS;
-			// Update power
-			CC2500_SetPower();
 		}
 		else
 		{	// Send identifier packet for 2.65sec. This is how the RX learns the hopping table after a bind. Why it's not part of the bind like V1 is a mistery...
+			// Set channel
+			CC2500_WriteReg(CC2500_0A_CHANNR, 0x00);
 			state--;
 			packet[0]=0x07;		// 8 bytes to follow
 			// Send hopping freq
@@ -164,9 +169,7 @@ static void __attribute__((unused)) CORONA_send_packet()
 			for(uint8_t i=0; i<CORONA_ADDRESS_LENGTH; i++)
 				packet[i+4]=rx_tx_addr[i];
 			packet[8]=0;
-			packet_period=6647;
-			// Set channel
-			CC2500_WriteReg(CC2500_0A_CHANNR, 0x00);
+			packet_period=6647-CORONA_CHANNEL_TIMING;
 		}
 	}
 	else
@@ -199,8 +202,6 @@ static void __attribute__((unused)) CORONA_send_packet()
 			packet_period=26791;
 		}
 	}
-    // Send packet
-	CC2500_WriteData(packet, packet[0]+2);
 }
 
 uint16_t ReadCORONA()
@@ -211,7 +212,15 @@ uint16_t ReadCORONA()
 		if (bind_counter == 0)
 			BIND_DONE;
 	}
-	CORONA_send_packet();
+	if(packet[0]==0)
+	{
+		CORONA_build_packet();
+		if(IS_BIND_DONE)
+			return CORONA_CHANNEL_TIMING;
+	}
+	// Send packet
+	CC2500_WriteData(packet, packet[0]+2);
+	packet[0]=0;
 	return packet_period;
 }
 
@@ -223,6 +232,7 @@ uint16_t initCORONA()
 		bind_counter=187;		// Stay in bind mode for 5s
 	state=400;					// Used by V2 to send RF channels + ID for 2.65s at startup
 	hopping_frequency_no=0;
+	packet[0]=0;
 	CORONA_init();
 	CORONA_rf_init();
 	return 10000;

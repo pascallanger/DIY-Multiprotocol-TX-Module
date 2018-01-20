@@ -7,19 +7,19 @@ Here are detailed descriptions of every supported protocols (sorted by RF module
 
 ## Useful notes and definitions
 - **Extended limits supported** - A command range of -125%..+125% will be transmitted. Otherwise the default is -100%..+100% only.
-- **Channel Order** - The channel order assumed in all the documentation is AETR and it is highly recommended that you keep it this way.  You can change this in the compilation settings.  However, please indicate your channel order in all questions and posts on the forum pages. 
+- **Channel Order** - The channel order assumed in all the documentation is AETR. You can change this in the compilation settings. The module will take whatever input channel order and will rearrange them to match the output channel order required by the selected protocol. 
 - **Italic numbers** are referring to protocol/sub_protocol numbers that you should use if the radio (serial mode only) is not displaying (yet) the protocol you want to access.
 - **Autobind protocol**:
 
-1. The transmitter will automatically initiate a bind sequence on power up.  This is for models where the receiver expects to rebind every time it is powered up. In these protocols you do not need to press the bind button at power up to bind, it will be done automatically.
+1. The transmitter will automatically initiate a bind sequence on power up.  This is for models where the receiver expects to rebind every time it is powered up. In these protocols you do not need to press the bind button at power up to bind, it will be done automatically. In case a protocol is not autobind but you want to enable it, change the "Autobind" (or "Bind at powerup" on OpenTX) setting to Y for the specific model/entry.
 2. Enable Bind from channel feature:
    * Bind from channel can be globally enabled/disabled in _config.h using ENABLE_BIND_CH.
    * Bind from channel can be locally enabled/disabled by setting Autobind to Y/N per model for serial or per dial switch number for ppm.
-   * Bind channel can be choosen on any channel between 5 and 16 using BIND_CH in _config.h.
+   * Bind channel can be choosen on any channel between 5 and 16 using BIND_CH in _config.h. Default is 16.
    * Bind will only happen if all these elements are happening at the same time:
-    - Autobind = Y
-    - Throttle = LOW (<-95%)
-    - Bind channel is going from -100% to +100%
+      - Autobind = Y
+      - Throttle = LOW (<-95%)
+      - Bind channel is going from -100% to +100%
 
 * Additional notes:
   - It's recommended to combine Throttle cut with another button to drive the bind channel. This will prevent to launch a bind while flying...

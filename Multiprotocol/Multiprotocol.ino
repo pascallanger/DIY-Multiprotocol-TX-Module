@@ -789,6 +789,8 @@ static void protocol_init()
 		PE1_on;							//NRF24L01 antenna RF3 by default
 		PE2_off;						//NRF24L01 antenna RF3 by default
 		
+		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
+
 		switch(protocol)				// Init the requested protocol
 		{
 			#ifdef A7105_INSTALLED
@@ -1061,7 +1063,6 @@ static void protocol_init()
 			#endif
 		}
 	}
-	debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
 
 	#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
 		if( IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && (cur_protocol[1]&0x80)==0 && mode_select == MODE_SERIAL)
@@ -1144,12 +1145,16 @@ void update_serial_data()
 			FAILSAFE_VALUES_on;					//failsafe data has been received
 		}
 	#endif
+	#ifdef BONI
+		if(CH14_SW)
+			rx_ok_buff[2]=(rx_ok_buff[2]&0xF0)|((rx_ok_buff[2]+1)&0x0F);	// Extremely dangerous, do not enable this!!! This is really for a special case...
+	#endif
 	if( (rx_ok_buff[0] != cur_protocol[0]) || ((rx_ok_buff[1]&0x5F) != (cur_protocol[1]&0x5F)) || ( (rx_ok_buff[2]&0x7F) != (cur_protocol[2]&0x7F) ) )
 	{ // New model has been selected
 		CHANGE_PROTOCOL_FLAG_on;				//change protocol
 		WAIT_BIND_off;
-		if(IS_AUTOBIND_FLAG_on)
-			BIND_IN_PROGRESS;					//launch bind right away if in autobind mode
+		if((rx_ok_buff[1]&0x80)!=0 || IS_AUTOBIND_FLAG_on)
+			BIND_IN_PROGRESS;					//launch bind right away if in autobind mode or bind is set
 		else
 			BIND_DONE;
 		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]

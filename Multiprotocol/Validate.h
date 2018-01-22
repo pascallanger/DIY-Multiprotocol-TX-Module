@@ -47,7 +47,7 @@
 // Error if CHECK_FOR_BOOTLOADER is enabled but the 'Flash from TX' bootloader or upload method isn't selected.
 #if (defined(ARDUINO_MULTI_NO_BOOT) || defined(ARDUINO_MULTI_STM32_NO_BOOT)) && defined(CHECK_FOR_BOOTLOADER)
 	#if defined(STM32_BOARD)
-		#error "You have enabled CHECK_FOR_BOOTLOADER but not selected the 'Flash from TX' upload method."
+		#warning "You have enabled CHECK_FOR_BOOTLOADER but not selected the 'Flash from TX' upload method."
 	#else
 		#error "You have enabled CHECK_FOR_BOOTLOADER but not selected the 'Flash from TX' bootloader."
 	#endif

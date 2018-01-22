@@ -115,11 +115,9 @@ static void __attribute__((unused)) CORONA_build_packet()
 		if(state==0 || sub_protocol==COR_V1)
 		{	// Build standard packet
 
-			// Set channel
+			// Set RF channel
 			CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[hopping_frequency_no]);
-			hopping_frequency_no++;
-			hopping_frequency_no%=CORONA_RF_NUM_CHANNELS;
-			// Update power
+			// Update RF power
 			CC2500_SetPower();
 
 			// Build packet
@@ -155,6 +153,8 @@ static void __attribute__((unused)) CORONA_build_packet()
 						packet[17] = 0x03;
 					break;
 			}
+			hopping_frequency_no++;
+			hopping_frequency_no%=CORONA_RF_NUM_CHANNELS;
 		}
 		else
 		{	// Send identifier packet for 2.65sec. This is how the RX learns the hopping table after a bind. Why it's not part of the bind like V1 is a mistery...

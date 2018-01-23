@@ -16,7 +16,7 @@ multistm32f103c.pid.0=0x0004
 multistm32f103c.build.variant=generic_stm32f103c
 multistm32f103c.build.vect=VECT_TAB_ADDR=0x8000000
 multistm32f103c.build.core=maple
-multistm32f103c.build.board=MULTI_STM32_FLASH_FROM_TX=103
+multistm32f103c.build.board=MULTI_STM32_FLASH_FROM_TX=104
 multistm32f103c.upload.use_1200bps_touch=false
 multistm32f103c.upload.file_type=bin
 multistm32f103c.upload.auto_reset=true
@@ -37,7 +37,7 @@ multistm32f103c.bootloader.tool=serial_upload
 #---------------------------- UPLOAD METHODS ---------------------------
 
 multistm32f103c.menu.upload_method.TxFlashMethod=Flash from Tx
-multistm32f103c.menu.upload_method.TxFlashMethod.build.board=MULTI_STM32_FLASH_FROM_TX=103
+multistm32f103c.menu.upload_method.TxFlashMethod.build.board=MULTI_STM32_FLASH_FROM_TX=104
 multistm32f103c.menu.upload_method.TxFlashMethod.upload.tool=tx_upload
 multistm32f103c.menu.upload_method.TxFlashMethod.build.upload_flags=-DSERIAL_USB -DGENERIC_BOOTLOADER
 multistm32f103c.menu.upload_method.TxFlashMethod.build.vect=VECT_TAB_ADDR=0x8002000
@@ -45,7 +45,7 @@ multistm32f103c.menu.upload_method.TxFlashMethod.build.ldscript=ld/bootloader_20
 multistm32f103c.menu.upload_method.TxFlashMethod.bootloader.file=Multi4in1/StmMulti4in1.bin
 
 multistm32f103c.menu.upload_method.DFUUploadMethod=Upload via USB
-multistm32f103c.menu.upload_method.DFUUploadMethod.build.board=MULTI_STM32_NO_BOOT=103
+multistm32f103c.menu.upload_method.DFUUploadMethod.build.board=MULTI_STM32_NO_BOOT=104
 multistm32f103c.menu.upload_method.DFUUploadMethod.upload.protocol=maple_dfu
 multistm32f103c.menu.upload_method.DFUUploadMethod.upload.tool=maple_upload
 multistm32f103c.menu.upload_method.DFUUploadMethod.build.upload_flags=-DSERIAL_USB -DGENERIC_BOOTLOADER
@@ -59,6 +59,6 @@ multistm32f103c.menu.upload_method.serialMethod=Upload via Serial (FTDI)
 multistm32f103c.menu.upload_method.serialMethod.upload.protocol=maple_serial
 multistm32f103c.menu.upload_method.serialMethod.upload.tool=serial_upload
 multistm32f103c.menu.upload_method.serialMethod.build.upload_flags=-DCONFIG_MAPLE_MINI_NO_DISABLE_DEBUG
-multistm32f103c.menu.upload_method.serialMethod.build.board=MULTI_STM32_NO_BOOT=103
+multistm32f103c.menu.upload_method.serialMethod.build.board=MULTI_STM32_NO_BOOT=104
 
 ##############################################################

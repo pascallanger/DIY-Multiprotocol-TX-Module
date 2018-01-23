@@ -19,7 +19,7 @@ multiatmega328p.build.mcu=atmega328p
 multiatmega328p.build.f_cpu=16000000L
 multiatmega328p.build.core=arduino:arduino
 multiatmega328p.build.variant=arduino:eightanaloginputs
-multiatmega328p.build.board=MULTI_AVR=102
+multiatmega328p.build.board=MULTI_AVR=103
 
 multiatmega328p.board.compiler.c.flags=-c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects
 multiatmega328p.board.compiler.c.elf.flags=-Os -g -flto -fuse-linker-plugin -Wl,--gc-sections -Wl,--relax
@@ -36,14 +36,14 @@ multiatmega328p.bootloader.unlock_bits=0x3F
 multiatmega328p.bootloader.lock_bits=0x0F
 
 multiatmega328p.menu.bootloader.none=No bootloader
-multiatmega328p.menu.bootloader.none.build.board=MULTI_NO_BOOT=102
+multiatmega328p.menu.bootloader.none.build.board=MULTI_NO_BOOT=103
 
 multiatmega328p.menu.bootloader.none.upload.maximum_size=32768
 multiatmega328p.menu.bootloader.none.bootloader.file=Multi4in1/AtmegaMultiEmpty.hex
 multiatmega328p.menu.bootloader.none.bootloader.high_fuses=0xD7
 
 multiatmega328p.menu.bootloader.optiboot=Flash from TX
-multiatmega328p.menu.bootloader.optiboot.build.board=MULTI_FLASH_FROM_TX=102
+multiatmega328p.menu.bootloader.optiboot.build.board=MULTI_FLASH_FROM_TX=103
 
 multiatmega328p.menu.bootloader.optiboot.upload.maximum_size=32256
 multiatmega328p.menu.bootloader.optiboot.bootloader.file=Multi4in1/AtmegaMultiBoot.hex
@@ -56,7 +56,7 @@ multiatmega328p.menu.bootloader.optiboot.bootloader.high_fuses=0xD6
 ## --------------------------------------------------
 multixmega32d4.name=Multi 4-in-1 (OrangeRX)
 
-multixmega32d4.build.board=MULTI_ORANGERX=102
+multixmega32d4.build.board=MULTI_ORANGERX=103
 multixmega32d4.build.mcu=atxmega32d4
 multixmega32d4.build.f_cpu=32000000L
 multixmega32d4.build.core=xmega

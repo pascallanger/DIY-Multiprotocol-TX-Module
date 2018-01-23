@@ -6,7 +6,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Multi 4-in-1 AVR
-version=1.0.2
+version=1.0.3
 
 compiler.warning_flags=-w
 compiler.warning_flags.none=-w

@@ -6,7 +6,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Multi 4-in-1 STM32
-version=1.0.3
+version=1.0.4
 
 compiler.warning_flags=-w -DDEBUG_LEVEL=DEBUG_NONE
 compiler.warning_flags.none=-w -DDEBUG_LEVEL=DEBUG_NONE

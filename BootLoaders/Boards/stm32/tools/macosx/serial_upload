@@ -1,2 +1,6 @@
 #!/bin/bash
-$(dirname $0)/stm32flash/stm32flash -g 0x8000000 -b 115200 -w "$4" /dev/"$1" 
+port=$1
+addr=$2
+file=$3
+
+$(dirname $0)/stm32flash/stm32flash -v -g $addr -b 57600 -w "$file" /dev/"$port"

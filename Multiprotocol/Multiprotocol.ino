@@ -243,6 +243,7 @@ void setup()
 	#elif defined STM32_BOARD
 		//STM32
 		afio_cfg_debug_ports(AFIO_DEBUG_NONE);
+		pinMode(LED2_pin,OUTPUT);
 		pinMode(A7105_CSN_pin,OUTPUT);
 		pinMode(CC25_CSN_pin,OUTPUT);
 		pinMode(NRF_CSN_pin,OUTPUT);
@@ -313,6 +314,8 @@ void setup()
 		random_init();
 	#endif
 
+	LED2_on;
+	
 	// Set Chip selects
 	#ifdef A7105_CSN_pin
 		A7105_CSN_on;
@@ -470,6 +473,7 @@ void setup()
 			#endif
 		#endif //ENABLE_SERIAL
 	}
+	LED2_on;
 	debugln("Init complete");
 }
 
@@ -1330,6 +1334,7 @@ void modules_reset()
 	{
 		usart_init(USART2); 
 		usart_config_gpios_async(USART2,GPIOA,PIN_MAP[PA3].gpio_bit,GPIOA,PIN_MAP[PA2].gpio_bit,config);
+		LED2_output;
 		usart_set_baud_rate(USART2, STM32_PCLK1, baud);
 		usart_enable(USART2);
 	}

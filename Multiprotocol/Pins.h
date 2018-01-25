@@ -190,6 +190,12 @@
 		#define IS_LED_on	(LED_port & _BV(LED_pin))
 	#endif
 
+	#define	LED2_on
+	#define	LED2_off
+	#define	LED2_toggle
+	#define	LED2_output
+	#define	IS_LED2_on		0
+
 	//BIND
 	#ifdef ORANGE_TX
 		#define BIND_pin			2						//PD2
@@ -208,6 +214,7 @@
 #else //STM32_BOARD
 	#define	BIND_pin		PA0
 	#define	LED_pin			PA1
+	#define	LED2_pin		PA2
 	//
 	#define	PPM_pin			PA8								//PPM  5V tolerant
 	//
@@ -283,6 +290,12 @@
 	#define	LED_toggle		digitalWrite(LED_pin ,!digitalRead(LED_pin))
 	#define	LED_output		pinMode(LED_pin,OUTPUT)
 	#define	IS_LED_on		( digitalRead(LED_pin)==HIGH)
+
+	#define	LED2_on			digitalWrite(LED2_pin,HIGH)
+	#define	LED2_off		digitalWrite(LED2_pin,LOW)
+	#define	LED2_toggle		digitalWrite(LED2_pin ,!digitalRead(LED2_pin))
+	#define	LED2_output		pinMode(LED2_pin,OUTPUT)
+	#define	IS_LED2_on		( digitalRead(LED2_pin)==HIGH)
 
 	#define BIND_SET_INPUT		pinMode(BIND_pin,INPUT)
 	#define BIND_SET_PULLUP		digitalWrite(BIND_pin,HIGH)	

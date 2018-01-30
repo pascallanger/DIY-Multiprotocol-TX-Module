@@ -32,11 +32,11 @@ The protocol selection is based on 2 parameters:
   * selection switch: this is the rotary switch on the module numbered from 0 to 15
       - switch position 0 is to select the Serial mode for er9x/ersky9x/OpenTX radio
       - switch position 15 is to select the bank
-	  - switch position 1..14 will select the protocol 1..14 in the bank X
+	  - switch position 1..14 will select the protocol 1..14 in the bank *X*
   * banks are used to increase the amount of accessible protocols by the switch. There are up to 5 banks giving acces to up to 70 protocol entries (5 * 14).  To modify or verify which bank is currenlty active do the following:
       - turn on the module with the switch on position 15
       - the number of LED flash indicates the bank number (1 to 5 flash)
-	  - to go to the next bank short press the bind button, this action is confirmed by the LED staying on for 1.5 sec
+	  - to go to the next bank, short press the bind button, this action is confirmed by the LED staying on for 1.5 sec
 
 The default protocol mapping can be seen at the end of the file [_Config.h](/Multiprotocol/_Config.h).
 	  

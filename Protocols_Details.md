@@ -27,29 +27,20 @@ Here are detailed descriptions of every supported protocols (sorted by RF module
   - Using channel 16 for the bind channel seems the most relevant as only one protocol so far is using 16 channels which is FrSkyX. But even on FrSkyX this feature won't have any impact since there is NO valid reason to have Autobind set to Y for such a protocol.
 
 
-## Default Mapping of Protocols in PPM mode<a name="DefaultMapping"></a>
-Here is the default mapping of protocols to the 16-position protocol selection switch on the module.  You can customize these when you compile your own firmware as described in [Compiling and Programming.](docs/Compiling.md)
+## Protocol selection in PPM mode
+The protocol selection is based on 2 parameters:
+  * selection switch: this is the rotary switch on the module numbered from 0 to 15
+      - switch position 0 is to select the Serial mode for er9x/ersky9x/OpenTX radio
+      - switch position 15 is to select the bank
+	  - switch position 1..14 will select the protocol 1..14 in the bank X
+  * banks are used to increase the amount of accessible protocols by the switch. There are up to 5 banks giving acces to up to 70 protocol entries (5 * 14).  To modify or verify which bank is currenlty active do the following:
+      - turn on the module with the switch on position 15
+      - the number of LED flash indicates the bank number (1 to 5 flash)
+	  - to go to the next bank short press the bind button, this action is confirmed by the LED staying on for 1.5 sec
 
-**Note that the protocol must be selected before the unit is turned on.**
-
-Dial|Protocol|Sub_protocol|RX Num|Power|Auto Bind|Option|RF Module
-----|--------|------------|------|-----|---------|------|---------
-0|Select serial||||||
-1|FLYSKY|Flysky|0|High|No|0|A7105
-2|HUBSAN|-|0|High|No|0|A7105
-3|FRSKYD|-|0|High|No|40|CC2500
-4|HISKY|Hisky|0|High|No|0|NRF24L01
-5|V2X2|-|0|High|No|0|NRF24L01
-6|DSM|DSM2|0|High|No|6|CYRF6936
-7|DEVO|-|0|High|No|0|CYRF6936
-8|YD717|YD717|0|High|No|0|NRF24L01
-9|KN|WLTOYS|0|High|No|0|NRF24L01
-10|SYMAX|SYMAX|0|High|No|0|NRF24L01
-11|SLT|-|0|High|No|0|NRF24L01
-12|CX10|BLUE|0|High|No|0|NRF24L01
-13|CG023|CG023|0|High|No|0|NRF24L01
-14|BAYANG|-|0|High|No|0|NRF24L01
-15|SYMAX|SYMAX5C|0|High|No|0|NRF24L01
+The default protocol mapping can be seen at the end of the file [_Config.h](/Multiprotocol/_Config.h).
+	  
+**Note: the protocol selection must be done before the module is turned on**
 
 # A7105 RF Module
 
@@ -259,7 +250,7 @@ Bind procedure using serial:
 - Turn on RX (RX LED fast blink).
 - Turn on TX (RX LED solid, TX LED fast blink).
 - Wait for bind on the TX to complete (TX LED solid).
-- Make sure to set the RX_Num value for model match.
+- Make sure to set a uniq RX_Num value for model match.
 - Change option to 1 to use the global ID.
 - Do not touch option/RX_Num anymore.
 
@@ -272,7 +263,7 @@ Bind procedure using PPM:
 - Wait for bind on the TX to complete (TX LED solid).
 - Press the bind button for 1 second. TX/RX is now in fixed ID mode.
 - To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
-- Note: Autobind/fixed ID mode is linked to the dial number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
+- Note: Autobind/fixed ID mode is linked to the RX_Num number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
 
 ## WK2X01 - *30*
 Extended limits supported
@@ -295,7 +286,7 @@ Bind procedure using serial:
 - Turn on RX (RX LED fast blink).
 - Turn on TX (RX LED solid, TX LED fast blink).
 - Wait for bind on the TX to complete (TX LED solid).
-- Make sure to set the RX_Num value for model match.
+- Make sure to set a uniq RX_Num value for model match.
 - Change option to 1 to use the global ID.
 - Do not touch option/RX_Num anymore.
 
@@ -308,7 +299,7 @@ Bind procedure using PPM:
 - Wait for bind on the TX to complete (TX LED solid).
 - Press the bind button for 1 second. TX/RX is now in fixed ID mode.
 - To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
-- Note: Autobind/fixed ID mode is linked to the dial number. Which means that you can have multiple dial numbers set to the same protocol WK2X01 and sub_protocol WK2801 with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match.
+- Note: Autobind/fixed ID mode is linked to the RX_Num number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
 
 ### Sub_protocol WK2401 - *1*
 The WK2401 protocol is used to control older Walkera models.

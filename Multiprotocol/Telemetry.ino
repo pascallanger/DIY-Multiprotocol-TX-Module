@@ -113,14 +113,14 @@ static void multi_send_status()
 			//Is failsafe supported?
 			switch (protocol)
 			{
-				case MODE_HISKY:
+				case PROTO_HISKY:
 					if(sub_protocol!=HK310)
 						break;
-				case MODE_AFHDS2A:
-				case MODE_DEVO:
-				case MODE_SFHSS:
-				case MODE_WK2x01:
-				case MODE_FRSKYX:
+				case PROTO_AFHDS2A:
+				case PROTO_DEVO:
+				case PROTO_SFHSS:
+				case PROTO_WK2x01:
+				case PROTO_FRSKYX:
 					flags |= 0x20;	//Yes
 				default:
 					break;
@@ -219,7 +219,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		
 		if(pktt[6]>0 && pktt[6]<=10)
 		{
-			if (protocol==MODE_FRSKYD)
+			if (protocol==PROTO_FRSKYD)
 			{
 				if ( ( pktt[7] & 0x1F ) == (telemetry_counter & 0x1F) )
 				{
@@ -243,7 +243,7 @@ void frsky_check_telemetry(uint8_t *pkt,uint8_t len)
 		//
 #if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
 		telemetry_lost=0;
-		if (protocol==MODE_FRSKYX)
+		if (protocol==PROTO_FRSKYX)
 		{
 			uint16_t lcrc = frskyX_crc_x(&pkt[3], len-7 ) ;
 
@@ -340,7 +340,7 @@ void init_frskyd_link_telemetry()
 void frsky_link_frame()
 {
 	frame[0] = 0xFE;			// Link frame
-	if (protocol==MODE_FRSKYD)
+	if (protocol==PROTO_FRSKYD)
 	{		
 		frame[1] = pktt[3];		// A1
 		frame[2] = pktt[4];		// A2
@@ -349,7 +349,7 @@ void frsky_link_frame()
 		telemetry_link |= 2 ;		// Send hub if available
 	}
 	else
-		if (protocol==MODE_HUBSAN||protocol==MODE_AFHDS2A||protocol==MODE_BAYANG||protocol==MODE_CABELL)
+		if (protocol==PROTO_HUBSAN||protocol==PROTO_AFHDS2A||protocol==PROTO_BAYANG||protocol==PROTO_CABELL)
 		{	
 			frame[1] = v_lipo1;
 			frame[2] = v_lipo2;			
@@ -854,7 +854,7 @@ void TelemetryUpdate()
 	#endif
 	 
 	#if defined SPORT_TELEMETRY
-		if (protocol==MODE_FRSKYX)
+		if (protocol==PROTO_FRSKYX)
 		{	// FrSkyX
 			for(;;)
 			{
@@ -900,7 +900,7 @@ void TelemetryUpdate()
 	#endif // SPORT_TELEMETRY
 
 	#if defined DSM_TELEMETRY
-		if(telemetry_link && protocol == MODE_DSM)
+		if(telemetry_link && protocol == PROTO_DSM)
 		{	// DSM
 			DSM_frame();
 			telemetry_link=0;
@@ -908,7 +908,7 @@ void TelemetryUpdate()
 		}
 	#endif
 	#if defined AFHDS2A_FW_TELEMETRY
-		if(telemetry_link == 2 && protocol == MODE_AFHDS2A)
+		if(telemetry_link == 2 && protocol == PROTO_AFHDS2A)
 		{
 			AFHDSA_short_frame();
 			telemetry_link=0;
@@ -916,13 +916,13 @@ void TelemetryUpdate()
 		}
 	#endif
 
-		if((telemetry_link & 1 )&& protocol != MODE_FRSKYX)
+		if((telemetry_link & 1 )&& protocol != PROTO_FRSKYX)
 		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell
 			frsky_link_frame();
 			return;
 		}
 	#if defined HUB_TELEMETRY
-		if((telemetry_link & 2) && protocol == MODE_FRSKYD)
+		if((telemetry_link & 2) && protocol == PROTO_FRSKYD)
 		{	// FrSkyD
 			frsky_user_frame();
 			return;

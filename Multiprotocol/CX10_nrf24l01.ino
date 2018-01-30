@@ -12,7 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// compatible with Cheerson CX-10 blue & newer red pcb, CX-10A, CX11, CX-10 green pcb, DM007, Floureon FX-10, JXD 509 (Q282)
+// compatible with Cheerson CX-10 blue & newer red pcb, CX-10A, CX11, CX-10 green pcb, DM007, Floureon FX-10, JXD 509 (Q282), Q222, Q242 and Q282
 // Last sync with hexfet new_protocols/cx10_nrf24l01.c dated 2015-11-26
 
 #if defined(CX10_NRF24L01_INO)
@@ -81,9 +81,9 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 			flags |= GET_FLAG(!CH7_SW, 0x10)	// Channel 7 - picture
 					|GET_FLAG( CH8_SW, 0x08);	// Channel 8 - video
 			break;
-		case Q282:
-		case Q242:
-		case Q222:
+		case F_Q282:
+		case F_Q242:
+		case F_Q222:
 			memcpy(&packet[15], "\x10\x10\xaa\xaa\x00\x00", 6);
 			//FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 			flags2 = GET_FLAG(CH5_SW, 0x80)		// Channel 5 - FLIP
@@ -92,7 +92,7 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 					|GET_FLAG(CH11_SW, 0x04)		// Channel 11 - XCAL
 					|GET_FLAG(CH12_SW, 0x02);	// Channel 12 - YCAL or Start/Stop motors on JXD 509
 	
-			if(sub_protocol==Q242)
+			if(sub_protocol==F_Q242)
 			{
 				flags=2;
 				flags2|= GET_FLAG(CH7_SW,0x01)	// Channel 7 - picture
@@ -101,16 +101,16 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 				packet[18]=0x00;
 			}
 			else
-			{ // Q282 & Q222
+			{ // F_Q282 & F_Q222
 				flags=3;							// expert
-				if(CH8_SW)						// Channel 8 - Q282 video / Q222 Module 1
+				if(CH8_SW)						// Channel 8 - F_Q282 video / F_Q222 Module 1
 				{
 					if (!(video_state & 0x20)) video_state ^= 0x21;
 				}
 				else
 					if (video_state & 0x20) video_state &= 0x01;
 				flags2 |= video_state
-						|GET_FLAG(CH7_SW,0x10);	// Channel 7 - Q282 picture / Q222 Module 2
+						|GET_FLAG(CH7_SW,0x10);	// Channel 7 - F_Q282 picture / F_Q222 Module 2
 			}
 			if(CH10_SW)	flags |=0x80;			// Channel 10 - RTH
 			break;
@@ -238,12 +238,12 @@ uint16_t CX10_callback()
 static void __attribute__((unused)) CX10_initialize_txid()
 {
 	rx_tx_addr[1]%= 0x30;
-	if(sub_protocol&0x08)	//Q2X2 protocols
+	if(sub_protocol&0x08)	//F_Q2X2 protocols
 	{
-		uint8_t offset=0;	//Q282
-		if(sub_protocol==Q242)
+		uint8_t offset=0;	//F_Q282
+		if(sub_protocol==F_Q242)
 			offset=2;
-		if(sub_protocol==Q222)
+		if(sub_protocol==F_Q222)
 			offset=3;
 		for(uint8_t i=0;i<4;i++)
 			hopping_frequency[i]=0x46+2*i+offset;
@@ -272,7 +272,7 @@ uint16_t initCX10(void)
 	}
 	else
 	{
-		if(sub_protocol&0x08)	//Q2X2 protocols
+		if(sub_protocol&0x08)	//F_Q2X2 protocols
 			packet_length = Q2X2_PACKET_SIZE;
 		else
 		    packet_length = CX10_PACKET_SIZE;

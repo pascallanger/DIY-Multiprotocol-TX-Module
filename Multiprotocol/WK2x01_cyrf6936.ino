@@ -294,7 +294,7 @@ static void __attribute__((unused)) WK_build_beacon_pkt_2801()
 		BIND_SET_PULLUP;										// set pullup
 		if(IS_BIND_BUTTON_on)
 		{
-			eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+mode_select),0x01);	// Set fixed id mode for the current model
+			eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num),0x01);	// Set fixed id mode for the current model
 			option=1;
 		}
 		BIND_SET_OUTPUT;
@@ -303,7 +303,7 @@ static void __attribute__((unused)) WK_build_beacon_pkt_2801()
     if(prev_option!=option && IS_BIND_DONE)
 	{
 		set_rx_tx_addr(MProtocol_id);
-		rx_tx_addr[2]=rx_tx_addr[3]<<4;		// Make use of RX_Num
+		rx_tx_addr[2]=rx_tx_addr[3]<<4;		// Make use of RX_num
 		bind_counter = WK_BIND_COUNT / 8 + 1;
 	}
 	if (option)
@@ -490,7 +490,7 @@ uint16_t WK_setup()
 	}
 	else
 	{
-		rx_tx_addr[2]=rx_tx_addr[3]<<4;		// Make use of RX_Num
+		rx_tx_addr[2]=rx_tx_addr[3]<<4;		// Make use of RX_num
 		bind_counter = 0;
 		phase = WK_BOUND_1;
 		BIND_DONE;

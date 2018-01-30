@@ -49,6 +49,11 @@
 	#error "You have enabled CHECK_FOR_BOOTLOADER but not selected the 'Flash from TX' bootloader."
 #endif
 
+//Check number of banks
+#if NBR_BANKS < 1 || NBR_BANKS > 5
+	#error "You need to select a number of banks between 1 and 5."
+#endif
+
 //Check failsafe throttle value
 #ifdef FAILSAFE_ENABLE
 	#if ( FAILSAFE_THROTTLE_LOW < -125 ) || ( FAILSAFE_THROTTLE_LOW > 125 )

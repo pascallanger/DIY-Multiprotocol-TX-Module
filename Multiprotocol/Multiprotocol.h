@@ -19,50 +19,50 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	15
+#define VERSION_PATCH_LEVEL	16
 //******************
 // Protocols
 //******************
 enum PROTOCOLS
 {
 	MODE_SERIAL		= 0,	// Serial commands
-	MODE_FLYSKY 	= 1,	// =>A7105
-	MODE_HUBSAN		= 2,	// =>A7105
-	MODE_FRSKYD		= 3,	// =>CC2500
-	MODE_HISKY		= 4,	// =>NRF24L01
-	MODE_V2X2		= 5,	// =>NRF24L01
-	MODE_DSM		= 6,	// =>CYRF6936
-	MODE_DEVO		= 7,	// =>CYRF6936
-	MODE_YD717		= 8,	// =>NRF24L01
-	MODE_KN			= 9,	// =>NRF24L01
-	MODE_SYMAX		= 10,	// =>NRF24L01
-	MODE_SLT		= 11,	// =>NRF24L01
-	MODE_CX10		= 12,	// =>NRF24L01
-	MODE_CG023		= 13,	// =>NRF24L01
-	MODE_BAYANG		= 14,	// =>NRF24L01
-	MODE_FRSKYX		= 15,	// =>CC2500
-	MODE_ESKY		= 16,	// =>NRF24L01
-	MODE_MT99XX		= 17,	// =>NRF24L01
-	MODE_MJXQ		= 18,	// =>NRF24L01
-	MODE_SHENQI		= 19,	// =>NRF24L01
-	MODE_FY326		= 20,	// =>NRF24L01
-	MODE_SFHSS		= 21,	// =>CC2500
-	MODE_J6PRO		= 22,	// =>CYRF6936
-	MODE_FQ777		= 23,	// =>NRF24L01
-	MODE_ASSAN		= 24,	// =>NRF24L01
-	MODE_FRSKYV		= 25,	// =>CC2500
-	MODE_HONTAI		= 26,	// =>NRF24L01
-	MODE_OPENLRS	= 27,	// =>OpenLRS hardware
-	MODE_AFHDS2A	= 28,	// =>A7105
-	MODE_Q2X2		= 29,	// =>NRF24L01, extension of CX-10 protocol
-	MODE_WK2x01		= 30,	// =>CYRF6936
-	MODE_Q303		= 31,	// =>NRF24L01
-	MODE_GW008		= 32,	// =>NRF24L01
-	MODE_DM002		= 33,	// =>NRF24L01
-	MODE_CABELL		= 34,	// =>NRF24L01
-	MODE_ESKY150	= 35,	// =>NRF24L01
-	MODE_H8_3D		= 36,	// =>NRF24L01
-	MODE_CORONA		= 37,	// =>CC2500
+	PROTO_FLYSKY 	= 1,	// =>A7105
+	PROTO_HUBSAN	= 2,	// =>A7105
+	PROTO_FRSKYD	= 3,	// =>CC2500
+	PROTO_HISKY		= 4,	// =>NRF24L01
+	PROTO_V2X2		= 5,	// =>NRF24L01
+	PROTO_DSM		= 6,	// =>CYRF6936
+	PROTO_DEVO		= 7,	// =>CYRF6936
+	PROTO_YD717		= 8,	// =>NRF24L01
+	PROTO_KN		= 9,	// =>NRF24L01
+	PROTO_SYMAX		= 10,	// =>NRF24L01
+	PROTO_SLT		= 11,	// =>NRF24L01
+	PROTO_CX10		= 12,	// =>NRF24L01
+	PROTO_CG023		= 13,	// =>NRF24L01
+	PROTO_BAYANG	= 14,	// =>NRF24L01
+	PROTO_FRSKYX	= 15,	// =>CC2500
+	PROTO_ESKY		= 16,	// =>NRF24L01
+	PROTO_MT99XX	= 17,	// =>NRF24L01
+	PROTO_MJXQ		= 18,	// =>NRF24L01
+	PROTO_SHENQI	= 19,	// =>NRF24L01
+	PROTO_FY326		= 20,	// =>NRF24L01
+	PROTO_SFHSS		= 21,	// =>CC2500
+	PROTO_J6PRO		= 22,	// =>CYRF6936
+	PROTO_FQ777		= 23,	// =>NRF24L01
+	PROTO_ASSAN		= 24,	// =>NRF24L01
+	PROTO_FRSKYV	= 25,	// =>CC2500
+	PROTO_HONTAI	= 26,	// =>NRF24L01
+	PROTO_OPENLRS	= 27,	// =>OpenLRS hardware
+	PROTO_AFHDS2A	= 28,	// =>A7105
+	PROTO_Q2X2		= 29,	// =>NRF24L01, extension of CX-10 protocol
+	PROTO_WK2x01	= 30,	// =>CYRF6936
+	PROTO_Q303		= 31,	// =>NRF24L01
+	PROTO_GW008		= 32,	// =>NRF24L01
+	PROTO_DM002		= 33,	// =>NRF24L01
+	PROTO_CABELL	= 34,	// =>NRF24L01
+	PROTO_ESKY150	= 35,	// =>NRF24L01
+	PROTO_H8_3D		= 36,	// =>NRF24L01
+	PROTO_CORONA	= 37,	// =>CC2500
 };
 
 enum Flysky
@@ -133,9 +133,12 @@ enum CX10
 };
 enum Q2X2
 {
-	Q222		= 8,
-	Q242		= 9,
-	Q282		= 10,
+	Q222		= 0,
+	Q242		= 1,
+	Q282		= 2,
+	F_Q222		= 8,
+	F_Q242		= 9,
+	F_Q282		= 10,
 };
 enum CG023
 {
@@ -175,10 +178,10 @@ enum FRSKYX
 };
 enum HONTAI
 {
-	FORMAT_HONTAI	= 0,
-	FORMAT_JJRCX1	= 1,
-	FORMAT_X5C1		= 2,
-	FORMAT_FQ777_951 =3
+	HONTAI	= 0,
+	JJRCX1	= 1,
+	X5C1		= 2,
+	FQ777_951 =3
 };
 enum V2X2
 {
@@ -359,6 +362,9 @@ enum MultiPacketTypes
 #define BLINK_BAD_PROTO_TIME_LOW	1000
 #define BLINK_WAIT_BIND_TIME_HIGH	1000
 #define BLINK_WAIT_BIND_TIME_LOW	100
+#define BLINK_BANK_TIME_HIGH		50
+#define BLINK_BANK_TIME_LOW			500
+#define BLINK_BANK_REPEAT			1500
 
 //*******************
 //***  AUX flags  ***
@@ -490,11 +496,11 @@ enum {
 
 /** EEPROM Layout */
 #define EEPROM_ID_OFFSET		10		// Module ID (4 bytes)
+#define EEPROM_BANK_OFFSET		15		// Current bank number (1 byte)
 #define EEPROM_ID_VALID_OFFSET	20		// 1 byte flag that ID is valid
 #define MODELMODE_EEPROM_OFFSET	30		// Autobind mode, 1 byte per model, end is 46
 #define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 byte per model id, end is 114
 #define CONFIG_EEPROM_OFFSET 	120		// Current configuration of the multimodule
-
 
 //****************************************
 //*** MULTI protocol serial definition ***
@@ -629,10 +635,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			EU_16		2
 			EU_8		3
 		sub_protocol==HONTAI
-			FORMAT_HONTAI	0
-			FORMAT_JJRCX1	1
-			FORMAT_X5C1		2
-			FORMAT_FQ777_951 3
+			HONTAI	0
+			JJRCX1	1
+			X5C1		2
+			FQ777_951 3
 		sub_protocol==AFHDS2A
 			PWM_IBUS	0
 			PPM_IBUS	1

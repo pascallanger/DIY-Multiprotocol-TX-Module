@@ -27,7 +27,7 @@ void A7105_WriteData(uint8_t len, uint8_t channel)
 	for (i = 0; i < len; i++)
 		SPI_Write(packet[i]);
 	A7105_CSN_on;
-	if(protocol!=MODE_FLYSKY)
+	if(protocol!=PROTO_FLYSKY)
 	{
 		A7105_Strobe(A7105_STANDBY);	//Force standby mode, ie cancel any TX or RX...
 		A7105_SetTxRxMode(TX_EN);		//Switch to PA
@@ -177,17 +177,17 @@ void A7105_AdjustLOBaseFreq(uint8_t cmd)
 		old_offset=2048;
 		switch(protocol)
 		{
-			case MODE_HUBSAN:
+			case PROTO_HUBSAN:
 				#ifdef FORCE_HUBSAN_TUNING
 					offset=(int16_t)FORCE_HUBSAN_TUNING;
 				#endif
 				break;
-			case MODE_FLYSKY:
+			case PROTO_FLYSKY:
 				#ifdef FORCE_FLYSKY_TUNING
 					offset=(int16_t)FORCE_FLYSKY_TUNING;
 				#endif
 				break;
-			case MODE_AFHDS2A:
+			case PROTO_AFHDS2A:
 				#ifdef FORCE_AFHDS2A_TUNING
 					offset=(int16_t)FORCE_AFHDS2A_TUNING;
 				#endif
@@ -255,7 +255,7 @@ void A7105_Init(void)
 	uint8_t *A7105_Regs=0;
 	
 	#ifdef HUBSAN_A7105_INO
-		if(protocol==MODE_HUBSAN)
+		if(protocol==PROTO_HUBSAN)
 		{
 			A7105_WriteID(ID_NORMAL);
 			A7105_Regs=(uint8_t*)HUBSAN_A7105_regs;
@@ -265,7 +265,7 @@ void A7105_Init(void)
 		{
 			A7105_WriteID(0x5475c52A);//0x2Ac57554
 			#ifdef FLYSKY_A7105_INO
-				if(protocol==MODE_FLYSKY)
+				if(protocol==PROTO_FLYSKY)
 					A7105_Regs=(uint8_t*)FLYSKY_A7105_regs;
 				else
 			#endif
@@ -280,7 +280,7 @@ void A7105_Init(void)
 	{
 		uint8_t val=pgm_read_byte_near(&A7105_Regs[i]);
 		#ifdef FLYSKY_A7105_INO
-			if(protocol==MODE_FLYSKY && sub_protocol==CX20)
+			if(protocol==PROTO_FLYSKY && sub_protocol==CX20)
 			{
 				if(i==0x0E) val=0x01;
 				if(i==0x1F) val=0x1F;
@@ -298,7 +298,7 @@ void A7105_Init(void)
 //	A7105_ReadReg(A7105_22_IF_CALIB_I);
 //	A7105_ReadReg(A7105_24_VCO_CURCAL);
 
-	if(protocol!=MODE_HUBSAN)
+	if(protocol!=PROTO_HUBSAN)
 	{
 		//VCO Current Calibration
 		A7105_WriteReg(A7105_24_VCO_CURCAL,0x13);	//Recommended calibration from A7105 Datasheet
@@ -319,8 +319,8 @@ void A7105_Init(void)
 //	A7105_ReadReg(A7105_25_VCO_SBCAL_I);
 
 	//Reset VCO Band calibration
-	if(protocol!=MODE_HUBSAN)
-		A7105_WriteReg(A7105_25_VCO_SBCAL_I,protocol==MODE_FLYSKY?0x08:0x0A);
+	if(protocol!=PROTO_HUBSAN)
+		A7105_WriteReg(A7105_25_VCO_SBCAL_I,protocol==PROTO_FLYSKY?0x08:0x0A);
 
 	A7105_SetTxRxMode(TX_EN);
 	A7105_SetPower();

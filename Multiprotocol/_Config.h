@@ -22,7 +22,7 @@
 /********************/
 //If you know parameters you want for sure to be enabled or disabled which survives in future, you can use a file named "_MyConfig.h".
 //An example is given within the file named "_MyConfig.h.example" which needs to be renamed if you want to use it.
-//To enable this config file remove the // from the line below. It's automatically loaded if the file exists for the AVR platform but not STM32...
+//To enable this config file remove the // from the line below.
 //#define USE_MY_CONFIG
 
 
@@ -305,160 +305,240 @@
 /** Dial Protocol Selector Settings **/
 //The table below indicates which protocol to run when a specific position on the dial has been selected.
 //All fields and values are explained below. Everything is configurable from here like in the Serial mode.
-//Example: You can associate multiple times the same protocol to different dial positions to take advantage of the model match (RX_Num)
-const PPM_Parameters PPM_prot[15]=	{
+//Tip: You can associate multiple times the same protocol to different dial positions to take advantage of the model match based on RX_Num
+
+//A system of banks enable the access to more protocols than positions on the dial. Banks can be selected by placing the dial on position 15, power up the module and
+// short press the bind button multiple times until you reach the desired one. The bank number currently selected is indicated by the number of LED flash.
+//The parameter below indicates the number of desired banks between 1 and 5. Default is 5.
+#define NBR_BANKS 5
+
+const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
+#if NBR_BANKS > 0
+//******************************       BANK 1       ******************************
 //	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
-/*	1	*/	{MODE_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	2	*/	{MODE_HUBSAN,	H107		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	3	*/	{MODE_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
-/*	4	*/	{MODE_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	5	*/	{MODE_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	6	*/	{MODE_DSM	,	DSMX_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
-/*	7	*/	{MODE_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},
-/*	8	*/	{MODE_YD717	,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	9	*/	{MODE_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	10	*/	{MODE_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	11	*/	{MODE_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	12	*/	{MODE_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	13	*/	{MODE_CG023	,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	14	*/	{MODE_BAYANG,	BAYANG		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	15	*/	{MODE_SYMAX	,	SYMAX5C		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		}
+/*	1	*/	{PROTO_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	2	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 0
+/*	3	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	1	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 1
+/*	4	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	2	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 2
+/*	5	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	3	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 3
+/*	6	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	2	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 4
+/*	7	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	3	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 5
+/*	8	*/	{PROTO_SFHSS,	H107		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	9	*/	{PROTO_FRSKYV,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	10	*/	{PROTO_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	11	*/	{PROTO_FRSKYX,	CH_16		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	12	*/	{PROTO_FRSKYX,	EU_16		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	13	*/	{PROTO_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{PROTO_WK2x01,	WK2801		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+#endif
+#if NBR_BANKS > 1
+//******************************       BANK 2       ******************************
+//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+/*	1	*/	{PROTO_DSM	,	DSM2_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
+/*	2	*/	{PROTO_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
+/*	3	*/	{PROTO_DSM	,	DSMX_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
+/*	4	*/	{PROTO_DSM	,	DSMX_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
+/*	5	*/	{PROTO_DSM	,	DSM2_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8		},	// option=number of channels
+/*	6	*/	{PROTO_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8		},	// option=number of channels
+/*	7	*/	{PROTO_DSM	,	DSMX_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8		},	// option=number of channels
+/*	8	*/	{PROTO_DSM	,	DSMX_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8		},	// option=number of channels
+/*	9	*/	{PROTO_SLT	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	10	*/	{PROTO_HUBSAN,	H107		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	11	*/	{PROTO_HUBSAN,	H301		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	12	*/	{PROTO_HUBSAN,	H501		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	13	*/	{PROTO_HISKY	,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{PROTO_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+#endif
+#if NBR_BANKS > 2
+//******************************       BANK 3       ******************************
+//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+/*	1	*/	{PROTO_ESKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	2	*/	{PROTO_ESKY150,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	3	*/	{PROTO_ASSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	4	*/	{PROTO_CORONA,	COR_V2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	5	*/	{PROTO_SYMAX	,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	6	*/	{PROTO_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	7	*/	{PROTO_BAYANG,	BAYANG		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	8	*/	{PROTO_BAYANG,	H8S3D		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	9	*/	{PROTO_BAYANG,	X16_AH		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	10	*/	{PROTO_BAYANG,	IRDRONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	11	*/	{PROTO_H8_3D,	H8_3D		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	12	*/	{PROTO_H8_3D,	H20H		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	13	*/	{PROTO_H8_3D,	H20MINI		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{PROTO_H8_3D,	H30MINI		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+#endif
+#if NBR_BANKS > 3
+//******************************       BANK 4       ******************************
+//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+/*	1	*/	{PROTO_MJXQ	,	WLH08		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	2	*/	{PROTO_MJXQ	,	X600		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	3	*/	{PROTO_MJXQ	,	X800		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	4	*/	{PROTO_MJXQ	,	H26D		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	5	*/	{PROTO_MJXQ	,	E010		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	6	*/	{PROTO_MJXQ	,	H26WH		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	7	*/	{PROTO_HONTAI,	HONTAI		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	8	*/	{PROTO_HONTAI,	JJRCX1		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	9	*/	{PROTO_HONTAI,	X5C1		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	10	*/	{PROTO_HONTAI,	FQ777_951	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	11	*/	{PROTO_Q303	,	Q303		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	12	*/	{PROTO_Q303	,	CX35		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	13	*/	{PROTO_Q303	,	CX10D		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{PROTO_Q303	,	CX10WD		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+#endif
+#if NBR_BANKS > 4
+//******************************       BANK 5       ******************************
+//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+/*	1	*/	{PROTO_CX10	,	CX10_GREEN	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	2	*/	{PROTO_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	3	*/	{PROTO_CX10	,	DM007		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	4	*/	{PROTO_CX10	,	JC3015_1	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	5	*/	{PROTO_CX10	,	JC3015_2	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	6	*/	{PROTO_CX10	,	MK33041		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	7	*/	{PROTO_Q2X2	,	Q222		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	8	*/	{PROTO_Q2X2	,	Q242		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	9	*/	{PROTO_Q2X2	,	Q282		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	10	*/	{PROTO_CG023,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	11	*/	{PROTO_CG023,	YD829		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	12	*/	{PROTO_FQ777,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	13	*/	{PROTO_YD717,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{PROTO_MT99XX,	MT99		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+#endif
 };
 /* Available protocols and associated sub protocols to pick and choose from
-	MODE_FLYSKY
+	PROTO_FLYSKY
 		Flysky
 		V9X9
 		V6X6
 		V912
 		CX20
-	MODE_HUBSAN
+	PROTO_HUBSAN
 		H107
 		H301
 		H501
-	MODE_FRSKYV
+	PROTO_FRSKYV
 		NONE
-	MODE_FRSKYD
+	PROTO_FRSKYD
 		NONE
-	MODE_FRSKYX
+	PROTO_FRSKYX
 		CH_16
 		CH_8
 		EU_16
 		EU_8
-	MODE_HISKY
+	PROTO_HISKY
 		Hisky
 		HK310
-	MODE_V2X2
+	PROTO_V2X2
 		V2X2
 		JXD506
-	MODE_DSM
+	PROTO_DSM
 		DSM2_22
 		DSM2_11
 		DSMX_22
 		DSMX_11
-	MODE_DEVO
+	PROTO_DEVO
 		NONE
-	MODE_YD717
+	PROTO_YD717
 		YD717
 		SKYWLKR
 		SYMAX4
 		XINXUN
 		NIHUI
-	MODE_KN
+	PROTO_KN
 		WLTOYS
 		FEILUN
-	MODE_SYMAX
+	PROTO_SYMAX
 		SYMAX
 		SYMAX5C
-	MODE_SLT
+	PROTO_SLT
 		NONE
-	MODE_CX10
+	PROTO_CX10
 		CX10_GREEN
 		CX10_BLUE
 		DM007
 		JC3015_1
 		JC3015_2
 		MK33041
-	MODE_Q2X2
+	PROTO_Q2X2
 		Q222
 		Q242
 		Q282
-	MODE_SLT
+	PROTO_SLT
 		SLT
 		VISTA
-	MODE_CG023
+	PROTO_CG023
 		CG023
 		YD829
-	MODE_BAYANG
+	PROTO_BAYANG
 		BAYANG
 		H8S3D
 		X16_AH
 		IRDRONE
-	MODE_ESKY
+	PROTO_ESKY
 		NONE
-	MODE_MT99XX
+	PROTO_MT99XX
 		MT99
 		H7
 		YZ
 		LS
 		FY805
-	MODE_MJXQ
+	PROTO_MJXQ
 		WLH08
 		X600
 		X800
 		H26D
 		E010
 		H26WH
-	MODE_SHENQI
+	PROTO_SHENQI
 		NONE
-	MODE_FY326
+	PROTO_FY326
 		FY326
 		FY319
-	MODE_SFHSS
+	PROTO_SFHSS
 		NONE
-	MODE_J6PRO
+	PROTO_J6PRO
 		NONE
-	MODE_FQ777
+	PROTO_FQ777
 		NONE
-	MODE_ASSAN
+	PROTO_ASSAN
 		NONE
-	MODE_HONTAI
-		FORMAT_HONTAI
-		FORMAT_JJRCX1
-		FORMAT_X5C1
-		FORMAT_FQ777_951
-	MODE_AFHDS2A
+	PROTO_HONTAI
+		HONTAI
+		JJRCX1
+		X5C1
+		FQ777_951
+	PROTO_AFHDS2A
 		PWM_IBUS
 		PPM_IBUS
 		PWM_SBUS
 		PPM_SBUS
-	MODE_WK2X01
+	PROTO_WK2x01
 		WK2801
 		WK2401
 		W6_5_1
 		W6_6_1
 		W6_HEL
 		W6_HEL_I
-	MODE_Q303
+	PROTO_Q303
 		Q303
 		CX35
 		CX10D
 		CX10WD
-	MODE_GW008
+	PROTO_GW008
 		NONE
-	MODE_DM002
+	PROTO_DM002
 		NONE
-	MODE_CABELL
+	PROTO_CABELL
 		CABELL_V3
 		CABELL_V3_TELEMETRY
 		CABELL_SET_FAIL_SAFE
 		CABELL_UNBIND
-	MODE_ESKY150
-	MODE_H8_3D
+	PROTO_ESKY150
+	PROTO_H8_3D
 		H8_3D
 		H20H
-		H20 Mini
-		H30 Mini
-	MODE_CORONA
+		H20MINI
+		H30MINI
+	PROTO_CORONA
 		COR_V1
 		COR_V2
 */

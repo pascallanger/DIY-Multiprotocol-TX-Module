@@ -240,7 +240,7 @@
 #endif
 
 #if defined(ENABLE_DIRECT_INPUT)
-  #if defined(NABLE_SERIAL)  || defined(ENABLE_PPM)
+  #if defined(ENABLE_SERIAL)  || defined(ENABLE_PPM)
 		#error You must disable ENABLE_SERIAL and ENABLE_PPM before using ENABLE_DIRECT_INPUT
 	#endif
 #endif

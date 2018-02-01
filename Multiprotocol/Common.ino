@@ -146,6 +146,24 @@ uint16_t convert_channel_frsky(uint8_t num)
 	return ((val*15)>>4)+1290;
 }
 
+uint16_t limit_uint_16_t(uint16_t val, uint16_t min, uint16_t max)
+{
+	if(val > max)
+		return max;
+	else
+		if (val < min)
+			return min;
+	return val;
+}
+
+uint16_t apply_direct_input_dead_band_center(uint16_t val, uint16_t center,  uint16_t dead_band){
+	uint16_t off_center = abs(center - val);
+	if(off_center < dead_band){
+		return center;
+	}
+	return val;
+}
+
 /******************************/
 /**  FrSky D and X routines  **/
 /******************************/

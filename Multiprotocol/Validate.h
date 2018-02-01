@@ -239,6 +239,12 @@
 	#endif
 #endif
 
+#if defined(ENABLE_DIRECT_INPUT)
+  #if defined(NABLE_SERIAL)  || defined(ENABLE_PPM)
+		#error You must disable ENABLE_SERIAL and ENABLE_PPM before using ENABLE_DIRECT_INPUT
+	#endif
+#endif
+
 #if MIN_PPM_CHANNELS>16
 	#error MIN_PPM_CHANNELS must be below or equal to 16. The default for this value is 4.
 #endif

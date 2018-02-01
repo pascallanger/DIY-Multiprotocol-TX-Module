@@ -261,14 +261,26 @@ void setup()
 			#else
 				TX_INV_off;
 				RX_INV_off;
-			#endif	
+			#endif
 		#endif
 		pinMode(BIND_pin,INPUT_PULLUP);
 		pinMode(PPM_pin,INPUT);
-		pinMode(S1_pin,INPUT_PULLUP);//dial switch
-		pinMode(S2_pin,INPUT_PULLUP);
-		pinMode(S3_pin,INPUT_PULLUP);
-		pinMode(S4_pin,INPUT_PULLUP);
+   #ifdef ENABLE_DIRECT_INPUT
+      pinMode(S1_pin, INPUT_ANALOG); //joystick pins
+      pinMode(S2_pin, INPUT_ANALOG);
+      pinMode(S3_pin, INPUT_ANALOG);
+      pinMode(S4_pin, INPUT_ANALOG);
+      pinMode(AUX1_pin, INPUT_PULLUP);
+      pinMode(AUX2_pin, INPUT_PULLUP);
+      pinMode(AUX3_pin, INPUT_PULLUP);
+      pinMode(AUX4_pin, INPUT_PULLUP);
+    #else
+      pinMode(S1_pin, INPUT_PULLUP); //dial switch
+      pinMode(S2_pin, INPUT_PULLUP);
+      pinMode(S3_pin, INPUT_PULLUP);
+      pinMode(S4_pin ,INPUT_PULLUP);
+    #endif
+
 		//Random pins
 		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
 		pinMode(PB1, INPUT_ANALOG); // set up pin for analog input
@@ -339,7 +351,7 @@ void setup()
 
 	//Wait for every component to start
 	delayMilliseconds(100);
-	
+
 	// Read status of bind button
 	if( IS_BIND_BUTTON_on )
 	{
@@ -357,7 +369,7 @@ void setup()
 		mode_select= 0x0F -(uint8_t)(((GPIOA->regs->IDR)>>4)&0x0F);
 	#else
 		mode_select =
-			((PROTO_DIAL1_ipr & _BV(PROTO_DIAL1_pin)) ? 0 : 1) + 
+			((PROTO_DIAL1_ipr & _BV(PROTO_DIAL1_pin)) ? 0 : 1) +
 			((PROTO_DIAL2_ipr & _BV(PROTO_DIAL2_pin)) ? 0 : 2) +
 			((PROTO_DIAL3_ipr & _BV(PROTO_DIAL3_pin)) ? 0 : 4) +
 			((PROTO_DIAL4_ipr & _BV(PROTO_DIAL4_pin)) ? 0 : 8);
@@ -385,7 +397,7 @@ void setup()
 #ifndef ORANGE_TX
 	//Init the seed with a random value created from watchdog timer for all protocols requiring random values
 	#ifdef STM32_BOARD
-		randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));			
+		randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));
 	#else
 		randomSeed(random_value());
 	#endif
@@ -395,7 +407,7 @@ void setup()
 	MProtocol_id_master=random_id(10,false);
 
 	debugln("Module Id: %lx", MProtocol_id_master);
-	
+
 #ifdef ENABLE_PPM
 	//Protocol and interrupts initialization
 	if(mode_select != MODE_SERIAL)
@@ -478,6 +490,13 @@ void setup()
 		#endif //ENABLE_SERIAL
 	}
 	LED2_on;
+	#ifdef ENABLE_DIRECT_INPUT
+  	for(uint8_t i=0;i<3;i++)
+				cur_protocol[i]= DIRECT_INPUT_PROTOCOL_SELECT;
+		protocol = DIRECT_INPUT_PROTOCOL_SELECT;
+    CHANGE_PROTOCOL_FLAG_on;
+	#endif //ENABLE_DIRECT_INPUT
+
 	debugln("Init complete");
 }
 
@@ -602,6 +621,12 @@ uint8_t Update_All()
 			last_signal=millis();
 		}
 	#endif //ENABLE_PPM
+  #ifdef ENABLE_DIRECT_INPUT
+    update_direct_input_data();
+   	update_channels_aux();
+   	INPUT_SIGNAL_on;								//valid signal received
+   	last_signal=millis();
+  #endif //ENABLE_DIRECT_INPUT
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
@@ -660,6 +685,66 @@ static void update_channels_aux(void)
 		if(Channel_data[CH5+i]>CHANNEL_SWITCH)
 			Channel_AUX|=1<<i;
 }
+
+#ifdef ENABLE_DIRECT_INPUT
+uint32_t debug_input_interval = 1000;
+void update_direct_input_data(){
+
+  uint16_t ai_raw = AILERON_read();
+  uint16_t th_raw = THROTTLE_read();
+  uint16_t el_raw = ELEVATOR_read();
+  uint16_t ru_raw = RUDDER_read();
+
+  uint8_t aux1_raw = AUX1_read();
+  uint8_t aux2_raw = AUX2_read();
+  uint8_t aux3_raw = AUX3_read();
+  uint8_t aux4_raw = AUX4_read();
+
+  uint16_t ai = apply_direct_input_dead_band_center(ai_raw, AILERON_CENTER, DEAD_CENTER);
+  uint16_t el = apply_direct_input_dead_band_center(el_raw, ELEVATOR_CENTER, DEAD_CENTER);
+  uint16_t ru = apply_direct_input_dead_band_center(ru_raw, RUDDER_CENTER, DEAD_CENTER);
+
+  ai = limit_uint_16_t(ai, AILERON_MIN, AILERON_MAX);
+  el = limit_uint_16_t(el, ELEVATOR_MIN, ELEVATOR_MAX);
+  ru = limit_uint_16_t(ru, RUDDER_MIN, RUDDER_MAX);
+  uint16_t th  = limit_uint_16_t(th_raw, THROTTLE_MIN, THROTTLE_MAX);
+
+
+  ai <  AILERON_CENTER ? ai = map(ai, AILERON_MIN, AILERON_CENTER, CHANNEL_MIN_125, CHANNEL_MID_125) :
+  											 ai = map(ai, AILERON_CENTER, AILERON_MAX, CHANNEL_MID_125, CHANNEL_MAX_125);
+  el <  ELEVATOR_CENTER ? el = map(el, ELEVATOR_MIN, ELEVATOR_CENTER, CHANNEL_MIN_125, CHANNEL_MID_125) :
+  												el = map(el, ELEVATOR_CENTER, ELEVATOR_MAX, CHANNEL_MID_125, CHANNEL_MAX_125);
+  ru <  RUDDER_CENTER ? ru = map(ru, RUDDER_MIN, RUDDER_CENTER, CHANNEL_MIN_125, CHANNEL_MID_125):
+  											ru = map(ru, RUDDER_CENTER, RUDDER_MAX, CHANNEL_MID_125, CHANNEL_MAX_125);
+  th =  map(th, THROTTLE_MIN, THROTTLE_MAX, CHANNEL_MIN_125, CHANNEL_MAX_125);
+
+  uint16_t aux1 = aux1_raw? CHANNEL_MIN_125 : CHANNEL_MAX_125;
+  uint16_t aux2 = aux2_raw? CHANNEL_MIN_125 : CHANNEL_MAX_125;
+  uint16_t aux3 = aux3_raw? CHANNEL_MIN_125 : CHANNEL_MAX_125;
+  uint16_t aux4 = aux4_raw? CHANNEL_MIN_125 : CHANNEL_MAX_125        ;
+
+  Channel_data[AILERON] = ai;
+  Channel_data[THROTTLE] = th;
+  Channel_data[ELEVATOR] = el;
+  Channel_data[RUDDER] = ru;
+  Channel_data[CH5] = aux1;
+  Channel_data[CH6] = aux2;
+  Channel_data[CH7] = aux3;
+  Channel_data[CH8] = aux4;
+
+  if(debug_input_interval < millis() ){
+   debugln("AILERON_RAW:%d,AILERON_VAL:%d", ai_raw, ai);
+   debugln("THROTTLE_RAW:%d,THROTTLE_VAL:%d", th_raw, th);
+   debugln("ELEVATOR_RAW:%d,ELEVATOR_VAL:%d", el_raw, el);
+   debugln("RUDDER_RAW:%d,RUDDER_VAL:%d", ru_raw, ru);
+   debugln("AUX1_RAW:%d,AUX1_VAL:%d", aux1_raw, aux1);
+   debugln("AUX2_RAW:%d,AUX2_VAL:%d", aux2_raw, aux2);
+   debugln("AUX3_RAW:%d,AUX3_VAL:%d", aux3_raw, aux3);
+   debugln("AUX4_RAW:%d,AUX4_VAL:%d", aux4_raw, aux4);
+   debug_input_interval = millis() + 1000;
+  }
+}
+#endif //ENABLE_DIRECT_INPUT
 
 // Update led status based on binding and serial
 static void update_led_status(void)

@@ -214,7 +214,11 @@
 #else //STM32_BOARD
 	#define	BIND_pin		PA0
 	#define	LED_pin			PA1
-	#define	LED2_pin		PA2
+	#ifdef ENABLE_DIRECT_INPUT
+	   #define	LED2_pin		PC13
+	#else
+	   #define	LED2_pin		PA2
+	#endif
 	//
 	#define	PPM_pin			PA8								//PPM  5V tolerant
 	//
@@ -239,6 +243,12 @@
 	//
 	#define	TX_INV_pin		PB3
 	#define	RX_INV_pin		PB1
+	//
+	#define	AUX1_pin     PB10
+  #define	AUX2_pin     PB11
+  #define	AUX3_pin     PA2
+  #define	AUX4_pin     PA3
+
 	//
 	#define	PE1_on  		digitalWrite(PE1_pin,HIGH)
 	#define	PE1_off		 	digitalWrite(PE1_pin,LOW)
@@ -316,6 +326,15 @@
 	#define	cli() 			noInterrupts()
 	#define	sei() 			interrupts()
 	#define	delayMilliseconds(x) delay(x)
+
+  #define AILERON_read() analogRead(S1_pin)
+  #define ELEVATOR_read() analogRead(S2_pin)
+  #define THROTTLE_read() analogRead(S3_pin)
+  #define RUDDER_read() analogRead(S4_pin)
+  #define AUX1_read() digitalRead(AUX1_pin)
+  #define AUX2_read() digitalRead(AUX2_pin)
+  #define AUX3_read() digitalRead(AUX3_pin)
+  #define AUX4_read() digitalRead(AUX4_pin)
 #endif
 
 //*******************

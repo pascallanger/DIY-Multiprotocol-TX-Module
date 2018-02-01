@@ -271,6 +271,39 @@
 //If you do not plan to use the PPM mode comment this line using "//" to save Flash space, you don't need to configure anything below in this case
 #define ENABLE_PPM
 
+
+/**********************************/
+/*** DIRECT INPUT MODE SETTINGS ***/
+/**********************************/
+//In this section you can configure the direct input mode.
+//The direct mode enables controls(analog joystics, buttons) wired directly to the board
+//Current mappings are: AILERON-PA4, ELEVATOR-PA5, THROTTLE-PA6, RUDDER-PA7, AUX1-PB10, AUX2-PB11, AUX3-PA2, AUX4-PA3
+
+//If plan to use direct input mode please uncomment lines below and comment out SERIAL and PPM MODE
+//#define ENABLE_DIRECT_INPUT
+//
+//#define DIRECT_INPUT_PROTOCOL_SELECT PROTO_SYMAX
+//
+//#define DEAD_CENTER 25 //change in raw input value before being reporter as movement
+//
+////Enable serial debug and update calibration values below based on the output
+//
+//#define THROTTLE_MIN 500
+//#define THROTTLE_MAX 3550
+//
+//#define AILERON_MIN 500
+//#define AILERON_CENTER 1525
+//#define AILERON_MAX 3550
+//
+//#define ELEVATOR_MIN 500
+//#define ELEVATOR_CENTER 1525
+//#define ELEVATOR_MAX 3550
+//
+//#define RUDDER_MIN 500
+//#define RUDDER_CENTER 1525
+//#define RUDDER_MAX 3550
+
+
 /** TX END POINTS **/
 //It is important for the module to know the endpoints of your radio.
 //Below are some standard transmitters already preconfigured.

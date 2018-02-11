@@ -44,7 +44,7 @@ Here is the full protocol selection procedure:
 
 Notes:
   * **The protocol selection must be done before the module is turned on**
-  * The protocol mapping based on bank+dial position can be seen/modified at the end of the file [_Config.h](/Multiprotocol/_Config.h)**
+  * The protocol mapping based on bank+rotary switch position can be seen/modified at the end of the file [_Config.h](/Multiprotocol/_Config.h)**
 
 ## Binding in PPM mode
 

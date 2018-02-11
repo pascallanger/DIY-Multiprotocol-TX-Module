@@ -21,13 +21,30 @@ Note: vbat should be between 6V and 13V when using the 4-in-1 and 2.3 PCB boards
     
 ## Protocol selection in PPM mode
 
-To select the protocol simply switch off the transmitter and rotate the protocol selection switch on the module to the desired position. 
+The protocol selection is based on 2 parameters:
+  * selection switch: this is the rotary switch on the module numbered from 0 to 15
+      - switch position 0 is to select the Serial mode for er9x/ersky9x/OpenTX radio
+      - switch position 15 is to select the bank
+	  - switch position 1..14 will select the protocol 1..14 in the bank *X*
+  * banks are used to increase the amount of accessible protocols by the switch. There are up to 5 banks giving acces to up to 70 protocol entries (5 * 14).  To modify or verify which bank is currenlty active do the following:
+      - turn on the module with the switch on position 15
+      - the number of LED flash indicates the bank number (1 to 5 flash)
+	  - to go to the next bank, short press the bind button, this action is confirmed by the LED staying on for 1.5 sec
 
-**Note that the dial selection must be done before the module receives power - this is not necessarily the same time that the transmitter is powered up.  The transmitter often only provides power to the module once it has passed switch checks and throttle position checks.**
+Here is the full protocol selection procedure:
+  * turn the dial to 15
+  * power up the module
+  * the module displays the current bank by flashing the LED x number of times, x being between 1 and up to 5
+  * a short press on the bind button turns the LED on for 1 sec indicating that the system has changed the bank
+  * repeat operation 3 and 4 until you have reached the bank you want
+  * power off
+  * change the dial to the desired position
+  * power on
+  * enjoy
 
-The default mapping of protocols to switch positions can be viewed on the Protocol Details page found [here](Protocol_Details.md#DefaultMapping)
-
-The mapping of protocols to protocol selection switch positions can be changed in configuration settings as described on the [Compiling and Programming page](Compiling.md).
+Notes:
+  * **The protocol selection must be done before the module is turned on**
+  * The protocol mapping based on bank+dial position can be seen/modified at the end of the file [_Config.h](/Multiprotocol/_Config.h)**
 
 ## Binding in PPM mode
 

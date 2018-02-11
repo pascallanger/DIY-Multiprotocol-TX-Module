@@ -753,7 +753,7 @@ uint8_t bank_switch(void)
 		}
 		if(check<millis())
 		{
-			//Test bind button: for AVR it's shared with the LED so some work is needed to check it...
+			//Test bind button: for AVR it's shared with the LED so some extra work is needed to check it...
 			#ifndef STM32_BOARD
 				bool led=IS_LED_on;
 				BIND_SET_INPUT;

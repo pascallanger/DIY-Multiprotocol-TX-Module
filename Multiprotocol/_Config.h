@@ -257,7 +257,7 @@
 /*** SERIAL MODE SETTINGS ***/
 /****************************/
 //In this section you can configure the serial mode.
-//The serial mode enables full editing of all the parameters in the GUI of the radio.
+//The serial mode enables full editing of all the parameters in the GUI of the radio. It is enabled by placing the rotary switch on position 0.
 //This is available natively for ER9X and ERSKY9X. It is available for OpenTX on Taranis with a special version.
 
 //If you do not plan to use the Serial mode comment this line using "//" to save Flash space
@@ -302,20 +302,22 @@
 // The default value is 16 to receive all possible channels but you might want to filter some "bad" channels from the PPM frame like the ones above 6 on the Walkera PL0811.
 #define MAX_PPM_CHANNELS 16
 
-/** Dial Protocol Selector Settings **/
-//The table below indicates which protocol to run when a specific position on the dial has been selected.
+/** Rotary Switch Protocol Selector Settings **/
+//The table below indicates which protocol to run when a specific position on the rotary switch has been selected.
 //All fields and values are explained below. Everything is configurable from here like in the Serial mode.
-//Tip: You can associate multiple times the same protocol to different dial positions to take advantage of the model match based on RX_Num
+//Tip: You can associate multiple times the same protocol to different rotary switch positions to take advantage of the model match based on RX_Num
 
-//A system of banks enable the access to more protocols than positions on the dial. Banks can be selected by placing the dial on position 15, power up the module and
+//A system of banks enable the access to more protocols than positions on the rotary switch. Banks can be selected by placing the rotary switch on position 15, power up the module and
 // short press the bind button multiple times until you reach the desired one. The bank number currently selected is indicated by the number of LED flash.
+// Full procedure is located here: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md#protocol-selection-in-ppm-mode
+
 //The parameter below indicates the number of desired banks between 1 and 5. Default is 5.
 #define NBR_BANKS 5
 
 const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 #if NBR_BANKS > 0
 //******************************       BANK 1       ******************************
-//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+//	Switch	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{PROTO_FLYSKY,	Flysky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	2	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 0
 /*	3	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	1	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 1
@@ -333,7 +335,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 #endif
 #if NBR_BANKS > 1
 //******************************       BANK 2       ******************************
-//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+//	Switch	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{PROTO_DSM	,	DSM2_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
 /*	2	*/	{PROTO_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
 /*	3	*/	{PROTO_DSM	,	DSMX_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6		},	// option=number of channels
@@ -351,7 +353,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 #endif
 #if NBR_BANKS > 2
 //******************************       BANK 3       ******************************
-//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+//	Switch	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{PROTO_ESKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	2	*/	{PROTO_ESKY150,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	3	*/	{PROTO_ASSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -369,7 +371,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 #endif
 #if NBR_BANKS > 3
 //******************************       BANK 4       ******************************
-//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+//	Switch	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{PROTO_MJXQ	,	WLH08		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	2	*/	{PROTO_MJXQ	,	X600		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	3	*/	{PROTO_MJXQ	,	X800		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -387,7 +389,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 #endif
 #if NBR_BANKS > 4
 //******************************       BANK 5       ******************************
-//	Dial	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+//	Switch	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
 /*	1	*/	{PROTO_CX10	,	CX10_GREEN	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	2	*/	{PROTO_CX10	,	CX10_BLUE	,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	3	*/	{PROTO_CX10	,	DM007		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},

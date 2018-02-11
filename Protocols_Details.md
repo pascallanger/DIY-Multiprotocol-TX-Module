@@ -1,7 +1,7 @@
 # Protocols details
 Here are detailed descriptions of every supported protocols (sorted by RF modules) as well as the available options for each protocol.
 
- If you want to see a list of models that use these protocols see the [Models](docs/Models.md) page.
+ If you want to see examples of model configurations see the [Models](docs/Models.md) page.
  
  The Deviation project (on which this project was based) have a useful list of models and protocols [here](http://www.deviationtx.com/wiki/supported_models).
 
@@ -26,7 +26,6 @@ Here are detailed descriptions of every supported protocols (sorted by RF module
   - Bind channel does not have to be assigned to a free channel. Since it only acts when Throttle is Low (and throttle cut active), it could be used on the same channel as Flip for example since you are not going to flip your model when Throttle is low... Same goes for RTH and such other features.
   - Using channel 16 for the bind channel seems the most relevant as only one protocol so far is using 16 channels which is FrSkyX. But even on FrSkyX this feature won't have any impact since there is NO valid reason to have Autobind set to Y for such a protocol.
 
-
 ## Protocol selection in PPM mode
 The protocol selection is based on 2 parameters:
   * selection switch: this is the rotary switch on the module numbered from 0 to 15
@@ -45,13 +44,16 @@ Here is the full protocol selection procedure:
   * a short press on the bind button turns the LED on for 1 sec indicating that the system has changed the bank
   * repeat operation 3 and 4 until you have reached the bank you want
   * power off
-  * change the selection switch to the desired position (1..14)
+  * change the rotary switch to the desired position (1..14)
   * power on
   * enjoy
 
 Notes:
   * **The protocol selection must be done before the module is turned on**
-  * The protocol mapping based on bank + selection switch position can be seen/modified at the end of the file [_Config.h](/Multiprotocol/_Config.h)**
+  * The protocol mapping based on bank + rotary switch position can be seen/modified at the end of the file [_Config.h](/Multiprotocol/_Config.h)**
+
+## Serial mode
+Serial mode is selected by placing the rotary switch to position 0 before power on of the radio.
 
 # A7105 RF Module
 

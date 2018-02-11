@@ -14,7 +14,7 @@ The DIY Mulitprotocol module supports industry standard PPM interface that works
 
 The same module plug is available on all versions of the module with the same signal locations. Some radios have an open collector output (Futaba, Graupner...), in this case you should add a 4.7K resistor between PPM and BATT.
 
-When using the standard PPM Tx output, the protocol selection is achieved through a 16 position rotary switch on the module. This enables up to 70 protocol/sub-protocol/options combinations to be selected using a system of 5 banks.  Binding is achieved by pressing a bind button on the back of the module (see picture below) 
+When using the standard PPM Tx output, the protocol selection is achieved through a 16 position rotary switch on the module and a bank system. This enables up to 70 protocol/sub-protocol/options combinations to be selected when using 5 banks.  Binding is achieved by pressing a bind button on the back of the module (see picture below) 
 
 Since the module supports literally hundreds of protocol/sub-protocol/options combinations, you must select which of these will map to the bank + positions on the switch.  Refer to the [Compiling and Programming](Compiling.md) page for information on how to do his.
 

@@ -32,19 +32,19 @@ The protocol selection is based on 2 parameters:
 	  - to go to the next bank, short press the bind button, this action is confirmed by the LED staying on for 1.5 sec
 
 Here is the full protocol selection procedure:
-  * turn the dial to 15
+  * turn the selection switch to 15
   * power up the module
   * the module displays the current bank by flashing the LED x number of times, x being between 1 and up to 5
   * a short press on the bind button turns the LED on for 1 sec indicating that the system has changed the bank
   * repeat operation 3 and 4 until you have reached the bank you want
   * power off
-  * change the dial to the desired position
+  * change the selection switch to the desired position (1..14)
   * power on
   * enjoy
 
 Notes:
   * **The protocol selection must be done before the module is turned on**
-  * The protocol mapping based on bank+rotary switch position can be seen/modified at the end of the file [_Config.h](/Multiprotocol/_Config.h)**
+  * The protocol mapping based on bank + selection switch position can be seen/modified at the end of the file [_Config.h](/Multiprotocol/_Config.h)**
 
 ## Binding in PPM mode
 

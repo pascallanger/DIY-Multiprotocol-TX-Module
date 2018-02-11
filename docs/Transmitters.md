@@ -23,7 +23,7 @@ Even in PPM mode it may still be possible to access telemetry information from s
 For transmitter setup using the PPM protocol go to the [PPM Setup page](PPM_Setup.md)
 
 ## Serial
-Transmitters that run er9X, erSky9X or OpenTx firmwares (like the FrSky Taranis, FlySky TH9X and Turnigy 9X family of transmitters) have the option of using a fast serial communication protocol between the Tx and the DIY Multiprotocol module.  Using this serial communication protocol has some significant advantages:
+Transmitters that run er9X, erSky9X or OpenTx firmwares (like the FrSky Taranis, FlySky TH9X and Turnigy 9X family of transmitters) have the option of using a fast serial communication protocol between the Tx and the DIY Multiprotocol module by placing the rotary switch to position 0 (independently of the banks).  Using this serial communication protocol has some significant advantages:
 
 1. selecting the specific radio protocol (e.g. DSM) and the sub protocol (e.g. DSMX22) is done directly in the menu system of the Tx (see the picture below) 
 1. binding through the menu on the Tx 

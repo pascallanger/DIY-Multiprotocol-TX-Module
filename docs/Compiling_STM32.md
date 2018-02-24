@@ -217,7 +217,7 @@ The first command adds your user account to the group which can access connected
 
 The next steps will change your system's permissions rules so that users in the plugdev group can access attached USB devices.
 
-If necessary, open another Terminal window with the current directory set to the project directory as explained above.
+If necessary, open another Terminal window with the current directory set to the project directory as explained above. Then type the follow commands into the Terminal:
 
     sudo cp BootLoaders/Boards/stm32/tools/linux/45-maple.rules /etc/udev/rules.d/
     sudo /etc/init.d/udev restart

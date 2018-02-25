@@ -200,12 +200,16 @@ In order for these devices to be correctly identified in Windows it is necessary
 **NOTE:** If you have installed the drivers and your module is not detected as a Maple device it most likely does not have a USB bootloader installed. Ready-made modules from Banggood **do not** come with a USB bootloader installed.  You will need to follow the procedure to [Burn a USB bootloader](#burn-the-bootloader) before you can upload firmware.
 
 ##### Linux (64-bit)
+To execute any of the following commands you should use a Terminal (shell) with the current directory set to the location where you cloned or unpacked this project.
+
+You can do this by navigating to the project folder in the Files application then right clicking and selecting "Open in Terminal" from the menu that appears. This will open a Terminal where you will enter the commands indicated below.
+
 If you are using Ubuntu 16.04 LTS it is not necessary to download Maple USB drivers but your account must have permissions to communicate to the Maple USB system devices. To do this you must be in the group which can access USB devices and/or serial interfaces. This configuration must be done once after account creation/system install. You can do that by entering the following commands:
 
     sudo usermod -a -G plugdev $USER
     sudo usermod -a -G dialout $USER
 
-Any sudo operation requires administrator privileges and will ask for an administrator's password.
+Any sudo operation requires administrator privileges and if your account is an administrator account (and it will be if you installed Ubuntu yourself) it will ask for your password.
 
 After entering these commands you must log out of Ubuntu completely and log back in. Simply closing the Terminal window and opening another will not work.
 
@@ -213,17 +217,9 @@ The first command adds your user account to the group which can access connected
 
 The next steps will change your system's permissions rules so that users in the plugdev group can access attached USB devices.
 
-To do this you must clone the libmaple project with git. If you have not installed git then you must first install it using the following commands:
+If necessary, open another Terminal window with the current directory set to the project directory as explained above. Then type the following commands into the Terminal:
 
-    sudo apt-get install git
-
-After git is installed clone the Maple USB project by navigating to the directory you want to clone it to and using the following commands:
-
-    git clone git://github.com/leaflabs/libmaple.git libmaple
-
-This will create a directory called libmaple in the current directory. Install the script which alters the permissions rules and force udev to run the script immediately:
-
-    sudo cp libmaple/support/scripts/45-maple.rules /etc/udev/rules.d/
+    sudo cp BootLoaders/Boards/stm32/tools/linux/45-maple.rules /etc/udev/rules.d/
     sudo /etc/init.d/udev restart
 
 After adding yourself to the groups as above and installing and running the udev rules above your system will be configured so that your user account will always have access to serial and USB devices without requiring you run these steps again.

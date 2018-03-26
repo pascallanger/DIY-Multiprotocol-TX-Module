@@ -166,6 +166,7 @@
 
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO
+#define CFLIE_NRF24L01_INO
 #define	CG023_NRF24L01_INO
 #define	CX10_NRF24L01_INO		// Include Q2X2 protocol
 #define	ESKY_NRF24L01_INO

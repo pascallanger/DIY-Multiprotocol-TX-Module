@@ -1066,6 +1066,12 @@ static void protocol_init()
 						remote_callback = BAYANG_callback;
 						break;
 				#endif
+				#if defined(CFLIE_NRF24L01_INO)
+					case PROTO_CFLIE:
+						next_callback=initCFlie();
+						remote_callback = cflie_callback;
+						break;
+				#endif
 				#if defined(ESKY_NRF24L01_INO)
 					case PROTO_ESKY:
 						next_callback=initESKY();

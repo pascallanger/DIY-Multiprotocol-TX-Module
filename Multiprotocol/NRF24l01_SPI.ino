@@ -108,7 +108,7 @@ static uint8_t __attribute__((unused)) NRF24L01_GetStatus()
 	return SPI_Read();
 }
 
-static uint8_t __attribute__((unused)) NRF24L01_GetDynamicPayloadSize()
+static uint8_t NRF24L01_GetDynamicPayloadSize()
 {
 	NRF_CSN_off;
     SPI_Write(R_RX_PL_WID);

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	17
+#define VERSION_PATCH_LEVEL	18
 //******************
 // Protocols
 //******************
@@ -557,6 +557,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					ESKY150		35
 					H8_3D		36
 					CORONA		37
+					CFlie		38
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

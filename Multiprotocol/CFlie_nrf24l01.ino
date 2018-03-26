@@ -187,7 +187,7 @@ enum {
 static void send_packet()
 {
     // clear packet status bits and Tx/Rx FIFOs
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)));
+    NRF24L01_WriteReg(NRF24L01_07_STATUS, (_BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_MAX_RT)));
     NRF24L01_FlushTx();
     NRF24L01_FlushRx();
 
@@ -213,6 +213,7 @@ static uint8_t packet_ack()
 {
     if (++dbg_cnt > 50) {
         // dbgprintf("S: %02x\n", NRF24L01_ReadReg(NRF24L01_07_STATUS));
+        debugln("S: %02x\n", NRF24L01_ReadReg(NRF24L01_07_STATUS));
         dbg_cnt = 0;
     }
     switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT))) {
@@ -395,18 +396,17 @@ static void send_crtp_cppm_emu_packet()
     cpkt.hdr.numAuxChannels = numAuxChannels;
 
     // Remap AETR to AERT (RPYT)
-    cpkt.channelRoll = RESCALE_RC_CHANNEL_TO_PWM(convert_channel_10b(AILERON));
-    cpkt.channelPitch = RESCALE_RC_CHANNEL_TO_PWM(convert_channel_10b(ELEVATOR));
-    cpkt.channelYaw = RESCALE_RC_CHANNEL_TO_PWM(convert_channel_10b(RUDDER)); // T & R Swapped
-    cpkt.channelThrust = RESCALE_RC_CHANNEL_TO_PWM(convert_channel_10b(THROTTLE));
+    cpkt.channelRoll = convert_channel_10b(AILERON);
+    cpkt.channelPitch = convert_channel_10b(ELEVATOR);
+    // Note: T & R Swapped:
+    cpkt.channelYaw = convert_channel_10b(RUDDER);
+    cpkt.channelThrust = convert_channel_10b(THROTTLE);
 
     // Rescale the rest of the aux channels - RC channel 4 and up
-    // TODO: Fix this if we care about PWM
-    // uint8_t i;
-    // for (i = 0; i < numAuxChannels; i++)
-    // {
-    //     cpkt.channelAux[i] = RESCALE_RC_CHANNEL_TO_PWM(Channels[i + 4]);
-    // }
+    for (uint8_t i = 4; i < 14; i++)
+    {
+        cpkt.channelAux[i] = convert_channel_10b(i);
+    }
 
     // Total size of the commander packet is a 1-byte header, 4 2-byte channels and
     // a variable number of 2-byte auxiliary channels
@@ -417,7 +417,7 @@ static void send_crtp_cppm_emu_packet()
     tx_packet[1] = CRTP_SETPOINT_GENERIC_CPPM_EMU_TYPE;
 
     // Copy the header (1) plus 4 2-byte channels (8) plus whatever number of 2-byte aux channels are in use
-    memcpy(&tx_packet[2], (char*)&cpkt, commanderPacketSize);
+    memcpy(&tx_packet[2], (char*)&cpkt, commanderPacketSize); // Why not use sizeof(cpkt) here??
     tx_payload_len = 2 + commanderPacketSize; // CRTP header, commander type, and packet
     send_packet();
 }
@@ -660,14 +660,14 @@ static int cflie_init()
 
     // CRC, radio on
     NRF24L01_SetTxRxMode(TX_EN);
-    NRF24L01_WriteReg(NRF24L01_00_CONFIG, BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO) | BV(NRF24L01_00_PWR_UP)); 
+    NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP)); 
     NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x01);              // Auto Acknowledgement for data pipe 0
     NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);          // Enable data pipe 0
     NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, TX_ADDR_SIZE-2); // 5-byte RX/TX address
     NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x13);         // 3 retransmits, 500us delay
 
-    NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_channel);        // Defined by model id
-    NRF24L01_SetBitrate(data_rate);                          // Defined by model id
+    NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_channel);        // Defined in initialize_rx_tx_addr
+    NRF24L01_SetBitrate(data_rate);                          // Defined in initialize_rx_tx_addr
 
     NRF24L01_SetPower();
     NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);             // Clear data ready, data sent, and retransmit
@@ -691,8 +691,10 @@ static int cflie_init()
     // does something on nRF24L01
     NRF24L01_Activate(0x53); // magic for BK2421 bank switch
     // dbgprintf("Trying to switch banks\n");
+    debugln("CFlie: Trying to switch banks\n");
     if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & 0x80) {
         // dbgprintf("BK2421 detected\n");
+        debugln("CFlie: BK2421 detected\n");
         long nul = 0;
         // Beken registers don't have such nice names, so we just mention
         // them by their numbers
@@ -716,9 +718,10 @@ static int cflie_init()
         NRF24L01_WriteRegisterMulti(0x04, (uint8_t *) "\xC7\x96\x9A\x1B", 4);
         NRF24L01_WriteRegisterMulti(0x04, (uint8_t *) "\xC1\x96\x9A\x1B", 4);
     }
-    //  else {
+     else {
     //     dbgprintf("nRF24L01 detected\n");
-    // }
+        debugln("CFlie: nRF24L01 detected");
+    }
     NRF24L01_Activate(0x53); // switch bank back
 
     // 50ms delay in callback
@@ -821,6 +824,7 @@ static uint16_t cflie_callback()
             phase = CFLIE_DATA;
             // PROTOCOL_SetBindState(0);
             // MUSIC_Play(MUSIC_DONE_BINDING);
+            BIND_DONE;
             break;
         case PKT_TIMEOUT:
             send_search_packet();
@@ -874,14 +878,24 @@ static uint8_t initialize_rx_tx_addr()
     //         return CFLIE_INIT_DATA;
     //     }
     // } else {
-        data_rate = NRF24L01_BR_250K;
-        rf_channel = 0;
-        return CFLIE_INIT_SEARCH;
+    //     data_rate = NRF24L01_BR_250K;
+    //     rf_channel = 10;
+    //     return CFLIE_INIT_SEARCH;
     // }
+
+    // Default 1
+    data_rate = NRF24L01_BR_1M;
+    rf_channel = 10;
+
+    // Default 2
+    // data_rate = NRF24L01_BR_2M;
+    // rf_channel = 110;
+    return CFLIE_INIT_SEARCH;
 }
 
 uint16_t initCFlie(void)
 {
+    
 	BIND_IN_PROGRESS;	// autobind protocol
 
     phase = initialize_rx_tx_addr();
@@ -889,6 +903,8 @@ uint16_t initCFlie(void)
     packet_count=0;
 
     int delay = cflie_init();
+
+    debugln("CFlie init!");
 
 	return delay;
 }

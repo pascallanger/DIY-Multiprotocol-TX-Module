@@ -4,7 +4,7 @@
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
-Multiprotocol is distributed in the hope that it will be useful,
+ Multiprotocol is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
@@ -13,6 +13,7 @@ Multiprotocol is distributed in the hope that it will be useful,
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Most of this code was ported from theseankelly's related DeviationTX work.
 
 #if defined(CFLIE_NRF24L01_INO)
 
@@ -212,8 +213,7 @@ static uint16_t dbg_cnt = 0;
 static uint8_t packet_ack()
 {
     if (++dbg_cnt > 50) {
-        // dbgprintf("S: %02x\n", NRF24L01_ReadReg(NRF24L01_07_STATUS));
-        debugln("S: %02x\n", NRF24L01_ReadReg(NRF24L01_07_STATUS));
+        // debugln("S: %02x\n", NRF24L01_ReadReg(NRF24L01_07_STATUS));
         dbg_cnt = 0;
     }
     switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT))) {
@@ -267,7 +267,7 @@ static void send_search_packet()
 }
 
 // Frac 16.16
-#define FRAC_MANTISSA 16
+#define FRAC_MANTISSA 16 // This means, not IEEE 754...
 #define FRAC_SCALE (1 << FRAC_MANTISSA)
 
 // Convert fractional 16.16 to float32
@@ -277,7 +277,7 @@ static void frac2float(int32_t n, float* res)
         *res = 0.0;
         return;
     }
-    uint32_t m = n < 0 ? -n : n;
+    uint32_t m = n < 0 ? -n : n; // Figure out mantissa?
     int i;
     for (i = (31-FRAC_MANTISSA); (m & 0x80000000) == 0; i--, m <<= 1);
     m <<= 1; // Clear implicit leftmost 1
@@ -293,7 +293,6 @@ static void send_crtp_rpyt_packet()
     int32_t f_roll;
     int32_t f_pitch;
     int32_t f_yaw;
-    int32_t thrust_truncated;
     uint16_t thrust;
 
     uint16_t val;
@@ -309,47 +308,48 @@ static void send_crtp_rpyt_packet()
     // Channels in AETR order
     // Roll, aka aileron, float +- 50.0 in degrees
     // float roll  = -(float) Channels[0]*50.0/10000;
-    val = convert_channel_10b(AILERON);
+    val = convert_channel_16b_limit(AILERON, -10000, 10000);
     // f_roll = -Channels[0] * FRAC_SCALE / (10000 / 50);
-    f_roll = -val * FRAC_SCALE / (10000 / 50);
+    f_roll = val * FRAC_SCALE / (10000 / 50);
+
+    frac2float(f_roll, &cpkt.roll); // TODO: Remove this and use the correct Mode switch below...
+    // debugln("Roll: raw, converted:  %d, %d, %d, %0.2f", Channel_data[AILERON], val, f_roll, cpkt.roll);
 
     // Pitch, aka elevator, float +- 50.0 degrees
     //float pitch = -(float) Channels[1]*50.0/10000;
-    val = convert_channel_10b(ELEVATOR);
+    val = convert_channel_16b_limit(ELEVATOR, -10000, 10000);
     // f_pitch = -Channels[1] * FRAC_SCALE / (10000 / 50);
     f_pitch = -val * FRAC_SCALE / (10000 / 50);
 
+    frac2float(f_pitch, &cpkt.pitch); // TODO: Remove this and use the correct Mode switch below...
+    // debugln("Pitch: raw, converted:  %d, %d, %d, %0.2f", Channel_data[ELEVATOR], val, f_pitch, cpkt.pitch);
+
     // Thrust, aka throttle 0..65535, working range 5535..65535
-    // No space for overshoot here, hard limit Channel3 by -10000..10000
-    // thrust_truncated = Channels[2];
-    thrust_truncated = convert_channel_10b(THROTTLE);
+    // Android Crazyflie app puts out a throttle range of 0-80%: 0..52000
+    thrust = convert_channel_16b_limit(THROTTLE, 0, 32767) * 2;
 
-    // TODO: Figure this out:
-    // if (thrust_truncated < CHAN_MIN_VALUE) {
-    //     thrust_truncated = CHAN_MIN_VALUE;
-    // } else if (thrust_truncated > CHAN_MAX_VALUE) {
-    //     thrust_truncated = CHAN_MAX_VALUE;
-    // }
-
-    thrust = thrust_truncated*3L + 35535L;
     // Crazyflie needs zero thrust to unlock
-    if (thrust < 6000)
+    if (thrust < 900)
         cpkt.thrust = 0;
     else
       cpkt.thrust = thrust;
 
+    // debugln("Thrust: raw, converted:  %d, %u, %u", Channel_data[THROTTLE], thrust, cpkt.thrust);
+
     // Yaw, aka rudder, float +- 400.0 deg/s
     // float yaw   = -(float) Channels[3]*400.0/10000;
-    val = convert_channel_10b(RUDDER);
+    val = convert_channel_16b_limit(RUDDER, -10000, 10000);
     // f_yaw = - Channels[3] * FRAC_SCALE / (10000 / 400);
-    f_yaw = - val * FRAC_SCALE / (10000 / 400);
+    f_yaw = val * FRAC_SCALE / (10000 / 400);
     frac2float(f_yaw, &cpkt.yaw);
 
+    // debugln("Yaw: raw, converted:  %d, %d, %d, %0.2f", Channel_data[RUDDER], val, f_yaw, cpkt.yaw);
+
     // Switch on/off?
-    // TODO: Figure out what this means:
+    // TODO: Get X or + mode working again:
     // if (Channels[4] >= 0) {
-        frac2float(f_roll, &cpkt.roll);
-        frac2float(f_pitch, &cpkt.pitch);
+    //     frac2float(f_roll, &cpkt.roll);
+    //     frac2float(f_pitch, &cpkt.pitch);
     // } else {
     //     // Rotate 45 degrees going from X to + mode or opposite.
     //     // 181 / 256 = 0.70703125 ~= sqrt(2) / 2
@@ -396,16 +396,16 @@ static void send_crtp_cppm_emu_packet()
     cpkt.hdr.numAuxChannels = numAuxChannels;
 
     // Remap AETR to AERT (RPYT)
-    cpkt.channelRoll = convert_channel_10b(AILERON);
-    cpkt.channelPitch = convert_channel_10b(ELEVATOR);
+    cpkt.channelRoll = convert_channel_16b_limit(AILERON,1000,2000);
+    cpkt.channelPitch = convert_channel_16b_limit(ELEVATOR,1000,2000);
     // Note: T & R Swapped:
-    cpkt.channelYaw = convert_channel_10b(RUDDER);
-    cpkt.channelThrust = convert_channel_10b(THROTTLE);
+    cpkt.channelYaw = convert_channel_16b_limit(RUDDER, 1000, 2000);
+    cpkt.channelThrust = convert_channel_16b_limit(THROTTLE, 1000, 2000);
 
     // Rescale the rest of the aux channels - RC channel 4 and up
     for (uint8_t i = 4; i < 14; i++)
     {
-        cpkt.channelAux[i] = convert_channel_10b(i);
+        cpkt.channelAux[i] = convert_channel_16b_limit(i, 1000, 2000);
     }
 
     // Total size of the commander packet is a 1-byte header, 4 2-byte channels and
@@ -437,6 +437,7 @@ static void send_cmd_packet()
     //     send_crtp_rpyt_packet();
     // }
 
+    // send_crtp_cppm_emu_packet(); // oh maAAAn
     send_crtp_rpyt_packet();
 }
 
@@ -690,11 +691,9 @@ static int cflie_init()
     // closing activate command changes state back even if it
     // does something on nRF24L01
     NRF24L01_Activate(0x53); // magic for BK2421 bank switch
-    // dbgprintf("Trying to switch banks\n");
-    debugln("CFlie: Trying to switch banks\n");
+    // debugln("CFlie: Trying to switch banks\n");
     if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & 0x80) {
-        // dbgprintf("BK2421 detected\n");
-        debugln("CFlie: BK2421 detected\n");
+        // debugln("CFlie: BK2421 detected\n");
         long nul = 0;
         // Beken registers don't have such nice names, so we just mention
         // them by their numbers
@@ -717,10 +716,8 @@ static int cflie_init()
         NRF24L01_WriteRegisterMulti(0x0E, (uint8_t *) "\x41\x10\x04\x82\x20\x08\x08\xF2\x7D\xEF\xFF", 11);
         NRF24L01_WriteRegisterMulti(0x04, (uint8_t *) "\xC7\x96\x9A\x1B", 4);
         NRF24L01_WriteRegisterMulti(0x04, (uint8_t *) "\xC1\x96\x9A\x1B", 4);
-    }
-     else {
-    //     dbgprintf("nRF24L01 detected\n");
-        debugln("CFlie: nRF24L01 detected");
+    } else {
+        // debugln("CFlie: nRF24L01 detected");
     }
     NRF24L01_Activate(0x53); // switch bank back
 
@@ -895,7 +892,6 @@ static uint8_t initialize_rx_tx_addr()
 
 uint16_t initCFlie(void)
 {
-    
 	BIND_IN_PROGRESS;	// autobind protocol
 
     phase = initialize_rx_tx_addr();
@@ -904,7 +900,7 @@ uint16_t initCFlie(void)
 
     int delay = cflie_init();
 
-    debugln("CFlie init!");
+    // debugln("CFlie init!");
 
 	return delay;
 }

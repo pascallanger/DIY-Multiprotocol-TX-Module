@@ -29,15 +29,6 @@ int16_t map16b( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int1
 }
 
 #ifndef STM32_BOARD
-// replacement millis() and micros()
-// These work polled, no interrupts
-// micros() MUST be called at least once every 32 milliseconds
-uint16_t MillisPrecount ;
-uint16_t lastTimerValue ;
-uint32_t TotalMicros ;
-uint32_t TotalMillis ;
-uint8_t Correction ;
-
 int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t out_max)
 {
 //  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
@@ -48,6 +39,15 @@ int16_t map( int16_t x, int16_t in_min, int16_t in_max, int16_t out_min, int16_t
 	x = y / (in_max - in_min) ;
 	return x  + out_min ;
 }
+
+// replacement millis() and micros()
+// These work polled, no interrupts
+// micros() MUST be called at least once every 32 milliseconds
+uint16_t MillisPrecount ;
+uint16_t lastTimerValue ;
+uint32_t TotalMicros ;
+uint32_t TotalMillis ;
+uint8_t Correction ;
 
 uint32_t micros()
 {

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	17
+#define VERSION_PATCH_LEVEL	19
 //******************
 // Protocols
 //******************
@@ -425,7 +425,7 @@ enum NRF_POWER
 	NRF_POWER_2 = 0x02,	// 2 :  -6dBm (250uW)  14dBm  (25mW)
 	NRF_POWER_3 = 0x03	// 3 :   0dBm   (1mW)  20dBm (100mW)
 };
-#define NRF_HIGH_POWER		NRF_POWER_2
+#define NRF_HIGH_POWER		NRF_POWER_3
 #define	NRF_LOW_POWER		NRF_POWER_1
 #define	NRF_RANGE_POWER		NRF_POWER_0
 #define	NRF_BIND_POWER		NRF_POWER_0

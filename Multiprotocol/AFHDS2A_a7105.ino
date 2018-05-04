@@ -31,6 +31,7 @@ enum{
 	AFHDS2A_BIND2,
 	AFHDS2A_BIND3,
 	AFHDS2A_BIND4,
+	AFHDS2A_DATA_INIT,
 	AFHDS2A_DATA,
 };
 
@@ -226,8 +227,8 @@ static void AFHDS2A_build_packet(uint8_t type)
 #define AFHDS2A_WAIT_WRITE 0x80
 uint16_t ReadAFHDS2A()
 {
-	static uint8_t packet_type = AFHDS2A_PACKET_STICKS;
-	static uint16_t packet_counter=0;
+	static uint8_t packet_type;
+	static uint16_t packet_counter;
 	uint8_t data_rx;
 	uint16_t start;
 	#ifndef FORCE_AFHDS2A_TUNING
@@ -243,18 +244,12 @@ uint16_t ReadAFHDS2A()
 			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)))
 			{ // FECF+CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
-				if(packet[0] == 0xbc && packet[9] == 0x01)
+				if(packet[0] == 0xbc)
 				{
-					uint8_t temp=50+RX_num*4;
-					uint8_t i;
-					for(i=0; i<4; i++)
-					{
+					for(uint8_t i=0; i<4; i++)
 						rx_id[i] = packet[5+i];
-						eeprom_write_byte((EE_ADDR)(temp+i),rx_id[i]);
-					}
-					phase = AFHDS2A_BIND4;
-					packet_count++;
-					return 3850;
+					if(packet[9] == 0x01)
+						phase = AFHDS2A_BIND4;
 				}
 			}
 			packet_count++;
@@ -283,14 +278,18 @@ uint16_t ReadAFHDS2A()
 			bind_phase++;
 			if(bind_phase>=4)
 			{ 
-				packet_counter=0;
-				packet_type = AFHDS2A_PACKET_STICKS;
+				uint8_t eeadr=AFHDS2A_EEPROM_OFFSET+RX_num*4;
+				for(uint8_t i=0; i<4; i++)
+					eeprom_write_byte((EE_ADDR)(eeadr+i),rx_id[i]);
 				hopping_frequency_no=1;
-				phase = AFHDS2A_DATA;
+				phase = AFHDS2A_DATA_INIT;
 				BIND_DONE;
-			}                        
+			}
 			return 3850;
-		case AFHDS2A_DATA:    
+		case AFHDS2A_DATA_INIT:
+			packet_counter=0;
+			packet_type = AFHDS2A_PACKET_STICKS;
+		case AFHDS2A_DATA:
 			AFHDS2A_build_packet(packet_type);
 			if((A7105_ReadReg(A7105_00_MODE) & 0x01))		// Check if something has been received...
 				data_rx=0;
@@ -359,7 +358,7 @@ uint16_t initAFHDS2A()
 		phase = AFHDS2A_BIND1;
 	else
 	{
-		phase = AFHDS2A_DATA;
+		phase = AFHDS2A_DATA_INIT;
 		//Read RX ID from EEPROM based on RX_num, RX_num must be uniq for each RX
 		uint8_t temp=AFHDS2A_EEPROM_OFFSET+RX_num*4;
 		for(uint8_t i=0;i<4;i++)

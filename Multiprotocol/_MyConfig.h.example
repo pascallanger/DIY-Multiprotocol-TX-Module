@@ -43,16 +43,16 @@
 	#undef	ESKY150_NRF24L01_INO
 	#undef	H8_3D_NRF24L01_INO
 
-#elseif defined Module_2
+#elif defined Module_2
 	//Example of a module which doesn't need the telemetry signal to be inverted
 	#undef INVERT_TELEMETRY
 	
-#elseif defined Module_3
+#elif defined Module_3
 	//Example of a module which will be used with OpenTX
 	#undef MULTI_STATUS
 	#define MULTI_TELEMETRY
 	
-#elseif defined Module_4
+#elif defined Module_4
 	//Example of a module which will be PPM only
 	#undef ENABLE_SERIAL
 

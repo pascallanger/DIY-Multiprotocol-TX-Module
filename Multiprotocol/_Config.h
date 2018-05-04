@@ -188,6 +188,7 @@
 #define	CABELL_NRF24L01_INO
 #define	ESKY150_NRF24L01_INO
 #define	H8_3D_NRF24L01_INO
+#define CFLIE_NRF24L01_INO
 
 
 /**************************/
@@ -543,6 +544,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_CORONA
 		COR_V1
 		COR_V2
+	PROTO_CFLIE
+		NONE
 */
 
 // RX_Num is used for TX & RX match. Using different RX_Num values for each receiver will prevent starting a model with the false config loaded...

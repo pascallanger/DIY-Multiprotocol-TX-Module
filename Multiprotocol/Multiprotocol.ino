@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_PIN		// Use pin TX for AVR and SPI_CS for STM32 => DEBUG_PIN_on, DEBUG_PIN_off, DEBUG_PIN_toggle
-//#define DEBUG_SERIAL	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
+// #define DEBUG_SERIAL	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
 #ifdef __arm__			// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
@@ -1148,6 +1148,12 @@ static void protocol_init()
 					case PROTO_H8_3D:
 						next_callback=initH8_3D();
 						remote_callback = H8_3D_callback;
+						break;
+				#endif
+				#if defined(CFLIE_NRF24L01_INO)
+					case PROTO_CFLIE:
+						next_callback=initCFlie();
+						remote_callback = cflie_callback;
 						break;
 				#endif
 			#endif

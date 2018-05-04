@@ -171,6 +171,7 @@
 	#undef	CABELL_NRF24L01_INO
 	#undef	ESKY150_NRF24L01_INO
 	#undef	H8_3D_NRF24L01_INO
+	#undef	CFLIE_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly

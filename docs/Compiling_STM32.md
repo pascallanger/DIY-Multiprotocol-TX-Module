@@ -45,7 +45,7 @@ The 4-pin header needs to be soldered onto the board as indicated by the red rec
 
 ## Preparation
 ### Install the Arduino IDE
-1. Download and install the Arduino IDE. The currently supported Arduino version is 1.8.5, available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-windows.exe) and [Mac OSX](https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-macosx.zip)
+1. Download and install the Arduino IDE. The currently supported Arduino version is 1.8.5, available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-windows.exe), [Mac OSX](https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-macosx.zip) and [Linux (64-bit)](https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-linux64.tar.xz)
 1. It is recommended to upgrade Java to the [latest version](https://www.java.com/en/download/)
 
 ### Download the Multiprotocol source and open the project
@@ -121,13 +121,14 @@ If you have selected either **Flash from TX** or **Upload via USB** the module w
 
 The bootloader only needs to be installed once unless you decide to switch from one upload method to the other.  
 
-In order to flash the bootloader the **BOOT0** jumper must be installed.  The location of **BOOT0** varies by hardware module.
+In order to flash the bootloader the **BOOT0** jumper must be installed connecting **BOOT0** to 3.3V.  The location of **BOOT0** varies by hardware module.
 
-| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Module** |
-|:---:|:---:|:---:|
-| Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | Bridge pins 1 and 2 as shown by the blue jumper. |
-| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | <img src="images/irx4-boot0.jpg" height="200"/>  |
+| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Module** | **iRangeX IRX4 Plus Module**
+|:---:|:---:|:---:|:---:|
+| Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | Bridge pins 1 and 2 as shown by the blue jumper. | Bridge the BOOT0 pin to the adjacent 3.3V pin as shown by the yellow jumper. |
+| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | <img src="images/irx4-boot0.jpg" height="200"/>  | <img src="images/irx4plus-boot0.jpg" height="200"/> |
 
+1. If on Linux, ensure you have permissions to access serial interfaces as described in [Install the Maple USB drivers](#install-the-maple-usb-drivers)
 1. Install the **BOOT0** jumper as described above
 1. Switch on the transmitter
 1. Verify that you have selected the desired upload method under **Tools -> Upload Method**
@@ -198,11 +199,39 @@ In order for these devices to be correctly identified in Windows it is necessary
 
 **NOTE:** If you have installed the drivers and your module is not detected as a Maple device it most likely does not have a USB bootloader installed. Ready-made modules from Banggood **do not** come with a USB bootloader installed.  You will need to follow the procedure to [Burn a USB bootloader](#burn-the-bootloader) before you can upload firmware.
 
+##### Linux (64-bit)
+To execute any of the following commands you should use a Terminal (shell) with the current directory set to the location where you cloned or unpacked this project.
+
+You can do this by navigating to the project folder in the Files application then right clicking and selecting "Open in Terminal" from the menu that appears. This will open a Terminal where you will enter the commands indicated below.
+
+If you are using Ubuntu 16.04 LTS it is not necessary to download Maple USB drivers but your account must have permissions to communicate to the Maple USB system devices. To do this you must be in the group which can access USB devices and/or serial interfaces. This configuration must be done once after account creation/system install. You can do that by entering the following commands:
+
+    sudo usermod -a -G plugdev $USER
+    sudo usermod -a -G dialout $USER
+
+Any sudo operation requires administrator privileges and if your account is an administrator account (and it will be if you installed Ubuntu yourself) it will ask for your password.
+
+After entering these commands you must log out of Ubuntu completely and log back in. Simply closing the Terminal window and opening another will not work.
+
+The first command adds your user account to the group which can access connected USB devices. The second adds your account to the group which can access serial interfaces.
+
+The next steps will change your system's permissions rules so that users in the plugdev group can access attached USB devices.
+
+If necessary, open another Terminal window with the current directory set to the project directory as explained above. Then type the following commands into the Terminal:
+
+    sudo cp BootLoaders/Boards/stm32/tools/linux/45-maple.rules /etc/udev/rules.d/
+    sudo /etc/init.d/udev restart
+
+After adding yourself to the groups as above and installing and running the udev rules above your system will be configured so that your user account will always have access to serial and USB devices without requiring you run these steps again.
+
 ### Upload the firmware via USB
 **Note:** Some modules require external power in order for the USB port to work.  If your module does not power on with USB power alone, install it in the transmitter and switch the transmitter on.  It is generally safe for the module to recieve power from both USB and the transmitter.
 
 1. Connect the USB cable to the Multiprotocol module
-1. Verify that a Maple device appears in Device Manager (**Maple DFU** for a module with only a bootloader, **Maple Serial** for a module with a bootloader and firmware)
+1. Verify that a Maple device appears (**Maple DFU** for a module with only a bootloader, **Maple Serial** for a module with a bootloader and firmware)
+    1. On Windows look for the USB device in the Windows Device Manager
+    1. On Mac OSX look in the System Information which is accessed by holding option and selecting the first item under the Apple Menu. Select the USB list on the left and look for the USB device.
+    1. On Linux execute the command ```lsusb``` and examine the output.
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
 
 You should see output similar to this:
@@ -243,7 +272,8 @@ For subsequent firmware uploads you need only repeat steps 1-3 above, ensuring t
 ## Upload via Serial
 Upload via Serial follows the same process as burning the bootloader and uses the same USB-to-TTL adapter.
 
-1. Ensure you USB-to-TTL adapter is connected as described in [Connect the programmer](#connect-the-programmer)
+1. Ensure your USB-to-TTL adapter is connected as described in [Connect the programmer](#connect-the-programmer)
+1. If on Linux, ensure you have permissions to access serial interfaces as described in [Install the Maple USB drivers](#install-the-maple-usb-drivers)
 1. Install the **BOOT0** jumper
 1. Turn on the transmitter
 1. Click **Sketch -> Upload**
@@ -284,7 +314,7 @@ Starting execution at address 0x08000000... done.
 Once the firmware has uploaded, remove the **BOOT0** jumper and disconnect the USB-to-TTL adapter.
 
 ## Flashing pre-compiled binaries
-Pre-compiled binaries are availale [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
+Pre-compiled binaries are available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
 - **Multiprotocol_V1.X.X_STM32.bin** files are for transmitters with support for hardware telemetry inversion, such as Turnigy 9X, 9XR, 9X+.
 - **Multiprotocol_V1.X.X_STM32_INV.bin** files are for tranismitters which require telemetry inverted in the module firmware, such as Taranis.
 

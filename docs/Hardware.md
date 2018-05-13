@@ -29,8 +29,8 @@ These are examples of the well-known ready-made Multiprotocol modules.  Inclusio
 | **'Banggood' 4-in-1 STM32** | <img src="images/bg-stm32-module.jpg" width="200"/> | [STM32F103C](Compiling_STM32.md "Firmware compiling and uploading instructions for STM32") | US$37 | <ul><li>No case included</li><li>Serial and PPM</li></ul> | [Banggood](https://www.banggood.com/2_4G-CC2500-NRF24L01-A7105-CTRF6936-4-IN-1-Multi-protocol-STM32-TX-Module-With-Antenna-p-1153902.html) |
 | **iRangeX IRX4 STM32** | <img src="images/irx4.jpg" width="200"/> | [STM32F103C](Compiling_STM32.md "Firmware compiling and uploading instructions for STM32") | US$39 | <ul><li>Includes case</li><li>Serial mode only</li></ul> | [Banggood](https://www.banggood.com/IRangeX-IRX4-2_4G-CC2500-NRF24L01-A7105-CTRF6936-4-IN-1-Multiprotocol-STM32-TX-Module-With-Case-p-1197130.html) |
 | **iRangeX IRX4 Plus STM32** | <img src="images/irx4-plus.jpg" width="200"/> | [STM32F103C](Compiling_STM32.md "Firmware compiling and uploading instructions for STM32") | US$37 | <ul><li>Includes case</li><li>Has USB port and LED</li><li>Serial and PPM</li></ul> | [Banggood](https://www.banggood.com/IRangeX-IRX4-Plus-2_4G-CC2500-NRF24L01-A7105-CYRF6936-4-IN-1-Multiprotocol-STM32-TX-Module-With-Case-p-1225080.html) |
-
-*Table last updated November 29th, 2017*
+| **Jumper JP4IN1 Multi Protocol Transmitter Module** | <img src="images/jp4in1.jpg" width="200"/> | [STM32F103](Compiling_STM32.md "Firmware compiling and uploading instructions for STM32") | US$40 | <ul><li>Includes case</li><li>Has USB port and LED</li><li>Serial and PPM</li></ul> | [Hobbyking](https://hobbyking.com/en_us/jumper-jp4in1-multi-protocal-radio-transmitter-module.html) |
+*Table last updated May 13th, 2018*
 
 #### OrangeRx Module
 It is also possible to upload the Multiprotocol firmware to an STM32-based OrangeRx DSM module, with support only for the built in CYRF6936 RF module.

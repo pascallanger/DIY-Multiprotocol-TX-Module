@@ -38,15 +38,15 @@ The protocol selection is based on 2 parameters:
 	  - to go to the next bank, short press the bind button, this action is confirmed by the LED staying on for 1.5 sec
 
 Here is the full protocol selection procedure:
-  * turn the selection switch to 15
-  * power up the module
-  * the module displays the current bank by flashing the LED x number of times, x being between 1 and up to 5
-  * a short press on the bind button turns the LED on for 1 sec indicating that the system has changed the bank
-  * repeat operation 3 and 4 until you have reached the bank you want
-  * power off
-  * change the rotary switch to the desired position (1..14)
-  * power on
-  * enjoy
+1. turn the selection switch to 15
+2. power up the module
+3. the module displays the current bank by flashing the LED x number of times, x being between 1 and up to 5
+4. a short press on the bind button turns the LED on for 1 sec indicating that the system has changed the bank
+5. repeat operation 3 and 4 until you have reached the bank you want
+6. power off
+7. change the rotary switch to the desired position (1..14)
+8. power on
+9. enjoy
 
 Notes:
   * **The protocol selection must be done before the module is turned on**

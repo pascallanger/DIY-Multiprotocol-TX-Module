@@ -1565,20 +1565,25 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				id|=eeprom_read_byte((EE_ADDR)address+i-1);
 			}
 			if(id!=0x2AD141A7)	//ID with seed=0
-				return id;
+                          {
+                            debugln("Read ID from EEPROM");
+                            return id;
+                          }
 		}
 		// Generate a random ID
 		#if defined STM32_BOARD
 			#define STM32_UUID ((uint32_t *)0x1FFFF7E8)
-			if (!create_new)
+			if (!create_new) {
 				id = STM32_UUID[0] ^ STM32_UUID[1] ^ STM32_UUID[2];
-		#else
-			id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
+				debugln("Generated ID from STM32 UUID");
+
+		        } else
 		#endif
+		    id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
+
 		for(uint8_t i=0;i<4;i++)
 		{
-			eeprom_write_byte((EE_ADDR)address+i,id);
-			id>>=8;
+			eeprom_write_byte((EE_ADDR)address+i,id >> (i*8));
 		}
 		eeprom_write_byte((EE_ADDR)(address+10),0xf0);//write bind flag in eeprom.
 		return id;

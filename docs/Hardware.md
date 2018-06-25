@@ -30,8 +30,9 @@ These are examples of the well-known ready-made Multiprotocol modules.  Inclusio
 | **iRangeX IRX4 STM32** | <img src="images/irx4.jpg" width="200"/> | [STM32F103C](Compiling_STM32.md "Firmware compiling and uploading instructions for STM32") | US$39 | <ul><li>Includes case</li><li>Serial mode only</li></ul> | [Banggood](https://www.banggood.com/IRangeX-IRX4-2_4G-CC2500-NRF24L01-A7105-CTRF6936-4-IN-1-Multiprotocol-STM32-TX-Module-With-Case-p-1197130.html) |
 | **iRangeX IRX4 Plus STM32** | <img src="images/irx4-plus.jpg" width="200"/> | [STM32F103C](Compiling_STM32.md "Firmware compiling and uploading instructions for STM32") | US$37 | <ul><li>Includes case</li><li>Has USB port and LED</li><li>Serial and PPM</li></ul> | [Banggood](https://www.banggood.com/IRangeX-IRX4-Plus-2_4G-CC2500-NRF24L01-A7105-CYRF6936-4-IN-1-Multiprotocol-STM32-TX-Module-With-Case-p-1225080.html) |
 | **Jumper JP4IN1 Multi Protocol Transmitter Module** | <img src="images/jp4in1.jpg" width="200"/> | [STM32F103](Compiling_STM32.md "Firmware compiling and uploading instructions for STM32") | US$40 | <ul><li>Includes case</li><li>Has USB port and LED</li><li>Serial and PPM</li></ul> | [Hobbyking](https://hobbyking.com/en_us/jumper-jp4in1-multi-protocal-radio-transmitter-module.html) |
+| **Vantac MPM Lite 2.4G Transmitter Module for X-Lite** | <img src="images/mpm1n.jpg" width="200" /> | [STM32F103C](Compiling_STM32.md "Firmware compiling and uploading instructions for STM32") | $49 | <ul><li>Specially for Frsky X-Lite (not JR bay compatible)</li><li>USB Bootloader preflashed</li><li>Has USB and LED</li></ul> | [Banggood](https://www.banggood.com/Vantac-MPM-Lite-2_4G-Multiple-Protocol-TX-Module-for-Taranis-X-Lite-Radio-Transmitter-p-1307645.html?p=RN27072889497201510A) [HorusRC](https://www.horusrc.com/en/vantac-mpm-lite-2-4g-transmitter-module-for-x-lite.html?acc=9860) |
 
-*Table last updated May 13th, 2018*
+*Table last updated June 24th, 2018*
 
 #### OrangeRx Module
 It is also possible to upload the Multiprotocol firmware to an STM32-based OrangeRx DSM module, with support only for the built in CYRF6936 RF module.

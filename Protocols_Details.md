@@ -249,6 +249,9 @@ To bind V2 RXs you must follow the below procedure (original):
  - wait some time (more than 30 sec) before turning off the RX
  - turn off/on the RX and test that it can reconnect instantly, if not repeat the bind procedure
 
+### Sub_protocol FD_V3 - *2*
+FlyDream RXs
+
 ***
 # CYRF6936 RF Module
 

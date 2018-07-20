@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	21
+#define VERSION_PATCH_LEVEL	22
 
 //******************
 // Protocols
@@ -229,6 +229,7 @@ enum CORONA
 {
 	COR_V1	= 0,
 	COR_V2	= 1,
+	FD_V3	= 2,
 };
 
 #define NONE 		0
@@ -678,6 +679,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==CORONA
 			COR_V1		0
 			COR_V2		1
+			FD_V3		2
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

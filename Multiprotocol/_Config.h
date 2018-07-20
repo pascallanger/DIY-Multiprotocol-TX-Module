@@ -544,6 +544,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_CORONA
 		COR_V1
 		COR_V2
+		FD_V3
 	PROTO_CFLIE
 		NONE
 */

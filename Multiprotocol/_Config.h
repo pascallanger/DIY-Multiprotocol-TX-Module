@@ -188,7 +188,7 @@
 #define	CABELL_NRF24L01_INO
 #define	ESKY150_NRF24L01_INO
 #define	H8_3D_NRF24L01_INO
-#define CFLIE_NRF24L01_INO
+#define	CFLIE_NRF24L01_INO
 
 
 /**************************/

@@ -105,14 +105,13 @@ static inline uint8_t crtp_create_header(uint8_t port, uint8_t channel)
 // supports a total of 12 channels. R,P,Y,T leaves 8 aux channels left
 #define MAX_CPPM_AUX_CHANNELS 8
 
-static uint8_t tx_payload_len = 0; // Length of the packet stored in tx_packet
-static uint8_t tx_packet[MAX_PACKET_SIZE]; // For writing Tx payloads
+static uint8_t tx_payload_len = 0; // Length of the packet stored in packet
 static uint8_t rx_payload_len = 0; // Length of the packet stored in rx_packet
 static uint8_t rx_packet[MAX_PACKET_SIZE]; // For reading in ACK payloads
 
 static uint16_t cflie_counter;
 static uint32_t packet_counter;
-static uint8_t tx_power, data_rate, rf_channel;
+static uint8_t data_rate;
 
 enum {
     CFLIE_INIT_SEARCH = 0,
@@ -183,7 +182,7 @@ enum {
 #define PACKET_CHKTIME 500      // time to wait if packet not yet acknowledged or timed out    
 
 // Helper for sending a packet
-// Assumes packet data has been put in tx_packet
+// Assumes packet data has been put in packet
 // and tx_payload_len has been set correctly
 static void send_packet()
 {
@@ -193,77 +192,71 @@ static void send_packet()
     NRF24L01_FlushRx();
 
     // Transmit the payload
-    NRF24L01_WritePayload(tx_packet, tx_payload_len);
+    NRF24L01_WritePayload(packet, tx_payload_len);
 
     ++packet_counter;
 
-    // // Check and adjust transmission power. We do this after
-    // // transmission to not bother with timeout after power
-    // // settings change -  we have plenty of time until next
-    // // packet.
-    // if (tx_power != Model.tx_power) {
-    //     //Keep transmit power updated
-    //     tx_power = Model.tx_power;
-    //     NRF24L01_SetPower(tx_power);
-    // }
-    NRF24L01_SetPower(); // hack? not sure if required...
+    // // Check and adjust transmission power.
+    NRF24L01_SetPower();
 }
 
 static uint16_t dbg_cnt = 0;
 static uint8_t packet_ack()
 {
-    if (++dbg_cnt > 50) {
-        // debugln("S: %02x\n", NRF24L01_ReadReg(NRF24L01_07_STATUS));
-        dbg_cnt = 0;
-    }
-    switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT))) {
-    case BV(NRF24L01_07_TX_DS):
-        rx_payload_len = NRF24L01_GetDynamicPayloadSize();
-        if (rx_payload_len > MAX_PACKET_SIZE) {
-            rx_payload_len = MAX_PACKET_SIZE;
-        }
-        NRF24L01_ReadPayload(rx_packet, rx_payload_len);
-        return PKT_ACKED;
-    case BV(NRF24L01_07_MAX_RT):
-        return PKT_TIMEOUT;
-    }
-    return PKT_PENDING;
+	if (++dbg_cnt > 50)
+	{
+		// debugln("S: %02x\n", NRF24L01_ReadReg(NRF24L01_07_STATUS));
+		dbg_cnt = 0;
+	}
+	switch (NRF24L01_ReadReg(NRF24L01_07_STATUS) & (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)))
+	{
+		case BV(NRF24L01_07_TX_DS):
+			rx_payload_len = NRF24L01_GetDynamicPayloadSize();
+			if (rx_payload_len > MAX_PACKET_SIZE)
+				rx_payload_len = MAX_PACKET_SIZE;
+			NRF24L01_ReadPayload(rx_packet, rx_payload_len);
+			return PKT_ACKED;
+		case BV(NRF24L01_07_MAX_RT):
+			return PKT_TIMEOUT;
+	}
+	return PKT_PENDING;
 }
 
 static void set_rate_channel(uint8_t rate, uint8_t channel)
 {
-    NRF24L01_WriteReg(NRF24L01_05_RF_CH, channel);     // Defined by model id
-    NRF24L01_SetBitrate(rate);             // Defined by model id
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, channel);		// Defined by model id
+	NRF24L01_SetBitrate(rate);							// Defined by model id
 }
 
 static void send_search_packet()
 {
-    uint8_t buf[1];
-    buf[0] = 0xff;
-    // clear packet status bits and TX FIFO
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)));
-    NRF24L01_FlushTx();
+	uint8_t buf[1];
+	buf[0] = 0xff;
+	// clear packet status bits and TX FIFO
+	NRF24L01_WriteReg(NRF24L01_07_STATUS, (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)));
+	NRF24L01_FlushTx();
 
-    if (rf_channel++ > 125) {
-        rf_channel = 0;
-        switch(data_rate) {
-        case NRF24L01_BR_250K:
-            data_rate = NRF24L01_BR_1M;
-            break;
-        case NRF24L01_BR_1M:
-            data_rate = NRF24L01_BR_2M;
-            break;
-        case NRF24L01_BR_2M:
-            data_rate = NRF24L01_BR_250K;
-            break;
-        }
-    }
+	if (rf_ch_num++ > 125)
+	{
+		rf_ch_num = 0;
+		switch(data_rate)
+		{
+			case NRF24L01_BR_250K:
+				data_rate = NRF24L01_BR_1M;
+				break;
+			case NRF24L01_BR_1M:
+				data_rate = NRF24L01_BR_2M;
+				break;
+			case NRF24L01_BR_2M:
+				data_rate = NRF24L01_BR_250K;
+				break;
+		}
+	}
+	set_rate_channel(data_rate, rf_ch_num);
 
-    set_rate_channel(data_rate, rf_channel);
+	NRF24L01_WritePayload(buf, sizeof(buf));
 
-    NRF24L01_WritePayload(buf, sizeof(buf));
-
-    ++packet_counter;
+	++packet_counter;
 }
 
 // Frac 16.16
@@ -273,100 +266,101 @@ static void send_search_packet()
 // Convert fractional 16.16 to float32
 static void frac2float(int32_t n, float* res)
 {
-    if (n == 0) {
-        *res = 0.0;
-        return;
-    }
-    uint32_t m = n < 0 ? -n : n; // Figure out mantissa?
-    int i;
-    for (i = (31-FRAC_MANTISSA); (m & 0x80000000) == 0; i--, m <<= 1);
-    m <<= 1; // Clear implicit leftmost 1
-    m >>= 9;
-    uint32_t e = 127 + i;
-    if (n < 0) m |= 0x80000000;
-    m |= e << 23;
-    *((uint32_t *) res) = m;
+	if (n == 0)
+	{
+		*res = 0.0;
+		return;
+	}
+	uint32_t m = n < 0 ? -n : n; // Figure out mantissa?
+	int i;
+	for (i = (31-FRAC_MANTISSA); (m & 0x80000000) == 0; i--, m <<= 1);
+	m <<= 1; // Clear implicit leftmost 1
+	m >>= 9;
+	uint32_t e = 127 + i;
+	if (n < 0) m |= 0x80000000;
+	m |= e << 23;
+	*((uint32_t *) res) = m;
 }
 
 static void send_crtp_rpyt_packet()
 {
-    int32_t f_roll;
-    int32_t f_pitch;
-    int32_t f_yaw;
-    uint16_t thrust;
+	int32_t f_roll;
+	int32_t f_pitch;
+	int32_t f_yaw;
+	uint16_t thrust;
 
-    uint16_t val;
+	uint16_t val;
 
-    struct CommanderPacketRPYT
-    {
-        float roll;
-        float pitch;
-        float yaw;
-        uint16_t thrust;
-    }__attribute__((packed)) cpkt;
+	struct CommanderPacketRPYT
+	{
+		float roll;
+		float pitch;
+		float yaw;
+		uint16_t thrust;
+	}__attribute__((packed)) cpkt;
 
-    // Channels in AETR order
-    // Roll, aka aileron, float +- 50.0 in degrees
-    // float roll  = -(float) Channels[0]*50.0/10000;
-    val = convert_channel_16b_limit(AILERON, -10000, 10000);
-    // f_roll = -Channels[0] * FRAC_SCALE / (10000 / 50);
-    f_roll = val * FRAC_SCALE / (10000 / 50);
+	// Channels in AETR order
+	// Roll, aka aileron, float +- 50.0 in degrees
+	// float roll  = -(float) Channels[0]*50.0/10000;
+	val = convert_channel_16b_limit(AILERON, -10000, 10000);
+	// f_roll = -Channels[0] * FRAC_SCALE / (10000 / 50);
+	f_roll = val * FRAC_SCALE / (10000 / 50);
 
-    frac2float(f_roll, &cpkt.roll); // TODO: Remove this and use the correct Mode switch below...
-    // debugln("Roll: raw, converted:  %d, %d, %d, %0.2f", Channel_data[AILERON], val, f_roll, cpkt.roll);
+	frac2float(f_roll, &cpkt.roll); // TODO: Remove this and use the correct Mode switch below...
+	// debugln("Roll: raw, converted:  %d, %d, %d, %0.2f", Channel_data[AILERON], val, f_roll, cpkt.roll);
 
-    // Pitch, aka elevator, float +- 50.0 degrees
-    //float pitch = -(float) Channels[1]*50.0/10000;
-    val = convert_channel_16b_limit(ELEVATOR, -10000, 10000);
-    // f_pitch = -Channels[1] * FRAC_SCALE / (10000 / 50);
-    f_pitch = -val * FRAC_SCALE / (10000 / 50);
+	// Pitch, aka elevator, float +- 50.0 degrees
+	//float pitch = -(float) Channels[1]*50.0/10000;
+	val = convert_channel_16b_limit(ELEVATOR, -10000, 10000);
+	// f_pitch = -Channels[1] * FRAC_SCALE / (10000 / 50);
+	f_pitch = -val * FRAC_SCALE / (10000 / 50);
 
-    frac2float(f_pitch, &cpkt.pitch); // TODO: Remove this and use the correct Mode switch below...
-    // debugln("Pitch: raw, converted:  %d, %d, %d, %0.2f", Channel_data[ELEVATOR], val, f_pitch, cpkt.pitch);
+	frac2float(f_pitch, &cpkt.pitch); // TODO: Remove this and use the correct Mode switch below...
+	// debugln("Pitch: raw, converted:  %d, %d, %d, %0.2f", Channel_data[ELEVATOR], val, f_pitch, cpkt.pitch);
 
-    // Thrust, aka throttle 0..65535, working range 5535..65535
-    // Android Crazyflie app puts out a throttle range of 0-80%: 0..52000
-    thrust = convert_channel_16b_limit(THROTTLE, 0, 32767) * 2;
+	// Thrust, aka throttle 0..65535, working range 5535..65535
+	// Android Crazyflie app puts out a throttle range of 0-80%: 0..52000
+	thrust = convert_channel_16b_limit(THROTTLE, 0, 32767) * 2;
 
-    // Crazyflie needs zero thrust to unlock
-    if (thrust < 900)
-        cpkt.thrust = 0;
-    else
-      cpkt.thrust = thrust;
+	// Crazyflie needs zero thrust to unlock
+	if (thrust < 900)
+		cpkt.thrust = 0;
+	else
+		cpkt.thrust = thrust;
 
-    // debugln("Thrust: raw, converted:  %d, %u, %u", Channel_data[THROTTLE], thrust, cpkt.thrust);
+	// debugln("Thrust: raw, converted:  %d, %u, %u", Channel_data[THROTTLE], thrust, cpkt.thrust);
 
-    // Yaw, aka rudder, float +- 400.0 deg/s
-    // float yaw   = -(float) Channels[3]*400.0/10000;
-    val = convert_channel_16b_limit(RUDDER, -10000, 10000);
-    // f_yaw = - Channels[3] * FRAC_SCALE / (10000 / 400);
-    f_yaw = val * FRAC_SCALE / (10000 / 400);
-    frac2float(f_yaw, &cpkt.yaw);
+	// Yaw, aka rudder, float +- 400.0 deg/s
+	// float yaw   = -(float) Channels[3]*400.0/10000;
+	val = convert_channel_16b_limit(RUDDER, -10000, 10000);
+	// f_yaw = - Channels[3] * FRAC_SCALE / (10000 / 400);
+	f_yaw = val * FRAC_SCALE / (10000 / 400);
+	frac2float(f_yaw, &cpkt.yaw);
 
-    // debugln("Yaw: raw, converted:  %d, %d, %d, %0.2f", Channel_data[RUDDER], val, f_yaw, cpkt.yaw);
+	// debugln("Yaw: raw, converted:  %d, %d, %d, %0.2f", Channel_data[RUDDER], val, f_yaw, cpkt.yaw);
 
-    // Switch on/off?
-    // TODO: Get X or + mode working again:
-    // if (Channels[4] >= 0) {
-    //     frac2float(f_roll, &cpkt.roll);
-    //     frac2float(f_pitch, &cpkt.pitch);
-    // } else {
-    //     // Rotate 45 degrees going from X to + mode or opposite.
-    //     // 181 / 256 = 0.70703125 ~= sqrt(2) / 2
-    //     int32_t f_x_roll = (f_roll + f_pitch) * 181 / 256;
-    //     frac2float(f_x_roll, &cpkt.roll);
-    //     int32_t f_x_pitch = (f_pitch - f_roll) * 181 / 256;
-    //     frac2float(f_x_pitch, &cpkt.pitch);
-    // }
+	// Switch on/off?
+	// TODO: Get X or + mode working again:
+	// if (Channels[4] >= 0) {
+	//     frac2float(f_roll, &cpkt.roll);
+	//     frac2float(f_pitch, &cpkt.pitch);
+	// } else {
+	//     // Rotate 45 degrees going from X to + mode or opposite.
+	//     // 181 / 256 = 0.70703125 ~= sqrt(2) / 2
+	//     int32_t f_x_roll = (f_roll + f_pitch) * 181 / 256;
+	//     frac2float(f_x_roll, &cpkt.roll);
+	//     int32_t f_x_pitch = (f_pitch - f_roll) * 181 / 256;
+	//     frac2float(f_x_pitch, &cpkt.pitch);
+	// }
 
-    // Construct and send packet
-    tx_packet[0] = crtp_create_header(CRTP_PORT_SETPOINT, 0); // Commander packet to channel 0
-    memcpy(&tx_packet[1], (char*) &cpkt, sizeof(cpkt));
-    tx_payload_len = 1 + sizeof(cpkt);
-    send_packet();
+	// Construct and send packet
+	packet[0] = crtp_create_header(CRTP_PORT_SETPOINT, 0); // Commander packet to channel 0
+	memcpy(&packet[1], (char*) &cpkt, sizeof(cpkt));
+	tx_payload_len = 1 + sizeof(cpkt);
+	send_packet();
 }
 
-static void send_crtp_cppm_emu_packet()
+/*static void send_crtp_cppm_emu_packet()
 {
     struct CommanderPacketCppmEmu {
         struct {
@@ -413,14 +407,14 @@ static void send_crtp_cppm_emu_packet()
     uint8_t commanderPacketSize = 1 + 8 + (2*numAuxChannels);
 
     // Construct and send packet
-    tx_packet[0] = crtp_create_header(CRTP_PORT_SETPOINT_GENERIC, 0); // Generic setpoint packet to channel 0
-    tx_packet[1] = CRTP_SETPOINT_GENERIC_CPPM_EMU_TYPE;
+    packet[0] = crtp_create_header(CRTP_PORT_SETPOINT_GENERIC, 0); // Generic setpoint packet to channel 0
+    packet[1] = CRTP_SETPOINT_GENERIC_CPPM_EMU_TYPE;
 
     // Copy the header (1) plus 4 2-byte channels (8) plus whatever number of 2-byte aux channels are in use
-    memcpy(&tx_packet[2], (char*)&cpkt, commanderPacketSize); // Why not use sizeof(cpkt) here??
+    memcpy(&packet[2], (char*)&cpkt, commanderPacketSize); // Why not use sizeof(cpkt) here??
     tx_payload_len = 2 + commanderPacketSize; // CRTP header, commander type, and packet
     send_packet();
-}
+}*/
 
 static void send_cmd_packet()
 {
@@ -473,8 +467,8 @@ static uint8_t crtp_log_setup_state_machine()
         // fallthrough
     case CFLIE_CRTP_LOG_SETUP_STATE_SEND_CMD_GET_INFO:
         crtp_log_setup_state = CFLIE_CRTP_LOG_SETUP_STATE_ACK_CMD_GET_INFO;
-        tx_packet[0] = crtp_create_header(CRTP_PORT_LOG, CRTP_LOG_CHAN_TOC);
-        tx_packet[1] = CRTP_LOG_TOC_CMD_INFO;
+        packet[0] = crtp_create_header(CRTP_PORT_LOG, CRTP_LOG_CHAN_TOC);
+        packet[1] = CRTP_LOG_TOC_CMD_INFO;
         tx_payload_len = 2;
         send_packet();
         break;
@@ -506,9 +500,9 @@ static uint8_t crtp_log_setup_state_machine()
 
     case CFLIE_CRTP_LOG_SETUP_STATE_SEND_CMD_GET_ITEM:
         crtp_log_setup_state = CFLIE_CRTP_LOG_SETUP_STATE_ACK_CMD_GET_ITEM;
-        tx_packet[0] = crtp_create_header(CRTP_PORT_LOG, CRTP_LOG_CHAN_TOC);
-        tx_packet[1] = CRTP_LOG_TOC_CMD_ELEMENT;
-        tx_packet[2] = next_toc_variable;
+        packet[0] = crtp_create_header(CRTP_PORT_LOG, CRTP_LOG_CHAN_TOC);
+        packet[1] = CRTP_LOG_TOC_CMD_ELEMENT;
+        packet[2] = next_toc_variable;
         tx_payload_len = 3;
         send_packet();
         break;
@@ -577,15 +571,15 @@ static uint8_t crtp_log_setup_state_machine()
 
     case CFLIE_CRTP_LOG_SETUP_STATE_SEND_CONTROL_CREATE_BLOCK:
         crtp_log_setup_state = CFLIE_CRTP_LOG_SETUP_STATE_ACK_CONTROL_CREATE_BLOCK;
-        tx_packet[0] = crtp_create_header(CRTP_PORT_LOG, CRTP_LOG_CHAN_SETTINGS);
-        tx_packet[1] = CRTP_LOG_SETTINGS_CMD_CREATE_BLOCK;
-        tx_packet[2] = CFLIE_TELEM_LOG_BLOCK_ID; // Log block ID
-        tx_packet[3] = vbat_var_type; // Variable type
-        tx_packet[4] = vbat_var_id; // ID of the VBAT variable
-        tx_packet[5] = extvbat_var_type; // Variable type
-        tx_packet[6] = extvbat_var_id; // ID of the ExtVBat variable
-        tx_packet[7] = rssi_var_type; // Variable type
-        tx_packet[8] = rssi_var_id; // ID of the RSSI variable
+        packet[0] = crtp_create_header(CRTP_PORT_LOG, CRTP_LOG_CHAN_SETTINGS);
+        packet[1] = CRTP_LOG_SETTINGS_CMD_CREATE_BLOCK;
+        packet[2] = CFLIE_TELEM_LOG_BLOCK_ID; // Log block ID
+        packet[3] = vbat_var_type; // Variable type
+        packet[4] = vbat_var_id; // ID of the VBAT variable
+        packet[5] = extvbat_var_type; // Variable type
+        packet[6] = extvbat_var_id; // ID of the ExtVBat variable
+        packet[7] = rssi_var_type; // Variable type
+        packet[8] = rssi_var_id; // ID of the RSSI variable
         tx_payload_len = 9;
         send_packet();
         break;
@@ -615,10 +609,10 @@ static uint8_t crtp_log_setup_state_machine()
 
     case CFLIE_CRTP_LOG_SETUP_STATE_SEND_CONTROL_START_BLOCK:
         crtp_log_setup_state = CFLIE_CRTP_LOG_SETUP_STATE_ACK_CONTROL_START_BLOCK;
-        tx_packet[0] = crtp_create_header(CRTP_PORT_LOG, CRTP_LOG_CHAN_SETTINGS);
-        tx_packet[1] = CRTP_LOG_SETTINGS_CMD_START_LOGGING;
-        tx_packet[2] = CFLIE_TELEM_LOG_BLOCK_ID; // Log block ID 1
-        tx_packet[3] = CFLIE_TELEM_LOG_BLOCK_PERIOD_10MS; // Log frequency in 10ms units
+        packet[0] = crtp_create_header(CRTP_PORT_LOG, CRTP_LOG_CHAN_SETTINGS);
+        packet[1] = CRTP_LOG_SETTINGS_CMD_START_LOGGING;
+        packet[2] = CFLIE_TELEM_LOG_BLOCK_ID; // Log block ID 1
+        packet[3] = CFLIE_TELEM_LOG_BLOCK_PERIOD_10MS; // Log frequency in 10ms units
         tx_payload_len = 4;
         send_packet();
         break;
@@ -667,7 +661,7 @@ static int cflie_init()
     NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, TX_ADDR_SIZE-2); // 5-byte RX/TX address
     NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x13);         // 3 retransmits, 500us delay
 
-    NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_channel);        // Defined in initialize_rx_tx_addr
+    NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch_num);        // Defined in initialize_rx_tx_addr
     NRF24L01_SetBitrate(data_rate);                          // Defined in initialize_rx_tx_addr
 
     NRF24L01_SetPower();
@@ -684,43 +678,6 @@ static int cflie_init()
     NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x01);       // Enable Dynamic Payload Length on pipe 0
     NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x06);     // Enable Dynamic Payload Length, enable Payload with ACK
 
-    // Check for Beken BK2421/BK2423 chip
-    // It is done by using Beken specific activate code, 0x53
-    // and checking that status register changed appropriately
-    // There is no harm to run it on nRF24L01 because following
-    // closing activate command changes state back even if it
-    // does something on nRF24L01
-    NRF24L01_Activate(0x53); // magic for BK2421 bank switch
-    // debugln("CFlie: Trying to switch banks\n");
-    if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & 0x80) {
-        // debugln("CFlie: BK2421 detected\n");
-        long nul = 0;
-        // Beken registers don't have such nice names, so we just mention
-        // them by their numbers
-        // It's all magic, eavesdropped from real transfer and not even from the
-        // data sheet - it has slightly different values
-        NRF24L01_WriteRegisterMulti(0x00, (uint8_t *) "\x40\x4B\x01\xE2", 4);
-        NRF24L01_WriteRegisterMulti(0x01, (uint8_t *) "\xC0\x4B\x00\x00", 4);
-        NRF24L01_WriteRegisterMulti(0x02, (uint8_t *) "\xD0\xFC\x8C\x02", 4);
-        NRF24L01_WriteRegisterMulti(0x03, (uint8_t *) "\xF9\x00\x39\x21", 4);
-        NRF24L01_WriteRegisterMulti(0x04, (uint8_t *) "\xC1\x96\x9A\x1B", 4);
-        NRF24L01_WriteRegisterMulti(0x05, (uint8_t *) "\x24\x06\x7F\xA6", 4);
-        NRF24L01_WriteRegisterMulti(0x06, (uint8_t *) &nul, 4);
-        NRF24L01_WriteRegisterMulti(0x07, (uint8_t *) &nul, 4);
-        NRF24L01_WriteRegisterMulti(0x08, (uint8_t *) &nul, 4);
-        NRF24L01_WriteRegisterMulti(0x09, (uint8_t *) &nul, 4);
-        NRF24L01_WriteRegisterMulti(0x0A, (uint8_t *) &nul, 4);
-        NRF24L01_WriteRegisterMulti(0x0B, (uint8_t *) &nul, 4);
-        NRF24L01_WriteRegisterMulti(0x0C, (uint8_t *) "\x00\x12\x73\x00", 4);
-        NRF24L01_WriteRegisterMulti(0x0D, (uint8_t *) "\x46\xB4\x80\x00", 4);
-        NRF24L01_WriteRegisterMulti(0x0E, (uint8_t *) "\x41\x10\x04\x82\x20\x08\x08\xF2\x7D\xEF\xFF", 11);
-        NRF24L01_WriteRegisterMulti(0x04, (uint8_t *) "\xC7\x96\x9A\x1B", 4);
-        NRF24L01_WriteRegisterMulti(0x04, (uint8_t *) "\xC1\x96\x9A\x1B", 4);
-    } else {
-        // debugln("CFlie: nRF24L01 detected");
-    }
-    NRF24L01_Activate(0x53); // switch bank back
-
     // 50ms delay in callback
     return 50000;
 }
@@ -734,7 +691,7 @@ static int cflie_init()
 
 //     // Read and reset count of dropped packets
 //     frameloss += NRF24L01_ReadReg(NRF24L01_08_OBSERVE_TX) >> 4;
-//     NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_channel); // reset packet loss counter
+//     NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch_num); // reset packet loss counter
 //     Telemetry.value[TELEM_DSM_FLOG_FRAMELOSS] = frameloss;
 //     TELEMETRY_SetUpdated(TELEM_DSM_FLOG_FRAMELOSS);
 
@@ -774,7 +731,7 @@ static int cflie_init()
 
 //     // Read and reset count of dropped packets
 //     frameloss += NRF24L01_ReadReg(NRF24L01_08_OBSERVE_TX) >> 4;
-//     NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_channel); // reset packet loss counter
+//     NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch_num); // reset packet loss counter
 //     Telemetry.value[TELEM_DSM_FLOG_FRAMELOSS] = frameloss;
 //     TELEMETRY_SetUpdated(TELEM_DSM_FLOG_FRAMELOSS);
 
@@ -854,7 +811,7 @@ static uint8_t initialize_rx_tx_addr()
     rx_tx_addr[4] = 0xE7; // CFlie uses fixed address
 
     // if (Model.fixed_id) {
-    //     rf_channel = Model.fixed_id % 100;
+    //     rf_ch_num = Model.fixed_id % 100;
     //     switch (Model.fixed_id / 100) {
     //     case 0:
     //         data_rate = NRF24L01_BR_250K;
@@ -876,17 +833,17 @@ static uint8_t initialize_rx_tx_addr()
     //     }
     // } else {
     //     data_rate = NRF24L01_BR_250K;
-    //     rf_channel = 10;
+    //     rf_ch_num = 10;
     //     return CFLIE_INIT_SEARCH;
     // }
 
     // Default 1
     data_rate = NRF24L01_BR_1M;
-    rf_channel = 10;
+    rf_ch_num = 10;
 
     // Default 2
     // data_rate = NRF24L01_BR_2M;
-    // rf_channel = 110;
+    // rf_ch_num = 110;
     return CFLIE_INIT_SEARCH;
 }
 

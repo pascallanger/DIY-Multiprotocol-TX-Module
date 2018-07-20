@@ -81,6 +81,7 @@ enum{
 	AFHDS2A_SENSOR_RX_RSSI      = 0xfc,
 	AFHDS2A_SENSOR_RX_NOISE     = 0xfb,
 	AFHDS2A_SENSOR_RX_SNR       = 0xfa,
+	AFHDS2A_SENSOR_A3_VOLTAGE   = 0x03,
 };
 
 static void AFHDS2A_update_telemetry()
@@ -109,6 +110,10 @@ static void AFHDS2A_update_telemetry()
 			case AFHDS2A_SENSOR_RX_VOLTAGE:
 				//v_lipo1 = packet[index+3]<<8 | packet[index+2];
 				v_lipo1 = packet[index+2];
+				telemetry_link=1;
+				break;
+			case AFHDS2A_SENSOR_A3_VOLTAGE:
+				v_lipo2 = (packet[index+3]<<5) | (packet[index+2]>>3);	// allows to read voltage up to 4S
 				telemetry_link=1;
 				break;
 			case AFHDS2A_SENSOR_RX_ERR_RATE:
@@ -244,12 +249,17 @@ uint16_t ReadAFHDS2A()
 			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)))
 			{ // FECF+CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
-				if(packet[0] == 0xbc)
+				if(packet[0] == 0xbc && packet[9] == 0x01)
 				{
+					uint8_t temp=AFHDS2A_EEPROM_OFFSET+RX_num*4;
 					for(uint8_t i=0; i<4; i++)
+					{
 						rx_id[i] = packet[5+i];
-					if(packet[9] == 0x01)
-						phase = AFHDS2A_BIND4;
+						eeprom_write_byte((EE_ADDR)(temp+i),rx_id[i]);
+					}
+					phase = AFHDS2A_BIND4;
+					packet_count++;
+					return 3850;
 				}
 			}
 			packet_count++;
@@ -278,9 +288,6 @@ uint16_t ReadAFHDS2A()
 			bind_phase++;
 			if(bind_phase>=4)
 			{ 
-				uint8_t eeadr=AFHDS2A_EEPROM_OFFSET+RX_num*4;
-				for(uint8_t i=0; i<4; i++)
-					eeprom_write_byte((EE_ADDR)(eeadr+i),rx_id[i]);
 				hopping_frequency_no=1;
 				phase = AFHDS2A_DATA_INIT;
 				BIND_DONE;
@@ -289,6 +296,7 @@ uint16_t ReadAFHDS2A()
 		case AFHDS2A_DATA_INIT:
 			packet_counter=0;
 			packet_type = AFHDS2A_PACKET_STICKS;
+			phase = AFHDS2A_DATA;
 		case AFHDS2A_DATA:
 			AFHDS2A_build_packet(packet_type);
 			if((A7105_ReadReg(A7105_00_MODE) & 0x01))		// Check if something has been received...

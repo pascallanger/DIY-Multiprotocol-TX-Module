@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_PIN		// Use pin TX for AVR and SPI_CS for STM32 => DEBUG_PIN_on, DEBUG_PIN_off, DEBUG_PIN_toggle
-// #define DEBUG_SERIAL	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
+//#define DEBUG_SERIAL	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
 #ifdef __arm__			// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
@@ -1191,6 +1191,13 @@ void update_serial_data()
 {
 	RX_DONOTUPDATE_on;
 	RX_FLAG_off;								//data is being processed
+	#ifdef SAMSON	// Extremely dangerous, do not enable this unless you know what you are doing...
+		if( rx_ok_buff[0]==0x55 && (rx_ok_buff[1]&0x1F)==PROTO_FRSKYD && rx_ok_buff[2]==0x7F && rx_ok_buff[24]==217 && rx_ok_buff[25]==202 )
+		{//proto==FRSKYD+sub==7+rx_num==7+CH15==73%+CH16==73%
+			rx_ok_buff[1]=(rx_ok_buff[1]&0xE0) | PROTO_FLYSKY;			// change the protocol to Flysky
+			memcpy((void*)(rx_ok_buff+4),(void*)(rx_ok_buff+4+11),11);	// reassign channels 9-16 to 1-8
+		}
+	#endif
 	if(rx_ok_buff[1]&0x20)						//check range
 		RANGE_FLAG_on;
 	else
@@ -1565,26 +1572,25 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				id|=eeprom_read_byte((EE_ADDR)address+i-1);
 			}
 			if(id!=0x2AD141A7)	//ID with seed=0
-                          {
-                            debugln("Read ID from EEPROM");
-                            return id;
-                          }
+			{
+				debugln("Read ID from EEPROM");
+				return id;
+			}
 		}
 		// Generate a random ID
 		#if defined STM32_BOARD
 			#define STM32_UUID ((uint32_t *)0x1FFFF7E8)
-			if (!create_new) {
+			if (!create_new)
+			{
 				id = STM32_UUID[0] ^ STM32_UUID[1] ^ STM32_UUID[2];
 				debugln("Generated ID from STM32 UUID");
-
-		        } else
+			}
+			else
 		#endif
-		    id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
+				id = random(0xfefefefe) + ((uint32_t)random(0xfefefefe) << 16);
 
 		for(uint8_t i=0;i<4;i++)
-		{
 			eeprom_write_byte((EE_ADDR)address+i,id >> (i*8));
-		}
 		eeprom_write_byte((EE_ADDR)(address+10),0xf0);//write bind flag in eeprom.
 		return id;
 	#else

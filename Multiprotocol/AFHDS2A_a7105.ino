@@ -177,6 +177,12 @@ static void AFHDS2A_build_packet(uint8_t type)
 			packet[0] = 0x58;
 			for(uint8_t ch=0; ch<14; ch++)
 			{
+				if(ch >= 12)	// limit to 12 channels, 14 needs to be tested
+				{
+					packet[9 + ch*2] = 0xdc;
+					packet[10 + ch*2] = 0x05;
+					continue;
+				}
 				uint16_t channelMicros = convert_channel_ppm(CH_AETR[ch]);
 				packet[9 +  ch*2] = channelMicros&0xFF;
 				packet[10 + ch*2] = (channelMicros>>8)&0xFF;

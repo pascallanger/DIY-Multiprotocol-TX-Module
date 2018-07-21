@@ -22,5 +22,4 @@ echo "Package: package_multi_4in1_stm_board_v$STM_VERSION.tar.gz"
 echo "SHA256:  `(sha256sum ../Archives/package_multi_4in1_stm32_board_v$STM_VERSION.tar.gz | awk -v N=1 '{print $N}')`"
 echo "Size:    `(ls -al ../Archives/package_multi_4in1_stm32_board_v$STM_VERSION.tar.gz | awk -v N=5 '{print $N}')`"
 echo
-echo Done
-echo
+read -n 1 -p Done

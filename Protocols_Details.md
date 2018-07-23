@@ -250,7 +250,7 @@ To bind V2 RXs you must follow the below procedure (original):
  - turn off/on the RX and test that it can reconnect instantly, if not repeat the bind procedure
 
 ### Sub_protocol FD_V3 - *2*
-FlyDream RXs
+FlyDream RXs like IS-4R and IS-4R0
 
 ***
 # CYRF6936 RF Module

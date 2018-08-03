@@ -145,6 +145,37 @@ A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS1|HEADLESS2|GPS_HOLD|ALT_HOLD
 ***
 # CC2500 RF Module
 
+## CORONA - *37*
+Models: Corona 2.4GHz FSS and DSSS receivers.
+
+Extended limits supported
+
+Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+### Sub_protocol COR_V1 - *0*
+Corona FSS V1 RXs
+
+### Sub_protocol COR_V2 - *1*
+Corona DSSS V2 RXs: CR8D, CR6D and CR4D
+
+To bind V2 RXs you must follow the below procedure (original):
+ - press the bind button and power on the RX
+ - launch a bind from Multi -> the RX will blink 2 times
+ - turn off the RX **and** TX(=Multi)
+ - turn on the RX **first**
+ - turn on the TX(=Multi) **second**
+ - wait for the bind to complete -> the RX will flash, stop and finally fix
+ - wait some time (more than 30 sec) before turning off the RX
+ - turn off/on the RX and test that it can reconnect instantly, if not repeat the bind procedure
+
+### Sub_protocol FD_V3 - *2*
+FlyDream RXs like IS-4R and IS-4R0
+
 ## FRSKYV = FrSky 1 way - *25*
 Models: FrSky receivers V8R4, V8R7 and V8FR.
 
@@ -209,6 +240,28 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
+## HITEC - *39*
+Models: OPTIMA, MINIMA and MICRO receivers.
+
+Extended limits supported
+
+Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+
+### Sub_protocol OPTIMA - *0*
+OPTIMA RXs
+
+Telemetry is still a work in progress. Basic telemetry is available using FrSky Hub with RX voltage, TX RSSI and TX LQI.
+
+**The TX must be really close to the RX for the bind negotiation to complete successfully**
+
+### Sub_protocol MINIMA - *1*
+MINIMA, MICRO and RED receivers
+
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.
 
@@ -220,37 +273,6 @@ Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
-
-## CORONA - *37*
-Models: Corona 2.4GHz FSS and DSSS receivers.
-
-Extended limits supported
-
-Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
-Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
-
-### Sub_protocol COR_V1 - *0*
-Corona FSS V1 RXs
-
-### Sub_protocol COR_V2 - *1*
-Corona DSSS V2 RXs: CR8D, CR6D and CR4D
-
-To bind V2 RXs you must follow the below procedure (original):
- - press the bind button and power on the RX
- - launch a bind from Multi -> the RX will blink 2 times
- - turn off the RX **and** TX(=Multi)
- - turn on the RX **first**
- - turn on the TX(=Multi) **second**
- - wait for the bind to complete -> the RX will flash, stop and finally fix
- - wait some time (more than 30 sec) before turning off the RX
- - turn off/on the RX and test that it can reconnect instantly, if not repeat the bind procedure
-
-### Sub_protocol FD_V3 - *2*
-FlyDream RXs like IS-4R and IS-4R0
 
 ***
 # CYRF6936 RF Module

@@ -99,6 +99,7 @@
 //#define FORCE_FRSKYX_TUNING	0
 //#define FORCE_SFHSS_TUNING	0
 //#define FORCE_CORONA_TUNING	0
+//#define FORCE_HITEC_TUNING	0
 
 /** A7105 Fine Frequency Tuning **/
 //This is required in rare cases where some A7105 modules and/or RXs have an inaccurate crystal oscillator.
@@ -163,6 +164,7 @@
 #define	FRSKYX_CC2500_INO
 #define	SFHSS_CC2500_INO
 #define	CORONA_CC2500_INO
+#define	HITEC_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
 #define	BAYANG_NRF24L01_INO
@@ -246,6 +248,8 @@
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
+//#define HITEC_FW_TELEMETRY			// Forward received telemetry packet directly to TX to be decoded
 
 //SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
 //This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
@@ -547,6 +551,9 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		FD_V3
 	PROTO_CFLIE
 		NONE
+	PROTO_HITEC
+		OPTIMA
+		MINIMA
 */
 
 // RX_Num is used for TX & RX match. Using different RX_Num values for each receiver will prevent starting a model with the false config loaded...

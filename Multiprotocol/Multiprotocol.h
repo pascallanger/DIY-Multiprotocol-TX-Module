@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	22
+#define VERSION_PATCH_LEVEL	23
 
 //******************
 // Protocols
@@ -65,6 +65,7 @@ enum PROTOCOLS
 	PROTO_H8_3D		= 36,	// =>NRF24L01
 	PROTO_CORONA	= 37,	// =>CC2500
 	PROTO_CFLIE     = 38,   // =>NRF24L01
+	PROTO_HITEC     = 39,   // =>CC2500
 };
 
 enum Flysky
@@ -231,6 +232,11 @@ enum CORONA
 	COR_V2	= 1,
 	FD_V3	= 2,
 };
+enum HITEC
+{
+	OPTIMA	= 0,
+	MINIMA	= 1,
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -261,6 +267,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_CONFIG			= 7,
 	MULTI_TELEMETRY_SYNC			= 8,
 	MULTI_TELEMETRY_SPORT_POLLING	= 9,
+	MULTI_TELEMETRY_HITEC			= 10,
 };
 
 // Macros
@@ -560,6 +567,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					H8_3D		36
 					CORONA		37
 					CFlie		38
+					Hitec		39
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -680,6 +688,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			COR_V1		0
 			COR_V2		1
 			FD_V3		2
+		sub_protocol==HITEC
+			OPTIMA		0
+			MINIMA		1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
@@ -779,5 +790,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data
+
+  Type 0x0A Hitec telemetry data
+   length: 12
+   data[0-10] telemetry data
 
 */

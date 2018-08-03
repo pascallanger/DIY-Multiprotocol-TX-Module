@@ -432,6 +432,11 @@ void setup()
 				option			=	FORCE_CORONA_TUNING;		// Use config-defined tuning value for CORONA
 			else
 		#endif
+		#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
+			if (protocol==PROTO_HITEC)
+				option			=	FORCE_HITEC_TUNING;		// Use config-defined tuning value for HITEC
+			else
+		#endif
 				option			=	PPM_prot[line].option;	// Use radio-defined option value
 
 		if(PPM_prot[line].power)		POWER_FLAG_on;
@@ -605,7 +610,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) )
+			if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
 		#endif
 				TelemetryUpdate();
 	#endif
@@ -948,6 +953,14 @@ static void protocol_init()
 						remote_callback = ReadCORONA;
 						break;
 				#endif
+				#if defined(HITEC_CC2500_INO)
+					case PROTO_HITEC:
+						PE1_off;	//antenna RF2
+						PE2_on;
+						next_callback = initHITEC();
+						remote_callback = ReadHITEC;
+						break;
+				#endif
 			#endif
 			#ifdef CYRF6936_INSTALLED
 				#if defined(DSM_CYRF6936_INO)
@@ -1235,6 +1248,11 @@ void update_serial_data()
 	#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)
 		if (protocol==PROTO_CORONA)
 			option=FORCE_CORONA_TUNING;	// Use config-defined tuning value for CORONA
+		else
+	#endif
+	#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
+		if (protocol==PROTO_HITEC)
+			option=FORCE_HITEC_TUNING;	// Use config-defined tuning value for HITEC
 		else
 	#endif
 			option=rx_ok_buff[3];		// Use radio-defined option value

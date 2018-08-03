@@ -349,7 +349,7 @@ void frsky_link_frame()
 		telemetry_link |= 2 ;		// Send hub if available
 	}
 	else
-		if (protocol==PROTO_HUBSAN||protocol==PROTO_AFHDS2A||protocol==PROTO_BAYANG||protocol==PROTO_CABELL)
+		if (protocol==PROTO_HUBSAN||protocol==PROTO_AFHDS2A||protocol==PROTO_BAYANG||protocol==PROTO_CABELL||protocol==PROTO_HITEC)
 		{	
 			frame[1] = v_lipo1;
 			frame[2] = v_lipo2;			

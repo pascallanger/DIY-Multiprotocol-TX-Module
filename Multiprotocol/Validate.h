@@ -87,6 +87,11 @@
 		#error "The CORONA forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_HITEC_TUNING
+	#if ( FORCE_HITEC_TUNING < -127 ) || ( FORCE_HITEC_TUNING > 127 )
+		#error "The HITEC forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 #ifdef FORCE_FLYSKY_TUNING
 	#if ( FORCE_FLYSKY_TUNING < -300 ) || ( FORCE_FLYSKY_TUNING > 300 )
 		#error "The Flysky forced frequency tuning value is outside of the range -300..300."
@@ -146,6 +151,7 @@
 	#undef	FRSKYX_CC2500_INO
 	#undef	SFHSS_CC2500_INO
 	#undef	CORONA_CC2500_INO
+	#undef	HITEC_CC2500_INO
 #endif
 #ifndef NRF24L01_INSTALLED
 	#undef	BAYANG_NRF24L01_INO
@@ -179,11 +185,14 @@
 	#undef INVERT_TELEMETRY
 	#undef AFHDS2A_FW_TELEMETRY
 	#undef AFHDS2A_HUB_TELEMETRY
+	#undef HITEC_FW_TELEMETRY
+	#undef HITEC_HUB_TELEMETRY
 	#undef BAYANG_HUB_TELEMETRY
 	#undef CABELL_HUB_TELEMETRY
 	#undef HUBSAN_HUB_TELEMETRY
 	#undef HUB_TELEMETRY
 	#undef SPORT_TELEMETRY
+	#undef SPORT_POLLING
 	#undef DSM_TELEMETRY
 	#undef MULTI_STATUS
 	#undef MULTI_TELEMETRY
@@ -204,23 +213,34 @@
 		#undef 	AFHDS2A_HUB_TELEMETRY
 		#undef 	AFHDS2A_FW_TELEMETRY
 	#endif
+	#if not defined(HITEC_CC2500_INO)
+		#undef 	HITEC_HUB_TELEMETRY
+		#undef 	HITEC_FW_TELEMETRY
+	#endif
+	#if defined(HITEC_HUB_TELEMETRY) && defined(HITEC_FW_TELEMETRY)
+		#error You need to choose HUB or FW telemetry but not both.
+	#endif
 	#if not defined(FRSKYD_CC2500_INO)
 		#undef HUB_TELEMETRY
 	#endif
 	#if not defined(FRSKYX_CC2500_INO)
 		#undef SPORT_TELEMETRY
+		#undef SPORT_POLLING
+	#endif
+	#if not defined (SPORT_TELEMETRY) || not defined (STM32_BOARD)
+		#undef SPORT_POLLING
+	#endif
+	#if defined SPORT_POLLING && not defined INVERT_TELEMETRY
+		#error SPORT_POLLING has been defined but not INVERT_TELEMETRY. They should be both enabled to work.
 	#endif
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS)
+	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
+		#undef SPORT_POLLING
 	#endif
-#endif
-
-#if not defined (SPORT_TELEMETRY) || not defined (STM32_BOARD)
-	#undef SPORT_POLLING
 #endif
 
 //Make sure TX is defined correctly

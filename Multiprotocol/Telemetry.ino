@@ -91,6 +91,11 @@ static void multi_send_header(uint8_t type, uint8_t len)
 static void multi_send_status()
 {
 	#ifdef SPORT_POLLING
+	#ifdef INVERT_SERIAL
+		USART3_BASE->CR1 &= ~USART_CR1_TE ;
+		TX_INV_on;	//activate inverter for both serial TX and RX signals
+		USART3_BASE->CR1 |= USART_CR1_TE ;
+	#endif
 		rx_pause();
 	#endif
 	multi_send_header(MULTI_TELEMETRY_STATUS, 5);
@@ -476,6 +481,13 @@ const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
 #ifdef MULTI_TELEMETRY
 	void sportSend(uint8_t *p)
 	{
+	#ifdef SPORT_POLLING
+	#ifdef INVERT_SERIAL
+		USART3_BASE->CR1 &= ~USART_CR1_TE ;
+		TX_INV_on;	//activate inverter for both serial TX and RX signals
+		USART3_BASE->CR1 |= USART_CR1_TE ;
+	#endif
+	#endif
 		multi_send_header(MULTI_TELEMETRY_SPORT, 9);
 		uint16_t crc_s = 0;
 		uint8_t x = p[0] ;
@@ -500,6 +512,13 @@ const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
 	void sportSend(uint8_t *p)
 	{
 		uint16_t crc_s = 0;
+	#ifdef SPORT_POLLING
+	#ifdef INVERT_SERIAL
+		USART3_BASE->CR1 &= ~USART_CR1_TE ;
+		TX_INV_on;	//activate inverter for both serial TX and RX signals
+		USART3_BASE->CR1 |= USART_CR1_TE ;
+	#endif
+	#endif
 		Serial_write(START_STOP);//+9
 		Serial_write(p[0]) ;
 		for (uint8_t i = 1; i < 9; i++)
@@ -585,6 +604,33 @@ uint8_t nextID()
 	return poll_idx ;
 }
 
+#ifdef INVERT_SERIAL
+void start_timer4()
+{
+	TIMER4_BASE->PSC = 71;								// 72-1;for 72 MHZ / 1.0sec/(71+1)
+	TIMER4_BASE->CCER = 0 ;
+	TIMER4_BASE->DIER = 0 ;
+	TIMER4_BASE->CCMR1 = 0 ;
+	TIMER4_BASE->CCMR1 = TIMER_CCMR1_OC1M ;
+	HWTimer4.attachInterrupt(TIMER_CH1, __irq_timer4);		// Assign function to Timer2/Comp2 interrupt
+	nvic_irq_set_priority( NVIC_TIMER4, 14 ) ;
+}
+
+void stop_timer4()
+{
+	TIMER5_BASE->CR1 = 0 ;
+	nvic_irq_disable( NVIC_TIMER4 ) ;
+}
+
+void __irq_timer4(void)			
+{
+	TIMER4_BASE->DIER = 0 ;
+	TIMER4_BASE->CR1 = 0 ;
+	TX_INV_on;	//activate inverter for both serial TX and RX signals
+}
+
+#endif
+
 void pollSport()
 {
 	uint8_t pindex = nextID() ;
@@ -597,12 +643,25 @@ void pollSport()
 	}		
 	SportIndexPolling = pindex ;
 	RxIndex = 0;
+	#ifdef INVERT_SERIAL
+		USART3_BASE->CR1 &= ~USART_CR1_TE ;
+		TX_INV_on;	//activate inverter for both serial TX and RX signals
+		USART3_BASE->CR1 |= USART_CR1_TE ;
+	#endif
 #ifdef MULTI_TELEMETRY
 	multi_send_header(MULTI_TELEMETRY_SPORT_POLLING, 1);
 #else
     Serial_write(TxData[0]);
 #endif
+	RxIndex=0;
 	Serial_write(TxData[1]);
+	USART3_BASE->CR1 |= USART_CR1_TCIE ;
+#ifdef INVERT_SERIAL
+	TIMER4_BASE->CNT = 0 ;
+	TIMER4_BASE->CCR1 = 3000 ;
+	TIMER4_BASE->DIER = TIMER_DIER_CC1IE ;
+	TIMER4_BASE->CR1 = TIMER_CR1_CEN ;
+#endif
 }
 
 bool checkSportPacket()
@@ -1039,6 +1098,15 @@ void TelemetryUpdate()
 	{	// Transmit interrupt
 		#ifdef STM32_BOARD
 			#ifdef SPORT_POLLING		
+				if(USART3_BASE->SR & USART_SR_TC) 
+				{
+					if ( USART3_BASE->CR1 & USART_CR1_TCIE )
+					{
+						USART3_BASE->CR1 &= ~USART_CR1_TCIE ;
+						TX_INV_off;
+					}
+				}
+
 				if(USART3_BASE->SR & USART_SR_RXNE) 
 				{
 					USART3_BASE->SR &= ~USART_SR_RXNE;

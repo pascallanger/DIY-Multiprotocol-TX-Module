@@ -55,6 +55,11 @@
 	#include <SPI.h>
 	#include <EEPROM.h>	
 	HardwareTimer HWTimer2(2);
+#if defined  SPORT_POLLING
+#ifdef INVERT_TELEMETRY
+	HardwareTimer HWTimer4(4);
+#endif
+#endif
 	void PPM_decode();
 	void ISR_COMPB();
 	extern "C"

@@ -89,8 +89,8 @@
 //#define ORANGE_TX_BLUE
 
 /** CC2500 Fine Frequency Tuning **/
-//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, and SFHSS protocols needs to be tuned for each protocol.
-//Initial tuning should be done via the radio menu with a genuine FrSky or Futaba receiver.  
+//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, SFHSS, CORONA and Hitec protocols needs to be tuned for each protocol.
+//Initial tuning should be done via the radio menu with a genuine FrSky/Futaba/CORONA/Hitec receiver.  
 //Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
 //For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
 //Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable. Valid range is -127 to +127.

@@ -17,7 +17,7 @@
 
 #include "iface_cc2500.h"
 
-//#define HITEC_FORCE_ID	//Use the ID and hopping table from original dump
+//#define HITEC_FORCE_ID	//Use the ID and hopping table from the original dump
 
 #define HITEC_COARSE			0
 
@@ -158,7 +158,7 @@ static void __attribute__((unused)) HITEC_build_packet()
 		}
 		packet[19] = 0x08;	// packet number
 		packet[20] = 0x00;	// starts with 0x00 and after some time it alternates between 0x00 and 0xF5
-		packet[21] = 0x00;	// unknown when [20]=0xF5 then the value is 0xE0 or 0xDC
+		packet[21] = 0x00;	// unknown when [20]=0xF5 then this value is between 0xDB and 0xE0. TODO: test if it could be RSSI related?
 	}
 	else
 	{

@@ -333,6 +333,11 @@ uint16_t initFrSkyX()
 	//rx_tx_addr[2]=0xFD;
 	//************************
 	frskyX_init();
+#if defined  SPORT_POLLING
+#ifdef INVERT_SERIAL
+	start_timer4() ;
+#endif
+#endif
 	//
 	if(IS_BIND_IN_PROGRESS)
 	{	   

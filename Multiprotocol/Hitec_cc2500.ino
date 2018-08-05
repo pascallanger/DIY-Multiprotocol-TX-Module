@@ -123,7 +123,10 @@ static void __attribute__((unused)) HITEC_change_chan_fast()
 // Values grow down and to the right.
 static void __attribute__((unused)) HITEC_build_packet()
 {
-	packet[1] = 0x00;	// unknown always 0x00 and does not seem to work if different
+	static boolean F5_packet=false;
+	uint8_t offset;
+	
+	packet[1] = 0x00;	// unknown always 0x00 and does not seem to work if different. TODO: test if part of ID.
 	packet[2] = rx_tx_addr[3];
 	packet[3] = rx_tx_addr[2];
 	packet[22] = 0xEE;	// unknown always 0xEE
@@ -157,8 +160,7 @@ static void __attribute__((unused)) HITEC_build_packet()
 			bind_phase^=0x01;	// switch between 0x82 (first part of the hopping table) and 0x83 (second part)
 		}
 		packet[19] = 0x08;	// packet number
-		packet[20] = 0x00;	// starts with 0x00 and after some time it alternates between 0x00 and 0xF5
-		packet[21] = 0x00;	// unknown when [20]=0xF5 then this value is between 0xDB and 0xE0. TODO: test if it could be RSSI related?
+		offset=20;			// packet[20] and [21]
 	}
 	else
 	{
@@ -170,9 +172,24 @@ static void __attribute__((unused)) HITEC_build_packet()
 			packet[5+2*i] = ch & 0xFF;
 		}
 		packet[23] = 0x80;	// packet number
-		packet[24] = 0x00;	// starts with 0x00 and after some time it alternates between 0x00 and 0xF5
-		packet[25] = 0x00;	// unknown when [24]=0xF5 then the value is 0xDB or 0xDF
+		offset=24;			// packet[24] and [25]
 		packet[26] = 0x00;	// unknown always 0 and the RX doesn't seem to care about the value?
+	}
+
+	//The packets [offset] start with 0x00 and after some time alternate between 0x00 and 0xF5
+	//The packets [offset+1] equals 0x00 when [offset]=0x00 otherwise the value is between 0xDB and 0xE0
+	//TODO: test if it could be RSSI related?
+	if(F5_packet)
+	{
+		packet[offset] = 0xF5;		
+		packet[offset+1] = 0xE0;	//between 0xDB and 0xE0
+		F5_packet=false;
+	}
+	else
+	{
+		packet[offset] = 0x00;
+		packet[offset+1] = 0x00;
+		F5_packet=true;
 	}
 /*	debug("P:");
 	for(uint8_t i=0;i<packet[0]+1;i++)

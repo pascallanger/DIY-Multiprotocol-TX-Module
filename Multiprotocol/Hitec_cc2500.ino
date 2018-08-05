@@ -118,29 +118,26 @@ static void __attribute__((unused)) HITEC_change_chan_fast()
 	CC2500_WriteReg(CC2500_25_FSCAL1, calData[hopping_frequency_no]);
 }
 
-// Channel values are 12-bit values between 1020 and 2020, 1520 is the middle.
-// Futaba @140% is 2070...1520...970
-// Values grow down and to the right.
 static void __attribute__((unused)) HITEC_build_packet()
 {
 	static boolean F5_packet=false;
 	uint8_t offset;
 	
-	packet[1] = 0x00;	// unknown always 0x00 and does not seem to work if different. TODO: test if part of ID.
+	packet[1] = 0x00;			// unknown always 0x00 in the dumps. TODO: test if part of ID.
 	packet[2] = rx_tx_addr[3];
 	packet[3] = rx_tx_addr[2];
-	packet[22] = 0xEE;	// unknown always 0xEE
+	packet[22] = 0xEE;			// unknown always 0xEE
 	if(IS_BIND_IN_PROGRESS)
 	{
-		packet[0] = 0x16;	// 22 bytes to follow
+		packet[0] = 0x16;		// 22 bytes to follow
 		memset(packet+5,0x00,14);
 		switch(bind_phase)
 		{
-			case 0x72:
+			case 0x72:			// first part of the hopping table
 				for(uint8_t i=0;i<14;i++)
 					packet[5+i]=hopping_frequency[i]>>1;
 				break;
-			case 0x73:
+			case 0x73:			// second part of the hopping table
 				for(uint8_t i=0;i<7;i++)
 					packet[5+i]=hopping_frequency[i+14]>>1;
 				break;
@@ -149,7 +146,7 @@ static void __attribute__((unused)) HITEC_build_packet()
 				packet[8]=0x55;	// unknown but bind does not complete if not there
 				break;
 			case 0x7B:
-				packet[5]=hopping_frequency[13]>>1;	// if not there the link is jerky...
+				packet[5]=hopping_frequency[13]>>1;	// if not there the Optima link is jerky...
 				break;
 		}
 		if(sub_protocol==OPTIMA)
@@ -157,32 +154,32 @@ static void __attribute__((unused)) HITEC_build_packet()
 		else
 		{
 			packet[4] = bind_phase+0x10;
-			bind_phase^=0x01;	// switch between 0x82 (first part of the hopping table) and 0x83 (second part)
+			bind_phase^=0x01;	// switch between 0x82=first part of the hopping table and 0x83=second part
 		}
-		packet[19] = 0x08;	// packet number
-		offset=20;			// packet[20] and [21]
+		packet[19] = 0x08;		// packet number
+		offset=20;				// packet[20] and [21]
 	}
 	else
 	{
-		packet[0] = 0x1A;	// 26 bytes to follow
+		packet[0] = 0x1A;		// 26 bytes to follow
 		for(uint8_t i=0;i<9;i++)
 		{
 			uint16_t ch = convert_channel_16b_nolimit(i,0x1B87,0x3905);
 			packet[4+2*i] = ch >> 8;
 			packet[5+2*i] = ch & 0xFF;
 		}
-		packet[23] = 0x80;	// packet number
-		offset=24;			// packet[24] and [25]
-		packet[26] = 0x00;	// unknown always 0 and the RX doesn't seem to care about the value?
+		packet[23] = 0x80;		// packet number
+		offset=24;				// packet[24] and [25]
+		packet[26] = 0x00;		// unknown always 0 and the RX doesn't seem to care about the value?
 	}
 
-	//The packets [offset] start with 0x00 and after some time alternate between 0x00 and 0xF5
-	//The packets [offset+1] equals 0x00 when [offset]=0x00 otherwise the value is between 0xDB and 0xE0
-	//TODO: test if it could be RSSI related?
+	//packet[offset] starts with 0x00 and after some time alternate between 0x00 and 0xF5
+	//packet[offset+1] equals to 0x00 if [offset]=0x00 but if [offset]=0xF5 then the values are between 0xDB and 0xE0
+	//TODO: test if it could be RSSI, time, ... related?
 	if(F5_packet)
 	{
 		packet[offset] = 0xF5;		
-		packet[offset+1] = 0xE0;	//between 0xDB and 0xE0
+		packet[offset+1] = 0xE0;	//value in the dumps between 0xDB and 0xE0
 		F5_packet=false;
 	}
 	else
@@ -288,7 +285,7 @@ uint16_t ReadHITEC()
 					if(IS_BIND_IN_PROGRESS)
 					{
 						if(len==13)	// Bind packets have a length of 13
-						{ // bind packet 0A,00,E5,F2,7X,05,06,07,08,09,00
+						{ // bind packet: 0A,00,E5,F2,7X,05,06,07,08,09,00
 							debug(",bind");
 							boolean check=true;
 							for(uint8_t i=5;i<=10;i++)
@@ -303,7 +300,8 @@ uint16_t ReadHITEC()
 					}
 					else
 						if(len==15)	// Telemetry packets have a length of 15
-						{ //Not fully handled since the RX I have only send 1 frame where from what I've been reading on Hitec telemetry should have at least 4 frames...
+						{ // telem packet: 0C, 00, 6A, 03, 00, 00, 00, 00, 00, 00, 00, 8E, 00, 5E, 94 
+						//Not fully handled since the RX I have only send 1 frame where from what I've been reading on Hitec telemetry should have at least 4 frames...
 							debug(",telem");
 							#if defined(HITEC_HUB_TELEMETRY)
 								TX_RSSI = pkt[len-2];
@@ -312,14 +310,13 @@ uint16_t ReadHITEC()
 								else
 									TX_RSSI += 128;
 								TX_LQI = pkt[len-1]&0x7F;
-								if(pkt[1]==0x00)	// Telemetry frame number???
-									v_lipo1 = (pkt[len-3])<<5 | (pkt[len-4])>>3;	// calculation in decimal is volt=(pkt[len-3]<<8+pkt[len-4])/28
-								telemetry_link=1;
+								//TODO: where is the frame number...
+								v_lipo1 = (pkt[len-3])<<5 | (pkt[len-4])>>3;	// calculation in decimal is volt=(pkt[len-3]<<8+pkt[len-4])/28
+								telemetry_link=1;			// telemetry hub available
 							#elif defined(HITEC_FW_TELEMETRY)
-								pkt[0]=pkt[1];	// Telemetry frame number???
 								for(uint8_t i=4;i < len; i++)
-									pkt[i-3]=pkt[i];
-								telemetry_link=2;
+									pkt[i-4]=pkt[i];		// remove header, 11 bytes of data
+								telemetry_link=2;			// telemetry forward available
 							#endif
 						}
 					debugln("");
@@ -344,8 +341,7 @@ uint16_t ReadHITEC()
 uint16_t initHITEC()
 {
 	HITEC_RF_channels();
-	#ifdef HITEC_FORCE_ID
-	// ID and channels taken from dump
+	#ifdef HITEC_FORCE_ID	// ID and channels taken from dump
 		rx_tx_addr[3]=0x6A;
 		rx_tx_addr[2]=0x03;
 		memcpy((void *)hopping_frequency,(void *)"\x00\x3A\x4A\x32\x0C\x58\x2A\x10\x26\x20\x08\x60\x68\x70\x78\x80\x88\x56\x5E\x66\x6E",HITEC_NUM_FREQUENCE);

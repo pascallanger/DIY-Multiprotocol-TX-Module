@@ -120,12 +120,13 @@ static void __attribute__((unused)) HITEC_change_chan_fast()
 
 static void __attribute__((unused)) HITEC_build_packet()
 {
-	static boolean F5_packet=false;
+	static boolean F5_frame=false;
+	static uint8_t F5_counter=0;
 	uint8_t offset;
 	
-	packet[1] = 0x00;			// unknown always 0x00 in the dumps. TODO: test if part of ID.
-	packet[2] = rx_tx_addr[3];
-	packet[3] = rx_tx_addr[2];
+	packet[1] = rx_tx_addr[1];
+	packet[2] = rx_tx_addr[2];
+	packet[3] = rx_tx_addr[3];
 	packet[22] = 0xEE;			// unknown always 0xEE
 	if(IS_BIND_IN_PROGRESS)
 	{
@@ -173,20 +174,23 @@ static void __attribute__((unused)) HITEC_build_packet()
 		packet[26] = 0x00;		// unknown always 0 and the RX doesn't seem to care about the value?
 	}
 
-	//packet[offset] starts with 0x00 and after some time alternate between 0x00 and 0xF5
-	//packet[offset+1] equals to 0x00 if [offset]=0x00 but if [offset]=0xF5 then the values are between 0xDB and 0xE0
-	//TODO: test if it could be RSSI, time, ... related?
-	if(F5_packet)
-	{
-		packet[offset] = 0xF5;		
-		packet[offset+1] = 0xE0;	//value in the dumps between 0xDB and 0xE0
-		F5_packet=false;
+	if(F5_frame)
+	{// No idea what it is but Minima RXs are expecting these frames to work to work
+		packet[offset] = 0xF5;
+		packet[offset+1] = 0xDF;
+		if((F5_counter%9)==0)
+			packet[offset+1] -= 0x04;	// every 8 packets send 0xDB
+		F5_counter++;
+		F5_counter%=59;					// every 6 0xDB packets wait only 4 to resend instead of 8
+		F5_frame=false;					// alternate
+		if(IS_BIND_IN_PROGRESS)
+			packet[offset+1]++;			// when binding the values are 0xE0 and 0xDC
 	}
 	else
 	{
 		packet[offset] = 0x00;
 		packet[offset+1] = 0x00;
-		F5_packet=true;
+		F5_frame=true;					// alternate
 	}
 /*	debug("P:");
 	for(uint8_t i=0;i<packet[0]+1;i++)
@@ -221,8 +225,8 @@ uint16_t ReadHITEC()
 				bind_counter=0;
 				rf_ch_num=HITEC_NUM_FREQUENCE;
 				//Set TXID
-				CC2500_WriteReg(CC2500_04_SYNC1,rx_tx_addr[2]);
-				CC2500_WriteReg(CC2500_05_SYNC0,rx_tx_addr[3]);
+				CC2500_WriteReg(CC2500_05_SYNC0,rx_tx_addr[2]);
+				CC2500_WriteReg(CC2500_04_SYNC1,rx_tx_addr[3]);
 			}
 			hopping_frequency_no=0;
 			HITEC_tune_chan();
@@ -277,7 +281,7 @@ uint16_t ReadHITEC()
 			if(len && len<MAX_PKT)
 			{ // Something has been received
 				CC2500_ReadData(pkt, len);
-				if( (pkt[len-1] & 0x80) && pkt[0]==len-3 && packet[2]==rx_tx_addr[3] && packet[3]==rx_tx_addr[2])
+				if( (pkt[len-1] & 0x80) && pkt[0]==len-3 && pkt[1]==rx_tx_addr[1] && pkt[2]==rx_tx_addr[2] && pkt[3]==rx_tx_addr[3])
 				{ //valid crc && length ok && tx_id ok
 					debug("RX:l=%d",len);
 					for(uint8_t i=0;i<len;i++)
@@ -322,7 +326,7 @@ uint16_t ReadHITEC()
 					debugln("");
 				}
 			}
-			CC2500_Strobe(CC2500_SRX);	// Flush the RX FIFO buffer
+			CC2500_Strobe(CC2500_SFRX);	// Flush the RX FIFO buffer
 			phase = HITEC_PREP;
 			if(bind_counter)
 			{
@@ -342,8 +346,9 @@ uint16_t initHITEC()
 {
 	HITEC_RF_channels();
 	#ifdef HITEC_FORCE_ID	// ID and channels taken from dump
-		rx_tx_addr[3]=0x6A;
+		rx_tx_addr[1]=0x00;
 		rx_tx_addr[2]=0x03;
+		rx_tx_addr[3]=0x6A;
 		memcpy((void *)hopping_frequency,(void *)"\x00\x3A\x4A\x32\x0C\x58\x2A\x10\x26\x20\x08\x60\x68\x70\x78\x80\x88\x56\x5E\x66\x6E",HITEC_NUM_FREQUENCE);
 	#endif
 	phase = HITEC_START;

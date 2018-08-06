@@ -253,8 +253,7 @@
 
 //SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
 //This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
-//Using this feature on turnigy 9XR_PRO requires uncomment INVERT_TELEMETRY as this TX output on telemetry pin only inverted signal.
-//!This is a work in progress!
+//Using this feature requires to uncomment INVERT_TELEMETRY as this TX output on telemetry pin only inverted signal.
 //#define SPORT_POLLING
 
 

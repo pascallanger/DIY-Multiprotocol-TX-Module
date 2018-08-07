@@ -153,11 +153,8 @@ static void __attribute__((unused)) HITEC_build_packet()
 		if(sub_protocol==OPTIMA)
 			packet[4] = bind_phase;	// increments based on RX answer
 		else
-		{
 			packet[4] = bind_phase+0x10;
-			bind_phase^=0x01;	// switch between 0x82=first part of the hopping table and 0x83=second part
-		}
-		packet[19] = 0x08;		// packet number
+		packet[19] = 0x08;		// packet sequence
 		offset=20;				// packet[20] and [21]
 	}
 	else
@@ -169,7 +166,7 @@ static void __attribute__((unused)) HITEC_build_packet()
 			packet[4+2*i] = ch >> 8;
 			packet[5+2*i] = ch & 0xFF;
 		}
-		packet[23] = 0x80;		// packet number
+		packet[23] = 0x80;		// packet sequence
 		offset=24;				// packet[24] and [25]
 		packet[26] = 0x00;		// unknown always 0 and the RX doesn't seem to care about the value?
 	}
@@ -203,9 +200,21 @@ static void __attribute__((unused)) HITEC_send_packet()
 {
 	CC2500_WriteData(packet, packet[0]+1);
 	if(IS_BIND_IN_PROGRESS)
-		packet[19] >>= 1;	// packet number
+	{
+		packet[19] >>= 1;	// packet sequence
+		if( (packet[4] & 0xFE) ==0x82 )
+		{ // Minima
+			packet[4] ^= 1;					// alternate 0x82 and 0x83
+			if( packet[4] & 0x01 )
+				for(uint8_t i=0;i<7;i++)	// 0x83
+					packet[5+i]=hopping_frequency[i+14]>>1;
+			else
+				for(uint8_t i=0;i<14;i++)	// 0x82
+					packet[5+i]=hopping_frequency[i]>>1;
+		}
+	}
 	else
-		packet[23] >>= 1;	// packet number
+		packet[23] >>= 1;	// packet sequence
 }
 
 uint16_t ReadHITEC()

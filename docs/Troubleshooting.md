@@ -46,7 +46,7 @@ If your module is always/sometime binding at power up without pressing the butto
  - check that your module case is not pressing the bind button.
 
 
-FrSky & SFHSS & Corona bind issues, heratic moves and telemetry losses are ususally due to Option=fine frequency tuning not set properly. This value is different for each RF module and some RXs. To determine this value check this [Frequency Tuning page](/docs/Frequency_Tuning.md).
+FrSky & SFHSS & Corona & Hitec bind issues, heratic moves and telemetry losses are ususally due to Option=fine frequency tuning not set properly. This value is different for each RF module and some RXs. To determine this value check this [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
 ## Report issues
 

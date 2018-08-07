@@ -255,7 +255,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ### Sub_protocol OPTIMA - *0*
 OPTIMA RXs
 
-Basic telemetry is available using FrSky Hub on er9x and ersky9x with RX voltage, TX RSSI and TX LQI. 
+Basic telemetry is available using FrSky Hub on er9x and ersky9x with RX voltage, VOLT2 voltage, TX RSSI and TX LQI. 
 
 Full telemetry is under development for ersky9x and OpenTX.
 

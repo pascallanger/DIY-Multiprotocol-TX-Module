@@ -183,6 +183,19 @@ static void multi_send_status()
 	}
 #endif
 
+#ifdef HITEC_FW_TELEMETRY
+	void HITEC_short_frame()
+	{
+		#if defined MULTI_TELEMETRY
+			multi_send_header(MULTI_TELEMETRY_HITEC, 8);
+		#else
+			Serial_write(0xAA);					// Telemetry packet
+		#endif
+		for (uint8_t i = 0; i < 8; i++)			// TX RSSI and TX LQI values followed by frame number and 5 bytes of telemetry data
+			Serial_write(pkt[i]);
+	}
+#endif
+
 #ifdef MULTI_TELEMETRY
 static void multi_send_frskyhub()
 {
@@ -357,7 +370,7 @@ void frsky_link_frame()
 		if (protocol==PROTO_HUBSAN||protocol==PROTO_AFHDS2A||protocol==PROTO_BAYANG||protocol==PROTO_CABELL||protocol==PROTO_HITEC)
 		{	
 			frame[1] = v_lipo1;
-			frame[2] = v_lipo2;			
+			frame[2] = v_lipo2;
 			frame[3] = RX_RSSI;
 			telemetry_link=0;
 		}
@@ -974,9 +987,17 @@ void TelemetryUpdate()
 			return;
 		}
 	#endif
+	#if defined HITEC_FW_TELEMETRY
+		if(telemetry_link == 2 && protocol == PROTO_HITEC)
+		{
+			HITEC_short_frame();
+			telemetry_link=0;
+			return;
+		}
+	#endif
 
 		if((telemetry_link & 1 )&& protocol != PROTO_FRSKYX)
-		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell
+		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell + Hitec
 			frsky_link_frame();
 			return;
 		}

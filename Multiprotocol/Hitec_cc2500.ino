@@ -348,11 +348,11 @@ uint16_t ReadHITEC()
 								telemetry_link=1;			// telemetry hub available
 							#elif defined(HITEC_FW_TELEMETRY)
 								// 8 bytes telemetry packets => see at the end of this file how to fully decode it
+								pkt[0]=pkt[13];				// TX RSSI
+								pkt[1]=pkt[14]&0x7F;		// LQI
 								uint8_t offset=pkt[5]==0?1:0;
 								for(uint8_t i=5;i < 11; i++)
-									pkt[i-5]=pkt[i+offset];		// frame number followed by 5 bytes of data
-								pkt[6]=pkt[13];				// TX RSSI
-								pkt[7]=pkt[14]&0x7F;		// LQI
+									pkt[i-3]=pkt[i+offset];	// frame number followed by 5 bytes of data
 								telemetry_link=2;			// telemetry forward available
 							#endif
 						}
@@ -383,6 +383,9 @@ uint16_t initHITEC()
 		rx_tx_addr[2]=0x03;
 		rx_tx_addr[3]=0x6A;
 		memcpy((void *)hopping_frequency,(void *)"\x00\x3A\x4A\x32\x0C\x58\x2A\x10\x26\x20\x08\x60\x68\x70\x78\x80\x88\x56\x5E\x66\x6E",HITEC_NUM_FREQUENCE);
+	#endif
+	#if defined(HITEC_HUB_TELEMETRY)
+		init_frskyd_link_telemetry();
 	#endif
 	phase = HITEC_START;
 	return 10000;

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	28
+#define VERSION_PATCH_LEVEL	29
 
 //******************
 // Protocols
@@ -777,7 +777,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 
 
   Type 0x04 Spektrum telemetry data
-   data[0] RSSI
+   data[0] TX RSSI
    data[1-15] telemetry data
 
   Type 0x05 DSM bind data
@@ -792,7 +792,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[1-28] telemetry data
 
   Type 0x0A Hitec telemetry data
-   length: 12
-   data[0-10] telemetry data
+   length: 8
+   data[0] = TX RSSI value
+   data[1] = TX LQI value
+   data[2] = frame number
+   data[3-7] telemetry data
+   Full description at the bottom of Hitec_cc2500.ino
 
 */

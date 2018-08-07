@@ -312,23 +312,47 @@ uint16_t ReadHITEC()
 						}
 					}
 					else
-						if(len==15)	// Telemetry packets have a length of 15
-						{ // telem packet: 0C, 00, 6A, 03, 00, 00, 00, 00, 00, 00, 00, 8E, 00, 5E, 94 
-						//Not fully handled since the RX I have only send 1 frame where from what I've been reading on Hitec telemetry should have at least 4 frames...
+						if( len==15 && pkt[4]==0 && pkt[12]==0 )
+						{	// Valid telemetry packets
+							// no station:
+							//		0C,1C,A1,2B,00,00,00,00,00,00,00,8D,00,64,8E	-> 00 8D=>RX battery voltage 0x008D/28=5.03V
+							// with HTS-SS:
+							//		0C,1C,A1,2B,00,11,AF,00,2D,00,8D,11,00,4D,96	-> 00 8D=>RX battery voltage 0x008D/28=5.03V
+							//		0C,1C,A1,2B,00,12,00,00,00,00,00,12,00,52,93
+							//		0C,1C,A1,2B,00,13,00,00,00,00,46,13,00,52,8B	-> 46=>temperature2 0x46-0x28=30°C
+							//		0C,1C,A1,2B,00,14,00,00,00,00,41,14,00,2C,93	-> 41=>temperature1 0x41-0x28=25°C
+							//		0C,1C,A1,2B,00,15,00,2A,00,0E,00,15,00,44,96	-> 2A 00=>rpm1=420, 0E 00=>rpm2=140 
+							//		0C,1C,A1,2B,00,16,00,00,00,00,00,16,00,2C,8E
+							//		0C,1C,A1,2B,00,17,00,00,00,42,44,17,00,48,8D	-> 42=>temperature3 0x42-0x28=26°C,44=>temperature4 0x44-0x28=28°C
+							//		0C,1C,A1,2B,00,18,00,00,00,00,00,18,00,50,92
 							debug(",telem");
 							#if defined(HITEC_HUB_TELEMETRY)
-								TX_RSSI = pkt[len-2];
+								switch(pkt[5])		// telemetry frame number
+								{
+									case 0:
+										v_lipo1 = (pkt[12])<<5 | (pkt[11])>>3;	// calculation in decimal is volt=(pkt[12]<<8+pkt[11])/28
+										break;
+									case 11:
+										v_lipo1 = (pkt[11])<<5 | (pkt[10])>>3;	// calculation in decimal is volt=(pkt[11]<<8+pkt[10])/28
+										break;
+									case 18:
+										v_lipo2 =  (pkt[6])<<5 | (pkt[7])>>3;	// calculation in decimal is volt=(pkt[6]<<8+pkt[7])/10
+										break;
+								}
+								TX_RSSI = pkt[13];
 								if(TX_RSSI >=128)
 									TX_RSSI -= 128;
 								else
 									TX_RSSI += 128;
-								TX_LQI = pkt[len-1]&0x7F;
-								//TODO: where is the frame number...
-								v_lipo1 = (pkt[len-3])<<5 | (pkt[len-4])>>3;	// calculation in decimal is volt=(pkt[len-3]<<8+pkt[len-4])/28
+								TX_LQI = pkt[14]&0x7F;
 								telemetry_link=1;			// telemetry hub available
 							#elif defined(HITEC_FW_TELEMETRY)
-								for(uint8_t i=4;i < len; i++)
-									pkt[i-4]=pkt[i];		// remove header, 11 bytes of data
+								// 8 bytes telemetry packets => see at the end of this file how to fully decode it
+								uint8_t offset=pkt[5]==0?1:0;
+								for(uint8_t i=5;i < 11; i++)
+									pkt[i-5]=pkt[i+offset];		// frame number followed by 5 bytes of data
+								pkt[6]=pkt[13];				// TX RSSI
+								pkt[7]=pkt[14]&0x7F;		// LQI
 								telemetry_link=2;			// telemetry forward available
 							#endif
 						}
@@ -364,4 +388,61 @@ uint16_t initHITEC()
 	return 10000;
 }
 
+/* Full telemetry 
+1st byte is the frame number 0x00, 0x11, 0x12, ..., 0x18 followed by 5 bytes of data.
+The frames can be present or not, they do not have to follow each others.
+- frame 0x00
+data byte 0 -> 0x00				unknown
+data byte 1 -> 0x00				unknown
+data byte 2 -> 0x00				unknown
+data byte 3 -> RX Batt Volt_H
+data byte 4 -> RX Batt Volt_L => RX Batt=(Volt_H*256+Volt_L)/28
+- frame 0x11
+data byte 0 -> 0xAF				start of frame
+data byte 1 -> 0x00				unknown
+data byte 2 -> 0x2D				frame type but constant here
+data byte 3 -> Volt1_H
+data byte 4 -> Volt1_L			RX Batt=(Volt1_H*256+Volt1_L)/28 V
+- frame 0x12
+data byte 0 -> Lat_sec_H		GPS : latitude second
+data byte 1 -> Lat_sec_L		signed int : 1/100 of second
+data byte 2 -> Lat_deg_min_H	GPS : latitude degree.minute
+data byte 3 -> Lat_deg_min_L	signed int : +=North, - = south
+data byte 4 -> Time_second		GPS Time
+- frame 0x13
+data byte 0 -> 					GPS Longitude second
+data byte 1 -> 					signed int : 1/100 of second
+data byte 2 -> 					GPS Longitude degree.minute
+data byte 3 -> 					signed int : +=Est, - = west
+data byte 4 -> Temp2			Temperature2=Temp2-40°C
+- frame 0x14
+data byte 0 -> Speed_H
+data byte 1 -> Speed_L			Speed=Speed_H*256+Speed_L km/h
+data byte 2 -> Alti_sea_H
+data byte 3 -> Alti_sea_L		Altitude sea=Alti_sea_H*256+Alti_sea_L m
+data byte 4 -> Temp1			Temperature1=Temp1-40°C
+- frame 0x15
+data byte 0 -> FUEL
+data byte 1 -> RPM1_L
+data byte 2 -> RPM1_H			RPM1=RPM1_H*256+RPM1_L
+data byte 3 -> RPM2_L
+data byte 4 -> RPM2_H			RPM2=RPM2_H*256+RPM2_L
+- frame 0x16
+data byte 0 -> Date_year		GPS Date
+data byte 1 -> Date_month
+data byte 2 -> Date_day
+data byte 3 -> Time_hour		GPS Time
+data byte 4 -> Time_min
+- frame 0x17
+data byte 0 -> 0x00	COURSEH
+data byte 1 -> 0x00	COURSEL		GPS Course = COURSEH*256+COURSEL
+data byte 2 -> 0x00				GPS count
+data byte 3 -> Temp3			Temperature3=Temp2-40°C
+data byte 4 -> Temp4			Temperature4=Temp3-40°C
+- frame 0x18
+data byte 1 -> Volt2_H
+data byte 2 -> Volt2_L			Volt2=(Volt2_H*256+Volt2_L)/10 V
+data byte 3 -> AMP1_L
+data byte 4 -> AMP1_H			Amp=(AMP1_H*256+AMP1_L -180)/14 in signed A
+*/
 #endif

@@ -392,8 +392,13 @@ uint16_t initHITEC()
 }
 
 /* Full telemetry 
-1st byte is the frame number 0x00, 0x11, 0x12, ..., 0x18 followed by 5 bytes of data.
-The frames can be present or not, they do not have to follow each others.
+packet[0] = TX RSSI value
+packet[1] = TX LQI value
+packet[2] = frame number
+packet[3-7] telemetry data
+
+The frame number takes the following values: 0x00, 0x11, 0x12, ..., 0x18. The frames can be present or not, they also do not have to follow each others.
+Here is a description of the telemetry data for each frame number:
 - frame 0x00
 data byte 0 -> 0x00				unknown
 data byte 1 -> 0x00				unknown

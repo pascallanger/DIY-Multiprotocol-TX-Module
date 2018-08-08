@@ -329,14 +329,14 @@ uint16_t ReadHITEC()
 							#if defined(HITEC_HUB_TELEMETRY)
 								switch(pkt[5])		// telemetry frame number
 								{
-									case 0:
-										v_lipo1 = (pkt[12])<<5 | (pkt[11])>>3;	// calculation in decimal is volt=(pkt[12]<<8+pkt[11])/28
+									case 0x00:
+										v_lipo1 = (pkt[12])<<5 | (pkt[11])>>3;	// calculation in float is volt=(pkt[12]<<8+pkt[11])/28
 										break;
-									case 11:
-										v_lipo1 = (pkt[11])<<5 | (pkt[10])>>3;	// calculation in decimal is volt=(pkt[11]<<8+pkt[10])/28
+									case 0x11:
+										v_lipo1 = (pkt[11])<<5 | (pkt[10])>>3;	// calculation in float is volt=(pkt[11]<<8+pkt[10])/28
 										break;
-									case 18:
-										v_lipo2 =  (pkt[6])<<5 | (pkt[7])>>3;	// calculation in decimal is volt=(pkt[6]<<8+pkt[7])/10
+									case 0x18:
+										v_lipo2 =  (pkt[6])<<5 | (pkt[7])>>3;	// calculation in float is volt=(pkt[6]<<8+pkt[7])/10
 										break;
 								}
 								TX_RSSI = pkt[13];

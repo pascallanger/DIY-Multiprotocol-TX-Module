@@ -226,7 +226,7 @@ uint16_t ReadHITEC()
 			bind_phase=0x72;
 			if(IS_BIND_IN_PROGRESS)
 			{
-				bind_counter = HISKY_BIND_COUNT;
+				bind_counter = HITEC_BIND_COUNT;
 				rf_ch_num=HITEC_BIND_NUM_FREQUENCE;
 			}
 			else

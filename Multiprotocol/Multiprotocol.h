@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	30
+#define VERSION_PATCH_LEVEL	31
 
 //******************
 // Protocols
@@ -234,8 +234,9 @@ enum CORONA
 };
 enum HITEC
 {
-	OPTIMA	= 0,
-	MINIMA	= 1,
+	OPT_FW	= 0,
+	OPT_HUB	= 1,
+	MINIMA	= 2,
 };
 
 #define NONE 		0
@@ -689,8 +690,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			COR_V2		1
 			FD_V3		2
 		sub_protocol==HITEC
-			OPTIMA		0
-			MINIMA		1
+			OPT_FW		0
+			OPT_HUB		1
+			MINIMA		2
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

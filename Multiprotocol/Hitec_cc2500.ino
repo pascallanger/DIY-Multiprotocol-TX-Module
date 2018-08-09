@@ -150,10 +150,10 @@ static void __attribute__((unused)) HITEC_build_packet()
 				packet[5]=hopping_frequency[13]>>1;	// if not there the Optima link is jerky...
 				break;
 		}
-		if(sub_protocol==OPTIMA)
-			packet[4] = bind_phase;	// increments based on RX answer
-		else
+		if(sub_protocol==MINIMA)
 			packet[4] = bind_phase+0x10;
+		else
+			packet[4] = bind_phase;	// Optima: increments based on RX answer
 		packet[19] = 0x08;		// packet sequence
 		offset=20;				// packet[20] and [21]
 	}
@@ -327,33 +327,40 @@ uint16_t ReadHITEC()
 							//		0C,1C,A1,2B,00,18,00,00,00,00,00,18,00,50,92
 							debug(",telem");
 							#if defined(HITEC_FW_TELEMETRY)
-								// 8 bytes telemetry packets => see at the end of this file how to fully decode it
-								pkt[0]=pkt[13];				// TX RSSI
-								pkt[1]=pkt[14]&0x7F;		// TX LQI
-								uint8_t offset=pkt[5]==0?1:0;
-								for(uint8_t i=5;i < 11; i++)
-									pkt[i-3]=pkt[i+offset];	// frame number followed by 5 bytes of data
-								telemetry_link=2;			// telemetry forward available
-							#elif defined(HITEC_HUB_TELEMETRY)
-								switch(pkt[5])		// telemetry frame number
+								if(sub_protocol==OPT_FW)
 								{
-									case 0x00:
-										v_lipo1 = (pkt[12])<<5 | (pkt[11])>>3;	// calculation in float is volt=(pkt[12]<<8+pkt[11])/28
-										break;
-									case 0x11:
-										v_lipo1 = (pkt[11])<<5 | (pkt[10])>>3;	// calculation in float is volt=(pkt[11]<<8+pkt[10])/28
-										break;
-									case 0x18:
-										v_lipo2 =  (pkt[6])<<5 | (pkt[7])>>3;	// calculation in float is volt=(pkt[6]<<8+pkt[7])/10
-										break;
+									// 8 bytes telemetry packets => see at the end of this file how to fully decode it
+									pkt[0]=pkt[13];				// TX RSSI
+									pkt[1]=pkt[14]&0x7F;		// TX LQI
+									uint8_t offset=pkt[5]==0?1:0;
+									for(uint8_t i=5;i < 11; i++)
+										pkt[i-3]=pkt[i+offset];	// frame number followed by 5 bytes of data
+									telemetry_link=2;			// telemetry forward available
 								}
-								TX_RSSI = pkt[13];
-								if(TX_RSSI >=128)
-									TX_RSSI -= 128;
-								else
-									TX_RSSI += 128;
-								TX_LQI = pkt[14]&0x7F;
-								telemetry_link=1;			// telemetry hub available
+							#endif
+							#if defined(HITEC_HUB_TELEMETRY)
+								if(sub_protocol==OPT_HUB)
+								{
+									switch(pkt[5])		// telemetry frame number
+									{
+										case 0x00:
+											v_lipo1 = (pkt[10])<<5 | (pkt[11])>>3;	// calculation in float is volt=(pkt[10]<<8+pkt[11])/28
+											break;
+										case 0x11:
+											v_lipo1 = (pkt[9])<<5 | (pkt[10])>>3;	// calculation in float is volt=(pkt[9]<<8+pkt[10])/28
+											break;
+										case 0x18:
+											v_lipo2 =  (pkt[6])<<5 | (pkt[7])>>3;	// calculation in float is volt=(pkt[6]<<8+pkt[7])/10
+											break;
+									}
+									TX_RSSI = pkt[13];
+									if(TX_RSSI >=128)
+										TX_RSSI -= 128;
+									else
+										TX_RSSI += 128;
+									TX_LQI = pkt[14]&0x7F;
+									telemetry_link=1;			// telemetry hub available
+								}
 							#endif
 						}
 					debugln("");
@@ -385,7 +392,8 @@ uint16_t initHITEC()
 		memcpy((void *)hopping_frequency,(void *)"\x00\x3A\x4A\x32\x0C\x58\x2A\x10\x26\x20\x08\x60\x68\x70\x78\x80\x88\x56\x5E\x66\x6E",HITEC_NUM_FREQUENCE);
 	#endif
 	#if defined(HITEC_HUB_TELEMETRY)
-		init_frskyd_link_telemetry();
+		if(sub_protocol==OPT_HUB)
+			init_frskyd_link_telemetry();
 	#endif
 	phase = HITEC_START;
 	return 10000;

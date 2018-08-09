@@ -18,6 +18,9 @@ case "$MULTI_BOARD" in
         MULTI_STM32_NO_BOOT)
                 MULTI_TYPE=stm
                 ;;
+        MULTI_STM32_WITH_BOOT)
+                MULTI_TYPE=stm
+                ;;
         MULTI_STM32_FLASH_FROM_TX)
                 MULTI_TYPE=stm
                 ;;

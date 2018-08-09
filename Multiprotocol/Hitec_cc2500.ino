@@ -326,7 +326,15 @@ uint16_t ReadHITEC()
 							//		0C,1C,A1,2B,00,17,00,00,00,42,44,17,00,48,8D	-> 42=>temperature3 0x42-0x28=26°C,44=>temperature4 0x44-0x28=28°C
 							//		0C,1C,A1,2B,00,18,00,00,00,00,00,18,00,50,92
 							debug(",telem");
-							#if defined(HITEC_HUB_TELEMETRY)
+							#if defined(HITEC_FW_TELEMETRY)
+								// 8 bytes telemetry packets => see at the end of this file how to fully decode it
+								pkt[0]=pkt[13];				// TX RSSI
+								pkt[1]=pkt[14]&0x7F;		// TX LQI
+								uint8_t offset=pkt[5]==0?1:0;
+								for(uint8_t i=5;i < 11; i++)
+									pkt[i-3]=pkt[i+offset];	// frame number followed by 5 bytes of data
+								telemetry_link=2;			// telemetry forward available
+							#elif defined(HITEC_HUB_TELEMETRY)
 								switch(pkt[5])		// telemetry frame number
 								{
 									case 0x00:
@@ -346,14 +354,6 @@ uint16_t ReadHITEC()
 									TX_RSSI += 128;
 								TX_LQI = pkt[14]&0x7F;
 								telemetry_link=1;			// telemetry hub available
-							#elif defined(HITEC_FW_TELEMETRY)
-								// 8 bytes telemetry packets => see at the end of this file how to fully decode it
-								pkt[0]=pkt[13];				// TX RSSI
-								pkt[1]=pkt[14]&0x7F;		// LQI
-								uint8_t offset=pkt[5]==0?1:0;
-								for(uint8_t i=5;i < 11; i++)
-									pkt[i-3]=pkt[i+offset];	// frame number followed by 5 bytes of data
-								telemetry_link=2;			// telemetry forward available
 							#endif
 						}
 					debugln("");

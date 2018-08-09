@@ -240,16 +240,16 @@
 //#define MULTI_TELEMETRY
 
 //Comment a line to disable a specific protocol telemetry
-#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded
+#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, ersky9x and OpenTX
 #define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
-#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded
+#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded by ersky9x and OpenTX
+#define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send basic telemetry to TX like er9x
 #define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
-#define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-#define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to er9x and ersky9x
-//#define HITEC_FW_TELEMETRY		// Under development: Forward received telemetry packets directly to be decoded by ersky9x or OpenTX
+#define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, ersky9x and OpenTX
+//#define HITEC_FW_TELEMETRY		// Under development: Forward received telemetry packets to be decoded by ersky9x and OpenTX
 
 //SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
 //This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).

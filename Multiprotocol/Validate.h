@@ -218,7 +218,7 @@
 		#undef 	HITEC_FW_TELEMETRY
 	#endif
 	#if defined(HITEC_HUB_TELEMETRY) && defined(HITEC_FW_TELEMETRY)
-		#error You need to choose HUB or FW telemetry but not both.
+		#error You need to choose between HITEC HUB or HITEC FW telemetry but not both.
 	#endif
 	#if not defined(FRSKYD_CC2500_INO)
 		#undef HUB_TELEMETRY

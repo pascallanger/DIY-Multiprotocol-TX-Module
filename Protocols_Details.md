@@ -252,16 +252,21 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 
-### Sub_protocol OPTIMA - *0*
+### Sub_protocol OPT_FW - *0*
 OPTIMA RXs
 
-Basic telemetry is available using FrSky Hub on er9x and ersky9x with RX voltage, VOLT2 voltage, TX RSSI and TX LQI. 
+Full telemetry available on ersky9x and OpenTX. This is still a WIP.
 
-Full telemetry is under development for ersky9x and OpenTX.
+**The TX must be close to the RX for the bind negotiation to complete successfully**
 
-**The TX must be really close to the RX for the bind negotiation to complete successfully**
+### Sub_protocol OPT_HUB - *1*
+OPTIMA RXs
 
-### Sub_protocol MINIMA - *1*
+Basic telemetry using FrSky Hub on er9x, ersky9x, OpenTX and any radio with FrSky telemetry support with RX voltage, VOLT2 voltage, TX RSSI and TX LQI. 
+
+**The TX must be close to the RX for the bind negotiation to complete successfully**
+
+### Sub_protocol MINIMA - *2*
 MINIMA, MICRO and RED receivers
 
 ## SFHSS - *21*

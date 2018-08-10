@@ -13,7 +13,7 @@
 #endif
 #if defined (STM32_BOARD) && not defined (ORANGE_TX)
 	//STM32
-	#if not defined(ARDUINO_GENERIC_STM32F103C) && not defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX) && not defined(ARDUINO_MULTI_STM32_NO_BOOT)
+	#if not defined(ARDUINO_GENERIC_STM32F103C) && not defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX) && not defined(ARDUINO_MULTI_STM32_NO_BOOT) && not defined(ARDUINO_MULTI_STM32_WITH_BOOT)
 		#error You must select one of these boards: "Multi 4-in-1 (STM32F103CB)" or "Generic STM32F103C series"
 	#endif
 #endif
@@ -31,7 +31,7 @@
 	#error You need to update your Multi 4-in-1 board definition.  Open Boards Manager and update to the latest version of the Multi 4-in-1 AVR Boards.
 #endif
 //STM32
-#if (defined(ARDUINO_MULTI_STM32_NO_BOOT) && ARDUINO_MULTI_STM32_NO_BOOT < MIN_STM32_BOARD) || (defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX) && ARDUINO_MULTI_STM32_FLASH_FROM_TX < MIN_STM32_BOARD)
+#if (defined(ARDUINO_MULTI_STM32_NO_BOOT) && ARDUINO_MULTI_STM32_NO_BOOT < MIN_STM32_BOARD) || (defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX) && ARDUINO_MULTI_STM32_FLASH_FROM_TX < MIN_STM32_BOARD) || (defined(ARDUINO_MULTI_STM32_WITH_BOOT) && ARDUINO_MULTI_STM32_WITH_BOOT < MIN_STM32_BOARD)
 	#error You need to update your Multi 4-in-1 board definition.  Open Boards Manager and update to the latest version of the Multi 4-in-1 STM32 Board.
 #endif
 

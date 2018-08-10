@@ -6,7 +6,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Multi 4-in-1 STM32
-version=1.0.6
+version=1.0.7
 
 compiler.warning_flags=-w -DDEBUG_LEVEL=DEBUG_NONE
 compiler.warning_flags.none=-w -DDEBUG_LEVEL=DEBUG_NONE
@@ -149,6 +149,27 @@ tools.serial_upload.erase.pattern=
 tools.serial_upload.bootloader.params.verbose=
 tools.serial_upload.bootloader.params.quiet=
 tools.serial_upload.bootloader.pattern="{path}/{cmd}" {serial.port.file} 0x0 "{runtime.platform.path}/bootloaders/{bootloader.file}"
+
+# Tool for generic STM32 upload via serial to Serial Port 1 including bootloader
+
+tools.serial_upload_inc_bootloader.cmd=serial_upload_inc_bootloader
+tools.serial_upload_inc_bootloader.cmd.windows=serial_upload_inc_bootloader.bat
+tools.serial_upload_inc_bootloader.cmd.macosx=serial_upload_inc_bootloader
+tools.serial_upload_inc_bootloader.path={runtime.platform.path}/tools/win
+tools.serial_upload_inc_bootloader.path.macosx={runtime.platform.path}/tools/macosx
+tools.serial_upload_inc_bootloader.path.linux={runtime.platform.path}/tools/linux
+tools.serial_upload_inc_bootloader.path.linux64={runtime.platform.path}/tools/linux64
+tools.serial_upload_inc_bootloader.upload.params.verbose=-d
+tools.serial_upload_inc_bootloader.upload.params.quiet=n
+tools.serial_upload_inc_bootloader.upload.pattern="{path}/{cmd}" {serial.port.file} 0x8000000 "{build.path}/{build.project_name}.bin" "{runtime.platform.path}/bootloaders/{bootloader.file}"
+
+tools.serial_upload_inc_bootloader.erase.params.verbose=
+tools.serial_upload_inc_bootloader.erase.params.quiet=
+tools.serial_upload_inc_bootloader.erase.pattern=
+
+tools.serial_upload_inc_bootloader.bootloader.params.verbose=
+tools.serial_upload_inc_bootloader.bootloader.params.quiet=
+tools.serial_upload_inc_bootloader.bootloader.pattern="{path}/{cmd}" {serial.port.file} 0x0 "{runtime.platform.path}/bootloaders/{bootloader.file}"
 
 # Dummy tool for "flashing" via Tx
 # Doesn't do any actual upload but provides instructions and path to .bin file

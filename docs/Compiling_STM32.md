@@ -28,6 +28,10 @@ Multiprotocol firmware is compiled using the Arduino IDE. The guide below will w
 
 ## Tools required
 
+**Notes**:
+* The Vantac MPM Lite module most likely already has the USB Bootloader flashed on it. You can directly use the [upload via USB](#upload-via-usb) method.
+* The latest jumper modules have an integrated FTDI appearing as a CP2102 device on the computer. You therefore don't need the FTDI adapter below and don't need to open your module to flash it.
+
 | **3.3V USB-TTL Adapter** | **4-pin Serial Programming Header** |
 |:---:|:--:|
 | <img src="images/ch340g.jpg" width="200"/> | <img src="images/4-pin-header.jpg" width="150" height="150"/> 
@@ -42,8 +46,6 @@ The 4-pin header needs to be soldered onto the board as indicated by the red rec
 | <img src="images/Board_PCB_STM32_with_serial.jpg" width="142" height="200"/> | <img src="images/bg-multi-stm32-serial.jpg" width="195" height="200"/> | <img src="images/irx4plus-serial.jpg" width="164" height="200"/> | <img src="images/mpmlite-serial.jpg" width="200" height="189" />
 
 **Note:** The Banggood STM32 module most likely already has the header pin in place.
-
-**Note 2:** The Vantac MPM Lite module most likely already has the USB Bootloader flashed on it. You don't need these tools and can directly [upload via USB](#upload-via-usb) without flashing the USB bootloader first.
 
 ## Preparation
 ### Install the Arduino IDE
@@ -100,7 +102,7 @@ There are three methods to upload firmware to an STM32 module:
 
 The rest of this process will vary depending on the upload method you selected.
 
-### Upload via Serial inc. Bootloader (FTDI)
+## Upload via Serial inc. Bootloader (FTDI)
 It is **strongly** recommended that you power your module from the transmitter when flashing it. This ensures that the module cannot be inadvertently supplied with 5V, which will damage the RF modules. This guide assumes that you will follow that advice, and instructs you to leave the V+ pin on the USB-to-TTL adapter disconnected. You may choose to ignore that advice at your own risk!
 
 The wiring for the USB-to-TTL adapter is:
@@ -214,7 +216,7 @@ If necessary, open another Terminal window with the current directory set to the
 
 After adding yourself to the groups as above and installing and running the udev rules above your system will be configured so that your user account will always have access to serial and USB devices without requiring you run these steps again.
 
-### Upload the firmware via USB
+### Upload the firmware
 **Note:** Some modules require external power in order for the USB port to work.  If your module does not power on with USB power alone, install it in the transmitter and switch the transmitter on.  It is generally safe for the module to recieve power from both USB and the transmitter.
 
 1. Connect the USB cable to the Multiprotocol module

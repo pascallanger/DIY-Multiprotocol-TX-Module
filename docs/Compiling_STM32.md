@@ -26,7 +26,7 @@ Multiprotocol firmware is compiled using the Arduino IDE. The guide below will w
 ## Tools required
 
 **Notes**:
-* The Vantac MPM Lite module most likely already has the USB Bootloader flashed on it. You can directly use the [upload via USB](#upload-via-usb) method.
+* The Vantac MPM Lite module most likely already has the USB Bootloader flashed on it. You can directly use the [upload via USB](#upload-via-usb) method. Early modules' bootloader was however not booting everytime, if this is the case you need to upgarde it.
 * The latest jumper modules have an integrated FTDI appearing as a CP2102 device on the computer. You therefore don't need the FTDI adapter below and don't need to open your module to flash it.
 
 | **3.3V USB-TTL Adapter** | **4-pin Serial Programming Header** |

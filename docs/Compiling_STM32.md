@@ -110,9 +110,9 @@ The wiring for the USB-to-TTL adapter is:
 
 **It is critical to ensure that the USB-to-TTL adapter is set to 3.3V**.
 
-| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Module** |
+| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4** | **Jumper 4-in-1** |
 |:---:|:---:|:---:|
-| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-ch340g.jpg" height="200"/> | <img src="images/irx4-ch340g.jpg" height="200"/> |
+| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-ch340g.jpg" height="200"/> | <img src="images/irx4-ch340g.jpg" height="200"/> | <img src="images/Jumper-ch340g.jpg" height="200"/> |
 
 1. Put the module in the transmitter
 1. Connect the USB-to-TTL adapter to the module as described above
@@ -121,10 +121,10 @@ The wiring for the USB-to-TTL adapter is:
 
 In order to flash the bootloader the **BOOT0** jumper must be installed connecting **BOOT0** to 3.3V.  The location of **BOOT0** varies by hardware module. The latest Jumper modules with an intergrated FTDI do not need the BOOT0 jumper.
 
-| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Module** | **iRangeX IRX4 Plus Module** | **Vantac MPM Lite** |
-|:---:|:---:|:---:|:---:|:---:|
-| Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | Bridge pins 1 and 2 as shown by the blue jumper. | Bridge the BOOT0 pin to the adjacent 3.3V pin as shown by the yellow jumper. If it doesn't work move the jumper to bridge the two left hand pins (BOOT0 and directly above). | Brdige the two pins next to the usb port labelled with Boot0 |
-| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | <img src="images/irx4-boot0.jpg" height="200"/>  | <img src="images/irx4plus-boot0.jpg" height="200"/> | <img src="images/mpmlite-boot0.jpg" width="200" /> |
+| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4** | **iRangeX IRX4 Plus** | **Jumper 4-in-1** | **Vantac MPM Lite** |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | Bridge pins 1 and 2 as shown by the blue jumper. | Bridge the BOOT0 pin to the adjacent 3.3V pin as shown by the yellow jumper. If it doesn't work move the jumper to bridge the two left hand pins (BOOT0 and directly above). | Bridge pins 1 and 2 as shown by the red jumper wire. | Brdige the two pins next to the usb port labelled with Boot0 |
+| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | <img src="images/irx4-boot0.jpg" height="200"/>  | <img src="images/irx4plus-boot0.jpg" height="200"/> | <img src="Jumper-ch340g.jpg" height="200"/> | <img src="images/mpmlite-boot0.jpg" width="200" /> |
 
 1. If on Linux, ensure you have permissions to access serial interfaces as described in [Install the Maple USB drivers](#install-the-maple-usb-drivers)
 1. Install the **BOOT0** jumper as described above.

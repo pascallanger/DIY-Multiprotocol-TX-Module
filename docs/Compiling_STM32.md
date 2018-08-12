@@ -38,9 +38,9 @@ The USB-TTL adapter can be either FTDI or CH340G, as long as it works.  It shoul
 
 The 4-pin header needs to be soldered onto the board as indicated by the red rectangle:
 
-| **DIY Multiprotocol Module** | **Banggood 4-in-1 Module** | **iRangeX IRX4 Plus Module** | **MPM Lite** |
+| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4 Plus** | **Jumper** | **MPM Lite** |
 |:---:|:---:|:---:|:---:|
-| <img src="images/Board_PCB_STM32_with_serial.jpg" width="142" height="200"/> | <img src="images/bg-multi-stm32-serial.jpg" width="195" height="200"/> | <img src="images/irx4plus-serial.jpg" width="164" height="200"/> | <img src="images/mpmlite-serial.jpg" width="200" height="189" />
+| <img src="images/Board_PCB_STM32_with_serial.jpg" width="142" height="200"/> | <img src="images/bg-multi-stm32-serial.jpg" width="195" height="200"/> | <img src="images/irx4plus-serial.jpg" width="164" height="200"/> | <img src="images/jumper-serial.jpg" width="164" height="200"/> | <img src="images/mpmlite-serial.jpg" width="200" height="189" />
 
 **Note:** The Banggood STM32 module most likely already has the header pin in place.
 

@@ -37,6 +37,8 @@ fi
 
 "${RESET_UTIL}" ${dummy_port_fullpath} 750
 
+# Give the board a chance to reset to DFU mode
+sleep 0.5
 
 #DFU_UTIL=$(dirname $0)/dfu-util/dfu-util
 DFU_UTIL=/usr/bin/dfu-util

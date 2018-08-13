@@ -1,0 +1,45 @@
+#!/bin/bash
+#set -e
+
+function leaf_status() 
+{
+  this_leaf_status=$(lsusb |grep "1eaf" | awk '{ print $NF}')
+  # Find the mode of the leaf bootloader
+  case $this_leaf_status in 
+     "1eaf:0003")
+        echo "dfu"
+     ;;
+     "1eaf:0004")
+        echo "ttyACMx"
+     ;;
+     *)
+        #echo "$this_leaf_status"
+        echo "unknown"
+     ;;
+  esac
+}
+
+# Get the directory where the script is running.
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+# Check to see if a maple compatible board is attached
+LEAF_STATUS=$(leaf_status)
+
+# Board not found, or no boot loader on board.
+if [[ $(leaf_status) = "unknown" ]]
+then
+  # No maple board detected
+  echo "Maple device not found. Attempting serial upload."
+  SERIAL_UPLOAD=${DIR}/serial_upload_inc_bootloader
+  echo "${SERIAL_UPLOAD}" $1 0x8000000 $2 $3
+  "${SERIAL_UPLOAD}" $1 0x8000000 $2 $3
+
+else
+  # Maple board detected
+  echo "Maple device found. Attempting USB upload."
+
+  MAPLE_UPLOAD=${DIR}/maple_upload
+  echo "${MAPLE_UPLOAD}" $1 2 1eaf:0003 $2
+  "${MAPLE_UPLOAD}" $1 2 1eaf:0003 $2
+fi
+

@@ -6,7 +6,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Multi 4-in-1 STM32
-version=1.0.7
+version=1.0.8
 
 compiler.warning_flags=-w -DDEBUG_LEVEL=DEBUG_NONE
 compiler.warning_flags.none=-w -DDEBUG_LEVEL=DEBUG_NONE
@@ -116,6 +116,17 @@ recipe.hooks.savehex.postsavehex.01.pattern.macosx="{runtime.platform.path}/tool
 
 # Uploader tools
 # -------------------
+
+# Automatically detect upload method (USB or serial)
+tools.auto_upload.cmd=auto_upload
+tools.auto_upload.cmd.windows=auto_upload.bat
+tools.auto_upload.path={runtime.platform.path}/tools/win
+tools.auto_upload.path.macosx={runtime.platform.path}/tools/macosx
+tools.auto_upload.path.linux={runtime.platform.path}/tools/linux
+tools.auto_upload.path.linux64={runtime.platform.path}/tools/linux64    
+tools.auto_upload.upload.params.verbose=-d
+tools.auto_upload.upload.params.quiet=
+tools.auto_upload.upload.pattern="{path}/{cmd}" {serial.port.file} "{build.path}/{build.project_name}.bin" "{runtime.platform.path}/bootloaders/{bootloader.file}"
 
 # Upload using Maple bootloader over DFU
 tools.maple_upload.cmd=maple_upload

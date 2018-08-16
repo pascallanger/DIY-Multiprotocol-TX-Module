@@ -179,7 +179,7 @@ In order for the module to be correctly identified in Windows it is necessary to
 ### Install the Maple USB drivers
 ##### Windows 7 or newer:
 1. Open the folder where you unzipped or cloned the Multiprotocol project
-1. Browse to **\BootLoaders\Boards\stm32\drivers**
+1. Browse to **\BootLoaders\Boards\Windows**
 1. Run **install-drivers.bat**
 1. Follow the prompts to install the two drivers
 
@@ -219,7 +219,7 @@ The next steps will change your system's permissions rules so that users in the 
 
 If necessary, open another Terminal window with the current directory set to the project directory as explained above. Then type the following commands into the Terminal:
 
-    sudo cp BootLoaders/Boards/stm32/tools/linux/45-maple.rules /etc/udev/rules.d/
+    sudo cp BootLoaders/Boards/Linux/45-maple.rules /etc/udev/rules.d/
     sudo /etc/init.d/udev restart
 
 After adding yourself to the groups as above and installing and running the udev rules above your system will be configured so that your user account will always have access to serial and USB devices without requiring you run these steps again.

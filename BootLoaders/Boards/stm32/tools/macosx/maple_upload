@@ -33,6 +33,9 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 ${DIR}/upload-reset ${dummy_port_fullpath} 750
 
+# Give the board a chance to reset to DFU mode
+sleep 0.5
+
 if [ $# -eq 5 ]; then
     dfuse_addr="--dfuse-address $5"
 else

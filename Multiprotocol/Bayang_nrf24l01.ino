@@ -41,13 +41,18 @@ enum BAYANG_FLAGS {
 	BAYANG_FLAG_EMG_STOP	= 0x04,
 };
 
+enum BAYANG_OPTION_FLAGS {
+	BAYANG_OPTION_FLAG_TELEMETRY	= 0x01,
+	BAYANG_OPTION_FLAG_ANALOGAUX	= 0x02,
+};
+
 static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 {
 	uint8_t i;
 	if (bind)
 	{
 	#ifdef BAYANG_HUB_TELEMETRY
-		if(option > 0)
+		if(option & BAYANG_OPTION_FLAG_TELEMETRY)
 			packet[0]= 0xA3;	// telemetry is enabled
 		else
 	#endif
@@ -86,7 +91,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 				packet[0] = 0xA5;
 				break;
 		}
-		if (option == 2)
+		if (option & BAYANG_OPTION_FLAG_ANALOGAUX)
 		{
 			// Analog aux channel 1 (channel 14)
 			packet[1] = convert_channel_8b(CH14);
@@ -152,7 +157,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 			break;
 		default:
 			packet[12] = rx_tx_addr[2];	// txid[2]
-			if (option == 2)
+			if (option & BAYANG_OPTION_FLAG_ANALOGAUX)
 			{
 				// Analog aux channel 2 (channel 15)
 				packet[13] = convert_channel_8b(CH15);
@@ -182,7 +187,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 
 	#ifdef BAYANG_HUB_TELEMETRY
-	if (option > 0)
+	if (option & BAYANG_OPTION_FLAG_TELEMETRY)
 	{	// switch radio to rx as soon as packet is sent
 		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)));
 		NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x03);
@@ -265,7 +270,7 @@ uint16_t BAYANG_callback()
 			BAYANG_send_packet(0);
 		packet_count++;
 		#ifdef BAYANG_HUB_TELEMETRY
-			if (option > 0)
+			if (option & BAYANG_OPTION_FLAG_TELEMETRY)
 			{	// telemetry is enabled 
 				state++;
 				if (state > 1000)

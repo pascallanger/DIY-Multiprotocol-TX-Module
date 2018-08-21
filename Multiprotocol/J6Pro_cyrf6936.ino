@@ -128,7 +128,7 @@ static void __attribute__((unused)) j6pro_set_radio_channels()
 
 uint16_t ReadJ6Pro()
 {
-    uint32_t start;
+    uint16_t start;
 
     switch(phase)
     {
@@ -144,11 +144,11 @@ uint16_t ReadJ6Pro()
             phase = J6PRO_BIND_03_START;
             return 3000; //3msec
         case J6PRO_BIND_03_START:
-            start=micros();
-            while (micros()-start < 500)				// Wait max 500µs
-                if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x06)
-                    break;
-            CYRF_ConfigRFChannel(0x53);
+            start=(uint16_t)micros();
+            while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 500)				// Wait max 500µs
+				if((CYRF_ReadRegister(CYRF_02_TX_CTRL) & 0x80) == 0x00)
+					break;										// Packet transmission complete
+			CYRF_ConfigRFChannel(0x53);
             CYRF_SetTxRxMode(RX_EN);
             //CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4a);
             CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x80);

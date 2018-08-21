@@ -108,10 +108,8 @@ uint16_t crc;
 uint8_t  crc8;
 uint16_t seed;
 uint16_t failsafe_count;
-//
 uint16_t state;
 uint8_t  len;
-uint8_t  RX_num;
 
 #if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO)
 	uint8_t calData[48];
@@ -157,6 +155,7 @@ uint8_t option;
 uint8_t cur_protocol[3];
 uint8_t prev_option;
 uint8_t prev_power=0xFD; // unused power value
+uint8_t  RX_num;
 
 //Serial RX variables
 #define BAUD 100000
@@ -973,6 +972,13 @@ static void protocol_init()
 						PE2_on;	//antenna RF4
 						next_callback = initDsm();
 						remote_callback = ReadDsm;
+						break;
+				#endif
+				#if defined(WFLY_CYRF6936_INO)
+					case PROTO_WFLY:
+						PE2_on;	//antenna RF4
+						next_callback = initWFLY();
+						remote_callback = ReadWFLY;
 						break;
 				#endif
 				#if defined(DEVO_CYRF6936_INO)

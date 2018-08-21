@@ -98,13 +98,15 @@ void CYRF_SetTxRxMode(uint8_t mode)
 {
 	if(mode==TXRX_OFF)
 	{
-		CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24); // 4=IDLE, 8=TX, C=RX
+		if(protocol!=PROTO_WFLY)
+			CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24); // 4=IDLE, 8=TX, C=RX
 		CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x00); // XOUT=0 PACTL=0
 	}
 	else
 	{
 		//Set the post tx/rx state
-		CYRF_WriteRegister(CYRF_0F_XACT_CFG, mode == TX_EN ? 0x28 : 0x2C); // 4=IDLE, 8=TX, C=RX
+		if(protocol!=PROTO_WFLY)
+			CYRF_WriteRegister(CYRF_0F_XACT_CFG, mode == TX_EN ? 0x28 : 0x2C); // 4=IDLE, 8=TX, C=RX
 		if(mode == TX_EN)
 #ifdef ORANGE_TX_BLUE
 			CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x20); // XOUT=1, PACTL=0
@@ -203,9 +205,9 @@ void CYRF_ReadDataPacketLen(uint8_t dpbuffer[], uint8_t length)
 static void CYRF_WriteDataPacketLen(const uint8_t dpbuffer[], uint8_t len)
 {
 	CYRF_WriteRegister(CYRF_01_TX_LENGTH, len);
-	CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
+	CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x43);	// 0x40
 	CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, dpbuffer, len);
-	CYRF_WriteRegister(CYRF_02_TX_CTRL, 0xBF);
+	CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x83);	// 0xBF
 }
 
 void CYRF_WriteDataPacket(const uint8_t dpbuffer[])

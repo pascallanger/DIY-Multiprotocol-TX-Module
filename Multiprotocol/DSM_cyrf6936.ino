@@ -448,9 +448,9 @@ uint16_t ReadDsm()
 		case DSM_CH1_CHECK_B:
 		case DSM_CH2_CHECK_A:
 		case DSM_CH2_CHECK_B:
-			start=micros();
-			while ((uint8_t)micros()-start < 100)			// Wait max 100µs, max I've seen is 50µs
-				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
+			start=(uint8_t)micros();
+			while ((uint8_t)((uint8_t)micros()-(uint8_t)start) < 100)			// Wait max 100µs, max I've seen is 50µs
+				if((CYRF_ReadRegister(CYRF_02_TX_CTRL) & 0x80) == 0x00)
 					break;
 			if(phase==DSM_CH1_CHECK_A || phase==DSM_CH1_CHECK_B)
 			{

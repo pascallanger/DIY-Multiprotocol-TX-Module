@@ -148,49 +148,50 @@
 //Comment the protocols you are not using with "//" to save Flash space.
 
 //The protocols below need an A7105 to be installed
+#define	AFHDS2A_A7105_INO
 #define	FLYSKY_A7105_INO
 #define	HUBSAN_A7105_INO
-#define	AFHDS2A_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO
 #define	DSM_CYRF6936_INO
 #define	J6PRO_CYRF6936_INO
+#define	WFLY_CYRF6936_INO
 #define	WK2x01_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
-#define	FRSKYV_CC2500_INO
-#define	FRSKYD_CC2500_INO
-#define	FRSKYX_CC2500_INO
-#define	SFHSS_CC2500_INO
 #define	CORONA_CC2500_INO
+#define	FRSKYD_CC2500_INO
+#define	FRSKYV_CC2500_INO
+#define	FRSKYX_CC2500_INO
 #define	HITEC_CC2500_INO
+#define	SFHSS_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
+#define	ASSAN_NRF24L01_INO
 #define	BAYANG_NRF24L01_INO
+#define	CABELL_NRF24L01_INO
+#define	CFLIE_NRF24L01_INO
 #define	CG023_NRF24L01_INO
 #define	CX10_NRF24L01_INO		// Include Q2X2 protocol
+#define	DM002_NRF24L01_INO
 #define	ESKY_NRF24L01_INO
+#define	ESKY150_NRF24L01_INO
+#define	FQ777_NRF24L01_INO
+#define	FY326_NRF24L01_INO
+#define	GW008_NRF24L01_INO
 #define	HISKY_NRF24L01_INO
+#define	HONTAI_NRF24L01_INO
+#define	H8_3D_NRF24L01_INO
 #define	KN_NRF24L01_INO
+#define	MJXQ_NRF24L01_INO
+#define	MT99XX_NRF24L01_INO
+#define	Q303_NRF24L01_INO
+#define	SHENQI_NRF24L01_INO
 #define	SLT_NRF24L01_INO
 #define	SYMAX_NRF24L01_INO
 #define	V2X2_NRF24L01_INO
 #define	YD717_NRF24L01_INO
-#define	MT99XX_NRF24L01_INO
-#define	MJXQ_NRF24L01_INO
-#define	SHENQI_NRF24L01_INO
-#define	FY326_NRF24L01_INO
-#define	FQ777_NRF24L01_INO
-#define	ASSAN_NRF24L01_INO
-#define	HONTAI_NRF24L01_INO
-#define	Q303_NRF24L01_INO
-#define	GW008_NRF24L01_INO
-#define	DM002_NRF24L01_INO
-#define	CABELL_NRF24L01_INO
-#define	ESKY150_NRF24L01_INO
-#define	H8_3D_NRF24L01_INO
-#define	CFLIE_NRF24L01_INO
 
 
 /**************************/
@@ -554,6 +555,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		OPT_FW
 		OPT_HUB
 		MINIMA
+	PROTO_WFLY
+		NONE
 */
 
 // RX_Num is used for TX & RX match. Using different RX_Num values for each receiver will prevent starting a model with the false config loaded...

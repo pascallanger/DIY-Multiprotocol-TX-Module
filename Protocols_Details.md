@@ -420,6 +420,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
+## WFLY - *40*
+Receivers: WFR04S, WFR07S, WFR09S
+
+Extended limits supported
+
+option=number of channels from 4 to 9. An invalid option value will end up sending 9 channels.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+
 ***
 # NRF24L01 RF Module
 

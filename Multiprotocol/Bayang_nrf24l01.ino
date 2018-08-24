@@ -53,7 +53,16 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	{
 	#ifdef BAYANG_HUB_TELEMETRY
 		if(option & BAYANG_OPTION_FLAG_TELEMETRY)
-			packet[0]= 0xA3;	// telemetry is enabled
+			if(option & BAYANG_OPTION_FLAG_ANALOGAUX)
+				packet[0]= 0xA1;	// telemetry and analog aux are enabled
+			else
+				packet[0]= 0xA3;	// telemetry is enabled
+		else if(option & BAYANG_OPTION_FLAG_ANALOGAUX)
+				packet[0]= 0xA2;	// analog aux is enabled
+			else
+	#else
+		if(option & BAYANG_OPTION_FLAG_ANALOGAUX)
+			packet[0]= 0xA2;	// analog aux is enabled
 		else
 	#endif
 			packet[0]= 0xA4;

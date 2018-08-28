@@ -110,6 +110,7 @@ uint16_t seed;
 uint16_t failsafe_count;
 uint16_t state;
 uint8_t  len;
+uint32_t radio_id;
 
 #if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO)
 	uint8_t calData[48];
@@ -614,7 +615,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
+			if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_BUGS) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_BUGS) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
 		#endif
 				TelemetryUpdate();
 	#endif
@@ -913,6 +914,13 @@ static void protocol_init()
 						if(IS_BIND_BUTTON_FLAG_on) random_id(EEPROM_ID_OFFSET,true); // Generate new ID if bind button is pressed.
 						next_callback = initHubsan();
 						remote_callback = ReadHubsan;
+						break;
+				#endif
+				#if defined(BUGS_A7105_INO)
+					case PROTO_BUGS:
+						PE1_off;	//antenna RF1
+						next_callback = initBUGS();
+						remote_callback = ReadBUGS;
 						break;
 				#endif
 			#endif
@@ -1569,7 +1577,7 @@ void pollBoot()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG) || (protocol==PROTO_CABELL) )
+	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS))
 		initTXSerial( SPEED_9600 ) ;
 	if(protocol==PROTO_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;

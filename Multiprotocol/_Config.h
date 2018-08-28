@@ -112,6 +112,7 @@
 //#define FORCE_FLYSKY_TUNING	0
 //#define FORCE_HUBSAN_TUNING	0
 //#define FORCE_AFHDS2A_TUNING	0
+//#define FORCE_BUGS_TUNING	0
 
 /** Low Power **/
 //Low power is reducing the transmit power of the multi module. This setting is configurable per model in PPM (table below) or Serial mode (radio GUI).
@@ -151,6 +152,7 @@
 #define	AFHDS2A_A7105_INO
 #define	FLYSKY_A7105_INO
 #define	HUBSAN_A7105_INO
+#define	BUGS_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO
@@ -247,6 +249,7 @@
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send basic telemetry to TX like er9x
 #define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define BUGS_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, ersky9x and OpenTX
@@ -556,6 +559,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		OPT_HUB
 		MINIMA
 	PROTO_WFLY
+		NONE
+	PROTO_BUGS
 		NONE
 */
 

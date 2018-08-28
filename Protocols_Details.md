@@ -57,6 +57,23 @@ Serial mode is selected by placing the rotary switch to position 0 before power 
 
 # A7105 RF Module
 
+## BUGS - *41*
+Models: MJX Bugs 3, 6 and 8
+
+Autobind protocol
+
+Telemetry enabled for RX & TX RSSI, Battery voltage good/bad
+
+ARM	CH5
+LED	CH6
+FLIP	CH7
+PICTURE	CH8
+VIDEO	CH9
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|LED|FLIP|PICTURE|VIDEO
+
 ## FLYSKY - *1*
 Extended limits supported
 

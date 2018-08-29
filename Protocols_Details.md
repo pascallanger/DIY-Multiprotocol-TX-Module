@@ -151,9 +151,11 @@ Telemetry enabled for RX & TX RSSI, Battery voltage good/bad
 
 **RX_Num is used to give a number to a given model. You must use a different RX_Num per MJX Bugs. A maximum of 16 Bugs are supported.**
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|ARM|LED|FLIP|PICTURE|VIDEO
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
+
+Angle is +100%, Acro is -100%
 
 ***
 # CC2500 RF Module

@@ -155,7 +155,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|---
 A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
 
-Angle is +100%, Acro is -100%
+ANGLE: angle is +100%, acro is -100%
 
 ***
 # CC2500 RF Module

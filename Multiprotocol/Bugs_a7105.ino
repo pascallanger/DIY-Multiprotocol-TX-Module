@@ -154,10 +154,11 @@ static uint32_t __attribute__((unused)) BUGS_rxid_to_radioid(uint16_t rxid)
 
 // For code readability
 #define BUGS_CH_SW_ARM		CH5_SW
-#define BUGS_CH_SW_LED		CH6_SW
+#define BUGS_CH_SW_ANGLE	CH6_SW
 #define BUGS_CH_SW_FLIP		CH7_SW
 #define BUGS_CH_SW_PICTURE	CH8_SW
 #define BUGS_CH_SW_VIDEO	CH9_SW
+#define BUGS_CH_SW_LED		CH10_SW
 
 // flags packet byte 4
 #define BUGS_FLAG_FLIP		0x08    // automatic flip
@@ -169,6 +170,7 @@ static uint32_t __attribute__((unused)) BUGS_rxid_to_radioid(uint16_t rxid)
 #define BUGS_FLAG_LED		0x80    // enable LEDs
 #define BUGS_FLAG_ARM		0x40    // arm (toggle to turn on motors)
 #define BUGS_FLAG_DISARM	0x20    // disarm (toggle to turn off motors)
+#define BUGS_FLAG_ANGLE		0x04    // angle/acro mode (set is angle mode)
 
 #define BUGS_PACKET_SIZE	22
 #define BUGS_NUM_RFCHAN		16
@@ -223,7 +225,8 @@ static void __attribute__((unused)) BUGS_build_packet(uint8_t bind)
 	if(bind)
 	{
 		packet[4] = change_channel | 0x80;
-		packet[5] = 0x06 | BUGS_arm_flags;
+		packet[5] = 0x02 | BUGS_arm_flags
+		| GET_FLAG(BUGS_CH_SW_ANGLE, BUGS_FLAG_ANGLE);
 	}
 	else
 	{
@@ -231,7 +234,8 @@ static void __attribute__((unused)) BUGS_build_packet(uint8_t bind)
 		| GET_FLAG(BUGS_CH_SW_FLIP, BUGS_FLAG_FLIP)
 		| GET_FLAG(BUGS_CH_SW_PICTURE, BUGS_FLAG_PICTURE)
 		| GET_FLAG(BUGS_CH_SW_VIDEO, BUGS_FLAG_VIDEO);
-		packet[5] = 0x06 | BUGS_arm_flags
+		packet[5] = 0x02 | BUGS_arm_flags
+		| GET_FLAG(BUGS_CH_SW_ANGLE, BUGS_FLAG_ANGLE)
 		| GET_FLAG(BUGS_CH_SW_LED, BUGS_FLAG_LED);
 	}
 

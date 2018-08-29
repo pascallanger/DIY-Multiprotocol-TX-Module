@@ -139,7 +139,7 @@ A|E|T|R|RTH|LIGHT|STAB|VIDEO
 Models: Hubsan H501S, H122D, H123D
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS1|HEADLESS2|GPS_HOLD|ALT_HOLD|FLIP|OSD|-|FMODES
 
 H122D: FLIP and OSD

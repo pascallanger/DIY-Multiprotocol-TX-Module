@@ -210,25 +210,25 @@ static void __attribute__((unused)) hubsan_build_packet()
 			packet[9] = 0x02
 					   | GET_FLAG(CH6_SW, FLAG_H501_LED)
 					   | GET_FLAG(CH8_SW, FLAG_H501_VIDEO)
-					   | GET_FLAG(CH13_SW, FLAG_H122D_FLIP)
+					   | GET_FLAG(CH12_SW, FLAG_H122D_FLIP)	// H122D specific -> flip
 					   | GET_FLAG(CH5_SW, FLAG_H501_RTH)
-					   | GET_FLAG(CH11_SW, FLAG_H501_GPS_HOLD)
+					   | GET_FLAG(CH10_SW, FLAG_H501_GPS_HOLD)
 					   | GET_FLAG(CH9_SW, FLAG_H501_HEADLESS1);
 			//packet[10]= 0x1A;
 
 			//packet[11] content 0x00 is default
-			//H123D specific -> Flight modes => Does this needs to be a sub_protocol to work?
+			//H123D specific -> Flight modes
 			packet[11] = 0x41;	// Sport mode 1
-			if(Channel_data[CH16]>CHANNEL_MIN_COMMAND)
-				packet[11]++;	// 0x42 Sport mode 2
-			if(Channel_data[CH16]>CHANNEL_MAX_COMMAND)
-				packet[11]++;	// 0x43 Acro
-			//H122D specific -> OSD => Does this needs to be a sub_protocol to work?
-			packet[11]|= 0x80
-					  | GET_FLAG(CH14_SW,FLAG_H122D_OSD); 
+			if(Channel_data[CH13]>CHANNEL_MAX_COMMAND)
+				packet[11]=0x43;	// Acro
+			else if(Channel_data[CH13]>CHANNEL_MIN_COMMAND)
+				packet[11]=0x42;	// Sport mode 2
+			//H122D specific -> OSD but useless...
+			//packet[11]|= 0x80
+			//		  | GET_FLAG(CHXX_SW,FLAG_H122D_OSD); 
 
-			packet[13] = GET_FLAG(CH10_SW, FLAG_H501_HEADLESS2)
-					   | GET_FLAG(CH12_SW, FLAG_H501_ALT_HOLD)
+			packet[13] = GET_FLAG(CH9_SW, FLAG_H501_HEADLESS2)
+					   | GET_FLAG(CH11_SW, FLAG_H501_ALT_HOLD)
 					   | GET_FLAG(CH7_SW, FLAG_H501_SNAPSHOT);
 		}
 		else

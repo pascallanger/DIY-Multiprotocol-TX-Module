@@ -131,6 +131,11 @@ The module's EEPROM can be read, written, and erased using the avrdude tool.
 * A USBasp device, or another Arduino programmed to function as a USBasp
 * avrdude - installed as part of the Arduino IDE installation, or [downloaded separately](http://savannah.nongnu.org/projects/avrdude)
 
+With a default Arduino IDE installation, the path to avrdude will be:
+* Windows - `C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe`
+* Linux - `[Arduino IDE path]/hardware/tools/avr/bin/avrdude`
+* macOS - TBD
+
 #### Preparation
 Connect the module using the USBasp.
 

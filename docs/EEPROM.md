@@ -1,0 +1,154 @@
+# Multi-Module EEPROM
+
+The EEPROM is used to store the Multiprotocol Modules's global ID as well as details of bound receivers for certain protocols (afhds2a, Bugs, Devo, Walkera).
+
+On an Atmega328p module the EEPROM is a dedicated and persistent data store, separate from the 32KB of flash memory.  On the STM32 module there is no dedicated EEPROM, so EEPROM functionality is emulated in the last 2KB of flash memory.
+
+This makes it relatively easy for the STM32 EEPROM data to be accidentally erased.
+
+If the EEPROM is erased a new global ID will be generated (random for Atmega modules; the MCU UUID for STM32 modules) and models will need to be re-bound.
+
+Backups of the EEPROM data can be made so that configuration such as module ID and bound receivers can be moved between modules.  
+
+**Note:** Backups can only restored to a module with same MCU type - i.e. an Atmega backup cannot be restored to an STM32 module.
+
+The remainder of this doc is separated into sections for the STM32 and Atmega328p modules.
+
+## STM32 Module
+The EEPROM data is stored in the last 2KB of flash memory. It is read using stm32flash with the module in BOOT0 mode.
+#### Tools Needed
+* stm32flash (Download: [Windows](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/raw/master/source/stm32/tools/win/stm32flash.exe), [Linux 32-bit](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/raw/master/source/stm32/tools/linux/stm32flash/stm32flash), [Linux 64-bit](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/raw/master/source/stm32/tools/linux64/stm32flash/stm32flash), [macOS](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/raw/master/source/stm32/tools/macosx/stm32flash/stm32flash))
+* Working USB-to-Serial (FTDI) adapter
+
+#### Preparation
+Ensure that the `BOOT0` jumper is installed and the module is connected via a USB-to-Serial adapter.
+
+### Backing up the STM32 EEPROM
+The syntax of the backup command is:
+`stm32flash -r [file name] -S 0x801F800:2048 [serial port]`
+
+The `-S 0x801F800:2048` option tells stm32flash to read 2048 bytes starting at 0x801F800.
+
+Windows example:
+
+`stm32flash.exe -r C:\Temp\eeprom.bin -S 0x801F800:2048 COM4`
+
+Linux and macOS example:
+
+`stm32flash -r /tmp/eeprom.bin -S 0x801F800:2048 /dev/ttyUSB0`
+
+Output will look similar to this:
+```
+stm32flash 0.4
+
+http://stm32flash.googlecode.com/
+
+Interface serial_w32: 57600 8E1
+Version      : 0x22
+Option 1     : 0x00
+Option 2     : 0x00
+Device ID    : 0x0410 (Medium-density)
+- RAM        : 20KiB  (512b reserved by bootloader)
+- Flash      : 128KiB (sector size: 4x1024)
+- Option RAM : 16b
+- System RAM : 2KiB
+Memory read
+Read address 0x08020000 (100.00%) Done.
+```
+### Restoring the STM32 EEPROM
+The syntax of the restore command is:
+`stm32flash -w [file name] -e 0 -v -S 0x801F800:2048 [serial port]`
+
+Again, the `-S 0x801F800:2048` option tells stm32flash to write 2048 bytes starting at 0x801F800.  Additionally `-e 0` tells the tool not to erase any other blocks, which will preserve the rest of the data in the module's memory.
+
+Windows example:
+
+`stm32flash.exe -w C:\Temp\eeprom.bin -e 0 -v -S 0x801F800:2048 COM4`
+
+Linux and macOS example:
+
+`stm32flash -w /tmp/eeprom.bin -e 0 -v -S 0x801F800:2048 /dev/ttyUSB0`
+
+Output will look similar to this:
+```
+stm32flash 0.4
+
+http://stm32flash.googlecode.com/
+
+Interface serial_w32: 57600 8E1
+Version      : 0x22
+Option 1     : 0x00
+Option 2     : 0x00
+Device ID    : 0x0410 (Medium-density)
+- RAM        : 20KiB  (512b reserved by bootloader)
+- Flash      : 128KiB (sector size: 4x1024)
+- Option RAM : 16b
+- System RAM : 2KiB
+Write to memory
+Wrote and verified address 0x08020000 (100.00%) Done.
+```
+
+### Erasing the STM32 EEPROM
+The syntax of the erase command is:
+`stm32flash -o -S 0x801F800:2048 [serial port]`
+
+Again, the `-S 0x801F800:2048` option tells stm32flash to erase 2048 bytes starting at 0x801F800.
+
+Windows example:
+
+`stm32flash.exe -o -S 0x801F800:2048 COM4`
+
+Linux and macOS example:
+
+`stm32flash -o -S 0x801F800:2048 /dev/ttyUSB0`
+
+Output will look similar to this:
+```
+stm32flash 0.4
+
+http://stm32flash.googlecode.com/
+
+Interface serial_w32: 57600 8E1
+Version      : 0x22
+Option 1     : 0x00
+Option 2     : 0x00
+Device ID    : 0x0410 (Medium-density)
+- RAM        : 20KiB  (512b reserved by bootloader)
+- Flash      : 128KiB (sector size: 4x1024)
+- Option RAM : 16b
+- System RAM : 2KiB
+Erasing flash
+```
+
+## Atmega328p Module
+The EEPROM on the Atmega328p module is a dedicated 1KB data space, separate from the main flash memory.  
+
+By default the EEPROM would be erased every time the module is flashed, but we configure the `EESAVE` bit so that the EEPROM is not erased during flashes.  This one reason is why it is crucial to set the 'fuses' on a new module using the **Burn Bootloader** command in the Arduino IDE, as described in the [documentation](Compiling.md#burn-bootloader-and-set-fuses).
+
+The module's EEPROM can be read, written, and erased using the avrdude tool.
+
+#### Tools needed
+* A USBasp device, or another Arduino programmed to function as a USBasp
+* avrdude - installed as part of the Arduino IDE installation, or [downloaded separately](http://savannah.nongnu.org/projects/avrdude)
+
+#### Preparation
+Connect the module using the USBasp.
+
+### Backing up the Atmega328p EEPROM
+The syntax of the backup command is:
+`avrdude -c usbasp -p atmega328p -U eeprom:r:[filename]:i`
+
+Example:
+
+`avrdude -c usbasp -p atmega328p -U eeprom:r:eeprom.hex:i`
+
+### Restoring the Atmega328p EEPROM
+The syntax of the restore command is:
+`avrdude -c usbasp -p atmega328p -U eeprom:w:[filename]:i`
+
+Example:
+
+`avrdude -c usbasp -p atmega328p -U eeprom:w:eeprom.hex:i`
+
+### Erasing the Atmega328p EEPROM
+To be documented - requires modifying the fuses to allow the EEPROM to be erased.

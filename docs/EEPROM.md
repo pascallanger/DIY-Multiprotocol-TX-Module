@@ -136,31 +136,120 @@ With a default Arduino IDE installation, the path to avrdude will be:
 * Linux - `[Arduino IDE path]/hardware/tools/avr/bin/avrdude`
 * macOS - TBD
 
+You will also need to know the path to the avrdude configuration file.  Default locations are:
+* Windows - `C:\Program Files (x86)\Arduino\hardware\tools\avr\etc\avrdude.conf`
+* Linux - `[Arduino IDE path]/hardware/tools/avr/etc/avrdude.conf`
+* macOS - TBD
+
 #### Preparation
 Connect the module using the USBasp.
 
 ### Backing up the Atmega328p EEPROM
 The syntax of the backup command is:
-`avrdude -c usbasp -p atmega328p -U eeprom:r:[filename]:i`
+`avrdude -C [config file] -c usbasp -p atmega328p -U eeprom:r:[filename]:i`
 
-Example:
+Windows example:
 
-`avrdude -c usbasp -p atmega328p -U eeprom:r:eeprom.hex:i`
+`"C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe" -C "C:\Program Files (x86)\Arduino\hardware\tools\avr\etc\avrdude.conf" -c usbasp -p atmega328p -U eeprom:r:C:\Temp\eeprom.hex:i`
 
+Linux and macOS example:
+
+`~/Downloads/arduino-1.8.5/hardware/tools/avr/bin/avrdude -C ~/Downloads/arduino-1.8.5/hardware/tools/avr/etc/avrdude.conf -c usbasp -p atmega328p -U eeprom:r:/tmp/eeprom.hex:i`
+
+Output will look similar to this:
+```
+avrdude.exe: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.10s
+
+avrdude.exe: Device signature = 0x1e950f (probably m328p)
+avrdude.exe: reading eeprom memory:
+
+Reading | ################################################## | 100% 7.51s
+
+avrdude.exe: writing output file "C:\Temp\eeprom.hex"
+
+avrdude.exe: safemode: Fuses OK (E:FD, H:D6, L:FF)
+
+avrdude.exe done.  Thank you.
+```
 ### Restoring the Atmega328p EEPROM
 The syntax of the restore command is:
-`avrdude -c usbasp -p atmega328p -U eeprom:w:[filename]:i`
+`avrdude -C [config file] -c usbasp -p atmega328p -U eeprom:w:[filename]:i`
 
-Example:
+Windows example:
 
-`avrdude -c usbasp -p atmega328p -U eeprom:w:eeprom.hex:i`
+`"C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe" -C "C:\Program Files (x86)\Arduino\hardware\tools\avr\etc\avrdude.conf" -c usbasp -p atmega328p -U eeprom:w:C:\Temp\eeprom.hex:i`
+
+Linux and macOS example:
+
+`~/Downloads/arduino-1.8.5/hardware/tools/avr/bin/avrdude -C ~/Downloads/arduino-1.8.5/hardware/tools/avr/etc/avrdude.conf -c usbasp -p atmega328p -U eeprom:w:/tmp/eeprom.hex:i`
+
+Output will look similar to this:
+```
+avrdude.exe: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.04s
+
+avrdude.exe: Device signature = 0x1e950f (probably m328p)
+avrdude.exe: reading input file "C:\Temp\eeprom.hex"
+avrdude.exe: writing eeprom (1024 bytes):
+
+Writing | ################################################## | 100% 17.17s
+
+avrdude.exe: 1024 bytes of eeprom written
+avrdude.exe: verifying eeprom memory against C:\Temp\eeprom.hex:
+avrdude.exe: load data eeprom data from input file C:\Temp\eeprom.hex:
+avrdude.exe: input file C:\Temp\eeprom.hex contains 1024 bytes
+avrdude.exe: reading on-chip eeprom data:
+
+Reading | ################################################## | 100% 6.51s
+
+avrdude.exe: verifying ...
+avrdude.exe: 1024 bytes of eeprom verified
+
+avrdude.exe: safemode: Fuses OK (E:FD, H:D6, L:FF)
+
+avrdude.exe done.  Thank you.
+```
 
 ### Erasing the Atmega328p EEPROM
 It's not possible to simply erase the EEPROM so instead we write a file which overwrites all of the content with `0xFF`.  Download the 'erase.hex' file [here](https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module/master/docs/erase.hex).
 
 The syntax of the 'erase' command is the same as the restore command.
 
-Example:
+Windows example:
 
-`avrdude -c usbasp -p atmega328p -U eeprom:w:erase.hex:i`
+`"C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe" -C "C:\Program Files (x86)\Arduino\hardware\tools\avr\etc\avrdude.conf" -c usbasp -p atmega328p -U eeprom:w:C:\Temp\erase.hex:i`
 
+Linux and macOS example:
+
+`~/Downloads/arduino-1.8.5/hardware/tools/avr/bin/avrdude -C ~/Downloads/arduino-1.8.5/hardware/tools/avr/etc/avrdude.conf -c usbasp -p atmega328p -U eeprom:r:/tmp/erase.hex:i`
+
+Output will look similar to this:
+```
+avrdude.exe: AVR device initialized and ready to accept instructions
+
+Reading | ################################################## | 100% 0.04s
+
+avrdude.exe: Device signature = 0x1e950f (probably m328p)
+avrdude.exe: reading input file "C:\Temp\erase.hex"
+avrdude.exe: writing eeprom (1024 bytes):
+
+Writing | ################################################## | 100% 17.17s
+
+avrdude.exe: 1024 bytes of eeprom written
+avrdude.exe: verifying eeprom memory against C:\Temp\erase.hex:
+avrdude.exe: load data eeprom data from input file C:\Temp\erase.hex:
+avrdude.exe: input file C:\Temp\erase.hex contains 1024 bytes
+avrdude.exe: reading on-chip eeprom data:
+
+Reading | ################################################## | 100% 6.51s
+
+avrdude.exe: verifying ...
+avrdude.exe: 1024 bytes of eeprom verified
+
+avrdude.exe: safemode: Fuses OK (E:FD, H:D6, L:FF)
+
+avrdude.exe done.  Thank you.
+```

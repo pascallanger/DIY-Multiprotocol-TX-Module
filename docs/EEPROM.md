@@ -151,7 +151,7 @@ Example:
 `avrdude -c usbasp -p atmega328p -U eeprom:w:eeprom.hex:i`
 
 ### Erasing the Atmega328p EEPROM
-It's not possible to simply erase the EEPROM so instead we write a file which overwrites all of the content with `0xFF`.  Download the 'erase.hex' file [here](erase.hex).
+It's not possible to simply erase the EEPROM so instead we write a file which overwrites all of the content with `0xFF`.  Download the 'erase.hex' file [here](https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module/master/docs/erase.hex).
 
 The syntax of the 'erase' command is the same as the restore command.
 

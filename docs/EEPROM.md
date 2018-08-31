@@ -1,6 +1,6 @@
 # Multi-Module EEPROM
 
-The EEPROM is used to store the Multiprotocol Modules's global ID as well as details of bound receivers for certain protocols (afhds2a, Bugs, Devo, Walkera).
+The EEPROM is used to store the Multiprotocol Modules's global ID as well as details of bound receivers for certain protocols (AFHDS2A, Bugs, Devo, Walkera).
 
 On an Atmega328p module the EEPROM is a dedicated and persistent data store, separate from the 32KB of flash memory.  On the STM32 module there is no dedicated EEPROM, so EEPROM functionality is emulated in the last 2KB of flash memory.
 

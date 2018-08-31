@@ -123,7 +123,7 @@ Erasing flash
 ## Atmega328p Module
 The EEPROM on the Atmega328p module is a dedicated 1KB data space, separate from the main flash memory.  
 
-By default the EEPROM would be erased every time the module is flashed, but we configure the `EESAVE` bit so that the EEPROM is not erased during flashes.  This one reason is why it is crucial to set the 'fuses' on a new module using the **Burn Bootloader** command in the Arduino IDE, as described in the [documentation](Compiling.md#burn-bootloader-and-set-fuses).
+By default the EEPROM would be erased every time the module is flashed, but we configure the `EESAVE` bit so that the EEPROM is not erased during flashes.  This is one reason is why it is crucial to set the 'fuses' on a new module using the **Burn Bootloader** command in the Arduino IDE, as described in the [documentation](Compiling.md#burn-bootloader-and-set-fuses).
 
 The module's EEPROM can be read, written, and erased using the avrdude tool.
 

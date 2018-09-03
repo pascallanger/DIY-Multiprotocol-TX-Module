@@ -57,7 +57,7 @@ const uint8_t PROGMEM WFLY_init_vals[][2] = {
 
 static void __attribute__((unused)) WFLY_cyrf_bind_config()
 {
-	for(uint8_t i = 0; i < sizeof(init_vals) / 2; i++)	
+	for(uint8_t i = 0; i < sizeof(WFLY_init_vals) / 2; i++)	
 		CYRF_WriteRegister(pgm_read_byte_near(&WFLY_init_vals[i][0]), pgm_read_byte_near(&WFLY_init_vals[i][1]));
 
     CYRF_PROGMEM_ConfigSOPCode(WFLY_sop_bind);
@@ -67,7 +67,7 @@ static void __attribute__((unused)) WFLY_cyrf_bind_config()
 
 static void __attribute__((unused)) WFLY_cyrf_data_config()
 {
-	for(uint8_t i = 0; i < (sizeof(init_vals) / 2)-3; i++)	
+	for(uint8_t i = 0; i < (sizeof(WFLY_init_vals) / 2)-3; i++)	
 		CYRF_WriteRegister(pgm_read_byte_near(&WFLY_init_vals[i][0]), pgm_read_byte_near(&WFLY_init_vals[i][1]));
 
 	//CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE, 0x08);	// Do not accept CRC with 0 seed but not needed since the RX is not sending any data...

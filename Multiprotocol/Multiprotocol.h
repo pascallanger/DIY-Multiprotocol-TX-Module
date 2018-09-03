@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	36
+#define VERSION_PATCH_LEVEL	38
 
 //******************
 // Protocols
@@ -76,7 +76,7 @@ enum Flysky
 	V9X9	= 1,
 	V6X6	= 2,
 	V912	= 3,
-	CX20	= 4
+	CX20	= 4,
 };
 enum Hubsan
 {
@@ -94,7 +94,7 @@ enum AFHDS2A
 enum Hisky
 {
 	Hisky	= 0,
-	HK310	= 1
+	HK310	= 1,
 };
 enum DSM
 {
@@ -102,7 +102,7 @@ enum DSM
 	DSM2_11	= 1,
 	DSMX_22	= 2,
 	DSMX_11	= 3,
-	DSM_AUTO = 4
+	DSM_AUTO = 4,
 };
 enum YD717
 {       			
@@ -110,22 +110,23 @@ enum YD717
 	SKYWLKR	= 1,
 	SYMAX4	= 2,
 	XINXUN	= 3,
-	NIHUI	= 4
+	NIHUI	= 4,
 };
 enum KN
 {
 	WLTOYS	= 0,
-	FEILUN	= 1
+	FEILUN	= 1,
 };
 enum SYMAX
 {
 	SYMAX	= 0,
-	SYMAX5C	= 1
+	SYMAX5C	= 1,
 };
 enum SLT
 {
-	SLT		= 0,
-	VISTA	= 1
+	SLT_V1	= 0,
+	SLT_V2	= 1,
+	Q200	= 2,
 };
 enum CX10
 {
@@ -163,7 +164,7 @@ enum MT99XX
 	H7		= 1,
 	YZ		= 2,
 	LS		= 3,
-	FY805	= 4
+	FY805	= 4,
 };
 enum MJXQ
 {
@@ -185,8 +186,8 @@ enum HONTAI
 {
 	HONTAI	= 0,
 	JJRCX1	= 1,
-	X5C1		= 2,
-	FQ777_951 =3
+	X5C1	= 2,
+	FQ777_951 =3,
 };
 enum V2X2
 {
@@ -698,6 +699,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			OPT_FW		0
 			OPT_HUB		1
 			MINIMA		2
+		sub_protocol==SLT
+			SLT_V1		0
+			SLT_V2		1
+			Q200		2
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

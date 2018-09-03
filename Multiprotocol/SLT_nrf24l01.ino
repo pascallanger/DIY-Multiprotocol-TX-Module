@@ -19,16 +19,26 @@
 #include "iface_nrf24l01.h"
 
 // For code readability
-#define SLT_PAYLOADSIZE 7
+#define SLT_PAYLOADSIZE_V1 7
+#define SLT_PAYLOADSIZE_V2 11
 #define SLT_NFREQCHANNELS 15
 #define SLT_TXID_SIZE 4
+
+enum{
+	// flags going to packet[6] (Q200)
+	FLAG_Q200_FMODE	= 0x20,
+	FLAG_Q200_VIDON	= 0x10,
+	FLAG_Q200_FLIP	= 0x08,
+	FLAG_Q200_VIDOFF= 0x04,
+};
 
 enum {
 	SLT_BUILD=0,
 	SLT_DATA1,
 	SLT_DATA2,
 	SLT_DATA3,
-	SLT_BIND
+	SLT_BIND1,
+	SLT_BIND2
 };
 
 static void __attribute__((unused)) SLT_init()
@@ -43,7 +53,10 @@ static void __attribute__((unused)) SLT_init()
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, 4);			// bytes of data payload for pipe 1
 	NRF24L01_SetBitrate(NRF24L01_BR_250K);          	// 256kbps
 	NRF24L01_SetPower();
-	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\xC3\xC3\xAA\x55", 4);
+	if(sub_protocol==SLT_V1)
+		NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\xC3\xC3\xAA\x55", 4);
+	else // V2
+		NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x7E\xB8\x63\xA9", 4);
 	NRF24L01_FlushRx();
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, SLT_TXID_SIZE);
 	NRF24L01_FlushTx();
@@ -53,6 +66,9 @@ static void __attribute__((unused)) SLT_init()
 
 static void __attribute__((unused)) SLT_set_freq(void)
 {
+	// Use adress 1-3 for model match
+	for (uint8_t i = 0; i < SLT_TXID_SIZE; ++i)
+		rx_tx_addr[i]=rx_tx_addr[i+1];
 	// Frequency hopping sequence generation
 	for (uint8_t i = 0; i < SLT_TXID_SIZE; ++i)
 	{
@@ -91,12 +107,12 @@ static void __attribute__((unused)) SLT_wait_radio()
 	packet_sent = 0;
 }
 
-static void __attribute__((unused)) SLT_send_data(uint8_t *data, uint8_t len)
+static void __attribute__((unused)) SLT_send_packet(uint8_t len)
 {
 	SLT_wait_radio();
 	NRF24L01_FlushTx();
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, _BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_RX_DR) | _BV(NRF24L01_07_MAX_RT));
-	NRF24L01_WritePayload(data, len);
+	NRF24L01_WritePayload(packet, len);
 	//NRF24L01_PulseCE();
 	packet_sent = 1;
 }
@@ -108,7 +124,7 @@ static void __attribute__((unused)) SLT_build_packet()
 	if (++hopping_frequency_no >= SLT_NFREQCHANNELS)
 		hopping_frequency_no = 0;
 
-		// aileron, elevator, throttle, rudder, gear, pitch
+	// aileron, elevator, throttle, rudder, gear, pitch
 	uint8_t e = 0; // byte where extension 2 bits for every 10-bit channel are packed
 	for (uint8_t i = 0; i < 4; ++i)
 	{
@@ -121,6 +137,20 @@ static void __attribute__((unused)) SLT_build_packet()
 	// 8-bit channels
 	packet[5] = convert_channel_8b(CH5);
 	packet[6] = convert_channel_8b(CH6);
+	if(sub_protocol!=SLT_V1)
+	{
+		if(sub_protocol==Q200)
+		{
+			packet[6] =  GET_FLAG(CH9_SW, FLAG_Q200_FMODE)
+						|GET_FLAG(CH10_SW, FLAG_Q200_FLIP)
+						|GET_FLAG(CH11_SW, FLAG_Q200_VIDON)
+						|GET_FLAG(CH12_SW, FLAG_Q200_VIDOFF);
+		}
+		packet[7]=0x00;		//unknown, ch7?? To try : = convert_channel_8b(CH7);
+		packet[8]=0x7F;		//unknown, ch8?? To try : = convert_channel_8b(CH8);
+		packet[9]=0xAA;		//unknown
+		packet[10]=0x00;	//unknown
+	}
 }
 
 static void __attribute__((unused)) SLT_send_bind_packet()
@@ -132,14 +162,25 @@ static void __attribute__((unused)) SLT_send_bind_packet()
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t *)"\x7E\xB8\x63\xA9", SLT_TXID_SIZE);
 
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x50);
-	SLT_send_data(rx_tx_addr, SLT_TXID_SIZE);
+	memcpy((void*)packet,(void*)rx_tx_addr,SLT_TXID_SIZE);
+	if(phase==SLT_BIND2)
+		SLT_send_packet(SLT_TXID_SIZE);
+	else // SLT_BIND1
+		SLT_send_packet(SLT_PAYLOADSIZE_V2);
 
 	SLT_wait_radio();				//Wait until the packet's sent before changing TX address!
 
 	NRF24L01_SetPower();			//Change power back to normal level
-	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, SLT_TXID_SIZE);
+	if(phase==SLT_BIND2) // after V1 bind and V2 second bind packet
+		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, SLT_TXID_SIZE);
 }
 
+#define SLT_TIMING_BUILD		1000
+#define SLT_V1_TIMING_PACKET	1000
+#define SLT_V2_TIMING_PACKET	2042
+#define SLT_V1_TIMING_BIND2		1000
+#define SLT_V2_TIMING_BIND1		6507
+#define SLT_V2_TIMING_BIND2		2112
 uint16_t SLT_callback()
 {
 	switch (phase)
@@ -147,33 +188,59 @@ uint16_t SLT_callback()
 		case SLT_BUILD:
 			SLT_build_packet();
 			phase++;
-			return 1000;
+			return SLT_TIMING_BUILD;
 		case SLT_DATA1:
-			SLT_send_data(packet, SLT_PAYLOADSIZE);
-			phase++;
-			return 1000;
 		case SLT_DATA2:
-			SLT_send_data(packet, SLT_PAYLOADSIZE);
 			phase++;
-			return 1000;
-		case SLT_DATA3:
-			SLT_send_data(packet, SLT_PAYLOADSIZE);
-			if (++packet_count >= 100)
+			if(sub_protocol==SLT_V1)
 			{
+				SLT_send_packet(SLT_PAYLOADSIZE_V1);
+				return SLT_V1_TIMING_PACKET;
+			}
+			else //V2
+			{
+				SLT_send_packet(SLT_PAYLOADSIZE_V2);
+				return SLT_V2_TIMING_PACKET;
+			}
+		case SLT_DATA3:
+			if(sub_protocol==SLT_V1)
+				SLT_send_packet(SLT_PAYLOADSIZE_V1);
+			else //V2
+				SLT_send_packet(SLT_PAYLOADSIZE_V2);
+			if (++packet_count >= 100)
+			{// Send bind packet
 				packet_count = 0;
-				phase++;
-				return 1000;
+				if(sub_protocol==SLT_V1)
+				{
+					phase=SLT_BIND2;
+					return SLT_V1_TIMING_BIND2;
+				}
+				else //V2
+				{
+					phase=SLT_BIND1;
+					return SLT_V2_TIMING_BIND1;
+				}
 			}
 			else
-			{
+			{// Continue to send normal packets
 				NRF24L01_SetPower();	// Set tx_power
 				phase = SLT_BUILD;
-				return 19000;
+				if(sub_protocol==SLT_V1)
+					return 20000-SLT_TIMING_BUILD;
+				else //V2
+					return 13730-SLT_TIMING_BUILD;
 			}
-		case SLT_BIND:
+		case SLT_BIND1:
+			SLT_send_bind_packet();
+			phase++;
+			return SLT_V2_TIMING_BIND2;
+		case SLT_BIND2:
 			SLT_send_bind_packet();
 			phase = SLT_BUILD;
-			return 18000;
+			if(sub_protocol==SLT_V1)
+				return 20000-SLT_TIMING_BUILD-SLT_V1_TIMING_BIND2;
+			else //V2
+				return 13730-SLT_TIMING_BUILD-SLT_V2_TIMING_BIND1-SLT_V2_TIMING_BIND2;
 	}
 	return 19000;
 }
@@ -185,7 +252,7 @@ uint16_t initSLT()
 	hopping_frequency_no = 0;
 	SLT_set_freq();
 	SLT_init();
-	phase = SLT_BIND;
+	phase = SLT_BUILD;
 	return 50000;
 }
 

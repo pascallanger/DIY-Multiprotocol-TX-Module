@@ -132,6 +132,7 @@ In order to flash the bootloader the **BOOT0** jumper must be installed connecti
 1. Verify that you have selected the upload method **Upload via Serial inc. Bootloader (FTDI)** under **Tools -> Upload Method**
 1. Verify that you have selected **stm32flash (FTDI)** as the programmer under **Tools -> Programmer**
 1. Verify that the USB-to-TTL adapter is correctly connected to your module and you have selected the correct port under **Tools -> Port**
+1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
 
 Output will look similar to this:
 ```

@@ -1,0 +1,136 @@
+dist: trusty
+sudo: true
+  #
+language: c
+  #
+env:
+  global:
+    - IDE_VERSION=1.8.1
+  matrix:
+    - BOARD="multi4in1:STM32F1:multistm32f103c:upload_method=serialMethod"
+    - BOARD="multi4in1:STM32F1:multistm32f103c:upload_method=TxFlashMethod"
+    - BOARD="multi4in1:avr:multixmega32d4"
+    - BOARD="multi4in1:avr:multiatmega328p:bootloader=none"
+    - BOARD="multi4in1:avr:multiatmega328p:bootloader=optiboot"
+  #
+notifications:
+  email: false
+  #
+before_install:
+  #
+  # Fetch the tag information for the current branch
+  - git fetch origin --tags
+  #
+  # Publish the buildroot script folder
+  - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/bin/*
+  - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
+  #
+  # Install Arduino IDE
+  - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
+  - tar xf arduino-$IDE_VERSION-linux64.tar.xz
+  - mv arduino-$IDE_VERSION $HOME/arduino-ide
+  - export PATH=$PATH:$HOME/arduino-ide
+  # Set the Multi boards package URL
+  - arduino --pref "boardsmanager.additional.urls=https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json" --save-prefs
+  #
+  - if [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+      arduino --install-boards multi4in1:STM32F1;
+    fi
+  #
+  - if [[ "$BOARD" =~ "multi4in1:avr:" ]]; then
+      arduino --install-boards multi4in1:avr;
+    fi
+  #
+  - buildMulti() { arduino --verify --board $BOARD Multiprotocol/Multiprotocol.ino; }
+  - buildProtocol() { opt_disable $ALL_PROTOCOLS; opt_enable $1; buildMulti; }
+  #
+install: true
+before_script:
+  #
+  # Change current working directory to the build dir
+  - cd ${TRAVIS_BUILD_DIR}
+  # Log the initial Multi config 
+  - cat Multiprotocol/_Config.h
+  # Derive the Multi protocols from the Multi source
+  - A7105_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]]*_A7105_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
+  - CC2500_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]]*_CC2500_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
+  - CYRF6936_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]]*_CYRF6936_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
+  - NRF24L01_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]]*_NRF24L01_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
+  - ALL_PROTOCOLS=$(echo $A7105_PROTOCOLS $CC2500_PROTOCOLS $CYRF6936_PROTOCOLS $NRF24L01_PROTOCOLS)
+  - echo $ALL_PROTOCOLS
+  #
+  # Enable CHECK_FOR_BOOTLOADER when needed
+  - if [[ "$BOARD" =~ ":upload_method=TxFlashMethod" ]] || [[ "$BOARD" =~ ":bootloader=optiboot" ]]; then
+      opt_enable CHECK_FOR_BOOTLOADER;
+    fi
+  #
+  # Trim the build down for the Atmega328p board
+  - if [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:" ]]; then
+      opt_disable $ALL_PROTOCOLS;
+      opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
+    fi
+  #
+script:
+  # Build with all protocols enabled for STM32; a subset of protocols for Atmega
+  - buildMulti
+  #
+  # Serial only
+  - opt_disable ENABLE_PPM
+  - opt_enable ENABLE_SERIAL
+  - buildMulti
+  #
+  # PPM only
+  - opt_enable ENABLE_PPM
+  - opt_disable ENABLE_SERIAL
+  - buildMulti
+  #
+  # Re-enable PPM and serial
+  - opt_enable ENABLE_SERIAL
+  - opt_enable ENABLE_PPM
+  #
+  # Build each A7150 protocol
+  - buildProtocol AFHDS2A_A7105_INO
+  - buildProtocol FLYSKY_A7105_INO
+  - buildProtocol HUBSAN_A7105_INO
+  - buildProtocol BUGS_A7105_INO
+  #
+  # Build each CC2500 protocol
+  - buildProtocol CORONA_CC2500_INO
+  - buildProtocol FRSKYD_CC2500_INO
+  - buildProtocol FRSKYV_CC2500_INO
+  - buildProtocol FRSKYX_CC2500_INO
+  - buildProtocol HITEC_CC2500_INO
+  - buildProtocol SFHSS_CC2500_INO
+  #
+  # Build each CYRF6936 protocol
+  - buildProtocol DEVO_CYRF6936_INO
+  - buildProtocol DSM_CYRF6936_INO
+  - buildProtocol J6PRO_CYRF6936_INO
+  - buildProtocol WFLY_CYRF6936_INO
+  - buildProtocol WK2x01_CYRF6936_INO
+  #
+  # Build each NRF24L01 protocol
+  - buildProtocol ASSAN_NRF24L01_INO
+  - buildProtocol BAYANG_NRF24L01_INO
+  - buildProtocol CABELL_NRF24L01_INO
+  - buildProtocol CFLIE_NRF24L01_INO
+  - buildProtocol CG023_NRF24L01_INO
+  - buildProtocol CX10_NRF24L01_INO
+  - buildProtocol DM002_NRF24L01_INO
+  - buildProtocol ESKY_NRF24L01_INO
+  - buildProtocol ESKY150_NRF24L01_INO
+  - buildProtocol FQ777_NRF24L01_INO
+  - buildProtocol FY326_NRF24L01_INO
+  - buildProtocol GW008_NRF24L01_INO
+  - buildProtocol HISKY_NRF24L01_INO
+  - buildProtocol HONTAI_NRF24L01_INO
+  - buildProtocol H8_3D_NRF24L01_INO
+  - buildProtocol KN_NRF24L01_INO
+  - buildProtocol MJXQ_NRF24L01_INO
+  - buildProtocol MT99XX_NRF24L01_INO
+  - buildProtocol Q303_NRF24L01_INO
+  - buildProtocol SHENQI_NRF24L01_INO
+  - buildProtocol SLT_NRF24L01_INO
+  - buildProtocol SYMAX_NRF24L01_INO
+  - buildProtocol V2X2_NRF24L01_INO
+  - buildProtocol YD717_NRF24L01_INO

@@ -56,9 +56,9 @@ static void __attribute__((unused)) SLT_init()
 	NRF24L01_SetBitrate(NRF24L01_BR_250K);          	// 256kbps
 	NRF24L01_SetPower();
 	if(sub_protocol==SLT_V1)
-		NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\xC3\xC3\xAA\x55", 4);
+		NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\xC3\xC3\xAA\x55", SLT_TXID_SIZE);
 	else // V2
-		NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x7E\xB8\x63\xA9", 4);
+		NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x7E\xB8\x63\xA9", SLT_TXID_SIZE);
 	NRF24L01_FlushRx();
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, SLT_TXID_SIZE);
 	NRF24L01_FlushTx();
@@ -68,9 +68,6 @@ static void __attribute__((unused)) SLT_init()
 
 static void __attribute__((unused)) SLT_set_freq(void)
 {
-	// Make use of address 1-3 for model match
-	for (uint8_t i = 0; i < SLT_TXID_SIZE; ++i)
-		rx_tx_addr[i]=rx_tx_addr[i+1];
 	// Frequency hopping sequence generation
 	for (uint8_t i = 0; i < SLT_TXID_SIZE; ++i)
 	{
@@ -79,14 +76,13 @@ static void __attribute__((unused)) SLT_set_freq(void)
 		hopping_frequency[i*4 + 0]  = (rx_tx_addr[i] & 0x3f) + base;
 		hopping_frequency[i*4 + 1]  = (rx_tx_addr[i] >> 2) + base;
 		hopping_frequency[i*4 + 2]  = (rx_tx_addr[i] >> 4) + (rx_tx_addr[next_i] & 0x03)*0x10 + base;
-		//if (i*4 + 3 < SLT_NFREQCHANNELS) // do not generate channel 15. 15 channels: 0-14. But not needed since hopping freq table is large...
-			hopping_frequency[i*4 + 3]  = (rx_tx_addr[i] >> 6) + (rx_tx_addr[next_i] & 0x0f)*0x04 + base;
+		hopping_frequency[i*4 + 3]  = (rx_tx_addr[i] >> 6) + (rx_tx_addr[next_i] & 0x0f)*0x04 + base;
 	}
 
 	// Unique freq
-	uint8_t max_freq=0x50;	//V1 and V2?
+	uint8_t max_freq=0x50;	//V1 sure, V2?
 	if(sub_protocol==Q200)
-		max_freq=45;		// unsure about the right value... It could be anything between 44 and 48 but 45 keeps the +3 rule intact.
+		max_freq=45;
 	for (uint8_t i = 0; i < SLT_NFREQCHANNELS; ++i)
 	{
 		uint8_t done = 0;
@@ -148,8 +144,8 @@ static void __attribute__((unused)) SLT_build_packet()
 						|GET_FLAG(CH10_SW, FLAG_Q200_FLIP)
 						|GET_FLAG(CH11_SW, FLAG_Q200_VIDON)
 						|GET_FLAG(CH12_SW, FLAG_Q200_VIDOFF);
-		packet[7]=0x00;		//unknown, ch7?? To try: = convert_channel_8b(CH7);
-		packet[8]=0x7F;		//unknown, ch8?? To try: = convert_channel_8b(CH8);
+		packet[7]=convert_channel_8b(CH7);
+		packet[8]=convert_channel_8b(CH8);
 		packet[9]=0xAA;		//unknown
 		packet[10]=0x00;	//unknown
 	}
@@ -252,14 +248,16 @@ uint16_t initSLT()
 	packet_count = 0;
 	packet_sent = 0;
 	hopping_frequency_no = 0;
-	SLT_set_freq();
-	#ifdef SLT_Q200_FORCE_ID	// ID and channels taken from dump
-		rx_tx_addr[0]=0x01;
-		rx_tx_addr[1]=0x02;
-		rx_tx_addr[2]=0x6A;
-		rx_tx_addr[3]=0x31;
-		memcpy((void *)hopping_frequency,(void *)"\x04\x03\x23\x0B\x05\x0A\x2A\x2B\x10\x07\x26\x15\x17\x1C\x0E",SLT_NFREQCHANNELS);
+	if(sub_protocol==Q200)
+	{ //looks like the Q200 is expecting a special ID to bind
+		rx_tx_addr[0]=0x01;		// This is common between the 2 Dumps so assuming this is what is required...
+		rx_tx_addr[1]=0x02;		// This is common between the 2 Dumps so assuming this is what is required...
+	}
+	#ifdef SLT_Q200_FORCE_ID	// ID taken from TX dumps
+		rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x6A;rx_tx_addr[3]=0x31;
+	/*	rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x0B;rx_tx_addr[3]=0x57;*/
 	#endif
+	SLT_set_freq();
 	SLT_init();
 	phase = SLT_BUILD;
 	return 50000;

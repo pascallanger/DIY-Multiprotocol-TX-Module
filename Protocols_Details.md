@@ -826,9 +826,24 @@ Throttle +100%=full forward,0%=stop,-100%=full backward.
 ## SLT - *11*
 Autobind protocol
 
+### Sub_protocol V1 - *0*
+
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|GEAR|PITCH
+
+### Sub_protocol V2 - *1*
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+### Sub_protocol Q200 - *2*
+Models: Ominus Quadcopter FPV, the Nine Eagles - FENG FPV and may be others
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|CH5|-|CH7|CH8|MODE|FLIP|VID_ON|VID_OFF
 
 ## Symax - *10*
 Autobind protocol

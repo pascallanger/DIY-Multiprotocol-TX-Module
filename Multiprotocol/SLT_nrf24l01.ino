@@ -85,6 +85,8 @@ static void __attribute__((unused)) SLT_set_freq(void)
 		max_freq=45;
 	for (uint8_t i = 0; i < SLT_NFREQCHANNELS; ++i)
 	{
+		if(sub_protocol==Q200 && hopping_frequency[i] >= max_freq)
+			hopping_frequency[i] = hopping_frequency[i] - max_freq + 0x03;
 		uint8_t done = 0;
 		while (!done)
 		{
@@ -249,14 +251,14 @@ uint16_t initSLT()
 	packet_sent = 0;
 	hopping_frequency_no = 0;
 	if(sub_protocol==Q200)
-	{ //looks like the Q200 is expecting a special ID to bind
-		rx_tx_addr[0]=0x01;		// This is common between the 2 Dumps so assuming this is what is required...
-		rx_tx_addr[1]=0x02;		// This is common between the 2 Dumps so assuming this is what is required...
+	{ //Q200: Force high part of the ID otherwise it won't bind
+		rx_tx_addr[0]=0x01;
+		rx_tx_addr[1]=0x02;
+		#ifdef SLT_Q200_FORCE_ID	// ID taken from TX dumps
+			rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x6A;rx_tx_addr[3]=0x31;
+		/*	rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x0B;rx_tx_addr[3]=0x57;*/
+		#endif
 	}
-	#ifdef SLT_Q200_FORCE_ID	// ID taken from TX dumps
-		rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x6A;rx_tx_addr[3]=0x31;
-	/*	rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x0B;rx_tx_addr[3]=0x57;*/
-	#endif
 	SLT_set_freq();
 	SLT_init();
 	phase = SLT_BUILD;

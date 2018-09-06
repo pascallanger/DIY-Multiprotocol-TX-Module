@@ -3,7 +3,7 @@
 
 The **Multiprotocol Tx Module** (or **MULTI-Module**) is a 2.4GHz transmitter module which enables almost any transmitter to control many different receivers and models, including many popular helicopters, planes, quadcopters, and miniquads.
 
-The main forum is on [RCGroups.com](https://www.rcgroups.com/forums/showthread.php?2165676-DIY-Multiprotocol-TX-Module/page10000).
+The main forum for protocol requests and questions is on [RCGroups.com](https://www.rcgroups.com/forums/showthread.php?2165676-DIY-Multiprotocol-TX-Module/page10000).
 
 If you like this project and want to support further development please consider making a [donation](docs/Donations.md).  
 

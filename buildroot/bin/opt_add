@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+eval "echo \"#define ${1} ${2}\" >>Multiprotocol/_Config.h"

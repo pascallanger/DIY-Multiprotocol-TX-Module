@@ -17,6 +17,13 @@ If you like this project and want to support further development please consider
   </tr>
 </table>
 
+## Development status
+
+Current Multiprotocol code check status: [![Travis Build Status for Multi](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module.svg)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module)
+
+Current Multiprotocol boards check status: [![Travis Build Status for Multi Boards](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards.svg)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards)
+
+
 ## Quicklinks
 * [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) and [instructions to upload .hex files](docs/Advanced_Manually_Setting_ATmega328_Fuses.md)
 * [Forum on rcgroups](http://www.rcgroups.com/forums/showthread.php?t=2165676)
@@ -120,6 +127,7 @@ Visit the [Troubleshooting](docs/Troubleshooting.md) page.  Please bear in mind 
 # A final word
 A very big thanks to all the people who have shared their time so graciously to create this great project.  If you come across them on RC Groups, please be kind and show appreciation.  In no particular order:
 * Pascal Langer (rcgroups: hpnuts)
+* Ben Lye (rcgroups: benzo99)
 * Midelic (rcgroups: midelic)
 * Mike Blandford (rcgroups: Mike Blandford)
 * PhracturedBlue – from Deviation-tx

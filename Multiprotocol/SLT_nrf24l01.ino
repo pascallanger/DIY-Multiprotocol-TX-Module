@@ -121,6 +121,8 @@ static void __attribute__((unused)) SLT_send_packet(uint8_t len)
 
 static void __attribute__((unused)) SLT_build_packet()
 {
+	static uint8_t calib_counter=0;
+	
 	// Set radio channel - once per packet batch
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
 	if (++hopping_frequency_no >= SLT_NFREQCHANNELS)
@@ -148,8 +150,18 @@ static void __attribute__((unused)) SLT_build_packet()
 						|GET_FLAG(CH12_SW, FLAG_Q200_VIDOFF);
 		packet[7]=convert_channel_8b(CH7);
 		packet[8]=convert_channel_8b(CH8);
-		packet[9]=0xAA;		//unknown
-		packet[10]=0x00;	//unknown
+		packet[9]=0xAA;				//normal mode for Q200, unknown for V2
+		packet[10]=0x00;			//normal mode for Q200, unknown for V2
+		if(sub_protocol==Q200 && CH13_SW)
+		{//Calibrate
+			packet[9]=0x77;			//enter calibration
+			if(calib_counter>=20 && calib_counter<=23)	// 3 packets
+				packet[10]=0x20;	//launch calibration
+			calib_counter++;
+			if(calib_counter>250) calib_counter=250;
+		}
+		else
+			calib_counter=0;
 	}
 }
 

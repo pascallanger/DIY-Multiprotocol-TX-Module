@@ -267,6 +267,27 @@
         }]
       },
       {
+        "name": "Multi 4-in-1 STM32 Board",
+        "architecture": "STM32F1",
+        "version": "1.0.9",
+        "category": "Contributed",
+        "help": {
+          "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+        },
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/raw/master/archives/package_multi_4in1_stm32_board_v1.0.9.tar.gz",
+        "archiveFileName": "package_multi_4in1_stm32_board_v1.0.9.tar.gz",
+        "checksum": "SHA-256:c3621d1cf6580ca5c943a67dc14dc15a60e2797a4b985548abe1919486bf4a8b",
+        "size": "10324251",
+        "boards": [{
+          "name": "Multi 4-in-1 (STM32F103C)"
+        }],
+        "toolsDependencies": [{
+          "packager": "arduino",
+          "name": "arm-none-eabi-gcc",
+          "version": "4.8.3-2014q1"
+        }]
+      },
+      {
         "name": "Multi 4-in-1 OrangeRX Board - DEPRECATED, USE MULTI 4-IN-1 AVR BOARDS PACKAGE INSTEAD",
         "architecture": "orangerx",
         "version": "1.0.1",

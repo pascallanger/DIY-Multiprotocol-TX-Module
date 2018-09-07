@@ -841,9 +841,15 @@ A|E|T|R|CH5|CH6|CH7|CH8
 ### Sub_protocol Q200 - *2*
 Models: Ominus Quadcopter FPV, the Nine Eagles - FENG FPV and may be others
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|-|CH7|CH8|MODE|FLIP|VID_ON|VID_OFF
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VID_ON|VID_OFF|CALIB
+
+RATES: +50%=min rates, 0%=mid rates (stock setting), -50%=max rates
+
+CH7 and CH8 have no effect on the Ominus
+
+CALIB: -100% normal mode, +100% gyro calibration
 
 ## Symax - *10*
 Autobind protocol

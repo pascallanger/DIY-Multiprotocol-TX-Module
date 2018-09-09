@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	42
+#define VERSION_PATCH_LEVEL	44
 
 //******************
 // Protocols
@@ -127,6 +127,7 @@ enum SLT
 	SLT_V1	= 0,
 	SLT_V2	= 1,
 	Q200	= 2,
+	MR100	= 3,
 };
 enum CX10
 {
@@ -703,6 +704,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			SLT_V1		0
 			SLT_V2		1
 			Q200		2
+			MR100		3
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

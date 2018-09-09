@@ -34,6 +34,14 @@ enum{
 	FLAG_Q200_VIDOFF= 0x04,
 };
 
+enum{
+	// flags going to packet[6] (MR100)
+	FLAG_MR100_FMODE	= 0x20,
+	FLAG_MR100_FLIP		= 0x04,
+	FLAG_MR100_VIDEO	= 0x02,
+	FLAG_MR100_PICTURE	= 0x01,
+};
+
 enum {
 	SLT_BUILD=0,
 	SLT_DATA1,
@@ -80,7 +88,7 @@ static void __attribute__((unused)) SLT_set_freq(void)
 	}
 
 	// Unique freq
-	uint8_t max_freq=0x50;	//V1 sure, V2?
+	uint8_t max_freq=0x50;	//V1 and V2
 	if(sub_protocol==Q200)
 		max_freq=45;
 	for (uint8_t i = 0; i < SLT_NFREQCHANNELS; ++i)
@@ -148,6 +156,11 @@ static void __attribute__((unused)) SLT_build_packet()
 						|GET_FLAG(CH10_SW, FLAG_Q200_FLIP)
 						|GET_FLAG(CH11_SW, FLAG_Q200_VIDON)
 						|GET_FLAG(CH12_SW, FLAG_Q200_VIDOFF);
+		if(sub_protocol==MR100)
+			packet[6] =  GET_FLAG(CH9_SW , FLAG_MR100_FMODE)
+						|GET_FLAG(CH10_SW, FLAG_MR100_FLIP)
+						|GET_FLAG(CH11_SW, FLAG_MR100_VIDEO)
+						|GET_FLAG(CH12_SW, FLAG_MR100_PICTURE);
 		packet[7]=convert_channel_8b(CH7);
 		packet[8]=convert_channel_8b(CH8);
 		packet[9]=0xAA;				//normal mode for Q200, unknown for V2

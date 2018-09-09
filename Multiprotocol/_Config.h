@@ -566,6 +566,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		SLT_V1
 		SLT_V2
 		Q200
+		MR100
 */
 
 // RX_Num is used for TX & RX match. Using different RX_Num values for each receiver will prevent starting a model with the false config loaded...

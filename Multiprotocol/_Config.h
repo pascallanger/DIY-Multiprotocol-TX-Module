@@ -565,6 +565,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_SLT
 		SLT_V1
 		SLT_V2
+		Q100
 		Q200
 		MR100
 */

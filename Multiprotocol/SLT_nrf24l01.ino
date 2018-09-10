@@ -35,7 +35,7 @@ enum{
 };
 
 enum{
-	// flags going to packet[6] (MR100)
+	// flags going to packet[6] (MR100 & Q100)
 	FLAG_MR100_FMODE	= 0x20,
 	FLAG_MR100_FLIP		= 0x04,
 	FLAG_MR100_VIDEO	= 0x02,
@@ -156,19 +156,19 @@ static void __attribute__((unused)) SLT_build_packet()
 						|GET_FLAG(CH10_SW, FLAG_Q200_FLIP)
 						|GET_FLAG(CH11_SW, FLAG_Q200_VIDON)
 						|GET_FLAG(CH12_SW, FLAG_Q200_VIDOFF);
-		if(sub_protocol==MR100)
+		else if(sub_protocol==MR100 || sub_protocol==Q100)
 			packet[6] =  GET_FLAG(CH9_SW , FLAG_MR100_FMODE)
 						|GET_FLAG(CH10_SW, FLAG_MR100_FLIP)
-						|GET_FLAG(CH11_SW, FLAG_MR100_VIDEO)
-						|GET_FLAG(CH12_SW, FLAG_MR100_PICTURE);
+						|GET_FLAG(CH11_SW, FLAG_MR100_VIDEO)	// Does not exist on the Q100 but...
+						|GET_FLAG(CH12_SW, FLAG_MR100_PICTURE);	// Does not exist on the Q100 but...
 		packet[7]=convert_channel_8b(CH7);
 		packet[8]=convert_channel_8b(CH8);
-		packet[9]=0xAA;				//normal mode for Q200, unknown for V2
-		packet[10]=0x00;			//normal mode for Q200, unknown for V2
-		if(sub_protocol==Q200 && CH13_SW)
+		packet[9]=0xAA;				//normal mode for Q100/Q200, unknown for V2/MR100
+		packet[10]=0x00;			//normal mode for Q100/Q200, unknown for V2/MR100
+		if((sub_protocol==Q100 || sub_protocol==Q200) && CH13_SW)
 		{//Calibrate
 			packet[9]=0x77;			//enter calibration
-			if(calib_counter>=20 && calib_counter<=23)	// 3 packets
+			if(calib_counter>=20 && calib_counter<=25)	// 7 packets for Q100 / 3 packets for Q200
 				packet[10]=0x20;	//launch calibration
 			calib_counter++;
 			if(calib_counter>250) calib_counter=250;

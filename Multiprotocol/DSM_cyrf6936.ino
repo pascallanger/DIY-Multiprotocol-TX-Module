@@ -44,7 +44,7 @@ enum {
 uint8_t sop_col;
 uint8_t DSM_num_ch=0;
 uint8_t ch_map[14];
-const uint8_t PROGMEM ch_map_progmem[][14] = {
+const uint8_t PROGMEM DSM_ch_map_progmem[][14] = {
 //22+11ms for 4..7 channels
 	{1, 0, 2, 3, 0xff, 0xff, 0xff, 1,    0,    2,    3, 0xff, 0xff,    0xff}, //4ch  - Guess
 	{1, 0, 2, 3, 4,    0xff, 0xff, 1,    0,    2,    3,    4, 0xff,    0xff}, //5ch  - Guess
@@ -62,7 +62,7 @@ const uint8_t PROGMEM ch_map_progmem[][14] = {
 	{1, 5, 2, 3, 4,    8,    9,    1,    5,    2,    3,     0,   7,    6   }, //10ch - DX18
 };
 
-const uint8_t PROGMEM pncodes[5][8][8] = {
+const uint8_t PROGMEM DSM_pncodes[5][8][8] = {
 	/* Note these are in order transmitted (LSB 1st) */
 	{ /* Row 0 */
 		/* Col 0 */ {0x03, 0xBC, 0x6E, 0x8A, 0xEF, 0xBD, 0xFE, 0xF8},
@@ -123,18 +123,18 @@ const uint8_t PROGMEM pncodes[5][8][8] = {
 	},
 };
 
-static void __attribute__((unused)) read_code(uint8_t *buf, uint8_t row, uint8_t col, uint8_t len)
+static void __attribute__((unused)) DSM_read_code(uint8_t *buf, uint8_t row, uint8_t col, uint8_t len)
 {
 	for(uint8_t i=0;i<len;i++)
-		buf[i]=pgm_read_byte_near( &pncodes[row][col][i] );
+		buf[i]=pgm_read_byte_near( &DSM_pncodes[row][col][i] );
 }
 
-static uint8_t __attribute__((unused)) get_pn_row(uint8_t channel)
+static uint8_t __attribute__((unused)) DSM_get_pn_row(uint8_t channel)
 {
 	return ((sub_protocol == DSMX_11 || sub_protocol == DSMX_22 )? (channel - 2) % 5 : channel % 5);	
 }
 
-const uint8_t PROGMEM init_vals[][2] = {
+const uint8_t PROGMEM DSM_init_vals[][2] = {
 	{CYRF_02_TX_CTRL, 0x00},				// All TX interrupt disabled
 	{CYRF_05_RX_CTRL, 0x00},				// All RX interrupt disabled
 	{CYRF_28_CLK_EN, 0x02},					// Force receive clock enable
@@ -154,7 +154,7 @@ const uint8_t PROGMEM init_vals[][2] = {
 	{CYRF_1E_RX_OVERRIDE, 0x14},			// Disable RX CRC, Force receive data rate, use RX synthesizer
 };
 
-const uint8_t PROGMEM data_vals[][2] = {
+const uint8_t PROGMEM DSM_data_vals[][2] = {
 	{CYRF_29_RX_ABORT, 0x20},				// Abort RX operation in case we are coming from bind
 	{CYRF_0F_XACT_CFG, 0x24},				// Force Idle
 	{CYRF_29_RX_ABORT, 0x00},				// Clear abort RX
@@ -166,8 +166,8 @@ const uint8_t PROGMEM data_vals[][2] = {
 
 static void __attribute__((unused)) DSM_cyrf_config()
 {
-	for(uint8_t i = 0; i < sizeof(init_vals) / 2; i++)	
-		CYRF_WriteRegister(pgm_read_byte_near(&init_vals[i][0]), pgm_read_byte_near(&init_vals[i][1]));
+	for(uint8_t i = 0; i < sizeof(DSM_init_vals) / 2; i++)	
+		CYRF_WriteRegister(pgm_read_byte_near(&DSM_init_vals[i][0]), pgm_read_byte_near(&DSM_init_vals[i][1]));
 	CYRF_WritePreamble(0x333304);
 	CYRF_ConfigRFChannel(0x61);
 }
@@ -221,8 +221,8 @@ static void __attribute__((unused)) DSM_initialize_bind_phase()
 
 static void __attribute__((unused)) DSM_cyrf_configdata()
 {
-	for(uint8_t i = 0; i < sizeof(data_vals) / 2; i++)
-		CYRF_WriteRegister(pgm_read_byte_near(&data_vals[i][0]), pgm_read_byte_near(&data_vals[i][1]));
+	for(uint8_t i = 0; i < sizeof(DSM_data_vals) / 2; i++)
+		CYRF_WriteRegister(pgm_read_byte_near(&DSM_data_vals[i][0]), pgm_read_byte_near(&DSM_data_vals[i][1]));
 }
 
 static void __attribute__((unused)) DSM_update_channels()
@@ -240,7 +240,7 @@ static void __attribute__((unused)) DSM_update_channels()
 	if(DSM_num_ch>7 && DSM_num_ch<11 && (sub_protocol==DSM2_11 || sub_protocol==DSMX_11))
 		idx+=5;								// In 11ms mode change index only for channels 8..10
 	for(uint8_t i=0;i<14;i++)
-		ch_map[i]=pgm_read_byte_near(&ch_map_progmem[idx][i]);
+		ch_map[i]=pgm_read_byte_near(&DSM_ch_map_progmem[idx][i]);
 }
 
 static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
@@ -294,12 +294,12 @@ static void __attribute__((unused)) DSM_set_sop_data_crc()
 	else
 		CYRF_ConfigCRCSeed(~crc);	//CH1
 
-	uint8_t pn_row = get_pn_row(hopping_frequency[hopping_frequency_no]);
+	uint8_t pn_row = DSM_get_pn_row(hopping_frequency[hopping_frequency_no]);
 	uint8_t code[16];
-	read_code(code,pn_row,sop_col,8);					// pn_row between 0 and 4, sop_col between 1 and 7
+	DSM_read_code(code,pn_row,sop_col,8);					// pn_row between 0 and 4, sop_col between 1 and 7
 	CYRF_ConfigSOPCode(code);
-	read_code(code,pn_row,7 - sop_col,8);				// 7-sop_col between 0 and 6
-	read_code(code+8,pn_row,7 - sop_col + 1,8);			// 7-sop_col+1 between 1 and 7
+	DSM_read_code(code,pn_row,7 - sop_col,8);				// 7-sop_col between 0 and 6
+	DSM_read_code(code+8,pn_row,7 - sop_col + 1,8);			// 7-sop_col+1 between 1 and 7
 	CYRF_ConfigDataCode(code, 16);
 
 	CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
@@ -536,7 +536,7 @@ uint16_t initDsm()
 	cyrfmfg_id[3]^=RX_num;
 	//Calc sop_col
 	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
-	//Fix for OrangeRX using wrong pncodes by preventing access to "Col 8"
+	//Fix for OrangeRX using wrong DSM_pncodes by preventing access to "Col 8"
 	if(sop_col==0)
 	{
 	   cyrfmfg_id[rx_tx_addr[0]%3]^=0x01;					//Change a bit so sop_col will be different from 0

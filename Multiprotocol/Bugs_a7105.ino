@@ -275,17 +275,25 @@ const uint8_t PROGMEM BUGS_hop []= {
 		0x4b, 0x19, 0x35, 0x1e, 0x63, 0x0f, 0x45, 0x21, 0x51, 0x3a, 0x5d, 0x25, 0x0a, 0x44, 0x61, 0x27,	// data phase ID=0xA4C56AB4 for txid 767194 if rx responds C6 BB 57 7F 00 00 00 00 00 00 FF 87 40 00 00 00
 	};
 
-static void  __attribute__((unused))BUGS_set_radio_data(uint8_t index)
+static void  __attribute__((unused))BUGS_set_radio_data()
 {	// captured radio data for bugs rx/tx version A2
 	// it appears that the hopping frequencies are determined by the txid
 	// and the data phase radio id is determined by the first 2 bytes of the
 	// rx bind packet
-	if(index==0)
-		radio_id=0xac59a453;	// bind phase ID=0xac59a453
-	else // 1
-		radio_id=0xA4C56AB4;	// data phase ID=0xA4C56AB4 for txid 767194 if rx responds C6 BB 57 7F 00 00 00 00 00 00 FF 87 40 00 00 00
-	
-	uint8_t offset=index*BUGS_NUM_RFCHAN;
+	uint8_t offset=0;
+	uint32_t radio_id=0xac59a453;	// bind phase ID=0xac59a453
+
+	if(IS_BIND_DONE)
+	{
+		offset=BUGS_NUM_RFCHAN;
+		// Read radio_id from EEPROM
+		radio_id=0;
+		uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
+		for(uint8_t i=0; i<4; i++)
+			radio_id|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<i;
+	}
+	A7105_WriteID(radio_id);
+
 	for(uint8_t i=0; i<BUGS_NUM_RFCHAN;i++)
 		hopping_frequency[i]=pgm_read_byte_near( &BUGS_hop[i+offset] );
 }
@@ -313,6 +321,7 @@ uint16_t ReadBUGS(void)
 {
 	uint8_t mode, timeout, base_adr;
 	uint16_t rxid;
+	uint32_t radio_id;
 
 	// keep frequency tuning updated
 	#ifndef FORCE_FLYSKY_TUNING
@@ -368,15 +377,14 @@ uint16_t ReadBUGS(void)
 				break;
 			}
 			A7105_Strobe(A7105_STANDBY);
+			BIND_DONE;
 			// set radio_id
 			rxid = (packet[1] << 8) + packet[2];
 			radio_id = BUGS_rxid_to_radioid(rxid);
 			base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
 			for(uint8_t i=0; i<4; i++)
 				eeprom_write_byte((EE_ADDR)(base_adr+i),radio_id>>i);	// Save radio_id in EEPROM
-			BUGS_set_radio_data(1);
-			A7105_WriteID(radio_id);
-			BIND_DONE;
+			BUGS_set_radio_data();
 			phase = BUGS_DATA_1;
 			packet_count = 0;
 			hopping_frequency_no = 0;
@@ -437,16 +445,11 @@ uint16_t ReadBUGS(void)
 
 uint16_t initBUGS(void)
 {
+	BUGS_set_radio_data();
 	if (IS_BIND_IN_PROGRESS)
-	{
-		BUGS_set_radio_data(0);
 		phase = BUGS_BIND_1;
-	}
 	else
-	{
-		BUGS_set_radio_data(1);
 		phase = BUGS_DATA_1;
-	}
 
 	A7105_Init();
 

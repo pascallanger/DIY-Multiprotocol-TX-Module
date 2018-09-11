@@ -289,17 +289,7 @@ void A7105_Init(void)
 	
 	#ifdef BUGS_A7105_INO
 		if(protocol==PROTO_BUGS)
-		{
-			if(IS_BIND_DONE)
-			{	// Read radio_id from EEPROM
-				radio_id=0;
-				uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
-				for(uint8_t i=0; i<4; i++)
-					radio_id|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<i;
-			}
-			A7105_WriteID(radio_id);
 			A7105_Regs=(uint8_t*)BUGS_A7105_regs;
-		}
 		else
 	#endif
 	#ifdef HUBSAN_A7105_INO

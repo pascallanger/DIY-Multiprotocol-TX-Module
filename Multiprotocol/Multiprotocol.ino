@@ -110,7 +110,6 @@ uint16_t seed;
 uint16_t failsafe_count;
 uint16_t state;
 uint8_t  len;
-uint32_t radio_id;
 
 #if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO)
 	uint8_t calData[48];

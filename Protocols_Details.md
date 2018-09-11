@@ -851,6 +851,8 @@ CH7 and CH8 have no visible effect
 
 MODE: -100% level, +100% acro
 
+FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
+
 CALIB: -100% normal mode, +100% gyro calibration
 
 ### Sub_protocol Q200 - *3*
@@ -874,6 +876,8 @@ CH7 and CH8 have no visible effect
 
 MODE: -100% level, +100% acro
 
+FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
+
 CALIB: -100% normal mode, +100% gyro calibration
 
 ### Sub_protocol MR100 - *4*
@@ -886,6 +890,8 @@ A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VIDEO|PICTURE
 RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
 
 CH7 and CH8 have no visible effect
+
+FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
 
 MODE: -100% level, +100% acro
 

@@ -290,7 +290,7 @@ static void  __attribute__((unused))BUGS_set_radio_data()
 		radio_id=0;
 		uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
 		for(uint8_t i=0; i<4; i++)
-			radio_id|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<i;
+			radio_id|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
 	}
 	A7105_WriteID(radio_id);
 
@@ -383,7 +383,7 @@ uint16_t ReadBUGS(void)
 			radio_id = BUGS_rxid_to_radioid(rxid);
 			base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
 			for(uint8_t i=0; i<4; i++)
-				eeprom_write_byte((EE_ADDR)(base_adr+i),radio_id>>i);	// Save radio_id in EEPROM
+				eeprom_write_byte((EE_ADDR)(base_adr+i),radio_id>>(i*8));	// Save radio_id in EEPROM
 			BUGS_set_radio_data();
 			phase = BUGS_DATA_1;
 			packet_count = 0;

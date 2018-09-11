@@ -60,6 +60,7 @@ The 4-pin header needs to be soldered onto the board as indicated by the red rec
 
 ### Configure the Arduino IDE
 1. Under **Tools -> Board** select **Multi 4-in-1 (STM32FC103)**
+1. Under **Tools -> Upload method** select **Auto Detect (USB or Serial)** <- more details on this subject later on
 1. Under **Tools -> Programmer** select **stm32flash (FTDI)**
 
 ## Configure the firmware
@@ -67,7 +68,7 @@ The STM32 module has more than enough flash space for all the available protocol
 
 You can still disable protocols if you wish, and you may also enable or disable other optional Multiprotocol features.
 ## Verify the firmware
-To check that the program will compile correctly and fit in the Atmega click **Sketch -> Verify/Compile**, or press **Ctrl+R**.
+To check that the program will compile correctly and fit in the STM32 click **Sketch -> Verify/Compile**, or press **Ctrl+R**.
 
 If there are errors,  carefully read it, go to the line number indicated and correct your typo.
 

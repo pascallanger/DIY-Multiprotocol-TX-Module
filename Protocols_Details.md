@@ -845,20 +845,28 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
 ---|---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|-|-|CALIB
 
-RATES takes any value between +50..-50%: +50%=min rates, 0%=mid rates (stock setting), -50%=max rates
+RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
 
 CH7 and CH8 have no visible effect
 
 CALIB: -100% normal mode, +100% gyro calibration
 
 ### Sub_protocol Q200 - *3*
-Models: Ominus Quadcopter FPV, the Nine Eagles - FENG FPV and may be others
+Model: Ominus Quadcopter FPV, the Nine Eagles - FENG FPV and may be others
+
+Omnius channels mapping:
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
 ---|---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VID_ON|VID_OFF|CALIB
 
-RATES takes any value between +50..-50%: +50%=min rates, 0%=mid rates (stock setting), -50%=max rates
+FENG FPV: channels mapping:
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|FLIP|MODE|VID_ON|VID_OFF|CALIB
+
+RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
 
 CH7 and CH8 have no visible effect
 
@@ -871,7 +879,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VIDEO|PICTURE
 
-RATES takes any value between +50..-50%: +50%=min rates, 0%=mid rates (stock setting), -50%=max rates
+RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
 
 CH7 and CH8 have no visible effect
 

@@ -141,8 +141,8 @@ static void __attribute__((unused)) SLT_build_packet()
 	for (uint8_t i = 0; i < 4; ++i)
 	{
 		uint16_t v = convert_channel_10b(CH_AETR[i]);
-		if(sub_protocol>SLT_V2 && CH_AETR[i]==THROTTLE)
-			v=1023-v;	// reverse throttle channel for Q100/Q200/MR100 protocols
+		if(sub_protocol>SLT_V2 && (CH_AETR[i]==THROTTLE || CH_AETR[i]==ELEVATOR) )
+			v=1023-v;	// reverse throttle and elevator channels for Q100/Q200/MR100 protocols
 		packet[i] = v;
 		e = (e >> 2) | (uint8_t) ((v >> 2) & 0xC0);
 	}

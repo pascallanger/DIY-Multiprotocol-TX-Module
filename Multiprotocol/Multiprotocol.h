@@ -626,9 +626,6 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			Q222		0
 			Q242		1
 			Q282		2
-		sub_protocol==SLT
-			SLT			0
-			VISTA		1
 		sub_protocol==CG023
 			CG023		0
 			YD829		1

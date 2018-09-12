@@ -856,9 +856,9 @@ FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (re
 CALIB: -100% normal mode, +100% gyro calibration
 
 ### Sub_protocol Q200 - *3*
-Model: Ominus Quadcopter FPV, the Nine Eagles - FENG FPV and may be others
+Model: Dromida Ominus Quadcopter FPV, the Nine Eagles - FENG FPV and may be others
 
-Omnius channels mapping:
+Dromida Ominus FPV channels mapping:
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
 ---|---|---|---|---|---|---|---|---|---|---|---|---

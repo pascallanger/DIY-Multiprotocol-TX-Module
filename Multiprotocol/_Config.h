@@ -53,20 +53,19 @@
 //For more throw, 1024..1976us @100% and 904..2096us @125%, remove the "//" on the line below. Be aware that too much throw can damage some UMX servos. To achieve standard throw in this mode use a channel weight of 84%.
 //#define DSM_MAX_THROW
 
-/*************************/
-/*** BIND FROM CHANNEL ***/
-/*************************/
+
+/*****************/
+/*** AUTO BIND ***/  // Also referred as "Bind on powerup"
+/*****************/
 //Bind from channel enables you to bind when a specified channel is going from low to high. This feature is only active
 // if you specify AUTOBIND in PPM mode or set AutoBind to YES for serial mode. It also requires that the throttle channel is low.
-
 //Comment to globaly disable the bind feature from a channel.
 #define ENABLE_BIND_CH
-
 //Set the channel number used for bind. Default is 16.
 #define BIND_CH	16
 
-//Comment to disable the wait for bind feature. This feature will not activate the selected
-// protocol unless a bind is requested using bind from channel or the GUI "Bind" button.
+//Comment to disable the wait for bind feature. If Autobind is enabled in the model config, this feature will not activate
+// the selected protocol unless a bind is requested using bind from channel or the GUI "Bind" button.
 //The goal is to prevent binding other people's model when powering up the TX, changing model or scanning through protocols.
 #define WAIT_FOR_BIND
 
@@ -75,7 +74,7 @@
 /*** RF CHIPS ***/
 /****************/
 //There are 4 RF components supported. If one of them is not installed you must comment it using "//".
-//If a chip is not installed all associated protocols are disabled.
+//If a chip is not installed all associated protocols are automatically disabled.
 //4-in-1 modules have all RF chips installed
 //!!!If a RF chip is present it MUST be marked as installed!!! or weird things will happen you have been warned.
 #define A7105_INSTALLED
@@ -209,7 +208,7 @@
 //Value between -125% and +125%. Default -100.
 #define FAILSAFE_THROTTLE_LOW -100
 
-//The radio using serial protocol can set failsafe data (ersky9x only for now).
+//The radio using serial protocol can set failsafe data.
 // Two options are available:
 //  a. replace the default failsafe data with serial failsafe data when they are received.
 //  b. wait for the radio to provide failsafe before sending it. Enable advanced settings like "FAILSAFE NOT SET" or "FAILSAFE RX".
@@ -249,7 +248,7 @@
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send basic telemetry to TX like er9x
 #define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-#define BUGS_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define BUGS_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, ersky9x and OpenTX
@@ -258,6 +257,7 @@
 //SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
 //This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
 //Using this feature requires to uncomment INVERT_TELEMETRY as this TX output on telemetry pin only inverted signal.
+//!!!! This is a work in progress!!! Do not enable unless you want to test and report
 //#define SPORT_POLLING
 
 
@@ -266,7 +266,7 @@
 /****************************/
 //In this section you can configure the serial mode.
 //The serial mode enables full editing of all the parameters in the GUI of the radio. It is enabled by placing the rotary switch on position 0.
-//This is available natively for ER9X and ERSKY9X. It is available for OpenTX on Taranis with a special version.
+//This is available natively for ER9X, ERSKY9X and OpenTX.
 
 //If you do not plan to use the Serial mode comment this line using "//" to save Flash space
 #define ENABLE_SERIAL

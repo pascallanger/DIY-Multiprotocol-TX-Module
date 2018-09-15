@@ -30,7 +30,7 @@ static void __attribute__((unused)) ESKY_set_data_address()
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    rx_tx_addr, 4);
 }
 
-static void __attribute__((unused)) ESKY_init(uint8_t bind)
+static void __attribute__((unused)) ESKY_init()
 {
 	NRF24L01_Initialize();
 
@@ -38,7 +38,7 @@ static void __attribute__((unused)) ESKY_init(uint8_t bind)
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO)); 
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);            // No Auto Acknowledgement
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);        // Enable data pipe 0
-	if (bind)
+	if (IS_BIND_IN_PROGRESS)
 	{
 		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);     // 3-byte RX/TX address for bind packets
 		NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x00\x00\x00", 3);
@@ -63,7 +63,6 @@ static void __attribute__((unused)) ESKY_init(uint8_t bind)
 static void __attribute__((unused)) ESKY_init2()
 {
 	NRF24L01_FlushTx();
-	packet_sent = 0;
 	hopping_frequency_no = 0;
 	uint16_t channel_ord = rx_tx_addr[0] % 74;
 	hopping_frequency[12] = 10 + (uint8_t)channel_ord;	//channel_code
@@ -116,14 +115,12 @@ static void __attribute__((unused)) ESKY_send_packet(uint8_t bind)
 		// Each data packet is repeated 3 times on one channel, and 3 times on another channel
 		// For arithmetic simplicity, channels are repeated in rf_channels array
 		if (hopping_frequency_no == 0)
-		{
 			for (uint8_t i = 0; i < 6; i++)
 			{
 				uint16_t val=convert_channel_ppm(CH_AETR[i]);
 				packet[i*2]   = val>>8;		//high byte of servo timing(1000-2000us)
 				packet[i*2+1] = val&0xFF;	//low byte of servo timing(1000-2000us)
 			}
-		}
 		rf_ch = hopping_frequency[hopping_frequency_no];
 		packet[12] = hopping_frequency[hopping_frequency_no+6];	// end_bytes
 		hopping_frequency_no++;
@@ -132,23 +129,15 @@ static void __attribute__((unused)) ESKY_send_packet(uint8_t bind)
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch);
 	NRF24L01_FlushTx();
 	NRF24L01_WritePayload(packet, ESKY_PAYLOAD_SIZE);
-	packet_sent = 1;
-	if (! rf_ch_num)
-		NRF24L01_SetPower();	//Keep transmit power updated
+	NRF24L01_SetPower();	//Keep transmit power updated
 }
 
 uint16_t ESKY_callback()
 {
 	if(IS_BIND_DONE)
-	{
-		if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
-			return ESKY_PACKET_CHKTIME;
 		ESKY_send_packet(0);
-	}
 	else
 	{
-		if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
-			return ESKY_PACKET_CHKTIME;
 		ESKY_send_packet(1);
 		if (--bind_counter == 0)
 		{
@@ -162,8 +151,9 @@ uint16_t ESKY_callback()
 uint16_t initESKY(void)
 {
 	bind_counter = ESKY_BIND_COUNT;
+	rx_tx_addr[2] = rx_tx_addr[3];	// Model match
 	rx_tx_addr[3] = 0xBB;
-	ESKY_init(IS_BIND_IN_PROGRESS);
+	ESKY_init();
 	ESKY_init2();
 	return 50000;
 }

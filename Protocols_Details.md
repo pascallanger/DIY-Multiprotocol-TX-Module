@@ -135,7 +135,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|RTH|LIGHT|STAB|VIDEO
 
-### Sub_protocol H501 - *1*
+### Sub_protocol H501 - *2*
 Models: Hubsan H501S, H122D, H123D
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13

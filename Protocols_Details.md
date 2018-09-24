@@ -942,3 +942,8 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ### Sub_protocol XINXUN - *3*
 ### Sub_protocol NIHUI - *4*
 Same channels assignement as above.
+
+# OpenLRS module
+
+## OpenLRS - *27*
+This is a reservation for OpenLRSng which is using Multi's serial protocol for their modules: https://openlrsng.org/. On the Multi side there is no protocol affected on 27 so it's just ignored.

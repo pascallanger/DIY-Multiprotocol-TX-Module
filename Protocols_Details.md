@@ -135,7 +135,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|RTH|LIGHT|STAB|VIDEO
 
-### Sub_protocol H501 - *1*
+### Sub_protocol H501 - *2*
 Models: Hubsan H501S, H122D, H123D
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
@@ -942,3 +942,8 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ### Sub_protocol XINXUN - *3*
 ### Sub_protocol NIHUI - *4*
 Same channels assignement as above.
+
+# OpenLRS module
+
+## OpenLRS - *27*
+This is a reservation for OpenLRSng which is using Multi's serial protocol for their modules: https://openlrsng.org/. On the Multi side there is no protocol affected on 27 so it's just ignored.

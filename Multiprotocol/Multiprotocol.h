@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	1
+#define VERSION_PATCH_LEVEL	2
 
 //******************
 // Protocols
@@ -68,6 +68,7 @@ enum PROTOCOLS
 	PROTO_HITEC     = 39,   // =>CC2500
 	PROTO_WFLY		= 40,	// =>CYRF6936
 	PROTO_BUGS		= 41,	// =>A7105
+	PROTO_TEST		= 63,	// =>NRF24L01
 };
 
 enum Flysky

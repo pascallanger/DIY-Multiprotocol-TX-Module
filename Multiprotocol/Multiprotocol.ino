@@ -1187,6 +1187,12 @@ static void protocol_init()
 						remote_callback = cflie_callback;
 						break;
 				#endif
+				#if defined(TEST_NRF24L01_INO)
+					case PROTO_TEST:
+						next_callback=initTest();
+						remote_callback = Test_callback;
+						break;
+				#endif
 			#endif
 		}
 	}

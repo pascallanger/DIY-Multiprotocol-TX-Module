@@ -427,14 +427,16 @@ uint16_t ReadBUGS(void)
 			if (!(mode & 0x01))
 			{
 				A7105_ReadData(16);
-				v_lipo1=packet[10] == 0xff ? 0xff : 0x00;					// Voltage in this case is only an alert on level good or bad.
-				RX_RSSI=packet[3];
-				// Read TX RSSI
-				int16_t temp=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;	// Value from A7105 is between 8 for maximum signal strength to 160 or less
-				if(temp<0) temp=0;
-				else if(temp>255) temp=255;
-				TX_RSSI=temp;
-				telemetry_link=1;
+				#if defined(BUGS_HUB_TELEMETRY)
+					v_lipo1=packet[10] == 0xff ? 0xff : 0x00;					// Voltage in this case is only an alert on level good or bad.
+					RX_RSSI=packet[3];
+					// Read TX RSSI
+					int16_t temp=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;	// Value from A7105 is between 8 for maximum signal strength to 160 or less
+					if(temp<0) temp=0;
+					else if(temp>255) temp=255;
+					TX_RSSI=temp;
+					telemetry_link=1;
+				#endif
 			}
 			phase = BUGS_DATA_1;
 			packet_period = BUGS_DELAY_POST_RX;

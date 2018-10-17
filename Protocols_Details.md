@@ -149,8 +149,6 @@ H123D: FMODES -> -100%=Sport mode 1,0%=Sport mode 2,+100%=Acro
 ## BUGS - *41*
 Models: MJX Bugs 3, 6 and 8
 
-Autobind protocol
-
 Telemetry enabled for RX & TX RSSI, Battery voltage good/bad
 
 **RX_Num is used to give a number to a given model. You must use a different RX_Num per MJX Bugs. A maximum of 16 Bugs are supported.**
@@ -496,6 +494,19 @@ Model: IRDRONE
 CH12|CH13
 ----|----
 TAKE_OFF|EMG_STOP
+
+## BUGSMINI - *42*
+Models: MJX Bugs 3 Mini and 3H
+
+Telemetry enabled for RX RSSI, Battery voltage good/warning/bad
+
+**RX_Num is used to give a number to a given model. You must use a different RX_Num per MJX Bugs Mini. A maximum of 16 Bugs Mini are supported.**
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
+
+ANGLE: angle is +100%, acro is -100%
 
 ## Cabell - *34*
 Homegrown protocol with variable number of channels (4-16) and telemetry (RSSI, V1, V2).

@@ -614,7 +614,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_BUGS) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_BUGS) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
+			if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
 		#endif
 				TelemetryUpdate();
 	#endif
@@ -1187,6 +1187,12 @@ static void protocol_init()
 						remote_callback = cflie_callback;
 						break;
 				#endif
+				#if defined(BUGSMINI_NRF24L01_INO)
+					case PROTO_BUGSMINI:
+						next_callback=initBUGSMINI();
+						remote_callback = BUGSMINI_callback;
+						break;
+				#endif
 				#if defined(TEST_NRF24L01_INO)
 					case PROTO_TEST:
 						next_callback=initTest();
@@ -1582,7 +1588,7 @@ void pollBoot()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS))
+	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI))
 		initTXSerial( SPEED_9600 ) ;
 	if(protocol==PROTO_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;

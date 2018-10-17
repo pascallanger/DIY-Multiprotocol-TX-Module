@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	2
+#define VERSION_PATCH_LEVEL	3
 
 //******************
 // Protocols
@@ -68,6 +68,7 @@ enum PROTOCOLS
 	PROTO_HITEC     = 39,   // =>CC2500
 	PROTO_WFLY		= 40,	// =>CYRF6936
 	PROTO_BUGS		= 41,	// =>A7105
+	PROTO_BUGSMINI	= 42,	// =>NRF24L01
 	PROTO_TEST		= 63,	// =>NRF24L01
 };
 
@@ -516,9 +517,10 @@ enum {
 #define EEPROM_BANK_OFFSET		15		// Current bank number (1 byte)
 #define EEPROM_ID_VALID_OFFSET	20		// 1 byte flag that ID is valid
 #define MODELMODE_EEPROM_OFFSET	30		// Autobind mode, 1 byte per model, end is 30+16=46
-#define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 byte per model id, end is 50+64=114
-#define BUGS_EEPROM_OFFSET		114		// RX ID, 4 byte per model id, end is 114+64=178
-//#define CONFIG_EEPROM_OFFSET 	178		// Current configuration of the multimodule
+#define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 bytes per model id, end is 50+64=114
+#define BUGS_EEPROM_OFFSET		114		// TX ID, 4 bytes per model id, end is 114+64=178
+#define BUGSMINI_EEPROM_OFFSET	178		// RX ID, 2 bytes per model id, end is 178+32=210
+//#define CONFIG_EEPROM_OFFSET 	210		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***
@@ -578,6 +580,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					Hitec		39
 					WFLY		40
 					BUGS		41
+					BUGSMINI	42
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

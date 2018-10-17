@@ -171,6 +171,7 @@
 //The protocols below need a NRF24L01 to be installed
 #define	ASSAN_NRF24L01_INO
 #define	BAYANG_NRF24L01_INO
+#define	BUGSMINI_NRF24L01_INO
 #define	CABELL_NRF24L01_INO
 #define	CFLIE_NRF24L01_INO
 #define	CG023_NRF24L01_INO
@@ -561,6 +562,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_WFLY
 		NONE
 	PROTO_BUGS
+		NONE
+	PROTO_BUGSMINI
 		NONE
 	PROTO_SLT
 		SLT_V1

@@ -180,6 +180,7 @@
 	#undef	ESKY150_NRF24L01_INO
 	#undef	H8_3D_NRF24L01_INO
 	#undef	CFLIE_NRF24L01_INO
+	#undef	BUGSMINI_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly
@@ -205,6 +206,9 @@
 	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY
+	#endif
+	#if not ( defined(BUGS_A7105_INO) || defined(BUGSMINI_NRF24L01_INO) )
+		#undef BUGS_HUB_TELEMETRY
 	#endif
 	#if not defined(CABELL_NRF24L01_INO)
 		#undef CABELL_HUB_TELEMETRY

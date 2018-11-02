@@ -773,6 +773,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP||||HEADLESS
 
+## NCC1701 - *44*
+Model: Air Hogs Star Trek USS Enterprise NCC-1701-A
+
+Autobind protocol
+
+Only 9 IDs available, cycle through them using RX_Num.
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
 ## Q2X2 - *29*
 ### Sub_protocol Q222 - *0*
 Models: Q222 v1 and V686 v2

@@ -159,6 +159,7 @@
 #define	J6PRO_CYRF6936_INO
 #define	WFLY_CYRF6936_INO
 #define	WK2x01_CYRF6936_INO
+//#define TRAXXAS_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
 #define	CORONA_CC2500_INO
@@ -188,6 +189,7 @@
 #define	KN_NRF24L01_INO
 #define	MJXQ_NRF24L01_INO
 #define	MT99XX_NRF24L01_INO
+#define NCC1701_NRF24L01_INO
 #define	Q303_NRF24L01_INO
 #define	SHENQI_NRF24L01_INO
 #define	SLT_NRF24L01_INO
@@ -571,6 +573,10 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		Q100
 		Q200
 		MR100
+	PROTO_TRAXXAS
+		NONE
+	PROTO_NCC1701
+		NONE
 */
 
 // RX_Num is used for TX & RX match. Using different RX_Num values for each receiver will prevent starting a model with the false config loaded...

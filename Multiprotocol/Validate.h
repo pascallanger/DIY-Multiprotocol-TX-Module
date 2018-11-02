@@ -146,6 +146,7 @@
 	#undef	J6PRO_CYRF6936_INO
 	#undef	WFLY_CYRF6936_INO
 	#undef	WK2x01_CYRF6936_INO
+	#undef TRAXXAS_CYRF6936_INO
 #endif
 #ifndef CC2500_INSTALLED
 	#undef	FRSKYD_CC2500_INO
@@ -181,6 +182,7 @@
 	#undef	H8_3D_NRF24L01_INO
 	#undef	CFLIE_NRF24L01_INO
 	#undef	BUGSMINI_NRF24L01_INO
+	#undef	NCC1701_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly

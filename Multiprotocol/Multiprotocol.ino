@@ -89,7 +89,7 @@ uint8_t  Channel_AUX;
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint8_t  rx_tx_addr[5];
-uint8_t  rx_id[4];
+uint8_t  rx_id[5];
 uint8_t  phase;
 uint16_t bind_counter;
 uint8_t  bind_phase;
@@ -1191,6 +1191,12 @@ static void protocol_init()
 					case PROTO_BUGSMINI:
 						next_callback=initBUGSMINI();
 						remote_callback = BUGSMINI_callback;
+						break;
+				#endif
+				#if defined(NCC1701_NRF24L01_INO)
+					case PROTO_NCC1701:
+						next_callback=initNCC();
+						remote_callback = NCC_callback;
 						break;
 				#endif
 				#if defined(TEST_NRF24L01_INO)

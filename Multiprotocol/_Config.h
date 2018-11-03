@@ -176,7 +176,7 @@
 #define	CABELL_NRF24L01_INO
 #define	CFLIE_NRF24L01_INO
 #define	CG023_NRF24L01_INO
-#define	CX10_NRF24L01_INO		// Include Q2X2 protocol
+#define	CX10_NRF24L01_INO		 //Include Q2X2 protocol
 #define	DM002_NRF24L01_INO
 #define	ESKY_NRF24L01_INO
 #define	ESKY150_NRF24L01_INO
@@ -253,6 +253,7 @@
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define BUGS_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define NCC1701_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, ersky9x and OpenTX
 #define HITEC_FW_TELEMETRY			// Under development: Forward received telemetry packets to be decoded by ersky9x and OpenTX

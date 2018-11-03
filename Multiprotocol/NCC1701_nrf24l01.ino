@@ -27,7 +27,8 @@ enum {
 	NCC_BIND_RX1,
 	NCC_BIND_TX2,
 	NCC_BIND_RX2,
-	NCC_DATA,
+	NCC_BIND_TX3,
+	NCC_BIND_RX3,
 };
 
 static void __attribute__((unused)) NCC_init()
@@ -54,13 +55,13 @@ static void __attribute__((unused)) NCC_init()
 										| (0 << NRF24L01_00_PRIM_RX));
 }
 
-uint8_t NCC_xorout[]={0x80, 0x44, 0x64, 0x75, 0x6C, 0x71, 0x2A, 0x36, 0x7C, 0xF1, 0x6E, 0x52, 0x09, 0x9D};
+uint8_t NCC_xor[]={0x80, 0x44, 0x64, 0x75, 0x6C, 0x71, 0x2A, 0x36, 0x7C, 0xF1, 0x6E, 0x52, 0x09, 0x9D};
 static void __attribute__((unused)) NCC_Crypt_Packet()
 {
 	uint16_t crc=0;
 	for(uint8_t i=0; i< NCC_TX_PACKET_LEN-2; i++)
 	{
-		packet[i]^=NCC_xorout[i];
+		packet[i]^=NCC_xor[i];
 		crc=crc16_update(crc, packet[i], 8);
 	}
 	crc^=0x60DE;
@@ -74,7 +75,7 @@ static boolean __attribute__((unused)) NCC_Decrypt_Packet()
 	for(uint8_t i=0; i< NCC_RX_PACKET_LEN-2; i++)
 	{
 		crc=crc16_update(crc, packet[i], 8);
-		packet[i]^=NCC_xorout[i];
+		packet[i]^=NCC_xor[i];
 		debug("%02X ",packet[i]);
 	}
 	crc^=0xA950;
@@ -101,7 +102,7 @@ static void __attribute__((unused)) NCC_Write_Packet()
 	packet[9]=rx_id[2];
 	packet[10]=rx_id[3];
 	packet[11]=rx_id[4];
-	packet[12]=0x02;							// default:0x00 -> Warp:0x02 ??
+	packet[12]=GET_FLAG(CH5_SW, 0x02);			// Warp:0x00 -> 0x02
 	packet[13]=packet[5]+packet[6]+packet[7]+packet[8]+packet[12];
 	if(phase==NCC_BIND_TX1)
 	{
@@ -176,7 +177,7 @@ uint16_t NCC_callback()
 					rx_id[4]=packet[10];
 					NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
 					BIND_DONE;
-					phase=NCC_DATA;
+					phase=NCC_BIND_TX3;
 					return NCC_PACKET_INTERVAL;
 				}
 			}
@@ -194,9 +195,38 @@ uint16_t NCC_callback()
 			NRF24L01_FlushRx();
 			phase = NCC_BIND_TX2;
 			return NCC_PACKET_INTERVAL - NCC_WRITE_WAIT;
-		case NCC_DATA:
+		case NCC_BIND_TX3:
+			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
+			{ // RX fifo data ready
+				NRF24L01_ReadPayload(packet, NCC_RX_PACKET_LEN);
+				if(NCC_Decrypt_Packet())
+				{
+					//Telemetry
+					//packet[5] and packet[7] roll angle
+					//packet[6] crash detect: 0x00 no crash, 0x02 crash
+					#ifdef NCC1701_HUB_TELEMETRY
+						v_lipo1 = packet[6]?0x00:0xFF;	// Crash indication
+						v_lipo2 = 0x00;
+						RX_RSSI = 0x7F;					// Dummy RSSI
+						TX_RSSI = 0x7F;					// Dummy RSSI
+						telemetry_link=1;
+					#endif
+				}
+			}
 			NCC_Write_Packet();
-			return NCC_PACKET_INTERVAL;
+			phase = NCC_BIND_RX3;
+			return NCC_WRITE_WAIT;
+		case NCC_BIND_RX3:
+			// switch to RX mode and disable CRC
+			NRF24L01_SetTxRxMode(TXRX_OFF);
+			NRF24L01_SetTxRxMode(RX_EN);
+			NRF24L01_WriteReg(NRF24L01_00_CONFIG, (0 << NRF24L01_00_EN_CRC)
+												| (1 << NRF24L01_00_CRCO)
+												| (1 << NRF24L01_00_PWR_UP)
+												| (1 << NRF24L01_00_PRIM_RX));
+			NRF24L01_FlushRx();
+			phase = NCC_BIND_TX3;
+			return NCC_PACKET_INTERVAL - NCC_WRITE_WAIT;
 	}
 	return 0;
 }
@@ -237,6 +267,9 @@ uint16_t initNCC(void)
 	hopping_frequency_no=4;		// start with bind
 	NCC_init();
 	phase=NCC_BIND_TX1;
+	#ifdef NCC1701_HUB_TELEMETRY
+		init_frskyd_link_telemetry();
+	#endif
 	return 10000;
 }
 

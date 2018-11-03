@@ -778,11 +778,13 @@ Model: Air Hogs Star Trek USS Enterprise NCC-1701-A
 
 Autobind protocol
 
+Telemetry: RSSI is a dummy value. A1 voltage is dummy but used for crash detection. In case of a crash event A1=0V, you can assign a sound to be played on the TX in that case (siren on the original transmitter).
+
 Only 9 IDs available, cycle through them using RX_Num.
 
-CH1|CH2|CH3|CH4
----|---|---|---
-A|E|T|R
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|Warp
 
 ## Q2X2 - *29*
 ### Sub_protocol Q222 - *0*

@@ -27,8 +27,8 @@ enum {
 	NCC_BIND_RX1,
 	NCC_BIND_TX2,
 	NCC_BIND_RX2,
-	NCC_BIND_TX3,
-	NCC_BIND_RX3,
+	NCC_TX3,
+	NCC_RX3,
 };
 
 static void __attribute__((unused)) NCC_init()
@@ -55,7 +55,7 @@ static void __attribute__((unused)) NCC_init()
 										| (0 << NRF24L01_00_PRIM_RX));
 }
 
-uint8_t NCC_xor[]={0x80, 0x44, 0x64, 0x75, 0x6C, 0x71, 0x2A, 0x36, 0x7C, 0xF1, 0x6E, 0x52, 0x09, 0x9D};
+const uint8_t NCC_xor[]={0x80, 0x44, 0x64, 0x75, 0x6C, 0x71, 0x2A, 0x36, 0x7C, 0xF1, 0x6E, 0x52, 0x09, 0x9D};
 static void __attribute__((unused)) NCC_Crypt_Packet()
 {
 	uint16_t crc=0;
@@ -143,7 +143,8 @@ uint16_t NCC_callback()
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready
 				NRF24L01_ReadPayload(packet, NCC_RX_PACKET_LEN);
-				if(NCC_Decrypt_Packet())
+				if(NCC_Decrypt_Packet() && packet[1]==rx_tx_addr[0] && packet[2]==rx_tx_addr[1])
+
 				{
 					rx_id[0]=packet[3];
 					rx_id[1]=packet[4];
@@ -170,14 +171,14 @@ uint16_t NCC_callback()
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready
 				NRF24L01_ReadPayload(packet, NCC_RX_PACKET_LEN);
-				if(NCC_Decrypt_Packet())
+				if(NCC_Decrypt_Packet() && packet[1]==rx_tx_addr[0] && packet[2]==rx_tx_addr[1] && packet[3]==rx_id[0] && packet[4]==rx_id[1])
 				{
 					rx_id[2]=packet[8];
 					rx_id[3]=packet[9];
 					rx_id[4]=packet[10];
 					NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
 					BIND_DONE;
-					phase=NCC_BIND_TX3;
+					phase=NCC_TX3;
 					return NCC_PACKET_INTERVAL;
 				}
 			}
@@ -195,17 +196,17 @@ uint16_t NCC_callback()
 			NRF24L01_FlushRx();
 			phase = NCC_BIND_TX2;
 			return NCC_PACKET_INTERVAL - NCC_WRITE_WAIT;
-		case NCC_BIND_TX3:
+		case NCC_TX3:
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready
 				NRF24L01_ReadPayload(packet, NCC_RX_PACKET_LEN);
-				if(NCC_Decrypt_Packet())
+				if(NCC_Decrypt_Packet() && packet[1]==rx_tx_addr[0] && packet[2]==rx_tx_addr[1] && packet[3]==rx_id[0] && packet[4]==rx_id[1])
 				{
 					//Telemetry
 					//packet[5] and packet[7] roll angle
 					//packet[6] crash detect: 0x00 no crash, 0x02 crash
 					#ifdef NCC1701_HUB_TELEMETRY
-						v_lipo1 = packet[6]?0x00:0xFF;	// Crash indication
+						v_lipo1 = packet[6]?0xFF:0x00;	// Crash indication
 						v_lipo2 = 0x00;
 						RX_RSSI = 0x7F;					// Dummy RSSI
 						TX_RSSI = 0x7F;					// Dummy RSSI
@@ -214,9 +215,9 @@ uint16_t NCC_callback()
 				}
 			}
 			NCC_Write_Packet();
-			phase = NCC_BIND_RX3;
+			phase = NCC_RX3;
 			return NCC_WRITE_WAIT;
-		case NCC_BIND_RX3:
+		case NCC_RX3:
 			// switch to RX mode and disable CRC
 			NRF24L01_SetTxRxMode(TXRX_OFF);
 			NRF24L01_SetTxRxMode(RX_EN);
@@ -225,7 +226,7 @@ uint16_t NCC_callback()
 												| (1 << NRF24L01_00_PWR_UP)
 												| (1 << NRF24L01_00_PRIM_RX));
 			NRF24L01_FlushRx();
-			phase = NCC_BIND_TX3;
+			phase = NCC_TX3;
 			return NCC_PACKET_INTERVAL - NCC_WRITE_WAIT;
 	}
 	return 0;

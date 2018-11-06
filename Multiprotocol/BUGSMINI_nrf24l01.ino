@@ -26,8 +26,6 @@
 #define BUGSMINI_NUM_RF_CHANNELS 15
 #define BUGSMINI_ADDRESS_SIZE    5
 
-static uint8_t BUGSMINI_armed, BUGSMINI_arm_flags;
-static uint8_t BUGSMINI_arm_channel_previous;
 static uint8_t BUGSMINI_txid[3];
 static uint8_t BUGSMINI_txhash;
 
@@ -79,18 +77,18 @@ static void __attribute__((unused)) BUGSMINI_check_arming()
 {
 	uint8_t arm_channel = BUGSMINI_CH_SW_ARM;
 
-	if (arm_channel != BUGSMINI_arm_channel_previous)
+	if (arm_channel != arm_channel_previous)
 	{
-		BUGSMINI_arm_channel_previous = arm_channel;
+		arm_channel_previous = arm_channel;
 		if (arm_channel)
 		{
-			BUGSMINI_armed = 1;
-			BUGSMINI_arm_flags ^= BUGSMINI_FLAG_ARM;
+			armed = 1;
+			arm_flags ^= BUGSMINI_FLAG_ARM;
 		}
 		else
 		{
-			BUGSMINI_armed = 0;
-			BUGSMINI_arm_flags ^= BUGSMINI_FLAG_DISARM;
+			armed = 0;
+			arm_flags ^= BUGSMINI_FLAG_DISARM;
 		}
 	}
 }
@@ -101,7 +99,7 @@ static void __attribute__((unused)) BUGSMINI_send_packet(uint8_t bind)
 
 	uint16_t aileron  = convert_channel_16b_limit(AILERON,500,0);
 	uint16_t elevator = convert_channel_16b_limit(ELEVATOR,0,500);
-	uint16_t throttle = BUGSMINI_armed ? convert_channel_16b_limit(THROTTLE,0,500) : 0;
+	uint16_t throttle = armed ? convert_channel_16b_limit(THROTTLE,0,500) : 0;
 	uint16_t rudder   = convert_channel_16b_limit(RUDDER,500,0);
 
 	packet[1] = BUGSMINI_txid[0];
@@ -136,9 +134,9 @@ static void __attribute__((unused)) BUGSMINI_send_packet(uint8_t bind)
 			| BUGSMINI_FLAG_MODE
 			| GET_FLAG(BUGSMINI_CH_SW_PICTURE, BUGSMINI_FLAG_PICTURE)
 			| GET_FLAG(BUGSMINI_CH_SW_VIDEO, BUGSMINI_FLAG_VIDEO);
-		if(BUGSMINI_armed)
+		if(armed)
 			packet[12] |= GET_FLAG(BUGSMINI_CH_SW_FLIP, BUGSMINI_FLAG_FLIP);
-		packet[13] = BUGSMINI_arm_flags
+		packet[13] = arm_flags
 			| GET_FLAG(BUGSMINI_CH_SW_LED, BUGSMINI_FLAG_LED)
 			| GET_FLAG(BUGSMINI_CH_SW_ANGLE, BUGSMINI_FLAG_ANGLE);
 
@@ -355,9 +353,12 @@ uint16_t initBUGSMINI()
 		XN297_SetRXAddr(rx_tx_addr, 5);
 		phase = BUGSMINI_DATA1;
 	}
-	BUGSMINI_armed = 0;
-	BUGSMINI_arm_flags = BUGSMINI_FLAG_DISARM;    // initial value from captures
-	BUGSMINI_arm_channel_previous = BUGSMINI_CH_SW_ARM;
+	armed = 0;
+	arm_flags = BUGSMINI_FLAG_DISARM;    // initial value from captures
+	arm_channel_previous = BUGSMINI_CH_SW_ARM;
+	#ifdef BUGS_HUB_TELEMETRY
+		init_frskyd_link_telemetry();
+	#endif
 	return BUGSMINI_INITIAL_WAIT;
 }
 

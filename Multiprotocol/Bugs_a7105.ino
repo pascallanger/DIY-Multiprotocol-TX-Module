@@ -175,9 +175,6 @@ static uint32_t __attribute__((unused)) BUGS_rxid_to_radioid(uint16_t rxid)
 #define BUGS_PACKET_SIZE	22
 #define BUGS_NUM_RFCHAN		16
 
-static uint8_t BUGS_armed, BUGS_arm_flags;
-static uint8_t BUGS_arm_channel_previous;
-
 enum {
 	BUGS_BIND_1,
 	BUGS_BIND_2,
@@ -191,25 +188,25 @@ static void __attribute__((unused)) BUGS_check_arming()
 {
 	uint8_t arm_channel = BUGS_CH_SW_ARM;
 
-	if (arm_channel != BUGS_arm_channel_previous)
+	if (arm_channel != arm_channel_previous)
 	{
-		BUGS_arm_channel_previous = arm_channel;
+		arm_channel_previous = arm_channel;
 		if (arm_channel)
 		{
-			BUGS_armed = 1;
-			BUGS_arm_flags ^= BUGS_FLAG_ARM;
+			armed = 1;
+			arm_flags ^= BUGS_FLAG_ARM;
 		}
 		else
 		{
-			BUGS_armed = 0;
-			BUGS_arm_flags ^= BUGS_FLAG_DISARM;
+			armed = 0;
+			arm_flags ^= BUGS_FLAG_DISARM;
 		}
 	}
 }
 
 static void __attribute__((unused)) BUGS_build_packet(uint8_t bind)
 {
-	uint8_t force_values = bind | !BUGS_armed;
+	uint8_t force_values = bind | !armed;
 	uint8_t change_channel = ((packet_count & 0x1) << 6);
 	uint16_t aileron  = convert_channel_16b_limit(AILERON,800,0);
 	uint16_t elevator = convert_channel_16b_limit(ELEVATOR,800,0);
@@ -225,7 +222,7 @@ static void __attribute__((unused)) BUGS_build_packet(uint8_t bind)
 	if(bind)
 	{
 		packet[4] = change_channel | 0x80;
-		packet[5] = 0x02 | BUGS_arm_flags
+		packet[5] = 0x02 | arm_flags
 		| GET_FLAG(BUGS_CH_SW_ANGLE, BUGS_FLAG_ANGLE);
 	}
 	else
@@ -234,7 +231,7 @@ static void __attribute__((unused)) BUGS_build_packet(uint8_t bind)
 		| GET_FLAG(BUGS_CH_SW_FLIP, BUGS_FLAG_FLIP)
 		| GET_FLAG(BUGS_CH_SW_PICTURE, BUGS_FLAG_PICTURE)
 		| GET_FLAG(BUGS_CH_SW_VIDEO, BUGS_FLAG_VIDEO);
-		packet[5] = 0x02 | BUGS_arm_flags
+		packet[5] = 0x02 | arm_flags
 		| GET_FLAG(BUGS_CH_SW_ANGLE, BUGS_FLAG_ANGLE)
 		| GET_FLAG(BUGS_CH_SW_LED, BUGS_FLAG_LED);
 	}
@@ -309,19 +306,20 @@ static void __attribute__((unused)) BUGS_increment_counts()
 	}
 }
 
-#define BUGS_DELAY_POST_TX   1100
-#define BUGS_DELAY_WAIT_TX    500
-#define BUGS_DELAY_WAIT_RX   2000
-#define BUGS_DELAY_POST_RX   2000
+#define BUGS_PACKET_PERIOD   6100
+#define BUGS_DELAY_TX        2000
+#define BUGS_DELAY_POST_RX   1500
 #define BUGS_DELAY_BIND_RST   200
+
 // FIFO config is one less than desired value
 #define BUGS_FIFO_SIZE_RX      15
 #define BUGS_FIFO_SIZE_TX      21
 uint16_t ReadBUGS(void)
 {
-	uint8_t mode, timeout, base_adr;
+	uint8_t mode, base_adr;
 	uint16_t rxid;
 	uint32_t radio_id;
+	uint16_t start;
 
 	// keep frequency tuning updated
 	#ifndef FORCE_FLYSKY_TUNING
@@ -336,19 +334,15 @@ uint16_t ReadBUGS(void)
 			A7105_WriteReg(A7105_03_FIFOI, BUGS_FIFO_SIZE_TX);
 			A7105_WriteData(BUGS_PACKET_SIZE, hopping_frequency[hopping_frequency_no]);
 			phase = BUGS_BIND_2;
-			packet_period = BUGS_DELAY_POST_TX;
+			packet_period = BUGS_DELAY_TX;
 			break;
 
 		case BUGS_BIND_2:
-			// wait here a bit for tx complete because
-			// need to start rx immediately to catch return packet
-			timeout = 20;
-			while (A7105_ReadReg(A7105_00_MODE) & 0x01)
-				if (timeout-- == 0)
-				{
-					packet_period = BUGS_DELAY_WAIT_TX;  // don't proceed until transmission complete
+			//Wait for TX completion
+			start=micros();
+			while ((uint16_t)micros()-start < 500)			// Wait max 500µs, using serial+telemetry exit in about 60µs
+				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
-				}
 			A7105_SetTxRxMode(RX_EN);
 			A7105_WriteReg(A7105_0F_PLL_I, hopping_frequency[hopping_frequency_no] - 2);
 			A7105_WriteReg(A7105_03_FIFOI, BUGS_FIFO_SIZE_RX);
@@ -356,7 +350,7 @@ uint16_t ReadBUGS(void)
 
 			BUGS_increment_counts();
 			phase = BUGS_BIND_3;
-			packet_period = BUGS_DELAY_WAIT_RX;
+			packet_period = BUGS_PACKET_PERIOD-BUGS_DELAY_TX-BUGS_DELAY_POST_RX;
 			break;
 
 		case BUGS_BIND_3:
@@ -397,19 +391,15 @@ uint16_t ReadBUGS(void)
 			A7105_WriteReg(A7105_03_FIFOI, BUGS_FIFO_SIZE_TX);
 			A7105_WriteData(BUGS_PACKET_SIZE, hopping_frequency[hopping_frequency_no]);
 			phase = BUGS_DATA_2;
-			packet_period = BUGS_DELAY_POST_TX;
+			packet_period = BUGS_DELAY_TX;
 			break;
 
 		case BUGS_DATA_2:
-			// wait here a bit for tx complete because
-			// need to start rx immediately to catch return packet
-			timeout = 20;
-			while (A7105_ReadReg(A7105_00_MODE) & 0x01)
-				if (timeout-- == 0)
-				{
-					packet_period = BUGS_DELAY_WAIT_TX;  // don't proceed until transmission complete
+			//Wait for TX completion
+			start=micros();
+			while ((uint16_t)micros()-start < 500)			// Wait max 500µs, using serial+telemetry exit in about 60µs
+				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
-				}
 			A7105_SetTxRxMode(RX_EN);
 			A7105_WriteReg(A7105_0F_PLL_I, hopping_frequency[hopping_frequency_no] - 2);
 			A7105_WriteReg(A7105_03_FIFOI, BUGS_FIFO_SIZE_RX);
@@ -417,7 +407,7 @@ uint16_t ReadBUGS(void)
 
 			BUGS_increment_counts();
 			phase = BUGS_DATA_3;
-			packet_period = BUGS_DELAY_WAIT_RX;
+			packet_period = BUGS_PACKET_PERIOD-BUGS_DELAY_TX-BUGS_DELAY_POST_RX;
 			break;
 
 		case BUGS_DATA_3:
@@ -447,6 +437,13 @@ uint16_t ReadBUGS(void)
 
 uint16_t initBUGS(void)
 {
+	uint32_t radio_id=0;
+	uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
+	for(uint8_t i=0; i<4; i++)
+		radio_id|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
+	if(radio_id==0xffffffff)
+		BIND_IN_PROGRESS;
+
 	BUGS_set_radio_data();
 	if (IS_BIND_IN_PROGRESS)
 		phase = BUGS_BIND_1;
@@ -457,9 +454,12 @@ uint16_t initBUGS(void)
 
 	hopping_frequency_no = 0;
 	packet_count = 0;
-	BUGS_armed = 0;
-	BUGS_arm_flags = BUGS_FLAG_DISARM;		// initial value from captures
-	BUGS_arm_channel_previous = BUGS_CH_SW_ARM;
+	armed = 0;
+	arm_flags = BUGS_FLAG_DISARM;		// initial value from captures
+	arm_channel_previous = BUGS_CH_SW_ARM;
+	#ifdef BUGS_HUB_TELEMETRY
+		init_frskyd_link_telemetry();
+	#endif
 
 	return 10000;
 }

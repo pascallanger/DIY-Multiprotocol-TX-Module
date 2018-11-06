@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	6
+#define VERSION_PATCH_LEVEL	7
 
 //******************
 // Protocols
@@ -71,6 +71,7 @@ enum PROTOCOLS
 	PROTO_BUGSMINI	= 42,	// =>NRF24L01
 	PROTO_TRAXXAS	= 43,	// =>CYRF6936
 	PROTO_NCC1701	= 44,	// =>NRF24L01
+	PROTO_E01X		= 45,	// =>NRF24L01
 	PROTO_TEST		= 63,	// =>NRF24L01
 };
 
@@ -247,6 +248,11 @@ enum HITEC
 	OPT_HUB	= 1,
 	MINIMA	= 2,
 };
+enum E01X
+{
+	E012	= 0,
+	E015	= 1,
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -365,7 +371,7 @@ enum MultiPacketTypes
 	uint16_t debug_time=0;
 	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg, ##__VA_ARGS__); Serial.write(buf);}
 	#define debugln(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
-	#define debug_time(msg)  { uint16_t debug_time_TCNT1=TCNT1; debug_time=debug_time_TCNT1-debug_time; debugln(msg "%u", debug_time); debug_time=debug_time_TCNT1; }
+	#define debug_time(msg)  { uint16_t debug_time_TCNT1=TCNT1; debug_time=debug_time_TCNT1-debug_time; debugln(msg "%u", debug_time>>1); debug_time=debug_time_TCNT1; }
 #else
 	#define debug(...) { }
 	#define debugln(...) { }
@@ -585,6 +591,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					BUGSMINI	42
 					TRAXXAS		43
 					NCC1701		44
+					E01X		45
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -712,6 +719,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			Q100		2
 			Q200		3
 			MR100		4
+		sub_protocol==E01X
+			E012		0
+			E015		1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

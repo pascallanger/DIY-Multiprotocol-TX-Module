@@ -110,6 +110,7 @@ uint16_t seed;
 uint16_t failsafe_count;
 uint16_t state;
 uint8_t  len;
+uint8_t armed, arm_flags, arm_channel_previous;
 
 #if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO)
 	uint8_t calData[48];
@@ -1197,6 +1198,12 @@ static void protocol_init()
 					case PROTO_NCC1701:
 						next_callback=initNCC();
 						remote_callback = NCC_callback;
+						break;
+				#endif
+				#if defined(E01X_NRF24L01_INO)
+					case PROTO_E01X:
+						next_callback=initE01X();
+						remote_callback = E01X_callback;
 						break;
 				#endif
 				#if defined(TEST_NRF24L01_INO)

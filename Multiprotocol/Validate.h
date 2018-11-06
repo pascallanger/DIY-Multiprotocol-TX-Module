@@ -183,6 +183,7 @@
 	#undef	CFLIE_NRF24L01_INO
 	#undef	BUGSMINI_NRF24L01_INO
 	#undef	NCC1701_NRF24L01_INO
+	#undef	E01X_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly

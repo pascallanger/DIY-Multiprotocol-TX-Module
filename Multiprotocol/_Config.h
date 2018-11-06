@@ -196,7 +196,7 @@
 #define	SYMAX_NRF24L01_INO
 #define	V2X2_NRF24L01_INO
 #define	YD717_NRF24L01_INO
-
+#define E01X_NRF24L01_INO
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
@@ -578,6 +578,9 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		NONE
 	PROTO_NCC1701
 		NONE
+	PROTO_E01X
+		E012
+		E015
 */
 
 // RX_Num is used for TX & RX match. Using different RX_Num values for each receiver will prevent starting a model with the false config loaded...

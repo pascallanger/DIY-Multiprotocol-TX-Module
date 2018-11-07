@@ -604,6 +604,23 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
 
+## E01X - *45*
+Autobind protocol
+
+### Sub_protocol E012 - *0*
+Models: Eachine E012
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R||FLIP||HEADLESS|RTH
+
+### Sub_protocol E015 - *1*
+Models: Eachine E015
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|FLIP|LED|HEADLESS|RTH
+
 ## ESKY - *16*
 
 CH1|CH2|CH3|CH4|CH5|CH6

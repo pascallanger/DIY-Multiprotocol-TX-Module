@@ -58,6 +58,9 @@
 #define E015_FLAG_EXPERT     0x02
 #define E015_FLAG_INTERMEDIATE 0x01
 
+// Bit vector from bit position
+#define BV(bit) (1 << bit)
+
 static void __attribute__((unused)) E015_check_arming()
 {
 	uint8_t arm_channel = E01X_ARM_SW;

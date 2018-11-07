@@ -539,8 +539,8 @@ static uint16_t hs6200_calc_crc(uint8_t* msg, uint8_t len)
 
 void HS6200_Configure(uint8_t flags)
 {
-	hs6200_crc = !!(flags & BV(NRF24L01_00_EN_CRC));
-	flags &= ~(BV(NRF24L01_00_EN_CRC) | BV(NRF24L01_00_CRCO));
+	hs6200_crc = !!(flags & _BV(NRF24L01_00_EN_CRC));
+	flags &= ~(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO));
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, flags & 0xff);      
 }
 

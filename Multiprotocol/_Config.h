@@ -178,6 +178,7 @@
 #define	CG023_NRF24L01_INO
 #define	CX10_NRF24L01_INO		 //Include Q2X2 protocol
 #define	DM002_NRF24L01_INO
+#define	E01X_NRF24L01_INO
 #define	ESKY_NRF24L01_INO
 #define	ESKY150_NRF24L01_INO
 #define	FQ777_NRF24L01_INO
@@ -195,8 +196,8 @@
 #define	SLT_NRF24L01_INO
 #define	SYMAX_NRF24L01_INO
 #define	V2X2_NRF24L01_INO
+#define	V911S_NRF24L01_INO
 #define	YD717_NRF24L01_INO
-#define E01X_NRF24L01_INO
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
@@ -581,6 +582,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_E01X
 		E012
 		E015
+	PROTO_V911S
+		NONE
 */
 
 // RX_Num is used for TX & RX match. Using different RX_Num values for each receiver will prevent starting a model with the false config loaded...

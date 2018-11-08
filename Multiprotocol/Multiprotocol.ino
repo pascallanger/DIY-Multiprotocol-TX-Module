@@ -1206,6 +1206,12 @@ static void protocol_init()
 						remote_callback = E01X_callback;
 						break;
 				#endif
+				#if defined(V911S_NRF24L01_INO)
+					case PROTO_V911S:
+						next_callback=initV911S();
+						remote_callback = V911S_callback;
+						break;
+				#endif
 				#if defined(TEST_NRF24L01_INO)
 					case PROTO_TEST:
 						next_callback=initTest();

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	10
+#define VERSION_PATCH_LEVEL	11
 
 //******************
 // Protocols
@@ -72,6 +72,7 @@ enum PROTOCOLS
 	PROTO_TRAXXAS	= 43,	// =>CYRF6936
 	PROTO_NCC1701	= 44,	// =>NRF24L01
 	PROTO_E01X		= 45,	// =>NRF24L01
+	PROTO_V911S		= 46,	// =>NRF24L01
 	PROTO_TEST		= 63,	// =>NRF24L01
 };
 
@@ -369,12 +370,13 @@ enum MultiPacketTypes
 //********************
 #if defined(STM32_BOARD) && defined (DEBUG_SERIAL)
 	uint16_t debug_time=0;
-	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg, ##__VA_ARGS__); Serial.write(buf);}
-	#define debugln(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
+	#define debug(msg, ...)  {char debug_buf[64]; sprintf(debug_buf, msg, ##__VA_ARGS__); Serial.write(debug_buf);}
+	#define debugln(msg, ...)  {char debug_buf[64]; sprintf(debug_buf, msg "\r\n", ##__VA_ARGS__); Serial.write(debug_buf);}
 	#define debug_time(msg)  { uint16_t debug_time_TCNT1=TCNT1; debug_time=debug_time_TCNT1-debug_time; debug(msg "%u", debug_time>>1); debug_time=debug_time_TCNT1; }
 #else
 	#define debug(...) { }
 	#define debugln(...) { }
+	#define debug_time(...) { }
 	#undef DEBUG_SERIAL
 #endif
 
@@ -592,6 +594,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					TRAXXAS		43
 					NCC1701		44
 					E01X		45
+					V911S		46
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

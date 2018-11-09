@@ -64,13 +64,13 @@ static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
 		uint16_t ch=convert_channel_16b_limit(THROTTLE ,0,0x7FF);
 		packet[ 7] = ch;
 		packet[ 8] = ch>>8;
-		ch=convert_channel_16b_limit(AILERON ,0,0x7FF);
+		ch=convert_channel_16b_limit(AILERON ,0x7FF,0);
 		packet[ 8]|= ch<<3;
 		packet[ 9] = ch>>5;
 		ch=convert_channel_16b_limit(ELEVATOR,0,0x7FF);
 		packet[10] = ch;
 		packet[11] = ch>>8;
-		ch=convert_channel_16b_limit(RUDDER  ,0,0x7FF);
+		ch=convert_channel_16b_limit(RUDDER  ,0x7FF,0);
 		packet[11]|= ch<<3;
 		packet[12] = ch>>5;
 	}

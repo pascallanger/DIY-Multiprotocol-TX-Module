@@ -970,6 +970,13 @@ CH10|CH11|CH12
 ---|---|---
 Start/Stop|EMERGENCY|CAMERA_UP/DN
 
+## V911S - *46*
+Model: WLtoys V911S
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|CALIB
+
 ## YD717 - *8*
 Autobind protocol
 

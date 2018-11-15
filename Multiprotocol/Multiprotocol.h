@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	12
+#define VERSION_PATCH_LEVEL	13
 
 //******************
 // Protocols
@@ -73,6 +73,7 @@ enum PROTOCOLS
 	PROTO_NCC1701	= 44,	// =>NRF24L01
 	PROTO_E01X		= 45,	// =>NRF24L01
 	PROTO_V911S		= 46,	// =>NRF24L01
+	PROTO_GD00X		= 47,	// =>NRF24L01
 	PROTO_TEST		= 63,	// =>NRF24L01
 };
 
@@ -595,6 +596,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					NCC1701		44
 					E01X		45
 					V911S		46
+					GD00X		47
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

@@ -18,7 +18,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_nrf24l01.h"
 
-#define GD00X_ORIGINAL_ID
+#define FORCE_GD00X_ORIGINAL_ID
 
 #define GD00X_INITIAL_WAIT    500
 #define GD00X_PACKET_PERIOD   3500
@@ -32,18 +32,18 @@ Multiprotocol is distributed in the hope that it will be useful,
 static void __attribute__((unused)) GD00X_send_packet()
 {
 	packet[0] = IS_BIND_IN_PROGRESS?0xAA:0x55;
-	memcpy(void *(packet+1),rx_tx_addr,4);
+	memcpy(packet+1,rx_tx_addr,4);
 	uint16_t channel=convert_channel_ppm(AILERON);
 	packet[5 ] = channel;
 	packet[6 ] = channel>>8;
-	uint16_t channel=convert_channel_ppm(THROTTLE);
+	channel=convert_channel_ppm(THROTTLE);
 	packet[7 ] = channel;
 	packet[8 ] = channel>>8;
-	uint16_t channel=convert_channel_ppm(CH5);		// TRIM
+	channel=convert_channel_ppm(CH5);		// TRIM
 	packet[9 ] = channel;
 	packet[10] = channel>>8;
 	packet[11] = GD00X_FLAG_DR						// Force high rate
-			   | GETFLAG(CH6_SW, GD00X_FLAG_LIGHT);
+			   | GET_FLAG(CH6_SW, GD00X_FLAG_LIGHT);
 	packet[12] = 0x00;
 	packet[13] = 0x00;
 	packet[14] = 0x00;
@@ -80,9 +80,9 @@ static void __attribute__((unused)) GD00X_init()
 
 static void __attribute__((unused)) GD00X_initialize_txid()
 {
-	#ifdef GD00X_ORIGINAL_ID
+	#ifdef FORCE_GD00X_ORIGINAL_ID
 		rx_tx_addr[0]=0x1F;
-		rx_tx_addr[1]=0x39:
+		rx_tx_addr[1]=0x39;
 		rx_tx_addr[2]=0x12;
 		rx_tx_addr[3]=0x13;
 		for(uint8_t i=0; i<4;i++)

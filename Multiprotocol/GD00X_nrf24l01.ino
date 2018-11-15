@@ -24,6 +24,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define GD00X_PACKET_PERIOD   3500
 #define GD00X_RF_BIND_CHANNEL 2
 #define GD00X_PAYLOAD_SIZE    15
+#define GD00X_BIND_COUNT	  857	//3sec
 
 // flags going to packet[11]
 #define	GD00X_FLAG_DR		0x08
@@ -92,6 +93,9 @@ static void __attribute__((unused)) GD00X_initialize_txid()
 
 uint16_t GD00X_callback()
 {
+	if(IS_BIND_IN_PROGRESS)
+		if(--bind_counter==0)
+			BIND_DONE;
 	GD00X_send_packet();
 	return GD00X_PACKET_PERIOD;
 }
@@ -102,6 +106,7 @@ uint16_t initGD00X()
 	GD00X_initialize_txid();
 	GD00X_init();
 	hopping_frequency_no = 0;
+	bind_counter=GD00X_BIND_COUNT;
 	return GD00X_INITIAL_WAIT;
 }
 

@@ -618,6 +618,8 @@ void HS6200_WritePayload(uint8_t* msg, uint8_t len)
 	}
 
 	NRF24L01_WritePayload(payload, pos);
+	delayMicroseconds(option);
+	NRF24L01_WritePayload(payload, pos);
 }
 //
 // End of HS6200 emulation

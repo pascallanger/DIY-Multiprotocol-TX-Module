@@ -160,10 +160,6 @@ static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 
-	// transmit packet twice in a row without waiting for
-	// the first one to complete, seems to help the hs6200
-	// demodulator to start decoding.
-	HS6200_WritePayload(packet, packet_length);
 	HS6200_WritePayload(packet, packet_length);
 
 	// Check and adjust transmission power. We do this after

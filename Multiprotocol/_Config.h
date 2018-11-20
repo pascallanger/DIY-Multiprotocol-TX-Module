@@ -49,10 +49,6 @@
 //#define REVERSE_THROTTLE
 //#define REVERSE_RUDDER
 
-//DSM protocol is using by default the Spektrum throw of 1100..1900us @100% and 1000..2000us @125%.
-//For more throw, 1024..1976us @100% and 904..2096us @125%, remove the "//" on the line below. Be aware that too much throw can damage some UMX servos. To achieve standard throw in this mode use a channel weight of 84%.
-//#define DSM_MAX_THROW
-
 
 /*****************/
 /*** AUTO BIND ***/  // Also referred as "Bind on powerup"
@@ -199,6 +195,25 @@
 #define	V2X2_NRF24L01_INO
 #define	V911S_NRF24L01_INO
 #define	YD717_NRF24L01_INO
+
+
+/***************************/
+/*** PROTOCOLS SETTINGS  ***/
+/***************************/
+
+//DSM specific settings
+//---------------------
+//The DSM protocol is using by default the Spektrum throw of 1100..1900us @100% and 1000..2000us @125%.
+// For more throw, 1024..1976us @100% and 904..2096us @125%, remove the "//" on the line below. Be aware that too much throw can damage some UMX servos. To achieve standard throw in this mode use a channel weight of 84%.
+//#define DSM_MAX_THROW
+//Some models (X-Vert, Balde 230S...) require a special value to instant stop the motor(s).
+// You can disable this feature by adding "//" on the line below. You have to specify which channel (15 by default) will be used to kill the throttle channel.
+// If the channel is between -50% and -100%, the throttle output will be forced between -100% and -150%. If the channel is above -50%, the throttle is untouched.
+#define DSM_THROTTLE_KILL_CH 15 
+
+//AFHDS2A specific settings
+//-------------------------
+//TODO: make LQI available on RX channel
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/

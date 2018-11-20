@@ -262,7 +262,9 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		if(sub_protocol==DSM2_22)
 			bits=10;						// Only DSM_22 is using a resolution of 1024
 	}
-
+	#ifdef DSM_THROTTLE_KILL_CH
+		uint32_t kill_ch=Channel_data[DSM_THROTTLE_KILL_CH];
+	#endif
 	for (uint8_t i = 0; i < 7; i++)
 	{	
 		uint8_t idx = ch_map[(upper?7:0) + i];//1,5,2,3,0,4	   
@@ -271,11 +273,22 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		{
 			/* Spektrum own remotes transmit normal values during bind and actually use this (e.g. Nano CP X) to
 			   select the transmitter mode (e.g. computer vs non-computer radio), so always send normal output */
-			#ifdef DSM_MAX_THROW
-				value=Channel_data[CH_TAER[idx]];								// -100%..+100% => 1024..1976us and -125%..+125% => 904..2096us based on Redcon 6 channel DSM2 RX
-			#else
-				value=convert_channel_16b_nolimit(CH_TAER[idx],0x150,0x6B0);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000us based on Redcon 6 channel DSM2 RX
+			#ifdef DSM_THROTTLE_KILL_CH
+				if(CH_TAER[idx]==THROTTLE && kill_ch<=604)
+				{//Activate throttle kill only if DSM_THROTTLE_KILL_CH below -50%
+					if(kill_ch<CHANNEL_MIN_100)					// restrict val to 0...400
+						kill_ch=0;
+					else
+						kill_ch-=CHANNEL_MIN_100;
+					value=(uint16_t)((kill_ch*0x150)/400);		// kill channel -100%->904us ... -50%->1100us
+				}
+				else
 			#endif
+				#ifdef DSM_MAX_THROW
+					value=Channel_data[CH_TAER[idx]];								// -100%..+100% => 1024..1976us and -125%..+125% => 904..2096us based on Redcon 6 channel DSM2 RX
+				#else
+					value=convert_channel_16b_nolimit(CH_TAER[idx],0x150,0x6B0);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000us based on Redcon 6 channel DSM2 RX
+				#endif
 			if(bits==10) value>>=1;
 			value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);
 		}	  

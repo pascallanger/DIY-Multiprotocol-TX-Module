@@ -273,6 +273,15 @@
 	#endif
 #endif
 
+#if defined(DSM_THROTTLE_KILL_CH)
+	#if DSM_THROTTLE_KILL_CH<4
+		#error DSM_THROTTLE_KILL_CH must be above 4.
+	#endif
+	#if DSM_THROTTLE_KILL_CH>16
+		#error DSM_THROTTLE_KILL_CH must be below or equal to 16.
+	#endif
+#endif
+
 #if MIN_PPM_CHANNELS>16
 	#error MIN_PPM_CHANNELS must be below or equal to 16. The default for this value is 4.
 #endif

@@ -213,7 +213,9 @@
 
 //AFHDS2A specific settings
 //-------------------------
-//TODO: make LQI available on RX channel
+//When enabled (remove the "//"), the below setting makes LQI (Link Quality Indicator) available on one of the RX ouput channel (5-14).
+//#define AFHDS2A_LQI_CH 14
+
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
@@ -435,6 +437,20 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 /*	14	*/	{PROTO_MT99XX,	MT99		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 #endif
 };
+// RX_Num is used for TX & RX match. Using different RX_Num values for each receiver will prevent starting a model with the false config loaded...
+// RX_Num value is between 0 and 15.
+
+// Power P_HIGH or P_LOW: High or low power setting for the transmission.
+// For indoor P_LOW is more than enough.
+
+// Auto Bind	AUTOBIND or NO_AUTOBIND
+// For protocols which does not require binding at each power up (like Flysky, FrSky...), you might still want a bind to be initiated each time you power up the TX.
+// As an example, it's usefull for the WLTOYS F929/F939/F949/F959 (all using the Flysky protocol) which requires a bind at each power up.
+// It also enables the Bind from channel feature, allowing to execute a bind by toggling a designated channel.
+
+// Option: the value is between -128 and +127.
+// The option value is only valid for some protocols, read this page for more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md
+
 /* Available protocols and associated sub protocols to pick and choose from
 	PROTO_FLYSKY
 		Flysky
@@ -603,17 +619,3 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_GD00X
 		NONE
 */
-
-// RX_Num is used for TX & RX match. Using different RX_Num values for each receiver will prevent starting a model with the false config loaded...
-// RX_Num value is between 0 and 15.
-
-// Power P_HIGH or P_LOW: High or low power setting for the transmission.
-// For indoor P_LOW is more than enough.
-
-// Auto Bind	AUTOBIND or NO_AUTOBIND
-// For protocols which does not require binding at each power up (like Flysky, FrSky...), you might still want a bind to be initiated each time you power up the TX.
-// As an example, it's usefull for the WLTOYS F929/F939/F949/F959 (all using the Flysky protocol) which requires a bind at each power up.
-// It also enables the Bind from channel feature, allowing to execute a bind by toggling a designated channel.
-
-// Option: the value is between -128 and +127.
-// The option value is only valid for some protocols, read this page for more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md

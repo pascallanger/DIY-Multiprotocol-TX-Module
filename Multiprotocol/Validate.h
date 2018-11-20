@@ -282,6 +282,15 @@
 	#endif
 #endif
 
+#if defined(AFHDS2A_LQI_CH)
+	#if AFHDS2A_LQI_CH<4
+		#error AFHDS2A_LQI_CH must be above 4.
+	#endif
+	#if AFHDS2A_LQI_CH>14
+		#error AFHDS2A_LQI_CH must be below or equal to 14.
+	#endif
+#endif
+
 #if MIN_PPM_CHANNELS>16
 	#error MIN_PPM_CHANNELS must be below or equal to 16. The default for this value is 4.
 #endif

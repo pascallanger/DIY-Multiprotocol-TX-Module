@@ -5,7 +5,7 @@ For radios running ersky9x and OpenTX, there is an option to flash a precompiled
 ## Tools required
 * A compatible transmitter running an ersky9x bootloader v2.9 or newer. This is true for both OpenTX and ersky9x.
 * A precompiled multiprotocol firmware file (.hex for Atmega328p or .bin for STM32)
-* A **Flash from TX** bootloader installed on the multiprotocol module
+* A **Flash from TX** bootloader installed on an Atmega328p or STM32 multiprotocol module
 * A means to get the firmware file onto the transmitter's SD card
 
 ## Radio bootloader and apps

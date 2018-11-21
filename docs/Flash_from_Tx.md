@@ -12,9 +12,9 @@ For radios running ersky9x and OpenTX, there is an option to flash a precompiled
 
 ### How to check the bootloader version
 1. Push both horizontals trims inwards (close to each others) while powering on the radio
-1. The screen title should indicate `Boot Loader V2.9Ready` or newer
+1. The screen title should indicate `Boot Loader V2.9Ready` or newer<p align="center"><img src="images/Bootloader.jpg" height=200/></p>
 1. Launch the `FlashMulti_xxx.app` app from the `Run App` menu
-1. The App version at the bottom right of the screen should be `28.Aug.18` or newer
+1. The App version at the bottom right of the screen should be `28.Aug.18` or newer<p align="center"><img src="images/FlashMulti.jpg" height=200/></p>
 1. If everything is correct you are ready to upgrade the Multimodule firmware
 
 ### Upgrade the bootloader and install app(s)

@@ -53,4 +53,7 @@ For radios running ersky9x and OpenTX, there is an option to flash a precompiled
 1. Choose the firmware file to flash, long press to select it
 1. Long press again to flash the selected file to the module
 1. When flashing has finished, long press EXIT to reboot in normal mode
-1. If the flashing procedure fails try to redo with the process `Invert Com Port` enabled
+
+###Troubleshooting
+1. If the flashing procedure fails try to redo the process with `Invert Com Port` enabled
+2. Make sure to flash the latest bootloader on the MPM module before attempting a Flash from the TX

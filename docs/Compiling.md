@@ -122,14 +122,12 @@ There are two bootloader options:
 
 ### Upload the firmware
 You are now ready to upload the firmware to the multiprotocol module.  There are two methods for uploading the firmware:
-* **Flash from TX** uses the maintenance mode in radios running ersky9x to upload the firmware
+* **Flash from TX** - uses the bootloader mode of radios running ersky9x or OpenTX to upload the firmware. The radio needs to run the latest bootloader with the Multi Flash app.
 * **Upload using Arduino IDE** uses the Arduino IDE and the USBasp programmer to upload the firmware
-
-**Note:** 'Flash from TX' is only available with radios running ersky9x r221e2 or newer.
 
 #### Flash from TX
 1. In the Arduino IDE click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
-1. Locate the file named **multifw.hex** in the **Multiprotocol** folder
+1. Locate the file named **multi-avr-x.x.x.x.hex** in the **Multiprotocol** folder (x.x.x.x is the multi version)
 1. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
 
 You can disconnect the programmer now as it is not needed any more.

@@ -169,6 +169,7 @@ Assuming the process is successful:
 1. Power off the transmitter
 1. Remove the **BOOT0** jumper
 1. Disconnect the USB-to-TTL adapter
+1. Your module is ready to use, enjoy!!!
 
 ## Flash from TX
 1. Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**

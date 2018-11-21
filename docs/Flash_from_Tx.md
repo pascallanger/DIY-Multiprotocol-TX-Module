@@ -56,6 +56,6 @@ For radios running ersky9x and OpenTX, there is an option to flash a precompiled
 
 ### Troubleshooting
 1. If the flashing procedure fails try to redo the process with `Invert Com Port` enabled
-1. Make sure to flash the latest bootloader on the MPM module before attempting a Flash from the TX
-   1. For an Atmega328p module use the bootloader coming with the Multi 4-in1 AVR board 1.0.3 or later 
-   1. For a STM32 module use the bootloader coming with the Multi 4-in1 STM32 board 1.0.9 or later
+1. Make sure to have the latest bootloader on the MPM module before attempting to Flash from the TX:
+   1. For an Atmega328p module use the bootloader bundled with the `Multi 4-in1 AVR board 1.0.3` or later 
+   1. For a STM32 module use the bootloader bundled with the `Multi 4-in1 STM32 board 1.0.9` or later

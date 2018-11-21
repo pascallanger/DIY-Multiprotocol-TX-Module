@@ -172,6 +172,7 @@ Assuming the process is successful:
 1. Your module is ready to use, enjoy!!!
 
 ## Flash from TX
+1. Click **Tools -> Upload method -> Flash from TX**
 1. Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
 1. Locate the file named **multi-stm-x.x.x.x.bin** in the **Multiprotocol source folder** folder (x.x.x.x is the multi version)
 1. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
@@ -231,8 +232,8 @@ After adding yourself to the groups as above and installing and running the udev
 **Note:** Some modules require external power in order for the USB port to work.  If your module does not power on with USB power alone, install it in the transmitter and switch the transmitter on.  It is generally safe for the module to recieve power from both USB and the transmitter.
 
 1. Connect the USB cable to the Multiprotocol module
-1. Select the correct COM port, which should be labelled **COMx (Multi 4-in-1 (STM32F103CB))**..
-<p align="center"><img src="images/maple-serial-port-select.jpg"/></p>
+1. Click **Tools -> Upload method -> Flash from TX**
+1. Select the correct COM port **Tools -> Port**, which should be labelled **COMx (Multi 4-in-1 (STM32F103CB))**.<p align="center"><img src="images/maple-serial-port-select.jpg"/></p>
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
 
 **Note:** If the module appears as a **Maple DFU** for a module with only a bootloader, **Maple Serial** for a module with a bootloader and firmware then follow the same process by selecting any available COM port (you must select one, if you don't have one appearing plug any device that will create a com port (an Arduino board for example)).

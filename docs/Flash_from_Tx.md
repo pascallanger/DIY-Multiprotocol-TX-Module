@@ -11,8 +11,7 @@ For radios running ersky9x and OpenTX, there is an option to flash a precompiled
 ## Radio bootloader and apps
 
 ### How to check the bootloader version
-1. Push both horizontals trims inwards (close to each others)
-1. Power on the radio
+1. Push both horizontals trims inwards (close to each others) while powering on the radio
 1. The screen title should indicate `Boot Loader V2.9Ready` or newer
 1. Launch the `FlashMulti_xxx.app` app from the `Run App` menu
 1. The App version at the bottom right of the screen should be `28.Aug.18` or newer
@@ -24,7 +23,7 @@ For radios running ersky9x and OpenTX, there is an option to flash a precompiled
 1. Download the latest [Flash Multiprotocol Module app](http://www.er9x.com/Ersky9xapps.html) for your radio
 1. Copy the .app file in a folder called `APPS` at the root of the SD card (if the directory does not exist create it)
 1. For ersky9x
-   1. Boot the radio in maintenance mode by pushing both horizontals trims outwards (away from each others)
+   1. Power on the radio in maintenance mode while pushing both horizontals trims outwards (away from each others)
    1. Select Upgrade Bootloader
    1. Select the ersky9x firmware matching your radio
    1. Long press it and select `Flash bootloader`

@@ -232,7 +232,7 @@ After adding yourself to the groups as above and installing and running the udev
 **Note:** Some modules require external power in order for the USB port to work.  If your module does not power on with USB power alone, install it in the transmitter and switch the transmitter on.  It is generally safe for the module to recieve power from both USB and the transmitter.
 
 1. Connect the USB cable to the Multiprotocol module
-1. Click **Tools -> Upload method -> Flash from TX**
+1. Click **Tools -> Upload method -> Auto Detect (USB or Serial)**
 1. Select the correct COM port **Tools -> Port**, which should be labelled **COMx (Multi 4-in-1 (STM32F103CB))**.<p align="center"><img src="images/maple-serial-port-select.jpg"/></p>
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
 

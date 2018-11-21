@@ -177,7 +177,7 @@ Assuming the process is successful:
 1. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
 
 ## Upload via USB
-In order for the module to be correctly identified in Windows it is necessary to install drivers.  This only needs to be done once.
+In order for the module to be correctly identified it is necessary and only once to do some operations based on your operating system.
 
 ### Install the Maple USB drivers
 ##### Windows 7 or newer:

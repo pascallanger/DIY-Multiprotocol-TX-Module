@@ -42,14 +42,13 @@ For radios running ersky9x and OpenTX, there is an option to flash a precompiled
    1. Remove the SD card from the transmitter and mount it using a suitable reader
 1. Copy the pre-compiled firmware file into the `\FIRMWARE` folder of the SD card (create the folder if it does not exist)
 1. Power the transmitter off and remove the USB cable or put the SD card back in the transmitter
-1. Push both horizontals trims inwards (close to each others)
-1. Power on the radio
+1. Push both horizontals trims inwards (close to each others) while powering on the radio
 1. The screen title should indicate `Boot Loader V2.9Ready` or newer
 1. Launch the `FlashMulti_xxx.app` app from the `Run App` menu
 1. Choose the appropriate file type
-   1. **HEX** to update an Atmega328p module
-   1. **BIN** to update an STM32 module
-1. Select **Update**
+   1. `HEX` to update an Atmega328p module
+   1. `BIN` to update an STM32 module
+1. Select `Update`
 1. Choose the firmware file to flash, long press to select it
 1. Long press again to flash the selected file to the module
 1. When flashing has finished, long press EXIT to reboot in normal mode

@@ -88,13 +88,9 @@ The latest Jumper 4-in-1 modules come with a USB port but it's in fact a built i
 
 ### Select an Upload Method
 There are three methods to upload firmware to an STM32 module:
-* **Flash from TX** - highly recommended, uses maintenance mode in radios running ersky9x or OpenTX to upload the firmware
 * **Upload via USB** - uses the USB port on the module
+* **Flash from TX** - uses the bootloader mode of radios running ersky9x or OpenTX to upload the firmware. The radio needs to run the latest bootloader with the Multi Flash app.
 * **Upload via Serial inc. Bootloader (FTDI)** - uses the serial interface on the module via a USB-to-TTL adapter
-
-**Note:** 'Flash from TX' is available with radios supporting ersky9x or OpenTX and running the latest bootloader with the Multi Flash app.
-
-**Flash from TX** is highly recommended if your transmitter supports it, **Upload via USB** is recommended for all others.  **Upload via Serial inc. Bootloader** can be used if your module does not have a USB port and your transmitter does not run ersky9x or OpenTX.
 
 1. Under **Tools -> Upload Method** select an upload method
 
@@ -172,7 +168,7 @@ Assuming the process is successful:
 
 ## Flash from TX
 1. Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
-1. Locate the file named **multifw.bin** in the **Multiprotocol** folder
+1. Locate the file named **multi-stm-x.x.x.x.bin** in the **Multiprotocol source folder** folder (x.x.x.x is the multi version)
 1. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
 
 ## Upload via USB

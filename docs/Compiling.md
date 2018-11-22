@@ -126,7 +126,7 @@ You are now ready to upload the firmware to the multiprotocol module.  There are
 * **Upload using Arduino IDE** uses the Arduino IDE and the USBasp programmer to upload the firmware
 
 #### Flash from TX
-1. The MPM module must have a bootloader installed
+1. The MPM module must have the 'Flash from TX' bootloader installed
 1. In the Arduino IDE click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
 1. Locate the file named **multi-avr-x.x.x.x.hex** in the **Multiprotocol source folder** (x.x.x.x is the multi version)
 1. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio

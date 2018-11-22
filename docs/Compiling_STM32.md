@@ -172,10 +172,12 @@ Assuming the process is successful:
 1. Your module is ready to use, enjoy!!!
 
 ## Flash from TX
+1. The MPM module must have a recent bootloader installed
 1. Click **Tools -> Upload method -> Flash from TX**
 1. Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
 1. Locate the file named **multi-stm-x.x.x.x.bin** in the **Multiprotocol source folder** folder (x.x.x.x is the multi version)
 1. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
+1. Once done your module is ready to be used
 
 ## Upload via USB
 In order for the module to be correctly identified it is necessary and only once to do some operations based on your operating system.

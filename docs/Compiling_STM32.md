@@ -87,14 +87,14 @@ STM modules, until now, do not come with a preloaded bootloader which makes the 
 The latest Jumper 4-in-1 modules come with a USB port but it's in fact a built in FTDI appearing on the computer as a CP2102 serial device. You should use the method **Upload via Serial inc. Bootloader** instead of Upload via USB. 'Flash from TX' is supported once the bootloader is installed. 
 
 ### Select an Upload Method
-There are three methods to upload firmware to an STM32 module:
-* **Flash from TX** - highly recommended, uses maintenance mode in radios running ersky9x or OpenTX to upload the firmware
-* **Upload via USB** - uses the USB port on the module
-* **Upload via Serial inc. Bootloader (FTDI)** - uses the serial interface on the module via a USB-to-TTL adapter
+There are a total of five firmware upload methods to an STM32 module:
+* **Flash from TX** - uses the bootloader mode of radios running ersky9x or OpenTX to upload the firmware. The radio needs to run the latest bootloader with the Multi Flash app.
+* **Auto Detect (USB or Serial)** - Detects automatically if the upload method is USB or Serial. You need to configure the correct COM port in the IDE which is created when plugging the module.
+* **Upload via USB** - uses the USB upload method through the USB plug of the module. It requires the presence of a bootloader in the module.
+* **Upload via Serial inc. Bootloader (FTDI)** - uses the serial interface of the module via a USB-to-TTL adapter to install the bootloader and firmware.
+* **Upload via Serial (FTDI)** - uses the serial interface of the module via a USB-to-TTL adapter to install the firmware.
 
-**Note:** 'Flash from TX' is available with radios supporting ersky9x or OpenTX and running the latest bootloader with the Multi Flash app.
-
-**Flash from TX** is highly recommended if your transmitter supports it, **Upload via USB** is recommended for all others.  **Upload via Serial inc. Bootloader** can be used if your module does not have a USB port and your transmitter does not run ersky9x or OpenTX.
+You will most likely use only once on a brand new module the **Upload via Serial inc. Bootloader (FTDI)** method to load the bootloader+firmware. Any successive updates will be done using either **Auto Detect (USB or Serial)** or **Flash from TX** depending on your preference.
 
 1. Under **Tools -> Upload Method** select an upload method
 
@@ -169,14 +169,16 @@ Assuming the process is successful:
 1. Power off the transmitter
 1. Remove the **BOOT0** jumper
 1. Disconnect the USB-to-TTL adapter
+1. Your module is ready to use, enjoy!!!
 
 ## Flash from TX
+1. Click **Tools -> Upload method -> Flash from TX**
 1. Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
-1. Locate the file named **multifw.bin** in the **Multiprotocol** folder
+1. Locate the file named **multi-stm-x.x.x.x.bin** in the **Multiprotocol source folder** folder (x.x.x.x is the multi version)
 1. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
 
 ## Upload via USB
-In order for the module to be correctly identified in Windows it is necessary to install drivers.  This only needs to be done once.
+In order for the module to be correctly identified it is necessary and only once to do some operations based on your operating system.
 
 ### Install the Maple USB drivers
 ##### Windows 7 or newer:
@@ -230,13 +232,11 @@ After adding yourself to the groups as above and installing and running the udev
 **Note:** Some modules require external power in order for the USB port to work.  If your module does not power on with USB power alone, install it in the transmitter and switch the transmitter on.  It is generally safe for the module to recieve power from both USB and the transmitter.
 
 1. Connect the USB cable to the Multiprotocol module
-1. Verify that a Maple device appears (**Maple DFU** for a module with only a bootloader, **Maple Serial** for a module with a bootloader and firmware)
-    1. On Windows look for the USB device in the Windows Device Manager
-    1. On Mac OSX look in the System Information which is accessed by holding option and selecting the first item under the Apple Menu. Select the USB list on the left and look for the USB device.
-    1. On Linux execute the command ```lsusb``` and examine the output.
-1. select the correct COM port, which should be labelled **COMx (Multi 4-in-1 (STM32F103CB))**. If the device is in "DFU" mode, the module COM port will not appear, select any available COM port to continue the upload procedure.
-<p align="center"><img src="images/maple-serial-port-select.jpg"/></p>
+1. Click **Tools -> Upload method -> Auto Detect (USB or Serial)**
+1. Select the correct COM port **Tools -> Port**, which should be labelled **COMx (Multi 4-in-1 (STM32F103CB))**.<p align="center"><img src="images/maple-serial-port-select.jpg"/></p>
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
+
+**Note:** If the module appears as a **Maple DFU** for a module with only a bootloader, **Maple Serial** for a module with a bootloader and firmware then follow the same process by selecting any available COM port (you must select one, if you don't have one appearing plug any device that will create a com port (an Arduino board for example)).
 
 You should see output similar to this:
 ```
@@ -267,7 +267,7 @@ Resetting USB to switch back to runtime mode
 error resetting after download: usb_reset: could not reset device, win error: The system cannot find the file specified.
 ```
 
-**Note:** The line `Reset via USB Serial Failed! Did you select the right serial port?` is expected because the uploader initially looks for a Maple Serial device, which isn't yet available, before failing back to Maple DFU.  That error only appears the first time and won't appear when re-flashing firmware.  The final line warning, stating that the device could not be reset, is also expected.
+**Note:** The line `Reset via USB Serial Failed! Did you select the right serial port?` or a warning line stating that the device could not be reset is **not a problem**.
 
 ## Flashing pre-compiled binaries
 Pre-compiled binaries are available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).

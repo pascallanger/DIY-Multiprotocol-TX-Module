@@ -113,7 +113,7 @@ The bootloader only needs to be burned once, unless you decide to switch from on
 
 There are two bootloader options:
    * **'No bootloader'** maximises flash space for protocols
-   * **'Flash from TX'** (highly recommended) installs a small (512 byte) bootloader which allows flashing the module firmware using from a radio running ersky9x
+   * **'Flash from TX'** installs a small (512 byte) bootloader which allows flashing the module firmware using from a radio running ersky9x
 
 **Note:** 'Burning the bootloader' is necessary even if the 'No bootloader' option is selected, as it sets the fuses on the AVR module.  This only needs to be once (unless you decide to change your bootloader choice later)
 
@@ -122,15 +122,14 @@ There are two bootloader options:
 
 ### Upload the firmware
 You are now ready to upload the firmware to the multiprotocol module.  There are two methods for uploading the firmware:
-* **Flash from TX** - uses the bootloader mode of radios running ersky9x or OpenTX to upload the firmware. The radio needs to run the latest bootloader with the Multi Flash app.
+* **Flash from TX** - uses the bootloader mode of radios running ersky9x or OpenTX to upload the firmware. The radio needs to run the latest bootloader with the Flash Multi app.
 * **Upload using Arduino IDE** uses the Arduino IDE and the USBasp programmer to upload the firmware
 
 #### Flash from TX
 1. In the Arduino IDE click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
 1. Locate the file named **multi-avr-x.x.x.x.hex** in the **Multiprotocol source folder** (x.x.x.x is the multi version)
 1. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
-
-You can disconnect the programmer now as it is not needed any more.
+1. Once the previous step is completed your module is ready to be used
 
 #### Upload using Arduino IDE
 **Note:** If you have burned the 'Upload from TX' bootloader and you then upload firmware to your module using **Upload Using Programmer**, you will erase the bootloader.  That's just the way the Arduino IDE works - avrdude will erase the entire flash memory prior to writing the new code, *including the bootloader*, and the upload will not put it back.  If this happens you can [burn it again](#burn-bootloader-and-set-fuses).

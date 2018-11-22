@@ -108,7 +108,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 
-Note that the RX ouput will be AETR.
+Note that the RX ouput will be AETR whatever the input channel order is.
 
 ### Sub_protocol PWM_IBUS - *0*
 ### Sub_protocol PPM_IBUS - *1*

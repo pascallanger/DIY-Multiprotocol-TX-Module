@@ -263,7 +263,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 			bits=10;						// Only DSM_22 is using a resolution of 1024
 	}
 	#ifdef DSM_THROTTLE_KILL_CH
-		uint32_t kill_ch=Channel_data[DSM_THROTTLE_KILL_CH-1];
+		uint16_t kill_ch=Channel_data[DSM_THROTTLE_KILL_CH-1];
 	#endif
 	for (uint8_t i = 0; i < 7; i++)
 	{	
@@ -280,7 +280,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 						kill_ch=0;
 					else
 						kill_ch-=CHANNEL_MIN_100;
-					value=(uint16_t)((kill_ch*0x150)/400);		// kill channel -100%->904us ... -50%->1100us
+					value=(kill_ch*21)/25;			// kill channel -100%->904us ... -50%->1100us *0x150/400
 				}
 				else
 			#endif

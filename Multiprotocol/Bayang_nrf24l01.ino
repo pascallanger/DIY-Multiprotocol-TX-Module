@@ -36,9 +36,9 @@ enum BAYANG_FLAGS {
 	BAYANG_FLAG_VIDEO		= 0x10, 
 	BAYANG_FLAG_PICTURE		= 0x20, 
 	// flags going to packet[3]
-	BAYANG_FLAG_INVERTED	= 0x80, // inverted flight on Floureon H101
-	BAYANG_FLAG_TAKE_OFF	= 0x20, // take off / landing on X16 AH
-	BAYANG_FLAG_EMG_STOP	= 0x04,
+	BAYANG_FLAG_INVERTED	= 0x80,			// inverted flight on Floureon H101
+	BAYANG_FLAG_TAKE_OFF	= 0x20,			// take off / landing on X16 AH
+	BAYANG_FLAG_EMG_STOP	= 0x04|0x08,	// 0x08 for VISUO XS809H-W-HD-G
 };
 
 static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)

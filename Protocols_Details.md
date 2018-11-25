@@ -657,8 +657,6 @@ A|E|T|R|FLIP|RTH|HEADLESS|EXPERT
 ## GD00X - *47*
 Model: GD005 C-17 Transport and GD006 DA62
 
-**Only 1 TX ID avaialble for now**
-
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A||T||TRIM|LED

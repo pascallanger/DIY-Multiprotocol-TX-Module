@@ -18,7 +18,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_nrf24l01.h"
 
-#define FORCE_GD00X_ORIGINAL_ID
+//#define FORCE_GD00X_ORIGINAL_ID
 
 #define GD00X_INITIAL_WAIT    500
 #define GD00X_PACKET_PERIOD   3500
@@ -81,13 +81,16 @@ static void __attribute__((unused)) GD00X_init()
 
 static void __attribute__((unused)) GD00X_initialize_txid()
 {
+	uint8_t start=76+(rx_tx_addr[0]&0x03);
+	for(uint8_t i=0; i<4;i++)
+		hopping_frequency[i]=start-(i<<1);
 	#ifdef FORCE_GD00X_ORIGINAL_ID
-		rx_tx_addr[0]=0x1F;
-		rx_tx_addr[1]=0x39;
-		rx_tx_addr[2]=0x12;
-		rx_tx_addr[3]=0x13;
+		rx_tx_addr[0]=0x1F;					// or 0xA5 or 0x26
+		rx_tx_addr[1]=0x39;					// or 0x37 or 0x35
+		rx_tx_addr[2]=0x12;					// Constant on 3 TXs
+		rx_tx_addr[3]=0x13;					// Constant on 3 TXs
 		for(uint8_t i=0; i<4;i++)
-			hopping_frequency[i]=79-(i<<1);
+			hopping_frequency[i]=79-(i<<1);	// or 77 or 78
 	#endif
 }
 

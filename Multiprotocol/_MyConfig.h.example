@@ -9,7 +9,7 @@
 // For example you can also define multiple module configurations, uncomment the one you want to compile for:
 #define Module_1
 //#define Module_2
-//#define Module_2
+//#define Module_3
 //#define Module_4
 
 //Example on how to force the "Flash from TX" feature for all modules

@@ -55,6 +55,14 @@ Notes:
 ## Serial mode
 Serial mode is selected by placing the rotary switch to position 0 before power on of the radio.
 
+You've upgraded the module but the radio does not display the name of the protocol you are loking for:
+ * ersky9x:
+      - Place the file [Multi.txt](https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module/master/Multiprotocol/Multi.txt) (which is part of the MPM source files) on the root of your SD card.
+      - If the entry still does not appear or is broken, [upgrade](https://openrcforums.com/forum/viewtopic.php?f=7&t=4676) to version R222d2 or newer.
+ * OpenTX:
+      - Upgrade to the latest version of OpenTX.
+      - If still not listed, use the Custom entry along with the protocol and sub_protocol values indicated by the italic numbers under each protocol. You'll find a summary of the protocols and numbers to use in table below.
+ 
 # Available Protocol Table of Contents (Listed Alphabetically)
 
 Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Sub_Proto 4|Sub_Proto 5|Sub_Proto 6|Sub_Proto 7|RF Module

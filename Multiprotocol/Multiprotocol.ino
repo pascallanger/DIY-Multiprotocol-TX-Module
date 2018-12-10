@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_PIN		// Use pin TX for AVR and SPI_CS for STM32 => DEBUG_PIN_on, DEBUG_PIN_off, DEBUG_PIN_toggle
-//#define DEBUG_SERIAL	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
+//#define DEBUG_SERIAL	// Only for STM32_BOARD, compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
 #ifdef __arm__			// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
@@ -405,11 +405,16 @@ void setup()
 	//Protocol and interrupts initialization
 	if(mode_select != MODE_SERIAL)
 	{ // PPM
-		uint8_t line=bank*14+mode_select-1;
-		protocol		=	PPM_prot[line].protocol;
+		#ifndef MY_PPM_PROT
+			const PPM_Parameters *PPM_prot_line=&PPM_prot[bank*14+mode_select-1];
+		#else
+			const PPM_Parameters *PPM_prot_line=&My_PPM_prot[bank*14+mode_select-1];
+		#endif
+		
+		protocol		=	PPM_prot_line->protocol;
 		cur_protocol[1] = protocol;
-		sub_protocol   	=	PPM_prot[line].sub_proto;
-		RX_num			=	PPM_prot[line].rx_num;
+		sub_protocol   	=	PPM_prot_line->sub_proto;
+		RX_num			=	PPM_prot_line->rx_num;
 
 		//Forced frequency tuning values for CC2500 protocols
 		#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
@@ -442,15 +447,14 @@ void setup()
 				option			=	FORCE_HITEC_TUNING;		// Use config-defined tuning value for HITEC
 			else
 		#endif
-				option			=	PPM_prot[line].option;	// Use radio-defined option value
+				option			=	PPM_prot_line->option;	// Use radio-defined option value
 
-		if(PPM_prot[line].power)		POWER_FLAG_on;
-		if(PPM_prot[line].autobind)
+		if(PPM_prot_line->power)		POWER_FLAG_on;
+		if(PPM_prot_line->autobind)
 		{
 			AUTOBIND_FLAG_on;
 			BIND_IN_PROGRESS;	// Force a bind at protocol startup
 		}
-		line++;
 
 		protocol_init();
 
@@ -652,7 +656,7 @@ static void update_channels_aux(void)
 {
 	//Reverse channels direction
 	#ifdef REVERSE_AILERON
-		reverse_channel(AILREON);
+		reverse_channel(AILERON);
 	#endif
 	#ifdef REVERSE_ELEVATOR
 		reverse_channel(ELEVATOR);

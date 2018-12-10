@@ -358,11 +358,11 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 /*	6	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	2	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 4
 /*	7	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	3	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 5
 /*	8	*/	{PROTO_SFHSS,	H107		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	9	*/	{PROTO_FRSKYV,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
-/*	10	*/	{PROTO_FRSKYD,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	9	*/	{PROTO_FRSKYV,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	10	*/	{PROTO_FRSKYD,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
 /*	11	*/	{PROTO_FRSKYX,	CH_16		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
 /*	12	*/	{PROTO_FRSKYX,	EU_16		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
-/*	13	*/	{PROTO_DEVO	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	13	*/	{PROTO_DEVO	,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	14	*/	{PROTO_WK2x01,	WK2801		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 #endif
 #if NBR_BANKS > 1
@@ -381,14 +381,14 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 /*	11	*/	{PROTO_HUBSAN,	H301		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	12	*/	{PROTO_HUBSAN,	H501		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	13	*/	{PROTO_HISKY,	Hisky		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	14	*/	{PROTO_V2X2	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{PROTO_V2X2	,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 #endif
 #if NBR_BANKS > 2
 //******************************       BANK 3       ******************************
 //	Switch	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
-/*	1	*/	{PROTO_ESKY	,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	2	*/	{PROTO_ESKY150,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	3	*/	{PROTO_ASSAN,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	1	*/	{PROTO_ESKY	,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	2	*/	{PROTO_ESKY150,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	3	*/	{PROTO_ASSAN,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	4	*/	{PROTO_CORONA,	COR_V2		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	5	*/	{PROTO_SYMAX,	SYMAX		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	6	*/	{PROTO_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
@@ -433,7 +433,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 /*	9	*/	{PROTO_Q2X2	,	Q282		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	10	*/	{PROTO_CG023,	CG023		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	11	*/	{PROTO_CG023,	YD829		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
-/*	12	*/	{PROTO_FQ777,	0			,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	12	*/	{PROTO_FQ777,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	13	*/	{PROTO_YD717,	YD717		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 /*	14	*/	{PROTO_MT99XX,	MT99		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
 #endif

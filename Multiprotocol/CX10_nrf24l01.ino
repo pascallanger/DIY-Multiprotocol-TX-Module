@@ -259,6 +259,7 @@ static void __attribute__((unused)) CX10_initialize_txid()
 
 uint16_t initCX10(void)
 {
+	BIND_IN_PROGRESS;	// autobind protocol
 	if(sub_protocol==CX10_BLUE)
 	{
 		packet_length = CX10A_PACKET_SIZE;
@@ -282,7 +283,6 @@ uint16_t initCX10(void)
 	}
 	CX10_initialize_txid();
 	CX10_init();
-	BIND_IN_PROGRESS;	// autobind protocol
 	return CX10_INITIAL_WAIT+packet_period;
 }
 

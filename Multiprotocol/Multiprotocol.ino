@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_PIN		// Use pin TX for AVR and SPI_CS for STM32 => DEBUG_PIN_on, DEBUG_PIN_off, DEBUG_PIN_toggle
-//#define DEBUG_SERIAL	// Only for STM32_BOARD compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
+//#define DEBUG_SERIAL	// Only for STM32_BOARD, compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
 #ifdef __arm__			// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
@@ -89,7 +89,7 @@ uint8_t  Channel_AUX;
 // Protocol variables
 uint8_t  cyrfmfg_id[6];//for dsm2 and devo
 uint8_t  rx_tx_addr[5];
-uint8_t  rx_id[4];
+uint8_t  rx_id[5];
 uint8_t  phase;
 uint16_t bind_counter;
 uint8_t  bind_phase;
@@ -110,8 +110,9 @@ uint16_t seed;
 uint16_t failsafe_count;
 uint16_t state;
 uint8_t  len;
+uint8_t  armed, arm_flags, arm_channel_previous;
 
-#if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO)
+#if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO) || defined(HITEC_CC2500_INO)
 	uint8_t calData[48];
 #endif
 
@@ -404,11 +405,16 @@ void setup()
 	//Protocol and interrupts initialization
 	if(mode_select != MODE_SERIAL)
 	{ // PPM
-		uint8_t line=bank*14+mode_select-1;
-		protocol		=	PPM_prot[line].protocol;
+		#ifndef MY_PPM_PROT
+			const PPM_Parameters *PPM_prot_line=&PPM_prot[bank*14+mode_select-1];
+		#else
+			const PPM_Parameters *PPM_prot_line=&My_PPM_prot[bank*14+mode_select-1];
+		#endif
+		
+		protocol		=	PPM_prot_line->protocol;
 		cur_protocol[1] = protocol;
-		sub_protocol   	=	PPM_prot[line].sub_proto;
-		RX_num			=	PPM_prot[line].rx_num;
+		sub_protocol   	=	PPM_prot_line->sub_proto;
+		RX_num			=	PPM_prot_line->rx_num;
 
 		//Forced frequency tuning values for CC2500 protocols
 		#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
@@ -441,15 +447,14 @@ void setup()
 				option			=	FORCE_HITEC_TUNING;		// Use config-defined tuning value for HITEC
 			else
 		#endif
-				option			=	PPM_prot[line].option;	// Use radio-defined option value
+				option			=	PPM_prot_line->option;	// Use radio-defined option value
 
-		if(PPM_prot[line].power)		POWER_FLAG_on;
-		if(PPM_prot[line].autobind)
+		if(PPM_prot_line->power)		POWER_FLAG_on;
+		if(PPM_prot_line->autobind)
 		{
 			AUTOBIND_FLAG_on;
 			BIND_IN_PROGRESS;	// Force a bind at protocol startup
 		}
-		line++;
 
 		protocol_init();
 
@@ -614,7 +619,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
+			if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
 		#endif
 				TelemetryUpdate();
 	#endif
@@ -651,7 +656,7 @@ static void update_channels_aux(void)
 {
 	//Reverse channels direction
 	#ifdef REVERSE_AILERON
-		reverse_channel(AILREON);
+		reverse_channel(AILERON);
 	#endif
 	#ifdef REVERSE_ELEVATOR
 		reverse_channel(ELEVATOR);
@@ -913,6 +918,13 @@ static void protocol_init()
 						if(IS_BIND_BUTTON_FLAG_on) random_id(EEPROM_ID_OFFSET,true); // Generate new ID if bind button is pressed.
 						next_callback = initHubsan();
 						remote_callback = ReadHubsan;
+						break;
+				#endif
+				#if defined(BUGS_A7105_INO)
+					case PROTO_BUGS:
+						PE1_off;	//antenna RF1
+						next_callback = initBUGS();
+						remote_callback = ReadBUGS;
 						break;
 				#endif
 			#endif
@@ -1178,6 +1190,42 @@ static void protocol_init()
 					case PROTO_CFLIE:
 						next_callback=initCFlie();
 						remote_callback = cflie_callback;
+						break;
+				#endif
+				#if defined(BUGSMINI_NRF24L01_INO)
+					case PROTO_BUGSMINI:
+						next_callback=initBUGSMINI();
+						remote_callback = BUGSMINI_callback;
+						break;
+				#endif
+				#if defined(NCC1701_NRF24L01_INO)
+					case PROTO_NCC1701:
+						next_callback=initNCC();
+						remote_callback = NCC_callback;
+						break;
+				#endif
+				#if defined(E01X_NRF24L01_INO)
+					case PROTO_E01X:
+						next_callback=initE01X();
+						remote_callback = E01X_callback;
+						break;
+				#endif
+				#if defined(V911S_NRF24L01_INO)
+					case PROTO_V911S:
+						next_callback=initV911S();
+						remote_callback = V911S_callback;
+						break;
+				#endif
+				#if defined(GD00X_NRF24L01_INO)
+					case PROTO_GD00X:
+						next_callback=initGD00X();
+						remote_callback = GD00X_callback;
+						break;
+				#endif
+				#if defined(TEST_NRF24L01_INO)
+					case PROTO_TEST:
+						next_callback=initTest();
+						remote_callback = Test_callback;
 						break;
 				#endif
 			#endif
@@ -1569,7 +1617,7 @@ void pollBoot()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG) || (protocol==PROTO_CABELL) )
+	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG)|| (protocol==PROTO_NCC1701) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI))
 		initTXSerial( SPEED_9600 ) ;
 	if(protocol==PROTO_FRSKYX)
 		initTXSerial( SPEED_57600 ) ;

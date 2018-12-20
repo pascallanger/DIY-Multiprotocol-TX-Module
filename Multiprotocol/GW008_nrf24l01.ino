@@ -32,7 +32,7 @@ enum {
 	GW008_DATA
 };
 
-static void __attribute__((unused)) send_packet(uint8_t bind)
+static void __attribute__((unused)) GW008_send_packet(uint8_t bind)
 {
 	packet[0] = rx_tx_addr[0];
 	if(bind)
@@ -123,7 +123,7 @@ uint16_t GW008_callback()
 			{
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_SetTxRxMode(TX_EN);
-				send_packet(1);
+				GW008_send_packet(1);
 				phase = GW008_BIND2;
 				return 300;
 			}
@@ -139,7 +139,7 @@ uint16_t GW008_callback()
 			return 5000;
 			break;
 		case GW008_DATA:
-			send_packet(0);
+			GW008_send_packet(0);
 			break;
 	}
 	return GW008_PACKET_PERIOD;

@@ -138,6 +138,7 @@
 	#undef FLYSKY_A7105_INO
 	#undef HUBSAN_A7105_INO
 	#undef AFHDS2A_A7105_INO
+	#undef BUGS_A7105_INO
 #endif
 #ifndef CYRF6936_INSTALLED
 	#undef	DEVO_CYRF6936_INO
@@ -145,6 +146,7 @@
 	#undef	J6PRO_CYRF6936_INO
 	#undef	WFLY_CYRF6936_INO
 	#undef	WK2x01_CYRF6936_INO
+	#undef TRAXXAS_CYRF6936_INO
 #endif
 #ifndef CC2500_INSTALLED
 	#undef	FRSKYD_CC2500_INO
@@ -174,11 +176,16 @@
 	#undef	HONTAI_NRF24L01_INO
 	#undef	Q303_NRF24L01_INO
 	#undef	GW008_NRF24L01_INO
+	#undef	GD00X_NRF24L01_INO
 	#undef	DM002_NRF24L01_INO
 	#undef	CABELL_NRF24L01_INO
 	#undef	ESKY150_NRF24L01_INO
 	#undef	H8_3D_NRF24L01_INO
 	#undef	CFLIE_NRF24L01_INO
+	#undef	BUGSMINI_NRF24L01_INO
+	#undef	NCC1701_NRF24L01_INO
+	#undef	E01X_NRF24L01_INO
+	#undef	V911S_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly
@@ -191,6 +198,8 @@
 	#undef BAYANG_HUB_TELEMETRY
 	#undef CABELL_HUB_TELEMETRY
 	#undef HUBSAN_HUB_TELEMETRY
+	#undef BUGS_HUB_TELEMETRY
+	#undef NCC1701_HUB_TELEMETRY
 	#undef HUB_TELEMETRY
 	#undef SPORT_TELEMETRY
 	#undef SPORT_POLLING
@@ -203,6 +212,12 @@
 	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY
+	#endif
+	#if not defined(NCC1701_NRF24L01_INO)
+		#undef NCC1701_HUB_TELEMETRY
+	#endif
+	#if not ( defined(BUGS_A7105_INO) || defined(BUGSMINI_NRF24L01_INO) )
+		#undef BUGS_HUB_TELEMETRY
 	#endif
 	#if not defined(CABELL_NRF24L01_INO)
 		#undef CABELL_HUB_TELEMETRY
@@ -234,7 +249,7 @@
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY)
+	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 		#undef SPORT_POLLING
@@ -255,6 +270,24 @@
 	#endif
 	#if BIND_CH>16
 		#error BIND_CH must be below or equal to 16.
+	#endif
+#endif
+
+#if defined(DSM_THROTTLE_KILL_CH)
+	#if DSM_THROTTLE_KILL_CH<4
+		#error DSM_THROTTLE_KILL_CH must be above 4.
+	#endif
+	#if DSM_THROTTLE_KILL_CH>16
+		#error DSM_THROTTLE_KILL_CH must be below or equal to 16.
+	#endif
+#endif
+
+#if defined(AFHDS2A_LQI_CH)
+	#if AFHDS2A_LQI_CH<4
+		#error AFHDS2A_LQI_CH must be above 4.
+	#endif
+	#if AFHDS2A_LQI_CH>14
+		#error AFHDS2A_LQI_CH must be below or equal to 14.
 	#endif
 #endif
 

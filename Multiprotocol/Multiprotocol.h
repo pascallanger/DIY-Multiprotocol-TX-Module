@@ -18,8 +18,8 @@
 //******************
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
-#define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	32
+#define VERSION_REVISION	1
+#define VERSION_PATCH_LEVEL	23
 
 //******************
 // Protocols
@@ -67,6 +67,14 @@ enum PROTOCOLS
 	PROTO_CFLIE     = 38,   // =>NRF24L01
 	PROTO_HITEC     = 39,   // =>CC2500
 	PROTO_WFLY		= 40,	// =>CYRF6936
+	PROTO_BUGS		= 41,	// =>A7105
+	PROTO_BUGSMINI	= 42,	// =>NRF24L01
+	PROTO_TRAXXAS	= 43,	// =>CYRF6936
+	PROTO_NCC1701	= 44,	// =>NRF24L01
+	PROTO_E01X		= 45,	// =>NRF24L01
+	PROTO_V911S		= 46,	// =>NRF24L01
+	PROTO_GD00X		= 47,	// =>NRF24L01
+	PROTO_TEST		= 63,	// =>NRF24L01
 };
 
 enum Flysky
@@ -75,7 +83,7 @@ enum Flysky
 	V9X9	= 1,
 	V6X6	= 2,
 	V912	= 3,
-	CX20	= 4
+	CX20	= 4,
 };
 enum Hubsan
 {
@@ -93,7 +101,7 @@ enum AFHDS2A
 enum Hisky
 {
 	Hisky	= 0,
-	HK310	= 1
+	HK310	= 1,
 };
 enum DSM
 {
@@ -101,7 +109,7 @@ enum DSM
 	DSM2_11	= 1,
 	DSMX_22	= 2,
 	DSMX_11	= 3,
-	DSM_AUTO = 4
+	DSM_AUTO = 4,
 };
 enum YD717
 {       			
@@ -109,22 +117,25 @@ enum YD717
 	SKYWLKR	= 1,
 	SYMAX4	= 2,
 	XINXUN	= 3,
-	NIHUI	= 4
+	NIHUI	= 4,
 };
 enum KN
 {
 	WLTOYS	= 0,
-	FEILUN	= 1
+	FEILUN	= 1,
 };
 enum SYMAX
 {
 	SYMAX	= 0,
-	SYMAX5C	= 1
+	SYMAX5C	= 1,
 };
 enum SLT
 {
-	SLT		= 0,
-	VISTA	= 1
+	SLT_V1	= 0,
+	SLT_V2	= 1,
+	Q100	= 2,
+	Q200	= 3,
+	MR100	= 4,
 };
 enum CX10
 {
@@ -162,7 +173,7 @@ enum MT99XX
 	H7		= 1,
 	YZ		= 2,
 	LS		= 3,
-	FY805	= 4
+	FY805	= 4,
 };
 enum MJXQ
 {
@@ -184,8 +195,8 @@ enum HONTAI
 {
 	HONTAI	= 0,
 	JJRCX1	= 1,
-	X5C1		= 2,
-	FQ777_951 =3
+	X5C1	= 2,
+	FQ777_951 =3,
 };
 enum V2X2
 {
@@ -238,6 +249,11 @@ enum HITEC
 	OPT_FW	= 0,
 	OPT_HUB	= 1,
 	MINIMA	= 2,
+};
+enum E01X
+{
+	E012	= 0,
+	E015	= 1,
 };
 
 #define NONE 		0
@@ -355,12 +371,13 @@ enum MultiPacketTypes
 //********************
 #if defined(STM32_BOARD) && defined (DEBUG_SERIAL)
 	uint16_t debug_time=0;
-	#define debug(msg, ...)  {char buf[64]; sprintf(buf, msg, ##__VA_ARGS__); Serial.write(buf);}
-	#define debugln(msg, ...)  {char buf[64]; sprintf(buf, msg "\r\n", ##__VA_ARGS__); Serial.write(buf);}
-	#define debug_time(msg)  { uint16_t debug_time_TCNT1=TCNT1; debug_time=debug_time_TCNT1-debug_time; debugln(msg "%u", debug_time); debug_time=debug_time_TCNT1; }
+	#define debug(msg, ...)  {char debug_buf[64]; sprintf(debug_buf, msg, ##__VA_ARGS__); Serial.write(debug_buf);}
+	#define debugln(msg, ...)  {char debug_buf[64]; sprintf(debug_buf, msg "\r\n", ##__VA_ARGS__); Serial.write(debug_buf);}
+	#define debug_time(msg)  { uint16_t debug_time_TCNT1=TCNT1; debug_time=debug_time_TCNT1-debug_time; debug(msg "%u", debug_time>>1); debug_time=debug_time_TCNT1; }
 #else
 	#define debug(...) { }
 	#define debugln(...) { }
+	#define debug_time(...) { }
 	#undef DEBUG_SERIAL
 #endif
 
@@ -510,9 +527,11 @@ enum {
 #define EEPROM_ID_OFFSET		10		// Module ID (4 bytes)
 #define EEPROM_BANK_OFFSET		15		// Current bank number (1 byte)
 #define EEPROM_ID_VALID_OFFSET	20		// 1 byte flag that ID is valid
-#define MODELMODE_EEPROM_OFFSET	30		// Autobind mode, 1 byte per model, end is 46
-#define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 byte per model id, end is 114
-#define CONFIG_EEPROM_OFFSET 	120		// Current configuration of the multimodule
+#define MODELMODE_EEPROM_OFFSET	30		// Autobind mode, 1 byte per model, end is 30+16=46
+#define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 bytes per model id, end is 50+64=114
+#define BUGS_EEPROM_OFFSET		114		// TX ID, 4 bytes per model id, end is 114+64=178
+#define BUGSMINI_EEPROM_OFFSET	178		// RX ID, 2 bytes per model id, end is 178+32=210
+//#define CONFIG_EEPROM_OFFSET 	210		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***
@@ -571,6 +590,13 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					CFlie		38
 					Hitec		39
 					WFLY		40
+					BUGS		41
+					BUGSMINI	42
+					TRAXXAS		43
+					NCC1701		44
+					E01X		45
+					V911S		46
+					GD00X		47
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -620,9 +646,6 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			Q222		0
 			Q242		1
 			Q282		2
-		sub_protocol==SLT
-			SLT			0
-			VISTA		1
 		sub_protocol==CG023
 			CG023		0
 			YD829		1
@@ -695,6 +718,15 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			OPT_FW		0
 			OPT_HUB		1
 			MINIMA		2
+		sub_protocol==SLT
+			SLT_V1		0
+			SLT_V2		1
+			Q100		2
+			Q200		3
+			MR100		4
+		sub_protocol==E01X
+			E012		0
+			E015		1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

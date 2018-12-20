@@ -3,7 +3,7 @@
 
 The **Multiprotocol Tx Module** (or **MULTI-Module**) is a 2.4GHz transmitter module which enables almost any transmitter to control many different receivers and models, including many popular helicopters, planes, quadcopters, and miniquads.
 
-The source code is partly based on the [Deviation TX project](http://www.deviationtx.com), thanks to all the developers for their great job on protocols.
+The main forum for protocol requests and questions is on [RCGroups.com](https://www.rcgroups.com/forums/showthread.php?2165676-DIY-Multiprotocol-TX-Module/page10000).
 
 If you like this project and want to support further development please consider making a [donation](docs/Donations.md).  
 
@@ -16,6 +16,13 @@ If you like this project and want to support further development please consider
     <td align=center width=200><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=VF2K9T23DRY56&lc=US&item_name=DIY%20Multiprotocol&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted"><img src="docs/images/donate_button.png" border="0" name="submit" title="PayPal - Donate" alt="Donate"/></a><br><b>Other</b></td>
   </tr>
 </table>
+
+## Development status
+
+Current Multiprotocol code check status: [![Travis Build Status for Multi](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module.svg)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module)
+
+Current Multiprotocol boards check status: [![Travis Build Status for Multi Boards](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards.svg)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards)
+
 
 ## Quicklinks
 * [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) and [instructions to upload .hex files](docs/Advanced_Manually_Setting_ATmega328_Fuses.md)
@@ -120,12 +127,14 @@ Visit the [Troubleshooting](docs/Troubleshooting.md) page.  Please bear in mind 
 # A final word
 A very big thanks to all the people who have shared their time so graciously to create this great project.  If you come across them on RC Groups, please be kind and show appreciation.  In no particular order:
 * Pascal Langer (rcgroups: hpnuts)
+* Ben Lye (rcgroups: benzo99)
 * Midelic (rcgroups: midelic)
 * Mike Blandford (rcgroups: Mike Blandford)
-* PhracturedBlue – from Deviation-tx
-* goebish – from Deviation-tx
-* victzh – from Deviation-tx
-* hexfet – from Deviation-tx
+* schwabe - from OpenTX 
+* PhracturedBlue – from [Deviation TX project](http://www.deviationtx.com)
+* goebish – from [Deviation TX project](http://www.deviationtx.com)
+* victzh – from [Deviation TX project](http://www.deviationtx.com)
+* hexfet – from [Deviation TX project](http://www.deviationtx.com)
 
 Your help would be greatly appreciated.  If protocol reverse-engineering and dev is not your thing then any help with testing and contributing to the documentation would be amazing.  Given the number of different Tx/module hardware/RF module/protocol/model combinations the process of testing and documenting is a major bottleneck for the developers.  Anything you can do to help will free them up to do even greater things. 
 

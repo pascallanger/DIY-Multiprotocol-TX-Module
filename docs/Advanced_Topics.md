@@ -6,3 +6,6 @@ It is possible to access the telemetry stream coming from the receiver through t
 
 # Manually setting fuses on ATmega328
 This document describes a relatively simple process to set the fuses on ATmega328.   See the [Advanced Manually Setting ATmega328 Fuses](Advanced_Manually_Setting_ATmega328_Fuses.md) page for more details.  
+
+# EEPROM Backup and Restore
+This document describes how to back up and restore the EEPROM for both Atmega328p and STM32 MULTI-modules.  This can be useful if cloning a module, or to preserve settings.  See the [MULTI-Module EEPROM](EEPROM.md) page for more details.

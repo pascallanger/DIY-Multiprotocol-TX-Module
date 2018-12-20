@@ -55,6 +55,66 @@ Notes:
 ## Serial mode
 Serial mode is selected by placing the rotary switch to position 0 before power on of the radio.
 
+You've upgraded the module but the radio does not display the name of the protocol you are loking for:
+ * ersky9x:
+      - Place the file [Multi.txt](https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module/master/Multiprotocol/Multi.txt) (which is part of the MPM source files) on the root of your SD card.
+      - If the entry still does not appear or is broken, [upgrade](https://openrcforums.com/forum/viewtopic.php?f=7&t=4676) to version R222d2 or newer.
+ * OpenTX:
+      - Upgrade to the latest version of OpenTX.
+      - If still not listed, use the Custom entry along with the protocol and sub_protocol values indicated by the italic numbers under each protocol. You'll find a summary of the protocols and numbers to use in table below.
+ 
+# Available Protocol Table of Contents (Listed Alphabetically)
+
+Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Sub_Proto 4|Sub_Proto 5|Sub_Proto 6|Sub_Proto 7|RF Module
+---|---|---|---|---|---|---|---|---|---|---
+[Assan](Protocols_Details.md#ASSAN---24)|24|ASSAN||||||||NRF24L01
+[Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|||||NRF24L01
+[Bugs](Protocols_Details.md#BUGS---41)|41|BUGS||||||||A7105
+[BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI||||||||NRF24L01
+[Cabell](Protocols_Details.md#Cabell---34)|34|Cabell_V3|C_TELEM|-|-|-|-|F_SAFE|UNBIND|NRF24L01
+CFlie|38|CFlie||||||||NRF24L01
+[CG023](Protocols_Details.md#CG023---13)|13|CG023|YD829|||||||NRF24L01
+[Corona](Protocols_Details.md#CORONA---37)|37|COR_V1|COR_V2|FD_V3||||||CC2500
+[CX10](Protocols_Details.md#CX10---12)|12|GREEN|BLUE|DM007|-|J3015_1|J3015_2|MK33041||NRF24L01
+[Devo](Protocols_Details.md#DEVO---7)|7|Devo||||||||CYRF6936
+[DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01
+[DSM](Protocols_Details.md#DSM---6)|6|DSM2-22|DSM2-11|DSMX-22|DSMX-11|AUTO||||CYRF6936
+[E01X](Protocols_Details.md#E01X---45)|45|E012|E015|||||||NRF24L01
+[ESky](Protocols_Details.md#ESKY---16)|16|ESky||||||||NRF24L01
+[ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01
+[Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105
+[Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105
+[FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01
+[FrskyD](Protocols_Details.md#FRSKYD---3)|3|FrskyD||||||||CC2500
+[FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500
+[FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500
+[FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01
+[GD00X](Protocols_Details.md#GD00X---47)|47|GD00X||||||||NRF24L01
+[GW008](Protocols_Details.md#GW008---32)|32|GW008||||||||NRF24L01
+[H8_3D](Protocols_Details.md#H8_3D---36)|36|H8_3D|H20H|H20Mini|H30Mini|||||NRF24L01
+[Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01
+[Hitec](Protocols_Details.md#HITEC---39)|39|OPT_FW|OPT_HUB|MINIMA||||||CC2500
+[Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01
+[Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105
+[J6Pro](Protocols_Details.md#J6Pro---22)|22|J6PRO||||||||CYRF6936
+[KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01
+[MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010|H26WH|||NRF24L01
+[MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01
+[NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01
+[OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None
+[Q2X2](Protocols_Details.md#Q2X2---29)|29|Q222|Q242|Q282||||||NRF24L01
+[Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01
+[SFHSS](Protocols_Details.md#SFHSS---21)|21|SFHSS||||||||CC2500
+[Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01
+[SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01
+[SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01
+Traxxas|43|Traxxas||||||||NRF24L01
+[V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|||||||NRF24L01
+[V911S](Protocols_Details.md#V911S---46)|46|V911S||||||||NRF24L01
+[WFly](Protocols_Details.md#WFLY---40)|40|WFLY||||||||CYRF6936
+[WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936
+[YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01
+
 # A7105 RF Module
 
 ## FLYSKY - *1*
@@ -102,11 +162,13 @@ Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 
 
 If telemetry is incomplete (missing RX RSSI for example), it means that you have to upgrade your RX firmware to version 1.6 or later. You can do it from an original Flysky TX or using a STLink like explained in [this tutorial](https://www.rcgroups.com/forums/showthread.php?2677694-How-to-upgrade-Flysky-Turnigy-iA6B-RX-to-firmware-1-6-with-a-ST-Link).
 
+AFHDS2A_LQI_CH is a feature which is disabled by defaut in the _config.h file. When enabled, it makes LQI (Link Quality Indicator) available on one of the RX ouput channel (5-14).
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 
-Note that the RX ouput will be AETR.
+Note that the RX ouput will be AETR whatever the input channel order is.
 
 ### Sub_protocol PWM_IBUS - *0*
 ### Sub_protocol PPM_IBUS - *1*
@@ -135,12 +197,29 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|RTH|LIGHT|STAB|VIDEO
 
-### Sub_protocol H501 - *1*
-Models: Hubsan H501S
+### Sub_protocol H501 - *2*
+Models: Hubsan H501S, H122D, H123D
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS1|HEADLESS2|GPS_HOLD|ALT_HOLD
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|----|----|----|----
+A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS|GPS_HOLD|ALT_HOLD|FLIP|FMODES
+
+H122D: FLIP
+
+H123D: FMODES -> -100%=Sport mode 1,0%=Sport mode 2,+100%=Acro
+
+## BUGS - *41*
+Models: MJX Bugs 3, 6 and 8
+
+Telemetry enabled for RX & TX RSSI, Battery voltage good/bad
+
+**RX_Num is used to give a number to a given model. You must use a different RX_Num per MJX Bugs. A maximum of 16 Bugs are supported.**
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
+
+ANGLE: angle is +100%, acro is -100%
 
 ***
 # CC2500 RF Module
@@ -176,8 +255,9 @@ To bind V2 RXs you must follow the below procedure (original):
 ### Sub_protocol FD_V3 - *2*
 FlyDream RXs like IS-4R and IS-4R0
 
-## FRSKYV = FrSky 1 way - *25*
+## FRSKYV - *25*
 Models: FrSky receivers V8R4, V8R7 and V8FR.
+ - FrSkyV = FrSky 1 way
 
 Extended limits supported
 
@@ -389,15 +469,16 @@ Telemetry enabled for TSSI and plugins
 
 option=number of channels from 4 to 12. An invalid option value will end up with 6 channels.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|----|----|----
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|----|CH15
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|----|TH_KILL
 
 Notes:
  - model/type/number of channels indicated on the RX can be different from what the RX is in fact wanting to see. So don't hesitate to test different combinations until you have something working. Using Auto is the best way to find these settings.
  - RX output will match the Spektrum standard TAER independently of the input configuration AETR, RETA...
  - RX output will match the Spektrum standard throw (1500µs +/- 400µs -> 1100..1900µs) for a 100% input. This is true for both Serial and PPM input. For PPM, make sure the end points PPM_MIN_100 and PPM_MAX_100 in _config.h are matching your TX ouput. The maximum ouput is 1000..2000µs based on an input of 125%.
-    - If you want to override the above and get maximum throw (old way) uncomment in _config.h the line #define DSM_FULL_THROW . In this mode to achieve standard throw use a channel weight of 84%.
+    - If you want to override the above and get maximum throw (old way) uncomment in _config.h the line #define DSM_MAX_THROW . In this mode to achieve standard throw use a channel weight of 84%.
+ - TH_KILL is a feature which is enabled on channel 15 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 15 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 15 will instantly kill the motors on the X-Vert.
 
 ### Sub_protocol DSM2_22 - *0*
 DSM2, Resolution 1024, refresh rate 22ms
@@ -477,6 +558,19 @@ Model: IRDRONE
 CH12|CH13
 ----|----
 TAKE_OFF|EMG_STOP
+
+## BUGSMINI - *42*
+Models: MJX Bugs 3 Mini and 3H
+
+Telemetry enabled for RX RSSI, Battery voltage good/warning/bad
+
+**RX_Num is used to give a number to a given model. You must use a different RX_Num per MJX Bugs Mini. A maximum of 16 Bugs Mini are supported.**
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
+
+ANGLE: angle is +100%, acro is -100%
 
 ## Cabell - *34*
 Homegrown protocol with variable number of channels (4-16) and telemetry (RSSI, V1, V2).
@@ -574,6 +668,23 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
 
+## E01X - *45*
+Autobind protocol
+
+### Sub_protocol E012 - *0*
+Models: Eachine E012
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R||FLIP||HEADLESS|RTH
+
+### Sub_protocol E015 - *1*
+Models: Eachine E015
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|FLIP|LED|HEADLESS|RTH
+
 ## ESKY - *16*
 
 CH1|CH2|CH3|CH4|CH5|CH6
@@ -603,6 +714,13 @@ Model: FQ777-124 (with SV7241A)
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|RTH|HEADLESS|EXPERT
+
+## GD00X - *47*
+Model: GD005 C-17 Transport and GD006 DA62
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A||T||TRIM|LED
 
 ## GW008 - *32*
 Model: Global Drone GW008 from Banggood
@@ -743,6 +861,19 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP||||HEADLESS
 
+## NCC1701 - *44*
+Model: Air Hogs Star Trek USS Enterprise NCC-1701-A
+
+Autobind protocol
+
+Telemetry: RSSI is a dummy value. A1 voltage is dummy but used for crash detection. In case of a crash event A1>0V, you can assign a sound to be played on the TX in that case (siren on the original transmitter).
+
+Only 9 IDs available, cycle through them using RX_Num.
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|Warp
+
 ## Q2X2 - *29*
 ### Sub_protocol Q222 - *0*
 Models: Q222 v1 and V686 v2
@@ -807,9 +938,74 @@ Throttle +100%=full forward,0%=stop,-100%=full backward.
 ## SLT - *11*
 Autobind protocol
 
+### Sub_protocol V1 - *0*
+
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|GEAR|PITCH
+
+### Sub_protocol V2 - *1*
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+### Sub_protocol Q100 - *2*
+Models: Dromida Ominus UAV
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|-|-|CALIB
+
+RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
+
+CH7 and CH8 have no visible effect
+
+MODE: -100% level, +100% acro
+
+FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
+
+CALIB: -100% normal mode, +100% gyro calibration
+
+### Sub_protocol Q200 - *3*
+Model: Dromida Ominus Quadcopter FPV, the Nine Eagles - FENG FPV and may be others
+
+Dromida Ominus FPV channels mapping:
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VID_ON|VID_OFF|CALIB
+
+FENG FPV: channels mapping:
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|FLIP|MODE|VID_ON|VID_OFF|CALIB
+
+RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
+
+CH7 and CH8 have no visible effect
+
+MODE: -100% level, +100% acro
+
+FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
+
+CALIB: -100% normal mode, +100% gyro calibration
+
+### Sub_protocol MR100 - *4*
+Models: Vista UAV, FPV, FPV v2
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VIDEO|PICTURE
+
+RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
+
+CH7 and CH8 have no visible effect
+
+FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
+
+MODE: -100% level, +100% acro
 
 ## Symax - *10*
 Autobind protocol
@@ -845,6 +1041,13 @@ CH10|CH11|CH12
 ---|---|---
 Start/Stop|EMERGENCY|CAMERA_UP/DN
 
+## V911S - *46*
+Model: WLtoys V911S
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|CALIB
+
 ## YD717 - *8*
 Autobind protocol
 
@@ -858,3 +1061,8 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ### Sub_protocol XINXUN - *3*
 ### Sub_protocol NIHUI - *4*
 Same channels assignement as above.
+
+# OpenLRS module
+
+## OpenLRS - *27*
+This is a reservation for OpenLRSng which is using Multi's serial protocol for their modules: https://openlrsng.org/. On the Multi side there is no protocol affected on 27 so it's just ignored.

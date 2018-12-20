@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+SED=$(which gsed || which sed)
+
+for opt in "$@" ; do
+  eval "${SED} -i 's/\/\{2,\}[[:blank:]]*\(#define[[:blank:]]*\b${opt}\b\)/\1/g' Multiprotocol/_Config.h"
+done

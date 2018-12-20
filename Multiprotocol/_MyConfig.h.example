@@ -9,7 +9,7 @@
 // For example you can also define multiple module configurations, uncomment the one you want to compile for:
 #define Module_1
 //#define Module_2
-//#define Module_2
+//#define Module_3
 //#define Module_4
 
 //Example on how to force the "Flash from TX" feature for all modules
@@ -53,7 +53,27 @@
 	#define MULTI_TELEMETRY
 	
 #elif defined Module_4
-	//Example of a module which will be PPM only
+	//Example of a module which will be PPM only with a different protocol table
 	#undef ENABLE_SERIAL
-
+	#undef NBR_BANKS
+	#define NBR_BANKS 1		// redefine the number of banks
+	#define MY_PPM_PROT		// Use the bellow protocol list
+	const PPM_Parameters My_PPM_prot[14*NBR_BANKS]={
+//******************************       BANK 1       ******************************
+//	Switch	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option
+/*	1	*/	{PROTO_KN	,	WLTOYS		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	2	*/	{PROTO_FLYSKY,	Flysky		,	0	,	P_HIGH	,	AUTOBIND	,	0		},
+/*	3	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	1	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 1
+/*	4	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	2	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 2
+/*	5	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	3	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 3
+/*	6	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	2	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 4
+/*	7	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	3	,	P_HIGH	,	NO_AUTOBIND	,	0		},	// RX number 5
+/*	8	*/	{PROTO_SFHSS,	H107		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	9	*/	{PROTO_FRSKYV,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	10	*/	{PROTO_FRSKYD,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	11	*/	{PROTO_FRSKYX,	CH_16		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	12	*/	{PROTO_FRSKYX,	EU_16		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40		},	// option=fine freq tuning
+/*	13	*/	{PROTO_DEVO	,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+/*	14	*/	{PROTO_WK2x01,	WK2801		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0		},
+	};
 #endif

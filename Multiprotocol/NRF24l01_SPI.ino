@@ -457,16 +457,46 @@ void XN297_WriteEnhancedPayload(uint8_t* msg, uint8_t len, uint8_t noack, uint16
 		pid=0;
 }
 
-void XN297_ReadPayload(uint8_t* msg, uint8_t len)
-{
-	// TODO: if xn297_crc==1, check CRC before filling *msg 
-	NRF24L01_ReadPayload(msg, len);
+boolean XN297_ReadPayload(uint8_t* msg, uint8_t len)
+{ //!!! Don't forget if using CRC to do a +2 on any of the used NRF24L01_11_RX_PW_Px !!!
+	uint8_t buf[32];
+	if (xn297_crc)
+		NRF24L01_ReadPayload(buf, len+2);	// Read payload + CRC 
+	else
+		NRF24L01_ReadPayload(buf, len);
+	// Decode payload
 	for(uint8_t i=0; i<len; i++)
 	{
+		uint8_t b_in=buf[i];
 		if(xn297_scramble_enabled)
-			msg[i] ^= xn297_scramble[i+xn297_addr_len];
-		msg[i] = bit_reverse(msg[i]);
+			b_in ^= xn297_scramble[i+xn297_addr_len];
+		msg[i] = bit_reverse(b_in);
 	}
+	if (!xn297_crc)
+		return true;	// No CRC so OK by default...
+
+	// Calculate CRC
+	uint16_t crc = 0xb5d2;
+	//process address
+	for (uint8_t i = 0; i < xn297_addr_len; ++i)
+	{
+		uint8_t b_in=xn297_tx_addr[xn297_addr_len-i-1];
+		if(xn297_scramble_enabled)
+			b_in ^=  xn297_scramble[i];
+		crc = crc16_update(crc, b_in, 8);
+	}
+	//process payload
+	for (uint8_t i = 0; i < len; ++i)
+		crc = crc16_update(crc, buf[i], 8);
+	//xorout
+	if(xn297_scramble_enabled)
+		crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
+	else
+		crc ^= pgm_read_word(&xn297_crc_xorout[xn297_addr_len - 3 + len]);
+	//test
+	if( (crc >> 8) == buf[len] && (crc & 0xff) == buf[len+1])
+		return true;	// CRC  OK
+	return false;		// CRC NOK
 }
 
 uint8_t XN297_ReadEnhancedPayload(uint8_t* msg, uint8_t len)
@@ -489,6 +519,111 @@ uint8_t XN297_ReadEnhancedPayload(uint8_t* msg, uint8_t len)
 }
  
  // End of XN297 emulation
+
+//
+// HS6200 emulation layer
+///////////////////////////
+static uint8_t hs6200_crc;
+static uint16_t hs6200_crc_init;
+static uint8_t hs6200_tx_addr[5];
+static uint8_t hs6200_address_length;
+
+static const uint8_t hs6200_scramble[] = {
+	0x80,0xf5,0x3b,0x0d,0x6d,0x2a,0xf9,0xbc,
+	0x51,0x8e,0x4c,0xfd,0xc1,0x65,0xd0 }; // todo: find all 32 bytes ...
+
+void HS6200_SetTXAddr(const uint8_t* addr, uint8_t len)
+{
+	if(len < 4)
+		len = 4;
+	else if(len > 5)
+		len = 5;
+
+	// use nrf24 address field as a longer preamble
+	if(addr[len-1] & 0x80)
+		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t*)"\x55\x55\x55\x55\x55", 5);
+	else
+		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t*)"\xaa\xaa\xaa\xaa\xaa", 5);
+
+	// precompute address crc
+	hs6200_crc_init = 0xffff;
+	for(int i=0; i<len; i++)
+		hs6200_crc_init = crc16_update(hs6200_crc_init, addr[len-1-i], 8);
+	memcpy(hs6200_tx_addr, addr, len);
+	hs6200_address_length = len;
+}
+
+static uint16_t hs6200_calc_crc(uint8_t* msg, uint8_t len)
+{
+    uint8_t pos;
+    uint16_t crc = hs6200_crc_init;
+    
+    // pcf + payload
+    for(pos=0; pos < len-1; pos++)
+        crc = crc16_update(crc, msg[pos], 8);
+    // last byte (1 bit only)
+    if(len > 0)
+        crc = crc16_update(crc, msg[pos+1], 1);
+    return crc;
+}
+
+void HS6200_Configure(uint8_t flags)
+{
+	hs6200_crc = !!(flags & _BV(NRF24L01_00_EN_CRC));
+	flags &= ~(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO));
+	NRF24L01_WriteReg(NRF24L01_00_CONFIG, flags & 0xff);      
+}
+
+void HS6200_WritePayload(uint8_t* msg, uint8_t len)
+{
+	uint8_t payload[32];
+	const uint8_t no_ack = 1; // never ask for an ack
+	static uint8_t pid;
+	uint8_t pos = 0;
+
+	if(len > sizeof(hs6200_scramble))
+		len = sizeof(hs6200_scramble);
+
+	// address
+	for(int i=hs6200_address_length-1; i>=0; i--)
+		payload[pos++] = hs6200_tx_addr[i];
+
+	// guard bytes
+	payload[pos++] = hs6200_tx_addr[0];
+	payload[pos++] = hs6200_tx_addr[0];
+
+	// packet control field
+	payload[pos++] = ((len & 0x3f) << 2) | (pid & 0x03);
+	payload[pos] = (no_ack & 0x01) << 7;
+	pid++;
+
+	// scrambled payload
+	if(len > 0)
+	{
+		payload[pos++] |= (msg[0] ^ hs6200_scramble[0]) >> 1; 
+		for(uint8_t i=1; i<len; i++)
+			payload[pos++] = ((msg[i-1] ^ hs6200_scramble[i-1]) << 7) | ((msg[i] ^ hs6200_scramble[i]) >> 1);
+		payload[pos] = (msg[len-1] ^ hs6200_scramble[len-1]) << 7; 
+	}
+
+	// crc
+	if(hs6200_crc)
+	{
+		uint16_t crc = hs6200_calc_crc(&payload[hs6200_address_length+2], len+2);
+		uint8_t hcrc = crc >> 8;
+		uint8_t lcrc = crc & 0xff;
+		payload[pos++] |= (hcrc >> 1);
+		payload[pos++] = (hcrc << 7) | (lcrc >> 1);
+		payload[pos++] = lcrc << 7;
+	}
+
+	NRF24L01_WritePayload(payload, pos);
+	delayMicroseconds(option);
+	NRF24L01_WritePayload(payload, pos);
+}
+//
+// End of HS6200 emulation
+////////////////////////////
 
 ///////////////
 // LT8900 emulation layer

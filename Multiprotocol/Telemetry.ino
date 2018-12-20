@@ -367,7 +367,7 @@ void frsky_link_frame()
 		telemetry_link |= 2 ;		// Send hub if available
 	}
 	else
-		if (protocol==PROTO_HUBSAN||protocol==PROTO_AFHDS2A||protocol==PROTO_BAYANG||protocol==PROTO_CABELL||protocol==PROTO_HITEC)
+		if (protocol==PROTO_HUBSAN||protocol==PROTO_AFHDS2A||protocol==PROTO_BAYANG||protocol==PROTO_NCC1701||protocol==PROTO_CABELL||protocol==PROTO_HITEC||protocol==PROTO_BUGS||protocol==PROTO_BUGSMINI)
 		{	
 			frame[1] = v_lipo1;
 			frame[2] = v_lipo2;
@@ -997,7 +997,7 @@ void TelemetryUpdate()
 	#endif
 
 		if((telemetry_link & 1 )&& protocol != PROTO_FRSKYX)
-		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell + Hitec
+		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell + Hitec + Bugs + BugsMini + NCC1701
 			frsky_link_frame();
 			return;
 		}

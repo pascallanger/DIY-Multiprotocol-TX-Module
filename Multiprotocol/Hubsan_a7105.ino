@@ -49,12 +49,19 @@ enum{
 	// flags going to packet[9] (H501S)
 	FLAG_H501_VIDEO     = 0x01,
 	FLAG_H501_LED       = 0x04,
+	FLAG_H122D_FLIP     = 0x08,	//H122D
 	FLAG_H501_RTH       = 0x20,
 	FLAG_H501_HEADLESS1 = 0x40,
 	FLAG_H501_GPS_HOLD  = 0x80,
 	};
 
-	enum{
+enum{
+	// flags going to packet[11] (H122D & H123D)
+	FLAG_H123D_FMODES   = 0x03,	//H123D 3 FMODES: Sport mode 1, Sport mode 2, Acro
+	FLAG_H122D_OSD	    = 0x20,	//H122D OSD
+};
+
+enum{
 	// flags going to packet[13] (H501S)
 	FLAG_H501_SNAPSHOT  = 0x01,
 	FLAG_H501_HEADLESS2 = 0x02,
@@ -203,12 +210,25 @@ static void __attribute__((unused)) hubsan_build_packet()
 			packet[9] = 0x02
 					   | GET_FLAG(CH6_SW, FLAG_H501_LED)
 					   | GET_FLAG(CH8_SW, FLAG_H501_VIDEO)
+					   | GET_FLAG(CH12_SW, FLAG_H122D_FLIP)	// H122D specific -> flip
 					   | GET_FLAG(CH5_SW, FLAG_H501_RTH)
-					   | GET_FLAG(CH11_SW, FLAG_H501_GPS_HOLD)
+					   | GET_FLAG(CH10_SW, FLAG_H501_GPS_HOLD)
 					   | GET_FLAG(CH9_SW, FLAG_H501_HEADLESS1);
 			//packet[10]= 0x1A;
-			packet[13] = GET_FLAG(CH10_SW, FLAG_H501_HEADLESS2)
-					   | GET_FLAG(CH12_SW, FLAG_H501_ALT_HOLD)
+
+			//packet[11] content 0x00 is default
+			//H123D specific -> Flight modes
+			packet[11] = 0x41;	// Sport mode 1
+			if(Channel_data[CH13]>CHANNEL_MAX_COMMAND)
+				packet[11]=0x43;	// Acro
+			else if(Channel_data[CH13]>CHANNEL_MIN_COMMAND)
+				packet[11]=0x42;	// Sport mode 2
+			//H122D specific -> OSD but useless...
+			//packet[11]|= 0x80
+			//		  | GET_FLAG(CHXX_SW,FLAG_H122D_OSD); 
+
+			packet[13] = GET_FLAG(CH9_SW, FLAG_H501_HEADLESS2)
+					   | GET_FLAG(CH11_SW, FLAG_H501_ALT_HOLD)
 					   | GET_FLAG(CH7_SW, FLAG_H501_SNAPSHOT);
 		}
 		else

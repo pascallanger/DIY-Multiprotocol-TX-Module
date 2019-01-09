@@ -671,6 +671,8 @@ A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
 ## E01X - *45*
 Autobind protocol
 
+This protocol has been reported to not work properly due to the emulation of the HS6200 RF component using the NRF24L01. The option value is used to adjust the timing, try every values between -127 and +127. If it works please report which value you've used.
+
 ### Sub_protocol E012 - *0*
 Models: Eachine E012
 
@@ -717,6 +719,8 @@ A|E|T|R|FLIP|RTH|HEADLESS|EXPERT
 
 ## GD00X - *47*
 Model: GD005 C-17 Transport and GD006 DA62
+
+If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
@@ -823,7 +827,8 @@ Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ### Sub_protocol E010 - *4*
 15 TX IDs available, change RX_Num value 0..14 to cycle through them
 
-If the E010 does not respond well to inputs or hard to bind, set Power to Low.
+If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
+
 ### Sub_protocol H26WH - *5*
 CH6|
 ---|
@@ -845,6 +850,9 @@ Models: Eachine H7, Cheerson CX023
 ### Sub_protocol YZ - *2*
 Model: Yi Zhan i6S
 Only one model can be flown at the same time since the ID is hardcoded.
+
+If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
+
 ### Sub_protocol LS - *3*
 Models: LS114, 124, 215
 
@@ -898,7 +906,7 @@ CH1|CH2|CH3|CH4
 A|E|T|R
 
 ### Sub_protocol Q303 - *0*
-Q303 warning: this sub_protocol is known to not work at all/properly with 4in1 RF modules.
+If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---
@@ -1042,7 +1050,9 @@ CH10|CH11|CH12
 Start/Stop|EMERGENCY|CAMERA_UP/DN
 
 ## V911S - *46*
-Model: WLtoys V911S
+Models: WLtoys V911S, XK A110
+
+If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---

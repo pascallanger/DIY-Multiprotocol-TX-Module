@@ -59,7 +59,7 @@ static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
 		packet[ 0]=(rf_ch_num<<3)|channel;
 		packet[ 1]=V911S_FLAG_EXPERT;					// short press on left button
 		packet[ 2]=GET_FLAG(CH5_SW,V911S_FLAG_CALIB);	// long  press on right button
-		memset(packet+3,0x00,14);
+		memset(packet+3, 0x00, V911S_PACKET_SIZE - 3);
 		//packet[3..6]=trims TAER signed
 		uint16_t ch=convert_channel_16b_limit(THROTTLE ,0,0x7FF);
 		packet[ 7] = ch;

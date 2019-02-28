@@ -266,9 +266,9 @@ uint16_t E01X_callback()
 		if (bind_counter == 0)
 		{
 			if(sub_protocol==E016H)
-				HS6200_SetTXAddr(rx_tx_addr, E01X_ADDRESS_LENGTH);
+				XN297_SetTXAddr(rx_tx_addr, E01X_ADDRESS_LENGTH);
 			else
-				XN297_SetTXAddr(rx_tx_addr,  E01X_ADDRESS_LENGTH);
+				HS6200_SetTXAddr(rx_tx_addr,  E01X_ADDRESS_LENGTH);
 			BIND_DONE;
 		}
 		else

@@ -671,10 +671,10 @@ A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
 ## E01X - *45*
 Autobind protocol
 
-This protocol has been reported to not work properly due to the emulation of the HS6200 RF component using the NRF24L01. The option value is used to adjust the timing, try every values between -127 and +127. If it works please report which value you've used.
-
 ### Sub_protocol E012 - *0*
 Models: Eachine E012
+
+This protocol has been reported to not work properly due to the emulation of the HS6200 RF component using the NRF24L01. The option value is used to adjust the timing, try every values between -127 and +127. If it works please report which value you've used.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
@@ -683,9 +683,18 @@ A|E|T|R||FLIP||HEADLESS|RTH
 ### Sub_protocol E015 - *1*
 Models: Eachine E015
 
+This protocol has been reported to not work properly due to the emulation of the HS6200 RF component using the NRF24L01. The option value is used to adjust the timing, try every values between -127 and +127. If it works please report which value you've used.
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|ARM|FLIP|LED|HEADLESS|RTH
+
+### Sub_protocol E016H - *2*
+Models: Eachine E016H
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|STOP|FLIP|-|HEADLESS|RTH
 
 ## ESKY - *16*
 

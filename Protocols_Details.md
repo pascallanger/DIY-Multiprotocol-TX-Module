@@ -79,7 +79,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [Devo](Protocols_Details.md#DEVO---7)|7|Devo||||||||CYRF6936
 [DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2-22|DSM2-11|DSMX-22|DSMX-11|AUTO||||CYRF6936
-[E01X](Protocols_Details.md#E01X---45)|45|E012|E015|||||||NRF24L01
+[E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky||||||||NRF24L01
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105

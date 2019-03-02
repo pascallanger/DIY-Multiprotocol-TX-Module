@@ -618,7 +618,7 @@ void HS6200_WritePayload(uint8_t* msg, uint8_t len)
 	}
 
 	NRF24L01_WritePayload(payload, pos);
-	delayMicroseconds(option);
+	delayMicroseconds(option+20);
 	NRF24L01_WritePayload(payload, pos);
 }
 //

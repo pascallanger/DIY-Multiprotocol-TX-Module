@@ -192,7 +192,7 @@ In order for the module to be correctly identified it is necessary and only once
 ##### Windows XP or older
 1. Download and install the legacy Windows XP drivers from [here](https://github.com/rogerclarkmelbourne/Arduino_STM32/tree/master/drivers/win/win_xp_legacy)
 
-**NOTE:** If you have installed the drivers and your module is not detected as a Maple device it most likely does not have a USB bootloader installed. Ready-made modules from Banggood **do not** come with a USB bootloader installed.  You will need to follow the procedure to [Burn a USB bootloader](#burn-the-bootloader) before you can upload firmware.
+**NOTE:** If you have installed the drivers and your module is not detected as a Maple device it most likely does not have a USB bootloader installed. Ready-made modules from Banggood **do not** come with a USB bootloader installed.  You will need to follow the procedure to [Burn a USB bootloader](#upload-via-serial-inc-bootloader-ftdi) before you can upload firmware.
 
 ##### Mac OS X
 Uploading via USB requires the [libusb library](https://libusb.info/) to be installed.  The easiest way to install the library is using the [Homebrew package manager for macOS](https://brew.sh/) by executing the two lines given below in a Terminal.

@@ -43,7 +43,7 @@ static void __attribute__((unused)) GD00X_send_packet()
 	channel=convert_channel_ppm(CH5);		// TRIM
 	packet[9 ] = channel;
 	packet[10] = channel>>8;
-	packet[11] = GD00X_FLAG_DR						// Force high rate
+	packet[11] = GD00X_FLAG_DR				// Force high rate
 			   | GET_FLAG(CH6_SW, GD00X_FLAG_LIGHT);
 	packet[12] = 0x00;
 	packet[13] = 0x00;
@@ -54,7 +54,7 @@ static void __attribute__((unused)) GD00X_send_packet()
 	if(IS_BIND_DONE)
 	{
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
-		hopping_frequency_no &= 3;	// 4 RF channels
+		hopping_frequency_no &= 3;			// 4 RF channels
 	}
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);

@@ -527,23 +527,29 @@ The transmitter must be close to the receiver while binding.
 ## BAYANG - *14*
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
----|---|---|---|---|---|---|---|---|----|----
-A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED|RATES
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|-|-|CH14|CH15
+---|---|---|---|---|---|---|---|---|----|----|---|---|----|----
+A|E|T|R|FLIP|RTH|PICTURE|VIDEO|HEADLESS|INVERTED|RATES|-|-|ANAAUX1|ANAAUX2
 
 RATES: -100%(default)=>higher rates by enabling dynamic trims (except for Headless), 100%=>disable dynamic trims
 
+Channels 14 and 15 (ANAAUX1 and ANAAUX2) only available with analog aux channel option, indicated below.
+
 ### Sub_protocol BAYANG - *0*
-Models: EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
+Models: Eachine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
 Option=0 -> normal Bayang protocol
 
 Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage, A2=compensated battery voltage
 
+Option=2 -> enable analog aux channels with [NFE Silverware firmware](https://github.com/NotFastEnuf/NFE_Silverware). Two otherwise static bytes in the protocol overridden to add two 'analog' (non-binary) auxiliary channels.
+
+Option=3 -> both Silverware telemetry and analog aux channels enabled.
+
 ### Sub_protocol H8S3D - *1*
 Model: H8S 3D
 
-Same channels assignement as above.
+Same channels assignment as above.
 
 ### Sub_protocol X16_AH - *2*
 Model: X16 AH

@@ -41,14 +41,28 @@ enum BAYANG_FLAGS {
 	BAYANG_FLAG_EMG_STOP	= 0x04|0x08,	// 0x08 for VISUO XS809H-W-HD-G
 };
 
+enum BAYANG_OPTION_FLAGS {
+	BAYANG_OPTION_FLAG_TELEMETRY	= 0x01,
+	BAYANG_OPTION_FLAG_ANALOGAUX	= 0x02,
+};
+
 static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 {
 	uint8_t i;
 	if (bind)
 	{
 	#ifdef BAYANG_HUB_TELEMETRY
-		if(option)
-			packet[0]= 0xA3;	// telemetry is enabled
+		if(option & BAYANG_OPTION_FLAG_TELEMETRY)
+			if(option & BAYANG_OPTION_FLAG_ANALOGAUX)
+				packet[0]= 0xA1;	// telemetry and analog aux are enabled
+			else
+				packet[0]= 0xA3;	// telemetry is enabled
+		else if(option & BAYANG_OPTION_FLAG_ANALOGAUX)
+				packet[0]= 0xA2;	// analog aux is enabled
+			else
+	#else
+		if(option & BAYANG_OPTION_FLAG_ANALOGAUX)
+			packet[0]= 0xA2;	// analog aux is enabled
 		else
 	#endif
 			packet[0]= 0xA4;
@@ -86,7 +100,13 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 				packet[0] = 0xA5;
 				break;
 		}
-		packet[1] = 0xFA;		// normal mode is 0xf7, expert 0xfa
+		if (option & BAYANG_OPTION_FLAG_ANALOGAUX)
+		{
+			// Analog aux channel 1 (channel 14)
+			packet[1] = convert_channel_8b(CH14);
+		}
+		else
+			packet[1] = 0xFA;		// normal mode is 0xf7, expert 0xfa
 
 		//Flags packet[2]
 		packet[2] = 0x00;
@@ -110,7 +130,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 		if(CH11_SW)
 			dyntrim = 0;
 		if(CH12_SW)
-			packet[3] |= BAYANG_FLAG_TAKE_OFF;
+		  packet[3] |= BAYANG_FLAG_TAKE_OFF;
 		if(CH13_SW)
 			packet[3] |= BAYANG_FLAG_EMG_STOP;
 		//Aileron
@@ -146,7 +166,13 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 			break;
 		default:
 			packet[12] = rx_tx_addr[2];	// txid[2]
-			packet[13] = 0x0A;
+			if (option & BAYANG_OPTION_FLAG_ANALOGAUX)
+			{
+				// Analog aux channel 2 (channel 15)
+				packet[13] = convert_channel_8b(CH15);
+			}
+			else
+				packet[13] = 0x0A;
 			break;
 	}
 	packet[14] = 0;
@@ -170,7 +196,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 
 	#ifdef BAYANG_HUB_TELEMETRY
-	if (option)
+	if (option & BAYANG_OPTION_FLAG_TELEMETRY)
 	{	// switch radio to rx as soon as packet is sent
 		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)));
 		NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x03);
@@ -253,7 +279,7 @@ uint16_t BAYANG_callback()
 			BAYANG_send_packet(0);
 		packet_count++;
 		#ifdef BAYANG_HUB_TELEMETRY
-			if (option)
+			if (option & BAYANG_OPTION_FLAG_TELEMETRY)
 			{	// telemetry is enabled 
 				state++;
 				if (state > 1000)

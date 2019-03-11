@@ -130,7 +130,7 @@ static void __attribute__((unused)) BUGSMINI_send_packet(uint8_t bind)
 		packet[9] = 0x20 | (elevator << 7);
 		packet[10]= 0x20 | (rudder << 7);
 		packet[11]= 0x40 | (throttle << 7);
-		packet[12]= 0x80 | (packet[12] ^ 0x40) // bugs 3 H doesn't have 0x80 ?
+		packet[12]= 0x80 | ((packet[12] ^ 0x40) & 0x40) // bugs 3 H doesn't have 0x80 ?
 			| BUGSMINI_FLAG_MODE
 			| GET_FLAG(BUGSMINI_CH_SW_PICTURE, BUGSMINI_FLAG_PICTURE)
 			| GET_FLAG(BUGSMINI_CH_SW_VIDEO, BUGSMINI_FLAG_VIDEO);

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	29
+#define VERSION_PATCH_LEVEL	30
 
 //******************
 // Protocols
@@ -255,6 +255,11 @@ enum E01X
 	E012	= 0,
 	E015	= 1,
 	E016H	= 2,
+};
+enum PROTO_GD00X
+{
+	GD_V1	= 0,
+	GD_V2	= 1,
 };
 
 #define NONE 		0
@@ -729,6 +734,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			E012		0
 			E015		1
 			E016H		2
+		sub_protocol==GD00X
+			GD_V1		0
+			GD_V2		1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

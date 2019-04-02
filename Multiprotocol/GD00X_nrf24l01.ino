@@ -26,40 +26,77 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define GD00X_PAYLOAD_SIZE    15
 #define GD00X_BIND_COUNT	  857	//3sec
 
+#define GD00X_V2_BIND_PACKET_PERIOD	1700
+#define GD00X_V2_RF_BIND_CHANNEL	0x43 //works on 0x43 0x53 0x63
+#define GD00X_V2_PAYLOAD_SIZE		6
+
 // flags going to packet[11]
 #define	GD00X_FLAG_DR		0x08
 #define	GD00X_FLAG_LIGHT	0x04
 
+// flags going to packet[4]
+#define	GD00X_V2_FLAG_DR	0x80
+#define	GD00X_V2_FLAG_LIGHT	0x40
+
 static void __attribute__((unused)) GD00X_send_packet()
 {
-	packet[0] = IS_BIND_IN_PROGRESS?0xAA:0x55;
-	memcpy(packet+1,rx_tx_addr,4);
-	uint16_t channel=convert_channel_ppm(AILERON);
-	packet[5 ] = channel;
-	packet[6 ] = channel>>8;
-	channel=convert_channel_ppm(THROTTLE);
-	packet[7 ] = channel;
-	packet[8 ] = channel>>8;
-	channel=convert_channel_ppm(CH5);		// TRIM
-	packet[9 ] = channel;
-	packet[10] = channel>>8;
-	packet[11] = GD00X_FLAG_DR				// Force high rate
-			   | GET_FLAG(CH6_SW, GD00X_FLAG_LIGHT);
-	packet[12] = 0x00;
-	packet[13] = 0x00;
-	packet[14] = 0x00;
+	if(sub_protocol==GD_V1)
+	{
+		packet[0] = IS_BIND_IN_PROGRESS?0xAA:0x55;
+		memcpy(packet+1,rx_tx_addr,4);
+		uint16_t channel=convert_channel_ppm(AILERON);
+		packet[5 ] = channel;
+		packet[6 ] = channel>>8;
+		channel=convert_channel_ppm(THROTTLE);
+		packet[7 ] = channel;
+		packet[8 ] = channel>>8;
+		channel=convert_channel_ppm(CH5);		// TRIM
+		packet[9 ] = channel;
+		packet[10] = channel>>8;
+		packet[11] = GD00X_FLAG_DR				// Force high rate
+				   | GET_FLAG(CH6_SW, GD00X_FLAG_LIGHT);
+		packet[12] = 0x00;
+		packet[13] = 0x00;
+		packet[14] = 0x00;
+	}
+	else
+	{//GD_V2
+		if(IS_BIND_IN_PROGRESS)
+		{
+			packet[0]=0x65;
+			packet[1]=0x00;
+			packet[2]=0x00;
+			packet[3]=0x95;
+			packet[4]='G';
+		}
+		else
+		{
+			packet[0]=convert_channel_16b_limit(THROTTLE,0,100);	// 0..100
+			packet[1]=0x3F-(convert_channel_8b(AILERON)>>2);		// 0x3F..0x20..0x00
+			packet[2]=0x20;											// Trim: 0x3F..0x20..0x00
+			packet[4]=((packet_counter>>1)%5)
+						| GD00X_V2_FLAG_DR
+						| GET_FLAG(CH6_SW, GD00X_V2_FLAG_LIGHT);
+			packet[3]=(packet[0]+packet[1]+packet[2]+packet[4])^0x65;
+			packet_counter++;
+			packet_period=1350;
+		}
+		packet[5]='D';
+	}
 
 	// Power on, TX mode, CRC enabled
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 	if(IS_BIND_DONE)
 	{
+		if(sub_protocol==GD_V2)
+			hopping_frequency_no = 3;
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
 		hopping_frequency_no &= 3;			// 4 RF channels
 	}
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
-	XN297_WritePayload(packet, GD00X_PAYLOAD_SIZE);
+	XN297_WritePayload(packet, packet_length);
 
 	NRF24L01_SetPower();	// Set tx_power
 }
@@ -68,8 +105,12 @@ static void __attribute__((unused)) GD00X_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
-	XN297_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, GD00X_RF_BIND_CHANNEL);	// Bind channel
+	if(sub_protocol==GD_V1)
+		XN297_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
+	else
+		XN297_SetTXAddr((uint8_t*)"GDKNx", 5);
+
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, sub_protocol==GD_V1?GD00X_RF_BIND_CHANNEL:GD00X_V2_RF_BIND_CHANNEL);	// Bind channel
 	NRF24L01_FlushTx();
 	NRF24L01_FlushRx();
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);	// Clear data ready, data sent, and retransmit
@@ -81,17 +122,27 @@ static void __attribute__((unused)) GD00X_init()
 
 static void __attribute__((unused)) GD00X_initialize_txid()
 {
-	uint8_t start=76+(rx_tx_addr[0]&0x03);
-	for(uint8_t i=0; i<4;i++)
-		hopping_frequency[i]=start-(i<<1);
-	#ifdef FORCE_GD00X_ORIGINAL_ID
-		rx_tx_addr[0]=0x1F;					// or 0xA5 or 0x26
-		rx_tx_addr[1]=0x39;					// or 0x37 or 0x35
-		rx_tx_addr[2]=0x12;					// Constant on 3 TXs
-		rx_tx_addr[3]=0x13;					// Constant on 3 TXs
+	if(sub_protocol==GD_V1)
+	{
+		uint8_t start=76+(rx_tx_addr[0]&0x03);
 		for(uint8_t i=0; i<4;i++)
-			hopping_frequency[i]=79-(i<<1);	// or 77 or 78
-	#endif
+			hopping_frequency[i]=start-(i<<1);
+		#ifdef FORCE_GD00X_ORIGINAL_ID
+			rx_tx_addr[0]=0x1F;					// or 0xA5 or 0x26
+			rx_tx_addr[1]=0x39;					// or 0x37 or 0x35
+			rx_tx_addr[2]=0x12;					// Constant on 3 TXs
+			rx_tx_addr[3]=0x13;					// Constant on 3 TXs
+			for(uint8_t i=0; i<4;i++)
+				hopping_frequency[i]=79-(i<<1);	// or 77 or 78
+		#endif
+	}
+	else
+	{
+		hopping_frequency[0]=0x45;
+		hopping_frequency[1]=0x59;
+		hopping_frequency[2]=0x65;
+		hopping_frequency[3]=0x6d;
+	}
 }
 
 uint16_t GD00X_callback()
@@ -100,7 +151,7 @@ uint16_t GD00X_callback()
 		if(--bind_counter==0)
 			BIND_DONE;
 	GD00X_send_packet();
-	return GD00X_PACKET_PERIOD;
+	return packet_period;
 }
 
 uint16_t initGD00X()
@@ -110,6 +161,8 @@ uint16_t initGD00X()
 	GD00X_init();
 	hopping_frequency_no = 0;
 	bind_counter=GD00X_BIND_COUNT;
+	packet_period=sub_protocol==GD_V1?GD00X_PACKET_PERIOD:GD00X_V2_BIND_PACKET_PERIOD;
+	packet_length=sub_protocol==GD_V1?GD00X_PAYLOAD_SIZE:GD00X_V2_PAYLOAD_SIZE;
 	return GD00X_INITIAL_WAIT;
 }
 

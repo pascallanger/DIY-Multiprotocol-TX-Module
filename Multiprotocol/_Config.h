@@ -528,7 +528,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		FY326
 		FY319
 	PROTO_GD00X
-		NONE
+		GD_V1
+		GD_V2
 	PROTO_GW008
 		NONE
 	PROTO_H8_3D

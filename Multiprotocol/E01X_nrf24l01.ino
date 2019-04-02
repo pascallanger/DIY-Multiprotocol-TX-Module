@@ -184,7 +184,7 @@ static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 			// trim commands
 			packet[0] = 0;
 			// aileron
-			uint16_t val = convert_channel_16b_limit(AILERON, 0x3ff, 0);
+			uint16_t val = convert_channel_16b_limit(AILERON, 0, 0x3ff);
 			can_flip |= (val < 0x100) || (val > 0x300);
 			packet[1] = val >> 8;
 			packet[2] = val & 0xff;
@@ -198,7 +198,7 @@ static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 			packet[5] = val >> 8;
 			packet[6] = val & 0xff;
 			// rudder
-			val = convert_channel_16b_limit(RUDDER, 0x3ff, 0);
+			val = convert_channel_16b_limit(RUDDER, 0, 0x3ff);
 			packet[7] = val >> 8;
 			packet[8] = val & 0xff;
 			// flags
@@ -226,7 +226,10 @@ static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 
-	HS6200_WritePayload(packet, packet_length);
+	if(sub_protocol==E016H)
+		XN297_WritePayload(packet, packet_length);
+	else
+		HS6200_WritePayload(packet, packet_length);
 
 	// Check and adjust transmission power. We do this after
 	// transmission to not bother with timeout after power

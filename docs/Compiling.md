@@ -50,6 +50,8 @@ The 6-pin header needs to be soldered onto the board as indicated by the red rec
    1. Clone the project using Git or Github Desktop, then
 1. Double-click the **Multiprotocol.ino** file in the **Multiprotocol** folder to open the project in the Arduino IDE
 
+**Important note for Windows users:** You must download or unzip the Multiprotocol source in a folder which has no spaces in the path.  If you have spaces in your username **do not** use a sub-folder of your user directory.  This is due to a [bug in the Arduino IDE](https://github.com/arduino/arduino-builder/issues/316), caused by an [issue in Go](https://github.com/golang/go/issues/17149).
+
 ### Install the Multi 4-in-1 board
 1. Follow [these instructions](Arduino_IDE_Boards.md) to install the **Multi 4-in-1 AVR Board** in the Arduino IDE
 

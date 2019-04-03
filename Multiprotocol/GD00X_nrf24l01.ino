@@ -74,11 +74,11 @@ static void __attribute__((unused)) GD00X_send_packet()
 			packet[0]=convert_channel_16b_limit(THROTTLE,0,100);	// 0..100
 			packet[1]=0x3F-(convert_channel_8b(AILERON)>>2);		// 0x3F..0x20..0x00
 			packet[2]=0x20;											// Trim: 0x3F..0x20..0x00
-			packet[4]=((packet_counter>>1)%5)
+			packet[4]=((packet_count>>1)%5)
 						| GD00X_V2_FLAG_DR
 						| GET_FLAG(CH6_SW, GD00X_V2_FLAG_LIGHT);
 			packet[3]=(packet[0]+packet[1]+packet[2]+packet[4])^0x65;
-			packet_counter++;
+			packet_count++;
 			packet_period=1350;
 		}
 		packet[5]='D';

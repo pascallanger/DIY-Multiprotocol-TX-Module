@@ -65,6 +65,7 @@
 #define E015_FLAG_INTERMEDIATE 0x01
 
 // E016H flags packet[1]
+#define E016H_FLAG_CALIBRATE	0x80
 #define E016H_FLAG_STOP		0x20
 #define E016H_FLAG_FLIP		0x04
 // E016H flags packet[3]
@@ -96,7 +97,7 @@ static void __attribute__((unused)) E015_check_arming()
 
 static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 {
-    uint8_t can_flip = 0;
+    uint8_t can_flip = 0, calibrate = 1;
 	if(sub_protocol==E012)
 	{
 		packet_length=E012_PACKET_SIZE;
@@ -188,22 +189,27 @@ static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 			can_flip |= (val < 0x100) || (val > 0x300);
 			packet[1] = val >> 8;
 			packet[2] = val & 0xff;
+			if(val < 0x300) calibrate = 0;
 			// elevator
 			val = convert_channel_16b_limit(ELEVATOR, 0x3ff, 0);
 			can_flip |= (val < 0x100) || (val > 0x300);
 			packet[3] = val >> 8;
 			packet[4] = val & 0xff;
+			if(val < 0x300) calibrate = 0;
 			// throttle
 			val = convert_channel_16b_limit(THROTTLE, 0, 0x3ff);
 			packet[5] = val >> 8;
 			packet[6] = val & 0xff;
+			if(val > 0x100) calibrate = 0;
 			// rudder
 			val = convert_channel_16b_limit(RUDDER, 0, 0x3ff);
 			packet[7] = val >> 8;
 			packet[8] = val & 0xff;
+			if(val > 0x100) calibrate = 0;
 			// flags
 			packet[1] |= GET_FLAG(E016H_STOP_SW, E016H_FLAG_STOP)
-					  |  (can_flip ? GET_FLAG(E01X_FLIP_SW, E016H_FLAG_FLIP) : 0);
+					  |  (can_flip ? GET_FLAG(E01X_FLIP_SW, E016H_FLAG_FLIP) : 0)
+					  |  (calibrate ? E016H_FLAG_CALIBRATE : 0);
 			packet[3] |= GET_FLAG(E01X_HEADLESS_SW, E016H_FLAG_HEADLESS)
 					  |  GET_FLAG(E01X_RTH_SW, E016H_FLAG_RTH);
 			packet[7] |= E016H_FLAG_HIGHRATE;

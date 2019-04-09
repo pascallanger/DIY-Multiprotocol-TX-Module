@@ -27,7 +27,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define GD00X_BIND_COUNT	  857	//3sec
 
 #define GD00X_V2_BIND_PACKET_PERIOD	1700
-#define GD00X_V2_RF_BIND_CHANNEL	0x43 //works on 0x43 0x53 0x63
+#define GD00X_V2_RF_BIND_CHANNEL	0x43
 #define GD00X_V2_PAYLOAD_SIZE		6
 
 // flags going to packet[11]
@@ -35,11 +35,13 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define	GD00X_FLAG_LIGHT	0x04
 
 // flags going to packet[4]
-#define	GD00X_V2_FLAG_DR	0x80
-#define	GD00X_V2_FLAG_LIGHT	0x40
+#define	GD00X_V2_FLAG_DR	0x40
+#define	GD00X_V2_FLAG_LIGHT	0x80
 
 static void __attribute__((unused)) GD00X_send_packet()
 {
+	static uint8_t prev_CH6=false;
+
 	if(sub_protocol==GD_V1)
 	{
 		packet[0] = IS_BIND_IN_PROGRESS?0xAA:0x55;
@@ -62,24 +64,56 @@ static void __attribute__((unused)) GD00X_send_packet()
 	else
 	{//GD_V2
 		if(IS_BIND_IN_PROGRESS)
-		{
-			packet[0]=0x65;
-			packet[1]=0x00;
-			packet[2]=0x00;
-			packet[3]=0x95;
-			packet[4]='G';
-		}
+			for(uint8_t i=0; i<5;i++)
+				packet[i]=rx_tx_addr[i];
 		else
 		{
 			packet[0]=convert_channel_16b_limit(THROTTLE,0,100);	// 0..100
-			packet[1]=0x3F-(convert_channel_8b(AILERON)>>2);		// 0x3F..0x20..0x00
-			packet[2]=0x20;											// Trim: 0x3F..0x20..0x00
-			packet[4]=((packet_count>>1)%5)
-						| GD00X_V2_FLAG_DR
-						| GET_FLAG(CH6_SW, GD00X_V2_FLAG_LIGHT);
+
+			// Deadband is needed on aileron
+			uint16_t aileron=limit_channel_100(AILERON);			// 204<->1844
+			#define GD00X_V2_DB_MIN 1024-40
+			#define GD00X_V2_DB_MAX 1024+40
+			if(aileron>GD00X_V2_DB_MIN && aileron<GD00X_V2_DB_MAX)
+				packet[1]=0x20;	// Send the channel centered
+			else // Ail:  0x3F..0x20..0x00
+				if(aileron>GD00X_V2_DB_MAX)
+					packet[1]=0x1F-((aileron-GD00X_V2_DB_MAX)*(0x20)/(CHANNEL_MAX_100+1-GD00X_V2_DB_MAX));	// 1F..00
+				else
+					packet[1]=0x3F-((aileron-CHANNEL_MIN_100)*(0x1F)/(GD00X_V2_DB_MIN-CHANNEL_MIN_100));	// 3F..21
+
+			// Trims must be in a seperate channel for this model
+			packet[2]=0x3F-(convert_channel_8b(CH5)>>2);			// Trim: 0x3F..0x20..0x00
+
+			uint8_t seq=((packet_count*3)/7)%5;
+			packet[4]=seq | GD00X_V2_FLAG_DR;
+
+			if(CH6_SW!=prev_CH6)
+			{ // LED switch is temporary
+				len=43;
+				prev_CH6=CH6_SW;
+			}
+			if(len)
+			{ // Send the light flag for a couple of packets
+				packet[4] |= GD00X_V2_FLAG_LIGHT;
+				len--;
+			}
+
 			packet[3]=(packet[0]+packet[1]+packet[2]+packet[4])^0x65;
+
+			if( (packet_count%12) == 0 )
+				hopping_frequency_no ^= 1;			// Toggle between the 2 frequencies
 			packet_count++;
-			packet_period=1350;
+			if(packet_count>34) packet_count=0;		// Full period
+			if( seq == (((packet_count*3)/7)%5) )
+			{
+				if(packet_period==2700)
+					packet_period=3000;
+				else
+					packet_period=2700;
+			}
+			else
+				packet_period=4300;
 		}
 		packet[5]='D';
 	}
@@ -88,10 +122,12 @@ static void __attribute__((unused)) GD00X_send_packet()
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 	if(IS_BIND_DONE)
 	{
-		if(sub_protocol==GD_V2)
-			hopping_frequency_no = 3;
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
-		hopping_frequency_no &= 3;			// 4 RF channels
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+		if(sub_protocol==GD_V1)
+		{
+			hopping_frequency_no++;
+			hopping_frequency_no &= 3;			// 4 RF channels
+		}
 	}
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
@@ -138,10 +174,14 @@ static void __attribute__((unused)) GD00X_initialize_txid()
 	}
 	else
 	{
-		hopping_frequency[0]=0x45;
-		hopping_frequency[1]=0x59;
-		hopping_frequency[2]=0x65;
-		hopping_frequency[3]=0x6d;
+		//Only 1 ID for now...
+		rx_tx_addr[0]=0x65;
+		rx_tx_addr[1]=0x00;
+		rx_tx_addr[2]=0x00;
+		rx_tx_addr[3]=0x95;
+		rx_tx_addr[4]=0x47;	//'G'
+		hopping_frequency[0]=0x05;
+		hopping_frequency[1]=0x25;
 	}
 }
 
@@ -163,6 +203,8 @@ uint16_t initGD00X()
 	bind_counter=GD00X_BIND_COUNT;
 	packet_period=sub_protocol==GD_V1?GD00X_PACKET_PERIOD:GD00X_V2_BIND_PACKET_PERIOD;
 	packet_length=sub_protocol==GD_V1?GD00X_PAYLOAD_SIZE:GD00X_V2_PAYLOAD_SIZE;
+	packet_count=0;
+	len=0;
 	return GD00X_INITIAL_WAIT;
 }
 

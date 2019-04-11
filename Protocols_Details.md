@@ -89,7 +89,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01
-[GD00X](Protocols_Details.md#GD00X---47)|47|GD00X||||||||NRF24L01
+[GD00X](Protocols_Details.md#GD00X---47)|47|V1|V2|||||||NRF24L01
 [GW008](Protocols_Details.md#GW008---32)|32|GW008||||||||NRF24L01
 [H8_3D](Protocols_Details.md#H8_3D---36)|36|H8_3D|H20H|H20Mini|H30Mini|||||NRF24L01
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01
@@ -740,6 +740,12 @@ If the model does not respond well to inputs or hard to bind, you can try to set
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A||T||TRIM|LED
+
+### Sub_protocol V1 - *0*
+First model
+
+### Sub_protocol V2 - *1*
+New model
 
 ## GW008 - *32*
 Model: Global Drone GW008 from Banggood

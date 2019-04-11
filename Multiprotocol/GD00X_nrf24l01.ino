@@ -99,7 +99,7 @@ static void __attribute__((unused)) GD00X_send_packet()
 				len--;
 			}
 
-			packet[3]=(packet[0]+packet[1]+packet[2]+packet[4])^(rx_tx_addr[0]^rx_tx_addr[1]^rx_tx_addr[2]);
+			packet[3]=(packet[0]+packet[1]+packet[2]+packet[4])^(crc8);
 
 			if( (packet_count%12) == 0 )
 				hopping_frequency_no ^= 1;			// Toggle between the 2 frequencies
@@ -182,8 +182,9 @@ static void __attribute__((unused)) GD00X_initialize_txid()
 		rx_tx_addr[3]=0x95;
 		rx_tx_addr[4]=0x47;	//'G'
 
+		crc8=rx_tx_addr[0]^rx_tx_addr[1]^rx_tx_addr[2];
 		//hopping calculation
-		hopping_frequency[0]=(0x15+(rx_tx_addr[0]^rx_tx_addr[1]^rx_tx_addr[2]^rx_tx_addr[3]))&0x1F;
+		hopping_frequency[0]=(0x15+(crc8^rx_tx_addr[3]))&0x1F;
 		if( hopping_frequency[0] == 0x0F )
 			hopping_frequency[0]=0x0E;
 		else if( (hopping_frequency[0]&0xFE) == 0x10 )

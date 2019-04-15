@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	34
+#define VERSION_PATCH_LEVEL	35
 
 //******************
 // Protocols
@@ -183,6 +183,7 @@ enum MJXQ
 	H26D	= 3,
 	E010	= 4,
 	H26WH	= 5,
+	PHOENIX = 6,
 };
 enum FRSKYX
 {
@@ -673,6 +674,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			H26D		3
 			E010		4
 			H26WH		5
+			PHOENIX		6
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1

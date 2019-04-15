@@ -120,7 +120,7 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	packet[14] = 0xC0;							// bind value
 
 // CH5_SW	FLIP
-// CH6_SW	LED / ARM
+// CH6_SW	LED / ARM	// H26WH - TDR Phoenix mini
 // CH7_SW	PICTURE
 // CH8_SW	VIDEO
 // CH9_SW	HEADLESS
@@ -137,6 +137,7 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 			// fall through on purpose - no break
 		case WLH08:
 		case E010:
+		case PHOENIX:
 			packet[10] += GET_FLAG(CH10_SW, 0x02)	//RTH
 						| GET_FLAG(CH9_SW, 0x01);	//HEADLESS
 			if (!bind)
@@ -146,6 +147,12 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 						| GET_FLAG(CH7_SW, 0x08)	//PICTURE
 						| GET_FLAG(CH8_SW, 0x10)	//VIDEO
 						| GET_FLAG(!CH6_SW, 0x20);	// LED or air/ground mode
+				if(sub_protocol==PHOENIX)
+				{
+					packet[10] |=0x20						//High rate
+							   | GET_FLAG(CH6_SW, 0x80);	// arm
+					packet[14] &= ~0x24;					// unset air/ground & arm flags
+				}
 				if(sub_protocol==H26WH)
 				{
 					packet[10] |=0x40;					//High rate
@@ -211,7 +218,7 @@ static void __attribute__((unused)) MJXQ_init()
 	if (sub_protocol == WLH08)
 		memcpy(hopping_frequency, "\x12\x22\x32\x42", MJXQ_RF_NUM_CHANNELS);
 	else
-		if (sub_protocol == H26D || sub_protocol == H26D || sub_protocol == E010)
+		if (sub_protocol == H26D || sub_protocol == H26WH || sub_protocol == E010 || sub_protocol == PHOENIX)
 			memcpy(hopping_frequency, "\x2e\x36\x3e\x46", MJXQ_RF_NUM_CHANNELS);
 		else
 		{
@@ -237,7 +244,7 @@ static void __attribute__((unused)) MJXQ_init()
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR,	0x01);		// Enable data pipe 0 only
 	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR,	0x00);		// no retransmits
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0,		MJXQ_PACKET_SIZE);
-	if (sub_protocol == E010)
+	if (sub_protocol == E010 || sub_protocol == PHOENIX)
 		NRF24L01_SetBitrate(NRF24L01_BR_250K);				// 250K
 	else
 		NRF24L01_SetBitrate(NRF24L01_BR_1M);				// 1Mbps
@@ -255,6 +262,7 @@ static void __attribute__((unused)) MJXQ_init2()
 			memcpy(hopping_frequency, "\x37\x32\x47\x42", MJXQ_RF_NUM_CHANNELS);
 			break;
 		case E010:
+		case PHOENIX:
 			for(uint8_t i=0;i<2;i++)
 			{
 				hopping_frequency[i]=pgm_read_byte_near( &E010_map_rfchan[rx_tx_addr[3]&0x0F][i] );
@@ -279,6 +287,7 @@ static void __attribute__((unused)) MJXQ_initialize_txid()
 			memcpy(rx_tx_addr, "\xa4\x03\x00", 3); 
 			break;
 		case E010:
+		case PHOENIX:
 			for(uint8_t i=0;i<2;i++)
 				rx_tx_addr[i]=pgm_read_byte_near( &E010_map_txid[rx_tx_addr[3]&0x0F][i] );
 			if((rx_tx_addr[3]&0x0E) == 0x0E)

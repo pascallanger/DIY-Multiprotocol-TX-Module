@@ -565,6 +565,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		H26D
 		E010
 		H26WH
+		PHOENIX
 	PROTO_MT99XX
 		MT99
 		H7

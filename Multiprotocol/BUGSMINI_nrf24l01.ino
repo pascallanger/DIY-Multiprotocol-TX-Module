@@ -243,6 +243,7 @@ static void __attribute__((unused)) BUGSMINI_update_telemetry()
 			v_lipo1 = 0x80; // Warning
 		else
 			v_lipo1 = 0x00; // Critical
+		telemetry_link=1;
 	}
 #endif
 }

@@ -98,7 +98,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|J6PRO||||||||CYRF6936
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01
-[MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010|H26WH|||NRF24L01
+[MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010|H26WH|PHOENIX||NRF24L01
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None
@@ -856,6 +856,11 @@ CH6|
 ARM|
 
 Only 1 TX ID available
+
+### Sub_protocol H26WH - *6*
+CH6|
+---|
+ARM|
 
 ## MT99XX - *17*
 Autobind protocol

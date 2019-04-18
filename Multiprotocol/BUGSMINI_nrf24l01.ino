@@ -237,12 +237,24 @@ static void __attribute__((unused)) BUGSMINI_update_telemetry()
 	if(packet[0] == checksum)
 	{
 		RX_RSSI = packet[3];
-		if(packet[11] & 0x80)
-			v_lipo1 = 0xff; // Ok
-		else if(packet[11] & 0x40)
-			v_lipo1 = 0x80; // Warning
+		if(sub_protocol==BUGS3H)
+		{
+			if(packet[11] & 0x40)
+				v_lipo1 = 0x40; // Warning
+			else if(packet[11] & 0x80)
+				v_lipo1 = 0x20; // Critical
+			else
+				v_lipo1 = 0x80; // Ok
+		}
 		else
-			v_lipo1 = 0x00; // Critical
+		{
+			if(packet[11] & 0x80)
+				v_lipo1 = 0x80; // Ok
+			else if(packet[11] & 0x40)
+				v_lipo1 = 0x40; // Warning
+			else
+				v_lipo1 = 0x20; // Critical
+		}
 		telemetry_link=1;
 	}
 #endif

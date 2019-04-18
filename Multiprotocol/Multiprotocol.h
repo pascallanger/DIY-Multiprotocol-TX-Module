@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	36
+#define VERSION_PATCH_LEVEL	37
 
 //******************
 // Protocols
@@ -257,12 +257,16 @@ enum E01X
 	E015	= 1,
 	E016H	= 2,
 };
-enum PROTO_GD00X
+enum GD00X
 {
 	GD_V1	= 0,
 	GD_V2	= 1,
 };
-
+enum BUGSMINI
+{
+	BUGSMINI= 0,
+	BUGS3H	= 1,
+};
 #define NONE 		0
 #define P_HIGH		1
 #define P_LOW		0

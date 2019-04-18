@@ -578,6 +578,11 @@ A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
 
 ANGLE: angle is +100%, acro is -100%
 
+### Sub_protocol BUGSMINI - *0*
+
+### Sub_protocol BUGS3H - *1*
+
+
 ## Cabell - *34*
 Homegrown protocol with variable number of channels (4-16) and telemetry (RSSI, V1, V2).
 

@@ -70,7 +70,7 @@ Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Su
 [Assan](Protocols_Details.md#ASSAN---24)|24|ASSAN||||||||NRF24L01
 [Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|||||NRF24L01
 [Bugs](Protocols_Details.md#BUGS---41)|41|BUGS||||||||A7105
-[BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI||||||||NRF24L01
+[BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI|BUGSMINI|BUGS3H||||||NRF24L01
 [Cabell](Protocols_Details.md#Cabell---34)|34|Cabell_V3|C_TELEM|-|-|-|-|F_SAFE|UNBIND|NRF24L01
 CFlie|38|CFlie||||||||NRF24L01
 [CG023](Protocols_Details.md#CG023---13)|13|CG023|YD829|||||||NRF24L01

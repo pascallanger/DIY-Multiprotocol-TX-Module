@@ -42,34 +42,26 @@ static void AFHDS2A_calc_channels()
 	while (idx < AFHDS2A_NUMFREQ)
 	{
 		uint8_t i;
-		uint8_t count_1_42 = 0, count_43_85 = 0, count_86_128 = 0, count_129_168 = 0;
+		uint8_t band_no = ((((idx<<1) | ((idx>>1) & 0b01)) + rx_tx_addr[3]) & 0b11);
 		rnd = rnd * 0x0019660D + 0x3C6EF35F; // Randomization
 
-		uint8_t next_ch = ((rnd >> (idx%32)) % 0xa8) + 1;
-		// Keep the distance 2 between the channels - either odd or even
-		if (((next_ch ^ MProtocol_id) & 0x01 )== 0)
-			continue;
-		// Check that it's not duplicate and spread uniformly
+		uint8_t next_ch = band_no*41 + 1 + ((rnd >> idx) % 41); // Channel range: 1..164
+
 		for (i = 0; i < idx; i++)
 		{
-			if(hopping_frequency[i] == next_ch)
-				break;
-			if(hopping_frequency[i] <= 42)
-				count_1_42++;
-			else if (hopping_frequency[i] <= 85)
-				count_43_85++;
-			else if (hopping_frequency[i] <= 128)
-				count_86_128++;
+			// Keep the distance 5 between the channels 
+			uint8_t distance;
+			if (next_ch > hopping_frequency[i])
+				distance = next_ch - hopping_frequency[i];
 			else
-				count_129_168++;
+				distance = hopping_frequency[i] - next_ch;
+
+			if (distance < 5) break;
 		}
-		if (i != idx)
-			continue;
-		if ((next_ch <= 42 && count_1_42 < 5)
-			||(next_ch >= 43 && next_ch <= 85 && count_43_85 < 5)
-			||(next_ch >= 86 && next_ch <=128 && count_86_128 < 5)
-			||(next_ch >= 129 && count_129_168 < 5))
-			hopping_frequency[idx++] = next_ch;
+
+		if (i != idx) continue;
+
+		hopping_frequency[idx++] = next_ch;
 	}
 }
 
@@ -200,9 +192,9 @@ static void AFHDS2A_build_packet(uint8_t type)
 			{
 				#ifdef FAILSAFE_ENABLE
 					uint16_t failsafeMicros = Failsafe_data[CH_AETR[ch]];
-					failsafeMicros = (((failsafeMicros<<2)+failsafeMicros)>>3)+860;
-					if( failsafeMicros!=FAILSAFE_CHANNEL_HOLD+860)
+					if( failsafeMicros!=FAILSAFE_CHANNEL_HOLD && failsafeMicros!=FAILSAFE_CHANNEL_NOPULSES)
 					{ // Failsafe values
+						failsafeMicros = (((failsafeMicros<<2)+failsafeMicros)>>3)+860;
 						packet[9 + ch*2] =  failsafeMicros & 0xff;
 						packet[10+ ch*2] = ( failsafeMicros >> 8) & 0xff;
 					}

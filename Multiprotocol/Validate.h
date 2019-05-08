@@ -303,3 +303,7 @@
 #if MAX_PPM_CHANNELS>16
 	#error MAX_PPM_CHANNELS must be below or equal to 16. The default for this value is 16.
 #endif
+
+#if defined (STM32_BOARD) && defined (DEBUG_SERIAL) && defined (NRF24L01_INSTALLED)
+	#define XN297DUMP_NRF24L01_INO
+#endif

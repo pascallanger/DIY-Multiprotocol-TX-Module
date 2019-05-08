@@ -1222,10 +1222,10 @@ static void protocol_init()
 						remote_callback = GD00X_callback;
 						break;
 				#endif
-				#if defined(TEST_NRF24L01_INO)
-					case PROTO_TEST:
-						next_callback=initTest();
-						remote_callback = Test_callback;
+				#if defined(XN297DUMP_NRF24L01_INO)
+					case PROTO_XN297DUMP:
+						next_callback=initXN297Dump();
+						remote_callback = XN297Dump_callback;
 						break;
 				#endif
 			#endif
@@ -1315,7 +1315,7 @@ void update_serial_data()
 		else
 	#endif
 			option=rx_ok_buff[3];		// Use radio-defined option value
-	
+
 	#ifdef FAILSAFE_ENABLE
 		bool failsafe=false;
 		if(rx_ok_buff[0]&0x02)

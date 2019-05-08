@@ -109,8 +109,6 @@ static uint8_t tx_payload_len = 0; // Length of the packet stored in packet
 static uint8_t rx_payload_len = 0; // Length of the packet stored in rx_packet
 static uint8_t rx_packet[MAX_PACKET_SIZE]; // For reading in ACK payloads
 
-static uint16_t cflie_counter;
-static uint32_t packet_counter;
 static uint8_t data_rate;
 
 enum {
@@ -194,8 +192,6 @@ static void send_packet()
     // Transmit the payload
     NRF24L01_WritePayload(packet, tx_payload_len);
 
-    ++packet_counter;
-
     // // Check and adjust transmission power.
     NRF24L01_SetPower();
 }
@@ -256,7 +252,6 @@ static void send_search_packet()
 
 	NRF24L01_WritePayload(buf, sizeof(buf));
 
-	++packet_counter;
 }
 
 // Frac 16.16
@@ -782,7 +777,6 @@ static uint16_t cflie_callback()
             break;
         case PKT_TIMEOUT:
             send_search_packet();
-            cflie_counter = CFLIE_BIND_COUNT;
         }
         break;
 

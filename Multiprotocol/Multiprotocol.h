@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	39
+#define VERSION_PATCH_LEVEL	40
 
 //******************
 // Protocols
@@ -74,7 +74,7 @@ enum PROTOCOLS
 	PROTO_E01X		= 45,	// =>NRF24L01
 	PROTO_V911S		= 46,	// =>NRF24L01
 	PROTO_GD00X		= 47,	// =>NRF24L01
-	PROTO_TEST		= 63,	// =>NRF24L01
+	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
 enum Flysky

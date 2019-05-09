@@ -141,7 +141,7 @@ static uint16_t XN297Dump_callback()
 		{
 			NRF24L01_ReadPayload(packet,XN297DUMP_MAX_PACKET_LEN);
 			debug_time("RX: ");
-			debug("us %d ", option);
+			debug("us C=%d ", hopping_frequency_no);
 			if(XN297Dump_process_packet())
 			{ // valid crc found
 				debug("A=");

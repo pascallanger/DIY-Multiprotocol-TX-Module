@@ -62,7 +62,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 			else
 	#else
 		if(option & BAYANG_OPTION_FLAG_ANALOGAUX)
-			packet[0]= 0xA2;	// analog aux is enabled
+			packet[0]= 0xA2;		// analog aux is enabled
 		else
 	#endif
 			packet[0]= 0xA4;
@@ -83,8 +83,6 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 			case DHD_D4:
 				packet[10] = 0xC8;
 				packet[11] = 0x99;
-				packet[12] = 0x17;
-				packet[13] = 0xED;
 				break;
 			default:
 				packet[10] = rx_tx_addr[0];	// txid[0]
@@ -174,14 +172,13 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 			packet[13] = 0x2E;
 			break;
 		case DHD_D4:
-			packet[12] = 0x37;
+			packet[12] = 0x37;	//0x17 during bind
 			packet[13] = 0xED;
 			break;
 		default:
 			packet[12] = rx_tx_addr[2];	// txid[2]
 			if (option & BAYANG_OPTION_FLAG_ANALOGAUX)
-			{
-				// Analog aux channel 2 (channel 15)
+			{	// Analog aux channel 2 (channel 15)
 				packet[13] = convert_channel_8b(CH15);
 			}
 			else

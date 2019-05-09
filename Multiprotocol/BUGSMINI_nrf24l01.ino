@@ -42,6 +42,7 @@ enum {
 #define BUGSMINI_CH_SW_PICTURE	CH8_SW
 #define BUGSMINI_CH_SW_VIDEO	CH9_SW
 #define BUGSMINI_CH_SW_LED		CH10_SW
+#define BUGSMINI_CH_SW_ALTHOLD	CH11_SW
 
 // flags packet[12]
 #define BUGSMINI_FLAG_FLIP    0x08    // automatic flip
@@ -54,6 +55,7 @@ enum {
 #define BUGSMINI_FLAG_ARM     0x40    // arm (toggle to turn on motors)
 #define BUGSMINI_FLAG_DISARM  0x20    // disarm (toggle to turn off motors)
 #define BUGSMINI_FLAG_ANGLE   0x02    // angle/acro mode (set is angle mode)
+#define BUGSMINI_FLAG_ALTHOLD 0x04    // angle/altitude hold mode (set is altitude mode)
 
 static void __attribute__((unused)) BUGSMINI_init()
 {
@@ -133,7 +135,7 @@ static void __attribute__((unused)) BUGSMINI_send_packet(uint8_t bind)
 		packet[10]= (((rudder / 5) >> 1) + 7)    // dynamic trim 0x07 - 0x39
 					| (rudder << 7);
 		packet[11]= 0x40 | (throttle << 7);
-		packet[12]= 0x80 | ((packet[12] ^ 0x40) & 0x40) // bugs 3 H doesn't have 0x80 ?
+		packet[12]= 0x80 | ((packet[12] ^ 0x40) & 0x40)
 			| BUGSMINI_FLAG_MODE
 			| GET_FLAG(BUGSMINI_CH_SW_PICTURE, BUGSMINI_FLAG_PICTURE)
 			| GET_FLAG(BUGSMINI_CH_SW_VIDEO, BUGSMINI_FLAG_VIDEO);
@@ -141,10 +143,11 @@ static void __attribute__((unused)) BUGSMINI_send_packet(uint8_t bind)
 			packet[12] |= GET_FLAG(BUGSMINI_CH_SW_FLIP, BUGSMINI_FLAG_FLIP);
 		packet[13] = arm_flags
 			| GET_FLAG(BUGSMINI_CH_SW_LED, BUGSMINI_FLAG_LED)
+			| GET_FLAG(BUGSMINI_CH_SW_ALTHOLD, BUGSMINI_FLAG_ALTHOLD)
 			| GET_FLAG(BUGSMINI_CH_SW_ANGLE, BUGSMINI_FLAG_ANGLE);
-
+			// BUGS3H althold -> BUGSMINI_FLAG_ALTHOLD|BUGSMINI_FLAG_ANGLE , angle -> 0
 		packet[14] = 0;
-		packet[15] = 0; // 0x53 on bugs 3 H ?
+		packet[15] = 0; // a lot of 0x53 and some 0x52 on bugs 3H
 	}
 	uint8_t checksum = 0x6d;
 	for(uint8_t i=1; i < BUGSMINI_TX_PAYLOAD_SIZE; i++)

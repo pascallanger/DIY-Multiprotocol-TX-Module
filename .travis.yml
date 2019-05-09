@@ -149,22 +149,22 @@ before_deploy:
       opt_disable CHECK_FOR_BOOTLOADER;
       opt_enable $ALL_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_FTDI_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_FTDI_INV-$TRAVIS_TAG.bin;
       opt_disable MULTI_STATUS;
       opt_enable MULTI_TELEMETRY;
       buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_FTDI_INV_OPENTX-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_FTDI_INV_OPENTX-$TRAVIS_TAG.bin;
     fi
   # Build the release files for STM32 with bootloader
   - if [[ "$BOARD" =~ "multi4in1:STM32F1:multistm32f103c:upload_method=TxFlashMethod" ]]; then
       opt_enable CHECK_FOR_BOOTLOADER;
       opt_enable $ALL_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_TXFLASH_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_TXFLASH_INV-$TRAVIS_TAG.bin;
       opt_disable MULTI_STATUS;
       opt_enable MULTI_TELEMETRY;
       buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_TXFLASH_INV_OPENTX-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_TXFLASH_INV_OPENTX-$TRAVIS_TAG.bin;
     fi
 deploy:
   provider: releases

@@ -87,42 +87,49 @@ static void AFHDS2A_update_telemetry()
 	// max 7 sensors per packet
 	#ifdef AFHDS2A_FW_TELEMETRY
 		if (option & 0x80)
-		{
-			// forward telemetry to TX, skip rx and tx id to save space
+		{// forward 0xAA and 0xAC telemetry to TX, skip rx and tx id to save space
 			pkt[0]= TX_RSSI;
+			debug("T=");
 			for(int i=9;i < AFHDS2A_RXPACKET_SIZE; i++)
+			{
 				pkt[i-8]=packet[i];
+				debug(" %02X",packet[i]);
+			}
 			telemetry_link=2;
+			debugln("");
 			return;
 		}
 	#endif
 	#ifdef AFHDS2A_HUB_TELEMETRY
-		for(uint8_t sensor=0; sensor<7; sensor++)
-		{
-			// Send FrSkyD telemetry to TX
-			uint8_t index = 9+(4*sensor);
-			switch(packet[index])
+		if(packet[0]==0xAA)
+		{ // 0xAA Normal telemetry, 0xAC Extended telemetry not decoded here
+			for(uint8_t sensor=0; sensor<7; sensor++)
 			{
-				case AFHDS2A_SENSOR_RX_VOLTAGE:
-					//v_lipo1 = packet[index+3]<<8 | packet[index+2];
-					v_lipo1 = packet[index+2];
-					telemetry_link=1;
-					break;
-				case AFHDS2A_SENSOR_A3_VOLTAGE:
-					v_lipo2 = (packet[index+3]<<5) | (packet[index+2]>>3);	// allows to read voltage up to 4S
-					telemetry_link=1;
-					break;
-				case AFHDS2A_SENSOR_RX_ERR_RATE:
-					RX_LQI=packet[index+2];
-					break;
-				case AFHDS2A_SENSOR_RX_RSSI:
-					RX_RSSI = -packet[index+2];
-					break;
-				case 0xff:
-					return;
-				/*default:
-					// unknown sensor ID
-					break;*/
+				// Send FrSkyD telemetry to TX
+				uint8_t index = 9+(4*sensor);
+				switch(packet[index])
+				{
+					case AFHDS2A_SENSOR_RX_VOLTAGE:
+						//v_lipo1 = packet[index+3]<<8 | packet[index+2];
+						v_lipo1 = packet[index+2];
+						telemetry_link=1;
+						break;
+					case AFHDS2A_SENSOR_A3_VOLTAGE:
+						v_lipo2 = (packet[index+3]<<5) | (packet[index+2]>>3);	// allows to read voltage up to 4S
+						telemetry_link=1;
+						break;
+					case AFHDS2A_SENSOR_RX_ERR_RATE:
+						RX_LQI=packet[index+2];
+						break;
+					case AFHDS2A_SENSOR_RX_RSSI:
+						RX_RSSI = -packet[index+2];
+						break;
+					case 0xff: // end of data
+						return;
+					/*default:
+						// unknown sensor ID
+						break;*/
+				}
 			}
 		}
 	#endif
@@ -323,33 +330,26 @@ uint16_t ReadAFHDS2A()
 			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)) && data_rx==1)
 			{ // RX+FECF+CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
-				#ifdef DEBUG_SERIAL
-					debug("T=");
-					for(uint8_t i=0;i < AFHDS2A_RXPACKET_SIZE; i++)
+				if(packet[0] == 0xAA && packet[9] == 0xFC)
+					packet_type=AFHDS2A_PACKET_SETTINGS;	// RX is asking for settings
+				else
+					if(packet[0] == 0xAA || packet[0] == 0xAC)
 					{
-						debug(" %02X",packet[i]);
+						if(memcmp(&packet[1], rx_tx_addr, 4))
+						{ // Validate TX address
+							#ifdef AFHDS2A_LQI_CH
+								for(uint8_t sensor=0; sensor<7; sensor++)
+								{//read LQI value for RX output
+									uint8_t index = 9+(4*sensor);
+									if(packet[index]==AFHDS2A_SENSOR_RX_ERR_RATE)
+										RX_LQI=packet[index+2];
+								}
+							#endif
+							#if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)
+								AFHDS2A_update_telemetry();
+							#endif
+						}
 					}
-					debugln("");
-				#endif
-				if(packet[0] == 0xaa)
-				{
-					if(packet[9] == 0xfc)
-						packet_type=AFHDS2A_PACKET_SETTINGS;	// RX is asking for settings
-					else
-					{
-						#ifdef AFHDS2A_LQI_CH
-							for(uint8_t sensor=0; sensor<7; sensor++)
-							{//read LQI value for RX output
-								uint8_t index = 9+(4*sensor);
-								if(packet[index]==AFHDS2A_SENSOR_RX_ERR_RATE)
-									RX_LQI=packet[index+2];
-							}
-						#endif
-						#if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)
-							AFHDS2A_update_telemetry();
-						#endif
-					}
-				}
 			}
 			packet_counter++;
 			phase |= AFHDS2A_WAIT_WRITE;

@@ -110,10 +110,7 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 			packet[1] = convert_channel_8b(CH14);
 		}
 		else
-			if(sub_protocol!=DHD_D4)
-				packet[1] = 0xFA;		// normal mode is 0xf7, expert 0xfa
-			else
-				packet[1] = 0xF4;
+			packet[1] = 0xFA;		// normal mode is 0xF7, expert 0xFa , D4 normal is 0xF4
 
 		//Flags packet[2]
 		packet[2] = 0x00;

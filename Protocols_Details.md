@@ -567,6 +567,13 @@ CH12|CH13
 ----|----
 TAKE_OFF|EMG_STOP
 
+### Sub_protocol DHD_D4 - *4*
+Model: DHD D4
+
+CH12|CH13
+----|----
+TAKE_OFF|EMG_STOP
+
 ## BUGSMINI - *42*
 Models: MJX Bugs 3 Mini and 3H
 

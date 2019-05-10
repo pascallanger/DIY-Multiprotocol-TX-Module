@@ -273,6 +273,11 @@ uint16_t ReadAFHDS2A()
 				}
 			}
 			packet_count++;
+			if(IS_BIND_DONE)
+			{ // exit bind if asked to do so from the GUI
+				phase = AFHDS2A_BIND4;
+				return 3850;
+			}
 			phase |= AFHDS2A_WAIT_WRITE;
 			return 1700;
 		case AFHDS2A_BIND1|AFHDS2A_WAIT_WRITE:
@@ -335,7 +340,7 @@ uint16_t ReadAFHDS2A()
 				else
 					if(packet[0] == 0xAA || packet[0] == 0xAC)
 					{
-						if(memcmp(&packet[1], rx_tx_addr, 4))
+						if(!memcmp(&packet[1], rx_tx_addr, 4))
 						{ // Validate TX address
 							#ifdef AFHDS2A_LQI_CH
 								for(uint8_t sensor=0; sensor<7; sensor++)

@@ -90,13 +90,8 @@ static void AFHDS2A_update_telemetry()
 		{
 			// forward telemetry to TX, skip rx and tx id to save space
 			pkt[0]= TX_RSSI;
-			debug("T=");
 			for(int i=9;i < AFHDS2A_RXPACKET_SIZE; i++)
-			{
 				pkt[i-8]=packet[i];
-				debug(" %02X",packet[i]);
-			}
-			debugln("");
 			telemetry_link=2;
 			return;
 		}
@@ -328,6 +323,14 @@ uint16_t ReadAFHDS2A()
 			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)) && data_rx==1)
 			{ // RX+FECF+CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
+				#ifdef DEBUG_SERIAL
+					debug("T=");
+					for(uint8_t i=0;i < AFHDS2A_RXPACKET_SIZE; i++)
+					{
+						debug(" %02X",packet[i]);
+					}
+					debugln("");
+				#endif
 				if(packet[0] == 0xaa)
 				{
 					if(packet[9] == 0xfc)

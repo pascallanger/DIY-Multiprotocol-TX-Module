@@ -68,7 +68,7 @@ You've upgraded the module but the radio does not display the name of the protoc
 Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Sub_Proto 4|Sub_Proto 5|Sub_Proto 6|Sub_Proto 7|RF Module
 ---|---|---|---|---|---|---|---|---|---|---
 [Assan](Protocols_Details.md#ASSAN---24)|24|ASSAN||||||||NRF24L01
-[Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|||||NRF24L01
+[Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4||||NRF24L01
 [Bugs](Protocols_Details.md#BUGS---41)|41|BUGS||||||||A7105
 [BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI|BUGSMINI|BUGS3H||||||NRF24L01
 [Cabell](Protocols_Details.md#Cabell---34)|34|Cabell_V3|C_TELEM|-|-|-|-|F_SAFE|UNBIND|NRF24L01

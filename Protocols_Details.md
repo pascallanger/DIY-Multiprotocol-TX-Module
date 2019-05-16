@@ -866,7 +866,7 @@ Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 
 If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
 
-If a CC2500 module is available it will be used in place of the NRF24L01, fixing the issue mentioned below. When using a CC2500 module, Option for this protocol corresponds to fine frequency tuning.
+If a CC2500 module is available it will be used in place of the NRF24L01, fixing the issue mentioned above. When using a CC2500 module, Option for this protocol corresponds to fine frequency tuning.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it if necessary.
 
 ### Sub_protocol H26WH - *5*

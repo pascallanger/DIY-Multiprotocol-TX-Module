@@ -78,6 +78,119 @@ const uint8_t PROGMEM E010_map_rfchan[][2] = {
 #define MJXQ_PAN_UP			0x04
 #define MJXQ_TILT_DOWN		0x20
 #define MJXQ_TILT_UP		0x10
+
+// if CC2500 is installed, use it for E010 format
+#ifdef CC2500_INSTALLED
+
+#include "iface_cc2500.h"
+extern uint8_t xn297_addr_len;
+extern uint8_t xn297_tx_addr[];
+extern const uint8_t xn297_scramble[];
+extern const uint16_t PROGMEM xn297_crc_xorout_scrambled[];
+
+static void __attribute__((unused)) XN297L_init()
+{
+	PE1_off; // antenna RF2
+	PE2_on;
+	CC2500_Reset();
+	CC2500_Strobe(CC2500_SIDLE);
+
+	// Address Config = No address check
+	// Base Frequency = 2400
+	// CRC Autoflush = false
+	// CRC Enable = false
+	// Channel Spacing = 333.251953
+	// Data Format = Normal mode
+	// Data Rate = 249.939
+	// Deviation = 126.953125
+	// Device Address = 0
+	// Manchester Enable = false
+	// Modulated = true
+	// Modulation Format = GFSK
+	// Packet Length Mode = Variable packet length mode. Packet length configured by the first byte after sync word
+	// RX Filter BW = 203.125000
+	// Sync Word Qualifier Mode = No preamble/sync
+	// TX Power = 0
+	// Whitening = false
+
+	CC2500_WriteReg(CC2500_08_PKTCTRL0,	0x01);   // Packet Automation Control
+	CC2500_WriteReg(CC2500_0B_FSCTRL1,	0x0A);   // Frequency Synthesizer Control
+	CC2500_WriteReg(CC2500_0C_FSCTRL0,	0x00);   // Frequency Synthesizer Control
+	CC2500_WriteReg(CC2500_0D_FREQ2,	0x5C);   // Frequency Control Word, High Byte
+	CC2500_WriteReg(CC2500_0E_FREQ1,	0x4E);   // Frequency Control Word, Middle Byte
+	CC2500_WriteReg(CC2500_0F_FREQ0,	0xC3);   // Frequency Control Word, Low Byte
+	CC2500_WriteReg(CC2500_10_MDMCFG4,	0x8D);   // Modem Configuration
+	CC2500_WriteReg(CC2500_11_MDMCFG3,	0x3B);   // Modem Configuration
+	CC2500_WriteReg(CC2500_12_MDMCFG2,	0x10);   // Modem Configuration
+	CC2500_WriteReg(CC2500_13_MDMCFG1,	0x23);   // Modem Configuration
+	CC2500_WriteReg(CC2500_14_MDMCFG0,	0xA4);   // Modem Configuration
+	CC2500_WriteReg(CC2500_15_DEVIATN,	0x62);   // Modem Deviation Setting
+	CC2500_WriteReg(CC2500_18_MCSM0,	0x18);   // Main Radio Control State Machine Configuration
+	CC2500_WriteReg(CC2500_19_FOCCFG,	0x1D);   // Frequency Offset Compensation Configuration
+	CC2500_WriteReg(CC2500_1A_BSCFG,	0x1C);   // Bit Synchronization Configuration
+	CC2500_WriteReg(CC2500_1B_AGCCTRL2, 0xC7);   // AGC Control
+	CC2500_WriteReg(CC2500_1C_AGCCTRL1, 0x00);   // AGC Control
+	CC2500_WriteReg(CC2500_1D_AGCCTRL0, 0xB0);   // AGC Control
+	CC2500_WriteReg(CC2500_21_FREND1,	0xB6);   // Front End RX Configuration
+	CC2500_WriteReg(CC2500_23_FSCAL3,	0xEA);   // Frequency Synthesizer Calibration
+	CC2500_WriteReg(CC2500_25_FSCAL1,	0x00);   // Frequency Synthesizer Calibration
+	CC2500_WriteReg(CC2500_26_FSCAL0,	0x11);   // Frequency Synthesizer Calibration
+
+	CC2500_SetTxRxMode(TX_EN);
+}
+
+static void __attribute__((unused)) XN297L_SetTXAddr(const uint8_t* addr, uint8_t len)
+{
+	if (len > 5) len = 5;
+	if (len < 3) len = 3;
+	xn297_addr_len = len;
+	memcpy(xn297_tx_addr, addr, len);
+}
+
+static void __attribute__((unused)) XN297L_WritePayload(const uint8_t* msg, uint8_t len)
+{
+	uint8_t buf[32];
+	uint8_t last = 0;
+	uint8_t i;
+	static const uint16_t initial = 0xb5d2;
+
+	// address
+	for (i = 0; i < xn297_addr_len; ++i) {
+		buf[last++] = xn297_tx_addr[xn297_addr_len - i - 1] ^ xn297_scramble[i];
+	}
+
+	// payload
+	for (i = 0; i < len; ++i) {
+		// bit-reverse bytes in packet
+		uint8_t b_out = bit_reverse(msg[i]);
+		buf[last++] = b_out ^ xn297_scramble[xn297_addr_len + i];
+	}
+
+	uint8_t offset = xn297_addr_len < 4 ? 1 : 0;
+
+	// crc
+	uint16_t crc = initial;
+	for (uint8_t i = offset; i < last; ++i)
+		crc = crc16_update(crc, buf[i], 8);
+	crc ^= xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len];
+	buf[last++] = crc >> 8;
+	buf[last++] = crc & 0xff;
+
+	// stop TX/RX
+	CC2500_Strobe(CC2500_SIDLE);
+	// flush tx FIFO
+	CC2500_Strobe(CC2500_SFTX);
+	// packet length
+	CC2500_WriteReg(CC2500_3F_TXFIFO, last + 3);
+	// xn297L preamble
+	CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, (uint8_t*)"\x71\x0f\x55", 3);
+	// xn297 packet
+	CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buf, last);
+	// transmit
+	CC2500_Strobe(CC2500_STX);
+}
+#endif	// CC2500_INSTALLED
+
 static uint8_t __attribute__((unused)) MJXQ_pan_tilt_value()
 {
 // CH12_SW	PAN			// H26D
@@ -190,25 +303,45 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	uint8_t sum = packet[0];
 	for (uint8_t i=1; i < MJXQ_PACKET_SIZE-1; i++) sum += packet[i];
 	packet[15] = sum;
-
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++ / 2]);
-	hopping_frequency_no %= 2 * MJXQ_RF_NUM_CHANNELS;	// channels repeated
-
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-
-	// Power on, TX mode, 2byte CRC and send packet
-	if (sub_protocol == H26D || sub_protocol == H26WH)
-	{
-		NRF24L01_SetTxRxMode(TX_EN);
-		NRF24L01_WritePayload(packet, MJXQ_PACKET_SIZE);
+	hopping_frequency_no++;
+#ifdef CC2500_INSTALLED
+	if (sub_protocol == E010 || sub_protocol == PHOENIX) {
+		// spacing is 333.25 kHz, must multiply xn297 channel by 3
+		CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[hopping_frequency_no / 2] * 3);
+		// Make sure that the radio is in IDLE state before flushing the FIFO
+		CC2500_Strobe(CC2500_SIDLE);
+		// Flush TX FIFO
+		CC2500_Strobe(CC2500_SFTX);
+		// Frequency offset hack 
+		if (prev_option != option) {
+			prev_option = option;
+			CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+		}
+		XN297L_WritePayload(packet, MJXQ_PACKET_SIZE);
+		CC2500_SetPower();
 	}
 	else
+#endif
 	{
-		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-		XN297_WritePayload(packet, MJXQ_PACKET_SIZE);
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no / 2]);
+
+		NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+		NRF24L01_FlushTx();
+
+		// Power on, TX mode, 2byte CRC and send packet
+		if (sub_protocol == H26D || sub_protocol == H26WH)
+		{
+			NRF24L01_SetTxRxMode(TX_EN);
+			NRF24L01_WritePayload(packet, MJXQ_PACKET_SIZE);
+		}
+		else
+		{
+			XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+			XN297_WritePayload(packet, MJXQ_PACKET_SIZE);
+		}
+		NRF24L01_SetPower();
 	}
-	NRF24L01_SetPower();
+	hopping_frequency_no %= 2 * MJXQ_RF_NUM_CHANNELS;	// channels repeated
 }
 
 static void __attribute__((unused)) MJXQ_init()
@@ -225,30 +358,40 @@ static void __attribute__((unused)) MJXQ_init()
 			memcpy(hopping_frequency, "\x0a\x35\x42\x3d", MJXQ_RF_NUM_CHANNELS);
 			memcpy(addr, "\x6d\x6a\x73\x73\x73", MJXQ_ADDRESS_LENGTH);
 		}
-	
-	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
-
-	if (sub_protocol == H26D || sub_protocol == H26WH)
-	{
-		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW,		0x03);		// 5-byte RX/TX address
-		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, MJXQ_ADDRESS_LENGTH);
+#ifdef CC2500_INSTALLED
+	if (sub_protocol == E010 || sub_protocol == PHOENIX) {
+		XN297L_init();  // setup cc2500 for xn297L@250kbps emulation
+		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);	// Frequency offset hack 
+		XN297L_SetTXAddr(addr, sizeof(addr));
+		CC2500_SetPower();
 	}
 	else
-		XN297_SetTXAddr(addr, MJXQ_ADDRESS_LENGTH);
+#endif
+	{
+		NRF24L01_Initialize();
+		NRF24L01_SetTxRxMode(TX_EN);
 
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS,		0x70);		// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA,		0x00);		// No Auto Acknowledgment on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR,	0x01);		// Enable data pipe 0 only
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR,	0x00);		// no retransmits
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0,		MJXQ_PACKET_SIZE);
-	if (sub_protocol == E010 || sub_protocol == PHOENIX)
-		NRF24L01_SetBitrate(NRF24L01_BR_250K);				// 250K
-	else
-		NRF24L01_SetBitrate(NRF24L01_BR_1M);				// 1Mbps
-	NRF24L01_SetPower();
+		if (sub_protocol == H26D || sub_protocol == H26WH)
+		{
+			NRF24L01_WriteReg(NRF24L01_03_SETUP_AW,		0x03);		// 5-byte RX/TX address
+			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, MJXQ_ADDRESS_LENGTH);
+		}
+		else
+			XN297_SetTXAddr(addr, MJXQ_ADDRESS_LENGTH);
+
+		NRF24L01_FlushTx();
+		NRF24L01_FlushRx();
+		NRF24L01_WriteReg(NRF24L01_07_STATUS,		0x70);		// Clear data ready, data sent, and retransmit
+		NRF24L01_WriteReg(NRF24L01_01_EN_AA,		0x00);		// No Auto Acknowledgment on all data pipes
+		NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR,	0x01);		// Enable data pipe 0 only
+		NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR,	0x00);		// no retransmits
+		NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0,		MJXQ_PACKET_SIZE);
+		if (sub_protocol == E010 || sub_protocol == PHOENIX)
+			NRF24L01_SetBitrate(NRF24L01_BR_250K);				// 250K
+		else
+			NRF24L01_SetBitrate(NRF24L01_BR_1M);				// 1Mbps
+		NRF24L01_SetPower();
+	}
 }
 
 static void __attribute__((unused)) MJXQ_init2()

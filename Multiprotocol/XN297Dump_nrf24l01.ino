@@ -18,7 +18,7 @@
 #include "iface_nrf24l01.h"
 
 // Parameters which can be modified
-#define XN297DUMP_PERIOD_DUMP		2000	// Multiplied by 50, default 2000=100ms
+#define XN297DUMP_PERIOD_DUMP		3000	// Multiplied by 50, default 3000=150ms
 #define XN297DUMP_MAX_RF_CHANNEL	84		// Default 84
 
 // Do not touch from there
@@ -72,7 +72,7 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 	uint8_t packet_ori[XN297DUMP_MAX_PACKET_LEN];
 	memcpy(packet_ori,packet,XN297DUMP_MAX_PACKET_LEN);
 	address_length=5;
-	
+
     while(address_length >= 3)
 	{
 		// init crc
@@ -99,9 +99,9 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 			packet[i] = bit_reverse(packet[i]);
 			// check crc
 			if (RX_num)
-				crcxored = crc ^ pgm_read_word(&xn297_crc_xorout[i - 3]);
+				crcxored = crc ^ pgm_read_word(&xn297_crc_xorout[i+1 - 3]);
 			else
-				crcxored = crc ^ pgm_read_word(&xn297_crc_xorout_scrambled[i - 3]);
+				crcxored = crc ^ pgm_read_word(&xn297_crc_xorout_scrambled[i+1 - 3]);
 			if( (crcxored >> 8) == packet[i + 1] && (crcxored & 0xff) == packet[i + 2])
 			{
 				packet_length=i+1;

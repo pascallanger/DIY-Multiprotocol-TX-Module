@@ -194,8 +194,6 @@ void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 		if (mode == RX_EN)
 		{
 			NRF_CE_off;
-			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);        // reset the flag(s)
-			NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x0F);        // switch to RX mode
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, (1 << NRF24L01_07_RX_DR)    //reset the flag(s)
 												| (1 << NRF24L01_07_TX_DS)
 												| (1 << NRF24L01_07_MAX_RT));

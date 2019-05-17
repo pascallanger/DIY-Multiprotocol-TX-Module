@@ -312,8 +312,8 @@ uint16_t BUGSMINI_callback()
 		case BUGSMINI_DATA2:
 			// switch to RX mode
 			NRF24L01_SetTxRxMode(TXRX_OFF);
-			NRF24L01_SetTxRxMode(RX_EN);
 			NRF24L01_FlushRx();
+			NRF24L01_SetTxRxMode(RX_EN);
 			XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) 
 							| _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
 			phase = BUGSMINI_DATA1;

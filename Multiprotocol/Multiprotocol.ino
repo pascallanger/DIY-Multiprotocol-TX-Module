@@ -1222,6 +1222,12 @@ static void protocol_init()
 						remote_callback = GD00X_callback;
 						break;
 				#endif
+				#if defined(V761_NRF24L01_INO)
+					case PROTO_V761:
+						next_callback=initV761();
+						remote_callback = V761_callback;
+						break;
+				#endif
 				#if defined(XN297DUMP_NRF24L01_INO)
 					case PROTO_XN297DUMP:
 						next_callback=initXN297Dump();

@@ -27,6 +27,7 @@
 #define XN297DUMP_CRC_LENGTH		2
 
 uint8_t address_length;
+boolean scramble;
 
 static void __attribute__((unused)) XN297Dump_init()
 {
@@ -42,7 +43,7 @@ static void __attribute__((unused)) XN297Dump_init()
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x55\x0F\x71", 3);	// set up RX address to xn297 preamble
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, XN297DUMP_MAX_PACKET_LEN);	// Enable rx pipe 0
 
-	debug("XN297 dump, scramble=%c, speed=",RX_num?'N':'Y');
+	debug("XN297 dump, speed=");
 	switch(sub_protocol)
 	{
 		case 0:
@@ -69,8 +70,7 @@ static void __attribute__((unused)) XN297Dump_init()
 static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 {
 	uint16_t crcxored;
-	uint8_t packet_ori[XN297DUMP_MAX_PACKET_LEN];
-	memcpy(packet_ori,packet,XN297DUMP_MAX_PACKET_LEN);
+	uint8_t packet_sc[XN297DUMP_MAX_PACKET_LEN], packet_un[XN297DUMP_MAX_PACKET_LEN];
 	address_length=5;
 
     while(address_length >= 3)
@@ -78,39 +78,40 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 		// init crc
 		crc = 0xb5d2;
 		
-		// unscramble address
+		// address
 		for (uint8_t i = 0; i < address_length; i++)
 		{
 			crc = crc16_update(crc, packet[i], 8);
-			rx_id[i]=packet[i];
-			if (!RX_num)
-				rx_id[i] ^= xn297_scramble[i];
+			packet_un[address_length-1-i]=packet[i];
+			packet_sc[address_length-1-i]=packet[i] ^= xn297_scramble[i];
 		}
-		// reverse address order
-		for (uint8_t i = 0; i < address_length; i++)
-			packet[i]=rx_id[address_length-1-i];
 		
-		// unscramble payload
+		// payload
 		for (uint8_t i = address_length; i < XN297DUMP_MAX_PACKET_LEN-XN297DUMP_CRC_LENGTH; i++)
 		{
 			crc = crc16_update(crc, packet[i], 8);
-			if (!RX_num)
-				packet[i] ^= xn297_scramble[i];
-			packet[i] = bit_reverse(packet[i]);
+			packet_sc[i] = bit_reverse(packet[i]^xn297_scramble[i]);
+			packet_un[i] = bit_reverse(packet[i]);
 			// check crc
-			if (RX_num)
-				crcxored = crc ^ pgm_read_word(&xn297_crc_xorout[i+1 - 3]);
-			else
-				crcxored = crc ^ pgm_read_word(&xn297_crc_xorout_scrambled[i+1 - 3]);
+			crcxored = crc ^ pgm_read_word(&xn297_crc_xorout[i+1 - 3]);
 			if( (crcxored >> 8) == packet[i + 1] && (crcxored & 0xff) == packet[i + 2])
 			{
 				packet_length=i+1;
+				memcpy(packet,packet_un,packet_length);
+				scramble=false;
+				return true;
+			}
+			crcxored = crc ^ pgm_read_word(&xn297_crc_xorout_scrambled[i+1 - 3]);
+			if( (crcxored >> 8) == packet[i + 1] && (crcxored & 0xff) == packet[i + 2])
+			{
+				packet_length=i+1;
+				memcpy(packet,packet_sc,packet_length);
+				scramble=true;
 				return true;
 			}
 		}
 
 		address_length--;
-		memcpy(packet,packet_ori,XN297DUMP_MAX_PACKET_LEN);
 	}
 	return false;
 }
@@ -149,7 +150,7 @@ static uint16_t XN297Dump_callback()
 			debug("us C=%d ", hopping_frequency_no);
 			if(XN297Dump_process_packet())
 			{ // valid crc found
-				debug("A=");
+				debug("S=%c A=",scramble?'Y':'N');
 				for(uint8_t i=0; i<address_length; i++)
 				{
 					debug(" %02X",packet[i]);

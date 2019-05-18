@@ -876,7 +876,7 @@ ARM|
 
 Only 1 TX ID available
 
-### Sub_protocol H26WH - *6*
+### Sub_protocol PHOENIX - *6*
 CH6|
 ---|
 ARM|

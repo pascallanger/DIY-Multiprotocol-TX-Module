@@ -155,6 +155,9 @@ uint16_t ReadWFLY()
 	uint8_t status,len,sum=0,check=0;
 	uint8_t start;
 	static uint8_t retry;
+	#ifdef USE_CYRF6936_CH15_TUNING
+		static uint16_t Channel15=1024;
+	#endif
 
 	switch(phase)
 	{
@@ -236,6 +239,15 @@ uint16_t ReadWFLY()
 			while ((uint8_t)((uint8_t)micros()-(uint8_t)start) < 200)
 				if((CYRF_ReadRegister(CYRF_02_TX_CTRL) & 0x80) == 0x00)
 					break;										// Packet transmission complete
+			#ifdef USE_CYRF6936_CH15_TUNING
+				if(Channel15!=Channel_data[CH15])
+				{ // adjust frequency
+					Channel15=Channel_data[CH15]+0x155;	// default value is 0x555 = 0x400 + 0x155
+					CYRF_WriteRegister(CYRF_1B_TX_OFFSET_LSB, Channel15&0xFF);
+					CYRF_WriteRegister(CYRF_1C_TX_OFFSET_MSB, Channel15>>8);
+					Channel15-=0x155;
+				}
+			#endif
 			return WFLY_send_data_packet();
 	}
 	return 1000;
@@ -253,7 +265,7 @@ uint16_t initWFLY()
 		rx_tx_addr[2]=0xBF;					// ID
 		rx_tx_addr[3]=0x13;					// ID
 		ch=0x16;							// value seen between 0x0A and 0x17
-		rc_ch_num=0x15						// RF channel to send the current hopping table
+		rf_ch_num=0x15						// RF channel to send the current hopping table
 	#endif
 
 	debug("ID:")

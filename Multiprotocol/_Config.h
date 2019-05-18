@@ -109,6 +109,12 @@
 //#define FORCE_AFHDS2A_TUNING	0
 //#define FORCE_BUGS_TUNING	0
 
+/** CYRF6936 Fine Frequency Tuning **/
+//This is required in rare cases where some CYRF6936 modules and/or RXs have an inaccurate crystal oscillator.
+//If using Serial mode only (for now), you can use CH15 to find the right tuning value. -100%=-300, 0%=default 0, +100%=+300.
+//Uncomment the line below (remove the "//") to enable this feature.
+//#define USE_CYRF6936_CH15_TUNING
+
 /** Low Power **/
 //Low power is reducing the transmit power of the multi module. This setting is configurable per model in PPM (table below) or Serial mode (radio GUI).
 //It can be activated when flying indoor or small models since the distance is short or if a model is causing issues when flying closed to the TX.

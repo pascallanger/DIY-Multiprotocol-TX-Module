@@ -113,7 +113,7 @@ static void __attribute__((unused)) XN297L_init()
 	// Sync Word Qualifier Mode = No preamble/sync
 	// TX Power = 0
 	// Whitening = false
-    // Fast Frequency Hopping - no PLL auto calibration
+	// Fast Frequency Hopping - no PLL auto calibration
 
 	CC2500_WriteReg(CC2500_08_PKTCTRL0,	0x01);   // Packet Automation Control
 	CC2500_WriteReg(CC2500_0B_FSCTRL1,	0x0A);   // Frequency Synthesizer Control
@@ -380,7 +380,7 @@ static void __attribute__((unused)) MJXQ_init()
 		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);	// Frequency offset hack 
 		XN297L_SetTXAddr(addr, sizeof(addr));
 		CC2500_SetPower();
-        calibrate_pll();
+		calibrate_pll();
 	}
 	else
 #endif
@@ -428,6 +428,9 @@ static void __attribute__((unused)) MJXQ_init2()
 				hopping_frequency[i]=pgm_read_byte_near( &E010_map_rfchan[rx_tx_addr[3]&0x0F][i] );
 				hopping_frequency[i+2]=hopping_frequency[i]+0x10;
 			}
+#ifdef CC2500_INSTALLED
+				calibrate_pll();
+#endif
 			break;
 		case WLH08:
 			// do nothing
@@ -475,9 +478,6 @@ uint16_t MJXQ_callback()
 		if (bind_counter == 0)
 		{
 			MJXQ_init2();
-#ifdef CC2500_INSTALLED
-            calibrate_pll();
-#endif
 			BIND_DONE;
 		}
 		else

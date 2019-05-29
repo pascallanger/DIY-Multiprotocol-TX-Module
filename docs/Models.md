@@ -98,7 +98,7 @@ The next screen shows the mixer menu with the mode change on momentary switch SH
 <img src="images/Inductrix_Mixer.png" Width="600" Height="200" />  
 
 # Cheerson CX-20 / Quanum Nova
-<img src="http://uaequadcopters.com/images/products/Large/932-cheersoncx20dronquad.jpg" Width="200" Height="155" />
+<img src="images/cx20.jpg" Width="200" Height="155" />
 
 ## Channel Map
 

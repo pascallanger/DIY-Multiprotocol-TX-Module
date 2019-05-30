@@ -174,7 +174,7 @@ static void __attribute__((unused)) XN297L_WritePayload(const uint8_t* msg, uint
 	uint16_t crc = initial;
 	for (uint8_t i = offset; i < last; ++i)
 		crc = crc16_update(crc, buf[i], 8);
-	crc ^= xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len];
+	crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
 	buf[last++] = crc >> 8;
 	buf[last++] = crc & 0xff;
 
@@ -322,7 +322,7 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	if (sub_protocol == E010 || sub_protocol == PHOENIX) {
 		// spacing is 333.25 kHz, must multiply xn297 channel by 3
 		CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[hopping_frequency_no / 2] * 3);
-		// PLL calibration
+		// set PLL calibration
 		CC2500_WriteReg(CC2500_25_FSCAL1, fscal1[hopping_frequency_no / 2]);
 		// Make sure that the radio is in IDLE state before flushing the FIFO
 		CC2500_Strobe(CC2500_SIDLE);
@@ -429,7 +429,7 @@ static void __attribute__((unused)) MJXQ_init2()
 				hopping_frequency[i+2]=hopping_frequency[i]+0x10;
 			}
 #ifdef CC2500_INSTALLED
-				calibrate_pll();
+			calibrate_pll();
 #endif
 			break;
 		case WLH08:

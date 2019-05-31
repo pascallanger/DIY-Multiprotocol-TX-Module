@@ -87,6 +87,7 @@ extern uint8_t xn297_addr_len;
 extern uint8_t xn297_tx_addr[];
 extern const uint8_t xn297_scramble[];
 extern const uint16_t PROGMEM xn297_crc_xorout_scrambled[];
+static uint8_t fscal1[MJXQ_RF_NUM_CHANNELS];
 
 static void __attribute__((unused)) XN297L_init()
 {
@@ -112,6 +113,7 @@ static void __attribute__((unused)) XN297L_init()
 	// Sync Word Qualifier Mode = No preamble/sync
 	// TX Power = 0
 	// Whitening = false
+	// Fast Frequency Hopping - no PLL auto calibration
 
 	CC2500_WriteReg(CC2500_08_PKTCTRL0,	0x01);   // Packet Automation Control
 	CC2500_WriteReg(CC2500_0B_FSCTRL1,	0x0A);   // Frequency Synthesizer Control
@@ -125,7 +127,7 @@ static void __attribute__((unused)) XN297L_init()
 	CC2500_WriteReg(CC2500_13_MDMCFG1,	0x23);   // Modem Configuration
 	CC2500_WriteReg(CC2500_14_MDMCFG0,	0xA4);   // Modem Configuration
 	CC2500_WriteReg(CC2500_15_DEVIATN,	0x62);   // Modem Deviation Setting
-	CC2500_WriteReg(CC2500_18_MCSM0,	0x18);   // Main Radio Control State Machine Configuration
+	CC2500_WriteReg(CC2500_18_MCSM0,	0x08);   // Main Radio Control State Machine Configuration
 	CC2500_WriteReg(CC2500_19_FOCCFG,	0x1D);   // Frequency Offset Compensation Configuration
 	CC2500_WriteReg(CC2500_1A_BSCFG,	0x1C);   // Bit Synchronization Configuration
 	CC2500_WriteReg(CC2500_1B_AGCCTRL2, 0xC7);   // AGC Control
@@ -172,7 +174,7 @@ static void __attribute__((unused)) XN297L_WritePayload(const uint8_t* msg, uint
 	uint16_t crc = initial;
 	for (uint8_t i = offset; i < last; ++i)
 		crc = crc16_update(crc, buf[i], 8);
-	crc ^= xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len];
+	crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
 	buf[last++] = crc >> 8;
 	buf[last++] = crc & 0xff;
 
@@ -188,6 +190,18 @@ static void __attribute__((unused)) XN297L_WritePayload(const uint8_t* msg, uint
 	CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buf, last);
 	// transmit
 	CC2500_Strobe(CC2500_STX);
+}
+
+static void __attribute__((unused)) calibrate_pll()
+{
+	//calibrate hop channels
+	for (uint8_t i = 0; i < MJXQ_RF_NUM_CHANNELS; i++) {
+		CC2500_Strobe(CC2500_SIDLE);
+		CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[i]*3);
+		CC2500_Strobe(CC2500_SCAL);
+		delayMicroseconds(900);
+		fscal1[i] = CC2500_ReadReg(CC2500_25_FSCAL1);
+	}
 }
 #endif	// CC2500_INSTALLED
 
@@ -308,6 +322,8 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	if (sub_protocol == E010 || sub_protocol == PHOENIX) {
 		// spacing is 333.25 kHz, must multiply xn297 channel by 3
 		CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[hopping_frequency_no / 2] * 3);
+		// set PLL calibration
+		CC2500_WriteReg(CC2500_25_FSCAL1, fscal1[hopping_frequency_no / 2]);
 		// Make sure that the radio is in IDLE state before flushing the FIFO
 		CC2500_Strobe(CC2500_SIDLE);
 		// Flush TX FIFO
@@ -364,6 +380,7 @@ static void __attribute__((unused)) MJXQ_init()
 		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);	// Frequency offset hack 
 		XN297L_SetTXAddr(addr, sizeof(addr));
 		CC2500_SetPower();
+		calibrate_pll();
 	}
 	else
 #endif
@@ -411,6 +428,9 @@ static void __attribute__((unused)) MJXQ_init2()
 				hopping_frequency[i]=pgm_read_byte_near( &E010_map_rfchan[rx_tx_addr[3]&0x0F][i] );
 				hopping_frequency[i+2]=hopping_frequency[i]+0x10;
 			}
+#ifdef CC2500_INSTALLED
+			calibrate_pll();
+#endif
 			break;
 		case WLH08:
 			// do nothing

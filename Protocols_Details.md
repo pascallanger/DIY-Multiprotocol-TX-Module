@@ -153,7 +153,7 @@ CH5|CH6|CH7
 Extended limits and failsafe supported
 
 Telemetry enabled protocol:
- - by defaut using FrSky Hub protocol (for example er9x): RX&battery voltages and RX&TX RSSI
+ - by defaut using FrSky Hub protocol (for example er9x): RX(A1), battery voltage FS-CVT01(A2) and RX&TX RSSI
  - if using ersky9x and OpenTX: full telemetry information available
 
 Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 70 gives 400Hz (max). Specific refresh rate value can be calculated like this option=(refresh_rate-50)/5.

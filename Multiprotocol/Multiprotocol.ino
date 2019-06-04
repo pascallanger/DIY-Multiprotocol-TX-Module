@@ -1228,6 +1228,12 @@ static void protocol_init()
 						remote_callback = V761_callback;
 						break;
 				#endif
+				#if defined(KF606_NRF24L01_INO)
+					case PROTO_KF606:
+						next_callback=initKF606();
+						remote_callback = KF606_callback;
+						break;
+				#endif
 				#if defined(XN297DUMP_NRF24L01_INO)
 					case PROTO_XN297DUMP:
 						next_callback=initXN297Dump();

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	51
+#define VERSION_PATCH_LEVEL	52
 
 //******************
 // Protocols
@@ -75,6 +75,7 @@ enum PROTOCOLS
 	PROTO_V911S		= 46,	// =>NRF24L01
 	PROTO_GD00X		= 47,	// =>NRF24L01
 	PROTO_V761		= 48,	// =>NRF24L01
+	PROTO_KF606		= 49,	// =>NRF24L01
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -611,6 +612,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					V911S		46
 					GD00X		47
 					V761		48
+					KF606		49
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

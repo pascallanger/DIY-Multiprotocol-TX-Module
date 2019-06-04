@@ -68,7 +68,7 @@ static void __attribute__((unused)) V761_send_packet()
 	{ 
 		packet[0] = convert_channel_8b(THROTTLE); // throttle       
 		packet[1] = convert_channel_8b(RUDDER)>>1; // rudder
-		packet[2] = convert_channel_8b(RUDDER)>>1; // elevator
+		packet[2] = convert_channel_8b(ELEVATOR)>>1; // elevator
 		packet[3] = 0x3f; // no functional implementation in this model, possibly optional aileron channel for 4ch version?
 		packet[5] = (packet_count++ / 3)<<6;
 		packet[4] = (packet[5] == 0x40) ? 0x1a : 0x20;
@@ -80,7 +80,7 @@ static void __attribute__((unused)) V761_send_packet()
 			if(Channel_data[CH5] < CHANNEL_MIN_COMMAND)
 				flags = 0x08;     // Beginer mode (Gyro on, yaw and pitch rate limited)
 			else
-				flags = 0x0a;     // Midd Mode ( Gyro on no rate limits)        
+				flags = 0x0a;     // Mid Mode ( Gyro on no rate limits)        
 		packet[5] |= flags;
 		packet[6] = 0x80; // unknown 
 

@@ -38,7 +38,7 @@ static void __attribute__((unused)) V761_set_checksum()
 	uint8_t checksum = packet[0];
 	for(uint8_t i=1; i<V761_PACKET_SIZE-2; i++)
 		checksum += packet[i];
-	if(phase == V761_BIND1) 
+	if(phase == V761_BIND1)
 	{
 		packet[6] = checksum ^ 0xff;
 		packet[7] = packet[6];
@@ -121,16 +121,14 @@ static void __attribute__((unused)) V761_init()
 static void __attribute__((unused)) V761_initialize_txid()
 {
 	// TODO: try arbitrary rx_tx_addr & frequencies (except hopping_frequency[0])
-	// testing for random Rx_tx_address
-	memcpy(rx_tx_addr,(uint8_t *)"\x47\x93\x45\xD5",4); // random 4 bytes x47\x93\x45\xD5
 	//Actual rx_tx_addr from SPI grab)
-	//memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
-	memcpy(hopping_frequency,(uint8_t *)"\x14\x32\x46",3); // random 2 bytes for hopping_frequency[1] = 0x32 hopping_frequency[2] = 0x46;
+	memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
 	//Actual hopping_frequency from SPI grab)
-	//memcpy(hopping_frequency,(uint8_t *)"\x14\x1e\x4b",3);
-	//hopping_frequency[0] = 0x14; // not sure if this one is const or calculated ... // combined into one memcopy
-	//hopping_frequency[1] = 0x1e; //combined into one memcopy
-	//hopping_frequency[2] = 0x4b; //combined into one memcopy
+	memcpy(hopping_frequency,(uint8_t *)"\x14\x1e\x4b",3);
+	
+	//Dump from air on another TX
+	//memcpy(rx_tx_addr,(uint8_t *)"\xE8\xE4\x45\x09",4);
+	//memcpy(hopping_frequency,(uint8_t *)"\x??\x21\x44",3);	// dump does not show any other frequencies used. Need to be rechecked...
 }
 
 uint16_t V761_callback()

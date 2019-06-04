@@ -97,6 +97,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|J6PRO||||||||CYRF6936
+[KF606](Protocols_Details.md#KF606---49)|49|||||||||NRF24L01
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010|H26WH|PHOENIX||NRF24L01
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01
@@ -110,6 +111,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01
 Traxxas|43|Traxxas||||||||NRF24L01
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|||||||NRF24L01
+[V761](Protocols_Details.md#V761---48)|48|||||||||NRF24L01
 [V911S](Protocols_Details.md#V911S---46)|46|V911S||||||||NRF24L01
 [WFly](Protocols_Details.md#WFLY---40)|40|WFLY||||||||CYRF6936
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936
@@ -845,6 +847,15 @@ ARM|
 
 ### Sub_protocol FQ777_951 - *3*
 
+## KF606 - *49*
+Model: KF606
+
+If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A||T||TRIM
+
 ## MJXQ - *18*
 Autobind protocol
 
@@ -1093,6 +1104,17 @@ Model: JXD 506
 CH10|CH11|CH12
 ---|---|---
 Start/Stop|EMERGENCY|CAMERA_UP/DN
+
+## V761 - *48*
+Model: Volantex V761 and may be other
+
+Warning: Only 1 ID
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+-|E|T|R|GYRO
+
+Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
 
 ## V911S - *46*
 Models: WLtoys V911S, XK A110

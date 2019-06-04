@@ -1112,7 +1112,7 @@ Warning: Only 1 ID
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
-|E|T|R|GYRO
+-|E|T|R|GYRO
 
 Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
 

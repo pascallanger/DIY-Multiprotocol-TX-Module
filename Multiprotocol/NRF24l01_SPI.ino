@@ -389,8 +389,7 @@ void XN297_WritePayload(uint8_t* msg, uint8_t len)
 	for (uint8_t i = 0; i < len; ++i)
 	{
 		// bit-reverse bytes in packet
-		uint8_t b_out = bit_reverse(msg[i]);
-		buf[last] = b_out;
+		buf[last] = bit_reverse(msg[i]);
 		if(xn297_scramble_enabled)
 			buf[last] ^= xn297_scramble[xn297_addr_len+i];
 		last++;
@@ -410,7 +409,6 @@ void XN297_WritePayload(uint8_t* msg, uint8_t len)
 	}
 	NRF24L01_WritePayload(buf, last);
 }
-
 
 void XN297_WriteEnhancedPayload(uint8_t* msg, uint8_t len, uint8_t noack)
 {

@@ -292,7 +292,6 @@ static void __attribute__((unused)) Q303_init()
 		case CX35:
 		case CX10D:
 		case CX10WD:
-			XN297_SetScrambledMode(XN297_SCRAMBLED);
 			NRF24L01_SetBitrate(NRF24L01_BR_1M);
 			break;
 		case Q303:

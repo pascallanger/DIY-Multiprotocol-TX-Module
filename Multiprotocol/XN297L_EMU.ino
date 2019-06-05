@@ -66,6 +66,7 @@ static void __attribute__((unused)) XN297L_Init()
 
 	CC2500_SetTxRxMode(TX_EN);
 	CC2500_SetPower();
+	xn297_scramble_enabled=XN297_SCRAMBLED;	//enabled by default
 }
 
 static void __attribute__((unused)) XN297L_SetTXAddr(const uint8_t* addr, uint8_t len)
@@ -84,22 +85,31 @@ static void __attribute__((unused)) XN297L_WritePayload(uint8_t* msg, uint8_t le
 	static const uint16_t initial = 0xb5d2;
 
 	// address
-	for (i = 0; i < xn297_addr_len; ++i) {
-		buf[last++] = xn297_tx_addr[xn297_addr_len - i - 1] ^ xn297_scramble[i];
+	for (i = 0; i < xn297_addr_len; ++i)
+	{
+		buf[last] = xn297_tx_addr[xn297_addr_len - i - 1];
+		if(xn297_scramble_enabled)
+			buf[last] ^=  xn297_scramble[i];
+		last++;
 	}
 
 	// payload
 	for (i = 0; i < len; ++i) {
 		// bit-reverse bytes in packet
-		uint8_t b_out = bit_reverse(msg[i]);
-		buf[last++] = b_out ^ xn297_scramble[xn297_addr_len + i];
+		buf[last] = bit_reverse(msg[i]);
+		if(xn297_scramble_enabled)
+			buf[last] ^= xn297_scramble[xn297_addr_len+i];
+		last++;
 	}
 
 	// crc
 	uint16_t crc = initial;
 	for (uint8_t i = 0; i < last; ++i)
 		crc = crc16_update(crc, buf[i], 8);
-	crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
+	if(xn297_scramble_enabled)
+		crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
+	else
+		crc ^= pgm_read_word(&xn297_crc_xorout[xn297_addr_len - 3 + len]);
 	buf[last++] = crc >> 8;
 	buf[last++] = crc & 0xff;
 

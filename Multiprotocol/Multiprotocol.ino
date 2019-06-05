@@ -112,7 +112,7 @@ uint16_t state;
 uint8_t  len;
 uint8_t  armed, arm_flags, arm_channel_previous;
 
-#if defined(FRSKYX_CC2500_INO) || defined(SFHSS_CC2500_INO) || defined(HITEC_CC2500_INO)
+#ifdef CC2500_INSTALLED
 	uint8_t calData[48];
 #endif
 

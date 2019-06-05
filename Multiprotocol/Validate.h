@@ -155,6 +155,7 @@
 	#undef	SFHSS_CC2500_INO
 	#undef	CORONA_CC2500_INO
 	#undef	HITEC_CC2500_INO
+	#undef	XN297L_CC2500_EMU
 #endif
 #ifndef NRF24L01_INSTALLED
 	#undef	BAYANG_NRF24L01_INO
@@ -188,6 +189,7 @@
 	#undef	E01X_NRF24L01_INO
 	#undef	V761_NRF24L01_INO
 	#undef	V911S_NRF24L01_INO
+	#undef	XN297L_CC2500_EMU
 #endif
 
 //Make sure telemetry is selected correctly

@@ -16,18 +16,20 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(GD00X_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297l.h"
 
 //#define FORCE_GD00X_ORIGINAL_ID
 
 #define GD00X_INITIAL_WAIT    500
 #define GD00X_PACKET_PERIOD   3500
 #define GD00X_RF_BIND_CHANNEL 2
+#define GD00X_RF_NUM_CHANNELS 4
 #define GD00X_PAYLOAD_SIZE    15
 #define GD00X_BIND_COUNT	  857	//3sec
 
 #define GD00X_V2_BIND_PACKET_PERIOD	5110
 #define GD00X_V2_RF_BIND_CHANNEL	0x43
+#define GD00X_V2_RF_NUM_CHANNELS	2
 #define GD00X_V2_PAYLOAD_SIZE		6
 
 // flags going to packet[11]
@@ -118,42 +120,31 @@ static void __attribute__((unused)) GD00X_send_packet()
 		packet[5]='D';
 	}
 
-	// Power on, TX mode, CRC enabled
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 	if(IS_BIND_DONE)
 	{
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+		XN297L_Hopping(hopping_frequency_no);
 		if(sub_protocol==GD_V1)
 		{
 			hopping_frequency_no++;
-			hopping_frequency_no &= 3;			// 4 RF channels
+			hopping_frequency_no &= GD00X_RF_NUM_CHANNELS-1;	// 4 RF channels
 		}
 	}
 
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-	XN297_WritePayload(packet, packet_length);
+	XN297L_WritePayload(packet, packet_length);
 
-	NRF24L01_SetPower();	// Set tx_power
+	XN297L_SetPower();		// Set tx_power
+	XN297L_SetFreqOffset();	// Set frequency offset
 }
 
 static void __attribute__((unused)) GD00X_init()
 {
-	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
+	XN297L_Init();
 	if(sub_protocol==GD_V1)
-		XN297_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
+		XN297L_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
 	else
-		XN297_SetTXAddr((uint8_t*)"GDKNx", 5);
-
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, sub_protocol==GD_V1?GD00X_RF_BIND_CHANNEL:GD00X_V2_RF_BIND_CHANNEL);	// Bind channel
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);	// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);		// No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);	// Enable data pipe 0 only
-	NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps
-	NRF24L01_SetPower();
+		XN297L_SetTXAddr((uint8_t*)"GDKNx", 5);
+	XN297L_HoppingCalib(sub_protocol==GD_V1?GD00X_RF_NUM_CHANNELS:GD00X_V2_RF_NUM_CHANNELS);	// Calibrate all channels
+	XN297L_RFChannel(sub_protocol==GD_V1?GD00X_RF_BIND_CHANNEL:GD00X_V2_RF_BIND_CHANNEL);		// Set bind channel
 }
 
 static void __attribute__((unused)) GD00X_initialize_txid()
@@ -161,14 +152,14 @@ static void __attribute__((unused)) GD00X_initialize_txid()
 	if(sub_protocol==GD_V1)
 	{
 		uint8_t start=76+(rx_tx_addr[0]&0x03);
-		for(uint8_t i=0; i<4;i++)
+		for(uint8_t i=0; i<GD00X_RF_NUM_CHANNELS;i++)
 			hopping_frequency[i]=start-(i<<1);
 		#ifdef FORCE_GD00X_ORIGINAL_ID
 			rx_tx_addr[0]=0x1F;					// or 0xA5 or 0x26
 			rx_tx_addr[1]=0x39;					// or 0x37 or 0x35
 			rx_tx_addr[2]=0x12;					// Constant on 3 TXs
 			rx_tx_addr[3]=0x13;					// Constant on 3 TXs
-			for(uint8_t i=0; i<4;i++)
+			for(uint8_t i=0; i<GD00X_RF_NUM_CHANNELS;i++)
 				hopping_frequency[i]=79-(i<<1);	// or 77 or 78
 		#endif
 	}

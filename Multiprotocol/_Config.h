@@ -29,8 +29,8 @@
 /*************************/
 /*** BOOTLOADER USE     ***/
 /*************************/
-//Allow flashing multimodule directly with TX(erky9x or opentx modified firmwares)
-//Instructions: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/BootLoaders#compiling--uploading-firmware-with-the-flash-from-tx-bootloader
+//Allow flashing multimodule directly with TX(erky9x or opentx maintenance mode)
+//Instructions:https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Flash_from_Tx.md
 //To enable this feature remove the "//" on the next line.  Requires a compatible bootloader or upload method to be selected when you use the Multi 4-in-1 Boards Manager definitions.
 //#define CHECK_FOR_BOOTLOADER
 
@@ -77,6 +77,9 @@
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
+
+//If available use the CC2500 to emulate the XN297L @250Kbps instead of the NRF24L01. Comment to disable.
+#define XN297L_CC2500_EMU
 
 /** OrangeRX TX **/
 //If you compile for the OrangeRX TX module you need to select the correct board type.

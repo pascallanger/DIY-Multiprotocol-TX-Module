@@ -70,7 +70,7 @@ static void __attribute__((unused)) GW008_send_packet(uint8_t bind)
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
-	XN297_WriteEnhancedPayload(packet, GW008_PAYLOAD_SIZE, 0, 0x3c7d);
+	XN297_WriteEnhancedPayload(packet, GW008_PAYLOAD_SIZE, 0);
 
 	NRF24L01_SetPower();	// Set tx_power
 }

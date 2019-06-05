@@ -16,7 +16,7 @@
 
 #if defined(V911S_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297l.h"
 
 //#define V911S_ORIGINAL_ID
 
@@ -75,35 +75,25 @@ static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
 		packet[12] = ch>>5;
 	}
 	
-	// Power on, TX mode, 2byte CRC
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 	if (!bind)
 	{
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[channel]);
+		XN297L_Hopping(channel);
 		hopping_frequency_no++;
 		hopping_frequency_no&=7;	// 8 RF channels
 	}
-	// clear packet status bits and TX FIFO
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-	XN297_WritePayload(packet, V911S_PACKET_SIZE);
 
-	NRF24L01_SetPower();	// Set tx_power
+	XN297L_WritePayload(packet, V911S_PACKET_SIZE);
+
+	XN297L_SetPower();				// Set tx_power
+	XN297L_SetFreqOffset();			// Set frequency offset
 }
 
 static void __attribute__((unused)) V911S_init()
 {
-	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
-	XN297_SetTXAddr((uint8_t *)"\x4B\x4E\x42\x4E\x44", 5);			// Bind address
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, V911S_RF_BIND_CHANNEL);	// Bind channel
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);	// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);		// No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);	// Enable data pipe 0 only
-	NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps
-	NRF24L01_SetPower();
+	XN297L_Init();
+	XN297L_SetTXAddr((uint8_t *)"KNBND",5);			// Bind address
+	XN297L_HoppingCalib(V911S_NUM_RF_CHANNELS);		// Calibrate all channels
+	XN297L_RFChannel(V911S_RF_BIND_CHANNEL);		// Set bind channel
 }
 
 static void __attribute__((unused)) V911S_initialize_txid()

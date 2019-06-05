@@ -852,6 +852,8 @@ Model: KF606
 
 If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
 
+If a CC2500 rf component is available it will be used in place of the NRF24L01 which might fix the issue mentioned above. Option is used for fine frequency tuning like any CC2500 protocols. Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it if necessary.
+
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A||T||TRIM
@@ -877,8 +879,7 @@ Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 
 If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
 
-If a CC2500 module is available it will be used in place of the NRF24L01, fixing the issue mentioned above. When using a CC2500 module, Option for this protocol corresponds to fine frequency tuning.
-Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it if necessary.
+If a CC2500 rf component is available it will be used in place of the NRF24L01 which might fix the issue mentioned above. Option is used for fine frequency tuning like any CC2500 protocols. Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it if necessary.
 
 ### Sub_protocol H26WH - *5*
 CH6|
@@ -905,6 +906,7 @@ Models: MT99xx
 Models: Eachine H7, Cheerson CX023
 ### Sub_protocol YZ - *2*
 Model: Yi Zhan i6S
+
 Only one model can be flown at the same time since the ID is hardcoded.
 
 If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
@@ -1120,6 +1122,8 @@ Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gy
 Models: WLtoys V911S, XK A110
 
 If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
+
+If a CC2500 rf component is available it will be used in place of the NRF24L01 which might fix the issue mentioned above. Option is used for fine frequency tuning like any CC2500 protocols. Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it if necessary.
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---

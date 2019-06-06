@@ -121,14 +121,19 @@ static void __attribute__((unused)) V761_init()
 static void __attribute__((unused)) V761_initialize_txid()
 {
 	// TODO: try arbitrary rx_tx_addr & frequencies (except hopping_frequency[0])
-	//Actual rx_tx_addr from SPI grab)
-	memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
-	//Actual hopping_frequency from SPI grab)
-	memcpy(hopping_frequency,(uint8_t *)"\x14\x1e\x4b",3);
-	
-	//Dump from air on another TX
-	//memcpy(rx_tx_addr,(uint8_t *)"\xE8\xE4\x45\x09",4);
-	//memcpy(hopping_frequency,(uint8_t *)"\x??\x21\x44",3);	// dump does not show any other frequencies used. Need to be rechecked...
+	if(RX_num&1)
+	{
+		//Actual rx_tx_addr from SPI grab)
+		memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
+		//Actual hopping_frequency from SPI grab)
+		memcpy(hopping_frequency,(uint8_t *)"\x14\x1e\x4b",3);
+	}
+	else
+	{
+		//Dump from air on Protonus TX
+		memcpy(rx_tx_addr,(uint8_t *)"\xE8\xE4\x45\x09",4);
+		memcpy(hopping_frequency,(uint8_t *)"\x0D\x21\x44",3);
+	}
 }
 
 uint16_t V761_callback()

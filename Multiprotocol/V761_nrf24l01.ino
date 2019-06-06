@@ -123,9 +123,8 @@ static void __attribute__((unused)) V761_initialize_txid()
 	// TODO: try arbitrary rx_tx_addr & frequencies (except hopping_frequency[0])
 	if(RX_num&1)
 	{
-		//Actual rx_tx_addr from SPI grab)
+		//Dump from SPI
 		memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
-		//Actual hopping_frequency from SPI grab)
 		memcpy(hopping_frequency,(uint8_t *)"\x14\x1e\x4b",3);
 	}
 	else
@@ -164,9 +163,8 @@ uint16_t V761_callback()
 			{
 				phase = V761_DATA;
 				BIND_DONE;
-				return 15730;
 			}
-			if(packet_count >= 20) 
+			else if(packet_count >= 20) 
 			{
 				packet_count = 0;
 				phase = V761_BIND1;

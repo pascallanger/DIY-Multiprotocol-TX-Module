@@ -755,6 +755,8 @@ Model: GD005 C-17 Transport and GD006 DA62
 
 If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
 
+If a CC2500 rf component is available it will be used in place of the NRF24L01 which might fix the issue mentioned above. Option is used for fine frequency tuning like any CC2500 protocols. Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it if necessary.
+
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A||T||TRIM|LED

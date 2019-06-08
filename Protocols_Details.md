@@ -89,7 +89,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01
-[GD00X](Protocols_Details.md#GD00X---47)|47|V1|V2|||||||NRF24L01
+[GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01
 [GW008](Protocols_Details.md#GW008---32)|32|GW008||||||||NRF24L01
 [H8_3D](Protocols_Details.md#H8_3D---36)|36|H8_3D|H20H|H20Mini|H30Mini|||||NRF24L01
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01
@@ -97,9 +97,9 @@ CFlie|38|CFlie||||||||NRF24L01
 [Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|J6PRO||||||||CYRF6936
-[KF606](Protocols_Details.md#KF606---49)|49|||||||||NRF24L01
+[KF606](Protocols_Details.md#KF606---49)|49|KF606*||||||||NRF24L01
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01
-[MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010|H26WH|PHOENIX||NRF24L01
+[MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None
@@ -111,11 +111,13 @@ CFlie|38|CFlie||||||||NRF24L01
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01
 Traxxas|43|Traxxas||||||||NRF24L01
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|||||||NRF24L01
-[V761](Protocols_Details.md#V761---48)|48|||||||||NRF24L01
-[V911S](Protocols_Details.md#V911S---46)|46|V911S||||||||NRF24L01
+[V761](Protocols_Details.md#V761---48)|48|V761||||||||NRF24L01
+[V911S](Protocols_Details.md#V911S---46)|46|V911S*||||||||NRF24L01
 [WFly](Protocols_Details.md#WFLY---40)|40|WFLY||||||||CYRF6936
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936
 [YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01
+* "*" Sub Protocols designated by * suffix will use the NRF24L01 module by default to emulate the XN297L RF chip.
+* If a CC2500 module is installed it will be used instead as it is proving to be a better option for the XN297L@250kbps. Each specific sub protocol has a more detailed explanation.
 
 # A7105 RF Module
 
@@ -761,10 +763,10 @@ CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A||T||TRIM|LED
 
-### Sub_protocol V1 - *0*
+### Sub_protocol GD_V1 - *0*
 First model
 
-### Sub_protocol V2 - *1*
+### Sub_protocol GD_V2 - *1*
 New model
 
 ## GW008 - *32*

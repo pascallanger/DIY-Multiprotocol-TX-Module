@@ -66,10 +66,10 @@ static void __attribute__((unused)) V761_send_packet()
 	}
 	else
 	{ 
-		packet[0] = convert_channel_8b(THROTTLE); // throttle       
-		packet[1] = convert_channel_8b(RUDDER)>>1; // rudder
-		packet[2] = convert_channel_8b(ELEVATOR)>>1; // elevator
-		packet[3] = 0x3f; // no functional implementation in this model, possibly optional aileron channel for 4ch version?
+		packet[0] = convert_channel_8b(THROTTLE);		// throttle       
+		packet[1] = convert_channel_8b(RUDDER)>>1;		// rudder
+		packet[2] = convert_channel_8b(ELEVATOR)>>1;	// elevator
+		packet[3] = convert_channel_8b(AILERON)>>1;		// aileron
 		packet[5] = (packet_count++ / 3)<<6;
 		packet[4] = (packet[5] == 0x40) ? 0x1a : 0x20;
 

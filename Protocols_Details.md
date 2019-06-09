@@ -1114,7 +1114,7 @@ Start/Stop|EMERGENCY|CAMERA_UP/DN
 ## V761 - *48*
 Model: Volantex V761 and may be other
 
-Warning: Only 1 ID
+Warning: Only 3 IDs, you can cycle through them using RX_Num.
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---

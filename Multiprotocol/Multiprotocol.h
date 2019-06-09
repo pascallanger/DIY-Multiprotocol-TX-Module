@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	59
+#define VERSION_PATCH_LEVEL	60
 
 //******************
 // Protocols
@@ -543,8 +543,8 @@ enum {
 #define EEPROM_ID_VALID_OFFSET	20		// 1 byte flag that ID is valid
 #define MODELMODE_EEPROM_OFFSET	30		// Autobind mode, 1 byte per model, end is 30+16=46
 #define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 bytes per model id, end is 50+64=114
-#define BUGS_EEPROM_OFFSET		114		// TX ID, 4 bytes per model id, end is 114+64=178
-#define BUGSMINI_EEPROM_OFFSET	178		// RX ID, 2 bytes per model id, end is 178+32=210
+#define BUGS_EEPROM_OFFSET		114		// RX ID, 2 bytes per model id, end is 114+32=146
+#define BUGSMINI_EEPROM_OFFSET	146		// RX ID, 2 bytes per model id, end is 146+32=178
 //#define CONFIG_EEPROM_OFFSET 	210		// Current configuration of the multimodule
 
 //****************************************

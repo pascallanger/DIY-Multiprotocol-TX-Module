@@ -284,10 +284,11 @@ static void  __attribute__((unused))BUGS_set_radio_data()
 	{
 		offset=BUGS_NUM_RFCHAN;
 		// Read radio_id from EEPROM
-		radio_id=0;
 		uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
-		for(uint8_t i=0; i<4; i++)
-			radio_id|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
+		uint16_t rxid=0;
+		for(uint8_t i=0; i<2; i++)
+			rxid|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
+		radio_id = BUGS_rxid_to_radioid(rxid);
 	}
 	A7105_WriteID(radio_id);
 
@@ -374,10 +375,10 @@ uint16_t ReadBUGS(void)
 			BIND_DONE;
 			// set radio_id
 			rxid = (packet[1] << 8) + packet[2];
+			base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
+			for(uint8_t i=0; i<2; i++)
+				eeprom_write_byte((EE_ADDR)(base_adr+i),rxid>>(i*8));	// Save rxid in EEPROM
 			radio_id = BUGS_rxid_to_radioid(rxid);
-			base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
-			for(uint8_t i=0; i<4; i++)
-				eeprom_write_byte((EE_ADDR)(base_adr+i),radio_id>>(i*8));	// Save radio_id in EEPROM
 			BUGS_set_radio_data();
 			phase = BUGS_DATA_1;
 			packet_count = 0;
@@ -437,11 +438,11 @@ uint16_t ReadBUGS(void)
 
 uint16_t initBUGS(void)
 {
-	uint32_t radio_id=0;
-	uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
-	for(uint8_t i=0; i<4; i++)
-		radio_id|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
-	if(radio_id==0xffffffff)
+	uint16_t rxid=0;
+	uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
+	for(uint8_t i=0; i<2; i++)
+		rxid|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
+	if(rxid==0xffff)
 		BIND_IN_PROGRESS;
 
 	BUGS_set_radio_data();

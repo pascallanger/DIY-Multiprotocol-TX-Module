@@ -121,17 +121,20 @@ static void __attribute__((unused)) V761_init()
 static void __attribute__((unused)) V761_initialize_txid()
 {
 	// TODO: try arbitrary rx_tx_addr & frequencies (except hopping_frequency[0])
-	if(RX_num&1)
+	switch(RX_num%3)
 	{
-		//Dump from SPI
-		memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
-		memcpy(hopping_frequency,(uint8_t *)"\x14\x1e\x4b",3);
-	}
-	else
-	{
-		//Dump from air on Protonus TX
-		memcpy(rx_tx_addr,(uint8_t *)"\xE8\xE4\x45\x09",4);
-		memcpy(hopping_frequency,(uint8_t *)"\x0D\x21\x44",3);
+		case 1:	//Dump from air on Protonus TX
+			memcpy(rx_tx_addr,(uint8_t *)"\xE8\xE4\x45\x09",4);
+			memcpy(hopping_frequency,(uint8_t *)"\x0D\x21\x44",3);
+			break;
+		case 2:	//Dump from air on mshagg2 TX
+			memcpy(rx_tx_addr,(uint8_t *)"\xAE\xD1\x45\x09",4);
+			memcpy(hopping_frequency,(uint8_t *)"\x00\x1D\x4A",3);
+			break;
+		default: //Dump from SPI
+			memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
+			memcpy(hopping_frequency,(uint8_t *)"\x14\x1e\x4b",3);
+			break;
 	}
 }
 

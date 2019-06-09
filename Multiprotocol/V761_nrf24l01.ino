@@ -129,7 +129,7 @@ static void __attribute__((unused)) V761_initialize_txid()
 			break;
 		case 2:	//Dump from air on mshagg2 TX
 			memcpy(rx_tx_addr,(uint8_t *)"\xAE\xD1\x45\x09",4);
-			memcpy(hopping_frequency,(uint8_t *)"\x00\x1D\x4A",3);
+			memcpy(hopping_frequency,(uint8_t *)"\x13\x1D\x4A",3);
 			break;
 		default: //Dump from SPI
 			memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);

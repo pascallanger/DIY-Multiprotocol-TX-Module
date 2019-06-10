@@ -284,7 +284,7 @@ static void  __attribute__((unused))BUGS_set_radio_data()
 	{
 		offset=BUGS_NUM_RFCHAN;
 		// Read radio_id from EEPROM
-		uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*4;
+		uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
 		uint16_t rxid=0;
 		for(uint8_t i=0; i<2; i++)
 			rxid|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
@@ -319,7 +319,6 @@ uint16_t ReadBUGS(void)
 {
 	uint8_t mode, base_adr;
 	uint16_t rxid;
-	uint32_t radio_id;
 	uint16_t start;
 
 	// keep frequency tuning updated
@@ -378,7 +377,6 @@ uint16_t ReadBUGS(void)
 			base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
 			for(uint8_t i=0; i<2; i++)
 				eeprom_write_byte((EE_ADDR)(base_adr+i),rxid>>(i*8));	// Save rxid in EEPROM
-			radio_id = BUGS_rxid_to_radioid(rxid);
 			BUGS_set_radio_data();
 			phase = BUGS_DATA_1;
 			packet_count = 0;

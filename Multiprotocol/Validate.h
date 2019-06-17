@@ -87,6 +87,11 @@
 		#error "The CORONA forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_REDPINE_TUNING
+	#if ( FORCE_REDPINE_TUNING < -127 ) || ( FORCE_REDPINE_TUNING > 127 )
+		#error "The REDPINE forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 #ifdef FORCE_HITEC_TUNING
 	#if ( FORCE_HITEC_TUNING < -127 ) || ( FORCE_HITEC_TUNING > 127 )
 		#error "The HITEC forced frequency tuning value is outside of the range -127..127."
@@ -154,6 +159,7 @@
 	#undef	FRSKYX_CC2500_INO
 	#undef	SFHSS_CC2500_INO
 	#undef	CORONA_CC2500_INO
+	#undef	REDPINE_CC2500_INO
 	#undef	HITEC_CC2500_INO
 	#undef	XN297L_CC2500_EMU
 #endif

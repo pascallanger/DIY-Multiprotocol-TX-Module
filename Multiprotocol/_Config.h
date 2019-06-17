@@ -87,8 +87,8 @@
 //#define ORANGE_TX_BLUE
 
 /** CC2500 Fine Frequency Tuning **/
-//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, SFHSS, CORONA and Hitec protocols needs to be tuned for each protocol.
-//Initial tuning should be done via the radio menu with a genuine FrSky/Futaba/CORONA/Hitec receiver.  
+//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, SFHSS, CORONA, Redpine and Hitec protocols needs to be tuned for each protocol.
+//Initial tuning should be done via the radio menu with a genuine FrSky/Futaba/CORONA/Hitec/Redpine receiver.  
 //Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
 //For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
 //Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable. Valid range is -127 to +127.
@@ -98,6 +98,7 @@
 //#define FORCE_SFHSS_TUNING	0
 //#define FORCE_CORONA_TUNING	0
 //#define FORCE_HITEC_TUNING	0
+//#define FORCE_REDPINE_TUNING	0
 
 /** A7105 Fine Frequency Tuning **/
 //This is required in rare cases where some A7105 modules and/or RXs have an inaccurate crystal oscillator.
@@ -164,6 +165,7 @@
 #define	J6PRO_CYRF6936_INO
 #define	WFLY_CYRF6936_INO
 #define	WK2x01_CYRF6936_INO
+
 //#define TRAXXAS_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
@@ -173,6 +175,7 @@
 #define	FRSKYX_CC2500_INO
 #define	HITEC_CC2500_INO
 #define	SFHSS_CC2500_INO
+#define	REDPINE_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
 #define	ASSAN_NRF24L01_INO
@@ -598,6 +601,9 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		CX35
 		CX10D
 		CX10WD
+	PROTO_REDPINE
+		RED_FAST
+		RED_SLOW
 	PROTO_SFHSS
 		NONE
 	PROTO_SHENQI

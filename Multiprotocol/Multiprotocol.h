@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	61
+#define VERSION_PATCH_LEVEL	62
 
 //******************
 // Protocols
@@ -76,6 +76,7 @@ enum PROTOCOLS
 	PROTO_GD00X		= 47,	// =>NRF24L01
 	PROTO_V761		= 48,	// =>NRF24L01
 	PROTO_KF606		= 49,	// =>NRF24L01
+	PROTO_REDPINE	= 50,	// =>CC2500
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -269,6 +270,11 @@ enum BUGSMINI
 {
 	BUGSMINI= 0,
 	BUGS3H	= 1,
+};
+enum REDPINE
+{
+	RED_FAST= 0,
+	RED_SLOW= 1,
 };
 #define NONE 		0
 #define P_HIGH		1
@@ -613,6 +619,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					GD00X		47
 					V761		48
 					KF606		49
+					REDPINE		50
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -749,6 +756,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==GD00X
 			GD_V1		0
 			GD_V2		1
+		sub_protocol==REDPINE
+			RED_FAST	0
+			RED_SLOW	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

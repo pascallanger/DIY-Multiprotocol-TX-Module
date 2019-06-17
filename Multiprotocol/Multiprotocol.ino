@@ -113,7 +113,7 @@ uint8_t  len;
 uint8_t  armed, arm_flags, arm_channel_previous;
 
 #ifdef CC2500_INSTALLED
-	uint8_t calData[48];
+	uint8_t calData[50];
 #endif
 
 #ifdef CHECK_FOR_BOOTLOADER
@@ -440,6 +440,11 @@ void setup()
 		#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)
 			if (protocol==PROTO_CORONA)
 				option			=	FORCE_CORONA_TUNING;		// Use config-defined tuning value for CORONA
+			else
+		#endif
+		#if defined(FORCE_REDPINE_TUNING) && defined(REDPINE_CC2500_INO)
+			if (protocol==PROTO_REDPINE)
+				option			=	FORCE_REDPINE_TUNING;		// Use config-defined tuning value for REDPINE
 			else
 		#endif
 		#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
@@ -969,6 +974,14 @@ static void protocol_init()
 						remote_callback = ReadCORONA;
 						break;
 				#endif
+				#if defined(REDPINE_CC2500_INO)
+					case PROTO_REDPINE:
+						PE1_off;	//antenna RF2
+						PE2_on;
+						next_callback = initREDPINE();
+						remote_callback = ReadREDPINE;
+						break;
+				#endif
 				#if defined(HITEC_CC2500_INO)
 					case PROTO_HITEC:
 						PE1_off;	//antenna RF2
@@ -1319,6 +1332,11 @@ void update_serial_data()
 	#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)
 		if (protocol==PROTO_CORONA)
 			option=FORCE_CORONA_TUNING;	// Use config-defined tuning value for CORONA
+		else
+	#endif
+	#if defined(FORCE_REDPINE_TUNING) && defined(REDPINE_CC2500_INO)
+		if (protocol==PROTO_REDPINE)
+			option=FORCE_REDPINE_TUNING;	// Use config-defined tuning value for REDPINE
 		else
 	#endif
 	#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)

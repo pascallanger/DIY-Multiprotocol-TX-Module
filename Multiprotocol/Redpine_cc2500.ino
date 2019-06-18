@@ -98,47 +98,47 @@ static void REDPINE_data_frame() {
 
 static uint16_t ReadREDPINE()
 {
-    if ( prev_option != option )
-    { // Frequency adjust
-        CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-        prev_option = option ;
-    }
-    if(IS_BIND_IN_PROGRESS)
-    {
-        if(bind_counter == REDPINE_BIND)
-            REDPINE_init(0);
-        if(bind_counter == REDPINE_BIND/2)
-            REDPINE_init(1);
-        REDPINE_set_channel(49);
+	if ( prev_option != option )
+	{ // Frequency adjust
+		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
+		prev_option = option ;
+	}
+	if(IS_BIND_IN_PROGRESS)
+	{
+		if(bind_counter == REDPINE_BIND)
+			REDPINE_init(0);
+		if(bind_counter == REDPINE_BIND/2)
+			REDPINE_init(1);
+		REDPINE_set_channel(49);
         CC2500_SetTxRxMode(TX_EN);
-        CC2500_SetPower();
-        CC2500_Strobe(CC2500_SFRX);
-        REDPINE_build_bind_packet();
-        CC2500_Strobe(CC2500_SIDLE);
-        CC2500_WriteData(packet, REDPINE_PACKET_SIZE);
-        if(--bind_counter==0)
-        {
-            BIND_DONE;
-            REDPINE_init(sub_protocol);
-        }
-        return 9000;
-    }
-    else
-    {
-        CC2500_SetTxRxMode(TX_EN);
-        REDPINE_set_channel(hopping_frequency_no);
-        CC2500_SetPower();
-        CC2500_Strobe(CC2500_SFRX);
-        REDPINE_data_frame();
-        CC2500_Strobe(CC2500_SIDLE);
-        hopping_frequency_no = (hopping_frequency_no + 1) % 49;
-        CC2500_WriteData(packet, REDPINE_PACKET_SIZE);
-        if (sub_protocol==0)
-            return REDPINE_LOOPTIME_FAST*100;
-        else
-            return REDPINE_LOOPTIME_SLOW*1000;
-    }
-    return 1;
+		CC2500_SetPower();
+		CC2500_Strobe(CC2500_SFRX);
+		REDPINE_build_bind_packet();
+		CC2500_Strobe(CC2500_SIDLE);
+		CC2500_WriteData(packet, REDPINE_PACKET_SIZE);
+		if(--bind_counter==0)
+		{
+			BIND_DONE;
+			REDPINE_init(sub_protocol);
+		}
+		return 9000;
+	}
+	else
+	{
+		CC2500_SetTxRxMode(TX_EN);
+		REDPINE_set_channel(hopping_frequency_no);
+		CC2500_SetPower();
+		CC2500_Strobe(CC2500_SFRX);
+		REDPINE_data_frame();
+		CC2500_Strobe(CC2500_SIDLE);
+		hopping_frequency_no = (hopping_frequency_no + 1) % 49;
+		CC2500_WriteData(packet, REDPINE_PACKET_SIZE);
+		if (sub_protocol==0)
+			return REDPINE_LOOPTIME_FAST*100;
+		else
+			return REDPINE_LOOPTIME_SLOW*1000;
+	}
+	return 1;
 }
 
 // register, fast 250k, slow

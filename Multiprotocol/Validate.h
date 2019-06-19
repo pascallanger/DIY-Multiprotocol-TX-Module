@@ -196,6 +196,7 @@
 	#undef	V761_NRF24L01_INO
 	#undef	V911S_NRF24L01_INO
 	#undef	XN297L_CC2500_EMU
+	#undef	POTENSIC_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly

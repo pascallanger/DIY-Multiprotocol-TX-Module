@@ -103,8 +103,10 @@ CFlie|38|CFlie||||||||NRF24L01
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None
+[Potensic](Protocols_Details.md#Potensic---51)|51|A20||||||||NRF24L01
 [Q2X2](Protocols_Details.md#Q2X2---29)|29|Q222|Q242|Q282||||||NRF24L01
 [Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01
+[Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01
 [SFHSS](Protocols_Details.md#SFHSS---21)|21|SFHSS||||||||CC2500
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01
@@ -944,6 +946,21 @@ CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|Warp
 
+## Potensic - *51*
+Models: Potensic A20
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|TAKE_OFF/LANDING|EMERGENCY|MODE|HEADLESS
+
+TAKE_OFF/LANDING: momentary switch -100% -> +100%
+
+EMERGENCY: Stop +100%
+
+MODE: Beginner -100%, Medium 0%, Advanced +100%
+
+HEADLESS: Off -100%, On +100%
+
 ## Q2X2 - *29*
 ### Sub_protocol Q222 - *0*
 Models: Q222 v1 and V686 v2
@@ -993,6 +1010,12 @@ CH5|CH6
 ARM|FLIP
 
 ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
+
+##Redpine - *50*
+[Link](https://www.rcgroups.com/forums/showthread.php?3236043-Redpine-Lowest-latency-RC-protocol)
+
+### Sub_protocol FAST - *0*
+### Sub_protocol SLOW - *1*
 
 ## Shenqi - *19*
 Autobind protocol

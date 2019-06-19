@@ -1011,8 +1011,8 @@ ARM|FLIP
 
 ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
 
-##Redpine - *50*
-[Link](https://www.rcgroups.com/forums/showthread.php?3236043-Redpine-Lowest-latency-RC-protocol)
+## Redpine - *50*
+[Link to the forum](https://www.rcgroups.com/forums/showthread.php?3236043-Redpine-Lowest-latency-RC-protocol)
 
 ### Sub_protocol FAST - *0*
 ### Sub_protocol SLOW - *1*

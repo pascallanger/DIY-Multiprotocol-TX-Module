@@ -17,8 +17,8 @@
 
 #include "iface_cc2500.h"
 
-#define REDPINE_LOOPTIME_FAST 9		//9ms
-#define REDPINE_LOOPTIME_SLOW 22	//22ms
+#define REDPINE_LOOPTIME_FAST 25	//2.5ms
+#define REDPINE_LOOPTIME_SLOW 6  	//6ms
 
 #define REDPINE_BIND 1000
 #define REDPINE_PACKET_SIZE 11
@@ -105,11 +105,12 @@ static uint16_t ReadREDPINE()
 	}
 	if(IS_BIND_IN_PROGRESS)
 	{
-		if(bind_counter== REDPINE_BIND)
+		if(bind_counter == REDPINE_BIND)
 			REDPINE_init(0);
-		if(state == REDPINE_BIND/2)
+		if(bind_counter == REDPINE_BIND/2)
 			REDPINE_init(1);
 		REDPINE_set_channel(49);
+        CC2500_SetTxRxMode(TX_EN);
 		CC2500_SetPower();
 		CC2500_Strobe(CC2500_SFRX);
 		REDPINE_build_bind_packet();
@@ -135,7 +136,7 @@ static uint16_t ReadREDPINE()
 		if (sub_protocol==0)
 			return REDPINE_LOOPTIME_FAST*100;
 		else
-			return REDPINE_LOOPTIME_SLOW*100;
+			return REDPINE_LOOPTIME_SLOW*1000;
 	}
 	return 1;
 }

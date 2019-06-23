@@ -42,7 +42,6 @@ enum {
 
 //
 uint8_t sop_col;
-uint8_t DSM_num_ch=0;
 uint8_t ch_map[14];
 const uint8_t PROGMEM DSM_ch_map_progmem[][14] = {
 //22+11ms for 4..7 channels
@@ -189,17 +188,17 @@ static void __attribute__((unused)) DSM_build_bind_packet()
 	packet[8] = sum >> 8;
 	packet[9] = sum & 0xff;
 	packet[10] = 0x01; //???
-	packet[11] = DSM_num_ch;
+	packet[11] = num_ch;
 
 	if (sub_protocol==DSM2_22)
-		packet[12]=DSM_num_ch<8?0x01:0x02;	// DSM2/1024 1 or 2 packets depending on the number of channels
+		packet[12]=num_ch<8?0x01:0x02;	// DSM2/1024 1 or 2 packets depending on the number of channels
 	if(sub_protocol==DSM2_11)
 		packet[12]=0x12;					// DSM2/2048 2 packets
 	if(sub_protocol==DSMX_22)
 		#if defined DSM_TELEMETRY
 			packet[12] = 0xb2;				// DSMX/2048 2 packets
 		#else
-			packet[12] = DSM_num_ch<8? 0xa2 : 0xb2;	// DSMX/2048 1 or 2 packets depending on the number of channels
+			packet[12] = num_ch<8? 0xa2 : 0xb2;	// DSMX/2048 1 or 2 packets depending on the number of channels
 		#endif
 	if(sub_protocol==DSMX_11 || sub_protocol==DSM_AUTO) // Force DSMX/1024 in mode Auto
 		packet[12]=0xb2;					// DSMX/1024 2 packets
@@ -229,15 +228,15 @@ static void __attribute__((unused)) DSM_update_channels()
 {
 	prev_option=option;
 	if(sub_protocol==DSM_AUTO)
-		DSM_num_ch=12;						// Force 12 channels in mode Auto
+		num_ch=12;						// Force 12 channels in mode Auto
 	else
-		DSM_num_ch=option;
-	if(DSM_num_ch<4 || DSM_num_ch>12)
-		DSM_num_ch=6;						// Default to 6 channels if invalid choice...
+		num_ch=option;
+	if(num_ch<4 || num_ch>12)
+		num_ch=6;						// Default to 6 channels if invalid choice...
 
 	// Create channel map based on number of channels and refresh rate
-	uint8_t idx=DSM_num_ch-4;
-	if(DSM_num_ch>7 && DSM_num_ch<11 && (sub_protocol==DSM2_11 || sub_protocol==DSMX_11))
+	uint8_t idx=num_ch-4;
+	if(num_ch>7 && num_ch<11 && (sub_protocol==DSM2_11 || sub_protocol==DSMX_11))
 		idx+=5;								// In 11ms mode change index only for channels 8..10
 	for(uint8_t i=0;i<14;i++)
 		ch_map[i]=pgm_read_byte_near(&DSM_ch_map_progmem[idx][i]);
@@ -505,7 +504,7 @@ uint16_t ReadDsm()
 				telemetry_link=1;
 			}
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation
-			if (phase == DSM_CH2_READ_A && (sub_protocol==DSM2_22 || sub_protocol==DSMX_22) && DSM_num_ch < 8)	// 22ms mode
+			if (phase == DSM_CH2_READ_A && (sub_protocol==DSM2_22 || sub_protocol==DSMX_22) && num_ch < 8)	// 22ms mode
 			{
 				CYRF_SetTxRxMode(RX_EN);					// Force end state read
 				CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);	// Clear abort RX operation
@@ -526,7 +525,7 @@ uint16_t ReadDsm()
 			DSM_set_sop_data_crc();
 			if (phase == DSM_CH2_CHECK_A)
 			{
-				if(DSM_num_ch > 7 || sub_protocol==DSM2_11 || sub_protocol==DSMX_11)
+				if(num_ch > 7 || sub_protocol==DSM2_11 || sub_protocol==DSMX_11)
 					phase = DSM_CH1_WRITE_B;				//11ms mode or upper to transmit change from CH2_CHECK_A to CH1_WRITE_A
 				else										
 				{											//Normal mode 22ms

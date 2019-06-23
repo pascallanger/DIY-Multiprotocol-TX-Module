@@ -76,7 +76,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [CG023](Protocols_Details.md#CG023---13)|13|CG023|YD829|||||||NRF24L01
 [Corona](Protocols_Details.md#CORONA---37)|37|COR_V1|COR_V2|FD_V3||||||CC2500
 [CX10](Protocols_Details.md#CX10---12)|12|GREEN|BLUE|DM007|-|J3015_1|J3015_2|MK33041||NRF24L01
-[Devo](Protocols_Details.md#DEVO---7)|7|Devo||||||||CYRF6936
+[Devo](Protocols_Details.md#DEVO---7)|7|Devo|8CH|10CH|12CH|6CH|7CH|||CYRF6936
 [DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2-22|DSM2-11|DSMX-22|DSMX-11|AUTO||||CYRF6936
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01
@@ -401,6 +401,12 @@ Bind procedure using PPM:
 - Press the bind button for 1 second. TX/RX is now in fixed ID mode.
 - To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
 - Note: Autobind/fixed ID mode is linked to the RX_Num number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
+
+### Sub_protocol 8CH - *0*
+### Sub_protocol 10CH - *1*
+### Sub_protocol 12CH - *2*
+### Sub_protocol 6CH - *3*
+### Sub_protocol 7CH - *4*
 
 ## WK2X01 - *30*
 Extended limits supported

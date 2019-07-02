@@ -30,7 +30,7 @@ Tools are only required if a multi module does not have a USB port, a working bo
 * The latest jumper modules have an integrated FTDI appearing as a CP2102 device on the computer. You therefore don't need the FTDI adapter below and don't need to open your module to flash it.
 * The Vantac MPM Lite module already has the USB Bootloader flashed on it. You therefore don't need the FTDI adapter below and don't need to open your module to flash it. **Modules' bootloader however might not be booting everytime depending on the radio, if this is the case you need to upgrade it.**
 
-You are still unsure if your module can be flashed without opening it? Here is how to quickly check:
+You are still unsure if your module can be flashed without tools or opening it? Here is how to quickly check:
 * Power off the TX
 * Connect a USB cable to the module, if the module does not have a USB port then you must open the module to flash it using an external FTDI
 * Connect the cable to the PC and power on the the TX

@@ -58,7 +58,7 @@ If you don't need/want to customize the multi module firmware then you can use p
 - **Multiprotocol_V1.X.X_STM32.bin** files are for transmitters with support for hardware telemetry inversion, such as Turnigy 9X, 9XR, 9X+.
 - **Multiprotocol_V1.X.X_STM32_INV.bin** files are for tranismitters which require telemetry inverted in the module firmware, such as Taranis/T16.
 
-[Flash-Multi](https://github.com/benlye/flash-multi) is a tool for flashing pre-compiled firmware to any STM32-based Multiprotocol TX module. Firmware upload can be performed using the built-in USB connection or via an external FTDI adapter.
+[Flash-Multi](https://github.com/benlye/flash-multi) is a Windows tool for flashing pre-compiled firmware to any STM32-based Multiprotocol TX module. Firmware upload can be performed using the built-in USB connection or via an external FTDI adapter.
 
 <p align="center">
   <img src="images/flash-multi.jpg">

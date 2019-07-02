@@ -25,10 +25,18 @@ Multiprotocol firmware can be either flashed with a precompiled binary or compil
 
 ## Tools required
 
-**Notes**:
-* The latest iRangeX IRX4+ modules most likely already has the USB Bootloader flashed on it. You can directly use the [Precompiled Binaries](#flashing-pre-compiled-binaries) or [Upload via USB](#upload-via-usb) method.
+Tools are only required if a multi module does not have a USB port, a working bootloader or an integrated FTDI adapter:
+* The latest iRangeX IRX4+ modules most likely already have the USB Bootloader flashed on it. You therefore don't need the FTDI adapter below and don't need to open your module to flash it.
 * The latest jumper modules have an integrated FTDI appearing as a CP2102 device on the computer. You therefore don't need the FTDI adapter below and don't need to open your module to flash it.
-* The Vantac MPM Lite module already has the USB Bootloader flashed on it. You can directly use the [upload via USB](#upload-via-usb) method. Early modules' bootloader was however not booting everytime, if this is the case you need to upgrade it.
+* The Vantac MPM Lite module already has the USB Bootloader flashed on it. You therefore don't need the FTDI adapter below and don't need to open your module to flash it. **Modules' bootloader however might not be booting everytime depending on the radio, if this is the case you need to upgrade it.**
+
+You are still unsure if your module can be flashed without opening it? Here is how to quickly check:
+* Power off the TX
+* Connect a USB cable to the module, if the module does not have a USB port then you must open the module to flash it using an external FTDI
+* Connect the cable to the PC and power on the the TX
+* If the PC does not complain about a none working device being plugged then you are good to upgrade via USB directly without the need of any tools or opening the module.
+
+Your multi module is not USB upgradable ready, here is what you need:
 
 | **3.3V USB-TTL Adapter** | **4-pin Serial Programming Header** |
 |:---:|:--:|
@@ -46,7 +54,7 @@ The 4-pin header needs to be soldered onto the board as indicated by the red rec
 **Note:** The Banggood STM32 module most likely already has the header pin in place.
 
 ## Flashing pre-compiled binaries
-Pre-compiled binaries are available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
+If you don't need/want to customize the multi module firmware then you can use pre-compiled binaries available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
 - **Multiprotocol_V1.X.X_STM32.bin** files are for transmitters with support for hardware telemetry inversion, such as Turnigy 9X, 9XR, 9X+.
 - **Multiprotocol_V1.X.X_STM32_INV.bin** files are for tranismitters which require telemetry inverted in the module firmware, such as Taranis/T16.
 

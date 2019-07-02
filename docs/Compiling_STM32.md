@@ -55,8 +55,8 @@ The 4-pin header needs to be soldered onto the board as indicated by the red rec
 
 ## Flashing pre-compiled binaries
 If you don't need/want to customize the multi module firmware then you can use pre-compiled binaries available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
-- **Multiprotocol_V1.X.X_STM32.bin** files are for transmitters with support for hardware telemetry inversion, such as Turnigy 9X, 9XR, 9X+.
-- **Multiprotocol_V1.X.X_STM32_INV.bin** files are for tranismitters which require telemetry inverted in the module firmware, such as Taranis/T16.
+- **Multiprotocol_V1.X.X_STM32.bin** files are for radios with support for hardware telemetry inversion, such as Turnigy 9X, 9XR, 9X+.
+- **Multiprotocol_V1.X.X_STM32_INV.bin** files are for radios which require inverted telemetry for the external module firmware, such as Turnigy 9XR Pro, FrSky radios and Jumper radios.
 
 [Flash-Multi](https://github.com/benlye/flash-multi) is the recommended Windows utility for flashing pre-compiled firmware to any STM32-based Multiprotocol TX module. Firmware upload can be performed using the built-in USB connection or via an external FTDI adapter.
 

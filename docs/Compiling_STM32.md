@@ -1,11 +1,12 @@
-# Compiling and Programming (STM32)
+# Flashing, Compiling and Programming (STM32)
 
-Multiprotocol firmware is compiled using the Arduino IDE. The guide below will walk you through all the steps to compile and upload your customized firmware.
+Multiprotocol firmware can be either flashed with a precompiled binary or compile/upload your customized firmware using the Arduino IDE. The guide below will walk you through all the steps in many details, don't be afraid by the length it is in fact simple!
 
 **These instructions are for the STM32 version of the Multiprotocol module.**  If you are Compling for the Arduino ATmega328p version of the Multiprotocol Module please go to the dedicated [ATmega328](Compiling.md) page.
 
 ## Index
 1. [Tools Required](#tools-required)
+1. [Precompiled Binaries](#flashing-pre-compiled-binaries)
 1. [Preparation](#preparation)
    1. [Install the Arduino IDE](#install-the-arduino-ide)
    1. [Download the Multiprotocol source and open the project](#download-the-multiprotocol-source-and-open-the-project)
@@ -20,14 +21,14 @@ Multiprotocol firmware is compiled using the Arduino IDE. The guide below will w
 1. [Upload via USB](#upload-via-usb)
    1. [Install the Maple USB Drivers](#install-the-maple-usb-drivers)
    1. [Upload the firmware](#upload-the-firmware)
-1. [Precompiled Binaries](#flashing-pre-compiled-binaries)
 1. [Troubleshooting](#troubleshooting)
 
 ## Tools required
 
 **Notes**:
-* The Vantac MPM Lite module most likely already has the USB Bootloader flashed on it. You can directly use the [upload via USB](#upload-via-usb) method. Early modules' bootloader was however not booting everytime, if this is the case you need to upgarde it.
+* The latest iRangeX IRX4+ modules most likely already has the USB Bootloader flashed on it. You can directly use the [Precompiled Binaries](#flashing-pre-compiled-binaries) or [Upload via USB](#upload-via-usb) method.
 * The latest jumper modules have an integrated FTDI appearing as a CP2102 device on the computer. You therefore don't need the FTDI adapter below and don't need to open your module to flash it.
+* The Vantac MPM Lite module already has the USB Bootloader flashed on it. You can directly use the [upload via USB](#upload-via-usb) method. Early modules' bootloader was however not booting everytime, if this is the case you need to upgrade it.
 
 | **3.3V USB-TTL Adapter** | **4-pin Serial Programming Header** |
 |:---:|:--:|
@@ -43,6 +44,17 @@ The 4-pin header needs to be soldered onto the board as indicated by the red rec
 | <img src="images/Board_PCB_STM32_with_serial.jpg" width="142" height="200"/> | <img src="images/bg-multi-stm32-serial.jpg" width="195" height="200"/> | <img src="images/irx4plus-serial.jpg" width="164" height="200"/> | <img src="images/Jumper-serial.jpg" width="164" height="200"/> | <img src="images/mpmlite-serial.jpg" width="200" height="189" />
 
 **Note:** The Banggood STM32 module most likely already has the header pin in place.
+
+## Flashing pre-compiled binaries
+Pre-compiled binaries are available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
+- **Multiprotocol_V1.X.X_STM32.bin** files are for transmitters with support for hardware telemetry inversion, such as Turnigy 9X, 9XR, 9X+.
+- **Multiprotocol_V1.X.X_STM32_INV.bin** files are for tranismitters which require telemetry inverted in the module firmware, such as Taranis/T16.
+
+[Flash-Multi](https://github.com/benlye/flash-multi) is a tool for flashing pre-compiled firmware to any STM32-based Multiprotocol TX module. Firmware upload can be performed using the built-in USB connection or via an external FTDI adapter.
+
+<p align="center">
+  <img src="docs/images/flash-multi.jpg">
+</p>
 
 ## Preparation
 ### Install the Arduino IDE
@@ -272,17 +284,6 @@ error resetting after download: usb_reset: could not reset device, win error: Th
 ```
 
 **Note:** The line `Reset via USB Serial Failed! Did you select the right serial port?` or a warning line stating that the device could not be reset is **not a problem**.
-
-## Flashing pre-compiled binaries
-Pre-compiled binaries are available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
-- **Multiprotocol_V1.X.X_STM32.bin** files are for transmitters with support for hardware telemetry inversion, such as Turnigy 9X, 9XR, 9X+.
-- **Multiprotocol_V1.X.X_STM32_INV.bin** files are for tranismitters which require telemetry inverted in the module firmware, such as Taranis.
-
-If you want to flash a pre-compiled binary file (like the Release .bin files) you will use the same USB-to-TTL adapter as [above](#connect-the-programmer).  
-
-You will also need to download the **ST Flash Loader Demonstrator** from [here](http://www.st.com/content/st_com/en/products/development-tools/software-development-tools/stm32-software-development-tools/stm32-programmers/flasher-stm32.html)
-
-Run the **ST Flash Loader Demonstrator** program. There are many tutorials on the web on how to use this program, for example [here](http://www.scienceprog.com/flashing-programs-to-stm32-embedded-bootloader).
 
 ## Troubleshooting
 You can report your problem using the [GitHub issue](https://github.com/midelic/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.

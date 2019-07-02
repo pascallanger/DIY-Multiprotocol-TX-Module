@@ -61,7 +61,7 @@ If you don't need/want to customize the multi module firmware then you can use p
 [Flash-Multi](https://github.com/benlye/flash-multi) is the recommended Windows utility for flashing pre-compiled firmware to any STM32-based Multiprotocol TX module. Firmware upload can be performed using the built-in USB connection or via an external FTDI adapter.
 
 <p align="center">
-  <img src="images/flash-multi.jpg">
+  <img src="https://github.com/benlye/flash-multi/raw/master/img/flash-multi.jpg">
 </p>
 
 ## Preparation

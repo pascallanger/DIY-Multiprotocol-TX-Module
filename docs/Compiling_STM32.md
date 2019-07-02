@@ -53,7 +53,7 @@ Pre-compiled binaries are available [here](https://github.com/pascallanger/DIY-M
 [Flash-Multi](https://github.com/benlye/flash-multi) is a tool for flashing pre-compiled firmware to any STM32-based Multiprotocol TX module. Firmware upload can be performed using the built-in USB connection or via an external FTDI adapter.
 
 <p align="center">
-  <img src="docs/images/flash-multi.jpg">
+  <img src="images/flash-multi.jpg">
 </p>
 
 ## Preparation

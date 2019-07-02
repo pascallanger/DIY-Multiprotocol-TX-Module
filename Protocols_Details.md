@@ -772,10 +772,10 @@ CH1|CH2|CH3|CH4|CH5|CH6
 A||T||TRIM|LED
 
 ### Sub_protocol GD_V1 - *0*
-First model
+First generation of GD models, ZC-Z50 (throttle reversed)
 
 ### Sub_protocol GD_V2 - *1*
-New model
+New generation of GD models
 
 ## GW008 - *32*
 Model: Global Drone GW008 from Banggood

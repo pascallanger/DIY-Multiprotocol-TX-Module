@@ -57,7 +57,7 @@ static void __attribute__((unused)) GD00X_send_packet()
 		channel=convert_channel_ppm(CH5);		// TRIM
 		packet[9 ] = channel;
 		packet[10] = channel>>8;
-		packet[11] = GD00X_FLAG_DR				// Force high rate
+		packet[11] = GET_FLAG(!CH7_SW, GD00X_FLAG_DR)
 				   | GET_FLAG(CH6_SW, GD00X_FLAG_LIGHT);
 		packet[12] = 0x00;
 		packet[13] = 0x00;
@@ -78,7 +78,8 @@ static void __attribute__((unused)) GD00X_send_packet()
 			packet[2]=0x3F-(convert_channel_8b(CH5)>>2);			// Trim: 0x3F..0x20..0x00
 
 			uint8_t seq=((packet_count*3)/7)%5;
-			packet[4]=seq | GD00X_V2_FLAG_DR;
+			packet[4]=seq
+					| GET_FLAG(!CH7_SW, GD00X_V2_FLAG_DR);
 
 			if(CH6_SW!=prev_CH6)
 			{ // LED switch is temporary

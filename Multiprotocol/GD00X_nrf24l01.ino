@@ -73,7 +73,7 @@ static void __attribute__((unused)) GD00X_send_packet()
 			packet[0]=convert_channel_16b_limit(THROTTLE,0,100);	// 0..100
 
 			// Deadband is needed on aileron, 40 gives +-6%
-			packet[2]=convert_channel_8b_limit_deadband(AILERON,0x3F,0x20,0x00,40);	// Aileron: 3F..20..00
+			packet[1]=convert_channel_8b_limit_deadband(AILERON,0x3F,0x20,0x00,40);	// Aileron: 3F..20..00
 			// Trims must be in a seperate channel for this model
 			packet[2]=0x3F-(convert_channel_8b(CH5)>>2);			// Trim: 0x3F..0x20..0x00
 

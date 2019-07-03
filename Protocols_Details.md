@@ -767,11 +767,13 @@ If the model does not respond well to inputs or hard to bind, you can try to set
 
 If a CC2500 rf component is available it will be used in place of the NRF24L01 which might fix the issue mentioned above. Option is used for fine frequency tuning like any CC2500 protocols. Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it if necessary.
 
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A||T||TRIM|LED
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A||T||TRIM|LED|RATE
 
 TRIM: either use this channel for trim only or add a mixer with aileron to increase the roll rate.
+
+RATE: -100% high rate, +100% low rate
 
 ### Sub_protocol GD_V1 - *0*
 First generation of GD models, ZC-Z50

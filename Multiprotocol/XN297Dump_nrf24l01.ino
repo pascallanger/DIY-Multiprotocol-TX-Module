@@ -22,7 +22,7 @@
 #include "iface_nrf24l01.h"
 
 // Parameters which can be modified
-#define XN297DUMP_PERIOD_DUMP		25000
+#define XN297DUMP_PERIOD_SCAN		50000 	// 25000
 #define XN297DUMP_MAX_RF_CHANNEL	84		// Default 84
 
 // Do not touch from there
@@ -31,7 +31,7 @@
 #define XN297DUMP_CRC_LENGTH		2
 
 uint8_t address_length;
-uint16_t over;
+uint16_t timeH=0;
 boolean scramble;
 
 static void __attribute__((unused)) XN297Dump_init()
@@ -119,17 +119,16 @@ static void __attribute__((unused)) XN297Dump_overflow()
 {
 	if(TIMER2_BASE->SR & TIMER_SR_UIF)
 	{ // timer overflow
-		if(over!=0xFFFF)
-			over++;
+		timeH++;
 		TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_UIF;	// Clear Timer2 overflow flag
 	}
 }
 static uint16_t XN297Dump_callback()
 {
-	static uint16_t time=0;
+	static uint32_t time=0;
 	while(1)
 	{
-		if(option==0xFF && bind_counter>XN297DUMP_PERIOD_DUMP)
+		if(option==0xFF && bind_counter>XN297DUMP_PERIOD_SCAN)
 		{	// Scan frequencies
 			hopping_frequency_no++;
 			bind_counter=0;
@@ -150,7 +149,7 @@ static uint16_t XN297Dump_callback()
 											| (1 << NRF24L01_00_CRCO)
 											| (1 << NRF24L01_00_PWR_UP)
 											| (1 << NRF24L01_00_PRIM_RX));
-			over=0xFFFF;
+			phase=0;				// init timer
 		}
 		XN297Dump_overflow();
 		
@@ -159,14 +158,22 @@ static uint16_t XN297Dump_callback()
 			if(NRF24L01_ReadReg(NRF24L01_09_CD) || option != 0xFF)
 			{
 				NRF24L01_ReadPayload(packet,XN297DUMP_MAX_PACKET_LEN);
-				uint16_t time_TCNT1=TCNT1;
-				uint32_t time32=0;
-				time=time_TCNT1-time;
-				if(over!=0xFFFF)
-					time32=(over<<16)+time;
-				debug("RX: %5luus C=%d ", time32>>1 , hopping_frequency_no);
-				time=time_TCNT1;
-				over=0;
+				XN297Dump_overflow();
+				uint16_t timeL=TCNT1;
+				if(TIMER2_BASE->SR & TIMER_SR_UIF)
+				{//timer just rolled over...
+					XN297Dump_overflow();
+					timeL=0;
+				}
+				if(phase==0)
+				{
+					phase=1;
+					time=0;
+				}
+				else
+					time=(timeH<<16)+timeL-time;
+				debug("RX: %5luus C=%d ", time>>1 , hopping_frequency_no);
+				time=(timeH<<16)+timeL;
 				if(XN297Dump_process_packet())
 				{ // valid crc found
 					debug("S=%c A=",scramble?'Y':'N');
@@ -217,7 +224,6 @@ static uint16_t XN297Dump_callback()
 uint16_t initXN297Dump(void)
 {
 	BIND_DONE;
-	over=0xFFFF;
 	address_length=RX_num;
 	if(address_length<3||address_length>5)
 		address_length=5;	//default
@@ -225,6 +231,7 @@ uint16_t initXN297Dump(void)
 	bind_counter=0;
 	rf_ch_num=0xFF;
 	prev_option=option^0x55;
+	phase=0;				// init timer
 	return XN297DUMP_INITIAL_WAIT;
 }
 

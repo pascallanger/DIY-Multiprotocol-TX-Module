@@ -72,18 +72,8 @@ static void __attribute__((unused)) GD00X_send_packet()
 		{
 			packet[0]=convert_channel_16b_limit(THROTTLE,0,100);	// 0..100
 
-			// Deadband is needed on aileron
-			uint16_t aileron=limit_channel_100(AILERON);			// 204<->1844
-			#define GD00X_V2_DB_MIN 1024-40
-			#define GD00X_V2_DB_MAX 1024+40
-			if(aileron>GD00X_V2_DB_MIN && aileron<GD00X_V2_DB_MAX)
-				packet[1]=0x20;	// Send the channel centered
-			else // Ail:  0x3F..0x20..0x00
-				if(aileron>GD00X_V2_DB_MAX)
-					packet[1]=0x1F-((aileron-GD00X_V2_DB_MAX)*(0x20)/(CHANNEL_MAX_100+1-GD00X_V2_DB_MAX));	// 1F..00
-				else
-					packet[1]=0x3F-((aileron-CHANNEL_MIN_100)*(0x1F)/(GD00X_V2_DB_MIN-CHANNEL_MIN_100));	// 3F..21
-
+			// Deadband is needed on aileron, 40 gives +-6%
+			packet[2]=convert_channel_8b_limit_deadband(AILERON,0x3F,0x20,0x00,40);	// Aileron: 3F..20..00
 			// Trims must be in a seperate channel for this model
 			packet[2]=0x3F-(convert_channel_8b(CH5)>>2);			// Trim: 0x3F..0x20..0x00
 

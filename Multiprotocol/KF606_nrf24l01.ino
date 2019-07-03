@@ -38,8 +38,10 @@ static void __attribute__((unused)) KF606_send_packet()
 	{
 		packet[0]= 0x55;
 		packet[1]= convert_channel_8b(THROTTLE);					// 0..255
-		packet[2]= convert_channel_16b_limit(AILERON,0x20,0xE0);	// Low:50..80..AF High:3E..80..C1 
-		packet[3]= convert_channel_16b_limit(CH5,0xC1,0xDF);		// Trim on a separated channel C1..D0..DF
+		// Deadband is needed on aileron, 40 gives +-6%
+		packet[2]=convert_channel_8b_limit_deadband(AILERON,0x20,0x80,0xE0,40);	// Aileron: Max values:20..80..E0, Low rates:50..80..AF, High rates:3E..80..C1
+		// Aileron trim must be on a separated channel C1..D0..DF
+		packet[3]= convert_channel_16b_limit(CH5,0xC1,0xDF);
 	}
 	if(IS_BIND_DONE)
 	{

@@ -44,7 +44,8 @@ static void __attribute__((unused)) POTENSIC_send_packet()
 	else
 	{ 
 		packet[0] = 0x64;
-		packet[1] = convert_channel_16b_limit(THROTTLE,0,100)&0xFE;
+		// Deadband is needed on throttle to emulate the spring to neutral otherwise the quad behaves weirdly, 160 gives +-20%
+		packet[1] = convert_channel_8b_limit_deadband(THROTTLE,0x00,0x19,0x32,160)<<1;	// Throttle 00..19..32 *2
 		uint8_t elevator=convert_channel_8b(ELEVATOR)>>3;			
 		packet[2] = ((255-convert_channel_8b(RUDDER))&0xF8)|(elevator>>2);
 		packet[3] = (elevator<<6)|(((255-convert_channel_8b(AILERON))>>2)&0xFE);

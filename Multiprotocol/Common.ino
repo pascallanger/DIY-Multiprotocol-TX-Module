@@ -56,6 +56,20 @@ void InitChannel()
 /************************/
 /**  Convert routines  **/
 /************************/
+// Convert channel 8b with limit and deadband
+uint8_t convert_channel_8b_limit_deadband(uint8_t num,uint8_t min,uint8_t mid, uint8_t max, uint8_t deadband)
+{
+	uint16_t val=limit_channel_100(num);		// 204<->1844
+	uint16_t db_low=CHANNEL_MID-deadband, db_high=CHANNEL_MID+deadband; // 1024+-deadband
+	if(val>=db_low && val<=db_high)
+		return mid;
+	else if(val<db_low)
+		val=min+(val-CHANNEL_MIN_100)*(mid-min)/(db_low-CHANNEL_MIN_100);
+	else
+		val=mid+(val-db_high)*(max-mid)/(CHANNEL_MAX_100-1-db_high);
+	return val;
+}
+
 // Revert a channel and store it
 void reverse_channel(uint8_t num)
 {
@@ -67,7 +81,7 @@ void reverse_channel(uint8_t num)
 uint16_t convert_channel_ppm(uint8_t num)
 {
 	uint16_t val=Channel_data[num];
-	return (((val<<2)+val)>>3)+860;									//value range 860<->2140 -125%<->+125%
+	return (((val<<2)+val)>>3)+860;				//value range 860<->2140 -125%<->+125%
 }
 // Channel value 100% is converted to 10bit values 0<->1023
 uint16_t convert_channel_10b(uint8_t num)

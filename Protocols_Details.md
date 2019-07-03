@@ -761,7 +761,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 A|E|T|R|FLIP|RTH|HEADLESS|EXPERT
 
 ## GD00X - *47*
-Model: GD005 C-17 Transport and GD006 DA62
+Model: GD005 C-17 Transport, GD006 DA62 and ZC-Z50
 
 If the model does not respond well to inputs or hard to bind, you can try to set Power to Low. But this protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components used and nothing we can do about it in the firmware.
 
@@ -772,7 +772,7 @@ CH1|CH2|CH3|CH4|CH5|CH6
 A||T||TRIM|LED
 
 ### Sub_protocol GD_V1 - *0*
-First generation of GD models, ZC-Z50 (throttle reversed)
+First generation of GD models, ZC-Z50
 
 ### Sub_protocol GD_V2 - *1*
 New generation of GD models

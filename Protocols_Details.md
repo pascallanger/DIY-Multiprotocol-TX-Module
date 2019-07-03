@@ -771,6 +771,8 @@ CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A||T||TRIM|LED
 
+TRIM: either use this channel for trim only or add a mixer with aileron to increase the roll rate.
+
 ### Sub_protocol GD_V1 - *0*
 First generation of GD models, ZC-Z50
 

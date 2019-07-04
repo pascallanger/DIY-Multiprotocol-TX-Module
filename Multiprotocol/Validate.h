@@ -19,9 +19,9 @@
 #endif
 
 // Check for minimum version of multi-module boards
-#define MIN_AVR_BOARD 103
-#define MIN_ORX_BOARD 103
-#define MIN_STM32_BOARD 104
+#define MIN_AVR_BOARD 107
+#define MIN_ORX_BOARD 107
+#define MIN_STM32_BOARD 114
 //AVR
 #if (defined(ARDUINO_MULTI_NO_BOOT) && ARDUINO_MULTI_NO_BOOT < MIN_AVR_BOARD) || (defined(ARDUINO_MULTI_FLASH_FROM_TX) && ARDUINO_MULTI_FLASH_FROM_TX < MIN_AVR_BOARD)
 	#error You need to update your Multi 4-in-1 board definition.  Open Boards Manager and update to the latest version of the Multi 4-in-1 AVR Boards.

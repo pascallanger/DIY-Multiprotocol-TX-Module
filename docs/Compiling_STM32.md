@@ -1,13 +1,14 @@
 # Flashing, Compiling and Programming (STM32)
 
-Multiprotocol firmware can be either flashed with a precompiled binary or compile/upload your customized firmware using the Arduino IDE. The guide below will walk you through all the steps in many details, don't be afraid by the length it is in fact simple!
+Multiprotocol firmware can be either flashed with a precompiled binary (Option-1) or compile/upload your customized firmware using the Arduino IDE (Option-2).
 
 **These instructions are for the STM32 version of the Multiprotocol module.**  If you are Compling for the Arduino ATmega328p version of the Multiprotocol Module please go to the dedicated [ATmega328](Compiling.md) page.
 
 ## Index
 1. [Tools Required](#tools-required)
-1. [Precompiled Binaries](#flashing-pre-compiled-binaries)
-1. [Preparation](#preparation)
+1. [Option-1 Update firmware using precompiled binaries](#option-1-update-firmware-using-precompiled-binaries)
+1. [Option-2 Compiling and updating firmware](#option-2-compiling-and-updating-firmware)
+   1. [Preparation](#preparation)
    1. [Install the Arduino IDE](#install-the-arduino-ide)
    1. [Download the Multiprotocol source and open the project](#download-the-multiprotocol-source-and-open-the-project)
    1. [Install the Multi 4-in-1 board](#install-the-multi-4-in-1-board)
@@ -53,10 +54,14 @@ The 4-pin header needs to be soldered onto the board as indicated by the red rec
 
 **Note:** The Banggood STM32 module most likely already has the header pin in place.
 
-## Flashing pre-compiled binaries
+## Option-1 Update Firmware using Precompiled Binaries
 If you don't need/want to customize the multi module firmware then you can use pre-compiled binaries available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
-- **Multiprotocol_V1.X.X_STM32.bin** files are for radios with support for hardware telemetry inversion, such as Turnigy 9X, 9XR, 9X+.
-- **Multiprotocol_V1.X.X_STM32_INV.bin** files are for radios which require inverted telemetry for the external module firmware, such as Turnigy 9XR Pro, FrSky radios and Jumper radios.
+
+**STM32 Builds (file names beginning with 'Multi-STM_')
+ -   All radio modules and protocols are included in all builds
+ -   Files with TXFLASH in the name are built with a bootloader for flashing from a transmitter OR via the module's USB port (eg. Multi-STM_TXFLASH_INV-vX.X.X.XX.bin)
+ -   Files with FTDI in the name are built without a bootloader for flashing using an FTDI adapter (eg. Multi-STM_FTDI_INV-vX.X.X.XX.bin)
+ -   OpenTx/JumperTX version (files with OPENTX in the name) have the MULTI_TELEMETRY parameter enabled (eg. Multi-STM_TXFLASH_INV_OPENTX-vX.X.X.XX.bin or Multi-STM_FTDI_INV_OPENTX-vvX.X.X.XX.bin)
 
 [Flash-Multi](https://github.com/benlye/flash-multi) is the recommended Windows utility for flashing pre-compiled firmware to any STM32-based Multiprotocol TX module. Firmware upload can be performed using the built-in USB connection or via an external FTDI adapter.
 
@@ -64,7 +69,14 @@ If you don't need/want to customize the multi module firmware then you can use p
   <img src="https://github.com/benlye/flash-multi/raw/master/img/flash-multi.jpg">
 </p>
 
+After a succesful flash your Module is now updated to the newer version firmware using the most common options. To change specific configured options you would need to use Option-2, Compile and flash update using Arduino IDE. 
+ 
+# Option-2 Compiling and Updating Firmware
+
 ## Preparation
+
+Multiprotocol firmware can be compiled and uploaded with your customized firmware using the Arduino IDE. The guide below will walk you through all the steps in many details, don't be afraid by the length it is in fact simple!
+
 ### Install the Arduino IDE
 1. Download and install the Arduino IDE. The currently supported Arduino version is 1.8.5, available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-windows.exe), [Mac OSX](https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-macosx.zip) and [Linux (64-bit)](https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-linux64.tar.xz)
 1. It is recommended to upgrade Java to the [latest version](https://www.java.com/en/download/)

@@ -18,7 +18,7 @@
 	#endif
 #endif
 
-// Check for minimum version of multi-module boards
+// Check for minimum board file definition version for DIY multi-module boards
 #define MIN_AVR_BOARD 107
 #define MIN_ORX_BOARD 107
 #define MIN_STM32_BOARD 114

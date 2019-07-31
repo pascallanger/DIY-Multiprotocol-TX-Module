@@ -102,7 +102,15 @@ static void __attribute__((unused)) DEVO_build_beacon_pkt(uint8_t upper)
 	for(uint8_t i = 0; i < max; i++)
 	{
 		#ifdef FAILSAFE_ENABLE
-			uint16_t failsafe=Failsafe_data[CH_EATR[i+offset]];
+			uint16_t failsafe;
+      	
+      #ifdef ENABLE_PPM
+      if (sub_protocol==DEVO_JR_HELI) failsafe=Failsafe_data[CH_EATR_JR_HELI[i+offset]];  
+      else failsafe=Failsafe_data[CH_EATR[i+offset]];
+      #else
+         failsafe=Failsafe_data[CH_EATR[i+offset]];
+      #endif //ENABLE_PPM
+
 			if(i + offset < num_ch && failsafe!=FAILSAFE_CHANNEL_HOLD && IS_FAILSAFE_VALUES_on)
 			{
 				enable |= 0x80 >> i;
@@ -146,7 +154,13 @@ static void __attribute__((unused)) DEVO_build_data_pkt()
 	uint8_t sign = 0x0b;
 	for (uint8_t i = 0; i < 4; i++)
 	{
-		int16_t value=convert_channel_16b_nolimit(CH_EATR[ch_idx * 4 + i],-1600,1600);//range -1600..+1600
+		int16_t value;
+		#ifdef ENABLE_PPM
+		if (sub_protocol==DEVO_JR_HELI) value=convert_channel_16b_nolimit(CH_EATR_JR_HELI[ch_idx * 4 + i],-1600,1600);//range -1600..+1600
+		else value=convert_channel_16b_nolimit(CH_EATR[ch_idx * 4 + i],-1600,1600);//range -1600..+1600
+		#else
+		value=convert_channel_16b_nolimit(CH_EATR[ch_idx * 4 + i],-1600,1600);//range -1600..+1600  
+		#endif //ENABLE_PPM    
 		if(value < 0)
 		{
 			value = -value;
@@ -299,6 +313,10 @@ uint16_t devo_callback()
 
 uint16_t DevoInit()
 {	
+	//FIXME: this should be the default one IMHO, no sub_protocols misuse for NR of channels, but the option flag like in DSM protocol
+	#ifdef NEW_DEVO_NR_OF_CHANNELS_BEHAVIOUR
+	if (option == 10 || option == 12 || option == 6 || option == 7) num_ch=option else num_ch=8;//Throw away erronous config values
+	#else
 	switch(sub_protocol)
 	{
 		case 1:
@@ -313,10 +331,14 @@ uint16_t DevoInit()
 		case 4:
 			num_ch=7;
 			break;
+		case 5:
+			num_ch=7;//Specific JR HELI mode has input collective on 0 Throttle on 5, the CAERxT
 		default:
 			num_ch=8;
 			break;
 	}
+	#endif //NEW_DEVO_NR_OF_CHANNELS_BEHAVIOUR
+ 
 	DEVO_cyrf_init();
 	CYRF_GetMfgData(cyrfmfg_id);
 	CYRF_SetTxRxMode(TX_EN);

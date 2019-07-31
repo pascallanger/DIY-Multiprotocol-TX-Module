@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	67
+#define VERSION_PATCH_LEVEL	68
 
 //******************
 // Protocols
@@ -114,6 +114,15 @@ enum DSM
 	DSMX_22	= 2,
 	DSMX_11	= 3,
 	DSM_AUTO = 4,
+};
+enum DEVO
+{
+	DEVO_CH6	= 3,
+	DEVO_CH7	= 4,
+	DEVO_CH8	= 0,
+	DEVO_CH10	= 1,
+	DEVO_CH12	= 2,
+	DEVO_JR_HELI= 5,
 };
 enum YD717
 {       			
@@ -647,6 +656,13 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			DSMX_22 	2
 			DSMX_11 	3
 			DSM_AUTO	4
+		sub_protocol==DEVO
+			DEVO_CH6     3
+			DEVO_CH7     4
+			DEVO_CH8     0
+			DEVO_CH10    1
+			DEVO_CH12    2
+			DEVO_JR_HELI 5  // Specific JR HELI mode PPM output has collective on CH0 Throttle on CH5, the CAERxT 
 		sub_protocol==YD717
 			YD717		0
 			SKYWLKR		1

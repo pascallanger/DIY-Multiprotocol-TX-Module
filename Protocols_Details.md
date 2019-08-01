@@ -123,6 +123,8 @@ Traxxas|43|Traxxas||||||||NRF24L01
 
 # A7105 RF Module
 
+If USE_A7105_CH15_TUNING is enabled, the value of channel 15 is used by all A7105 protocols for tuning the frequency. This is required in rare cases where some A7105 modules and/or RXs have an inaccurate crystal oscillator.
+
 ## FLYSKY - *1*
 Extended limits supported
 
@@ -372,12 +374,14 @@ A|E|T|R|CH5|CH6|CH7|CH8
 ***
 # CYRF6936 RF Module
 
+If USE_CYRF6936_CH15_TUNING is enabled, the value of channel 15 is used by all CYRF6936 protocols for tuning the frequency. This is required in rare cases where some CYRF6936 modules and/or RXs have an inaccurate crystal oscillator.
+
 ## DEVO - *7*
 Extended limits and failsafe supported
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 Note that the RX ouput will be EATR.
 
@@ -483,16 +487,16 @@ Telemetry enabled for TSSI and plugins
 
 option=number of channels from 4 to 12. An invalid option value will end up with 6 channels.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|----|CH15
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|----|TH_KILL
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|CH14
+---|---|---|---|---|---|---|---|---|----|----|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|TH_KILL
 
 Notes:
  - model/type/number of channels indicated on the RX can be different from what the RX is in fact wanting to see. So don't hesitate to test different combinations until you have something working. Using Auto is the best way to find these settings.
  - RX output will match the Spektrum standard TAER independently of the input configuration AETR, RETA...
  - RX output will match the Spektrum standard throw (1500µs +/- 400µs -> 1100..1900µs) for a 100% input. This is true for both Serial and PPM input. For PPM, make sure the end points PPM_MIN_100 and PPM_MAX_100 in _config.h are matching your TX ouput. The maximum ouput is 1000..2000µs based on an input of 125%.
     - If you want to override the above and get maximum throw (old way) uncomment in _config.h the line #define DSM_MAX_THROW . In this mode to achieve standard throw use a channel weight of 84%.
- - TH_KILL is a feature which is enabled on channel 15 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 15 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 15 will instantly kill the motors on the X-Vert.
+ - TH_KILL is a feature which is enabled on channel 14 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 15 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
 
 ### Sub_protocol DSM2_22 - *0*
 DSM2, Resolution 1024, refresh rate 22ms

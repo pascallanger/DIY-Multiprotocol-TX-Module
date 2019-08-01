@@ -18,7 +18,7 @@
 	#endif
 #endif
 
-// Check for minimum version of multi-module boards
+// Check for minimum board file definition version for DIY multi-module boards
 #define MIN_AVR_BOARD 107
 #define MIN_ORX_BOARD 107
 #define MIN_STM32_BOARD 114
@@ -122,6 +122,10 @@
 	#ifndef FORCE_AFHDS2A_TUNING
 		#define FORCE_AFHDS2A_TUNING 0
 	#endif
+#endif
+
+#if defined (USE_CYRF6936_CH15_TUNING) && (DSM_THROTTLE_KILL_CH == 15)
+	#error "Error Channel 15 conflict between the CYRF6936 freq tuning and the DSM throttle kill feature."
 #endif
 
 //Change/Force configuration if OrangeTX

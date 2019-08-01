@@ -152,6 +152,17 @@ void CYRF_SetPower(uint8_t val)
 		CYRF_WriteRegister(CYRF_03_TX_CFG,power);
 		prev_power=power;
 	}
+
+	#ifdef USE_CYRF6936_CH15_TUNING
+		static uint16_t Channel15=1024;
+		if(Channel15!=Channel_data[CH15])
+		{ // adjust frequency
+			Channel15=Channel_data[CH15]+0x155;	// default value is 0x555 = 0x400 + 0x155
+			CYRF_WriteRegister(CYRF_1B_TX_OFFSET_LSB, Channel15&0xFF);
+			CYRF_WriteRegister(CYRF_1C_TX_OFFSET_MSB, Channel15>>8);
+			Channel15-=0x155;
+		}
+	#endif
 }
 
 /*

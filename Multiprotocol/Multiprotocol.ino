@@ -398,7 +398,7 @@ void setup()
 #endif
 
 	// Read or create protocol id
-	MProtocol_id_master=random_id(10,false);
+	MProtocol_id_master=random_id(EEPROM_ID_OFFSET,false);
 
 	debugln("Module Id: %lx", MProtocol_id_master);
 	

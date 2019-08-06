@@ -111,7 +111,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01
-Traxxas|43|Traxxas||||||||NRF24L01
+[Traxxas](Protocols_Details.md#Traxxas---43)|43|Traxxas|RX6519|||||||CYRF6936
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|||||||NRF24L01
 [V761](Protocols_Details.md#V761---48)|48|V761||||||||NRF24L01
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*||||||||NRF24L01
@@ -518,6 +518,15 @@ Also on er9x you will need to be sure to match the polarity of the telemetry ser
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+## Traxxas - *43*
+Receiver 6519
+
+Extended limits supported
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+AUX3|AUX4|THROTTLE|STEERING
 
 ## WFLY - *40*
 Receivers: WFR04S, WFR07S, WFR09S

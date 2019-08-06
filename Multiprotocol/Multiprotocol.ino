@@ -1058,6 +1058,13 @@ static void protocol_init()
 						remote_callback = ReadJ6Pro;
 						break;
 				#endif
+				#if defined(TRAXXAS_CYRF6936_INO)
+					case PROTO_TRAXXAS:
+						PE2_on;	//antenna RF4
+						next_callback = initTRAXXAS();
+						remote_callback = ReadTRAXXAS;
+						break;
+				#endif
 			#endif
 			#ifdef NRF24L01_INSTALLED
 				#if defined(HISKY_NRF24L01_INO)

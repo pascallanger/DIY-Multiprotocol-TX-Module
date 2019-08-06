@@ -165,8 +165,7 @@
 #define	J6PRO_CYRF6936_INO
 #define	WFLY_CYRF6936_INO
 #define	WK2x01_CYRF6936_INO
-
-//#define TRAXXAS_CYRF6936_INO
+#define TRAXXAS_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
 #define	CORONA_CC2500_INO
@@ -621,7 +620,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		SYMAX
 		SYMAX5C
 	PROTO_TRAXXAS
-		NONE
+		RX6519
 	PROTO_V2X2
 		V2X2
 		JXD506

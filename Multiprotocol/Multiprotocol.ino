@@ -1261,6 +1261,12 @@ static void protocol_init()
 						remote_callback = POTENSIC_callback;
 						break;
 				#endif
+				#if defined(ZSX_NRF24L01_INO)
+					case PROTO_ZSX:
+						next_callback=initZSX();
+						remote_callback = ZSX_callback;
+						break;
+				#endif
 				#if defined(XN297DUMP_NRF24L01_INO)
 					case PROTO_XN297DUMP:
 						next_callback=initXN297Dump();

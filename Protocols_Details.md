@@ -118,6 +118,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [WFly](Protocols_Details.md#WFLY---40)|40|WFLY||||||||CYRF6936
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936
 [YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01
+[ZSX](Protocols_Details.md#ZSX---52)|52|280||||||||NRF24L01
 * "*" Sub Protocols designated by * suffix will use the NRF24L01 module by default to emulate the XN297L RF chip.
 * If a CC2500 module is installed it will be used instead as it is proving to be a better option for the XN297L@250kbps. Each specific sub protocol has a more detailed explanation.
 
@@ -1192,6 +1193,15 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ### Sub_protocol XINXUN - *3*
 ### Sub_protocol NIHUI - *4*
 Same channels assignement as above.
+
+## ZSX - *52*
+Model: JJRC ZSX-280
+
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+||T|R|LIGHT
 
 # OpenLRS module
 

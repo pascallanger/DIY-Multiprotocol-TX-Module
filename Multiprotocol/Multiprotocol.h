@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	69
+#define VERSION_PATCH_LEVEL	70
 
 //******************
 // Protocols
@@ -78,6 +78,7 @@ enum PROTOCOLS
 	PROTO_KF606		= 49,	// =>NRF24L01
 	PROTO_REDPINE	= 50,	// =>CC2500
 	PROTO_POTENSIC	= 51,	// =>NRF24L01
+	PROTO_ZSX		= 52,	// =>NRF24L01
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -628,6 +629,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					KF606		49
 					REDPINE		50
 					POTENSIC	51
+					ZSX			52
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

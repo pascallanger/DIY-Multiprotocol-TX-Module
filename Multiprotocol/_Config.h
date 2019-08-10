@@ -209,6 +209,7 @@
 #define	V761_NRF24L01_INO
 #define	V911S_NRF24L01_INO
 #define	YD717_NRF24L01_INO
+#define	ZSX_NRF24L01_INO
 
 
 /***************************/
@@ -272,11 +273,11 @@
 
 //Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
 //Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
-#define MULTI_STATUS
+//#define MULTI_STATUS
 
 //Uncomment to send Multi status and allow OpenTX to autodetect the telemetry format
 //Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/ersky9x use MULTI_STATUS instead.
-//#define MULTI_TELEMETRY
+#define MULTI_TELEMETRY
 
 //Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, ersky9x and OpenTX
@@ -643,4 +644,6 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		SYMAX4
 		XINXUN
 		NIHUI
+	PROTO_ZSX
+		NONE
 */

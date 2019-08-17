@@ -62,6 +62,12 @@
 #endif
 
 // Check forced tuning values are valid
+//CC2500
+#ifdef FORCE_CORONA_TUNING
+	#if ( FORCE_CORONA_TUNING < -127 ) || ( FORCE_CORONA_TUNING > 127 )
+		#error "The CORONA forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 #ifdef FORCE_FRSKYD_TUNING
 	#if ( FORCE_FRSKYD_TUNING < -127 ) || ( FORCE_FRSKYD_TUNING > 127 )
 		#error "The FrSkyD forced frequency tuning value is outside of the range -127..127."
@@ -77,14 +83,9 @@
 		#error "The FrSkyX forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
-#ifdef FORCE_SFHSS_TUNING
-	#if ( FORCE_SFHSS_TUNING < -127 ) || ( FORCE_SFHSS_TUNING > 127 )
-		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."
-	#endif
-#endif
-#ifdef FORCE_CORONA_TUNING
-	#if ( FORCE_CORONA_TUNING < -127 ) || ( FORCE_CORONA_TUNING > 127 )
-		#error "The CORONA forced frequency tuning value is outside of the range -127..127."
+#ifdef FORCE_HITEC_TUNING
+	#if ( FORCE_HITEC_TUNING < -127 ) || ( FORCE_HITEC_TUNING > 127 )
+		#error "The HITEC forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
 #ifdef FORCE_REDPINE_TUNING
@@ -92,9 +93,20 @@
 		#error "The REDPINE forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
-#ifdef FORCE_HITEC_TUNING
-	#if ( FORCE_HITEC_TUNING < -127 ) || ( FORCE_HITEC_TUNING > 127 )
-		#error "The HITEC forced frequency tuning value is outside of the range -127..127."
+#ifdef FORCE_SFHSS_TUNING
+	#if ( FORCE_SFHSS_TUNING < -127 ) || ( FORCE_SFHSS_TUNING > 127 )
+		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
+//A7105
+#ifdef FORCE_AFHDS2A_TUNING
+	#if ( FORCE_AFHDS2A_TUNING < -300 ) || ( FORCE_AFHDS2A_TUNING > 300 )
+		#error "The AFHDS2A forced frequency tuning value is outside of the range -300..300."
+	#endif
+#endif
+#ifdef FORCE_BUGS_TUNING
+	#if ( FORCE_BUGS_TUNING < -300 ) || ( FORCE_BUGS_TUNING > 300 )
+		#error "The BUGS forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
 #ifdef FORCE_FLYSKY_TUNING
@@ -102,19 +114,26 @@
 		#error "The Flysky forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
+#ifdef FORCE_FLYZONE_TUNING
+	#if ( FORCE_FLYZONE_TUNING < -300 ) || ( FORCE_FLYZONE_TUNING > 300 )
+		#error "The Flyzone forced frequency tuning value is outside of the range -300..300."
+	#endif
+#endif
 #ifdef FORCE_HUBSAN_TUNING
 	#if ( FORCE_HUBSAN_TUNING < -300 ) || ( FORCE_HUBSAN_TUNING > 300 )
 		#error "The Hubsan forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
-#ifdef FORCE_AFHDS2A_TUNING
-	#if ( FORCE_AFHDS2A_TUNING < -300 ) || ( FORCE_AFHDS2A_TUNING > 300 )
-		#error "The AFHDS2A forced frequency tuning value is outside of the range -300..300."
-	#endif
-#endif
+
 #ifndef USE_A7105_CH15_TUNING
+	#ifndef FORCE_BUGS_TUNING
+		#define FORCE_BUGS_TUNING 0
+	#endif
 	#ifndef FORCE_FLYSKY_TUNING
 		#define FORCE_FLYSKY_TUNING 0
+	#endif
+	#ifndef FORCE_FLYZONE_TUNING
+		#define FORCE_FLYZONE_TUNING 0
 	#endif
 	#ifndef FORCE_HUBSAN_TUNING
 		#define FORCE_HUBSAN_TUNING 0
@@ -148,6 +167,7 @@
 	#undef HUBSAN_A7105_INO
 	#undef AFHDS2A_A7105_INO
 	#undef BUGS_A7105_INO
+	#undef FLYZONE_A7105_INO
 #endif
 #ifndef CYRF6936_INSTALLED
 	#undef	DEVO_CYRF6936_INO

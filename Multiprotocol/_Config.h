@@ -108,10 +108,11 @@
 
 //Once a good tuning value is found it can be set here and will override the frequency tuning for a specific protocol.
 //Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable. Valid range is -300 to +300 and default is 0.
-//#define FORCE_FLYSKY_TUNING	0
-//#define FORCE_HUBSAN_TUNING	0
 //#define FORCE_AFHDS2A_TUNING	0
-//#define FORCE_BUGS_TUNING	0
+//#define FORCE_BUGS_TUNING		0
+//#define FORCE_FLYSKY_TUNING	0
+//#define FORCE_FLYZONE_TUNING	0
+//#define FORCE_HUBSAN_TUNING	0
 
 /** CYRF6936 Fine Frequency Tuning **/
 //This is required in rare cases where some CYRF6936 modules and/or RXs have an inaccurate crystal oscillator.
@@ -155,17 +156,18 @@
 
 //The protocols below need an A7105 to be installed
 #define	AFHDS2A_A7105_INO
-#define	FLYSKY_A7105_INO
-#define	HUBSAN_A7105_INO
 #define	BUGS_A7105_INO
+#define	FLYSKY_A7105_INO
+#define	FLYZONE_A7105_INO
+#define	HUBSAN_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO
 #define	DSM_CYRF6936_INO
 #define	J6PRO_CYRF6936_INO
+#define TRAXXAS_CYRF6936_INO
 #define	WFLY_CYRF6936_INO
 #define	WK2x01_CYRF6936_INO
-#define TRAXXAS_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
 #define	CORONA_CC2500_INO
@@ -530,6 +532,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		V6X6
 		V912
 		CX20
+	PROTO_FLYZONE
+		FZ410
 	PROTO_FQ777
 		NONE
 	PROTO_FRSKYD

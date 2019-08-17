@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	70
+#define VERSION_PATCH_LEVEL	71
 
 //******************
 // Protocols
@@ -79,6 +79,7 @@ enum PROTOCOLS
 	PROTO_REDPINE	= 50,	// =>CC2500
 	PROTO_POTENSIC	= 51,	// =>NRF24L01
 	PROTO_ZSX		= 52,	// =>NRF24L01
+	PROTO_FLYZONE	= 53,	// =>A7105
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -89,6 +90,10 @@ enum Flysky
 	V6X6	= 2,
 	V912	= 3,
 	CX20	= 4,
+};
+enum Flyzone
+{
+	FZ410	= 0,
 };
 enum Hubsan
 {
@@ -630,6 +635,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					REDPINE		50
 					POTENSIC	51
 					ZSX			52
+					FLYZONE		53
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

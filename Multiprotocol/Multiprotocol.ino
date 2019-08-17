@@ -933,6 +933,13 @@ static void protocol_init()
 						remote_callback = ReadBUGS;
 						break;
 				#endif
+				#if defined(FLYZONE_A7105_INO)
+					case PROTO_FLYZONE:
+						PE1_off;	//antenna RF1
+						next_callback = initFlyzone();
+						remote_callback = ReadFlyzone;
+						break;
+				#endif
 			#endif
 			#ifdef CC2500_INSTALLED
 				#if defined(FRSKYD_CC2500_INO)

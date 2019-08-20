@@ -13,7 +13,7 @@ iRangeX+, Banggood and old Jumper 4in1 modules|Recent Jumper 4in1 modules with b
 Use the Upload method:"Upload via USB"|Use the Upload method: "Upload via Serial (FTDI)|Use the Upload method: "Upload via Serial (FTDI)
 Do not disconnect the USB cable. In case you have to do it, you have to connect the module, close and reopen the Serial Monitor to get the module working otherwise it will be stuck with the status LED off.|Do not disconnect the USB cable. In case you have to do it, you have to power first the TX and then connect the USB cable to the module and relaunch the Serial monitor.|No restrictions apart from relaunching the Serial monitor if you disconnect the FTDI from the PC
 
-1. Power on the TX
+5. Power on the TX
 1. Open in the Arduino IDE the Serial Monitor: Tools->Serial Monitor or Ctrl+Shift+M<br> <img src="images/Serial_Monitor_1.png" />
 1. Make sure the settings at the bottom of the Serial Monitor window are the same as the picture above especially the baud rate set to 115200 baud
 1. The Serial Monitor window should show the module booting, selection of a different protocol and more depending on the protocol currently loaded<br> <img src="images/Serial_Monitor_2.png" />

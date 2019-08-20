@@ -190,6 +190,8 @@ Note that the RX ouput will be AETR whatever the input channel order is.
 ## FLYZONE - *53*
 Models using the Flyzone FZ-410 TX: Fokker D.VII Micro EP RTF
 
+Models using the old ARES TX (prior to Hitec RED): Tiger Moth
+
 CH1|CH2|CH3|CH4
 ---|---|---|---
 A|E|T|R

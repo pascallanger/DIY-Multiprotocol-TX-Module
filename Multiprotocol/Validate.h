@@ -44,9 +44,10 @@
 	#endif
 #endif
 
-// Error if CHECK_FOR_BOOTLOADER is enabled but the 'Flash from TX' bootloader
+// Warning if CHECK_FOR_BOOTLOADER is enabled but no bootloader
 #if defined(ARDUINO_MULTI_NO_BOOT) && defined(CHECK_FOR_BOOTLOADER)
-	#error "You have enabled CHECK_FOR_BOOTLOADER but not selected the 'Flash from TX' bootloader."
+	#undef CHECK_FOR_BOOTLOADER
+	#warning "Disabling CHECK_FOR_BOOTLOADER since no bootloader is selected."
 #endif
 
 //Check number of banks

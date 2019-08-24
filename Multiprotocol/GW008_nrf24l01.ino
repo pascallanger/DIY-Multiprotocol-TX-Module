@@ -47,7 +47,7 @@ static void __attribute__((unused)) GW008_send_packet(uint8_t bind)
 	}
 	else
 	{
-		packet[1] = 0x01 | GET_FLAG(CH5, 0x40); // flip
+		packet[1] = 0x01 | GET_FLAG(CH5_SW, 0x40); // flip
 		packet[2] = convert_channel_16b_limit(AILERON , 200, 0); // aileron
 		packet[3] = convert_channel_16b_limit(ELEVATOR, 0, 200); // elevator
 		packet[4] = convert_channel_16b_limit(RUDDER  , 200, 0); // rudder
@@ -125,7 +125,7 @@ uint16_t GW008_callback()
 				NRF24L01_SetTxRxMode(TX_EN);
 				GW008_send_packet(1);
 				phase = GW008_BIND2;
-				return 300;
+				return 850; // minimum value 750 for STM32
 			}
 			break;
 		case GW008_BIND2:

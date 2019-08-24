@@ -76,10 +76,10 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 {
 	uint16_t crcxored;
 	uint8_t packet_sc[XN297DUMP_MAX_PACKET_LEN], packet_un[XN297DUMP_MAX_PACKET_LEN];
-
 	// init crc
 	crc = 0xb5d2;
 	
+	//Try normal payload
 	// address
 	for (uint8_t i = 0; i < address_length; i++)
 	{
@@ -112,6 +112,55 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 			return true;
 		}
 	}
+
+	//Try enhanced payload
+	crc = 0xb5d2;
+	packet_length=0;
+	uint16_t crc_enh;
+	for (uint8_t i = 0; i < XN297DUMP_MAX_PACKET_LEN-XN297DUMP_CRC_LENGTH; i++)
+	{
+		packet_sc[i]=packet[i]^xn297_scramble[i];
+		crc = crc16_update(crc, packet[i], 8);
+		crc_enh = crc16_update(crc, packet[i+1] & 0xC0, 2);
+		crcxored=(packet[i+1]<<10)|(packet[i+2]<<2)|(packet[i+3]>>6) ;
+		if((crc_enh ^ pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[i - 3])) == crcxored)
+		{
+			packet_length=i;
+			i++;
+			packet_sc[i]=packet[i]^xn297_scramble[i];
+			memcpy(packet_un,packet_sc,packet_length+2); // unscramble packet
+			scramble=true;
+			break;
+		}
+		if((crc_enh ^ pgm_read_word(&xn297_crc_xorout_enhanced[i - 3])) == crcxored)
+		{
+			scramble=false;
+			packet_length=i;
+			break;
+		}
+	}
+	if(packet_length!=0)
+	{
+		debug("Enhanced ");
+		//check selected address length
+		if((packet_un[address_length]>>1)!=packet_length-address_length)
+		{
+			for(uint8_t i=3;i<=5;i++)
+				if((packet_un[i]>>1)==packet_length-i)
+					address_length=i;
+			debug("Wrong address length selected using %d ", address_length )
+		}
+		debug("pid=%d ",((packet_un[address_length]&0x01)<<1)|(packet_un[address_length+1]>>7));
+		debug("ack=%d ",(packet_un[address_length+1]>>6)&0x01);
+		// address
+		for (uint8_t i = 0; i < address_length; i++)
+			packet[address_length-1-i]=packet_un[i];
+		// payload
+		for (uint8_t i = address_length; i < packet_length; i++)
+			packet[i] = bit_reverse((packet_un[i+1]<<2)|(packet_un[i+2]>>6));
+		return true;
+	}
+
 	return false;
 }
 

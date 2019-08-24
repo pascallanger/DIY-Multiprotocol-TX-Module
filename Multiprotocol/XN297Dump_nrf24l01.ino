@@ -124,23 +124,24 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 		crc_enh = crc16_update(crc, packet[i+1] & 0xC0, 2);
 		crcxored=(packet[i+1]<<10)|(packet[i+2]<<2)|(packet[i+3]>>6) ;
 		if((crc_enh ^ pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[i - 3])) == crcxored)
-		{
+		{ // Found a valid CRC for the enhanced payload mode
 			packet_length=i;
+			scramble=true;
 			i++;
 			packet_sc[i]=packet[i]^xn297_scramble[i];
 			memcpy(packet_un,packet_sc,packet_length+2); // unscramble packet
-			scramble=true;
 			break;
 		}
 		if((crc_enh ^ pgm_read_word(&xn297_crc_xorout_enhanced[i - 3])) == crcxored)
-		{
-			scramble=false;
+		{ // Found a valid CRC for the enhanced payload mode
 			packet_length=i;
+			scramble=false;
+			memcpy(packet_un,packet,packet_length+2); 	// packet is unscrambled
 			break;
 		}
 	}
 	if(packet_length!=0)
-	{
+	{ // Found a valid CRC for the enhanced payload mode
 		debug("Enhanced ");
 		//check selected address length
 		if((packet_un[address_length]>>1)!=packet_length-address_length)

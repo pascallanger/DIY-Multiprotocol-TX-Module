@@ -126,8 +126,6 @@ uint16_t initScanner(void)
 	memset(Scanner.rssi, 0, sizeof(Scanner.rssi));  // clear old rssi values
 	CYRF_Reset();
 	Scanner_cyrf_init();
-	init_frskyd_link_telemetry(); // use FrSkyD HUB to send scanner data
-	//telemetry_lost = 1;
 	CYRF_SetTxRxMode(RX_EN);  // Receive mode
 	BIND_DONE;
 	return 1250;

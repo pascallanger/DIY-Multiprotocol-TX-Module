@@ -170,6 +170,19 @@ static void multi_send_status()
 	#endif
 #endif
 
+#ifdef SCANNER_TELEMETRY
+	void spectrum_scanner_frame()
+	{
+		#if defined MULTI_TELEMETRY
+			multi_send_header(MULTI_TELEMETRY_SCANNER, 2);
+		#else
+			Serial_write(0xAA);						// Telemetry packet
+		#endif
+		Serial_write(pkt[0]);						// frequency (channel)
+		Serial_write(pkt[1]);						// RSSI power level
+	}
+#endif
+
 #ifdef AFHDS2A_FW_TELEMETRY
 	void AFHDSA_short_frame()
 	{
@@ -1005,6 +1018,15 @@ void TelemetryUpdate()
 		if((telemetry_link & 2) && protocol == PROTO_FRSKYD)
 		{	// FrSkyD
 			frsky_user_frame();
+			return;
+		}
+	#endif
+
+	#if defined SCANNER_TELEMETRY
+		if (telemetry_link && protocol == PROTO_SCANNER)
+		{
+			spectrum_scanner_frame();
+			telemetry_link = 0;
 			return;
 		}
 	#endif

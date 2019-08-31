@@ -152,6 +152,7 @@
 	#undef	WFLY_CYRF6936_INO
 	#undef	WK2x01_CYRF6936_INO
 	#undef TRAXXAS_CYRF6936_INO
+	#undef  SCANNER_CYRF6936_INO
 #endif
 #ifndef CC2500_INSTALLED
 	#undef	FRSKYD_CC2500_INO
@@ -217,6 +218,7 @@
 	#undef DSM_TELEMETRY
 	#undef MULTI_STATUS
 	#undef MULTI_TELEMETRY
+	#undef SCANNER_TELEMETRY
 #else
 	#if defined MULTI_TELEMETRY && not defined INVERT_TELEMETRY
 		#warning MULTI_TELEMETRY has been defined but not INVERT_TELEMETRY. They should be both enabled for OpenTX telemetry and status to work.
@@ -227,7 +229,7 @@
 	#if not defined(NCC1701_NRF24L01_INO)
 		#undef NCC1701_HUB_TELEMETRY
 	#endif
-	#if not ( defined(BUGS_A7105_INO) || defined(BUGSMINI_NRF24L01_INO) )
+	#if not defined(BUGS_A7105_INO) || not defined(BUGSMINI_NRF24L01_INO)
 		#undef BUGS_HUB_TELEMETRY
 	#endif
 	#if not defined(CABELL_NRF24L01_INO)

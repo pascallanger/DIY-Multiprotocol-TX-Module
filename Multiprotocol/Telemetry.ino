@@ -1009,6 +1009,15 @@ void TelemetryUpdate()
 		}
 	#endif
 
+	#if defined SCANNER_TELEMETRY
+		if (telemetry_link && protocol == PROTO_SCANNER)
+		{
+			spectrum_scanner_frame();
+			telemetry_link = 0;
+			return;
+		}
+	#endif
+
 		if((telemetry_link & 1 )&& protocol != PROTO_FRSKYX)
 		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell + Hitec + Bugs + BugsMini + NCC1701
 			frsky_link_frame();
@@ -1018,15 +1027,6 @@ void TelemetryUpdate()
 		if((telemetry_link & 2) && protocol == PROTO_FRSKYD)
 		{	// FrSkyD
 			frsky_user_frame();
-			return;
-		}
-	#endif
-
-	#if defined SCANNER_TELEMETRY
-		if (telemetry_link && protocol == PROTO_SCANNER)
-		{
-			spectrum_scanner_frame();
-			telemetry_link = 0;
 			return;
 		}
 	#endif

@@ -286,7 +286,7 @@ const uint16_t PROGMEM xn297_crc_xorout_scrambled_enhanced[] = {
 
 // unscrambled enhanced mode crc xorout table
 // unused so far
-/*
+#ifdef XN297DUMP_NRF24L01_INO
 const uint16_t xn297_crc_xorout_enhanced[] = {
     0x0000, 0x8BE6, 0xD8EC, 0xB87A, 0x42DC, 0xAA89,
     0x83AF, 0x10E4, 0xE83E, 0x5C29, 0xAC76, 0x1C69,
@@ -294,7 +294,7 @@ const uint16_t xn297_crc_xorout_enhanced[] = {
     0x7CDB, 0x7A14, 0xD5D2, 0x57D7, 0xE31D, 0xCE42,
     0x648D, 0xBF2D, 0x653B, 0x190C, 0x9117, 0x9A97,
     0xABFC, 0xE68E, 0x0DE7, 0x28A2, 0x1965 };
-*/
+#endif
 
 static uint8_t bit_reverse(uint8_t b_in)
 {

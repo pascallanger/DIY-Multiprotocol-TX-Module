@@ -375,9 +375,13 @@ static uint8_t __attribute__((unused)) DSM_Check_RX_packet()
 
 uint16_t ReadDsm()
 {
-#define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
-#define DSM_WRITE_DELAY		1950			// Time after write to verify write complete
-#define DSM_READ_DELAY		600				// Time before write to check read phase, and switch channels. Was 400 but 600 seems what the 328p needs to read a packet
+	#define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
+	#ifdef STM32_BOARD
+		#define DSM_WRITE_DELAY		1500		// Time after write to verify write complete
+	#else
+		#define DSM_WRITE_DELAY		1950		// Time after write to verify write complete
+	#endif
+	#define DSM_READ_DELAY		600				// Time before write to check read phase, and switch channels. Was 400 but 600 seems what the 328p needs to read a packet
 	#if defined DSM_TELEMETRY
 		uint8_t rx_phase;
 		uint8_t len;
@@ -464,6 +468,7 @@ uint16_t ReadDsm()
 			while ((uint8_t)((uint8_t)micros()-(uint8_t)start) < 100)			// Wait max 100µs, max I've seen is 50µs
 				if((CYRF_ReadRegister(CYRF_02_TX_CTRL) & 0x80) == 0x00)
 					break;
+			
 			if(phase==DSM_CH1_CHECK_A || phase==DSM_CH1_CHECK_B)
 			{
 				#if defined DSM_TELEMETRY

@@ -398,7 +398,7 @@ void setup()
 #endif
 
 	// Read or create protocol id
-	MProtocol_id_master=random_id(10,false);
+	MProtocol_id_master=random_id(EEPROM_ID_OFFSET,false);
 
 	debugln("Module Id: %lx", MProtocol_id_master);
 	
@@ -933,6 +933,13 @@ static void protocol_init()
 						remote_callback = ReadBUGS;
 						break;
 				#endif
+				#if defined(FLYZONE_A7105_INO)
+					case PROTO_FLYZONE:
+						PE1_off;	//antenna RF1
+						next_callback = initFlyzone();
+						remote_callback = ReadFlyzone;
+						break;
+				#endif
 			#endif
 			#ifdef CC2500_INSTALLED
 				#if defined(FRSKYD_CC2500_INO)
@@ -1056,6 +1063,13 @@ static void protocol_init()
 						PE2_on;	//antenna RF4
 						next_callback = initJ6Pro();
 						remote_callback = ReadJ6Pro;
+						break;
+				#endif
+				#if defined(TRAXXAS_CYRF6936_INO)
+					case PROTO_TRAXXAS:
+						PE2_on;	//antenna RF4
+						next_callback = initTRAXXAS();
+						remote_callback = ReadTRAXXAS;
 						break;
 				#endif
 				#if defined(SCANNER_CYRF6936_INO)
@@ -1259,6 +1273,12 @@ static void protocol_init()
 					case PROTO_POTENSIC:
 						next_callback=initPOTENSIC();
 						remote_callback = POTENSIC_callback;
+						break;
+				#endif
+				#if defined(ZSX_NRF24L01_INO)
+					case PROTO_ZSX:
+						next_callback=initZSX();
+						remote_callback = ZSX_callback;
 						break;
 				#endif
 				#if defined(XN297DUMP_NRF24L01_INO)

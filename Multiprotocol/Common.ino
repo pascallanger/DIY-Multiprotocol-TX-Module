@@ -70,7 +70,7 @@ uint8_t convert_channel_8b_limit_deadband(uint8_t num,uint8_t min,uint8_t mid, u
 	return val;
 }
 
-// Revert a channel and store it
+// Reverse a channel and store it
 void reverse_channel(uint8_t num)
 {
 	uint16_t val=2048-Channel_data[num];

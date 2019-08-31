@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	67
+#define VERSION_PATCH_LEVEL	74
 
 //******************
 // Protocols
@@ -78,6 +78,8 @@ enum PROTOCOLS
 	PROTO_KF606		= 49,	// =>NRF24L01
 	PROTO_REDPINE	= 50,	// =>CC2500
 	PROTO_POTENSIC	= 51,	// =>NRF24L01
+	PROTO_ZSX		= 52,	// =>NRF24L01
+	PROTO_FLYZONE	= 53,	// =>A7105
 	PROTO_SCANNER	= 54,	// =>CYRF6936
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
@@ -89,6 +91,10 @@ enum Flysky
 	V6X6	= 2,
 	V912	= 3,
 	CX20	= 4,
+};
+enum Flyzone
+{
+	FZ410	= 0,
 };
 enum Hubsan
 {
@@ -278,6 +284,11 @@ enum REDPINE
 	RED_FAST= 0,
 	RED_SLOW= 1,
 };
+enum TRAXXAS
+{
+	RX6519	= 0,
+};
+
 #define NONE 		0
 #define P_HIGH		1
 #define P_LOW		0
@@ -397,10 +408,11 @@ enum MultiPacketTypes
 	#define debug(msg, ...)  {char debug_buf[64]; sprintf(debug_buf, msg, ##__VA_ARGS__); Serial.write(debug_buf);}
 	#define debugln(msg, ...)  {char debug_buf[64]; sprintf(debug_buf, msg "\r\n", ##__VA_ARGS__); Serial.write(debug_buf);}
 	#define debug_time(msg)  { uint16_t debug_time_TCNT1=TCNT1; debug_time=debug_time_TCNT1-debug_time; debug(msg "%u", debug_time>>1); debug_time=debug_time_TCNT1; }
+	#define debugln_time(msg)  { uint16_t debug_time_TCNT1=TCNT1; debug_time=debug_time_TCNT1-debug_time; debug(msg "%u\r\n", debug_time>>1); debug_time=debug_time_TCNT1; }
 #else
 	#define debug(...) { }
 	#define debugln(...) { }
-	#define debug_time(...) { }
+	#define debugln_time(...) { }
 	#undef DEBUG_SERIAL
 #endif
 
@@ -624,6 +636,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					KF606		49
 					REDPINE		50
 					POTENSIC	51
+					ZSX			52
+					FLYZONE		53
+					SCANNER		54
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -763,6 +778,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==REDPINE
 			RED_FAST	0
 			RED_SLOW	1
+		sub_protocol==TRAXXAS
+			RX6519		0
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

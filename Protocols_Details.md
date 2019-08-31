@@ -84,6 +84,7 @@ CFlie|38|CFlie||||||||NRF24L01
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105
+[Flyzone](Protocols_Details.md#FLYZONE---53)|53|Flyzone|FZ410|||||||A7105
 [FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|FrskyD||||||||CC2500
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500
@@ -111,17 +112,20 @@ CFlie|38|CFlie||||||||NRF24L01
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01
-Traxxas|43|Traxxas||||||||NRF24L01
+[Traxxas](Protocols_Details.md#Traxxas---43)|43|Traxxas|RX6519|||||||CYRF6936
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|||||||NRF24L01
 [V761](Protocols_Details.md#V761---48)|48|V761||||||||NRF24L01
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*||||||||NRF24L01
 [WFly](Protocols_Details.md#WFLY---40)|40|WFLY||||||||CYRF6936
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936
 [YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01
+[ZSX](Protocols_Details.md#ZSX---52)|52|280||||||||NRF24L01
 * "*" Sub Protocols designated by * suffix will use the NRF24L01 module by default to emulate the XN297L RF chip.
 * If a CC2500 module is installed it will be used instead as it is proving to be a better option for the XN297L@250kbps. Each specific sub protocol has a more detailed explanation.
 
 # A7105 RF Module
+
+If USE_A7105_CH15_TUNING is enabled, the value of channel 15 is used by all A7105 protocols for tuning the frequency. This is required in rare cases where some A7105 modules and/or RXs have an inaccurate crystal oscillator.
 
 ## FLYSKY - *1*
 Extended limits supported
@@ -182,6 +186,15 @@ Note that the RX ouput will be AETR whatever the input channel order is.
 ### Sub_protocol PPM_IBUS - *1*
 ### Sub_protocol PWM_SBUS - *2*
 ### Sub_protocol PPM_SBUS - *3*
+
+## FLYZONE - *53*
+Models using the Flyzone FZ-410 TX: Fokker D.VII Micro EP RTF
+
+Models using the old ARES TX (prior to Hitec RED): Tiger Moth
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
 
 ## HUBSAN - *2*
 
@@ -372,12 +385,14 @@ A|E|T|R|CH5|CH6|CH7|CH8
 ***
 # CYRF6936 RF Module
 
+If USE_CYRF6936_CH15_TUNING is enabled, the value of channel 15 is used by all CYRF6936 protocols for tuning the frequency. This is required in rare cases where some CYRF6936 modules and/or RXs have an inaccurate crystal oscillator.
+
 ## DEVO - *7*
 Extended limits and failsafe supported
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 Note that the RX ouput will be EATR.
 
@@ -483,16 +498,16 @@ Telemetry enabled for TSSI and plugins
 
 option=number of channels from 4 to 12. An invalid option value will end up with 6 channels.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|----|CH15
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|----|TH_KILL
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|CH14
+---|---|---|---|---|---|---|---|---|----|----|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|TH_KILL
 
 Notes:
  - model/type/number of channels indicated on the RX can be different from what the RX is in fact wanting to see. So don't hesitate to test different combinations until you have something working. Using Auto is the best way to find these settings.
  - RX output will match the Spektrum standard TAER independently of the input configuration AETR, RETA...
  - RX output will match the Spektrum standard throw (1500µs +/- 400µs -> 1100..1900µs) for a 100% input. This is true for both Serial and PPM input. For PPM, make sure the end points PPM_MIN_100 and PPM_MAX_100 in _config.h are matching your TX ouput. The maximum ouput is 1000..2000µs based on an input of 125%.
     - If you want to override the above and get maximum throw (old way) uncomment in _config.h the line #define DSM_MAX_THROW . In this mode to achieve standard throw use a channel weight of 84%.
- - TH_KILL is a feature which is enabled on channel 15 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 15 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 15 will instantly kill the motors on the X-Vert.
+ - TH_KILL is a feature which is enabled on channel 14 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 15 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
 
 ### Sub_protocol DSM2_22 - *0*
 DSM2, Resolution 1024, refresh rate 22ms
@@ -514,6 +529,15 @@ Also on er9x you will need to be sure to match the polarity of the telemetry ser
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+## Traxxas - *43*
+Receiver 6519
+
+Extended limits supported
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+AUX3|AUX4|THROTTLE|STEERING
 
 ## WFLY - *40*
 Receivers: WFR04S, WFR07S, WFR09S
@@ -1179,6 +1203,15 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ### Sub_protocol XINXUN - *3*
 ### Sub_protocol NIHUI - *4*
 Same channels assignement as above.
+
+## ZSX - *52*
+Model: JJRC ZSX-280
+
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+||T|R|LIGHT
 
 # OpenLRS module
 

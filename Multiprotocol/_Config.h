@@ -31,8 +31,8 @@
 /*************************/
 //Allow flashing multimodule directly with TX(erky9x or opentx maintenance mode)
 //Instructions:https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Flash_from_Tx.md
-//To enable this feature remove the "//" on the next line.  Requires a compatible bootloader or upload method to be selected when you use the Multi 4-in-1 Boards Manager definitions.
-//#define CHECK_FOR_BOOTLOADER
+//To disable this feature add "//" at the begining of the next line.  Requires a compatible bootloader or upload method to be selected when you use the Multi 4-in-1 Boards Manager definitions.
+#define CHECK_FOR_BOOTLOADER
 
 
 /*******************/
@@ -108,10 +108,11 @@
 
 //Once a good tuning value is found it can be set here and will override the frequency tuning for a specific protocol.
 //Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable. Valid range is -300 to +300 and default is 0.
-//#define FORCE_FLYSKY_TUNING	0
-//#define FORCE_HUBSAN_TUNING	0
 //#define FORCE_AFHDS2A_TUNING	0
-//#define FORCE_BUGS_TUNING	0
+//#define FORCE_BUGS_TUNING		0
+//#define FORCE_FLYSKY_TUNING	0
+//#define FORCE_FLYZONE_TUNING	0
+//#define FORCE_HUBSAN_TUNING	0
 
 /** CYRF6936 Fine Frequency Tuning **/
 //This is required in rare cases where some CYRF6936 modules and/or RXs have an inaccurate crystal oscillator.
@@ -155,19 +156,19 @@
 
 //The protocols below need an A7105 to be installed
 #define	AFHDS2A_A7105_INO
-#define	FLYSKY_A7105_INO
-#define	HUBSAN_A7105_INO
 #define	BUGS_A7105_INO
+#define	FLYSKY_A7105_INO
+#define	FLYZONE_A7105_INO
+#define	HUBSAN_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO
 #define	DSM_CYRF6936_INO
 #define	J6PRO_CYRF6936_INO
+#define TRAXXAS_CYRF6936_INO
 #define	WFLY_CYRF6936_INO
 #define	WK2x01_CYRF6936_INO
 #define	SCANNER_CYRF6936_INO
-
-//#define TRAXXAS_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
 #define	CORONA_CC2500_INO
@@ -211,6 +212,7 @@
 #define	V761_NRF24L01_INO
 #define	V911S_NRF24L01_INO
 #define	YD717_NRF24L01_INO
+#define	ZSX_NRF24L01_INO
 
 
 /***************************/
@@ -223,10 +225,10 @@
 // For more throw, 1024..1976us @100% and 904..2096us @125%, remove the "//" on the line below. Be aware that too much throw can damage some UMX servos. To achieve standard throw in this mode use a channel weight of 84%.
 //#define DSM_MAX_THROW
 //Some models (X-Vert, Blade 230S...) require a special value to instant stop the motor(s).
-// You can disable this feature by adding "//" on the line below. You have to specify which channel (15 by default) will be used to kill the throttle channel.
-// If the channel 15 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%.
+// You can disable this feature by adding "//" on the line below. You have to specify which channel (14 by default) will be used to kill the throttle channel.
+// If the channel 14 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%.
 // For example, a value of -80% applied on channel 15 will instantly kill the motors on the X-Vert.
-#define DSM_THROTTLE_KILL_CH 15 
+#define DSM_THROTTLE_KILL_CH 14 
 
 //AFHDS2A specific settings
 //-------------------------
@@ -274,11 +276,11 @@
 
 //Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
 //Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
-#define MULTI_STATUS
+//#define MULTI_STATUS
 
 //Uncomment to send Multi status and allow OpenTX to autodetect the telemetry format
 //Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/ersky9x use MULTI_STATUS instead.
-//#define MULTI_TELEMETRY
+#define MULTI_TELEMETRY
 
 //Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, ersky9x and OpenTX
@@ -532,6 +534,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		V6X6
 		V912
 		CX20
+	PROTO_FLYZONE
+		FZ410
 	PROTO_FQ777
 		NONE
 	PROTO_FRSKYD
@@ -625,7 +629,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		SYMAX
 		SYMAX5C
 	PROTO_TRAXXAS
-		NONE
+		RX6519
 	PROTO_V2X2
 		V2X2
 		JXD506
@@ -648,4 +652,6 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		SYMAX4
 		XINXUN
 		NIHUI
+	PROTO_ZSX
+		NONE
 */

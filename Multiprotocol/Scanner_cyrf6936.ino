@@ -118,7 +118,7 @@ uint16_t initScanner(void)
 
 	// todo: find optimal values or use user options
 	Scanner.averaging = 2;
-	Scanner.attenuator = 1;
+	Scanner.attenuator = 0;
 
 	scan_averages = 0;
 	scan_channel = 0;

@@ -85,7 +85,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105|
 [Flyzone](Protocols_Details.md#FLYZONE---53)|53|Flyzone|FZ410|||||||A7105|
-[FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|
+[FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|FrskyD||||||||CC2500|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500|

@@ -224,7 +224,25 @@ void setup()
 	// Setup diagnostic uart before anything else
 	#ifdef DEBUG_SERIAL
 		Serial.begin(115200,SERIAL_8N1);
-		while (!Serial); // Wait for ever for the serial port to connect...
+
+		// Wait up to 30s for a serial connection; double-blink the LED while we wait
+		unsigned long currMillis = millis();
+		unsigned long initMillis = currMillis;
+		pinMode(LED_pin,OUTPUT);
+		LED_off;
+		while (!Serial && (currMillis - initMillis) <= 30000) {
+			LED_on;
+			delay(100);
+			LED_off;
+			delay(100);
+			LED_on;
+			delay(100);
+			LED_off;
+			delay(500);
+			currMillis = millis();
+		}
+
+		delay(50);  // Brief delay for FTDI debugging
 		debugln("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
 	#endif
 

@@ -3,7 +3,7 @@
 For radios running ersky9x and OpenTX, there is an option to flash a precompiled firmware file to the multiprotocol module using the transmitter's Bootloader mode.
 
 ## Tools required
-* A compatible transmitter running an ersky9x bootloader v2.9 or newer. This is true for both OpenTX and ersky9x.
+* A compatible transmitter running an erskyTx bootloader v2.9 or newer. This is true for both OpenTX and erskyTx.
 * A precompiled multiprotocol firmware file (.hex for Atmega328p or .bin for STM32)
 * A **Flash from TX** bootloader installed on an Atmega328p or STM32 multiprotocol module
 * A means to get the firmware file onto the transmitter's SD card
@@ -18,11 +18,11 @@ For radios running ersky9x and OpenTX, there is an option to flash a precompiled
 1. If everything is correct you are ready to upgrade the Multimodule firmware
 
 ### Upgrade the bootloader and install app(s)
-1. Download the latest zip file of the [ersky9x firmware](https://openrcforums.com/forum/viewtopic.php?f=7&t=4676)
+1. Download the latest zip file of the [erskyTx firmware](https://openrcforums.com/forum/viewtopic.php?f=7&t=4676) or [this file for the T16](http://www.er9x.com/t16BootFlashMulti.zip).
 1. Extract the .bin file corresponding to your radio in your SD card `\FIRMWARE` directory
-1. Download the latest [Flash Multiprotocol Module app](http://www.er9x.com/Ersky9xapps.html) for your radio
+1. Download the latest [Flash Multiprotocol Module app](http://www.er9x.com/Ersky9xapps.html) for your radio. For the T16, it's in the previous file.
 1. Copy the .app file in a folder called `APPS` at the root of the SD card (if the directory does not exist create it)
-1. For ersky9x
+1. For erskyTx
    1. Power on the radio in `MAINTENANCE` mode while pushing both horizontals trims outwards (away from each others)
    1. Select `Update Bootloader`
    1. Select the ersky9x firmware matching your radio

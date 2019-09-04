@@ -135,7 +135,7 @@ static int __attribute__((unused)) _scan_rssi()
 {
 	uint8_t rssi = CC2500_ReadReg(0x40 | CC2500_34_RSSI);  // 0.5 db/count, RSSI value read from the RSSI status register is a 2’s complement number
 
-	debugln("rssi %d", rssi);
+	
 
 	uint8_t rssi_rel;
 	if (rssi >= 128) {
@@ -144,6 +144,7 @@ static int __attribute__((unused)) _scan_rssi()
 	else {
 		rssi_rel = rssi + 128;  // relativ power levels 128-255 (equals -73 to -10 dBm)
 	}
+	debugln("rssi %d", rssi_rel);
 	return rssi_rel;
 }
 
@@ -188,6 +189,7 @@ uint16_t initScanner(void)
 	CC2500_Strobe(CC2500_SFSTXON);
 	delayMicroseconds(800);
 	CC2500_Strobe(CC2500_SIDLE);
+	CC2500_SetTxRxMode(RX_EN);
 	CC2500_Strobe(CC2500_SRX);  // Receive mode
 	BIND_DONE;
 	return 1250;

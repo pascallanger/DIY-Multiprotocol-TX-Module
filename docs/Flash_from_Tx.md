@@ -1,6 +1,6 @@
 # Flashing from the Transmitter
 
-For radios running ersky9x and OpenTX, there is an option to flash a precompiled firmware file to the multiprotocol module using the transmitter's Bootloader mode.
+For radios running erskyTx and OpenTX, there is an option to flash a precompiled firmware file to the multiprotocol module using the transmitter's Bootloader mode.
 
 ## Tools required
 * A compatible transmitter running an erskyTx bootloader v2.9 or newer. This is true for both OpenTX and erskyTx.

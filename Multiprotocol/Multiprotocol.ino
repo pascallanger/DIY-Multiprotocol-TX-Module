@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_PIN		// Use pin TX for AVR and SPI_CS for STM32 => DEBUG_PIN_on, DEBUG_PIN_off, DEBUG_PIN_toggle
-//#define DEBUG_SERIAL	// Only for STM32_BOARD, compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
+#define DEBUG_SERIAL	// Only for STM32_BOARD, compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
 #ifdef __arm__			// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
@@ -998,6 +998,14 @@ static void protocol_init()
 						remote_callback = ReadHITEC;
 						break;
 				#endif
+				#if defined(SCANNER_CC2500_INO)
+					case PROTO_SCANNER:
+						PE1_off;
+						PE2_on;	//antenna RF2
+						next_callback = initScanner();
+						remote_callback = Scanner_callback;
+						break;
+				#endif
 			#endif
 			#ifdef CYRF6936_INSTALLED
 				#if defined(DSM_CYRF6936_INO)
@@ -1070,13 +1078,6 @@ static void protocol_init()
 						PE2_on;	//antenna RF4
 						next_callback = initTRAXXAS();
 						remote_callback = ReadTRAXXAS;
-						break;
-				#endif
-				#if defined(SCANNER_CYRF6936_INO)
-					case PROTO_SCANNER:
-						PE2_on;	//antenna RF4
-						next_callback = initScanner();
-						remote_callback = Scanner_callback;
 						break;
 				#endif
 			#endif

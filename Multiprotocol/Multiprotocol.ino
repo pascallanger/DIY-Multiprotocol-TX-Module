@@ -129,11 +129,10 @@ uint8_t  num_ch;
 	#define BOOT_READY			3
 #endif
 
-//Channel mapping for protocols
-const uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
-const uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
-const uint8_t CH_RETA[]={RUDDER, ELEVATOR, THROTTLE, AILERON, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
-const uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
+uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
+uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
+uint8_t CH_RETA[]={RUDDER, ELEVATOR, THROTTLE, AILERON, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
+uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
 
 // Mode_select variables
 uint8_t mode_select;
@@ -157,7 +156,9 @@ uint8_t option;
 uint8_t cur_protocol[3];
 uint8_t prev_option;
 uint8_t prev_power=0xFD; // unused power value
-uint8_t  RX_num;
+uint8_t RX_num;
+
+uint8_t channel_order;
 
 //Serial RX variables
 #define BAUD 100000
@@ -165,7 +166,7 @@ uint8_t  RX_num;
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 volatile uint8_t discard_frame = 0;
-
+       
 // Telemetry
 #define MAX_PKT 29
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
@@ -220,7 +221,7 @@ void_function_t remote_callback = 0;
 
 // Init
 void setup()
-{
+{       
 	// Setup diagnostic uart before anything else
 	#ifdef DEBUG_SERIAL
 		Serial.begin(115200,SERIAL_8N1);
@@ -395,6 +396,7 @@ void setup()
 
 	// Set default channels' value
 	InitChannel();
+  
 	#ifdef ENABLE_PPM
 		InitPPM();
 	#endif
@@ -430,11 +432,42 @@ void setup()
 			const PPM_Parameters *PPM_prot_line=&My_PPM_prot[bank*14+mode_select-1];
 		#endif
 		
-		protocol		=	PPM_prot_line->protocol;
+		protocol	= PPM_prot_line->protocol;
 		cur_protocol[1] = protocol;
-		sub_protocol   	=	PPM_prot_line->sub_proto;
-		RX_num			=	PPM_prot_line->rx_num;
+		sub_protocol	= PPM_prot_line->sub_proto;
+		RX_num		= PPM_prot_line->rx_num;
+    		channel_order   = PPM_prot_line->channel_order;
 
+    /* PPM and the channel re-mapping for protocols, can be extended with more, hence already the switch */
+    switch(channel_order) {
+      case CO_JR_HELI : 
+        {
+          /*
+          JR Graupner **order** of PPM pulses in pulsetrain if model in transmitter is set as heli type
+          CollectivePitch is at the first pulse and throttle the sixth
+          But since the indexes start at 0 the pulse order is defined at the "Zero" pulse and so on for the rest
+          CollectivePitch     0 
+          Aileron             1
+          Elevator            2
+          Rudder              3 
+          x                   4
+          Throttle            5
+          GyroGain (optional) 6
+          ...
+          */
+          
+          CH_AETR[0]=1;CH_AETR[1]=2;CH_AETR[2]=5;CH_AETR[3]=3;CH_AETR[4]=4;CH_AETR[5]=0;
+          CH_TAER[0]=5;CH_TAER[1]=1;CH_TAER[2]=2;CH_TAER[3]=3;CH_TAER[4]=4;CH_TAER[5]=0;
+          CH_RETA[0]=3;CH_RETA[1]=2;CH_RETA[2]=5;CH_RETA[3]=1;CH_RETA[4]=4;CH_RETA[5]=0;
+          CH_EATR[0]=2;CH_EATR[1]=1;CH_EATR[2]=5;CH_EATR[3]=3;CH_EATR[4]=4;CH_EATR[5]=0;
+          break;
+        }
+      default :
+        break;
+    }
+//#endif
+
+//#ifdef ENABLE_PPM         
 		//Forced frequency tuning values for CC2500 protocols
 		#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
 			if(protocol==PROTO_FRSKYD) 

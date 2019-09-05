@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	74
+#define VERSION_PATCH_LEVEL	75
 
 //******************
 // Protocols
@@ -294,6 +294,9 @@ enum TRAXXAS
 #define AUTOBIND	1
 #define NO_AUTOBIND	0
 
+#define CO_DEFAULT 0
+#define CO_JR_HELI 1
+
 struct PPM_Parameters
 {
 	uint8_t protocol : 6;
@@ -302,6 +305,7 @@ struct PPM_Parameters
 	uint8_t power : 1;
 	uint8_t autobind : 1;
 	uint8_t option;
+	uint8_t channel_order : 2;
 };
 
 // Telemetry

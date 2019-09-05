@@ -15,6 +15,7 @@
 - **_Fast blink(on=0.1s,off=0.1s)_**: bind in progress
 - **_Slow blink(on=0.5s,off=0.5s)_**: serial has been selected but no valid signal is being seen on the RX pin.
 - **_Slower blink(on=1s,off=1s)_**: PPM has been selected but no valid signal is being seen on the PPM pin.
+- **_Fast double blink(on=0.1s,off=0.1s,on=0.1s,off=0.5s)_**: serial debugging is enabled and is waiting for a serial connection
 - **_On_**: Module is in normal operation mode (transmitting control signals).
 
 ## Protocol selection

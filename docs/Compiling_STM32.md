@@ -88,9 +88,11 @@ Multiprotocol firmware can be compiled and flashed with your customized firmware
 
 ### Configure the Arduino IDE
 1. Under **Tools -> Board** select **Multi 4-in-1 (STM32FC103)**
-1. Under **Tools -> Debug Options** select **None**
+1. Under **Tools -> Debug Option** select **None**
 
 ## Configure the firmware
+Make any changes you require to the firmware.
+
 The STM32 module has more than enough flash space for all the available protocols so, unlike the Atmega328p-based module, it is not necessary to disable unused protocols.
 
 You can still disable protocols if you wish, and you may also enable or disable other optional Multiprotocol features.

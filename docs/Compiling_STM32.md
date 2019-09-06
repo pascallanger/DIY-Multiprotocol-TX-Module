@@ -15,13 +15,11 @@ Multiprotocol modules can be flashed with a precompiled firmware file (Option 1)
    1. [Configure the Arduino IDE](#configure-the-arduino-ide)
 1. [Configure the firmware](#configure-the-firmware)
 1. [Verify the firmware](#verify-the-firmware)
-1. [Preparing to upload the firmware](#preparing-to-upload-the-firmware)
-   1. [Select an upload method](#select-an-upload-method)
-1. [Upload via Serial inc. Bootloader (FTDI)](#upload-via-serial-inc-bootloader-ftdi)
-1. [Flash from TX](#flash-from-tx)
-1. [Upload via USB](#upload-via-usb)
-   1. [Install the Maple USB Drivers](#install-the-maple-usb-drivers)
-   1. [Upload the firmware](#upload-the-firmware)
+1. [Connect the module](#connect-the-module)
+   1. [USB Port](#usb-port)
+   1. [USB-to-Serial adapter](#usb-to-serial-adapter)
+1. [Upload the firmware](#upload-the-firmware)
+1. [Exporting compiled firmware](exporting-compiled-firmware)
 1. [Troubleshooting](#troubleshooting)
 
 ## Tools required
@@ -57,7 +55,7 @@ The 4-pin header needs to be soldered onto the board as indicated by the red rec
 ## Option 1 - Update Firmware using Precompiled Binaries
 If you don't need/want to customize the multi module firmware then you can use pre-compiled binaries available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
 
-**STM32 Builds (file names beginning with 'Multi-STM_')
+**STM32 Builds (file names beginning with 'Multi-STM_')**
  -   All radio modules and protocols are included in all builds
  -   Files with TXFLASH in the name are built with a bootloader for flashing from a transmitter OR via the module's USB port (eg. Multi-STM_TXFLASH_INV-vX.X.X.XX.bin)
  -   Files with FTDI in the name are built without a bootloader for flashing using an FTDI adapter (eg. Multi-STM_FTDI_INV-vX.X.X.XX.bin)
@@ -76,7 +74,7 @@ After a succesful flash your Module is now updated to the newer version firmware
 Multiprotocol firmware can be compiled and flashed with your customized firmware using the Arduino IDE. The guide below will walk you through all the steps in many details, don't be afraid by the length it is in fact simple!
 
 ### Install the Arduino IDE
-1. Download and install the Arduino IDE. The currently supported Arduino version is 1.8.5, available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-windows.exe), [Mac OSX](https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-macosx.zip) and [Linux (64-bit)](https://www.arduino.cc/download_handler.php?f=/arduino-1.8.5-linux64.tar.xz)
+1. Download and install the Arduino IDE. The currently supported Arduino version is 1.8.9, available for [Windows]( https://www.arduino.cc/download_handler.php?f=/arduino-1.8.9-windows.exe), [Mac OSX](https://www.arduino.cc/download_handler.php?f=/arduino-1.8.9-macosx.zip) and [Linux (64-bit)](https://www.arduino.cc/download_handler.php?f=/arduino-1.8.9-linux64.tar.xz)
 1. It is recommended to upgrade Java to the [latest version](https://www.java.com/en/download/)
 
 ### Download the Multiprotocol source and open the project
@@ -90,6 +88,7 @@ Multiprotocol firmware can be compiled and flashed with your customized firmware
 
 ### Configure the Arduino IDE
 1. Under **Tools -> Board** select **Multi 4-in-1 (STM32FC103)**
+1. Under **Tools -> Debug Options** select **None**
 
 ## Configure the firmware
 The STM32 module has more than enough flash space for all the available protocols so, unlike the Atmega328p-based module, it is not necessary to disable unused protocols.
@@ -108,7 +107,7 @@ Global variables use 4064 bytes (19%) of dynamic memory, leaving 16416 bytes for
 ```
 You can proceed to the next step.
 
-## Connecting the module
+## Connect the module
 ### USB port
 Ensure that you [installed the necessary drivers](https://github.com/benlye/DIY-Multiprotocol-TX-Module/blob/doc-updates/docs/Arduino_IDE_Boards.md#install-device-drivers).
 
@@ -147,7 +146,7 @@ In order to flash the bootloader the **BOOT0** jumper must be installed connecti
 1. Install the **BOOT0** jumper as described above.
 1. Switch on the transmitter
 
-## Flashing the firmware
+## Upload the firmware
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
 
 ## Exporting compiled firmware

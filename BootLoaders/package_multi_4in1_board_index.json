@@ -117,6 +117,24 @@
         "toolsDependencies": []
       },
       {
+        "name": "Multi 4-in-1 AVR Boards",
+        "architecture": "avr",
+        "version": "1.0.8",
+        "category": "Contributed",
+        "help": {
+          "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+        },
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/raw/master/archives/package_multi_4in1_avr_board_v1.0.8.tar.gz",
+        "archiveFileName": "package_multi_4in1_avr_board_v1.0.8.tar.gz",
+        "checksum": "SHA-256:8e58b8733220d56155e10bf5bec0bfe6bf96f8460b3fd49a4b45c7f9fad776cb",
+        "size": "293388",
+        "boards": [
+          {"name": "Multi 4-in-1 (Atmega328p, 3.3V, 16MHz)"},
+          {"name": "Multi 4-in-1 (OrangeRX)"}
+        ],
+        "toolsDependencies": []
+      },
+      {
         "name": "Multi 4-in-1 STM32 Board",
         "architecture": "STM32F1",
         "version": "1.0.1",
@@ -401,6 +419,27 @@
         "archiveFileName": "package_multi_4in1_stm32_board_v1.1.4.tar.gz",
         "checksum": "SHA-256:16a83a3b4409cb55aead6593396979483996080634d214ae07c8a956db2480fb",
         "size": "10322152",
+        "boards": [{
+          "name": "Multi 4-in-1 (STM32F103C)"
+        }],
+        "toolsDependencies": [{
+          "packager": "arduino",
+          "name": "arm-none-eabi-gcc",
+          "version": "4.8.3-2014q1"
+        }]
+      },
+      {
+        "name": "Multi 4-in-1 STM32 Board",
+        "architecture": "STM32F1",
+        "version": "1.1.5",
+        "category": "Contributed",
+        "help": {
+          "online": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module"
+        },
+        "url": "https://github.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/raw/master/archives/package_multi_4in1_stm32_board_v1.1.5.tar.gz",
+        "archiveFileName": "package_multi_4in1_stm32_board_v1.1.5.tar.gz",
+        "checksum": "SHA-256:6be4c600d7726a29ca478c53f5a7d38911571033ba746331384b43bf82315c9a",
+        "size": "7934814",
         "boards": [{
           "name": "Multi 4-in-1 (STM32F103C)"
         }],

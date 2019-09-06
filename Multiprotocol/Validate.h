@@ -35,6 +35,11 @@
 	#error You need to update your Multi 4-in-1 board definition.  Open Boards Manager and update to the latest version of the Multi 4-in-1 STM32 Board.
 #endif
 
+// Enable serial debugging if a debugging option was chosen in the IDE
+#ifdef ARDUINO_MULTI_DEBUG
+	#define DEBUG_SERIAL
+#endif
+
 // Error if CHECK_FOR_BOOTLOADER is not enabled but a FLASH_FROM_TX board is selected
 #if (defined(ARDUINO_MULTI_FLASH_FROM_TX) || defined(ARDUINO_MULTI_STM32_FLASH_FROM_TX)) &! defined(CHECK_FOR_BOOTLOADER)
 	#if defined(STM32_BOARD)

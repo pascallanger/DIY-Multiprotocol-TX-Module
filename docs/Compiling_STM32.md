@@ -113,7 +113,7 @@ You can proceed to the next step.
 ### USB port
 Ensure that you [installed the necessary drivers](https://github.com/benlye/DIY-Multiprotocol-TX-Module/blob/doc-updates/docs/Arduino_IDE_Boards.md#install-device-drivers).
 
-If your Multiprotocol module has a USB port, connect it to the computer.  With the drivers installed your computer should detect the module as a COM port.  If the device appears correctly (check in **Device Manager**) you can proceed to the next step, Flashing the firmware.  If not, you will need to flash your module one time using a USB-to-serial adapter (also known as an FTDI adapter).
+If your Multiprotocol module has a USB port, connect it to the computer.  With the drivers installed your computer should detect the module as a COM port.  If the device appears correctly (check in **Device Manager**) you can proceed to the next step and [upload the firmware](#upload-the-firmware).  If not, you will need to flash your module one time using a USB-to-serial adapter (also known as an FTDI adapter).
 
 **Note:** Some modules require external power in order for the USB port to work.  If your module does not power on with USB power alone, install it in the transmitter and switch the transmitter on.  It is generally safe for the module to recieve power from both USB and the transmitter.
 

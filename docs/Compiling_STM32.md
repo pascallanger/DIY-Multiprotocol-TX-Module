@@ -94,8 +94,6 @@ Multiprotocol firmware can be compiled and uploaded with your customized firmwar
 
 ### Configure the Arduino IDE
 1. Under **Tools -> Board** select **Multi 4-in-1 (STM32FC103)**
-1. Under **Tools -> Upload method** select **Auto Detect (USB or Serial)** <- more details on this subject later on
-1. Under **Tools -> Programmer** select **stm32flash (FTDI)**
 
 ## Configure the firmware
 The STM32 module has more than enough flash space for all the available protocols so, unlike the Atmega328p-based module, it is not necessary to disable unused protocols.
@@ -113,29 +111,12 @@ Global variables use 4064 bytes (19%) of dynamic memory, leaving 16416 bytes for
 ```
 You can proceed to the next step.
 
-## Preparing to upload the firmware
-If you have already burnt the bootloader, and are simply recompiling firmware to re-flash using your TX or USB cable, you can skip this step and go straight to [Flash from TX](#flash-from-tx) or [Upload via USB](#upload-via-usb).
+## Connecting your module
+### USB port
+If your Multiprotocol module has a USB port, connect it to the computer.  With the drivers installed your computer should detect the module as a 'Maple' COM port.  If the device appears correctly you can proceed to the next step, Flashing the firmware.  If not, you will need to flash your module one time using a USB-to-serial adapter (also known as an FTDI adapter).
 
-STM modules, until now, do not come with a preloaded bootloader which makes the USB port unusable and discovered by a computer as unknown device. **For the first time use, you must use the upload method Upload via Serial inc. Bootloader (FTDI)** independently of what method you wish to use in future.
-
-The latest Jumper 4-in-1 modules come with a USB port but it's in fact a built in FTDI appearing on the computer as a CP2102 serial device. You should use the method **Upload via Serial inc. Bootloader** instead of Upload via USB. 'Flash from TX' is supported once the bootloader is installed. 
-
-### Select an Upload Method
-There are a total of five firmware upload methods to an STM32 module:
-* **Flash from TX** - uses the bootloader mode of radios running ersky9x or OpenTX to upload the firmware. The radio needs to run the latest bootloader with the Multi Flash app.
-* **Auto Detect (USB or Serial)** - Detects automatically if the upload method is USB or Serial. You need to configure the correct COM port in the IDE which is created when plugging the module.
-* **Upload via USB** - uses the USB upload method through the USB plug of the module. It requires the presence of a bootloader in the module.
-* **Upload via Serial inc. Bootloader (FTDI)** - uses the serial interface of the module via a USB-to-TTL adapter to install the bootloader and firmware.
-* **Upload via Serial (FTDI)** - uses the serial interface of the module via a USB-to-TTL adapter to install the firmware.
-
-You will most likely use only once on a brand new module the **Upload via Serial inc. Bootloader (FTDI)** method to load the bootloader+firmware. Any successive updates will be done using either **Auto Detect (USB or Serial)** or **Flash from TX** depending on your preference.
-
-1. Under **Tools -> Upload Method** select an upload method
-
-The rest of this process will vary depending on the upload method you selected.
-
-## Upload via Serial inc. Bootloader (FTDI)
-It is **strongly** recommended that you power your module from the transmitter when flashing it. This ensures that the module cannot be inadvertently supplied with 5V, which will damage the RF modules. This guide assumes that you will follow that advice, and instructs you to leave the V+ pin on the USB-to-TTL adapter disconnected. You may choose to ignore that advice at your own risk!
+### USB-to-Serial adapter
+It is **strongly** recommended that you power your module from the transmitter when flashing it using a USB-to-serial adapater. This ensures that the module cannot be inadvertently supplied with 5V, which will damage the RF modules. This guide assumes that you will follow that advice, and instructs you to leave the V+ pin on the USB-to-TTL adapter disconnected. You may choose to ignore that advice at your own risk!
 
 The wiring for the USB-to-TTL adapter is:
 * USB-to-TTL TX pin <-> Module RX pin
@@ -164,6 +145,8 @@ In order to flash the bootloader the **BOOT0** jumper must be installed connecti
 1. If on Linux, ensure you have permissions to access serial interfaces as described in [Install the Maple USB drivers](#install-the-maple-usb-drivers)
 1. Install the **BOOT0** jumper as described above.
 1. Switch on the transmitter
+
+
 1. Verify that you have selected the upload method **Upload via Serial inc. Bootloader (FTDI)** under **Tools -> Upload Method**
 1. Verify that you have selected **stm32flash (FTDI)** as the programmer under **Tools -> Programmer**
 1. Verify that the USB-to-TTL adapter is correctly connected to your module and you have selected the correct port under **Tools -> Port**
@@ -268,7 +251,6 @@ After adding yourself to the groups as above and installing and running the udev
 **Note:** Some modules require external power in order for the USB port to work.  If your module does not power on with USB power alone, install it in the transmitter and switch the transmitter on.  It is generally safe for the module to recieve power from both USB and the transmitter.
 
 1. Connect the USB cable to the Multiprotocol module
-1. Click **Tools -> Upload method -> Auto Detect (USB or Serial)**
 1. Select the correct COM port **Tools -> Port**, which should be labelled **COMx (Multi 4-in-1 (STM32F103CB))**.<p align="center"><img src="images/maple-serial-port-select.jpg"/></p>
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
 

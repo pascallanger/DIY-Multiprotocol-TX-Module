@@ -23,7 +23,7 @@
 #include <avr/pgmspace.h>
 
 //#define DEBUG_PIN		// Use pin TX for AVR and SPI_CS for STM32 => DEBUG_PIN_on, DEBUG_PIN_off, DEBUG_PIN_toggle
-#define DEBUG_SERIAL	// Only for STM32_BOARD, compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
+//#define DEBUG_SERIAL	// Only for STM32_BOARD, compiled with Upload method "Serial"->usart1, "STM32duino bootloader"->USB serial
 
 #ifdef __arm__			// Let's automatically select the board if arm is selected
 	#define STM32_BOARD
@@ -114,7 +114,11 @@ uint8_t  armed, arm_flags, arm_channel_previous;
 uint8_t  num_ch;
 
 #ifdef CC2500_INSTALLED
-	uint8_t calData[50];
+	#ifdef SCANNER_CC2500_INO
+		uint8_t calData[255];
+	#else
+		uint8_t calData[50];
+	#endif
 #endif
 
 #ifdef CHECK_FOR_BOOTLOADER

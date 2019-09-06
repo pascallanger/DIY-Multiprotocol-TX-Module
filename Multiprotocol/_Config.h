@@ -23,7 +23,7 @@
 //If you know parameters you want for sure to be enabled or disabled which survives in future, you can use a file named "_MyConfig.h".
 //An example is given within the file named "_MyConfig.h.example" which needs to be renamed if you want to use it.
 //To enable this config file remove the // from the line below.
-#define USE_MY_CONFIG
+//#define USE_MY_CONFIG
 
 
 /*************************/
@@ -32,7 +32,7 @@
 //Allow flashing multimodule directly with TX(erky9x or opentx maintenance mode)
 //Instructions:https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/docs/Flash_from_Tx.md
 //To disable this feature add "//" at the begining of the next line.  Requires a compatible bootloader or upload method to be selected when you use the Multi 4-in-1 Boards Manager definitions.
-//#define CHECK_FOR_BOOTLOADER
+#define CHECK_FOR_BOOTLOADER
 
 
 /*******************/

@@ -63,7 +63,7 @@ static void __attribute__((unused)) Scanner_cc2500_init()
 	delayMicroseconds(1000);  // wait for RX to activate
 }
 
-static void __attribute__((unused)) _calibrate()
+static void __attribute__((unused)) Scanner_calibrate()
 {
 	for (int c = 0; c < MAX_RADIOCHANNEL; c++) {
 		CC2500_Strobe(CC2500_SIDLE);
@@ -75,7 +75,7 @@ static void __attribute__((unused)) _calibrate()
 	CC2500_Strobe(CC2500_SIDLE);
 }
 
-static void __attribute__((unused)) _scan_next()
+static void __attribute__((unused)) Scanner_scan_next()
 {
 	CC2500_WriteReg(CC2500_0A_CHANNR, Scanner.chan_min + rf_ch_num);
 	CC2500_WriteReg(CC2500_25_FSCAL1, calData[rf_ch_num]);
@@ -83,7 +83,7 @@ static void __attribute__((unused)) _scan_next()
 	CC2500_Strobe(CC2500_SRX);
 }
 
-static int __attribute__((unused)) _scan_rssi()
+static int __attribute__((unused)) Scanner_scan_rssi()
 {
 	uint8_t rssi;
 	rssi = CC2500_ReadReg(0x40 | CC2500_34_RSSI);  // 0.5 db/count, RSSI value read from the RSSI status register is a 2’s complement number
@@ -105,11 +105,11 @@ uint16 Scanner_callback()
 		rf_ch_num++;
 		if (rf_ch_num >= (Scanner.chan_max - Scanner.chan_min + 1))
 			rf_ch_num = 0;
-		_scan_next();
+		Scanner_scan_next();
 		phase = SCAN_GET_RSSI;
 		return CHANNEL_LOCK_TIME;
 	case SCAN_GET_RSSI:
-		rssi_value = _scan_rssi();
+		rssi_value = Scanner_scan_rssi();
 		phase = SCAN_CHANNEL_CHANGE;
 		// send data to TX
 		pkt[0] = rf_ch_num;
@@ -128,7 +128,7 @@ uint16_t initScanner(void)
 	CC2500_Reset();
 	Scanner_cc2500_init();
 	CC2500_Strobe(CC2500_SRX);
-	_calibrate();
+	Scanner_calibrate();
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_SetTxRxMode(RX_EN);
 	CC2500_Strobe(CC2500_SRX);  // Receive mode

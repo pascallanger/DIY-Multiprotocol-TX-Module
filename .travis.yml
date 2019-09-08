@@ -5,14 +5,15 @@ language: c
   #
 env:
   global:
-    - IDE_VERSION=1.8.1
+    - IDE_VERSION=1.8.9
   matrix:
-    - BOARD="multi4in1:STM32F1:multistm32f103c:upload_method=serialMethod"
-    - BOARD="multi4in1:STM32F1:multistm32f103c:upload_method=TxFlashMethod"
-    - BOARD="multi4in1:avr:multixmega32d4"
     - BOARD="multi4in1:avr:multiatmega328p:bootloader=none"
     - BOARD="multi4in1:avr:multiatmega328p:bootloader=optiboot"
-  #
+    - BOARD="multi4in1:avr:multixmega32d4"
+    - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=none"
+    - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=native"
+    - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=ftdi"
+    #
 notifications:
   email: false
   #
@@ -41,9 +42,17 @@ before_install:
       arduino --install-boards multi4in1:avr;
     fi
   #
-  - buildMulti() { BUILDCMD="arduino --verify --board $BOARD Multiprotocol/Multiprotocol.ino --pref build.path=./build/"; echo $BUILDCMD; $BUILDCMD; echo; }
-  - buildProtocol() { opt_disable $ALL_PROTOCOLS; opt_enable $1; buildMulti; }
+  - buildMulti() { exitcode=0; BUILDCMD="arduino --verify --board $BOARD Multiprotocol/Multiprotocol.ino --pref build.path=./build/"; echo $BUILDCMD; $BUILDCMD; if [ $? -ne 0 ]; then exitcode=1; fi; echo; return $exitcode; }
+  - buildProtocol() { exitcode=0; opt_disable $ALL_PROTOCOLS; opt_enable $1; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
   - buildEachProtocol() { exitcode=0; for PROTOCOL in $ALL_PROTOCOLS ; do echo Building $PROTOCOL; buildProtocol $PROTOCOL; if [ $? -ne 0 ]; then exitcode=1; fi; done; return $exitcode; }
+  #
+  # Arduino IDE adds a lot of noise caused by network traffic; firewall it
+  - sudo iptables -P INPUT DROP
+  - sudo iptables -P FORWARD DROP
+  - sudo iptables -P OUTPUT ACCEPT
+  - sudo iptables -A INPUT -i lo -j ACCEPT
+  - sudo iptables -A OUTPUT -o lo -j ACCEPT
+  - sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
   #
 install: true
 before_script:
@@ -66,9 +75,9 @@ before_script:
     fi
   - echo $ALL_PROTOCOLS
   #
-  # Enable CHECK_FOR_BOOTLOADER when needed
-  - if [[ "$BOARD" =~ ":upload_method=TxFlashMethod" ]] || [[ "$BOARD" =~ ":bootloader=optiboot" ]]; then
-      opt_enable CHECK_FOR_BOOTLOADER;
+  # Disable CHECK_FOR_BOOTLOADER when not needed
+  - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
+      opt_disable CHECK_FOR_BOOTLOADER;
     fi
   #
   # Trim the build down for the Atmega328p board
@@ -103,68 +112,90 @@ before_deploy:
   # Restore the default configuration
   - cp ./_Config.h.bak Multiprotocol/_Config.h
   # Build the release files for OrangeRX
-  - if [[ "$BOARD" =~ "multi4in1:avr:multixmega32d4" ]]; then
+  - if [[ "$BOARD" == "multi4in1:avr:multixmega32d4" ]]; then
       opt_enable $ALL_PROTOCOLS;
       opt_disable ORANGE_TX_BLUE;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/Multi-OrangeRX_Green_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.hex ./binaries/multi-orangerx-green-inv-$TRAVIS_TAG.hex;
       opt_enable ORANGE_TX_BLUE;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/Multi-OrangeRX_Blue_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.hex ./binaries/multi-orangerx-blue-inv-$TRAVIS_TAG.hex;
     fi
   # Build the release files for AVR without bootloader
-  - if [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
+  - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
       opt_disable CHECK_FOR_BOOTLOADER;
       opt_disable $ALL_PROTOCOLS;
       opt_enable $A7105_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/Multi-AVR_USBASP_A7105_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-usbasp-A7105-inv-$TRAVIS_TAG.hex;
       opt_disable $ALL_PROTOCOLS;
       opt_enable $CC2500_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/Multi-AVR_USBASP_CC2500_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-usbasp-CC2500-inv-$TRAVIS_TAG.hex;
       opt_disable $ALL_PROTOCOLS;
       opt_enable $CYRF6936_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/Multi-AVR_USBASP_CYRF6936_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-usbasp-CYRF6936-inv-$TRAVIS_TAG.hex;
     fi
   # Build the release files for AVR with bootloader
-  - if [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:bootloader=optiboot" ]]; then
+  - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=optiboot" ]]; then
       opt_enable CHECK_FOR_BOOTLOADER;
       opt_disable $ALL_PROTOCOLS;
       opt_enable $A7105_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/Multi-AVR_TXFLASH_A7105_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-txflash-A7105-inv-$TRAVIS_TAG.hex;
       opt_disable $ALL_PROTOCOLS;
       opt_enable $CC2500_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/Multi-AVR_TXFLASH_CC2500_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-txflash-CC2500-inv-$TRAVIS_TAG.hex;
       opt_disable $ALL_PROTOCOLS;
       opt_enable $CYRF6936_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/Multi-AVR_TXFLASH_CYRF6936_INV-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-txflash-CYRF6936-inv-$TRAVIS_TAG.hex;
     fi
-  # Build the release files for STM32 without bootloader
-  - if [[ "$BOARD" =~ "multi4in1:STM32F1:multistm32f103c:upload_method=serialMethod" ]]; then
-      opt_disable CHECK_FOR_BOOTLOADER;
-      opt_enable $ALL_PROTOCOLS;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_FTDI_INV-$TRAVIS_TAG.bin;
-      opt_disable MULTI_STATUS;
-      opt_enable MULTI_TELEMETRY;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_FTDI_INV_OPENTX-$TRAVIS_TAG.bin;
-    fi
-  # Build the release files for STM32 with bootloader
-  - if [[ "$BOARD" =~ "multi4in1:STM32F1:multistm32f103c:upload_method=TxFlashMethod" ]]; then
+  # Build the release files for STM32 without debug
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_method=none" ]]; then
       opt_enable CHECK_FOR_BOOTLOADER;
       opt_enable $ALL_PROTOCOLS;
+      opt_enable MULTI_STATUS;
+      opt_disable MULTI_TELEMETRY;
       buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_TXFLASH_INV-$TRAVIS_TAG.bin;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-inv-$TRAVIS_TAG.bin;
+      opt_disable INVERT_TELEMETRY;
+      buildMulti;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-noinv-$TRAVIS_TAG.bin;
+      opt_disable MULTI_STATUS;
+      opt_enable MULTI_TELEMETRY;
+      opt_enable INVERT_TELEMETRY;
+      buildMulti;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-inv-$TRAVIS_TAG.bin;
+      opt_disable INVERT_TELEMETRY;
+      buildMulti;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-noinv-$TRAVIS_TAG.bin;
+    fi
+  # Build the release files for STM32 with Native USB debugging
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_method=native" ]]; then
+      opt_enable CHECK_FOR_BOOTLOADER;
+      opt_enable $ALL_PROTOCOLS;
+      opt_enable MULTI_STATUS;
+      opt_disable MULTI_TELEMETRY;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-inv-usbdebug-$TRAVIS_TAG.bin;
       opt_disable MULTI_STATUS;
       opt_enable MULTI_TELEMETRY;
       buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/Multi-STM_TXFLASH_INV_OPENTX-$TRAVIS_TAG.bin;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-inv-usbdebug-$TRAVIS_TAG.bin;
+    fi
+  # Build the release files for STM32 with FTDI USB debugging
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_method=ftdi" ]]; then
+      opt_enable CHECK_FOR_BOOTLOADER;
+      opt_enable $ALL_PROTOCOLS;
+      opt_enable MULTI_STATUS;
+      opt_disable MULTI_TELEMETRY;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-inv-ftdidebug-$TRAVIS_TAG.bin;
+      opt_disable MULTI_STATUS;
+      opt_enable MULTI_TELEMETRY;
+      buildMulti;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-inv-ftdidebug-$TRAVIS_TAG.bin;
     fi
 deploy:
   provider: releases

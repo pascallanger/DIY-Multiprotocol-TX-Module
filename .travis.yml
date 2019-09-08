@@ -154,7 +154,7 @@ before_deploy:
       mv build/Multiprotocol.ino.hex ./binaries/multi-avr-txflash-CYRF6936-inv-$TRAVIS_TAG.hex;
     fi
   # Build the release files for STM32 without debug
-  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_method=none" ]]; then
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=none" ]]; then
       opt_enable CHECK_FOR_BOOTLOADER;
       opt_enable $ALL_PROTOCOLS;
       opt_enable MULTI_STATUS;
@@ -174,7 +174,7 @@ before_deploy:
       mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-noinv-$TRAVIS_TAG.bin;
     fi
   # Build the release files for STM32 with Native USB debugging
-  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_method=native" ]]; then
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
       opt_enable CHECK_FOR_BOOTLOADER;
       opt_enable $ALL_PROTOCOLS;
       opt_enable MULTI_STATUS;
@@ -186,7 +186,7 @@ before_deploy:
       mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-inv-usbdebug-$TRAVIS_TAG.bin;
     fi
   # Build the release files for STM32 with FTDI USB debugging
-  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_method=ftdi" ]]; then
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=ftdi" ]]; then
       opt_enable CHECK_FOR_BOOTLOADER;
       opt_enable $ALL_PROTOCOLS;
       opt_enable MULTI_STATUS;

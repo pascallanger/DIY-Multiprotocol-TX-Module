@@ -179,6 +179,7 @@ before_deploy:
       opt_enable $ALL_PROTOCOLS;
       opt_enable MULTI_STATUS;
       opt_disable MULTI_TELEMETRY;
+      buildMulti;
       mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-inv-usbdebug-$TRAVIS_TAG.bin;
       opt_disable MULTI_STATUS;
       opt_enable MULTI_TELEMETRY;
@@ -191,6 +192,7 @@ before_deploy:
       opt_enable $ALL_PROTOCOLS;
       opt_enable MULTI_STATUS;
       opt_disable MULTI_TELEMETRY;
+      buildMulti;
       mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-inv-ftdidebug-$TRAVIS_TAG.bin;
       opt_disable MULTI_STATUS;
       opt_enable MULTI_TELEMETRY;

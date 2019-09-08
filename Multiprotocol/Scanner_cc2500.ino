@@ -17,16 +17,12 @@
 
 #include "iface_cc2500.h"
 
-struct Scanner {
-	uint8_t chan_min;
-	uint8_t chan_max;
-} Scanner;
-
-#define MIN_RADIOCHANNEL    0x00
-#define MAX_RADIOCHANNEL    255
-#define CHANNEL_LOCK_TIME   300 // with precalibration, channel requires only 90 usec for synthesizer to settle
-#define INTERNAL_AVERAGE    6
+#define SCAN_MAX_RADIOCHANNEL    249 // 2483 MHz
+#define SCAN_CHANNEL_LOCK_TIME   300 // with precalibration, channel requires only 90 usec for synthesizer to settle
+#define SCAN_CHANS_PER_PACKET	 5
 #define AVERAGE_INTVL       30
+
+static uint8_t scan_tlm_index;
 
 enum ScanStates {
 	SCAN_CHANNEL_CHANGE = 0,
@@ -65,7 +61,7 @@ static void __attribute__((unused)) Scanner_cc2500_init()
 
 static void __attribute__((unused)) Scanner_calibrate()
 {
-	for (int c = 0; c < MAX_RADIOCHANNEL; c++) {
+	for (int c = 0; c < SCAN_MAX_RADIOCHANNEL; c++) {
 		CC2500_Strobe(CC2500_SIDLE);
 		CC2500_WriteReg(CC2500_0A_CHANNR, c);
 		CC2500_Strobe(CC2500_SCAL);
@@ -77,7 +73,7 @@ static void __attribute__((unused)) Scanner_calibrate()
 
 static void __attribute__((unused)) Scanner_scan_next()
 {
-	CC2500_WriteReg(CC2500_0A_CHANNR, Scanner.chan_min + rf_ch_num);
+	CC2500_WriteReg(CC2500_0A_CHANNR, rf_ch_num);
 	CC2500_WriteReg(CC2500_25_FSCAL1, calData[rf_ch_num]);
 	CC2500_Strobe(CC2500_SFRX);
 	CC2500_Strobe(CC2500_SRX);
@@ -103,27 +99,29 @@ uint16 Scanner_callback()
 	switch (phase) {
 	case SCAN_CHANNEL_CHANGE:
 		rf_ch_num++;
-		if (rf_ch_num >= (Scanner.chan_max - Scanner.chan_min + 1))
+		if (rf_ch_num >= (SCAN_MAX_RADIOCHANNEL + 1))
 			rf_ch_num = 0;
+		if (scan_tlm_index++ == 0)
+			pkt[0] = rf_ch_num;  // start channel for telemetry packet
 		Scanner_scan_next();
 		phase = SCAN_GET_RSSI;
-		return CHANNEL_LOCK_TIME;
+		return SCAN_CHANNEL_LOCK_TIME;
 	case SCAN_GET_RSSI:
-		rssi_value = Scanner_scan_rssi();
 		phase = SCAN_CHANNEL_CHANGE;
-		// send data to TX
-		pkt[0] = rf_ch_num;
-		pkt[1] = rssi_value;
-		telemetry_link = 1;
+		pkt[scan_tlm_index] = Scanner_scan_rssi();
+		if (scan_tlm_index == SCAN_CHANS_PER_PACKET) {
+			// send data to TX
+			telemetry_link = 1;
+			scan_tlm_index = 0;
+		}
 	}
 	return AVERAGE_INTVL;
 }
 
 uint16_t initScanner(void)
 {
-	Scanner.chan_min = 0;	// 2400 MHz
-	Scanner.chan_max = 249;	// 2483 Mhz
-	rf_ch_num = 0;
+	rf_ch_num = SCAN_MAX_RADIOCHANNEL;
+	scan_tlm_index = 0;
 	phase = SCAN_CHANNEL_CHANGE;
 	CC2500_Reset();
 	Scanner_cc2500_init();

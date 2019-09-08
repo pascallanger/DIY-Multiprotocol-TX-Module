@@ -888,4 +888,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[3-7] telemetry data
    Full description at the bottom of Hitec_cc2500.ino
 
+   Type 0x0B Spectrum Scanner telemetry data
+   length: 6
+   data[0] = start channel (2400 + x*0.333 Mhz)
+   data[1-5] power levels
 */

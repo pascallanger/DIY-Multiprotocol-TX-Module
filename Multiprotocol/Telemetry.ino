@@ -170,6 +170,20 @@ static void multi_send_status()
 	#endif
 #endif
 
+#ifdef SCANNER_TELEMETRY
+	void spectrum_scanner_frame()
+	{
+		#if defined MULTI_TELEMETRY
+			multi_send_header(MULTI_TELEMETRY_SCANNER, SCAN_CHANS_PER_PACKET + 1);
+		#else
+			Serial_write(0xAA);						// Telemetry packet
+		#endif
+		Serial_write(pkt[0]);						// start channel
+		for(uint8_t ch = 0; ch < SCAN_CHANS_PER_PACKET; ch++)
+			Serial_write(pkt[ch+1]);				// RSSI power levels
+	}
+#endif
+
 #ifdef AFHDS2A_FW_TELEMETRY
 	void AFHDSA_short_frame()
 	{
@@ -992,6 +1006,15 @@ void TelemetryUpdate()
 		{
 			HITEC_short_frame();
 			telemetry_link=0;
+			return;
+		}
+	#endif
+
+	#if defined SCANNER_TELEMETRY
+		if (telemetry_link && protocol == PROTO_SCANNER)
+		{
+			spectrum_scanner_frame();
+			telemetry_link = 0;
 			return;
 		}
 	#endif

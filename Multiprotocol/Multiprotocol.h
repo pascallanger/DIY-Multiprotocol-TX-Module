@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	74
+#define VERSION_PATCH_LEVEL	75
 
 //******************
 // Protocols
@@ -80,6 +80,7 @@ enum PROTOCOLS
 	PROTO_POTENSIC	= 51,	// =>NRF24L01
 	PROTO_ZSX		= 52,	// =>NRF24L01
 	PROTO_FLYZONE	= 53,	// =>A7105
+	PROTO_SCANNER	= 54,	// =>CC2500
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -318,6 +319,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_SYNC			= 8,
 	MULTI_TELEMETRY_SPORT_POLLING	= 9,
 	MULTI_TELEMETRY_HITEC			= 10,
+	MULTI_TELEMETRY_SCANNER			= 11,
 };
 
 // Macros
@@ -636,6 +638,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					POTENSIC	51
 					ZSX			52
 					FLYZONE		53
+					SCANNER		54
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -885,4 +888,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[3-7] telemetry data
    Full description at the bottom of Hitec_cc2500.ino
 
+   Type 0x0B Spectrum Scanner telemetry data
+   length: 6
+   data[0] = start channel (2400 + x*0.333 Mhz)
+   data[1-5] power levels
 */

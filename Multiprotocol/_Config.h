@@ -165,7 +165,7 @@
 #define	DEVO_CYRF6936_INO
 #define	DSM_CYRF6936_INO
 #define	J6PRO_CYRF6936_INO
-#define TRAXXAS_CYRF6936_INO
+#define	TRAXXAS_CYRF6936_INO
 #define	WFLY_CYRF6936_INO
 #define	WK2x01_CYRF6936_INO
 
@@ -175,6 +175,7 @@
 #define	FRSKYV_CC2500_INO
 #define	FRSKYX_CC2500_INO
 #define	HITEC_CC2500_INO
+#define	SCANNER_CC2500_INO
 #define	SFHSS_CC2500_INO
 #define	REDPINE_CC2500_INO
 
@@ -294,6 +295,7 @@
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, ersky9x and OpenTX
 #define HITEC_FW_TELEMETRY			// Under development: Forward received telemetry packets to be decoded by ersky9x and OpenTX
+#define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
 
 //SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
 //This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
@@ -611,6 +613,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_REDPINE
 		RED_FAST
 		RED_SLOW
+	PROTO_SCANNER
+		NONE
 	PROTO_SFHSS
 		NONE
 	PROTO_SHENQI

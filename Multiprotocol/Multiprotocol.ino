@@ -114,7 +114,12 @@ uint8_t  armed, arm_flags, arm_channel_previous;
 uint8_t  num_ch;
 
 #ifdef CC2500_INSTALLED
-	uint8_t calData[50];
+	#ifdef SCANNER_CC2500_INO
+		uint8_t calData[255];
+		#define SCAN_CHANS_PER_PACKET	5
+	#else
+		uint8_t calData[50];
+	#endif
 #endif
 
 #ifdef CHECK_FOR_BOOTLOADER
@@ -643,7 +648,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
+			if( (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
 		#endif
 				TelemetryUpdate();
 	#endif
@@ -1014,6 +1019,14 @@ static void protocol_init()
 						PE2_on;
 						next_callback = initHITEC();
 						remote_callback = ReadHITEC;
+						break;
+				#endif
+				#if defined(SCANNER_CC2500_INO)
+					case PROTO_SCANNER:
+						PE1_off;
+						PE2_on;	//antenna RF2
+						next_callback = initScanner();
+						remote_callback = Scanner_callback;
 						break;
 				#endif
 			#endif

@@ -254,6 +254,9 @@
 	#if defined MULTI_TELEMETRY && not defined INVERT_TELEMETRY
 		#warning MULTI_TELEMETRY has been defined but not INVERT_TELEMETRY. They should be both enabled for OpenTX telemetry and status to work.
 	#endif
+	#if not defined(SCANNER_CC2500_INO)
+		#undef SCANNER_TELEMETRY
+	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY
 	#endif

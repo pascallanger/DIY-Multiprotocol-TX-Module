@@ -20,6 +20,7 @@
 #define SCAN_MAX_RADIOCHANNEL	249 // 2483 MHz
 #define SCAN_CHANNEL_LOCK_TIME	300 // with precalibration, channel requires only 90 usec for synthesizer to settle
 #define SCAN_AVERAGE_INTVL		30
+#define SCAN_CHANS_PER_PACKET	5
 
 static uint8_t scan_tlm_index;
 

@@ -116,7 +116,6 @@ uint8_t  num_ch;
 #ifdef CC2500_INSTALLED
 	#ifdef SCANNER_CC2500_INO
 		uint8_t calData[255];
-		#define SCAN_CHANS_PER_PACKET	5
 	#else
 		uint8_t calData[50];
 	#endif

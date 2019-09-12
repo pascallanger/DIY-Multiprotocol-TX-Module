@@ -19,7 +19,7 @@ Multiprotocol modules can be flashed with a precompiled firmware file (Option 1 
    1. [USB Port](#usb-port)
    1. [USB-to-Serial adapter](#usb-to-serial-adapter)
 1. [Upload the firmware](#upload-the-firmware)
-1. [Option 3 - Flash from TX](#flash-from-tx)
+1. [Option 3 - Flash from TX](#option-3-flash-from-tx)
 1. [Troubleshooting](#troubleshooting)
 
 ## Tools required
@@ -151,7 +151,7 @@ In order to flash the bootloader the **BOOT0** jumper must be installed connecti
 ## Upload the firmware
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
 
-## Flash from TX
+## Option 3 - Flash from TX
 1. If you don't need/want to customize the multi module firmware then you can use pre-compiled binaries available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
 2. If you are compiling the firmware yourself in the Arduino environment, do the following to export the binary:
 - Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**

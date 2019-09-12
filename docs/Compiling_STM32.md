@@ -69,7 +69,7 @@ If you don't need/want to customize the multi module firmware then you can use p
 
 After a succesful flash your Module is now updated to the newer version firmware using the most common options. To change specific configured options you would need to use Option-2, Compile and flash update using Arduino IDE. 
  
-# Option2 - Compiling and Updating Firmware
+# Option 2 - Compiling and Updating Firmware
 ## Preparation
 Multiprotocol firmware can be compiled and flashed with your customized firmware using the Arduino IDE. The guide below will walk you through all the steps in many details, don't be afraid by the length it is in fact simple!
 

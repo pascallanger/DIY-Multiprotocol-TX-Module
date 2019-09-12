@@ -6,8 +6,8 @@ Multiprotocol modules can be flashed with a precompiled firmware file (Option 1 
 
 ## Index
 1. [Tools Required](#tools-required)
-1. [Option 1 - Update firmware using precompiled binaries](#option-1-update-firmware-using-precompiled-binaries)
-1. [Option 2 - Compiling and updating firmware](#option-2-compiling-and-updating-firmware)
+1. [Option 1 - Update firmware using precompiled binaries](#option-1---update-firmware-using-precompiled-binaries)
+1. [Option 2 - Compiling and updating firmware](#option-2---compiling-and-updating-firmware)
    1. [Preparation](#preparation)
    1. [Install the Arduino IDE](#install-the-arduino-ide)
    1. [Download the Multiprotocol source and open the project](#download-the-multiprotocol-source-and-open-the-project)
@@ -19,7 +19,7 @@ Multiprotocol modules can be flashed with a precompiled firmware file (Option 1 
    1. [USB Port](#usb-port)
    1. [USB-to-Serial adapter](#usb-to-serial-adapter)
 1. [Upload the firmware](#upload-the-firmware)
-1. [Option 3 - Flash from TX](#option-3-flash-from-tx)
+1. [Option 3 - Flash from TX](#option-3---flash-from-tx)
 1. [Troubleshooting](#troubleshooting)
 
 ## Tools required

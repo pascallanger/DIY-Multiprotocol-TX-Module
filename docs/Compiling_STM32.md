@@ -1,25 +1,25 @@
 # Compiling and Flashing (STM32)
 
-Multiprotocol modules can be flashed with a precompiled firmware file (Option 1 and 3) or you can compile and upload your customized firmware using the Arduino IDE (Option 2).
+Multiprotocol modules can be flashed with a precompiled firmware file (Option 1 and 2) or you can compile and upload your customized firmware using the Arduino IDE (Option 3).
 
 **These instructions are for the STM32 version of the Multiprotocol module.**  If you are Compling for the Arduino ATmega328p version of the Multiprotocol Module please go to the dedicated [ATmega328](Compiling.md) page.
 
 ## Index
 1. [Tools Required](#tools-required)
 1. [Option 1 - Update firmware using precompiled binaries](#option-1---update-firmware-using-precompiled-binaries)
-1. [Option 2 - Compiling and updating firmware](#option-2---compiling-and-updating-firmware)
+1. [Option 2 - Flash from TX](#option-2---flash-from-tx)
+1. [Option 3 - Compiling and updating firmware](#option-3---compiling-and-updating-firmware)
    1. [Preparation](#preparation)
    1. [Install the Arduino IDE](#install-the-arduino-ide)
    1. [Download the Multiprotocol source and open the project](#download-the-multiprotocol-source-and-open-the-project)
    1. [Install the Multi 4-in-1 board](#install-the-multi-4-in-1-board)
    1. [Configure the Arduino IDE](#configure-the-arduino-ide)
-1. [Configure the firmware](#configure-the-firmware)
-1. [Verify the firmware](#verify-the-firmware)
-1. [Connect the module](#connect-the-module)
+   1. [Configure the firmware](#configure-the-firmware)
+   1. [Verify the firmware](#verify-the-firmware)
+   1. [Connect the module](#connect-the-module)
    1. [USB Port](#usb-port)
    1. [USB-to-Serial adapter](#usb-to-serial-adapter)
-1. [Upload the firmware](#upload-the-firmware)
-1. [Option 3 - Flash from TX](#option-3---flash-from-tx)
+   1. [Upload the firmware](#upload-the-firmware)
 1. [Troubleshooting](#troubleshooting)
 
 ## Tools required
@@ -67,10 +67,17 @@ If you don't need/want to customize the multi module firmware then you can use p
   <img src="https://github.com/benlye/flash-multi/raw/master/img/flash-multi.jpg">
 </p>
 
-After a succesful flash your Module is now updated to the newer version firmware using the most common options. To change specific configured options you would need to use Option-2, Compile and flash update using Arduino IDE. 
+After a succesful flash your Module is now updated to the newer version firmware using the most common options. To change specific configured options you would need to use [Option-3](#option-3---compiling-and-updating-firmware), Compile using Arduino IDE and your desired upload method. 
  
-# Option 2 - Compiling and Updating Firmware
-## Preparation
+## Option 2 - Flash from TX
+1. If you don't need/want to customize the multi module firmware then you can use pre-compiled binaries available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
+2. If you are compiling the firmware yourself in the Arduino environment with [Option-3](#option-3---compiling-and-updating-firmware), do the following to export the binary:
+- Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
+- Locate the file named **multi-stm-x.x.x.x.bin** in the **Multiprotocol source folder** folder (x.x.x.x is the multi version)
+3. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
+
+## Option 3 - Compiling and Updating Firmware
+### Preparation
 Multiprotocol firmware can be compiled and flashed with your customized firmware using the Arduino IDE. The guide below will walk you through all the steps in many details, don't be afraid by the length it is in fact simple!
 
 ### Install the Arduino IDE
@@ -90,14 +97,14 @@ Multiprotocol firmware can be compiled and flashed with your customized firmware
 1. Under **Tools -> Board** select **Multi 4-in-1 (STM32FC103)**
 1. Under **Tools -> Debug Option** select **None**
 
-## Configure the firmware
+### Configure the firmware
 Make any changes you require to the firmware.
 
 The STM32 module has more than enough flash space for all the available protocols so, unlike the Atmega328p-based module, it is not necessary to disable unused protocols.
 
 You can still disable protocols if you wish, and you may also enable or disable other optional Multiprotocol features.
 
-## Verify the firmware
+### Verify the firmware
 To check that the program will compile correctly and fit in the STM32 click **Sketch -> Verify/Compile**, or press **Ctrl+R**.
 
 If there are errors, carefully read it, go to the line number indicated and correct your typo.
@@ -109,15 +116,15 @@ Global variables use 4064 bytes (19%) of dynamic memory, leaving 16416 bytes for
 ```
 You can proceed to the next step.
 
-## Connect the module
-### USB port
+### Connect the module
+#### USB port
 Ensure that you [installed the necessary drivers](https://github.com/benlye/DIY-Multiprotocol-TX-Module/blob/doc-updates/docs/Arduino_IDE_Boards.md#install-device-drivers).
 
 If your Multiprotocol module has a USB port, connect it to the computer.  With the drivers installed your computer should detect the module as a COM port.  If the device appears correctly (check in **Device Manager**) you can proceed to the next step and [upload the firmware](#upload-the-firmware).  If not, you will need to flash your module one time using a USB-to-serial adapter (also known as an FTDI adapter).
 
 **Note:** Some modules require external power in order for the USB port to work.  If your module does not power on with USB power alone, install it in the transmitter and switch the transmitter on.  It is generally safe for the module to recieve power from both USB and the transmitter.
 
-### USB-to-Serial adapter
+#### USB-to-Serial adapter
 It is **strongly** recommended that you power your module from the transmitter when flashing it using a USB-to-serial adapater. This ensures that the module cannot be inadvertently supplied with 5V, which will damage the RF modules. This guide assumes that you will follow that advice, and instructs you to leave the V+ pin on the USB-to-TTL adapter disconnected. You may choose to ignore that advice at your own risk!
 
 The wiring for the USB-to-TTL adapter is:
@@ -148,17 +155,10 @@ In order to flash the bootloader the **BOOT0** jumper must be installed connecti
 1. Install the **BOOT0** jumper as described above.
 1. Switch on the transmitter
 
-## Upload the firmware
+### Upload the firmware
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
 
-## Option 3 - Flash from TX
-1. If you don't need/want to customize the multi module firmware then you can use pre-compiled binaries available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
-2. If you are compiling the firmware yourself in the Arduino environment, do the following to export the binary:
-- Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
-- Locate the file named **multi-stm-x.x.x.x.bin** in the **Multiprotocol source folder** folder (x.x.x.x is the multi version)
-3. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
-
-## Troubleshooting
+# Troubleshooting
 You can report your problem using the [GitHub issue](https://github.com/midelic/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.
 Please provide the following information:
 

@@ -1,6 +1,6 @@
 # Compiling and Flashing (STM32)
 
-Multiprotocol modules can be flashed with a precompiled firmware file (Option 1) or you can compile and upload your customized firmware using the Arduino IDE (Option 2).
+Multiprotocol modules can be flashed with a precompiled firmware file (Option 1 and 3) or you can compile and upload your customized firmware using the Arduino IDE (Option 2).
 
 **These instructions are for the STM32 version of the Multiprotocol module.**  If you are Compling for the Arduino ATmega328p version of the Multiprotocol Module please go to the dedicated [ATmega328](Compiling.md) page.
 
@@ -19,7 +19,7 @@ Multiprotocol modules can be flashed with a precompiled firmware file (Option 1)
    1. [USB Port](#usb-port)
    1. [USB-to-Serial adapter](#usb-to-serial-adapter)
 1. [Upload the firmware](#upload-the-firmware)
-1. [Exporting compiled firmware](exporting-compiled-firmware)
+1. [Option 3 - Flash from TX](#flash-from-tx)
 1. [Troubleshooting](#troubleshooting)
 
 ## Tools required
@@ -151,10 +151,12 @@ In order to flash the bootloader the **BOOT0** jumper must be installed connecti
 ## Upload the firmware
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
 
-## Exporting compiled firmware
-1. Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
-1. Locate the file named **multi-stm-x.x.x.x.bin** in the **Multiprotocol source folder** folder (x.x.x.x is the multi version)
-1. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
+## Flash from TX
+1. If you don't need/want to customize the multi module firmware then you can use pre-compiled binaries available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
+2. If you are compiling the firmware yourself in the Arduino environment, do the following to export the binary:
+- Click **Sketch -> Export compiled Binary**, or press **Ctrl+Alt+S**
+- Locate the file named **multi-stm-x.x.x.x.bin** in the **Multiprotocol source folder** folder (x.x.x.x is the multi version)
+3. Follow the instructions [here](/docs/Flash_from_Tx.md) to upload the firmware using your radio
 
 ## Troubleshooting
 You can report your problem using the [GitHub issue](https://github.com/midelic/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.

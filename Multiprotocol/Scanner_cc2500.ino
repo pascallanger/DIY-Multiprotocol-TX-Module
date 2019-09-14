@@ -99,13 +99,15 @@ uint16_t Scanner_callback()
 	switch (phase)
 	{
 		case SCAN_CHANNEL_CHANGE:
-			rf_ch_num++;
-			if (rf_ch_num >= (SCAN_MAX_RADIOCHANNEL + 1))
-				rf_ch_num = 0;
-			if (scan_tlm_index++ == 0)
-				pkt[0] = rf_ch_num;  // start channel for telemetry packet
-			Scanner_scan_next();
-			phase = SCAN_GET_RSSI;
+			if(telemetry_link == 0) {
+				rf_ch_num++;
+				if (rf_ch_num >= (SCAN_MAX_RADIOCHANNEL + 1))
+					rf_ch_num = 0;
+				if (scan_tlm_index++ == 0)
+					pkt[0] = rf_ch_num;  // start channel for telemetry packet
+				Scanner_scan_next();
+				phase = SCAN_GET_RSSI;
+			}
 			return SCAN_CHANNEL_LOCK_TIME;
 		case SCAN_GET_RSSI:
 			phase = SCAN_CHANNEL_CHANGE;
@@ -124,6 +126,7 @@ uint16_t initScanner(void)
 {
 	rf_ch_num = SCAN_MAX_RADIOCHANNEL;
 	scan_tlm_index = 0;
+	telemetry_link = 0;
 	phase = SCAN_CHANNEL_CHANGE;
 	Scanner_cc2500_init();
 	CC2500_Strobe(CC2500_SRX);

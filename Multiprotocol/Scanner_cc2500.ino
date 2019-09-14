@@ -18,8 +18,9 @@
 #include "iface_cc2500.h"
 
 #define SCAN_MAX_RADIOCHANNEL	249 // 2483 MHz
-#define SCAN_CHANNEL_LOCK_TIME	300 // with precalibration, channel requires only 90 usec for synthesizer to settle
-#define SCAN_AVERAGE_INTVL		30
+#define SCAN_CHANNEL_LOCK_TIME	210 // with precalibration, channel requires only 90 usec for synthesizer to settle
+#define SCAN_AVERAGE_INTVL		20
+#define SCAN_MAX_COUNT			5
 #define SCAN_CHANS_PER_PACKET	5
 
 static uint8_t scan_tlm_index;
@@ -96,10 +97,14 @@ static int __attribute__((unused)) Scanner_scan_rssi()
 
 uint16_t Scanner_callback()
 {
+	static uint8_t max_count, max_rssi;
+	uint8_t rssi;
 	switch (phase)
 	{
 		case SCAN_CHANNEL_CHANGE:
 			if(telemetry_link == 0) {
+				max_count = 0;
+				max_rssi = 0;
 				rf_ch_num++;
 				if (rf_ch_num >= (SCAN_MAX_RADIOCHANNEL + 1))
 					rf_ch_num = 0;
@@ -110,13 +115,20 @@ uint16_t Scanner_callback()
 			}
 			return SCAN_CHANNEL_LOCK_TIME;
 		case SCAN_GET_RSSI:
-			phase = SCAN_CHANNEL_CHANGE;
-			pkt[scan_tlm_index] = Scanner_scan_rssi();
-			if (scan_tlm_index == SCAN_CHANS_PER_PACKET)
-			{
-				// send data to TX
-				telemetry_link = 1;
-				scan_tlm_index = 0;
+			rssi = Scanner_scan_rssi();
+			if(rssi >= max_rssi) {
+				max_rssi = rssi;
+				pkt[scan_tlm_index] = rssi;
+			}
+			max_count++;
+			if(max_count > SCAN_MAX_COUNT) {
+				phase = SCAN_CHANNEL_CHANGE;
+				if (scan_tlm_index == SCAN_CHANS_PER_PACKET)
+				{
+					// send data to TX
+					telemetry_link = 1;
+					scan_tlm_index = 0;
+				}
 			}
 	}
 	return SCAN_AVERAGE_INTVL;

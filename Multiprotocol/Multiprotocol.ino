@@ -171,7 +171,7 @@ volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 volatile uint8_t discard_frame = 0;
 
 // Telemetry
-#define MAX_PKT 30
+#define MAX_PKT 29
 uint8_t pkt[MAX_PKT];//telemetry receiving packets
 #if defined(TELEMETRY)
 	#ifdef INVERT_TELEMETRY

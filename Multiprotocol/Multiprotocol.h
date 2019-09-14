@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	77
+#define VERSION_PATCH_LEVEL	76
 
 //******************
 // Protocols
@@ -320,7 +320,6 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_SPORT_POLLING	= 9,
 	MULTI_TELEMETRY_HITEC			= 10,
 	MULTI_TELEMETRY_SCANNER			= 11,
-	MULTI_TELEMETRY_AFHDS2A_AC		= 12,
 };
 
 // Macros
@@ -876,7 +875,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
     technically DSM bind data is only 10 bytes but multi sends 16
     like with telemtery, check length field)
 
-  Type 0x06 Flysky AFHDS2 telemetry data type 0xAA
+  Type 0x06 Flysky AFHDS2 telemetry data
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data
@@ -889,14 +888,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[3-7] telemetry data
    Full description at the bottom of Hitec_cc2500.ino
 
-  Type 0x0B Spectrum Scanner telemetry data
+   Type 0x0B Spectrum Scanner telemetry data
    length: 6
    data[0] = start channel (2400 + x*0.333 Mhz)
    data[1-5] power levels
-
-  Type 0x0C Flysky AFHDS2 telemetry data type 0xAC
-   length: 29
-   data[0] = RSSI value
-   data[1-28] telemetry data
-
 */

@@ -303,6 +303,11 @@
 	#endif
 #endif
 
+// Disable scanner protocol if scanner telemetry is disabled
+#ifndef SCANNER_TELEMETRY
+	#undef SCANNER_CC2500_INO
+#endif
+
 //Make sure TX is defined correctly
 #ifndef AILERON
 	#error You must select a correct channel order.

@@ -81,6 +81,7 @@ enum PROTOCOLS
 	PROTO_ZSX		= 52,	// =>NRF24L01
 	PROTO_FLYZONE	= 53,	// =>A7105
 	PROTO_SCANNER	= 54,	// =>CC2500
+	PROTO_FRSKYX_RX	= 55,	// =>CC2500
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -288,6 +289,11 @@ enum TRAXXAS
 {
 	RX6519	= 0,
 };
+enum FRSKYX_RX
+{
+	FRSKYX_FCC	= 0,
+	FRSKYX_LBT
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -321,6 +327,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_HITEC			= 10,
 	MULTI_TELEMETRY_SCANNER			= 11,
 	MULTI_TELEMETRY_AFHDS2A_AC		= 12,
+	MULTI_TELEMETRY_CHANNELS		= 13,
 };
 
 // Macros
@@ -640,6 +647,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					ZSX			52
 					FLYZONE		53
 					SCANNER		54
+					FRSKYX_RX	55
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -781,6 +789,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			RED_SLOW	1
 		sub_protocol==TRAXXAS
 			RX6519		0
+		sub_protocol==FRSKYX_RX
+			FCC			0
+			LBT			1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
@@ -898,5 +909,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data
+
+  Type 0x0D RX channels forwarding
+   length: 22
+   data[0-21] packed channels data, 16 channels, 11 bit per channel, msb first
 
 */

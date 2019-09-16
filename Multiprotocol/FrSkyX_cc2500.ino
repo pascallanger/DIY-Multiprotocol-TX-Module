@@ -66,7 +66,7 @@ static uint16_t __attribute__((unused)) frskyX_CRCTable(uint8_t val)
 	val /= 16 ;
 	return word ^ (0x1081 * val) ;
 }
-static uint16_t __attribute__((unused)) frskyX_crc_x(uint8_t *data, uint8_t len)
+uint16_t frskyX_crc_x(uint8_t *data, uint8_t len)
 {
 	uint16_t crc = 0;
 	for(uint8_t i=0; i < len; i++)

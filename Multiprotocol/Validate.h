@@ -250,6 +250,7 @@
 	#undef MULTI_STATUS
 	#undef MULTI_TELEMETRY
 	#undef SCANNER_TELEMETRY
+	#undef FRSKYX_RX_TELEMETRY
 #else
 	#if defined MULTI_TELEMETRY && not defined INVERT_TELEMETRY
 		#warning MULTI_TELEMETRY has been defined but not INVERT_TELEMETRY. They should be both enabled for OpenTX telemetry and status to work.

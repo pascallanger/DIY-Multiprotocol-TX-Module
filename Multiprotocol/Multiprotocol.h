@@ -574,6 +574,7 @@ enum {
 #define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 bytes per model id, end is 50+64=114
 #define BUGS_EEPROM_OFFSET		114		// RX ID, 2 bytes per model id, end is 114+32=146
 #define BUGSMINI_EEPROM_OFFSET	146		// RX ID, 2 bytes per model id, end is 146+32=178
+#define FRSKYX_RX_EEPROM_OFFSET	178		// TX ID + channels, 50 bytes per model, end is 178+200=378
 //#define CONFIG_EEPROM_OFFSET 	210		// Current configuration of the multimodule
 
 //****************************************

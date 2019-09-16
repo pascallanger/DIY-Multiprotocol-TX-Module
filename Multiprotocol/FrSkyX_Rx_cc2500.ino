@@ -130,7 +130,23 @@ uint16_t initFrSkyX_Rx()
 	frskyx_bind_packets = 0;
 	frskyx_rx_chanskip = 0;
 	hopping_frequency_no = 0;
-	phase = FRSKYX_RX_BIND;
+	if (IS_BIND_IN_PROGRESS) {
+		phase = FRSKYX_RX_BIND;
+	}
+	else {
+		uint16_t temp = FRSKYX_RX_EEPROM_OFFSET + ((RX_num & 0x03) * 50);
+		frskyx_rx_txid[0] = eeprom_read_byte(temp++);
+		frskyx_rx_txid[1] = eeprom_read_byte(temp++);
+		frskyx_rx_txid[2] = eeprom_read_byte(temp++);
+		for(uint8_t ch = 0; ch < 47; ch++)
+			hopping_frequency[ch] = eeprom_read_byte(temp++);
+		frskyx_rx_calibrate();
+		CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
+		CC2500_WriteReg(CC2500_09_ADDR, frskyx_rx_txid[0]); // set address
+		CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
+		frskyx_rx_set_channel(hopping_frequency_no);
+		phase = FRSKYX_RX_DATA;
+	}
 	packet_length = (sub_protocol == FRSKYX_LBT) ? FRSKYX_LBT_LENGTH : FRSKYX_FCC_LENGTH;
 	return 1000;
 }
@@ -139,7 +155,7 @@ uint16_t FrSkyX_Rx_callback()
 {
 	static uint32_t lasttime=0, counter=0;
 	static int8_t loops=0;
-	uint8_t len;
+	uint8_t len, ch;
 	switch(phase) {
 	case FRSKYX_RX_BIND:
 		len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
@@ -150,8 +166,10 @@ uint16_t FrSkyX_Rx_callback()
 				for(uint8_t i=0; i<len; i++)
 					debug(" %02X", packet[i]);
 				debugln("");
-				frskyx_rx_txid[0] = packet[3];
-				for (uint8_t ch = 0; ch < 5; ch++) {
+				frskyx_rx_txid[0] = packet[3];	// TXID
+				frskyx_rx_txid[1] = packet[4];	// TXID
+				frskyx_rx_txid[2] = packet[12]; // RX #
+				for (ch = 0; ch < 5; ch++) {
 					hopping_frequency[packet[5]+ch] = packet[6+ch];
 					frskyx_bind_packets |= 1 << (packet[5] / 5);
 				}
@@ -164,6 +182,14 @@ uint16_t FrSkyX_Rx_callback()
 				CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
 				phase = FRSKYX_RX_DATA;
 				frskyx_rx_set_channel(hopping_frequency_no);
+				// store txid and channel list
+				uint16_t temp = FRSKYX_RX_EEPROM_OFFSET+((RX_num & 0x03) * 50);
+				eeprom_write_byte((EE_ADDR)temp++, frskyx_rx_txid[0]);
+				eeprom_write_byte((EE_ADDR)temp++, frskyx_rx_txid[1]);
+				eeprom_write_byte((EE_ADDR)temp++, frskyx_rx_txid[2]);
+				for (ch = 0; ch < 47; ch++)
+					eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[ch]);
+				BIND_DONE;
 			}
 			CC2500_Strobe(CC2500_SIDLE);
 			CC2500_Strobe(CC2500_SFRX);

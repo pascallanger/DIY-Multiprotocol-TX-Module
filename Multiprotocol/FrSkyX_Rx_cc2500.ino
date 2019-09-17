@@ -197,16 +197,13 @@ uint16_t FrSkyX_Rx_callback()
 					eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[ch]);
 				BIND_DONE;
 			}
-			CC2500_Strobe(CC2500_SIDLE);
-			CC2500_Strobe(CC2500_SFRX);
-			CC2500_Strobe(CC2500_SRX);
 		}
 		return 1000;
 	case FRSKYX_RX_DATA:
 		len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if (frskyx_rx_check_crc()) {
+			if (packet[1] == frskyx_rx_txid[0] && packet[2] == frskyx_rx_txid[1] && packet[6] == frskyx_rx_txid[2] && frskyx_rx_check_crc()) {
 				// hop to next channel
 				frskyx_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);
 				hopping_frequency_no = (hopping_frequency_no + frskyx_rx_chanskip) % 47;

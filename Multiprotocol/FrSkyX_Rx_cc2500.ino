@@ -87,7 +87,6 @@ static void __attribute__((unused)) FrSkyX_Rx_initialise() {
 	CC2500_Strobe(CC2500_SFRX);
 	CC2500_Strobe(CC2500_SRX);
 	CC2500_WriteReg(CC2500_0A_CHANNR, 0);
-	CC2500_WriteReg(CC2500_25_FSCAL1, calData[0]);
 	delayMicroseconds(1000); // wait for RX to activate
 }
 

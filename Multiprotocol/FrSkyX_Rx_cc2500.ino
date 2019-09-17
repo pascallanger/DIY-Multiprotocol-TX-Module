@@ -132,6 +132,7 @@ uint16_t initFrSkyX_Rx()
 	frskyx_rx_chanskip = 1;
 	hopping_frequency_no = 0;
 	frskyx_rx_data_started = 0;
+	telemetry_link = 0;
 	if (IS_BIND_IN_PROGRESS) {
 		phase = FRSKYX_RX_BIND;
 	}
@@ -200,6 +201,9 @@ uint16_t FrSkyX_Rx_callback()
 					eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[ch]);
 				BIND_DONE;
 			}
+			CC2500_Strobe(CC2500_SIDLE);
+			CC2500_Strobe(CC2500_SFRX);
+			CC2500_Strobe(CC2500_SRX);
 		}
 		return 1000;
 	case FRSKYX_RX_DATA:
@@ -211,10 +215,13 @@ uint16_t FrSkyX_Rx_callback()
 				frskyx_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);
 				hopping_frequency_no = (hopping_frequency_no + frskyx_rx_chanskip) % 47;
 				frskyx_rx_set_channel(hopping_frequency_no);
-				if(packet[7] == 0) { // standard packet, decode PXX channels
-					// TODO, or just send raw PXX channels ?
-					int16_t chan1 = packet[9] | ((packet[10] & 0x0F) << 8);
-					int16_t chan2= ((packet[10] & 0xF0) >> 4) | (packet[11] << 4);
+				if(packet[7] == 0 && telemetry_link == 0) { // standard packet, send channels to TX
+					if(telemetry_link == 0) {
+						memcpy(pkt, &packet[9], 12);
+						telemetry_link = 1;
+					}
+					//int16_t chan1 = packet[9] | ((packet[10] & 0x0F) << 8);
+					//int16_t chan2= ((packet[10] & 0xF0) >> 4) | (packet[11] << 4);
 					//if(chan1 < 2048)
 					//	debugln("Ch1: %d  Ch2: %d", chan1, chan2);
 				}

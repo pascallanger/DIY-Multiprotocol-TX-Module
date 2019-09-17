@@ -13,6 +13,10 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if defined(FRSKYX_RX_CC2500_INO)
+
+#include "iface_cc2500.h" 
+
  #define FRSKYX_FCC_LENGTH	30+2
  #define FRSKYX_LBT_LENGTH	33+2
 
@@ -297,3 +301,5 @@ uint16_t FrSkyX_Rx_callback()
 	}
 	return 1000;
 }
+
+#endif

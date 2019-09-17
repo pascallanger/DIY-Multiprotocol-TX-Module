@@ -120,7 +120,7 @@ static void __attribute__((unused)) frskyx_rx_calibrate()
 	}
 }
 
-uint8_t __attribute__((unused)) frskyx_rx_check_crc()
+static uint8_t __attribute__((unused)) frskyx_rx_check_crc()
 {
 	uint8_t limit = packet_length - 4;
 	uint16_t lcrc = frskyX_crc_x(&packet[3], limit - 3); // computed crc
@@ -128,7 +128,7 @@ uint8_t __attribute__((unused)) frskyx_rx_check_crc()
 	return lcrc == rcrc;
 }
 
-void __attribute__((unused)) frskyx_rx_build_telemetry_packet()
+static void __attribute__((unused)) frskyx_rx_build_telemetry_packet()
 {
 	uint16_t pxx_channel[8];
 	uint32_t bits = 0;

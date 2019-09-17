@@ -272,7 +272,7 @@
 	#if not defined(NCC1701_NRF24L01_INO)
 		#undef NCC1701_HUB_TELEMETRY
 	#endif
-	#if not defined(BUGS_A7105_INO) || not defined(BUGSMINI_NRF24L01_INO)
+	#if not defined(BUGS_A7105_INO) && not defined(BUGSMINI_NRF24L01_INO)
 		#undef BUGS_HUB_TELEMETRY
 	#endif
 	#if not defined(CABELL_NRF24L01_INO)

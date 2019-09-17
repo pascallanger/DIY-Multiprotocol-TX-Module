@@ -193,6 +193,7 @@
 	#undef	HITEC_CC2500_INO
 	#undef	XN297L_CC2500_EMU
 	#undef	SCANNER_CC2500_INO
+	#undef	FRSKYX_RX_CC2500_INO
 #endif
 #ifndef NRF24L01_INSTALLED
 	#undef	BAYANG_NRF24L01_INO
@@ -250,13 +251,20 @@
 	#undef MULTI_STATUS
 	#undef MULTI_TELEMETRY
 	#undef SCANNER_TELEMETRY
+	#undef SCANNER_CC2500_INO
 	#undef FRSKYX_RX_TELEMETRY
+	#undef FRSKYX_RX_CC2500_INO
 #else
-	#if defined MULTI_TELEMETRY && not defined INVERT_TELEMETRY
-		#warning MULTI_TELEMETRY has been defined but not INVERT_TELEMETRY. They should be both enabled for OpenTX telemetry and status to work.
+	#if defined(MULTI_TELEMETRY) && defined(MULTI_STATUS)
+		#error You should choose either MULTI_TELEMETRY or MULTI_STATUS but not both.
 	#endif
-	#if not defined(SCANNER_CC2500_INO)
+	#if not defined(SCANNER_CC2500_INO) || not defined(SCANNER_TELEMETRY)
 		#undef SCANNER_TELEMETRY
+		#undef SCANNER_CC2500_INO
+	#endif
+	#if not defined(FRSKYX_RX_CC2500_INO) || not defined(FRSKYX_RX_TELEMETRY)
+		#undef FRSKYX_RX_TELEMETRY
+		#undef FRSKYX_RX_CC2500_INO
 	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY
@@ -264,7 +272,7 @@
 	#if not defined(NCC1701_NRF24L01_INO)
 		#undef NCC1701_HUB_TELEMETRY
 	#endif
-	#if not ( defined(BUGS_A7105_INO) || defined(BUGSMINI_NRF24L01_INO) )
+	#if not defined(BUGS_A7105_INO) || not defined(BUGSMINI_NRF24L01_INO)
 		#undef BUGS_HUB_TELEMETRY
 	#endif
 	#if not defined(CABELL_NRF24L01_INO)
@@ -297,7 +305,7 @@
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY)
+	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKYX_RX_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 		#undef SPORT_POLLING

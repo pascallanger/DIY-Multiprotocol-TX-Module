@@ -129,7 +129,7 @@ uint16_t initFrSkyX_Rx()
 {
 	FrSkyX_Rx_initialise();
 	frskyx_bind_check = 0;
-	frskyx_rx_chanskip = 0;
+	frskyx_rx_chanskip = 1;
 	hopping_frequency_no = 0;
 	frskyx_rx_data_started = 0;
 	if (IS_BIND_IN_PROGRESS) {

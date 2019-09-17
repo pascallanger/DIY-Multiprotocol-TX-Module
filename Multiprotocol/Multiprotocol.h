@@ -81,6 +81,7 @@ enum PROTOCOLS
 	PROTO_ZSX		= 52,	// =>NRF24L01
 	PROTO_FLYZONE	= 53,	// =>A7105
 	PROTO_SCANNER	= 54,	// =>CC2500
+	PROTO_FRSKYX_RX	= 55,	// =>CC2500
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -288,6 +289,11 @@ enum TRAXXAS
 {
 	RX6519	= 0,
 };
+enum FRSKYX_RX
+{
+	FRSKYX_FCC	= 0,
+	FRSKYX_LBT
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -321,6 +327,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_HITEC			= 10,
 	MULTI_TELEMETRY_SCANNER			= 11,
 	MULTI_TELEMETRY_AFHDS2A_AC		= 12,
+	MULTI_TELEMETRY_RX_CHANNELS		= 13,
 };
 
 // Macros
@@ -567,6 +574,7 @@ enum {
 #define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 bytes per model id, end is 50+64=114
 #define BUGS_EEPROM_OFFSET		114		// RX ID, 2 bytes per model id, end is 114+32=146
 #define BUGSMINI_EEPROM_OFFSET	146		// RX ID, 2 bytes per model id, end is 146+32=178
+#define FRSKYX_RX_EEPROM_OFFSET	178		// TX ID + channels, 50 bytes per model, end is 178+200=378
 //#define CONFIG_EEPROM_OFFSET 	210		// Current configuration of the multimodule
 
 //****************************************
@@ -640,6 +648,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 					ZSX			52
 					FLYZONE		53
 					SCANNER		54
+					FRSKYX_RX	55
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -781,6 +790,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			RED_SLOW	1
 		sub_protocol==TRAXXAS
 			RX6519		0
+		sub_protocol==FRSKYX_RX
+			FCC			0
+			LBT			1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
@@ -898,5 +910,13 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data
+
+  Type 0x0D RX channels forwarding
+   length: variable
+   data[0] = received packets per second
+   data[1] = rssi
+   data[2] = start channel
+   data[3] = number of channels to follow
+   data[4-]= packed channels data, 11 bit per channel
 
 */

@@ -13,8 +13,8 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- #define FRSKYX_FCC_LENGTH	30
- #define FRSKYX_LBT_LENGTH	33
+ #define FRSKYX_FCC_LENGTH	30+2
+ #define FRSKYX_LBT_LENGTH	33+2
 
  enum {
 	FRSKYX_RX_BIND,
@@ -122,7 +122,7 @@ static void __attribute__((unused)) frskyx_rx_calibrate()
 
 uint8_t __attribute__((unused)) frskyx_rx_check_crc()
 {
-	uint8_t limit = packet_length - 2;
+	uint8_t limit = packet_length - 4;
 	uint16_t lcrc = frskyX_crc_x(&packet[3], limit - 3); // computed crc
 	uint16_t rcrc = (packet[limit] << 8) | (packet[limit + 1] & 0xff); // received crc
 	return lcrc == rcrc;
@@ -257,7 +257,7 @@ uint16_t FrSkyX_Rx_callback()
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
 			if (packet[1] == frskyx_rx_txid[0] && packet[2] == frskyx_rx_txid[1] && packet[6] == frskyx_rx_txid[2] && frskyx_rx_check_crc()) {
-				frskyx_rx_rssi = CC2500_ReadReg(CC2500_READ_BURST | CC2500_34_RSSI);
+				frskyx_rx_rssi = packet[packet_length-2];
 				if(frskyx_rx_rssi >= 128)
 					frskyx_rx_rssi -= 128;
 				else

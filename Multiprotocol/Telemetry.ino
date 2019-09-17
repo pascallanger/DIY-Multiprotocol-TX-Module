@@ -184,6 +184,19 @@ static void multi_send_status()
 	}
 #endif
 
+#ifdef FRSKYX_RX_TELEMETRY
+	void frskyx_rx_channels_frame()
+	{
+		#if defined MULTI_TELEMETRY
+				multi_send_header(MULTI_TELEMETRY_RX_CHANNELS, 26);
+		#else
+				Serial_write(0xAA);					// Telemetry packet
+		#endif
+		for (uint8_t i = 0; i < 26; i++)
+			Serial_write(pkt[i]);					// pps, rssi, ch start, ch count, 16x ch data
+	}
+#endif
+
 #ifdef AFHDS2A_FW_TELEMETRY
 	void AFHDSA_short_frame()
 	{
@@ -1022,8 +1035,7 @@ void TelemetryUpdate()
 	#if defined FRSKYX_RX_TELEMETRY
 		if (telemetry_link && protocol == PROTO_FRSKYX_RX)
 		{
-			// TODO
-			//channels_frame();
+			frskyx_rx_channels_frame();
 			telemetry_link = 0;
 			return;
 		}

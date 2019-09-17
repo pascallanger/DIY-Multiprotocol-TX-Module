@@ -327,7 +327,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_HITEC			= 10,
 	MULTI_TELEMETRY_SCANNER			= 11,
 	MULTI_TELEMETRY_AFHDS2A_AC		= 12,
-	MULTI_TELEMETRY_CHANNELS		= 13,
+	MULTI_TELEMETRY_RX_CHANNELS		= 13,
 };
 
 // Macros
@@ -912,7 +912,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[1-28] telemetry data
 
   Type 0x0D RX channels forwarding
-   length: 22
-   data[0-21] packed channels data, 16 channels, 11 bit per channel, msb first
+   length: variable
+   data[0] = received packets per second
+   data[1] = rssi
+   data[2] = start channel
+   data[3] = number of channels to follow
+   data[4-]= packed channels data, 11 bit per channel
 
 */

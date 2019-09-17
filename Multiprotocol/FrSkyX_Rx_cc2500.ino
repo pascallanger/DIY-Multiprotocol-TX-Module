@@ -23,9 +23,12 @@
 
  static uint16_t frskyx_bind_check;
  static uint8_t frskyx_rx_txid[3];
+ static uint16_t frskyx_rx_rc_chan[16];
  static uint8_t frskyx_rx_chanskip;
  static uint8_t frskyx_rx_disable_lna;
  static uint8_t frskyx_rx_data_started;
+ static uint8_t frskyx_rx_rssi;
+ static uint8_t frskyx_rx_pps;
 
 static void __attribute__((unused)) FrSkyX_Rx_initialise() {
 	CC2500_Reset();
@@ -125,6 +128,49 @@ uint8_t __attribute__((unused)) frskyx_rx_check_crc()
 	return lcrc == rcrc;
 }
 
+void __attribute__((unused)) frskyx_rx_build_telemetry_packet()
+{
+	uint16_t pxx_channel[8];
+	uint32_t bits = 0;
+	uint8_t bitsavailable = 0;
+	uint8_t idx = 0;
+
+	// decode PXX channels
+	pxx_channel[0] = ((packet[10] << 8) & 0xF00) | packet[9];
+	pxx_channel[1] = ((packet[11] << 4) & 0xFF0) | (packet[10] >> 4);
+	pxx_channel[2] = ((packet[13] << 8) & 0xF00) | packet[12];
+	pxx_channel[3] = ((packet[14] << 4) & 0xFF0) | (packet[13] >> 4);
+	pxx_channel[4] = ((packet[16] << 8) & 0xF00) | packet[15];
+	pxx_channel[5] = ((packet[17] << 4) & 0xFF0) | (packet[16] >> 4);
+	pxx_channel[6] = ((packet[19] << 8) & 0xF00) | packet[18];
+	pxx_channel[7] = ((packet[20] << 4) & 0xFF0) | (packet[19] >> 4);
+	for (unsigned i = 0; i < 8; i++) {
+		uint8_t shifted = (pxx_channel[i] & 0x800)>0;
+		uint16_t channel_value = pxx_channel[i] & 0x7FF;
+		if (channel_value < 64)
+			frskyx_rx_rc_chan[shifted ? i + 8 : i] = 0;
+		else
+			frskyx_rx_rc_chan[shifted ? i + 8 : i] = min(((channel_value - 64) << 4) / 15, 2047);
+	}
+
+	// buid telemetry packet
+	pkt[idx++] = frskyx_rx_pps;
+	pkt[idx++] = frskyx_rx_rssi;
+	pkt[idx++] = 1;  // start channel
+	pkt[idx++] = 16; // number of channels in packet
+
+	// pack channels
+	for (int i = 0; i < 16; i++) {
+		bits |= frskyx_rx_rc_chan[i] << bitsavailable;
+		bitsavailable += 11;
+		while (bitsavailable >= 8) {
+			pkt[idx++] = bits & 0xff;
+			bits >>= 8;
+			bitsavailable -= 8;
+		}
+	}
+}
+
 uint16_t initFrSkyX_Rx()
 {
 	FrSkyX_Rx_initialise();
@@ -211,19 +257,18 @@ uint16_t FrSkyX_Rx_callback()
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
 			if (packet[1] == frskyx_rx_txid[0] && packet[2] == frskyx_rx_txid[1] && packet[6] == frskyx_rx_txid[2] && frskyx_rx_check_crc()) {
+				frskyx_rx_rssi = CC2500_ReadReg(CC2500_READ_BURST | CC2500_34_RSSI);
+				if(frskyx_rx_rssi >= 128)
+					frskyx_rx_rssi -= 128;
+				else
+					frskyx_rx_rssi += 128;
 				// hop to next channel
 				frskyx_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);
 				hopping_frequency_no = (hopping_frequency_no + frskyx_rx_chanskip) % 47;
 				frskyx_rx_set_channel(hopping_frequency_no);
 				if(packet[7] == 0 && telemetry_link == 0) { // standard packet, send channels to TX
-					if(telemetry_link == 0) {
-						memcpy(pkt, &packet[9], 12);
+						frskyx_rx_build_telemetry_packet();
 						telemetry_link = 1;
-					}
-					//int16_t chan1 = packet[9] | ((packet[10] & 0x0F) << 8);
-					//int16_t chan2= ((packet[10] & 0xF0) >> 4) | (packet[11] << 4);
-					//if(chan1 < 2048)
-					//	debugln("Ch1: %d  Ch2: %d", chan1, chan2);
 				}
 				frskyx_rx_data_started = 1;
 				read_retry = 0;
@@ -231,10 +276,11 @@ uint16_t FrSkyX_Rx_callback()
 			}
 		}
 		
-		// debug packets per second
+		// packets per second
 		if (millis() - pps_timer >= 1000) {
 			pps_timer = millis();
 			debugln("%ld pps", pps_counter);
+			frskyx_rx_pps = pps_counter;
 			pps_counter = 0;
 		}
 

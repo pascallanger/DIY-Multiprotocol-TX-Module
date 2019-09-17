@@ -25,6 +25,7 @@
  static uint8_t frskyx_rx_txid[3];
  static uint8_t frskyx_rx_chanskip;
  static uint8_t frskyx_rx_disable_lna;
+ static uint8_t frskyx_rx_data_started;
 
 static void __attribute__((unused)) FrSkyX_Rx_initialise() {
 	CC2500_Reset();
@@ -130,6 +131,7 @@ uint16_t initFrSkyX_Rx()
 	frskyx_bind_check = 0;
 	frskyx_rx_chanskip = 0;
 	hopping_frequency_no = 0;
+	frskyx_rx_data_started = 0;
 	if (IS_BIND_IN_PROGRESS) {
 		phase = FRSKYX_RX_BIND;
 	}
@@ -154,7 +156,8 @@ uint16_t initFrSkyX_Rx()
 uint16_t FrSkyX_Rx_callback()
 {
 	static uint32_t pps_timer=0;
-	static uint8_t read_retry=0, pps_counter=0;
+	static uint8_t pps_counter=0;
+	static int8_t read_retry = 0;
 	uint8_t len, ch;
 	if (prev_option != option)
 	{
@@ -172,8 +175,8 @@ uint16_t FrSkyX_Rx_callback()
 			CC2500_ReadData(packet, packet_length);
 			if (frskyx_rx_check_crc()) {
 				if (packet[5] <= 0x2D) {
-				for (ch = 0; ch < 5; ch++)
-					hopping_frequency[packet[5]+ch] = packet[6+ch];
+					for (ch = 0; ch < 5; ch++)
+						hopping_frequency[packet[5]+ch] = packet[6+ch];
 					frskyx_bind_check |= 1 << (packet[5] / 5);
 				}
 			}
@@ -215,6 +218,7 @@ uint16_t FrSkyX_Rx_callback()
 					//if(chan1 < 2048)
 					//	debugln("Ch1: %d  Ch2: %d", chan1, chan2);
 				}
+				frskyx_rx_data_started = 1;
 				read_retry = 0;
 				pps_counter++;
 			}
@@ -231,7 +235,10 @@ uint16_t FrSkyX_Rx_callback()
 		if (read_retry++ >= 9) {
 			hopping_frequency_no = (hopping_frequency_no + frskyx_rx_chanskip) % 47;
 			frskyx_rx_set_channel(hopping_frequency_no);
-			read_retry = 0;
+			if(frskyx_rx_data_started)
+				read_retry = 0;
+			else
+				read_retry = -50; // retry longer until first packet is catched
 		}
 		break;
 	}

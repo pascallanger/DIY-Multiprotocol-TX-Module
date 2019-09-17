@@ -81,7 +81,7 @@ static void __attribute__((unused)) FrSkyX_Rx_initialise() {
 		break;
 	}
 
-	CC2500_SetTxRxMode(RX_EN);  // Receive mode
+	CC2500_SetTxRxMode(TXRX_OFF);  // bypass lna, perhaps have an option for that ?
 
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_Strobe(CC2500_SFRX);
@@ -228,9 +228,9 @@ uint16_t FrSkyX_Rx_callback()
 				counter = 0;
 			}
 		}
-		loops++;
+		
 		// skip channel if no packet received in time
-		if (loops >= 10) {
+		if (loops++ >= 9) {
 			debugln("!");
 			hopping_frequency_no = (hopping_frequency_no + frskyx_rx_chanskip) % 47;
 			frskyx_rx_set_channel(hopping_frequency_no);

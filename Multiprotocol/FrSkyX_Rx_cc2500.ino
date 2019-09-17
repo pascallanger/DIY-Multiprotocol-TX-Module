@@ -13,17 +13,18 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- #define FRSKYX_FCC_LENGTH	32
- #define FRSKYX_LBT_LENGTH	35
+ #define FRSKYX_FCC_LENGTH	30
+ #define FRSKYX_LBT_LENGTH	33
 
  enum {
 	FRSKYX_RX_BIND,
 	FRSKYX_RX_DATA,
  };
 
- static uint16_t frskyx_bind_packets;
+ static uint16_t frskyx_bind_check;
  static uint8_t frskyx_rx_txid[3];
  static uint8_t frskyx_rx_chanskip;
+ static uint8_t frskyx_rx_disable_lna;
 
 static void __attribute__((unused)) FrSkyX_Rx_initialise() {
 	CC2500_Reset();
@@ -32,7 +33,7 @@ static void __attribute__((unused)) FrSkyX_Rx_initialise() {
 	CC2500_WriteReg(CC2500_18_MCSM0, 0x18);
 	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x04);
 	CC2500_WriteReg(CC2500_3E_PATABLE, 0xFF);
-	CC2500_WriteReg(CC2500_0C_FSCTRL0, 0x00);
+	CC2500_WriteReg(CC2500_0C_FSCTRL0, option); // Frequency offset hack
 	CC2500_WriteReg(CC2500_0D_FREQ2, 0x5C);
 	CC2500_WriteReg(CC2500_13_MDMCFG1, 0x23);
 	CC2500_WriteReg(CC2500_14_MDMCFG0, 0x7A);
@@ -81,12 +82,13 @@ static void __attribute__((unused)) FrSkyX_Rx_initialise() {
 		break;
 	}
 
-	CC2500_SetTxRxMode(TXRX_OFF);  // bypass lna, perhaps have an option for that ?
+	frskyx_rx_disable_lna = IS_POWER_FLAG_on;
+	CC2500_SetTxRxMode(frskyx_rx_disable_lna ? TXRX_OFF : RX_EN); // lna disable / enable
 
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_Strobe(CC2500_SFRX);
 	CC2500_Strobe(CC2500_SRX);
-	CC2500_WriteReg(CC2500_0A_CHANNR, 0);
+	CC2500_WriteReg(CC2500_0A_CHANNR, 0);  // bind channel
 	delayMicroseconds(1000); // wait for RX to activate
 }
 
@@ -116,7 +118,7 @@ static void __attribute__((unused)) frskyx_rx_calibrate()
 
 uint8_t __attribute__((unused)) frskyx_rx_check_crc()
 {
-	uint8_t limit = packet_length - 4; //(sub_protocol == FRSKYX_LBT) ? 31 : 28;
+	uint8_t limit = packet_length - 2;
 	uint16_t lcrc = frskyX_crc_x(&packet[3], limit - 3); // computed crc
 	uint16_t rcrc = (packet[limit] << 8) | (packet[limit + 1] & 0xff); // received crc
 	return lcrc == rcrc;
@@ -124,9 +126,8 @@ uint8_t __attribute__((unused)) frskyx_rx_check_crc()
 
 uint16_t initFrSkyX_Rx()
 {
-	debugln("initFrSkyX_Rx()");
 	FrSkyX_Rx_initialise();
-	frskyx_bind_packets = 0;
+	frskyx_bind_check = 0;
 	frskyx_rx_chanskip = 0;
 	hopping_frequency_no = 0;
 	if (IS_BIND_IN_PROGRESS) {
@@ -152,30 +153,36 @@ uint16_t initFrSkyX_Rx()
 
 uint16_t FrSkyX_Rx_callback()
 {
-	static uint32_t lasttime=0, counter=0;
-	static int8_t loops=0;
+	static uint32_t pps_timer=0;
+	static uint8_t read_retry=0, pps_counter=0;
 	uint8_t len, ch;
+	if (prev_option != option)
+	{
+		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);	// Frequency offset hack
+		prev_option = option;
+	}
+	if (frskyx_rx_disable_lna != IS_POWER_FLAG_on) {
+		frskyx_rx_disable_lna = IS_POWER_FLAG_on;
+		CC2500_SetTxRxMode(frskyx_rx_disable_lna ? TXRX_OFF : RX_EN);
+	}
 	switch(phase) {
 	case FRSKYX_RX_BIND:
 		len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
 		if(len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
 			if (frskyx_rx_check_crc()) {
-				debug("bind:");
-				for(uint8_t i=0; i<len; i++)
-					debug(" %02X", packet[i]);
-				debugln("");
+				if (packet[5] <= 0x2D) {
+				for (ch = 0; ch < 5; ch++)
+					hopping_frequency[packet[5]+ch] = packet[6+ch];
+					frskyx_bind_check |= 1 << (packet[5] / 5);
+				}
+			}
+			if (frskyx_bind_check == 0x3ff) {
+				debugln("bind complete");
+				frskyx_rx_calibrate();
 				frskyx_rx_txid[0] = packet[3];	// TXID
 				frskyx_rx_txid[1] = packet[4];	// TXID
 				frskyx_rx_txid[2] = packet[12]; // RX #
-				for (ch = 0; ch < 5; ch++) {
-					hopping_frequency[packet[5]+ch] = packet[6+ch];
-					frskyx_bind_packets |= 1 << (packet[5] / 5);
-				}
-			}
-			if (frskyx_bind_packets == 0x3ff) {
-				debugln("bind complete");
-				frskyx_rx_calibrate();
 				CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
 				CC2500_WriteReg(CC2500_09_ADDR, frskyx_rx_txid[0]); // set address
 				CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
@@ -200,16 +207,10 @@ uint16_t FrSkyX_Rx_callback()
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
 			if (frskyx_rx_check_crc()) {
-				/*debug("%02X:", hopping_frequency_no);
-				for (uint8_t i = 0; i < len; i++)
-					debug(" %02X", packet[i]);
-				debugln("");*/
-
 				// hop to next channel
 				frskyx_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);
 				hopping_frequency_no = (hopping_frequency_no + frskyx_rx_chanskip) % 47;
 				frskyx_rx_set_channel(hopping_frequency_no);
-
 				if(packet[7] == 0) { // standard packet, decode PXX channels
 					// TODO, or just send raw PXX channels ?
 					int16_t chan1 = packet[9] | ((packet[10] & 0x0F) << 8);
@@ -217,23 +218,23 @@ uint16_t FrSkyX_Rx_callback()
 					//if(chan1 < 2048)
 					//	debugln("Ch1: %d  Ch2: %d", chan1, chan2);
 				}
-				loops = 0;
-				counter++;
-			}
-			// debug packets per second
-			if (millis() - lasttime >= 1000) {
-				lasttime = millis();
-				debugln("%ld pps", counter);
-				counter = 0;
+				read_retry = 0;
+				pps_counter++;
 			}
 		}
 		
+		// debug packets per second
+		if (millis() - pps_timer >= 1000) {
+			pps_timer = millis();
+			debugln("%ld pps", pps_counter);
+			pps_counter = 0;
+		}
+
 		// skip channel if no packet received in time
-		if (loops++ >= 9) {
-			debugln("!");
+		if (read_retry++ >= 9) {
 			hopping_frequency_no = (hopping_frequency_no + frskyx_rx_chanskip) % 47;
 			frskyx_rx_set_channel(hopping_frequency_no);
-			loops = 0;
+			read_retry = 0;
 		}
 		break;
 	}

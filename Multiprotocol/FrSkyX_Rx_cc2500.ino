@@ -25,14 +25,9 @@
 	FRSKYX_RX_DATA,
  };
 
- static uint16_t frskyx_bind_check;
- static uint8_t frskyx_rx_txid[3];
- static uint16_t frskyx_rx_rc_chan[16];
  static uint8_t frskyx_rx_chanskip;
  static uint8_t frskyx_rx_disable_lna;
  static uint8_t frskyx_rx_data_started;
- static uint8_t frskyx_rx_rssi;
- static uint8_t frskyx_rx_pps;
 
 static void __attribute__((unused)) FrSkyX_Rx_initialise() {
 	CC2500_Reset();
@@ -134,6 +129,7 @@ static uint8_t __attribute__((unused)) frskyx_rx_check_crc()
 
 static void __attribute__((unused)) frskyx_rx_build_telemetry_packet()
 {
+	static uint16_t frskyx_rx_rc_chan[16];
 	uint16_t pxx_channel[8];
 	uint32_t bits = 0;
 	uint8_t bitsavailable = 0;
@@ -158,8 +154,8 @@ static void __attribute__((unused)) frskyx_rx_build_telemetry_packet()
 	}
 
 	// buid telemetry packet
-	pkt[idx++] = frskyx_rx_pps;
-	pkt[idx++] = frskyx_rx_rssi;
+	pkt[idx++] = RX_LQI;
+	pkt[idx++] = RX_RSSI;
 	pkt[idx++] = 0;  // start channel
 	pkt[idx++] = 16; // number of channels in packet
 
@@ -178,7 +174,7 @@ static void __attribute__((unused)) frskyx_rx_build_telemetry_packet()
 uint16_t initFrSkyX_Rx()
 {
 	FrSkyX_Rx_initialise();
-	frskyx_bind_check = 0;
+	state = 0;
 	frskyx_rx_chanskip = 1;
 	hopping_frequency_no = 0;
 	frskyx_rx_data_started = 0;
@@ -188,14 +184,14 @@ uint16_t initFrSkyX_Rx()
 	}
 	else {
 		uint16_t temp = FRSKYX_RX_EEPROM_OFFSET + ((RX_num & 0x03) * 50);
-		frskyx_rx_txid[0] = eeprom_read_byte(temp++);
-		frskyx_rx_txid[1] = eeprom_read_byte(temp++);
-		frskyx_rx_txid[2] = eeprom_read_byte(temp++);
+		rx_tx_addr[0] = eeprom_read_byte(temp++);
+		rx_tx_addr[1] = eeprom_read_byte(temp++);
+		rx_tx_addr[2] = eeprom_read_byte(temp++);
 		for(uint8_t ch = 0; ch < 47; ch++)
 			hopping_frequency[ch] = eeprom_read_byte(temp++);
 		frskyx_rx_calibrate();
 		CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
-		CC2500_WriteReg(CC2500_09_ADDR, frskyx_rx_txid[0]); // set address
+		CC2500_WriteReg(CC2500_09_ADDR, rx_tx_addr[0]); // set address
 		CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
 		frskyx_rx_set_channel(hopping_frequency_no);
 		phase = FRSKYX_RX_DATA;
@@ -228,25 +224,25 @@ uint16_t FrSkyX_Rx_callback()
 				if (packet[5] <= 0x2D) {
 					for (ch = 0; ch < 5; ch++)
 						hopping_frequency[packet[5]+ch] = packet[6+ch];
-					frskyx_bind_check |= 1 << (packet[5] / 5);
+					state |= 1 << (packet[5] / 5);
 				}
 			}
-			if (frskyx_bind_check == 0x3ff) {
+			if (state == 0x3ff) {
 				debugln("bind complete");
 				frskyx_rx_calibrate();
-				frskyx_rx_txid[0] = packet[3];	// TXID
-				frskyx_rx_txid[1] = packet[4];	// TXID
-				frskyx_rx_txid[2] = packet[12]; // RX #
+				rx_tx_addr[0] = packet[3];	// TXID
+				rx_tx_addr[1] = packet[4];	// TXID
+				rx_tx_addr[2] = packet[12]; // RX #
 				CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
-				CC2500_WriteReg(CC2500_09_ADDR, frskyx_rx_txid[0]); // set address
+				CC2500_WriteReg(CC2500_09_ADDR, rx_tx_addr[0]); // set address
 				CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
 				phase = FRSKYX_RX_DATA;
 				frskyx_rx_set_channel(hopping_frequency_no);
 				// store txid and channel list
 				uint16_t temp = FRSKYX_RX_EEPROM_OFFSET+((RX_num & 0x03) * 50);
-				eeprom_write_byte((EE_ADDR)temp++, frskyx_rx_txid[0]);
-				eeprom_write_byte((EE_ADDR)temp++, frskyx_rx_txid[1]);
-				eeprom_write_byte((EE_ADDR)temp++, frskyx_rx_txid[2]);
+				eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[0]);
+				eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[1]);
+				eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[2]);
 				for (ch = 0; ch < 47; ch++)
 					eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[ch]);
 				BIND_DONE;
@@ -260,12 +256,12 @@ uint16_t FrSkyX_Rx_callback()
 		len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if (packet[1] == frskyx_rx_txid[0] && packet[2] == frskyx_rx_txid[1] && packet[6] == frskyx_rx_txid[2] && frskyx_rx_check_crc()) {
-				frskyx_rx_rssi = packet[packet_length-2];
-				if(frskyx_rx_rssi >= 128)
-					frskyx_rx_rssi -= 128;
+			if (packet[1] == rx_tx_addr[0] && packet[2] == rx_tx_addr[1] && packet[6] == rx_tx_addr[2] && frskyx_rx_check_crc()) {
+				RX_RSSI = packet[packet_length-2];
+				if(RX_RSSI >= 128)
+					RX_RSSI -= 128;
 				else
-					frskyx_rx_rssi += 128;
+					RX_RSSI += 128;
 				// hop to next channel
 				frskyx_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);
 				hopping_frequency_no = (hopping_frequency_no + frskyx_rx_chanskip) % 47;
@@ -284,7 +280,7 @@ uint16_t FrSkyX_Rx_callback()
 		if (millis() - pps_timer >= 1000) {
 			pps_timer = millis();
 			debugln("%ld pps", pps_counter);
-			frskyx_rx_pps = pps_counter;
+			RX_LQI = pps_counter;
 			pps_counter = 0;
 		}
 

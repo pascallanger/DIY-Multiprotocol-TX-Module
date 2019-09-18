@@ -55,25 +55,6 @@ static void __attribute__((unused)) frskyX_initialize_data(uint8_t adr)
 	CC2500_WriteReg(CC2500_07_PKTCTRL1,0x05);
 }
 
-//**CRC**
-const uint16_t PROGMEM frskyX_CRC_Short[]={
-	0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
-	0x8C48, 0x9DC1, 0xAF5A, 0xBED3, 0xCA6C, 0xDBE5, 0xE97E, 0xF8F7 };
-static uint16_t __attribute__((unused)) frskyX_CRCTable(uint8_t val)
-{
-	uint16_t word ;
-	word = pgm_read_word(&frskyX_CRC_Short[val&0x0F]) ;
-	val /= 16 ;
-	return word ^ (0x1081 * val) ;
-}
-uint16_t frskyX_crc_x(uint8_t *data, uint8_t len)
-{
-	uint16_t crc = 0;
-	for(uint8_t i=0; i < len; i++)
-		crc = (crc<<8) ^ frskyX_CRCTable((uint8_t)(crc>>8) ^ *data++);
-	return crc;
-}
-
 static void __attribute__((unused)) frskyX_build_bind_packet()
 {
 	packet[0] = (sub_protocol & 2 ) ? 0x20 : 0x1D ; // LBT or FCC

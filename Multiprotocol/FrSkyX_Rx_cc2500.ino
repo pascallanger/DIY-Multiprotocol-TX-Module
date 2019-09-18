@@ -160,7 +160,7 @@ static void __attribute__((unused)) frskyx_rx_build_telemetry_packet()
 	// buid telemetry packet
 	pkt[idx++] = frskyx_rx_pps;
 	pkt[idx++] = frskyx_rx_rssi;
-	pkt[idx++] = 1;  // start channel
+	pkt[idx++] = 0;  // start channel
 	pkt[idx++] = 16; // number of channels in packet
 
 	// pack channels

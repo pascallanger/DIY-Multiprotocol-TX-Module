@@ -78,13 +78,15 @@ enum{
 
 static void AFHDS2A_update_telemetry()
 {
+	if(packet[0]==0xAA && packet[9]==0xFD)
+		return;	// ignore packets which contain the RX configuration: FD FF 32 00 01 00 FF FF FF 05 DC 05 DE FA FF FF FF FF FF FF FF FF FF FF FF FF FF FF
 	// Read TX RSSI
 	int16_t temp=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;		// value from A7105 is between 8 for maximum signal strength to 160 or less
 	if(temp<0) temp=0;
 	else if(temp>255) temp=255;
 	TX_RSSI=temp;
 	// AA | TXID | rx_id | sensor id | sensor # | value 16 bit big endian | sensor id ......
-	// max 7 sensors per packet
+	// AC | TXID | rx_id | sensor id | sensor # | length | bytes | sensor id ......
 	#ifdef AFHDS2A_FW_TELEMETRY
 		if (option & 0x80)
 		{// forward 0xAA and 0xAC telemetry to TX, skip rx and tx id to save space

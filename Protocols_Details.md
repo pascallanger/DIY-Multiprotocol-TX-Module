@@ -84,7 +84,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105|
-[Flyzone](Protocols_Details.md#FLYZONE---53)|53|Flyzone|FZ410|||||||A7105|
+[Flyzone](Protocols_Details.md#FLYZONE---53)|53|FZ410||||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|FrskyD||||||||CC2500|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
@@ -113,7 +113,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
-[Traxxas](Protocols_Details.md#Traxxas---43)|43|Traxxas|RX6519|||||||CYRF6936|
+[Traxxas](Protocols_Details.md#Traxxas---43)|43|RX6519||||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|||||||NRF24L01|
 [V761](Protocols_Details.md#V761---48)|48|V761||||||||NRF24L01|XN297
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*||||||||NRF24L01|XN297
@@ -776,9 +776,15 @@ FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..1
 
 ## FY326 - *20*
 
+### Sub_protocol FY326 - *0*
+Model: FY326 Q7 Quadcopter
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|RTH|HEADLESS|EXPERT|CALIBRATE
+
+### Sub_protocol FY319 - *1*
+Model: X6 FY319 Quadcopter (Needs Testing)
 
 ## FQ777 - *23*
 Model: FQ777-124 (with SV7241A)

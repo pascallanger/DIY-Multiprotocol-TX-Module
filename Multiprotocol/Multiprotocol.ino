@@ -1473,7 +1473,7 @@ void update_serial_data()
 		uint16_t temp=((*((uint32_t *)p))>>dec)&0x7FF;
 		#ifdef FAILSAFE_ENABLE
 			if(failsafe)
-				Failsafe_data[i]=temp;			//value range 0..2047, 0=hold, 2047=no pulses
+				Failsafe_data[i]=temp;			//value range 0..2047, 0=no pulse, 2047=hold
 			else
 		#endif
 				Channel_data[i]=temp;			//value range 0..2047, 0=-125%, 2047=+125%

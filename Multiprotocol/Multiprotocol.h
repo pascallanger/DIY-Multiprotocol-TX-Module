@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	80
+#define VERSION_PATCH_LEVEL	81
 
 //******************
 // Protocols
@@ -405,8 +405,8 @@ enum MultiPacketTypes
 #define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
 
 // Failsafe
-#define FAILSAFE_CHANNEL_HOLD		0
-#define	FAILSAFE_CHANNEL_NOPULSES	2047
+#define FAILSAFE_CHANNEL_HOLD		2047
+#define	FAILSAFE_CHANNEL_NOPULSES	0
 
 //********************
 //** Debug messages **
@@ -806,7 +806,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 	2047	+125%
    Values are concatenated to fit in 22 bytes like in SBUS protocol.
    Failsafe values have exactly the same range/values than normal channels except the extremes where
-      0=hold, 2047=no pulse. If failsafe is not set or RX then failsafe packets should not be sent.
+      0=no pulse, 2047=hold. If failsafe is not set or RX then failsafe packets should not be sent.
 */
 /*
   Multimodule Status

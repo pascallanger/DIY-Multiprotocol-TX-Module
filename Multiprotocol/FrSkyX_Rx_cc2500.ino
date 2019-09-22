@@ -205,8 +205,6 @@ uint16_t initFrSkyX_Rx()
 		else
 			CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 		frskyx_rx_set_channel(hopping_frequency_no);
-		if(option == 0)
-
 		phase = FRSKYX_RX_DATA;
 	}
 	packet_length = (sub_protocol == FRSKYX_LBT) ? FRSKYX_LBT_LENGTH : FRSKYX_FCC_LENGTH;
@@ -219,8 +217,8 @@ uint16_t FrSkyX_Rx_callback()
 	static uint8_t pps_counter=0;
 	static int8_t read_retry = 0;
 	static int8_t tune_low, tune_high;
-
 	uint8_t len, ch;
+
 	if ((prev_option != option) && (phase >= FRSKYX_RX_DATA)) {
 		if (option == 0)
 			CC2500_WriteReg(CC2500_0C_FSCTRL0, frskyx_rx_finetune);
@@ -228,11 +226,14 @@ uint16_t FrSkyX_Rx_callback()
 			CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 		prev_option = option;
 	}
+
 	if (frskyx_rx_disable_lna != IS_POWER_FLAG_on) {
 		frskyx_rx_disable_lna = IS_POWER_FLAG_on;
 		CC2500_SetTxRxMode(frskyx_rx_disable_lna ? TXRX_OFF : RX_EN);
 	}
+
 	len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
+
 	switch(phase) {
 	case FRSKYX_RX_TUNE_START:
 		if (len >= packet_length) {
@@ -251,6 +252,7 @@ uint16_t FrSkyX_Rx_callback()
 		CC2500_WriteReg(CC2500_0C_FSCTRL0, frskyx_rx_finetune);
 		frskyx_rx_strobe_rx();
 		return 18000;
+
 	case FRSKYX_RX_TUNE_LOW:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
@@ -267,6 +269,7 @@ uint16_t FrSkyX_Rx_callback()
 		CC2500_WriteReg(CC2500_0C_FSCTRL0, frskyx_rx_finetune);
 		frskyx_rx_strobe_rx();
 		return 18000;
+
 	case FRSKYX_RX_TUNE_HIGH:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
@@ -286,6 +289,7 @@ uint16_t FrSkyX_Rx_callback()
 		CC2500_WriteReg(CC2500_0C_FSCTRL0, frskyx_rx_finetune);
 		frskyx_rx_strobe_rx();
 		return 18000;
+
 	case FRSKYX_RX_BIND:
 		if(len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
@@ -320,6 +324,7 @@ uint16_t FrSkyX_Rx_callback()
 			frskyx_rx_strobe_rx();
 		}
 		return 1000;
+
 	case FRSKYX_RX_DATA:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);

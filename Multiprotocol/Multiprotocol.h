@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	79
+#define VERSION_PATCH_LEVEL	80
 
 //******************
 // Protocols
@@ -405,8 +405,8 @@ enum MultiPacketTypes
 #define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
 
 // Failsafe
-#define FAILSAFE_CHANNEL_HOLD		2047
-#define	FAILSAFE_CHANNEL_NOPULSES	0
+#define FAILSAFE_CHANNEL_HOLD		0
+#define	FAILSAFE_CHANNEL_NOPULSES	2047
 
 //********************
 //** Debug messages **
@@ -574,7 +574,7 @@ enum {
 #define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 bytes per model id, end is 50+64=114
 #define BUGS_EEPROM_OFFSET		114		// RX ID, 2 bytes per model id, end is 114+32=146
 #define BUGSMINI_EEPROM_OFFSET	146		// RX ID, 2 bytes per model id, end is 146+32=178
-#define FRSKYX_RX_EEPROM_OFFSET	178		// TX ID + channels, 50 bytes per model, end is 178+200=378
+#define FRSKYX_RX_EEPROM_OFFSET	178		// (3) TX ID + (47) channels + (1) freq_tune, 51 bytes per model, end is 178+51=229
 //#define CONFIG_EEPROM_OFFSET 	210		// Current configuration of the multimodule
 
 //****************************************
@@ -876,7 +876,6 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Type 0x03 Frsky Hub telemetry
 
 	*No* usual frsky byte stuffing and without start/stop byte (0x7e)
-
 
   Type 0x04 Spektrum telemetry data
    data[0] TX RSSI

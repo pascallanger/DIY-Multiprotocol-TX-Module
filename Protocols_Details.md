@@ -89,6 +89,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|FrskyD||||||||CC2500|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500|
+[FrskyX_RX](Protocols_Details.md#FRSKYX_RX---55)|55|FCC|EU_LBT|||||CC2500|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|
 [GW008](Protocols_Details.md#GW008---32)|32|GW008||||||||NRF24L01|XN297
@@ -340,6 +341,32 @@ EU-LBT protocol 8 channels @9ms. Note that the LBT part is not implemented, the 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+## FRSKYX_RX - *55*
+The FrSkyX receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
+
+Extended limits supported
+
+Option for this protocol corresponds to fine frequency tuning.
+If the value is equal to 0, the RX will auto tune otherwise it will use the indicated value.
+This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
+
+### Sub_protocol FCC - *0*
+FCC protocol 8 or 16 channels.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
+### Sub_protocol EU_LBT - *1*
+EU_LBT protocol 8 or 16 channels.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
 ## HITEC - *39*
 Models: OPTIMA, MINIMA and MICRO receivers.

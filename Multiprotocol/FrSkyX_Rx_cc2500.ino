@@ -183,7 +183,7 @@ uint16_t initFrSkyX_Rx()
 		phase = FRSKYX_RX_BIND;
 	}
 	else {
-		uint16_t temp = FRSKYX_RX_EEPROM_OFFSET + ((RX_num & 0x03) * 50);
+		uint16_t temp = FRSKYX_RX_EEPROM_OFFSET;
 		rx_tx_addr[0] = eeprom_read_byte(temp++);
 		rx_tx_addr[1] = eeprom_read_byte(temp++);
 		rx_tx_addr[2] = eeprom_read_byte(temp++);
@@ -239,7 +239,7 @@ uint16_t FrSkyX_Rx_callback()
 				phase = FRSKYX_RX_DATA;
 				frskyx_rx_set_channel(hopping_frequency_no);
 				// store txid and channel list
-				uint16_t temp = FRSKYX_RX_EEPROM_OFFSET+((RX_num & 0x03) * 50);
+				uint16_t temp = FRSKYX_RX_EEPROM_OFFSET;
 				eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[0]);
 				eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[1]);
 				eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[2]);

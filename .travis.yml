@@ -44,7 +44,7 @@ before_install:
   #
   - buildMulti() { exitcode=0; BUILDCMD="arduino --verify --board $BOARD Multiprotocol/Multiprotocol.ino --pref build.path=./build/"; echo $BUILDCMD; $BUILDCMD; if [ $? -ne 0 ]; then exitcode=1; fi; echo; return $exitcode; }
   - buildProtocol() { exitcode=0; opt_disable $ALL_PROTOCOLS; opt_enable $1; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
-  - buildEachProtocol() { exitcode=0; for PROTOCOL in $ALL_PROTOCOLS ; do echo Building $PROTOCOL; buildProtocol $PROTOCOL; if [ $? -ne 0 ]; then exitcode=1; fi; done; return $exitcode; }
+  - buildEachProtocol() { exitcodesum=0; for PROTOCOL in $ALL_PROTOCOLS ; do echo Building $PROTOCOL; buildProtocol $PROTOCOL; if [ $? -ne 0 ]; then exitcodesum=$((exitcodesum + 1)); fi; done; return $exitcodesum; }
   #
   # Arduino IDE adds a lot of noise caused by network traffic; firewall it
   - sudo iptables -P INPUT DROP

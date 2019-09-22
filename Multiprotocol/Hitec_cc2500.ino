@@ -324,12 +324,20 @@ uint16_t ReadHITEC()
 							//		0C,1C,A1,2B,00,17,00,00,00,42,44,17,00,48,8D	-> 42=>temperature3 0x42-0x28=26°C,44=>temperature4 0x44-0x28=28°C
 							//		0C,1C,A1,2B,00,18,00,00,00,00,00,18,00,50,92
 							debug(",telem,%02x",pkt[14]&0x7F);
+							#if defined(HITEC_FW_TELEMETRY) || defined(HITEC_HUB_TELEMETRY)
+								TX_RSSI = pkt[13];
+								if(TX_RSSI >=128)
+									TX_RSSI -= 128;
+								else
+									TX_RSSI += 128;
+								TX_LQI = pkt[14]&0x7F;
+							#endif
 							#if defined(HITEC_FW_TELEMETRY)
 								if(sub_protocol==OPT_FW)
 								{
 									// 8 bytes telemetry packets => see at the end of this file how to fully decode it
-									pkt[0]=pkt[13];				// TX RSSI
-									pkt[1]=pkt[14]&0x7F;		// TX LQI
+									pkt[0]=TX_RSSI;				// TX RSSI
+									pkt[1]=TX_LQI;				// TX LQI
 									uint8_t offset=pkt[5]==0?1:0;
 									for(uint8_t i=5;i < 11; i++)
 										pkt[i-3]=pkt[i+offset];	// frame number followed by 5 bytes of data
@@ -351,12 +359,6 @@ uint16_t ReadHITEC()
 											v_lipo2 =  (pkt[6])<<5 | (pkt[7])>>3;	// calculation in float is volt=(pkt[6]<<8+pkt[7])/10
 											break;
 									}
-									TX_RSSI = pkt[13];
-									if(TX_RSSI >=128)
-										TX_RSSI -= 128;
-									else
-										TX_RSSI += 128;
-									TX_LQI = pkt[14]&0x7F;
 									telemetry_link=1;			// telemetry hub available
 								}
 							#endif
@@ -403,7 +405,7 @@ packet[1] = TX LQI value
 packet[2] = frame number
 packet[3-7] telemetry data
 
-The frame number takes the following values: 0x00, 0x11, 0x12, ..., 0x18. The frames can be present or not, they also do not have to follow each others.
+The frame number takes the following values: 0x00, 0x11, 0x12, ..., 0x1C. The frames can be present or not, they also do not have to follow each others.
 Here is a description of the telemetry data for each frame number:
 - frame 0x00
 data byte 0 -> 0x00				unknown
@@ -414,9 +416,9 @@ data byte 4 -> RX Batt Volt_L => RX Batt=(Volt_H*256+Volt_L)/28
 - frame 0x11
 data byte 0 -> 0xAF				start of frame
 data byte 1 -> 0x00				unknown
-data byte 2 -> 0x2D				frame type but constant here
-data byte 3 -> Volt1_H
-data byte 4 -> Volt1_L			RX Batt=(Volt1_H*256+Volt1_L)/28 V
+data byte 2 -> 0x2D				station type 0x2D=standard station nitro or electric, 0xAC=advanced station
+data byte 3 -> RX Batt Volt_H
+data byte 4 -> RX Batt Volt_L => RX Batt=(Volt_H*256+Volt_L)/28
 - frame 0x12
 data byte 0 -> Lat_sec_H		GPS : latitude second
 data byte 1 -> Lat_sec_L		signed int : 1/100 of second
@@ -431,9 +433,9 @@ data byte 3 -> 					signed int : +=Est, - = west
 data byte 4 -> Temp2			Temperature2=Temp2-40°C
 - frame 0x14
 data byte 0 -> Speed_H
-data byte 1 -> Speed_L			Speed=Speed_H*256+Speed_L km/h
+data byte 1 -> Speed_L			GPS Speed=Speed_H*256+Speed_L km/h
 data byte 2 -> Alti_sea_H
-data byte 3 -> Alti_sea_L		Altitude sea=Alti_sea_H*256+Alti_sea_L m
+data byte 3 -> Alti_sea_L		GPS Altitude=Alti_sea_H*256+Alti_sea_L m
 data byte 4 -> Temp1			Temperature1=Temp1-40°C
 - frame 0x15
 data byte 0 -> FUEL
@@ -448,15 +450,29 @@ data byte 2 -> Date_day
 data byte 3 -> Time_hour		GPS Time
 data byte 4 -> Time_min
 - frame 0x17
-data byte 0 -> 0x00	COURSEH
-data byte 1 -> 0x00	COURSEL		GPS Course = COURSEH*256+COURSEL
-data byte 2 -> 0x00				GPS count
+data byte 0 -> COURSEH
+data byte 1 -> COURSEL			GPS heading = COURSEH*256+COURSEL in degrees
+data byte 2 -> Count			GPS satellites
 data byte 3 -> Temp3			Temperature3=Temp2-40°C
 data byte 4 -> Temp4			Temperature4=Temp3-40°C
 - frame 0x18
-data byte 1 -> Volt2_H
-data byte 2 -> Volt2_L			Volt2=(Volt2_H*256+Volt2_L)/10 V
-data byte 3 -> AMP1_L
-data byte 4 -> AMP1_H			Amp=(AMP1_H*256+AMP1_L -180)/14 in signed A
+data byte 1 -> Volt_H
+data byte 2 -> Volt_L			Volt=(Volt_H*256+Volt_L)/10 V
+data byte 3 -> AMP_L
+data byte 4 -> AMP_H			Amp=(AMP1_*256+AMP_L -180)/14 in signed A
+- frame 0x19					Servo sensor
+data byte 0 -> AMP_Servo1		Amp=AMP_Servo1/10 in A
+data byte 1 -> AMP_Servo2		Amp=AMP_Servo2/10 in A
+data byte 2 -> AMP_Servo3		Amp=AMP_Servo3/10 in A
+data byte 3 -> AMP_Servo4		Amp=AMP_Servo4/10 in A
+- frame 0x1A
+data byte 2 -> ASpeed_H			Air speed=ASpeed_H*256+ASpeed_L km/h
+data byte 3 -> ASpeed_L
+- frame 0x1B					Variometer sensor
+data byte 0 -> Alti1H
+data byte 1 -> Alti1L			Altitude unfiltered
+data byte 2 -> Alti2H
+data byte 3 -> Alti2L			Altitude filtered
+- frame 0x1C					Unknown
 */
 #endif

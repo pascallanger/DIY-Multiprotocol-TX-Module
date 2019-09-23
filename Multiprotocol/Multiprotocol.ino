@@ -147,6 +147,7 @@ uint8_t protocol_flags=0,protocol_flags2=0;
 // PPM variable
 volatile uint16_t PPM_data[NUM_CHN];
 volatile uint8_t  PPM_chan_max=0;
+uint32_t chan_order=0;
 #endif
 
 #if not defined (ORANGE_TX) && not defined (STM32_BOARD)
@@ -435,9 +436,10 @@ void setup()
 		#endif
 		
 		protocol		=	PPM_prot_line->protocol;
-		cur_protocol[1] = protocol;
+		cur_protocol[1] =	protocol;
 		sub_protocol   	=	PPM_prot_line->sub_proto;
 		RX_num			=	PPM_prot_line->rx_num;
+		chan_order		=	PPM_prot_line->chan_order;
 
 		//Forced frequency tuning values for CC2500 protocols
 		#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
@@ -627,6 +629,8 @@ uint8_t Update_All()
 	#ifdef ENABLE_PPM
 		if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)		// PPM mode and a full frame has been received
 		{
+			uint32_t chan_or=chan_order;
+			uint8_t ch;
 			for(uint8_t i=0;i<PPM_chan_max;i++)
 			{ // update servo data without interrupts to prevent bad read
 				uint16_t val;
@@ -636,7 +640,17 @@ uint8_t Update_All()
 				val=map16b(val,PPM_MIN_100*2,PPM_MAX_100*2,CHANNEL_MIN_100,CHANNEL_MAX_100);
 				if(val&0x8000) 					val=CHANNEL_MIN_125;
 				else if(val>CHANNEL_MAX_125)	val=CHANNEL_MAX_125;
-				Channel_data[i]=val;
+				if(chan_or)
+				{
+					ch=chan_or>>28;
+					if(ch)
+						Channel_data[ch-1]=val;
+					else
+						Channel_data[i]=val;
+					chan_or<<=4;
+				}
+				else
+					Channel_data[i]=val;
 			}
 			PPM_FLAG_off;									// wait for next frame before update
 			update_channels_aux();

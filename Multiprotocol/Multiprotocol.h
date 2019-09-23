@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		2
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	81
+#define VERSION_PATCH_LEVEL	82
 
 //******************
 // Protocols
@@ -309,6 +309,7 @@ struct PPM_Parameters
 	uint8_t power : 1;
 	uint8_t autobind : 1;
 	uint8_t option;
+	uint32_t chan_order;
 };
 
 // Telemetry

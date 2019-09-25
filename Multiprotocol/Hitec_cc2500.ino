@@ -456,10 +456,10 @@ data byte 2 -> Count			GPS satellites
 data byte 3 -> Temp3			Temperature3=Temp2-40°C
 data byte 4 -> Temp4			Temperature4=Temp3-40°C
 - frame 0x18
+data byte 0 -> Volt_L			Volt=(Volt_H*256+Volt_L)/10 V
 data byte 1 -> Volt_H
-data byte 2 -> Volt_L			Volt=(Volt_H*256+Volt_L)/10 V
-data byte 3 -> AMP_L
-data byte 4 -> AMP_H			Amp=(AMP1_*256+AMP_L -180)/14 in signed A
+data byte 2 -> AMP_L
+data byte 3 -> AMP_H			Amp=(AMP1_*256+AMP_L -180)/14 in signed A
 - frame 0x19					Servo sensor
 data byte 0 -> AMP_Servo1		Amp=AMP_Servo1/10 in A
 data byte 1 -> AMP_Servo2		Amp=AMP_Servo2/10 in A
@@ -474,5 +474,6 @@ data byte 1 -> Alti1L			Altitude unfiltered
 data byte 2 -> Alti2H
 data byte 3 -> Alti2L			Altitude filtered
 - frame 0x1C					Unknown
+- frame 0x22					Unknown
 */
 #endif

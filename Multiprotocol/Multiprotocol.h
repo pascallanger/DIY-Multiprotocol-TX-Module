@@ -864,6 +864,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    0x04 = protocol is valid
    0x08 = module is in binding mode
    0x10 = module waits a bind event to load the protocol
+   0x20 = current protocol supports failsafe
    [5] major
    [6] minor
    [7] revision

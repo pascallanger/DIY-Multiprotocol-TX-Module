@@ -61,13 +61,30 @@ uint8_t convert_channel_8b_limit_deadband(uint8_t num,uint8_t min,uint8_t mid, u
 {
 	uint16_t val=limit_channel_100(num);		// 204<->1844
 	uint16_t db_low=CHANNEL_MID-deadband, db_high=CHANNEL_MID+deadband; // 1024+-deadband
+	int32_t calc;
+	uint8_t out;
 	if(val>=db_low && val<=db_high)
 		return mid;
 	else if(val<db_low)
-		val=min+(val-CHANNEL_MIN_100)*(mid-min)/(db_low-CHANNEL_MIN_100);
+	{
+		val-=CHANNEL_MIN_100;
+		calc=mid-min;
+		calc*=val;
+		calc/=(db_low-CHANNEL_MIN_100);
+		out=calc;
+		out+=min;
+	}
 	else
-		val=mid+(val-db_high)*(max-mid)/(CHANNEL_MAX_100-1-db_high);
-	return val;
+	{
+		val-=db_high;
+		calc=max-mid;
+		calc*=val;
+		calc/=(CHANNEL_MAX_100-db_high+1);
+		out=calc;
+		out+=mid;
+		if(max>min) out++; else out--;
+	}
+	return out;
 }
 
 // Reverse a channel and store it

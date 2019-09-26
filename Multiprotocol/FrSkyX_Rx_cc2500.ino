@@ -190,12 +190,12 @@ uint16_t initFrSkyX_Rx()
 	}
 	else {
 		uint16_t temp = FRSKYX_RX_EEPROM_OFFSET;
-		rx_tx_addr[0] = eeprom_read_byte(temp++);
-		rx_tx_addr[1] = eeprom_read_byte(temp++);
-		rx_tx_addr[2] = eeprom_read_byte(temp++);
-		frskyx_rx_finetune = eeprom_read_byte(temp++);
+		rx_tx_addr[0] = eeprom_read_byte((EE_ADDR)temp++);
+		rx_tx_addr[1] = eeprom_read_byte((EE_ADDR)temp++);
+		rx_tx_addr[2] = eeprom_read_byte((EE_ADDR)temp++);
+		frskyx_rx_finetune = eeprom_read_byte((EE_ADDR)temp++);
 		for(uint8_t ch = 0; ch < 47; ch++)
-			hopping_frequency[ch] = eeprom_read_byte(temp++);
+			hopping_frequency[ch] = eeprom_read_byte((EE_ADDR)temp++);
 		frskyx_rx_calibrate();
 		CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
 		CC2500_WriteReg(CC2500_09_ADDR, rx_tx_addr[0]); // set address

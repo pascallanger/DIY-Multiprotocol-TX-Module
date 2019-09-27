@@ -123,11 +123,12 @@
 /** Low Power **/
 //Low power is reducing the transmit power of the multi module. This setting is configurable per model in PPM (table below) or Serial mode (radio GUI).
 //It can be activated when flying indoor or small models since the distance is short or if a model is causing issues when flying closed to the TX.
-//By default low power is completly disabled on all rf chips to prevent mistakes, but you can enable it by uncommenting the lines below: 
-//#define A7105_ENABLE_LOW_POWER
-//#define CYRF6936_ENABLE_LOW_POWER
-//#define CC2500_ENABLE_LOW_POWER
-//#define NRF24L01_ENABLE_LOW_POWER
+//By default low power selection is enabled on all rf chips, but you can disable it by commenting (add //) the lines below if you don't want to risk
+//flying a model with low power.
+#define A7105_ENABLE_LOW_POWER
+#define CYRF6936_ENABLE_LOW_POWER
+#define CC2500_ENABLE_LOW_POWER
+#define NRF24L01_ENABLE_LOW_POWER
 
 
 /*****************/
@@ -240,24 +241,11 @@
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
-//The module is using the same default failsafe values for all protocols which currently supports it:
-//  Devo, WK2x01, SFHSS, HISKY/HK310 and AFHDS2A
-//All channels are centered except throttle which is forced low.
-//If you want to diasble failsafe globally comment the line below using "//".
+//The following protocols are supporting failsafe: FrSkyX, Devo, WK2x01, SFHSS, HISKY/HK310 and AFHDS2A
+//In Serial mode failsafe is configured on the radio itself.
+//In PPM mode and only after the module is up and fully operational, press the bind button for at least 5sec to send the current stick positions as failsafe to the RX.
+//If you want to disable failsafe globally comment the line below using "//".
 #define FAILSAFE_ENABLE
-
-//Failsafe throttle low value in percentage.
-//Value between -125% and +125%. Default -100.
-#define FAILSAFE_THROTTLE_LOW -100
-
-//The radio using serial protocol can set failsafe data.
-// Two options are available:
-//  a. replace the default failsafe data with serial failsafe data when they are received.
-//  b. wait for the radio to provide failsafe before sending it. Enable advanced settings like "FAILSAFE NOT SET" or "FAILSAFE RX".
-// Option a. is the default since you have a protection even if no failsafe has been set on the radio.
-// You can force option b. by uncommenting the line below (remove the "//").
-//#define FAILSAFE_SERIAL_ONLY
-
 
 /**************************/
 /*** TELEMETRY SETTINGS ***/

@@ -653,6 +653,7 @@ uint8_t Update_All()
 					Channel_data[i]=val;
 			}
 			PPM_FLAG_off;									// wait for next frame before update
+			PPM_failsafe();
 			update_channels_aux();
 			INPUT_SIGNAL_on;								// valid signal received
 			last_signal=millis();
@@ -692,6 +693,32 @@ uint8_t Update_All()
 	}
 	return 0;
 }
+
+#ifdef ENABLE_PPM
+void PPM_failsafe()
+{
+	static uint8_t counter=0;
+	
+	if(IS_BIND_IN_PROGRESS || IS_FAILSAFE_VALUES_on) 	// bind is not finished yet or Failsafe already being sent
+		return;
+	BIND_SET_INPUT;
+	BIND_SET_PULLUP;
+	if(IS_BIND_BUTTON_on)
+	{// bind button pressed
+		counter++;
+		if(counter>227)
+		{ //after 5s with PPM frames @22ms
+			counter=0;
+			for(uint8_t i=0;i<NUM_CHN;i++)
+				Failsafe_data[i]=Channel_data[i];
+			FAILSAFE_VALUES_on;
+		}
+	}
+	else
+		counter=0;
+	BIND_SET_OUTPUT;
+}
+#endif
 
 // Update channels direction and Channel_AUX flags based on servo AUX positions
 static void update_channels_aux(void)
@@ -927,7 +954,7 @@ static void protocol_init()
 		set_rx_tx_addr(MProtocol_id);
 		
 		#ifdef FAILSAFE_ENABLE
-			InitFailsafe();
+			FAILSAFE_VALUES_off;
 		#endif
 	
 		blink=millis();

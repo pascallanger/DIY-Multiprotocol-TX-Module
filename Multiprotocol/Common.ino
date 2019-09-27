@@ -13,28 +13,6 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef FAILSAFE_ENABLE
-//Convert from percentage to failsafe value
-#define FAILSAFE_THROTTLE_LOW_VAL (((FAILSAFE_THROTTLE_LOW+125)*1024)/125)
-#if FAILSAFE_THROTTLE_LOW_VAL <= 0
-	#undef FAILSAFE_THROTTLE_LOW_VAL
-	#define FAILSAFE_THROTTLE_LOW_VAL 1
-#elif (FAILSAFE_THROTTLE_LOW_VAL) >= 2046
-	#undef FAILSAFE_THROTTLE_LOW_VAL
-	#define FAILSAFE_THROTTLE_LOW_VAL 2046
-#endif
-void InitFailsafe()
-{
-	for(uint8_t i=0;i<NUM_CHN;i++)
-		Failsafe_data[i]=1024;
-	Failsafe_data[THROTTLE]=(uint16_t)FAILSAFE_THROTTLE_LOW_VAL;	//1=-125%, 204=-100%
-	FAILSAFE_VALUES_on;
-	#ifdef FAILSAFE_SERIAL_ONLY
-		if(mode_select == MODE_SERIAL)
-			FAILSAFE_VALUES_off;
-	#endif
-}
-#endif
 #ifdef ENABLE_PPM
 void InitPPM()
 {

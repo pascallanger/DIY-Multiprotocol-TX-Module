@@ -287,11 +287,9 @@
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
 #define FRSKYX_RX_TELEMETRY			// Forward channels data to TX
 
-//SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
-//This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
-//Using this feature requires to uncomment INVERT_TELEMETRY as this TX output on telemetry pin only inverted signal.
+//SPORT_SEND: passing sport control frames from TX to RX(ex: SxR configuration, changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
 //!!!! This is a work in progress!!! Do not enable unless you want to test and report
-//#define SPORT_POLLING
+//#define SPORT_SEND
 
 
 /****************************/

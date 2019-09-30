@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	1
+#define VERSION_PATCH_LEVEL	2
 
 //******************
 // Protocols
@@ -324,7 +324,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_AFHDS2A			= 6,
 	MULTI_TELEMETRY_CONFIG			= 7,
 	MULTI_TELEMETRY_SYNC			= 8,
-	MULTI_TELEMETRY_SPORT_POLLING	= 9,
+	MULTI_TELEMETRY_SPORT_BUFFER	= 9,
 	MULTI_TELEMETRY_HITEC			= 10,
 	MULTI_TELEMETRY_SCANNER			= 11,
 	MULTI_TELEMETRY_AFHDS2A_AC		= 12,
@@ -591,9 +591,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Stream[0]   = 0x54	sub_protocol values are 32..63	Stream contains channels
   Stream[0]   = 0x57	sub_protocol values are 0..31	Stream contains failsafe
   Stream[0]   = 0x56	sub_protocol values are 32..63	Stream contains failsafe
+  Stream[0]  |= 0x20	any of the above + 8 additional bytes at the end of the stream available for the current sub_protocol
    header
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
-   sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54
+   sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54 | 0x56
    =>	Reserved	0
 					Flysky		1
 					Hubsan		2

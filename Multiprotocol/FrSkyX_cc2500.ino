@@ -184,27 +184,6 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
 	for (uint8_t i=22;i<limit;i++)
 		packet[i]=0;
-	#if defined SPORT_POLLING
-		uint8_t idxs=0;
-		if(ok_to_send)
-			for (uint8_t i=23;i<limit;i++)
-			{//
-				if(sport_index==sport_idx)
-				{//no new data
-					ok_to_send=false;
-					break;
-				}
-				packet[i]=SportData[sport_index];	
-				sport_index= (sport_index+1) & (MAX_SPORT_BUFFER-1);
-				idxs++;
-			}
-		packet[22]= idxs;
-		debug("SPort: ");
-		for(uint8_t i=0;i<idxs;i++)
-			debug("%02X ",packet[23+i]);
-		debugln("");
-	#endif // SPORT_POLLING
-
 	#ifdef SPORT_SEND
 		uint8_t nbr_bytes=0;
 		for (uint8_t i=23;i<limit;i++)
@@ -327,12 +306,6 @@ uint16_t initFrSkyX()
 	//************************
 	FrSkyX_init();
 
-#ifdef SPORT_POLLING
-	#ifdef INVERT_SERIAL
-		start_timer4() ;
-	#endif
-#endif
-	//
 	if(IS_BIND_IN_PROGRESS)
 	{	   
 		state = FRSKY_BIND;

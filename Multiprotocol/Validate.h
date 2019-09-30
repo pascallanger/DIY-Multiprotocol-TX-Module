@@ -246,7 +246,7 @@
 	#undef NCC1701_HUB_TELEMETRY
 	#undef HUB_TELEMETRY
 	#undef SPORT_TELEMETRY
-	#undef SPORT_POLLING
+	#undef SPORT_SEND
 	#undef DSM_TELEMETRY
 	#undef MULTI_STATUS
 	#undef MULTI_TELEMETRY
@@ -294,13 +294,10 @@
 	#endif
 	#if not defined(FRSKYX_CC2500_INO)
 		#undef SPORT_TELEMETRY
-		#undef SPORT_POLLING
+		#undef SPORT_SEND
 	#endif
-	#if not defined (SPORT_TELEMETRY) || not defined (STM32_BOARD)
-		#undef SPORT_POLLING
-	#endif
-	#if defined SPORT_POLLING && not defined INVERT_TELEMETRY
-		#error SPORT_POLLING has been defined but not INVERT_TELEMETRY. They should be both enabled to work.
+	#if not defined (SPORT_TELEMETRY)
+		#undef SPORT_SEND
 	#endif
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
@@ -308,8 +305,11 @@
 	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKYX_RX_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
-		#undef SPORT_POLLING
 	#endif
+#endif
+
+#ifdef SPORT_SEND
+	#define SERIAL_DATA_ENABLE
 #endif
 
 //Make sure TX is defined correctly

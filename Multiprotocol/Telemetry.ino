@@ -48,18 +48,6 @@ uint8_t RetrySequence ;
 	// Store for FrskyX telemetry
 	struct t_FrSkyX_RX_Frame FrSkyX_RX_Frames[4] ;
 	uint8_t FrSkyX_RX_NextFrame=0;
-	#ifdef SPORT_POLLING
-		uint8_t sport_rx_index[28] ;
-		uint8_t ukindex ;
-		uint8_t kindex ;
-		uint8_t TxData[2];
-		uint8_t SportIndexPolling;
-		uint8_t RxData[16] ;
-		volatile uint8_t RxIndex=0 ;
-		uint8_t sport_bytes=0;
-		uint8_t skipped_id;
-		uint8_t rx_counter=0;
-	#endif
 #endif // SPORT_TELEMETRY
 
 #if defined HUB_TELEMETRY
@@ -90,14 +78,6 @@ static void multi_send_header(uint8_t type, uint8_t len)
 
 static void multi_send_status()
 {
-	#ifdef SPORT_POLLING
-	#ifdef INVERT_SERIAL
-		USART3_BASE->CR1 &= ~USART_CR1_TE ;
-		TX_INV_on;	//activate inverter for both serial TX and RX signals
-		USART3_BASE->CR1 |= USART_CR1_TE ;
-	#endif
-		rx_pause();
-	#endif
 	multi_send_header(MULTI_TELEMETRY_STATUS, 5);
 
 	// Build flags
@@ -538,7 +518,7 @@ packet_in[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 0x34	0x0A	0xC3	0x56	0xF3
 */
 
-#if defined SPORT_POLLING || defined MULTI_TELEMETRY
+#if defined MULTI_TELEMETRY
 const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
 									0xC6, 0x67, 0x48, 0xE9, 0x6A, 0xCB,
 									0xAC, 0x0D, 0x8E, 0x2F, 0xD0, 0x71,
@@ -568,11 +548,6 @@ const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
 	void sportSend(uint8_t *p)
 	{
 		uint16_t crc_s = 0;
-		#if defined SPORT_POLLING && defined INVERT_SERIAL
-			USART3_BASE->CR1 &= ~USART_CR1_TE ;
-			TX_INV_on;	//activate inverter for both serial TX and RX signals
-			USART3_BASE->CR1 |= USART_CR1_TE ;
-		#endif
 		Serial_write(START_STOP);//+9
 		Serial_write(p[0]) ;
 		for (uint8_t i = 1; i < 9; i++)
@@ -595,198 +570,6 @@ const uint8_t PROGMEM Indices[] = {	0x00, 0xA1, 0x22, 0x83, 0xE4, 0x45,
 	}	
 #endif
 
-#if defined  SPORT_POLLING
-uint8_t nextID()
-{
-	uint8_t i ;
-	uint8_t poll_idx ; 
-	if (phase)
-	{
-		poll_idx = 99 ;
-		for ( i = 0 ; i < 28 ; i++ )
-		{
-			if ( sport_rx_index[kindex] )
-			{
-				poll_idx = kindex ;
-			}
-			kindex++ ;
-			if ( kindex>= 28 )
-			{
-				kindex = 0 ;
-				phase = 0 ;
-				break ;
-			}
-			if ( poll_idx != 99 )
-			{
-				break ;
-			}
-		}
-		if ( poll_idx != 99 )
-		{
-			return poll_idx ;
-		}
-	}
-	if ( phase == 0 )
-	{
-		for ( i = 0 ; i < 28 ; i++ )
-		{
-			if ( sport_rx_index[ukindex] == 0 )
-			{
-				poll_idx = ukindex ;
-				phase = 1 ;
-			}
-			ukindex++;
-			if (ukindex >= 28 )
-			{
-				ukindex = 0 ;
-			}
-			if ( poll_idx != 99 )
-			{
-				return poll_idx ;
-			}
-		}
-		if ( poll_idx == 99 )
-		{
-			phase = 1 ;
-			return 0 ;
-		}
-	}
-	return poll_idx ;
-}
-
-#ifdef INVERT_SERIAL
-void start_timer4()
-{
-	TIMER4_BASE->PSC = 71;								// 72-1;for 72 MHZ / 1.0sec/(71+1)
-	TIMER4_BASE->CCER = 0 ;
-	TIMER4_BASE->DIER = 0 ;
-	TIMER4_BASE->CCMR1 = 0 ;
-	TIMER4_BASE->CCMR1 = TIMER_CCMR1_OC1M ;
-	HWTimer4.attachInterrupt(TIMER_CH1, __irq_timer4);		// Assign function to Timer2/Comp2 interrupt
-	nvic_irq_set_priority( NVIC_TIMER4, 14 ) ;
-}
-
-void stop_timer4()
-{
-	TIMER5_BASE->CR1 = 0 ;
-	nvic_irq_disable( NVIC_TIMER4 ) ;
-}
-
-void __irq_timer4(void)			
-{
-	TIMER4_BASE->DIER = 0 ;
-	TIMER4_BASE->CR1 = 0 ;
-	TX_INV_on;	//activate inverter for both serial TX and RX signals
-}
-#endif
-
-void pollSport()
-{
-	uint8_t pindex = nextID() ;
-	TxData[0]  = START_STOP;
-	TxData[1] = pgm_read_byte_near(&Indices[pindex]) ;
-	if(!telemetry_lost && ((TxData[1] &0x1F)== skipped_id ||TxData[1]==0x98))
-	{//98 ID(RSSI/RxBat and SWR ) and ID's from sport telemetry
-		pindex = nextID() ;	
-		TxData[1] = pgm_read_byte_near(&Indices[pindex]);
-	}		
-	SportIndexPolling = pindex ;
-	RxIndex = 0;
-	#ifdef INVERT_SERIAL
-		USART3_BASE->CR1 &= ~USART_CR1_TE ;
-		TX_INV_on;	//activate inverter for both serial TX and RX signals
-		USART3_BASE->CR1 |= USART_CR1_TE ;
-	#endif
-#ifdef MULTI_TELEMETRY
-	multi_send_header(MULTI_TELEMETRY_SPORT_POLLING, 1);
-#else
-    Serial_write(TxData[0]);
-#endif
-	RxIndex=0;
-	Serial_write(TxData[1]);
-	USART3_BASE->CR1 |= USART_CR1_TCIE ;
-#ifdef INVERT_SERIAL
-	TIMER4_BASE->CNT = 0 ;
-	TIMER4_BASE->CCR1 = 3000 ;
-	TIMER4_BASE->DIER = TIMER_DIER_CC1IE ;
-	TIMER4_BASE->CR1 = TIMER_CR1_CEN ;
-#endif
-}
-
-bool checkSportPacket()
-{
-	uint8_t *packet = RxData ;
-	uint16_t crc = 0 ;
-	if ( RxIndex < 8 )
-		return 0 ;
-	for ( uint8_t i = 0 ; i<8 ; i += 1 )
-	{
-		crc += packet[i]; 
-		crc += crc >> 8; 
-		crc &= 0x00ff;
-	}
-	return (crc == 0x00ff) ;
-}
-
-uint8_t unstuff()
-{
-	uint8_t i ;
-	uint8_t j ;
-	j = 0 ;
-	for ( i = 0 ; i < RxIndex ; i += 1 )
-	{
-		if ( RxData[i] == BYTESTUFF )
-		{
-			i += 1 ;
-			RxData[j] = RxData[i] ^ STUFF_MASK ; ;
-		}
-		else
-			RxData[j] = RxData[i] ;
-		j += 1 ;
-	}
-	return j ;
-}
-
-void processSportData(uint8_t *p)
-{	
-
-	RxIndex = unstuff() ;
-	uint8_t x=checkSportPacket() ;
-	if (x)
-	{
-		SportData[sport_idx]=0x7E;
-		sport_idx =(sport_idx+1) & (MAX_SPORT_BUFFER-1);
-		SportData[sport_idx]=TxData[1]&0x1F;
-		sport_idx =(sport_idx+1) & (MAX_SPORT_BUFFER-1);	
-		
-		for(uint8_t i=0;i<(RxIndex-1);i++)
-		{//no crc		
-			if(p[i]==START_STOP || p[i]==BYTESTUFF)
-			{//stuff back
-				SportData[sport_idx]=BYTESTUFF;
-				sport_idx =(sport_idx+1) & (MAX_SPORT_BUFFER-1);
-				SportData[sport_idx]=p[i]^STUFF_MASK;
-			}
-			else
-				SportData[sport_idx]=p[i];
-			sport_idx =(sport_idx+1) & (MAX_SPORT_BUFFER-1);
-		}
-		sport_rx_index[SportIndexPolling] = 1 ;	
-		ok_to_send=true;
-		RxIndex =0 ; 
-	}
-}
-
-inline void rx_pause()
-{
-	USART3_BASE->CR1 &= ~ USART_CR1_RXNEIE;	//disable rx interrupt on USART3	
-}
-inline void rx_resume()
-{
-	USART3_BASE->CR1 |= USART_CR1_RXNEIE;	//enable rx interrupt on USART3
-}	
-#endif//end SPORT_POLLING
-
 void sportIdle()
 {
 	#if !defined MULTI_TELEMETRY
@@ -796,18 +579,11 @@ void sportIdle()
 
 void sportSendFrame()
 {
-	#if defined SPORT_POLLING
-		rx_pause();
-	#endif
 	uint8_t i;
 	sport_counter = (sport_counter + 1) %36;
 	if(telemetry_lost)
 	{
-		#ifdef SPORT_POLLING
-			pollSport();
-		#else
-			sportIdle();
-         #endif
+		sportIdle();
 		return;
 	}
 	if(sport_counter<6)
@@ -843,26 +619,19 @@ void sportSendFrame()
 			if(sport)
 			{	
 				for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
-				frame[i]=pktx1[i];
-				sport -= 1 ;
-				#ifdef SPORT_POLLING
-					skipped_id=frame[0];
-				#endif
+					frame[i]=pktx1[i];
+				sport -- ;
 				if ( sport )
 				{
 					uint8_t j = sport * FRSKY_SPORT_PACKET_SIZE ;
 					for (i=0;i<j;i++)
-					pktx1[i] = pktx1[i+FRSKY_SPORT_PACKET_SIZE] ;
+						pktx1[i] = pktx1[i+FRSKY_SPORT_PACKET_SIZE] ;
 				}
 				break;
 			}
 			else
 			{
-				#ifdef SPORT_POLLING
-					pollSport();
-				#else
-					sportIdle();
-				#endif
+				sportIdle();
 				return;
 			}		
 	}
@@ -982,19 +751,6 @@ void TelemetryUpdate()
 			}
 			telemetry_link=0; 
 			sportSendFrame();
-/*			uint32_t now = micros();
-			if ((now - last) > SPORT_TIME)
-			{
-				#if defined SPORT_POLLING
-					processSportData(RxData);	//process arrived data before polling
-				#endif
-				sportSendFrame();
-				#ifdef STM32_BOARD
-					last=now;
-				#else
-					last += SPORT_TIME ;
-				#endif
-			}*/
 		}
 	#endif // SPORT_TELEMETRY
 
@@ -1163,27 +919,6 @@ void TelemetryUpdate()
 	#endif
 	{	// Transmit interrupt
 		#ifdef STM32_BOARD
-			#ifdef SPORT_POLLING		
-				if(USART3_BASE->SR & USART_SR_TC) 
-				{
-					if ( USART3_BASE->CR1 & USART_CR1_TCIE )
-					{
-						USART3_BASE->CR1 &= ~USART_CR1_TCIE ;
-						TX_INV_off;
-					}
-				}
-
-				if(USART3_BASE->SR & USART_SR_RXNE) 
-				{
-					USART3_BASE->SR &= ~USART_SR_RXNE;
-					if (RxIndex < 16 )
-					{
-						if(RxData[0]==TxData[0] && RxData[1]==TxData[1])
-							RxIndex=0;
-						RxData[RxIndex++] = USART3_BASE->DR & 0xFF ;					
-					}
-				}
-			#endif
 			if(USART3_BASE->SR & USART_SR_TXE)
 			{
 		#endif
@@ -1200,9 +935,6 @@ void TelemetryUpdate()
 				if (tx_tail == tx_head)
 				{
 					tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
-					#ifdef  SPORT_POLLING
-						rx_resume();
-					#endif
 				}
 		#ifdef STM32_BOARD	
 			}

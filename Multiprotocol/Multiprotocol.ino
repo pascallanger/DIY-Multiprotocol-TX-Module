@@ -55,11 +55,7 @@
 	#include <SPI.h>
 	#include <EEPROM.h>	
 	HardwareTimer HWTimer2(2);
-#if defined  SPORT_POLLING
-#ifdef INVERT_TELEMETRY
-	HardwareTimer HWTimer4(4);
-#endif
-#endif
+
 	void PPM_decode();
 	void ISR_COMPB();
 	extern "C"
@@ -210,13 +206,6 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 	uint8_t telemetry_link=0; 
 	uint8_t telemetry_counter=0;
 	uint8_t telemetry_lost;
-	#ifdef SPORT_POLLING
-		#define MAX_SPORT_BUFFER 64
-		uint8_t	SportData[MAX_SPORT_BUFFER];
-		bool	ok_to_send = false;
-		uint8_t	sport_idx = 0;
-		uint8_t	sport_index = 0;
-	#endif
 	#ifdef SPORT_SEND
 		#define MAX_SPORT_BUFFER 64
 		uint8_t	SportData[MAX_SPORT_BUFFER];
@@ -902,9 +891,7 @@ inline void tx_resume()
 {
 	#ifdef TELEMETRY
 	// Resume telemetry by enabling transmitter interrupt
-		#ifndef SPORT_POLLING
 		if(!IS_TX_PAUSE_on)
-		#endif
 		{
 			#ifdef ORANGE_TX
 				cli() ;
@@ -1664,9 +1651,7 @@ void modules_reset()
 			USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
 		}
 		usart3_begin(100000,SERIAL_8E2);
-		#ifndef SPORT_POLLING
-			USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable receive
-		#endif		
+		USART3_BASE->CR1 &= ~ USART_CR1_RE;		//disable receive
 		USART2_BASE->CR1 &= ~ USART_CR1_TE;		//disable transmit
 	#else
 		//ATMEGA328p

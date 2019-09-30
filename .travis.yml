@@ -119,53 +119,53 @@ before_deploy:
   - cp ./_Config.h.bak Multiprotocol/_Config.h
   # Build the release files for OrangeRX
   - if [[ "$BOARD" == "multi4in1:avr:multixmega32d4" ]]; then
-      printf "\n\e[33;1mBuilding multi-orangerx-aetr-green-inv-$TRAVIS_TAG.hex\e[0m";
+      printf "\n\e[33;1mBuilding multi-orangerx-aetr-green-inv-$TRAVIS_TAG.bin\e[0m";
       opt_enable $ALL_PROTOCOLS;
       opt_disable ORANGE_TX_BLUE;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/multi-orangerx-aetr-green-inv-$TRAVIS_TAG.hex;
-      printf "\n\e[33;1mBuilding multi-orangerx-aetr-blue-inv-$TRAVIS_TAG.hex\e[0m";
+      mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-green-inv-$TRAVIS_TAG.bin;
+      printf "\n\e[33;1mBuilding multi-orangerx-aetr-blue-inv-$TRAVIS_TAG.bin\e[0m";
       opt_enable ORANGE_TX_BLUE;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/multi-orangerx-aetr-blue-inv-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-blue-inv-$TRAVIS_TAG.bin;
     fi
   # Build the release files for AVR without bootloader
   - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
-      printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-A7105-inv-$TRAVIS_TAG.hex\e[0m";
+      printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-A7105-inv-$TRAVIS_TAG.bin\e[0m";
       opt_disable CHECK_FOR_BOOTLOADER;
       opt_disable $ALL_PROTOCOLS;
       opt_enable $A7105_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-usbasp-aetr-A7105-inv-$TRAVIS_TAG.hex;
-      printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CC2500-inv-$TRAVIS_TAG.hex\e[0m";
+      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-A7105-inv-$TRAVIS_TAG.bin;
+      printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CC2500-inv-$TRAVIS_TAG.bin\e[0m";
       opt_disable $ALL_PROTOCOLS;
       opt_enable $CC2500_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-usbasp-aetr-CC2500-inv-$TRAVIS_TAG.hex;
-      printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CYRF6936-inv-$TRAVIS_TAG.hex\e[0m";
+      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CC2500-inv-$TRAVIS_TAG.bin;
+      printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CYRF6936-inv-$TRAVIS_TAG.bin\e[0m";
       opt_disable $ALL_PROTOCOLS;
       opt_enable $CYRF6936_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-usbasp-aetr-CYRF6936-inv-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CYRF6936-inv-$TRAVIS_TAG.bin;
     fi
   # Build the release files for AVR with bootloader
   - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=optiboot" ]]; then
-      printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-A7105-inv-$TRAVIS_TAG.hex\e[0m";
+      printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-A7105-inv-$TRAVIS_TAG.bin\e[0m";
       opt_enable CHECK_FOR_BOOTLOADER;
       opt_disable $ALL_PROTOCOLS;
       opt_enable $A7105_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-txflash-aetr-A7105-inv-$TRAVIS_TAG.hex;
-      printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CC2500-inv-$TRAVIS_TAG.hex\e[0m";
+      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-A7105-inv-$TRAVIS_TAG.bin;
+      printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CC2500-inv-$TRAVIS_TAG.bin\e[0m";
       opt_disable $ALL_PROTOCOLS;
       opt_enable $CC2500_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-txflash-aetr-CC2500-inv-$TRAVIS_TAG.hex;
-      printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CYRF6936-inv-$TRAVIS_TAG.hex\e[0m";
+      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CC2500-inv-$TRAVIS_TAG.bin;
+      printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CYRF6936-inv-$TRAVIS_TAG.bin\e[0m";
       opt_disable $ALL_PROTOCOLS;
       opt_enable $CYRF6936_PROTOCOLS;
       buildMulti;
-      mv build/Multiprotocol.ino.hex ./binaries/multi-avr-txflash-aetr-CYRF6936-inv-$TRAVIS_TAG.hex;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CYRF6936-inv-$TRAVIS_TAG.bin;
     fi
   # Build the release files for STM32 without debug
   - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=none" ]]; then

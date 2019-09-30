@@ -109,7 +109,7 @@ uint16_t Scanner_callback()
 				if (rf_ch_num >= (SCAN_MAX_RADIOCHANNEL + 1))
 					rf_ch_num = 0;
 				if (scan_tlm_index++ == 0)
-					pkt[0] = rf_ch_num;  // start channel for telemetry packet
+					packet_in[0] = rf_ch_num;  // start channel for telemetry packet
 				Scanner_scan_next();
 				phase = SCAN_GET_RSSI;
 			}
@@ -118,7 +118,7 @@ uint16_t Scanner_callback()
 			rssi = Scanner_scan_rssi();
 			if(rssi >= max_rssi) {
 				max_rssi = rssi;
-				pkt[scan_tlm_index] = rssi;
+				packet_in[scan_tlm_index] = rssi;
 			}
 			max_count++;
 			if(max_count > SCAN_MAX_COUNT) {

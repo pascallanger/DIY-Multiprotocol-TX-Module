@@ -127,7 +127,7 @@ static void __attribute__((unused)) frskyx_rx_calibrate()
 static uint8_t __attribute__((unused)) frskyx_rx_check_crc()
 {
 	uint8_t limit = packet_length - 4;
-	uint16_t lcrc = frskyX_crc_x(&packet[3], limit - 3); // computed crc
+	uint16_t lcrc = FrSkyX_crc(&packet[3], limit - 3); // computed crc
 	uint16_t rcrc = (packet[limit] << 8) | (packet[limit + 1] & 0xff); // received crc
 	return lcrc == rcrc;
 }
@@ -159,17 +159,17 @@ static void __attribute__((unused)) frskyx_rx_build_telemetry_packet()
 	}
 
 	// buid telemetry packet
-	pkt[idx++] = RX_LQI;
-	pkt[idx++] = RX_RSSI;
-	pkt[idx++] = 0;  // start channel
-	pkt[idx++] = 16; // number of channels in packet
+	packet_in[idx++] = RX_LQI;
+	packet_in[idx++] = RX_RSSI;
+	packet_in[idx++] = 0;  // start channel
+	packet_in[idx++] = 16; // number of channels in packet
 
 	// pack channels
 	for (int i = 0; i < 16; i++) {
 		bits |= frskyx_rx_rc_chan[i] << bitsavailable;
 		bitsavailable += 11;
 		while (bitsavailable >= 8) {
-			pkt[idx++] = bits & 0xff;
+			packet_in[idx++] = bits & 0xff;
 			bits >>= 8;
 			bitsavailable -= 8;
 		}
@@ -351,7 +351,7 @@ uint16_t FrSkyX_Rx_callback()
 		// packets per second
 		if (millis() - pps_timer >= 1000) {
 			pps_timer = millis();
-			debugln("%ld pps", pps_counter);
+			debugln("%d pps", pps_counter);
 			RX_LQI = pps_counter;
 			pps_counter = 0;
 		}

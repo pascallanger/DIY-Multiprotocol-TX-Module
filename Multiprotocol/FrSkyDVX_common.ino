@@ -13,169 +13,27 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef ENABLE_PPM
-void InitPPM()
-{
-	for(uint8_t i=0;i<NUM_CHN;i++)
-		PPM_data[i]=PPM_MAX_100+PPM_MIN_100;
-	PPM_data[THROTTLE]=PPM_MIN_100*2;
-}
-#endif
-void InitChannel()
-{
-	for(uint8_t i=0;i<NUM_CHN;i++)
-		Channel_data[i]=1024;
-	#ifdef FAILSAFE_THROTTLE_LOW_VAL
-		Channel_data[THROTTLE]=(uint16_t)FAILSAFE_THROTTLE_LOW_VAL;	//0=-125%, 204=-100%
-	#else
-		Channel_data[THROTTLE]=204;
-	#endif
-}
-/************************/
-/**  Convert routines  **/
-/************************/
-// Convert channel 8b with limit and deadband
-uint8_t convert_channel_8b_limit_deadband(uint8_t num,uint8_t min,uint8_t mid, uint8_t max, uint8_t deadband)
-{
-	uint16_t val=limit_channel_100(num);		// 204<->1844
-	uint16_t db_low=CHANNEL_MID-deadband, db_high=CHANNEL_MID+deadband; // 1024+-deadband
-	int32_t calc;
-	uint8_t out;
-	if(val>=db_low && val<=db_high)
-		return mid;
-	else if(val<db_low)
-	{
-		val-=CHANNEL_MIN_100;
-		calc=mid-min;
-		calc*=val;
-		calc/=(db_low-CHANNEL_MIN_100);
-		out=calc;
-		out+=min;
-	}
-	else
-	{
-		val-=db_high;
-		calc=max-mid;
-		calc*=val;
-		calc/=(CHANNEL_MAX_100-db_high+1);
-		out=calc;
-		out+=mid;
-		if(max>min) out++; else out--;
-	}
-	return out;
-}
-
-// Reverse a channel and store it
-void reverse_channel(uint8_t num)
-{
-	uint16_t val=2048-Channel_data[num];
-	if(val>=2048) val=2047;
-	Channel_data[num]=val;
-}
-// Channel value is converted to ppm 860<->2140 -125%<->+125% and 988<->2012 -100%<->+100%
-uint16_t convert_channel_ppm(uint8_t num)
-{
-	uint16_t val=Channel_data[num];
-	return (((val<<2)+val)>>3)+860;				//value range 860<->2140 -125%<->+125%
-}
-// Channel value 100% is converted to 10bit values 0<->1023
-uint16_t convert_channel_10b(uint8_t num)
-{
-	uint16_t val=Channel_data[num];
-	val=((val<<2)+val)>>3;
-	if(val<=128) return 0;
-	if(val>=1152) return 1023;
-	return val-128;
-}
-// Channel value 100% is converted to 8bit values 0<->255
-uint8_t convert_channel_8b(uint8_t num)
-{
-	uint16_t val=Channel_data[num];
-	val=((val<<2)+val)>>5;
-	if(val<=32) return 0;
-	if(val>=288) return 255;
-	return val-32;
-}
-
-// Channel value 100% is converted to value scaled
-int16_t convert_channel_16b_limit(uint8_t num,int16_t min,int16_t max)
-{
-	int32_t val=limit_channel_100(num);			// 204<->1844
-	val=(val-CHANNEL_MIN_100)*(max-min)/(CHANNEL_MAX_100-CHANNEL_MIN_100)+min;
-	return (uint16_t)val;
-}
-
-// Channel value -125%<->125% is scaled to 16bit value with no limit
-int16_t convert_channel_16b_nolimit(uint8_t num, int16_t min, int16_t max)
-{
-	int32_t val=Channel_data[num];				// 0<->2047
-	val=(val-CHANNEL_MIN_100)*(max-min)/(CHANNEL_MAX_100-CHANNEL_MIN_100)+min;
-	return (uint16_t)val;
-}
-
-// Channel value is converted sign + magnitude 8bit values
-uint8_t convert_channel_s8b(uint8_t num)
-{
-	uint8_t ch;
-	ch = convert_channel_8b(num);
-	return (ch < 128 ? 127-ch : ch);	
-}
-
-// Channel value is limited to 100%
-uint16_t limit_channel_100(uint8_t num)
-{
-	if(Channel_data[num]>=CHANNEL_MAX_100)
-		return CHANNEL_MAX_100;
-	if (Channel_data[num]<=CHANNEL_MIN_100)
-		return CHANNEL_MIN_100;
-	return Channel_data[num];
-}
-
-// Channel value is converted for HK310
-void convert_channel_HK310(uint8_t num, uint8_t *low, uint8_t *high)
-{
-	uint16_t temp=0xFFFF-(3440+((Channel_data[num]*5)>>1))/3;
-	*low=(uint8_t)(temp&0xFF);
-	*high=(uint8_t)(temp>>8);
-}
-#ifdef FAILSAFE_ENABLE
-// Failsafe value is converted for HK310
-void convert_failsafe_HK310(uint8_t num, uint8_t *low, uint8_t *high)
-{
-	uint16_t temp=0xFFFF-(3440+((Failsafe_data[num]*5)>>1))/3;
-	*low=(uint8_t)(temp&0xFF);
-	*high=(uint8_t)(temp>>8);
-}
-#endif
-
-// Channel value for FrSky (PPM is multiplied by 1.5)
-uint16_t convert_channel_frsky(uint8_t num)
-{
-	uint16_t val=Channel_data[num];
-	return ((val*15)>>4)+1290;
-}
-
 /******************************/
 /**  FrSky D and X routines  **/
 /******************************/
 
 #if defined(FRSKYX_CC2500_INO) || defined(FRSKYX_RX_CC2500_INO)
 //**CRC**
-const uint16_t PROGMEM frskyX_CRC_Short[]={
+const uint16_t PROGMEM FrSkyX_CRC_Short[]={
 	0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
 	0x8C48, 0x9DC1, 0xAF5A, 0xBED3, 0xCA6C, 0xDBE5, 0xE97E, 0xF8F7 };
-static uint16_t __attribute__((unused)) frskyX_CRCTable(uint8_t val)
+static uint16_t __attribute__((unused)) FrSkyX_CRCTable(uint8_t val)
 {
 	uint16_t word ;
-	word = pgm_read_word(&frskyX_CRC_Short[val&0x0F]) ;
+	word = pgm_read_word(&FrSkyX_CRC_Short[val&0x0F]) ;
 	val /= 16 ;
 	return word ^ (0x1081 * val) ;
 }
-uint16_t frskyX_crc_x(uint8_t *data, uint8_t len)
+uint16_t FrSkyX_crc(uint8_t *data, uint8_t len)
 {
 	uint16_t crc = 0;
 	for(uint8_t i=0; i < len; i++)
-		crc = (crc<<8) ^ frskyX_CRCTable((uint8_t)(crc>>8) ^ *data++);
+		crc = (crc<<8) ^ FrSkyX_CRCTable((uint8_t)(crc>>8) ^ *data++);
 	return crc;
 }
 #endif

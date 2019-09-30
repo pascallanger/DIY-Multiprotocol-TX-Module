@@ -19,20 +19,20 @@
 
 #include "iface_cc2500.h"
 
-uint8_t FrX_chanskip;
-uint8_t FrX_send_seq ;
-uint8_t FrX_receive_seq ;
+uint8_t FrSkyX_chanskip;
+uint8_t FrSkyX_TX_Seq ;
+uint8_t FrSkyX_RX_Seq ;
 
-#define FRX_FAILSAFE_TIMEOUT 1032
+#define FrSkyX_FAILSAFE_TIMEOUT 1032
 
-static void __attribute__((unused)) frskyX_set_start(uint8_t ch )
+static void __attribute__((unused)) FrSkyX_set_start(uint8_t ch )
 {
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_WriteReg(CC2500_25_FSCAL1, calData[ch]);
 	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[ch]);
 }		
 
-static void __attribute__((unused)) frskyX_init()
+static void __attribute__((unused)) FrSkyX_init()
 {
 	FRSKY_init_cc2500((sub_protocol&2)?FRSKYXEU_cc2500_conf:FRSKYX_cc2500_conf); // LBT or FCC
 	//
@@ -47,7 +47,7 @@ static void __attribute__((unused)) frskyX_init()
 	//#######END INIT########		
 }
 
-static void __attribute__((unused)) frskyX_initialize_data(uint8_t adr)
+static void __attribute__((unused)) FrSkyX_initialize_data(uint8_t adr)
 {
 	CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
 	CC2500_WriteReg(CC2500_18_MCSM0,    0x8);	
@@ -55,7 +55,7 @@ static void __attribute__((unused)) frskyX_initialize_data(uint8_t adr)
 	CC2500_WriteReg(CC2500_07_PKTCTRL1,0x05);
 }
 
-static void __attribute__((unused)) frskyX_build_bind_packet()
+static void __attribute__((unused)) FrSkyX_build_bind_packet()
 {
 	packet[0] = (sub_protocol & 2 ) ? 0x20 : 0x1D ; // LBT or FCC
 	packet[1] = 0x03;
@@ -75,7 +75,7 @@ static void __attribute__((unused)) frskyX_build_bind_packet()
 	//
 	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
 	memset(&packet[13], 0, limit - 13);
-	uint16_t lcrc = frskyX_crc_x(&packet[3], limit-3);
+	uint16_t lcrc = FrSkyX_crc(&packet[3], limit-3);
 	//
 	packet[limit++] = lcrc >> 8;
 	packet[limit] = lcrc;
@@ -84,14 +84,14 @@ static void __attribute__((unused)) frskyX_build_bind_packet()
 
 // 0-2047, 0 = 817, 1024 = 1500, 2047 = 2182
 //64=860,1024=1500,1984=2140//Taranis 125%
-static uint16_t  __attribute__((unused)) frskyX_scaleForPXX( uint8_t i )
+static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX( uint8_t i )
 {	//mapped 860,2140(125%) range to 64,1984(PXX values);
 	uint16_t chan_val=convert_channel_frsky(i)-1226;
 	if(i>7) chan_val|=2048;   // upper channels offset
 	return chan_val;
 }
 #ifdef FAILSAFE_ENABLE
-static uint16_t  __attribute__((unused)) frskyX_scaleForPXX_FS( uint8_t i )
+static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX_FS( uint8_t i )
 {	//mapped 1,2046(125%) range to 64,1984(PXX values);
 	uint16_t chan_val=((Failsafe_data[i]*15)>>4)+64;
 	if(Failsafe_data[i]==FAILSAFE_CHANNEL_NOPULSES)
@@ -103,8 +103,8 @@ static uint16_t  __attribute__((unused)) frskyX_scaleForPXX_FS( uint8_t i )
 }
 #endif
 
-#define FRX_FAILSAFE_TIME 1032
-static void __attribute__((unused)) frskyX_data_frame()
+#define FrSkyX_FAILSAFE_TIME 1032
+static void __attribute__((unused)) FrSkyX_build_packet()
 {
 	//0x1D 0xB3 0xFD 0x02 0x56 0x07 0x15 0x00 0x00 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x08 0x00 0x00 0x00 0x00 0x00 0x00 0x96 0x12
 	//
@@ -116,7 +116,7 @@ static void __attribute__((unused)) frskyX_data_frame()
 	#ifdef FAILSAFE_ENABLE
 		static uint16_t failsafe_count=0;
 		static uint8_t FS_flag=0,failsafe_chan=0;
-		if (FS_flag == 0  &&  failsafe_count > FRX_FAILSAFE_TIME  &&  chan_offset == 0  &&  IS_FAILSAFE_VALUES_on)
+		if (FS_flag == 0  &&  failsafe_count > FrSkyX_FAILSAFE_TIME  &&  chan_offset == 0  &&  IS_FAILSAFE_VALUES_on)
 		{
 			FS_flag = 0x10;
 			failsafe_chan = 0;
@@ -137,8 +137,8 @@ static void __attribute__((unused)) frskyX_data_frame()
 	packet[2] = rx_tx_addr[2];
 	packet[3] = 0x02;
 	//  
-	packet[4] = (FrX_chanskip<<6)|hopping_frequency_no; 
-	packet[5] = FrX_chanskip>>2;
+	packet[4] = (FrSkyX_chanskip<<6)|hopping_frequency_no; 
+	packet[5] = FrSkyX_chanskip>>2;
 	packet[6] = RX_num;
 	//packet[7] = FLAGS 00 - standard packet
 	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
@@ -150,35 +150,37 @@ static void __attribute__((unused)) frskyX_data_frame()
 	#endif
 	packet[8] = 0;		
 	//
-	uint8_t startChan = chan_offset;	for(uint8_t i = 0; i <12 ; i+=3)
+	uint8_t startChan = chan_offset;
+	for(uint8_t i = 0; i <12 ; i+=3)
 	{//12 bytes of channel data
 		#ifdef FAILSAFE_ENABLE
 			if( (FS_flag & 0x10) && ((failsafe_chan & 0x07) == (startChan & 0x07)) )
-				chan_0 = frskyX_scaleForPXX_FS(failsafe_chan);
+				chan_0 = FrSkyX_scaleForPXX_FS(failsafe_chan);
 			else
 		#endif
-				chan_0 = frskyX_scaleForPXX(startChan);
+				chan_0 = FrSkyX_scaleForPXX(startChan);
 		startChan++;
 		//
 		#ifdef FAILSAFE_ENABLE
 			if( (FS_flag & 0x10) && ((failsafe_chan & 0x07) == (startChan & 0x07)) )
-				chan_1 = frskyX_scaleForPXX_FS(failsafe_chan);
+				chan_1 = FrSkyX_scaleForPXX_FS(failsafe_chan);
 			else
 		#endif
-				chan_1 = frskyX_scaleForPXX(startChan);
+				chan_1 = FrSkyX_scaleForPXX(startChan);
 		startChan++;
 		//
 		packet[9+i] = lowByte(chan_0);	//3 bytes*4
 		packet[9+i+1]=(((chan_0>>8) & 0x0F)|(chan_1 << 4));
 		packet[9+i+2]=chan_1>>4;
 	}
-	packet[21] = (FrX_receive_seq << 4) | FrX_send_seq ;//8 at start
-	
 	if(sub_protocol & 0x01 )			// in X8 mode send only 8ch every 9ms
 		chan_offset = 0 ;
 	else
 		chan_offset^=0x08;
 	
+	//sequence
+	packet[21] = (FrSkyX_RX_Seq << 4) | FrSkyX_TX_Seq ;//=8 at startup
+
 	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
 	for (uint8_t i=22;i<limit;i++)
 		packet[i]=0;
@@ -193,21 +195,37 @@ static void __attribute__((unused)) frskyX_data_frame()
 					break;
 				}
 				packet[i]=SportData[sport_index];	
-				sport_index= (sport_index+1)& (MAX_SPORT_BUFFER-1);
+				sport_index= (sport_index+1) & (MAX_SPORT_BUFFER-1);
 				idxs++;
 			}
 		packet[22]= idxs;
-		#ifdef DEBUG_SERIAL
-			for(uint8_t i=0;i<idxs;i++)
-			{
-				Serial.print(packet[23+i],HEX);
-				Serial.print(" ");	
-			}		
-			Serial.println(" ");
-		#endif
+		debug("SPort: ");
+		for(uint8_t i=0;i<idxs;i++)
+			debug("%02X ",packet[23+i]);
+		debugln("");
 	#endif // SPORT_POLLING
 
-	uint16_t lcrc = frskyX_crc_x(&packet[3], limit-3);
+	#ifdef SPORT_SEND
+		uint8_t nbr_bytes=0;
+		for (uint8_t i=23;i<limit;i++)
+		{
+			if(SportHead==SportTail)
+				break; //buffer empty
+			packet[i]=SportData[SportHead];
+			SportHead=(SportHead+1) & (MAX_SPORT_BUFFER-1);
+			nbr_bytes++;
+		}
+		packet[22]=nbr_bytes;
+		if(nbr_bytes)
+		{
+			debug("SPort_out: ");
+			for(uint8_t i=0;i<nbr_bytes;i++)
+				debug("%02X ",packet[23+i]);
+			debugln("");
+		}
+	#endif // SPORT_SEND
+
+	uint16_t lcrc = FrSkyX_crc(&packet[3], limit-3);
 	packet[limit++]=lcrc>>8;//high byte
 	packet[limit]=lcrc;//low byte
 }
@@ -217,11 +235,11 @@ uint16_t ReadFrSkyX()
 	switch(state)
 	{	
 		default: 
-			frskyX_set_start(47);		
+			FrSkyX_set_start(47);		
 			CC2500_SetPower();
 			CC2500_Strobe(CC2500_SFRX);
 			//		
-			frskyX_build_bind_packet();
+			FrSkyX_build_bind_packet();
 			CC2500_Strobe(CC2500_SIDLE);
 			CC2500_WriteData(packet, packet[0]+1);
 			if(IS_BIND_DONE)
@@ -230,7 +248,7 @@ uint16_t ReadFrSkyX()
 				state++;
 			return 9000;
 		case FRSKY_BIND_DONE:
-			frskyX_initialize_data(0);
+			FrSkyX_initialize_data(0);
 			hopping_frequency_no=0;
 			BIND_DONE;
 			state++;			
@@ -242,14 +260,12 @@ uint16_t ReadFrSkyX()
 				prev_option = option ;
 			}
 			CC2500_SetTxRxMode(TX_EN);
-			frskyX_set_start(hopping_frequency_no);
+			FrSkyX_set_start(hopping_frequency_no);
 			CC2500_SetPower();		
 			CC2500_Strobe(CC2500_SFRX);
-			hopping_frequency_no = (hopping_frequency_no+FrX_chanskip)%47;
+			hopping_frequency_no = (hopping_frequency_no+FrSkyX_chanskip)%47;
 			CC2500_Strobe(CC2500_SIDLE);		
 			CC2500_WriteData(packet, packet[0]+1);
-			//
-//			frskyX_data_frame();
 			state++;
 			return 5200;
 		case FRSKY_DATA2:
@@ -266,9 +282,9 @@ uint16_t ReadFrSkyX()
 			if (len && (len<=(0x0E + 3)))				//Telemetry frame is 17
 			{
 				packet_count=0;
-				CC2500_ReadData(pkt, len);
+				CC2500_ReadData(packet_in, len);
 				#if defined TELEMETRY
-					frsky_check_telemetry(pkt,len);	//check if valid telemetry packets
+					frsky_check_telemetry(packet_in,len);	//check if valid telemetry packets
 					//parse telemetry packets here
 					//The same telemetry function used by FrSky(D8).
 				#endif
@@ -279,10 +295,8 @@ uint16_t ReadFrSkyX()
 				// restart sequence on missed packet - might need count or timeout instead of one missed
 				if(packet_count>100)
 				{//~1sec
-//					seq_last_sent = 0;
-//					seq_last_rcvd = 8;
-					FrX_send_seq = 0x08 ;
-//					FrX_receive_seq = 0 ;
+					FrSkyX_TX_Seq = 0x08 ;
+					//FrSkyX_RX_Seq = 0 ;
 					packet_count=0;
 					#if defined TELEMETRY
 						telemetry_lost=1;
@@ -290,11 +304,9 @@ uint16_t ReadFrSkyX()
 				}
 				CC2500_Strobe(CC2500_SFRX);			//flush the RXFIFO
 			}
-			frskyX_data_frame();
-			if ( FrX_send_seq != 0x08 )
-			{
-				FrX_send_seq = ( FrX_send_seq + 1 ) & 0x03 ;
-			}
+			FrSkyX_build_packet();
+			if ( FrSkyX_TX_Seq != 0x08 )
+				FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;
 			state = FRSKY_DATA1;
 			return 500;
 	}		
@@ -306,34 +318,33 @@ uint16_t initFrSkyX()
 	set_rx_tx_addr(MProtocol_id_master);
 	Frsky_init_hop();
 	packet_count=0;
-	while(!FrX_chanskip)
-		FrX_chanskip=random(0xfefefefe)%47;
+	while(!FrSkyX_chanskip)
+		FrSkyX_chanskip=random(0xfefefefe)%47;
 
 	//for test***************
 	//rx_tx_addr[3]=0xB3;
 	//rx_tx_addr[2]=0xFD;
 	//************************
-	frskyX_init();
-#if defined  SPORT_POLLING
-#ifdef INVERT_SERIAL
-	start_timer4() ;
-#endif
+	FrSkyX_init();
+
+#ifdef SPORT_POLLING
+	#ifdef INVERT_SERIAL
+		start_timer4() ;
+	#endif
 #endif
 	//
 	if(IS_BIND_IN_PROGRESS)
 	{	   
 		state = FRSKY_BIND;
-		frskyX_initialize_data(1);
+		FrSkyX_initialize_data(1);
 	}
 	else
 	{
 		state = FRSKY_DATA1;
-		frskyX_initialize_data(0);
+		FrSkyX_initialize_data(0);
 	}
-//	seq_last_sent = 0;
-//	seq_last_rcvd = 8;
-	FrX_send_seq = 0x08 ;
-	FrX_receive_seq = 0 ;
+	FrSkyX_TX_Seq = 0x08 ;
+	FrSkyX_RX_Seq = 0 ;
 	return 10000;
 }	
 #endif

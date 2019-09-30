@@ -159,12 +159,12 @@ uint16_t ReadFrSky_2way()
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
 			if (len && len<=(0x11+3))// 20bytes
 			{		
-				CC2500_ReadData(pkt, len);				//received telemetry packets
+				CC2500_ReadData(packet_in, len);				//received telemetry packets
 				#if defined(TELEMETRY)
-					if(pkt[len-1] & 0x80)
+					if(packet_in[len-1] & 0x80)
 					{//with valid crc
 						packet_count=0;
-						frsky_check_telemetry(pkt,len);	//check if valid telemetry packets and buffer them.
+						frsky_check_telemetry(packet_in,len);	//check if valid telemetry packets and buffer them.
 					}
 				#endif
 			}
@@ -177,7 +177,7 @@ uint16_t ReadFrSky_2way()
 					packet_count=0;
 					#if defined TELEMETRY
 						telemetry_link=0;//no link frames
-						pkt[6]=0;//no user frames.
+						packet_in[6]=0;//no user frames.
 					#endif
 				}
 			}

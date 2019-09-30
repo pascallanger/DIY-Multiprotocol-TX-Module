@@ -363,12 +363,12 @@ static uint8_t __attribute__((unused)) DSM_Check_RX_packet()
 	uint16_t sum = 384 - 0x10;
 	for(uint8_t i = 1; i < 9; i++)
 	{
-		sum += pkt[i];
+		sum += packet_in[i];
 		if(i<5)
-			if(pkt[i] != (0xff ^ cyrfmfg_id[i-1]))
+			if(packet_in[i] != (0xff ^ cyrfmfg_id[i-1]))
 				result=0; 					// bad packet
 	}
-	if( pkt[9] != (sum>>8)  && pkt[10] != (uint8_t)sum )
+	if( packet_in[9] != (sum>>8)  && packet_in[10] != (uint8_t)sum )
 		result=0;
 	return result;
 }
@@ -417,12 +417,12 @@ uint16_t ReadDsm()
 			{ // data received with no errors
 				CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);	// need to set RXOW before data read
 				len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
-				if(len>MAX_PKT-2)
-					len=MAX_PKT-2;
-				CYRF_ReadDataPacketLen(pkt+1, len);
+				if(len>TELEMETRY_BUFFER_SIZE-2)
+					len=TELEMETRY_BUFFER_SIZE-2;
+				CYRF_ReadDataPacketLen(packet_in+1, len);
 				if(len==10 && DSM_Check_RX_packet())
 				{
-					pkt[0]=0x80;
+					packet_in[0]=0x80;
 					telemetry_link=1;						// send received data on serial
 					phase++;
 					return 2000;
@@ -502,10 +502,10 @@ uint16_t ReadDsm()
 			{ // good data (complete with no errors)
 				CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);	// need to set RXOW before data read
 				len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
-				if(len>MAX_PKT-2)
-					len=MAX_PKT-2;
-				CYRF_ReadDataPacketLen(pkt+1, len);
-				pkt[0]=CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;// store RSSI of the received telemetry signal
+				if(len>TELEMETRY_BUFFER_SIZE-2)
+					len=TELEMETRY_BUFFER_SIZE-2;
+				CYRF_ReadDataPacketLen(packet_in+1, len);
+				packet_in[0]=CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;// store RSSI of the received telemetry signal
 				telemetry_link=1;
 			}
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation

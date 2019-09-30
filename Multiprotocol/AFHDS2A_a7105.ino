@@ -90,14 +90,14 @@ static void AFHDS2A_update_telemetry()
 	#ifdef AFHDS2A_FW_TELEMETRY
 		if (option & 0x80)
 		{// forward 0xAA and 0xAC telemetry to TX, skip rx and tx id to save space
-			pkt[0]= TX_RSSI;
+			packet_in[0]= TX_RSSI;
 			debug("T(%02X)=",packet[0]);
 			for(uint8_t i=9;i < AFHDS2A_RXPACKET_SIZE; i++)
 			{
-				pkt[i-8]=packet[i];
+				packet_in[i-8]=packet[i];
 				debug(" %02X",packet[i]);
 			}
-			pkt[29]=packet[0];	// 0xAA Normal telemetry, 0xAC Extended telemetry
+			packet_in[29]=packet[0];	// 0xAA Normal telemetry, 0xAC Extended telemetry
 			telemetry_link=2;
 			debugln("");
 			return;

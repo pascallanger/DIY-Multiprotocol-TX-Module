@@ -194,25 +194,25 @@ uint16_t ReadWFLY()
 				debugln("L=%02X",len)
 				if(len==0x10)
 				{
-					CYRF_ReadDataPacketLen(pkt, len);
+					CYRF_ReadDataPacketLen(packet_in, len);
 					debug("RX=");
 					for(uint8_t i=0;i<0x0F;i++)
 					{
-						debug(" %02X",pkt[i]);
-						if(pkt[i]==packet[i])
+						debug(" %02X",packet_in[i]);
+						if(packet_in[i]==packet[i])
 							check++;							// Verify quickly the content
-						sum+=pkt[i];
+						sum+=packet_in[i];
 					}
-					debugln(" %02X",pkt[15]);
-					if(sum==pkt[15] && check>=10)
+					debugln(" %02X",packet_in[15]);
+					if(sum==packet_in[15] && check>=10)
 					{ // Good packet received
-						if(pkt[2]==0x64)
+						if(packet_in[2]==0x64)
 						{ // Switch to normal mode
 							BIND_DONE;
 							phase=WFLY_PREP_DATA;
 							return 10000;
 						}
-						memcpy((void *)packet,(void *)pkt,0x10);	// Send back to the RX what we've just received with no modifications
+						memcpy((void *)packet,(void *)packet_in,0x10);	// Send back to the RX what we've just received with no modifications
 					}
 					phase=WFLY_BIND_TX;							
 					return 200;

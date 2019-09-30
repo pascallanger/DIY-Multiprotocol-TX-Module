@@ -226,6 +226,21 @@ before_deploy:
       opt_replace TAER RETA;
       buildMulti;
       mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-reta-noinv-$TRAVIS_TAG.bin;
+      printf "\n\e[33;1mBuilding multi-stm-ppm-aetr-noinv-$TRAVIS_TAG.bin\e[0m";
+      opt_replace RETA AETR;
+      opt_disable MULTI_STATUS;
+      opt_disable MULTI_TELEMETRY;
+      opt_set NBR_BANKS 5;
+      buildMulti;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-aetr-noinv-$TRAVIS_TAG.bin;
+      printf "\n\e[33;1mBuilding multi-stm-ppm-taer-noinv-$TRAVIS_TAG.bin\e[0m";
+      opt_replace AETR TAER;
+      buildMulti;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-taer-noinv-$TRAVIS_TAG.bin;
+      printf "\n\e[33;1mBuilding multi-stm-ppm-reta-noinv-$TRAVIS_TAG.bin\e[0m";
+      opt_replace TAER RETA;
+      buildMulti;
+      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-reta-noinv-$TRAVIS_TAG.bin;
     fi
   # Build the release files for STM32 with Native USB debugging
   - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then

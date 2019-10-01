@@ -41,7 +41,7 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 	pkt[idx++] = 0; // start channel
 	pkt[idx++] = 14; // number of channels in packet
 	// pack channels
-	for (uint8_t i = 0; i < 16; i++) {
+	for (uint8_t i = 0; i < 14; i++) {
 		uint16_t val = packet[9+i*2] | (packet[10+i*2] << 8);
 		if (val < 860)
 			val = 860;

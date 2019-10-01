@@ -168,7 +168,7 @@ uint16_t AFHDS2A_Rx_callback()
 			A7105_ReadData(AFHDS2A_RX_TXPACKET_SIZE);
 			if (memcmp(&packet[1], rx_id, 4) == 0 && memcmp(&packet[5], rx_tx_addr, 4) == 0) {
 				if (packet[0] = 0x58 && packet[37] == 0x00 && telemetry_link == 0) { // standard packet, send channels to TX
-					int32_t rssi = min(A7105_ReadReg(A7105_1D_RSSI_THOLD),160);
+					int rssi = min(A7105_ReadReg(A7105_1D_RSSI_THOLD),160);
 					RX_RSSI = map(rssi, 160, 8, 0, 100);
 					AFHDS2A_Rx_build_telemetry_packet();
 					telemetry_link = 1;

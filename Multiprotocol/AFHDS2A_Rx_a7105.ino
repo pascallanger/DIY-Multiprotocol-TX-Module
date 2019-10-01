@@ -32,7 +32,31 @@ enum {
 
 static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 {
+	uint32_t bits = 0;
+	uint8_t bitsavailable = 0;
+	uint8_t idx = 0;
 
+	pkt[idx++] = RX_LQI; // 0 - 130
+	pkt[idx++] = RX_RSSI;
+	pkt[idx++] = 0; // start channel
+	pkt[idx++] = 14; // number of channels in packet
+	// pack channels
+	for (uint8_t i = 0; i < 16; i++) {
+		uint16_t val = packet[9+i*2] | (packet[10+i*2] << 8);
+		if (val < 860)
+			val = 860;
+		else if (val > 2140)
+			val = 2140;
+		val -= 860;
+
+		bits |= val << bitsavailable;
+		bitsavailable += 11;
+		while (bitsavailable >= 8) {
+			pkt[idx++] = bits & 0xff;
+			bits >>= 8;
+			bitsavailable -= 8;
+		}
+	}
 }
 
 static uint8_t __attribute__((unused)) AFHDS2A_Rx_data_ready()
@@ -132,7 +156,7 @@ uint16_t AFHDS2A_Rx_callback()
 	case AFHDS2A_RX_BIND2 | AFHDS2A_RX_WAIT_WRITE:
 		//Wait for TX completion
 		pps_timer = micros();
-		while (micros() - pps_timer < 700)			// Wait max 700탎, using serial+telemetry exit in about 120탎
+		while (micros() - pps_timer < 700) // Wait max 700탎, using serial+telemetry exit in about 120탎
 			if (!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 				break;
 		A7105_Strobe(A7105_RX);
@@ -158,7 +182,7 @@ uint16_t AFHDS2A_Rx_callback()
 		if (millis() - pps_timer >= 1000) {
 			pps_timer = millis();
 			debugln("%ld pps", pps_counter);
-			RX_LQI = pps_counter;
+			RX_LQI = pps_counter / 2;
 			pps_counter = 0;
 		}
 
@@ -167,12 +191,12 @@ uint16_t AFHDS2A_Rx_callback()
 			hopping_frequency_no++;
 			if(hopping_frequency_no >= AFHDS2A_RX_NUMFREQ)
 				hopping_frequency_no = 0;
-			A7105_WriteReg(A7105_0F_PLL_I, hopping_frequency[hopping_frequency_no]); // bind channels
+			A7105_WriteReg(A7105_0F_PLL_I, hopping_frequency[hopping_frequency_no]);
 			A7105_Strobe(A7105_RX);
 			if (afhds2a_rx_data_started)
 				read_retry = 0;
 			else
-				read_retry = -50; // retry longer until first packet is catched
+				read_retry = -127; // retry longer until first packet is catched
 		}
 		return 385;
 	}

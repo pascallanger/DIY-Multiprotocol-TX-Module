@@ -1003,6 +1003,13 @@ static void protocol_init()
 						remote_callback = ReadFlyzone;
 						break;
 				#endif
+				#if defined(AFHDS2A_RX_A7105_INO)
+					case PROTO_AFHDS2A_RX:
+						PE1_off;	//antenna RF1
+						next_callback = initAFHDS2A_Rx();
+						remote_callback = AFHDS2A_Rx_callback;
+						break;
+				#endif
 			#endif
 			#ifdef CC2500_INSTALLED
 				#if defined(FRSKYD_CC2500_INO)

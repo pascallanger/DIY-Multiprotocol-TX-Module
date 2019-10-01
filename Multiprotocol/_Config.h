@@ -157,6 +157,7 @@
 
 //The protocols below need an A7105 to be installed
 #define	AFHDS2A_A7105_INO
+#define AFHDS2A_RX_A7105_INO
 #define	BUGS_A7105_INO
 #define	FLYSKY_A7105_INO
 #define	FLYZONE_A7105_INO
@@ -286,6 +287,7 @@
 #define HITEC_FW_TELEMETRY			// Under development: Forward received telemetry packets to be decoded by ersky9x and OpenTX
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
 #define FRSKYX_RX_TELEMETRY			// Forward channels data to TX
+#define AFHDS2A_RX_TELEMETRY		// Forward channels data to TX
 
 //SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
 //This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
@@ -476,6 +478,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		PPM_IBUS
 		PWM_SBUS
 		PPM_SBUS
+	PROTO_AFHDS2A_RX
+		NONE
 	PROTO_ASSAN
 		NONE
 	PROTO_BAYANG

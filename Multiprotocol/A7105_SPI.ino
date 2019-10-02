@@ -198,6 +198,7 @@ void A7105_AdjustLOBaseFreq(uint8_t cmd)
 				#endif
 				break;
 			case PROTO_AFHDS2A:
+			case PROTO_AFHDS2A_RX:
 				#ifdef FORCE_AFHDS2A_TUNING
 					offset=(int16_t)FORCE_AFHDS2A_TUNING;
 				#endif
@@ -252,7 +253,7 @@ static void __attribute__((unused)) A7105_SetVCOBand(uint8_t vb1, uint8_t vb2)
 		A7105_WriteReg(A7105_25_VCO_SBCAL_I, vb2 | 0x08);
 }
 
-#ifdef AFHDS2A_A7105_INO
+#if defined(AFHDS2A_A7105_INO) || defined(AFHDS2A_RX_A7105_INO)
 const uint8_t PROGMEM AFHDS2A_A7105_regs[] = {
 	0xFF, 0x42 | (1<<5), 0x00, 0x25, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x01, 0x3c, 0x05, 0x00, 0x50,	// 00 - 0f
 	0x9e, 0x4b, 0x00, 0x02, 0x16, 0x2b, 0x12, 0x4f, 0x62, 0x80, 0xFF, 0xFF, 0x2a, 0x32, 0xc3, 0x1f,				// 10 - 1f
@@ -329,7 +330,7 @@ void A7105_Init(void)
 				else
 			#endif
 				{
-					#ifdef AFHDS2A_A7105_INO
+					#if defined(AFHDS2A_A7105_INO) || defined(AFHDS2A_RX_A7105_INO)
 						A7105_Regs=(uint8_t*)AFHDS2A_A7105_regs;
 					#endif
 				}

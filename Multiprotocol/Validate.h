@@ -174,6 +174,7 @@
 	#undef AFHDS2A_A7105_INO
 	#undef BUGS_A7105_INO
 	#undef FLYZONE_A7105_INO
+	#undef AFHDS2A_RX_A7105_INO
 #endif
 #ifndef CYRF6936_INSTALLED
 	#undef	DEVO_CYRF6936_INO
@@ -254,6 +255,8 @@
 	#undef SCANNER_CC2500_INO
 	#undef FRSKYX_RX_TELEMETRY
 	#undef FRSKYX_RX_CC2500_INO
+	#undef AFHDS2A_RX_TELEMETRY
+	#undef AFHDS2A_RX_A7105_INO
 #else
 	#if defined(MULTI_TELEMETRY) && defined(MULTI_STATUS)
 		#error You should choose either MULTI_TELEMETRY or MULTI_STATUS but not both.
@@ -265,6 +268,10 @@
 	#if not defined(FRSKYX_RX_CC2500_INO) || not defined(FRSKYX_RX_TELEMETRY)
 		#undef FRSKYX_RX_TELEMETRY
 		#undef FRSKYX_RX_CC2500_INO
+	#endif
+	#if not defined(AFHDS2A_RX_A7105_INO) || not defined(AFHDS2A_RX_TELEMETRY)
+		#undef AFHDS2A_RX_TELEMETRY
+		#undef AFHDS2A_RX_A7105_INO
 	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY

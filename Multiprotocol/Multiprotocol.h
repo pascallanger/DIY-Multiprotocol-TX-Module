@@ -82,6 +82,7 @@ enum PROTOCOLS
 	PROTO_FLYZONE	= 53,	// =>A7105
 	PROTO_SCANNER	= 54,	// =>CC2500
 	PROTO_FRSKYX_RX	= 55,	// =>CC2500
+	PROTO_AFHDS2A_RX= 56,	// =>A7105
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -575,7 +576,8 @@ enum {
 #define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 bytes per model id, end is 50+64=114
 #define BUGS_EEPROM_OFFSET		114		// RX ID, 2 bytes per model id, end is 114+32=146
 #define BUGSMINI_EEPROM_OFFSET	146		// RX ID, 2 bytes per model id, end is 146+32=178
-#define FRSKYX_RX_EEPROM_OFFSET	178		// (3) TX ID + (1) freq_tune + (47) channels, 51 bytes per model, end is 178+51=229
+#define FRSKYX_RX_EEPROM_OFFSET	178		// (3) TX ID + (1) freq_tune + (47) channels, 51 bytes, end is 178+51=229
+#define AFHDS2A_RX_EEPROM_OFFSET 229	// (4) TX ID + (16) channels, 20 bytes, end is 229+20=249
 //#define CONFIG_EEPROM_OFFSET 	210		// Current configuration of the multimodule
 
 //****************************************

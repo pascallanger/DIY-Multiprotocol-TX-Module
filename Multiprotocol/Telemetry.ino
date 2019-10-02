@@ -158,22 +158,27 @@ static void multi_send_status()
 		#else
 			Serial_write(0xAA);						// Telemetry packet
 		#endif
-		Serial_write(packet_in[0]);						// start channel
+		Serial_write(packet_in[0]);					// start channel
 		for(uint8_t ch = 0; ch < SCAN_CHANS_PER_PACKET; ch++)
-			Serial_write(packet_in[ch+1]);				// RSSI power levels
+			Serial_write(packet_in[ch+1]);			// RSSI power levels
 	}
 #endif
 
-#ifdef FRSKYX_RX_TELEMETRY
-	void frskyx_rx_channels_frame()
+#if defined (FRSKYX_RX_TELEMETRY) || defined (AFHDS2A_RX_TELEMETRY)
+	void receiver_channels_frame()
 	{
+		uint16_t len = pkt[3] * 11;					// 11 bit per channel
+		if (len % 8 == 0)
+			len = 4 + (len / 8);
+		else
+			len = 5 + (len / 8);
 		#if defined MULTI_TELEMETRY
-				multi_send_header(MULTI_TELEMETRY_RX_CHANNELS, 26);
+				multi_send_header(MULTI_TELEMETRY_RX_CHANNELS, len);
 		#else
 				Serial_write(0xAA);					// Telemetry packet
 		#endif
-		for (uint8_t i = 0; i < 26; i++)
-			Serial_write(packet_in[i]);					// pps, rssi, ch start, ch count, 16x ch data
+		for (uint8_t i = 0; i < len; i++)
+			Serial_write(packet_in[i]);				// pps, rssi, ch start, ch count, 16x ch data
 	}
 #endif
 
@@ -183,7 +188,7 @@ static void multi_send_status()
 		#if defined MULTI_TELEMETRY
 			multi_send_header(packet_in[29]==0xAA?MULTI_TELEMETRY_AFHDS2A:MULTI_TELEMETRY_AFHDS2A_AC, 29);
 		#else
-			Serial_write(packet_in[29]);					// Telemetry packet 0xAA or 0xAC
+			Serial_write(packet_in[29]);			// Telemetry packet 0xAA or 0xAC
 		#endif
 		for (uint8_t i = 0; i < 29; i++)			// RSSI value followed by 4*7 bytes of telemetry data
 			Serial_write(packet_in[i]);
@@ -196,9 +201,9 @@ static void multi_send_status()
 		#if defined MULTI_TELEMETRY
 			multi_send_header(MULTI_TELEMETRY_HITEC, 8);
 		#else
-			Serial_write(0xAA);					// Telemetry packet
+			Serial_write(0xAA);						// Telemetry packet
 		#endif
-		for (uint8_t i = 0; i < 8; i++)			// TX RSSI and TX LQI values followed by frame number and 5 bytes of telemetry data
+		for (uint8_t i = 0; i < 8; i++)				// TX RSSI and TX LQI values followed by frame number and 5 bytes of telemetry data
 			Serial_write(packet_in[i]);
 	}
 #endif
@@ -787,10 +792,10 @@ void TelemetryUpdate()
 		}
 	#endif
 
-	#if defined FRSKYX_RX_TELEMETRY
-		if (telemetry_link && protocol == PROTO_FRSKYX_RX)
+	#if defined (FRSKYX_RX_TELEMETRY) || defined(AFHDS2A_RX_TELEMETRY)
+		if (telemetry_link && (protocol == PROTO_FRSKYX_RX || protocol == PROTO_AFHDS2A_RX))
 		{
-			frskyx_rx_channels_frame();
+			receiver_channels_frame();
 			telemetry_link = 0;
 			return;
 		}

@@ -28,8 +28,8 @@ declares 'flag' variables for the options we are interested in.
 When the pre-compiler parses the source code these variables are either present or not in the parsed cpp file,
 typically '$build_dir$/preproc/ctags_target_for_gcc_minus_e.cpp'.
 
-Once the .bin file is compiled an additional command-line tool scans the parsed cpp file, detects the flags,
-assembles the signature, and finally appends to the end of the binary file.
+Once the .bin file is created an additional command-line build tool scans the parsed cpp file, detects the
+flags, assembles the signature, and finally appends the signature to the end of the binary file.
 
 The signature is 24 bytes long:
 multi-x[8-byte hex code]-[8-byte version number]
@@ -39,28 +39,32 @@ multi-x1234abcd-01020199
 
 The 8-byte hex code is a 32-bit bitmask value indicating the configuration options, currently:
 
-Bit(s)  Option                  Comment
-1-2     Module type             Read as a two-bit value indicating a number from 0-3 which maps to a module type (AVR, STM32, OrangeRX)
-3-7     Channel order           Read as a five-bit value indicating a number from 0-23 which maps to as channel order (AETR, TAER, RETA, etc)
-8       Bootloader support      Indicates whether or not the firmware was built with support for the bootloader
-9       CHECK_FOR_BOOTLOADER    
-10      INVERT_TELEMETRY
-11      MULTI_STATUS
-12      MULTI_TELEMETRY
-13      DEBUG_SERIAL
+Bit(s)  Bitmask    Option                  Comment
+1-2     0x3        Module type             Read as a two-bit value indicating a number from 0-3 which maps to a module type (AVR, STM32, OrangeRX)
+3-7     0x7C       Channel order           Read as a five-bit value indicating a number from 0-23 which maps to as channel order (AETR, TAER, RETA, etc) (right-shift two bits to read)
+8       0x80       Bootloader support      Indicates whether or not the firmware was built with support for the bootloader
+9       0x100      CHECK_FOR_BOOTLOADER    Indicates if CHECK_FOR_BOOTLOADER is defined
+10      0x200      INVERT_TELEMETRY        Indicates if INVERT_TELEMETRY is defined
+11      0x400      MULTI_STATUS            Indicates if MULTI_STATUS is defined
+12      0x800      MULTI_TELEMETRY         Indicates if MULTI_TELEMETRY is defined
+13      0x1000     DEBUG_SERIAL            Indicates if DEBUG_SERIAL is defined
 
 The 8-byte version number is the version number zero-padded to a fixed width of two-bytes per segment and no separator.  
 E.g. 1.2.3.45 becomes 01020345.
 
-Module types are mapped to the following decimal / binary values:
+Multi Telemetery Type can be read from bits 11 and 12 using the bitmask 0xC00 and right-shifting ten bits:
+Telemetry Type    Decimal Value   Binary Value
+Undefined         0               00
+erSkyTX           1               01
+OpenTX            2               10
 
-Module Type     Decimal Value   Binary Valsue
-AVR             0               00
-STM32           1               01
-OrangeRX        2               10
+Module types are mapped to the following decimal / binary values:
+Module Type       Decimal Value   Binary Valsue
+AVR               0               00
+STM32             1               01
+OrangeRX          2               10
 
 Channel orders are mapped to the following decimal / binary values:
-
 Channel Order	  Decimal Value	  Binary Value
 AETR	          0	              00000
 AERT	          1	              00001
@@ -72,21 +76,20 @@ EATR	          6	              00110
 EART	          7	              00111
 ERAT	          8	              01000
 ERTA	          9	              01001
-ETRA	          10	            01010
-ETAR	          11	            01011
-TEAR	          12	            01100
-TERA	          13	            01101
-TREA	          14	            01110
-TRAE	          15	            01111
-TARE	          16	            10000
-TAER	          17	            10001
-RETA	          18	            10010
-REAT	          19	            10011
-RAET	          20	            10100
-RATE	          21	            10101
-RTAE	          22	            10110
-RTEA	          23	            10111
-
+ETRA	          10	          01010
+ETAR	          11	          01011
+TEAR	          12	          01100
+TERA	          13	          01101
+TREA	          14	          01110
+TRAE	          15	          01111
+TARE	          16	          10000
+TAER	          17	          10001
+RETA	          18	          10010
+REAT	          19	          10011
+RAET	          20	          10100
+RATE	          21	          10101
+RTAE	          22	          10110
+RTEA	          23	          10111
 */
  
 // Set the flags for detecting and writing the firmware signature

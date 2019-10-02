@@ -36,10 +36,10 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 	uint8_t bitsavailable = 0;
 	uint8_t idx = 0;
 
-	pkt[idx++] = RX_LQI; // 0 - 130
-	pkt[idx++] = RX_RSSI;
-	pkt[idx++] = 0; // start channel
-	pkt[idx++] = 14; // number of channels in packet
+	packet_in[idx++] = RX_LQI; // 0 - 130
+	packet_in[idx++] = RX_RSSI;
+	packet_in[idx++] = 0; // start channel
+	packet_in[idx++] = 14; // number of channels in packet
 	// pack channels
 	for (uint8_t i = 0; i < 14; i++) {
 		uint16_t val = packet[9+i*2] | (packet[10+i*2] << 8);
@@ -52,7 +52,7 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 		bits |= val << bitsavailable;
 		bitsavailable += 11;
 		while (bitsavailable >= 8) {
-			pkt[idx++] = bits & 0xff;
+			packet_in[idx++] = bits & 0xff;
 			bits >>= 8;
 			bitsavailable -= 8;
 		}
@@ -182,7 +182,7 @@ uint16_t AFHDS2A_Rx_callback()
 		// packets per second
 		if (millis() - pps_timer >= 1000) {
 			pps_timer = millis();
-			debugln("%ld pps", pps_counter);
+			debugln("%d pps", pps_counter);
 			RX_LQI = pps_counter / 2;
 			pps_counter = 0;
 		}

@@ -167,7 +167,7 @@ static void multi_send_status()
 #if defined (FRSKYX_RX_TELEMETRY) || defined (AFHDS2A_RX_TELEMETRY)
 	void receiver_channels_frame()
 	{
-		uint16_t len = pkt[3] * 11;					// 11 bit per channel
+		uint16_t len = packet_in[3] * 11;			// 11 bit per channel
 		if (len % 8 == 0)
 			len = 4 + (len / 8);
 		else

@@ -303,9 +303,12 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 		else
 			RxBt = (packet_in[4]<<1) + 1 ;
 
+		//Save outgoing telemetry sequence
+		FrSkyX_TX_IN_Seq=packet_in[5] >> 4;
+
 		//Check incoming telemetry sequence
 		uint8_t packet_seq=packet_in[5] & 0x03;
-		if ( (packet_in[5] & 0x0F) == 0x08 )
+		if ( packet_in[5] & 0x08 )
 		{//Request init
 			FrSkyX_RX_Seq = 0x08 ;
 			FrSkyX_RX_NextFrame = 0x00 ;
@@ -345,6 +348,7 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 		}
 		else
 		{//Not in sequence
+			debugln("NS");
 			struct t_FrSkyX_RX_Frame *q ;
 			uint8_t count ;
 			// packet_in[4] RSSI
@@ -369,11 +373,6 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 			}
 			FrSkyX_RX_Seq = ( FrSkyX_RX_Seq & 0x03 ) | 0x04 ;	// Request re-transmission of original sequence
 		}
-
-		//Check outgoing telemetry sequence
-		if (((packet_in[5] >> 4) & 0x08) == 0x08)
-			FrSkyX_TX_Seq = 0 ;						//Request init
-		//debugln("s:%02X,p:%02X",FrSkyX_TX_Seq,packet_in[5] >> 4);
 	}
 #endif
 }

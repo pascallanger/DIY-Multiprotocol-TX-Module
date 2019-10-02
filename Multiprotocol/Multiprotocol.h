@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	2
+#define VERSION_PATCH_LEVEL	4
 
 //******************
 // Protocols
@@ -303,7 +303,7 @@ enum FRSKYX_RX
 
 struct PPM_Parameters
 {
-	uint8_t protocol : 6;
+	uint8_t protocol : 7;
 	uint8_t sub_proto : 3;
 	uint8_t rx_num : 4;
 	uint8_t power : 1;
@@ -589,8 +589,12 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Total of 26 bytes
   Stream[0]   = 0x55	sub_protocol values are 0..31	Stream contains channels
   Stream[0]   = 0x54	sub_protocol values are 32..63	Stream contains channels
+  Stream[0]   = 0x51	sub_protocol values are 64..95	Stream contains channels
+  Stream[0]   = 0x50	sub_protocol values are 96..127	Stream contains channels
   Stream[0]   = 0x57	sub_protocol values are 0..31	Stream contains failsafe
   Stream[0]   = 0x56	sub_protocol values are 32..63	Stream contains failsafe
+  Stream[0]   = 0x53	sub_protocol values are 64..95	Stream contains failsafe
+  Stream[0]   = 0x52	sub_protocol values are 96..127	Stream contains failsafe
   Stream[0]  |= 0x20	any of the above + 8 additional bytes at the end of the stream available for the current sub_protocol
    header
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;

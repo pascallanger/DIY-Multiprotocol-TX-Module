@@ -1416,40 +1416,40 @@ void update_serial_data()
 	//Forced frequency tuning values for CC2500 protocols
 	#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
 		if(protocol==PROTO_FRSKYD) 
-			option=FORCE_FRSKYD_TUNING;	// Use config-defined tuning value for FrSkyD
+			option=FORCE_FRSKYD_TUNING;			// Use config-defined tuning value for FrSkyD
 		else
 	#endif
 	#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
 		if(protocol==PROTO_FRSKYV)
-			option=FORCE_FRSKYV_TUNING;	// Use config-defined tuning value for FrSkyV
+			option=FORCE_FRSKYV_TUNING;			// Use config-defined tuning value for FrSkyV
 		else
 	#endif
 	#if defined(FORCE_FRSKYX_TUNING) && defined(FRSKYX_CC2500_INO)
 		if(protocol==PROTO_FRSKYX)
-			option=FORCE_FRSKYX_TUNING;	// Use config-defined tuning value for FrSkyX
+			option=FORCE_FRSKYX_TUNING;			// Use config-defined tuning value for FrSkyX
 		else
 	#endif 
 	#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
 		if (protocol==PROTO_SFHSS)
-			option=FORCE_SFHSS_TUNING;	// Use config-defined tuning value for SFHSS
+			option=FORCE_SFHSS_TUNING;			// Use config-defined tuning value for SFHSS
 		else
 	#endif
 	#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)
 		if (protocol==PROTO_CORONA)
-			option=FORCE_CORONA_TUNING;	// Use config-defined tuning value for CORONA
+			option=FORCE_CORONA_TUNING;			// Use config-defined tuning value for CORONA
 		else
 	#endif
 	#if defined(FORCE_REDPINE_TUNING) && defined(REDPINE_CC2500_INO)
 		if (protocol==PROTO_REDPINE)
-			option=FORCE_REDPINE_TUNING;	// Use config-defined tuning value for REDPINE
+			option=FORCE_REDPINE_TUNING;		// Use config-defined tuning value for REDPINE
 		else
 	#endif
 	#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
 		if (protocol==PROTO_HITEC)
-			option=FORCE_HITEC_TUNING;	// Use config-defined tuning value for HITEC
+			option=FORCE_HITEC_TUNING;			// Use config-defined tuning value for HITEC
 		else
 	#endif
-			option=rx_ok_buff[3];		// Use radio-defined option value
+			option=rx_ok_buff[3];				// Use radio-defined option value
 
 	#ifdef FAILSAFE_ENABLE
 		bool failsafe=false;
@@ -1483,9 +1483,13 @@ void update_serial_data()
 			BIND_IN_PROGRESS;					//launch bind right away if in autobind mode or bind is set
 		else
 			BIND_DONE;
-		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]
+		protocol=rx_ok_buff[1]&0x1F;			//protocol no (0-31)
+		if(!(rx_ok_buff[0]&1))
+			protocol+=32;						//protocol no (0-63)
+		if(!(rx_ok_buff[0]&4))
+			protocol+=64;						//protocol no (0-127)
 		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
-		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
+		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0-3
 	}
 	else
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
@@ -1920,55 +1924,48 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	{	// RX interrupt
 		static uint8_t idx=0,len=26;
 		#ifdef ORANGE_TX
-			if((USARTC0.STATUS & 0x1C)==0)		// Check frame error, data overrun and parity error
+			if((USARTC0.STATUS & 0x1C)==0)							// Check frame error, data overrun and parity error
 		#elif defined STM32_BOARD
 			if((USART2_BASE->SR & USART_SR_RXNE) && (USART2_BASE->SR &0x0F)==0)					
 		#else
-			UCSR0B &= ~_BV(RXCIE0) ;			// RX interrupt disable
+			UCSR0B &= ~_BV(RXCIE0) ;								// RX interrupt disable
 			sei() ;
-			if((UCSR0A&0x1C)==0)				// Check frame error, data overrun and parity error
+			if((UCSR0A&0x1C)==0)									// Check frame error, data overrun and parity error
 		#endif
 		{ // received byte is ok to process
 			if(idx==0||discard_frame==1)
 			{	// Let's try to sync at this point
 				idx=0;discard_frame=0;
-				RX_MISSED_BUFF_off;			// If rx_buff was good it's not anymore...
+				RX_MISSED_BUFF_off;									// If rx_buff was good it's not anymore...
 				rx_buff[0]=UDR0;
 				#ifdef SERIAL_DATA_ENABLE
 					#ifdef FAILSAFE_ENABLE
-						if((rx_buff[0]&0xDC)==0x54)	// If 1st byte is 0x74, 0x75, 0x76, 0x77, 0x54, 0x55, 0x56 or 0x57 it looks ok
+						if((rx_buff[0]&0xD8)==0x50)					// If 1st byte is 0x74, 0x75, 0x76, 0x77, 0x54, 0x55, 0x56 or 0x57 it looks ok
 					#else
-						if((rx_buff[0]&0xDE)==0x54)	// If 1st byte is 0x74, 0x75, 0x54 or 0x55 it looks ok
+						if((rx_buff[0]&0xDA)==0x50)					// If 1st byte is 0x74, 0x75, 0x54 or 0x55 it looks ok
 					#endif
 				#else
 					#ifdef FAILSAFE_ENABLE
-						if((rx_buff[0]&0xFC)==0x54)	// If 1st byte is 0x58, 0x54, 0x55, 0x56 or 0x57 it looks ok
+						if((rx_buff[0]&0xF8)==0x50)					// If 1st byte is 0x58, 0x54, 0x55, 0x56 or 0x57 it looks ok
 					#else
-						if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x58, 0x54 or 0x55 it looks ok
+						if((rx_buff[0]&0xFA)==0x50)					// If 1st byte is 0x54 or 0x55 it looks ok
 					#endif
 				#endif
 				{
-					uint16_t max_time;
 					#ifdef SERIAL_DATA_ENABLE
 						if(rx_buff[0]&0x20)
-						{
-							max_time=8500;
 							len=34;
-						}
 						else
 					#endif
-						{
-							max_time=6500;
 							len=26;
-						}
 					TX_RX_PAUSE_on;
 					tx_pause();
 					#if defined STM32_BOARD
-						TIMER2_BASE->CCR2=TIMER2_BASE->CNT+max_time;// Full message should be received within timer of 3250us
+						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;	// Next byte should show up within 15??s=1.5 byte
 						TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer2/Comp2 interrupt flag
 						TIMER2_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer2/Comp2 interrupt
 					#else
-						OCR1B = TCNT1+max_time;						// Full message should be received within timer of 3250us
+						OCR1B = TCNT1 + 300;						// Next byte should show up within 15??s=1.5 byte
 						TIFR1 = OCF1B_bm ;							// clear OCR1B match flag
 						SET_TIMSK1_OCIE1B ;							// enable interrupt on compare B match
 					#endif
@@ -1977,39 +1974,44 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			}
 			else
 			{
-				rx_buff[idx++]=UDR0;		// Store received byte
+				rx_buff[idx++]=UDR0;								// Store received byte
+				#if defined STM32_BOARD
+					TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;		// Next byte should show up within 15??s=1.5 byte
+				#else
+					OCR1B = TCNT1 + 300;							// Next byte should show up within 15??s=1.5 byte
+				#endif
 				if(idx>=len)
 				{	// A full frame has been received
 					if(!IS_RX_DONOTUPDATE_on)
 					{ //Good frame received and main is not working on the buffer
 						memcpy((void*)rx_ok_buff,(const void*)rx_buff,len);// Duplicate the buffer
-						RX_FLAG_on;			// flag for main to process servo data
+						RX_FLAG_on;									// Flag for main to process servo data
 					}
 					else
-						RX_MISSED_BUFF_on;	// notify that rx_buff is good
-					discard_frame=1; 		// start again
+						RX_MISSED_BUFF_on;							// Notify that rx_buff is good
+					discard_frame=1; 								// Start again
 				}
 			}
 		}
 		else
 		{
-			idx=UDR0;						// Dummy read
-			discard_frame=1;				// Error encountered discard full frame...
+			idx=UDR0;												// Dummy read
+			discard_frame=1;										// Error encountered discard full frame...
 			debugln("Bad frame RX");
 		}
 		if(discard_frame==1)
 		{
 			#ifdef STM32_BOARD
-				TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;	// Disable Timer2/Comp2 interrupt
+				TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer2/Comp2 interrupt
 			#else							
-				CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
+				CLR_TIMSK1_OCIE1B;									// Disable interrupt on compare B match
 			#endif
 			TX_RX_PAUSE_off;
 			tx_resume();
 		}
 		#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 			cli() ;
-			UCSR0B |= _BV(RXCIE0) ;			// RX interrupt enable
+			UCSR0B |= _BV(RXCIE0) ;									// RX interrupt enable
 		#endif
 	}
 
@@ -2024,10 +2026,10 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	{	// Timer1 compare B interrupt
 		discard_frame=1;
 		#ifdef STM32_BOARD
-			TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;	// Disable Timer2/Comp2 interrupt
+			TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;					// Disable Timer2/Comp2 interrupt
 			debugln("Bad frame timer");
 		#else
-			CLR_TIMSK1_OCIE1B;						// Disable interrupt on compare B match
+			CLR_TIMSK1_OCIE1B;										// Disable interrupt on compare B match
 		#endif
 		tx_resume();
 	}
@@ -2073,21 +2075,4 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			WDTCSR = 0;	// Disable Watchdog interrupt
 		}
 	}
-#endif
-
-// Set the flags for detecting and writing the firmware signature
-#if defined (CHECK_FOR_BOOTLOADER)
-    bool firmwareFlag_CHECK_FOR_BOOTLOADER = true;
-#endif
-#if defined (MULTI_STATUS)
-    bool firmwareFlag_MULTI_STATUS = true;
-#endif
-#if defined (MULTI_TELEMETRY)
-    bool firmwareFlag_MULTI_TELEMETRY = true;
-#endif
-#if defined (INVERT_TELEMETRY)
-    bool firmwareFlag_INVERT_TELEMETRY = true;
-#endif
-#if defined (DEBUG_SERIAL)
-    bool firmwareFlag_DEBUG_SERIAL = true;
 #endif

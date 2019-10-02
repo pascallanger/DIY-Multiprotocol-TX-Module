@@ -20,8 +20,18 @@
 #include "iface_cc2500.h"
 
 uint8_t FrSkyX_chanskip;
-uint8_t FrSkyX_TX_Seq ;
+uint8_t FrSkyX_TX_Seq, FrSkyX_TX_IN_Seq;
 uint8_t FrSkyX_RX_Seq ;
+
+#ifdef SPORT_SEND
+	struct t_FrSkyX_TX_Frame
+	{
+		uint8_t count;
+		uint8_t payload[6];
+	} ;
+	// Store FrskyX telemetry
+	struct t_FrSkyX_TX_Frame FrSkyX_TX_Frames[4] ;
+#endif
 
 #define FrSkyX_FAILSAFE_TIMEOUT 1032
 
@@ -178,30 +188,70 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	else
 		chan_offset^=0x08;
 	
-	//sequence
-	packet[21] = (FrSkyX_RX_Seq << 4) | FrSkyX_TX_Seq ;//=8 at startup
-
+	//sequence and send SPort
 	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
 	for (uint8_t i=22;i<limit;i++)
 		packet[i]=0;
+	packet[21] = FrSkyX_RX_Seq << 4;//TX=8 at startup
 	#ifdef SPORT_SEND
-		uint8_t nbr_bytes=0;
-		for (uint8_t i=23;i<limit;i++)
-		{
-			if(SportHead==SportTail)
-				break; //buffer empty
-			packet[i]=SportData[SportHead];
-			SportHead=(SportHead+1) & (MAX_SPORT_BUFFER-1);
-			nbr_bytes++;
+		if (FrSkyX_TX_IN_Seq!=0xFF)
+		{//RX has replied at least once
+			debugln("R:%X,T:%X",FrSkyX_TX_IN_Seq,FrSkyX_TX_Seq);
+			if (FrSkyX_TX_IN_Seq & 0x08)
+			{//Request init
+				debugln("Init");
+				FrSkyX_TX_Seq = 0 ;	
+				for(uint8_t i=0;i<4;i++)
+					FrSkyX_TX_Frames[i].count=0;	// discard frames in current output buffer
+			}
+			else if (FrSkyX_TX_IN_Seq & 0x04)
+			{//Retransmit the requested packet
+				debugln("Retr:%d",FrSkyX_TX_IN_Seq&0x03);
+				for (uint8_t i=23;i<23+FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq&0x03].count;i++)
+					packet[i] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq&0x03].payload[i];
+				packet[22] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq&0x03].count;
+				packet[21] |= FrSkyX_TX_IN_Seq&0x03;
+			}
+			else if ( FrSkyX_TX_Seq != 0x08 )
+			{
+				if(FrSkyX_TX_IN_Seq==FrSkyX_TX_Seq)
+				{//Send packet from the incoming radio buffer
+					uint8_t nbr_bytes=0;
+					for (uint8_t i=23;i<limit;i++)
+					{
+						if(SportHead==SportTail)
+							break; //buffer empty
+						FrSkyX_TX_Frames[FrSkyX_TX_Seq].payload[i-23]=packet[i]=SportData[SportHead];
+						SportHead=(SportHead+1) & (MAX_SPORT_BUFFER-1);
+						nbr_bytes++;
+					}
+					FrSkyX_TX_Frames[FrSkyX_TX_Seq].count=packet[22]=nbr_bytes;
+					packet[21] |= FrSkyX_TX_Seq;
+					FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;	// Next iteration send next packet
+				}
+				else
+				{//Retransmit the last packet
+					debugln("Retr:%d",FrSkyX_TX_IN_Seq);
+					for (uint8_t i=23;i<23+FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].count;i++)
+						packet[i] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].payload[i];
+					packet[22] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].count;
+					packet[21] |= FrSkyX_TX_IN_Seq;
+				}
+			}
+			else
+				packet[21] |= 0x08 ;							//FrSkyX_TX_Seq=8 at startup
 		}
-		packet[22]=nbr_bytes;
-		if(nbr_bytes)
-		{
+		if(packet[22])
+		{//Debug
 			debug("SPort_out: ");
-			for(uint8_t i=0;i<nbr_bytes;i++)
+			for(uint8_t i=0;i<packet[22];i++)
 				debug("%02X ",packet[23+i]);
 			debugln("");
 		}
+	#else
+		packet[21] |= FrSkyX_TX_Seq ;//TX=8 at startup
+		if ( !(FrSkyX_TX_IN_Seq & 0xF8) )
+			FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;		// Next iteration send next packet
 	#endif // SPORT_SEND
 
 	uint16_t lcrc = FrSkyX_crc(&packet[3], limit-3);
@@ -258,7 +308,7 @@ uint16_t ReadFrSkyX()
 			return 3100;
 		case FRSKY_DATA4:
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
-			if (len && (len<=(0x0E + 3)))				//Telemetry frame is 17
+			if (len && (len<=(0x0E + 3)))					//Telemetry frame is 17
 			{
 				packet_count=0;
 				CC2500_ReadData(packet_in, len);
@@ -274,8 +324,12 @@ uint16_t ReadFrSkyX()
 				// restart sequence on missed packet - might need count or timeout instead of one missed
 				if(packet_count>100)
 				{//~1sec
-					FrSkyX_TX_Seq = 0x08 ;
-					//FrSkyX_RX_Seq = 0 ;
+					FrSkyX_TX_Seq = 0x08 ;			// Request init
+					FrSkyX_TX_IN_Seq = 0xFF ;		// No sequence received yet
+					#ifdef SPORT_SEND
+						for(uint8_t i=0;i<4;i++)
+							FrSkyX_TX_Frames[i].count=0;	// discard frames in current output buffer
+					#endif
 					packet_count=0;
 					#if defined TELEMETRY
 						telemetry_lost=1;
@@ -284,8 +338,6 @@ uint16_t ReadFrSkyX()
 				CC2500_Strobe(CC2500_SFRX);			//flush the RXFIFO
 			}
 			FrSkyX_build_packet();
-			if ( FrSkyX_TX_Seq != 0x08 )
-				FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;
 			state = FRSKY_DATA1;
 			return 500;
 	}		
@@ -316,8 +368,13 @@ uint16_t initFrSkyX()
 		state = FRSKY_DATA1;
 		FrSkyX_initialize_data(0);
 	}
-	FrSkyX_TX_Seq = 0x08 ;
-	FrSkyX_RX_Seq = 0 ;
+	FrSkyX_TX_Seq = 0x08 ;					// Request init
+	FrSkyX_TX_IN_Seq = 0xFF ;				// No sequence received yet
+	#ifdef SPORT_SEND
+		for(uint8_t i=0;i<4;i++)
+			FrSkyX_TX_Frames[i].count=0;	// discard frames in current output buffer
+	#endif
+	FrSkyX_RX_Seq = 0 ;						// Seq 0 to start with
 	return 10000;
 }	
 #endif

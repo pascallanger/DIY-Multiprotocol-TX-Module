@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	5
+#define VERSION_PATCH_LEVEL	6
 
 //******************
 // Protocols
@@ -405,6 +405,15 @@ enum MultiPacketTypes
 #define WAIT_BIND_on		protocol_flags2 |= _BV(7)
 #define IS_WAIT_BIND_on		( ( protocol_flags2 & _BV(7) ) !=0 )
 #define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
+//Incoming telemetry data buffer
+#define DATA_BUFFER_LOW_off		protocol_flags3 &= ~_BV(0)
+#define DATA_BUFFER_LOW_on		protocol_flags3 |= _BV(0)
+#define IS_DATA_BUFFER_LOW_on	( ( protocol_flags3 & _BV(0) ) !=0 )
+#define IS_DATA_BUFFER_LOW_off	( ( protocol_flags3 & _BV(0) ) ==0 )
+#define SEND_MULTI_STATUS_off		protocol_flags3 &= ~_BV(1)
+#define SEND_MULTI_STATUS_on		protocol_flags3 |= _BV(1)
+#define IS_SEND_MULTI_STATUS_on		( ( protocol_flags3 & _BV(1) ) !=0 )
+#define IS_SEND_MULTI_STATUS_off	( ( protocol_flags3 & _BV(1) ) ==0 )
 
 // Failsafe
 #define FAILSAFE_CHANNEL_HOLD		2047
@@ -597,7 +606,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Stream[0]   = 0x56	sub_protocol values are 32..63	Stream contains failsafe
   Stream[0]   = 0x53	sub_protocol values are 64..95	Stream contains failsafe
   Stream[0]   = 0x52	sub_protocol values are 96..127	Stream contains failsafe
-  Stream[0]  |= 0x20	any of the above + 8 additional bytes at the end of the stream available for the current sub_protocol
+  Stream[0]  |= 0x20	any of the above + 8 additional data bytes at the end of the stream available for the current sub_protocol
    header
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
    sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54 | 0x56
@@ -834,7 +843,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    0x04 = Protocol is valid
    0x08 = Module is in binding mode
    0x10 = Module waits a bind event to load the protocol
-   0x20 = Failsafe supported by currently running protocol
+   0x20 = Current protocol supports failsafe
+   0x80 = Data buffer is almost full
    [3] major
    [4] minor
    [5] revision
@@ -868,10 +878,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    [4] Flags
    0x01 = Input signal detected
    0x02 = Serial mode enabled
-   0x04 = protocol is valid
-   0x08 = module is in binding mode
-   0x10 = module waits a bind event to load the protocol
-   0x20 = current protocol supports failsafe
+   0x04 = Protocol is valid
+   0x08 = Module is in binding mode
+   0x10 = Module waits a bind event to load the protocol
+   0x20 = Current protocol supports failsafe
+   0x80 = Data buffer is almost full
    [5] major
    [6] minor
    [7] revision

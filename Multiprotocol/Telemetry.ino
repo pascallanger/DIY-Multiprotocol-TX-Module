@@ -111,6 +111,8 @@ static void multi_send_status()
 					break;
 			}
 		#endif
+		if(IS_DATA_BUFFER_LOW_on)
+			flags |= 0x80;
 	}
 	Serial_write(flags);
 
@@ -353,7 +355,6 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 		}
 		else
 		{//Not in sequence
-			debugln("NS");
 			struct t_FrSkyX_RX_Frame *q ;
 			uint8_t count ;
 			// packet_in[4] RSSI
@@ -725,9 +726,10 @@ void TelemetryUpdate()
 	#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
 		{
 			uint32_t now = millis();
-			if ((now - lastMulti) > MULTI_TIME)
+			if (IS_SEND_MULTI_STATUS_on || (now - lastMulti) > MULTI_TIME)
 			{
 				multi_send_status();
+				SEND_MULTI_STATUS_off;
 				lastMulti = now;
 				return;
 			}

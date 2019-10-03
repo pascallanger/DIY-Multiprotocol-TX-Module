@@ -137,7 +137,7 @@ const uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, CH5, CH6, CH7, CH8
 
 // Mode_select variables
 uint8_t mode_select;
-uint8_t protocol_flags=0,protocol_flags2=0;
+uint8_t protocol_flags=0,protocol_flags2=0,protocol_flags3=0;
 
 #ifdef ENABLE_PPM
 // PPM variable
@@ -954,7 +954,8 @@ static void protocol_init()
 		#ifdef FAILSAFE_ENABLE
 			FAILSAFE_VALUES_off;
 		#endif
-	
+		DATA_BUFFER_LOW_off;
+		
 		blink=millis();
 
 		PE1_on;							//NRF24L01 antenna RF3 by default
@@ -1568,7 +1569,17 @@ void update_serial_data()
 						//debug("%02X ",SportData[SportTail]);
 						SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
 					}
-					//debugln("");
+					uint8_t used = SportTail;
+					if ( SportHead > SportTail )
+						used += MAX_SPORT_BUFFER - SportHead ;
+					else
+						used -= SportHead ;
+					if ( used >= MAX_SPORT_BUFFER-(MAX_SPORT_BUFFER>>2) )
+					{
+						DATA_BUFFER_LOW_on;
+						SEND_MULTI_STATUS_on;			//Send Multi Status ASAP to inform the TX
+						debugln("Low buf=%d,h=%d,t=%d",used,SportHead,SportTail);
+					}
 				}
 			#endif
 		}

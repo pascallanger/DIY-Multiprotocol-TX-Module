@@ -37,18 +37,23 @@ You are still unsure if your module can be flashed without tools or opening it? 
 
 Your multi module is not USB upgradable ready, here is what you need:
 
-| **3.3V USB-TTL Adapter** | **4-pin Serial Programming Header** |
-|:---:|:--:|
-| <img src="images/ch340g.jpg" width="200"/> | <img src="images/4-pin-header.jpg" width="150" height="150"/> 
-| [(example ebay link)](https://www.ebay.co.uk/itm/FTDI-USB-to-TTL-Serial-Converter-Adapter-FT232RL-Module-5V-and-3-3V-Arduino-ARM/231918152528) | [(example ebay link)](https://www.ebay.co.uk/itm/4x-826629-4-Pin-header-pin-strips-AMPMODU-MOD-II-male-PIN4-straight/192334571714) |
+| **3.3V USB-TTL Adapter** | **4-pin 2.54mm Serial Programming Header** | **4-pin 1mm Serial Programming header + cable** | **5-pin 1.5mm cable** |
+|:---:|:---:|:---:|:---:|
+| All modules | DIY, Banggood 4-in-1, iRangeX IRX4/IRX4+/IRX4Lite, Jumper 4in1 1st gen | Vantac lite, URUAV lite | T16 internal module |
+| <img src="images/ch340g.jpg" width="200"/> | <img src="images/4-pin-header.jpg" width="150" height="150"/> | <img src="images/4-pin-1mm.jpg" width="150" height="150"/> | <img src="images/5-pin-125mm.jpg" width="150" height="150"/> |
+| [(example ebay link)](https://www.ebay.co.uk/itm/FTDI-USB-to-TTL-Serial-Converter-Adapter-FT232RL-Module-5V-and-3-3V-Arduino-ARM/231918152528) | [(example ebay link)](https://www.ebay.co.uk/itm/4x-826629-4-Pin-header-pin-strips-AMPMODU-MOD-II-male-PIN4-straight/192334571714) | [(example ebay link)](https://www.ebay.com/itm/5-PCS-Mini-Micro-ZH-1mm-2-6-Pin-JST-Connector-with-Wire-HI/183963001322) | [(example ebay link)](https://www.ebay.co.uk/itm/5-PAIRS-5-PIN-Micro-JST-GH-1-25-Connector-Plug-Socket-1-25mm-150mm-Cable/273110735668)
 
 The USB-TTL adapter can be either FTDI or CH340G, as long as it works.  It should have a switch or jumper to select 3.3V or 5V, which **must** be set to **3.3V**.
 
-The 4-pin header needs to be soldered onto the board as indicated by the red rectangle:
+The header needs to be soldered onto the board as indicated by the red rectangle:
 
-| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4 Plus** | **Jumper** | **MPM Lite** |
-|:---:|:---:|:---:|:---:|:---:|
-| <img src="images/Board_PCB_STM32_with_serial.jpg" width="142" height="200"/> | <img src="images/bg-multi-stm32-serial.jpg" width="195" height="200"/> | <img src="images/irx4plus-serial.jpg" width="164" height="200"/> | <img src="images/Jumper-serial.jpg" width="164" height="200"/> | <img src="images/mpmlite-serial.jpg" width="200" height="189" />
+| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4 / IR4+** | **Jumper 4in1 1st gen** |
+|:---:|:---:|:---:|:---:|
+| <img src="images/Board_PCB_STM32_with_serial.jpg" width="142" height="200"/> | <img src="images/bg-multi-stm32-serial.jpg" width="195" height="200"/> | <img src="images/irx4plus-serial.jpg" width="164" height="200"/> | <img src="images/Jumper-serial.jpg" width="164" height="200"/> 
+
+| **Vantac/URUAV Lite** | **iRangeX IRX4 Lite** |
+|:---:|:---:|
+| <img src="images/mpmlite-serial.jpg" width="200" height="189" /> | <img src="images/irx4-lite.jpg" width="160" height="200" /> |
 
 **Note:** The Banggood STM32 module most likely already has the header pin in place.
 

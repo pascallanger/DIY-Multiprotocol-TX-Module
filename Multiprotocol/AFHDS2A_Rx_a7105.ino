@@ -49,7 +49,7 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 			val = 2140;
 		val -= 860;
 
-		bits |= val << bitsavailable;
+		bits |= ((uint32_t)val) << bitsavailable;
 		bitsavailable += 11;
 		while (bitsavailable >= 8) {
 			pkt[idx++] = bits & 0xff;

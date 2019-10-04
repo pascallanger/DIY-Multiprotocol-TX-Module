@@ -166,7 +166,7 @@ static void __attribute__((unused)) frskyx_rx_build_telemetry_packet()
 
 	// pack channels
 	for (int i = 0; i < 16; i++) {
-		bits |= frskyx_rx_rc_chan[i] << bitsavailable;
+		bits |= ((uint32_t)frskyx_rx_rc_chan[i]) << bitsavailable;
 		bitsavailable += 11;
 		while (bitsavailable >= 8) {
 			packet_in[idx++] = bits & 0xff;

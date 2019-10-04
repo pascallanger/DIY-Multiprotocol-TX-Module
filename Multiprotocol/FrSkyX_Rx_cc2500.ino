@@ -351,7 +351,7 @@ uint16_t FrSkyX_Rx_callback()
 		// packets per second
 		if (millis() - pps_timer >= 1000) {
 			pps_timer = millis();
-			debugln("%ld pps", pps_counter);
+			debugln("%d pps", pps_counter);
 			RX_LQI = pps_counter;
 			pps_counter = 0;
 		}

@@ -42,14 +42,15 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 	packet_in[idx++] = 14; // number of channels in packet
 	// pack channels
 	for (uint8_t i = 0; i < 14; i++) {
-		uint16_t val = packet[9+i*2] | (packet[10+i*2] << 8);
+		uint32_t val = packet[9+i*2] | (packet[10+i*2] << 8);
 		if (val < 860)
 			val = 860;
-		else if (val > 2140)
-			val = 2140;
-		val -= 860;
+		else if (val > 2139)
+			val = 2139;
+		// convert ppm (860-2140) to Multi (0-2047)
+		val = ((val-860)<<3)/5;
 
-		bits |= ((uint32_t)val) << bitsavailable;
+		bits |= val << bitsavailable;
 		bitsavailable += 11;
 		while (bitsavailable >= 8) {
 			packet_in[idx++] = bits & 0xff;
@@ -169,7 +170,7 @@ uint16_t AFHDS2A_Rx_callback()
 			if (memcmp(&packet[1], rx_id, 4) == 0 && memcmp(&packet[5], rx_tx_addr, 4) == 0) {
 				if (packet[0] == 0x58 && packet[37] == 0x00 && telemetry_link == 0) { // standard packet, send channels to TX
 					int rssi = min(A7105_ReadReg(A7105_1D_RSSI_THOLD),160);
-					RX_RSSI = map(rssi, 160, 8, 0, 100);
+					RX_RSSI = map16b(rssi, 160, 8, 0, 128);
 					AFHDS2A_Rx_build_telemetry_packet();
 					telemetry_link = 1;
 				}

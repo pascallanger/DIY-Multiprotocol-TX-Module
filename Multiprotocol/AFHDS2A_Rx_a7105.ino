@@ -45,10 +45,8 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 		uint32_t val = packet[9+i*2] | (packet[10+i*2] << 8);
 		if (val < 860)
 			val = 860;
-		else if (val > 2139)
-			val = 2139;
 		// convert ppm (860-2140) to Multi (0-2047)
-		val = ((val-860)<<3)/5;
+		val = min(((val-860)<<3)/5, 2047);
 
 		bits |= val << bitsavailable;
 		bitsavailable += 11;

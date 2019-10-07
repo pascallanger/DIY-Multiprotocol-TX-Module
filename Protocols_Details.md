@@ -84,6 +84,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105|
+[Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|||||||||A7105|
 [Flyzone](Protocols_Details.md#FLYZONE---53)|53|FZ410||||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|FrskyD||||||||CC2500|
@@ -169,7 +170,7 @@ Telemetry enabled protocol:
 
 Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 70 gives 400Hz (max). Specific refresh rate value can be calculated like this option=(refresh_rate-50)/5.
 
-**RX_Num is used to give a number a given RX. You must use a different RX_Num per RX. A maximum of 16 AFHDS2A RXs are supported.**
+**RX_Num is used to give a number a given RX. You must use a different RX_Num per RX. A maximum of 64 AFHDS2A RXs are supported.**
 
 OpenTX suggested RSSI alarm threshold settings (Telemetry tab): Low=15, Critical=12.
 
@@ -187,6 +188,15 @@ Note that the RX ouput will be AETR whatever the input channel order is.
 ### Sub_protocol PPM_IBUS - *1*
 ### Sub_protocol PWM_SBUS - *2*
 ### Sub_protocol PPM_SBUS - *3*
+
+## FLYSKY AFHDS2A RX - *56*
+The Flysky AFHDS2A receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
+
+Available in OpenTX 2.3.2, Trainer Mode Master/Multi
+
+Extended limits supported
+
+Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
 
 ## FLYZONE - *53*
 Models using the Flyzone FZ-410 TX: Fokker D.VII Micro EP RTF
@@ -344,6 +354,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ## FRSKYX_RX - *55*
 The FrSkyX receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
+
+Available in OpenTX 2.3.2, Trainer Mode Master/Multi
 
 Extended limits supported
 

@@ -162,10 +162,12 @@ uint8_t  RX_num;
 
 //Serial RX variables
 #define BAUD 100000
-#define RXBUFFER_SIZE 34
+#define RXBUFFER_SIZE 36	// 26+1+9
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 volatile uint8_t discard_frame = 0;
+volatile uint8_t rx_idx=0, rx_len=0;
+
 
 // Telemetry
 #define TELEMETRY_BUFFER_SIZE 30
@@ -664,7 +666,8 @@ uint8_t Update_All()
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
 			if( (protocol == PROTO_FRSKYX_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
 		#endif
-				TelemetryUpdate();
+				if(IS_DISABLE_TELEM_off)
+					TelemetryUpdate();
 	#endif
 	#ifdef ENABLE_BIND_CH
 		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Channel_data[BIND_CH-1]>CHANNEL_MAX_COMMAND && Channel_data[THROTTLE]<(CHANNEL_MIN_100+50))
@@ -891,7 +894,7 @@ inline void tx_resume()
 {
 	#ifdef TELEMETRY
 	// Resume telemetry by enabling transmitter interrupt
-		if(!IS_TX_PAUSE_on)
+		if(IS_TX_PAUSE_off)
 		{
 			#ifdef ORANGE_TX
 				cli() ;
@@ -945,6 +948,7 @@ static void protocol_init()
 			#endif
 			TX_RX_PAUSE_off;
 			TX_MAIN_PAUSE_off;
+			tx_resume();
 		#endif
 
 		//Set global ID and rx_tx_addr
@@ -1408,6 +1412,11 @@ void update_serial_data()
 			memcpy((void*)(rx_ok_buff+4),(void*)(rx_ok_buff+4+11),11);	// reassign channels 9-16 to 1-8
 		}
 	#endif
+	#ifdef BONI	// Extremely dangerous, do not enable this!!! This is really for a special case...
+		if(CH14_SW)
+			rx_ok_buff[2]=(rx_ok_buff[2]&0xF0)|((rx_ok_buff[2]+1)&0x0F);
+	#endif
+
 	if(rx_ok_buff[1]&0x20)						//check range
 		RANGE_FLAG_on;
 	else
@@ -1466,23 +1475,21 @@ void update_serial_data()
 			failsafe=true;
 			rx_ok_buff[0]&=0xFD;				//remove the failsafe flag
 			FAILSAFE_VALUES_on;					//failsafe data has been received
+			debugln("Failsafe received");
 		}
 	#endif
 
-	#ifdef SERIAL_DATA_ENABLE
-		bool data=false;
-		if(rx_ok_buff[0]&0x20)
-		{ // Packet has additional data
-			data=true;
-			rx_ok_buff[0]&=0xDF;				//remove the data flag
-		}
-	#endif
-
-	#ifdef BONI
-		if(CH14_SW)
-			rx_ok_buff[2]=(rx_ok_buff[2]&0xF0)|((rx_ok_buff[2]+1)&0x0F);	// Extremely dangerous, do not enable this!!! This is really for a special case...
-	#endif
-
+	DISABLE_CH_MAP_off;
+	DISABLE_TELEM_off;
+	if(rx_len>26)	// Additional protocol numbers and RX_Num available -> store them in rx_ok_buff[0]
+	{
+		rx_ok_buff[0]=(rx_ok_buff[26]&0xF0) | (rx_ok_buff[0]&0x0F);
+		if(rx_ok_buff[26]&0x08)
+			DISABLE_CH_MAP_on;
+		if(rx_ok_buff[26]&0x04)
+			DISABLE_TELEM_on;
+	}
+	
 	if( (rx_ok_buff[0] != cur_protocol[0]) || ((rx_ok_buff[1]&0x5F) != (cur_protocol[1]&0x5F)) || ( (rx_ok_buff[2]&0x7F) != (cur_protocol[2]&0x7F) ) )
 	{ // New model has been selected
 		CHANGE_PROTOCOL_FLAG_on;				//change protocol
@@ -1494,10 +1501,12 @@ void update_serial_data()
 		protocol=rx_ok_buff[1]&0x1F;			//protocol no (0-31)
 		if(!(rx_ok_buff[0]&1))
 			protocol+=32;						//protocol no (0-63)
-		if(!(rx_ok_buff[0]&4))
-			protocol+=64;						//protocol no (0-127)
+		if(rx_len>26)
+			protocol|=rx_ok_buff[26]&0xC0;		//protocol no (0-255)
 		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
-		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0-3
+		RX_num=rx_ok_buff[2]& 0x0F;				//rx_num no (0-15)
+		if(rx_len>26)
+			RX_num|=rx_ok_buff[26]&0x30;		//rx_num no (0-63)
 	}
 	else
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
@@ -1521,7 +1530,7 @@ void update_serial_data()
 	for(uint8_t i=0;i<3;i++)
 		cur_protocol[i] =  rx_ok_buff[i];
 
-		// decode channel/failsafe values
+	// decode channel/failsafe values
 	volatile uint8_t *p=rx_ok_buff+3;
 	uint8_t dec=-3;
 	for(uint8_t i=0;i<NUM_CHN;i++)
@@ -1542,48 +1551,45 @@ void update_serial_data()
 				Channel_data[i]=temp;			//value range 0..2047, 0=-125%, 2047=+125%
 	}
 
-	#ifdef SERIAL_DATA_ENABLE
-		if(data)
-		{ // Data available for the current protocol
-			#ifdef SPORT_SEND
-				if(protocol==PROTO_FRSKYX)
+	if(rx_len>27)
+	{ // Data available for the current protocol
+		#ifdef SPORT_SEND
+			if(protocol==PROTO_FRSKYX && rx_len==35)
+			{//Protocol waiting for 8 bytes
+				#define BYTE_STUFF	0x7D
+				#define STUFF_MASK	0x20
+				//debug("SPort_in: ");
+				SportData[SportTail]=0x7E;
+				SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+				SportData[SportTail]=rx_ok_buff[27]&0x1F;
+				SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+				for(uint8_t i=28;i<28+7;i++)
 				{
-					#define BYTE_STUFF	0x7D
-					#define STUFF_MASK	0x20
-					//TODO detect overrun of the buffer before writing...
-					//debug("SPort_in: ");
-					SportData[SportTail]=0x7E;
-					SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-					SportData[SportTail]=rx_ok_buff[26]&0x1F;
-					SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-					for(uint8_t i=27;i<27+7;i++)
-					{
-						if(rx_ok_buff[i]==BYTE_STUFF)
-						{//stuff
-							SportData[SportTail]=BYTE_STUFF;
-							SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-							SportData[SportTail]=rx_ok_buff[i]^STUFF_MASK;
-						}
-						else
-							SportData[SportTail]=rx_ok_buff[i];
-						//debug("%02X ",SportData[SportTail]);
+					if(rx_ok_buff[i]==BYTE_STUFF)
+					{//stuff
+						SportData[SportTail]=BYTE_STUFF;
 						SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+						SportData[SportTail]=rx_ok_buff[i]^STUFF_MASK;
 					}
-					uint8_t used = SportTail;
-					if ( SportHead > SportTail )
-						used += MAX_SPORT_BUFFER - SportHead ;
 					else
-						used -= SportHead ;
-					if ( used >= MAX_SPORT_BUFFER-(MAX_SPORT_BUFFER>>2) )
-					{
-						DATA_BUFFER_LOW_on;
-						SEND_MULTI_STATUS_on;			//Send Multi Status ASAP to inform the TX
-						debugln("Low buf=%d,h=%d,t=%d",used,SportHead,SportTail);
-					}
+						SportData[SportTail]=rx_ok_buff[i];
+					//debug("%02X ",SportData[SportTail]);
+					SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
 				}
-			#endif
-		}
-	#endif // SERIAL_DATA_ENABLE
+				uint8_t used = SportTail;
+				if ( SportHead > SportTail )
+					used += MAX_SPORT_BUFFER - SportHead ;
+				else
+					used -= SportHead ;
+				if ( used >= MAX_SPORT_BUFFER-(MAX_SPORT_BUFFER>>2) )
+				{
+					DATA_BUFFER_LOW_on;
+					SEND_MULTI_STATUS_on;	//Send Multi Status ASAP to inform the TX
+					debugln("Low buf=%d,h=%d,t=%d",used,SportHead,SportTail);
+				}
+			}
+		#endif //SPORT_SEND
+	}
 
 	RX_DONOTUPDATE_off;
 	#ifdef ORANGE_TX
@@ -1592,7 +1598,9 @@ void update_serial_data()
 		UCSR0B &= ~_BV(RXCIE0);					// RX interrupt disable
 	#endif
 	if(IS_RX_MISSED_BUFF_on)					// If the buffer is still valid
-	{	memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
+	{	
+		rx_len=rx_idx;
+		memcpy((void*)rx_ok_buff,(const void*)rx_buff,rx_len);// Duplicate the buffer
 		RX_FLAG_on;								// data to be processed next time...
 		RX_MISSED_BUFF_off;
 	}
@@ -1600,10 +1608,6 @@ void update_serial_data()
 		sei();
 	#else
 		UCSR0B |= _BV(RXCIE0) ;					// RX interrupt enable
-	#endif
-	#ifdef FAILSAFE_ENABLE
-		if(failsafe)
-			debugln("RX_FS:%d,%d,%d,%d",Failsafe_data[0],Failsafe_data[1],Failsafe_data[2],Failsafe_data[3]);
 	#endif
 }
 
@@ -1940,7 +1944,6 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		ISR(USART_RX_vect)
 	#endif
 	{	// RX interrupt
-		static uint8_t idx=0,len=26;
 		#ifdef ORANGE_TX
 			if((USARTC0.STATUS & 0x1C)==0)							// Check frame error, data overrun and parity error
 		#elif defined STM32_BOARD
@@ -1951,69 +1954,53 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			if((UCSR0A&0x1C)==0)									// Check frame error, data overrun and parity error
 		#endif
 		{ // received byte is ok to process
-			if(idx==0||discard_frame==1)
+			if(rx_idx==0||discard_frame==1)
 			{	// Let's try to sync at this point
-				idx=0;discard_frame=0;
 				RX_MISSED_BUFF_off;									// If rx_buff was good it's not anymore...
+				rx_idx=0;discard_frame=0;
 				rx_buff[0]=UDR0;
-				#ifdef SERIAL_DATA_ENABLE
-					#ifdef FAILSAFE_ENABLE
-						if((rx_buff[0]&0xD8)==0x50)					// If 1st byte is 0x74, 0x75, 0x76, 0x77, 0x54, 0x55, 0x56 or 0x57 it looks ok
-					#else
-						if((rx_buff[0]&0xDA)==0x50)					// If 1st byte is 0x74, 0x75, 0x54 or 0x55 it looks ok
-					#endif
+				#ifdef FAILSAFE_ENABLE
+					if((rx_buff[0]&0xFC)==0x54)						// If 1st byte is 0x54, 0x55, 0x56 or 0x57 it looks ok
 				#else
-					#ifdef FAILSAFE_ENABLE
-						if((rx_buff[0]&0xF8)==0x50)					// If 1st byte is 0x58, 0x54, 0x55, 0x56 or 0x57 it looks ok
-					#else
-						if((rx_buff[0]&0xFA)==0x50)					// If 1st byte is 0x54 or 0x55 it looks ok
-					#endif
+					if((rx_buff[0]&0xFE)==0x54)						// If 1st byte is 0x54 or 0x55 it looks ok
 				#endif
 				{
-					#ifdef SERIAL_DATA_ENABLE
-						if(rx_buff[0]&0x20)
-							len=34;
-						else
-					#endif
-							len=26;
 					TX_RX_PAUSE_on;
 					tx_pause();
 					#if defined STM32_BOARD
-						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;	// Next byte should show up within 15??s=1.5 byte
+						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;	// Next byte should show up within 15us=1.5 byte
 						TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer2/Comp2 interrupt flag
 						TIMER2_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer2/Comp2 interrupt
 					#else
-						OCR1B = TCNT1 + 300;						// Next byte should show up within 15??s=1.5 byte
+						OCR1B = TCNT1 + 300;						// Next byte should show up within 15us=1.5 byte
 						TIFR1 = OCF1B_bm ;							// clear OCR1B match flag
 						SET_TIMSK1_OCIE1B ;							// enable interrupt on compare B match
 					#endif
-					idx++;
+					rx_idx++;
 				}
 			}
 			else
 			{
-				rx_buff[idx++]=UDR0;								// Store received byte
-				#if defined STM32_BOARD
-					TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;		// Next byte should show up within 15??s=1.5 byte
-				#else
-					OCR1B = TCNT1 + 300;							// Next byte should show up within 15??s=1.5 byte
-				#endif
-				if(idx>=len)
-				{	// A full frame has been received
-					if(!IS_RX_DONOTUPDATE_on)
-					{ //Good frame received and main is not working on the buffer
-						memcpy((void*)rx_ok_buff,(const void*)rx_buff,len);// Duplicate the buffer
-						RX_FLAG_on;									// Flag for main to process servo data
-					}
-					else
-						RX_MISSED_BUFF_on;							// Notify that rx_buff is good
-					discard_frame=1; 								// Start again
+				if(rx_idx>=RXBUFFER_SIZE)
+				{
+					discard_frame=1; 								// Too many bytes being received...
+					debugln("RX frame too long");
+				}
+				else
+				{
+					rx_buff[rx_idx++]=UDR0;							// Store received byte
+					#if defined STM32_BOARD
+						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;	// Next byte should show up within 15us=1.5 byte
+					#else
+						OCR1B = TCNT1 + 300;						// Next byte should show up within 15us=1.5 byte
+					#endif
 				}
 			}
 		}
 		else
 		{
-			idx=UDR0;												// Dummy read
+			rx_idx=UDR0;											// Dummy read
+			rx_idx=0;
 			discard_frame=1;										// Error encountered discard full frame...
 			debugln("Bad frame RX");
 		}
@@ -2042,13 +2029,26 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
 	#endif
 	{	// Timer1 compare B interrupt
+		if(rx_idx>=26)
+		{	// A full frame has been received
+			if(!IS_RX_DONOTUPDATE_on)
+			{ //Good frame received and main is not working on the buffer
+				rx_len=rx_idx;
+				memcpy((void*)rx_ok_buff,(const void*)rx_buff,rx_idx);	// Duplicate the buffer
+				RX_FLAG_on;											// Flag for main to process servo data
+			}
+			else
+				RX_MISSED_BUFF_on;									// Notify that rx_buff is good
+		}
+		else
+			debugln("RX frame too short");
 		discard_frame=1;
 		#ifdef STM32_BOARD
 			TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;					// Disable Timer2/Comp2 interrupt
-			debugln("Bad frame timer");
 		#else
 			CLR_TIMSK1_OCIE1B;										// Disable interrupt on compare B match
 		#endif
+		TX_RX_PAUSE_off;
 		tx_resume();
 	}
 #endif //ENABLE_SERIAL

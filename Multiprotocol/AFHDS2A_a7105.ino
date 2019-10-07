@@ -264,11 +264,15 @@ uint16_t ReadAFHDS2A()
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 				if(packet[0] == 0xbc && packet[9] == 0x01)
 				{
-					uint8_t temp=AFHDS2A_EEPROM_OFFSET+RX_num*4;
+					uint8_t addr;
+					if(RX_num<16)
+						addr=AFHDS2A_EEPROM_OFFSET+RX_num*4;
+					else
+						addr=AFHDS2A_EEPROM_OFFSET2+(RX_num-16)*4;
 					for(uint8_t i=0; i<4; i++)
 					{
 						rx_id[i] = packet[5+i];
-						eeprom_write_byte((EE_ADDR)(temp+i),rx_id[i]);
+						eeprom_write_byte((EE_ADDR)(addr+i),rx_id[i]);
 					}
 					phase = AFHDS2A_BIND4;
 					packet_count++;
@@ -390,9 +394,13 @@ uint16_t initAFHDS2A()
 	{
 		phase = AFHDS2A_DATA_INIT;
 		//Read RX ID from EEPROM based on RX_num, RX_num must be uniq for each RX
-		uint8_t temp=AFHDS2A_EEPROM_OFFSET+RX_num*4;
+		uint8_t addr;
+		if(RX_num<16)
+			addr=AFHDS2A_EEPROM_OFFSET+RX_num*4;
+		else
+			addr=AFHDS2A_EEPROM_OFFSET2+(RX_num-16)*4;
 		for(uint8_t i=0;i<4;i++)
-			rx_id[i]=eeprom_read_byte((EE_ADDR)(temp+i));
+			rx_id[i]=eeprom_read_byte((EE_ADDR)(addr+i));
 	}
 	hopping_frequency_no = 0;
 #if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)

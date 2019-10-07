@@ -720,19 +720,18 @@ void TelemetryUpdate()
 			t -= h ;
 		if ( t < 32 )
 		{
+			debugln("TEL_BUF_FULL");
 			return ;
 		}
 	#endif
-	#if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
+	#if defined(MULTI_TELEMETRY) || defined(MULTI_STATUS)
+		uint32_t now = millis();
+		if (IS_SEND_MULTI_STATUS_on || ((now - lastMulti) > MULTI_TIME))
 		{
-			uint32_t now = millis();
-			if (IS_SEND_MULTI_STATUS_on || (now - lastMulti) > MULTI_TIME)
-			{
-				multi_send_status();
-				SEND_MULTI_STATUS_off;
-				lastMulti = now;
-				return;
-			}
+			multi_send_status();
+			SEND_MULTI_STATUS_off;
+			lastMulti = now;
+			return;
 		}
 	#endif
 	 

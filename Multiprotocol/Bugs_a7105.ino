@@ -284,7 +284,7 @@ static void  __attribute__((unused))BUGS_set_radio_data()
 	{
 		offset=BUGS_NUM_RFCHAN;
 		// Read radio_id from EEPROM
-		uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
+		uint8_t base_adr=BUGS_EEPROM_OFFSET+(RX_num&0x0F)*2;
 		uint16_t rxid=0;
 		for(uint8_t i=0; i<2; i++)
 			rxid|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
@@ -374,7 +374,7 @@ uint16_t ReadBUGS(void)
 			BIND_DONE;
 			// set radio_id
 			rxid = (packet[1] << 8) + packet[2];
-			base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
+			base_adr=BUGS_EEPROM_OFFSET+(RX_num&0x0F)*2;
 			for(uint8_t i=0; i<2; i++)
 				eeprom_write_byte((EE_ADDR)(base_adr+i),rxid>>(i*8));	// Save rxid in EEPROM
 			BUGS_set_radio_data();
@@ -437,7 +437,7 @@ uint16_t ReadBUGS(void)
 uint16_t initBUGS(void)
 {
 	uint16_t rxid=0;
-	uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
+	uint8_t base_adr=BUGS_EEPROM_OFFSET+(RX_num&0x0F)*2;
 	for(uint8_t i=0; i<2; i++)
 		rxid|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
 	if(rxid==0xffff)

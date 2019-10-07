@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	6
+#define VERSION_PATCH_LEVEL	8
 
 //******************
 // Protocols
@@ -304,17 +304,16 @@ enum FRSKYX_RX
 
 struct PPM_Parameters
 {
-	uint8_t protocol : 7;
-	uint8_t sub_proto : 3;
-	uint8_t rx_num : 4;
-	uint8_t power : 1;
-	uint8_t autobind : 1;
+	uint8_t protocol;
+	uint8_t sub_proto :	3;
+	uint8_t rx_num :	4;
+	uint8_t power :		1;
+	uint8_t autobind :	1;
 	uint8_t option;
 	uint32_t chan_order;
 };
 
 // Telemetry
-
 enum MultiPacketTypes
 {
 	MULTI_TELEMETRY_STATUS			= 1,
@@ -390,6 +389,7 @@ enum MultiPacketTypes
 #define TX_RX_PAUSE_on		protocol_flags2 |= _BV(4)
 #define IS_TX_RX_PAUSE_on	( ( protocol_flags2 & _BV(4) ) !=0 )
 #define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
+#define IS_TX_PAUSE_off		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) ==0 )
 //Signal OK
 #define INPUT_SIGNAL_off	protocol_flags2 &= ~_BV(5)
 #define INPUT_SIGNAL_on		protocol_flags2 |= _BV(5)
@@ -414,6 +414,15 @@ enum MultiPacketTypes
 #define SEND_MULTI_STATUS_on		protocol_flags3 |= _BV(1)
 #define IS_SEND_MULTI_STATUS_on		( ( protocol_flags3 & _BV(1) ) !=0 )
 #define IS_SEND_MULTI_STATUS_off	( ( protocol_flags3 & _BV(1) ) ==0 )
+#define DISABLE_CH_MAP_off		protocol_flags3 &= ~_BV(2)
+#define DISABLE_CH_MAP_on		protocol_flags3 |= _BV(2)
+#define IS_DISABLE_CH_MAP_on	( ( protocol_flags3 & _BV(2) ) !=0 )
+#define IS_DISABLE_CH_MAP_off	( ( protocol_flags3 & _BV(2) ) ==0 )
+#define DISABLE_TELEM_off		protocol_flags3 &= ~_BV(3)
+#define DISABLE_TELEM_on		protocol_flags3 |= _BV(3)
+#define IS_DISABLE_TELEM_on		( ( protocol_flags3 & _BV(3) ) !=0 )
+#define IS_DISABLE_TELEM_off	( ( protocol_flags3 & _BV(3) ) ==0 )
+
 
 // Failsafe
 #define FAILSAFE_CHANNEL_HOLD		2047
@@ -587,85 +596,81 @@ enum {
 #define BUGSMINI_EEPROM_OFFSET	146		// RX ID, 2 bytes per model id, end is 146+32=178
 #define FRSKYX_RX_EEPROM_OFFSET	178		// (3) TX ID + (1) freq_tune + (47) channels, 51 bytes, end is 178+51=229
 #define AFHDS2A_RX_EEPROM_OFFSET 229	// (4) TX ID + (16) channels, 20 bytes, end is 229+20=249
-//#define CONFIG_EEPROM_OFFSET 	210		// Current configuration of the multimodule
+#define AFHDS2A_EEPROM_OFFSET2	249		// RX ID, 4 bytes per model id, end is 249+192=441
+//#define CONFIG_EEPROM_OFFSET 	441		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***
 //****************************************
 /*
-**************************
+***************************
 16 channels serial protocol
-**************************
+***************************
 Serial: 100000 Baud 8e2      _ xxxx xxxx p --
-  Total of 26 bytes
-  Stream[0]   = 0x55	sub_protocol values are 0..31	Stream contains channels
-  Stream[0]   = 0x54	sub_protocol values are 32..63	Stream contains channels
-  Stream[0]   = 0x51	sub_protocol values are 64..95	Stream contains channels
-  Stream[0]   = 0x50	sub_protocol values are 96..127	Stream contains channels
-  Stream[0]   = 0x57	sub_protocol values are 0..31	Stream contains failsafe
-  Stream[0]   = 0x56	sub_protocol values are 32..63	Stream contains failsafe
-  Stream[0]   = 0x53	sub_protocol values are 64..95	Stream contains failsafe
-  Stream[0]   = 0x52	sub_protocol values are 96..127	Stream contains failsafe
-  Stream[0]  |= 0x20	any of the above + 8 additional data bytes at the end of the stream available for the current sub_protocol
-   header
+  Total of 26 bytes for protocol V1, variable length for protocol V2
+  Stream[0]   = header
+				0x55	sub_protocol values are 0..31	Stream contains channels
+				0x54	sub_protocol values are 32..63	Stream contains channels
+				0x57	sub_protocol values are 0..31	Stream contains failsafe
+				0x56	sub_protocol values are 32..63	Stream contains failsafe
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
    sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54 | 0x56
-   =>	Reserved	0
-					Flysky		1
-					Hubsan		2
-					FrskyD		3
-					Hisky		4
-					V2x2		5
-					DSM			6
-					Devo		7
-					YD717		8
-					KN			9
-					SymaX		10
-					SLT			11
-					CX10		12
-					CG023		13
-					Bayang		14
-					FrskyX		15
-					ESky		16
-					MT99XX		17
-					MJXQ		18
-					SHENQI		19
-					FY326		20
-					SFHSS		21
-					J6PRO		22
-					FQ777		23
-					ASSAN		24
-					FrskyV		25
-					HONTAI		26
-					OpenLRS		27
-					AFHDS2A		28
-					Q2X2		29
-					WK2x01		30
-					Q303		31
-					GW008		32
-					DM002		33
-					CABELL		34
-					ESKY150		35
-					H8_3D		36
-					CORONA		37
-					CFlie		38
-					Hitec		39
-					WFLY		40
-					BUGS		41
-					BUGSMINI	42
-					TRAXXAS		43
-					NCC1701		44
-					E01X		45
-					V911S		46
-					GD00X		47
-					V761		48
-					KF606		49
-					REDPINE		50
-					POTENSIC	51
-					ZSX			52
-					FLYZONE		53
-					SCANNER		54
-					FRSKYX_RX	55
+				Reserved	0
+				Flysky		1
+				Hubsan		2
+				FrskyD		3
+				Hisky		4
+				V2x2		5
+				DSM			6
+				Devo		7
+				YD717		8
+				KN			9
+				SymaX		10
+				SLT			11
+				CX10		12
+				CG023		13
+				Bayang		14
+				FrskyX		15
+				ESky		16
+				MT99XX		17
+				MJXQ		18
+				SHENQI		19
+				FY326		20
+				SFHSS		21
+				J6PRO		22
+				FQ777		23
+				ASSAN		24
+				FrskyV		25
+				HONTAI		26
+				OpenLRS		27
+				AFHDS2A		28
+				Q2X2		29
+				WK2x01		30
+				Q303		31
+				GW008		32
+				DM002		33
+				CABELL		34
+				ESKY150		35
+				H8_3D		36
+				CORONA		37
+				CFlie		38
+				Hitec		39
+				WFLY		40
+				BUGS		41
+				BUGSMINI	42
+				TRAXXAS		43
+				NCC1701		44
+				E01X		45
+				V911S		46
+				GD00X		47
+				V761		48
+				KF606		49
+				REDPINE		50
+				POTENSIC	51
+				ZSX			52
+				FLYZONE		53
+				SCANNER		54
+				FRSKYX_RX	55
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -824,6 +829,12 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Values are concatenated to fit in 22 bytes like in SBUS protocol.
    Failsafe values have exactly the same range/values than normal channels except the extremes where
       0=no pulse, 2047=hold. If failsafe is not set or RX then failsafe packets should not be sent.
+  Stream[26]   = sub_protocol bits 6 & 7|RxNum bits 4 & 5|Disable_CH_Mapping 3|Disable_Telemetry 2|future use 1|future use 0;
+   sub_protocol is 0..255 (bits 0..5 + bits 6..7)
+   RxNum value is 0..63 (bits 0..3 + bits 4..5)
+   Disable_CH_Mapping => 0x08	0=enable, 1=disable
+   Disable_Telemetry => 0x04	0=enable, 1=disable
+  Stream[27.. 36] = between 0 and 9 bytes for additional protocol data
 */
 /*
   Multimodule Status

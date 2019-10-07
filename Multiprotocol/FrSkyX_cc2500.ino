@@ -237,13 +237,16 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 						else
 							used -= SportHead ;
 						if ( used < (MAX_SPORT_BUFFER>>1) )
+						{
 							DATA_BUFFER_LOW_off;
+							debugln("Ok buf:%d",used);
+						}
 					}
 					FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;	// Next iteration send next packet
 				}
 				else
 				{//Not in sequence somehow, transmit what the receiver wants but why not asking for retransmit...
-					debugln("RX_Seq:%d,TX:%d",FrSkyX_TX_IN_Seq,FrSkyX_TX_Seq);
+					//debugln("RX_Seq:%d,TX:%d",FrSkyX_TX_IN_Seq,FrSkyX_TX_Seq);
 					packet[21] |= FrSkyX_TX_IN_Seq;
 					packet[22] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].count;
 					for (uint8_t i=23;i<23+FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].count;i++)

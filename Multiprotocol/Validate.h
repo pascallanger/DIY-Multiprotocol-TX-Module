@@ -315,10 +315,6 @@
 	#endif
 #endif
 
-#ifdef SPORT_SEND
-	#define SERIAL_DATA_ENABLE
-#endif
-
 //Make sure TX is defined correctly
 #ifndef AILERON
 	#error You must select a correct channel order.

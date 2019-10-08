@@ -40,6 +40,7 @@ Current Multiprotocol boards check status: [![Travis Build Status for Multi Boar
     * [STM32 Multiprotocol Module](docs/Compiling_STM32.md)
     * [OrangeRX Module](docs/Compiling_OrangeTx.md)
 1. [Transmitter Setup](docs/Transmitters.md) 
+    * [Channel Order](docs/Channel_Order.md)
 1. [How to for popular models](docs/Models.md)
 1. [Troubleshooting](docs/Troubleshooting.md)
 2. [Advanced Topics (not for the fainthearted!)](docs/Advanced_Topics.md)

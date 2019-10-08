@@ -12,14 +12,18 @@ The Multiprotocol Module was designed to:
 
 To address these considerations the Multiprotocol Module will internally reorder the radio's output channels to the order required by the selected protocol before transmitting the data to the receiver.
 
-**In order to do this, the Multiprotocol Module must know what order the channel data from the radio is in.  However, because the radio does not tell the module which input is assigned to each channel, the order is fixed in the Multiprotocol Module's firmware.  This is the _expected channel order_.**
+The Multiprotocol Module also has functionality which depends on knowing which input channel is the throttle:
+* 'Bind on Channel' requires the throttle to be at -100% before the bind can be initiated (so that bind cannot be initiated while flying)
+* 'Throttle Kill' needs to know which channel to apply the throttle reduction to
+
+**So, the Multiprotocol Module must know what order the channel data from the radio is in.  However, because the radio does not tell the module which input is assigned to each channel, the order is fixed in the Multiprotocol Module's firmware.  This is the _expected channel order_.**
 
 ## Expected Channel Order
-The expected channel order is the order in which the Multiprotocol Module expects to receive channel data from the radio.  It associates the four primary radio inputs (**A**ileron, **E**levator, **T**hrottle, and **R**udder) to the four output channels CH1, CH2, CH3, and CH4.  In AETR, aileron is on CH1, elevator is on CH2, throttle is on CH3, and rudder is on CH4.
+The expected channel order is the order in which the Multiprotocol Module expects to receive channel data from the radio.  It associates the four primary radio inputs (aileron, elevator,throttle, and rudder) to the four output channels CH1, CH2, CH3, and CH4.  In AETR, **A**ileron is on CH1, **E**levator is on CH2, **T**hrottle is on CH3, and **R**udder is on CH4.
 
 **The default expected channel order is AETR.**
 
-The Multiprotocol Module uses the expected channel order to reorder channels into the order required by the selected protocol.
+The Multiprotocol Module uses the expected channel order to reorder channels into the order required by the selected protocol, and to apply channel-specific features such as 'Throttle Kill'.
 
 If you are using firmware which has an expected channel order of AETR (the default), and you are using a protocol which has a fixed channel order†, you must create your radio models with a channel order of AETR, regardless of the channel order the receiver requires.  **The Multiprotocol Module will do the conversion from AETR to the required order for you.**
 

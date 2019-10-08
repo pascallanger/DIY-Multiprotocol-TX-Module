@@ -145,7 +145,7 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
 	for(i = 0; i < 8; i++)
 	{
 		uint16_t temp=convert_channel_ppm(CH_AETR[i]);
-		if(sub_protocol == CX20 && CH_AETR[i]==ELEVATOR)
+		if(sub_protocol == CX20 && i==CH2) //ELEVATOR
 			temp=3000-temp;
 		packet[5 + i*2]=temp&0xFF;		//low byte of servo timing(1000-2000us)
 		packet[6 + i*2]=(temp>>8)&0xFF;	//high byte of servo timing(1000-2000us)

@@ -173,8 +173,8 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 				else
 				{ //Use channel value
 					ch[i]=(ch[i]>>1)+2560;
-					if(CH_AETR[ch_offset+i]==THROTTLE && ch[i]<3072)		// Throttle
-						ch[i]+=1024;
+					//if(IS_DISABLE_CH_MAP_off && ch_offset+i==CH3 && ch[i]<3072)		// Throttle
+					//	ch[i]+=1024;
 				}
 			}
 		}

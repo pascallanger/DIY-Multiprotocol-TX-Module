@@ -123,8 +123,8 @@ static void __attribute__((unused)) build_ch_data()
 	for (i = 0; i< 8; i++) {
 		j=CH_AETR[i];
 		temp=convert_channel_16b_limit(j,0,1000);            			
-		if (j == THROTTLE) // It is clear that hisky's throttle stick is made reversely, so I adjust it here on purpose
-			temp = 1000 -temp;
+		if (j == CH3) // It is clear that hisky's throttle stick is made reversely, so I adjust it here on purpose
+			temp = 1000 - temp;
 		if (j == CH7)
 			temp = temp < 400 ? 0 : 3; // Gyro mode, 0 - 6 axis, 3 - 3 axis 
 		packet[i] = (uint8_t)(temp&0xFF);

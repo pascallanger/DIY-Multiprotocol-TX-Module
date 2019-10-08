@@ -94,23 +94,31 @@ static void multi_send_status()
 		else
 			if (IS_BIND_IN_PROGRESS)
 				flags |= 0x08;
-		#ifdef FAILSAFE_ENABLE
-			//Is failsafe supported?
-			switch (protocol)
-			{
-				case PROTO_HISKY:
-					if(sub_protocol!=HK310)
-						break;
-				case PROTO_AFHDS2A:
-				case PROTO_DEVO:
-				case PROTO_SFHSS:
-				case PROTO_WK2x01:
-				case PROTO_FRSKYX:
-					flags |= 0x20;	//Yes
-				default:
+		switch (protocol)
+		{
+			case PROTO_HISKY:
+				if(sub_protocol!=HK310)
 					break;
-			}
-		#endif
+			case PROTO_AFHDS2A:
+			case PROTO_DEVO:
+			case PROTO_SFHSS:
+			case PROTO_WK2x01:
+				#ifdef FAILSAFE_ENABLE
+					flags |= 0x20;			//Failsafe supported
+				#endif
+			case PROTO_DSM:
+			case PROTO_SLT:
+			case PROTO_FLYSKY:
+			case PROTO_ESKY:
+			case PROTO_J6PRO:
+				flags |= 0x40;				//Disable_ch_mapping supported
+				break;
+			case PROTO_FRSKYX:
+				#ifdef FAILSAFE_ENABLE
+					flags |= 0x20;			//Failsafe supported
+				#endif
+				break;
+		}
 		if(IS_DATA_BUFFER_LOW_on)
 			flags |= 0x80;
 	}

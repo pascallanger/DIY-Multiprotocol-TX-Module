@@ -273,8 +273,8 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 			/* Spektrum own remotes transmit normal values during bind and actually use this (e.g. Nano CP X) to
 			   select the transmitter mode (e.g. computer vs non-computer radio), so always send normal output */
 			#ifdef DSM_THROTTLE_KILL_CH
-				if(CH_TAER[idx]==THROTTLE && kill_ch<=604)
-				{//Activate throttle kill only if DSM_THROTTLE_KILL_CH below -50%
+				if(idx==CH1 && kill_ch<=604)
+				{//Activate throttle kill only if channel is throttle and DSM_THROTTLE_KILL_CH below -50%
 					if(kill_ch<CHANNEL_MIN_100)					// restrict val to 0...400
 						kill_ch=0;
 					else

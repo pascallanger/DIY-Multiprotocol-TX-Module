@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	9
+#define VERSION_PATCH_LEVEL	10
 
 //******************
 // Protocols
@@ -829,11 +829,13 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Values are concatenated to fit in 22 bytes like in SBUS protocol.
    Failsafe values have exactly the same range/values than normal channels except the extremes where
       0=no pulse, 2047=hold. If failsafe is not set or RX then failsafe packets should not be sent.
-  Stream[26]   = sub_protocol bits 6 & 7|RxNum bits 4 & 5|Disable_CH_Mapping 3|Disable_Telemetry 2|future use 1|future use 0;
+  Stream[26]   = sub_protocol bits 6 & 7|RxNum bits 4 & 5|Disable_Telemetry 3|Disable_CH_Mapping 2|Future_Use 1|Telem_Invert 0;
    sub_protocol is 0..255 (bits 0..5 + bits 6..7)
    RxNum value is 0..63 (bits 0..3 + bits 4..5)
-   Disable_CH_Mapping => 0x08	0=enable, 1=disable
-   Disable_Telemetry => 0x04	0=enable, 1=disable
+   Disable_Telemetry	=> 0x08	0=enable, 1=disable
+   Disable_CH_Mapping	=> 0x04	0=enable, 1=disable
+   Future_Use			=> 0x02	0=      , 1=
+   Telem_Invert			=> 0x01	0=normal, 1=invert
   Stream[27.. 36] = between 0 and 9 bytes for additional protocol data
 */
 /*
@@ -855,6 +857,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    0x08 = Module is in binding mode
    0x10 = Module waits a bind event to load the protocol
    0x20 = Current protocol supports failsafe
+   0x40 = Current protocol supports disable channel mapping
    0x80 = Data buffer is almost full
    [3] major
    [4] minor

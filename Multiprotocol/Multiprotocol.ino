@@ -132,7 +132,7 @@ uint8_t  num_ch;
 //Channel mapping for protocols
 uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
 uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
-uint8_t CH_RETA[]={RUDDER, ELEVATOR, THROTTLE, AILERON, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
+//uint8_t CH_RETA[]={RUDDER, ELEVATOR, THROTTLE, AILERON, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
 uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
 
 // Mode_select variables
@@ -1402,6 +1402,15 @@ static void protocol_init()
 
 void update_serial_data()
 {
+	static bool prev_ch_mapping=false;
+	#ifdef TELEMETRY
+		#ifdef INVERT_TELEMETRY
+			static bool prev_inv_telem=true;
+		#else
+			static bool prev_inv_telem=false;
+		#endif
+	#endif
+
 	RX_DONOTUPDATE_on;
 	RX_FLAG_off;								//data is being processed
 
@@ -1473,21 +1482,67 @@ void update_serial_data()
 		if(rx_ok_buff[0]&0x02)
 		{ // Packet contains failsafe instead of channels
 			failsafe=true;
-			rx_ok_buff[0]&=0xFD;				//remove the failsafe flag
-			FAILSAFE_VALUES_on;					//failsafe data has been received
+			rx_ok_buff[0]&=0xFD;				// Remove the failsafe flag
+			FAILSAFE_VALUES_on;					// Failsafe data has been received
 			debugln("Failsafe received");
 		}
 	#endif
 
-	//DISABLE_CH_MAP_off;
+	DISABLE_CH_MAP_off;
 	DISABLE_TELEM_off;
 	if(rx_len>26)
 	{//Additional flag received at the end
 		rx_ok_buff[0]=(rx_ok_buff[26]&0xF0) | (rx_ok_buff[0]&0x0F);	// Additional protocol numbers and RX_Num available -> store them in rx_ok_buff[0]
-		//if(rx_ok_buff[26]&0x08)
-		//	DISABLE_CH_MAP_on;
-		if(rx_ok_buff[26]&0x04)
+		if(rx_ok_buff[26]&0x08)
 			DISABLE_TELEM_on;
+		if(rx_ok_buff[26]&0x04)
+			DISABLE_CH_MAP_on;
+		#if defined TELEMETRY
+			if((rx_ok_buff[26]&0x01) ^ prev_inv_telem)
+			{ //value changed
+				if(rx_ok_buff[26]&0x01)
+				{								// Invert telemetry
+					debugln("Invert telem %d,%d",rx_ok_buff[26]&0x01,prev_inv_telem);
+					#ifdef ORANGE_TX
+						PORTC.PIN3CTRL |= 0x40 ;
+					#endif
+					#ifdef STM32_BOARD
+						TX_INV_on;
+						RX_INV_on;
+					#endif
+				}
+				else
+				{									// Normal telemetry
+					debugln("Normal telem %d,%d",rx_ok_buff[26]&0x01,prev_inv_telem);
+					#ifdef ORANGE_TX
+						PORTC.PIN3CTRL &= 0xBF ;
+					#endif
+					#ifdef STM32_BOARD
+						TX_INV_off;
+						RX_INV_off;
+					#endif
+				}
+				prev_inv_telem=rx_ok_buff[26]&0x01;
+			}
+		#endif
+	}
+
+	if(prev_ch_mapping!=IS_DISABLE_CH_MAP_on)
+	{
+		prev_ch_mapping=IS_DISABLE_CH_MAP_on;
+		if(IS_DISABLE_CH_MAP_on)
+		{
+			for(uint8_t i=0;i<4;i++)
+				CH_AETR[i]=CH_TAER[i]=CH_EATR[i]=i;
+			debugln("DISABLE_CH_MAP_on");
+		}
+		else
+		{
+			CH_AETR[0]=AILERON;CH_AETR[1]=ELEVATOR;CH_AETR[2]=THROTTLE;CH_AETR[3]=RUDDER;
+			CH_TAER[0]=THROTTLE;CH_TAER[1]=AILERON;CH_TAER[2]=ELEVATOR;CH_TAER[3]=RUDDER;
+			CH_EATR[0]=ELEVATOR;CH_EATR[1]=AILERON;CH_EATR[2]=THROTTLE;CH_EATR[3]=RUDDER;
+			debugln("DISABLE_CH_MAP_off");
+		}
 	}
 	
 	if( (rx_ok_buff[0] != cur_protocol[0]) || ((rx_ok_buff[1]&0x5F) != (cur_protocol[1]&0x5F)) || ( (rx_ok_buff[2]&0x7F) != (cur_protocol[2]&0x7F) ) )

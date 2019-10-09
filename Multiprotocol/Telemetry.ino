@@ -78,7 +78,7 @@ static void multi_send_header(uint8_t type, uint8_t len)
 
 static void multi_send_status()
 {
-	multi_send_header(MULTI_TELEMETRY_STATUS, 5);
+	multi_send_header(MULTI_TELEMETRY_STATUS, 6);
 
 	// Build flags
 	uint8_t flags=0;
@@ -129,6 +129,9 @@ static void multi_send_status()
 	Serial_write(VERSION_MINOR);
 	Serial_write(VERSION_REVISION);
 	Serial_write(VERSION_PATCH_LEVEL);
+
+	// Channel order
+	Serial_write(RUDDER<<6|THROTTLE<<4|ELEVATOR<<2|AILERON);
 }
 #endif
 

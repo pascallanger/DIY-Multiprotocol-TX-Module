@@ -1493,14 +1493,14 @@ void update_serial_data()
 	if(rx_len>26)
 	{//Additional flag received at the end
 		rx_ok_buff[0]=(rx_ok_buff[26]&0xF0) | (rx_ok_buff[0]&0x0F);	// Additional protocol numbers and RX_Num available -> store them in rx_ok_buff[0]
-		if(rx_ok_buff[26]&0x08)
+		if(rx_ok_buff[26]&0x02)
 			DISABLE_TELEM_on;
-		if(rx_ok_buff[26]&0x04)
+		if(rx_ok_buff[26]&0x01)
 			DISABLE_CH_MAP_on;
 		#if defined TELEMETRY
-			if((rx_ok_buff[26]&0x01) ^ prev_inv_telem)
+			if(((rx_ok_buff[26]&0x08)!=0) ^ prev_inv_telem)
 			{ //value changed
-				if(rx_ok_buff[26]&0x01)
+				if(rx_ok_buff[26]&0x08)
 				{								// Invert telemetry
 					debugln("Invert telem %d,%d",rx_ok_buff[26]&0x01,prev_inv_telem);
 					#ifdef ORANGE_TX
@@ -1512,7 +1512,7 @@ void update_serial_data()
 					#endif
 				}
 				else
-				{									// Normal telemetry
+				{								// Normal telemetry
 					debugln("Normal telem %d,%d",rx_ok_buff[26]&0x01,prev_inv_telem);
 					#ifdef ORANGE_TX
 						PORTC.PIN3CTRL &= 0xBF ;
@@ -1522,7 +1522,7 @@ void update_serial_data()
 						RX_INV_off;
 					#endif
 				}
-				prev_inv_telem=rx_ok_buff[26]&0x01;
+				prev_inv_telem=rx_ok_buff[26]&0x08;
 			}
 		#endif
 	}

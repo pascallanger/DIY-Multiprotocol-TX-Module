@@ -320,6 +320,7 @@ uint16_t ReadAFHDS2A()
 			packet_type = AFHDS2A_PACKET_STICKS;
 			phase = AFHDS2A_DATA;
 		case AFHDS2A_DATA:
+			telemetry_set_input_sync(3850);
 			AFHDS2A_build_packet(packet_type);
 			if((A7105_ReadReg(A7105_00_MODE) & 0x01))		// Check if something has been received...
 				data_rx=0;

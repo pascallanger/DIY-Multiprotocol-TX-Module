@@ -125,6 +125,7 @@ static uint16_t ReadREDPINE()
 	}
 	else
 	{
+		telemetry_set_input_sync(packet_period);
 		CC2500_SetTxRxMode(TX_EN);
 		REDPINE_set_channel(hopping_frequency_no);
 		CC2500_SetPower();
@@ -133,10 +134,7 @@ static uint16_t ReadREDPINE()
 		CC2500_Strobe(CC2500_SIDLE);
 		hopping_frequency_no = (hopping_frequency_no + 1) % 49;
 		CC2500_WriteData(packet, REDPINE_PACKET_SIZE);
-		if (sub_protocol==0)
-			return REDPINE_LOOPTIME_FAST*100;
-		else
-			return REDPINE_LOOPTIME_SLOW*1000;
+		return packet_period;
 	}
 	return 1;
 }
@@ -234,6 +232,11 @@ static uint16_t initREDPINE()
 		hopping_frequency[idx++] = next_ch;
 	}
 	hopping_frequency[49] = 0;  // Last channel is the bind channel at hop 0
+
+	if (sub_protocol==0)
+		packet_period = REDPINE_LOOPTIME_FAST*100;
+	else
+		packet_period = REDPINE_LOOPTIME_SLOW*1000;
 
 	bind_counter=REDPINE_BIND;
 	REDPINE_init(sub_protocol);

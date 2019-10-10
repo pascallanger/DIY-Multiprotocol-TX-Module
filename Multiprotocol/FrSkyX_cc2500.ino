@@ -322,6 +322,7 @@ uint16_t ReadFrSkyX()
 			state++;
 			return 3100;
 		case FRSKY_DATA4:
+			telemetry_set_input_sync(9000);
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
 			if (len && (len<=(0x0E + 3)))					//Telemetry frame is 17
 			{

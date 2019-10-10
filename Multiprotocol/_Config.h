@@ -264,17 +264,19 @@
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
 #define INVERT_TELEMETRY
 
-//Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
+//Uncomment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
 //Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
 //#define MULTI_STATUS
 
-//Uncomment to send Multi status and allow OpenTX to autodetect the telemetry format
+//Comment to send Multi status and allow OpenTX to autodetect the telemetry format
 //Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/ersky9x use MULTI_STATUS instead.
 #define MULTI_TELEMETRY
+//Comment to not sync OpenTX and module together
+#define MULTI_SYNC
 
 //Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, ersky9x and OpenTX
-#define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
+#define SPORT_TELEMETRY				// Use FrSkyX format to send telemetry to TX
 #define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded by ersky9x and OpenTX
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send basic telemetry to TX like er9x
 #define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
@@ -288,11 +290,6 @@
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
 #define FRSKYX_RX_TELEMETRY			// Forward channels data to TX
 #define AFHDS2A_RX_TELEMETRY		// Forward channels data to TX
-
-//SPORT_SEND: passing sport control frames from TX to RX(ex: SxR configuration, changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
-//!!!! This is a work in progress!!! Do not enable unless you want to test and report
-//#define SPORT_SEND
-
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/

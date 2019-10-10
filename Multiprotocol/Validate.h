@@ -315,6 +315,14 @@
 	#endif
 #endif
 
+#ifdef SPORT_TELEMETRY
+	#define SPORT_SEND
+#endif
+
+#if not defined(MULTI_TELEMETRY)
+	#undef MULTI_SYNC
+#endif
+
 //Make sure TX is defined correctly
 #ifndef AILERON
 	#error You must select a correct channel order.

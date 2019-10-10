@@ -177,7 +177,10 @@ static void __attribute__((unused)) H8_3D_init()
 uint16_t H8_3D_callback()
 {
 	if(IS_BIND_DONE)
+	{
+		telemetry_set_input_sync(packet_period);
 		H8_3D_send_packet(0);
+	}
 	else
 	{
 		if (bind_counter == 0)

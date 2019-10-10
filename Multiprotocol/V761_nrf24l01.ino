@@ -174,6 +174,7 @@ uint16_t V761_callback()
 			}
 			return 15730;
 		case V761_DATA:
+			telemetry_set_input_sync(V761_PACKET_PERIOD);
 			V761_send_packet();
 			break;
 	}

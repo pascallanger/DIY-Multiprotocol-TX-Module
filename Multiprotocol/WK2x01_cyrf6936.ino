@@ -435,6 +435,7 @@ uint16_t WK_cb()
 {
 	if (packet_sent == 0)
 	{
+		telemetry_set_input_sync(2800);
 		packet_sent = 1;
 		if(sub_protocol == WK2801)
 			WK_BuildPacket_2801();

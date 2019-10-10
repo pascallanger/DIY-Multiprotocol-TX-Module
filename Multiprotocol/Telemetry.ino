@@ -20,10 +20,14 @@
 uint8_t RetrySequence ;
 
 #if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
-	#define MULTI_TIME				500	//in ms
-	#define INPUT_SYNC_TIME			100	//in ms
-	#define INPUT_ADDITIONAL_DELAY	100	// in 10µs, 100 => 1000 µs
 	uint32_t lastMulti = 0;
+	#define MULTI_TIME				500	//in ms
+	#ifdef MULTI_SYNC
+		#define INPUT_SYNC_TIME			100	//in ms
+		#define INPUT_ADDITIONAL_DELAY	100	// in 10µs, 100 => 1000 µs
+		uint32_t lastInputSync = 0;
+		uint16_t inputDelay = 0;
+	#endif // MULTI_SYNC
 #endif // MULTI_TELEMETRY/MULTI_STATUS
 
 #if defined SPORT_TELEMETRY	
@@ -75,6 +79,51 @@ static void multi_send_header(uint8_t type, uint8_t len)
 	#endif
 	Serial_write(len);
 }
+
+inline void telemetry_set_input_sync(uint16_t refreshRate)
+{
+	#ifdef MULTI_SYNC
+		#if defined(STM32_BOARD) && defined(DEBUG_PIN)
+			static uint8_t c=0;
+			if (c++%2==0)
+			{	DEBUG_PIN_on;	}
+			else
+			{	DEBUG_PIN_off;	}
+		#endif
+		// Only record input Delay after a frame has really been received
+		// Otherwise protocols with faster refresh rates then the TX sends (e.g. 3ms vs 6ms) will screw up the calcualtion
+		inputRefreshRate = refreshRate;
+		if (last_serial_input != 0)
+		{
+			#if defined STM32_BOARD
+				inputDelay=TIMER2_BASE->CNT;
+			#else
+				cli();										// Disable global int due to RW of 16 bits registers
+				inputDelay = TCNT1;							// Next byte should show up within 15us=1.5 byte
+				sei();										// Enable global int
+			#endif
+			inputDelay = (inputDelay - last_serial_input)>>1;
+			if(inputDelay > 0x8000)
+				inputDelay =inputDelay - 0x8000;
+			last_serial_input=0;
+		}
+	#else
+		(void)refreshRate;
+	#endif
+}
+
+#ifdef MULTI_SYNC
+	static void mult_send_inputsync()
+	{
+		multi_send_header(MULTI_TELEMETRY_SYNC, 6);
+		Serial_write(inputRefreshRate >> 8);
+		Serial_write(inputRefreshRate & 0xff);
+		Serial_write(inputDelay >> 8);
+		Serial_write(inputDelay & 0xff);
+		Serial_write(INPUT_SYNC_TIME);
+		Serial_write(INPUT_ADDITIONAL_DELAY);
+	}
+#endif //MULTI_SYNC
 
 static void multi_send_status()
 {
@@ -744,6 +793,14 @@ void TelemetryUpdate()
 			lastMulti = now;
 			return;
 		}
+		#ifdef MULTI_SYNC
+			else if ( (now - lastInputSync) > INPUT_SYNC_TIME)
+			{
+				mult_send_inputsync();
+				lastInputSync = now;
+				return;
+			}
+		#endif
 	#endif
 	 
 	#if defined SPORT_TELEMETRY

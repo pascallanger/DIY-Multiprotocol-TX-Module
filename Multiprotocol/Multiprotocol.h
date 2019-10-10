@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	11
+#define VERSION_PATCH_LEVEL	13
 
 //******************
 // Protocols
@@ -322,9 +322,9 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_DSM				= 4,
 	MULTI_TELEMETRY_DSMBIND			= 5,
 	MULTI_TELEMETRY_AFHDS2A			= 6,
-	MULTI_TELEMETRY_CONFIG			= 7,
+	MULTI_TELEMETRY_REUSE_1			= 7,
 	MULTI_TELEMETRY_SYNC			= 8,
-	MULTI_TELEMETRY_SPORT_BUFFER	= 9,
+	MULTI_TELEMETRY_REUSE_2			= 9,
 	MULTI_TELEMETRY_HITEC			= 10,
 	MULTI_TELEMETRY_SCANNER			= 11,
 	MULTI_TELEMETRY_AFHDS2A_AC		= 12,
@@ -925,6 +925,19 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data
+
+  Type 0x08 Input synchronisation
+    Informs the TX about desired rate and current delay
+    length: 4
+    data[0-1]     Desired refresh rate in ??s
+    data[2-3]     Time (??s) between last serial servo input received and servo input needed (lateness), TX should adjust its
+                  sending time to minimise this value.
+	data[4]		  Interval of this message in ms
+	data[5]		  Input delay target in 10??s
+   Note that there are protocols (AFHDS2A) that have a refresh rate that is smaller than the maximum achievable
+   refresh rate via the serial protocol, in this case, the TX should double the rate and also subract this
+   refresh rate from the input lag if the input lag is more than the desired refresh rate.
+   The remote should try to get to zero of  (inputdelay+target*10).
 
   Type 0x0A Hitec telemetry data
    length: 8

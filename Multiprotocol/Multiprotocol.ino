@@ -173,6 +173,10 @@ volatile uint8_t rx_idx=0, rx_len=0;
 #define TELEMETRY_BUFFER_SIZE 30
 uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 #if defined(TELEMETRY)
+	#ifdef MULTI_SYNC
+		uint32_t last_serial_input=0;
+		uint16_t inputRefreshRate = 7000;
+	#endif
 	#ifdef INVERT_TELEMETRY
 		#if not defined(ORANGE_TX) && not defined(STM32_BOARD)
 			// enable bit bash for serial
@@ -573,12 +577,12 @@ void loop()
 				next_callback=2000;					// No PPM/serial signal check again in 2ms...
 			TX_MAIN_PAUSE_off;
 			tx_resume();
-			while(next_callback>4000)
+			while(next_callback>1000)
 			{ // start to wait here as much as we can...
-				next_callback-=2000;				// We will wait below for 2ms
+				next_callback-=500;					// We will wait below for 0.5ms
 				cli();								// Disable global int due to RW of 16 bits registers
-				OCR1A += 2000*2 ;					// set compare A for callback
-				#ifndef STM32_BOARD	
+				OCR1A += 500*2 ;					// set compare A for callback
+				#ifndef STM32_BOARD
 					TIFR1=OCF1A_bm;					// clear compare A=callback flag
 				#else
 					TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
@@ -590,12 +594,12 @@ void loop()
 					break;
 				}
 				#ifndef STM32_BOARD	
-					while((TIFR1 & OCF1A_bm) == 0);	// wait 2ms...
+					while((TIFR1 & OCF1A_bm) == 0);	// wait 0.5ms...
 				#else
-					while((TIMER2_BASE->SR & TIMER_SR_CC1IF)==0);//2ms wait
+					while((TIMER2_BASE->SR & TIMER_SR_CC1IF)==0);//wait 0.5ms...
 				#endif
 			}
-			// at this point we have a maximum of 4ms in next_callback
+			// at this point we have a maximum of 1ms in next_callback
 			next_callback *= 2 ;
 			cli();									// Disable global int due to RW of 16 bits registers
 			OCR1A+= next_callback ;					// set compare A for callback
@@ -666,7 +670,7 @@ uint8_t Update_All()
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
 			if( (protocol == PROTO_FRSKYX_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
 		#endif
-				if(IS_DISABLE_TELEM_off)
+				if(IS_DISABLE_TELEM_off && !(protocol==PROTO_XN297DUMP))
 					TelemetryUpdate();
 	#endif
 	#ifdef ENABLE_BIND_CH
@@ -928,6 +932,9 @@ static void protocol_init()
 
 		// reset telemetry
 		#ifdef TELEMETRY
+			#ifdef MULTI_SYNC
+				inputRefreshRate = 7000; // Default value
+			#endif
 			tx_pause();
 			pass=0;
 			telemetry_link=0;
@@ -2027,7 +2034,9 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 						TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer2/Comp2 interrupt flag
 						TIMER2_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer2/Comp2 interrupt
 					#else
+						cli();										// Disable global int due to RW of 16 bits registers
 						OCR1B = TCNT1 + 300;						// Next byte should show up within 15us=1.5 byte
+						sei();										// Enable global int
 						TIFR1 = OCF1B_bm ;							// clear OCR1B match flag
 						SET_TIMSK1_OCIE1B ;							// enable interrupt on compare B match
 					#endif
@@ -2047,7 +2056,9 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 					#if defined STM32_BOARD
 						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;	// Next byte should show up within 15us=1.5 byte
 					#else
+						cli();										// Disable global int due to RW of 16 bits registers
 						OCR1B = TCNT1 + 300;						// Next byte should show up within 15us=1.5 byte
+						sei();										// Enable global int
 					#endif
 				}
 			}
@@ -2085,7 +2096,11 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	#endif
 	{	// Timer1 compare B interrupt
 		if(rx_idx>=26)
-		{	// A full frame has been received
+		{
+			#ifdef MULTI_SYNC
+				last_serial_input=TCNT1;
+			#endif
+			// A full frame has been received
 			if(!IS_RX_DONOTUPDATE_on)
 			{ //Good frame received and main is not working on the buffer
 				rx_len=rx_idx;

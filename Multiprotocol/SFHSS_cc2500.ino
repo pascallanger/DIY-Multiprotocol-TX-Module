@@ -235,6 +235,7 @@ uint16_t ReadSFHSS()
 #define SFHSS_PACKET_PERIOD	6800
 #define SFHSS_DATA2_TIMING	1625	// Adjust this value between 1600 and 1650 if your RX(s) are not operating properly
 		case SFHSS_DATA1:
+			telemetry_set_input_sync(6800);
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();
 			phase = SFHSS_DATA2;

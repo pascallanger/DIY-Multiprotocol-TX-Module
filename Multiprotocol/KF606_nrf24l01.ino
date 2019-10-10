@@ -86,6 +86,7 @@ static void __attribute__((unused)) KF606_init()
 
 uint16_t KF606_callback()
 {
+	telemetry_set_input_sync(KF606_PACKET_PERIOD);
 	if(IS_BIND_IN_PROGRESS)
 		if(--bind_counter==0)
 		{

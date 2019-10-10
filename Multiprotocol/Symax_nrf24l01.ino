@@ -359,6 +359,7 @@ uint16_t symax_callback()
 			}
 			break;
 		case SYMAX_DATA:
+			telemetry_set_input_sync(SYMAX_PACKET_PERIOD);
 			SYMAX_send_packet(0);
 			break;
 	}

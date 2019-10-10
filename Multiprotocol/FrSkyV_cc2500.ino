@@ -117,6 +117,7 @@ uint16_t ReadFRSKYV()
 {
 	if(IS_BIND_DONE)
 	{	// Normal operation
+		telemetry_set_input_sync(9006);
 		uint8_t chan = FRSKYV_calc_channel();
 		CC2500_Strobe(CC2500_SIDLE);
 		if (option != prev_option)

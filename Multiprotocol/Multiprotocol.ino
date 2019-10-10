@@ -2027,13 +2027,13 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 					if((rx_buff[0]&0xFE)==0x54)						// If 1st byte is 0x54 or 0x55 it looks ok
 				#endif
 				{
-					TX_RX_PAUSE_on;
-					tx_pause();
 					#if defined STM32_BOARD
 						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;	// Next byte should show up within 15us=1.5 byte
 						TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer2/Comp2 interrupt flag
 						TIMER2_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer2/Comp2 interrupt
 					#else
+						TX_RX_PAUSE_on;
+						tx_pause();
 						cli();										// Disable global int due to RW of 16 bits registers
 						OCR1B = TCNT1 + 300;						// Next byte should show up within 15us=1.5 byte
 						sei();										// Enable global int
@@ -2076,9 +2076,9 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer2/Comp2 interrupt
 			#else							
 				CLR_TIMSK1_OCIE1B;									// Disable interrupt on compare B match
+				TX_RX_PAUSE_off;
+				tx_resume();
 			#endif
-			TX_RX_PAUSE_off;
-			tx_resume();
 		}
 		#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 			cli() ;
@@ -2117,9 +2117,9 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;					// Disable Timer2/Comp2 interrupt
 		#else
 			CLR_TIMSK1_OCIE1B;										// Disable interrupt on compare B match
+			TX_RX_PAUSE_off;
+			tx_resume();
 		#endif
-		TX_RX_PAUSE_off;
-		tx_resume();
 	}
 #endif //ENABLE_SERIAL
 

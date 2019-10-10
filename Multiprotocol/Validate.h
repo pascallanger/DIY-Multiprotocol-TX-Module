@@ -319,7 +319,7 @@
 	#define SPORT_SEND
 #endif
 
-#if not defined(MULTI_TELEMETRY)
+#if not defined(MULTI_TELEMETRY) || not defined(STM32_BOARD)
 	#undef MULTI_SYNC
 #endif
 

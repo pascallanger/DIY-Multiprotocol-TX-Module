@@ -17,8 +17,8 @@
 
 #include "iface_cc2500.h" 
 
- #define FRSKYX_FCC_LENGTH	(30+2)
- #define FRSKYX_LBT_LENGTH	(33+2)
+ #define FRSKY_RX_D16FCC_LENGTH	(30+2)
+ #define FRSKY_RX_D16LBT_LENGTH	(33+2)
 
  enum {
 	FRSKY_RX_TUNE_START,
@@ -70,7 +70,7 @@ static void __attribute__((unused)) frsky_rx_initialise() {
 	CC2500_WriteReg(CC2500_09_ADDR, 0x00);
 
 	switch (sub_protocol) {
-	case FRSKYX_FCC:
+	case FRSKY_RX_D16FCC:
 		CC2500_WriteReg(CC2500_17_MCSM1, 0x0C);
 		CC2500_WriteReg(CC2500_0E_FREQ1, 0x76);
 		CC2500_WriteReg(CC2500_0F_FREQ0, 0x27);
@@ -82,7 +82,7 @@ static void __attribute__((unused)) frsky_rx_initialise() {
 		CC2500_WriteReg(CC2500_12_MDMCFG2, 0x13);
 		CC2500_WriteReg(CC2500_15_DEVIATN, 0x51);
 		break;
-	case FRSKYX_LBT:
+	case FRSKY_RX_D16LBT:
 		CC2500_WriteReg(CC2500_17_MCSM1, 0x0E);
 		CC2500_WriteReg(CC2500_0E_FREQ1, 0x80);
 		CC2500_WriteReg(CC2500_0F_FREQ0, 0x00);
@@ -207,7 +207,7 @@ uint16_t initFrSky_Rx()
 		frsky_rx_set_channel(hopping_frequency_no);
 		phase = FRSKY_RX_DATA;
 	}
-	packet_length = (sub_protocol == FRSKYX_LBT) ? FRSKYX_LBT_LENGTH : FRSKYX_FCC_LENGTH;
+	packet_length = (sub_protocol == FRSKY_RX_D16LBT) ? FRSKY_RX_D16LBT_LENGTH : FRSKY_RX_D16FCC_LENGTH;
 	return 1000;
 }
 

@@ -292,8 +292,9 @@ enum TRAXXAS
 };
 enum FRSKY_RX
 {
-	FRSKYX_FCC	= 0,
-	FRSKYX_LBT
+	FRSKY_RX_D16FCC= 0,
+	FRSKY_RX_D16LBT,
+	FRSKY_RX_D8
 };
 
 #define NONE 		0
@@ -670,7 +671,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				ZSX			52
 				FLYZONE		53
 				SCANNER		54
-				FRSKYX_RX	55
+				FRSKY_RX	55
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -813,8 +814,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==TRAXXAS
 			RX6519		0
 		sub_protocol==FRSKY_RX
-			FCC			0
-			LBT			1
+			D16FCC			0
+			D16LBT			1
+			D8				2
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

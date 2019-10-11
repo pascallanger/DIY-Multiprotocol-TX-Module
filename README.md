@@ -19,9 +19,9 @@ If you like this project and want to support further development please consider
 
 ## Development status
 
-Current Multiprotocol code check status: [![Travis Build Status for Multi](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module.svg)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module)
+Current Multiprotocol code check status: [![Travis Build Status for Multi](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module.svg?branch=master)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module)
 
-Current Multiprotocol boards check status: [![Travis Build Status for Multi Boards](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards.svg)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards)
+Current Multiprotocol boards check status: [![Travis Build Status for Multi Boards](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards.svg?branch=master)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards)
 
 
 ## Quicklinks

@@ -176,7 +176,7 @@
 #define	FRSKYD_CC2500_INO
 #define	FRSKYV_CC2500_INO
 #define	FRSKYX_CC2500_INO
-#define	FRSKYX_RX_CC2500_INO
+#define	FRSKY_RX_CC2500_INO
 #define	HITEC_CC2500_INO
 #define	SCANNER_CC2500_INO
 #define	SFHSS_CC2500_INO
@@ -288,7 +288,7 @@
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, ersky9x and OpenTX
 #define HITEC_FW_TELEMETRY			// Under development: Forward received telemetry packets to be decoded by ersky9x and OpenTX
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
-#define FRSKYX_RX_TELEMETRY			// Forward channels data to TX
+#define FRSKY_RX_TELEMETRY			// Forward channels data to TX
 #define AFHDS2A_RX_TELEMETRY		// Forward channels data to TX
 
 /****************************/
@@ -545,7 +545,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		CH_8
 		EU_16
 		EU_8
-	PROTO_FRSKYX_RX
+	PROTO_FRSKY_RX
 		FRSKYX_FCC
 		FRSKYX_LBT
 	PROTO_FY326

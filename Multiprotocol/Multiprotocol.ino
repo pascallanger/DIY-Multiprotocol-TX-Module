@@ -668,7 +668,7 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if( (protocol == PROTO_FRSKYX_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
+			if( (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
 		#endif
 				if(IS_DISABLE_TELEM_off && !(protocol==PROTO_XN297DUMP))
 					TelemetryUpdate();
@@ -1086,12 +1086,12 @@ static void protocol_init()
 						remote_callback = Scanner_callback;
 						break;
 				#endif
-				#if defined(FRSKYX_RX_CC2500_INO)
-					case PROTO_FRSKYX_RX:
+				#if defined(FRSKY_RX_CC2500_INO)
+					case PROTO_FRSKY_RX:
 						PE1_off;
 						PE2_on;	//antenna RF2
-						next_callback = initFrSkyX_Rx();
-						remote_callback = FrSkyX_Rx_callback;
+						next_callback = initFrSky_Rx();
+						remote_callback = FrSky_Rx_callback;
 						break;
 				#endif
 			#endif

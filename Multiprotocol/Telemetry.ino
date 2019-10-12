@@ -226,7 +226,7 @@ static void multi_send_status()
 	}
 #endif
 
-#if defined (FRSKYX_RX_TELEMETRY) || defined (AFHDS2A_RX_TELEMETRY)
+#if defined (FRSKY_RX_TELEMETRY) || defined (AFHDS2A_RX_TELEMETRY)
 	void receiver_channels_frame()
 	{
 		uint16_t len = packet_in[3] * 11;			// 11 bit per channel
@@ -871,8 +871,8 @@ void TelemetryUpdate()
 		}
 	#endif
 
-	#if defined (FRSKYX_RX_TELEMETRY) || defined(AFHDS2A_RX_TELEMETRY)
-		if (telemetry_link && (protocol == PROTO_FRSKYX_RX || protocol == PROTO_AFHDS2A_RX))
+	#if defined (FRSKY_RX_TELEMETRY) || defined(AFHDS2A_RX_TELEMETRY)
+		if (telemetry_link && (protocol == PROTO_FRSKY_RX || protocol == PROTO_AFHDS2A_RX))
 		{
 			receiver_channels_frame();
 			telemetry_link = 0;

@@ -430,10 +430,6 @@ uint16_t initCABELL(void)
 	else  
 		bind_counter = CABELL_BIND_COUNT;
 	CABELL_init();
-	#if defined CABELL_HUB_TELEMETRY 
-		init_frskyd_link_telemetry();
-		telemetry_lost=1;				// do not send telemetry to TX right away until we have a TX_RSSI value to prevent warning message...
-	#endif
 
 	packet_period = CABELL_PACKET_PERIOD;
 

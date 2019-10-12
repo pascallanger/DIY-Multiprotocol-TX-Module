@@ -392,10 +392,6 @@ uint16_t initHITEC()
 		rx_tx_addr[3]=0x6A;
 		memcpy((void *)hopping_frequency,(void *)"\x00\x3A\x4A\x32\x0C\x58\x2A\x10\x26\x20\x08\x60\x68\x70\x78\x80\x88\x56\x5E\x66\x6E",HITEC_NUM_FREQUENCE);
 	#endif
-	#if defined(HITEC_HUB_TELEMETRY)
-		if(sub_protocol==OPT_HUB)
-			init_frskyd_link_telemetry();
-	#endif
 	phase = HITEC_START;
 	return 10000;
 }

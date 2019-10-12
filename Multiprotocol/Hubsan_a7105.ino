@@ -465,9 +465,6 @@ uint16_t initHubsan()
 	}
 	packet_count=0;
 	bind_phase=0;
-	#ifdef HUBSAN_HUB_TELEMETRY
-		init_frskyd_link_telemetry();
-	#endif
 	return 10000;
 }
 

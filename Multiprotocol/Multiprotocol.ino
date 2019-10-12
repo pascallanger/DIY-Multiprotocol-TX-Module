@@ -937,8 +937,7 @@ static void protocol_init()
 			#endif
 			tx_pause();
 			pass=0;
-			telemetry_link=0;
-			telemetry_lost=1;
+			init_frskyd_link_telemetry();
 			#ifdef BASH_SERIAL
 				TIMSK0 = 0 ;			// Stop all timer 0 interrupts
 				#ifdef INVERT_SERIAL
@@ -1883,10 +1882,16 @@ void pollBoot()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG)|| (protocol==PROTO_NCC1701) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI))
+	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG)|| (protocol==PROTO_NCC1701) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI)
+	#ifdef TELEMETRY_FRSKYX_TO_FRSKYD
+		 || (protocol==PROTO_FRSKYX)
+	#endif
+	 )
 		initTXSerial( SPEED_9600 ) ;
-	if(protocol==PROTO_FRSKYX)
-		initTXSerial( SPEED_57600 ) ;
+	#ifndef TELEMETRY_FRSKYX_TO_FRSKYD
+		if(protocol==PROTO_FRSKYX)
+			initTXSerial( SPEED_57600 ) ;
+	#endif
 	if(protocol==PROTO_DSM)
 		initTXSerial( SPEED_125K ) ;
 }
@@ -2028,14 +2033,14 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				#endif
 				{
 					#if defined STM32_BOARD
-						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;	// Next byte should show up within 15us=1.5 byte
+						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 360;	// Next byte should show up within 18??s=1.5 byte
 						TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer2/Comp2 interrupt flag
 						TIMER2_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer2/Comp2 interrupt
 					#else
 						TX_RX_PAUSE_on;
 						tx_pause();
 						cli();										// Disable global int due to RW of 16 bits registers
-						OCR1B = TCNT1 + 300;						// Next byte should show up within 15us=1.5 byte
+						OCR1B = TCNT1 + 360;						// Next byte should show up within 18??s=1.5 byte
 						sei();										// Enable global int
 						TIFR1 = OCF1B_bm ;							// clear OCR1B match flag
 						SET_TIMSK1_OCIE1B ;							// enable interrupt on compare B match
@@ -2054,10 +2059,10 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				{
 					rx_buff[rx_idx++]=UDR0;							// Store received byte
 					#if defined STM32_BOARD
-						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 300;	// Next byte should show up within 15us=1.5 byte
+						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 360;	// Next byte should show up within 18??s=1.5 byte
 					#else
 						cli();										// Disable global int due to RW of 16 bits registers
-						OCR1B = TCNT1 + 300;						// Next byte should show up within 15us=1.5 byte
+						OCR1B = TCNT1 + 360;						// Next byte should show up within 18??s=1.5 byte
 						sei();										// Enable global int
 					#endif
 				}

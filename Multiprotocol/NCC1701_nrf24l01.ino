@@ -269,9 +269,6 @@ uint16_t initNCC(void)
 	hopping_frequency_no=4;		// start with bind
 	NCC_init();
 	phase=NCC_BIND_TX1;
-	#ifdef NCC1701_HUB_TELEMETRY
-		init_frskyd_link_telemetry();
-	#endif
 	return 10000;
 }
 

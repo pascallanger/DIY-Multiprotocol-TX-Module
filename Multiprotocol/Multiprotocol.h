@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	13
+#define VERSION_PATCH_LEVEL	14
 
 //******************
 // Protocols
@@ -607,7 +607,7 @@ enum {
 16 channels serial protocol
 ***************************
 Serial: 100000 Baud 8e2      _ xxxx xxxx p --
-  Total of 26 bytes for protocol V1, variable length for protocol V2
+  Total of 26 bytes for protocol V1, variable length 27..36 for protocol V2
   Stream[0]   = header
 				0x55	sub_protocol values are 0..31	Stream contains channels
 				0x54	sub_protocol values are 32..63	Stream contains channels
@@ -836,7 +836,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Future_Use			=> 0x04	0=      , 1=
    Disable_Telemetry	=> 0x02	0=enable, 1=disable
    Disable_CH_Mapping	=> 0x01	0=enable, 1=disable
-  Stream[27.. 36] = between 0 and 9 bytes for additional protocol data
+  Stream[27.. 35] = between 0 and 9 bytes for additional protocol data
 */
 /*
   Multimodule Status

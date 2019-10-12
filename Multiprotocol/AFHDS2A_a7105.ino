@@ -404,9 +404,6 @@ uint16_t initAFHDS2A()
 			rx_id[i]=eeprom_read_byte((EE_ADDR)(addr+i));
 	}
 	hopping_frequency_no = 0;
-#if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)
-	init_frskyd_link_telemetry();
-#endif
 	return 50000;
 }
 #endif

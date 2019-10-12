@@ -352,10 +352,6 @@ uint16_t initBAYANG(void)
 	BAYANG_initialize_txid();
 	BAYANG_init();
 	packet_count=0;
-	#ifdef BAYANG_HUB_TELEMETRY
-		init_frskyd_link_telemetry();
-		telemetry_lost=1;	// do not send telemetry to TX right away until we have a TX_RSSI value to prevent warning message...
-	#endif
 	return BAYANG_INITIAL_WAIT+BAYANG_PACKET_PERIOD;
 }
 

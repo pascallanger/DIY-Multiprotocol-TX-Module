@@ -376,9 +376,6 @@ uint16_t initBUGSMINI()
 	armed = 0;
 	arm_flags = BUGSMINI_FLAG_DISARM;    // initial value from captures
 	arm_channel_previous = BUGSMINI_CH_SW_ARM;
-	#ifdef BUGS_HUB_TELEMETRY
-		init_frskyd_link_telemetry();
-	#endif
 	return BUGSMINI_INITIAL_WAIT;
 }
 

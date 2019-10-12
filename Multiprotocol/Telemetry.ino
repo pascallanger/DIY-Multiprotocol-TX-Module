@@ -369,7 +369,13 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 			RX_RSSI=packet_in[4] & 0x7F ;
 		else
 			RxBt = (packet_in[4]<<1) + 1 ;
-
+		#if defined(TELEMETRY_FRSKYX_TO_FRSKYD) && defined(ENABLE_PPM)
+			if(mode_select != MODE_SERIAL)
+			{//PPM
+				v_lipo1=RxBt;
+				return;
+			}
+		#endif
 		//Save outgoing telemetry sequence
 		FrSkyX_TX_IN_Seq=packet_in[5] >> 4;
 
@@ -447,6 +453,7 @@ void init_frskyd_link_telemetry()
 {
 	telemetry_link=0;
 	telemetry_counter=0;
+	telemetry_lost=1;
 	v_lipo1=0;
 	v_lipo2=0;
 	RX_RSSI=0;
@@ -467,13 +474,12 @@ void frsky_link_frame()
 		telemetry_link |= 2 ;		// Send hub if available
 	}
 	else
-		if (protocol==PROTO_HUBSAN||protocol==PROTO_AFHDS2A||protocol==PROTO_BAYANG||protocol==PROTO_NCC1701||protocol==PROTO_CABELL||protocol==PROTO_HITEC||protocol==PROTO_BUGS||protocol==PROTO_BUGSMINI)
-		{	
-			frame[1] = v_lipo1;
-			frame[2] = v_lipo2;
-			frame[3] = RX_RSSI;
-			telemetry_link=0;
-		}
+	{//PROTO_HUBSAN, PROTO_AFHDS2A, PROTO_BAYANG, PROTO_NCC1701, PROTO_CABELL, PROTO_HITEC, PROTO_BUGS, PROTO_BUGSMINI, PROTO_FRSKYX
+		frame[1] = v_lipo1;
+		frame[2] = v_lipo2;
+		frame[3] = RX_RSSI;
+		telemetry_link=0;
+	}
 	frame[4] = TX_RSSI;
 	frame[5] = RX_LQI;
 	frame[6] = TX_LQI;
@@ -794,7 +800,7 @@ void TelemetryUpdate()
 			return;
 		}
 		#ifdef MULTI_SYNC
-			else if ( (now - lastInputSync) > INPUT_SYNC_TIME)
+			if ( (now - lastInputSync) > INPUT_SYNC_TIME)
 			{
 				mult_send_inputsync();
 				lastInputSync = now;
@@ -804,7 +810,11 @@ void TelemetryUpdate()
 	#endif
 	 
 	#if defined SPORT_TELEMETRY
-		if (protocol==PROTO_FRSKYX)
+		if (protocol==PROTO_FRSKYX
+		#ifdef TELEMETRY_FRSKYX_TO_FRSKYD
+			&& mode_select==MODE_SERIAL
+		#endif
+		)
 		{	// FrSkyX
 			for(;;)
 			{ //Empty buffer
@@ -870,8 +880,9 @@ void TelemetryUpdate()
 		}
 	#endif
 
-		if((telemetry_link & 1 )&& protocol != PROTO_FRSKYX)
+		if( telemetry_link & 1 )
 		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell + Hitec + Bugs + BugsMini + NCC1701
+			// FrSkyX telemetry if in PPM
 			frsky_link_frame();
 			return;
 		}

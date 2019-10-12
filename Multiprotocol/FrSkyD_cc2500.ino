@@ -97,9 +97,6 @@ uint16_t initFrSky_2way()
 {
 	Frsky_init_hop();
 	packet_count=0;
-	#if defined TELEMETRY
-		init_frskyd_link_telemetry();
-	#endif
 	if(IS_BIND_IN_PROGRESS)
 	{
 		frsky2way_init(1);

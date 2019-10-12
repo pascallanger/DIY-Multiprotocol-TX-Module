@@ -258,26 +258,27 @@
 
 //Comment to invert the polarity of the output telemetry serial signal.
 //This function takes quite some flash space and processor power on an atmega.
-//For OpenTX it must be uncommented.
-//On a 9XR_PRO running ersky9x both commented and uncommented will work depending on the radio setting Invert COM1 under the Telemetry menu.
-//On other addon/replacement boards like the 9xtreme board or the Ar9x board running ersky9x, you need to uncomment the line below.
+//For a Taranis/T16 with an external module it must be uncommented. For a T16 internal module it must be commented.
+//A 9XR_PRO running erskyTX will work with both commented and uncommented depending on the radio setting Invert COM1 under the Telemetry menu.
+//On other addon/replacement boards like the 9xtreme board or the Ar9x board running erskyTX, you need to uncomment the line below.
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
+//=>OpenTX 2.3.2 with a STM32 or OrangeRX module this setting can be ignored.
 #define INVERT_TELEMETRY
 
 //Uncomment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
-//Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
+//Use with er9x/erskyTX, for OpenTX MULTI_TELEMETRY below is preferred instead
 //#define MULTI_STATUS
 
 //Sends Multi status and allow OpenTX to autodetect the telemetry format. Comment to disable.
-//Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/ersky9x use MULTI_STATUS instead.
+//Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/erskyTX use MULTI_STATUS instead.
 #define MULTI_TELEMETRY
 //Sync OpenTX frames with the current protocol timing. This feature is only available on the STM32 module. Comment to disable.
 #define MULTI_SYNC
 
 //Comment a line to disable a specific protocol telemetry
-#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, ersky9x and OpenTX
-#define SPORT_TELEMETRY				// Use FrSkyX format to send telemetry to TX
-#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded by ersky9x and OpenTX
+#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, erskyTX and OpenTX
+#define SPORT_TELEMETRY				// Use FrSkyX format to send/receive telemetry
+#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded by erskyTX and OpenTX
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send basic telemetry to TX like er9x
 #define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
@@ -285,8 +286,8 @@
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define NCC1701_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-#define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, ersky9x and OpenTX
-#define HITEC_FW_TELEMETRY			// Under development: Forward received telemetry packets to be decoded by ersky9x and OpenTX
+#define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, erskyTX and OpenTX
+#define HITEC_FW_TELEMETRY			// Under development: Forward received telemetry packets to be decoded by erskyTX and OpenTX
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
 #define FRSKYX_RX_TELEMETRY			// Forward channels data to TX
 #define AFHDS2A_RX_TELEMETRY		// Forward channels data to TX
@@ -339,6 +340,10 @@
 // The line below is used to set the maximum number of channels which the module should work with. Any channels received above this number are discarded.
 // The default value is 16 to receive all possible channels but you might want to filter some "bad" channels from the PPM frame like the ones above 6 on the Walkera PL0811.
 #define MAX_PPM_CHANNELS 16
+
+/** Telemetry **/
+//Send simple FrSkyX telemetry using the FrSkyD telemetry format
+#define TELEMETRY_FRSKYX_TO_FRSKYD
 
 /** Rotary Switch Protocol Selector Settings **/
 //The table below indicates which protocol to run when a specific position on the rotary switch has been selected.

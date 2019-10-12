@@ -172,7 +172,7 @@ uint16_t initFrSky_Rx()
 	frsky_rx_data_started = 0;
 	frsky_rx_finetune = 0;
 	telemetry_link = 0;
-	for(uint8_t ch=0; ch<sizeof(frsky_rx_rc_chan); ch++)
+	for(uint8_t ch=0; ch<16; ch++)
 		frsky_rx_rc_chan[ch] = 1023;
 	if (IS_BIND_IN_PROGRESS) {
 		phase = FRSKY_RX_TUNE_START;

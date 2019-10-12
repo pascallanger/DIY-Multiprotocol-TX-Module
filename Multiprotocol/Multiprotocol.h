@@ -814,9 +814,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==TRAXXAS
 			RX6519		0
 		sub_protocol==FRSKY_RX
-			D16FCC			0
-			D16LBT			1
-			D8				2
+			FRSKY_RX_D16FCC	0
+			FRSKY_RX_D16LBT	1
+			FRSKY_RX_D8		2
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

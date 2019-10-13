@@ -290,12 +290,6 @@ enum TRAXXAS
 {
 	RX6519	= 0,
 };
-enum FRSKY_RX
-{
-	FRSKY_RX_D16FCC= 0,
-	FRSKY_RX_D16LBT,
-	FRSKY_RX_D8
-};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -595,9 +589,9 @@ enum {
 #define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 bytes per model id, end is 50+64=114
 #define BUGS_EEPROM_OFFSET		114		// RX ID, 2 bytes per model id, end is 114+32=146
 #define BUGSMINI_EEPROM_OFFSET	146		// RX ID, 2 bytes per model id, end is 146+32=178
-#define FRSKY_RX_EEPROM_OFFSET	178		// (3) TX ID + (1) freq_tune + (47) channels, 51 bytes, end is 178+51=229
-#define AFHDS2A_RX_EEPROM_OFFSET 229	// (4) TX ID + (16) channels, 20 bytes, end is 229+20=249
-#define AFHDS2A_EEPROM_OFFSET2	249		// RX ID, 4 bytes per model id, end is 249+192=441
+#define FRSKY_RX_EEPROM_OFFSET	178		// (1) format + (3) TX ID + (1) freq_tune + (47) channels, 52 bytes, end is 178+52=230
+#define AFHDS2A_RX_EEPROM_OFFSET 230	// (4) TX ID + (16) channels, 20 bytes, end is 230+20=250
+#define AFHDS2A_EEPROM_OFFSET2	250		// RX ID, 4 bytes per model id, end is 250+192=442
 //#define CONFIG_EEPROM_OFFSET 	441		// Current configuration of the multimodule
 
 //****************************************
@@ -813,10 +807,6 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			RED_SLOW	1
 		sub_protocol==TRAXXAS
 			RX6519		0
-		sub_protocol==FRSKY_RX
-			FRSKY_RX_D16FCC	0
-			FRSKY_RX_D16LBT	1
-			FRSKY_RX_D8		2
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

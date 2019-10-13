@@ -68,8 +68,7 @@ static void __attribute__((unused)) frsky_rx_set_channel(uint8_t channel)
 	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[channel]);
 	if(sub_protocol == FRSKY_RX_D8)
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);
-	else
-		CC2500_WriteReg(CC2500_25_FSCAL1, calData[channel]);
+	CC2500_WriteReg(CC2500_25_FSCAL1, calData[channel]);
 	frsky_rx_strobe_rx();
 }
 
@@ -180,10 +179,8 @@ uint16_t initFrSky_Rx()
 		frsky_rx_finetune = eeprom_read_byte((EE_ADDR)temp++);
 		for (uint8_t ch = 0; ch < 47; ch++)
 			hopping_frequency[ch] = eeprom_read_byte((EE_ADDR)temp++);
-		if (sub_protocol == FRSKY_RX_D16FCC || sub_protocol == FRSKY_RX_D16LBT) {
-			frsky_rx_calibrate();
-			CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
-		}
+		frsky_rx_calibrate();
+		CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
 		CC2500_WriteReg(CC2500_09_ADDR, rx_tx_addr[0]); // set address
 		CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
 		if (option == 0)
@@ -291,8 +288,7 @@ uint16_t FrSky_Rx_callback()
 				rx_tx_addr[0] = packet[3];	// TXID
 				rx_tx_addr[1] = packet[4];	// TXID
 				rx_tx_addr[2] = packet[12]; // RX # (D16)
-				if (sub_protocol == FRSKY_RX_D16FCC || sub_protocol == FRSKY_RX_D16LBT)
-					CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
+				CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
 				CC2500_WriteReg(CC2500_09_ADDR, rx_tx_addr[0]); // set address
 				CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
 				phase = FRSKY_RX_DATA;

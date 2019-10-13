@@ -19,9 +19,9 @@ If you like this project and want to support further development please consider
 
 ## Development status
 
-Current Multiprotocol code check status: [![Travis Build Status for Multi](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module.svg)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module)
+Current Multiprotocol code check status: [![Travis Build Status for Multi](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module.svg?branch=master)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module)
 
-Current Multiprotocol boards check status: [![Travis Build Status for Multi Boards](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards.svg)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards)
+Current Multiprotocol boards check status: [![Travis Build Status for Multi Boards](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards.svg?branch=master)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards)
 
 
 ## Quicklinks
@@ -40,6 +40,7 @@ Current Multiprotocol boards check status: [![Travis Build Status for Multi Boar
     * [STM32 Multiprotocol Module](docs/Compiling_STM32.md)
     * [OrangeRX Module](docs/Compiling_OrangeTx.md)
 1. [Transmitter Setup](docs/Transmitters.md) 
+    * [Channel Order](docs/Channel_Order.md)
 1. [How to for popular models](docs/Models.md)
 1. [Troubleshooting](docs/Troubleshooting.md)
 2. [Advanced Topics (not for the fainthearted!)](docs/Advanced_Topics.md)

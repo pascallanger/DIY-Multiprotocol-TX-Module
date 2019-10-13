@@ -37,7 +37,7 @@ You are still unsure if your module can be flashed without tools or opening it? 
 
 Your multi module is not USB upgradable ready, here is what you need:
 
-| **3.3V USB-TTL Adapter** | **4-pin 2.54mm Serial Programming Header** | **4-pin 1mm Serial Programming header + cable** | **5-pin 1.5mm cable** |
+| **3.3V USB-TTL Adapter** | **4-pin 2.54mm Serial Programming Header** | **4-pin 1mm Serial Programming header + cable** | **5-pin 1.25mm cable** |
 |:---:|:---:|:---:|:---:|
 | All modules | DIY, Banggood 4-in-1, iRangeX IRX4/IRX4+/IRX4Lite, Jumper 4in1 1st gen | Vantac lite, URUAV lite | T16 internal module |
 | <img src="images/ch340g.jpg" width="200"/> | <img src="images/4-pin-header.jpg" width="150" height="150"/> | <img src="images/4-pin-1mm.jpg" width="150" height="150"/> | <img src="images/5-pin-125mm.jpg" width="150" height="150"/> |

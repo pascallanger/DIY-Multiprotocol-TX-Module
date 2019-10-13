@@ -220,8 +220,8 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 
 	//RX protocols
 	#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO)
-		uint8_t rx_data_started;
-		uint8_t rx_disable_lna;
+		bool rx_data_started;
+		bool rx_disable_lna;
 		uint16_t rx_rc_chan[16];
 	#endif
 #endif // TELEMETRY

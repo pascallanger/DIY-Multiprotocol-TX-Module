@@ -67,9 +67,9 @@ uint16_t initAFHDS2A_Rx()
 	A7105_Init();
 	hopping_frequency_no = 0;
 	packet_count = 0;
-	rx_data_started = 0;
+	rx_data_started = false;
 	rx_disable_lna = IS_POWER_FLAG_on;
-	CC2500_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN);
+	A7105_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN);
 	A7105_Strobe(A7105_RX);
 
 	if (IS_BIND_IN_PROGRESS) {
@@ -101,7 +101,7 @@ uint16_t AFHDS2A_Rx_callback()
 #endif
 	if (rx_disable_lna != IS_POWER_FLAG_on) {
 		rx_disable_lna = IS_POWER_FLAG_on;
-		CC2500_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN);
+		A7105_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN);
 	}
 
 	switch(phase) {
@@ -169,7 +169,7 @@ uint16_t AFHDS2A_Rx_callback()
 					AFHDS2A_Rx_build_telemetry_packet();
 					telemetry_link = 1;
 				}
-				rx_data_started = 1;
+				rx_data_started = true;
 				read_retry = 10; // hop to next channel
 				pps_counter++;
 			}

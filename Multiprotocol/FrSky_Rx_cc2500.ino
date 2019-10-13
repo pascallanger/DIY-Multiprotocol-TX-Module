@@ -166,7 +166,7 @@ uint16_t initFrSky_Rx()
 	state = 0;
 	frsky_rx_chanskip = 1;
 	hopping_frequency_no = 0;
-	rx_data_started = 0;
+	rx_data_started = false;
 	frsky_rx_finetune = 0;
 	telemetry_link = 0;
 	if (IS_BIND_IN_PROGRESS) {
@@ -329,7 +329,7 @@ uint16_t FrSky_Rx_callback()
 						frsky_rx_build_telemetry_packet();
 						telemetry_link = 1;
 				}
-				rx_data_started = 1;
+				rx_data_started = true;
 				read_retry = 0;
 				pps_counter++;
 			}

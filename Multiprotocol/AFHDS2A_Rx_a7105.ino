@@ -73,7 +73,7 @@ uint16_t initAFHDS2A_Rx()
 	packet_count = 0;
 	afhds2a_rx_data_started = 0;
 	afhds2a_rx_disable_lna = IS_POWER_FLAG_on;
-	CC2500_SetTxRxMode(afhds2a_rx_disable_lna ? TXRX_OFF : RX_EN);
+	A7105_SetTxRxMode(afhds2a_rx_disable_lna ? TXRX_OFF : RX_EN);
 	A7105_Strobe(A7105_RX);
 
 	if (IS_BIND_IN_PROGRESS) {
@@ -105,7 +105,7 @@ uint16_t AFHDS2A_Rx_callback()
 #endif
 	if (afhds2a_rx_disable_lna != IS_POWER_FLAG_on) {
 		afhds2a_rx_disable_lna = IS_POWER_FLAG_on;
-		CC2500_SetTxRxMode(afhds2a_rx_disable_lna ? TXRX_OFF : RX_EN);
+		A7105_SetTxRxMode(afhds2a_rx_disable_lna ? TXRX_OFF : RX_EN);
 	}
 
 	switch(phase) {
@@ -156,7 +156,7 @@ uint16_t AFHDS2A_Rx_callback()
 	case AFHDS2A_RX_BIND2 | AFHDS2A_RX_WAIT_WRITE:
 		//Wait for TX completion
 		pps_timer = micros();
-		while (micros() - pps_timer < 700) // Wait max 700µs, using serial+telemetry exit in about 120µs
+		while (micros() - pps_timer < 700) // Wait max 700Âµs, using serial+telemetry exit in about 120Âµs
 			if (!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 				break;
 		A7105_Strobe(A7105_RX);

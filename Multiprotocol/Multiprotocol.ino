@@ -217,6 +217,13 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		uint8_t	SportData[MAX_SPORT_BUFFER];
 		uint8_t	SportHead=0, SportTail=0;
 	#endif
+
+	//RX protocols
+	#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO)
+		uint8_t rx_data_started;
+		uint8_t rx_disable_lna;
+		uint16_t rx_rc_chan[16];
+	#endif
 #endif // TELEMETRY
 
 // Callback
@@ -955,6 +962,10 @@ static void protocol_init()
 			TX_RX_PAUSE_off;
 			TX_MAIN_PAUSE_off;
 			tx_resume();
+			#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO)
+				for(uint8_t ch=0; ch<16; ch++)
+					rx_rc_chan[ch] = 1024;
+			#endif
 		#endif
 
 		//Set global ID and rx_tx_addr

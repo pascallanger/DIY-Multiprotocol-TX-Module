@@ -21,9 +21,6 @@
 #define AFHDS2A_RX_RXPACKET_SIZE	37
 #define AFHDS2A_RX_NUMFREQ			16
 
-static uint8_t afhds2a_rx_data_started;
-static uint8_t afhds2a_rx_disable_lna;
-
 enum {
 	AFHDS2A_RX_BIND1,
 	AFHDS2A_RX_BIND2,
@@ -70,9 +67,9 @@ uint16_t initAFHDS2A_Rx()
 	A7105_Init();
 	hopping_frequency_no = 0;
 	packet_count = 0;
-	afhds2a_rx_data_started = 0;
-	afhds2a_rx_disable_lna = IS_POWER_FLAG_on;
-	CC2500_SetTxRxMode(afhds2a_rx_disable_lna ? TXRX_OFF : RX_EN);
+	rx_data_started = 0;
+	rx_disable_lna = IS_POWER_FLAG_on;
+	CC2500_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN);
 	A7105_Strobe(A7105_RX);
 
 	if (IS_BIND_IN_PROGRESS) {
@@ -102,9 +99,9 @@ uint16_t AFHDS2A_Rx_callback()
 #ifndef FORCE_AFHDS2A_TUNING
 	A7105_AdjustLOBaseFreq(1);
 #endif
-	if (afhds2a_rx_disable_lna != IS_POWER_FLAG_on) {
-		afhds2a_rx_disable_lna = IS_POWER_FLAG_on;
-		CC2500_SetTxRxMode(afhds2a_rx_disable_lna ? TXRX_OFF : RX_EN);
+	if (rx_disable_lna != IS_POWER_FLAG_on) {
+		rx_disable_lna = IS_POWER_FLAG_on;
+		CC2500_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN);
 	}
 
 	switch(phase) {
@@ -155,7 +152,7 @@ uint16_t AFHDS2A_Rx_callback()
 	case AFHDS2A_RX_BIND2 | AFHDS2A_RX_WAIT_WRITE:
 		//Wait for TX completion
 		pps_timer = micros();
-		while (micros() - pps_timer < 700) // Wait max 700µs, using serial+telemetry exit in about 120µs
+		while (micros() - pps_timer < 700) // Wait max 700Âµs, using serial+telemetry exit in about 120Âµs
 			if (!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 				break;
 		A7105_Strobe(A7105_RX);
@@ -172,7 +169,7 @@ uint16_t AFHDS2A_Rx_callback()
 					AFHDS2A_Rx_build_telemetry_packet();
 					telemetry_link = 1;
 				}
-				afhds2a_rx_data_started = 1;
+				rx_data_started = 1;
 				read_retry = 10; // hop to next channel
 				pps_counter++;
 			}
@@ -193,7 +190,7 @@ uint16_t AFHDS2A_Rx_callback()
 				hopping_frequency_no = 0;
 			A7105_WriteReg(A7105_0F_PLL_I, hopping_frequency[hopping_frequency_no]);
 			A7105_Strobe(A7105_RX);
-			if (afhds2a_rx_data_started)
+			if (rx_data_started)
 				read_retry = 0;
 			else
 				read_retry = -127; // retry longer until first packet is catched

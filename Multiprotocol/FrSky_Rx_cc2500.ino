@@ -29,11 +29,8 @@
 	FRSKY_RX_DATA,
  };
 
- static uint8_t frsky_rx_chanskip;
- static uint8_t frsky_rx_disable_lna;
- static uint8_t frsky_rx_data_started;
- static int8_t  frsky_rx_finetune;
- static uint16_t frsky_rx_rc_chan[16];
+static uint8_t frsky_rx_chanskip;
+static int8_t  frsky_rx_finetune;
 
 static void __attribute__((unused)) frsky_rx_strobe_rx()
 {
@@ -60,8 +57,8 @@ static void __attribute__((unused)) frsky_rx_initialise() {
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89); // fixed FSCAL3 ?
 		break;
 	}
-	frsky_rx_disable_lna = IS_POWER_FLAG_on;
-	CC2500_SetTxRxMode(frsky_rx_disable_lna ? TXRX_OFF : RX_EN); // lna disable / enable
+	rx_disable_lna = IS_POWER_FLAG_on;
+	CC2500_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN); // lna disable / enable
 	frsky_rx_strobe_rx();
 	delayMicroseconds(1000); // wait for RX to activate
 }
@@ -121,9 +118,9 @@ static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
 			uint8_t shifted = (raw_channel[i] & 0x800)>0;
 			uint16_t channel_value = raw_channel[i] & 0x7FF;
 			if (channel_value < 64)
-				frsky_rx_rc_chan[shifted ? i + 8 : i] = 0;
+				rx_rc_chan[shifted ? i + 8 : i] = 0;
 			else
-				frsky_rx_rc_chan[shifted ? i + 8 : i] = min(((channel_value - 64) << 4) / 15, 2047);
+				rx_rc_chan[shifted ? i + 8 : i] = min(((channel_value - 64) << 4) / 15, 2047);
 		}
 	}
 	else {
@@ -139,7 +136,7 @@ static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
 		for (i = 0; i < 8; i++) {
 			if (raw_channel[i] < 1290)
 				raw_channel[i] = 1290;
-			frsky_rx_rc_chan[i] = min(((raw_channel[i] - 1290) << 4) / 15, 2047);
+			rx_rc_chan[i] = min(((raw_channel[i] - 1290) << 4) / 15, 2047);
 		}
 	}
 
@@ -151,7 +148,7 @@ static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
 
 	// pack channels
 	for (i = 0; i < packet_in[3]; i++) {
-		bits |= ((uint32_t)frsky_rx_rc_chan[i]) << bitsavailable;
+		bits |= ((uint32_t)rx_rc_chan[i]) << bitsavailable;
 		bitsavailable += 11;
 		while (bitsavailable >= 8) {
 			packet_in[idx++] = bits & 0xff;
@@ -169,11 +166,9 @@ uint16_t initFrSky_Rx()
 	state = 0;
 	frsky_rx_chanskip = 1;
 	hopping_frequency_no = 0;
-	frsky_rx_data_started = 0;
+	rx_data_started = 0;
 	frsky_rx_finetune = 0;
 	telemetry_link = 0;
-	for(uint8_t ch=0; ch<16; ch++)
-		frsky_rx_rc_chan[ch] = 1023;
 	if (IS_BIND_IN_PROGRESS) {
 		phase = FRSKY_RX_TUNE_START;
 	}
@@ -217,9 +212,9 @@ uint16_t FrSky_Rx_callback()
 		prev_option = option;
 	}
 
-	if (frsky_rx_disable_lna != IS_POWER_FLAG_on) {
-		frsky_rx_disable_lna = IS_POWER_FLAG_on;
-		CC2500_SetTxRxMode(frsky_rx_disable_lna ? TXRX_OFF : RX_EN);
+	if (rx_disable_lna != IS_POWER_FLAG_on) {
+		rx_disable_lna = IS_POWER_FLAG_on;
+		CC2500_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN);
 	}
 
 	len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
@@ -334,7 +329,7 @@ uint16_t FrSky_Rx_callback()
 						frsky_rx_build_telemetry_packet();
 						telemetry_link = 1;
 				}
-				frsky_rx_data_started = 1;
+				rx_data_started = 1;
 				read_retry = 0;
 				pps_counter++;
 			}
@@ -352,7 +347,7 @@ uint16_t FrSky_Rx_callback()
 		if (read_retry++ >= 9) {
 			hopping_frequency_no = (hopping_frequency_no + frsky_rx_chanskip) % 47;
 			frsky_rx_set_channel(hopping_frequency_no);
-			if(frsky_rx_data_started)
+			if(rx_data_started)
 				read_retry = 0;
 			else
 				read_retry = -50; // retry longer until first packet is catched

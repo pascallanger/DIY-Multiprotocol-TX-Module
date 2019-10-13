@@ -831,7 +831,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Values are concatenated to fit in 22 bytes like in SBUS protocol.
    Failsafe values have exactly the same range/values than normal channels except the extremes where
       0=no pulse, 2047=hold. If failsafe is not set or RX then failsafe packets should not be sent.
-  Stream[26]   = sub_protocol bits 6 & 7|RxNum bits 4 & 5|Future_Use 3|Telem_Invert 2|Disable_Telemetry 1|Disable_CH_Mapping 0
+  Stream[26]   = sub_protocol bits 6 & 7|RxNum bits 4 & 5|Telemetry_Invert 3|Future_Use 2|Disable_Telemetry 1|Disable_CH_Mapping 0
    sub_protocol is 0..255 (bits 0..5 + bits 6..7)
    RxNum value is 0..63 (bits 0..3 + bits 4..5)
    Telemetry_Invert		=> 0x08	0=normal, 1=invert

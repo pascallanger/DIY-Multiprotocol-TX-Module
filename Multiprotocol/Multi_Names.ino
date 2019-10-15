@@ -256,7 +256,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_E01X,       STR_E01X,      3, STR_SUBTYPE_E01X,      OPTION_OPTION  },
 #endif
 #if defined(V911S_NRF24L01_INO)
-	{PROTO_V911S,      NO_SUBTYPE,    0, NO_SUBTYPE,            OPTION_RFTUNE  },
+	{PROTO_V911S,      STR_V911S,     0, NO_SUBTYPE,            OPTION_RFTUNE  },
 #endif
 #if defined(GD00X_NRF24L01_INO)
 	{PROTO_GD00X,      STR_GD00X,     2, STR_SUBTYPE_GD00X,     OPTION_RFTUNE  },
@@ -265,7 +265,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_V761,       STR_V761,      0, NO_SUBTYPE,            OPTION_NONE    },
 #endif
 #if defined(KF606_NRF24L01_INO)
-	{PROTO_KF606,      NO_SUBTYPE,    0, NO_SUBTYPE,            OPTION_RFTUNE  },
+	{PROTO_KF606,      STR_KF606,     0, NO_SUBTYPE,            OPTION_RFTUNE  },
 #endif
 #if defined(REDPINE_CC2500_INO)
 	{PROTO_REDPINE,    STR_REDPINE,   2, STR_SUBTYPE_REDPINE,   OPTION_RFTUNE  },

@@ -128,7 +128,7 @@ inline void telemetry_set_input_sync(uint16_t refreshRate)
 static void multi_send_status()
 {
 	#ifdef MULTI_NAMES
-	if(multi_protocols_send && multi_protocols_index != 0xFF)
+	if(multi_protocols_index != 0xFF)
 		multi_send_header(MULTI_TELEMETRY_STATUS, 25);
 	else
 	#endif
@@ -188,9 +188,8 @@ static void multi_send_status()
 	Serial_write(RUDDER<<6|THROTTLE<<4|ELEVATOR<<2|AILERON);
 	
 	#ifdef MULTI_NAMES
-		if(multi_protocols_send && multi_protocols_index != 0xFF)
+		if(multi_protocols_index != 0xFF)
 		{
-			multi_protocols_send--;
 			// Protocol next/prev
 			if(multi_protocols[multi_protocols_index+1].protocol != 0)
 				Serial_write(multi_protocols[multi_protocols_index+1].protocol);		// next protocol number

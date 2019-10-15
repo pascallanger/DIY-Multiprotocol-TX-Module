@@ -236,7 +236,6 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		};
 		extern const mm_protocol_definition multi_protocols[];
 		uint8_t multi_protocols_index=0xFF;
-		uint8_t multi_protocols_send;
 	#endif
 #endif // TELEMETRY
 
@@ -957,7 +956,6 @@ static void protocol_init()
 				inputRefreshRate = 7000; // Default value
 			#endif
 			#ifdef MULTI_NAMES
-				multi_protocols_send = 0;
 				multi_protocols_index = 0xFF;
 			#endif
 			tx_pause();
@@ -1412,7 +1410,6 @@ static void protocol_init()
 				if(multi_protocols[index].protocol==protocol)
 				{
 					multi_protocols_index=index;
-					multi_protocols_send = 0;
 					SEND_MULTI_STATUS_on;
 					#ifdef DEBUG_SERIAL
 						debug("Proto=%s",multi_protocols[multi_protocols_index].ProtoString);

@@ -208,7 +208,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_Q2X2,       STR_Q2X2,      3, STR_SUBTYPE_Q2X2,      OPTION_NONE    },
 #endif
 #if defined(WK2x01_CYRF6936_INO)
-	{PROTO_WK_2X01,    STR_WK2x01,    6, STR_SUBTYPE_WK2x01,    OPTION_NONE    },
+	{PROTO_WK2x01,     STR_WK2x01,    6, STR_SUBTYPE_WK2x01,    OPTION_NONE    },
 #endif
 #if defined(Q303_NRF24L01_INO)
 	{PROTO_Q303,       STR_Q303,      4, STR_SUBTYPE_Q303,      OPTION_NONE    },

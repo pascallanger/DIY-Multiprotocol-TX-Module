@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	15
+#define VERSION_PATCH_LEVEL	16
 
 //******************
 // Protocols
@@ -592,7 +592,7 @@ enum {
 #define FRSKY_RX_EEPROM_OFFSET	178		// (1) format + (3) TX ID + (1) freq_tune + (47) channels, 52 bytes, end is 178+52=230
 #define AFHDS2A_RX_EEPROM_OFFSET 230	// (4) TX ID + (16) channels, 20 bytes, end is 230+20=250
 #define AFHDS2A_EEPROM_OFFSET2	250		// RX ID, 4 bytes per model id, end is 250+192=442
-//#define CONFIG_EEPROM_OFFSET 	441		// Current configuration of the multimodule
+//#define CONFIG_EEPROM_OFFSET 	442		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***
@@ -666,6 +666,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				FLYZONE		53
 				SCANNER		54
 				FRSKY_RX	55
+				AFHDS2A_RX	56
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -896,6 +897,20 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    [8] patchlevel
      version of multi code, should be displayed as major.minor.revision.patchlevel
    [9] channel order: CH4|CH3|CH2|CH1 with CHx value A=0,E=1,T=2,R=3
+   [10] Next valid protocol number, can be used to skip invalid protocols
+   [11] Prev valid protocol number, can be used to skip invalid protocols
+   [12..18] Protocol name [7], not null terminated if prototcol len == 7
+   [19] Number of sub protocols
+   [20..27] Sub protocol name [8], not null terminated if sub prototcol len == 8
+   [28] Option text to be displayed: 
+			OPTION_NONE		0
+			OPTION_OPTION	1
+			OPTION_RFTUNE	2
+			OPTION_VIDFREQ	3
+			OPTION_FIXEDID	4
+			OPTION_TELEM	5
+			OPTION_SRVFREQ	6
+
    more information can be added by specifing a longer length of the type, the TX will just ignore these bytes
 
   Type 0x02 Frksy S.port telemetry

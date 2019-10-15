@@ -224,6 +224,20 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		bool rx_disable_lna;
 		uint16_t rx_rc_chan[16];
 	#endif
+	
+	//Multi names
+	#ifdef MULTI_NAMES
+		struct mm_protocol_definition {
+			uint8_t protocol;
+			const char *ProtoString;
+			uint8_t nbrSubProto;
+			const char *SubProtoString;
+			uint8_t optionType;
+		};
+		extern const mm_protocol_definition multi_protocols[];
+		uint8_t multi_protocols_index=0xFF;
+		uint8_t multi_protocols_send;
+	#endif
 #endif // TELEMETRY
 
 // Callback
@@ -942,6 +956,10 @@ static void protocol_init()
 			#ifdef MULTI_SYNC
 				inputRefreshRate = 7000; // Default value
 			#endif
+			#ifdef MULTI_NAMES
+				multi_protocols_send = 0;
+				multi_protocols_index = 0xFF;
+			#endif
 			tx_pause();
 			pass=0;
 			init_frskyd_link_telemetry();
@@ -982,8 +1000,6 @@ static void protocol_init()
 		PE1_on;							//NRF24L01 antenna RF3 by default
 		PE2_off;						//NRF24L01 antenna RF3 by default
 		
-		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
-
 		switch(protocol)				// Init the requested protocol
 		{
 			#ifdef A7105_INSTALLED
@@ -1388,8 +1404,36 @@ static void protocol_init()
 				#endif
 			#endif
 		}
+		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
+		#ifdef MULTI_NAMES
+			uint8_t index=0;
+			while(multi_protocols[index].protocol != 0)
+			{
+				if(multi_protocols[index].protocol==protocol)
+				{
+					multi_protocols_index=index;
+					multi_protocols_send = 0;
+					SEND_MULTI_STATUS_on;
+					#ifdef DEBUG_SERIAL
+						debug("Proto=%s",multi_protocols[multi_protocols_index].ProtoString);
+						uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+						debug(", nbr_sub=%d, Sub=",nbr);
+						if(nbr && (sub_protocol&0x07)<nbr)
+						{
+							uint8_t len=multi_protocols[multi_protocols_index].SubProtoString[0];
+							uint8_t offset=len*(sub_protocol&0x07)+1;
+							for(uint8_t j=0;j<len;j++)
+								debug("%c",multi_protocols[multi_protocols_index].SubProtoString[j+offset]);
+						}
+						debugln("");
+					#endif
+					break;
+				}
+				index++;
+			}
+		#endif
 	}
-
+	
 	#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
 		if( IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && (cur_protocol[1]&0x80)==0 && mode_select == MODE_SERIAL)
 		{ // Autobind is active but no bind requested by either BIND_CH or BIND. But do not wait if in PPM mode...

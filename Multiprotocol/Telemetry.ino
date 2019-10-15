@@ -127,7 +127,12 @@ inline void telemetry_set_input_sync(uint16_t refreshRate)
 
 static void multi_send_status()
 {
-	multi_send_header(MULTI_TELEMETRY_STATUS, 6);
+	#ifdef MULTI_NAMES
+	if(multi_protocols_send && multi_protocols_index != 0xFF)
+		multi_send_header(MULTI_TELEMETRY_STATUS, 25);
+	else
+	#endif
+		multi_send_header(MULTI_TELEMETRY_STATUS, 6);
 
 	// Build flags
 	uint8_t flags=0;
@@ -181,6 +186,42 @@ static void multi_send_status()
 
 	// Channel order
 	Serial_write(RUDDER<<6|THROTTLE<<4|ELEVATOR<<2|AILERON);
+	
+	#ifdef MULTI_NAMES
+		if(multi_protocols_send && multi_protocols_index != 0xFF)
+		{
+			multi_protocols_send--;
+			// Protocol next/prev
+			if(multi_protocols[multi_protocols_index+1].protocol != 0)
+				Serial_write(multi_protocols[multi_protocols_index+1].protocol);		// next protocol number
+			else
+				Serial_write(protocol);													// end of list
+			if(multi_protocols_index>0)
+				Serial_write(multi_protocols[multi_protocols_index-1].protocol);		// prev protocol number
+			else
+				Serial_write(protocol);													// begining of list
+			// Protocol
+			for(uint8_t i=0;i<7;i++)
+				Serial_write(multi_protocols[multi_protocols_index].ProtoString[i]);	// protocol name
+			// Sub-protocol
+			uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+			Serial_write(nbr);															// number of sub protocols
+			uint8_t j=0;
+			if(nbr && (sub_protocol&0x07)<nbr)
+			{
+				uint8_t len=multi_protocols[multi_protocols_index].SubProtoString[0];
+				uint8_t offset=len*(sub_protocol&0x07)+1;
+				for(;j<len;j++)
+					Serial_write(multi_protocols[multi_protocols_index].SubProtoString[j+offset]);	// current sub protocol name
+			}
+			for(;j<8;j++)
+				Serial_write(0x00);
+			// Option type
+			Serial_write(multi_protocols[multi_protocols_index].optionType);			// option display type
+			// Channels function
+			//TODO
+		}
+	#endif
 }
 #endif
 

@@ -319,8 +319,11 @@
 	#define SPORT_SEND
 #endif
 
-#if not defined(MULTI_TELEMETRY) || not defined(STM32_BOARD)
-	#undef MULTI_SYNC
+#if not defined(MULTI_TELEMETRY)
+	#if not defined(STM32_BOARD)
+		#undef MULTI_SYNC
+	#endif
+	#undef MULTI_NAMES
 #endif
 
 //Make sure TX is defined correctly

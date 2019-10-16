@@ -51,11 +51,11 @@ The header needs to be soldered onto the board as indicated by the red rectangle
 |:---:|:---:|:---:|:---:|
 | <img src="images/Board_PCB_STM32_with_serial.jpg" width="142" height="200"/> | <img src="images/bg-multi-stm32-serial.jpg" width="195" height="200"/> | <img src="images/irx4plus-serial.jpg" width="164" height="200"/> | <img src="images/Jumper-serial.jpg" width="164" height="200"/> 
 
-| **Vantac/URUAV Lite** | **iRangeX IRX4 Lite** |
-|:---:|:---:|
-| <img src="images/mpmlite-serial.jpg" width="200" height="189" /> | <img src="images/irx4-lite.jpg" width="160" height="200" /> |
+| **Vantac/URUAV Lite** | **iRangeX IRX4 Lite** | **T16 internal module** |
+|:---:|:---:|:---:|
+| <img src="images/mpmlite-serial.jpg" width="200" height="189" /> | <img src="images/irx4-lite.jpg" width="160" height="200" /> | <img src="images/T16-internal-connector.png" width="160" height="200" /> |
 
-**Note:** The Banggood STM32 module most likely already has the header pin in place.
+**Note:** The Banggood STM32 and T16 internal modules most likely already has the header pin in place.
 
 ## Option 1 - Update Firmware using Precompiled Binaries
 If you don't need/want to customize the multi module firmware then you can use pre-compiled binaries available [here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).

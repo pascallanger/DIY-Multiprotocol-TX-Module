@@ -840,7 +840,7 @@ void TelemetryUpdate()
 			return;
 		}
 		#ifdef MULTI_SYNC
-			if ( (now - lastInputSync) > INPUT_SYNC_TIME)
+			if ( (now - lastInputSync) > INPUT_SYNC_TIME && protocol != PROTO_SCANNER && protocol != PROTO_FRSKY_RX && protocol != PROTO_AFHDS2A_RX && protocol != PROTO_XN297DUMP )
 			{
 				mult_send_inputsync();
 				lastInputSync = now;
@@ -848,7 +848,6 @@ void TelemetryUpdate()
 			}
 		#endif
 	#endif
-	 
 	#if defined SPORT_TELEMETRY
 		if (protocol==PROTO_FRSKYX
 		#ifdef TELEMETRY_FRSKYX_TO_FRSKYD

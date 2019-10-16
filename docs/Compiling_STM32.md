@@ -39,7 +39,7 @@ Your multi module is not USB upgradable ready, here is what you need:
 
 | **3.3V USB-TTL Adapter** | **4-pin 2.54mm Serial Programming Header** | **4-pin 1mm Serial Programming header + cable** | **5-pin 1.25mm cable** |
 |:---:|:---:|:---:|:---:|
-| All modules | DIY, Banggood 4-in-1, iRangeX IRX4/IRX4+/IRX4Lite, Jumper 4in1 1st gen | Vantac lite, URUAV lite | T16 internal module |
+| All modules | DIY, Banggood 4-in-1, iRangeX IRX4/IRX4+/IRX4Lite, Jumper 4in1 1st gen | Vantac lite, URUAV lite | Jumper T16 internal module |
 | <img src="images/ch340g.jpg" width="200"/> | <img src="images/4-pin-header.jpg" width="150" height="150"/> | <img src="images/4-pin-1mm.jpg" width="150" height="150"/> | <img src="images/5-pin-125mm.jpg" width="150" height="150"/> |
 | [(example ebay link)](https://www.ebay.co.uk/itm/FTDI-USB-to-TTL-Serial-Converter-Adapter-FT232RL-Module-5V-and-3-3V-Arduino-ARM/231918152528) | [(example ebay link)](https://www.ebay.co.uk/itm/4x-826629-4-Pin-header-pin-strips-AMPMODU-MOD-II-male-PIN4-straight/192334571714) | [(example ebay link)](https://www.ebay.com/itm/5-PCS-Mini-Micro-ZH-1mm-2-6-Pin-JST-Connector-with-Wire-HI/183963001322) | [(example ebay link)](https://www.ebay.co.uk/itm/5-PAIRS-5-PIN-Micro-JST-GH-1-25-Connector-Plug-Socket-1-25mm-150mm-Cable/273110735668)
 
@@ -51,7 +51,7 @@ The header needs to be soldered onto the board as indicated by the red rectangle
 |:---:|:---:|:---:|:---:|
 | <img src="images/Board_PCB_STM32_with_serial.jpg" width="142" height="200"/> | <img src="images/bg-multi-stm32-serial.jpg" width="195" height="200"/> | <img src="images/irx4plus-serial.jpg" width="164" height="200"/> | <img src="images/Jumper-serial.jpg" width="164" height="200"/> 
 
-| **Vantac/URUAV Lite** | **iRangeX IRX4 Lite** | **T16 internal module** |
+| **Vantac/URUAV Lite** | **iRangeX IRX4 Lite** | **Jumper T16 internal module** |
 |:---:|:---:|:---:|
 | <img src="images/mpmlite-serial.jpg" width="200" height="189" /> | <img src="images/irx4-lite.jpg" width="160" height="200" /> | <img src="images/T16-internal-connector.png" width="160" height="200" /> |
 
@@ -140,21 +140,30 @@ The wiring for the USB-to-TTL adapter is:
 
 **It is critical to ensure that the USB-to-TTL adapter is set to 3.3V**.
 
-| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4** | **Jumper 4-in-1** |
-|:---:|:---:|:---:|:---:|
-| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-ch340g.jpg" height="200"/> | <img src="images/irx4-ch340g.jpg" height="200"/> | <img src="images/Jumper-ch340g.jpg" height="200"/> |
+| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4** |
+|:---:|:---:|:---:|
+| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-ch340g.jpg" height="200"/> | <img src="images/irx4-ch340g.jpg" height="200"/> |
+
+| **Jumper 4-in-1 1st gen** | **Jumper T16 internal module** |
+|:---:|:---:|
+| <img src="images/Jumper-ch340g.jpg" height="200"/> | <img src="images/T16-internal-connection.png" height="200"/> |
 
 1. Put the module in the transmitter
 1. Connect the USB-to-TTL adapter to the module as described above
 1. Plug the USB-to-TTL adapter into the PC
 1. In the Arduino IDE click **Tools -> Port** and choose the COM port which matches the USB-to-TTL adapter
 
-In order to flash the bootloader the **BOOT0** jumper must be installed connecting **BOOT0** to 3.3V.  The location of **BOOT0** varies by hardware module. The latest Jumper modules with an intergrated FTDI do not need the BOOT0 jumper.
+In order to flash the bootloader the **BOOT0** jumper must be installed connecting **BOOT0** to 3.3V.  The location of **BOOT0** varies by hardware module.
 
-| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4** | **iRangeX IRX4 Plus** | **Jumper 4-in-1** | **Vantac MPM Lite** |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | Bridge pins 1 and 2 as shown by the blue jumper. | Bridge the BOOT0 pin to the adjacent 3.3V pin as shown by the yellow jumper. If it doesn't work move the jumper to bridge the two left hand pins (BOOT0 and directly above). | Bridge pins 1 and 2 as shown by the red jumper wire. | Brdige the two pins next to the usb port labelled with Boot0 |
-| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | <img src="images/irx4-boot0.jpg" height="200"/>  | <img src="images/irx4plus-boot0.jpg" height="200"/> | <img src="images/Jumper-ch340g.jpg" height="200"/> | <img src="images/mpmlite-boot0.jpg" width="200" /> |
+| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4** | **iRangeX IRX4 Plus** | **Jumper 4-in-1** |
+|:---:|:---:|:---:|:---:|:---:|
+| Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | Bridge pins 1 and 2 as shown by the blue jumper. | Bridge the BOOT0 pin to the adjacent 3.3V pin as shown by the yellow jumper. If it doesn't work move the jumper to bridge the two left hand pins (BOOT0 and directly above). | Bridge pins 1 and 2 as shown by the red jumper wire. |
+| <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | <img src="images/irx4-boot0.jpg" height="200"/>  | <img src="images/irx4plus-boot0.jpg" height="200"/> | <img src="images/Jumper-ch340g.jpg" height="200"/> |
+
+| **Vantac/URUAV Lite** | **iRangeX IRX4 Lite** | **Jumper T16 internal module** |
+|:---:|:---:|:---:|
+| Brdige the two pins next to the usb port labelled with Boot0 | Brdige the two indicated pins| Bridge BOOT0 and +3.3V in RED on the cabling |
+| <img src="images/mpmlite-boot0.jpg" width="200" /> | <img src="images/irx4-lite-boot0.jpg" height="200"/> | <img src="images/T16-internal-connection.png" height="200"/> |
 
 1. If on Linux, ensure you have permissions to access serial interfaces as described [here](https://github.com/benlye/DIY-Multiprotocol-TX-Module/blob/doc-updates/docs/Arduino_IDE_Boards.md#linux)
 1. Install the **BOOT0** jumper as described above.

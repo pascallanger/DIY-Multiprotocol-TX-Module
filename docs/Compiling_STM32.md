@@ -155,7 +155,7 @@ The wiring for the USB-to-TTL adapter is:
 
 In order to flash the bootloader the **BOOT0** jumper must be installed connecting **BOOT0** to 3.3V.  The location of **BOOT0** varies by hardware module.
 
-| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4** | **iRangeX IRX4 Plus** | **Jumper 4-in-1** |
+| **DIY Multiprotocol** | **Banggood 4-in-1** | **iRangeX IRX4** | **iRangeX IRX4 Plus** | **Jumper 4-in-1 1st gen** |
 |:---:|:---:|:---:|:---:|:---:|
 | Bridge pins 1 and 2 as shown by the yellow jumper wire. | Bridge the left-most pins of the 6-pin header as shown by the yellow jumper. | Bridge pins 1 and 2 as shown by the blue jumper. | Bridge the BOOT0 pin to the adjacent 3.3V pin as shown by the yellow jumper. If it doesn't work move the jumper to bridge the two left hand pins (BOOT0 and directly above). | Bridge pins 1 and 2 as shown by the red jumper wire. |
 | <img src="images/diy-ch340g.jpg" height="200"/> | <img src="images/bg-stm32-boot0.jpg" height="200"/>  | <img src="images/irx4-boot0.jpg" height="200"/>  | <img src="images/irx4plus-boot0.jpg" height="200"/> | <img src="images/Jumper-ch340g.jpg" height="200"/> |

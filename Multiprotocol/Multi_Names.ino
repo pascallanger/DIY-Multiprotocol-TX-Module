@@ -166,7 +166,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_BAYANG,     STR_BAYANG,    5, STR_SUBTYPE_BAYANG,    OPTION_TELEM   },
 #endif
 #if defined(FRSKYX_CC2500_INO)
-	{PROTO_FRSKYX,     STR_FRSKYX,    4, STR_SUBTYPE_FRSKYX,    OPTION_NONE    },
+	{PROTO_FRSKYX,     STR_FRSKYX,    4, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
 #endif
 #if defined(ESKY_NRF24L01_INO)
 	{PROTO_ESKY,       STR_ESKY,      0, NO_SUBTYPE,            OPTION_NONE    },
@@ -196,7 +196,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_ASSAN,      STR_ASSAN,     0, NO_SUBTYPE,            OPTION_NONE    },
 #endif
 #if defined(FRSKYV_CC2500_INO)
-	{PROTO_FRSKYV,      STR_FRSKYV,   0, NO_SUBTYPE,            OPTION_NONE    },
+	{PROTO_FRSKYV,      STR_FRSKYV,   0, NO_SUBTYPE,            OPTION_RFTUNE  },
 #endif
 #if defined(HONTAI_NRF24L01_INO)
 	{PROTO_HONTAI,     STR_HONTAI,    4, STR_SUBTYPE_HONTAI,    OPTION_NONE    },

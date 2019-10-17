@@ -1422,7 +1422,7 @@ static void protocol_init()
 							for(uint8_t j=0;j<len;j++)
 								debug("%c",multi_protocols[multi_protocols_index].SubProtoString[j+offset]);
 						}
-						debugln("");
+						debugln(", Opt=%d",multi_protocols[multi_protocols_index].optionType);
 					#endif
 					break;
 				}

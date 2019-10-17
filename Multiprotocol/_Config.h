@@ -272,10 +272,11 @@
 //Sends Multi status and allow OpenTX to autodetect the telemetry format. Comment to disable.
 //Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/erskyTX use MULTI_STATUS instead.
 #define MULTI_TELEMETRY
-//Sync OpenTX frames with the current protocol timing. This feature is only available on the STM32 module. Comment to disable.
-#define MULTI_SYNC
 //Send to OpenTX the current protocol and subprotocol names. Comment to disable.
 #define MULTI_NAMES
+//WIP DO NOT ENABLE UNLESS YOU KNOW WHAT YOU ARE DOING
+//Sync OpenTX frames with the current protocol timing. This feature is only available on the STM32 module. Comment to disable.
+//#define MULTI_SYNC
 
 //Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, erskyTX and OpenTX

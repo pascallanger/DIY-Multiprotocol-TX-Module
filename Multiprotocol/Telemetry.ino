@@ -129,7 +129,7 @@ static void multi_send_status()
 {
 	#ifdef MULTI_NAMES
 	if(multi_protocols_index != 0xFF)
-		multi_send_header(MULTI_TELEMETRY_STATUS, 25);
+		multi_send_header(MULTI_TELEMETRY_STATUS, 24);
 	else
 	#endif
 		multi_send_header(MULTI_TELEMETRY_STATUS, 6);

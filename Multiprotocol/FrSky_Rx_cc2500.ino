@@ -29,13 +29,80 @@ enum
 	FRSKY_RX_D8
 };
 
- enum {
+enum {
 	FRSKY_RX_TUNE_START,
 	FRSKY_RX_TUNE_LOW,
 	FRSKY_RX_TUNE_HIGH,
 	FRSKY_RX_BIND,
 	FRSKY_RX_DATA,
- };
+};
+
+const PROGMEM uint8_t frsky_rx_common_reg[][2] = {
+	{CC2500_02_IOCFG0, 0x01},
+	{CC2500_18_MCSM0, 0x18},
+	{CC2500_07_PKTCTRL1, 0x04},
+	{CC2500_3E_PATABLE, 0xFF},
+	{CC2500_0C_FSCTRL0, 0},
+	{CC2500_0D_FREQ2, 0x5C},
+	{CC2500_13_MDMCFG1, 0x23},
+	{CC2500_14_MDMCFG0, 0x7A},
+	{CC2500_19_FOCCFG, 0x16},
+	{CC2500_1A_BSCFG, 0x6C},
+	{CC2500_1B_AGCCTRL2, 0x03},
+	{CC2500_1C_AGCCTRL1, 0x40},
+	{CC2500_1D_AGCCTRL0, 0x91},
+	{CC2500_21_FREND1, 0x56},
+	{CC2500_22_FREND0, 0x10},
+	{CC2500_23_FSCAL3, 0xA9},
+	{CC2500_24_FSCAL2, 0x0A},
+	{CC2500_25_FSCAL1, 0x00},
+	{CC2500_26_FSCAL0, 0x11},
+	{CC2500_29_FSTEST, 0x59},
+	{CC2500_2C_TEST2, 0x88},
+	{CC2500_2D_TEST1, 0x31},
+	{CC2500_2E_TEST0, 0x0B},
+	{CC2500_03_FIFOTHR, 0x07},
+	{CC2500_09_ADDR, 0x00},
+};
+
+const PROGMEM uint8_t frsky_rx_d16fcc_reg[][2] = {
+	{CC2500_17_MCSM1, 0x0C},
+	{CC2500_0E_FREQ1, 0x76},
+	{CC2500_0F_FREQ0, 0x27},
+	{CC2500_06_PKTLEN, 0x1E},
+	{CC2500_08_PKTCTRL0, 0x01},
+	{CC2500_0B_FSCTRL1, 0x0A},
+	{CC2500_10_MDMCFG4, 0x7B},
+	{CC2500_11_MDMCFG3, 0x61},
+	{CC2500_12_MDMCFG2, 0x13},
+	{CC2500_15_DEVIATN, 0x51},
+};
+
+const PROGMEM uint8_t frsky_rx_d16lbt_reg[][2] = {
+	{CC2500_17_MCSM1, 0x0E},
+	{CC2500_0E_FREQ1, 0x80},
+	{CC2500_0F_FREQ0, 0x00},
+	{CC2500_06_PKTLEN, 0x23},
+	{CC2500_08_PKTCTRL0, 0x01},
+	{CC2500_0B_FSCTRL1, 0x08},
+	{CC2500_10_MDMCFG4, 0x7B},
+	{CC2500_11_MDMCFG3, 0xF8},
+	{CC2500_12_MDMCFG2, 0x03},
+	{CC2500_15_DEVIATN, 0x53},
+};
+
+const PROGMEM uint8_t frsky_rx_d8_reg[][2] = {
+	{CC2500_17_MCSM1,    0x0C},
+	{CC2500_0E_FREQ1,    0x76},
+	{CC2500_0F_FREQ0,    0x27},
+	{CC2500_06_PKTLEN,   0x19},
+	{CC2500_08_PKTCTRL0, 0x05},
+	{CC2500_0B_FSCTRL1,  0x08},
+	{CC2500_10_MDMCFG4,  0xAA},
+	{CC2500_11_MDMCFG3,  0x39},
+	{CC2500_12_MDMCFG2,  0x11},
+	{CC2500_15_DEVIATN,  0x42},
+};
 
 static uint8_t frsky_rx_chanskip;
 static int8_t  frsky_rx_finetune;
@@ -53,71 +120,27 @@ static void __attribute__((unused)) frsky_rx_initialise_cc2500() {
 	packet_length = frsky_rx_length[frsky_rx_format];
 	CC2500_Reset();
 	CC2500_Strobe(CC2500_SIDLE);
-	CC2500_WriteReg(CC2500_0A_CHANNR, 0);  // bind channel
-
-	CC2500_WriteReg(CC2500_02_IOCFG0, 0x01);
-	CC2500_WriteReg(CC2500_18_MCSM0, 0x18);
-	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x04);
-	CC2500_WriteReg(CC2500_3E_PATABLE, 0xFF);
-	CC2500_WriteReg(CC2500_0C_FSCTRL0, 0);
-	CC2500_WriteReg(CC2500_0D_FREQ2, 0x5C);
-	CC2500_WriteReg(CC2500_13_MDMCFG1, 0x23);
-	CC2500_WriteReg(CC2500_14_MDMCFG0, 0x7A);
-	CC2500_WriteReg(CC2500_19_FOCCFG, 0x16);
-	CC2500_WriteReg(CC2500_1A_BSCFG, 0x6C);
-	CC2500_WriteReg(CC2500_1B_AGCCTRL2, 0x03);
-	CC2500_WriteReg(CC2500_1C_AGCCTRL1, 0x40);
-	CC2500_WriteReg(CC2500_1D_AGCCTRL0, 0x91);
-	CC2500_WriteReg(CC2500_21_FREND1, 0x56);
-	CC2500_WriteReg(CC2500_22_FREND0, 0x10);
-	CC2500_WriteReg(CC2500_23_FSCAL3, 0xA9);
-	CC2500_WriteReg(CC2500_24_FSCAL2, 0x0A);
-	CC2500_WriteReg(CC2500_25_FSCAL1, 0x00);
-	CC2500_WriteReg(CC2500_26_FSCAL0, 0x11);
-	CC2500_WriteReg(CC2500_29_FSTEST, 0x59);
-	CC2500_WriteReg(CC2500_2C_TEST2, 0x88);
-	CC2500_WriteReg(CC2500_2D_TEST1, 0x31);
-	CC2500_WriteReg(CC2500_2E_TEST0, 0x0B);
-	CC2500_WriteReg(CC2500_03_FIFOTHR, 0x07);
-	CC2500_WriteReg(CC2500_09_ADDR, 0x00);
+	for (uint8_t i = 0; i < sizeof(frsky_rx_common_reg) / 2; i++)
+		CC2500_WriteReg(pgm_read_byte_near(&frsky_rx_common_reg[i][0]), pgm_read_byte_near(&frsky_rx_common_reg[i][1]));
 
 	switch (frsky_rx_format) {
 	case FRSKY_RX_D16FCC:
-		CC2500_WriteReg(CC2500_17_MCSM1, 0x0C);
-		CC2500_WriteReg(CC2500_0E_FREQ1, 0x76);
-		CC2500_WriteReg(CC2500_0F_FREQ0, 0x27);
-		CC2500_WriteReg(CC2500_06_PKTLEN, 0x1E);
-		CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x01);
-		CC2500_WriteReg(CC2500_0B_FSCTRL1, 0x0A);
-		CC2500_WriteReg(CC2500_10_MDMCFG4, 0x7B);
-		CC2500_WriteReg(CC2500_11_MDMCFG3, 0x61);
-		CC2500_WriteReg(CC2500_12_MDMCFG2, 0x13);
-		CC2500_WriteReg(CC2500_15_DEVIATN, 0x51);
-		//FRSKY_init_cc2500(FRSKYX_cc2500_conf);
+		for (uint8_t i = 0; i < sizeof(frsky_rx_d16fcc_reg) / 2; i++)
+			CC2500_WriteReg(pgm_read_byte_near(&frsky_rx_d16fcc_reg[i][0]), pgm_read_byte_near(&frsky_rx_d16fcc_reg[i][1]));
 		break;
 	case FRSKY_RX_D16LBT:
-		CC2500_WriteReg(CC2500_17_MCSM1, 0x0E);
-		CC2500_WriteReg(CC2500_0E_FREQ1, 0x80);
-		CC2500_WriteReg(CC2500_0F_FREQ0, 0x00);
-		CC2500_WriteReg(CC2500_06_PKTLEN, 0x23);
-		CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x01);
-		CC2500_WriteReg(CC2500_0B_FSCTRL1, 0x08);
-		CC2500_WriteReg(CC2500_10_MDMCFG4, 0x7B);
-		CC2500_WriteReg(CC2500_11_MDMCFG3, 0xF8);
-		CC2500_WriteReg(CC2500_12_MDMCFG2, 0x03);
-		CC2500_WriteReg(CC2500_15_DEVIATN, 0x53);
-		//FRSKY_init_cc2500(FRSKYXEU_cc2500_conf);
+		for (uint8_t i = 0; i < sizeof(frsky_rx_d16lbt_reg) / 2; i++)
+			CC2500_WriteReg(pgm_read_byte_near(&frsky_rx_d16lbt_reg[i][0]), pgm_read_byte_near(&frsky_rx_d16lbt_reg[i][1]));
 		break;
 	case FRSKY_RX_D8:
-		CC2500_Reset();
-		CC2500_Strobe(CC2500_SIDLE);
-		CC2500_WriteReg(CC2500_0A_CHANNR, 0);  // bind channel
-		FRSKY_init_cc2500(FRSKYD_cc2500_conf);
+		for (uint8_t i = 0; i < sizeof(frsky_rx_d8_reg) / 2; i++)
+			CC2500_WriteReg(pgm_read_byte_near(&frsky_rx_d8_reg[i][0]), pgm_read_byte_near(&frsky_rx_d8_reg[i][1]));
 		CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // always check address
 		CC2500_WriteReg(CC2500_09_ADDR, 0x03); // bind address
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);
 		break;
 	}
+	CC2500_WriteReg(CC2500_0A_CHANNR, 0);  // bind channel
 	rx_disable_lna = IS_POWER_FLAG_on;
 	CC2500_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN); // lna disable / enable
 	frsky_rx_strobe_rx();
@@ -165,7 +188,7 @@ static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
 	uint8_t i;
 
 	if (frsky_rx_format == FRSKY_RX_D16FCC || frsky_rx_format == FRSKY_RX_D16LBT) {
-		// decode D16 channels
+		// decode D16 channels, ignore failsafe
 		raw_channel[0] = ((packet[10] << 8) & 0xF00) | packet[9];
 		raw_channel[1] = ((packet[11] << 4) & 0xFF0) | (packet[10] >> 4);
 		raw_channel[2] = ((packet[13] << 8) & 0xF00) | packet[12];
@@ -173,14 +196,17 @@ static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
 		raw_channel[4] = ((packet[16] << 8) & 0xF00) | packet[15];
 		raw_channel[5] = ((packet[17] << 4) & 0xFF0) | (packet[16] >> 4);
 		raw_channel[6] = ((packet[19] << 8) & 0xF00) | packet[18];
-		raw_channel[7] = ((packet[20] << 4) & 0xFF0) | (packet[19] >> 4);
+		raw_channel[7] = ((packet[20] << 4) & 0xFF0) | (packet[19] >> 4);	
 		for (i = 0; i < 8; i++) {
-			uint8_t shifted = (raw_channel[i] & 0x800)>0;
-			uint16_t channel_value = raw_channel[i] & 0x7FF;
-			if (channel_value < 64)
-				rx_rc_chan[shifted ? i + 8 : i] = 0;
-			else
-				rx_rc_chan[shifted ? i + 8 : i] = min(((channel_value - 64) << 4) / 15, 2047);
+			// ignore failsafe channels
+			if(packet[7] != 0x10+(i<<1)) {
+				uint8_t shifted = (raw_channel[i] & 0x800)>0;
+				uint16_t channel_value = raw_channel[i] & 0x7FF;
+				if (channel_value < 64)
+					rx_rc_chan[shifted ? i + 8 : i] = 0;
+				else
+					rx_rc_chan[shifted ? i + 8 : i] = min(((channel_value - 64) << 4) / 15, 2047);
+			}
 		}
 	}
 	else {
@@ -386,7 +412,7 @@ uint16_t FrSky_Rx_callback()
 					frsky_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);
 				hopping_frequency_no = (hopping_frequency_no + frsky_rx_chanskip) % 47;
 				frsky_rx_set_channel(hopping_frequency_no);
-				if((frsky_rx_format == FRSKY_RX_D8 || packet[7] == 0) && telemetry_link == 0) { // send channels to TX
+				if (telemetry_link == 0) { // send channels to TX
 						frsky_rx_build_telemetry_packet();
 						telemetry_link = 1;
 				}

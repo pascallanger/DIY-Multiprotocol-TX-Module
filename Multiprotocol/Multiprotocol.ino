@@ -694,8 +694,8 @@ uint8_t Update_All()
 					TelemetryUpdate();
 	#endif
 	#ifdef ENABLE_BIND_CH
-		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Channel_data[BIND_CH-1]>CHANNEL_MAX_COMMAND && Channel_data[THROTTLE]<(CHANNEL_MIN_100+50))
-		{ // Autobind is on and BIND_CH went up and Throttle is low
+		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Channel_data[BIND_CH-1]>CHANNEL_MAX_COMMAND)
+		{ // Autobind is on and BIND_CH went up
 			CHANGE_PROTOCOL_FLAG_on;							//reload protocol
 			BIND_IN_PROGRESS;									//enable bind
 			BIND_CH_PREV_on;

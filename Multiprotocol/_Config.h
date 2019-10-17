@@ -54,7 +54,7 @@
 /*** AUTO BIND ***/  // Also referred as "Bind on powerup"
 /*****************/
 //Bind from channel enables you to bind when a specified channel is going from low to high. This feature is only active
-// if you specify AUTOBIND in PPM mode or set AutoBind to YES for serial mode. It also requires that the throttle channel is low.
+// if you specify AUTOBIND in PPM mode or set AutoBind to YES for serial mode.
 //Comment to globaly disable the bind feature from a channel.
 #define ENABLE_BIND_CH
 //Set the channel number used for bind. Default is 16.

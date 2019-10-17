@@ -203,7 +203,7 @@ static void multi_send_status()
 			for(uint8_t i=0;i<7;i++)
 				Serial_write(multi_protocols[multi_protocols_index].ProtoString[i]);	// protocol name
 			// Sub-protocol
-			uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+			uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto | (multi_protocols[multi_protocols_index].optionType<<4); // add option display type
 			Serial_write(nbr);															// number of sub protocols
 			uint8_t j=0;
 			if(nbr && (sub_protocol&0x07)<nbr)
@@ -215,8 +215,6 @@ static void multi_send_status()
 			}
 			for(;j<8;j++)
 				Serial_write(0x00);
-			// Option type
-			Serial_write(multi_protocols[multi_protocols_index].optionType);			// option display type
 			// Channels function
 			//TODO
 		}

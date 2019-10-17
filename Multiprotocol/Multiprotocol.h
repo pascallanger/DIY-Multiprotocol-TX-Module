@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	18
+#define VERSION_PATCH_LEVEL	19
 
 //******************
 // Protocols
@@ -900,9 +900,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    [10] Next valid protocol number, can be used to skip invalid protocols
    [11] Prev valid protocol number, can be used to skip invalid protocols
    [12..18] Protocol name [7], not null terminated if prototcol len == 7
-   [19] Number of sub protocols
-   [20..27] Sub protocol name [8], not null terminated if sub prototcol len == 8
-   [28] Option text to be displayed: 
+   [19>>4] Option text to be displayed: 
 			OPTION_NONE		0
 			OPTION_OPTION	1
 			OPTION_RFTUNE	2
@@ -910,6 +908,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			OPTION_FIXEDID	4
 			OPTION_TELEM	5
 			OPTION_SRVFREQ	6
+   [19&0x0F] Number of sub protocols
+   [20..27] Sub protocol name [8], not null terminated if sub prototcol len == 8
 
    more information can be added by specifing a longer length of the type, the TX will just ignore these bytes
 

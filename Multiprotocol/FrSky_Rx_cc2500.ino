@@ -171,8 +171,10 @@ static void __attribute__((unused)) frsky_rx_calibrate()
 
 static uint8_t __attribute__((unused)) frskyx_rx_check_crc()
 {
+	// check D8 checksum
 	if (frsky_rx_format == FRSKY_RX_D8)
-		return 1;
+		return (packet[packet_length-1] & 0x80) == 0x80; // check CRC_OK flag in status byte 2
+	// check D16 checksum
 	uint8_t limit = packet_length - 4;
 	uint16_t lcrc = FrSkyX_crc(&packet[3], limit - 3); // computed crc
 	uint16_t rcrc = (packet[limit] << 8) | (packet[limit + 1] & 0xff); // received crc
@@ -188,7 +190,7 @@ static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
 	uint8_t i;
 
 	if (frsky_rx_format == FRSKY_RX_D16FCC || frsky_rx_format == FRSKY_RX_D16LBT) {
-		// decode D16 channels, ignore failsafe
+		// decode D16 channels
 		raw_channel[0] = ((packet[10] << 8) & 0xF00) | packet[9];
 		raw_channel[1] = ((packet[11] << 4) & 0xFF0) | (packet[10] >> 4);
 		raw_channel[2] = ((packet[13] << 8) & 0xF00) | packet[12];

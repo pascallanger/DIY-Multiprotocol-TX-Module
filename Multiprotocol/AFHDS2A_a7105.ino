@@ -122,7 +122,8 @@ static void AFHDS2A_update_telemetry()
 						telemetry_link=1;
 						break;
 					case AFHDS2A_SENSOR_RX_ERR_RATE:
-						RX_LQI=packet[index+2];
+						if(packet[index+2]<=100)
+							RX_LQI=packet[index+2];
 						break;
 					case AFHDS2A_SENSOR_RX_RSSI:
 						RX_RSSI = -packet[index+2];
@@ -349,13 +350,19 @@ uint16_t ReadAFHDS2A()
 					if(packet[0] == 0xAA || packet[0] == 0xAC)
 					{
 						if(!memcmp(&packet[1], rx_tx_addr, 4))
-						{ // Validate TX address
+						{ // TX address validated
 							#ifdef AFHDS2A_LQI_CH
-								for(uint8_t sensor=0; sensor<7; sensor++)
-								{//read LQI value for RX output
-									uint8_t index = 9+(4*sensor);
-									if(packet[index]==AFHDS2A_SENSOR_RX_ERR_RATE)
-										RX_LQI=packet[index+2];
+								if(packet[0]==0xAA && packet[9]!=0xFD)
+								{// Normal telemetry packet
+									for(uint8_t sensor=0; sensor<7; sensor++)
+									{//read LQI value for RX output
+										uint8_t index = 9+(4*sensor);
+										if(packet[index]==AFHDS2A_SENSOR_RX_ERR_RATE && packet[index+2]<=100)
+										{
+											RX_LQI=packet[index+2];
+											break;
+										}
+									}
 								}
 							#endif
 							#if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)

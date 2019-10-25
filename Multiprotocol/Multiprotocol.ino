@@ -653,7 +653,9 @@ uint8_t Update_All()
 					Channel_data[i]=val;
 			}
 			PPM_FLAG_off;									// wait for next frame before update
-			PPM_failsafe();
+			#ifdef FAILSAFE_ENABLE
+				PPM_failsafe();
+			#endif
 			update_channels_aux();
 			INPUT_SIGNAL_on;								// valid signal received
 			last_signal=millis();
@@ -694,7 +696,7 @@ uint8_t Update_All()
 	return 0;
 }
 
-#ifdef ENABLE_PPM
+#if defined(FAILSAFE_ENABLE) && defined(ENABLE_PPM)
 void PPM_failsafe()
 {
 	static uint8_t counter=0;

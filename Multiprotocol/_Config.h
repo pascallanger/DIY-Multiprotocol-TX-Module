@@ -225,7 +225,7 @@
 //FrSkyX specific setting
 //-----------------------
 //EU LBT setting: if commented the TX will not check if a channel is busy before transmitting.
-#define FRSKYX_LBT
+//#define FRSKYX_LBT
 
 //DSM specific settings
 //---------------------

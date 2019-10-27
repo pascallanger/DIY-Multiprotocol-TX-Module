@@ -224,8 +224,7 @@
 
 //FrSkyX specific setting
 //-----------------------
-//EU LBT setting
-//If commented the TX will not check if a channel is busy before transmitting
+//EU LBT setting: if commented the TX will not check if a channel is busy before transmitting.
 //#define FRSKYX_LBT
 
 //DSM specific settings
@@ -270,6 +269,8 @@
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
 //=>OpenTX 2.3.2 with a STM32 or OrangeRX module this setting can be ignored.
 #define INVERT_TELEMETRY
+//For STM32 and OrangeRX modules, comment to prevent the TX from forcing the serial telemetry polarity normal/invert.
+#define INVERT_TELEMETRY_TX
 
 //Uncomment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
 //Use with er9x/erskyTX, for OpenTX MULTI_TELEMETRY below is preferred instead

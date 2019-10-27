@@ -276,6 +276,8 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 
 uint16_t ReadFrSkyX()
 {
+	static bool transmit=true;
+	
 	switch(state)
 	{	
 		default: 
@@ -300,38 +302,55 @@ uint16_t ReadFrSkyX()
 		case FRSKY_DATA1:
 			if ( prev_option != option )
 			{
-				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
+				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);				//Frequency offset hack 
 				prev_option = option ;
 			}
-			CC2500_SetTxRxMode(TX_EN);
 			FrSkyX_set_start(hopping_frequency_no);
-			CC2500_SetPower();		
+			transmit=true;
+#ifdef FRSKYX_LBT
+			CC2500_Strobe(CC2500_SIDLE);
+			state++;
+			return 210;													//Wait for the freq to stabilize
+		case FRSKY_DATA2:		
+			CC2500_Strobe(CC2500_SRX);									//Acquire RSSI
+			state++;
+			return 20;
+		case FRSKY_DATA3:		
+			uint8_t rssi;
+			rssi = CC2500_ReadReg(CC2500_34_RSSI | CC2500_READ_BURST);	// 0.5 db/count, RSSI value read from the RSSI status register is a 2's complement number
+			if ((sub_protocol & 2) && rssi > 72 && rssi < 128)			//LBT and RSSI between -36 to -8.5 dBm
+			{
+				transmit=false;
+				debugln("Busy %d %d",hopping_frequency_no,rssi);
+			}
+#endif
+			CC2500_SetTxRxMode(TX_EN);
+			CC2500_SetPower();
 			CC2500_Strobe(CC2500_SFRX);
 			hopping_frequency_no = (hopping_frequency_no+FrSkyX_chanskip)%47;
 			CC2500_Strobe(CC2500_SIDLE);		
-			CC2500_WriteData(packet, packet[0]+1);
-			state++;
+			if(transmit)
+				CC2500_WriteData(packet, packet[0]+1);
+			state=FRSKY_DATA4;
 			return 5200;
-		case FRSKY_DATA2:
+		case FRSKY_DATA4:
 			CC2500_SetTxRxMode(RX_EN);
 			CC2500_Strobe(CC2500_SIDLE);
 			state++;
 			return 200;
-		case FRSKY_DATA3:		
+		case FRSKY_DATA5:		
 			CC2500_Strobe(CC2500_SRX);
 			state++;
 			return 3100;
-		case FRSKY_DATA4:
+		case FRSKY_DATA6:
 			telemetry_set_input_sync(9000);
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
-			if (len && (len<=(0x0E + 3)))					//Telemetry frame is 17
+			if (len && (len<=(0x0E + 3)))								//Telemetry frame is 17
 			{
 				packet_count=0;
 				CC2500_ReadData(packet_in, len);
 				#if defined TELEMETRY
-					frsky_check_telemetry(packet_in,len);	//check if valid telemetry packets
-					//parse telemetry packets here
-					//The same telemetry function used by FrSky(D8).
+					frsky_check_telemetry(packet_in,len);				//Check and parse telemetry packets
 				#endif
 			} 
 			else
@@ -355,7 +374,11 @@ uint16_t ReadFrSkyX()
 			}
 			FrSkyX_build_packet();
 			state = FRSKY_DATA1;
+#ifdef FRSKYX_LBT
+			return 270;
+#else
 			return 500;
+#endif
 	}		
 	return 1;		
 }

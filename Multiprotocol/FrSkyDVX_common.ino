@@ -47,7 +47,8 @@ enum {
 	FRSKY_DATA2,
 	FRSKY_DATA3,
 	FRSKY_DATA4,
-	FRSKY_DATA5
+	FRSKY_DATA5,
+	FRSKY_DATA6
 };
 
 void Frsky_init_hop(void)

@@ -222,6 +222,12 @@
 /*** PROTOCOLS SETTINGS  ***/
 /***************************/
 
+//FrSkyX specific setting
+//-----------------------
+//EU LBT setting
+//If commented the TX will not check if a channel is busy before transmitting
+//#define FRSKYX_LBT
+
 //DSM specific settings
 //---------------------
 //The DSM protocol is using by default the Spektrum throw of 1100..1900us @100% and 1000..2000us @125%.
@@ -274,8 +280,9 @@
 #define MULTI_TELEMETRY
 //Send to OpenTX the current protocol and subprotocol names. Comment to disable.
 #define MULTI_NAMES
-//Sync OpenTX frames with the current protocol timing. This feature is only available on the STM32 module. Comment to disable.
-#define MULTI_SYNC
+//Sync OpenTX frames with the current protocol timing. This feature is only available on the STM32 module. Uncomment to enable.
+//!!!Work in progress!!! it's currently known to cause issues. Enable only if you know what you are doing.
+//#define MULTI_SYNC
 
 //Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, erskyTX and OpenTX

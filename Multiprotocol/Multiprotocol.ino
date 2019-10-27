@@ -1463,7 +1463,7 @@ static void protocol_init()
 void update_serial_data()
 {
 	static bool prev_ch_mapping=false;
-	#ifdef TELEMETRY
+	#if defined(TELEMETRY) && defined(INVERT_TELEMETRY_TX)
 		#ifdef INVERT_TELEMETRY
 			static bool prev_inv_telem=true;
 		#else
@@ -1557,16 +1557,15 @@ void update_serial_data()
 			DISABLE_TELEM_on;
 		if(rx_ok_buff[26]&0x01)
 			DISABLE_CH_MAP_on;
-		#if defined TELEMETRY
+		#if defined(TELEMETRY) && defined(INVERT_TELEMETRY_TX)
 			if(((rx_ok_buff[26]&0x08)!=0) ^ prev_inv_telem)
 			{ //value changed
 				if(rx_ok_buff[26]&0x08)
 				{								// Invert telemetry
 					debugln("Invert telem %d,%d",rx_ok_buff[26]&0x01,prev_inv_telem);
-					#ifdef ORANGE_TX
+					#if defined (ORANGE_TX)
 						PORTC.PIN3CTRL |= 0x40 ;
-					#endif
-					#ifdef STM32_BOARD
+					#elif defined (STM32_BOARD)
 						TX_INV_on;
 						RX_INV_on;
 					#endif
@@ -1574,10 +1573,9 @@ void update_serial_data()
 				else
 				{								// Normal telemetry
 					debugln("Normal telem %d,%d",rx_ok_buff[26]&0x01,prev_inv_telem);
-					#ifdef ORANGE_TX
+					#if defined (ORANGE_TX)
 						PORTC.PIN3CTRL &= 0xBF ;
-					#endif
-					#ifdef STM32_BOARD
+					#elif defined (STM32_BOARD)
 						TX_INV_off;
 						RX_INV_off;
 					#endif

@@ -299,12 +299,12 @@ enum TRAXXAS
 
 struct PPM_Parameters
 {
-	uint8_t protocol;
-	uint8_t sub_proto :	3;
-	uint8_t rx_num :	4;
-	uint8_t power :		1;
-	uint8_t autobind :	1;
-	uint8_t option;
+	uint8_t protocol : 6;
+	uint8_t sub_proto : 3;
+	uint8_t rx_num : 4;
+	uint8_t power : 1;
+	uint8_t autobind : 1;
+	int8_t option;
 	uint32_t chan_order;
 };
 

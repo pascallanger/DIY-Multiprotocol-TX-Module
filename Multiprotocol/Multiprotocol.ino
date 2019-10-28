@@ -477,7 +477,7 @@ void setup()
 				option			=	FORCE_HITEC_TUNING;		// Use config-defined tuning value for HITEC
 			else
 		#endif
-				option			=	PPM_prot_line->option;	// Use radio-defined option value
+				option			=	(uint8_t)PPM_prot_line->option;	// Use radio-defined option value
 
 		if(PPM_prot_line->power)		POWER_FLAG_on;
 		if(PPM_prot_line->autobind)

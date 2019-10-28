@@ -309,7 +309,7 @@ struct PPM_Parameters
 	uint8_t rx_num : 4;
 	uint8_t power : 1;
 	uint8_t autobind : 1;
-	uint8_t option;
+	int8_t option;
 	uint32_t chan_order;
 };
 

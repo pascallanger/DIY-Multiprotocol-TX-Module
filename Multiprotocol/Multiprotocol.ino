@@ -1712,9 +1712,12 @@ void update_serial_data()
 	#endif
 	if(IS_RX_MISSED_BUFF_on)					// If the buffer is still valid
 	{	
-		rx_len=rx_idx;
-		memcpy((void*)rx_ok_buff,(const void*)rx_buff,rx_len);// Duplicate the buffer
-		RX_FLAG_on;								// data to be processed next time...
+		if(rx_idx>=26 && rx_idx<RXBUFFER_SIZE)
+		{
+			rx_len=rx_idx;
+			memcpy((void*)rx_ok_buff,(const void*)rx_buff,rx_len);// Duplicate the buffer
+			RX_FLAG_on;								// data to be processed next time...
+		}
 		RX_MISSED_BUFF_off;
 	}
 	#ifdef ORANGE_TX
@@ -2085,14 +2088,14 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				#endif
 				{
 					#if defined STM32_BOARD
-						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 360;	// Next byte should show up within 18??s=1.5 byte
+						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 500;	// Next byte should show up within 250us (1 byte = 120us)
 						TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer2/Comp2 interrupt flag
 						TIMER2_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer2/Comp2 interrupt
 					#else
 						TX_RX_PAUSE_on;
 						tx_pause();
 						cli();										// Disable global int due to RW of 16 bits registers
-						OCR1B = TCNT1 + 360;						// Next byte should show up within 18??s=1.5 byte
+						OCR1B = TCNT1 + 500;						// Next byte should show up within 250us (1 byte = 120us)
 						sei();										// Enable global int
 						TIFR1 = OCF1B_bm ;							// clear OCR1B match flag
 						SET_TIMSK1_OCIE1B ;							// enable interrupt on compare B match
@@ -2111,10 +2114,10 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				{
 					rx_buff[rx_idx++]=UDR0;							// Store received byte
 					#if defined STM32_BOARD
-						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 360;	// Next byte should show up within 18??s=1.5 byte
+						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 500;	// Next byte should show up within 250us (1 byte = 120us)
 					#else
 						cli();										// Disable global int due to RW of 16 bits registers
-						OCR1B = TCNT1 + 360;						// Next byte should show up within 18??s=1.5 byte
+						OCR1B = TCNT1 + 500;						// Next byte should show up within 250us (1 byte = 120us)
 						sei();										// Enable global int
 					#endif
 				}
@@ -2149,11 +2152,12 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	#elif defined STM32_BOARD
 		void ISR_COMPB()
 	#else
-		ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
+		ISR(TIMER1_COMPB_vect)
 	#endif
 	{	// Timer1 compare B interrupt
-		if(rx_idx>=26)
+		if(rx_idx>=26 && rx_idx<RXBUFFER_SIZE)
 		{
+			debugln("%d",rx_idx);
 			#ifdef MULTI_SYNC
 				last_serial_input=TCNT1;
 			#endif

@@ -232,7 +232,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 					if(nbr_bytes)
 					{//Check the buffer status
 						uint8_t used = SportTail;
-						if ( SportHead >= SportTail )
+						if ( SportHead > SportTail )
 							used += MAX_SPORT_BUFFER - SportHead ;
 						else
 							used -= SportHead ;
@@ -353,7 +353,7 @@ uint16_t ReadFrSkyX()
 		case FRSKY_DATA3:		
 			uint8_t rssi;
 			rssi = CC2500_ReadReg(CC2500_34_RSSI | CC2500_READ_BURST);	// 0.5 db/count, RSSI value read from the RSSI status register is a 2's complement number
-			if ((sub_protocol & 2) && rssi > 72 && rssi < 128)			//LBT and RSSI between -36 to -8.5 dBm
+			if ((sub_protocol & 2) && rssi < 128)						//LBT and RSSI between -73 to -8.5 dBm  (-36dBm=72)
 			{
 				transmit=false;
 				debugln("Busy %d %d",hopping_frequency_no,rssi);

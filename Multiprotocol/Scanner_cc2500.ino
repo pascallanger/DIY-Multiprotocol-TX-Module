@@ -90,7 +90,7 @@ static int __attribute__((unused)) Scanner_scan_rssi()
 		rssi_rel = rssi - 128;  // relative power levels 0-127 (equals -137 to -72 dBm)
 	}
 	else {
-		rssi_rel = rssi + 128;  // relativ power levels 128-255 (equals -73 to -10 dBm)
+		rssi_rel = rssi + 128;  // relative power levels 128-255 (equals -73 to -10 dBm)
 	}
 	return rssi_rel;
 }

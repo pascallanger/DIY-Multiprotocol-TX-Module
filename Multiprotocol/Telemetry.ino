@@ -1287,4 +1287,9 @@ ISR(TIMER0_OVF_vect)
 
 #endif // BASH_SERIAL
 
+#else
+void telemetry_set_input_sync(uint16_t refreshRate)
+{
+	(void)refreshRate;
+}
 #endif // TELEMETRY

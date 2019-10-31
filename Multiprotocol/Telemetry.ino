@@ -99,7 +99,7 @@ inline void telemetry_set_input_sync(uint16_t refreshRate)
 				inputDelay=TIMER2_BASE->CNT;
 			#else
 				cli();										// Disable global int due to RW of 16 bits registers
-				inputDelay = TCNT1;							// Next byte should show up within 15us=1.5 byte
+				inputDelay = TCNT1;
 				sei();										// Enable global int
 			#endif
 			inputDelay = (inputDelay - last_serial_input)>>1;
@@ -824,7 +824,7 @@ void TelemetryUpdate()
 			t -= h ;
 		if ( t < 32 )
 		{
-			debugln("TEL_BUF_FULL");
+//			debugln("TEL_BUF_FULL");
 			return ;
 		}
 	#endif
@@ -1055,7 +1055,7 @@ void TelemetryUpdate()
 				}
 				if (tx_tail == tx_head)
 				{
-					tx_pause(); // Check if all data is transmitted . if yes disable transmitter UDRE interrupt
+					tx_pause(); // Check if all data is transmitted. If yes disable transmitter UDRE interrupt.
 				}
 		#ifdef STM32_BOARD	
 			}

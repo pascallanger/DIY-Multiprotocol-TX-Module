@@ -277,6 +277,9 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 uint16_t ReadFrSkyX()
 {
 	static bool transmit=true;
+	#ifdef DEBUG_SERIAL
+		static uint16_t fr_time=0;
+	#endif
 	
 	switch(state)
 	{	
@@ -298,8 +301,8 @@ uint16_t ReadFrSkyX()
 			hopping_frequency_no=0;
 			BIND_DONE;
 			state++;													//FRSKY_DATA1
-			break;		
-		case FRSKY_DATA6:
+			break;
+		case FRSKY_DATA5:
 			telemetry_set_input_sync(9000);
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
 			if (len && (len<=(0x0E + 3)))								//Telemetry frame is 17
@@ -309,7 +312,7 @@ uint16_t ReadFrSkyX()
 				#if defined TELEMETRY
 					frsky_check_telemetry(packet_in,len);				//Check and parse telemetry packets
 				#endif
-			} 
+			}
 			else
 			{
 				packet_count++;
@@ -344,36 +347,43 @@ uint16_t ReadFrSkyX()
 			transmit=true;
 #ifdef FRSKYX_LBT
 			CC2500_Strobe(CC2500_SIDLE);
-			state++;
-			return 100;													//Wait for the freq to stabilize
-		case FRSKY_DATA2:		
+			delayMicroseconds(90);										//Wait for the freq to stabilize
 			CC2500_Strobe(CC2500_SRX);									//Acquire RSSI
 			state++;
-			return 400;
-		case FRSKY_DATA3:		
+			return 500;
+		case FRSKY_DATA2:
 			uint8_t rssi;
 			rssi = CC2500_ReadReg(CC2500_34_RSSI | CC2500_READ_BURST);	// 0.5 db/count, RSSI value read from the RSSI status register is a 2's complement number
-			if ((sub_protocol & 2) && rssi < 128)						//LBT and RSSI between -73 to -8.5 dBm  (-36dBm=72)
+			if ((sub_protocol & 2) && rssi > 72 && rssi < 128)			//LBT and RSSI between -36 and -8.5 dBm
 			{
 				transmit=false;
 				debugln("Busy %d %d",hopping_frequency_no,rssi);
 			}
 #endif
+			CC2500_Strobe(CC2500_SIDLE);
+			CC2500_Strobe(CC2500_SFRX);
 			CC2500_SetTxRxMode(TX_EN);
 			CC2500_SetPower();
-			CC2500_Strobe(CC2500_SFRX);
 			hopping_frequency_no = (hopping_frequency_no+FrSkyX_chanskip)%47;
-			CC2500_Strobe(CC2500_SIDLE);		
 			if(transmit)
+			{
+				#ifdef DEBUG_SERIAL
+					uint16_t fr_cur=millis();
+					fr_time=fr_cur-fr_time;
+					if(fr_time!=9)
+						debugln("Bad timing: %d",fr_time);
+					fr_time=fr_cur;
+				#endif
 				CC2500_WriteData(packet, packet[0]+1);
-			state=FRSKY_DATA4;
+			}
+			state=FRSKY_DATA3;
 			return 5200;
-		case FRSKY_DATA4:
+		case FRSKY_DATA3:
 			CC2500_SetTxRxMode(RX_EN);
 			CC2500_Strobe(CC2500_SIDLE);
 			state++;
 			return 200;
-		case FRSKY_DATA5:		
+		case FRSKY_DATA4:
 			CC2500_Strobe(CC2500_SRX);
 			state++;
 			return 3100;

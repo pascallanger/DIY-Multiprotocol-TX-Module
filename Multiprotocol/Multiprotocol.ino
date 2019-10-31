@@ -165,7 +165,7 @@ uint8_t  RX_num;
 #define RXBUFFER_SIZE 36	// 26+1+9
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
-volatile uint8_t discard_frame = 0;
+volatile bool discard_frame = false;
 volatile uint8_t rx_idx=0, rx_len=0;
 
 
@@ -555,88 +555,76 @@ void setup()
 // Protocol scheduler
 void loop()
 { 
-	uint16_t next_callback,diff=0xFFFF;
+	uint16_t next_callback, diff;
+	uint8_t count=0;
 
 	while(1)
 	{
-		if(remote_callback==0 || IS_WAIT_BIND_on || diff>2*200)
-		{
-			do
+		while(remote_callback==0 || IS_WAIT_BIND_on || IS_INPUT_SIGNAL_off)
+			if(!Update_All())
 			{
-				Update_All();
-			}
-			while(remote_callback==0 || IS_WAIT_BIND_on);
-		}
-		#ifndef STM32_BOARD
-			if( (TIFR1 & OCF1A_bm) != 0)
-			{
-				cli();					// Disable global int due to RW of 16 bits registers
-				OCR1A=TCNT1;			// Callback should already have been called... Use "now" as new sync point.
-				sei();					// Enable global int
-			}
-			else
-				while((TIFR1 & OCF1A_bm) == 0); // Wait before callback
-		#else
-			if((TIMER2_BASE->SR & TIMER_SR_CC1IF)!=0)
-			{
-				debugln("Callback miss");
-				cli();
-				OCR1A = TCNT1;
-				sei();
-			}
-			else
-				while((TIMER2_BASE->SR & TIMER_SR_CC1IF )==0); // Wait before callback
-		#endif
-		do
-		{
-			TX_MAIN_PAUSE_on;
-			tx_pause();
-			if(IS_INPUT_SIGNAL_on && remote_callback!=0)
-				next_callback=remote_callback();
-			else
-				next_callback=2000;					// No PPM/serial signal check again in 2ms...
-			TX_MAIN_PAUSE_off;
-			tx_resume();
-			while(next_callback>1000)
-			{ // start to wait here as much as we can...
-				next_callback-=500;					// We will wait below for 0.5ms
 				cli();								// Disable global int due to RW of 16 bits registers
-				OCR1A += 500*2 ;					// set compare A for callback
-				#ifndef STM32_BOARD
-					TIFR1=OCF1A_bm;					// clear compare A=callback flag
-				#else
-					TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
-				#endif
-				sei();								// enable global int
-				if(Update_All())					// Protocol changed?
-				{
-					next_callback=0;				// Launch new protocol ASAP
-					break;
-				}
-				#ifndef STM32_BOARD	
-					while((TIFR1 & OCF1A_bm) == 0);	// wait 0.5ms...
-				#else
-					while((TIMER2_BASE->SR & TIMER_SR_CC1IF)==0);//wait 0.5ms...
-				#endif
+				OCR1A=TCNT1;						// Callback should already have been called... Use "now" as new sync point.
+				sei();								// Enable global int
 			}
-			// at this point we have a maximum of 1ms in next_callback
-			next_callback *= 2 ;
+		TX_MAIN_PAUSE_on;
+		tx_pause();
+		next_callback=remote_callback()<<1;
+		TX_MAIN_PAUSE_off;
+		tx_resume();
+		cli();										// Disable global int due to RW of 16 bits registers
+		OCR1A+=next_callback;						// Calc when next_callback should happen
+		#ifndef STM32_BOARD			
+			TIFR1=OCF1A_bm;							// Clear compare A=callback flag
+		#else
+			TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
+		#endif		
+		diff=OCR1A-TCNT1;							// Calc the time difference
+		sei();										// Enable global int
+		if((diff&0x8000) && !(next_callback&0x8000))
+		{ // Negative result=callback should already have been called... 
 			cli();									// Disable global int due to RW of 16 bits registers
-			OCR1A+= next_callback ;					// set compare A for callback
-			#ifndef STM32_BOARD			
-				TIFR1=OCF1A_bm;						// clear compare A=callback flag
-			#else
-				TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
-			#endif		
-			diff=OCR1A-TCNT1;						// compare timer and comparator
-			sei();									// enable global int
+			OCR1A=TCNT1;							// Use "now" as new sync point.
+			sei();									// Enable global int
+			debugln("Short CB:%d",next_callback);
 		}
-		while(diff&0x8000);	 						// Callback did not took more than requested time for next callback
-													// so we can launch Update_All before next callback
+		else
+		{
+			if(IS_RX_FLAG_on || IS_PPM_FLAG_on)
+			{ // Serial or PPM is waiting...
+				if(++count>10)
+				{ //The protocol does not leave engough time for an update so forcing it
+					count=0;
+					debugln("Force update");
+					Update_All();
+				}
+			}
+			#ifndef STM32_BOARD
+				while((TIFR1 & OCF1A_bm) == 0)
+			#else
+				while((TIMER2_BASE->SR & TIMER_SR_CC1IF )==0)
+			#endif
+			{
+				if(diff>900*2)
+				{	//If at least 1ms is available update values 
+					count=0;
+					Update_All();
+					#if defined(STM32_BOARD) && defined(DEBUG_SERIAL)
+						if(TIMER2_BASE->SR & TIMER_SR_CC1IF )
+							debugln("Long update");
+					#endif
+					if(remote_callback==0)
+						break;
+					cli();							// Disable global int due to RW of 16 bits registers
+					diff=OCR1A-TCNT1;				// Calc the time difference
+					sei();							// Enable global int
+				}
+			}
+		}			
 	}
 }
 
-uint8_t Update_All()
+bool Update_All()
 {
 	#ifdef ENABLE_SERIAL
 		#ifdef CHECK_FOR_BOOTLOADER
@@ -718,9 +706,9 @@ uint8_t Update_All()
 	if(IS_CHANGE_PROTOCOL_FLAG_on)
 	{ // Protocol needs to be changed or relaunched for bind
 		protocol_init();									//init new protocol
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 #if defined(FAILSAFE_ENABLE) && defined(ENABLE_PPM)
@@ -778,7 +766,10 @@ static void update_led_status(void)
 {
 	if(IS_INPUT_SIGNAL_on)
 		if(millis()-last_signal>70)
+		{
 			INPUT_SIGNAL_off;							//no valid signal (PPM or Serial) received for 70ms
+			debugln("No input signal");
+		}
 	if(blink<millis())
 	{
 		if(IS_INPUT_SIGNAL_off)
@@ -1716,7 +1707,7 @@ void update_serial_data()
 		{
 			rx_len=rx_idx;
 			memcpy((void*)rx_ok_buff,(const void*)rx_buff,rx_len);// Duplicate the buffer
-			RX_FLAG_on;								// data to be processed next time...
+			RX_FLAG_on;							// Data to be processed next time...
 		}
 		RX_MISSED_BUFF_off;
 	}
@@ -2076,10 +2067,10 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			if((UCSR0A&0x1C)==0)									// Check frame error, data overrun and parity error
 		#endif
 		{ // received byte is ok to process
-			if(rx_idx==0||discard_frame==1)
+			if(rx_idx==0||discard_frame==true)
 			{	// Let's try to sync at this point
 				RX_MISSED_BUFF_off;									// If rx_buff was good it's not anymore...
-				rx_idx=0;discard_frame=0;
+				rx_idx=0;discard_frame=false;
 				rx_buff[0]=UDR0;
 				#ifdef FAILSAFE_ENABLE
 					if((rx_buff[0]&0xFC)==0x54)						// If 1st byte is 0x54, 0x55, 0x56 or 0x57 it looks ok
@@ -2107,7 +2098,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			{
 				if(rx_idx>=RXBUFFER_SIZE)
 				{
-					discard_frame=1; 								// Too many bytes being received...
+					discard_frame=true; 								// Too many bytes being received...
 					debugln("RX frame too long");
 				}
 				else
@@ -2127,10 +2118,10 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		{
 			rx_idx=UDR0;											// Dummy read
 			rx_idx=0;
-			discard_frame=1;										// Error encountered discard full frame...
+			discard_frame=true;										// Error encountered discard full frame...
 			debugln("Bad frame RX");
 		}
-		if(discard_frame==1)
+		if(discard_frame==true)
 		{
 			#ifdef STM32_BOARD
 				TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer2/Comp2 interrupt
@@ -2157,7 +2148,6 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	{	// Timer1 compare B interrupt
 		if(rx_idx>=26 && rx_idx<RXBUFFER_SIZE)
 		{
-			debugln("%d",rx_idx);
 			#ifdef MULTI_SYNC
 				last_serial_input=TCNT1;
 			#endif
@@ -2166,16 +2156,17 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			{ //Good frame received and main is not working on the buffer
 				rx_len=rx_idx;
 				memcpy((void*)rx_ok_buff,(const void*)rx_buff,rx_idx);	// Duplicate the buffer
-				RX_FLAG_on;											// Flag for main to process servo data
+				RX_FLAG_on;											// Flag for main to process data
 			}
 			else
 				RX_MISSED_BUFF_on;									// Notify that rx_buff is good
 		}
 		else
 			debugln("RX frame too short");
-		discard_frame=1;
+		discard_frame=true;
 		#ifdef STM32_BOARD
 			TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;					// Disable Timer2/Comp2 interrupt
+			TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;				// Clear Timer2/Comp2 interrupt flag
 		#else
 			CLR_TIMSK1_OCIE1B;										// Disable interrupt on compare B match
 			TX_RX_PAUSE_off;

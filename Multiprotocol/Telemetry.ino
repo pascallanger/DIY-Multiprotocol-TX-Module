@@ -80,7 +80,7 @@ static void multi_send_header(uint8_t type, uint8_t len)
 	Serial_write(len);
 }
 
-inline void telemetry_set_input_sync(uint16_t refreshRate)
+static void telemetry_set_input_sync(uint16_t refreshRate)
 {
 	#ifdef MULTI_SYNC
 		#if defined(STM32_BOARD) && defined(DEBUG_PIN)

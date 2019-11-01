@@ -609,7 +609,7 @@ void loop()
 				{	//If at least 1ms is available update values 
 					count=0;
 					Update_All();
-					#if defined(STM32_BOARD) && defined(DEBUG_SERIAL)
+					#ifdef DEBUG_SERIAL
 						if(TIMER2_BASE->SR & TIMER_SR_CC1IF )
 							debugln("Long update");
 					#endif
@@ -2161,8 +2161,10 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			else
 				RX_MISSED_BUFF_on;									// Notify that rx_buff is good
 		}
-		else
-			debugln("RX frame too short");
+		#ifdef DEBUG_SERIAL
+			else
+				debugln("RX frame too short");
+		#endif
 		discard_frame=true;
 		#ifdef STM32_BOARD
 			TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;					// Disable Timer2/Comp2 interrupt

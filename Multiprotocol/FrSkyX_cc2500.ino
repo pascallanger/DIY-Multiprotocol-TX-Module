@@ -132,7 +132,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 			failsafe_chan = 0;
 		} else if (FS_flag & 0x10 && failsafe_chan < (sub_protocol & 0x01 ? 8-1:16-1))
 		{
-			FS_flag = 0x10 | ((FS_flag + 2) & 0x0F);	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
+			FS_flag = 0x10 | ((FS_flag + 2) & 0x0F);					//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
 			failsafe_chan ++;
 		} else if (FS_flag & 0x10)
 		{
@@ -142,7 +142,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 		failsafe_count++;
 	#endif
 	
-	packet[0] = (sub_protocol & 0x02 ) ? 0x20 : 0x1D ;	// LBT or FCC
+	packet[0] = (sub_protocol & 0x02 ) ? 0x20 : 0x1D ;					// LBT or FCC
 	packet[1] = rx_tx_addr[3];
 	packet[2] = rx_tx_addr[2];
 	packet[3] = 0x02;
@@ -179,11 +179,11 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 				chan_1 = FrSkyX_scaleForPXX(startChan);
 		startChan++;
 		//
-		packet[9+i] = lowByte(chan_0);	//3 bytes*4
+		packet[9+i] = lowByte(chan_0);									//3 bytes*4
 		packet[9+i+1]=(((chan_0>>8) & 0x0F)|(chan_1 << 4));
 		packet[9+i+2]=chan_1>>4;
 	}
-	if(sub_protocol & 0x01 )			// in X8 mode send only 8ch every 9ms
+	if(sub_protocol & 0x01 )											//In X8 mode send only 8ch every 9ms
 		chan_offset = 0 ;
 	else
 		chan_offset^=0x08;
@@ -192,7 +192,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
 	for (uint8_t i=22;i<limit;i++)
 		packet[i]=0;
-	packet[21] = FrSkyX_RX_Seq << 4;//TX=8 at startup
+	packet[21] = FrSkyX_RX_Seq << 4;									//TX=8 at startup
 	#ifdef SPORT_SEND
 		if (FrSkyX_TX_IN_Seq!=0xFF)
 		{//RX has replied at least once
@@ -201,7 +201,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 				//debugln("Init");
 				FrSkyX_TX_Seq = 0 ;	
 				for(uint8_t i=0;i<4;i++)
-					FrSkyX_TX_Frames[i].count=0;	// discard frames in current output buffer
+					FrSkyX_TX_Frames[i].count=0;						//Discard frames in current output buffer
 			}
 			else if (FrSkyX_TX_IN_Seq & 0x04)
 			{//Retransmit the requested packet
@@ -242,7 +242,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 							debugln("Ok buf:%d",used);
 						}
 					}
-					FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;	// Next iteration send next packet
+					FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;		//Next iteration send next packet
 				}
 				else
 				{//Not in sequence somehow, transmit what the receiver wants but why not asking for retransmit...
@@ -254,7 +254,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 				}
 			}
 			else
-				packet[21] |= 0x08 ;							//FrSkyX_TX_Seq=8 at startup
+				packet[21] |= 0x08 ;									//FrSkyX_TX_Seq=8 at startup
 		}
 		if(packet[22])
 		{//Debug
@@ -266,7 +266,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	#else
 		packet[21] |= FrSkyX_TX_Seq ;//TX=8 at startup
 		if ( !(FrSkyX_TX_IN_Seq & 0xF8) )
-			FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;		// Next iteration send next packet
+			FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;				// Next iteration send next packet
 	#endif // SPORT_SEND
 
 	uint16_t lcrc = FrSkyX_crc(&packet[3], limit-3);
@@ -316,21 +316,22 @@ uint16_t ReadFrSkyX()
 			else
 			{
 				packet_count++;
+				//debugln("M %d",packet_count);
 				// restart sequence on missed packet - might need count or timeout instead of one missed
 				if(packet_count>100)
 				{//~1sec
-					FrSkyX_TX_Seq = 0x08 ;			// Request init
-					FrSkyX_TX_IN_Seq = 0xFF ;		// No sequence received yet
+					FrSkyX_TX_Seq = 0x08 ;								//Request init
+					FrSkyX_TX_IN_Seq = 0xFF ;							//No sequence received yet
 					#ifdef SPORT_SEND
 						for(uint8_t i=0;i<4;i++)
-							FrSkyX_TX_Frames[i].count=0;	// discard frames in current output buffer
+							FrSkyX_TX_Frames[i].count=0;				//Discard frames in current output buffer
 					#endif
 					packet_count=0;
 					#if defined TELEMETRY
 						telemetry_lost=1;
 					#endif
 				}
-				CC2500_Strobe(CC2500_SFRX);			//flush the RXFIFO
+				CC2500_Strobe(CC2500_SFRX);								//Flush the RXFIFO
 			}
 			FrSkyX_build_packet();
 			state = FRSKY_DATA1;

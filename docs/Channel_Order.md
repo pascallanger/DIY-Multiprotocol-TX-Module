@@ -76,7 +76,7 @@ The Multiprotocol Module also supports protocols which _do not_ have a specific 
 
 Examples of protocols which are not reordered: Corona, FrSkyD, FrSkyX, FrSkyV, Hitec, and WFly.
 
-The full list of supported protocols, including the output channel order for each of them, is available [here](Protocols_Details.md).
+The full list of supported protocols, including the output channel order for each of them, is available [here](../Protocols_Details.md).
 
 Where the channel table looks like this, with an input assigned to each channel, the output **is** being reordered:
 

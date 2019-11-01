@@ -824,9 +824,13 @@ void TelemetryUpdate()
 			t -= h ;
 		if ( t < 32 )
 		{
-//			debugln("TEL_BUF_FULL");
+			//debugln("TEL_BUF_FULL %d",t);
 			return ;
 		}
+/*		else
+			if(t!=96)
+				debugln("TEL_BUF %d",t);
+*/
 	#endif
 	#if defined(MULTI_TELEMETRY) || defined(MULTI_STATUS)
 		uint32_t now = millis();
@@ -847,7 +851,7 @@ void TelemetryUpdate()
 		#endif
 	#endif
 	#if defined SPORT_TELEMETRY
-		if (protocol==PROTO_FRSKYX
+		if (protocol==PROTO_FRSKYX && telemetry_link 
 		#ifdef TELEMETRY_FRSKYX_TO_FRSKYD
 			&& mode_select==MODE_SERIAL
 		#endif

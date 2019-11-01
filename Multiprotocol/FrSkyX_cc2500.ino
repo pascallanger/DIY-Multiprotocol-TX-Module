@@ -304,6 +304,9 @@ uint16_t ReadFrSkyX()
 			break;
 		case FRSKY_DATA5:
 			telemetry_set_input_sync(9000);
+			#if defined TELEMETRY
+				telemetry_link=1;										//Send telemetry out anyway
+			#endif
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
 			if (len && (len<=(0x0E + 3)))								//Telemetry frame is 17
 			{
@@ -329,6 +332,7 @@ uint16_t ReadFrSkyX()
 					packet_count=0;
 					#if defined TELEMETRY
 						telemetry_lost=1;
+						telemetry_link=0;								//Stop sending telemetry
 					#endif
 				}
 				CC2500_Strobe(CC2500_SFRX);								//Flush the RXFIFO

@@ -31,13 +31,10 @@ uint8_t RetrySequence ;
 #endif // MULTI_TELEMETRY/MULTI_STATUS
 
 #if defined SPORT_TELEMETRY	
-	#define SPORT_TIME 12000	//12ms
 	#define FRSKY_SPORT_PACKET_SIZE   8
 	#define FX_BUFFERS	4
-	uint32_t last = 0;
-	uint8_t sport_counter=0;
 	uint8_t RxBt = 0;
-	uint8_t sport = 0;
+	uint8_t Sport_Data = 0;
 	uint8_t pktx1[FRSKY_SPORT_PACKET_SIZE*FX_BUFFERS];
 
 	// Store for out of sequence packet
@@ -64,7 +61,6 @@ uint8_t RetrySequence ;
 #define STUFF_MASK	0x20
 #define MAX_PKTX	10
 uint8_t pktx[MAX_PKTX];
-uint8_t indx;
 uint8_t frame[18];
 
 #if ( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) )
@@ -688,7 +684,9 @@ void sportIdle()
 
 void sportSendFrame()
 {
+	static uint8_t sport_counter=0;
 	uint8_t i;
+
 	sport_counter = (sport_counter + 1) %36;
 	if(telemetry_lost)
 	{
@@ -725,14 +723,14 @@ void sportSendFrame()
 			frame[4] = RxBt;//a1;
 			break;								
 		default:
-			if(sport)
+			if(Sport_Data)
 			{	
 				for (i=0;i<FRSKY_SPORT_PACKET_SIZE;i++)
 					frame[i]=pktx1[i];
-				sport -- ;
-				if ( sport )
+				Sport_Data -- ;
+				if ( Sport_Data )
 				{
-					uint8_t j = sport * FRSKY_SPORT_PACKET_SIZE ;
+					uint8_t j = Sport_Data * FRSKY_SPORT_PACKET_SIZE ;
 					for (i=0;i<j;i++)
 						pktx1[i] = pktx1[i+FRSKY_SPORT_PACKET_SIZE] ;
 				}
@@ -749,6 +747,7 @@ void sportSendFrame()
 
 void proces_sport_data(uint8_t data)
 {
+	static uint8_t pass = 0, indx = 0;
 	switch (pass)
 	{
 		case 0:
@@ -779,13 +778,13 @@ void proces_sport_data(uint8_t data)
 	} // end switch
 	if (indx >= FRSKY_SPORT_PACKET_SIZE)
 	{//8 bytes no crc 
-		if ( sport < FX_BUFFERS )
+		if ( Sport_Data < FX_BUFFERS )
 		{
-			uint8_t dest = sport * FRSKY_SPORT_PACKET_SIZE ;
+			uint8_t dest = Sport_Data * FRSKY_SPORT_PACKET_SIZE ;
 			uint8_t i ;
 			for ( i = 0 ; i < FRSKY_SPORT_PACKET_SIZE ; i++ )
 				pktx1[dest++] = pktx[i] ;	// Triple buffer
-			sport += 1 ;//ok to send
+			Sport_Data += 1 ;//ok to send
 		}
 //		else
 //		{

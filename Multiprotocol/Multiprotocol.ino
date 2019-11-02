@@ -184,7 +184,6 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		#endif
 		#define	INVERT_SERIAL 1
 	#endif
-	uint8_t pass = 0;
 	uint8_t telemetry_in_buffer[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 	#ifdef BASH_SERIAL
 	// For bit-bashed serial output
@@ -583,11 +582,11 @@ void loop()
 		sei();										// Enable global int
 		if((diff&0x8000) && !(next_callback&0x8000))
 		{ // Negative result=callback should already have been called... 
-			cli();									// Disable global int due to RW of 16 bits registers
+			debugln("Short CB:%d",next_callback);
+/*			cli();									// Disable global int due to RW of 16 bits registers
 			OCR1A=TCNT1;							// Use "now" as new sync point.
 			sei();									// Enable global int
-			debugln("Short CB:%d",next_callback);
-		}
+*/		}
 		else
 		{
 			if(IS_RX_FLAG_on || IS_PPM_FLAG_on)
@@ -607,6 +606,11 @@ void loop()
 			{
 				if(diff>900*2)
 				{	//If at least 1ms is available update values 
+					if((diff&0x8000) && !(next_callback&0x8000))
+					{//should never be here
+						debugln("Strange");
+						break;
+					}
 					count=0;
 					Update_All();
 					#ifdef DEBUG_SERIAL
@@ -952,7 +956,6 @@ static void protocol_init()
 				multi_protocols_index = 0xFF;
 			#endif
 			tx_pause();
-			pass=0;
 			init_frskyd_link_telemetry();
 			#ifdef BASH_SERIAL
 				TIMSK0 = 0 ;			// Stop all timer 0 interrupts

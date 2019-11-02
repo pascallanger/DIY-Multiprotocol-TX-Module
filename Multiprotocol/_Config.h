@@ -87,17 +87,18 @@
 //#define ORANGE_TX_BLUE
 
 /** CC2500 Fine Frequency Tuning **/
-//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, SFHSS, CORONA, Redpine and Hitec protocols needs to be tuned for each protocol.
-//Initial tuning should be done via the radio menu with a genuine FrSky/Futaba/CORONA/Hitec/Redpine receiver.  
+//For optimal performance the CC2500 RF module used by the CORONA, FrSkyD, FrSkyV, FrSkyX, Hitec, HoTT, SFHSS and Redpine protocols needs to be tuned for each protocol.
+//Initial tuning should be done via the radio menu with a genuine CORONA/FrSky/Hitec/HoTT/Futaba/Redpine receiver.  
 //Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
 //For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
 //Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable. Valid range is -127 to +127.
+//#define FORCE_CORONA_TUNING	0
 //#define FORCE_FRSKYD_TUNING	0
 //#define FORCE_FRSKYV_TUNING	0
 //#define FORCE_FRSKYX_TUNING	0
 //#define FORCE_SFHSS_TUNING	0
-//#define FORCE_CORONA_TUNING	0
 //#define FORCE_HITEC_TUNING	0
+//#define FORCE_HOTT_TUNING		0
 //#define FORCE_REDPINE_TUNING	0
 
 /** A7105 Fine Frequency Tuning **/
@@ -178,6 +179,7 @@
 #define	FRSKYX_CC2500_INO
 #define	FRSKY_RX_CC2500_INO
 #define	HITEC_CC2500_INO
+//#define	HOTT_CC2500_INO
 #define	SCANNER_CC2500_INO
 #define	SFHSS_CC2500_INO
 #define	REDPINE_CC2500_INO
@@ -283,8 +285,7 @@
 //Send to OpenTX the current protocol and subprotocol names. Comment to disable.
 #define MULTI_NAMES
 //Sync OpenTX frames with the current protocol timing. This feature is only available on the STM32 module. Comment to disable.
-//!!! Work in progress !!! Do not enable for internal module
-//#define MULTI_SYNC
+#define MULTI_SYNC
 
 //Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, erskyTX and OpenTX
@@ -588,6 +589,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		JJRCX1
 		X5C1
 		FQ777_951
+	PROTO_HOTT
+		NONE
 	PROTO_HUBSAN
 		H107
 		H301

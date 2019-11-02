@@ -104,6 +104,11 @@
 		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_HOTT_TUNING
+	#if ( FORCE_HOTT_TUNING < -127 ) || ( FORCE_HOTT_TUNING > 127 )
+		#error "The HOTT forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 //A7105
 #ifdef FORCE_AFHDS2A_TUNING
 	#if ( FORCE_AFHDS2A_TUNING < -300 ) || ( FORCE_AFHDS2A_TUNING > 300 )
@@ -195,6 +200,7 @@
 	#undef	XN297L_CC2500_EMU
 	#undef	SCANNER_CC2500_INO
 	#undef	FRSKY_RX_CC2500_INO
+	#undef	HOTT_CC2500_INO
 #endif
 #ifndef NRF24L01_INSTALLED
 	#undef	BAYANG_NRF24L01_INO

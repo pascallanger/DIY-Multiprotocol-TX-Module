@@ -319,7 +319,6 @@ void setup()
 		pinMode(S4_pin,INPUT_PULLUP);
 		//Random pins
 		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
-		pinMode(PB1, INPUT_ANALOG); // set up pin for analog input
 
 		//Timers
 		init_HWTimer();			//0.5us
@@ -437,10 +436,13 @@ void setup()
 	modules_reset();
 
 #ifndef ORANGE_TX
-	//Init the seed with a random value created from watchdog timer for all protocols requiring random values
 	#ifdef STM32_BOARD
-		randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));			
+		uint32_t seed=0;
+		for(uint8_t i=0;i<4;i++)
+			seed=(seed<<8) | (analogRead(PB0)& 0xFF);
+		randomSeed(seed);
 	#else
+		//Init the seed with a random value created from watchdog timer for all protocols requiring random values
 		randomSeed(random_value());
 	#endif
 #endif
@@ -500,6 +502,11 @@ void setup()
 		#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
 			if (protocol==PROTO_HITEC)
 				option			=	FORCE_HITEC_TUNING;		// Use config-defined tuning value for HITEC
+			else
+		#endif
+		#if defined(FORCE_HOTT_TUNING) && defined(HOTT_CC2500_INO)
+			if (protocol==PROTO_HOTT)
+				option			=	FORCE_HOTT_TUNING;			// Use config-defined tuning value for HOTT
 			else
 		#endif
 				option			=	(uint8_t)PPM_prot_line->option;	// Use radio-defined option value
@@ -1098,6 +1105,14 @@ static void protocol_init()
 						remote_callback = ReadHITEC;
 						break;
 				#endif
+				#if defined(HOTT_CC2500_INO)
+					case PROTO_HOTT:
+						PE1_off;	//antenna RF2
+						PE2_on;
+						next_callback = initHOTT();
+						remote_callback = ReadHOTT;
+						break;
+				#endif
 				#if defined(SCANNER_CC2500_INO)
 					case PROTO_SCANNER:
 						PE1_off;
@@ -1527,6 +1542,11 @@ void update_serial_data()
 	#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
 		if (protocol==PROTO_HITEC)
 			option=FORCE_HITEC_TUNING;			// Use config-defined tuning value for HITEC
+		else
+	#endif
+	#if defined(FORCE_HOTT_TUNING) && defined(HOTT_CC2500_INO)
+		if (protocol==PROTO_HOTT)
+			option=FORCE_HOTT_TUNING;			// Use config-defined tuning value for HOTT
 		else
 	#endif
 			option=rx_ok_buff[3];				// Use radio-defined option value

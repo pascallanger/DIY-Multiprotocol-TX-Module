@@ -70,6 +70,7 @@ const char STR_FLYZONE[]	="FlyZone";
 const char STR_SCANNER[]	="Scanner";
 const char STR_FRSKY_RX[]	="FrSkyRX";
 const char STR_AFHDS2A_RX[]	="FS2A_RX";
+const char STR_HOTT[]		="HoTT";
 const char STR_XN297DUMP[]	="XN297DP";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
@@ -122,7 +123,7 @@ enum
 #define NO_SUBTYPE		nullptr
 
 const mm_protocol_definition multi_protocols[] = {
-// Protocol as defined in pulses\modules_constants.h, number of sub_protocols - 1, Failsafe supported, Disable channel mapping supported, Subtype string, Option type
+// Protocol number, Protocol String, Number of sub_protocols, Sub_protocol strings, Option type
 #if defined(FLYSKY_A7105_INO)
 	{PROTO_FLYSKY,     STR_FLYSKY,    5, STR_SUBTYPE_FLYSKY,    OPTION_NONE    },
 #endif
@@ -287,6 +288,9 @@ const mm_protocol_definition multi_protocols[] = {
 #endif
 #if defined(AFHDS2A_RX_A7105_INO)
 	{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,0, NO_SUBTYPE,            OPTION_NONE    },
+#endif
+#if defined(HOTT_CC2500_INO)
+	{PROTO_HOTT,       STR_HOTT,      0, NO_SUBTYPE,            OPTION_RFTUNE  },
 #endif
 #if defined(XN297DUMP_NRF24L01_INO)
 	{PROTO_XN297DUMP,  STR_XN297DUMP, 3, STR_SUBTYPE_XN297DUMP, OPTION_NONE    },

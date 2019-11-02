@@ -300,7 +300,6 @@ void setup()
 		pinMode(S4_pin,INPUT_PULLUP);
 		//Random pins
 		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
-		pinMode(PB1, INPUT_ANALOG); // set up pin for analog input
 
 		//Timers
 		init_HWTimer();			//0.5us

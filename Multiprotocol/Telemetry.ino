@@ -98,7 +98,6 @@ static void telemetry_set_input_sync(uint16_t refreshRate)
 			inputDelay -= last_serial_input;
 			//if(inputDelay & 0x8000)
 			//	inputDelay = inputDelay - 0x8000;
-			debugln("D=%d",inputDelay);
 			last_serial_input=0;
 		}
 	#else

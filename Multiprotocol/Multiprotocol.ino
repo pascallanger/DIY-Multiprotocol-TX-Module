@@ -55,6 +55,7 @@
 	#include <SPI.h>
 	#include <EEPROM.h>	
 	HardwareTimer HWTimer2(2);
+	HardwareTimer HWTimer3(3);
 
 	void PPM_decode();
 	void ISR_COMPB();
@@ -174,8 +175,8 @@ volatile uint8_t rx_idx=0, rx_len=0;
 uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 #if defined(TELEMETRY)
 	#ifdef MULTI_SYNC
-		uint32_t last_serial_input=0;
-		uint16_t inputRefreshRate = 7000;
+		uint16_t last_serial_input=0;
+		uint16_t inputRefreshRate=0;
 	#endif
 	#ifdef INVERT_TELEMETRY
 		#if not defined(ORANGE_TX) && not defined(STM32_BOARD)
@@ -590,16 +591,13 @@ void loop()
 		if((diff&0x8000) && !(next_callback&0x8000))
 		{ // Negative result=callback should already have been called... 
 			debugln("Short CB:%d",next_callback);
-/*			cli();									// Disable global int due to RW of 16 bits registers
-			OCR1A=TCNT1;							// Use "now" as new sync point.
-			sei();									// Enable global int
-*/		}
+		}
 		else
 		{
 			if(IS_RX_FLAG_on || IS_PPM_FLAG_on)
 			{ // Serial or PPM is waiting...
 				if(++count>10)
-				{ //The protocol does not leave engough time for an update so forcing it
+				{ //The protocol does not leave enough time for an update so forcing it
 					count=0;
 					debugln("Force update");
 					Update_All();
@@ -614,8 +612,8 @@ void loop()
 				if(diff>900*2)
 				{	//If at least 1ms is available update values 
 					if((diff&0x8000) && !(next_callback&0x8000))
-					{//should never be here
-						debugln("Strange");
+					{//Should never get here but it is...
+						debugln("!!!BUG!!!");
 						break;
 					}
 					count=0;
@@ -957,7 +955,7 @@ static void protocol_init()
 		// reset telemetry
 		#ifdef TELEMETRY
 			#ifdef MULTI_SYNC
-				inputRefreshRate = 7000; // Default value
+				inputRefreshRate = 0;	// Don't do it unless the protocol asks for it
 			#endif
 			#ifdef MULTI_NAMES
 				multi_protocols_index = 0xFF;
@@ -1863,14 +1861,24 @@ void modules_reset()
 		TIMER2_BASE->ARR = 0xFFFF;							// Count until 0xFFFF
 		
 		HWTimer2.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);	// Main scheduler
-		HWTimer2.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);	// Serial check
+		//HWTimer2.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);	// Serial check
 
 		TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;			// Clear Timer2/Comp2 interrupt flag
-		HWTimer2.attachInterrupt(TIMER_CH2,ISR_COMPB);		// Assign function to Timer2/Comp2 interrupt
+		//HWTimer2.attachInterrupt(TIMER_CH2,ISR_COMPB);		// Assign function to Timer2/Comp2 interrupt
 		TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer2/Comp2 interrupt
 		
 		HWTimer2.refresh();									// Refresh the timer's count, prescale, and overflow
 		HWTimer2.resume();
+
+		HWTimer3.pause();									// Pause the timer3 while we're configuring it
+		TIMER3_BASE->PSC = 35;								// 36-1;for 72 MHZ /0.5sec/(35+1)
+		TIMER3_BASE->ARR = 0xFFFF;							// Count until 0xFFFF
+		HWTimer3.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);	// Serial check
+		TIMER3_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;			// Clear Timer3/Comp2 interrupt flag
+		HWTimer3.attachInterrupt(TIMER_CH2,ISR_COMPB);		// Assign function to Timer3/Comp2 interrupt
+		TIMER3_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer3/Comp2 interrupt
+		HWTimer3.refresh();									// Refresh the timer's count, prescale, and overflow
+		HWTimer3.resume();
 	}
 #endif
 
@@ -2102,9 +2110,9 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				#endif
 				{
 					#if defined STM32_BOARD
-						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 500;	// Next byte should show up within 250us (1 byte = 120us)
-						TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer2/Comp2 interrupt flag
-						TIMER2_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer2/Comp2 interrupt
+						TIMER3_BASE->CCR2=TIMER3_BASE->CNT + 500;	// Next byte should show up within 250us (1 byte = 120us)
+						TIMER3_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer3/Comp2 interrupt flag
+						TIMER3_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer3/Comp2 interrupt
 					#else
 						TX_RX_PAUSE_on;
 						tx_pause();
@@ -2128,7 +2136,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 				{
 					rx_buff[rx_idx++]=UDR0;							// Store received byte
 					#if defined STM32_BOARD
-						TIMER2_BASE->CCR2=TIMER2_BASE->CNT + 500;	// Next byte should show up within 250us (1 byte = 120us)
+						TIMER3_BASE->CCR2=TIMER3_BASE->CNT + 500;	// Next byte should show up within 250us (1 byte = 120us)
 					#else
 						cli();										// Disable global int due to RW of 16 bits registers
 						OCR1B = TCNT1 + 500;						// Next byte should show up within 250us (1 byte = 120us)
@@ -2147,7 +2155,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		if(discard_frame==true)
 		{
 			#ifdef STM32_BOARD
-				TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer2/Comp2 interrupt
+				TIMER3_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer3/Comp2 interrupt
 			#else							
 				CLR_TIMSK1_OCIE1B;									// Disable interrupt on compare B match
 				TX_RX_PAUSE_off;
@@ -2171,9 +2179,6 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	{	// Timer1 compare B interrupt
 		if(rx_idx>=26 && rx_idx<RXBUFFER_SIZE)
 		{
-			#ifdef MULTI_SYNC
-				last_serial_input=TCNT1;
-			#endif
 			// A full frame has been received
 			if(!IS_RX_DONOTUPDATE_on)
 			{ //Good frame received and main is not working on the buffer
@@ -2183,6 +2188,11 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			}
 			else
 				RX_MISSED_BUFF_on;									// Notify that rx_buff is good
+			#ifdef MULTI_SYNC
+				cli();
+				last_serial_input=TCNT1;
+				sei();
+			#endif
 		}
 		#ifdef DEBUG_SERIAL
 			else
@@ -2190,8 +2200,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		#endif
 		discard_frame=true;
 		#ifdef STM32_BOARD
-			TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;					// Disable Timer2/Comp2 interrupt
-			TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;				// Clear Timer2/Comp2 interrupt flag
+			TIMER3_BASE->DIER &= ~TIMER_DIER_CC2IE;					// Disable Timer3/Comp2 interrupt
 		#else
 			CLR_TIMSK1_OCIE1B;										// Disable interrupt on compare B match
 			TX_RX_PAUSE_off;

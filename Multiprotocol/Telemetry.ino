@@ -91,16 +91,14 @@ static void telemetry_set_input_sync(uint16_t refreshRate)
 		inputRefreshRate = refreshRate;
 		if (last_serial_input != 0)
 		{
-			#if defined STM32_BOARD
-				inputDelay=TIMER2_BASE->CNT;
-			#else
-				cli();										// Disable global int due to RW of 16 bits registers
-				inputDelay = TCNT1;
-				sei();										// Enable global int
-			#endif
-			inputDelay = (inputDelay - last_serial_input)>>1;
-			if(inputDelay > 0x8000)
-				inputDelay =inputDelay - 0x8000;
+			cli();										// Disable global int due to RW of 16 bits registers
+			inputDelay = TCNT1;
+			sei();										// Enable global int
+			//inputDelay = (inputDelay - last_serial_input)>>1;
+			inputDelay -= last_serial_input;
+			//if(inputDelay & 0x8000)
+			//	inputDelay = inputDelay - 0x8000;
+			debugln("D=%d",inputDelay);
 			last_serial_input=0;
 		}
 	#else
@@ -114,8 +112,10 @@ static void telemetry_set_input_sync(uint16_t refreshRate)
 		multi_send_header(MULTI_TELEMETRY_SYNC, 6);
 		Serial_write(inputRefreshRate >> 8);
 		Serial_write(inputRefreshRate & 0xff);
-		Serial_write(inputDelay >> 8);
-		Serial_write(inputDelay & 0xff);
+//		Serial_write(inputDelay >> 8);
+//		Serial_write(inputDelay & 0xff);
+		Serial_write(inputDelay >> 9);
+		Serial_write(inputDelay >> 1);
 		Serial_write(INPUT_SYNC_TIME);
 		Serial_write(INPUT_ADDITIONAL_DELAY);
 	}
@@ -841,7 +841,7 @@ void TelemetryUpdate()
 			return;
 		}
 		#ifdef MULTI_SYNC
-			if ( (now - lastInputSync) > INPUT_SYNC_TIME && protocol != PROTO_SCANNER && protocol != PROTO_FRSKY_RX && protocol != PROTO_AFHDS2A_RX && protocol != PROTO_XN297DUMP )
+			if ( inputRefreshRate && (now - lastInputSync) > INPUT_SYNC_TIME )
 			{
 				mult_send_inputsync();
 				lastInputSync = now;

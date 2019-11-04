@@ -73,7 +73,7 @@ uint32_t blink=0,last_signal=0;
 //
 uint16_t counter;
 uint8_t  channel;
-uint8_t  packet[40];
+uint8_t  packet[50];
 
 #define NUM_CHN 16
 // Servo data
@@ -113,6 +113,8 @@ uint8_t  num_ch;
 #ifdef CC2500_INSTALLED
 	#ifdef SCANNER_CC2500_INO
 		uint8_t calData[255];
+	#elif defined(HOTT_CC2500_IN0)
+		uint8_t calData[75];
 	#else
 		uint8_t calData[50];
 	#endif

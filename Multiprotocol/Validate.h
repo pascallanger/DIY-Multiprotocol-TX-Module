@@ -184,6 +184,7 @@
 #ifndef CYRF6936_INSTALLED
 	#undef	DEVO_CYRF6936_INO
 	#undef	DSM_CYRF6936_INO
+	#undef	HOTT_CC2500_INO
 	#undef	J6PRO_CYRF6936_INO
 	#undef	WFLY_CYRF6936_INO
 	#undef	WK2x01_CYRF6936_INO
@@ -263,6 +264,7 @@
 	#undef FRSKY_RX_CC2500_INO
 	#undef AFHDS2A_RX_TELEMETRY
 	#undef AFHDS2A_RX_A7105_INO
+	#undef HOTT_FW_TELEMETRY
 #else
 	#if defined(MULTI_TELEMETRY) && defined(MULTI_STATUS)
 		#error You should choose either MULTI_TELEMETRY or MULTI_STATUS but not both.
@@ -315,7 +317,10 @@
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKY_RX_TELEMETRY) && not defined(AFHDS2A_RX_TELEMETRY)
+	#if not defined(HOTT_CC2500_INO)
+		#undef HOTT_FW_TELEMETRY
+	#endif
+	#if not defined(HOTT_FW_TELEMETRY) && not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKY_RX_TELEMETRY) && not defined(AFHDS2A_RX_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 	#endif

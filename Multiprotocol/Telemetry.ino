@@ -303,6 +303,19 @@ static void multi_send_status()
 	}
 #endif
 
+#ifdef HOTT_FW_TELEMETRY
+	void HOTT_short_frame()
+	{
+		#if defined MULTI_TELEMETRY
+			multi_send_header(MULTI_TELEMETRY_HOTT, 13);
+		#else
+			Serial_write(0xAA);						// Telemetry packet
+		#endif
+		for (uint8_t i = 0; i < 13; i++)			// TX RSSI and TX LQI values followed by frame number and telemetry data
+			Serial_write(packet_in[i]);
+	}
+#endif
+
 #ifdef MULTI_TELEMETRY
 static void multi_send_frskyhub()
 {
@@ -896,6 +909,14 @@ void TelemetryUpdate()
 		if(telemetry_link == 2 && protocol == PROTO_HITEC)
 		{
 			HITEC_short_frame();
+			telemetry_link=0;
+			return;
+		}
+	#endif
+	#if defined HOTT_FW_TELEMETRY
+		if(telemetry_link == 2 && protocol == PROTO_HOTT)
+		{
+			HOTT_short_frame();
 			telemetry_link=0;
 			return;
 		}

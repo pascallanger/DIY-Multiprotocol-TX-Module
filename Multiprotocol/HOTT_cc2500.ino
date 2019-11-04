@@ -17,10 +17,12 @@
 
 #include "iface_cc2500.h"
 
-#define HOTT_COARSE	0
+//#define HOTT_FORCE_ID		// Force ID of original dump
+
 #define HOTT_TX_PACKET_LEN	50
 #define HOTT_RX_PACKET_LEN	22
 #define HOTT_PACKET_PERIOD	10000
+#define HOTT_COARSE	0
 
 enum {
     HOTT_START = 0x00,
@@ -60,7 +62,7 @@ enum {
 const PROGMEM uint8_t HOTT_init_values[] = {
   /* 00 */ 0x2F, 0x2E, 0x2F, 0x00, 0xD3, 0x91, 0x32, 0x04,
   /* 08 */ 0x44, 0x00, 0x00, 0x09, 0x00, 0x5C, 0x6C, HOTT_FREQ0_VAL + HOTT_COARSE,
-  /* 10 */ 0x2D, 0x3B, 0x73, 0xA3, 0xAA, 0x47, 0x07, 0x00, //original 0x17=0
+  /* 10 */ 0x2D, 0x3B, 0x73, 0xA3, 0xAA, 0x47, 0x07, 0x00,
   /* 18 */ 0x08, 0x1D, 0x1C, 0xC7, 0x09, 0xF0, 0x87, 0x6B,
   /* 20 */ 0xF0, 0xB6, 0x10, 0xEA, 0x0A, 0x00, 0x11
 };
@@ -104,13 +106,17 @@ static void __attribute__((unused)) HOTT_tune_freq()
 	}
 }
 
-uint8_t HOTT_hop[75]= { 48, 37, 16, 62, 9, 50, 42, 22, 68, 0, 55, 35, 21, 74, 1, 56, 31, 20, 70, 11, 45, 32, 24, 71, 8, 54, 38, 26, 61, 13, 53, 30, 15, 65, 7, 52, 34, 28, 60, 3, 47, 39, 18, 69, 2, 49, 44, 23, 72, 5, 51, 43, 19, 64, 12, 46, 33, 17, 67, 6, 58, 36, 29, 73, 14, 57, 41, 25, 63, 4, 59, 40, 27, 66, 10 };
-uint16_t HOTT_hop_val = 0xC06B;
+const uint8_t HOTT_hop[][75]= {	{ 48, 37, 16, 62, 9, 50, 42, 22, 68, 0, 55, 35, 21, 74, 1, 56, 31, 20, 70, 11, 45, 32, 24, 71, 8, 54, 38, 26, 61, 13, 53, 30, 15, 65, 7, 52, 34, 28, 60, 3, 47, 39, 18, 69, 2, 49, 44, 23, 72, 5, 51, 43, 19, 64, 12, 46, 33, 17, 67, 6, 58, 36, 29, 73, 14, 57, 41, 25, 63, 4, 59, 40, 27, 66, 10 },
+								{ 50, 23, 5, 34, 67, 53, 22, 12, 39, 62, 51, 21, 10, 33, 63, 59, 16, 1, 43, 66, 49, 19, 8, 30, 71, 47, 24, 2, 35, 68, 45, 25, 14, 41, 74, 55, 18, 4, 32, 61, 54, 17, 11, 31, 72, 52, 28, 6, 38, 65, 46, 15, 9, 40, 60, 48, 26, 3, 37, 70, 58, 29, 0, 36, 64, 56, 20, 7, 42, 69, 57, 27, 13, 44, 73 },
+								{ 73, 51, 39, 18, 9, 64, 56, 34, 16, 12, 66, 58, 36, 25, 11, 61, 47, 40, 15, 8, 71, 50, 43, 20, 6, 62, 54, 42, 19, 3, 63, 46, 44, 29, 14, 72, 49, 33, 22, 5, 69, 57, 30, 21, 10, 70, 45, 35, 26, 7, 65, 59, 31, 28, 1, 67, 48, 32, 24, 0, 60, 55, 41, 17, 2, 74, 52, 38, 27, 4, 68, 53, 37, 23, 13 },
+								{ 52, 60, 40, 21, 14, 50, 72, 41, 23, 13, 59, 61, 39, 16, 6, 58, 66, 33, 17, 5, 55, 64, 43, 20, 12, 54, 74, 35, 29, 3, 46, 63, 37, 22, 10, 48, 65, 31, 27, 9, 49, 73, 38, 24, 11, 56, 70, 32, 15, 1, 51, 71, 44, 18, 8, 45, 67, 36, 25, 7, 57, 62, 34, 28, 2, 53, 69, 42, 19, 4, 47, 68, 30, 26, 0 }
+							};
+const uint16_t HOTT_hop_val[] = { 0xC06B, 0xC34A, 0xDB24, 0x8E09 };
 
 static void __attribute__((unused)) HOTT_init()
 {
-	packet[0] = HOTT_hop_val;
-	packet[1] = HOTT_hop_val>>8;
+	packet[0] = HOTT_hop_val[num_ch];
+	packet[1] = HOTT_hop_val[num_ch]>>8;
 	#ifdef HOTT_FORCE_ID
 		memcpy(rx_tx_addr,"\x7C\x94\x00\x0D\x50",5);
 	#endif
@@ -141,7 +147,7 @@ static void __attribute__((unused)) HOTT_data_packet()
 
 	packet[3] = 0x00;	// unknown, may be for additional channels?
 
-	// Channel values are PPM*2
+	// Channels value are PPM*2, -100%=1100µs, +100%=1900µs, order TAER
 	for(uint8_t i=4;i<28;i+=2)
 	{
 		uint16_t val=Channel_data[(i-4)>>1];
@@ -162,11 +168,12 @@ static void __attribute__((unused)) HOTT_data_packet()
 	#endif
 	hopping_frequency_no++;
 	hopping_frequency_no %= 75;
-	rf_ch_num=HOTT_hop[hopping_frequency_no];
+	rf_ch_num=HOTT_hop[num_ch][hopping_frequency_no];
 }
 
 uint16_t ReadHOTT()
 {
+	static uint8_t pps_counter=0;
 	switch(phase)
 	{
 		case HOTT_START:
@@ -181,7 +188,7 @@ uint16_t ReadHOTT()
 			else
 			{
 				hopping_frequency_no = 0;
-				rf_ch_num=HOTT_hop[hopping_frequency_no];
+				rf_ch_num=HOTT_hop[num_ch][hopping_frequency_no];
 				counter = 0;
 				phase = HOTT_DATA1;
 			}
@@ -190,7 +197,7 @@ uint16_t ReadHOTT()
 		/* Work cycle: 10ms */
 		case HOTT_DATA1:
 			//TX
-			telemetry_set_input_sync(10000);
+			telemetry_set_input_sync(HOTT_PACKET_PERIOD);
 			HOTT_tune_freq();
 			HOTT_tune_chan_fast();
 			HOTT_data_packet();
@@ -223,24 +230,53 @@ uint16_t ReadHOTT()
 						BIND_DONE;
 						HOTT_init();
 					}
-					else
-					{	//Telemetry
-						// (TXID)0x7C,0x94,0x00,0x0C,0x50
-						// (RXID)0x4D,0xF2,0x00,0x00,0xB1
-						// unknown 0x40 bind, 0x00 normal
-						// 0x0X telmetry page X=0,1,2,3,4
-						// Telem page 0 = 0x00, 0x33, 0x34, 0x46, 0x64, 0x33, 0x0A, 0x00, 0x00, 0x00
-						if(packet_in[11]==0)
-						{
-							debug("T:");
-							for(uint8_t i=0;i<HOTT_RX_PACKET_LEN;i++)
-								debug(" %02X", packet_in[i]);
+					#ifdef HOTT_FW_TELEMETRY
+						else
+						{	//Telemetry
+							// [0..4] = TXID
+							// [5..9] = RXID
+							// [10] = 0x40 bind, 0x00 normal
+							// [11] = 0x0X telmetry page X=0,1,2,3,4 ?
+							// Telem page 0 = 0x00, 0x33, 0x34, 0x46, 0x64, 0x33, 0x0A, 0x00, 0x00, 0x00
+							//				= 0x55, 0x32, 0x38, 0x55, 0x64, 0x32, 0xD0, 0x07, 0x00, 0x55
+							// Page 0 [12] = [21] = ??
+							// Page 0 [13] = RX_Voltage*10 in V
+							// Page 0 [14] = Temperature-20 in °C
+							// Page 0 [15] = RX_RSSI
+							// Page 0 [16] = RX_LQI ??
+							// Page 0 [17] = RX_STR ??
+							// Page 0 [18,19] = [19]*256+[18]=max lost packet time in ms, max value seems 2s=0x7D0
+							// Page 0 [20] = 0x00 ??
+							TX_RSSI = packet_in[22];
+							if(TX_RSSI >=128)
+								TX_RSSI -= 128;
+							else
+								TX_RSSI += 128;
+							// Reduce telemetry to 13 bytes
+							packet_in[0]= TX_RSSI;
+							packet_in[1]= TX_LQI;
+							debug("T=");
+							for(uint8_t i=11;i < HOTT_RX_PACKET_LEN; i++)
+							{
+								packet_in[i-9]=packet_in[i];
+								debug(" %02X",packet_in[i]);
+							}
 							debugln("");
+							telemetry_link=2;
 						}
-					}
+						pps_counter++;
+					#endif
 				}
 			}
-			CC2500_Strobe(CC2500_SFRX);								//Flush the RXFIFO
+			#ifdef HOTT_FW_TELEMETRY
+				packet_count++;
+				if(packet_count>=100)
+				{
+					TX_LQI=pps_counter;
+					pps_counter=packet_count=0;
+				}
+			#endif
+			CC2500_Strobe(CC2500_SFRX);							//Flush the RXFIFO
 			phase=HOTT_DATA1;
 			return 1000;
 	}
@@ -251,7 +287,9 @@ uint16_t initHOTT()
 {
 	HOTT_init();
 	HOTT_rf_init();
+	packet_count=0;
 	phase = HOTT_START;
+	num_ch=0;//random(0xfefefefe)%4;  <= TODO bug dans une des tables hop...
 	return 10000;
 }
 

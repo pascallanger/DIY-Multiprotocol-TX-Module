@@ -299,10 +299,11 @@
 #define NCC1701_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, erskyTX and OpenTX
-#define HITEC_FW_TELEMETRY			// Under development: Forward received telemetry packets to be decoded by erskyTX and OpenTX
+#define HITEC_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
 #define FRSKY_RX_TELEMETRY			// Forward channels data to TX
 #define AFHDS2A_RX_TELEMETRY		// Forward channels data to TX
+#define HOTT_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/

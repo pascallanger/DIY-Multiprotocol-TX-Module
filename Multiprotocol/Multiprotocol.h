@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	34
+#define VERSION_PATCH_LEVEL	36
 
 //******************
 // Protocols
@@ -325,6 +325,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_SCANNER			= 11,
 	MULTI_TELEMETRY_AFHDS2A_AC		= 12,
 	MULTI_TELEMETRY_RX_CHANNELS		= 13,
+	MULTI_TELEMETRY_HOTT			= 14,
 };
 
 // Macros
@@ -975,5 +976,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[2] = start channel
    data[3] = number of channels to follow
    data[4-]= packed channels data, 11 bit per channel
+
+  Type 0x0E HoTT telemetry
+   length: 13
+   data[0] = TX_RSSI
+   data[1] = TX_LQI
+   data[2-12] = telemetry data
 
 */

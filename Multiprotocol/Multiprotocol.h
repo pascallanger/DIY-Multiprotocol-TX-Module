@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	33
+#define VERSION_PATCH_LEVEL	34
 
 //******************
 // Protocols
@@ -593,7 +593,8 @@ enum {
 #define FRSKY_RX_EEPROM_OFFSET	178		// (1) format + (3) TX ID + (1) freq_tune + (47) channels, 52 bytes, end is 178+52=230
 #define AFHDS2A_RX_EEPROM_OFFSET 230	// (4) TX ID + (16) channels, 20 bytes, end is 230+20=250
 #define AFHDS2A_EEPROM_OFFSET2	250		// RX ID, 4 bytes per model id, end is 250+192=442
-//#define CONFIG_EEPROM_OFFSET 	442		// Current configuration of the multimodule
+#define HOTT_EEPROM_OFFSET		442		// RX ID, 5 bytes per model id, end is 320+442=762
+//#define CONFIG_EEPROM_OFFSET 	762		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***
@@ -910,6 +911,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			OPTION_FIXEDID	4
 			OPTION_TELEM	5
 			OPTION_SRVFREQ	6
+			OPTION_MAXTHR	7
    [19&0x0F] Number of sub protocols
    [20..27] Sub protocol name [8], not null terminated if sub prototcol len == 8
 

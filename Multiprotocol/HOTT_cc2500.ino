@@ -107,11 +107,41 @@ static void __attribute__((unused)) HOTT_tune_freq()
 uint8_t HOTT_hop[75]= { 48, 37, 16, 62, 9, 50, 42, 22, 68, 0, 55, 35, 21, 74, 1, 56, 31, 20, 70, 11, 45, 32, 24, 71, 8, 54, 38, 26, 61, 13, 53, 30, 15, 65, 7, 52, 34, 28, 60, 3, 47, 39, 18, 69, 2, 49, 44, 23, 72, 5, 51, 43, 19, 64, 12, 46, 33, 17, 67, 6, 58, 36, 29, 73, 14, 57, 41, 25, 63, 4, 59, 40, 27, 66, 10 };
 uint16_t HOTT_hop_val = 0xC06B;
 
-// Channel values are PPM*2
+static void __attribute__((unused)) HOTT_init()
+{
+	packet[0] = HOTT_hop_val;
+	packet[1] = HOTT_hop_val>>8;
+	#ifdef HOTT_FORCE_ID
+		memcpy(rx_tx_addr,"\x7C\x94\x00\x0D\x50",5);
+	#endif
+	memset(&packet[30],0xFF,9);
+	packet[39]=0X07;	// unknown
+	if(IS_BIND_IN_PROGRESS)
+	{
+		packet[28] = 0x80;	// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets
+		packet[29] = 0x02;	// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets
+		memset(&packet[40],0xFA,5);
+		memcpy(&packet[45],rx_tx_addr,5);
+	}
+	else
+	{
+		packet[28] = 0x8C;	// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets
+		packet[29] = 0x02;	// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets
+		memcpy(&packet[40],rx_tx_addr,5);
+
+		uint8_t addr=HOTT_EEPROM_OFFSET+RX_num*5;
+		for(uint8_t i=0;i<5;i++)
+			packet[45+i]=eeprom_read_byte((EE_ADDR)(addr+i));
+	}
+}
+
 static void __attribute__((unused)) HOTT_data_packet()
 {
 	packet[2] = hopping_frequency_no;
-	packet[3] = 0x00;	// unknown, may be for additional channels
+
+	packet[3] = 0x00;	// unknown, may be for additional channels?
+
+	// Channel values are PPM*2
 	for(uint8_t i=4;i<28;i+=2)
 	{
 		uint16_t val=Channel_data[(i-4)>>1];
@@ -119,9 +149,6 @@ static void __attribute__((unused)) HOTT_data_packet()
 		packet[i] = val;
 		packet[i+1] = val>>8;
 	}
-
-	packet[28] = 0x8C;	// unknown
-	packet[29] = 0x02;	// unknown
 
 	CC2500_SetTxRxMode(TX_EN);
 	CC2500_SetPower();
@@ -182,10 +209,36 @@ uint16_t ReadHOTT()
 			if (len==HOTT_RX_PACKET_LEN+2)
 			{
 				CC2500_ReadData(packet_in, len);
-				debug("T:");
-				for(uint8_t i=0;i<HOTT_RX_PACKET_LEN;i++)
-					debug(" %02X", packet_in[i]);
-				debugln("");
+				if(memcmp(rx_tx_addr,packet_in,5)==0)
+				{ // TX ID matches
+					if(IS_BIND_IN_PROGRESS)
+					{
+						debug("B:");
+						for(uint8_t i=0;i<HOTT_RX_PACKET_LEN;i++)
+							debug(" %02X", packet_in[i]);
+						debugln("");
+						uint8_t addr=HOTT_EEPROM_OFFSET+RX_num*5;
+						for(uint8_t i=0; i<5; i++)
+							eeprom_write_byte((EE_ADDR)(addr+i),packet_in[5+i]);
+						BIND_DONE;
+						HOTT_init();
+					}
+					else
+					{	//Telemetry
+						// (TXID)0x7C,0x94,0x00,0x0C,0x50
+						// (RXID)0x4D,0xF2,0x00,0x00,0xB1
+						// unknown 0x40 bind, 0x00 normal
+						// 0x0X telmetry page X=0,1,2,3,4
+						// Telem page 0 = 0x00, 0x33, 0x34, 0x46, 0x64, 0x33, 0x0A, 0x00, 0x00, 0x00
+						if(packet_in[11]==0)
+						{
+							debug("T:");
+							for(uint8_t i=0;i<HOTT_RX_PACKET_LEN;i++)
+								debug(" %02X", packet_in[i]);
+							debugln("");
+						}
+					}
+				}
 			}
 			CC2500_Strobe(CC2500_SFRX);								//Flush the RXFIFO
 			phase=HOTT_DATA1;
@@ -194,18 +247,9 @@ uint16_t ReadHOTT()
 	return 0;
 }
 
-static void __attribute__((unused)) HOTT_init()
-{
-	packet[0] = HOTT_hop_val;
-	packet[1] = HOTT_hop_val>>8;
-	memcpy(&packet[30],"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x07\x7C\x94\x00\x0C\x50\x4D\xF2\x00\x00\xB1",20); //unknown
-}
-
 uint16_t initHOTT()
 {
-	BIND_DONE;	// Not a TX bind protocol
 	HOTT_init();
-
 	HOTT_rf_init();
 	phase = HOTT_START;
 	return 10000;

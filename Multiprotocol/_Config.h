@@ -179,7 +179,7 @@
 #define	FRSKYX_CC2500_INO
 #define	FRSKY_RX_CC2500_INO
 #define	HITEC_CC2500_INO
-//#define	HOTT_CC2500_INO
+#define	HOTT_CC2500_INO
 #define	SCANNER_CC2500_INO
 #define	SFHSS_CC2500_INO
 #define	REDPINE_CC2500_INO
@@ -275,8 +275,8 @@
 //For STM32 and OrangeRX modules, comment to prevent the TX from forcing the serial telemetry polarity normal/invert.
 #define INVERT_TELEMETRY_TX
 
-//Uncomment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
-//Use with er9x/erskyTX, for OpenTX MULTI_TELEMETRY below is preferred instead
+//Uncomment if you want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
+//Use with er9x/erskyTX, for OpenTX you must select MULTI_TELEMETRY below
 //#define MULTI_STATUS
 
 //Sends Multi status and allow OpenTX to autodetect the telemetry format. Comment to disable.

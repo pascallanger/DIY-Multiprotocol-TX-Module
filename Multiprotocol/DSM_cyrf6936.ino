@@ -230,7 +230,7 @@ static void __attribute__((unused)) DSM_update_channels()
 	if(sub_protocol==DSM_AUTO)
 		num_ch=12;						// Force 12 channels in mode Auto
 	else
-		num_ch=option;
+		num_ch=option & 0x7F;			// Remove the Max Throw flag
 	if(num_ch<4 || num_ch>12)
 		num_ch=6;						// Default to 6 channels if invalid choice...
 
@@ -286,7 +286,10 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 				#ifdef DSM_MAX_THROW
 					value=Channel_data[CH_TAER[idx]];								// -100%..+100% => 1024..1976us and -125%..+125% => 904..2096us based on Redcon 6 channel DSM2 RX
 				#else
-					value=convert_channel_16b_nolimit(CH_TAER[idx],0x150,0x6B0);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000us based on Redcon 6 channel DSM2 RX
+					if(option & 0x80)
+						value=Channel_data[CH_TAER[idx]];								// -100%..+100% => 1024..1976us and -125%..+125% => 904..2096us based on Redcon 6 channel DSM2 RX
+					else
+						value=convert_channel_16b_nolimit(CH_TAER[idx],0x150,0x6B0);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000us based on Redcon 6 channel DSM2 RX
 				#endif
 			if(bits==10) value>>=1;
 			value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);

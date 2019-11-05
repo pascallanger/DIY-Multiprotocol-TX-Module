@@ -118,6 +118,7 @@ enum
 	OPTION_FIXEDID,
 	OPTION_TELEM,
 	OPTION_SRVFREQ,
+	OPTION_MAXTHR,
 };
 
 #define NO_SUBTYPE		nullptr
@@ -140,7 +141,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_V2X2,       STR_V2X2,      2, STR_SUBTYPE_V2X2,      OPTION_NONE    },
 #endif
 #if defined(DSM_CYRF6936_INO)
-	{PROTO_DSM,        STR_DSM,       4, STR_SUBTYPE_DSM,       OPTION_NONE    },
+	{PROTO_DSM,        STR_DSM,       4, STR_SUBTYPE_DSM,       OPTION_MAXTHR  },
 #endif
 #if defined(DEVO_CYRF6936_INO)
 	{PROTO_DEVO,       STR_DEVO,      5, STR_SUBTYPE_DEVO,      OPTION_FIXEDID },

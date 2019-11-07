@@ -160,6 +160,7 @@ uint16_t hisky_cb()
 						convert_failsafe_HK310(CH5,    &packet[4],&packet[5]);
 						packet[7]=0xAA;
 						packet[8]=0x5A;
+						FAILSAFE_VALUES_off;
 					}
 					else
 				#endif

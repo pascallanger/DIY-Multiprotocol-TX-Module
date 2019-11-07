@@ -336,7 +336,10 @@ uint16_t ReadAFHDS2A()
 			{
 				#ifdef FAILSAFE_ENABLE
 					if(!(packet_counter % 1569) && IS_FAILSAFE_VALUES_on)
+					{
 						packet_type = AFHDS2A_PACKET_FAILSAFE;
+						FAILSAFE_VALUES_off;
+					}
 					else
 				#endif
 						packet_type = AFHDS2A_PACKET_STICKS;		// todo : check for settings changes

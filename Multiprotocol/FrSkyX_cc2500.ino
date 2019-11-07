@@ -138,6 +138,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 		{
 			FS_flag = 0;
 			failsafe_count = 0;
+			FAILSAFE_VALUES_off;
 		}
 		failsafe_count++;
 	#endif

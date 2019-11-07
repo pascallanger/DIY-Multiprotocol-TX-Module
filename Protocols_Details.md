@@ -29,7 +29,7 @@ Here are detailed descriptions of every supported protocols (sorted by RF module
 ## Protocol selection in PPM mode
 The protocol selection is based on 2 parameters:
   * selection switch: this is the rotary switch on the module numbered from 0 to 15
-      - switch position 0 is to select the Serial mode for er9x/ersky9x/OpenTX radio
+      - switch position 0 is to select the Serial mode for er9x/erskyTX/OpenTX radio
       - switch position 15 is to select the bank
 	  - switch position 1..14 will select the protocol 1..14 in the bank *X*
   * banks are used to increase the amount of accessible protocols by the switch. There are up to 5 banks giving acces to up to 70 protocol entries (5 * 14).  To modify or verify which bank is currenlty active do the following:
@@ -56,7 +56,7 @@ Notes:
 Serial mode is selected by placing the rotary switch to position 0 before power on of the radio.
 
 You've upgraded the module but the radio does not display the name of the protocol you are loking for:
- * ersky9x:
+ * erskyTX:
       - Place the file [Multi.txt](https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module/master/Multiprotocol/Multi.txt) (which is part of the MPM source files) on the root of your SD card.
       - If the entry still does not appear or is broken, [upgrade](https://openrcforums.com/forum/viewtopic.php?f=7&t=4676) to version R222d2 or newer.
  * OpenTX:
@@ -98,6 +98,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01|
 [Hitec](Protocols_Details.md#HITEC---39)|39|OPT_FW|OPT_HUB|MINIMA||||||CC2500|
 [Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01|XN297
+[HoTT](Protocols_Details.md#HoTT---57)|57|||||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105|
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|J6PRO||||||||CYRF6936|
 [KF606](Protocols_Details.md#KF606---49)|49|KF606*||||||||NRF24L01|XN297
@@ -166,7 +167,7 @@ Extended limits and failsafe supported
 
 Telemetry enabled protocol:
  - by defaut using FrSky Hub protocol (for example er9x): RX(A1), battery voltage FS-CVT01(A2) and RX&TX RSSI
- - if using ersky9x and OpenTX: full telemetry information available
+ - if using erskyTX and OpenTX: full telemetry information available
 
 Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 70 gives 400Hz (max). Specific refresh rate value can be calculated like this option=(refresh_rate-50)/5.
 
@@ -395,19 +396,37 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ### Sub_protocol OPT_FW - *0*
 OPTIMA RXs
 
-Full telemetry available on ersky9x and OpenTX. This is still a WIP.
+Full telemetry available on OpenTX 2.3.2+, still in progress for erskyTx.
 
 **The TX must be close to the RX for the bind negotiation to complete successfully**
 
 ### Sub_protocol OPT_HUB - *1*
 OPTIMA RXs
 
-Basic telemetry using FrSky Hub on er9x, ersky9x, OpenTX and any radio with FrSky telemetry support with RX voltage, VOLT2 voltage, TX RSSI and TX LQI. 
+Basic telemetry using FrSky Hub on er9x, erskyTX, OpenTX and any radio with FrSky telemetry support with RX voltage, VOLT2 voltage, TX RSSI and TX LQI. 
 
 **The TX must be close to the RX for the bind negotiation to complete successfully**
 
 ### Sub_protocol MINIMA - *2*
 MINIMA, MICRO and RED receivers
+
+## HoTT - *57*
+Models: Graupner HoTT receivers (tested on GR-12L and GR-16L).
+
+Extended limits  and failsafe supported
+
+**Failsafe MUST be configured once with the desired channel values (hold or position) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
+
+**The RX features must be configured first on a Graupner radio before binding it with Multi (RX config not implemented).**
+
+Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+Basic telemetry is available on OpenTX 2.3.2+ with RX voltage, Rx temperature, RX RSSI, RX LQI, TX RSSI and TX LQI.
 
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.
@@ -562,9 +581,9 @@ DSMX, Resolution 2048, refresh rate 11ms
 ### Sub_protocol AUTO - *4*
 The "AUTO" feature enables the TX to automatically choose what are the best settings for your DSM RX and update your model protocol settings accordingly.
 
-The current radio firmware which are able to use the "AUTO" feature are ersky9x (9XR Pro, 9Xtreme, Taranis, ...), er9x for M128(9XR)&M2561 and OpenTX (mostly Taranis).
+The current radio firmware which are able to use the "AUTO" feature are erskyTX (9XR Pro, 9Xtreme, Taranis, ...), er9x for M128(9XR)&M2561 and OpenTX (mostly Taranis).
 For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx".
-Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on ersky9x you can set "Invert COM1" accordinlgy.
+Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on erskyTX you can set "Invert COM1" accordinlgy.
 
 ## J6Pro - *22*
 

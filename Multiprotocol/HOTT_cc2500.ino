@@ -133,7 +133,7 @@ static void __attribute__((unused)) HOTT_init()
 		memcpy(rx_tx_addr,"\x7C\x94\x00\x0D\x50",5);
 	#endif
 	memset(&packet[30],0xFF,9);
-	packet[39]=0x07;	// unknown
+	packet[39]=0x07;		// unknown and constant
 	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[28] = 0x80;	// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets
@@ -144,7 +144,7 @@ static void __attribute__((unused)) HOTT_init()
 	else
 	{
 		packet[28] = 0x8C;	// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets
-		packet[29] = 0x02;	// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x8C&0x0A->no telemetry
+		packet[29] = 0x02;	// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x0A->no more RX telemetry
 		memcpy(&packet[40],rx_tx_addr,5);
 
 		uint8_t addr=HOTT_EEPROM_OFFSET+RX_num*5;
@@ -157,13 +157,50 @@ static void __attribute__((unused)) HOTT_data_packet()
 {
 	packet[2] = hopping_frequency_no;
 
-	packet[3] = 0x00;	// unknown, may be for additional channels?
+	packet[3] = 0x00;	// used for failsafe but may also be used for additional channels
+	#ifdef FAILSAFE_ENABLE
+		static uint8_t failsafe_count=0;
+		if(IS_FAILSAFE_VALUES_on && IS_BIND_DONE)
+		{
+			failsafe_count++;
+			if(failsafe_count>=3)
+			{
+				FAILSAFE_VALUES_off;
+				failsafe_count=0;
+			}
+		}
+		else
+			failsafe_count=0;
+	#endif
 
 	// Channels value are PPM*2, -100%=1100µs, +100%=1900µs, order TAER
+	uint16_t val;
 	for(uint8_t i=4;i<28;i+=2)
 	{
-		uint16_t val=Channel_data[(i-4)>>1];
-		val=(((val<<2)+val)>>2)+860*2;				//value range 860<->2140 *2 <-> -125%<->+125%
+		val=Channel_data[(i-4)>>1];
+		val=(((val<<2)+val)>>2)+860*2;					// value range 860<->2140 *2 <-> -125%<->+125%
+		#ifdef FAILSAFE_ENABLE
+			if(failsafe_count==1)
+			{ // first failsafe packet
+				packet[3]=0x40;
+				uint16_t fs=Failsafe_data[(i-4)>>1];
+				if( fs == FAILSAFE_CHANNEL_HOLD || fs == FAILSAFE_CHANNEL_NOPULSES)
+					val|=0x8000;						// channel hold flag
+				else
+				{
+					val=(((fs<<2)+fs)>>2)+860*2;		// value range 860<->2140 *2 <-> -125%<->+125%
+					val|=0x4000;						// channel specific position flag
+				}
+			}
+			else if(failsafe_count==2)
+			{ // second failsafe packet=timing?
+				packet[3]=0x50;
+				if(i==4)
+					val=2;
+				else
+					val=0;
+			}
+		#endif
 		packet[i] = val;
 		packet[i+1] = val>>8;
 	}

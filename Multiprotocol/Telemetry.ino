@@ -162,11 +162,12 @@ static void multi_send_status()
 			case PROTO_J6PRO:
 				flags |= 0x40;				//Disable_ch_mapping supported
 				break;
+			#ifdef FAILSAFE_ENABLE
+			case PROTO_HOTT:
 			case PROTO_FRSKYX:
-				#ifdef FAILSAFE_ENABLE
 					flags |= 0x20;			//Failsafe supported
-				#endif
 				break;
+			#endif
 		}
 		if(IS_DATA_BUFFER_LOW_on)
 			flags |= 0x80;

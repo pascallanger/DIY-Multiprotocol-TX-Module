@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	39
+#define VERSION_PATCH_LEVEL	40
 
 //******************
 // Protocols
@@ -978,9 +978,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[4-]= packed channels data, 11 bit per channel
 
   Type 0x0E HoTT telemetry
-   length: 13
+   length: 14
    data[0] = TX_RSSI
    data[1] = TX_LQI
-   data[2-12] = telemetry data
+   data[2] = type
+   data[3] = page
+   data[4-13] = data
 
 */

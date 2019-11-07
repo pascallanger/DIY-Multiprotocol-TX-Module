@@ -293,7 +293,7 @@ uint16_t ReadHOTT()
 						{	//Telemetry
 							// [0..4] = TXID
 							// [5..9] = RXID
-							// [10] = 0x40 bind, 0x00 normal
+							// [10] = 0x40 bind, 0x00 normal, 0x80 text menu
 							// [11] = 0x0X telmetry page X=0,1,2,3,4 ?
 							// Telem page 0 = 0x00, 0x33, 0x34, 0x46, 0x64, 0x33, 0x0A, 0x00, 0x00, 0x00
 							//				= 0x55, 0x32, 0x38, 0x55, 0x64, 0x32, 0xD0, 0x07, 0x00, 0x55
@@ -314,9 +314,9 @@ uint16_t ReadHOTT()
 							packet_in[0]= TX_RSSI;
 							packet_in[1]= TX_LQI;
 							debug("T=");
-							for(uint8_t i=11;i < HOTT_RX_PACKET_LEN; i++)
+							for(uint8_t i=10;i < HOTT_RX_PACKET_LEN; i++)
 							{
-								packet_in[i-9]=packet_in[i];
+								packet_in[i-8]=packet_in[i];
 								debug(" %02X",packet_in[i]);
 							}
 							debugln("");

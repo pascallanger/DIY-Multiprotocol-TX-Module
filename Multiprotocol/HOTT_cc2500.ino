@@ -149,8 +149,8 @@ static void __attribute__((unused)) HOTT_init()
 	}
 	else
 	{
-		packet[28] = 0x8C;	// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets
-		packet[29] = 0x02;	// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x0A->no more RX telemetry
+		packet[28] = 0x8C;	// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets, 0x0F->config menu
+		packet[29] = 0x02;	// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->config menu, 0x0A->no more RX telemetry
 		memcpy(&packet[40],rx_tx_addr,5);
 
 		uint8_t addr=HOTT_EEPROM_OFFSET+RX_num*5;
@@ -293,24 +293,31 @@ uint16_t ReadHOTT()
 						{	//Telemetry
 							// [0..4] = TXID
 							// [5..9] = RXID
-							// [10] = 0x40 bind, 0x00 normal, 0x80 text menu
-							// [11] = 0x0X telmetry page X=0,1,2,3,4 ?
-							// Telem page 0 = 0x00, 0x33, 0x34, 0x46, 0x64, 0x33, 0x0A, 0x00, 0x00, 0x00
+							// [10] = 0x40 bind, 0x00 normal, 0x80 config menu
+							// [11] = telmetry pages. For sensors 0x00 to 0x04, for config mennu 0x00 to 0x12.
+							// Normal telem page 0 = 0x00, 0x33, 0x34, 0x46, 0x64, 0x33, 0x0A, 0x00, 0x00, 0x00
 							//				= 0x55, 0x32, 0x38, 0x55, 0x64, 0x32, 0xD0, 0x07, 0x00, 0x55
-							// Page 0 [12] = [21] = ??
-							// Page 0 [13] = RX_Voltage*10 in V
-							// Page 0 [14] = Temperature-20 in °C
-							// Page 0 [15] = RX_RSSI
-							// Page 0 [16] = RX_LQI ??
-							// Page 0 [17] = RX_STR ??
-							// Page 0 [18,19] = [19]*256+[18]=max lost packet time in ms, max value seems 2s=0x7D0
-							// Page 0 [20] = 0x00 ??
+							//   Page 0 [12] = [21] = ??
+							//   Page 0 [13] = RX_Voltage*10 in V
+							//   Page 0 [14] = Temperature-20 in °C
+							//   Page 0 [15] = RX_RSSI
+							//   Page 0 [16] = RX_LQI ??
+							//   Page 0 [17] = RX_STR ??
+							//   Page 0 [18,19] = [19]*256+[18]=max lost packet time in ms, max value seems 2s=0x7D0
+							//   Page 0 [20] = 0x00 ??
+							// Config menu consists of the different telem pages put all together
+							//   Page X [12] = seems like all the telem pages with the same value are going together to make the full config menu text. Seen so far 'a', 'b', 'c', 'd' 
+							//   Page X [13..21] = 9 ascii chars to be displayed, char is highlighted when ascii|0x80
+							//   Screen display is 21 characters large which means that once the first 21 chars are filled go to the begining of the next line
+							//   Menu commands are sent through TX packets:
+							//     packet[28]= 0xXF=>no key press, 0xXD=>down, 0xXB=>up, 0xX9=>enter, 0xXE=>right, 0xX7=>left with X=0 or D
+							//     packet[29]= 0xX1/0xX9 with X=0 or X counting 0,1,1,2,2,..,9,9
 							TX_RSSI = packet_in[22];
 							if(TX_RSSI >=128)
 								TX_RSSI -= 128;
 							else
 								TX_RSSI += 128;
-							// Reduce telemetry to 13 bytes
+							// Reduce telemetry to 14 bytes
 							packet_in[0]= TX_RSSI;
 							packet_in[1]= TX_LQI;
 							debug("T=");

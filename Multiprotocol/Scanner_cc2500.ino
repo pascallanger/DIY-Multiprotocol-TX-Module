@@ -18,12 +18,10 @@
 #include "iface_cc2500.h"
 
 #define SCAN_MAX_RADIOCHANNEL	249 // 2483 MHz
-#define SCAN_CHANNEL_LOCK_TIME	210 // with precalibration, channel requires only 90 usec for synthesizer to settle
+#define SCAN_CHANNEL_LOCK_TIME	90 // with precalibration, channel requires only 90 usec for synthesizer to settle
 #define SCAN_AVERAGE_INTVL		20
 #define SCAN_MAX_COUNT			10
 #define SCAN_CHANS_PER_PACKET	5
-
-static uint8_t scan_tlm_index;
 
 enum ScanStates {
 	SCAN_CHANNEL_CHANGE = 0,
@@ -97,49 +95,46 @@ static int __attribute__((unused)) Scanner_scan_rssi()
 
 uint16_t Scanner_callback()
 {
-	static uint8_t max_count, max_rssi;
-	uint8_t rssi;
-	switch (phase)
-	{
-		case SCAN_CHANNEL_CHANGE:
-			if(telemetry_link == 0) {
-				max_count = 0;
-				max_rssi = 0;
-				rf_ch_num++;
-				if (rf_ch_num >= (SCAN_MAX_RADIOCHANNEL + 1))
-					rf_ch_num = 0;
-				if (scan_tlm_index++ == 0)
-					packet_in[0] = rf_ch_num;  // start channel for telemetry packet
-				Scanner_scan_next();
-				phase = SCAN_GET_RSSI;
+	uint8_t rssi,max_rssi;
+	
+	//!!!Blocking mode protocol!!!
+	TX_MAIN_PAUSE_off;
+	tx_resume();
+	while(1)
+	{ //Start
+		packet_in[0] = rf_ch_num;						// start channel for telemetry packet
+		for(uint8_t i=0;i<SCAN_CHANS_PER_PACKET;i++)
+		{
+			Scanner_scan_next();						// set channel
+			delayMicroseconds(SCAN_CHANNEL_LOCK_TIME);	// wait for freq to adjust
+			max_rssi = 0;
+			for(uint8_t j=0;j<SCAN_MAX_COUNT;j++)
+			{
+				rssi = Scanner_scan_rssi();
+				if(rssi >= max_rssi) max_rssi = rssi;
+				delayMicroseconds(SCAN_AVERAGE_INTVL);	// wait before next read
 			}
-			return SCAN_CHANNEL_LOCK_TIME;
-		case SCAN_GET_RSSI:
-			rssi = Scanner_scan_rssi();
-			if(rssi >= max_rssi) {
-				max_rssi = rssi;
-				packet_in[scan_tlm_index] = rssi;
-			}
-			max_count++;
-			if(max_count > SCAN_MAX_COUNT) {
-				phase = SCAN_CHANNEL_CHANGE;
-				if (scan_tlm_index == SCAN_CHANS_PER_PACKET)
-				{
-					// send data to TX
-					telemetry_link = 1;
-					scan_tlm_index = 0;
-				}
-			}
+			packet_in[i+1] = max_rssi;
+			//next channel
+			rf_ch_num++;
+			if (rf_ch_num >= (SCAN_MAX_RADIOCHANNEL + 1))
+				rf_ch_num = 0;
+		}
+		telemetry_link = 1;
+		do
+		{
+			if(Update_All())
+				return 1000;							// protocol has changed, give back the control to main
+		}
+		while(telemetry_link == 1);
 	}
-	return SCAN_AVERAGE_INTVL;
+	return 0;
 }
 
 uint16_t initScanner(void)
 {
-	rf_ch_num = SCAN_MAX_RADIOCHANNEL;
-	scan_tlm_index = 0;
+	rf_ch_num = 0;
 	telemetry_link = 0;
-	phase = SCAN_CHANNEL_CHANGE;
 	Scanner_cc2500_init();
 	CC2500_Strobe(CC2500_SRX);
 	Scanner_calibrate();

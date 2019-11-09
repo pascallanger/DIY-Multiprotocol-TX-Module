@@ -836,7 +836,7 @@ void TelemetryUpdate()
 			t -= h ;
 		if ( t < 32 )
 		{
-			//debugln("TEL_BUF_FULL %d",t);
+			debugln("TEL_BUF_FULL %d",t);
 			return ;
 		}
 /*		else
@@ -846,7 +846,7 @@ void TelemetryUpdate()
 	#endif
 	#if defined(MULTI_TELEMETRY) || defined(MULTI_STATUS)
 		uint32_t now = millis();
-		if (IS_SEND_MULTI_STATUS_on || ((now - lastMulti) > MULTI_TIME))
+		if ((IS_SEND_MULTI_STATUS_on || ((now - lastMulti) > MULTI_TIME))&& protocol != PROTO_SCANNER)
 		{
 			multi_send_status();
 			SEND_MULTI_STATUS_off;

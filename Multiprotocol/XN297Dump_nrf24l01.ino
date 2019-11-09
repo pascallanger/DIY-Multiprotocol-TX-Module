@@ -176,6 +176,10 @@ static void __attribute__((unused)) XN297Dump_overflow()
 static uint16_t XN297Dump_callback()
 {
 	static uint32_t time=0;
+
+	//!!!Blocking mode protocol!!!
+	TX_MAIN_PAUSE_off;
+	tx_resume();
 	while(1)
 	{
 		if(option==0xFF && bind_counter>XN297DUMP_PERIOD_SCAN)

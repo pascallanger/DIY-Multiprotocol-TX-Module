@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	41
+#define VERSION_PATCH_LEVEL	42
 
 //******************
 // Protocols
@@ -913,6 +913,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			OPTION_TELEM	5
 			OPTION_SRVFREQ	6
 			OPTION_MAXTHR	7
+			OPTION_RFCHAN	8
    [19&0x0F] Number of sub protocols
    [20..27] Sub protocol name [8], not null terminated if sub prototcol len == 8
 

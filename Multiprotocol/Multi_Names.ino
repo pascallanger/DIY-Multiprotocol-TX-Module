@@ -119,6 +119,7 @@ enum
 	OPTION_TELEM,
 	OPTION_SRVFREQ,
 	OPTION_MAXTHR,
+	OPTION_RFCHAN
 };
 
 #define NO_SUBTYPE		nullptr
@@ -294,7 +295,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_HOTT,       STR_HOTT,      0, NO_SUBTYPE,            OPTION_RFTUNE  },
 #endif
 #if defined(XN297DUMP_NRF24L01_INO)
-	{PROTO_XN297DUMP,  STR_XN297DUMP, 3, STR_SUBTYPE_XN297DUMP, OPTION_NONE    },
+	{PROTO_XN297DUMP,  STR_XN297DUMP, 3, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },
 #endif
 	{0x00,             nullptr,       0, nullptr,               0 }
 };

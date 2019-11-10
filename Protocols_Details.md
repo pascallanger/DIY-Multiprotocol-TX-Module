@@ -415,6 +415,8 @@ Models: Graupner HoTT receivers (tested on GR-12L and GR-16L).
 
 Extended limits  and failsafe supported
 
+**RX_Num is used to give a number a given RX. You must use a different RX_Num per RX. A maximum of 64 HoTT RXs are supported.**
+
 **Failsafe MUST be configured once with the desired channel values (hold or position) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
 
 The RX features configuration are done using the OpenTX script "Graupner HoTT.lua" .

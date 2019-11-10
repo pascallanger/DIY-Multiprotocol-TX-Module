@@ -243,6 +243,10 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		extern const mm_protocol_definition multi_protocols[];
 		uint8_t multi_protocols_index=0xFF;
 	#endif
+	#ifdef HOTT_FW_TELEMETRY
+		uint8_t HoTT_SerialRX_val=0;
+		bool HoTT_SerialRX=false;
+	#endif
 #endif // TELEMETRY
 
 // Callback
@@ -1682,6 +1686,9 @@ void update_serial_data()
 				Channel_data[i]=temp;			//value range 0..2047, 0=-125%, 2047=+125%
 	}
 
+	#ifdef HOTT_FW_TELEMETRY
+		HoTT_SerialRX=false;
+	#endif
 	if(rx_len>27)
 	{ // Data available for the current protocol
 		#ifdef SPORT_SEND
@@ -1720,6 +1727,13 @@ void update_serial_data()
 				}
 			}
 		#endif //SPORT_SEND
+		#ifdef HOTT_FW_TELEMETRY
+			if(protocol==PROTO_HOTT && rx_len==28)
+			{//Protocol waiting for 1 byte
+				HoTT_SerialRX_val=rx_ok_buff[27];
+				HoTT_SerialRX=true;
+			}
+		#endif
 	}
 
 	RX_DONOTUPDATE_off;

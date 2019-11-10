@@ -417,7 +417,7 @@ Extended limits  and failsafe supported
 
 **Failsafe MUST be configured once with the desired channel values (hold or position) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
 
-**The RX features must be configured first on a Graupner radio before binding it with Multi (RX config not implemented).**
+The RX features configuration are done using the OpenTX script "Graupner HoTT.lua" .
 
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.

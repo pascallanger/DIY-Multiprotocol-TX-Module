@@ -211,6 +211,20 @@ static void __attribute__((unused)) HOTT_data_packet()
 		packet[i+1] = val>>8;
 	}
 
+	#ifdef HOTT_FW_TELEMETRY
+		if(HoTT_SerialRX && HoTT_SerialRX_val >= 0xD7 && HoTT_SerialRX_val <= 0xDF)
+		{
+			packet[28] = HoTT_SerialRX_val;				// 0xDX->config menu
+			packet[29] = 0x01;							// 0x01->config menu
+			HoTT_SerialRX_val = 0xDF;					// no touch pressed
+		}
+		else
+		{
+			packet[28] = 0x8C;							// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets, 0x0F->config menu
+			packet[29] = 0x02;							// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->config menu, 0x0A->no more RX telemetry
+		}
+	#endif
+
 	CC2500_SetTxRxMode(TX_EN);
 	CC2500_SetPower();
 	CC2500_WriteReg(CC2500_06_PKTLEN, 0x32);
@@ -354,6 +368,10 @@ uint16_t initHOTT()
 	HOTT_init();
 	HOTT_rf_init();
 	packet_count=0;
+	#ifdef HOTT_FW_TELEMETRY
+		HoTT_SerialRX_val=0;
+		HoTT_SerialRX=false;
+	#endif
 	phase = HOTT_START;
 	return 10000;
 }

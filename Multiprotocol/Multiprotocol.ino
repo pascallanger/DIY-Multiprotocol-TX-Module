@@ -618,7 +618,7 @@ void loop()
 				if(diff>900*2)
 				{	//If at least 1ms is available update values 
 					if((diff&0x8000) && !(next_callback&0x8000))
-					{//Should never get here but it is...
+					{//Should never get here...
 						debugln("!!!BUG!!!");
 						break;
 					}
@@ -695,7 +695,7 @@ bool Update_All()
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
 			if( (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT))
 		#endif
-				if(IS_DISABLE_TELEM_off && !(protocol==PROTO_XN297DUMP))
+				if(IS_DISABLE_TELEM_off)
 					TelemetryUpdate();
 	#endif
 	#ifdef ENABLE_BIND_CH

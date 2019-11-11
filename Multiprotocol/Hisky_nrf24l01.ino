@@ -123,8 +123,8 @@ static void __attribute__((unused)) build_ch_data()
 	for (i = 0; i< 8; i++) {
 		j=CH_AETR[i];
 		temp=convert_channel_16b_limit(j,0,1000);            			
-		if (j == THROTTLE) // It is clear that hisky's throttle stick is made reversely, so I adjust it here on purpose
-			temp = 1000 -temp;
+		if (j == CH3) // It is clear that hisky's throttle stick is made reversely, so I adjust it here on purpose
+			temp = 1000 - temp;
 		if (j == CH7)
 			temp = temp < 400 ? 0 : 3; // Gyro mode, 0 - 6 axis, 3 - 3 axis 
 		packet[i] = (uint8_t)(temp&0xFF);
@@ -151,6 +151,7 @@ uint16_t hisky_cb()
 				phase=6;
 				break;
 			case 7:	// build packet
+				telemetry_set_input_sync(5000);
 				#ifdef FAILSAFE_ENABLE
 					if(IS_FAILSAFE_VALUES_on && hopping_frequency_no==0)
 					{ //  send failsafe every 100ms
@@ -159,6 +160,7 @@ uint16_t hisky_cb()
 						convert_failsafe_HK310(CH5,    &packet[4],&packet[5]);
 						packet[7]=0xAA;
 						packet[8]=0x5A;
+						FAILSAFE_VALUES_off;
 					}
 					else
 				#endif
@@ -216,6 +218,7 @@ uint16_t hisky_cb()
 			break;
 		case 7:
 			//Build normal packet
+			telemetry_set_input_sync(9000);
 			build_ch_data();
 			break;
 		case 8:

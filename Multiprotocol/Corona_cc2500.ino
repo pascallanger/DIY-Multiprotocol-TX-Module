@@ -258,6 +258,7 @@ static uint16_t __attribute__((unused)) CORONA_build_packet()
 
 uint16_t ReadCORONA()
 {
+	telemetry_set_input_sync(22000);
 	// Tune frequency if it has been changed
 	if ( prev_option != option )
 	{

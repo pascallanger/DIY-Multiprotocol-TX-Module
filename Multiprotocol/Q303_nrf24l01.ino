@@ -354,7 +354,10 @@ static void __attribute__((unused)) Q303_initialize_txid()
 uint16_t Q303_callback()
 {
 	if(IS_BIND_DONE)
+	{
+		telemetry_set_input_sync(packet_period);
 		Q303_send_packet(0);
+	}
 	else
 	{
 		if (bind_counter == 0)

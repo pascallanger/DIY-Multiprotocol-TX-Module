@@ -138,7 +138,10 @@ static void __attribute__((unused)) CG023_init()
 uint16_t CG023_callback()
 {
 	if(IS_BIND_DONE)
+	{
+		telemetry_set_input_sync(packet_period);
 		CG023_send_packet(0);
+	}
 	else
 	{
 		if (bind_counter == 0)

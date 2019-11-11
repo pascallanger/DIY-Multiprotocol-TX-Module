@@ -104,6 +104,11 @@
 		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_HOTT_TUNING
+	#if ( FORCE_HOTT_TUNING < -127 ) || ( FORCE_HOTT_TUNING > 127 )
+		#error "The HOTT forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 //A7105
 #ifdef FORCE_AFHDS2A_TUNING
 	#if ( FORCE_AFHDS2A_TUNING < -300 ) || ( FORCE_AFHDS2A_TUNING > 300 )
@@ -179,6 +184,7 @@
 #ifndef CYRF6936_INSTALLED
 	#undef	DEVO_CYRF6936_INO
 	#undef	DSM_CYRF6936_INO
+	#undef	HOTT_CC2500_INO
 	#undef	J6PRO_CYRF6936_INO
 	#undef	WFLY_CYRF6936_INO
 	#undef	WK2x01_CYRF6936_INO
@@ -194,7 +200,8 @@
 	#undef	HITEC_CC2500_INO
 	#undef	XN297L_CC2500_EMU
 	#undef	SCANNER_CC2500_INO
-	#undef	FRSKYX_RX_CC2500_INO
+	#undef	FRSKY_RX_CC2500_INO
+	#undef	HOTT_CC2500_INO
 #endif
 #ifndef NRF24L01_INSTALLED
 	#undef	BAYANG_NRF24L01_INO
@@ -247,16 +254,17 @@
 	#undef NCC1701_HUB_TELEMETRY
 	#undef HUB_TELEMETRY
 	#undef SPORT_TELEMETRY
-	#undef SPORT_POLLING
+	#undef SPORT_SEND
 	#undef DSM_TELEMETRY
 	#undef MULTI_STATUS
 	#undef MULTI_TELEMETRY
 	#undef SCANNER_TELEMETRY
 	#undef SCANNER_CC2500_INO
-	#undef FRSKYX_RX_TELEMETRY
-	#undef FRSKYX_RX_CC2500_INO
+	#undef FRSKY_RX_TELEMETRY
+	#undef FRSKY_RX_CC2500_INO
 	#undef AFHDS2A_RX_TELEMETRY
 	#undef AFHDS2A_RX_A7105_INO
+	#undef HOTT_FW_TELEMETRY
 #else
 	#if defined(MULTI_TELEMETRY) && defined(MULTI_STATUS)
 		#error You should choose either MULTI_TELEMETRY or MULTI_STATUS but not both.
@@ -265,9 +273,9 @@
 		#undef SCANNER_TELEMETRY
 		#undef SCANNER_CC2500_INO
 	#endif
-	#if not defined(FRSKYX_RX_CC2500_INO) || not defined(FRSKYX_RX_TELEMETRY)
-		#undef FRSKYX_RX_TELEMETRY
-		#undef FRSKYX_RX_CC2500_INO
+	#if not defined(FRSKY_RX_CC2500_INO) || not defined(FRSKY_RX_TELEMETRY)
+		#undef FRSKY_RX_TELEMETRY
+		#undef FRSKY_RX_CC2500_INO
 	#endif
 	#if not defined(AFHDS2A_RX_A7105_INO) || not defined(AFHDS2A_RX_TELEMETRY)
 		#undef AFHDS2A_RX_TELEMETRY
@@ -301,22 +309,32 @@
 	#endif
 	#if not defined(FRSKYX_CC2500_INO)
 		#undef SPORT_TELEMETRY
-		#undef SPORT_POLLING
+		#undef SPORT_SEND
 	#endif
-	#if not defined (SPORT_TELEMETRY) || not defined (STM32_BOARD)
-		#undef SPORT_POLLING
-	#endif
-	#if defined SPORT_POLLING && not defined INVERT_TELEMETRY
-		#error SPORT_POLLING has been defined but not INVERT_TELEMETRY. They should be both enabled to work.
+	#if not defined (SPORT_TELEMETRY)
+		#undef SPORT_SEND
 	#endif
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
 	#endif
-	#if not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKYX_RX_TELEMETRY)
+	#if not defined(HOTT_CC2500_INO)
+		#undef HOTT_FW_TELEMETRY
+	#endif
+	#if not defined(HOTT_FW_TELEMETRY) && not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKY_RX_TELEMETRY) && not defined(AFHDS2A_RX_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
-		#undef SPORT_POLLING
 	#endif
+#endif
+
+#ifdef SPORT_TELEMETRY
+	#define SPORT_SEND
+#endif
+
+#if not defined(MULTI_TELEMETRY)
+	#if not defined(STM32_BOARD)
+		#undef MULTI_SYNC
+	#endif
+	#undef MULTI_NAMES
 #endif
 
 //Make sure TX is defined correctly

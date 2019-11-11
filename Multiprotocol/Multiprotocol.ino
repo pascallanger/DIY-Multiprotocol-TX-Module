@@ -55,11 +55,8 @@
 	#include <SPI.h>
 	#include <EEPROM.h>	
 	HardwareTimer HWTimer2(2);
-#if defined  SPORT_POLLING
-#ifdef INVERT_TELEMETRY
-	HardwareTimer HWTimer4(4);
-#endif
-#endif
+	HardwareTimer HWTimer3(3);
+
 	void PPM_decode();
 	void ISR_COMPB();
 	extern "C"
@@ -76,7 +73,7 @@ uint32_t blink=0,last_signal=0;
 //
 uint16_t counter;
 uint8_t  channel;
-uint8_t  packet[40];
+uint8_t  packet[50];
 
 #define NUM_CHN 16
 // Servo data
@@ -98,7 +95,11 @@ uint16_t packet_period;
 uint8_t  packet_count;
 uint8_t  packet_sent;
 uint8_t  packet_length;
-uint8_t  hopping_frequency[50];
+#ifdef HOTT_CC2500_INO
+	uint8_t  hopping_frequency[75];
+#else
+	uint8_t  hopping_frequency[50];
+#endif
 uint8_t  *hopping_frequency_ptr;
 uint8_t  hopping_frequency_no=0;
 uint8_t  rf_ch_num;
@@ -116,6 +117,8 @@ uint8_t  num_ch;
 #ifdef CC2500_INSTALLED
 	#ifdef SCANNER_CC2500_INO
 		uint8_t calData[255];
+	#elif defined(HOTT_CC2500_INO)
+		uint8_t calData[75];
 	#else
 		uint8_t calData[50];
 	#endif
@@ -134,14 +137,14 @@ uint8_t  num_ch;
 #endif
 
 //Channel mapping for protocols
-const uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
-const uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
-const uint8_t CH_RETA[]={RUDDER, ELEVATOR, THROTTLE, AILERON, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
-const uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
+uint8_t CH_AETR[]={AILERON, ELEVATOR, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
+uint8_t CH_TAER[]={THROTTLE, AILERON, ELEVATOR, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
+//uint8_t CH_RETA[]={RUDDER, ELEVATOR, THROTTLE, AILERON, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
+uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9, CH10, CH11, CH12, CH13, CH14, CH15, CH16};
 
 // Mode_select variables
 uint8_t mode_select;
-uint8_t protocol_flags=0,protocol_flags2=0;
+uint8_t protocol_flags=0,protocol_flags2=0,protocol_flags3=0;
 
 #ifdef ENABLE_PPM
 // PPM variable
@@ -166,15 +169,21 @@ uint8_t  RX_num;
 
 //Serial RX variables
 #define BAUD 100000
-#define RXBUFFER_SIZE 26
+#define RXBUFFER_SIZE 36	// 26+1+9
 volatile uint8_t rx_buff[RXBUFFER_SIZE];
 volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
-volatile uint8_t discard_frame = 0;
+volatile bool discard_frame = false;
+volatile uint8_t rx_idx=0, rx_len=0;
+
 
 // Telemetry
-#define MAX_PKT 30
-uint8_t pkt[MAX_PKT];//telemetry receiving packets
+#define TELEMETRY_BUFFER_SIZE 30
+uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 #if defined(TELEMETRY)
+	#ifdef MULTI_SYNC
+		uint16_t last_serial_input=0;
+		uint16_t inputRefreshRate=0;
+	#endif
 	#ifdef INVERT_TELEMETRY
 		#if not defined(ORANGE_TX) && not defined(STM32_BOARD)
 			// enable bit bash for serial
@@ -182,8 +191,7 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 		#endif
 		#define	INVERT_SERIAL 1
 	#endif
-	uint8_t pass = 0;
-	uint8_t pktt[MAX_PKT];//telemetry receiving packets
+	uint8_t telemetry_in_buffer[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 	#ifdef BASH_SERIAL
 	// For bit-bashed serial output
 		#define TXBUFFER_SIZE 192
@@ -210,12 +218,34 @@ uint8_t pkt[MAX_PKT];//telemetry receiving packets
 	uint8_t telemetry_link=0; 
 	uint8_t telemetry_counter=0;
 	uint8_t telemetry_lost;
-	#ifdef SPORT_POLLING
+	#ifdef SPORT_SEND
 		#define MAX_SPORT_BUFFER 64
 		uint8_t	SportData[MAX_SPORT_BUFFER];
-		bool	ok_to_send = false;
-		uint8_t	sport_idx = 0;
-		uint8_t	sport_index = 0;
+		uint8_t	SportHead=0, SportTail=0;
+	#endif
+
+	//RX protocols
+	#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO)
+		bool rx_data_started;
+		bool rx_disable_lna;
+		uint16_t rx_rc_chan[16];
+	#endif
+	
+	//Multi names
+	#ifdef MULTI_NAMES
+		struct mm_protocol_definition {
+			uint8_t protocol;
+			const char *ProtoString;
+			uint8_t nbrSubProto;
+			const char *SubProtoString;
+			uint8_t optionType;
+		};
+		extern const mm_protocol_definition multi_protocols[];
+		uint8_t multi_protocols_index=0xFF;
+	#endif
+	#ifdef HOTT_FW_TELEMETRY
+		uint8_t HoTT_SerialRX_val=0;
+		bool HoTT_SerialRX=false;
 	#endif
 #endif // TELEMETRY
 
@@ -300,7 +330,6 @@ void setup()
 		pinMode(S4_pin,INPUT_PULLUP);
 		//Random pins
 		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
-		pinMode(PB1, INPUT_ANALOG); // set up pin for analog input
 
 		//Timers
 		init_HWTimer();			//0.5us
@@ -399,9 +428,15 @@ void setup()
 	#endif
 
 	// Set default channels' value
-	InitChannel();
+	for(uint8_t i=0;i<NUM_CHN;i++)
+		Channel_data[i]=1024;
+	Channel_data[THROTTLE]=0;	//0=-125%, 204=-100%
+
 	#ifdef ENABLE_PPM
-		InitPPM();
+		// Set default PPMs' value
+		for(uint8_t i=0;i<NUM_CHN;i++)
+			PPM_data[i]=PPM_MAX_100+PPM_MIN_100;
+		PPM_data[THROTTLE]=PPM_MIN_100*2;
 	#endif
 
 	// Update LED
@@ -412,10 +447,13 @@ void setup()
 	modules_reset();
 
 #ifndef ORANGE_TX
-	//Init the seed with a random value created from watchdog timer for all protocols requiring random values
 	#ifdef STM32_BOARD
-		randomSeed((uint32_t)analogRead(PB0) << 10 | analogRead(PB1));			
+		uint32_t seed=0;
+		for(uint8_t i=0;i<4;i++)
+			seed=(seed<<8) | (analogRead(PB0)& 0xFF);
+		randomSeed(seed);
 	#else
+		//Init the seed with a random value created from watchdog timer for all protocols requiring random values
 		randomSeed(random_value());
 	#endif
 #endif
@@ -477,6 +515,11 @@ void setup()
 				option			=	FORCE_HITEC_TUNING;		// Use config-defined tuning value for HITEC
 			else
 		#endif
+		#if defined(FORCE_HOTT_TUNING) && defined(HOTT_CC2500_INO)
+			if (protocol==PROTO_HOTT)
+				option			=	FORCE_HOTT_TUNING;			// Use config-defined tuning value for HOTT
+			else
+		#endif
 				option			=	(uint8_t)PPM_prot_line->option;	// Use radio-defined option value
 
 		if(PPM_prot_line->power)		POWER_FLAG_on;
@@ -529,88 +572,78 @@ void setup()
 // Protocol scheduler
 void loop()
 { 
-	uint16_t next_callback,diff=0xFFFF;
+	uint16_t next_callback, diff;
+	uint8_t count=0;
 
 	while(1)
 	{
-		if(remote_callback==0 || IS_WAIT_BIND_on || diff>2*200)
-		{
-			do
+		while(remote_callback==0 || IS_WAIT_BIND_on || IS_INPUT_SIGNAL_off)
+			if(!Update_All())
 			{
-				Update_All();
-			}
-			while(remote_callback==0 || IS_WAIT_BIND_on);
-		}
-		#ifndef STM32_BOARD
-			if( (TIFR1 & OCF1A_bm) != 0)
-			{
-				cli();					// Disable global int due to RW of 16 bits registers
-				OCR1A=TCNT1;			// Callback should already have been called... Use "now" as new sync point.
-				sei();					// Enable global int
-			}
-			else
-				while((TIFR1 & OCF1A_bm) == 0); // Wait before callback
-		#else
-			if((TIMER2_BASE->SR & TIMER_SR_CC1IF)!=0)
-			{
-				debugln("Callback miss");
-				cli();
-				OCR1A = TCNT1;
-				sei();
-			}
-			else
-				while((TIMER2_BASE->SR & TIMER_SR_CC1IF )==0); // Wait before callback
-		#endif
-		do
-		{
-			TX_MAIN_PAUSE_on;
-			tx_pause();
-			if(IS_INPUT_SIGNAL_on && remote_callback!=0)
-				next_callback=remote_callback();
-			else
-				next_callback=2000;					// No PPM/serial signal check again in 2ms...
-			TX_MAIN_PAUSE_off;
-			tx_resume();
-			while(next_callback>4000)
-			{ // start to wait here as much as we can...
-				next_callback-=2000;				// We will wait below for 2ms
 				cli();								// Disable global int due to RW of 16 bits registers
-				OCR1A += 2000*2 ;					// set compare A for callback
-				#ifndef STM32_BOARD	
-					TIFR1=OCF1A_bm;					// clear compare A=callback flag
-				#else
-					TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
-				#endif
-				sei();								// enable global int
-				if(Update_All())					// Protocol changed?
-				{
-					next_callback=0;				// Launch new protocol ASAP
-					break;
-				}
-				#ifndef STM32_BOARD	
-					while((TIFR1 & OCF1A_bm) == 0);	// wait 2ms...
-				#else
-					while((TIMER2_BASE->SR & TIMER_SR_CC1IF)==0);//2ms wait
-				#endif
+				OCR1A=TCNT1;						// Callback should already have been called... Use "now" as new sync point.
+				sei();								// Enable global int
 			}
-			// at this point we have a maximum of 4ms in next_callback
-			next_callback *= 2 ;
-			cli();									// Disable global int due to RW of 16 bits registers
-			OCR1A+= next_callback ;					// set compare A for callback
-			#ifndef STM32_BOARD			
-				TIFR1=OCF1A_bm;						// clear compare A=callback flag
-			#else
-				TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
-			#endif		
-			diff=OCR1A-TCNT1;						// compare timer and comparator
-			sei();									// enable global int
+		TX_MAIN_PAUSE_on;
+		tx_pause();
+		next_callback=remote_callback()<<1;
+		TX_MAIN_PAUSE_off;
+		tx_resume();
+		cli();										// Disable global int due to RW of 16 bits registers
+		OCR1A+=next_callback;						// Calc when next_callback should happen
+		#ifndef STM32_BOARD			
+			TIFR1=OCF1A_bm;							// Clear compare A=callback flag
+		#else
+			TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
+		#endif		
+		diff=OCR1A-TCNT1;							// Calc the time difference
+		sei();										// Enable global int
+		if((diff&0x8000) && !(next_callback&0x8000))
+		{ // Negative result=callback should already have been called... 
+			debugln("Short CB:%d",next_callback);
 		}
-		while(diff&0x8000);	 						// Callback did not took more than requested time for next callback
-													// so we can launch Update_All before next callback
+		else
+		{
+			if(IS_RX_FLAG_on || IS_PPM_FLAG_on)
+			{ // Serial or PPM is waiting...
+				if(++count>10)
+				{ //The protocol does not leave enough time for an update so forcing it
+					count=0;
+					debugln("Force update");
+					Update_All();
+				}
+			}
+			#ifndef STM32_BOARD
+				while((TIFR1 & OCF1A_bm) == 0)
+			#else
+				while((TIMER2_BASE->SR & TIMER_SR_CC1IF )==0)
+			#endif
+			{
+				if(diff>900*2)
+				{	//If at least 1ms is available update values 
+					if((diff&0x8000) && !(next_callback&0x8000))
+					{//Should never get here...
+						debugln("!!!BUG!!!");
+						break;
+					}
+					count=0;
+					Update_All();
+					#ifdef DEBUG_SERIAL
+						if(TIMER2_BASE->SR & TIMER_SR_CC1IF )
+							debugln("Long update");
+					#endif
+					if(remote_callback==0)
+						break;
+					cli();							// Disable global int due to RW of 16 bits registers
+					diff=OCR1A-TCNT1;				// Calc the time difference
+					sei();							// Enable global int
+				}
+			}
+		}			
 	}
 }
 
-uint8_t Update_All()
+bool Update_All()
 {
 	#ifdef ENABLE_SERIAL
 		#ifdef CHECK_FOR_BOOTLOADER
@@ -664,13 +697,14 @@ uint8_t Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if( (protocol == PROTO_FRSKYX_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC))
+			if( (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT))
 		#endif
-				TelemetryUpdate();
+				if(IS_DISABLE_TELEM_off)
+					TelemetryUpdate();
 	#endif
 	#ifdef ENABLE_BIND_CH
-		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Channel_data[BIND_CH-1]>CHANNEL_MAX_COMMAND && Channel_data[THROTTLE]<(CHANNEL_MIN_100+50))
-		{ // Autobind is on and BIND_CH went up and Throttle is low
+		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Channel_data[BIND_CH-1]>CHANNEL_MAX_COMMAND)
+		{ // Autobind is on and BIND_CH went up
 			CHANGE_PROTOCOL_FLAG_on;							//reload protocol
 			BIND_IN_PROGRESS;									//enable bind
 			BIND_CH_PREV_on;
@@ -691,9 +725,9 @@ uint8_t Update_All()
 	if(IS_CHANGE_PROTOCOL_FLAG_on)
 	{ // Protocol needs to be changed or relaunched for bind
 		protocol_init();									//init new protocol
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 #if defined(FAILSAFE_ENABLE) && defined(ENABLE_PPM)
@@ -751,7 +785,10 @@ static void update_led_status(void)
 {
 	if(IS_INPUT_SIGNAL_on)
 		if(millis()-last_signal>70)
+		{
 			INPUT_SIGNAL_off;							//no valid signal (PPM or Serial) received for 70ms
+			debugln("No input signal");
+		}
 	if(blink<millis())
 	{
 		if(IS_INPUT_SIGNAL_off)
@@ -893,9 +930,7 @@ inline void tx_resume()
 {
 	#ifdef TELEMETRY
 	// Resume telemetry by enabling transmitter interrupt
-		#ifndef SPORT_POLLING
-		if(!IS_TX_PAUSE_on)
-		#endif
+		if(IS_TX_PAUSE_off)
 		{
 			#ifdef ORANGE_TX
 				cli() ;
@@ -929,10 +964,14 @@ static void protocol_init()
 
 		// reset telemetry
 		#ifdef TELEMETRY
+			#ifdef MULTI_SYNC
+				inputRefreshRate = 0;	// Don't do it unless the protocol asks for it
+			#endif
+			#ifdef MULTI_NAMES
+				multi_protocols_index = 0xFF;
+			#endif
 			tx_pause();
-			pass=0;
-			telemetry_link=0;
-			telemetry_lost=1;
+			init_frskyd_link_telemetry();
 			#ifdef BASH_SERIAL
 				TIMSK0 = 0 ;			// Stop all timer 0 interrupts
 				#ifdef INVERT_SERIAL
@@ -949,6 +988,11 @@ static void protocol_init()
 			#endif
 			TX_RX_PAUSE_off;
 			TX_MAIN_PAUSE_off;
+			tx_resume();
+			#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO)
+				for(uint8_t ch=0; ch<16; ch++)
+					rx_rc_chan[ch] = 1024;
+			#endif
 		#endif
 
 		//Set global ID and rx_tx_addr
@@ -958,14 +1002,13 @@ static void protocol_init()
 		#ifdef FAILSAFE_ENABLE
 			FAILSAFE_VALUES_off;
 		#endif
-	
+		DATA_BUFFER_LOW_off;
+		
 		blink=millis();
 
 		PE1_on;							//NRF24L01 antenna RF3 by default
 		PE2_off;						//NRF24L01 antenna RF3 by default
 		
-		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
-
 		switch(protocol)				// Init the requested protocol
 		{
 			#ifdef A7105_INSTALLED
@@ -1070,6 +1113,14 @@ static void protocol_init()
 						remote_callback = ReadHITEC;
 						break;
 				#endif
+				#if defined(HOTT_CC2500_INO)
+					case PROTO_HOTT:
+						PE1_off;	//antenna RF2
+						PE2_on;
+						next_callback = initHOTT();
+						remote_callback = ReadHOTT;
+						break;
+				#endif
 				#if defined(SCANNER_CC2500_INO)
 					case PROTO_SCANNER:
 						PE1_off;
@@ -1078,12 +1129,12 @@ static void protocol_init()
 						remote_callback = Scanner_callback;
 						break;
 				#endif
-				#if defined(FRSKYX_RX_CC2500_INO)
-					case PROTO_FRSKYX_RX:
+				#if defined(FRSKY_RX_CC2500_INO)
+					case PROTO_FRSKY_RX:
 						PE1_off;
 						PE2_on;	//antenna RF2
-						next_callback = initFrSkyX_Rx();
-						remote_callback = FrSkyX_Rx_callback;
+						next_callback = initFrSky_Rx();
+						remote_callback = FrSky_Rx_callback;
 						break;
 				#endif
 			#endif
@@ -1370,8 +1421,35 @@ static void protocol_init()
 				#endif
 			#endif
 		}
+		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
+		#ifdef MULTI_NAMES
+			uint8_t index=0;
+			while(multi_protocols[index].protocol != 0)
+			{
+				if(multi_protocols[index].protocol==protocol)
+				{
+					multi_protocols_index=index;
+					SEND_MULTI_STATUS_on;
+					#ifdef DEBUG_SERIAL
+						debug("Proto=%s",multi_protocols[multi_protocols_index].ProtoString);
+						uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+						debug(", nbr_sub=%d, Sub=",nbr);
+						if(nbr && (sub_protocol&0x07)<nbr)
+						{
+							uint8_t len=multi_protocols[multi_protocols_index].SubProtoString[0];
+							uint8_t offset=len*(sub_protocol&0x07)+1;
+							for(uint8_t j=0;j<len;j++)
+								debug("%c",multi_protocols[multi_protocols_index].SubProtoString[j+offset]);
+						}
+						debugln(", Opt=%d",multi_protocols[multi_protocols_index].optionType);
+					#endif
+					break;
+				}
+				index++;
+			}
+		#endif
 	}
-
+	
 	#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
 		if( IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && (cur_protocol[1]&0x80)==0 && mode_select == MODE_SERIAL)
 		{ // Autobind is active but no bind requested by either BIND_CH or BIND. But do not wait if in PPM mode...
@@ -1401,8 +1479,18 @@ static void protocol_init()
 
 void update_serial_data()
 {
+	static bool prev_ch_mapping=false;
+	#if defined(TELEMETRY) && defined(INVERT_TELEMETRY_TX)
+		#ifdef INVERT_TELEMETRY
+			static bool prev_inv_telem=true;
+		#else
+			static bool prev_inv_telem=false;
+		#endif
+	#endif
+
 	RX_DONOTUPDATE_on;
 	RX_FLAG_off;								//data is being processed
+
 	#ifdef SAMSON	// Extremely dangerous, do not enable this unless you know what you are doing...
 		if( rx_ok_buff[0]==0x55 && (rx_ok_buff[1]&0x1F)==PROTO_FRSKYD && rx_ok_buff[2]==0x7F && rx_ok_buff[24]==217 && rx_ok_buff[25]==202 )
 		{//proto==FRSKYD+sub==7+rx_num==7+CH15==73%+CH16==73%
@@ -1410,6 +1498,11 @@ void update_serial_data()
 			memcpy((void*)(rx_ok_buff+4),(void*)(rx_ok_buff+4+11),11);	// reassign channels 9-16 to 1-8
 		}
 	#endif
+	#ifdef BONI	// Extremely dangerous, do not enable this!!! This is really for a special case...
+		if(CH14_SW)
+			rx_ok_buff[2]=(rx_ok_buff[2]&0xF0)|((rx_ok_buff[2]+1)&0x0F);
+	#endif
+
 	if(rx_ok_buff[1]&0x20)						//check range
 		RANGE_FLAG_on;
 	else
@@ -1426,54 +1519,112 @@ void update_serial_data()
 	//Forced frequency tuning values for CC2500 protocols
 	#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
 		if(protocol==PROTO_FRSKYD) 
-			option=FORCE_FRSKYD_TUNING;	// Use config-defined tuning value for FrSkyD
+			option=FORCE_FRSKYD_TUNING;			// Use config-defined tuning value for FrSkyD
 		else
 	#endif
 	#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
 		if(protocol==PROTO_FRSKYV)
-			option=FORCE_FRSKYV_TUNING;	// Use config-defined tuning value for FrSkyV
+			option=FORCE_FRSKYV_TUNING;			// Use config-defined tuning value for FrSkyV
 		else
 	#endif
 	#if defined(FORCE_FRSKYX_TUNING) && defined(FRSKYX_CC2500_INO)
 		if(protocol==PROTO_FRSKYX)
-			option=FORCE_FRSKYX_TUNING;	// Use config-defined tuning value for FrSkyX
+			option=FORCE_FRSKYX_TUNING;			// Use config-defined tuning value for FrSkyX
 		else
 	#endif 
 	#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
 		if (protocol==PROTO_SFHSS)
-			option=FORCE_SFHSS_TUNING;	// Use config-defined tuning value for SFHSS
+			option=FORCE_SFHSS_TUNING;			// Use config-defined tuning value for SFHSS
 		else
 	#endif
 	#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)
 		if (protocol==PROTO_CORONA)
-			option=FORCE_CORONA_TUNING;	// Use config-defined tuning value for CORONA
+			option=FORCE_CORONA_TUNING;			// Use config-defined tuning value for CORONA
 		else
 	#endif
 	#if defined(FORCE_REDPINE_TUNING) && defined(REDPINE_CC2500_INO)
 		if (protocol==PROTO_REDPINE)
-			option=FORCE_REDPINE_TUNING;	// Use config-defined tuning value for REDPINE
+			option=FORCE_REDPINE_TUNING;		// Use config-defined tuning value for REDPINE
 		else
 	#endif
 	#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
 		if (protocol==PROTO_HITEC)
-			option=FORCE_HITEC_TUNING;	// Use config-defined tuning value for HITEC
+			option=FORCE_HITEC_TUNING;			// Use config-defined tuning value for HITEC
 		else
 	#endif
-			option=rx_ok_buff[3];		// Use radio-defined option value
+	#if defined(FORCE_HOTT_TUNING) && defined(HOTT_CC2500_INO)
+		if (protocol==PROTO_HOTT)
+			option=FORCE_HOTT_TUNING;			// Use config-defined tuning value for HOTT
+		else
+	#endif
+			option=rx_ok_buff[3];				// Use radio-defined option value
 
 	#ifdef FAILSAFE_ENABLE
 		bool failsafe=false;
 		if(rx_ok_buff[0]&0x02)
 		{ // Packet contains failsafe instead of channels
 			failsafe=true;
-			rx_ok_buff[0]&=0xFD;				//remove the failsafe flag
-			FAILSAFE_VALUES_on;					//failsafe data has been received
+			rx_ok_buff[0]&=0xFD;				// Remove the failsafe flag
+			FAILSAFE_VALUES_on;					// Failsafe data has been received
+			debugln("Failsafe received");
 		}
 	#endif
-	#ifdef BONI
-		if(CH14_SW)
-			rx_ok_buff[2]=(rx_ok_buff[2]&0xF0)|((rx_ok_buff[2]+1)&0x0F);	// Extremely dangerous, do not enable this!!! This is really for a special case...
-	#endif
+
+	DISABLE_CH_MAP_off;
+	DISABLE_TELEM_off;
+	if(rx_len>26)
+	{//Additional flag received at the end
+		rx_ok_buff[0]=(rx_ok_buff[26]&0xF0) | (rx_ok_buff[0]&0x0F);	// Additional protocol numbers and RX_Num available -> store them in rx_ok_buff[0]
+		if(rx_ok_buff[26]&0x02)
+			DISABLE_TELEM_on;
+		if(rx_ok_buff[26]&0x01)
+			DISABLE_CH_MAP_on;
+		#if defined(TELEMETRY) && defined(INVERT_TELEMETRY_TX)
+			if(((rx_ok_buff[26]&0x08)!=0) ^ prev_inv_telem)
+			{ //value changed
+				if(rx_ok_buff[26]&0x08)
+				{								// Invert telemetry
+					debugln("Invert telem %d,%d",rx_ok_buff[26]&0x01,prev_inv_telem);
+					#if defined (ORANGE_TX)
+						PORTC.PIN3CTRL |= 0x40 ;
+					#elif defined (STM32_BOARD)
+						TX_INV_on;
+						RX_INV_on;
+					#endif
+				}
+				else
+				{								// Normal telemetry
+					debugln("Normal telem %d,%d",rx_ok_buff[26]&0x01,prev_inv_telem);
+					#if defined (ORANGE_TX)
+						PORTC.PIN3CTRL &= 0xBF ;
+					#elif defined (STM32_BOARD)
+						TX_INV_off;
+						RX_INV_off;
+					#endif
+				}
+				prev_inv_telem=rx_ok_buff[26]&0x08;
+			}
+		#endif
+	}
+
+	if(prev_ch_mapping!=IS_DISABLE_CH_MAP_on)
+	{
+		prev_ch_mapping=IS_DISABLE_CH_MAP_on;
+		if(IS_DISABLE_CH_MAP_on)
+		{
+			for(uint8_t i=0;i<4;i++)
+				CH_AETR[i]=CH_TAER[i]=CH_EATR[i]=i;
+			debugln("DISABLE_CH_MAP_on");
+		}
+		else
+		{
+			CH_AETR[0]=AILERON;CH_AETR[1]=ELEVATOR;CH_AETR[2]=THROTTLE;CH_AETR[3]=RUDDER;
+			CH_TAER[0]=THROTTLE;CH_TAER[1]=AILERON;CH_TAER[2]=ELEVATOR;CH_TAER[3]=RUDDER;
+			CH_EATR[0]=ELEVATOR;CH_EATR[1]=AILERON;CH_EATR[2]=THROTTLE;CH_EATR[3]=RUDDER;
+			debugln("DISABLE_CH_MAP_off");
+		}
+	}
+	
 	if( (rx_ok_buff[0] != cur_protocol[0]) || ((rx_ok_buff[1]&0x5F) != (cur_protocol[1]&0x5F)) || ( (rx_ok_buff[2]&0x7F) != (cur_protocol[2]&0x7F) ) )
 	{ // New model has been selected
 		CHANGE_PROTOCOL_FLAG_on;				//change protocol
@@ -1482,9 +1633,15 @@ void update_serial_data()
 			BIND_IN_PROGRESS;					//launch bind right away if in autobind mode or bind is set
 		else
 			BIND_DONE;
-		protocol=(rx_ok_buff[0]==0x55?0:32) + (rx_ok_buff[1]&0x1F);	//protocol no (0-63) bits 4-6 of buff[1] and bit 0 of buf[0]
+		protocol=rx_ok_buff[1]&0x1F;			//protocol no (0-31)
+		if(!(rx_ok_buff[0]&1))
+			protocol+=32;						//protocol no (0-63)
+		if(rx_len>26)
+			protocol|=rx_ok_buff[26]&0xC0;		//protocol no (0-255)
 		sub_protocol=(rx_ok_buff[2]>>4)& 0x07;	//subprotocol no (0-7) bits 4-6
-		RX_num=rx_ok_buff[2]& 0x0F;				// rx_num bits 0---3
+		RX_num=rx_ok_buff[2]& 0x0F;				//rx_num no (0-15)
+		if(rx_len>26)
+			RX_num|=rx_ok_buff[26]&0x30;		//rx_num no (0-63)
 	}
 	else
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
@@ -1528,6 +1685,57 @@ void update_serial_data()
 		#endif
 				Channel_data[i]=temp;			//value range 0..2047, 0=-125%, 2047=+125%
 	}
+
+	#ifdef HOTT_FW_TELEMETRY
+		HoTT_SerialRX=false;
+	#endif
+	if(rx_len>27)
+	{ // Data available for the current protocol
+		#ifdef SPORT_SEND
+			if(protocol==PROTO_FRSKYX && rx_len==35)
+			{//Protocol waiting for 8 bytes
+				#define BYTE_STUFF	0x7D
+				#define STUFF_MASK	0x20
+				//debug("SPort_in: ");
+				SportData[SportTail]=0x7E;
+				SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+				SportData[SportTail]=rx_ok_buff[27]&0x1F;
+				SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+				for(uint8_t i=28;i<28+7;i++)
+				{
+					if(rx_ok_buff[i]==BYTE_STUFF)
+					{//stuff
+						SportData[SportTail]=BYTE_STUFF;
+						SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+						SportData[SportTail]=rx_ok_buff[i]^STUFF_MASK;
+					}
+					else
+						SportData[SportTail]=rx_ok_buff[i];
+					//debug("%02X ",SportData[SportTail]);
+					SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+				}
+				uint8_t used = SportTail;
+				if ( SportHead > SportTail )
+					used += MAX_SPORT_BUFFER - SportHead ;
+				else
+					used -= SportHead ;
+				if ( used >= MAX_SPORT_BUFFER-(MAX_SPORT_BUFFER>>2) )
+				{
+					DATA_BUFFER_LOW_on;
+					SEND_MULTI_STATUS_on;	//Send Multi Status ASAP to inform the TX
+					debugln("Low buf=%d,h=%d,t=%d",used,SportHead,SportTail);
+				}
+			}
+		#endif //SPORT_SEND
+		#ifdef HOTT_FW_TELEMETRY
+			if(protocol==PROTO_HOTT && rx_len==28)
+			{//Protocol waiting for 1 byte
+				HoTT_SerialRX_val=rx_ok_buff[27];
+				HoTT_SerialRX=true;
+			}
+		#endif
+	}
+
 	RX_DONOTUPDATE_off;
 	#ifdef ORANGE_TX
 		cli();
@@ -1535,18 +1743,19 @@ void update_serial_data()
 		UCSR0B &= ~_BV(RXCIE0);					// RX interrupt disable
 	#endif
 	if(IS_RX_MISSED_BUFF_on)					// If the buffer is still valid
-	{	memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
-		RX_FLAG_on;								// data to be processed next time...
+	{	
+		if(rx_idx>=26 && rx_idx<RXBUFFER_SIZE)
+		{
+			rx_len=rx_idx;
+			memcpy((void*)rx_ok_buff,(const void*)rx_buff,rx_len);// Duplicate the buffer
+			RX_FLAG_on;							// Data to be processed next time...
+		}
 		RX_MISSED_BUFF_off;
 	}
 	#ifdef ORANGE_TX
 		sei();
 	#else
 		UCSR0B |= _BV(RXCIE0) ;					// RX interrupt enable
-	#endif
-	#ifdef FAILSAFE_ENABLE
-		if(failsafe)
-			debugln("RX_FS:%d,%d,%d,%d",Failsafe_data[0],Failsafe_data[1],Failsafe_data[2],Failsafe_data[3]);
 	#endif
 }
 
@@ -1616,9 +1825,7 @@ void modules_reset()
 			USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
 		}
 		usart3_begin(100000,SERIAL_8E2);
-		#ifndef SPORT_POLLING
-			USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable receive
-		#endif		
+		USART3_BASE->CR1 &= ~ USART_CR1_RE;		//disable receive
 		USART2_BASE->CR1 &= ~ USART_CR1_TE;		//disable transmit
 	#else
 		//ATMEGA328p
@@ -1674,14 +1881,24 @@ void modules_reset()
 		TIMER2_BASE->ARR = 0xFFFF;							// Count until 0xFFFF
 		
 		HWTimer2.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);	// Main scheduler
-		HWTimer2.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);	// Serial check
+		//HWTimer2.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);	// Serial check
 
 		TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;			// Clear Timer2/Comp2 interrupt flag
-		HWTimer2.attachInterrupt(TIMER_CH2,ISR_COMPB);		// Assign function to Timer2/Comp2 interrupt
+		//HWTimer2.attachInterrupt(TIMER_CH2,ISR_COMPB);		// Assign function to Timer2/Comp2 interrupt
 		TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer2/Comp2 interrupt
 		
 		HWTimer2.refresh();									// Refresh the timer's count, prescale, and overflow
 		HWTimer2.resume();
+
+		HWTimer3.pause();									// Pause the timer3 while we're configuring it
+		TIMER3_BASE->PSC = 35;								// 36-1;for 72 MHZ /0.5sec/(35+1)
+		TIMER3_BASE->ARR = 0xFFFF;							// Count until 0xFFFF
+		HWTimer3.setMode(TIMER_CH2, TIMER_OUTPUT_COMPARE);	// Serial check
+		TIMER3_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;			// Clear Timer3/Comp2 interrupt flag
+		HWTimer3.attachInterrupt(TIMER_CH2,ISR_COMPB);		// Assign function to Timer3/Comp2 interrupt
+		TIMER3_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer3/Comp2 interrupt
+		HWTimer3.refresh();									// Refresh the timer's count, prescale, and overflow
+		HWTimer3.resume();
 	}
 #endif
 
@@ -1762,10 +1979,16 @@ void pollBoot()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG)|| (protocol==PROTO_NCC1701) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI))
+	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG)|| (protocol==PROTO_NCC1701) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI)
+	#ifdef TELEMETRY_FRSKYX_TO_FRSKYD
+		 || (protocol==PROTO_FRSKYX)
+	#endif
+	 )
 		initTXSerial( SPEED_9600 ) ;
-	if(protocol==PROTO_FRSKYX)
-		initTXSerial( SPEED_57600 ) ;
+	#ifndef TELEMETRY_FRSKYX_TO_FRSKYD
+		if(protocol==PROTO_FRSKYX)
+			initTXSerial( SPEED_57600 ) ;
+	#endif
 	if(protocol==PROTO_DSM)
 		initTXSerial( SPEED_125K ) ;
 }
@@ -1885,77 +2108,83 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		ISR(USART_RX_vect)
 	#endif
 	{	// RX interrupt
-		static uint8_t idx=0;
 		#ifdef ORANGE_TX
-			if((USARTC0.STATUS & 0x1C)==0)		// Check frame error, data overrun and parity error
+			if((USARTC0.STATUS & 0x1C)==0)							// Check frame error, data overrun and parity error
 		#elif defined STM32_BOARD
 			if((USART2_BASE->SR & USART_SR_RXNE) && (USART2_BASE->SR &0x0F)==0)					
 		#else
-			UCSR0B &= ~_BV(RXCIE0) ;			// RX interrupt disable
+			UCSR0B &= ~_BV(RXCIE0) ;								// RX interrupt disable
 			sei() ;
-			if((UCSR0A&0x1C)==0)				// Check frame error, data overrun and parity error
+			if((UCSR0A&0x1C)==0)									// Check frame error, data overrun and parity error
 		#endif
 		{ // received byte is ok to process
-			if(idx==0||discard_frame==1)
+			if(rx_idx==0||discard_frame==true)
 			{	// Let's try to sync at this point
-				idx=0;discard_frame=0;
-				RX_MISSED_BUFF_off;			// If rx_buff was good it's not anymore...
+				RX_MISSED_BUFF_off;									// If rx_buff was good it's not anymore...
+				rx_idx=0;discard_frame=false;
 				rx_buff[0]=UDR0;
 				#ifdef FAILSAFE_ENABLE
-					if((rx_buff[0]&0xFC)==0x54)	// If 1st byte is 0x54, 0x55, 0x56 or 0x57 it looks ok
+					if((rx_buff[0]&0xFC)==0x54)						// If 1st byte is 0x54, 0x55, 0x56 or 0x57 it looks ok
 				#else
-					if((rx_buff[0]&0xFE)==0x54)	// If 1st byte is 0x54 or 0x55 it looks ok
+					if((rx_buff[0]&0xFE)==0x54)						// If 1st byte is 0x54 or 0x55 it looks ok
 				#endif
 				{
-					TX_RX_PAUSE_on;
-					tx_pause();
 					#if defined STM32_BOARD
-						TIMER2_BASE->CCR2=TIMER2_BASE->CNT+(6500L);	// Full message should be received within timer of 3250us
-						TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer2/Comp2 interrupt flag
-						TIMER2_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer2/Comp2 interrupt
+						TIMER3_BASE->CCR2=TIMER3_BASE->CNT + 500;	// Next byte should show up within 250us (1 byte = 120us)
+						TIMER3_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;	// Clear Timer3/Comp2 interrupt flag
+						TIMER3_BASE->DIER |= TIMER_DIER_CC2IE;		// Enable Timer3/Comp2 interrupt
 					#else
-						OCR1B = TCNT1+(6500L) ;	// Full message should be received within timer of 3250us
-						TIFR1 = OCF1B_bm ;		// clear OCR1B match flag
-						SET_TIMSK1_OCIE1B ;		// enable interrupt on compare B match
+						TX_RX_PAUSE_on;
+						tx_pause();
+						cli();										// Disable global int due to RW of 16 bits registers
+						OCR1B = TCNT1 + 500;						// Next byte should show up within 250us (1 byte = 120us)
+						sei();										// Enable global int
+						TIFR1 = OCF1B_bm ;							// clear OCR1B match flag
+						SET_TIMSK1_OCIE1B ;							// enable interrupt on compare B match
 					#endif
-					idx++;
+					rx_idx++;
 				}
 			}
 			else
 			{
-				rx_buff[idx++]=UDR0;		// Store received byte
-				if(idx>=RXBUFFER_SIZE)
-				{	// A full frame has been received
-					if(!IS_RX_DONOTUPDATE_on)
-					{ //Good frame received and main is not working on the buffer
-						memcpy((void*)rx_ok_buff,(const void*)rx_buff,RXBUFFER_SIZE);// Duplicate the buffer
-						RX_FLAG_on;			// flag for main to process servo data
-					}
-					else
-						RX_MISSED_BUFF_on;	// notify that rx_buff is good
-					discard_frame=1; 		// start again
+				if(rx_idx>=RXBUFFER_SIZE)
+				{
+					discard_frame=true; 								// Too many bytes being received...
+					debugln("RX frame too long");
+				}
+				else
+				{
+					rx_buff[rx_idx++]=UDR0;							// Store received byte
+					#if defined STM32_BOARD
+						TIMER3_BASE->CCR2=TIMER3_BASE->CNT + 500;	// Next byte should show up within 250us (1 byte = 120us)
+					#else
+						cli();										// Disable global int due to RW of 16 bits registers
+						OCR1B = TCNT1 + 500;						// Next byte should show up within 250us (1 byte = 120us)
+						sei();										// Enable global int
+					#endif
 				}
 			}
 		}
 		else
 		{
-			idx=UDR0;						// Dummy read
-			discard_frame=1;				// Error encountered discard full frame...
+			rx_idx=UDR0;											// Dummy read
+			rx_idx=0;
+			discard_frame=true;										// Error encountered discard full frame...
 			debugln("Bad frame RX");
 		}
-		if(discard_frame==1)
+		if(discard_frame==true)
 		{
 			#ifdef STM32_BOARD
-				TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;	// Disable Timer2/Comp2 interrupt
+				TIMER3_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer3/Comp2 interrupt
 			#else							
-				CLR_TIMSK1_OCIE1B;			// Disable interrupt on compare B match
+				CLR_TIMSK1_OCIE1B;									// Disable interrupt on compare B match
+				TX_RX_PAUSE_off;
+				tx_resume();
 			#endif
-			TX_RX_PAUSE_off;
-			tx_resume();
 		}
 		#if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 			cli() ;
-			UCSR0B |= _BV(RXCIE0) ;			// RX interrupt enable
+			UCSR0B |= _BV(RXCIE0) ;									// RX interrupt enable
 		#endif
 	}
 
@@ -1965,17 +2194,38 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 	#elif defined STM32_BOARD
 		void ISR_COMPB()
 	#else
-		ISR(TIMER1_COMPB_vect, ISR_NOBLOCK )
+		ISR(TIMER1_COMPB_vect)
 	#endif
 	{	// Timer1 compare B interrupt
-		discard_frame=1;
-		#ifdef STM32_BOARD
-			TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;	// Disable Timer2/Comp2 interrupt
-			debugln("Bad frame timer");
-		#else
-			CLR_TIMSK1_OCIE1B;						// Disable interrupt on compare B match
+		if(rx_idx>=26 && rx_idx<RXBUFFER_SIZE)
+		{
+			// A full frame has been received
+			if(!IS_RX_DONOTUPDATE_on)
+			{ //Good frame received and main is not working on the buffer
+				rx_len=rx_idx;
+				memcpy((void*)rx_ok_buff,(const void*)rx_buff,rx_idx);	// Duplicate the buffer
+				RX_FLAG_on;											// Flag for main to process data
+			}
+			else
+				RX_MISSED_BUFF_on;									// Notify that rx_buff is good
+			#ifdef MULTI_SYNC
+				cli();
+				last_serial_input=TCNT1;
+				sei();
+			#endif
+		}
+		#ifdef DEBUG_SERIAL
+			else
+				debugln("RX frame too short");
 		#endif
-		tx_resume();
+		discard_frame=true;
+		#ifdef STM32_BOARD
+			TIMER3_BASE->DIER &= ~TIMER_DIER_CC2IE;					// Disable Timer3/Comp2 interrupt
+		#else
+			CLR_TIMSK1_OCIE1B;										// Disable interrupt on compare B match
+			TX_RX_PAUSE_off;
+			tx_resume();
+		#endif
 	}
 #endif //ENABLE_SERIAL
 

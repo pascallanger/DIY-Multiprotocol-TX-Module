@@ -376,6 +376,7 @@ uint16_t ReadHubsan()
 		case DATA_4:
 		case DATA_5:
 			if( txState == 0) { // send packet
+				telemetry_set_input_sync(10000);
 #ifdef HUBSAN_HUB_TELEMETRY
 				rfMode = A7105_TX;
 #endif
@@ -464,9 +465,6 @@ uint16_t initHubsan()
 	}
 	packet_count=0;
 	bind_phase=0;
-	#ifdef HUBSAN_HUB_TELEMETRY
-		init_frskyd_link_telemetry();
-	#endif
 	return 10000;
 }
 

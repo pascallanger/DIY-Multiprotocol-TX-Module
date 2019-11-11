@@ -279,12 +279,14 @@ uint16_t initKN()
 		packet_period = KN_WL_SENDING_PACKET_PERIOD;
 		bind_counter  = KN_WL_BIND_COUNT;
 		packet_count  = KN_WL_PACKET_SEND_COUNT;
+		seed = KN_WL_PACKET_SEND_COUNT * KN_WL_SENDING_PACKET_PERIOD;
 	}
 	else
 	{
 		packet_period = KN_FX_SENDING_PACKET_PERIOD;
 		bind_counter  = KN_FX_BIND_COUNT;
 		packet_count  = KN_FX_PACKET_SEND_COUNT;
+		seed = KN_FX_PACKET_SEND_COUNT * KN_FX_SENDING_PACKET_PERIOD;
 	}
 	kn_init();
 	phase = IS_BIND_IN_PROGRESS ? KN_PHASE_PRE_BIND : KN_PHASE_PRE_SEND;
@@ -318,6 +320,7 @@ uint16_t kn_callback()
 		case KN_PHASE_SENDING:
 			if(packet_sent >= packet_count)
 			{
+				telemetry_set_input_sync(seed);
 				packet_sent = 0;
 				hopping_frequency_no++;
 				if(hopping_frequency_no >= KN_RF_CH_COUNT) hopping_frequency_no = 0;

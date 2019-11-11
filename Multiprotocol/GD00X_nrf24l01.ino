@@ -208,6 +208,7 @@ uint16_t GD00X_callback()
 		if(--bind_counter==0)
 			BIND_DONE;
 	GD00X_send_packet();
+	telemetry_set_input_sync(packet_period);
 	return packet_period;
 }
 

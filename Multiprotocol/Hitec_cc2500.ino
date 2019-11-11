@@ -259,6 +259,7 @@ uint16_t ReadHITEC()
 		case HITEC_PREP:
 			if ( prev_option == option )
 			{	// No user frequency change
+				telemetry_set_input_sync(HITEC_PACKET_PERIOD);
 				HITEC_change_chan_fast();
 				hopping_frequency_no++;
 				if(hopping_frequency_no>=rf_ch_num)
@@ -285,14 +286,14 @@ uint16_t ReadHITEC()
 			return HITEC_RX1_TIMING;
 		case HITEC_RX2:
 			uint8_t len=CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
-			if(len && len<MAX_PKT)
+			if(len && len<TELEMETRY_BUFFER_SIZE)
 			{ // Something has been received
-				CC2500_ReadData(pkt, len);
-				if( (pkt[len-1] & 0x80) && pkt[0]==len-3 && pkt[1]==rx_tx_addr[1] && pkt[2]==rx_tx_addr[2] && pkt[3]==rx_tx_addr[3])
+				CC2500_ReadData(packet_in, len);
+				if( (packet_in[len-1] & 0x80) && packet_in[0]==len-3 && packet_in[1]==rx_tx_addr[1] && packet_in[2]==rx_tx_addr[2] && packet_in[3]==rx_tx_addr[3])
 				{ //valid crc && length ok && tx_id ok
 					debug("RX:l=%d",len);
 					for(uint8_t i=0;i<len;i++)
-						debug(",%02X",pkt[i]);
+						debug(",%02X",packet_in[i]);
 					if(IS_BIND_IN_PROGRESS)
 					{
 						if(len==13)	// Bind packets have a length of 13
@@ -300,17 +301,17 @@ uint16_t ReadHITEC()
 							debug(",bind");
 							boolean check=true;
 							for(uint8_t i=5;i<=10;i++)
-								if(pkt[i]!=i%10) check=false;
-							if((pkt[4]&0xF0)==0x70 && check)
+								if(packet_in[i]!=i%10) check=false;
+							if((packet_in[4]&0xF0)==0x70 && check)
 							{
-								bind_phase=pkt[4]+1;
+								bind_phase=packet_in[4]+1;
 								if(bind_phase==0x7B)
 									bind_counter=164;	// in dumps the RX stops to reply at 0x7B so wait a little and exit
 							}
 						}
 					}
 					else
-						if( len==15 && pkt[4]==0 && pkt[12]==0 )
+						if( len==15 && packet_in[4]==0 && packet_in[12]==0 )
 						{	// Valid telemetry packets
 							// no station:
 							//		0C,1C,A1,2B,00,00,00,00,00,00,00,8D,00,64,8E	-> 00 8D=>RX battery voltage 0x008D/28=5.03V
@@ -323,40 +324,40 @@ uint16_t ReadHITEC()
 							//		0C,1C,A1,2B,00,16,00,00,00,00,00,16,00,2C,8E
 							//		0C,1C,A1,2B,00,17,00,00,00,42,44,17,00,48,8D	-> 42=>temperature3 0x42-0x28=26°C,44=>temperature4 0x44-0x28=28°C
 							//		0C,1C,A1,2B,00,18,00,00,00,00,00,18,00,50,92
-							debug(",telem,%02x",pkt[14]&0x7F);
+							debug(",telem,%02x",packet_in[14]&0x7F);
 							#if defined(HITEC_FW_TELEMETRY) || defined(HITEC_HUB_TELEMETRY)
-								TX_RSSI = pkt[13];
+								TX_RSSI = packet_in[13];
 								if(TX_RSSI >=128)
 									TX_RSSI -= 128;
 								else
 									TX_RSSI += 128;
-								TX_LQI = pkt[14]&0x7F;
+								TX_LQI = packet_in[14]&0x7F;
 							#endif
 							#if defined(HITEC_FW_TELEMETRY)
 								if(sub_protocol==OPT_FW)
 								{
 									// 8 bytes telemetry packets => see at the end of this file how to fully decode it
-									pkt[0]=TX_RSSI;				// TX RSSI
-									pkt[1]=TX_LQI;				// TX LQI
-									uint8_t offset=pkt[5]==0?1:0;
+									packet_in[0]=TX_RSSI;				// TX RSSI
+									packet_in[1]=TX_LQI;				// TX LQI
+									uint8_t offset=packet_in[5]==0?1:0;
 									for(uint8_t i=5;i < 11; i++)
-										pkt[i-3]=pkt[i+offset];	// frame number followed by 5 bytes of data
+										packet_in[i-3]=packet_in[i+offset];	// frame number followed by 5 bytes of data
 									telemetry_link=2;			// telemetry forward available
 								}
 							#endif
 							#if defined(HITEC_HUB_TELEMETRY)
 								if(sub_protocol==OPT_HUB)
 								{
-									switch(pkt[5])		// telemetry frame number
+									switch(packet_in[5])		// telemetry frame number
 									{
 										case 0x00:
-											v_lipo1 = (pkt[10])<<5 | (pkt[11])>>3;	// calculation in float is volt=(pkt[10]<<8+pkt[11])/28
+											v_lipo1 = (packet_in[10])<<5 | (packet_in[11])>>3;	// calculation in float is volt=(packet_in[10]<<8+packet_in[11])/28
 											break;
 										case 0x11:
-											v_lipo1 = (pkt[9])<<5 | (pkt[10])>>3;	// calculation in float is volt=(pkt[9]<<8+pkt[10])/28
+											v_lipo1 = (packet_in[9])<<5 | (packet_in[10])>>3;	// calculation in float is volt=(packet_in[9]<<8+packet_in[10])/28
 											break;
 										case 0x18:
-											v_lipo2 =  (pkt[6])<<5 | (pkt[7])>>3;	// calculation in float is volt=(pkt[6]<<8+pkt[7])/10
+											v_lipo2 =  (packet_in[6])<<5 | (packet_in[7])>>3;	// calculation in float is volt=(packet_in[6]<<8+packet_in[7])/10
 											break;
 									}
 									telemetry_link=1;			// telemetry hub available
@@ -390,10 +391,6 @@ uint16_t initHITEC()
 		rx_tx_addr[2]=0x03;
 		rx_tx_addr[3]=0x6A;
 		memcpy((void *)hopping_frequency,(void *)"\x00\x3A\x4A\x32\x0C\x58\x2A\x10\x26\x20\x08\x60\x68\x70\x78\x80\x88\x56\x5E\x66\x6E",HITEC_NUM_FREQUENCE);
-	#endif
-	#if defined(HITEC_HUB_TELEMETRY)
-		if(sub_protocol==OPT_HUB)
-			init_frskyd_link_telemetry();
 	#endif
 	phase = HITEC_START;
 	return 10000;

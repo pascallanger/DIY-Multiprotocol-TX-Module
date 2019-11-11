@@ -242,9 +242,12 @@ uint16_t HONTAI_callback()
 		}
 	}
 	else
+	{
+		telemetry_set_input_sync(packet_period);
 		HONTAI_send_packet(0);
+	}
 
-	return sub_protocol == FQ777_951 ? FQ777_951_PACKET_PERIOD : HONTAI_PACKET_PERIOD;
+	return packet_period;
 }
 
 uint16_t initHONTAI()
@@ -253,6 +256,7 @@ uint16_t initHONTAI()
 	bind_counter = HONTAI_BIND_COUNT;
 	HONTAI_initialize_txid();
 	HONTAI_init();
+	packet_period = sub_protocol == FQ777_951 ? FQ777_951_PACKET_PERIOD : HONTAI_PACKET_PERIOD;
 	return HONTAI_INITIAL_WAIT;
 }
 #endif

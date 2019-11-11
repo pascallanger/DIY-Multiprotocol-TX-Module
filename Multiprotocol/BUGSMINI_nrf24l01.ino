@@ -181,7 +181,7 @@ static void __attribute__((unused)) BUGSMINI_make_address()
     uint8_t start, length, index;
 
 	//read rxid
-	uint8_t base_adr=BUGSMINI_EEPROM_OFFSET+RX_num*2;
+	uint8_t base_adr=BUGSMINI_EEPROM_OFFSET+(RX_num&0x0F)*2;
     uint8_t rxid_high = eeprom_read_byte((EE_ADDR)(base_adr+0));
     uint8_t rxid_low  = eeprom_read_byte((EE_ADDR)(base_adr+1));
     
@@ -272,7 +272,7 @@ uint16_t BUGSMINI_callback()
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready
 				XN297_ReadPayload(packet, BUGSMINI_RX_PAYLOAD_SIZE);
-				base_adr=BUGSMINI_EEPROM_OFFSET+RX_num*2;
+				base_adr=BUGSMINI_EEPROM_OFFSET+(RX_num&0x0F)*2;
 				eeprom_write_byte((EE_ADDR)(base_adr+0),packet[1]);	// Save rxid in EEPROM
 				eeprom_write_byte((EE_ADDR)(base_adr+1),packet[2]);	// Save rxid in EEPROM
 				NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -299,6 +299,7 @@ uint16_t BUGSMINI_callback()
 			phase = BUGSMINI_BIND1;
 			return BUGSMINI_PACKET_INTERVAL - BUGSMINI_WRITE_WAIT;
 		case BUGSMINI_DATA1:
+			telemetry_set_input_sync(BUGSMINI_PACKET_INTERVAL);
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready => read only 12 bytes to not overwrite channel change flag
 				XN297_ReadPayload(packet, 12);
@@ -375,9 +376,6 @@ uint16_t initBUGSMINI()
 	armed = 0;
 	arm_flags = BUGSMINI_FLAG_DISARM;    // initial value from captures
 	arm_channel_previous = BUGSMINI_CH_SW_ARM;
-	#ifdef BUGS_HUB_TELEMETRY
-		init_frskyd_link_telemetry();
-	#endif
 	return BUGSMINI_INITIAL_WAIT;
 }
 

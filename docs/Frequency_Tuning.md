@@ -8,16 +8,17 @@ The protocols which require frequency tuning are:
 * **S-FHSS** (e.g. Futaba S-FHSS receivers)
 * **Corona** (e.g. Corona V1 FSS, Corona V2 DSSS CR8D/CR6D/CR4D and FlyDream IS-4R/IS-4R0 receivers)
 * **Hitec** (e.g. Optima, Minima, Micro and RED receivers)
+* **HoTT** (e.g. Graupner receivers)
 
 There is a [video](#video) at the end of this page which gives an example of the tuning process.
 
 ## More information
-Original FrSky, Futaba, Corona and Hitec receivers have been frequency-tuned by the manufacturer at the factory.  Because of variations in the oscillator crystals used in multiprotocol modules it is necessary to fine-tune the module to match the manufacturer frequencies.  
+Original FrSky, Futaba, Corona Hitec and HoTT receivers have been frequency-tuned by the manufacturer at the factory.  Because of variations in the oscillator crystals used in multiprotocol modules it is necessary to fine-tune the module to match the manufacturer frequencies.  
 
 'Compatible' receivers suffer the same variation in crystal oscillators as multiprotocol modules, but have to be compatible with genuine (manufacturer-tuned) transmitters so they will typically have auto-tuning built in, and will self-tune to the radio's frequency when they are bound.
 
 ## Fine-tuning procedure
-**Note:** For best results, the fine-tuning procedure should be carried out with a genuine FrSky/Futaba/Corona/Hitec receiver.
+**Note:** For best results, the fine-tuning procedure should be carried out with a genuine FrSky/Futaba/Corona/Hitec/HoTT receiver.
 
 The procedure can be performed in serial or PPM mode, but is easier with in serial mode where the effect of the change can be seen in real-time.
 
@@ -49,7 +50,7 @@ Connection is lost at -73 and +35; the median is -19:
 ### Finally
 Once the **Freq** value is known it should be applied to all other models which use this protocol and, if they were previously bound, the receivers must be re-bound.
 
-For convenience this can be done in the `_Config.h` (or `_MyConfig.h`) configuration file.
+For convenience this can be applied once for all per protocol using the FORCE commands described below in `_Config.h` (or `_MyConfig.h`) configuration file.
 
 #### Forced tuning values
 Once known-good tuning values have been determined, they can be stored in the configuration file to be automatically applied to all models which use the given protocol.
@@ -73,6 +74,7 @@ These settings can also be used to force different tuning values for different m
 //#define FORCE_SFHSS_TUNING  0
 //#define FORCE_CORONA_TUNING  0
 //#define FORCE_HITEC_TUNING  0
+//#define FORCE_HOTT_TUNING  0
 ```
 
 ## Video

@@ -283,7 +283,10 @@ uint16_t BAYANG_callback()
 	if(IS_BIND_DONE)
 	{
 		if(packet_count==0)
+		{
+			telemetry_set_input_sync((option & BAYANG_OPTION_FLAG_TELEMETRY)?5*BAYANG_PACKET_PERIOD:2*BAYANG_PACKET_PERIOD);
 			BAYANG_send_packet(0);
+		}
 		packet_count++;
 		#ifdef BAYANG_HUB_TELEMETRY
 			if (option & BAYANG_OPTION_FLAG_TELEMETRY)
@@ -349,10 +352,6 @@ uint16_t initBAYANG(void)
 	BAYANG_initialize_txid();
 	BAYANG_init();
 	packet_count=0;
-	#ifdef BAYANG_HUB_TELEMETRY
-		init_frskyd_link_telemetry();
-		telemetry_lost=1;	// do not send telemetry to TX right away until we have a TX_RSSI value to prevent warning message...
-	#endif
 	return BAYANG_INITIAL_WAIT+BAYANG_PACKET_PERIOD;
 }
 

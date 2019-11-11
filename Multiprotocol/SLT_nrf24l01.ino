@@ -141,7 +141,7 @@ static void __attribute__((unused)) SLT_build_packet()
 	for (uint8_t i = 0; i < 4; ++i)
 	{
 		uint16_t v = convert_channel_10b(CH_AETR[i]);
-		if(sub_protocol>SLT_V2 && (CH_AETR[i]==THROTTLE || CH_AETR[i]==ELEVATOR) )
+		if(sub_protocol>SLT_V2 && (i==CH2 || i==CH3) )
 			v=1023-v;	// reverse throttle and elevator channels for Q100/Q200/MR100 protocols
 		packet[i] = v;
 		e = (e >> 2) | (uint8_t) ((v >> 2) & 0xC0);
@@ -213,6 +213,7 @@ uint16_t SLT_callback()
 	switch (phase)
 	{
 		case SLT_BUILD:
+			telemetry_set_input_sync(sub_protocol==SLT_V1?20000:13730);
 			SLT_build_packet();
 			phase++;
 			return SLT_TIMING_BUILD;

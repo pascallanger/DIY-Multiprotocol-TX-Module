@@ -21,9 +21,6 @@
 #define AFHDS2A_RX_RXPACKET_SIZE	37
 #define AFHDS2A_RX_NUMFREQ			16
 
-static uint8_t afhds2a_rx_data_started;
-static uint8_t afhds2a_rx_disable_lna;
-
 enum {
 	AFHDS2A_RX_BIND1,
 	AFHDS2A_RX_BIND2,
@@ -36,23 +33,22 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 	uint8_t bitsavailable = 0;
 	uint8_t idx = 0;
 
-	pkt[idx++] = RX_LQI; // 0 - 130
-	pkt[idx++] = RX_RSSI;
-	pkt[idx++] = 0; // start channel
-	pkt[idx++] = 14; // number of channels in packet
+	packet_in[idx++] = RX_LQI; // 0 - 130
+	packet_in[idx++] = RX_RSSI;
+	packet_in[idx++] = 0; // start channel
+	packet_in[idx++] = 14; // number of channels in packet
 	// pack channels
 	for (uint8_t i = 0; i < 14; i++) {
-		uint16_t val = packet[9+i*2] | (packet[10+i*2] << 8);
+		uint32_t val = packet[9+i*2] | (packet[10+i*2] << 8);
 		if (val < 860)
 			val = 860;
-		else if (val > 2140)
-			val = 2140;
-		val -= 860;
+		// convert ppm (860-2140) to Multi (0-2047)
+		val = min(((val-860)<<3)/5, 2047);
 
-		bits |= ((uint32_t)val) << bitsavailable;
+		bits |= val << bitsavailable;
 		bitsavailable += 11;
 		while (bitsavailable >= 8) {
-			pkt[idx++] = bits & 0xff;
+			packet_in[idx++] = bits & 0xff;
 			bits >>= 8;
 			bitsavailable -= 8;
 		}
@@ -71,9 +67,9 @@ uint16_t initAFHDS2A_Rx()
 	A7105_Init();
 	hopping_frequency_no = 0;
 	packet_count = 0;
-	afhds2a_rx_data_started = 0;
-	afhds2a_rx_disable_lna = IS_POWER_FLAG_on;
-	A7105_SetTxRxMode(afhds2a_rx_disable_lna ? TXRX_OFF : RX_EN);
+	rx_data_started = false;
+	rx_disable_lna = IS_POWER_FLAG_on;
+	A7105_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN);
 	A7105_Strobe(A7105_RX);
 
 	if (IS_BIND_IN_PROGRESS) {
@@ -103,9 +99,9 @@ uint16_t AFHDS2A_Rx_callback()
 #ifndef FORCE_AFHDS2A_TUNING
 	A7105_AdjustLOBaseFreq(1);
 #endif
-	if (afhds2a_rx_disable_lna != IS_POWER_FLAG_on) {
-		afhds2a_rx_disable_lna = IS_POWER_FLAG_on;
-		A7105_SetTxRxMode(afhds2a_rx_disable_lna ? TXRX_OFF : RX_EN);
+	if (rx_disable_lna != IS_POWER_FLAG_on) {
+		rx_disable_lna = IS_POWER_FLAG_on;
+		A7105_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN);
 	}
 
 	switch(phase) {
@@ -169,11 +165,11 @@ uint16_t AFHDS2A_Rx_callback()
 			if (memcmp(&packet[1], rx_id, 4) == 0 && memcmp(&packet[5], rx_tx_addr, 4) == 0) {
 				if (packet[0] == 0x58 && packet[37] == 0x00 && telemetry_link == 0) { // standard packet, send channels to TX
 					int rssi = min(A7105_ReadReg(A7105_1D_RSSI_THOLD),160);
-					RX_RSSI = map(rssi, 160, 8, 0, 100);
+					RX_RSSI = map16b(rssi, 160, 8, 0, 128);
 					AFHDS2A_Rx_build_telemetry_packet();
 					telemetry_link = 1;
 				}
-				afhds2a_rx_data_started = 1;
+				rx_data_started = true;
 				read_retry = 10; // hop to next channel
 				pps_counter++;
 			}
@@ -194,7 +190,7 @@ uint16_t AFHDS2A_Rx_callback()
 				hopping_frequency_no = 0;
 			A7105_WriteReg(A7105_0F_PLL_I, hopping_frequency[hopping_frequency_no]);
 			A7105_Strobe(A7105_RX);
-			if (afhds2a_rx_data_started)
+			if (rx_data_started)
 				read_retry = 0;
 			else
 				read_retry = -127; // retry longer until first packet is catched

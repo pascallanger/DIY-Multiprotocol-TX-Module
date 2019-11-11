@@ -135,7 +135,10 @@ static void __attribute__((unused)) ESKY_send_packet(uint8_t bind)
 uint16_t ESKY_callback()
 {
 	if(IS_BIND_DONE)
+	{
+		telemetry_set_input_sync(ESKY_PACKET_PERIOD);
 		ESKY_send_packet(0);
+	}
 	else
 	{
 		ESKY_send_packet(1);

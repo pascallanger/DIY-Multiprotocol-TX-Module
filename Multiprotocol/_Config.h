@@ -54,7 +54,7 @@
 /*** AUTO BIND ***/  // Also referred as "Bind on powerup"
 /*****************/
 //Bind from channel enables you to bind when a specified channel is going from low to high. This feature is only active
-// if you specify AUTOBIND in PPM mode or set AutoBind to YES for serial mode. It also requires that the throttle channel is low.
+// if you specify AUTOBIND in PPM mode or set AutoBind to YES for serial mode.
 //Comment to globaly disable the bind feature from a channel.
 #define ENABLE_BIND_CH
 //Set the channel number used for bind. Default is 16.
@@ -87,17 +87,18 @@
 //#define ORANGE_TX_BLUE
 
 /** CC2500 Fine Frequency Tuning **/
-//For optimal performance the CC2500 RF module used by the FrSkyD, FrSkyV, FrSkyX, SFHSS, CORONA, Redpine and Hitec protocols needs to be tuned for each protocol.
-//Initial tuning should be done via the radio menu with a genuine FrSky/Futaba/CORONA/Hitec/Redpine receiver.  
+//For optimal performance the CC2500 RF module used by the CORONA, FrSkyD, FrSkyV, FrSkyX, Hitec, HoTT, SFHSS and Redpine protocols needs to be tuned for each protocol.
+//Initial tuning should be done via the radio menu with a genuine CORONA/FrSky/Hitec/HoTT/Futaba/Redpine receiver.  
 //Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
 //For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
 //Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable. Valid range is -127 to +127.
+//#define FORCE_CORONA_TUNING	0
 //#define FORCE_FRSKYD_TUNING	0
 //#define FORCE_FRSKYV_TUNING	0
 //#define FORCE_FRSKYX_TUNING	0
 //#define FORCE_SFHSS_TUNING	0
-//#define FORCE_CORONA_TUNING	0
 //#define FORCE_HITEC_TUNING	0
+//#define FORCE_HOTT_TUNING		0
 //#define FORCE_REDPINE_TUNING	0
 
 /** A7105 Fine Frequency Tuning **/
@@ -176,8 +177,9 @@
 #define	FRSKYD_CC2500_INO
 #define	FRSKYV_CC2500_INO
 #define	FRSKYX_CC2500_INO
-#define	FRSKYX_RX_CC2500_INO
+#define	FRSKY_RX_CC2500_INO
 #define	HITEC_CC2500_INO
+#define	HOTT_CC2500_INO
 #define	SCANNER_CC2500_INO
 #define	SFHSS_CC2500_INO
 #define	REDPINE_CC2500_INO
@@ -222,6 +224,12 @@
 /*** PROTOCOLS SETTINGS  ***/
 /***************************/
 
+//FrSkyX specific setting
+//-----------------------
+//EU LBT setting: if commented the TX will not check if a channel is busy before transmitting.
+//!!! Work in progress !!! it's currently known to cause telemerty issues. Enable only if you know what you are doing.
+//#define FRSKYX_LBT
+
 //DSM specific settings
 //---------------------
 //The DSM protocol is using by default the Spektrum throw of 1100..1900us @100% and 1000..2000us @125%.
@@ -258,24 +266,31 @@
 
 //Comment to invert the polarity of the output telemetry serial signal.
 //This function takes quite some flash space and processor power on an atmega.
-//For OpenTX it must be uncommented.
-//On a 9XR_PRO running ersky9x both commented and uncommented will work depending on the radio setting Invert COM1 under the Telemetry menu.
-//On other addon/replacement boards like the 9xtreme board or the Ar9x board running ersky9x, you need to uncomment the line below.
+//For a Taranis/T16 with an external module it must be uncommented. For a T16 internal module it must be commented.
+//A 9XR_PRO running erskyTX will work with both commented and uncommented depending on the radio setting Invert COM1 under the Telemetry menu.
+//On other addon/replacement boards like the 9xtreme board or the Ar9x board running erskyTX, you need to uncomment the line below.
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
+//=>OpenTX 2.3.2 with a STM32 or OrangeRX module this setting can be ignored.
 #define INVERT_TELEMETRY
+//For STM32 and OrangeRX modules, comment to prevent the TX from forcing the serial telemetry polarity normal/invert.
+#define INVERT_TELEMETRY_TX
 
-//Comment if you don't want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
-//Use with er9x/erksy9x, for OpenTX MULTI_TELEMETRY below is preferred instead
+//Uncomment if you want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
+//Use with er9x/erskyTX, for OpenTX you must select MULTI_TELEMETRY below
 //#define MULTI_STATUS
 
-//Uncomment to send Multi status and allow OpenTX to autodetect the telemetry format
-//Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/ersky9x use MULTI_STATUS instead.
+//Sends Multi status and allow OpenTX to autodetect the telemetry format. Comment to disable.
+//Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/erskyTX use MULTI_STATUS instead.
 #define MULTI_TELEMETRY
+//Send to OpenTX the current protocol and subprotocol names. Comment to disable.
+#define MULTI_NAMES
+//Work in progress: Sync OpenTX frames with the current protocol timing. This feature is only available on the STM32 module. Uncomment to enable.
+//#define MULTI_SYNC
 
 //Comment a line to disable a specific protocol telemetry
-#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, ersky9x and OpenTX
-#define SPORT_TELEMETRY				// Use FrSkyX SPORT format to send telemetry to TX
-#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded by ersky9x and OpenTX
+#define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, erskyTX and OpenTX
+#define SPORT_TELEMETRY				// Use FrSkyX format to send/receive telemetry
+#define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded by erskyTX and OpenTX
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send basic telemetry to TX like er9x
 #define HUB_TELEMETRY				// Use FrSkyD Hub format to send telemetry to TX
 #define BAYANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
@@ -283,18 +298,12 @@
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define NCC1701_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
-#define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, ersky9x and OpenTX
-#define HITEC_FW_TELEMETRY			// Under development: Forward received telemetry packets to be decoded by ersky9x and OpenTX
+#define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, erskyTX and OpenTX
+#define HITEC_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
-#define FRSKYX_RX_TELEMETRY			// Forward channels data to TX
+#define FRSKY_RX_TELEMETRY			// Forward channels data to TX
 #define AFHDS2A_RX_TELEMETRY		// Forward channels data to TX
-
-//SPORT_POLLING is an implementation of the same polling routine as XJT module for sport telemetry bidirectional communication.
-//This is useful for passing sport control frames from TX to RX(ex: changing Betaflight PID or VTX channels on the fly using LUA scripts with OpentX).
-//Using this feature requires to uncomment INVERT_TELEMETRY as this TX output on telemetry pin only inverted signal.
-//!!!! This is a work in progress!!! Do not enable unless you want to test and report
-//#define SPORT_POLLING
-
+#define HOTT_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -344,6 +353,10 @@
 // The line below is used to set the maximum number of channels which the module should work with. Any channels received above this number are discarded.
 // The default value is 16 to receive all possible channels but you might want to filter some "bad" channels from the PPM frame like the ones above 6 on the Walkera PL0811.
 #define MAX_PPM_CHANNELS 16
+
+/** Telemetry **/
+//Send simple FrSkyX telemetry using the FrSkyD telemetry format
+#define TELEMETRY_FRSKYX_TO_FRSKYD
 
 /** Rotary Switch Protocol Selector Settings **/
 //The table below indicates which protocol to run when a specific position on the rotary switch has been selected.
@@ -550,9 +563,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		CH_8
 		EU_16
 		EU_8
-	PROTO_FRSKYX_RX
-		FRSKYX_FCC
-		FRSKYX_LBT
+	PROTO_FRSKY_RX
+		NONE
 	PROTO_FY326
 		FY326
 		FY319
@@ -578,6 +590,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		JJRCX1
 		X5C1
 		FQ777_951
+	PROTO_HOTT
+		NONE
 	PROTO_HUBSAN
 		H107
 		H301

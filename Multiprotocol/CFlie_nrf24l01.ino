@@ -97,7 +97,7 @@ static inline uint8_t crtp_create_header(uint8_t port, uint8_t channel)
 #define TX_ADDR_SIZE 5
 
 // Timeout for callback in uSec, 10ms=10000us for Crazyflie
-#define PACKET_PERIOD 10000
+#define CFLIE_PACKET_PERIOD 10000
 
 #define MAX_PACKET_SIZE 32  // CRTP is 32 bytes
 
@@ -781,7 +781,8 @@ static uint16_t cflie_callback()
         break;
 
     case CFLIE_DATA:
-        // if (Model.proto_opts[PROTOOPTS_TELEMETRY] == TELEM_ON_CRTPLOG) {
+        telemetry_set_input_sync(CFLIE_PACKET_PERIOD);
+		// if (Model.proto_opts[PROTOOPTS_TELEMETRY] == TELEM_ON_CRTPLOG) {
         //     update_telemetry_crtplog();
         // } else if (Model.proto_opts[PROTOOPTS_TELEMETRY] == TELEM_ON_ACKPKT) {
         //     update_telemetry_ackpkt();
@@ -792,7 +793,7 @@ static uint16_t cflie_callback()
         send_cmd_packet();
         break;
     }
-    return PACKET_PERIOD;                  // Packet at standard protocol interval
+    return CFLIE_PACKET_PERIOD;                  // Packet at standard protocol interval
 }
 
 // Generate address to use from TX id and manufacturer id (STM32 unique id)

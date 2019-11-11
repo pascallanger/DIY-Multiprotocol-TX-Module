@@ -284,7 +284,7 @@ static void  __attribute__((unused))BUGS_set_radio_data()
 	{
 		offset=BUGS_NUM_RFCHAN;
 		// Read radio_id from EEPROM
-		uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
+		uint8_t base_adr=BUGS_EEPROM_OFFSET+(RX_num&0x0F)*2;
 		uint16_t rxid=0;
 		for(uint8_t i=0; i<2; i++)
 			rxid|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
@@ -374,7 +374,7 @@ uint16_t ReadBUGS(void)
 			BIND_DONE;
 			// set radio_id
 			rxid = (packet[1] << 8) + packet[2];
-			base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
+			base_adr=BUGS_EEPROM_OFFSET+(RX_num&0x0F)*2;
 			for(uint8_t i=0; i<2; i++)
 				eeprom_write_byte((EE_ADDR)(base_adr+i),rxid>>(i*8));	// Save rxid in EEPROM
 			BUGS_set_radio_data();
@@ -385,6 +385,7 @@ uint16_t ReadBUGS(void)
 			break;
 
 		case BUGS_DATA_1:
+			telemetry_set_input_sync(BUGS_PACKET_PERIOD);
 			A7105_SetPower();
 			BUGS_build_packet(0);
 			A7105_WriteReg(A7105_03_FIFOI, BUGS_FIFO_SIZE_TX);
@@ -437,7 +438,7 @@ uint16_t ReadBUGS(void)
 uint16_t initBUGS(void)
 {
 	uint16_t rxid=0;
-	uint8_t base_adr=BUGS_EEPROM_OFFSET+RX_num*2;
+	uint8_t base_adr=BUGS_EEPROM_OFFSET+(RX_num&0x0F)*2;
 	for(uint8_t i=0; i<2; i++)
 		rxid|=eeprom_read_byte((EE_ADDR)(base_adr+i))<<(i*8);
 	if(rxid==0xffff)
@@ -456,9 +457,6 @@ uint16_t initBUGS(void)
 	armed = 0;
 	arm_flags = BUGS_FLAG_DISARM;		// initial value from captures
 	arm_channel_previous = BUGS_CH_SW_ARM;
-	#ifdef BUGS_HUB_TELEMETRY
-		init_frskyd_link_telemetry();
-	#endif
 
 	return 10000;
 }

@@ -17,9 +17,9 @@
 // Version
 //******************
 #define VERSION_MAJOR		1
-#define VERSION_MINOR		2
-#define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	86
+#define VERSION_MINOR		3
+#define VERSION_REVISION	0
+#define VERSION_PATCH_LEVEL	43
 
 //******************
 // Protocols
@@ -81,8 +81,9 @@ enum PROTOCOLS
 	PROTO_ZSX		= 52,	// =>NRF24L01
 	PROTO_FLYZONE	= 53,	// =>A7105
 	PROTO_SCANNER	= 54,	// =>CC2500
-	PROTO_FRSKYX_RX	= 55,	// =>CC2500
+	PROTO_FRSKY_RX	= 55,	// =>CC2500
 	PROTO_AFHDS2A_RX= 56,	// =>A7105
+	PROTO_HOTT		= 57,	// =>CC2500
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -290,11 +291,6 @@ enum TRAXXAS
 {
 	RX6519	= 0,
 };
-enum FRSKYX_RX
-{
-	FRSKYX_FCC	= 0,
-	FRSKYX_LBT
-};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -304,17 +300,16 @@ enum FRSKYX_RX
 
 struct PPM_Parameters
 {
-	uint8_t protocol : 6;
-	uint8_t sub_proto : 3;
-	uint8_t rx_num : 4;
-	uint8_t power : 1;
-	uint8_t autobind : 1;
+	uint8_t protocol;
+	uint8_t sub_proto	: 3;
+	uint8_t rx_num		: 6;
+	uint8_t power		: 1;
+	uint8_t autobind	: 1;
 	int8_t option;
 	uint32_t chan_order;
 };
 
 // Telemetry
-
 enum MultiPacketTypes
 {
 	MULTI_TELEMETRY_STATUS			= 1,
@@ -323,13 +318,14 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_DSM				= 4,
 	MULTI_TELEMETRY_DSMBIND			= 5,
 	MULTI_TELEMETRY_AFHDS2A			= 6,
-	MULTI_TELEMETRY_CONFIG			= 7,
+	MULTI_TELEMETRY_REUSE_1			= 7,
 	MULTI_TELEMETRY_SYNC			= 8,
-	MULTI_TELEMETRY_SPORT_POLLING	= 9,
+	MULTI_TELEMETRY_REUSE_2			= 9,
 	MULTI_TELEMETRY_HITEC			= 10,
 	MULTI_TELEMETRY_SCANNER			= 11,
 	MULTI_TELEMETRY_AFHDS2A_AC		= 12,
 	MULTI_TELEMETRY_RX_CHANNELS		= 13,
+	MULTI_TELEMETRY_HOTT			= 14,
 };
 
 // Macros
@@ -390,6 +386,7 @@ enum MultiPacketTypes
 #define TX_RX_PAUSE_on		protocol_flags2 |= _BV(4)
 #define IS_TX_RX_PAUSE_on	( ( protocol_flags2 & _BV(4) ) !=0 )
 #define IS_TX_PAUSE_on		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) !=0 )
+#define IS_TX_PAUSE_off		( ( protocol_flags2 & (_BV(4)|_BV(3)) ) ==0 )
 //Signal OK
 #define INPUT_SIGNAL_off	protocol_flags2 &= ~_BV(5)
 #define INPUT_SIGNAL_on		protocol_flags2 |= _BV(5)
@@ -405,6 +402,24 @@ enum MultiPacketTypes
 #define WAIT_BIND_on		protocol_flags2 |= _BV(7)
 #define IS_WAIT_BIND_on		( ( protocol_flags2 & _BV(7) ) !=0 )
 #define IS_WAIT_BIND_off	( ( protocol_flags2 & _BV(7) ) ==0 )
+//Incoming telemetry data buffer
+#define DATA_BUFFER_LOW_off		protocol_flags3 &= ~_BV(0)
+#define DATA_BUFFER_LOW_on		protocol_flags3 |= _BV(0)
+#define IS_DATA_BUFFER_LOW_on	( ( protocol_flags3 & _BV(0) ) !=0 )
+#define IS_DATA_BUFFER_LOW_off	( ( protocol_flags3 & _BV(0) ) ==0 )
+#define SEND_MULTI_STATUS_off		protocol_flags3 &= ~_BV(1)
+#define SEND_MULTI_STATUS_on		protocol_flags3 |= _BV(1)
+#define IS_SEND_MULTI_STATUS_on		( ( protocol_flags3 & _BV(1) ) !=0 )
+#define IS_SEND_MULTI_STATUS_off	( ( protocol_flags3 & _BV(1) ) ==0 )
+#define DISABLE_CH_MAP_off		protocol_flags3 &= ~_BV(2)
+#define DISABLE_CH_MAP_on		protocol_flags3 |= _BV(2)
+#define IS_DISABLE_CH_MAP_on	( ( protocol_flags3 & _BV(2) ) !=0 )
+#define IS_DISABLE_CH_MAP_off	( ( protocol_flags3 & _BV(2) ) ==0 )
+#define DISABLE_TELEM_off		protocol_flags3 &= ~_BV(3)
+#define DISABLE_TELEM_on		protocol_flags3 |= _BV(3)
+#define IS_DISABLE_TELEM_on		( ( protocol_flags3 & _BV(3) ) !=0 )
+#define IS_DISABLE_TELEM_off	( ( protocol_flags3 & _BV(3) ) ==0 )
+
 
 // Failsafe
 #define FAILSAFE_CHANNEL_HOLD		2047
@@ -576,82 +591,86 @@ enum {
 #define AFHDS2A_EEPROM_OFFSET	50		// RX ID, 4 bytes per model id, end is 50+64=114
 #define BUGS_EEPROM_OFFSET		114		// RX ID, 2 bytes per model id, end is 114+32=146
 #define BUGSMINI_EEPROM_OFFSET	146		// RX ID, 2 bytes per model id, end is 146+32=178
-#define FRSKYX_RX_EEPROM_OFFSET	178		// (3) TX ID + (1) freq_tune + (47) channels, 51 bytes, end is 178+51=229
-#define AFHDS2A_RX_EEPROM_OFFSET 229	// (4) TX ID + (16) channels, 20 bytes, end is 229+20=249
-//#define CONFIG_EEPROM_OFFSET 	210		// Current configuration of the multimodule
+#define FRSKY_RX_EEPROM_OFFSET	178		// (1) format + (3) TX ID + (1) freq_tune + (47) channels, 52 bytes, end is 178+52=230
+#define AFHDS2A_RX_EEPROM_OFFSET 230	// (4) TX ID + (16) channels, 20 bytes, end is 230+20=250
+#define AFHDS2A_EEPROM_OFFSET2	250		// RX ID, 4 bytes per model id, end is 250+192=442
+#define HOTT_EEPROM_OFFSET		442		// RX ID, 5 bytes per model id, end is 320+442=762
+//#define CONFIG_EEPROM_OFFSET 	762		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***
 //****************************************
 /*
-**************************
+***************************
 16 channels serial protocol
-**************************
+***************************
 Serial: 100000 Baud 8e2      _ xxxx xxxx p --
-  Total of 26 bytes
-  Stream[0]   = 0x55	sub_protocol values are 0..31	Stream contains channels
-  Stream[0]   = 0x54	sub_protocol values are 32..63	Stream contains channels
-  Stream[0]   = 0x57	sub_protocol values are 0..31	Stream contains failsafe
-  Stream[0]   = 0x56	sub_protocol values are 32..63	Stream contains failsafe
-   header
+  Total of 26 bytes for protocol V1, variable length 27..36 for protocol V2
+  Stream[0]   = header
+				0x55	sub_protocol values are 0..31	Stream contains channels
+				0x54	sub_protocol values are 32..63	Stream contains channels
+				0x57	sub_protocol values are 0..31	Stream contains failsafe
+				0x56	sub_protocol values are 32..63	Stream contains failsafe
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
-   sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54
-   =>	Reserved	0
-					Flysky		1
-					Hubsan		2
-					FrskyD		3
-					Hisky		4
-					V2x2		5
-					DSM			6
-					Devo		7
-					YD717		8
-					KN			9
-					SymaX		10
-					SLT			11
-					CX10		12
-					CG023		13
-					Bayang		14
-					FrskyX		15
-					ESky		16
-					MT99XX		17
-					MJXQ		18
-					SHENQI		19
-					FY326		20
-					SFHSS		21
-					J6PRO		22
-					FQ777		23
-					ASSAN		24
-					FrskyV		25
-					HONTAI		26
-					OpenLRS		27
-					AFHDS2A		28
-					Q2X2		29
-					WK2x01		30
-					Q303		31
-					GW008		32
-					DM002		33
-					CABELL		34
-					ESKY150		35
-					H8_3D		36
-					CORONA		37
-					CFlie		38
-					Hitec		39
-					WFLY		40
-					BUGS		41
-					BUGSMINI	42
-					TRAXXAS		43
-					NCC1701		44
-					E01X		45
-					V911S		46
-					GD00X		47
-					V761		48
-					KF606		49
-					REDPINE		50
-					POTENSIC	51
-					ZSX			52
-					FLYZONE		53
-					SCANNER		54
-					FRSKYX_RX	55
+   sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54 | 0x56
+				Reserved	0
+				Flysky		1
+				Hubsan		2
+				FrskyD		3
+				Hisky		4
+				V2x2		5
+				DSM			6
+				Devo		7
+				YD717		8
+				KN			9
+				SymaX		10
+				SLT			11
+				CX10		12
+				CG023		13
+				Bayang		14
+				FrskyX		15
+				ESky		16
+				MT99XX		17
+				MJXQ		18
+				SHENQI		19
+				FY326		20
+				SFHSS		21
+				J6PRO		22
+				FQ777		23
+				ASSAN		24
+				FrskyV		25
+				HONTAI		26
+				OpenLRS		27
+				AFHDS2A		28
+				Q2X2		29
+				WK2x01		30
+				Q303		31
+				GW008		32
+				DM002		33
+				CABELL		34
+				ESKY150		35
+				H8_3D		36
+				CORONA		37
+				CFlie		38
+				Hitec		39
+				WFLY		40
+				BUGS		41
+				BUGSMINI	42
+				TRAXXAS		43
+				NCC1701		44
+				E01X		45
+				V911S		46
+				GD00X		47
+				V761		48
+				KF606		49
+				REDPINE		50
+				POTENSIC	51
+				ZSX			52
+				FLYZONE		53
+				SCANNER		54
+				FRSKY_RX	55
+				AFHDS2A_RX	56
+				HOTT		57
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -793,9 +812,6 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			RED_SLOW	1
 		sub_protocol==TRAXXAS
 			RX6519		0
-		sub_protocol==FRSKYX_RX
-			FCC			0
-			LBT			1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
@@ -810,6 +826,14 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Values are concatenated to fit in 22 bytes like in SBUS protocol.
    Failsafe values have exactly the same range/values than normal channels except the extremes where
       0=no pulse, 2047=hold. If failsafe is not set or RX then failsafe packets should not be sent.
+  Stream[26]   = sub_protocol bits 6 & 7|RxNum bits 4 & 5|Telemetry_Invert 3|Future_Use 2|Disable_Telemetry 1|Disable_CH_Mapping 0
+   sub_protocol is 0..255 (bits 0..5 + bits 6..7)
+   RxNum value is 0..63 (bits 0..3 + bits 4..5)
+   Telemetry_Invert		=> 0x08	0=normal, 1=invert
+   Future_Use			=> 0x04	0=      , 1=
+   Disable_Telemetry	=> 0x02	0=enable, 1=disable
+   Disable_CH_Mapping	=> 0x01	0=enable, 1=disable
+  Stream[27.. 35] = between 0 and 9 bytes for additional protocol data
 */
 /*
   Multimodule Status
@@ -829,7 +853,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    0x04 = Protocol is valid
    0x08 = Module is in binding mode
    0x10 = Module waits a bind event to load the protocol
-   0x20 = Failsafe supported by currently running protocol
+   0x20 = Current protocol supports failsafe
+   0x40 = Current protocol supports disable channel mapping
+   0x80 = Data buffer is almost full
    [3] major
    [4] minor
    [5] revision
@@ -863,18 +889,35 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    [4] Flags
    0x01 = Input signal detected
    0x02 = Serial mode enabled
-   0x04 = protocol is valid
-   0x08 = module is in binding mode
-   0x10 = module waits a bind event to load the protocol
-   0x20 = current protocol supports failsafe
+   0x04 = Protocol is valid
+   0x08 = Module is in binding mode
+   0x10 = Module waits a bind event to load the protocol
+   0x20 = Current protocol supports failsafe
+   0x40 = Current protocol supports disable channel mapping
+   0x80 = Data buffer is almost full
    [5] major
    [6] minor
    [7] revision
-   [8] patchlevel,
-   version of multi code, should be displayed as major.minor.revision.patchlevel
+   [8] patchlevel
+     version of multi code, should be displayed as major.minor.revision.patchlevel
+   [9] channel order: CH4|CH3|CH2|CH1 with CHx value A=0,E=1,T=2,R=3
+   [10] Next valid protocol number, can be used to skip invalid protocols
+   [11] Prev valid protocol number, can be used to skip invalid protocols
+   [12..18] Protocol name [7], not null terminated if prototcol len == 7
+   [19>>4] Option text to be displayed: 
+			OPTION_NONE		0
+			OPTION_OPTION	1
+			OPTION_RFTUNE	2
+			OPTION_VIDFREQ	3
+			OPTION_FIXEDID	4
+			OPTION_TELEM	5
+			OPTION_SRVFREQ	6
+			OPTION_MAXTHR	7
+			OPTION_RFCHAN	8
+   [19&0x0F] Number of sub protocols
+   [20..27] Sub protocol name [8], not null terminated if sub prototcol len == 8
 
    more information can be added by specifing a longer length of the type, the TX will just ignore these bytes
-
 
   Type 0x02 Frksy S.port telemetry
   Type 0x03 Frsky Hub telemetry
@@ -895,6 +938,19 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    length: 29
    data[0] = RSSI value
    data[1-28] telemetry data
+
+  Type 0x08 Input synchronisation
+    Informs the TX about desired rate and current delay
+    length: 4
+    data[0-1]     Desired refresh rate in ??s
+    data[2-3]     Time (??s) between last serial servo input received and servo input needed (lateness), TX should adjust its
+                  sending time to minimise this value.
+	data[4]		  Interval of this message in ms
+	data[5]		  Input delay target in 10??s
+   Note that there are protocols (AFHDS2A) that have a refresh rate that is smaller than the maximum achievable
+   refresh rate via the serial protocol, in this case, the TX should double the rate and also subract this
+   refresh rate from the input lag if the input lag is more than the desired refresh rate.
+   The remote should try to get to zero of  (inputdelay+target*10).
 
   Type 0x0A Hitec telemetry data
    length: 8
@@ -921,5 +977,13 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[2] = start channel
    data[3] = number of channels to follow
    data[4-]= packed channels data, 11 bit per channel
+
+  Type 0x0E HoTT telemetry
+   length: 14
+   data[0] = TX_RSSI
+   data[1] = TX_LQI
+   data[2] = type
+   data[3] = page
+   data[4-13] = data
 
 */

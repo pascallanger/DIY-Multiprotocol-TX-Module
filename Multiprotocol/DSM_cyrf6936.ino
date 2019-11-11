@@ -230,7 +230,7 @@ static void __attribute__((unused)) DSM_update_channels()
 	if(sub_protocol==DSM_AUTO)
 		num_ch=12;						// Force 12 channels in mode Auto
 	else
-		num_ch=option;
+		num_ch=option & 0x7F;			// Remove the Max Throw flag
 	if(num_ch<4 || num_ch>12)
 		num_ch=6;						// Default to 6 channels if invalid choice...
 
@@ -273,8 +273,8 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 			/* Spektrum own remotes transmit normal values during bind and actually use this (e.g. Nano CP X) to
 			   select the transmitter mode (e.g. computer vs non-computer radio), so always send normal output */
 			#ifdef DSM_THROTTLE_KILL_CH
-				if(CH_TAER[idx]==THROTTLE && kill_ch<=604)
-				{//Activate throttle kill only if DSM_THROTTLE_KILL_CH below -50%
+				if(idx==CH1 && kill_ch<=604)
+				{//Activate throttle kill only if channel is throttle and DSM_THROTTLE_KILL_CH below -50%
 					if(kill_ch<CHANNEL_MIN_100)					// restrict val to 0...400
 						kill_ch=0;
 					else
@@ -286,7 +286,10 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 				#ifdef DSM_MAX_THROW
 					value=Channel_data[CH_TAER[idx]];								// -100%..+100% => 1024..1976us and -125%..+125% => 904..2096us based on Redcon 6 channel DSM2 RX
 				#else
-					value=convert_channel_16b_nolimit(CH_TAER[idx],0x150,0x6B0);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000us based on Redcon 6 channel DSM2 RX
+					if(option & 0x80)
+						value=Channel_data[CH_TAER[idx]];								// -100%..+100% => 1024..1976us and -125%..+125% => 904..2096us based on Redcon 6 channel DSM2 RX
+					else
+						value=convert_channel_16b_nolimit(CH_TAER[idx],0x150,0x6B0);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000us based on Redcon 6 channel DSM2 RX
 				#endif
 			if(bits==10) value>>=1;
 			value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);
@@ -363,12 +366,12 @@ static uint8_t __attribute__((unused)) DSM_Check_RX_packet()
 	uint16_t sum = 384 - 0x10;
 	for(uint8_t i = 1; i < 9; i++)
 	{
-		sum += pkt[i];
+		sum += packet_in[i];
 		if(i<5)
-			if(pkt[i] != (0xff ^ cyrfmfg_id[i-1]))
+			if(packet_in[i] != (0xff ^ cyrfmfg_id[i-1]))
 				result=0; 					// bad packet
 	}
-	if( pkt[9] != (sum>>8)  && pkt[10] != (uint8_t)sum )
+	if( packet_in[9] != (sum>>8)  && packet_in[10] != (uint8_t)sum )
 		result=0;
 	return result;
 }
@@ -417,12 +420,12 @@ uint16_t ReadDsm()
 			{ // data received with no errors
 				CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);	// need to set RXOW before data read
 				len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
-				if(len>MAX_PKT-2)
-					len=MAX_PKT-2;
-				CYRF_ReadDataPacketLen(pkt+1, len);
+				if(len>TELEMETRY_BUFFER_SIZE-2)
+					len=TELEMETRY_BUFFER_SIZE-2;
+				CYRF_ReadDataPacketLen(packet_in+1, len);
 				if(len==10 && DSM_Check_RX_packet())
 				{
-					pkt[0]=0x80;
+					packet_in[0]=0x80;
 					telemetry_link=1;						// send received data on serial
 					phase++;
 					return 2000;
@@ -452,6 +455,7 @@ uint16_t ReadDsm()
 			DSM_set_sop_data_crc();
 			return 10000;
 		case DSM_CH1_WRITE_A:
+			telemetry_set_input_sync(11000);				// Always request 11ms spacing even if we don't use half of it in 22ms mode
 		case DSM_CH1_WRITE_B:
 		case DSM_CH2_WRITE_A:
 		case DSM_CH2_WRITE_B:
@@ -502,10 +506,10 @@ uint16_t ReadDsm()
 			{ // good data (complete with no errors)
 				CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);	// need to set RXOW before data read
 				len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
-				if(len>MAX_PKT-2)
-					len=MAX_PKT-2;
-				CYRF_ReadDataPacketLen(pkt+1, len);
-				pkt[0]=CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;// store RSSI of the received telemetry signal
+				if(len>TELEMETRY_BUFFER_SIZE-2)
+					len=TELEMETRY_BUFFER_SIZE-2;
+				CYRF_ReadDataPacketLen(packet_in+1, len);
+				packet_in[0]=CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;// store RSSI of the received telemetry signal
 				telemetry_link=1;
 			}
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation

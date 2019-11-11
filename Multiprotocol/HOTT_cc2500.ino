@@ -212,11 +212,17 @@ static void __attribute__((unused)) HOTT_data_packet()
 	}
 
 	#ifdef HOTT_FW_TELEMETRY
+		static uint8_t prev_SerialRX_val=0;
 		if(HoTT_SerialRX && HoTT_SerialRX_val >= 0xD7 && HoTT_SerialRX_val <= 0xDF)
 		{
-			packet[28] = HoTT_SerialRX_val;				// 0xDX->config menu
+			if(prev_SerialRX_val!=HoTT_SerialRX_val)
+			{
+				prev_SerialRX_val=HoTT_SerialRX_val;
+				packet[28] = HoTT_SerialRX_val;			// send the touch being pressed only once
+			}
+			else
+				packet[28] = 0xDF;						// no touch pressed
 			packet[29] = 0x01;							// 0x01->config menu
-			HoTT_SerialRX_val = 0xDF;					// no touch pressed
 		}
 		else
 		{

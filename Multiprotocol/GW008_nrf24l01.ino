@@ -139,7 +139,9 @@ uint16_t GW008_callback()
 			return 5000;
 			break;
 		case GW008_DATA:
-			telemetry_set_input_sync(GW008_PACKET_PERIOD);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(GW008_PACKET_PERIOD);
+			#endif
 			GW008_send_packet(0);
 			break;
 	}

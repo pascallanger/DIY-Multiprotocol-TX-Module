@@ -243,7 +243,9 @@ uint16_t HONTAI_callback()
 	}
 	else
 	{
-		telemetry_set_input_sync(packet_period);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(packet_period);
+		#endif
 		HONTAI_send_packet(0);
 	}
 

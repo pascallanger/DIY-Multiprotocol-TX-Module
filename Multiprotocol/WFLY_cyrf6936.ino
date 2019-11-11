@@ -232,7 +232,9 @@ uint16_t ReadWFLY()
 			packet_count=0;
 			phase++;
 		case WFLY_DATA:
-			telemetry_set_input_sync(5371);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(5371);
+			#endif
 			start=micros();
 			while ((uint8_t)((uint8_t)micros()-(uint8_t)start) < 200)
 				if((CYRF_ReadRegister(CYRF_02_TX_CTRL) & 0x80) == 0x00)

@@ -139,7 +139,9 @@ uint16_t CG023_callback()
 {
 	if(IS_BIND_DONE)
 	{
-		telemetry_set_input_sync(packet_period);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(packet_period);
+		#endif
 		CG023_send_packet(0);
 	}
 	else

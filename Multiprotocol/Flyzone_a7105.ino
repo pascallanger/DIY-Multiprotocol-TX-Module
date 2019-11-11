@@ -55,7 +55,9 @@ uint16_t ReadFlyzone()
 		if(phase>19)
 		{
 			phase=0;
-			telemetry_set_input_sync(20*1500);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(20*1500);
+			#endif
 			flyzone_build_packet();
 			A7105_WriteData(8, hopping_frequency[0]);
 			A7105_SetPower();

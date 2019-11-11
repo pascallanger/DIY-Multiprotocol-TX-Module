@@ -284,7 +284,9 @@ uint16_t BAYANG_callback()
 	{
 		if(packet_count==0)
 		{
-			telemetry_set_input_sync((option & BAYANG_OPTION_FLAG_TELEMETRY)?5*BAYANG_PACKET_PERIOD:2*BAYANG_PACKET_PERIOD);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync((option & BAYANG_OPTION_FLAG_TELEMETRY)?5*BAYANG_PACKET_PERIOD:2*BAYANG_PACKET_PERIOD);
+			#endif
 			BAYANG_send_packet(0);
 		}
 		packet_count++;

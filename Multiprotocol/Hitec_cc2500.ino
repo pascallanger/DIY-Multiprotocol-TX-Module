@@ -259,7 +259,9 @@ uint16_t ReadHITEC()
 		case HITEC_PREP:
 			if ( prev_option == option )
 			{	// No user frequency change
-				telemetry_set_input_sync(HITEC_PACKET_PERIOD);
+				#ifdef MULTI_SYNC
+					telemetry_set_input_sync(HITEC_PACKET_PERIOD);
+				#endif
 				HITEC_change_chan_fast();
 				hopping_frequency_no++;
 				if(hopping_frequency_no>=rf_ch_num)

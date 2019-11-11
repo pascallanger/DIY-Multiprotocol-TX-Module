@@ -114,7 +114,9 @@ uint16_t DM002_callback()
 {
 	if(IS_BIND_DONE)
 	{
-		telemetry_set_input_sync(DM002_PACKET_PERIOD);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(DM002_PACKET_PERIOD);
+		#endif
 		DM002_send_packet(0);
 	}
 	else

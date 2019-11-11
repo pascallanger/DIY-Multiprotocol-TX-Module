@@ -406,7 +406,9 @@ uint16_t CABELL_callback()
 	if (IS_BIND_DONE)
 	{
 		CABELL_send_packet(0);  // packet_period is set/adjusted in CABELL_send_packet
-		telemetry_set_input_sync(packet_period);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(packet_period);
+		#endif
 		return packet_period;
 	}
 	else if (bind_counter == 0)

@@ -781,7 +781,9 @@ static uint16_t cflie_callback()
         break;
 
     case CFLIE_DATA:
-        telemetry_set_input_sync(CFLIE_PACKET_PERIOD);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(CFLIE_PACKET_PERIOD);
+		#endif
 		// if (Model.proto_opts[PROTOOPTS_TELEMETRY] == TELEM_ON_CRTPLOG) {
         //     update_telemetry_crtplog();
         // } else if (Model.proto_opts[PROTOOPTS_TELEMETRY] == TELEM_ON_ACKPKT) {

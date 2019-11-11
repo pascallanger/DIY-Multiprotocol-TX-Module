@@ -299,7 +299,9 @@ uint16_t BUGSMINI_callback()
 			phase = BUGSMINI_BIND1;
 			return BUGSMINI_PACKET_INTERVAL - BUGSMINI_WRITE_WAIT;
 		case BUGSMINI_DATA1:
-			telemetry_set_input_sync(BUGSMINI_PACKET_INTERVAL);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(BUGSMINI_PACKET_INTERVAL);
+			#endif
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready => read only 12 bytes to not overwrite channel change flag
 				XN297_ReadPayload(packet, 12);

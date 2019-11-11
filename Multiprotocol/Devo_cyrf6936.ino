@@ -272,7 +272,9 @@ uint16_t devo_callback()
 	static uint8_t txState=0;
 	if (txState == 0)
 	{
-		telemetry_set_input_sync(2400);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(2400);
+		#endif
 		txState = 1;
 		DEVO_BuildPacket();
 		CYRF_WriteDataPacket(packet);

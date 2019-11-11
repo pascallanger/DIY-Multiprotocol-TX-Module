@@ -320,7 +320,9 @@ uint16_t kn_callback()
 		case KN_PHASE_SENDING:
 			if(packet_sent >= packet_count)
 			{
-				telemetry_set_input_sync(seed);
+				#ifdef MULTI_SYNC
+					telemetry_set_input_sync(seed);
+				#endif
 				packet_sent = 0;
 				hopping_frequency_no++;
 				if(hopping_frequency_no >= KN_RF_CH_COUNT) hopping_frequency_no = 0;

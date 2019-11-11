@@ -162,7 +162,9 @@ uint16_t ReadTRAXXAS()
 			TRAXXAS_cyrf_data_config();
 			phase++;
 		case TRAXXAS_DATA:
-			telemetry_set_input_sync(13940);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(13940);
+			#endif
 			TRAXXAS_send_data_packet();
 			break;
 	}

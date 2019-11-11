@@ -156,7 +156,9 @@ uint16_t yd717_callback()
 {
 	if(IS_BIND_DONE)
 	{
-		telemetry_set_input_sync(YD717_PACKET_PERIOD);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(YD717_PACKET_PERIOD);
+		#endif
 		yd717_send_packet(0);
 	}
 	else

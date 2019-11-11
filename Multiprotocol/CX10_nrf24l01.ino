@@ -229,7 +229,9 @@ uint16_t CX10_callback()
 			}
 			break;
 		case CX10_DATA:
-			telemetry_set_input_sync(packet_period);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(packet_period);
+			#endif
 			CX10_Write_Packet(0);
 			break;
 	}

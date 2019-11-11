@@ -76,34 +76,32 @@ static void multi_send_header(uint8_t type, uint8_t len)
 	Serial_write(len);
 }
 
+#ifdef MULTI_SYNC
 static void telemetry_set_input_sync(uint16_t refreshRate)
 {
-	#ifdef MULTI_SYNC
-		#if defined(STM32_BOARD) && defined(DEBUG_PIN)
-			static uint8_t c=0;
-			if (c++%2==0)
-			{	DEBUG_PIN_on;	}
-			else
-			{	DEBUG_PIN_off;	}
-		#endif
-		// Only record input Delay after a frame has really been received
-		// Otherwise protocols with faster refresh rates then the TX sends (e.g. 3ms vs 6ms) will screw up the calcualtion
-		inputRefreshRate = refreshRate;
-		if (last_serial_input != 0)
-		{
-			cli();										// Disable global int due to RW of 16 bits registers
-			inputDelay = TCNT1;
-			sei();										// Enable global int
-			//inputDelay = (inputDelay - last_serial_input)>>1;
-			inputDelay -= last_serial_input;
-			//if(inputDelay & 0x8000)
-			//	inputDelay = inputDelay - 0x8000;
-			last_serial_input=0;
-		}
-	#else
-		(void)refreshRate;
+	#if defined(STM32_BOARD) && defined(DEBUG_PIN)
+		static uint8_t c=0;
+		if (c++%2==0)
+		{	DEBUG_PIN_on;	}
+		else
+		{	DEBUG_PIN_off;	}
 	#endif
+	// Only record input Delay after a frame has really been received
+	// Otherwise protocols with faster refresh rates then the TX sends (e.g. 3ms vs 6ms) will screw up the calcualtion
+	inputRefreshRate = refreshRate;
+	if (last_serial_input != 0)
+	{
+		cli();										// Disable global int due to RW of 16 bits registers
+		inputDelay = TCNT1;
+		sei();										// Enable global int
+		//inputDelay = (inputDelay - last_serial_input)>>1;
+		inputDelay -= last_serial_input;
+		//if(inputDelay & 0x8000)
+		//	inputDelay = inputDelay - 0x8000;
+		last_serial_input=0;
+	}
 }
+#endif
 
 #ifdef MULTI_SYNC
 	static void mult_send_inputsync()
@@ -1311,9 +1309,4 @@ ISR(TIMER0_OVF_vect)
 
 #endif // BASH_SERIAL
 
-#else
-void telemetry_set_input_sync(uint16_t refreshRate)
-{
-	(void)refreshRate;
-}
 #endif // TELEMETRY

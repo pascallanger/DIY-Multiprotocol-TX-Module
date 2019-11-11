@@ -151,7 +151,9 @@ uint16_t hisky_cb()
 				phase=6;
 				break;
 			case 7:	// build packet
-				telemetry_set_input_sync(5000);
+				#ifdef MULTI_SYNC
+					telemetry_set_input_sync(5000);
+				#endif
 				#ifdef FAILSAFE_ENABLE
 					if(IS_FAILSAFE_VALUES_on && hopping_frequency_no==0)
 					{ //  send failsafe every 100ms
@@ -218,7 +220,9 @@ uint16_t hisky_cb()
 			break;
 		case 7:
 			//Build normal packet
-			telemetry_set_input_sync(9000);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(9000);
+			#endif
 			build_ch_data();
 			break;
 		case 8:

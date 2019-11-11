@@ -168,7 +168,9 @@ uint16_t ReadFlySky()
 	}
 	else
 	{
-		telemetry_set_input_sync(packet_period);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(packet_period);
+		#endif
 		flysky_build_packet(0);
 		A7105_WriteData(21, hopping_frequency[hopping_frequency_no & 0x0F]);
 		A7105_SetPower();

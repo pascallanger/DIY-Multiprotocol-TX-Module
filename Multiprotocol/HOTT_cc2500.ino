@@ -275,7 +275,9 @@ uint16_t ReadHOTT()
 		/* Work cycle: 10ms */
 		case HOTT_DATA1:
 			//TX
-			telemetry_set_input_sync(HOTT_PACKET_PERIOD);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(HOTT_PACKET_PERIOD);
+			#endif
 			HOTT_tune_freq();
 			HOTT_tune_chan_fast();
 			HOTT_data_packet();

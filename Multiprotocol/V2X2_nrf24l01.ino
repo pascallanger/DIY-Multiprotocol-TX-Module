@@ -264,7 +264,9 @@ uint16_t ReadV2x2()
 		case V202_DATA:
 			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
 				return V2X2_PACKET_CHKTIME;
-			telemetry_set_input_sync(V2X2_PACKET_PERIOD);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(V2X2_PACKET_PERIOD);
+			#endif
 			V2X2_send_packet(0);
 			break;
 	}

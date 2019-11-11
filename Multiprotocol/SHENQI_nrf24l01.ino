@@ -63,8 +63,10 @@ void SHENQI_send_packet()
 	}
 	else
 	{
-		if(packet_count==1)
-			telemetry_set_input_sync(3000+2508+6*1750);
+		#ifdef MULTI_SYNC
+			if(packet_count==1)
+				telemetry_set_input_sync(3000+2508+6*1750);
+		#endif
 		LT8900_SetAddress(rx_tx_addr,4);
 		packet[1]=255-convert_channel_8b(RUDDER);
 		packet[2]=255-convert_channel_16b_limit(THROTTLE,0x60,0xA0);

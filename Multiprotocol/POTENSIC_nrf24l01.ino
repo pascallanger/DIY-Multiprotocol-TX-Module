@@ -109,7 +109,9 @@ uint16_t POTENSIC_callback()
 			BIND_DONE;
 			XN297_SetTXAddr(rx_tx_addr,5);
 		}
-	telemetry_set_input_sync(POTENSIC_PACKET_PERIOD);
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(POTENSIC_PACKET_PERIOD);
+	#endif
 	POTENSIC_send_packet();
 	return POTENSIC_PACKET_PERIOD;
 }

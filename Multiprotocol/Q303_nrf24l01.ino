@@ -355,7 +355,9 @@ uint16_t Q303_callback()
 {
 	if(IS_BIND_DONE)
 	{
-		telemetry_set_input_sync(packet_period);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(packet_period);
+		#endif
 		Q303_send_packet(0);
 	}
 	else

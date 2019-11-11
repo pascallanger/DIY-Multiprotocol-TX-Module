@@ -197,7 +197,9 @@ uint16_t NCC_callback()
 			phase = NCC_BIND_TX2;
 			return NCC_PACKET_INTERVAL - NCC_WRITE_WAIT;
 		case NCC_TX3:
-			telemetry_set_input_sync(NCC_PACKET_INTERVAL);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(NCC_PACKET_INTERVAL);
+			#endif
 			if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 			{ // RX fifo data ready
 				NRF24L01_ReadPayload(packet, NCC_RX_PACKET_LEN);

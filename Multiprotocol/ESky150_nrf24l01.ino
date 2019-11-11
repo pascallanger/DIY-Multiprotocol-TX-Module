@@ -152,7 +152,9 @@ uint16_t ESKY150_callback()
 {
 	if(IS_BIND_DONE)
 	{
-		telemetry_set_input_sync(ESKY150_SENDING_PACKET_PERIOD);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(ESKY150_SENDING_PACKET_PERIOD);
+		#endif
 		ESKY150_send_packet();
 	}
 	else

@@ -178,7 +178,9 @@ uint16_t H8_3D_callback()
 {
 	if(IS_BIND_DONE)
 	{
-		telemetry_set_input_sync(packet_period);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(packet_period);
+		#endif
 		H8_3D_send_packet(0);
 	}
 	else

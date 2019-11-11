@@ -304,7 +304,9 @@ uint16_t ReadFrSkyX()
 			state++;													//FRSKY_DATA1
 			break;
 		case FRSKY_DATA5:
-			telemetry_set_input_sync(9000);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(9000);
+			#endif
 			#if defined TELEMETRY
 				telemetry_link=1;										//Send telemetry out anyway
 			#endif

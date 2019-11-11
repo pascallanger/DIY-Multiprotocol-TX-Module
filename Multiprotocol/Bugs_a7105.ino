@@ -385,7 +385,9 @@ uint16_t ReadBUGS(void)
 			break;
 
 		case BUGS_DATA_1:
-			telemetry_set_input_sync(BUGS_PACKET_PERIOD);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(BUGS_PACKET_PERIOD);
+			#endif
 			A7105_SetPower();
 			BUGS_build_packet(0);
 			A7105_WriteReg(A7105_03_FIFOI, BUGS_FIFO_SIZE_TX);

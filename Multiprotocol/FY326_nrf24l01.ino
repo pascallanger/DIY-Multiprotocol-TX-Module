@@ -188,7 +188,9 @@ uint16_t FY326_callback()
 				return FY326_PACKET_CHKTIME;
 			break;
 		case FY326_DATA:
-			telemetry_set_input_sync(FY326_PACKET_PERIOD);
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(FY326_PACKET_PERIOD);
+			#endif
 			FY326_send_packet(0);
 			break;
 	}

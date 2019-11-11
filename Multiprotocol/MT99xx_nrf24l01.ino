@@ -223,7 +223,9 @@ uint16_t MT99XX_callback()
 {
 	if(IS_BIND_DONE)
 	{
-		telemetry_set_input_sync(packet_period);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(packet_period);
+		#endif
 		MT99XX_send_packet();
 	}
 	else

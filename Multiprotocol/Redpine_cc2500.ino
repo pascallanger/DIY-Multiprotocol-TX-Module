@@ -125,7 +125,9 @@ static uint16_t ReadREDPINE()
 	}
 	else
 	{
-		telemetry_set_input_sync(packet_period);
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(packet_period);
+		#endif
 		CC2500_SetTxRxMode(TX_EN);
 		REDPINE_set_channel(hopping_frequency_no);
 		CC2500_SetPower();

@@ -270,7 +270,6 @@
 //A 9XR_PRO running erskyTX will work with both commented and uncommented depending on the radio setting Invert COM1 under the Telemetry menu.
 //On other addon/replacement boards like the 9xtreme board or the Ar9x board running erskyTX, you need to uncomment the line below.
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
-//=>OpenTX 2.3.2 with a STM32 or OrangeRX module this setting can be ignored.
 #define INVERT_TELEMETRY
 //For STM32 and OrangeRX modules, comment to prevent the TX from forcing the serial telemetry polarity normal/invert.
 #define INVERT_TELEMETRY_TX

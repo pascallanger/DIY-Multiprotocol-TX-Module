@@ -1,8 +1,7 @@
-dist: trusty
+dist: bionic
 sudo: true
-  #
 language: c
-  #
+
 env:
   global:
     - IDE_VERSION=1.8.9
@@ -11,41 +10,20 @@ env:
     - BOARD="multi4in1:avr:multiatmega328p:bootloader=optiboot"
     - BOARD="multi4in1:avr:multixmega32d4"
     - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=none"
-   # - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=native"
+    - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=native"
     - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=ftdi"
-    #
+
 notifications:
   email: false
-  #
+
 before_install:
-  #
   # Fetch the tag information for the current branch
   - git fetch origin --tags
-  #
+
   # Publish the buildroot script folder
   - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/bin/*
   - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
-  #
-  # Install Arduino IDE
-  - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
-  - tar xf arduino-$IDE_VERSION-linux64.tar.xz
-  - mv arduino-$IDE_VERSION $HOME/arduino-ide
-  - export PATH=$PATH:$HOME/arduino-ide
-  # Set the Multi boards package URL
-  - arduino --pref "boardsmanager.additional.urls=https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json" --save-prefs
-  #
-  - if [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
-      arduino --install-boards multi4in1:STM32F1;
-    fi
-  #
-  - if [[ "$BOARD" =~ "multi4in1:avr:" ]]; then
-      arduino --install-boards multi4in1:avr;
-    fi
-  #
-  - buildMulti() { start_fold config_diff; travis_time_start; git diff Multiprotocol/_Config.h; end_fold config_diff; exitcode=0; BUILDCMD="arduino --verify --board $BOARD Multiprotocol/Multiprotocol.ino --pref build.path=./build/"; echo $BUILDCMD; $BUILDCMD; if [ $? -ne 0 ]; then exitcode=1; fi; echo; return $exitcode; }
-  - buildProtocol() { exitcode=0; opt_disable $ALL_PROTOCOLS; opt_enable $1; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
-  - buildEachProtocol() { exitcodesum=0; for PROTOCOL in $ALL_PROTOCOLS ; do printf "\e[33;1mBuilding $PROTOCOL\e[0m"; buildProtocol $PROTOCOL; if [ $? -ne 0 ]; then exitcodesum=$((exitcodesum + 1)); fi; done; return $exitcodesum; }
-  #
+
   # Arduino IDE adds a lot of noise caused by network traffic; firewall it
   - sudo iptables -P INPUT DROP
   - sudo iptables -P FORWARD DROP
@@ -53,16 +31,230 @@ before_install:
   - sudo iptables -A INPUT -i lo -j ACCEPT
   - sudo iptables -A OUTPUT -o lo -j ACCEPT
   - sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-  #
-install: true
+
+  # Helper functions for the builds
+  - buildMulti() { start_fold config_diff; travis_time_start; git diff Multiprotocol/_Config.h; end_fold config_diff; exitcode=0; BUILDCMD="arduino --verify --board $BOARD Multiprotocol/Multiprotocol.ino --pref build.path=./build/"; echo $BUILDCMD; $BUILDCMD; if [ $? -ne 0 ]; then exitcode=1; fi; echo; return $exitcode; }
+  - buildProtocol() { exitcode=0; opt_disable $ALL_PROTOCOLS; opt_enable $1; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
+  - buildEachProtocol() { exitcodesum=0; for PROTOCOL in $ALL_PROTOCOLS ; do printf "\e[33;1mBuilding $PROTOCOL\e[0m"; buildProtocol $PROTOCOL; if [ $? -ne 0 ]; then exitcodesum=$((exitcodesum + 1)); fi; done; return $exitcodesum; }
+  - buildRFModule() { exitcode=0; opt_disable $ALL_RFMODULES; opt_enable $1; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
+  - buildEachRFModule() { exitcodesum=0; for RFMODULE in $ALL_RFMODULES; do printf "\e[33;1mBuilding $RFMODULE\e[0m"; buildRFModule $RFMODULE; if [ $? -ne 0 ]; then exitcodesum=$((exitcodesum + 1)); fi; done; return $exitcodesum; }
+  - buildDefault() { exitcode=0; printf "\n\e[33;1mBuilding default configuration\e[0m\n"; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
+  - buildSerialOnly() { exitcode=0; printf "\n\e[33;1mBuilding serial mode only\e[0m\n"; opt_disable ENABLE_PPM; opt_enable ENABLE_SERIAL; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
+  - buildPPMOnly() { exitcode=0; printf "\n\e[33;1mBuilding PPM mode only\e[0m\n"; opt_enable ENABLE_PPM; opt_disable ENABLE_SERIAL; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
+
+  # Function to build the release files - dependent on board type
+  - if [[ "$BOARD" == "multi4in1:avr:multixmega32d4" ]]; then
+      buildReleaseFiles(){
+        printf "\n\e[33;1mBuilding multi-orangerx-aetr-green-inv-$MULTI_VERSION.bin\e[0m";
+        opt_enable $ALL_PROTOCOLS;
+        opt_disable ORANGE_TX_BLUE;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-green-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-orangerx-aetr-blue-inv-$MULTI_VERSION.bin\e[0m";
+        opt_enable ORANGE_TX_BLUE;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-blue-inv-$MULTI_VERSION.bin;
+        cp Multiprotocol/Multi.txt ./binaries/Multi.txt; };
+    elif [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
+      buildReleaseFiles(){
+        printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-A7105-inv-$MULTI_VERSION.bin\e[0m";
+        opt_disable CHECK_FOR_BOOTLOADER;
+        opt_disable $ALL_PROTOCOLS;
+        opt_enable $A7105_PROTOCOLS;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-A7105-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CC2500-inv-$MULTI_VERSION.bin\e[0m";
+        opt_disable $ALL_PROTOCOLS;
+        opt_enable $CC2500_PROTOCOLS;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CC2500-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CYRF6936-inv-$MULTI_VERSION.bin\e[0m";
+        opt_disable $ALL_PROTOCOLS;
+        opt_enable $CYRF6936_PROTOCOLS;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CYRF6936-inv-$MULTI_VERSION.bin; };
+    elif [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=optiboot" ]]; then
+      buildReleaseFiles(){
+        printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-A7105-inv-$MULTI_VERSION.bin\e[0m";
+        opt_enable CHECK_FOR_BOOTLOADER;
+        opt_disable $ALL_PROTOCOLS;
+        opt_enable $A7105_PROTOCOLS;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-A7105-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CC2500-inv-$MULTI_VERSION.bin\e[0m";
+        opt_disable $ALL_PROTOCOLS;
+        opt_enable $CC2500_PROTOCOLS;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CC2500-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CYRF6936-inv-$MULTI_VERSION.bin\e[0m";
+        opt_disable $ALL_PROTOCOLS;
+        opt_enable $CYRF6936_PROTOCOLS;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CYRF6936-inv-$MULTI_VERSION.bin; };
+    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=none" ]]; then
+      buildReleaseFiles(){
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-inv-$MULTI_VERSION.bin\e[0m";
+        opt_enable CHECK_FOR_BOOTLOADER;
+        opt_enable $ALL_PROTOCOLS;
+        opt_enable MULTI_STATUS;
+        opt_disable MULTI_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-taer-inv-$MULTI_VERSION.bin\e[0m";
+        opt_replace AETR TAER;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-taer-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-reta-inv-$MULTI_VERSION.bin\e[0m";
+        opt_replace TAER RETA;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-reta-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-noinv-$MULTI_VERSION.bin\e[0m";
+        opt_replace RETA AETR;
+        opt_disable INVERT_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-noinv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-taer-noinv-$MULTI_VERSION.bin\e[0m";
+        opt_replace AETR TAER;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-taer-noinv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-reta-noinv-$MULTI_VERSION.bin\e[0m";
+        opt_replace TAER RETA;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-reta-noinv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-inv-$MULTI_VERSION.bin\e[0m";
+        opt_replace RETA AETR;
+        opt_disable MULTI_STATUS;
+        opt_enable MULTI_TELEMETRY;
+        opt_enable INVERT_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-taer-inv-$MULTI_VERSION.bin\e[0m";
+        opt_replace AETR TAER;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-taer-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-reta-inv-$MULTI_VERSION.bin\e[0m";
+        opt_replace TAER RETA;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-reta-inv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-noinv-$MULTI_VERSION.bin\e[0m";
+        opt_replace RETA AETR;
+        opt_disable INVERT_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-noinv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-taer-noinv-$MULTI_VERSION.bin\e[0m";
+        opt_replace AETR TAER;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-taer-noinv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-reta-noinv-$MULTI_VERSION.bin\e[0m";
+        opt_replace TAER RETA;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-reta-noinv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-ppm-aetr-noinv-$MULTI_VERSION.bin\e[0m";
+        opt_replace RETA AETR;
+        opt_disable MULTI_STATUS;
+        opt_disable MULTI_TELEMETRY;
+        opt_set NBR_BANKS 5;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-aetr-noinv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-ppm-taer-noinv-$MULTI_VERSION.bin\e[0m";
+        opt_replace AETR TAER;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-taer-noinv-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-ppm-reta-noinv-$MULTI_VERSION.bin\e[0m";
+        opt_replace TAER RETA;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-reta-noinv-$MULTI_VERSION.bin; };
+    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
+      buildReleaseFiles(){
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-usbdebug-$MULTI_VERSION.bin\e[0m";
+        opt_enable CHECK_FOR_BOOTLOADER;
+        opt_disable $ALL_PROTOCOLS;
+        opt_add XN297DUMP_NRF24L01_INO;
+        opt_enable MULTI_STATUS;
+        opt_disable MULTI_TELEMETRY;
+        opt_enable INVERT_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-usbdebug-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-usbdebug-$MULTI_VERSION.bin\e[0m";
+        opt_disable $ALL_PROTOCOLS;
+        opt_disable MULTI_STATUS;
+        opt_enable MULTI_TELEMETRY;
+        opt_enable INVERT_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-usbdebug-$MULTI_VERSION.bin; };
+    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=ftdi" ]]; then
+      buildReleaseFiles(){
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-ftdidebug-$MULTI_VERSION.bin\e[0m";
+        opt_enable CHECK_FOR_BOOTLOADER;
+        opt_disable $ALL_PROTOCOLS;
+        opt_add XN297DUMP_NRF24L01_INO;
+        opt_enable MULTI_STATUS;
+        opt_disable MULTI_TELEMETRY;
+        opt_enable INVERT_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-ftdidebug-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-ftdidebug-$MULTI_VERSION.bin\e[0m";
+        opt_disable $ALL_PROTOCOLS;
+        opt_disable MULTI_STATUS;
+        opt_enable MULTI_TELEMETRY;
+        opt_enable INVERT_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-ftdidebug-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-inv-ftdidebug-$MULTI_VERSION.bin\e[0m";
+        opt_enable $ALL_PROTOCOLS;
+        opt_enable MULTI_STATUS;
+        opt_disable MULTI_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-inv-ftdidebug-$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-inv-ftdidebug-$MULTI_VERSION.bin\e[0m";
+        opt_disable MULTI_STATUS;
+        opt_enable MULTI_TELEMETRY;
+        buildMulti;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-inv-ftdidebug-$MULTI_VERSION.bin; };
+    else
+      buildReleaseFiles() { echo "No release files for this board."; };
+    fi
+
+install:
+  # Install Arduino IDE
+  - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
+  - tar xf arduino-$IDE_VERSION-linux64.tar.xz
+  - mv arduino-$IDE_VERSION $HOME/arduino-ide
+  - export PATH=$PATH:$HOME/arduino-ide
+
+  # Set the Multi boards package URL
+  - arduino --pref "boardsmanager.additional.urls=https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json" --save-prefs
+
+  # Install the STM32 board if needed
+  - if [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+      arduino --install-boards multi4in1:STM32F1;
+    fi
+
+  # Install the AVR board if needed
+  - if [[ "$BOARD" =~ "multi4in1:avr:" ]]; then
+      arduino --install-boards multi4in1:avr;
+    fi
+
 before_script:
-  #
   # Change current working directory to the build dir
   - cd ${TRAVIS_BUILD_DIR}
+
+  # Create somwhere to put the exported binaries
+  - mkdir ./binaries
+
   # Log the initial Multi config 
   - cat Multiprotocol/_Config.h
+
   # Back up the configuration
   - cp Multiprotocol/_Config.h ./_Config.h.bak
+
+  # Get the firmware version number from the source
+  - MAJOR_VERSION=$(grep "VERSION_MAJOR" "Multiprotocol/Multiprotocol.h" | awk -v N=3 '{gsub(/\r/,""); print $N}')
+  - MINOR_VERSION=$(grep "VERSION_MINOR" "Multiprotocol/Multiprotocol.h" | awk -v N=3 '{gsub(/\r/,""); print $N}')
+  - REVISION_VERSION=$(grep "VERSION_REVISION" "Multiprotocol//Multiprotocol.h" | awk -v N=3 '{gsub(/\r/,""); print $N}')
+  - PATCH_VERSION=$(grep "VERSION_PATCH" "Multiprotocol//Multiprotocol.h" | awk -v N=3 '{gsub(/\r/,""); print $N}')
+  - MULTI_VERSION=$MAJOR_VERSION.$MINOR_VERSION.$REVISION_VERSION.$PATCH_VERSION
+
   # Derive the Multi protocols from the Multi source
   - A7105_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]_]*_A7105_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
   - CC2500_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]_]*_CC2500_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
@@ -74,204 +266,63 @@ before_script:
       ALL_PROTOCOLS=$(echo $A7105_PROTOCOLS $CC2500_PROTOCOLS $CYRF6936_PROTOCOLS $NRF24L01_PROTOCOLS);
     fi
   - echo $ALL_PROTOCOLS
-  #
+
+  # Declare all the installed modules
+  - ALL_RFMODULES=$(echo A7105_INSTALLED CYRF6936_INSTALLED CC2500_INSTALLED NRF24L01_INSTALLED);
+
   # Disable CHECK_FOR_BOOTLOADER when not needed
   - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
       opt_disable CHECK_FOR_BOOTLOADER;
     fi
-  #
-  # Trim the build down for the Atmega328p board
+
+  # Trim the enabled protocols down for the STM32 board with USB debugging
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
+      opt_disable AFHDS2A_RX_A7105_INO FRSKY_RX_CC2500_INO SCANNER_CC2500_INO WK2x01_CYRF6936_INO HUBSAN_A7105_INO;
+    fi
+
+  # Trim the enabled protocols down for the Atmega328p board
   - if [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:" ]]; then
       opt_disable $ALL_PROTOCOLS;
       opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
     fi
-  #
+
+  # Useful Travis functions
   - export -f travis_fold
   - export -f travis_nanoseconds
   - export -f travis_time_start
   - export -f travis_time_finish
   - start_fold() { echo -e "travis_fold:start:$1"; }
   - end_fold() { echo -e "\ntravis_fold:end:$1\r"; }
+
 script:
-  # Build with all protocols enabled for STM32; a subset of protocols for Atmega
-  - buildMulti
-  #
+  # Build with default configuration - all protocols are enabled for STM32; a subset of protocols for Atmega
+  - buildDefault
+
   # Serial only
-  - opt_disable ENABLE_PPM
-  - opt_enable ENABLE_SERIAL
-  - buildMulti
-  #
+  - buildSerialOnly
+
   # PPM only
-  - opt_enable ENABLE_PPM
-  - opt_disable ENABLE_SERIAL
-  - buildMulti
-  #
+  - buildPPMOnly
+
   # Re-enable PPM and serial
   - opt_enable ENABLE_SERIAL
   - opt_enable ENABLE_PPM
-  #
-  # Build each protocol individually
-  - buildEachProtocol
-before_deploy:
-  # Create somwhere to put the binaries
-  - mkdir ./binaries
+
+  # Build for each RF module individually
+  - buildEachRFModule
+
   # Restore the default configuration
   - cp ./_Config.h.bak Multiprotocol/_Config.h
-  # Build the release files for OrangeRX
-  - if [[ "$BOARD" == "multi4in1:avr:multixmega32d4" ]]; then
-      printf "\n\e[33;1mBuilding multi-orangerx-aetr-green-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_enable $ALL_PROTOCOLS;
-      opt_disable ORANGE_TX_BLUE;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-green-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-orangerx-aetr-blue-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_enable ORANGE_TX_BLUE;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-blue-inv-$TRAVIS_TAG.bin;
-      cp Multiprotocol/Multi.txt ./binaries/Multi.txt;
-    fi
-  # Build the release files for AVR without bootloader
-  - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
-      printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-A7105-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_disable CHECK_FOR_BOOTLOADER;
-      opt_disable $ALL_PROTOCOLS;
-      opt_enable $A7105_PROTOCOLS;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-A7105-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CC2500-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_disable $ALL_PROTOCOLS;
-      opt_enable $CC2500_PROTOCOLS;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CC2500-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CYRF6936-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_disable $ALL_PROTOCOLS;
-      opt_enable $CYRF6936_PROTOCOLS;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CYRF6936-inv-$TRAVIS_TAG.bin;
-    fi
-  # Build the release files for AVR with bootloader
-  - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=optiboot" ]]; then
-      printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-A7105-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_enable CHECK_FOR_BOOTLOADER;
-      opt_disable $ALL_PROTOCOLS;
-      opt_enable $A7105_PROTOCOLS;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-A7105-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CC2500-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_disable $ALL_PROTOCOLS;
-      opt_enable $CC2500_PROTOCOLS;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CC2500-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CYRF6936-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_disable $ALL_PROTOCOLS;
-      opt_enable $CYRF6936_PROTOCOLS;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CYRF6936-inv-$TRAVIS_TAG.bin;
-    fi
-  # Build the release files for STM32 without debug
-  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=none" ]]; then
-      printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_enable CHECK_FOR_BOOTLOADER;
-      opt_enable $ALL_PROTOCOLS;
-      opt_enable MULTI_STATUS;
-      opt_disable MULTI_TELEMETRY;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-erskytx-taer-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace AETR TAER;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-taer-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-erskytx-reta-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace TAER RETA;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-reta-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-noinv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace RETA AETR;
-      opt_disable INVERT_TELEMETRY;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-noinv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-erskytx-taer-noinv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace AETR TAER;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-taer-noinv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-erskytx-reta-noinv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace TAER RETA;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-reta-noinv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace RETA AETR;
-      opt_disable MULTI_STATUS;
-      opt_enable MULTI_TELEMETRY;
-      opt_enable INVERT_TELEMETRY;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-opentx-taer-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace AETR TAER;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-taer-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-opentx-reta-inv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace TAER RETA;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-reta-inv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-noinv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace RETA AETR;
-      opt_disable INVERT_TELEMETRY;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-noinv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-opentx-taer-noinv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace AETR TAER;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-taer-noinv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-opentx-reta-noinv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace TAER RETA;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-reta-noinv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-ppm-aetr-noinv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace RETA AETR;
-      opt_disable MULTI_STATUS;
-      opt_disable MULTI_TELEMETRY;
-      opt_set NBR_BANKS 5;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-aetr-noinv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-ppm-taer-noinv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace AETR TAER;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-taer-noinv-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-ppm-reta-noinv-$TRAVIS_TAG.bin\e[0m";
-      opt_replace TAER RETA;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-reta-noinv-$TRAVIS_TAG.bin;
-    fi
-  # Build the release files for STM32 with Native USB debugging
-  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
-      printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-inv-usbdebug-$TRAVIS_TAG.bin\e[0m";
-      opt_enable CHECK_FOR_BOOTLOADER;
-      opt_enable $ALL_PROTOCOLS;
-      opt_enable MULTI_STATUS;
-      opt_disable MULTI_TELEMETRY;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-inv-usbdebug-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-inv-usbdebug-$TRAVIS_TAG.bin\e[0m";
-      opt_disable MULTI_STATUS;
-      opt_enable MULTI_TELEMETRY;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-inv-usbdebug-$TRAVIS_TAG.bin;
-    fi
-  # Build the release files for STM32 with FTDI USB debugging
-  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=ftdi" ]]; then
-      printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-inv-ftdidebug-$TRAVIS_TAG.bin\e[0m";
-      opt_enable CHECK_FOR_BOOTLOADER;
-      opt_enable $ALL_PROTOCOLS;
-      opt_enable MULTI_STATUS;
-      opt_disable MULTI_TELEMETRY;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-inv-ftdidebug-$TRAVIS_TAG.bin;
-      printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-inv-ftdidebug-$TRAVIS_TAG.bin\e[0m";
-      opt_disable MULTI_STATUS;
-      opt_enable MULTI_TELEMETRY;
-      buildMulti;
-      mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-inv-ftdidebug-$TRAVIS_TAG.bin;
-    fi
+
+  # Build each protocol individually
+  - buildEachProtocol
+
+  # Restore the default configuration
+  - cp ./_Config.h.bak Multiprotocol/_Config.h
+
+  # Builds the files for a release - always built, but only copied to Github if the test is tagged as a release
+  - buildReleaseFiles
+
 deploy:
   provider: releases
   api_key:

@@ -71,6 +71,7 @@ const char STR_SCANNER[]	="Scanner";
 const char STR_FRSKY_RX[]	="FrSkyRX";
 const char STR_AFHDS2A_RX[]	="FS2A_RX";
 const char STR_HOTT[]		="HoTT";
+const char STR_FX816[]		="FX816";
 const char STR_XN297DUMP[]	="XN297DP";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
@@ -107,6 +108,7 @@ const char STR_SUBTYPE_REDPINE[] =    "\x04""Fast""Slow";
 const char STR_SUBTYPE_POTENSIC[] =   "\x03""A20";
 const char STR_SUBTYPE_ZSX[] =        "\x07""280JJRC";
 const char STR_SUBTYPE_FLYZONE[] =    "\x05""FZ410";
+const char STR_SUBTYPE_FX816[] =    "\x03""P38";
 const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ";
 
 enum
@@ -259,7 +261,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_E01X,       STR_E01X,      3, STR_SUBTYPE_E01X,      OPTION_OPTION  },
 #endif
 #if defined(V911S_NRF24L01_INO)
-	{PROTO_V911S,      STR_V911S,     0, NO_SUBTYPE,            OPTION_RFTUNE  },
+	{PROTO_V911S,      STR_V911S,     0, NO_SUBTYPE,            OPTION_NONE    },
 #endif
 #if defined(GD00X_NRF24L01_INO)
 	{PROTO_GD00X,      STR_GD00X,     2, STR_SUBTYPE_GD00X,     OPTION_RFTUNE  },
@@ -293,6 +295,9 @@ const mm_protocol_definition multi_protocols[] = {
 #endif
 #if defined(HOTT_CC2500_INO)
 	{PROTO_HOTT,       STR_HOTT,      0, NO_SUBTYPE,            OPTION_RFTUNE  },
+#endif
+#if defined(FX816_NRF24L01_INO)
+	{PROTO_FX816,      STR_FX816,     1, STR_SUBTYPE_FX816,     OPTION_NONE    },
 #endif
 #if defined(XN297DUMP_NRF24L01_INO)
 	{PROTO_XN297DUMP,  STR_XN297DUMP, 3, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },

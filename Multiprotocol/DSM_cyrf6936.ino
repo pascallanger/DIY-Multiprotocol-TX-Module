@@ -380,7 +380,7 @@ uint16_t ReadDsm()
 {
 	#define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
 	#ifdef STM32_BOARD
-		#define DSM_WRITE_DELAY		1500		// Time after write to verify write complete
+		#define DSM_WRITE_DELAY		1600		// Time after write to verify write complete
 	#else
 		#define DSM_WRITE_DELAY		1950		// Time after write to verify write complete
 	#endif

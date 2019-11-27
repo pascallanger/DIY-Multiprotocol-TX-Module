@@ -16,7 +16,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(FX816_NRF24L01_INO)
 
-#include "iface_xn297l.h"
+#include "iface_nrf24l01.h"
 
 #define FX816_INITIAL_WAIT    500
 #define FX816_PACKET_PERIOD   10000

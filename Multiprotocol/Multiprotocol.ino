@@ -1421,6 +1421,12 @@ static void protocol_init()
 						remote_callback = FX816_callback;
 						break;
 				#endif
+				#if defined(BAYANG_RX_NRF24L01_INO)
+					case PROTO_BAYANG_RX:
+						next_callback=initBayang_Rx();
+						remote_callback = Bayang_Rx_callback;
+						break;
+				#endif
 				#if defined(XN297DUMP_NRF24L01_INO)
 					case PROTO_XN297DUMP:
 						next_callback=initXN297Dump();

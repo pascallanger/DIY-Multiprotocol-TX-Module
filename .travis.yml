@@ -166,7 +166,7 @@ before_install:
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-reta-noinv-v$MULTI_VERSION.bin; };
     elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
       buildReleaseFiles(){
-        printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-usbdebug-v$MULTI_VERSION.bin\e[0m";
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin\e[0m";
         opt_enable CHECK_FOR_BOOTLOADER;
         opt_disable $ALL_PROTOCOLS;
         opt_add XN297DUMP_NRF24L01_INO;
@@ -174,17 +174,17 @@ before_install:
         opt_disable MULTI_TELEMETRY;
         opt_enable INVERT_TELEMETRY;
         buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-usbdebug-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-usbdebug-v$MULTI_VERSION.bin\e[0m";
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin\e[0m";
         opt_disable $ALL_PROTOCOLS;
         opt_disable MULTI_STATUS;
         opt_enable MULTI_TELEMETRY;
         opt_enable INVERT_TELEMETRY;
         buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-usbdebug-v$MULTI_VERSION.bin; };
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin; };
     elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=ftdi" ]]; then
       buildReleaseFiles(){
-        printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-ftdidebug-v$MULTI_VERSION.bin\e[0m";
+        printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin\e[0m";
         opt_enable CHECK_FOR_BOOTLOADER;
         opt_disable $ALL_PROTOCOLS;
         opt_add XN297DUMP_NRF24L01_INO;
@@ -192,14 +192,14 @@ before_install:
         opt_disable MULTI_TELEMETRY;
         opt_enable INVERT_TELEMETRY;
         buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-ftdidebug-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-ftdidebug-v$MULTI_VERSION.bin\e[0m";
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin\e[0m";
         opt_disable $ALL_PROTOCOLS;
         opt_disable MULTI_STATUS;
         opt_enable MULTI_TELEMETRY;
         opt_enable INVERT_TELEMETRY;
         buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-ftdidebug-v$MULTI_VERSION.bin;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-inv-ftdidebug-v$MULTI_VERSION.bin\e[0m";
         opt_enable $ALL_PROTOCOLS;
         opt_enable MULTI_STATUS;

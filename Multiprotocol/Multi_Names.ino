@@ -108,8 +108,9 @@ const char STR_SUBTYPE_REDPINE[] =    "\x04""Fast""Slow";
 const char STR_SUBTYPE_POTENSIC[] =   "\x03""A20";
 const char STR_SUBTYPE_ZSX[] =        "\x07""280JJRC";
 const char STR_SUBTYPE_FLYZONE[] =    "\x05""FZ410";
-const char STR_SUBTYPE_FX816[] =    "\x03""P38";
+const char STR_SUBTYPE_FX816[] =      "\x03""P38";
 const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ";
+const char STR_SUBTYPE_ESKY150[] =    "\x03""4CH""7CH";
 
 enum
 {
@@ -228,7 +229,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_CABELL,     STR_CABELL,    8, STR_SUBTYPE_CABELL,    OPTION_OPTION  },
 #endif
 #if defined(ESKY150_NRF24L01_INO)
-	{PROTO_ESKY150,    STR_ESKY150,   0, NO_SUBTYPE,            OPTION_NONE    },
+	{PROTO_ESKY150,    STR_ESKY150,   2, STR_SUBTYPE_ESKY150,   OPTION_NONE    },
 #endif
 #if defined(H8_3D_NRF24L01_INO)
 	{PROTO_H8_3D,      STR_H8_3D,     4, STR_SUBTYPE_H83D,      OPTION_NONE    },

@@ -92,8 +92,8 @@ static void __attribute__((unused)) ESKY150_send_packet()
 	uint8_t flight_mode=0;
 	uint16_t aux_ch6=0;
 	uint8_t aux_ch7=0;
-	if(option==1)
-	{
+	if(sub_protocol)
+	{ // 7 channels
 		flight_mode=ESKY150_convert_2bit_channel(CH5);
 		aux_ch6=convert_channel_16b_limit(CH6,1000,2000);
 		aux_ch7=ESKY150_convert_2bit_channel(CH7);

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	45
+#define VERSION_PATCH_LEVEL	46
 
 //******************
 // Protocols
@@ -291,6 +291,11 @@ enum REDPINE
 enum TRAXXAS
 {
 	RX6519	= 0,
+};
+enum ESKY150
+{
+	ESKY150_4CH	= 0,
+	ESKY150_7CH	= 1,
 };
 
 #define NONE 		0
@@ -814,6 +819,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			RED_SLOW	1
 		sub_protocol==TRAXXAS
 			RX6519		0
+		sub_protocol==ESKY150
+			ESKY150_4CH	0
+			ESKY150_7CH	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

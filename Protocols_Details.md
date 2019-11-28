@@ -827,7 +827,13 @@ A|E|T|R|GYRO|PITCH
 ## ESKY150 - *35*
 ESky protocol for small models since 2014 (150, 300, 150X, ...)
 
-Number of channels are set with option. option=0 4 channels and option=1 7 channels. An invalid option value will end up with 4 channels.
+### Sub_protocol 4CH - *0*
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+### Sub_protocol 7CH - *1*
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---

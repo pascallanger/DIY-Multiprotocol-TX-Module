@@ -136,37 +136,25 @@ static void multi_send_status()
 	if (remote_callback != 0)
 	{
 		flags |= 0x04;
+		#ifdef MULTI_NAMES
+			if((sub_protocol&0x07) && multi_protocols_index != 0xFF)
+			{
+				uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+				if((sub_protocol&0x07)>=nbr)
+					flags &= ~0x04;		//Invalid sub protocol
+			}
+		#endif
 		if (IS_WAIT_BIND_on)
 			flags |= 0x10;
 		else
 			if (IS_BIND_IN_PROGRESS)
 				flags |= 0x08;
-		switch (protocol)
-		{
-			case PROTO_HISKY:
-				if(sub_protocol!=HK310)
-					break;
-			case PROTO_AFHDS2A:
-			case PROTO_DEVO:
-			case PROTO_SFHSS:
-			case PROTO_WK2x01:
-				#ifdef FAILSAFE_ENABLE
-					flags |= 0x20;			//Failsafe supported
-				#endif
-			case PROTO_DSM:
-			case PROTO_SLT:
-			case PROTO_FLYSKY:
-			case PROTO_ESKY:
-			case PROTO_J6PRO:
-				flags |= 0x40;				//Disable_ch_mapping supported
-				break;
-			#ifdef FAILSAFE_ENABLE
-			case PROTO_HOTT:
-			case PROTO_FRSKYX:
-					flags |= 0x20;			//Failsafe supported
-				break;
-			#endif
-		}
+		if(IS_CHMAP_PROTOCOL)
+			flags |= 0x40;				//Disable_ch_mapping supported
+		#ifdef FAILSAFE_ENABLE
+			if(IS_FAILSAFE_PROTOCOL)
+				flags |= 0x20;			//Failsafe supported
+		#endif
 		if(IS_DATA_BUFFER_LOW_on)
 			flags |= 0x80;
 	}
@@ -197,8 +185,8 @@ static void multi_send_status()
 			for(uint8_t i=0;i<7;i++)
 				Serial_write(multi_protocols[multi_protocols_index].ProtoString[i]);	// protocol name
 			// Sub-protocol
-			uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto | (multi_protocols[multi_protocols_index].optionType<<4); // add option display type
-			Serial_write(nbr);															// number of sub protocols
+			uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+			Serial_write(nbr | (multi_protocols[multi_protocols_index].optionType<<4));	// number of sub protocols && option type
 			uint8_t j=0;
 			if(nbr && (sub_protocol&0x07)<nbr)
 			{

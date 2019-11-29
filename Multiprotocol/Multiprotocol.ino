@@ -1621,24 +1621,6 @@ void update_serial_data()
 		#endif
 	}
 
-	if(prev_ch_mapping!=IS_DISABLE_CH_MAP_on)
-	{
-		prev_ch_mapping=IS_DISABLE_CH_MAP_on;
-		if(IS_DISABLE_CH_MAP_on)
-		{
-			for(uint8_t i=0;i<4;i++)
-				CH_AETR[i]=CH_TAER[i]=CH_EATR[i]=i;
-			debugln("DISABLE_CH_MAP_on");
-		}
-		else
-		{
-			CH_AETR[0]=AILERON;CH_AETR[1]=ELEVATOR;CH_AETR[2]=THROTTLE;CH_AETR[3]=RUDDER;
-			CH_TAER[0]=THROTTLE;CH_TAER[1]=AILERON;CH_TAER[2]=ELEVATOR;CH_TAER[3]=RUDDER;
-			CH_EATR[0]=ELEVATOR;CH_EATR[1]=AILERON;CH_EATR[2]=THROTTLE;CH_EATR[3]=RUDDER;
-			debugln("DISABLE_CH_MAP_off");
-		}
-	}
-	
 	if( (rx_ok_buff[0] != cur_protocol[0]) || ((rx_ok_buff[1]&0x5F) != (cur_protocol[1]&0x5F)) || ( (rx_ok_buff[2]&0x7F) != (cur_protocol[2]&0x7F) ) )
 	{ // New model has been selected
 		CHANGE_PROTOCOL_FLAG_on;				//change protocol
@@ -1679,6 +1661,27 @@ void update_serial_data()
 	for(uint8_t i=0;i<3;i++)
 		cur_protocol[i] =  rx_ok_buff[i];
 
+	//disable channel mapping
+	if(!IS_CHMAP_PROTOCOL)						//not a protocol supporting ch map to be disabled
+		DISABLE_CH_MAP_off;
+	if(prev_ch_mapping!=IS_DISABLE_CH_MAP_on)
+	{
+		prev_ch_mapping=IS_DISABLE_CH_MAP_on;
+		if(IS_DISABLE_CH_MAP_on)
+		{
+			for(uint8_t i=0;i<4;i++)
+				CH_AETR[i]=CH_TAER[i]=CH_EATR[i]=i;
+			debugln("DISABLE_CH_MAP_on");
+		}
+		else
+		{
+			CH_AETR[0]=AILERON;CH_AETR[1]=ELEVATOR;CH_AETR[2]=THROTTLE;CH_AETR[3]=RUDDER;
+			CH_TAER[0]=THROTTLE;CH_TAER[1]=AILERON;CH_TAER[2]=ELEVATOR;CH_TAER[3]=RUDDER;
+			CH_EATR[0]=ELEVATOR;CH_EATR[1]=AILERON;CH_EATR[2]=THROTTLE;CH_EATR[3]=RUDDER;
+			debugln("DISABLE_CH_MAP_off");
+		}
+	}
+	
 	// decode channel/failsafe values
 	volatile uint8_t *p=rx_ok_buff+3;
 	uint8_t dec=-3;

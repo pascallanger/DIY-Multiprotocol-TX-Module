@@ -349,6 +349,10 @@
 	#undef MULTI_NAMES
 #endif
 
+#if defined(MULTI_TELEMETRY)
+	#define MULTI_NAMES
+#endif
+
 //Make sure TX is defined correctly
 #ifndef AILERON
 	#error You must select a correct channel order.

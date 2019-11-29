@@ -931,10 +931,10 @@ void TelemetryUpdate()
 	#endif
 
 	#if defined (FRSKY_RX_TELEMETRY) || defined(AFHDS2A_RX_TELEMETRY) || defined (BAYANG_RX_TELEMETRY)
-		if (telemetry_link && (protocol == PROTO_FRSKY_RX || protocol == PROTO_AFHDS2A_RX || protocol == PROTO_BAYANG_RX))
+		if ((telemetry_link & 1) && (protocol == PROTO_FRSKY_RX || protocol == PROTO_AFHDS2A_RX || protocol == PROTO_BAYANG_RX))
 		{
 			receiver_channels_frame();
-			telemetry_link = 0;
+			telemetry_link &= ~1;
 			return;
 		}
 	#endif

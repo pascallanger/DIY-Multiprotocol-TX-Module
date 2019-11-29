@@ -602,8 +602,8 @@ enum {
 #define AFHDS2A_RX_EEPROM_OFFSET 230	// (4) TX ID + (16) channels, 20 bytes, end is 230+20=250
 #define AFHDS2A_EEPROM_OFFSET2	250		// RX ID, 4 bytes per model id, end is 250+192=442
 #define HOTT_EEPROM_OFFSET		442		// RX ID, 5 bytes per model id, end is 320+442=762
-#define BAYANG_RX_EEPROM_OFFSET	762		// (5) TX ID + (4) channels + (1) extra AUX, 10 bytes, end is 772 
-//#define CONFIG_EEPROM_OFFSET 	772		// Current configuration of the multimodule
+#define BAYANG_RX_EEPROM_OFFSET	762		// (5) TX ID + (4) channels, 9 bytes, end is 771 
+//#define CONFIG_EEPROM_OFFSET 	771		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***

@@ -72,6 +72,7 @@ const char STR_FRSKY_RX[]	="FrSkyRX";
 const char STR_AFHDS2A_RX[]	="FS2A_RX";
 const char STR_HOTT[]		="HoTT";
 const char STR_FX816[]		="FX816";
+const char STR_BAYANG_RX[]	="BayanRX";
 const char STR_XN297DUMP[]	="XN297DP";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
@@ -299,6 +300,9 @@ const mm_protocol_definition multi_protocols[] = {
 #endif
 #if defined(FX816_NRF24L01_INO)
 	{PROTO_FX816,      STR_FX816,     1, STR_SUBTYPE_FX816,     OPTION_NONE    },
+#endif
+#if defined(BAYANG_RX_NRF24L01_INO)
+	{PROTO_BAYANG_RX,  STR_BAYANG_RX, 0, NO_SUBTYPE,            OPTION_NONE    },	
 #endif
 #if defined(XN297DUMP_NRF24L01_INO)
 	{PROTO_XN297DUMP,  STR_XN297DUMP, 3, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },

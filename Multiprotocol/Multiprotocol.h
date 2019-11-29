@@ -85,6 +85,7 @@ enum PROTOCOLS
 	PROTO_AFHDS2A_RX= 56,	// =>A7105
 	PROTO_HOTT		= 57,	// =>CC2500
 	PROTO_FX816		= 58,	// =>NRF24L01
+	PROTO_BAYANG_RX	= 59,	// =>NRF24L01
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -601,7 +602,8 @@ enum {
 #define AFHDS2A_RX_EEPROM_OFFSET 230	// (4) TX ID + (16) channels, 20 bytes, end is 230+20=250
 #define AFHDS2A_EEPROM_OFFSET2	250		// RX ID, 4 bytes per model id, end is 250+192=442
 #define HOTT_EEPROM_OFFSET		442		// RX ID, 5 bytes per model id, end is 320+442=762
-//#define CONFIG_EEPROM_OFFSET 	762		// Current configuration of the multimodule
+#define BAYANG_RX_EEPROM_OFFSET	762		// (5) TX ID + (4) channels, 9 bytes, end is 771 
+//#define CONFIG_EEPROM_OFFSET 	771		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***
@@ -678,6 +680,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				AFHDS2A_RX	56
 				HOTT		57
 				FX816		58
+				BAYANG_RX	59
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

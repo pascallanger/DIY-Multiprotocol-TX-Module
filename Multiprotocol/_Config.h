@@ -187,6 +187,7 @@
 //The protocols below need a NRF24L01 to be installed
 #define	ASSAN_NRF24L01_INO
 #define	BAYANG_NRF24L01_INO
+#define	BAYANG_RX_NRF24L01_INO
 #define	BUGSMINI_NRF24L01_INO
 #define	CABELL_NRF24L01_INO
 #define	CFLIE_NRF24L01_INO
@@ -304,6 +305,7 @@
 #define FRSKY_RX_TELEMETRY			// Forward channels data to TX
 #define AFHDS2A_RX_TELEMETRY		// Forward channels data to TX
 #define HOTT_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
+#define BAYANG_RX_TELEMETRY			// Forward channels data to TX
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -501,6 +503,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		X16_AH
 		IRDRONE
 		DHD_D4
+	PROTO_BAYANG_RX
+		NONE
 	PROTO_BUGS
 		NONE
 	PROTO_BUGSMINI

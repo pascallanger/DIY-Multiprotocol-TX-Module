@@ -678,15 +678,11 @@ TAKE_OFF|EMG_STOP
 ## BAYANG RX - *59*
 The Bayang receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
-Channels 1-4 are AETR, extended limits not supported
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|RTH|PICTURE|VIDEO
 
-Channel 5 set to 100% while flip channel is enabled
-
-Channel 6 set to 100% while rth channel is enabled
-
-Channel 7 set to 100% while picture channel is enabled
-
-Channel 8 set to 100% while video channel is enabled
+Extended limits not supported
 
 Available in OpenTX 2.3.2, Trainer Mode Master/Multi
 

@@ -71,17 +71,17 @@ static void __attribute__((unused)) Bayang_Rx_build_telemetry_packet()
 
 	// convert & pack channels
 	for (uint8_t i = 0; i < packet_in[3]; i++) {
-		uint32_t val = 0;
+		uint32_t val = CHANNEL_MIN_125;
 		if (i < 4) {
 			// AETR
 			val = (((packet[4 + i * 2] & ~0x7C) << 8) | packet[5 + i * 2]) << 1;
 		}
-		else if ((i == 4) && (packet[2] & 0x08) ||	// flip
-			(i == 5) && (packet[2] & 0x01) ||		// rth
-			(i == 6) && (packet[2] & 0x20) ||		// picture
-			(i == 7) && (packet[2] & 0x10)) {		// video
+		else if (((i == 4) && (packet[2] & 0x08)) ||	// flip
+				 ((i == 5) && (packet[2] & 0x01)) ||	// rth
+				 ((i == 6) && (packet[2] & 0x20)) ||	// picture
+				 ((i == 7) && (packet[2] & 0x10))) {		// video
 			// set channel to 100% if feature is enabled
-			val = 2047;
+			val = CHANNEL_MAX_125;
 		}
 		bits |= val << bitsavailable;
 		bitsavailable += 11;

@@ -195,7 +195,7 @@ Note that the RX ouput will be AETR whatever the input channel order is.
 ## FLYSKY AFHDS2A RX - *56*
 The Flysky AFHDS2A receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
-Available in OpenTX 2.3.2, Trainer Mode Master/Multi
+Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 
 Extended limits supported
 
@@ -358,7 +358,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ## FRSKYX_RX - *55*
 The FrSkyX receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
-Available in OpenTX 2.3.2, Trainer Mode Master/Multi
+Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 
 Extended limits supported
 
@@ -398,7 +398,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ### Sub_protocol OPT_FW - *0*
 OPTIMA RXs
 
-Full telemetry available on OpenTX 2.3.2+, still in progress for erskyTx.
+Full telemetry available on OpenTX 2.3.3+, still in progress for erskyTx.
 
 **The TX must be close to the RX for the bind negotiation to complete successfully**
 
@@ -430,7 +430,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
-Basic telemetry is available on OpenTX 2.3.2+ with RX voltage, Rx temperature, RX RSSI, RX LQI, TX RSSI and TX LQI.
+Basic telemetry is available on OpenTX 2.3.3+ with RX voltage, Rx temperature, RX RSSI, RX LQI, TX RSSI and TX LQI.
 
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.
@@ -678,13 +678,13 @@ TAKE_OFF|EMG_STOP
 ## BAYANG RX - *59*
 The Bayang receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|FLIP|RTH|PICTURE|VIDEO
+See the [BAYANG protocol](Protocols_Details.md#BAYANG---14) on how to activate ANAUX1 and ANAUX2 (Option/Telemetry=2).
 
-Extended limits not supported
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|ANAUX1|ANAUX2|FLIP|RTH|PICTURE|VIDEO
 
-Available in OpenTX 2.3.2, Trainer Mode Master/Multi
+Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 
 ## BUGSMINI - *42*
 Models: MJX Bugs 3 Mini and 3H

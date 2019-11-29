@@ -65,23 +65,28 @@ static void __attribute__((unused)) Bayang_Rx_build_telemetry_packet()
 	uint8_t idx = 0;
 
 	packet_in[idx++] = RX_LQI;
-	packet_in[idx++] = 100; // no RSSI
-	packet_in[idx++] = 0; // start channel
-	packet_in[idx++] = 8; // number of channels in packet
+	packet_in[idx++] = RX_LQI;	// no RSSI
+	packet_in[idx++] = 0;		// start channel
+	packet_in[idx++] = 10;		// number of channels in packet
 
 	// convert & pack channels
 	for (uint8_t i = 0; i < packet_in[3]; i++) {
-		uint32_t val = CHANNEL_MIN_125;
+		uint32_t val = CHANNEL_MIN_100;
 		if (i < 4) {
 			// AETR
-			val = (((packet[4 + i * 2] & ~0x7C) << 8) | packet[5 + i * 2]) << 1;
-		}
-		else if (((i == 4) && (packet[2] & 0x08)) ||	// flip
-				 ((i == 5) && (packet[2] & 0x01)) ||	// rth
-				 ((i == 6) && (packet[2] & 0x20)) ||	// picture
-				 ((i == 7) && (packet[2] & 0x10))) {		// video
+			//val = (((packet[4 + i * 2] & ~0x7C) << 8) | packet[5 + i * 2]) << 1;
+			val=packet[4 + i * 2]&0x03;
+			val=(val<<8)+packet[5 + i * 2];
+			val=((val+128)<<3)/5;
+		} else if (i == 4 || i == 5) {
+			val=packet[i==4?1:13];
+			val=((val+32)<<5)/5;						// extra analog channel
+		} else if (((i == 6) && (packet[2] & 0x08)) ||	// flip
+				 ((i == 7) && (packet[2] & 0x01)) ||	// rth
+				 ((i == 8) && (packet[2] & 0x20)) ||	// picture
+				 ((i == 9) && (packet[2] & 0x10))) {	// video
 			// set channel to 100% if feature is enabled
-			val = CHANNEL_MAX_125;
+			val = CHANNEL_MAX_100;
 		}
 		bits |= val << bitsavailable;
 		bitsavailable += 11;
@@ -127,7 +132,7 @@ uint16_t Bayang_Rx_callback()
 	case BAYANG_RX_BIND:
 		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) {
 			// data received from TX
-			if (XN297_ReadPayload(packet, BAYANG_RX_PACKET_SIZE) && packet[0] == 0xA4 && Bayang_Rx_check_validity()) {
+			if (XN297_ReadPayload(packet, BAYANG_RX_PACKET_SIZE) && ( packet[0] == 0xA4 || packet[0] == 0xA2 ) && Bayang_Rx_check_validity()) {
 				// store tx info into eeprom
 				uint16_t temp = BAYANG_RX_EEPROM_OFFSET;
 				for (i = 0; i < 5; i++) {

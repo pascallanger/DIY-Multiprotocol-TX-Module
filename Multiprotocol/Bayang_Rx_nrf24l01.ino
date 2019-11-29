@@ -12,8 +12,6 @@ Multiprotocol is distributed in the hope that it will be useful,
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
- // Compatible with EAchine H8 mini, H10, BayangToys X6/X7/X9, JJRC JJ850 ...
- // Last sync with hexfet new_protocols/bayang_nrf24l01.c dated 2015-12-22
 
 #if defined(BAYANG_RX_NRF24L01_INO)
 
@@ -54,8 +52,8 @@ static void __attribute__((unused)) Bayang_Rx_init_nrf24l01()
 }
 
 static uint8_t __attribute__((unused)) Bayang_Rx_check_validity() {
-	uint8_t sum = 0;
-	for (uint8_t i = 0; i < BAYANG_RX_PACKET_SIZE - 1; i++)
+	uint8_t sum = packet[0];
+	for (uint8_t i = 1; i < BAYANG_RX_PACKET_SIZE - 1; i++)
 		sum += packet[i];
 	return sum == packet[14];
 }

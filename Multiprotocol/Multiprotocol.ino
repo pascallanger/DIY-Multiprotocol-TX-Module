@@ -699,7 +699,7 @@ bool Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if( (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT))
+			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT))
 		#endif
 				if(IS_DISABLE_TELEM_off)
 					TelemetryUpdate();
@@ -991,7 +991,7 @@ static void protocol_init()
 			TX_RX_PAUSE_off;
 			TX_MAIN_PAUSE_off;
 			tx_resume();
-			#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO)
+			#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO) || defined(BAYANG_RX_NRF24L01_INO)
 				for(uint8_t ch=0; ch<16; ch++)
 					rx_rc_chan[ch] = 1024;
 			#endif

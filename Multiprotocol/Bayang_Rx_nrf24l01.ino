@@ -72,7 +72,7 @@ static void __attribute__((unused)) Bayang_Rx_build_telemetry_packet()
 	packet_in[idx++] = 8; // number of channels in packet
 
 	// convert & pack channels
-	for (uint8_t i = 0; i < 14; i++) {
+	for (uint8_t i = 0; i < packet_in[3]; i++) {
 		uint32_t val = 0;
 		if (i < 4) {
 			// AETR

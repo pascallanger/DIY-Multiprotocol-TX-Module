@@ -69,6 +69,7 @@ Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Su
 ---|---|---|---|---|---|---|---|---|---|---|---
 [Assan](Protocols_Details.md#ASSAN---24)|24|ASSAN||||||||NRF24L01|
 [Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4||||NRF24L01|XN297
+[BayanRX](Protocols_Details.md#BAYANG--RX---59)|59|||||||||NRF24L01|
 [Bugs](Protocols_Details.md#BUGS---41)|41|BUGS||||||||A7105|
 [BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI|BUGS3H|||||||NRF24L01|XN297
 [Cabell](Protocols_Details.md#Cabell---34)|34|Cabell_V3|C_TELEM|-|-|-|-|F_SAFE|UNBIND|NRF24L01|
@@ -673,6 +674,13 @@ Model: DHD D4
 CH12|CH13
 ----|----
 TAKE_OFF|EMG_STOP
+
+## BAYANG RX - *59*
+The Bayang receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
+
+Available in OpenTX 2.3.2, Trainer Mode Master/Multi
+
+Extended limits not supported
 
 ## BUGSMINI - *42*
 Models: MJX Bugs 3 Mini and 3H

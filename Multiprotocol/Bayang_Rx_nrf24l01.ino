@@ -118,7 +118,7 @@ uint16_t initBayang_Rx()
 
 uint16_t Bayang_Rx_callback()
 {
-	static uint8_t i;
+	uint8_t i;
 	static int8_t read_retry;
 	static uint16_t pps_counter;
 	static uint32_t pps_timer = 0;

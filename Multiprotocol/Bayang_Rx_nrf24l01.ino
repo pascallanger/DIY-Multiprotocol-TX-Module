@@ -65,9 +65,9 @@ static void __attribute__((unused)) Bayang_Rx_build_telemetry_packet()
 	uint8_t idx = 0;
 
 	packet_in[idx++] = RX_LQI;
-	packet_in[idx++] = RX_LQI;	// no RSSI
-	packet_in[idx++] = 0;		// start channel
-	packet_in[idx++] = 10;		// number of channels in packet
+	packet_in[idx++] = RX_LQI>>1;	// no RSSI: 125..0
+	packet_in[idx++] = 0;			// start channel
+	packet_in[idx++] = 10;			// number of channels in packet
 
 	// convert & pack channels
 	for (uint8_t i = 0; i < packet_in[3]; i++) {
@@ -104,7 +104,8 @@ uint16_t initBayang_Rx()
 	Bayang_Rx_init_nrf24l01();
 	hopping_frequency_no = 0;
 	rx_data_started = false;
-
+	rx_data_received = false;
+	
 	if (IS_BIND_IN_PROGRESS) {
 		phase = BAYANG_RX_BIND;
 	}
@@ -160,7 +161,8 @@ uint16_t Bayang_Rx_callback()
 					telemetry_link = 1;
 				}
 				rx_data_started = true;
-				read_retry = 4;
+				rx_data_received = true;
+				read_retry = 8;
 				pps_counter++;
 			}
 		}
@@ -168,12 +170,11 @@ uint16_t Bayang_Rx_callback()
 		if (millis() - pps_timer >= 1000) {
 			pps_timer = millis();
 			debugln("%d pps", pps_counter);
-			RX_LQI = pps_counter / 2;
+			RX_LQI = pps_counter >> 1;
 			pps_counter = 0;
 		}
-
 		// frequency hopping
-		if (read_retry++ >= 4) {
+		if (read_retry++ >= 8) {
 			hopping_frequency_no++;
 			if (hopping_frequency_no >= BAYANG_RX_RF_NUM_CHANNELS)
 				hopping_frequency_no = 0;
@@ -181,7 +182,20 @@ uint16_t Bayang_Rx_callback()
 			NRF24L01_FlushRx();
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 			if (rx_data_started)
-				read_retry = 0;
+			{
+				if(rx_data_received)
+				{ // In sync
+					rx_data_received = false;
+					read_retry = 5;
+					return 1500;
+				}
+				else
+				{ // packet lost
+					read_retry = 0;
+					if(RX_LQI==0)	// communication lost
+						rx_data_started=false;
+				}
+			}
 			else
 				read_retry = -16; // retry longer until first packet is caught
 		}

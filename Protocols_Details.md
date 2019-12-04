@@ -22,8 +22,7 @@ Here are detailed descriptions of every supported protocols (sorted by RF module
       - Bind channel is going from -100% to +100%
 
 * Additional notes:
-  - It's recommended to combine Throttle cut with another button to drive the bind channel. This will prevent to launch a bind while flying...
-  - Bind channel does not have to be assigned to a free channel. Since it only acts when Throttle is Low (and throttle cut active), it could be used on the same channel as Flip for example since you are not going to flip your model when Throttle is low... Same goes for RTH and such other features.
+  - **It's recommended to combine the bind switch with Throttle cut or throttle at -100% to drive the bind channel. This will prevent to launch a bind while flying** and enable you to use the bind switch for something else.
   - Using channel 16 for the bind channel seems the most relevant as only one protocol so far is using 16 channels which is FrSkyX. But even on FrSkyX this feature won't have any impact since there is NO valid reason to have Autobind set to Y for such a protocol.
 
 ## Protocol selection in PPM mode

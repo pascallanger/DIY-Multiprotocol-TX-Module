@@ -568,9 +568,9 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|TH_KILL
 
 Notes:
  - model/type/number of channels indicated on the RX can be different from what the RX is in fact wanting to see. So don't hesitate to test different combinations until you have something working. Using Auto is the best way to find these settings.
- - RX output will match the Spektrum standard TAER independently of the input configuration AETR, RETA...
+ - RX output will match the Spektrum standard TAER independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
  - RX output will match the Spektrum standard throw (1500µs +/- 400µs -> 1100..1900µs) for a 100% input. This is true for both Serial and PPM input. For PPM, make sure the end points PPM_MIN_100 and PPM_MAX_100 in _config.h are matching your TX ouput. The maximum ouput is 1000..2000µs based on an input of 125%.
-    - If you want to override the above and get maximum throw (old way) uncomment in _config.h the line #define DSM_MAX_THROW . In this mode to achieve standard throw use a channel weight of 84%.
+    - If you want to override the above and get maximum throw either uncomment in _config.h the line #define DSM_MAX_THROW or on OpenTX 2.3.3+ use the "Enable max throw" feature on the GUI (0=No,1=Yes). In this mode to achieve standard throw use a channel weight of 84%.
  - TH_KILL is a feature which is enabled on channel 14 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 14 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
 
 ### Sub_protocol DSM2_22 - *0*

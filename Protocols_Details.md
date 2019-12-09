@@ -307,7 +307,7 @@ Models: FrSky receivers D4R and D8R. DIY RX-F801 and RX-F802 receivers. Also kno
 
 Extended limits supported
 
-Telemetry enabled for A0, A1, RSSI, TSSI and Hub
+Telemetry enabled for A0, A1, RSSI, TX_RSSI, TX_LQI and Hub. Lowest the TX_LQI value is best the quality link is, it's a good indicator of how well the module is tuned.
 
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
@@ -321,7 +321,7 @@ Models: FrSky receivers X4R, X6R and X8R. Also known as D16.
 
 Extended limits and failsafe supported
 
-Telemetry enabled for A1 (RxBatt), A2, RSSI, TSSI and Hub
+Telemetry enabled for A1 (RxBatt), A2, RSSI, TX_RSSI, TX_LQI and Hub. Lowest the TX_LQI value is best the quality link is, it's a good indicator of how well the module is tuned.
 
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
@@ -397,14 +397,14 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ### Sub_protocol OPT_FW - *0*
 OPTIMA RXs
 
-Full telemetry available on OpenTX 2.3.3+, still in progress for erskyTx.
+Full telemetry available on OpenTX 2.3.3+, still in progress for erskyTx. Lowest the TX_LQI value is best the quality link is, it's a good indicator of how well the module is tuned.
 
 **The TX must be close to the RX for the bind negotiation to complete successfully**
 
 ### Sub_protocol OPT_HUB - *1*
 OPTIMA RXs
 
-Basic telemetry using FrSky Hub on er9x, erskyTX, OpenTX and any radio with FrSky telemetry support with RX voltage, VOLT2 voltage, TX RSSI and TX LQI. 
+Basic telemetry using FrSky Hub on er9x, erskyTX, OpenTX and any radio with FrSky telemetry support with RX voltage, VOLT2 voltage, TX_RSSI and TX_LQI. Lowest the TX_LQI value is best the quality link is, it's a good indicator of how well the module is tuned.
 
 **The TX must be close to the RX for the bind negotiation to complete successfully**
 
@@ -429,7 +429,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
-Basic telemetry is available on OpenTX 2.3.3+ with RX voltage, Rx temperature, RX RSSI, RX LQI, TX RSSI and TX LQI.
+Basic telemetry is available on OpenTX 2.3.3+ with RX voltage, Rx temperature, RX RSSI, RX LQI, TX RSSI and TX LQI. Lowest the TX_LQI value is best the quality link is, it's a good indicator of how well the module is tuned.
 
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.

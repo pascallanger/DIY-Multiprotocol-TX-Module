@@ -108,6 +108,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None|
+[Pelikan](Protocols_Details.md#Pelikan---60)|60|||||||||A7105|
 [Potensic](Protocols_Details.md#Potensic---51)|51|A20||||||||NRF24L01|XN297
 [Q2X2](Protocols_Details.md#Q2X2---29)|29|Q222|Q242|Q282||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
@@ -254,6 +255,19 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
 
 ANGLE: angle is +100%, acro is -100%
+
+## Pelikan - *60*
+Models: TX: CADET PRO V4, RX: RX-602 V4
+
+Extended limits supported
+
+**Only 1 ID for now**
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+Note that the RX ouput will be AETR.
 
 ***
 # CC2500 RF Module

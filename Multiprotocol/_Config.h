@@ -163,6 +163,7 @@
 #define	FLYSKY_A7105_INO
 #define	FLYZONE_A7105_INO
 #define	HUBSAN_A7105_INO
+#define PELIKAN_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO
@@ -623,6 +624,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		LS
 		FY805
 	PROTO_NCC1701
+		NONE
+	PROTO_PELIKAN
 		NONE
 	PROTO_POTENSIC
 		NONE

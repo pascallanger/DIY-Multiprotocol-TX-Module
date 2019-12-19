@@ -1058,6 +1058,13 @@ static void protocol_init()
 						remote_callback = AFHDS2A_Rx_callback;
 						break;
 				#endif
+				#if defined(PELIKAN_A7105_INO)
+					case PROTO_PELIKAN:
+						PE1_off;	//antenna RF1
+						next_callback = initPelikan();
+						remote_callback = ReadPelikan;
+						break;
+				#endif
 			#endif
 			#ifdef CC2500_INSTALLED
 				#if defined(FRSKYD_CC2500_INO)

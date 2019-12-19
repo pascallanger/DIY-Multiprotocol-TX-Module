@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	49
+#define VERSION_PATCH_LEVEL	50
 
 //******************
 // Protocols
@@ -87,6 +87,7 @@ enum PROTOCOLS
 	PROTO_FX816		= 58,	// =>NRF24L01
 	PROTO_BAYANG_RX	= 59,	// =>NRF24L01
 	PROTO_PELIKAN	= 60,	// =>A7105
+	PROTO_TIGER		= 61,	// =>NRF24L01
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -696,6 +697,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				FX816		58
 				BAYANG_RX	59
 				PELIKAN		60
+				TIGER		61
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

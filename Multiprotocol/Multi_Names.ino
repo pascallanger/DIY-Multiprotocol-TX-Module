@@ -74,6 +74,7 @@ const char STR_HOTT[]		="HoTT";
 const char STR_FX816[]		="FX816";
 const char STR_BAYANG_RX[]	="BayanRX";
 const char STR_PELIKAN[]	="Pelikan";
+const char STR_TIGER[]		="Tiger";
 const char STR_XN297DUMP[]	="XN297DP";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
@@ -305,8 +306,11 @@ const mm_protocol_definition multi_protocols[] = {
 #if defined(BAYANG_RX_NRF24L01_INO)
 	{PROTO_BAYANG_RX,  STR_BAYANG_RX, 0, NO_SUBTYPE,            OPTION_NONE    },	
 #endif
-#if defined(BAYANG_RX_NRF24L01_INO)
+#if defined(PELIKAN_A7105_INO)
 	{PROTO_PELIKAN,    STR_PELIKAN  , 0, NO_SUBTYPE,            OPTION_NONE    },	
+#endif
+#if defined(TIGER_NRF24L01_INO)
+	{PROTO_TIGER,      STR_TIGER    , 0, NO_SUBTYPE,            OPTION_NONE    },	
 #endif
 #if defined(XN297DUMP_NRF24L01_INO)
 	{PROTO_XN297DUMP,  STR_XN297DUMP, 3, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },

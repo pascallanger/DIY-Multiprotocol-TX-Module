@@ -1435,6 +1435,12 @@ static void protocol_init()
 						remote_callback = Bayang_Rx_callback;
 						break;
 				#endif
+				#if defined(TIGER_NRF24L01_INO)
+					case PROTO_TIGER:
+						next_callback=initTIGER();
+						remote_callback = TIGER_callback;
+						break;
+				#endif
 				#if defined(XN297DUMP_NRF24L01_INO)
 					case PROTO_XN297DUMP:
 						next_callback=initXN297Dump();

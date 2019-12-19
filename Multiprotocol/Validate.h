@@ -241,6 +241,7 @@
 	#undef	POTENSIC_NRF24L01_INO
 	#undef	ZSX_NRF24L01_INO
 	#undef	BAYANG_RX_NRF24L01_INO
+	#undef	TIGER_NRF24L01_INO
 #endif
 
 //Make sure telemetry is selected correctly

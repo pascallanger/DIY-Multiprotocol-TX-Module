@@ -118,6 +118,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
+[Tiger](Protocols_Details.md#Tiger---61)|61|Tiger||||||||NRF24L01|XN297
 [Traxxas](Protocols_Details.md#Traxxas---43)|43|RX6519||||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|||||||NRF24L01|
 [V761](Protocols_Details.md#V761---48)|48|V761||||||||NRF24L01|XN297
@@ -1277,6 +1278,13 @@ Model: JXD 506
 CH10|CH11|CH12
 ---|---|---
 Start/Stop|EMERGENCY|CAMERA_UP/DN
+
+## Tiger - *61*
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|FLIP|LIGHT
 
 ## V761 - *48*
 Model: Volantex V761 and may be other

@@ -58,4 +58,5 @@
 58,FX816,P38
 59,Bayang_RX
 60,Pelikan
+61,Tiger
 63,XN_DUMP,250K,1M,2M,AUTO

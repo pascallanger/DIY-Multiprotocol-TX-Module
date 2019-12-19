@@ -1709,6 +1709,12 @@ void update_serial_data()
 	#endif
 	if(rx_len>27)
 	{ // Data available for the current protocol
+		#ifdef FRSKYX_CC2500_INO
+			if(protocol==PROTO_FRSKYX && rx_len==28)
+			{//Protocol waiting for 1 byte during bind
+				binding_idx=rx_ok_buff[27];
+			}
+		#endif
 		#ifdef SPORT_SEND
 			if(protocol==PROTO_FRSKYX && rx_len==35)
 			{//Protocol waiting for 8 bytes

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	47
+#define VERSION_PATCH_LEVEL	48
 
 //******************
 // Protocols
@@ -297,6 +297,13 @@ enum ESKY150
 {
 	ESKY150_4CH	= 0,
 	ESKY150_7CH	= 1,
+};
+enum XN297DUMP
+{
+	XN297DUMP_250K	= 0,
+	XN297DUMP_1M	= 1,
+	XN297DUMP_2M	= 2,
+	XN297DUMP_AUTO	= 3,
 };
 
 #define NONE 		0

@@ -85,6 +85,11 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 	//
 	uint8_t limit = (sub_protocol & 2 ) ? 31 : 28 ;
 	memset(&packet[13], 0, limit - 13);
+	if(binding_idx&0x01)
+		memcpy(&packet[13],(void *)"\x55\xAA\x5A\xA5",4);	// Telem off
+	if(binding_idx&0x02)
+		memcpy(&packet[17],(void *)"\x55\xAA\x5A\xA5",4);	// CH9-16
+	//
 	uint16_t lcrc = FrSkyX_crc(&packet[3], limit-3);
 	//
 	packet[limit++] = lcrc >> 8;
@@ -431,6 +436,7 @@ uint16_t initFrSkyX()
 		SportHead=SportTail=0;				// empty data buffer
 	#endif
 	FrSkyX_RX_Seq = 0 ;						// Seq 0 to start with
+	binding_idx=0;							// CH1-8 and Telem on
 	return 10000;
 }	
 #endif

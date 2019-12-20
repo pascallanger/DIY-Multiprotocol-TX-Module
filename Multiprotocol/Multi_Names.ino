@@ -313,7 +313,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_TIGER,      STR_TIGER    , 0, NO_SUBTYPE,            OPTION_NONE    },	
 #endif
 #if defined(XN297DUMP_NRF24L01_INO)
-	{PROTO_XN297DUMP,  STR_XN297DUMP, 3, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },
+	{PROTO_XN297DUMP,  STR_XN297DUMP, 4, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },
 #endif
 	{0x00,             nullptr,       0, nullptr,               0 }
 };

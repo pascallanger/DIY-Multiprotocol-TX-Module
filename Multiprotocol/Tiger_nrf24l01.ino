@@ -31,15 +31,18 @@ Multiprotocol is distributed in the hope that it will be useful,
 static uint8_t __attribute__((unused)) TIGER_convert_channel(uint8_t num)
 {
 	uint8_t val=convert_channel_8b(num);
-	// 00=center, 01..7F=left, 80..FF=right
-	if(val==80)
-		val=0;		
+	// 7F..01=left, 00=center, 80..FF=right
+	if(val==0x80)
+		val=0;				// 0
 	else
-		if(val>80)
-			val--;
+		if(val>0x80)
+			val--;			// 80..FE
 		else
-			if(val==0)
-				val++;
+		{
+			val=0x80-val;	// 80..01
+			if(val==0x80)
+				val--;		// 7F..01
+		}
 	return val;
 }
 
@@ -49,9 +52,9 @@ static void __attribute__((unused)) TIGER_send_packet()
 	{
 		//Channels
 		packet[0]=convert_channel_8b(THROTTLE);		// 00..FF
-		packet[1]=TIGER_convert_channel(RUDDER);	// 00=center, 01..7F=left, 80..FF=right
-		packet[2]=TIGER_convert_channel(ELEVATOR);	// 00=center, 01..7F=down, 80..FF=up
-		packet[3]=TIGER_convert_channel(AILERON);	// 00=center, 01..7F=left, 80..FF=right
+		packet[1]=TIGER_convert_channel(RUDDER);	// 7F..01=left, 00=center, 80..FF=right
+		packet[2]=TIGER_convert_channel(ELEVATOR);	// 7F..01=down, 00=center, 80..FF=up
+		packet[3]=TIGER_convert_channel(AILERON);	// 7F..01=left, 00=center, 80..FF=right
 		//Flags
 		packet[14]= GET_FLAG(CH5_SW, 0x04)			//FLIP
 				  | GET_FLAG(CH6_SW, 0x10);			//LIGHT

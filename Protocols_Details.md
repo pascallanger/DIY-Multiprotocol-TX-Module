@@ -1282,6 +1282,8 @@ Start/Stop|EMERGENCY|CAMERA_UP/DN
 ## Tiger - *61*
 Autobind protocol
 
+**Only 1 ID**
+
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|FLIP|LIGHT

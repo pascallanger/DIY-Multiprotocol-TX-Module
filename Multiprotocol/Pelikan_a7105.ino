@@ -72,7 +72,6 @@ static void __attribute__((unused)) pelikan_build_packet()
 		packet[9]=upper?0xAA:0x00;
 		upper=!upper;
 		//Hopping counters
-		packet[11]=packet_count;
 		if(++packet_count>4)
 		{
 			packet_count=0;
@@ -80,6 +79,7 @@ static void __attribute__((unused)) pelikan_build_packet()
 				hopping_frequency_no=0;
 		}
 		packet[10]=hopping_frequency_no;
+		packet[11]=packet_count;
 
 		packet_length = 15;
 	}
@@ -91,6 +91,15 @@ static void __attribute__((unused)) pelikan_build_packet()
 	packet[packet_length-1]=crc8;
 
 	//Send
+	#ifdef DEBUG_SERIAL
+		if(packet[9]==0x00)
+		{
+			debug("C: %02X P(%d):",IS_BIND_IN_PROGRESS?PELIKAN_BIND_RF:hopping_frequency[hopping_frequency_no],packet_length);
+			for(uint8_t i=0;i<packet_length;i++)
+				debug(" %02X",packet[i]);
+			debugln("");
+		}
+	#endif
 	A7105_WriteData(packet_length, IS_BIND_IN_PROGRESS?PELIKAN_BIND_RF:hopping_frequency[hopping_frequency_no]);
 	A7105_SetPower();
 }
@@ -139,8 +148,8 @@ uint16_t initPelikan()
 	for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
 		hopping_frequency[i]=pgm_read_byte_near(&pelikan_hopp[0][i]);
 
-	hopping_frequency_no=0;
-	packet_count=0;
+	hopping_frequency_no=PELIKAN_NUM_RF_CHAN;
+	packet_count=5;
 	return 2400;
 }
 #endif

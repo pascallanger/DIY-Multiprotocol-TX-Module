@@ -179,7 +179,7 @@ volatile uint8_t rx_idx=0, rx_len=0;
 
 
 // Telemetry
-#define TELEMETRY_BUFFER_SIZE 30
+#define TELEMETRY_BUFFER_SIZE 32
 uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 #if defined(TELEMETRY)
 	#ifdef MULTI_SYNC

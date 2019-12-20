@@ -130,6 +130,11 @@
 		#error "The Flyzone forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
+#ifdef FORCE_PELIKAN_TUNING
+	#if ( FORCE_PELIKAN_TUNING < -300 ) || ( FORCE_PELIKAN_TUNING > 300 )
+		#error "The Pelikan forced frequency tuning value is outside of the range -300..300."
+	#endif
+#endif
 #ifdef FORCE_HUBSAN_TUNING
 	#if ( FORCE_HUBSAN_TUNING < -300 ) || ( FORCE_HUBSAN_TUNING > 300 )
 		#error "The Hubsan forced frequency tuning value is outside of the range -300..300."
@@ -145,6 +150,9 @@
 	#endif
 	#ifndef FORCE_FLYZONE_TUNING
 		#define FORCE_FLYZONE_TUNING 0
+	#endif
+	#ifndef FORCE_PELIKAN_TUNING
+		#define FORCE_PELIKAN_TUNING 0
 	#endif
 	#ifndef FORCE_HUBSAN_TUNING
 		#define FORCE_HUBSAN_TUNING 0

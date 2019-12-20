@@ -113,6 +113,7 @@
 //#define FORCE_BUGS_TUNING		0
 //#define FORCE_FLYSKY_TUNING	0
 //#define FORCE_FLYZONE_TUNING	0
+//#define FORCE_PELIKAN_TUNING	0
 //#define FORCE_HUBSAN_TUNING	0
 
 /** CYRF6936 Fine Frequency Tuning **/

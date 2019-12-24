@@ -488,6 +488,26 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 //  - 0x40010000 will give to the protocol the channels in the order 4,2,3,1,5,6,7,8 swapping channel 1 and 4. Note: 0 means leave the channel where it is.
 //  - 0x0000ABCD will give to the protocol the channels in the order 1,2,3,4,10,11,12,13 which potentially enables acces to channels not available on your TX. Note A=10,B=11,C=12,D=13,E=14,F=15.
 
+
+/**********************************/
+/*** DIRECT INPUTS SETTINGS ***/
+/**********************************/
+//In this section you can configure the direct inputs.
+//It enables switches wired directly to the board
+//Current mappings are: AUX1-PB10, AUX2-PB11, AUX3-PA2, AUX4-PA3
+//Direct inputs works only in ppm mode and only for stm_32 boards
+#if defined(ENABLE_PPM) && defined (STM32_BOARD) && not defined (ENABLE_SERIAL)
+
+//If plan to use direct input mode please uncomment lines below
+//#define ENABLE_DIRECT_INPUTS
+//
+//Direct inputs start channel
+//Uncomment and change from what channel direct inputs starts
+//#define DIRECT_INPUTS_START 7
+//
+
+#endif
+#endif
 /* Available protocols and associated sub protocols to pick and choose from (Listed in alphabetical order)
 	PROTO_AFHDS2A
 		PWM_IBUS

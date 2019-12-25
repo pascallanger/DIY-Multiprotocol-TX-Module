@@ -23,7 +23,7 @@
 //If you know parameters you want for sure to be enabled or disabled which survives in future, you can use a file named "_MyConfig.h".
 //An example is given within the file named "_MyConfig.h.example" which needs to be renamed if you want to use it.
 //To enable this config file remove the // from the line below.
-//#define USE_MY_CONFIG
+#define USE_MY_CONFIG
 
 
 /*************************/
@@ -498,15 +498,31 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 //Direct inputs works only in ppm mode and only for stm_32 boards
 #if defined(ENABLE_PPM) && defined (STM32_BOARD) && not defined (ENABLE_SERIAL)
 
-//If plan to use direct input mode please uncomment lines below
-//#define ENABLE_DIRECT_INPUTS
-//
-//Direct inputs start channel
-//Uncomment and change from what channel direct inputs starts
-//#define DIRECT_INPUTS_START 7
-//
+	//If plan to use direct input mode please uncomment lines below
+	#define ENABLE_DIRECT_INPUTS
+	//
+	
+	#define DI1_PIN				PC13
+	#define DI1_SET_INPUT 		pinMode(DI1_PIN,INPUT)
+	#define DI1_SET_PULLUP 		digitalWrite(DI1_PIN,HIGH)
+	#define IS_DI1_on			(digitalRead(DI1_PIN)==LOW)
 
-#endif
+	#define DI2_PIN				PC14
+	#define DI2_SET_INPUT 		pinMode(DI2_PIN,INPUT)
+	#define DI2_SET_PULLUP 		digitalWrite(DI2_PIN,HIGH)
+	#define IS_DI2_on			(digitalRead(DI2_PIN)==LOW)
+
+	#define DI3_PIN				PC15
+	#define DI3_SET_INPUT 		pinMode(DI3_PIN,INPUT)
+	#define DI3_SET_PULLUP 		digitalWrite(DI3_PIN,HIGH)
+	#define IS_DI3_on			(digitalRead(DI3_PIN)==LOW)
+
+	//CHANNEL1 - 2pos switch
+	#define DI_CH1_read			IS_DI1_on ? PPM_MAX_100*2 : PPM_MIN_100*2
+
+	//CHANNEL2 - 3pos switch
+	#define DI_CH2_read			IS_DI2_on ? PPM_MAX_100*2 : (IS_DI2_on ? PPM_MAX_100 + PPM_MIN_100 : PPM_MIN_100*2)
+
 #endif
 /* Available protocols and associated sub protocols to pick and choose from (Listed in alphabetical order)
 	PROTO_AFHDS2A

@@ -667,7 +667,22 @@ bool Update_All()
 		{
 			uint32_t chan_or=chan_order;
 			uint8_t ch;
-			for(uint8_t i=0;i<PPM_chan_max;i++)
+			uint8_t channels_count = PPM_chan_max;
+			#ifdef ENABLE_DIRECT_INPUTS
+				#ifdef DI_CH1_read
+					PPM_data[channels_count++] = DI_CH1_read
+				#endif
+				#ifdef DI_CH2_read
+					PPM_data[channels_count++] = DI_CH2_read
+				#endif
+				#ifdef DI_CH3_read
+					PPM_data[channels_count++] = DI_CH3_read
+				#endif
+				#ifdef DI_CH4_read
+					PPM_data[channels_count++] = DI_CH4_read
+				#endif
+			#endif
+			for(uint8_t i=0;i<channels_count;i++)
 			{ // update servo data without interrupts to prevent bad read
 				uint16_t val;
 				cli();										// disable global int

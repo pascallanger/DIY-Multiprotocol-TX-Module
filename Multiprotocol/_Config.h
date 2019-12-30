@@ -494,36 +494,27 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 /**********************************/
 //In this section you can configure the direct inputs.
 //It enables switches wired directly to the board
-//Current mappings are: AUX1-PB10, AUX2-PB11, AUX3-PA2, AUX4-PA3
 //Direct inputs works only in ppm mode and only for stm_32 boards
-#if defined(ENABLE_PPM) && defined (STM32_BOARD) && not defined (ENABLE_SERIAL)
+//Uncomment following lines to enable derect inputs or define your own configuration in _MyConfig.h
+/*
+#define ENABLE_DIRECT_INPUTS
+		
+#define DI1_PIN				PC13	
+#define IS_DI1_on			(digitalRead(DI1_PIN)==LOW)
 
-	//If plan to use direct input mode please uncomment lines below
-	#define ENABLE_DIRECT_INPUTS
-	//
-	
-	#define DI1_PIN				PC13
-	#define DI1_SET_INPUT 		pinMode(DI1_PIN,INPUT)
-	#define DI1_SET_PULLUP 		digitalWrite(DI1_PIN,HIGH)
-	#define IS_DI1_on			(digitalRead(DI1_PIN)==LOW)
+#define DI2_PIN				PC14	
+#define IS_DI2_on			(digitalRead(DI2_PIN)==LOW)
 
-	#define DI2_PIN				PC14
-	#define DI2_SET_INPUT 		pinMode(DI2_PIN,INPUT)
-	#define DI2_SET_PULLUP 		digitalWrite(DI2_PIN,HIGH)
-	#define IS_DI2_on			(digitalRead(DI2_PIN)==LOW)
+#define DI3_PIN				PC15	
+#define IS_DI3_on			(digitalRead(DI3_PIN)==LOW)
 
-	#define DI3_PIN				PC15
-	#define DI3_SET_INPUT 		pinMode(DI3_PIN,INPUT)
-	#define DI3_SET_PULLUP 		digitalWrite(DI3_PIN,HIGH)
-	#define IS_DI3_on			(digitalRead(DI3_PIN)==LOW)
+//Define up to 4 direct input channels
+//CHANNEL1 - 2pos switch
+#define DI_CH1_read			IS_DI1_on ? PPM_MAX_100*2 : PPM_MIN_100*2
+//CHANNEL2 - 3pos switch
+#define DI_CH2_read			IS_DI2_on ? PPM_MAX_100*2 : (IS_DI2_on ? PPM_MAX_100 + PPM_MIN_100 : PPM_MIN_100*2)
+*/
 
-	//CHANNEL1 - 2pos switch
-	#define DI_CH1_read			IS_DI1_on ? PPM_MAX_100*2 : PPM_MIN_100*2
-
-	//CHANNEL2 - 3pos switch
-	#define DI_CH2_read			IS_DI2_on ? PPM_MAX_100*2 : (IS_DI2_on ? PPM_MAX_100 + PPM_MIN_100 : PPM_MIN_100*2)
-
-#endif
 /* Available protocols and associated sub protocols to pick and choose from (Listed in alphabetical order)
 	PROTO_AFHDS2A
 		PWM_IBUS

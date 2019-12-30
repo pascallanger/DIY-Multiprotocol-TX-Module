@@ -331,6 +331,21 @@ void setup()
 		pinMode(S2_pin,INPUT_PULLUP);
 		pinMode(S3_pin,INPUT_PULLUP);
 		pinMode(S4_pin,INPUT_PULLUP);
+
+		#if defined ENABLE_DIRECT_INPUTS
+			#if defined (DI1_PIN)
+				pinMode(DI1_PIN,INPUT_PULLUP);
+			#endif
+			#if defined (DI2_PIN)
+				pinMode(DI2_PIN,INPUT_PULLUP);
+			#endif
+			#if defined (DI3_PIN)
+				pinMode(DI3_PIN,INPUT_PULLUP);
+			#endif
+			#if defined (DI4_PIN)
+				pinMode(DI4_PIN,INPUT_PULLUP);
+			#endif
+		#endif
 		//Random pins
 		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
 
@@ -666,23 +681,29 @@ bool Update_All()
 		if(mode_select!=MODE_SERIAL && IS_PPM_FLAG_on)		// PPM mode and a full frame has been received
 		{
 			uint32_t chan_or=chan_order;
-			uint8_t ch;
-			uint8_t channels_count = PPM_chan_max;
-			#ifdef ENABLE_DIRECT_INPUTS
+			uint8_t ch;		
+			uint8_t channelsCount = PPM_chan_max;
+			
+			#ifdef ENABLE_DIRECT_INPUTS				
 				#ifdef DI_CH1_read
-					PPM_data[channels_count++] = DI_CH1_read
+					PPM_data[channelsCount] = DI_CH1_read;
+					channelsCount++;
 				#endif
 				#ifdef DI_CH2_read
-					PPM_data[channels_count++] = DI_CH2_read
+					PPM_data[channelsCount] = DI_CH2_read;
+					channelsCount++;
 				#endif
 				#ifdef DI_CH3_read
-					PPM_data[channels_count++] = DI_CH3_read
+					PPM_data[channelsCount] = DI_CH3_read;
+					channelsCount++;
 				#endif
 				#ifdef DI_CH4_read
-					PPM_data[channels_count++] = DI_CH4_read
-				#endif
+					PPM_data[channelsCount] = DI_CH4_read;
+					channelsCount++;
+				#endif 
 			#endif
-			for(uint8_t i=0;i<channels_count;i++)
+			
+			for(uint8_t i=0;i<channelsCount;i++)
 			{ // update servo data without interrupts to prevent bad read
 				uint16_t val;
 				cli();										// disable global int
@@ -703,6 +724,7 @@ bool Update_All()
 				else
 					Channel_data[i]=val;
 			}
+       
 			PPM_FLAG_off;									// wait for next frame before update
 			#ifdef FAILSAFE_ENABLE
 				PPM_failsafe();

@@ -414,3 +414,18 @@
 #if defined (STM32_BOARD) && defined (DEBUG_SERIAL) && defined (NRF24L01_INSTALLED)
 	#define XN297DUMP_NRF24L01_INO
 #endif
+
+//Check if Direct inputs defined correctly
+#if defined (ENABLE_DIRECT_INPUTS) 
+	#if not defined (STM32_BOARD) || not defined (ENABLE_PPM) || defined (ENABLE_SERIAL)
+		#error You can enable dirct inputs only in PPM mode and only for STM32 board.
+	#endif
+
+	#if not defined (DI1_PIN) && not defined (DI2_PIN) && not defined (DI3_PIN) && not defined (DI4_PIN)
+		#error You must define at least 1 direct input pin or undefine ENABLE_DIRECT_INPUTS in config.
+	#endif
+	
+	#if not defined (DI_CH1_read) && not defined (DI_CH2_read) && not defined (DI_CH3_read) && not defined (DI_CH4_read)
+		#error You must define at least 1 direct input chanell read macros or undefine ENABLE_DIRECT_INPUTS in config.
+	#endif
+#endif

@@ -23,7 +23,7 @@
 //If you know parameters you want for sure to be enabled or disabled which survives in future, you can use a file named "_MyConfig.h".
 //An example is given within the file named "_MyConfig.h.example" which needs to be renamed if you want to use it.
 //To enable this config file remove the // from the line below.
-#define USE_MY_CONFIG
+//#define USE_MY_CONFIG
 
 
 /*************************/

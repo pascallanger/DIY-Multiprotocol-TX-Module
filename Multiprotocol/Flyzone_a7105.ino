@@ -32,7 +32,7 @@ static void __attribute__((unused)) flyzone_build_packet()
 	packet[4] = convert_channel_8b(ELEVATOR);	//00..80..FF
 	packet[5] = convert_channel_8b(THROTTLE);	//00..FF
 	packet[6] = convert_channel_8b(RUDDER);		//00..80..FF
-    packet[7] = 0xFF;
+    packet[7] = convert_channel_8b(CH5);		//00..80..FF
 }
 
 uint16_t ReadFlyzone()

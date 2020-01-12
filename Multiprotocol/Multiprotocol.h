@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	52
+#define VERSION_PATCH_LEVEL	53
 
 //******************
 // Protocols
@@ -300,6 +300,11 @@ enum ESKY150
 	ESKY150_4CH	= 0,
 	ESKY150_7CH	= 1,
 };
+enum V911S
+{
+	V911S_STD	= 0,
+	V911S_E119	= 1,
+};
 enum XN297DUMP
 {
 	XN297DUMP_250K	= 0,
@@ -351,7 +356,7 @@ enum MultiPacketTypes
 //***  Tests  ***
 //***************
 #define IS_FAILSAFE_PROTOCOL	( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_HOTT || protocol==PROTO_FRSKYX )
-#define IS_CHMAP_PROTOCOL		( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_DSM || protocol==PROTO_SLT || protocol==PROTO_FLYSKY || protocol==PROTO_ESKY || protocol==PROTO_J6PRO )
+#define IS_CHMAP_PROTOCOL		( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_DSM || protocol==PROTO_SLT || protocol==PROTO_FLYSKY || protocol==PROTO_ESKY || protocol==PROTO_J6PRO || protocol==PROTO_PELIKAN )
 
 //***************
 //***  Flags  ***
@@ -842,6 +847,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==ESKY150
 			ESKY150_4CH	0
 			ESKY150_7CH	1
+		sub_protocol==V911S
+			V911S_STD	0
+			V911S_E119	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

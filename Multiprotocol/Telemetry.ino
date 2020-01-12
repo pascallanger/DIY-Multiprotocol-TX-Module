@@ -125,11 +125,11 @@ static void multi_send_status()
 		multi_send_header(MULTI_TELEMETRY_STATUS, 24);
 	else
 	#endif
-		#ifdef MULTI_TELEMETRY
+	#ifdef MULTI_TELEMETRY
 		multi_send_header(MULTI_TELEMETRY_STATUS, 6);
-		#else
-		multi_send_header(MULTI_TELEMETRY_STATUS, 5);
-		#endif
+	#else
+		multi_send_header(MULTI_TELEMETRY_STATUS, 6);
+	#endif
 
 	// Build flags
 	uint8_t flags=0;
@@ -170,9 +170,9 @@ static void multi_send_status()
 	Serial_write(VERSION_REVISION);
 	Serial_write(VERSION_PATCH_LEVEL);
 
-	// Channel order
 	#ifdef MULTI_TELEMETRY
-	Serial_write(RUDDER<<6|THROTTLE<<4|ELEVATOR<<2|AILERON);
+		// Channel order
+		Serial_write(RUDDER<<6|THROTTLE<<4|ELEVATOR<<2|AILERON);
 	#endif
 	
 	#ifdef MULTI_NAMES

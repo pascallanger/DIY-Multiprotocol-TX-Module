@@ -331,7 +331,7 @@ void setup()
 		pinMode(S2_pin,INPUT_PULLUP);
 		pinMode(S3_pin,INPUT_PULLUP);
 		pinMode(S4_pin,INPUT_PULLUP);
-
+		
 		#if defined ENABLE_DIRECT_INPUTS
 			#if defined (DI1_PIN)
 				pinMode(DI1_PIN,INPUT_PULLUP);
@@ -346,6 +346,7 @@ void setup()
 				pinMode(DI4_PIN,INPUT_PULLUP);
 			#endif
 		#endif
+		
 		//Random pins
 		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
 
@@ -724,7 +725,6 @@ bool Update_All()
 				else
 					Channel_data[i]=val;
 			}
-       
 			PPM_FLAG_off;									// wait for next frame before update
 			#ifdef FAILSAFE_ENABLE
 				PPM_failsafe();

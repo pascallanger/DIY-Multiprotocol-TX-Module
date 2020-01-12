@@ -207,7 +207,6 @@
 	#undef	CORONA_CC2500_INO
 	#undef	REDPINE_CC2500_INO
 	#undef	HITEC_CC2500_INO
-	#undef	XN297L_CC2500_EMU
 	#undef	SCANNER_CC2500_INO
 	#undef	FRSKY_RX_CC2500_INO
 	#undef	HOTT_CC2500_INO
@@ -245,7 +244,6 @@
 	#undef	E01X_NRF24L01_INO
 	#undef	V761_NRF24L01_INO
 	#undef	V911S_NRF24L01_INO
-	#undef	XN297L_CC2500_EMU
 	#undef	POTENSIC_NRF24L01_INO
 	#undef	ZSX_NRF24L01_INO
 	#undef	BAYANG_RX_NRF24L01_INO
@@ -357,9 +355,7 @@
 #if not defined(MULTI_TELEMETRY)
 	#undef MULTI_SYNC
 	#undef MULTI_NAMES
-#endif
-
-#if defined(MULTI_TELEMETRY)
+#else
 	#define MULTI_NAMES
 #endif
 

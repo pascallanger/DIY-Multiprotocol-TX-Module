@@ -14,11 +14,11 @@
  */
 // compatible with V911S
 
-#if defined(V911S_XN297L_INO)
+#if defined(V911S_NRF24L01_INO)
 
 #include "iface_xn297l.h"
 
-//#define V911S_ORIGINAL_ID
+#define V911S_ORIGINAL_ID
 
 #define V911S_PACKET_PERIOD			5000
 #define V911S_BIND_PACKET_PERIOD	3300
@@ -82,7 +82,10 @@ static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
 		hopping_frequency_no&=7;	// 8 RF channels
 	}
 
-	XN297L_WritePayload(packet, V911S_PACKET_SIZE);
+	if(sub_protocol==V911S_STD)
+		XN297L_WritePayload(packet, V911S_PACKET_SIZE);
+	else
+		XN297L_WriteEnhancedPayload(packet, V911S_PACKET_SIZE, bind);
 
 	XN297L_SetPower();				// Set tx_power
 	XN297L_SetFreqOffset();			// Set frequency offset
@@ -91,7 +94,10 @@ static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
 static void __attribute__((unused)) V911S_init()
 {
 	XN297L_Init();
-	XN297L_SetTXAddr((uint8_t *)"KNBND",5);			// Bind address
+	if(sub_protocol==V911S_STD)
+		XN297L_SetTXAddr((uint8_t *)"KNBND",5);			// V911S Bind address
+	else
+		XN297L_SetTXAddr((uint8_t *)"XPBND",5);			// E119 Bind address
 	XN297L_HoppingCalib(V911S_NUM_RF_CHANNELS);		// Calibrate all channels
 	XN297L_RFChannel(V911S_RF_BIND_CHANNEL);		// Set bind channel
 }
@@ -140,15 +146,30 @@ uint16_t initV911S(void)
 {
 	V911S_initialize_txid();
 	#ifdef V911S_ORIGINAL_ID
-		rx_tx_addr[0]=0xA5;
-		rx_tx_addr[1]=0xFF;
-		rx_tx_addr[2]=0x70;
-		rx_tx_addr[3]=0x8D;
-		rx_tx_addr[4]=0x76;
-		for(uint8_t i=0;i<V911S_NUM_RF_CHANNELS;i++)
-			hopping_frequency[i]=0x10+i*5;
-		hopping_frequency[0]++;
-		rf_ch_num=0;
+		if(sub_protocol==V911S_STD)
+		{//V911S
+			rx_tx_addr[0]=0xA5;
+			rx_tx_addr[1]=0xFF;
+			rx_tx_addr[2]=0x70;
+			rx_tx_addr[3]=0x8D;
+			rx_tx_addr[4]=0x76;
+			for(uint8_t i=0;i<V911S_NUM_RF_CHANNELS;i++)
+				hopping_frequency[i]=0x10+i*5;
+			hopping_frequency[0]++;
+			rf_ch_num=0;
+		}
+		else
+		{
+			//E119
+			rx_tx_addr[0]=0x30;
+			rx_tx_addr[1]=0xFF;
+			rx_tx_addr[2]=0xD1;
+			rx_tx_addr[3]=0x2C;
+			rx_tx_addr[4]=0x2A;
+			for(uint8_t i=0;i<V911S_NUM_RF_CHANNELS;i++)
+				hopping_frequency[i]=0x0E + i*5;
+			rf_ch_num=0;
+		}
 	#endif
 
 	V911S_init();

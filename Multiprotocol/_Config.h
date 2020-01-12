@@ -78,9 +78,6 @@
 #define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
 
-//If available use the CC2500 to emulate the XN297L @250Kbps instead of the NRF24L01. Comment to disable.
-#define XN297L_CC2500_EMU
-
 /** OrangeRX TX **/
 //If you compile for the OrangeRX TX module you need to select the correct board type.
 //By default the compilation is done for the GREEN board, to switch to a BLUE board uncomment the line below by removing the "//"
@@ -488,33 +485,6 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 //  - 0x40010000 will give to the protocol the channels in the order 4,2,3,1,5,6,7,8 swapping channel 1 and 4. Note: 0 means leave the channel where it is.
 //  - 0x0000ABCD will give to the protocol the channels in the order 1,2,3,4,10,11,12,13 which potentially enables acces to channels not available on your TX. Note A=10,B=11,C=12,D=13,E=14,F=15.
 
-
-/**********************************/
-/*** DIRECT INPUTS SETTINGS ***/
-/**********************************/
-//In this section you can configure the direct inputs.
-//It enables switches wired directly to the board
-//Direct inputs works only in ppm mode and only for stm_32 boards
-//Uncomment following lines to enable derect inputs or define your own configuration in _MyConfig.h
-/*
-#define ENABLE_DIRECT_INPUTS
-		
-#define DI1_PIN				PC13	
-#define IS_DI1_on			(digitalRead(DI1_PIN)==LOW)
-
-#define DI2_PIN				PC14	
-#define IS_DI2_on			(digitalRead(DI2_PIN)==LOW)
-
-#define DI3_PIN				PC15	
-#define IS_DI3_on			(digitalRead(DI3_PIN)==LOW)
-
-//Define up to 4 direct input channels
-//CHANNEL1 - 2pos switch
-#define DI_CH1_read			IS_DI1_on ? PPM_MAX_100*2 : PPM_MIN_100*2
-//CHANNEL2 - 3pos switch
-#define DI_CH2_read			IS_DI2_on ? PPM_MAX_100*2 : (IS_DI2_on ? PPM_MAX_100 + PPM_MIN_100 : PPM_MIN_100*2)
-*/
-
 /* Available protocols and associated sub protocols to pick and choose from (Listed in alphabetical order)
 	PROTO_AFHDS2A
 		PWM_IBUS
@@ -695,7 +665,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_V761
 		NONE
 	PROTO_V911S
-		NONE
+		V911S_STD
+		V911S_E119
 	PROTO_WFLY
 		NONE
 	PROTO_WK2x01
@@ -713,4 +684,30 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		NIHUI
 	PROTO_ZSX
 		NONE
+*/
+
+/**********************************/
+/*** DIRECT INPUTS SETTINGS ***/
+/**********************************/
+//In this section you can configure the direct inputs.
+//It enables switches wired directly to the board
+//Direct inputs works only in ppm mode and only for stm_32 boards
+//Uncomment following lines to enable derect inputs or define your own configuration in _MyConfig.h
+/*
+#define ENABLE_DIRECT_INPUTS
+		
+#define DI1_PIN				PC13	
+#define IS_DI1_on			(digitalRead(DI1_PIN)==LOW)
+
+#define DI2_PIN				PC14	
+#define IS_DI2_on			(digitalRead(DI2_PIN)==LOW)
+
+#define DI3_PIN				PC15	
+#define IS_DI3_on			(digitalRead(DI3_PIN)==LOW)
+
+//Define up to 4 direct input channels
+//CHANNEL1 - 2pos switch
+#define DI_CH1_read			IS_DI1_on ? PPM_MAX_100*2 : PPM_MIN_100*2
+//CHANNEL2 - 3pos switch
+#define DI_CH2_read			IS_DI2_on ? PPM_MAX_100*2 : (IS_DI2_on ? PPM_MAX_100 + PPM_MIN_100 : PPM_MIN_100*2)
 */

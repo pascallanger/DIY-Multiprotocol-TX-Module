@@ -18,7 +18,7 @@
 
 #include "iface_a7105.h"
 
-#define PELIKAN_FORCE_ID
+//#define PELIKAN_FORCE_ID
 
 #define PELIKAN_BIND_COUNT		400
 #define PELIKAN_BIND_RF			0x3C
@@ -136,15 +136,17 @@ uint16_t initPelikan()
 	if(IS_BIND_IN_PROGRESS)
 		A7105_WriteReg(A7105_03_FIFOI,0x10);
 	
-	//ID
+	//ID from dump
 	#ifdef PELIKAN_FORCE_ID
-		rx_tx_addr[0]=0x0D;
-        rx_tx_addr[1]=0xF4;
-        rx_tx_addr[2]=0x50;
-        rx_tx_addr[3]=0x18;
+		rx_tx_addr[0]=0x0D;		// hopping freq
+		rx_tx_addr[1]=0xF4;		// hopping freq
+		rx_tx_addr[2]=0x50;		// ID
+		rx_tx_addr[3]=0x18;		// ID
 	#endif
 
 	// Fill frequency table
+	rx_tx_addr[0]=0x0D;			// hopping freq
+	rx_tx_addr[1]=0xF4;			// hopping freq
 	for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
 		hopping_frequency[i]=pgm_read_byte_near(&pelikan_hopp[0][i]);
 

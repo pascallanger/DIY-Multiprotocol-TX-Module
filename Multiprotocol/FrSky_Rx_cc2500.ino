@@ -310,14 +310,14 @@ uint16_t FrSky_Rx_callback()
 	case FRSKY_RX_TUNE_START:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if(packet[1] == 0x03 && packet[2] == 0x01) {
-				if(frskyx_rx_check_crc()) {
-					frsky_rx_finetune = -127;
-					CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
-					phase = FRSKY_RX_TUNE_LOW;
-					frsky_rx_strobe_rx();
-					return 1000;
-				}
+			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc()) {
+				rx_tx_addr[0] = packet[3];	// TXID
+				rx_tx_addr[1] = packet[4];	// TXID
+				frsky_rx_finetune = -127;
+				CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
+				phase = FRSKY_RX_TUNE_LOW;
+				frsky_rx_strobe_rx();
+				return 1000;
 			}
 		}
 		frsky_rx_format = (frsky_rx_format + 1) % FRSKY_RX_FORMATS; // switch to next format (D16FCC, D16LBT, D8)
@@ -330,7 +330,7 @@ uint16_t FrSky_Rx_callback()
 	case FRSKY_RX_TUNE_LOW:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if (frskyx_rx_check_crc()) {
+			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc() && packet[3] == rx_tx_addr[0] && packet[4] == rx_tx_addr[1]) {
 				tune_low = frsky_rx_finetune;
 				frsky_rx_finetune = 127;
 				CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
@@ -347,7 +347,7 @@ uint16_t FrSky_Rx_callback()
 	case FRSKY_RX_TUNE_HIGH:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if (frskyx_rx_check_crc()) {
+			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc() && packet[3] == rx_tx_addr[0] && packet[4] == rx_tx_addr[1]) {
 				tune_high = frsky_rx_finetune;
 				frsky_rx_finetune = (tune_low + tune_high) / 2;
 				CC2500_WriteReg(CC2500_0C_FSCTRL0, (int8_t)frsky_rx_finetune);
@@ -367,34 +367,39 @@ uint16_t FrSky_Rx_callback()
 	case FRSKY_RX_BIND:
 		if(len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if (frskyx_rx_check_crc()) {
-				if (packet[5] <= 0x2D) {
-					for (ch = 0; ch < 5; ch++)
-						hopping_frequency[packet[5]+ch] = packet[6+ch];
-					state |= 1 << (packet[5] / 5);
+			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc() && packet[3] == rx_tx_addr[0] && packet[4] == rx_tx_addr[1] && packet[5] <= 0x2D) {
+				for (ch = 0; ch < 5; ch++)
+					hopping_frequency[packet[5]+ch] = packet[6+ch];
+				state |= 1 << (packet[5] / 5);
+				if (state == 0x3ff) {
+					debug("Bind complete: ");
+					frsky_rx_calibrate();
+					rx_tx_addr[2] = packet[12]; // RX # (D16)
+					CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
+					CC2500_WriteReg(CC2500_09_ADDR, rx_tx_addr[0]); // set address
+					CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
+					phase = FRSKY_RX_DATA;
+					frsky_rx_set_channel(hopping_frequency_no);
+					// store format, finetune setting, txid, channel list
+					uint16_t temp = FRSKY_RX_EEPROM_OFFSET;
+					eeprom_write_byte((EE_ADDR)temp++, frsky_rx_format);
+					debug("format=%d, ", frsky_rx_format);
+					eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[0]);
+					debug("addr[0]=%02X, ", rx_tx_addr[0]);
+					eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[1]);
+					debug("addr[1]=%02X, ", rx_tx_addr[1]);
+					eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[2]);
+					debug("rx_num=%02X, ", rx_tx_addr[2]);
+					eeprom_write_byte((EE_ADDR)temp++, frsky_rx_finetune);
+					debugln("tune=%d", (int8_t)frsky_rx_finetune);
+					for (ch = 0; ch < 47; ch++)
+					{
+						eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[ch]);
+						debug("%02X ", hopping_frequency[ch]);
+					}
+					debugln("");
+					BIND_DONE;
 				}
-			}
-			if (state == 0x3ff) {
-				debugln("bind complete");
-				frsky_rx_calibrate();
-				rx_tx_addr[0] = packet[3];	// TXID
-				rx_tx_addr[1] = packet[4];	// TXID
-				rx_tx_addr[2] = packet[12]; // RX # (D16)
-				CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
-				CC2500_WriteReg(CC2500_09_ADDR, rx_tx_addr[0]); // set address
-				CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
-				phase = FRSKY_RX_DATA;
-				frsky_rx_set_channel(hopping_frequency_no);
-				// store format, finetune setting, txid, channel list
-				uint16_t temp = FRSKY_RX_EEPROM_OFFSET;
-				eeprom_write_byte((EE_ADDR)temp++, frsky_rx_format);
-				eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[0]);
-				eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[1]);
-				eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[2]);
-				eeprom_write_byte((EE_ADDR)temp++, frsky_rx_finetune);
-				for (ch = 0; ch < 47; ch++)
-					eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[ch]);
-				BIND_DONE;
 			}
 			frsky_rx_strobe_rx();
 		}

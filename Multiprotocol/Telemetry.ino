@@ -144,6 +144,7 @@ static void multi_send_status()
 			if((sub_protocol&0x07) && multi_protocols_index != 0xFF)
 			{
 				uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+				if(protocol==PROTO_DSM) nbr++;	//Auto sub_protocol
 				if((sub_protocol&0x07)>=nbr)
 					flags &= ~0x04;		//Invalid sub protocol
 			}
@@ -163,7 +164,7 @@ static void multi_send_status()
 			flags |= 0x80;
 	}
 	Serial_write(flags);
-
+	
 	// Version number example: 1.1.6.1
 	Serial_write(VERSION_MAJOR);
 	Serial_write(VERSION_MINOR);

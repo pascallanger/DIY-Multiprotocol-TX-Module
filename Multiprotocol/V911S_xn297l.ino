@@ -18,7 +18,7 @@
 
 #include "iface_xn297l.h"
 
-#define V911S_ORIGINAL_ID
+//#define V911S_ORIGINAL_ID
 
 #define V911S_PACKET_PERIOD			5000
 #define V911S_BIND_PACKET_PERIOD	3300

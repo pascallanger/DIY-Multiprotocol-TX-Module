@@ -126,9 +126,91 @@ uint16_t ReadPelikan()
 	return PELIKAN_PAQUET_PERIOD;
 }
 
+static uint8_t pelikan_firstCh(uint8_t u, uint8_t l)
+{
+	int16_t i;
+	i = u * 10 + l - 23;
+	do
+	{
+		if (i > 24)
+			i -= 24;
+		if (i <= 0)
+			return 10;
+		else if ((i > 0) && (i < 13))
+			return 10 + 12 + (i * 4);
+		else if ((i > 12) && (i < 24))
+			return 10 - 2 + ((i - 12) * 4);
+	}
+	while (i > 24);
+	return 0;
+}
+
+static uint8_t pelikan_adjust_value(uint8_t value, uint8_t addition, uint8_t limit)
+{
+	uint8_t i;
+	do
+	{
+		i = 0;
+		if (value > limit) {
+			value -= 62;
+			i++;
+		}
+		if (value == 24) {
+			value += addition;
+			i++;
+		}
+		if (value == 48) {
+			value += addition;
+			i++;
+		}
+	}
+	while (i > 0);
+
+	return value;
+}
+
+static uint8_t pelikan_add(uint8_t pfrq,uint8_t a, uint8_t limit)
+{
+	uint8_t nfrq;
+	nfrq = pfrq + a;
+
+	nfrq = pelikan_adjust_value(nfrq, a, limit);
+	
+	return nfrq;
+}
+
+static void __attribute__((unused)) pelikan_init_hop()
+{
+	#define PELIKAN_HOP_LIMIT 70
+	rx_tx_addr[0]= 0;
+	uint8_t high = (rx_tx_addr[1]>>4) % 3;	// 0..2
+	uint8_t low = rx_tx_addr[1] & 0x0F;
+	if(high==2)
+		low %= 0x04;	// 0..3
+	else if(high)
+		low %= 0x0E;	// 0..D
+	else
+		low %= 0x0F;	// 0..E
+
+	uint8_t addition = (20 * high)+ (2 * low) + 8;
+
+	uint8_t first_channel = pelikan_firstCh(high, low);
+	first_channel = pelikan_adjust_value(first_channel, addition, PELIKAN_HOP_LIMIT);
+	hopping_frequency[0] = first_channel;
+	debug("%02X", first_channel);
+	for (uint8_t i = 1; i < PELIKAN_NUM_RF_CHAN; i++)
+	{
+		hopping_frequency[i] = pelikan_add(hopping_frequency[i-1], addition, PELIKAN_HOP_LIMIT);
+		debug(" %02X", hopping_frequency[i]);
+	}
+	debugln("");
+}
+
+#ifdef PELIKAN_FORCE_ID
 const uint8_t PROGMEM pelikan_hopp[][PELIKAN_NUM_RF_CHAN] = {
 	{ 0x5A,0x46,0x32,0x6E,0x6C,0x58,0x44,0x42,0x40,0x6A,0x56,0x54,0x52,0x3E,0x68,0x66,0x64,0x50,0x3C,0x3A,0x38,0x62,0x4E,0x4C,0x5E,0x4A,0x36,0x5C,0x34 }
 };
+#endif
 
 uint16_t initPelikan()
 {
@@ -142,13 +224,12 @@ uint16_t initPelikan()
 		rx_tx_addr[1]=0xF4;		// hopping freq
 		rx_tx_addr[2]=0x50;		// ID
 		rx_tx_addr[3]=0x18;		// ID
+		// Fill frequency table
+		for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
+			hopping_frequency[i]=pgm_read_byte_near(&pelikan_hopp[0][i]);
+	#else
+		pelikan_init_hop();
 	#endif
-
-	// Fill frequency table
-	rx_tx_addr[0]=0x0D;			// hopping freq
-	rx_tx_addr[1]=0xF4;			// hopping freq
-	for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
-		hopping_frequency[i]=pgm_read_byte_near(&pelikan_hopp[0][i]);
 
 	hopping_frequency_no=PELIKAN_NUM_RF_CHAN;
 	packet_count=5;

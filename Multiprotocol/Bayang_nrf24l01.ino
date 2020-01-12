@@ -20,7 +20,8 @@ Multiprotocol is distributed in the hope that it will be useful,
 #include "iface_nrf24l01.h"
 
 #define BAYANG_BIND_COUNT		1000
-#define BAYANG_PACKET_PERIOD	1000
+#define BAYANG_PACKET_PERIOD	2000
+#define BAYANG_PACKET_TELEM_PERIOD	5000
 #define BAYANG_INITIAL_WAIT		500
 #define BAYANG_PACKET_SIZE		15
 #define BAYANG_RF_NUM_CHANNELS	4
@@ -46,10 +47,10 @@ enum BAYANG_OPTION_FLAGS {
 	BAYANG_OPTION_FLAG_ANALOGAUX	= 0x02,
 };
 
-static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
+static void __attribute__((unused)) BAYANG_send_packet()
 {
 	uint8_t i;
-	if (bind)
+	if (IS_BIND_IN_PROGRESS)
 	{
 	#ifdef BAYANG_HUB_TELEMETRY
 		if(option & BAYANG_OPTION_FLAG_TELEMETRY)
@@ -186,29 +187,15 @@ static void __attribute__((unused)) BAYANG_send_packet(uint8_t bind)
 	for (uint8_t i=0; i < BAYANG_PACKET_SIZE-1; i++)
 		packet[14] += packet[i];
 
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? rf_ch_num:hopping_frequency[hopping_frequency_no++]);
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? rf_ch_num:hopping_frequency[hopping_frequency_no++]);
 	hopping_frequency_no%=BAYANG_RF_NUM_CHANNELS;
-
-	// clear packet status bits and TX FIFO
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-
-	XN297_WritePayload(packet, BAYANG_PACKET_SIZE);
-
-	NRF24L01_SetTxRxMode(TXRX_OFF);
-	NRF24L01_SetTxRxMode(TX_EN);
 
 	// Power on, TX mode, 2byte CRC
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
+	NRF24L01_FlushTx();
+	NRF24L01_SetTxRxMode(TX_EN);
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-
-	#ifdef BAYANG_HUB_TELEMETRY
-	if (option & BAYANG_OPTION_FLAG_TELEMETRY)
-	{	// switch radio to rx as soon as packet is sent
-		while (!(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)));
-		NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x03);
-    }
-	#endif
+	XN297_WritePayload(packet, BAYANG_PACKET_SIZE);
 
 	NRF24L01_SetPower();	// Set tx_power
 }
@@ -233,7 +220,8 @@ static void __attribute__((unused)) BAYANG_check_rx(void)
 			// compensated battery volts*100/2
 			v_lipo2 = (packet[5]<<7) + (packet[6]>>2);
 			// reception in packets / sec
-			RX_RSSI = packet[7];
+			RX_LQI = packet[7];
+			RX_RSSI = RX_LQI;
 			//Flags
 			//uint8_t flags = packet[3] >> 3;
 			// battery low: flags & 1
@@ -242,6 +230,7 @@ static void __attribute__((unused)) BAYANG_check_rx(void)
 				telemetry_link=1;
 		}
 	}
+	NRF24L01_SetTxRxMode(TXRX_OFF);
 }
 #endif
 
@@ -278,58 +267,74 @@ static void __attribute__((unused)) BAYANG_init()
 	}
 }
 
+enum {
+	BAYANG_BIND=0,
+	BAYANG_WRITE,
+	BAYANG_CHECK,
+	BAYANG_READ,
+};
+
+#define BAYANG_CHECK_DELAY		1000		// Time after write phase to check write complete
+#define BAYANG_READ_DELAY		600			// Time before read phase
+
 uint16_t BAYANG_callback()
 {
-	if(IS_BIND_DONE)
+	#ifdef BAYANG_HUB_TELEMETRY
+		uint16_t start;
+	#endif
+	switch(phase)
 	{
-		if(packet_count==0)
-		{
-			#ifdef MULTI_SYNC
-				telemetry_set_input_sync((option & BAYANG_OPTION_FLAG_TELEMETRY)?5*BAYANG_PACKET_PERIOD:2*BAYANG_PACKET_PERIOD);
-			#endif
-			BAYANG_send_packet(0);
-		}
-		packet_count++;
-		#ifdef BAYANG_HUB_TELEMETRY
-			if (option & BAYANG_OPTION_FLAG_TELEMETRY)
-			{	// telemetry is enabled 
-				state++;
-				if (state > 1000)
-				{
-					//calculate telemetry reception packet rate - packets per 1000ms
-					TX_RSSI = telemetry_counter;
-					telemetry_counter = 0;
-					state = 0;
-					telemetry_lost=0;
-				}
-
-				if (packet_count > 1)
-					BAYANG_check_rx();
-
-				packet_count %= 5;
+		case BAYANG_BIND:
+			if (bind_counter-- == 0)
+			{
+				XN297_SetTXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
+				#ifdef BAYANG_HUB_TELEMETRY
+					XN297_SetRXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
+				#endif
+				BIND_DONE;
+				phase++;	//WRITE
 			}
 			else
-		#endif
-				packet_count%=2;
-	}
-	else
-	{
-		if (bind_counter == 0)
-		{
-			XN297_SetTXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
-			#ifdef BAYANG_HUB_TELEMETRY
-				XN297_SetRXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
+				BAYANG_send_packet();
+			break;
+		case BAYANG_WRITE:
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync((option & BAYANG_OPTION_FLAG_TELEMETRY)?BAYANG_PACKET_TELEM_PERIOD:BAYANG_PACKET_PERIOD);
 			#endif
-			BIND_DONE;
-		}
-		else
-		{
-			if(packet_count==0)
-				BAYANG_send_packet(1);
-			packet_count++;
-			packet_count%=4;
-			bind_counter--;
-		}
+			BAYANG_send_packet();
+			#ifdef BAYANG_HUB_TELEMETRY
+				if (option & BAYANG_OPTION_FLAG_TELEMETRY)
+				{	// telemetry is enabled
+					state++;
+					if (state > 200)
+					{
+						state = 0;
+						//telemetry reception packet rate - packets per second
+						TX_LQI = telemetry_counter>>1;
+						telemetry_counter = 0;
+						telemetry_lost=0;
+					}
+					phase++;	//CHECK
+					return BAYANG_CHECK_DELAY;
+				}
+			#endif
+			break;
+	#ifdef BAYANG_HUB_TELEMETRY
+		case BAYANG_CHECK:
+			// switch radio to rx as soon as packet is sent
+			start=(uint16_t)micros();
+			while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 1000)			// Wait max 1ms
+				if((NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)))
+					break;
+			debugln("time: %d",(uint16_t)((uint16_t)micros()-(uint16_t)start));
+			NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x03);
+			phase++;	// READ
+			return BAYANG_PACKET_TELEM_PERIOD - BAYANG_CHECK_DELAY - BAYANG_READ_DELAY;
+		case BAYANG_READ:
+			BAYANG_check_rx();
+			phase=BAYANG_WRITE;
+			return BAYANG_READ_DELAY;
+	#endif
 	}
 	return BAYANG_PACKET_PERIOD;
 }
@@ -350,6 +355,7 @@ static void __attribute__((unused)) BAYANG_initialize_txid()
 uint16_t initBAYANG(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
+	phase=BAYANG_BIND;
     bind_counter = BAYANG_BIND_COUNT;
 	BAYANG_initialize_txid();
 	BAYANG_init();

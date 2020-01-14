@@ -191,7 +191,7 @@ static void __attribute__((unused)) pelikan_init_hop()
 		low %= 0x0E;	// 0..D
 	else
 		low %= 0x0F;	// 0..E
-
+	rx_tx_addr[1] = (high<<4) + low;
 	uint8_t addition = (20 * high)+ (2 * low) + 8;
 
 	uint8_t first_channel = pelikan_firstCh(high, low);

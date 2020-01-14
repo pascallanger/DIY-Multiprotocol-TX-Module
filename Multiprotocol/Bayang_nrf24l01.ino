@@ -285,7 +285,7 @@ uint16_t BAYANG_callback()
 	switch(phase)
 	{
 		case BAYANG_BIND:
-			if (bind_counter-- == 0)
+			if (--bind_counter == 0)
 			{
 				XN297_SetTXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
 				#ifdef BAYANG_HUB_TELEMETRY
@@ -326,7 +326,6 @@ uint16_t BAYANG_callback()
 			while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 1000)			// Wait max 1ms
 				if((NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)))
 					break;
-			debugln("time: %d",(uint16_t)((uint16_t)micros()-(uint16_t)start));
 			NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x03);
 			phase++;	// READ
 			return BAYANG_PACKET_TELEM_PERIOD - BAYANG_CHECK_DELAY - BAYANG_READ_DELAY;

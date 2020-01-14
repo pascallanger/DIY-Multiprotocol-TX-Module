@@ -75,6 +75,7 @@ const char STR_FX816[]		="FX816";
 const char STR_BAYANG_RX[]	="BayanRX";
 const char STR_PELIKAN[]	="Pelikan";
 const char STR_TIGER[]		="Tiger";
+const char STR_XK[]			="XK";
 const char STR_XN297DUMP[]	="XN297DP";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
@@ -115,6 +116,7 @@ const char STR_SUBTYPE_FX816[] =      "\x03""P38";
 const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ";
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4CH""7CH";
 const char STR_SUBTYPE_V911S[] =      "\x04""Std\0""E119";
+const char STR_SUBTYPE_XK[] =         "\x04""X450""X420";
 
 enum
 {
@@ -312,6 +314,9 @@ const mm_protocol_definition multi_protocols[] = {
 #endif
 #if defined(TIGER_NRF24L01_INO)
 	{PROTO_TIGER,      STR_TIGER    , 0, NO_SUBTYPE,            OPTION_NONE    },	
+#endif
+#if defined(XK_NRF24L01_INO)
+	{PROTO_XK,         STR_XK       , 2, STR_SUBTYPE_XK,        OPTION_RFTUNE  },	
 #endif
 #if defined(XN297DUMP_NRF24L01_INO)
 	{PROTO_XN297DUMP,  STR_XN297DUMP, 4, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },

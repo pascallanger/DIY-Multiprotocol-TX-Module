@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	56
+#define VERSION_PATCH_LEVEL	57
 
 //******************
 // Protocols
@@ -88,6 +88,7 @@ enum PROTOCOLS
 	PROTO_BAYANG_RX	= 59,	// =>NRF24L01
 	PROTO_PELIKAN	= 60,	// =>A7105
 	PROTO_TIGER		= 61,	// =>NRF24L01
+	PROTO_XK		= 62,	// =>NRF24L01
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 };
 
@@ -304,6 +305,11 @@ enum V911S
 {
 	V911S_STD	= 0,
 	V911S_E119	= 1,
+};
+enum XK
+{
+	X450	= 0,
+	X420	= 1,
 };
 enum XN297DUMP
 {
@@ -703,6 +709,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				BAYANG_RX	59
 				PELIKAN		60
 				TIGER		61
+				XK			62
+				XN297DUMP	63
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -847,6 +855,12 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==ESKY150
 			ESKY150_4CH	0
 			ESKY150_7CH	1
+		sub_protocol==V911S
+			V911S_STD	0
+			V911S_E119	1
+		sub_protocol==XK
+			X450		0
+			X420		1
 		sub_protocol==V911S
 			V911S_STD	0
 			V911S_E119	1

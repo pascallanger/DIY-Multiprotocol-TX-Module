@@ -1478,6 +1478,12 @@ static void protocol_init()
 						remote_callback = TIGER_callback;
 						break;
 				#endif
+				#if defined(XK_NRF24L01_INO)
+					case PROTO_XK:
+						next_callback=initXK();
+						remote_callback = XK_callback;
+						break;
+				#endif
 				#if defined(XN297DUMP_NRF24L01_INO)
 					case PROTO_XN297DUMP:
 						next_callback=initXN297Dump();

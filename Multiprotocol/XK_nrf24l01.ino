@@ -152,6 +152,8 @@ static void __attribute__((unused)) XK_init()
 
 uint16_t XK_callback()
 {
+	if(sub_protocol==X420)
+		option=0;																// Forcing the use of NRF24L01@1Mbps
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(XK_PACKET_PERIOD);
 	#endif
@@ -170,9 +172,13 @@ uint16_t XK_callback()
 
 uint16_t initXK()
 {
-	BIND_IN_PROGRESS;	// autobind protocol
+	if(sub_protocol==X420)
+		option=prev_option=0;													// Forcing the use of NRF24L01@1Mbps
+	BIND_IN_PROGRESS;															// Autobind protocol
 	XK_initialize_txid();
 	XK_init();
+	if(sub_protocol==X420)
+		NRF24L01_SetBitrate(NRF24L01_BR_1M);									// 1Mbps
 	hopping_frequency_no = 0;
 	bind_counter=XK_BIND_COUNT;
 	return XK_INITIAL_WAIT;

@@ -21,11 +21,11 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FORCE_XK_ORIGINAL_ID
 
 #define XK_INITIAL_WAIT		500
-#define XK_PACKET_PERIOD		4000
+#define XK_PACKET_PERIOD	4000
 #define XK_RF_BIND_NUM_CHANNELS 8
 #define XK_RF_NUM_CHANNELS	4
 #define XK_PAYLOAD_SIZE		16
-#define XK_BIND_COUNT			750	//3sec
+#define XK_BIND_COUNT		750	//3sec
 
 static uint16_t __attribute__((unused)) XK_convert_channel(uint8_t num)
 {
@@ -58,16 +58,16 @@ static void __attribute__((unused)) XK_send_packet()
 	{
 		uint16_t val=convert_channel_10b(THROTTLE);
 		packet[0] = val>>2;						// 0..255
-		packet[12] |= val & 2;
+		if(sub_protocol==X450) packet[12] |= val & 2;
 		val=XK_convert_channel(RUDDER);
 		packet[1] = val>>2;
-		packet[12] |= (val & 2)<<2;
+		if(sub_protocol==X450) packet[12] |= (val & 2)<<2;
 		val=XK_convert_channel(ELEVATOR);
 		packet[2] = val>>2;
-		packet[13] |= val & 2;
+		if(sub_protocol==X450) packet[13] |= val & 2;
 		val=XK_convert_channel(AILERON);
 		packet[3] = val>>2;
-		packet[13] |= (val & 2)<<2;
+		if(sub_protocol==X450) packet[13] |= (val & 2)<<2;
 		
 		memset(&packet[4],0x40,3);				// Trims
 		
@@ -77,11 +77,13 @@ static void __attribute__((unused)) XK_send_packet()
 			if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)
 				packet[10] = 0x04; 				// 6G-Mode
 		//0x00 default M-Mode
+		
 		packet[10] |= GET_FLAG(CH7_SW,0x80);	// Emergency stop momentary switch
 
 		packet[11]  = GET_FLAG(CH8_SW,0x03)		// 3D/6G momentary switch
 					 |GET_FLAG(CH6_SW,0x40);	// Take off momentary switch
-		packet[14]  = GET_FLAG(CH9_SW,0x01);	// Photo momentary switch
+		packet[14]  = GET_FLAG(CH9_SW,0x01)		// Photo momentary switch
+					 |GET_FLAG(CH10_SW,0x2);	// Video momentary switch
 	}
 
 	crc=packet[0];
@@ -112,7 +114,7 @@ static void __attribute__((unused)) XK_initialize_txid()
 	for(uint8_t i=0; i<XK_RF_BIND_NUM_CHANNELS; i++)
 		hopping_frequency[i]=pgm_read_byte_near( &XK_bind_hop[i] );
 
-	//#ifdef FORCE_XK_ORIGINAL_ID
+	#ifdef FORCE_XK_ORIGINAL_ID
 		if(sub_protocol==X450)
 		{
 			//TX1 X8 X450
@@ -135,17 +137,17 @@ static void __attribute__((unused)) XK_initialize_txid()
 			rx_tx_addr[0]=0x13;
 			rx_tx_addr[1]=0x24;
 			rx_tx_addr[2]=0x18;
-			memcpy(&hopping_frequency[XK_RF_BIND_NUM_CHANNELS],"\x36\x37\x41\x4E", XK_RF_NUM_CHANNELS);	// freq ok but order unknown
+			memcpy(&hopping_frequency[XK_RF_BIND_NUM_CHANNELS],"\x36\x41\x37\x4E", XK_RF_NUM_CHANNELS);	// freq ok and order from xn297dump auto
 			//Normal packet address \xA6\x83\xEB\x4B\xC9
 		}
-	//#endif
+	#endif
 }
 
 static void __attribute__((unused)) XK_init()
 {
 	XN297L_Init();
-	XN297L_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);					// Bind address
-	XN297L_HoppingCalib(XK_RF_BIND_NUM_CHANNELS+XK_RF_NUM_CHANNELS);	// Calibrate all channels
+	XN297L_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);						// Bind address
+	XN297L_HoppingCalib(XK_RF_BIND_NUM_CHANNELS+XK_RF_NUM_CHANNELS);			// Calibrate all channels
 }
 
 uint16_t XK_callback()

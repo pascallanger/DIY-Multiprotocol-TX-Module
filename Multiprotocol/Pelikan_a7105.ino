@@ -182,7 +182,8 @@ static uint8_t pelikan_add(uint8_t pfrq,uint8_t a, uint8_t limit)
 static void __attribute__((unused)) pelikan_init_hop()
 {
 	#define PELIKAN_HOP_LIMIT 70
-	rx_tx_addr[0]= 0;
+	rx_tx_addr[0] = 0;
+	rx_tx_addr[1]+= RX_num;
 	uint8_t high = (rx_tx_addr[1]>>4) % 3;	// 0..2
 	uint8_t low = rx_tx_addr[1] & 0x0F;
 	if(high==2)

@@ -45,23 +45,29 @@ before_install:
   # Function to build the release files - dependent on board type
   - if [[ "$BOARD" == "multi4in1:avr:multixmega32d4" ]]; then
       buildReleaseFiles(){
+        exitcode=0;
         printf "\n\e[33;1mBuilding multi-orangerx-aetr-green-inv-v$MULTI_VERSION.bin\e[0m";
         opt_enable $ALL_PROTOCOLS;
         opt_disable ORANGE_TX_BLUE;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-green-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-orangerx-aetr-blue-inv-v$MULTI_VERSION.bin\e[0m";
         opt_enable ORANGE_TX_BLUE;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-blue-inv-v$MULTI_VERSION.bin;
-        cp Multiprotocol/Multi.txt ./binaries/Multi.txt; };
+        cp Multiprotocol/Multi.txt ./binaries/Multi.txt; 
+        return $exitcode; };
     elif [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
       buildReleaseFiles(){
         printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-A7105-inv-v$MULTI_VERSION.bin\e[0m";
+        exitcode=0;
         opt_disable CHECK_FOR_BOOTLOADER;
         opt_disable $ALL_PROTOCOLS;
         opt_enable $A7105_PROTOCOLS;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-A7105-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CC2500-inv-v$MULTI_VERSION.bin\e[0m";
         opt_disable $ALL_PROTOCOLS;
@@ -72,54 +78,68 @@ before_install:
         opt_disable $ALL_PROTOCOLS;
         opt_enable $CYRF6936_PROTOCOLS;
         buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CYRF6936-inv-v$MULTI_VERSION.bin; };
+        exitcode=$((exitcode+$?));
+        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CYRF6936-inv-v$MULTI_VERSION.bin; 
+        return $exitcode; };
     elif [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=optiboot" ]]; then
       buildReleaseFiles(){
         printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-A7105-inv-v$MULTI_VERSION.bin\e[0m";
+        exitcode=0;
         opt_enable CHECK_FOR_BOOTLOADER;
         opt_disable $ALL_PROTOCOLS;
         opt_enable $A7105_PROTOCOLS;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-A7105-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CC2500-inv-v$MULTI_VERSION.bin\e[0m";
         opt_disable $ALL_PROTOCOLS;
         opt_enable $CC2500_PROTOCOLS;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CC2500-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CYRF6936-inv-v$MULTI_VERSION.bin\e[0m";
         opt_disable $ALL_PROTOCOLS;
         opt_enable $CYRF6936_PROTOCOLS;
         buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CYRF6936-inv-v$MULTI_VERSION.bin; };
+        exitcode=$((exitcode+$?));
+        mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CYRF6936-inv-v$MULTI_VERSION.bin; 
+        return $exitcode; };
     elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=none" ]]; then
       buildReleaseFiles(){
         printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-inv-v$MULTI_VERSION.bin\e[0m";
+        exitcode=0;
         opt_enable CHECK_FOR_BOOTLOADER;
         opt_enable $ALL_PROTOCOLS;
         opt_enable MULTI_STATUS;
         opt_disable MULTI_TELEMETRY;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-erskytx-taer-inv-v$MULTI_VERSION.bin\e[0m";
         opt_replace AETR TAER;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-taer-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-erskytx-reta-inv-v$MULTI_VERSION.bin\e[0m";
         opt_replace TAER RETA;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-reta-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace RETA AETR;
         opt_disable INVERT_TELEMETRY;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-noinv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-erskytx-taer-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace AETR TAER;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-taer-noinv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-erskytx-reta-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace TAER RETA;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-reta-noinv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-inv-v$MULTI_VERSION.bin\e[0m";
         opt_replace RETA AETR;
@@ -127,27 +147,33 @@ before_install:
         opt_enable MULTI_TELEMETRY;
         opt_enable INVERT_TELEMETRY;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-opentx-taer-inv-v$MULTI_VERSION.bin\e[0m";
         opt_replace AETR TAER;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-taer-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-opentx-reta-inv-v$MULTI_VERSION.bin\e[0m";
         opt_replace TAER RETA;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-reta-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace RETA AETR;
         opt_disable INVERT_TELEMETRY;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-noinv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-opentx-taer-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace AETR TAER;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-taer-noinv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-opentx-reta-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace TAER RETA;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-reta-noinv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-ppm-aetr-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace RETA AETR;
@@ -155,18 +181,23 @@ before_install:
         opt_disable MULTI_TELEMETRY;
         opt_set NBR_BANKS 5;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-aetr-noinv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-ppm-taer-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace AETR TAER;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-taer-noinv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-ppm-reta-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace TAER RETA;
         buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-reta-noinv-v$MULTI_VERSION.bin; };
+        exitcode=$((exitcode+$?));
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-reta-noinv-v$MULTI_VERSION.bin; 
+        return $exitcode; };
     elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
       buildReleaseFiles(){
         printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin\e[0m";
+        exitcode=0;
         opt_enable CHECK_FOR_BOOTLOADER;
         opt_disable $ALL_PROTOCOLS;
         opt_add XN297DUMP_NRF24L01_INO;
@@ -174,6 +205,7 @@ before_install:
         opt_disable MULTI_TELEMETRY;
         opt_enable INVERT_TELEMETRY;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin\e[0m";
         opt_disable $ALL_PROTOCOLS;
@@ -181,10 +213,13 @@ before_install:
         opt_enable MULTI_TELEMETRY;
         opt_enable INVERT_TELEMETRY;
         buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin; };
+        exitcode=$((exitcode+$?));
+        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin;
+        return $exitcode; };
     elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=ftdi" ]]; then
       buildReleaseFiles(){
         printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin\e[0m";
+        exitcode=0;
         opt_enable CHECK_FOR_BOOTLOADER;
         opt_disable $ALL_PROTOCOLS;
         opt_add XN297DUMP_NRF24L01_INO;
@@ -192,6 +227,7 @@ before_install:
         opt_disable MULTI_TELEMETRY;
         opt_enable INVERT_TELEMETRY;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin\e[0m";
         opt_disable $ALL_PROTOCOLS;
@@ -199,18 +235,9 @@ before_install:
         opt_enable MULTI_TELEMETRY;
         opt_enable INVERT_TELEMETRY;
         buildMulti;
+        exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-stm-erskytx-aetr-inv-ftdidebug-v$MULTI_VERSION.bin\e[0m";
-        opt_enable $ALL_PROTOCOLS;
-        opt_enable MULTI_STATUS;
-        opt_disable MULTI_TELEMETRY;
-        buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-aetr-inv-ftdidebug-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-stm-opentx-aetr-inv-ftdidebug-v$MULTI_VERSION.bin\e[0m";
-        opt_disable MULTI_STATUS;
-        opt_enable MULTI_TELEMETRY;
-        buildMulti;
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-aetr-inv-ftdidebug-v$MULTI_VERSION.bin; };
+        return $exitcode; };
     else
       buildReleaseFiles() { echo "No release files for this board."; };
     fi

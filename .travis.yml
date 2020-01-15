@@ -275,9 +275,10 @@ before_script:
       opt_disable CHECK_FOR_BOOTLOADER;
     fi
 
-  # Trim the enabled protocols down for the STM32 board with USB debugging
-  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
-      opt_disable AFHDS2A_RX_A7105_INO FRSKY_RX_CC2500_INO SCANNER_CC2500_INO WK2x01_CYRF6936_INO HUBSAN_A7105_INO;
+  # Trim the enabled protocols down for the STM32 board with debugging
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=ftdi" ]] || [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
+      opt_disable $ALL_PROTOCOLS;
+      opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
     fi
 
   # Trim the enabled protocols down for the Atmega328p board
@@ -295,7 +296,7 @@ before_script:
   - end_fold() { echo -e "\ntravis_fold:end:$1\r"; }
 
 script:
-  # Build with default configuration - all protocols are enabled for STM32; a subset of protocols for Atmega
+  # Build with default configuration - all protocols are enabled for STM32; a subset of protocols for Atmega or STM32 debugging
   - buildDefault
 
   # Serial only

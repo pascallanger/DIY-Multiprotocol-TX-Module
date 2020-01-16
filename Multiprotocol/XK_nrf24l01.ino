@@ -18,7 +18,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_xn297l.h"
 
-#define FORCE_XK_ORIGINAL_ID
+//#define FORCE_XK_ORIGINAL_ID
 
 #define XK_INITIAL_WAIT		500
 #define XK_PACKET_PERIOD	4000
@@ -58,16 +58,16 @@ static void __attribute__((unused)) XK_send_packet()
 	{
 		uint16_t val=convert_channel_10b(THROTTLE);
 		packet[0] = val>>2;						// 0..255
-		packet[12] |= val & 2;
+		//packet[12] |= val & 2;
 		val=XK_convert_channel(RUDDER);
 		packet[1] = val>>2;
-		packet[12] |= (val & 2)<<2;
+		//packet[12] |= (val & 2)<<2;
 		val=XK_convert_channel(ELEVATOR);
 		packet[2] = val>>2;
-		packet[13] |= val & 2;
+		//packet[13] |= val & 2;
 		val=XK_convert_channel(AILERON);
 		packet[3] = val>>2;
-		packet[13] |= (val & 2)<<2;
+		//packet[13] |= (val & 2)<<2;
 		
 		memset(&packet[4],0x40,3);				// Trims
 		
@@ -91,16 +91,16 @@ static void __attribute__((unused)) XK_send_packet()
 		crc+=packet[i];
 	packet[15]=crc;
 
-	debug("C: %02X, P:",hopping_frequency[(IS_BIND_IN_PROGRESS?0:XK_RF_BIND_NUM_CHANNELS)+(hopping_frequency_no>>1)]);
+//	debug("C: %02X, P:",hopping_frequency[(IS_BIND_IN_PROGRESS?0:XK_RF_BIND_NUM_CHANNELS)+(hopping_frequency_no>>1)]);
 	XN297L_Hopping((IS_BIND_IN_PROGRESS?0:XK_RF_BIND_NUM_CHANNELS)+(hopping_frequency_no>>1));
 	hopping_frequency_no++;
 	if(hopping_frequency_no >= (IS_BIND_IN_PROGRESS?XK_RF_BIND_NUM_CHANNELS*2:XK_RF_NUM_CHANNELS*2))
 		hopping_frequency_no=0;
 
 	XN297L_WritePayload(packet, XK_PAYLOAD_SIZE);
-	for(uint8_t i=0; i<XK_PAYLOAD_SIZE; i++)
-		debug(" %02X",packet[i]);
-	debugln("");
+//	for(uint8_t i=0; i<XK_PAYLOAD_SIZE; i++)
+//		debug(" %02X",packet[i]);
+//	debugln("");
 	
 	XN297L_SetPower();		// Set tx_power
 	XN297L_SetFreqOffset();	// Set frequency offset
@@ -108,49 +108,72 @@ static void __attribute__((unused)) XK_send_packet()
 
 const uint8_t PROGMEM XK_bind_hop[XK_RF_BIND_NUM_CHANNELS]= { 0x07, 0x24, 0x3E, 0x2B, 0x47, 0x0E, 0x39, 0x1C };	// Bind
 
+const uint8_t PROGMEM XK_tx_addr[]= { 0xB3, 0x67, 0xE9, 0x98, 0x3A, 0xEC, 0xA6, 0x59, 0xB2, 0x94, 0x2B, 0xA5, 0x37, 0xC5, 0x4A, 0xD3,
+									  0x49, 0xA6, 0x83, 0xEB, 0x4B, 0xC9, 0x59, 0xD2, 0x65, 0x34, 0x6A, 0xD3, 0x2C, 0x96, 0x2A, 0xA9,
+									  0x32, 0xB2, 0xB4, 0x49, 0xD3, 0x37, 0xE9 };
+
+const uint8_t PROGMEM XK_hop[]= { 0x47, 0x3A, 0x4C, 0x39, 0x4D, 0x34, 0x4A, 0x3F, 0x45, 0x3E, 0x4B, 0x3D, 0x3B, 0x48, 0x40, 0x49,
+								  0x46, 0x3C, 0x43, 0x38, 0x35, 0x42, 0x33, 0x44, 0x4E, 0x37, 0x44, 0x35, 0x37, 0x4E, 0x36, 0x41 };
+
 static void __attribute__((unused)) XK_initialize_txid()
 {
 	//bind hop
 	for(uint8_t i=0; i<XK_RF_BIND_NUM_CHANNELS; i++)
 		hopping_frequency[i]=pgm_read_byte_near( &XK_bind_hop[i] );
 
-	switch(RX_num%2)	// only 2 valid IDs for now
+	//GID
+	packet[7]=rx_tx_addr[1];
+	packet[8]=rx_tx_addr[2];
+	packet[9]=rx_tx_addr[3];
+	uint8_t sum=packet[7]+packet[8]+packet[9];
+//	debugln("GID=%02X %02X %02X, sum=%d", packet[7],packet[8],packet[9],sum);
+	
+	//Normal hop
+	uint8_t start=(sum&0x07)<<2;
+//	debug("start=%d, hop=",start);
+	for(uint8_t i=0; i<XK_RF_NUM_CHANNELS; i++)
 	{
-		default:
-			// TX1 X8 X450
-			//GID
-			packet[7]=0x04;
-			packet[8]=0x15;
-			packet[9]=0x22;
-			//Normal hop
-			memcpy(&hopping_frequency[XK_RF_BIND_NUM_CHANNELS],(uint8_t*)"\x3B\x48\x40\x49", XK_RF_NUM_CHANNELS);	// freq and order verified
-			//Normal packet address
-			memcpy(rx_tx_addr,(uint8_t*)"\x2C\x96\x2A\xA9\x32",5);
-			break;
-
-		case 1:
-			//TX2 X420
-			//GID
-			packet[7]=0x13;
-			packet[8]=0x24;
-			packet[9]=0x18;
-			//Normal hop
-			memcpy(&hopping_frequency[XK_RF_BIND_NUM_CHANNELS],(uint8_t*)"\x36\x41\x37\x4E", XK_RF_NUM_CHANNELS);	// freq ok and order from xn297dump auto
-			//Normal packet address
-			memcpy(rx_tx_addr,(uint8_t*)"\xA6\x83\xEB\x4B\xC9",5);
-			break;
-		//case 2:
-			//// TX3 X8 X450
-			////GID
-			//packet[7]=0x24;
-			//packet[8]=0x14;
-			//packet[9]=0x22;
-			////Normal hop
-			//memcpy(&hopping_frequency[XK_RF_BIND_NUM_CHANNELS],(uint8_t*)"\x3A\x42\x3B\x48", XK_RF_NUM_CHANNELS);	// freq unsure and order unknown
-			////Normal packet address
-			//memcpy(rx_tx_addr,(uint8_t*)"\x2C\x96\x2A\xA9\x32",5);
-			//break;
+		hopping_frequency[ i + XK_RF_BIND_NUM_CHANNELS ]=pgm_read_byte_near( &XK_hop[ start + i ] );
+//		debug("%02X ", hopping_frequency[ i + XK_RF_BIND_NUM_CHANNELS ]);
 	}
+//	debugln("");
+	//Normal packet address
+	start=(sum&0x1F)+((sum>>5)&0x03);
+//	debug("start=%d, addr=",start);
+	for(uint8_t i=0; i<5; i++)
+	{
+		rx_tx_addr[i]=pgm_read_byte_near( &XK_tx_addr[ start + i ] );
+//		debug("%02X ", rx_tx_addr[ i ]);
+	}
+//	debugln("");
+
+	#ifdef FORCE_XK_ORIGINAL_ID
+		switch(RX_num%2)
+		{
+			default:
+				//TX1 X8 X450
+				//GID
+				packet[7]=0x04;
+				packet[8]=0x15;
+				packet[9]=0x22;
+				//Normal hop
+				memcpy(&hopping_frequency[XK_RF_BIND_NUM_CHANNELS],(uint8_t*)"\x3B\x48\x40\x49", XK_RF_NUM_CHANNELS);	// freq and order verified
+				//Normal packet address
+				memcpy(rx_tx_addr,(uint8_t*)"\x2C\x96\x2A\xA9\x32",5);
+				break;
+			case 1:
+				//TX2 X4 X420
+				//GID
+				packet[7]=0x13;
+				packet[8]=0x24;
+				packet[9]=0x18;
+				//Normal hop
+				memcpy(&hopping_frequency[XK_RF_BIND_NUM_CHANNELS],(uint8_t*)"\x36\x41\x37\x4E", XK_RF_NUM_CHANNELS);	// freq ok and order from xn297dump auto
+				//Normal packet address
+				memcpy(rx_tx_addr,(uint8_t*)"\xA6\x83\xEB\x4B\xC9",5);
+				break;
+		}
+	#endif
 }
 
 static void __attribute__((unused)) XK_init()

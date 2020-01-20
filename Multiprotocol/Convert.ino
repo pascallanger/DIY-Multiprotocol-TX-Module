@@ -140,3 +140,25 @@ uint16_t convert_channel_frsky(uint8_t num)
 	uint16_t val=Channel_data[num];
 	return ((val*15)>>4)+1290;
 }
+
+// 0-2047, 0 = 817, 1024 = 1500, 2047 = 2182
+//64=860,1024=1500,1984=2140//Taranis 125%
+static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX( uint8_t i )
+{	//mapped 860,2140(125%) range to 64,1984(PXX values);
+	uint16_t chan_val=convert_channel_frsky(i)-1226;
+	if(i>7) chan_val|=2048;   // upper channels offset
+	return chan_val;
+}
+
+#ifdef FAILSAFE_ENABLE
+static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX_FS( uint8_t i )
+{	//mapped 1,2046(125%) range to 64,1984(PXX values);
+	uint16_t chan_val=((Failsafe_data[i]*15)>>4)+64;
+	if(Failsafe_data[i]==FAILSAFE_CHANNEL_NOPULSES)
+		chan_val=FAILSAFE_CHANNEL_NOPULSES;
+	else if(Failsafe_data[i]==FAILSAFE_CHANNEL_HOLD)
+		chan_val=FAILSAFE_CHANNEL_HOLD;
+	if(i>7) chan_val|=2048;   // upper channels offset
+	return chan_val;
+}
+#endif

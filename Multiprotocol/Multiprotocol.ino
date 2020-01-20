@@ -514,6 +514,11 @@ void setup()
 				option			=	FORCE_FRSKYX_TUNING;		// Use config-defined tuning value for FrSkyX
 			else
 		#endif 
+		#if defined(FORCE_FRSKYX2_TUNING) && defined(FRSKYX2_CC2500_INO)
+			if(protocol==PROTO_FRSKYX2)
+				option			=	FORCE_FRSKYX2_TUNING;		// Use config-defined tuning value for FrSkyX2
+			else
+		#endif 
 		#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
 			if (protocol==PROTO_SFHSS)
 				option			=	FORCE_SFHSS_TUNING;			// Use config-defined tuning value for SFHSS
@@ -737,7 +742,7 @@ bool Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT))
+			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT)) || (protocol==PROTO_FRSKYX2)
 		#endif
 				if(IS_DISABLE_TELEM_off)
 					TelemetryUpdate();
@@ -1126,6 +1131,14 @@ static void protocol_init()
 						PE2_on;
 						next_callback = initFrSkyX();
 						remote_callback = ReadFrSkyX;
+						break;
+				#endif
+				#if defined(FRSKYX2_CC2500_INO)
+					case PROTO_FRSKYX2:
+						PE1_off;	//antenna RF2
+						PE2_on;
+						next_callback = initFrSkyX2();
+						remote_callback = ReadFrSkyX2;
 						break;
 				#endif
 				#if defined(SFHSS_CC2500_INO)
@@ -1603,6 +1616,11 @@ void update_serial_data()
 			option=FORCE_FRSKYX_TUNING;			// Use config-defined tuning value for FrSkyX
 		else
 	#endif 
+	#if defined(FORCE_FRSKYX2_TUNING) && defined(FRSKYX2_CC2500_INO)
+		if(protocol==PROTO_FRSKYX2)
+			option=FORCE_FRSKYX2_TUNING;		// Use config-defined tuning value for FrSkyX2
+		else
+	#endif 
 	#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
 		if (protocol==PROTO_SFHSS)
 			option=FORCE_SFHSS_TUNING;			// Use config-defined tuning value for SFHSS
@@ -1765,14 +1783,14 @@ void update_serial_data()
 	#endif
 	if(rx_len>27)
 	{ // Data available for the current protocol
-		#ifdef FRSKYX_CC2500_INO
-			if(protocol==PROTO_FRSKYX && rx_len==28)
+		#if defined FRSKYX_CC2500_INO || defined FRSKYX2_CC2500_INO
+			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2) && rx_len==28)
 			{//Protocol waiting for 1 byte during bind
 				binding_idx=rx_ok_buff[27];
 			}
 		#endif
 		#ifdef SPORT_SEND
-			if(protocol==PROTO_FRSKYX && rx_len==35)
+			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2) && rx_len==35)
 			{//Protocol waiting for 8 bytes
 				#define BYTE_STUFF	0x7D
 				#define STUFF_MASK	0x20
@@ -2057,12 +2075,12 @@ void PPM_Telemetry_serial_init()
 {
 	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG)|| (protocol==PROTO_NCC1701) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI)
 	#ifdef TELEMETRY_FRSKYX_TO_FRSKYD
-		 || (protocol==PROTO_FRSKYX)
+		 || (protocol==PROTO_FRSKYX) || (protocol==PROTO_FRSKYX2)
 	#endif
 	 )
 		initTXSerial( SPEED_9600 ) ;
 	#ifndef TELEMETRY_FRSKYX_TO_FRSKYD
-		if(protocol==PROTO_FRSKYX)
+		if(protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2)
 			initTXSerial( SPEED_57600 ) ;
 	#endif
 	if(protocol==PROTO_DSM)

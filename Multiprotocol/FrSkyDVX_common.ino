@@ -142,7 +142,7 @@ void Frsky_init_hop(void)
 		/*15_DEVIATN*/ 	 0x42  };
 	#endif
 
-	#if defined(FRSKYX_CC2500_INO)
+	#if defined(FRSKYX_CC2500_INO) || defined(FRSKYX2_CC2500_INO)
 		const PROGMEM uint8_t FRSKYX_cc2500_conf[]= {
 	//FRSKYX
 		/*02_IOCFG0*/  	 0x06 ,		
@@ -222,8 +222,59 @@ void Frsky_init_hop(void)
 			uint8_t val=pgm_read_byte_near(&FRSKY_common_end_cc2500_conf[i][1]);
 			CC2500_WriteReg(reg,val);
 		}
+		if(protocol==PROTO_FRSKYX2)
+			CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x05);	// enable CRC
 		CC2500_SetTxRxMode(TX_EN);
 		CC2500_SetPower();
 		CC2500_Strobe(CC2500_SIDLE);    // Go to idle...
 	}
 #endif
+
+#if defined(FRSKYX_CC2500_INO) || defined(FRSKYX2_CC2500_INO)
+uint8_t FrSkyX_chanskip;
+uint8_t FrSkyX_TX_Seq, FrSkyX_TX_IN_Seq;
+uint8_t FrSkyX_RX_Seq ;
+
+#ifdef SPORT_SEND
+	struct t_FrSkyX_TX_Frame
+	{
+		uint8_t count;
+		uint8_t payload[8];
+	} ;
+	// Store FrskyX telemetry
+	struct t_FrSkyX_TX_Frame FrSkyX_TX_Frames[4] ;
+#endif
+
+#define FRSKYX_FAILSAFE_TIMEOUT 1032
+
+static void __attribute__((unused)) FrSkyX_set_start(uint8_t ch )
+{
+	CC2500_Strobe(CC2500_SIDLE);
+	CC2500_WriteReg(CC2500_25_FSCAL1, calData[ch]);
+	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[ch]);
+}		
+
+static void __attribute__((unused)) FrSkyX_init()
+{
+	FRSKY_init_cc2500((sub_protocol&2)?FRSKYXEU_cc2500_conf:FRSKYX_cc2500_conf); // LBT or FCC
+	//
+	for(uint8_t c=0;c < 48;c++)
+	{//calibrate hop channels
+		CC2500_Strobe(CC2500_SIDLE);    
+		CC2500_WriteReg(CC2500_0A_CHANNR,hopping_frequency[c]);
+		CC2500_Strobe(CC2500_SCAL);
+		delayMicroseconds(900);//
+		calData[c] = CC2500_ReadReg(CC2500_25_FSCAL1);
+	}
+	//#######END INIT########		
+}
+
+static void __attribute__((unused)) FrSkyX_initialize_data(uint8_t adr)
+{
+	CC2500_WriteReg(CC2500_18_MCSM0,    0x8);	
+	CC2500_WriteReg(CC2500_09_ADDR, adr ? 0x03 : rx_tx_addr[3]);
+	CC2500_WriteReg(CC2500_07_PKTCTRL1,0x05);	// check address
+}
+
+#endif
+

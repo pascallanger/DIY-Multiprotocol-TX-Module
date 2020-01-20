@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	63
+#define VERSION_PATCH_LEVEL	64
 
 //******************
 // Protocols
@@ -90,6 +90,7 @@ enum PROTOCOLS
 	PROTO_TIGER		= 61,	// =>NRF24L01
 	PROTO_XK		= 62,	// =>NRF24L01
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
+	PROTO_FRSKYX2	= 64,	// =>CC2500
 };
 
 enum Flysky
@@ -211,6 +212,13 @@ enum FRSKYX
 	CH_8	= 1,
 	EU_16	= 2,
 	EU_8	= 3,
+};
+enum FRSKYX2
+{
+	FRSKYX2_CH_16	= 0,
+	FRSKYX2_CH_8	= 1,
+	FRSKYX2_EU_16	= 2,
+	FRSKYX2_EU_8	= 3,
 };
 enum HONTAI
 {

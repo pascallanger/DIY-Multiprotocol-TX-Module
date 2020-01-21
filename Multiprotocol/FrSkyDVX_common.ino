@@ -277,4 +277,3 @@ static void __attribute__((unused)) FrSkyX_initialize_data(uint8_t adr)
 }
 
 #endif
-

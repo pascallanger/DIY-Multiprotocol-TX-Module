@@ -17,7 +17,7 @@
 /**  FrSky D and X routines  **/
 /******************************/
 
-#if defined(FRSKYX_CC2500_INO) || defined(FRSKY_RX_CC2500_INO)
+#if defined(FRSKYX_CC2500_INO) || defined(FRSKY_RX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
 //**CRC**
 const uint16_t PROGMEM FrSkyX_CRC_Short[]={
 	0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,

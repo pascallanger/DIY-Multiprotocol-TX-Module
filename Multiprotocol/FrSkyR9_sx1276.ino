@@ -1,41 +1,11 @@
 #if defined(FRSKYR9_SX1276_INO)
+#include "iface_sx1276.h"
 
-#define REG_IRQ_FLAGS_MASK			0x11
+#define FREQ_MAP_SIZE				29
 
-#define REG_PAYLOAD_LENGTH			0x22
+// TODO the channel spacing is equal, consider calculating the new channel instead of using lookup tables (first_chan + index * step)
 
-
-#define REG_FIFO_ADDR_PTR			0x0D
-#define REG_FIFO_TX_BASE_ADDR		0x0E
-
-#define REG_OP_MODE 				0x01
-#define REG_DETECT_OPTIMIZE 		0x31
-#define REG_DIO_MAPPING1			0x40
-#define REG_VERSION 				0x42
-
-
-#define REG_MODEM_CONFIG1			0x1D
-#define REG_MODEM_CONFIG2			0x1E
-#define REG_MODEM_CONFIG3			0x26
-
-#define REG_PREAMBLE_LSB			0x21
-#define REG_DETECTION_THRESHOLD		0x37
-
-#define REG_LNA						0x0C
-
-#define REG_HOP_PERIOD				0x24
-
-#define REG_PA_DAC					0x4D
-
-#define REG_PA_CONFIG				0x09
-
-#define REG_FRF_MSB					0x06
-
-#define REG_FIFO					0x00
-
-#define REG_OCP						0x0B
-
-static uint32_t _freq_map[] =
+static uint32_t _freq_map_915[FREQ_MAP_SIZE] =
 {
 	914472960,
 	914972672,
@@ -70,58 +40,74 @@ static uint32_t _freq_map[] =
 	0
 };
 
-static uint8_t _step = 1;
+static uint32_t _freq_map_868[FREQ_MAP_SIZE] =
+{
+	859504640,
+	860004352,
+	860504064,
+	861003776,
+	861503488,
+	862003200,
+	862502912,
+	863002624,
+	863502336,
+	864002048,
+	864501760,
+	865001472,
+	865501184,
+	866000896,
+	866500608,
+	867000320,
+	867500032,
+	867999744,
+	868499456,
+	868999168,
+	869498880,
+	869998592,
+	870498304,
+	870998016,
+	871497728,
+	871997440,
+	872497152,
 
-static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX_temp( uint8_t i )
-{	//mapped 860,2140(125%) range to 64,1984(PXX values);
-	uint16_t chan_val=convert_channel_frsky(i)-1226;
-	if(i>7) chan_val|=2048;   // upper channels offset
-	return chan_val;
-}
+	// last two determined by _step
+	0,
+	0
+};
+
+static uint8_t _step = 1;
+static uint32_t* _freq_map = _freq_map_915;
 
 uint16_t initFrSkyR9()
 {
 	set_rx_tx_addr(MProtocol_id_master);
 
+	if(sub_protocol == 0) // 915MHz
+		_freq_map = _freq_map_915;
+	else if(sub_protocol == 1) // 868MHz
+		_freq_map = _freq_map_868;
+
 	_step = 1 + (random(0xfefefefe) % 24);
     _freq_map[27] = _freq_map[_step];
 	_freq_map[28] = _freq_map[_step+1];
 
-	SX1276_WriteReg(REG_OP_MODE, 0x80); // sleep
-	SX1276_WriteReg(REG_OP_MODE, 0x81); // standby
+	SX1276_SetMode(true, false, SX1276_OPMODE_SLEEP);
+	SX1276_SetMode(true, false, SX1276_OPMODE_STDBY);
 
-	uint8_t buffer[2];
-	buffer[0] = 0x00;
-	buffer[1] = 0x00;
-	SX1276_WriteRegisterMulti(REG_DIO_MAPPING1, buffer, 2);
+	// uint8_t buffer[2];
+	// buffer[0] = 0x00;
+	// buffer[1] = 0x00;
+	// SX1276_WriteRegisterMulti(SX1276_40_DIOMAPPING1, buffer, 2);
 
-	uint8_t val = SX1276_ReadReg(REG_DETECT_OPTIMIZE);
-	val = (val & 0b11111000) | 0b00000101;
-	SX1276_WriteReg(REG_DETECT_OPTIMIZE, val);
-
-	// val = SX1276_ReadReg(REG_MODEM_CONFIG2);
-	// val = (val & 0b00011111) | 0b11000000;
-	// writeRegister(REG_MODEM_CONFIG2, val);
-
-	SX1276_WriteReg(REG_MODEM_CONFIG1, 0x93);
-
-	SX1276_WriteReg(REG_MODEM_CONFIG2, 0x60);
-
-	val = SX1276_ReadReg(REG_MODEM_CONFIG3);
-	val = (val & 0b11110011);
-	SX1276_WriteReg(REG_MODEM_CONFIG3, val);
-
-	SX1276_WriteReg(REG_PREAMBLE_LSB, 9);
-
-	SX1276_WriteReg(REG_DETECTION_THRESHOLD, 0x0C);
-
-	SX1276_WriteReg(REG_LNA, 0x23);
-
-	SX1276_WriteReg(REG_HOP_PERIOD, 0x00);
-
-	val = SX1276_ReadReg(REG_PA_DAC);
-	val = (val & 0b11111000) | 0b00000111;
-	SX1276_WriteReg(REG_PA_DAC, val);
+	SX1276_SetDetectOptimize(true, SX1276_DETECT_OPTIMIZE_SF6);
+	SX1276_ConfigModem1(SX1276_MODEM_CONFIG1_BW_500KHZ, SX1276_MODEM_CONFIG1_CODING_RATE_4_5, true);
+	SX1276_ConfigModem2(6, false, false);
+	SX1276_ConfigModem3(false, false);
+	SX1276_SetPreambleLength(9);
+	SX1276_SetDetectionThreshold(SX1276_MODEM_DETECTION_THRESHOLD_SF6);
+	SX1276_SetLna(1, true);
+	SX1276_SetHopPeriod(0); // 0 = disabled, we hope frequencies manually
+	SX1276_SetPaDac(true);
 
 	// TODO this can probably be shorter
 	return 20000; // start calling FrSkyR9_callback in 20 milliseconds
@@ -129,47 +115,41 @@ uint16_t initFrSkyR9()
 
 uint16_t FrSkyR9_callback()
 {
-    static uint16_t index = 0;
-	uint8_t buffer[3];
+    static uint16_t freq_hop_index = 0;
+	
+	SX1276_SetMode(true, false, SX1276_OPMODE_STDBY);
 
-	SX1276_WriteReg(REG_OP_MODE, 0x81); // STDBY
-	SX1276_WriteReg(REG_IRQ_FLAGS_MASK, 0xbf); // use only RxDone interrupt
+	//SX1276_WriteReg(SX1276_11_IRQFLAGSMASK, 0xbf); // use only RxDone interrupt
 
-	buffer[0] = 0x00;
-	buffer[1] = 0x00;
-	SX1276_WriteRegisterMulti(REG_DIO_MAPPING1, buffer, 2); // RxDone interrupt mapped to DIO0 (the rest are not used because of the REG_IRQ_FLAGS_MASK)
+	// uint8_t buffer[2];
+	// buffer[0] = 0x00;
+	// buffer[1] = 0x00;
+	// SX1276_WriteRegisterMulti(SX1276_40_DIOMAPPING1, buffer, 2); // RxDone interrupt mapped to DIO0 (the rest are not used because of the REG_IRQ_FLAGS_MASK)
 
 	// SX1276_WriteReg(REG_PAYLOAD_LENGTH, 13);
 
 	// SX1276_WriteReg(REG_FIFO_ADDR_PTR, 0x00);
 
-	// SX1276_WriteReg(REG_OP_MODE, 0x85); // RXCONTINUOUS
+	// SX1276_WriteReg(SX1276_01_OPMODE, 0x85); // RXCONTINUOUS
 	// delay(10); // 10 ms
 
-	// SX1276_WriteReg(REG_OP_MODE, 0x81); // STDBY
+	// SX1276_WriteReg(SX1276_01_OPMODE, 0x81); // STDBY
 
-	SX1276_WriteReg(REG_PA_CONFIG, 0xF0);
+	//SX1276_WriteReg(SX1276_09_PACONFIG, 0xF0);
 
-	uint32_t freq = _freq_map[index] / 61;
-	
-	buffer[0] = (freq & (0xFF << 16)) >> 16;
-	buffer[1] = (freq & (0xFF << 8)) >> 8;
-	buffer[2] = freq & 0xFF;
-	
-	SX1276_WriteRegisterMulti(REG_FRF_MSB, buffer, 3); // set current center frequency
+	// max power: 15dBm (10.8 + 0.6 * MaxPower [dBm])
+	// output_power: 2 dBm (17-(15-OutputPower) (if pa_boost_pin == true))
+	SX1276_SetPaConfig(true, 7, 0);
+	SX1276_SetFrequency(_freq_map[freq_hop_index]); // set current center frequency
 	
 	delayMicroseconds(500);
-
-	SX1276_WriteReg(REG_PAYLOAD_LENGTH, 26);
-	SX1276_WriteReg(REG_FIFO_TX_BASE_ADDR, 0x00);
-	SX1276_WriteReg(REG_FIFO_ADDR_PTR, 0x00);
 
 	uint8_t payload[26];
 
 	payload[0] = 0x3C; // ????
 	payload[1] = rx_tx_addr[3]; // unique radio id
 	payload[2] = rx_tx_addr[2]; // unique radio id
-	payload[3] = index; // current channel index
+	payload[3] = freq_hop_index; // current channel index
 	payload[4] = _step; // step size and last 2 channels start index
 	payload[5] = RX_num; // receiver number from OpenTX
 
@@ -223,12 +203,11 @@ uint16_t FrSkyR9_callback()
 	payload[24] = crc; // low byte
 	payload[25] = crc >> 8; // high byte
 
-	// write payload to fifo
-	SX1276_WriteRegisterMulti(REG_FIFO, payload, 26);
+	SX1276_WritePayloadToFifo(payload, 26);
 
-	index = (index + _step) % 29;
+	freq_hop_index = (freq_hop_index + _step) % FREQ_MAP_SIZE;
 
-	SX1276_WriteReg(REG_OP_MODE, 0x83); // TX
+	SX1276_SetMode(true, false, SX1276_OPMODE_TX);
 
 	// need to clear RegIrqFlags?
 

@@ -168,7 +168,7 @@ uint16_t FrSkyR9_callback()
 	static uint8_t chan_start=0;
 	uint8_t chan_index = chan_start;
 
-	for(int i = 0; i < 8; i += 3)
+	for(int i = 0; i < 12; i += 3)
 	{
 		// map channel values (0-2047) to (64-1984)
 		uint16_t ch1 = FrSkyX_scaleForPXX(chan_index);

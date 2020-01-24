@@ -77,6 +77,7 @@
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
+//#define SX1276_INSTALLED
 
 /** OrangeRX TX **/
 //If you compile for the OrangeRX TX module you need to select the correct board type.
@@ -222,6 +223,8 @@
 #define	YD717_NRF24L01_INO
 #define	ZSX_NRF24L01_INO
 
+//The protocols below need a SX1276 to be installed
+//#define FRSKYR9_SX1276_INO
 
 /***************************/
 /*** PROTOCOLS SETTINGS  ***/

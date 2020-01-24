@@ -1504,6 +1504,14 @@ static void protocol_init()
 						break;
 				#endif
 			#endif
+			#ifdef SX1276_INSTALLED
+				#if defined(FRSKYR9_SX1276_INO)
+					case PROTO_FRSKY_R9:
+						next_callback = initFrSkyR9();
+						remote_callback = FrSkyR9_callback;
+						break;
+				#endif
+			#endif	
 		}
 		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
 		#ifdef MULTI_NAMES
@@ -1723,8 +1731,8 @@ void update_serial_data()
 		else
 			if( ((rx_ok_buff[1]&0x80)==0) && ((cur_protocol[1]&0x80)!=0) )	// Bind flag has been reset
 			{ // Request protocol to end bind
-				#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO)
-				if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A )
+				#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO) || defined(FRSKYR9_SX1276_INO)
+				if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9 )
 					BIND_DONE;
 				else
 				#endif
@@ -1870,6 +1878,9 @@ void modules_reset()
 	#endif
 	#ifdef	NRF24L01_INSTALLED
 		NRF24L01_Reset();
+	#endif
+	#ifdef	SX1276_INSTALLED
+		SX1276_Reset();
 	#endif
 
 	//Wait for every component to reset

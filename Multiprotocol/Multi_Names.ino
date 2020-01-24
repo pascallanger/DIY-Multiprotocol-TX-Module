@@ -119,7 +119,7 @@ const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4CH""7CH";
 const char STR_SUBTYPE_V911S[] =      "\x04""Std\0""E119";
 const char STR_SUBTYPE_XK[] =         "\x04""X450""X420";
-const char STR_SUBTYPE_FRSKYR9[] =  "\x07""915MHz\0""868MHz";
+const char STR_SUBTYPE_FRSKYR9[] =    "\x07""915MHz\0""868MHz\0""915 8ch""868 8ch";
 
 enum
 {
@@ -328,7 +328,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_XN297DUMP,  STR_XN297DUMP, 4, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },
 #endif
 #if defined(FRSKYR9_SX1276_INO)
-	{PROTO_FRSKY_R9,  STR_FRSKYR9, 2, STR_SUBTYPE_FRSKYR9, OPTION_NONE  },
+	{PROTO_FRSKY_R9,   STR_FRSKYR9,   4, STR_SUBTYPE_FRSKYR9, OPTION_NONE  },
 #endif
 	{0x00,             nullptr,       0, nullptr,               0 }
 };

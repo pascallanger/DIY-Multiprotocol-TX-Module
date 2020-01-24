@@ -82,10 +82,10 @@ uint16_t initFrSkyR9()
 {
 	set_rx_tx_addr(MProtocol_id_master);
 
-	if(sub_protocol == R9_915) // 915MHz
-		FrSkyR9_freq_map = FrSkyR9_freq_map_915;
-	else if(sub_protocol == R9_868) // 868MHz
+	if(sub_protocol & 0x01)
 		FrSkyR9_freq_map = FrSkyR9_freq_map_868;
+	else
+		FrSkyR9_freq_map = FrSkyR9_freq_map_915;
 
 	FrSkyR9_step = 1 + (random(0xfefefefe) % 24);
     FrSkyR9_freq_map[27] = FrSkyR9_freq_map[FrSkyR9_step];
@@ -164,10 +164,9 @@ uint16_t FrSkyR9_callback()
 	// each channel is 11 bit + 1 bit (msb) that states whether
 	// it's part of the upper channels (9-16) or lower (1-8) (0 - lower 1 - upper)
 
-	const uint8_t packet_offset = 8;
-	const bool is_upper = false;
-
-	uint8_t chan_index = 0;
+	#define CH_POS 8
+	static uint8_t chan_start=0;
+	uint8_t chan_index = chan_start;
 
 	for(int i = 0; i < 8; i += 3)
 	{
@@ -175,12 +174,15 @@ uint16_t FrSkyR9_callback()
 		uint16_t ch1 = FrSkyX_scaleForPXX(chan_index);
 		uint16_t ch2 = FrSkyX_scaleForPXX(chan_index + 1);
 
-		packet[packet_offset + i] = ch1;
-		packet[packet_offset + i + 1] = (ch1 >> 8) | (ch2 << 4);
-		packet[packet_offset + i + 2] = (ch2 >> 4);
+		packet[CH_POS + i] = ch1;
+		packet[CH_POS + i + 1] = (ch1 >> 8) | (ch2 << 4);
+		packet[CH_POS + i + 2] = (ch2 >> 4);
 
 		chan_index += 2;
 	}
+	
+	if((sub_protocol & 0x02) == 0)
+		chan_start ^= 0x08;		// Alternate between lower and upper when 16 channels is used
 	
 	packet[20] = 0x08; // ????
 	packet[21] = 0x00; // ????

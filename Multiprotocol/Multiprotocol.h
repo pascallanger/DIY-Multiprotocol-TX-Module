@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	66
+#define VERSION_PATCH_LEVEL	67
 
 //******************
 // Protocols
@@ -329,8 +329,10 @@ enum XN297DUMP
 };
 enum FRSKY_R9
 {
-	R9_915	= 0,
-	R9_868	= 1,
+	R9_915		= 0,
+	R9_868		= 1,
+	R9_915_8CH	= 2,
+	R9_868_8CH	= 3,
 };
 
 #define NONE 		0
@@ -881,8 +883,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			V911S_STD	0
 			V911S_E119	1
 		sub_protocol==FRSKY_R9
-			R9_915	0
-			R9_868	1
+			R9_915		0
+			R9_868		1
+			R9_915_8CH	2
+			R9_868_8CH	3
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

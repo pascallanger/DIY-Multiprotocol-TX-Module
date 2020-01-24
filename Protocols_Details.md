@@ -88,6 +88,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Flyzone](Protocols_Details.md#FLYZONE---53)|53|FZ410||||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|FrskyD||||||||CC2500|
+[FrskyR9](Protocols_Details.md#FRSKYR9---65)|65|FrskyR9|R9_915|R9_868||||||SX1276|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500|
 [FrskyX_RX](Protocols_Details.md#FRSKYX_RX---55)|55|FCC|EU_LBT|||||CC2500|
@@ -1338,7 +1339,23 @@ CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 ||T|R|LIGHT
 
+# SX1276 RF Module
+
+## FRSKYR9 - *65*
+Extended limits supported
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+### Sub_protocol R9_915 - *0*
+915MHz
+
+### Sub_protocol R9_868 - *1*
+868MHz
+
 # OpenLRS module
 
 ## OpenLRS - *27*
 This is a reservation for OpenLRSng which is using Multi's serial protocol for their modules: https://openlrsng.org/. On the Multi side there is no protocol affected on 27 so it's just ignored.
+

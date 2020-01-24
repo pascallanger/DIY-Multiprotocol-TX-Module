@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	65
+#define VERSION_PATCH_LEVEL	66
 
 //******************
 // Protocols
@@ -91,7 +91,7 @@ enum PROTOCOLS
 	PROTO_XK		= 62,	// =>NRF24L01
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 	PROTO_FRSKYX2	= 64,	// =>CC2500
-	PROTO_FRSKY_R9	= 65	// =>SX1276
+	PROTO_FRSKY_R9	= 65,	// =>SX1276
 };
 
 enum Flysky
@@ -326,6 +326,11 @@ enum XN297DUMP
 	XN297DUMP_1M	= 1,
 	XN297DUMP_2M	= 2,
 	XN297DUMP_AUTO	= 3,
+};
+enum FRSKY_R9
+{
+	R9_915	= 0,
+	R9_868	= 1,
 };
 
 #define NONE 		0
@@ -720,6 +725,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				TIGER		61
 				XK			62
 				XN297DUMP	63
+				FRSKYX2		64
+				FRSKY_R9	65
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -873,6 +880,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==V911S
 			V911S_STD	0
 			V911S_E119	1
+		sub_protocol==FRSKY_R9
+			R9_915	0
+			R9_868	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

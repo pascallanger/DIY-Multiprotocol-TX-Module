@@ -180,6 +180,7 @@
 	#undef CC25_CSN_pin
 	#undef NRF24L01_INSTALLED	// Disable NRF for OrangeTX module
 	#undef NRF_CSN_pin
+	#undef SX1276_INSTALLED		// Disable NRF for OrangeTX module
 	#define TELEMETRY			// Enable telemetry
 	#define INVERT_TELEMETRY	// Enable invert telemetry
 	#define DSM_TELEMETRY		// Enable DSM telemetry
@@ -255,6 +256,12 @@
 	#undef	BAYANG_RX_NRF24L01_INO
 	#undef	TIGER_NRF24L01_INO
 	#undef	XK_NRF24L01_INO
+#endif
+#if not defined(STM32_BOARD)
+	#undef SX1276_INSTALLED
+#endif
+#ifndef SX1276_INSTALLED
+	#undef FRSKYR9_SX1276_INO
 #endif
 
 //Make sure telemetry is selected correctly

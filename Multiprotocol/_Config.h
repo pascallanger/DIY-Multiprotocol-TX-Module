@@ -77,7 +77,7 @@
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
-//#define SX1276_INSTALLED
+//#define SX1276_INSTALLED		// only supported on STM32 modules
 
 /** OrangeRX TX **/
 //If you compile for the OrangeRX TX module you need to select the correct board type.
@@ -563,6 +563,9 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		NONE
 	PROTO_FRSKYD
 		NONE
+	PROTO_FRSKYR9
+		R9_915
+		R9_868
 	PROTO_FRSKYV
 		NONE
 	PROTO_FRSKYX

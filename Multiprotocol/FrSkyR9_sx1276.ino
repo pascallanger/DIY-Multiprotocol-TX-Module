@@ -5,7 +5,7 @@
 
 // TODO the channel spacing is equal, consider calculating the new channel instead of using lookup tables (first_chan + index * step)
 
-static uint32_t _freq_map_915[FREQ_MAP_SIZE] =
+static uint32_t FrSkyR9_freq_map_915[FREQ_MAP_SIZE] =
 {
 	914472960,
 	914972672,
@@ -35,12 +35,12 @@ static uint32_t _freq_map_915[FREQ_MAP_SIZE] =
 	926965760,
 	927465472,
 
-	// last two determined by _step
+	// last two determined by FrSkyR9_step
 	0,
 	0
 };
 
-static uint32_t _freq_map_868[FREQ_MAP_SIZE] =
+static uint32_t FrSkyR9_freq_map_868[FREQ_MAP_SIZE] =
 {
 	859504640,
 	860004352,
@@ -70,26 +70,26 @@ static uint32_t _freq_map_868[FREQ_MAP_SIZE] =
 	871997440,
 	872497152,
 
-	// last two determined by _step
+	// last two determined by FrSkyR9_step
 	0,
 	0
 };
 
-static uint8_t _step = 1;
-static uint32_t* _freq_map = _freq_map_915;
+static uint8_t FrSkyR9_step = 1;
+static uint32_t* FrSkyR9_freq_map = FrSkyR9_freq_map_915;
 
 uint16_t initFrSkyR9()
 {
 	set_rx_tx_addr(MProtocol_id_master);
 
-	if(sub_protocol == 0) // 915MHz
-		_freq_map = _freq_map_915;
-	else if(sub_protocol == 1) // 868MHz
-		_freq_map = _freq_map_868;
+	if(sub_protocol == R9_915) // 915MHz
+		FrSkyR9_freq_map = FrSkyR9_freq_map_915;
+	else if(sub_protocol == R9_868) // 868MHz
+		FrSkyR9_freq_map = FrSkyR9_freq_map_868;
 
-	_step = 1 + (random(0xfefefefe) % 24);
-    _freq_map[27] = _freq_map[_step];
-	_freq_map[28] = _freq_map[_step+1];
+	FrSkyR9_step = 1 + (random(0xfefefefe) % 24);
+    FrSkyR9_freq_map[27] = FrSkyR9_freq_map[FrSkyR9_step];
+	FrSkyR9_freq_map[28] = FrSkyR9_freq_map[FrSkyR9_step+1];
 
 	SX1276_SetMode(true, false, SX1276_OPMODE_SLEEP);
 	SX1276_SetMode(true, false, SX1276_OPMODE_STDBY);
@@ -109,14 +109,14 @@ uint16_t initFrSkyR9()
 	SX1276_SetHopPeriod(0); // 0 = disabled, we hope frequencies manually
 	SX1276_SetPaDac(true);
 
+	hopping_frequency_no = 0;
+
 	// TODO this can probably be shorter
 	return 20000; // start calling FrSkyR9_callback in 20 milliseconds
 }
 
 uint16_t FrSkyR9_callback()
 {
-    static uint16_t freq_hop_index = 0;
-	
 	SX1276_SetMode(true, false, SX1276_OPMODE_STDBY);
 
 	//SX1276_WriteReg(SX1276_11_IRQFLAGSMASK, 0xbf); // use only RxDone interrupt
@@ -140,75 +140,61 @@ uint16_t FrSkyR9_callback()
 	// max power: 15dBm (10.8 + 0.6 * MaxPower [dBm])
 	// output_power: 2 dBm (17-(15-OutputPower) (if pa_boost_pin == true))
 	SX1276_SetPaConfig(true, 7, 0);
-	SX1276_SetFrequency(_freq_map[freq_hop_index]); // set current center frequency
+	SX1276_SetFrequency(FrSkyR9_freq_map[hopping_frequency_no]); // set current center frequency
 	
 	delayMicroseconds(500);
 
-	uint8_t payload[26];
-
-	payload[0] = 0x3C; // ????
-	payload[1] = rx_tx_addr[3]; // unique radio id
-	payload[2] = rx_tx_addr[2]; // unique radio id
-	payload[3] = freq_hop_index; // current channel index
-	payload[4] = _step; // step size and last 2 channels start index
-	payload[5] = RX_num; // receiver number from OpenTX
+	packet[0] = 0x3C; // ????
+	packet[1] = rx_tx_addr[3]; // unique radio id
+	packet[2] = rx_tx_addr[2]; // unique radio id
+	packet[3] = hopping_frequency_no; // current channel index
+	packet[4] = FrSkyR9_step; // step size and last 2 channels start index
+	packet[5] = RX_num; // receiver number from OpenTX
 
 	// binding mode: 0x00 regular / 0x41 bind?
 	if(IS_BIND_IN_PROGRESS)
-		payload[6] = 0x41; 
+		packet[6] = 0x41; 
 	else
-		payload[6] = 0x00;
+		packet[6] = 0x00;
 
 	// TODO
-	payload[7] = 0x00; // fail safe related (looks like the same sequence of numbers as FrskyX protocol)
+	packet[7] = 0x00; // fail safe related (looks like the same sequence of numbers as FrskyX protocol)
 
 	// two channel are spread over 3 bytes.
 	// each channel is 11 bit + 1 bit (msb) that states whether
 	// it's part of the upper channels (9-16) or lower (1-8) (0 - lower 1 - upper)
 
-	const int payload_offset = 8;
+	const uint8_t packet_offset = 8;
 	const bool is_upper = false;
 
-	int chan_index = 0;
+	uint8_t chan_index = 0;
 
 	for(int i = 0; i < 8; i += 3)
 	{
 		// map channel values (0-2047) to (64-1984)
-		//uint16_t ch1 = 64 + (uint16_t)((1920.0f / 2047.0f) * Channel_data[chan_index]);
-		//uint16_t ch2 = 64 + (uint16_t)((1920.0f / 2047.0f) * Channel_data[chan_index + 1]);
-
 		uint16_t ch1 = FrSkyX_scaleForPXX(chan_index);
 		uint16_t ch2 = FrSkyX_scaleForPXX(chan_index + 1);
 
+		packet[packet_offset + i] = ch1;
+		packet[packet_offset + i + 1] = (ch1 >> 8) | (ch2 << 4);
+		packet[packet_offset + i + 2] = (ch2 >> 4);
+
 		chan_index += 2;
-
-		payload[payload_offset + i] = ch1;
-
-		if(is_upper)
-		{
-			payload[payload_offset + i + 1] = ((ch1 >> 8) | 0b1000) | (ch2 << 4);
-			payload[payload_offset + i + 2] = (ch2 >> 4) | 0b10000000;
-		}
-		else
-		{
-			payload[payload_offset + i + 1] = ((ch1 >> 8) & 0b0111) | (ch2 << 4);
-			payload[payload_offset + i + 2] = (ch2 >> 4) & 0b01111111;
-		}
 	}
 	
-	payload[20] = 0x08; // ????
-	payload[21] = 0x00; // ????
-	payload[22] = 0x00; // ????
-	payload[23] = 0x00; // ????
+	packet[20] = 0x08; // ????
+	packet[21] = 0x00; // ????
+	packet[22] = 0x00; // ????
+	packet[23] = 0x00; // ????
 
-	uint16_t crc = FrSkyX_crc(payload, 24);
+	uint16_t crc = FrSkyX_crc(packet, 24);
 
-	payload[24] = crc; // low byte
-	payload[25] = crc >> 8; // high byte
+	packet[24] = crc; // low byte
+	packet[25] = crc >> 8; // high byte
 
-	SX1276_WritePayloadToFifo(payload, 26);
+	SX1276_WritePayloadToFifo(packet, 26);
 
-	freq_hop_index = (freq_hop_index + _step) % FREQ_MAP_SIZE;
+	hopping_frequency_no = (hopping_frequency_no + FrSkyR9_step) % FREQ_MAP_SIZE;
 
 	SX1276_SetMode(true, false, SX1276_OPMODE_TX);
 

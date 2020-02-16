@@ -1306,24 +1306,19 @@ CH1|CH2|CH3|CH4|CH5
 Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
 
 ## V911S - *46*
-
 This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
 
 If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-### Sub_protocol V911S - *0*
-Models: WLtoys V911S, XK A110
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|CALIB
 
+### Sub_protocol V911S - *0*
+Models: WLtoys V911S, XK A110
+
 ### Sub_protocol E119 - *1*
 Models: Eachine E119
-
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|L_BUT|R_BUT
 
 ## YD717 - *8*
 Autobind protocol

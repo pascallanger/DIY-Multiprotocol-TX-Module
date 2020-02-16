@@ -84,6 +84,10 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 	// init crc
 	crc = 0xb5d2;
 	
+	/*debug("P: 71 0F 55 ");
+	for(uint8_t i=0; i<XN297DUMP_MAX_PACKET_LEN; i++)
+		debug("%02X ",packet[i]);
+	debugln("");*/
 	//Try normal payload
 	// address
 	for (uint8_t i = 0; i < address_length; i++)

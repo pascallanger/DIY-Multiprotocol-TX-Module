@@ -139,6 +139,7 @@
 //If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
 // then you can force the ID to a certain known value using the lines below.
 //Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
+//The 8 numbers below can be anything between 0...9 and A..F
 //#define FORCE_GLOBAL_ID	0x12345678
 
 //Protocols using the CYRF6936 (DSM, Devo, Walkera...) are using the CYRF ID instead which should prevent duplicated IDs.
@@ -244,7 +245,7 @@
 //Some models (X-Vert, Blade 230S...) require a special value to instant stop the motor(s).
 // You can disable this feature by adding "//" on the line below. You have to specify which channel (14 by default) will be used to kill the throttle channel.
 // If the channel 14 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%.
-// For example, a value of -80% applied on channel 15 will instantly kill the motors on the X-Vert.
+// For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
 #define DSM_THROTTLE_KILL_CH 14 
 
 //AFHDS2A specific settings

@@ -117,7 +117,7 @@ const char STR_SUBTYPE_FLYZONE[] =    "\x05""FZ410";
 const char STR_SUBTYPE_FX816[] =      "\x03""P38";
 const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ";
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4CH""7CH";
-const char STR_SUBTYPE_V911S[] =      "\x04""Std\0""E119";
+const char STR_SUBTYPE_V911S[] =      "\x05""V911S""E119\0";
 const char STR_SUBTYPE_XK[] =         "\x04""X450""X420";
 const char STR_SUBTYPE_FRSKYR9[] =    "\x07""915MHz\0""868MHz\0""915 8ch""868 8ch";
 
@@ -274,7 +274,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_E01X,       STR_E01X,      3, STR_SUBTYPE_E01X,      OPTION_OPTION  },
 #endif
 #if defined(V911S_NRF24L01_INO)
-	{PROTO_V911S,      STR_V911S,     1, STR_SUBTYPE_V911S,     OPTION_RFTUNE  },
+	{PROTO_V911S,      STR_V911S,     2, STR_SUBTYPE_V911S,     OPTION_RFTUNE  },
 #endif
 #if defined(GD00X_NRF24L01_INO)
 	{PROTO_GD00X,      STR_GD00X,     2, STR_SUBTYPE_GD00X,     OPTION_RFTUNE  },

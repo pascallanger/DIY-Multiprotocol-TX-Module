@@ -233,7 +233,7 @@ static void __attribute__((unused)) XN297L_WriteEnhancedPayload(uint8_t* msg, ui
 			buf[last] ^= xn297_scramble[scramble_index++] & 0xc0;
 
 		// crc
-		if (xn297_crc)
+		//if (xn297_crc)
 		{
 			uint8_t offset = xn297_addr_len < 4 ? 1 : 0;
 			uint16_t crc = 0xb5d2;
@@ -249,11 +249,9 @@ static void __attribute__((unused)) XN297L_WriteEnhancedPayload(uint8_t* msg, ui
 			buf[last++] = ((crc >> 8) << 6) | ((crc & 0xff) >> 2);
 			buf[last++] = (crc & 0xff) << 6;
 		}
-		NRF24L01_WritePayload(packet, last);
 
 		pid++;
-		if(pid>3)
-			pid=0;
+		pid &= 3;
 
 		// stop TX/RX
 		CC2500_Strobe(CC2500_SIDLE);
@@ -262,7 +260,7 @@ static void __attribute__((unused)) XN297L_WriteEnhancedPayload(uint8_t* msg, ui
 		// packet length
 		CC2500_WriteReg(CC2500_3F_TXFIFO, last + 3);
 		// xn297L preamble
-		CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, (uint8_t*)"\x71\x0f\x55", 3);
+		CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, (uint8_t*)"\x71\x0F\x55", 3);
 		// xn297 packet
 		CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buf, last);
 		// transmit

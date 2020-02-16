@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	67
+#define VERSION_PATCH_LEVEL	68
 
 //******************
 // Protocols
@@ -879,9 +879,6 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==XK
 			X450		0
 			X420		1
-		sub_protocol==V911S
-			V911S_STD	0
-			V911S_E119	1
 		sub_protocol==FRSKY_R9
 			R9_915		0
 			R9_868		1

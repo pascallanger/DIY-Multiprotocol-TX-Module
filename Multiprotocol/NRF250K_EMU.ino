@@ -353,7 +353,11 @@ static void __attribute__((unused)) XN297L_SetFreqOffset()
 
 static void __attribute__((unused)) NRF250K_SetTXAddr(uint8_t* addr, uint8_t len)
 {
+	if (len > 5) len = 5;
+	if (len < 3) len = 3;
 	#ifdef CC2500_INSTALLED
+	xn297_addr_len = len;
+	memcpy(xn297_tx_addr, addr, len);
 	if(option==0)
 	#endif
 	{//NRF
@@ -361,12 +365,6 @@ static void __attribute__((unused)) NRF250K_SetTXAddr(uint8_t* addr, uint8_t len
 		return;
 	}
 	//CC2500
-	#ifdef CC2500_INSTALLED
-		if (len > 5) len = 5;
-		if (len < 3) len = 3;
-		xn297_addr_len = len;
-		memcpy(xn297_tx_addr, addr, len);
-	#endif
 }
 
 static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t len)
@@ -388,16 +386,15 @@ static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t l
 
 		//nrf preamble
 		if(xn297_tx_addr[xn297_addr_len - 1] & 0x80)
-			buf[0]=0x55;
-		else
 			buf[0]=0xAA;
+		else
+			buf[0]=0x55;
 		last++;
 		// address
 		for (i = 0; i < xn297_addr_len; ++i)
 			buf[last++] = xn297_tx_addr[xn297_addr_len - i - 1];
 		// payload
 		for (i = 0; i < len; ++i)
-			// bit-reverse bytes in packet
 			buf[last++] = msg[i];
 
 		// crc
@@ -407,6 +404,9 @@ static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t l
 		buf[last++] = crc >> 8;
 		buf[last++] = crc & 0xff;
 
+		//for(uint8_t i=0;i<last;i++)
+		//	debug("%02X ",buf[i]);
+		//debugln("");
 		// stop TX/RX
 		CC2500_Strobe(CC2500_SIDLE);
 		// flush tx FIFO

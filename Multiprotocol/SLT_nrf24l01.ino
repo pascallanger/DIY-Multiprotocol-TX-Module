@@ -49,7 +49,8 @@ enum {
 	SLT_DATA2,
 	SLT_DATA3,
 	SLT_BIND1,
-	SLT_BIND2
+	SLT_BIND2,
+	SLT_TEST
 };
 
 static void __attribute__((unused)) SLT_init()
@@ -120,6 +121,7 @@ static void __attribute__((unused)) SLT_build_packet()
 	static uint8_t calib_counter=0;
 	
 	// Set radio channel - once per packet batch
+	NRF250K_SetFreqOffset();	// Set frequency offset
 	NRF250K_Hopping(hopping_frequency_no);
 	if (++hopping_frequency_no >= SLT_NFREQCHANNELS)
 		hopping_frequency_no = 0;
@@ -258,7 +260,13 @@ uint16_t SLT_callback()
 				return 20000-SLT_TIMING_BUILD-SLT_V1_TIMING_BIND2;
 			else //V2
 				return 13730-SLT_TIMING_BUILD-SLT_V2_TIMING_BIND1-SLT_V2_TIMING_BIND2;
-	}
+/*		case SLT_TEST:
+			for(uint8_t i=0;i<10;i++)
+				packet[i]=0x10+i;
+			NRF250K_WritePayload(packet,10);
+			NRF250K_SetFreqOffset();	// Set frequency offset
+			return 5000;
+*/	}
 	return 19000;
 }
 
@@ -279,6 +287,11 @@ uint16_t initSLT()
 	SLT_set_freq();
 	SLT_init();
 	phase = SLT_BUILD;
+	
+/*	phase=SLT_TEST;
+	NRF250K_SetTXAddr((uint8_t*)"\x01\x02\x03\x04\x05",5);
+	NRF250K_RFChannel(0);
+*/
 	return 50000;
 }
 

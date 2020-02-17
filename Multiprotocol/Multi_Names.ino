@@ -169,7 +169,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_SYMAX,      STR_SYMAX,     2, STR_SUBTYPE_SYMAX,     OPTION_NONE    },
 #endif
 #if defined(SLT_NRF24L01_INO)
-	{PROTO_SLT,        STR_SLT,       5, STR_SUBTYPE_SLT,       OPTION_NONE    },
+	{PROTO_SLT,        STR_SLT,       5, STR_SUBTYPE_SLT,       OPTION_RFTUNE    },
 #endif
 #if defined(CX10_NRF24L01_INO)
 	{PROTO_CX10,       STR_CX10,      7, STR_SUBTYPE_CX10,      OPTION_NONE    },

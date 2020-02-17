@@ -428,9 +428,7 @@ static boolean __attribute__((unused)) NRF250K_IsPacketSent()
 	{	//NRF
 		return NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS);
 	}
-	#ifdef CC2500_INSTALLED
-	return CC2500_ReadReg(CC2500_35_MARCSTATE)==0x01;	// State is IDLE
-	#endif
+	return true;	// don't know on the CC2500 how to detect if the packet has been transmitted...
 }
 
 #endif

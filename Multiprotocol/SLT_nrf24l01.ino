@@ -50,7 +50,6 @@ enum {
 	SLT_DATA3,
 	SLT_BIND1,
 	SLT_BIND2,
-	SLT_TEST
 };
 
 static void __attribute__((unused)) SLT_init()
@@ -183,12 +182,6 @@ static void __attribute__((unused)) SLT_send_bind_packet()
 		SLT_send_packet(SLT_TXID_SIZE);
 	else // SLT_BIND1
 		SLT_send_packet(SLT_PAYLOADSIZE_V2);
-
-	SLT_wait_radio();					//Wait until the packet's sent before changing TX address!
-
-	NRF250K_SetPower();					//Change power back to normal level
-	if(phase==SLT_BIND2) 				//After V1 bind and V2 second bind packet
-		NRF250K_SetTXAddr(rx_tx_addr, SLT_TXID_SIZE);
 }
 
 #define SLT_TIMING_BUILD		1000
@@ -206,6 +199,8 @@ uint16_t SLT_callback()
 				telemetry_set_input_sync(sub_protocol==SLT_V1?20000:13730);
 			#endif
 			SLT_build_packet();
+			NRF250K_SetPower();					//Change power level
+			NRF250K_SetTXAddr(rx_tx_addr, SLT_TXID_SIZE);
 			phase++;
 			return SLT_TIMING_BUILD;
 		case SLT_DATA1:
@@ -260,13 +255,7 @@ uint16_t SLT_callback()
 				return 20000-SLT_TIMING_BUILD-SLT_V1_TIMING_BIND2;
 			else //V2
 				return 13730-SLT_TIMING_BUILD-SLT_V2_TIMING_BIND1-SLT_V2_TIMING_BIND2;
-/*		case SLT_TEST:
-			for(uint8_t i=0;i<10;i++)
-				packet[i]=0x10+i;
-			NRF250K_WritePayload(packet,10);
-			NRF250K_SetFreqOffset();	// Set frequency offset
-			return 5000;
-*/	}
+	}
 	return 19000;
 }
 
@@ -288,10 +277,6 @@ uint16_t initSLT()
 	SLT_init();
 	phase = SLT_BUILD;
 	
-/*	phase=SLT_TEST;
-	NRF250K_SetTXAddr((uint8_t*)"\x01\x02\x03\x04\x05",5);
-	NRF250K_RFChannel(0);
-*/
 	return 50000;
 }
 

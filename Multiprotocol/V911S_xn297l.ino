@@ -16,7 +16,7 @@
 
 #if defined(V911S_NRF24L01_INO)
 
-#include "iface_xn297l.h"
+#include "iface_nrf250k.h"
 
 //#define V911S_ORIGINAL_ID
 

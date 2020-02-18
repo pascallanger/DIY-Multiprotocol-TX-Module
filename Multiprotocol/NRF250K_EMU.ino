@@ -361,6 +361,7 @@ static void __attribute__((unused)) NRF250K_SetTXAddr(uint8_t* addr, uint8_t len
 	if(option==0)
 	#endif
 	{//NRF
+		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, len-2);
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, len);
 		return;
 	}
@@ -403,6 +404,7 @@ static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t l
 			crc = crc16_update(crc, buf[i], 8);
 		buf[last++] = crc >> 8;
 		buf[last++] = crc & 0xff;
+		buf[last++] = 0;
 
 		//for(uint8_t i=0;i<last;i++)
 		//	debug("%02X ",buf[i]);

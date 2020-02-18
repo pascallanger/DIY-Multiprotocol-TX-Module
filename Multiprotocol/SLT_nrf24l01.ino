@@ -237,7 +237,6 @@ uint16_t SLT_callback()
 			}
 			else
 			{// Continue to send normal packets
-				NRF250K_SetPower();	// Set tx_power
 				phase = SLT_BUILD;
 				if(sub_protocol==SLT_V1)
 					return 20000-SLT_TIMING_BUILD;

@@ -272,10 +272,9 @@ uint16_t initSLT()
 		/*	rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x0B;rx_tx_addr[3]=0x57;*/
 		#endif
 	}
-	SLT_set_freq();
 	SLT_init();
+	SLT_set_freq();
 	phase = SLT_BUILD;
-	
 	return 50000;
 }
 

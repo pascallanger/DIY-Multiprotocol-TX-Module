@@ -356,8 +356,6 @@ static void __attribute__((unused)) NRF250K_SetTXAddr(uint8_t* addr, uint8_t len
 	if (len > 5) len = 5;
 	if (len < 3) len = 3;
 	#ifdef CC2500_INSTALLED
-	xn297_addr_len = len;
-	memcpy(xn297_tx_addr, addr, len);
 	if(option==0)
 	#endif
 	{//NRF
@@ -366,6 +364,10 @@ static void __attribute__((unused)) NRF250K_SetTXAddr(uint8_t* addr, uint8_t len
 		return;
 	}
 	//CC2500
+	#ifdef CC2500_INSTALLED
+		xn297_addr_len = len;
+		memcpy(xn297_tx_addr, addr, len);
+	#endif
 }
 
 static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t len)

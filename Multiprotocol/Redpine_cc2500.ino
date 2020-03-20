@@ -17,10 +17,10 @@
 
 #include "iface_cc2500.h"
 
-#define REDPINE_LOOPTIME_FAST 25	//2.5ms
-#define REDPINE_LOOPTIME_SLOW 6  	//6ms
+#define REDPINE_LOOPTIME_FAST 20	//2.0ms
+#define REDPINE_LOOPTIME_SLOW 20  	//20ms
 
-#define REDPINE_BIND 1000
+#define REDPINE_BIND 2000
 #define REDPINE_PACKET_SIZE 11
 #define REDPINE_FEC false  // from cc2500 datasheet: The convolutional coder is a rate 1/2 code with a constraint length of m=4
 #define REDPINE_NUM_HOPS 50
@@ -105,10 +105,9 @@ static uint16_t ReadREDPINE()
 	}
 	if(IS_BIND_IN_PROGRESS)
 	{
-		if(bind_counter == REDPINE_BIND)
-			REDPINE_init(0);
-		if(bind_counter == REDPINE_BIND/2)
-			REDPINE_init(1);
+        if (state == REDPINE_BIND) {
+    		REDPINE_init(0);
+        }
 		REDPINE_set_channel(49);
         CC2500_SetTxRxMode(TX_EN);
 		CC2500_SetPower();
@@ -121,7 +120,7 @@ static uint16_t ReadREDPINE()
 			BIND_DONE;
 			REDPINE_init(sub_protocol);
 		}
-		return 9000;
+		return 4000;
 	}
 	else
 	{
@@ -149,23 +148,19 @@ static const uint8_t REDPINE_init_data[][3] = {
     {CC2500_07_PKTCTRL1,  0x04, 0x04},
     {CC2500_08_PKTCTRL0,  0x05, 0x05},
     {CC2500_09_ADDR,      0x00, 0x00},
-    {CC2500_0B_FSCTRL1,   0x0A, 0x0A},
+    {CC2500_0B_FSCTRL1,   0x0A, 0x06},
     {CC2500_0C_FSCTRL0,   0x00, 0x00},
-    {CC2500_0D_FREQ2,     0x5D, 0x5c},
-    {CC2500_0E_FREQ1,     0x93, 0x76},
-    {CC2500_0F_FREQ0,     0xB1, 0x27},
-    {CC2500_10_MDMCFG4,   0x2D, 0x7B},
-    {CC2500_11_MDMCFG3,   0x3B, 0x61},
-    {CC2500_12_MDMCFG2,   0x73, 0x13},
-    #ifdef REDPINE_FEC    
-        {CC2500_13_MDMCFG1,   0xA3, 0xA3},
-    #else
-        {CC2500_13_MDMCFG1,   0x23, 0x23},
-    #endif
-    {CC2500_14_MDMCFG0,   0x56, 0x7a},  // Chan space
-    {CC2500_15_DEVIATN,   0x00, 0x51},
+    {CC2500_0D_FREQ2,     0x5D, 0x5D},
+    {CC2500_0E_FREQ1,     0x93, 0x93},
+    {CC2500_0F_FREQ0,     0xB1, 0xB1},
+    {CC2500_10_MDMCFG4,   0x2D, 0x78},
+    {CC2500_11_MDMCFG3,   0x3B, 0x93},
+    {CC2500_12_MDMCFG2,   0x73, 0x03},
+    {CC2500_13_MDMCFG1,   0x23, 0x22},
+    {CC2500_14_MDMCFG0,   0x56, 0xF8},  // Chan space
+    {CC2500_15_DEVIATN,   0x00, 0x44},
     {CC2500_17_MCSM1,     0x0c, 0x0c},
-    {CC2500_18_MCSM0,     0x08, 0x08}, //??? 0x18, 0x18},
+    {CC2500_18_MCSM0,     0x18, 0x18},
     {CC2500_19_FOCCFG,    0x1D, 0x16},
     {CC2500_1A_BSCFG,     0x1C, 0x6c},
     {CC2500_1B_AGCCTRL2,  0xC7, 0x43},
@@ -181,7 +176,7 @@ static const uint8_t REDPINE_init_data[][3] = {
     {CC2500_2C_TEST2,     0x88, 0x88},
     {CC2500_2D_TEST1,     0x31, 0x31},
     {CC2500_2E_TEST0,     0x0B, 0x0B},
-    {CC2500_3E_PATABLE,   0xff, 0xff}
+	{CC2500_3E_PATABLE,   0xff, 0xff}
 };
 
 static void REDPINE_init(uint8_t format)
@@ -190,8 +185,9 @@ static void REDPINE_init(uint8_t format)
 
 	CC2500_WriteReg(CC2500_06_PKTLEN, REDPINE_PACKET_SIZE);
 
-	for (uint8_t i=0; i < ((sizeof REDPINE_init_data) / (sizeof REDPINE_init_data[0])); i++)
+	for (uint8_t i=0; i < ((sizeof(REDPINE_init_data)) / (sizeof(REDPINE_init_data[0]))); i++) {
 		CC2500_WriteReg(REDPINE_init_data[i][0], REDPINE_init_data[i][format+1]);
+	}
 
 	prev_option = option;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
@@ -215,7 +211,6 @@ static uint16_t initREDPINE()
 	uint32_t idx = 0;
 	uint32_t rnd = MProtocol_id;
 	#define REDPINE_MAX_RF_CHANNEL 255
-	hopping_frequency[idx++] = 1;
 	while (idx < REDPINE_NUM_HOPS-1)
 	{
 		uint32_t i;
@@ -226,8 +221,9 @@ static uint16_t initREDPINE()
 		for (i = 0; i < idx; i++)
 		{
 			uint8_t ch = hopping_frequency[i];
-			if ((ch <= next_ch + 1) && (ch >= next_ch - 1) && (ch > 1))
-				break;
+            if ((ch <= next_ch + 1) && (ch >= next_ch - 1) && (ch >= 1)) {
+                break;
+            }
 		}
 		if (i != idx)
 			continue;

@@ -120,6 +120,7 @@ const char STR_SUBTYPE_ESKY150[] =    "\x03""4CH""7CH";
 const char STR_SUBTYPE_V911S[] =      "\x05""V911S""E119\0";
 const char STR_SUBTYPE_XK[] =         "\x04""X450""X420";
 const char STR_SUBTYPE_FRSKYR9[] =    "\x07""915MHz\0""868MHz\0""915 8ch""868 8ch";
+const char STR_SUBTYPE_ESKY[] =       "\x03""Std""ET4";
 
 enum
 {
@@ -187,7 +188,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_FRSKYX2,    STR_FRSKYX2,   4, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
 #endif
 #if defined(ESKY_NRF24L01_INO)
-	{PROTO_ESKY,       STR_ESKY,      0, NO_SUBTYPE,            OPTION_NONE    },
+	{PROTO_ESKY,       STR_ESKY,      2, STR_SUBTYPE_ESKY,      OPTION_NONE    },
 #endif
 #if defined(MT99XX_NRF24L01_INO)
 	{PROTO_MT99XX,     STR_MT99XX,    5, STR_SUBTYPE_MT99,      OPTION_NONE    },

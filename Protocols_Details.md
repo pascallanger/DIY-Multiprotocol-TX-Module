@@ -80,7 +80,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01|XN297
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2-22|DSM2-11|DSMX-22|DSMX-11|AUTO||||CYRF6936|
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
-[ESky](Protocols_Details.md#ESKY---16)|16|ESky||||||||NRF24L01|
+[ESky](Protocols_Details.md#ESKY---16)|16|ESky|Std|ET4||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105|
@@ -850,6 +850,12 @@ A|E|T|R|STOP|FLIP|-|HEADLESS|RTH
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|GYRO|PITCH
+
+### Sub_protocol Std - *0*
+
+### Sub_protocol ET4 - *1*
+Models compatible with the ET4 transmitter like ESky Big Lama
+**Multiple IDs but only one frequency...**
 
 ## ESKY150 - *35*
 ESky protocol for small models since 2014 (150, 300, 150X, ...)

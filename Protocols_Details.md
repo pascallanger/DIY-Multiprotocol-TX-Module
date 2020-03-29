@@ -91,6 +91,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyR9](Protocols_Details.md#FRSKYR9---65)|65|FrskyR9|R9_915|R9_868||||||SX1276|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500|
+[FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|||||CC2500|
 [FrskyX_RX](Protocols_Details.md#FRSKYX_RX---55)|55|FCC|EU_LBT|||||CC2500|
 [FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
@@ -333,7 +334,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ## FRSKYX - *15*
-Models: FrSky receivers X4R, X6R and X8R. Also known as D16.
+Models: FrSky v1.xxx receivers X4R, X6R and X8R. Protocol also known as D16.
 
 Extended limits and failsafe supported
 
@@ -369,6 +370,9 @@ EU-LBT protocol 8 channels @9ms. Note that the LBT part is not implemented, the 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+## FRSKYX2 - *64*
+Same as FrSkyX but for v2.1.0.
 
 ## FRSKYX_RX - *55*
 The FrSkyX receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...

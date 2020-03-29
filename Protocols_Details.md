@@ -92,7 +92,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|||||CC2500|
-[FrskyX_RX](Protocols_Details.md#FRSKYX_RX---55)|55|FCC|EU_LBT|||||CC2500|
+[FrskyX_RX](Protocols_Details.md#FRSKYX_RX---55)|55|||||||||CC2500|
 [FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|
@@ -376,6 +376,8 @@ Same as FrSkyX but for v2.1.0.
 
 ## FRSKYX_RX - *55*
 The FrSkyX receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
+
+Auto selection of FrSkyD and FrSkyX v1.xxx at bind time.
 
 Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 

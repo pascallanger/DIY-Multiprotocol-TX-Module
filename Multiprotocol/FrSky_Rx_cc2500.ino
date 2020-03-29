@@ -414,12 +414,19 @@ uint16_t FrSky_Rx_callback()
 					RX_RSSI -= 128;
 				else
 					RX_RSSI += 128;
+				bool chanskip_valid=true;
 				// hop to next channel
 				if (frsky_rx_format == FRSKY_RX_D16FCC || frsky_rx_format == FRSKY_RX_D16LBT)
-					frsky_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);
+				{
+					if(rx_data_started)
+						if(frsky_rx_chanskip != ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2))
+							chanskip_valid=false;	// chanskip value has changed which surely indicates a bad frame
+					else
+						frsky_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);	// chanskip init
+				}
 				hopping_frequency_no = (hopping_frequency_no + frsky_rx_chanskip) % 47;
 				frsky_rx_set_channel(hopping_frequency_no);
-				if (telemetry_link == 0) { // send channels to TX
+				if (telemetry_link == 0 && chanskip_valid) { // send channels to TX
 						frsky_rx_build_telemetry_packet();
 						telemetry_link = 1;
 				}

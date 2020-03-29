@@ -89,11 +89,6 @@
 		#error "The FrSkyX forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
-#ifdef FORCE_FRSKYX2_TUNING
-	#if ( FORCE_FRSKYX2_TUNING < -127 ) || ( FORCE_FRSKYX2_TUNING > 127 )
-		#error "The FrSkyX2 forced frequency tuning value is outside of the range -127..127."
-	#endif
-#endif
 #ifdef FORCE_HITEC_TUNING
 	#if ( FORCE_HITEC_TUNING < -127 ) || ( FORCE_HITEC_TUNING > 127 )
 		#error "The HITEC forced frequency tuning value is outside of the range -127..127."
@@ -209,7 +204,6 @@
 	#undef	FRSKYD_CC2500_INO
 	#undef	FRSKYV_CC2500_INO
 	#undef	FRSKYX_CC2500_INO
-	#undef	FRSKYX2_CC2500_INO
 	#undef	SFHSS_CC2500_INO
 	#undef	CORONA_CC2500_INO
 	#undef	REDPINE_CC2500_INO
@@ -337,7 +331,7 @@
 	#if not defined(FRSKYD_CC2500_INO)
 		#undef HUB_TELEMETRY
 	#endif
-	#if not defined(FRSKYX_CC2500_INO) and not defined(FRSKYX2_CC2500_INO)
+	#if not defined(FRSKYX_CC2500_INO)
 		#undef SPORT_TELEMETRY
 		#undef SPORT_SEND
 	#endif

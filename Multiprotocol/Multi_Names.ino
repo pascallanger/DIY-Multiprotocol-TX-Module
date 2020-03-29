@@ -183,8 +183,6 @@ const mm_protocol_definition multi_protocols[] = {
 #endif
 #if defined(FRSKYX_CC2500_INO)
 	{PROTO_FRSKYX,     STR_FRSKYX,    4, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
-#endif
-#if defined(FRSKYX2_CC2500_INO)
 	{PROTO_FRSKYX2,    STR_FRSKYX2,   4, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
 #endif
 #if defined(ESKY_NRF24L01_INO)

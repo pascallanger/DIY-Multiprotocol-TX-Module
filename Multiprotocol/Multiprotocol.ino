@@ -514,11 +514,6 @@ void setup()
 				option			=	FORCE_FRSKYX_TUNING;		// Use config-defined tuning value for FrSkyX
 			else
 		#endif 
-		#if defined(FORCE_FRSKYX2_TUNING) && defined(FRSKYX2_CC2500_INO)
-			if(protocol==PROTO_FRSKYX2)
-				option			=	FORCE_FRSKYX2_TUNING;		// Use config-defined tuning value for FrSkyX2
-			else
-		#endif 
 		#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
 			if (protocol==PROTO_SFHSS)
 				option			=	FORCE_SFHSS_TUNING;			// Use config-defined tuning value for SFHSS
@@ -759,7 +754,7 @@ bool Update_All()
 			BIND_CH_PREV_off;
 			//Request protocol to terminate bind
 			#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO)
-			if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A )
+			if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A )
 				BIND_DONE;
 			else
 			#endif
@@ -1127,18 +1122,11 @@ static void protocol_init()
 				#endif
 				#if defined(FRSKYX_CC2500_INO)
 					case PROTO_FRSKYX:
+					case PROTO_FRSKYX2:
 						PE1_off;	//antenna RF2
 						PE2_on;
 						next_callback = initFrSkyX();
 						remote_callback = ReadFrSkyX;
-						break;
-				#endif
-				#if defined(FRSKYX2_CC2500_INO)
-					case PROTO_FRSKYX2:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initFrSkyX2();
-						remote_callback = ReadFrSkyX2;
 						break;
 				#endif
 				#if defined(SFHSS_CC2500_INO)
@@ -1624,11 +1612,6 @@ void update_serial_data()
 			option=FORCE_FRSKYX_TUNING;			// Use config-defined tuning value for FrSkyX
 		else
 	#endif 
-	#if defined(FORCE_FRSKYX2_TUNING) && defined(FRSKYX2_CC2500_INO)
-		if(protocol==PROTO_FRSKYX2)
-			option=FORCE_FRSKYX2_TUNING;		// Use config-defined tuning value for FrSkyX2
-		else
-	#endif 
 	#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
 		if (protocol==PROTO_SFHSS)
 			option=FORCE_SFHSS_TUNING;			// Use config-defined tuning value for SFHSS
@@ -1732,7 +1715,7 @@ void update_serial_data()
 			if( ((rx_ok_buff[1]&0x80)==0) && ((cur_protocol[1]&0x80)!=0) )	// Bind flag has been reset
 			{ // Request protocol to end bind
 				#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO) || defined(FRSKYR9_SX1276_INO)
-				if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9 )
+				if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9 )
 					BIND_DONE;
 				else
 				#endif
@@ -1791,7 +1774,7 @@ void update_serial_data()
 	#endif
 	if(rx_len>27)
 	{ // Data available for the current protocol
-		#if defined FRSKYX_CC2500_INO || defined FRSKYX2_CC2500_INO
+		#if defined FRSKYX_CC2500_INO
 			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2) && rx_len==28)
 			{//Protocol waiting for 1 byte during bind
 				binding_idx=rx_ok_buff[27];

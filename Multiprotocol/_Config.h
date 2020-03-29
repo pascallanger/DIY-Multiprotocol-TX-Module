@@ -231,12 +231,6 @@
 /*** PROTOCOLS SETTINGS  ***/
 /***************************/
 
-//FrSkyX specific setting
-//-----------------------
-//EU LBT setting: if commented the TX will not check if a channel is busy before transmitting.
-//!!! Work in progress !!! it's currently known to cause telemerty issues. Enable only if you know what you are doing.
-//#define FRSKYX_LBT
-
 //DSM specific settings
 //---------------------
 //The DSM protocol is using by default the Spektrum throw of 1100..1900us @100% and 1000..2000us @125%.
@@ -578,10 +572,10 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		EU_16
 		EU_8
 	PROTO_FRSKYX2
-		FRSKYX2_CH_16
-		FRSKYX2_CH_8
-		FRSKYX2_EU_16
-		FRSKYX2_EU_8
+		CH_16
+		CH_8
+		EU_16
+		EU_8
 	PROTO_FRSKY_RX
 		NONE
 	PROTO_FX816

@@ -379,7 +379,7 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 #endif
 
 #if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
-	if (protocol==PROTO_FRSKYX)
+	if (protocol==PROTO_FRSKYX||protocol==PROTO_FRSKYX2)
 	{
 		/*Telemetry frames(RF) SPORT info 
 		15 bytes payload
@@ -514,7 +514,7 @@ void frsky_link_frame()
 		telemetry_link |= 2 ;		// Send hub if available
 	}
 	else
-	{//PROTO_HUBSAN, PROTO_AFHDS2A, PROTO_BAYANG, PROTO_NCC1701, PROTO_CABELL, PROTO_HITEC, PROTO_BUGS, PROTO_BUGSMINI, PROTO_FRSKYX
+	{//PROTO_HUBSAN, PROTO_AFHDS2A, PROTO_BAYANG, PROTO_NCC1701, PROTO_CABELL, PROTO_HITEC, PROTO_BUGS, PROTO_BUGSMINI, PROTO_FRSKYX, PROTO_FRSKYX2
 		frame[1] = v_lipo1;
 		frame[2] = v_lipo2;
 		frame[3] = RX_RSSI;
@@ -856,7 +856,7 @@ void TelemetryUpdate()
 		#endif
 	#endif
 	#if defined SPORT_TELEMETRY
-		if (protocol==PROTO_FRSKYX && telemetry_link 
+		if ((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2) && telemetry_link 
 		#ifdef TELEMETRY_FRSKYX_TO_FRSKYD
 			&& mode_select==MODE_SERIAL
 		#endif

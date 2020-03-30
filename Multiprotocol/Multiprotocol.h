@@ -907,6 +907,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Disable_Telemetry	=> 0x02	0=enable, 1=disable
    Disable_CH_Mapping	=> 0x01	0=enable, 1=disable
   Stream[27.. 35] = between 0 and 9 bytes for additional protocol data
+    Protocol specific use:
+      FrSkyX and FrSkyX2: Stream[27] during bind Telem on=0x00,off=0x01 | CH1-8=0x00,CH9-16=0x02
+      FrSkyX and FrSkyX2: Stream[27..34] during normal operation unstuffed SPort data to be sent
+	  HoTT: Stream[27] 1 byte for telemetry type
 */
 /*
   Multimodule Status

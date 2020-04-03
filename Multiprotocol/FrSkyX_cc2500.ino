@@ -256,10 +256,6 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 
 uint16_t ReadFrSkyX()
 {
-	#ifdef DEBUG_SERIAL
-		static uint16_t fr_time=0;
-	#endif
-	
 	switch(state)
 	{	
 		default: 

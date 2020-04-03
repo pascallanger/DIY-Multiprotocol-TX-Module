@@ -250,6 +250,7 @@
 	#undef	BAYANG_RX_NRF24L01_INO
 	#undef	TIGER_NRF24L01_INO
 	#undef	XK_NRF24L01_INO
+	#undef	PROPEL_NRF24L01_INO
 #endif
 #if not defined(STM32_BOARD)
 	#undef SX1276_INSTALLED

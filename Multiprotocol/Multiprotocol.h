@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	79
+#define VERSION_PATCH_LEVEL	80
 
 //******************
 // Protocols
@@ -92,6 +92,7 @@ enum PROTOCOLS
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 	PROTO_FRSKYX2	= 64,	// =>CC2500
 	PROTO_FRSKY_R9	= 65,	// =>SX1276
+	PROTO_PROPEL	= 66,	// =>NRF24L01
 };
 
 enum Flysky
@@ -727,6 +728,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				XN297DUMP	63
 				FRSKYX2		64
 				FRSKY_R9	65
+				PROPEL		66
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

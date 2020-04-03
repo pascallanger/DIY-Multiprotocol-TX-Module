@@ -112,6 +112,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None|
 [Pelikan](Protocols_Details.md#Pelikan---60)|60|||||||||A7105|
 [Potensic](Protocols_Details.md#Potensic---51)|51|A20||||||||NRF24L01|XN297
+[PROPEL](Protocols_Details.md#PROPEL---66)|66|74-Z||||||||NRF24L01|
 [Q2X2](Protocols_Details.md#Q2X2---29)|29|Q222|Q242|Q282||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|
@@ -1107,7 +1108,7 @@ CH1|CH2|CH3|CH4|CH5
 A|E|T|R|Warp
 
 ## Potensic - *51*
-Models: Potensic A20
+Model: Potensic A20
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
@@ -1120,6 +1121,17 @@ EMERGENCY: Stop +100%
 MODE: Beginner -100%, Medium 0%, Advanced +100%
 
 HEADLESS: Off -100%, On +100%
+
+## PROPEL - *66*
+Model: PROPEL 74-Z Speeder Bike
+
+Autobind protocol
+
+Telemetry: RSSI is equal to TX_LQI which indicates how well the TX receives the RX (0-100%). A1 voltage should indicate the numbers of life remaining (not tested).
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
+---|---|---|---|---|---|---|---|---|----|----|----|----|----
+A|E|T|R|LEDs|RollCW|RollCCW|Fire|Weapons|Calib|Alt_Hold|Take_off|Land|Training
 
 ## Q2X2 - *29*
 ### Sub_protocol Q222 - *0*

@@ -378,7 +378,7 @@ Same as FrSkyX but for v2.1.0.
 ## FRSKY_RX - *55*
 The FrSky receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
-Auto selection of FrSkyD and FrSkyX v1.xxx at bind time.
+Auto selection of FrSkyD and FrSkyX v1.xxx FCC/LBT at bind time.
 
 Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 
@@ -392,20 +392,6 @@ This value is different for each Module and **must** be accurate otherwise the l
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
-
-### Sub_protocol FCC - *0*
-FCC protocol 8 or 16 channels.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
-
-### Sub_protocol EU_LBT - *1*
-EU_LBT protocol 8 or 16 channels.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
 ## HITEC - *39*
 Models: OPTIMA, MINIMA and MICRO receivers.

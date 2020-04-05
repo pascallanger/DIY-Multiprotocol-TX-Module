@@ -1127,7 +1127,7 @@ Model: PROPEL 74-Z Speeder Bike
 
 Autobind protocol
 
-Telemetry: RSSI is equal to TX_LQI which indicates how well the TX receives the RX (0-100%). A1 voltage should indicate the numbers of life remaining (not tested).
+Telemetry: RSSI is equal to TX_LQI which indicates how well the TX receives the RX (0-100%). A1 voltage should indicate the numbers of life remaining (not tested). A2 is giving the model status using a bit mask: 0x80=flying, 0x08=taking off, 0x04=landing, 0x00=landed/crashed
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----

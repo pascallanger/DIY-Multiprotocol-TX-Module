@@ -19,6 +19,7 @@
 
  #define FRSKY_RX_D16FCC_LENGTH	32
  #define FRSKY_RX_D16LBT_LENGTH	35
+ #define FRSKY2_RX_D16_LENGTH	32
  #define FRSKY_RX_D8_LENGTH		20
  #define FRSKY_RX_FORMATS		3
 
@@ -409,7 +410,7 @@ uint16_t FrSky_Rx_callback()
 	case FRSKY_RX_DATA:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if (packet[1] == rx_tx_addr[0] && packet[2] == rx_tx_addr[1] && frskyx_rx_check_crc() && (frsky_rx_format == FRSKY_RX_D8 || (packet[6] == RX_num && packet[3] == rx_tx_addr[2])) {
+			if (packet[1] == rx_tx_addr[0] && packet[2] == rx_tx_addr[1] && frskyx_rx_check_crc() && (frsky_rx_format == FRSKY_RX_D8 || (packet[6] == RX_num && packet[3] == rx_tx_addr[2]))) {
 				RX_RSSI = packet[packet_length-2];
 				if(RX_RSSI >= 128)
 					RX_RSSI -= 128;

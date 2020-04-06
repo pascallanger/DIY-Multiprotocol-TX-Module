@@ -1792,33 +1792,41 @@ void update_serial_data()
 				#define BYTE_STUFF	0x7D
 				#define STUFF_MASK	0x20
 				//debug("SPort_in: ");
-				SportData[SportTail]=0x7E;
-				SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-				SportData[SportTail]=rx_ok_buff[27]&0x1F;
-				SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+				boolean sport_valid=false;
 				for(uint8_t i=28;i<28+7;i++)
+					if(rx_ok_buff[i]!=0) sport_valid=true;	//Check that the payload is not full of 0
+				if(rx_ok_buff[27]&0x1F > 0x1B)				//Check 1st byte validity
+					sport_valid=false;
+				if(sport_valid)
 				{
-					if(rx_ok_buff[i]==BYTE_STUFF)
-					{//stuff
-						SportData[SportTail]=BYTE_STUFF;
-						SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-						SportData[SportTail]=rx_ok_buff[i]^STUFF_MASK;
-					}
-					else
-						SportData[SportTail]=rx_ok_buff[i];
-					//debug("%02X ",SportData[SportTail]);
+					SportData[SportTail]=0x7E;
 					SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-				}
-				uint8_t used = SportTail;
-				if ( SportHead > SportTail )
-					used += MAX_SPORT_BUFFER - SportHead ;
-				else
-					used -= SportHead ;
-				if ( used >= MAX_SPORT_BUFFER-(MAX_SPORT_BUFFER>>2) )
-				{
-					DATA_BUFFER_LOW_on;
-					SEND_MULTI_STATUS_on;	//Send Multi Status ASAP to inform the TX
-					debugln("Low buf=%d,h=%d,t=%d",used,SportHead,SportTail);
+					SportData[SportTail]=rx_ok_buff[27]&0x1F;
+					SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+					for(uint8_t i=28;i<28+7;i++)
+					{
+						if( (rx_ok_buff[i]==BYTE_STUFF) || (rx_ok_buff[i]==0x7E) )
+						{//stuff
+							SportData[SportTail]=BYTE_STUFF;
+							SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+							SportData[SportTail]=rx_ok_buff[i]^STUFF_MASK;
+						}
+						else
+							SportData[SportTail]=rx_ok_buff[i];
+						//debug("%02X ",SportData[SportTail]);
+						SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+					}
+					uint8_t used = SportTail;
+					if ( SportHead > SportTail )
+						used += MAX_SPORT_BUFFER - SportHead ;
+					else
+						used -= SportHead ;
+					if ( used >= MAX_SPORT_BUFFER-(MAX_SPORT_BUFFER>>2) )
+					{
+						DATA_BUFFER_LOW_on;
+						SEND_MULTI_STATUS_on;	//Send Multi Status ASAP to inform the TX
+						debugln("Low buf=%d,h=%d,t=%d",used,SportHead,SportTail);
+					}
 				}
 			}
 		#endif //SPORT_SEND

@@ -1795,7 +1795,7 @@ void update_serial_data()
 				boolean sport_valid=false;
 				for(uint8_t i=28;i<28+7;i++)
 					if(rx_ok_buff[i]!=0) sport_valid=true;	//Check that the payload is not full of 0
-				if(rx_ok_buff[27]&0x1F > 0x1B)				//Check 1st byte validity
+				if((rx_ok_buff[27]&0x1F) > 0x1B)				//Check 1st byte validity
 					sport_valid=false;
 				if(sport_valid)
 				{

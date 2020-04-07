@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	67
+#define VERSION_PATCH_LEVEL	84
 
 //******************
 // Protocols
@@ -92,6 +92,7 @@ enum PROTOCOLS
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 	PROTO_FRSKYX2	= 64,	// =>CC2500
 	PROTO_FRSKY_R9	= 65,	// =>SX1276
+	PROTO_PROPEL	= 66,	// =>NRF24L01
 };
 
 enum Flysky
@@ -214,13 +215,6 @@ enum FRSKYX
 	EU_16	= 2,
 	EU_8	= 3,
 };
-enum FRSKYX2
-{
-	FRSKYX2_CH_16	= 0,
-	FRSKYX2_CH_8	= 1,
-	FRSKYX2_EU_16	= 2,
-	FRSKYX2_EU_8	= 3,
-};
 enum HONTAI
 {
 	HONTAI	= 0,
@@ -334,6 +328,11 @@ enum FRSKY_R9
 	R9_915_8CH	= 2,
 	R9_868_8CH	= 3,
 };
+enum ESKY
+{
+	ESKY_STD	= 0,
+	ESKY_ET4	= 1,
+};
 
 #define NONE 		0
 #define P_HIGH		1
@@ -377,7 +376,7 @@ enum MultiPacketTypes
 //***************
 //***  Tests  ***
 //***************
-#define IS_FAILSAFE_PROTOCOL	( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_HOTT || protocol==PROTO_FRSKYX )
+#define IS_FAILSAFE_PROTOCOL	( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_HOTT || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 )
 #define IS_CHMAP_PROTOCOL		( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_DSM || protocol==PROTO_SLT || protocol==PROTO_FLYSKY || protocol==PROTO_ESKY || protocol==PROTO_J6PRO || protocol==PROTO_PELIKAN )
 
 //***************
@@ -729,6 +728,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				XN297DUMP	63
 				FRSKYX2		64
 				FRSKY_R9	65
+				PROPEL		66
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -879,14 +879,14 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==XK
 			X450		0
 			X420		1
-		sub_protocol==V911S
-			V911S_STD	0
-			V911S_E119	1
 		sub_protocol==FRSKY_R9
 			R9_915		0
 			R9_868		1
 			R9_915_8CH	2
 			R9_868_8CH	3
+		sub_protocol==ESKY
+			ESKY_STD	0
+			ESKY_ET4	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
@@ -909,6 +909,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    Disable_Telemetry	=> 0x02	0=enable, 1=disable
    Disable_CH_Mapping	=> 0x01	0=enable, 1=disable
   Stream[27.. 35] = between 0 and 9 bytes for additional protocol data
+    Protocol specific use:
+      FrSkyX and FrSkyX2: Stream[27] during bind Telem on=0x00,off=0x01 | CH1-8=0x00,CH9-16=0x02
+      FrSkyX and FrSkyX2: Stream[27..34] during normal operation unstuffed SPort data to be sent
+	  HoTT: Stream[27] 1 byte for telemetry type
 */
 /*
   Multimodule Status

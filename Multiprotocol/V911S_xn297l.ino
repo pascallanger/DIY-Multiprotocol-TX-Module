@@ -16,7 +16,7 @@
 
 #if defined(V911S_NRF24L01_INO)
 
-#include "iface_xn297l.h"
+#include "iface_nrf250k.h"
 
 //#define V911S_ORIGINAL_ID
 
@@ -30,6 +30,8 @@
 
 // flags going to packet[1]
 #define	V911S_FLAG_EXPERT	0x04
+#define	E119_FLAG_EXPERT	0x08
+#define	E119_FLAG_CALIB		0x40
 // flags going to packet[2]
 #define	V911S_FLAG_CALIB	0x01
 
@@ -56,10 +58,21 @@ static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
 		}
 		if(rf_ch_num&2)
 			channel=7-channel;
+		XN297L_Hopping(channel);
+		hopping_frequency_no++;
+		hopping_frequency_no&=7;							// 8 RF channels
+
 		packet[ 0]=(rf_ch_num<<3)|channel;
-		packet[ 1]=V911S_FLAG_EXPERT;					// short press on left button
-		packet[ 2]=GET_FLAG(CH5_SW,V911S_FLAG_CALIB);	// long  press on right button
-		memset(packet+3, 0x00, V911S_PACKET_SIZE - 3);
+		memset(packet+1, 0x00, V911S_PACKET_SIZE - 1);
+		if(sub_protocol==V911S_STD)
+		{
+			packet[ 1]=V911S_FLAG_EXPERT;					// short press on left button
+			packet[ 2]=GET_FLAG(CH5_SW,V911S_FLAG_CALIB);	// long  press on right button
+		}
+		else
+			packet[ 1]=E119_FLAG_EXPERT						// short  press on left button
+					  |GET_FLAG(CH5_SW,E119_FLAG_CALIB);	// short  press on right button
+			
 		//packet[3..6]=trims TAER signed
 		uint16_t ch=convert_channel_16b_limit(THROTTLE ,0,0x7FF);
 		packet[ 7] = ch;
@@ -68,25 +81,31 @@ static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
 		packet[ 8]|= ch<<3;
 		packet[ 9] = ch>>5;
 		ch=convert_channel_16b_limit(ELEVATOR,0,0x7FF);
-		packet[10] = ch;
-		packet[11] = ch>>8;
-		ch=convert_channel_16b_limit(RUDDER  ,0x7FF,0);
-		packet[11]|= ch<<3;
-		packet[12] = ch>>5;
+		if(sub_protocol==V911S_STD)
+		{
+			packet[10] = ch;
+			packet[11] = ch>>8;
+			ch=convert_channel_16b_limit(RUDDER  ,0x7FF,0);
+			packet[11]|= ch<<3;
+			packet[12] = ch>>5;
+		}
+		else
+		{
+			ch=0x7FF-ch;
+			packet[ 9]|= ch<<6;
+			packet[10] = ch>>2;
+			packet[11] = ch>>10;
+			ch=convert_channel_16b_limit(RUDDER  ,0x7FF,0);
+			packet[11]|= ch<<1;
+			packet[12] = ch>>7;
+		}
 	}
 	
-	if (!bind)
-	{
-		XN297L_Hopping(channel);
-		hopping_frequency_no++;
-		hopping_frequency_no&=7;	// 8 RF channels
-	}
-
 	if(sub_protocol==V911S_STD)
 		XN297L_WritePayload(packet, V911S_PACKET_SIZE);
 	else
-		XN297L_WriteEnhancedPayload(packet, V911S_PACKET_SIZE, bind);
-
+		XN297L_WriteEnhancedPayload(packet, V911S_PACKET_SIZE, bind?0:1);
+	
 	XN297L_SetPower();				// Set tx_power
 	XN297L_SetFreqOffset();			// Set frequency offset
 }
@@ -95,9 +114,9 @@ static void __attribute__((unused)) V911S_init()
 {
 	XN297L_Init();
 	if(sub_protocol==V911S_STD)
-		XN297L_SetTXAddr((uint8_t *)"KNBND",5);			// V911S Bind address
+		XN297L_SetTXAddr((uint8_t *)"KNBND",5);		// V911S Bind address
 	else
-		XN297L_SetTXAddr((uint8_t *)"XPBND",5);			// E119 Bind address
+		XN297L_SetTXAddr((uint8_t *)"XPBND",5);		// E119 Bind address
 	XN297L_HoppingCalib(V911S_NUM_RF_CHANNELS);		// Calibrate all channels
 	XN297L_RFChannel(V911S_RF_BIND_CHANNEL);		// Set bind channel
 }

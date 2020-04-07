@@ -79,6 +79,7 @@ const char STR_TIGER[]		="Tiger";
 const char STR_XK[]			="XK";
 const char STR_XN297DUMP[]	="XN297DP";
 const char STR_FRSKYR9[]	="FrSkyR9";
+const char STR_PROPEL[]		="PROPEL";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -117,9 +118,11 @@ const char STR_SUBTYPE_FLYZONE[] =    "\x05""FZ410";
 const char STR_SUBTYPE_FX816[] =      "\x03""P38";
 const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ";
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4CH""7CH";
-const char STR_SUBTYPE_V911S[] =      "\x04""Std\0""E119";
+const char STR_SUBTYPE_V911S[] =      "\x05""V911S""E119\0";
 const char STR_SUBTYPE_XK[] =         "\x04""X450""X420";
 const char STR_SUBTYPE_FRSKYR9[] =    "\x07""915MHz\0""868MHz\0""915 8ch""868 8ch";
+const char STR_SUBTYPE_ESKY[] =       "\x03""Std""ET4";
+const char STR_SUBTYPE_PROPEL[] =     "\x04""74-Z";
 
 enum
 {
@@ -169,7 +172,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_SYMAX,      STR_SYMAX,     2, STR_SUBTYPE_SYMAX,     OPTION_NONE    },
 #endif
 #if defined(SLT_NRF24L01_INO)
-	{PROTO_SLT,        STR_SLT,       5, STR_SUBTYPE_SLT,       OPTION_NONE    },
+	{PROTO_SLT,        STR_SLT,       5, STR_SUBTYPE_SLT,       OPTION_RFTUNE    },
 #endif
 #if defined(CX10_NRF24L01_INO)
 	{PROTO_CX10,       STR_CX10,      7, STR_SUBTYPE_CX10,      OPTION_NONE    },
@@ -182,12 +185,10 @@ const mm_protocol_definition multi_protocols[] = {
 #endif
 #if defined(FRSKYX_CC2500_INO)
 	{PROTO_FRSKYX,     STR_FRSKYX,    4, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
-#endif
-#if defined(FRSKYX2_CC2500_INO)
 	{PROTO_FRSKYX2,    STR_FRSKYX2,   4, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
 #endif
 #if defined(ESKY_NRF24L01_INO)
-	{PROTO_ESKY,       STR_ESKY,      0, NO_SUBTYPE,            OPTION_NONE    },
+	{PROTO_ESKY,       STR_ESKY,      2, STR_SUBTYPE_ESKY,      OPTION_NONE    },
 #endif
 #if defined(MT99XX_NRF24L01_INO)
 	{PROTO_MT99XX,     STR_MT99XX,    5, STR_SUBTYPE_MT99,      OPTION_NONE    },
@@ -274,7 +275,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_E01X,       STR_E01X,      3, STR_SUBTYPE_E01X,      OPTION_OPTION  },
 #endif
 #if defined(V911S_NRF24L01_INO)
-	{PROTO_V911S,      STR_V911S,     1, STR_SUBTYPE_V911S,     OPTION_RFTUNE  },
+	{PROTO_V911S,      STR_V911S,     2, STR_SUBTYPE_V911S,     OPTION_RFTUNE  },
 #endif
 #if defined(GD00X_NRF24L01_INO)
 	{PROTO_GD00X,      STR_GD00X,     2, STR_SUBTYPE_GD00X,     OPTION_RFTUNE  },
@@ -328,7 +329,10 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_XN297DUMP,  STR_XN297DUMP, 4, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },
 #endif
 #if defined(FRSKYR9_SX1276_INO)
-	{PROTO_FRSKY_R9,   STR_FRSKYR9,   4, STR_SUBTYPE_FRSKYR9, OPTION_NONE  },
+	{PROTO_FRSKY_R9,   STR_FRSKYR9,   4, STR_SUBTYPE_FRSKYR9,   OPTION_NONE  },
+#endif
+#if defined(PROPEL_NRF24L01_INO)
+	{PROTO_PROPEL,     STR_PROPEL,    4, STR_SUBTYPE_PROPEL,    OPTION_NONE  },
 #endif
 	{0x00,             nullptr,       0, nullptr,               0 }
 };

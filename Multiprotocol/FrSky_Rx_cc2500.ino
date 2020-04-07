@@ -19,6 +19,7 @@
 
  #define FRSKY_RX_D16FCC_LENGTH	32
  #define FRSKY_RX_D16LBT_LENGTH	35
+ #define FRSKY2_RX_D16_LENGTH	32
  #define FRSKY_RX_D8_LENGTH		20
  #define FRSKY_RX_FORMATS		3
 
@@ -313,6 +314,7 @@ uint16_t FrSky_Rx_callback()
 			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc()) {
 				rx_tx_addr[0] = packet[3];	// TXID
 				rx_tx_addr[1] = packet[4];	// TXID
+				rx_tx_addr[2] = packet[11];	// TXID
 				frsky_rx_finetune = -127;
 				CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
 				phase = FRSKY_RX_TUNE_LOW;
@@ -330,7 +332,7 @@ uint16_t FrSky_Rx_callback()
 	case FRSKY_RX_TUNE_LOW:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc() && packet[3] == rx_tx_addr[0] && packet[4] == rx_tx_addr[1]) {
+			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc() && packet[3] == rx_tx_addr[0] && packet[4] == rx_tx_addr[1] && (frsky_rx_format == FRSKY_RX_D8 || packet[11] == rx_tx_addr[2])) {
 				tune_low = frsky_rx_finetune;
 				frsky_rx_finetune = 127;
 				CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
@@ -347,7 +349,7 @@ uint16_t FrSky_Rx_callback()
 	case FRSKY_RX_TUNE_HIGH:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc() && packet[3] == rx_tx_addr[0] && packet[4] == rx_tx_addr[1]) {
+			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc() && packet[3] == rx_tx_addr[0] && packet[4] == rx_tx_addr[1] && (frsky_rx_format == FRSKY_RX_D8 || packet[11] == rx_tx_addr[2])) {
 				tune_high = frsky_rx_finetune;
 				frsky_rx_finetune = (tune_low + tune_high) / 2;
 				CC2500_WriteReg(CC2500_0C_FSCTRL0, (int8_t)frsky_rx_finetune);
@@ -367,14 +369,13 @@ uint16_t FrSky_Rx_callback()
 	case FRSKY_RX_BIND:
 		if(len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc() && packet[3] == rx_tx_addr[0] && packet[4] == rx_tx_addr[1] && packet[5] <= 0x2D) {
+			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc() && packet[3] == rx_tx_addr[0] && packet[4] == rx_tx_addr[1] && (frsky_rx_format == FRSKY_RX_D8 || packet[11] == rx_tx_addr[2]) && packet[5] <= 0x2D) {
 				for (ch = 0; ch < 5; ch++)
 					hopping_frequency[packet[5]+ch] = packet[6+ch];
 				state |= 1 << (packet[5] / 5);
 				if (state == 0x3ff) {
 					debug("Bind complete: ");
 					frsky_rx_calibrate();
-					rx_tx_addr[2] = packet[12]; // RX # (D16)
 					CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
 					CC2500_WriteReg(CC2500_09_ADDR, rx_tx_addr[0]); // set address
 					CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
@@ -389,7 +390,8 @@ uint16_t FrSky_Rx_callback()
 					eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[1]);
 					debug("addr[1]=%02X, ", rx_tx_addr[1]);
 					eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[2]);
-					debug("rx_num=%02X, ", rx_tx_addr[2]);
+					debug("addr[2]=%02X, ", rx_tx_addr[2]);
+					debug("rx_num=%02X, ", packet[12]); // RX # (D16)
 					eeprom_write_byte((EE_ADDR)temp++, frsky_rx_finetune);
 					debugln("tune=%d", (int8_t)frsky_rx_finetune);
 					for (ch = 0; ch < 47; ch++)
@@ -408,18 +410,27 @@ uint16_t FrSky_Rx_callback()
 	case FRSKY_RX_DATA:
 		if (len >= packet_length) {
 			CC2500_ReadData(packet, packet_length);
-			if (packet[1] == rx_tx_addr[0] && packet[2] == rx_tx_addr[1] && frskyx_rx_check_crc() && (frsky_rx_format == FRSKY_RX_D8 || packet[6] == rx_tx_addr[2])) {
+			if (packet[1] == rx_tx_addr[0] && packet[2] == rx_tx_addr[1] && frskyx_rx_check_crc() && (frsky_rx_format == FRSKY_RX_D8 || (packet[6] == RX_num && packet[3] == rx_tx_addr[2]))) {
 				RX_RSSI = packet[packet_length-2];
 				if(RX_RSSI >= 128)
 					RX_RSSI -= 128;
 				else
 					RX_RSSI += 128;
+				bool chanskip_valid=true;
 				// hop to next channel
 				if (frsky_rx_format == FRSKY_RX_D16FCC || frsky_rx_format == FRSKY_RX_D16LBT)
-					frsky_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);
+				{
+					if(rx_data_started)
+					{
+						if(frsky_rx_chanskip != (((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2)))
+							chanskip_valid=false;	// chanskip value has changed which surely indicates a bad frame
+					}
+					else
+						frsky_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);	// chanskip init
+				}
 				hopping_frequency_no = (hopping_frequency_no + frsky_rx_chanskip) % 47;
 				frsky_rx_set_channel(hopping_frequency_no);
-				if (telemetry_link == 0) { // send channels to TX
+				if (telemetry_link == 0 && chanskip_valid) { // send channels to TX
 						frsky_rx_build_telemetry_packet();
 						telemetry_link = 1;
 				}

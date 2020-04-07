@@ -146,6 +146,11 @@ static void __attribute__((unused)) HITEC_build_packet()
 				break;
 			case 0x7B:
 				packet[5]=hopping_frequency[13]>>1;	// if not there the Optima link is jerky...
+				packet[14]=0x2A;
+				packet[15]=0x46; // unknown but if 0x45 then 17=0x46, if 0x46 then 17=0x46 or 0x47, if 0x47 then 0x45 or 0x46
+				packet[16]=0x2A;
+				packet[17]=0x47;
+				packet[18]=0x2A;
 				break;
 		}
 		if(sub_protocol==MINIMA)
@@ -302,8 +307,8 @@ uint16_t ReadHITEC()
 						{ // bind packet: 0A,00,E5,F2,7X,05,06,07,08,09,00
 							debug(",bind");
 							boolean check=true;
-							for(uint8_t i=5;i<=10;i++)
-								if(packet_in[i]!=i%10) check=false;
+							for(uint8_t i=5;i<10;i++)
+								if(packet_in[i]!=i) check=false;
 							if((packet_in[4]&0xF0)==0x70 && check)
 							{
 								bind_phase=packet_in[4]+1;

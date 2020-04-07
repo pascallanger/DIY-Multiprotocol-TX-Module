@@ -21,6 +21,7 @@ static void __attribute__((unused)) frsky2way_init(uint8_t bind)
 {
 	FRSKY_init_cc2500(FRSKYD_cc2500_conf);	
 
+	CC2500_WriteReg(CC2500_1B_AGCCTRL2, bind ? 0x43 : 0x03);
 	CC2500_WriteReg(CC2500_09_ADDR, bind ? 0x03 : rx_tx_addr[3]);
 	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05);
 	CC2500_Strobe(CC2500_SIDLE);	// Go to idle...
@@ -95,7 +96,17 @@ static void __attribute__((unused)) frsky2way_data_frame()
 
 uint16_t initFrSky_2way()
 {
-	Frsky_init_hop();
+	//FrskyD init hop
+	for(uint8_t i=0;i<50;i++)
+	{
+		uint8_t freq = (i * 0x1e) % 0xeb;
+		if(i == 3 || i == 23 || i == 47)
+			freq++;
+		if(i > 47)
+			freq=0;
+		hopping_frequency[i]=freq;
+	}
+	
 	packet_count=0;
 	if(IS_BIND_IN_PROGRESS)
 	{

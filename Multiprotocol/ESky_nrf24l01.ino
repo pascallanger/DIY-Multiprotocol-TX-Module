@@ -18,8 +18,13 @@
 
 #include "iface_nrf24l01.h"
 
+//#define ESKY_ET4_FORCE_ID
+
 #define ESKY_BIND_COUNT		1000
-#define ESKY_PACKET_PERIOD	3333
+#define ESKY_STD_PACKET_PERIOD	3333
+#define ESKY_ET4_PACKET_PERIOD	1190
+#define ESKY_ET4_TOTAL_PACKET_PERIOD	20300
+#define ESKY_ET4_BIND_PACKET_PERIOD	5000
 #define ESKY_PAYLOAD_SIZE	13
 #define ESKY_PACKET_CHKTIME	100 // Time to wait for packet to be sent (no ACK, so very short)
 
@@ -63,28 +68,37 @@ static void __attribute__((unused)) ESKY_init()
 static void __attribute__((unused)) ESKY_init2()
 {
 	NRF24L01_FlushTx();
-	hopping_frequency_no = 0;
-	uint16_t channel_ord = rx_tx_addr[0] % 74;
-	hopping_frequency[12] = 10 + (uint8_t)channel_ord;	//channel_code
-	uint8_t channel1, channel2;
-	channel1 = 10 + (uint8_t)((37 + channel_ord*5) % 74);
-	channel2 = 10 + (uint8_t)((     channel_ord*5) % 74) ;
+	if(sub_protocol==ESKY_STD)
+	{
+		uint16_t channel_ord = rx_tx_addr[0] % 74;
+		hopping_frequency[12] = 10 + (uint8_t)channel_ord;	//channel_code
+		uint8_t channel1, channel2;
+		channel1 = 10 + (uint8_t)((37 + channel_ord*5) % 74);
+		channel2 = 10 + (uint8_t)((     channel_ord*5) % 74) ;
 
-	hopping_frequency[0] = channel1;
-	hopping_frequency[1] = channel1;
-	hopping_frequency[2] = channel1;
-	hopping_frequency[3] = channel2;
-	hopping_frequency[4] = channel2;
-	hopping_frequency[5] = channel2;
+		hopping_frequency[0] = channel1;
+		hopping_frequency[1] = channel1;
+		hopping_frequency[2] = channel1;
+		hopping_frequency[3] = channel2;
+		hopping_frequency[4] = channel2;
+		hopping_frequency[5] = channel2;
 
-	//end_bytes
-	hopping_frequency[6] = 6;
-	hopping_frequency[7] = channel1*2;
-	hopping_frequency[8] = channel2*2;
-	hopping_frequency[9] = 6;
-	hopping_frequency[10] = channel1*2;
-	hopping_frequency[11] = channel2*2;
-
+		//end_bytes
+		hopping_frequency[6] = 6;
+		hopping_frequency[7] = channel1*2;
+		hopping_frequency[8] = channel2*2;
+		hopping_frequency[9] = 6;
+		hopping_frequency[10] = channel1*2;
+		hopping_frequency[11] = channel2*2;
+	}
+	else
+	{ // ESKY_ET4
+		hopping_frequency[0]  = 0x29;	//41
+		hopping_frequency[1]  = 0x12;	//18
+		hopping_frequency[6]  = 0x87;	//135 payload end byte
+		hopping_frequency[12] = 0x84;	//132 indicates which channels to use
+	}
+		
 	// Turn radio power on
 	NRF24L01_SetTxRxMode(TX_EN);
 }
@@ -111,20 +125,32 @@ static void __attribute__((unused)) ESKY_send_packet(uint8_t bind)
 	}
 	else
 	{
-		// Regular packet
-		// Each data packet is repeated 3 times on one channel, and 3 times on another channel
-		// For arithmetic simplicity, channels are repeated in rf_channels array
-		if (hopping_frequency_no == 0)
+		if (packet_count == 0)
 			for (uint8_t i = 0; i < 6; i++)
 			{
 				uint16_t val=convert_channel_ppm(CH_AETR[i]);
 				packet[i*2]   = val>>8;		//high byte of servo timing(1000-2000us)
 				packet[i*2+1] = val&0xFF;	//low byte of servo timing(1000-2000us)
 			}
-		rf_ch = hopping_frequency[hopping_frequency_no];
-		packet[12] = hopping_frequency[hopping_frequency_no+6];	// end_bytes
-		hopping_frequency_no++;
-		if (hopping_frequency_no > 6) hopping_frequency_no = 0;
+		if(sub_protocol==ESKY_STD)
+		{
+			// Regular packet
+			// Each data packet is repeated 3 times on one channel, and 3 times on another channel
+			// For arithmetic simplicity, channels are repeated in rf_channels array
+			rf_ch = hopping_frequency[packet_count];
+			packet[12] = hopping_frequency[packet_count+6];	// end_bytes
+			packet_count++;
+			if (packet_count > 6) packet_count = 0;
+		}
+		else
+		{ // ESKY_ET4
+			// Regular packet
+			// Each data packet is repeated 14 times alternating between 2 channels
+			rf_ch = hopping_frequency[packet_count&1];
+			packet_count++;
+			if(packet_count>14) packet_count=0;
+			packet[12] = hopping_frequency[6];	// end_byte
+		}
 	}
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch);
 	NRF24L01_FlushTx();
@@ -137,9 +163,17 @@ uint16_t ESKY_callback()
 	if(IS_BIND_DONE)
 	{
 		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(ESKY_PACKET_PERIOD);
+			if(packet_count==0)
+				telemetry_set_input_sync(sub_protocol==ESKY_STD?ESKY_STD_PACKET_PERIOD*6:ESKY_ET4_TOTAL_PACKET_PERIOD);
 		#endif
 		ESKY_send_packet(0);
+		if(sub_protocol==ESKY_ET4)
+		{
+			if(packet_count==0)
+				return ESKY_ET4_TOTAL_PACKET_PERIOD-ESKY_ET4_PACKET_PERIOD*13;
+			else
+				return ESKY_ET4_PACKET_PERIOD;
+		}
 	}
 	else
 	{
@@ -150,16 +184,25 @@ uint16_t ESKY_callback()
 			BIND_DONE;
 		}
 	}
-	return ESKY_PACKET_PERIOD;
+	return ESKY_STD_PACKET_PERIOD;
 }
 
 uint16_t initESKY(void)
 {
 	bind_counter = ESKY_BIND_COUNT;
 	rx_tx_addr[2] = rx_tx_addr[3];	// Model match
+	#ifdef ESKY_ET4_FORCE_ID
+	  if(sub_protocol==ESKY_ET4)
+	  {
+		  rx_tx_addr[0]=0x72;
+		  rx_tx_addr[1]=0xBB;
+		  rx_tx_addr[2]=0xCC;
+	  }
+	#endif
 	rx_tx_addr[3] = 0xBB;
 	ESKY_init();
 	ESKY_init2();
+	packet_count=0;
 	return 50000;
 }
 

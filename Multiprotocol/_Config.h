@@ -139,6 +139,7 @@
 //If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
 // then you can force the ID to a certain known value using the lines below.
 //Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
+//The 8 numbers below can be anything between 0...9 and A..F
 //#define FORCE_GLOBAL_ID	0x12345678
 
 //Protocols using the CYRF6936 (DSM, Devo, Walkera...) are using the CYRF ID instead which should prevent duplicated IDs.
@@ -211,6 +212,7 @@
 #define	MT99XX_NRF24L01_INO
 #define	NCC1701_NRF24L01_INO
 #define	POTENSIC_NRF24L01_INO
+#define	PROPEL_NRF24L01_INO
 #define	Q303_NRF24L01_INO
 #define	SHENQI_NRF24L01_INO
 #define	SLT_NRF24L01_INO
@@ -230,12 +232,6 @@
 /*** PROTOCOLS SETTINGS  ***/
 /***************************/
 
-//FrSkyX specific setting
-//-----------------------
-//EU LBT setting: if commented the TX will not check if a channel is busy before transmitting.
-//!!! Work in progress !!! it's currently known to cause telemerty issues. Enable only if you know what you are doing.
-//#define FRSKYX_LBT
-
 //DSM specific settings
 //---------------------
 //The DSM protocol is using by default the Spektrum throw of 1100..1900us @100% and 1000..2000us @125%.
@@ -244,7 +240,7 @@
 //Some models (X-Vert, Blade 230S...) require a special value to instant stop the motor(s).
 // You can disable this feature by adding "//" on the line below. You have to specify which channel (14 by default) will be used to kill the throttle channel.
 // If the channel 14 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%.
-// For example, a value of -80% applied on channel 15 will instantly kill the motors on the X-Vert.
+// For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
 #define DSM_THROTTLE_KILL_CH 14 
 
 //AFHDS2A specific settings
@@ -547,7 +543,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		E015
 		E016H
 	PROTO_ESKY
-		NONE
+		ESKY_STD
+		ESKY_ET4
 	PROTO_ESKY150
 		ESKY150_4CH
 		ESKY150_7CH
@@ -576,10 +573,10 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		EU_16
 		EU_8
 	PROTO_FRSKYX2
-		FRSKYX2_CH_16
-		FRSKYX2_CH_8
-		FRSKYX2_EU_16
-		FRSKYX2_EU_8
+		CH_16
+		CH_8
+		EU_16
+		EU_8
 	PROTO_FRSKY_RX
 		NONE
 	PROTO_FX816
@@ -641,6 +638,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_PELIKAN
 		NONE
 	PROTO_POTENSIC
+		NONE
+	PROTO_PROPEL
 		NONE
 	PROTO_Q2X2
 		Q222

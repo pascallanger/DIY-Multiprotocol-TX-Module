@@ -18,7 +18,7 @@
 #if defined(MJXQ_NRF24L01_INO)
 
 #include "iface_nrf24l01.h"
-#include "iface_xn297l.h"
+#include "iface_nrf250k.h"
 
 #define MJXQ_BIND_COUNT		150
 #define MJXQ_PACKET_PERIOD	4000  // Timeout for callback in uSec

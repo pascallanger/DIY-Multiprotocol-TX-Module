@@ -288,6 +288,7 @@
 
 //Comment a line to disable a specific protocol telemetry
 #define DSM_TELEMETRY				// Forward received telemetry packet directly to TX to be decoded by er9x, erskyTX and OpenTX
+#define DEVO_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define SPORT_TELEMETRY				// Use FrSkyX format to send/receive telemetry
 #define AFHDS2A_FW_TELEMETRY		// Forward received telemetry packet directly to TX to be decoded by erskyTX and OpenTX
 #define AFHDS2A_HUB_TELEMETRY		// Use FrSkyD Hub format to send basic telemetry to TX like er9x

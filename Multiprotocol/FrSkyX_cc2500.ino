@@ -385,8 +385,7 @@ uint16_t ReadFrSkyX()
 uint16_t initFrSkyX()
 {
 	set_rx_tx_addr(MProtocol_id_master);
-
-  if ((eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET+3)==15) && (eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET)<2))// bound in FRSKY-X RX-mode with num 63 -> use clone mode
+  if ((eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET+4)==127) && (eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET)<2))// bound in FRSKY-X RX-mode with RX Num 63 -> use clone mode
     Frsky_init_clone();
   else if(protocol==PROTO_FRSKYX)
 		Frsky_init_hop();

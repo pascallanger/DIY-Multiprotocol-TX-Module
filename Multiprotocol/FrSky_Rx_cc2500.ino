@@ -314,8 +314,7 @@ uint16_t FrSky_Rx_callback()
 			if(packet[1] == 0x03 && packet[2] == 0x01 && frskyx_rx_check_crc()) {
 				rx_tx_addr[0] = packet[3];	// TXID
 				rx_tx_addr[1] = packet[4];	// TXID
-				rx_tx_addr[2] = packet[12];	// TXID
-				rx_tx_addr[3] = packet[11]; // HW-Version #
+				rx_tx_addr[2] = packet[11];	// TXID
 				frsky_rx_finetune = -127;
 				CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
 				phase = FRSKY_RX_TUNE_LOW;
@@ -393,15 +392,16 @@ uint16_t FrSky_Rx_callback()
 					eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[2]);
 					debug("addr[2]=%02X, ", rx_tx_addr[2]);
 					debug("rx_num=%02X, ", packet[12]); // RX # (D16)
-          if (rx_tx_addr[2]==15)
+          if (packet[12]==63)
           {
-            eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[3]);
-            debug("hw_ver=%02X, ", rx_tx_addr[3]);
+            // If RX Num is 63, write a finetune value of 127 to the EEPROM
+            // A real finetune value of 127 means, the frequency of module is out of range and the module should be replaced.
+            eeprom_write_byte((EE_ADDR)temp++, 127);
           }
           else
           {
             eeprom_write_byte((EE_ADDR)temp++, frsky_rx_finetune);
-           debugln("tune=%d", (int8_t)frsky_rx_finetune);
+            debugln("tune=%d", (int8_t)frsky_rx_finetune);
           }
 					for (ch = 0; ch < 47; ch++)
 					{

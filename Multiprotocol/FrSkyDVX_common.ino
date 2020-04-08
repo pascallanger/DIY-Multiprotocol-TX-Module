@@ -113,12 +113,13 @@ void Frsky_init_clone(void)
   temp++;
   rx_tx_addr[3] = eeprom_read_byte((EE_ADDR)temp++);
   rx_tx_addr[2] = eeprom_read_byte((EE_ADDR)temp++);
-  temp++;
   hw_ver = eeprom_read_byte((EE_ADDR)temp++);
+  temp++;
   for (uint8_t ch = 0; ch < 47; ch++)
   {
     hopping_frequency[ch] = eeprom_read_byte((EE_ADDR)temp++);
   }
+  debugln("Clone mode");
 }
 
 #endif

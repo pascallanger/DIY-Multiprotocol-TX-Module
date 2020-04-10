@@ -42,7 +42,7 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 		packet[8] = hopping_frequency[idx++];
 		packet[9] = hopping_frequency[idx++];
 		packet[10] = hopping_frequency[idx++];
-		packet[11] = 0x02;					// Unknown but constant ID?
+		packet[11] = hw_ver;					// Unknown but constant ID?
 		packet[12] = RX_num;
 		//
 		memset(&packet[13], 0, packet_size - 14);
@@ -54,7 +54,7 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 	else
 	{
 		//packet 1D 03 01 0E 1C 02 00 00 32 0B 00 00 A8 26 28 01 A1 00 00 00 3E F6 87 C7 00 00 00 00 C9 C9
-		packet[5] = 0x02;					// Unknown but constant ID?
+		packet[5] = hw_ver;					// Unknown but constant ID?
 		packet[6] = RX_num;
 		//Bind flags
 		packet[7]=0;
@@ -119,7 +119,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	packet[0] = packet_size;			// Number of bytes in the packet (after this one)
 	packet[1] = rx_tx_addr[3];			// ID
 	packet[2] = rx_tx_addr[2];			// ID
-	packet[3] = 0x02;					// Unknown but constant ID?
+	packet[3] = hw_ver;					// Unknown but constant ID?
 	//  
 	packet[4] = (FrSkyX_chanskip<<6)|hopping_frequency_no; 
 	packet[5] = FrSkyX_chanskip>>2;
@@ -385,8 +385,9 @@ uint16_t ReadFrSkyX()
 uint16_t initFrSkyX()
 {
 	set_rx_tx_addr(MProtocol_id_master);
-
-	if(protocol==PROTO_FRSKYX)
+  if ((eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET+4)==127) && (eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET)<2))// bound in FRSKY-X RX-mode with RX Num 63 -> use clone mode
+    Frsky_init_clone();
+  else if(protocol==PROTO_FRSKYX)
 		Frsky_init_hop();
 	else
 	{

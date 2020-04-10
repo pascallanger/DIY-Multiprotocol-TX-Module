@@ -105,6 +105,23 @@ void FrSkyX2_init_hop(void)
 	hopping_frequency[47] = 0;									//Bind freq
 }
 
+uint8_t hw_ver=0x02;
+
+void Frsky_init_clone(void)
+{
+  uint16_t temp = FRSKY_RX_EEPROM_OFFSET;
+  temp++;
+  rx_tx_addr[3] = eeprom_read_byte((EE_ADDR)temp++);
+  rx_tx_addr[2] = eeprom_read_byte((EE_ADDR)temp++);
+  hw_ver = eeprom_read_byte((EE_ADDR)temp++);
+  temp++;
+  for (uint8_t ch = 0; ch < 47; ch++)
+  {
+    hopping_frequency[ch] = eeprom_read_byte((EE_ADDR)temp++);
+  }
+  debugln("Clone mode");
+}
+
 #endif
 /******************************/
 /**  FrSky V, D and X routines  **/

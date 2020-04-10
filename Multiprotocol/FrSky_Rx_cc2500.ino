@@ -392,17 +392,13 @@ uint16_t FrSky_Rx_callback()
 					eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[2]);
 					debug("addr[2]=%02X, ", rx_tx_addr[2]);
 					debug("rx_num=%02X, ", packet[12]); // RX # (D16)
-          if (packet[12]==63)
-          {
-            // If RX Num is 63, write a finetune value of 127 to the EEPROM
-            // A real finetune value of 127 means, the frequency of module is out of range and the module should be replaced.
-            eeprom_write_byte((EE_ADDR)temp++, 127);
-          }
-          else
-          {
-            eeprom_write_byte((EE_ADDR)temp++, frsky_rx_finetune);
-            debugln("tune=%d", (int8_t)frsky_rx_finetune);
-          }
+					if (sub_protocol==FRSKY_CLONE)
+						eeprom_write_byte((EE_ADDR)temp++, 127);
+					else
+					{
+						eeprom_write_byte((EE_ADDR)temp++, frsky_rx_finetune);
+						debugln("tune=%d", (int8_t)frsky_rx_finetune);
+					}
 					for (ch = 0; ch < 47; ch++)
 					{
 						eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[ch]);

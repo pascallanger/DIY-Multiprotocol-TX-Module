@@ -92,7 +92,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|||||CC2500|
-[Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|||||||||CC2500|
+[Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|RX|CloneTX|||||||CC2500|
 [FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|
@@ -377,9 +377,11 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 Same as FrSkyX but for v2.1.0.
 
 ## FRSKY_RX - *55*
+
+### Sub_protocol RX - *0*
 The FrSky receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
-Auto selection of FrSkyD and FrSkyX v1.xxx FCC/LBT at bind time.
+Auto selection of FrSkyD/D8 and FrSkyX/D16 v1.xxx FCC/LBT at bind time.
 
 Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 
@@ -393,6 +395,20 @@ This value is different for each Module and **must** be accurate otherwise the l
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
+
+### Sub_protocol CloneTX - *1*
+Enables to clone a FrSky TX in FrSkyD/D8 or FrSkyX/D16 v1.xxx FCC/LBT mode.
+
+Clone mode operation:
+- Select the FrSkyRX protocol, subprotocol CloneTX
+- Place both the orginal TX and multi in bind mode
+- Wait for the bind to complete
+- From there the FrSkyD or FrSkyX protocol will now clone the original TX
+
+Notes:
+- For FrSkyD, only the RX number used during bind is cloned -> you can't use RX num anymore
+- For FrSkyX, RX number has to be adjusted on each model to match the original TX model
+- Once the clone mode is activated the FrSkyD or FrSkyX protocols will always use the clone mode. If you want to disable CloneTX, you must do a bind with the FrSkyRX protocol and subprotocol RX.
 
 ## HITEC - *39*
 Models: OPTIMA, MINIMA and MICRO receivers.

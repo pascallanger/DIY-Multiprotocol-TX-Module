@@ -97,15 +97,18 @@ static void __attribute__((unused)) frsky2way_data_frame()
 uint16_t initFrSky_2way()
 {
 	//FrskyD init hop
-	for(uint8_t i=0;i<50;i++)
-	{
-		uint8_t freq = (i * 0x1e) % 0xeb;
-		if(i == 3 || i == 23 || i == 47)
-			freq++;
-		if(i > 47)
-			freq=0;
-		hopping_frequency[i]=freq;
-	}
+	if (eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET+4)==127 && eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET)==2)// bound in FRSKY-RX CloneTX -> use clone mode
+		Frsky_init_clone();
+	else
+		for(uint8_t i=0;i<50;i++)
+		{
+			uint8_t freq = (i * 0x1e) % 0xeb;
+			if(i == 3 || i == 23 || i == 47)
+				freq++;
+			if(i > 47)
+				freq=0;
+			hopping_frequency[i]=freq;
+		}
 	
 	packet_count=0;
 	if(IS_BIND_IN_PROGRESS)

@@ -52,7 +52,7 @@
 52,ZSX,280
 53,Flyzone,FZ-410
 54,Scanner
-55,Frsky_RX
+55,Frsky_RX,RX,CloneTX
 56,AFHDS2A_RX
 57,HoTT
 58,FX816,P38

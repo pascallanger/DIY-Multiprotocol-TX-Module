@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	84
+#define VERSION_PATCH_LEVEL	85
 
 //******************
 // Protocols
@@ -332,6 +332,12 @@ enum ESKY
 {
 	ESKY_STD	= 0,
 	ESKY_ET4	= 1,
+};
+
+enum FRSKY_RX
+{
+	FRSKY_RX	= 0,
+	FRSKY_CLONE	= 1,
 };
 
 #define NONE 		0
@@ -887,6 +893,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==ESKY
 			ESKY_STD	0
 			ESKY_ET4	1
+		sub_protocol==FRSKY_RX
+			FRSKY_RX	= 0,
+			FRSKY_CLONE	= 1,
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

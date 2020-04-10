@@ -403,12 +403,12 @@ Clone mode operation:
 - Select the FrSkyRX protocol, subprotocol CloneTX
 - Place both the orginal TX and multi in bind mode
 - Wait for the bind to complete
-- From there the FrSkyD or FrSkyX protocol will now clone the original TX
+- From there the FrSkyD or FrSkyX protocol will now clone the original TX depending on which protocol it was using
 
 Notes:
 - For FrSkyD, only the RX number used during bind is cloned -> you can't use RX num anymore
 - For FrSkyX, RX number has to be adjusted on each model to match the original TX model
-- Once the clone mode is activated the FrSkyD or FrSkyX protocols will always use the clone mode. If you want to disable CloneTX, you must do a bind with the FrSkyRX protocol and subprotocol RX.
+- Once CloneTX is activated the FrSkyD or FrSkyX protocol will always clone the original TX. If you want to disable CloneTX, you must do a bind with the FrSkyRX protocol and subprotocol RX (even if dummy).
 
 ## HITEC - *39*
 Models: OPTIMA, MINIMA and MICRO receivers.

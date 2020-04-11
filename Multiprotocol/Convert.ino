@@ -143,10 +143,10 @@ uint16_t convert_channel_frsky(uint8_t num)
 
 // 0-2047, 0 = 817, 1024 = 1500, 2047 = 2182
 //64=860,1024=1500,1984=2140//Taranis 125%
-static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX( uint8_t i )
+static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX( uint8_t i, uint8_t num_chan=8)
 {	//mapped 860,2140(125%) range to 64,1984(PXX values);
 	uint16_t chan_val=convert_channel_frsky(i)-1226;
-	if(i>7) chan_val|=2048;   // upper channels offset
+	if(i>=num_chan) chan_val|=2048;   // upper channels offset
 	return chan_val;
 }
 

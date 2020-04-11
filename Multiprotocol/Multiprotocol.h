@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	85
+#define VERSION_PATCH_LEVEL	86
 
 //******************
 // Protocols
@@ -93,6 +93,7 @@ enum PROTOCOLS
 	PROTO_FRSKYX2	= 64,	// =>CC2500
 	PROTO_FRSKY_R9	= 65,	// =>SX1276
 	PROTO_PROPEL	= 66,	// =>NRF24L01
+	PROTO_FRSKYL	= 67,	// =>CC2500
 };
 
 enum Flysky
@@ -338,6 +339,12 @@ enum FRSKY_RX
 {
 	FRSKY_RX	= 0,
 	FRSKY_CLONE	= 1,
+};
+
+enum FRSKYL
+{
+	LR12		= 0,
+	LR12_6CH	= 1,
 };
 
 #define NONE 		0
@@ -894,8 +901,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			ESKY_STD	0
 			ESKY_ET4	1
 		sub_protocol==FRSKY_RX
-			FRSKY_RX	= 0,
-			FRSKY_CLONE	= 1,
+			FRSKY_RX	0
+			FRSKY_CLONE	1
+		sub_protocol==FRSKYL
+			LR12		0
+			LR12_6CH	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

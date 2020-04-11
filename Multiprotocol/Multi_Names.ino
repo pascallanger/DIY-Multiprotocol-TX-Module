@@ -29,6 +29,7 @@ const char STR_SLT[]		="SLT";
 const char STR_CX10[]		="CX10";
 const char STR_CG023[]		="CG023";
 const char STR_BAYANG[]		="Bayang";
+const char STR_FRSKYL[]		="FrSky L";
 const char STR_FRSKYX[]		="FrSky X";
 const char STR_FRSKYX2[]	="FrSkyX2";
 const char STR_ESKY[]		="ESky";
@@ -124,6 +125,7 @@ const char STR_SUBTYPE_FRSKYR9[] =    "\x07""915MHz\0""868MHz\0""915 8ch""868 8c
 const char STR_SUBTYPE_ESKY[] =       "\x03""Std""ET4";
 const char STR_SUBTYPE_PROPEL[] =     "\x04""74-Z";
 const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""RX\0    ""CloneTX";
+const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 
 enum
 {
@@ -334,6 +336,9 @@ const mm_protocol_definition multi_protocols[] = {
 #endif
 #if defined(PROPEL_NRF24L01_INO)
 	{PROTO_PROPEL,     STR_PROPEL,    4, STR_SUBTYPE_PROPEL,    OPTION_NONE  },
+#endif
+#if defined(FRSKYL_CC2500_INO)
+	{PROTO_FRSKYL,     STR_FRSKYL,    2, STR_SUBTYPE_FRSKYL,    OPTION_RFTUNE  },
 #endif
 	{0x00,             nullptr,       0, nullptr,               0 }
 };

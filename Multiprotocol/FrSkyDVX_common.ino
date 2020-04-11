@@ -17,7 +17,7 @@
 /**  FrSky D and X routines  **/
 /******************************/
 
-#if defined(FRSKYX_CC2500_INO) || defined(FRSKY_RX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
+#if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKY_RX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
 //**CRC**
 const uint16_t PROGMEM FrSkyX_CRC_Short[]={
 	0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
@@ -29,9 +29,9 @@ static uint16_t __attribute__((unused)) FrSkyX_CRCTable(uint8_t val)
 	val /= 16 ;
 	return word ^ (0x1081 * val) ;
 }
-uint16_t FrSkyX_crc(uint8_t *data, uint8_t len)
+uint16_t FrSkyX_crc(uint8_t *data, uint8_t len, uint8_t init=0)
 {
-	uint16_t crc = 0;
+	uint16_t crc = init;
 	for(uint8_t i=0; i < len; i++)
 		crc = (crc<<8) ^ FrSkyX_CRCTable((uint8_t)(crc>>8) ^ *data++);
 	return crc;
@@ -39,7 +39,7 @@ uint16_t FrSkyX_crc(uint8_t *data, uint8_t len)
 #endif
 
 
-#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO)
+#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYX_CC2500_INO)
 enum {
 	FRSKY_BIND		= 0,
 	FRSKY_BIND_DONE	= 1000,
@@ -122,7 +122,7 @@ void Frsky_init_clone(void)
 /******************************/
 /**  FrSky V, D and X routines  **/
 /******************************/
-#if defined(FRSKYV_CC2500_INO) || defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO)
+#if defined(FRSKYV_CC2500_INO) || defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO)
 	const PROGMEM uint8_t FRSKY_common_startreg_cc2500_conf[]= {
 		 CC2500_02_IOCFG0 ,		
 		 CC2500_00_IOCFG2 ,
@@ -190,7 +190,7 @@ void Frsky_init_clone(void)
 		/*15_DEVIATN*/ 	 0x42  };
 	#endif
 
-	#if defined(FRSKYX_CC2500_INO)
+	#if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO)
 		const PROGMEM uint8_t FRSKYX_cc2500_conf[]= {
 	//FRSKYX
 		/*02_IOCFG0*/  	 0x06 ,
@@ -232,6 +232,26 @@ void Frsky_init_clone(void)
 		/*13_MDMCFG1*/ 	 0x23 ,
 		/*14_MDMCFG0*/ 	 0x7a ,
 		/*15_DEVIATN*/ 	 0x53  };
+		const PROGMEM uint8_t FRSKYL_cc2500_conf[]= {
+		/*02_IOCFG0*/  	 0x02 ,
+		/*00_IOCFG2*/  	 0x02 ,
+		/*17_MCSM1*/   	 0x0C ,
+		/*18_MCSM0*/   	 0x18 ,
+		/*06_PKTLEN*/  	 0xFF ,
+		/*07_PKTCTRL1*/	 0x00 ,
+		/*08_PKTCTRL0*/	 0x02 ,
+		/*3E_PATABLE*/ 	 0xFE ,
+		/*0B_FSCTRL1*/ 	 0x0A ,
+		/*0C_FSCTRL0*/ 	 0x00 ,
+		/*0D_FREQ2*/   	 0x5c ,
+		/*0E_FREQ1*/   	 0x76 ,
+		/*0F_FREQ0*/   	 0x27 ,
+		/*10_MDMCFG4*/ 	 0x5C ,
+		/*11_MDMCFG3*/ 	 0x3B ,
+		/*12_MDMCFG2*/ 	 0x00 ,
+		/*13_MDMCFG1*/ 	 0x03 ,
+		/*14_MDMCFG0*/ 	 0x7A ,
+		/*15_DEVIATN*/ 	 0x47  };
 	#endif
 
 	const PROGMEM uint8_t FRSKY_common_end_cc2500_conf[][2]= {
@@ -276,7 +296,7 @@ void Frsky_init_clone(void)
 	}
 #endif
 
-#if defined(FRSKYX_CC2500_INO) || defined(FRSKYX2_CC2500_INO)
+#if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO)
 uint8_t FrSkyX_chanskip;
 uint8_t FrSkyX_TX_Seq, FrSkyX_TX_IN_Seq;
 uint8_t FrSkyX_RX_Seq ;
@@ -302,7 +322,10 @@ static void __attribute__((unused)) FrSkyX_set_start(uint8_t ch )
 
 static void __attribute__((unused)) FrSkyX_init()
 {
-	FRSKY_init_cc2500((sub_protocol&2)?FRSKYXEU_cc2500_conf:FRSKYX_cc2500_conf); // LBT or FCC
+	if(protocol==PROTO_FRSKYL)
+		FRSKY_init_cc2500(FRSKYL_cc2500_conf);
+	else
+		FRSKY_init_cc2500((sub_protocol&2)?FRSKYXEU_cc2500_conf:FRSKYX_cc2500_conf); // LBT or FCC
 	if(protocol==PROTO_FRSKYX2)
 	{
 		CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x05);		// Enable CRC

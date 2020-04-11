@@ -86,8 +86,9 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|||||||||A7105|
 [Flyzone](Protocols_Details.md#FLYZONE---53)|53|FZ410||||||||A7105|
-[FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
-[FrskyD](Protocols_Details.md#FRSKYD---3)|3|FrskyD||||||||CC2500|
+[FQ777](Protocols_Details.md#FQ777---23)|23|||||||||NRF24L01|SSV7241
+[FrskyD](Protocols_Details.md#FRSKYD---3)|3|||||||||CC2500|
+[FrskyL](Protocols_Details.md#FRSKYL---67)|67|LR12|LR12 6CH|||||||CC2500|
 [FrskyR9](Protocols_Details.md#FRSKYR9---65)|65|FrskyR9|R9_915|R9_868||||||SX1276|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500|
@@ -334,6 +335,28 @@ Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+## FRSKYL - *67*
+Models: FrSky receivers L9R. Also known as LR12.
+
+Extended limits supported
+
+Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+### Sub_protocol LR12 - *0*
+Refresh rate: 36ms
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+### Sub_protocol LR12 6ch - *1*
+Refresh rate: 18ms
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6
 
 ## FRSKYX - *15*
 Models: FrSky v1.xxx receivers X4R, X6R and X8R. Protocol also known as D16.

@@ -504,6 +504,11 @@ void setup()
 				option			=	FORCE_FRSKYD_TUNING;		// Use config-defined tuning value for FrSkyD
 			else
 		#endif
+		#if defined(FORCE_FRSKYL_TUNING) && defined(FRSKYL_CC2500_INO)
+			if(protocol==PROTO_FRSKYL) 
+				option			=	FORCE_FRSKYL_TUNING;		// Use config-defined tuning value for FrSkyL
+			else
+		#endif
 		#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
 			if(protocol==PROTO_FRSKYV)
 				option			=	FORCE_FRSKYV_TUNING;		// Use config-defined tuning value for FrSkyV
@@ -753,8 +758,8 @@ bool Update_All()
 		{ // Autobind is on and BIND_CH went down
 			BIND_CH_PREV_off;
 			//Request protocol to terminate bind
-			#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO)
-			if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A )
+			#if defined(FRSKYD_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO)
+			if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A )
 				BIND_DONE;
 			else
 			#endif
@@ -1110,6 +1115,14 @@ static void protocol_init()
 						PE2_on;
 						next_callback = initFrSky_2way();
 						remote_callback = ReadFrSky_2way;
+						break;
+				#endif
+				#if defined(FRSKYL_CC2500_INO)
+					case PROTO_FRSKYL:
+						PE1_off;	//antenna RF2
+						PE2_on;
+						next_callback = initFrSkyL();
+						remote_callback = ReadFrSkyL;
 						break;
 				#endif
 				#if defined(FRSKYV_CC2500_INO)
@@ -1604,8 +1617,13 @@ void update_serial_data()
 
 	//Forced frequency tuning values for CC2500 protocols
 	#if defined(FORCE_FRSKYD_TUNING) && defined(FRSKYD_CC2500_INO)
-		if(protocol==PROTO_FRSKYD) 
+		if(protocol==PROTO_FRSKYD)
 			option=FORCE_FRSKYD_TUNING;			// Use config-defined tuning value for FrSkyD
+		else
+	#endif
+	#if defined(FORCE_FRSKYL_TUNING) && defined(FRSKYL_CC2500_INO)
+		if(protocol==PROTO_FRSKYL)
+			option=FORCE_FRSKYL_TUNING;			// Use config-defined tuning value for FrSkyL
 		else
 	#endif
 	#if defined(FORCE_FRSKYV_TUNING) && defined(FRSKYV_CC2500_INO)
@@ -1720,8 +1738,8 @@ void update_serial_data()
 		else
 			if( ((rx_ok_buff[1]&0x80)==0) && ((cur_protocol[1]&0x80)!=0) )	// Bind flag has been reset
 			{ // Request protocol to end bind
-				#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO) || defined(FRSKYR9_SX1276_INO)
-				if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9 )
+				#if defined(FRSKYD_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO) || defined(FRSKYR9_SX1276_INO)
+				if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9 )
 					BIND_DONE;
 				else
 				#endif

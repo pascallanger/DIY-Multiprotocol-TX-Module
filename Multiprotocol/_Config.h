@@ -92,6 +92,7 @@
 //Uncomment the lines below (remove the "//") and set an appropriate value (replace the "0") to enable. Valid range is -127 to +127.
 //#define FORCE_CORONA_TUNING	0
 //#define FORCE_FRSKYD_TUNING	0
+//#define FORCE_FRSKYL_TUNING	0
 //#define FORCE_FRSKYV_TUNING	0
 //#define FORCE_FRSKYX_TUNING	0
 //#define FORCE_SFHSS_TUNING	0
@@ -176,6 +177,7 @@
 //The protocols below need a CC2500 to be installed
 #define	CORONA_CC2500_INO
 #define	FRSKYD_CC2500_INO
+#define	FRSKYL_CC2500_INO
 #define	FRSKYV_CC2500_INO
 #define	FRSKYX_CC2500_INO
 #define	FRSKY_RX_CC2500_INO
@@ -563,6 +565,9 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		FRSKY_CLONE
 	PROTO_FRSKYD
 		NONE
+	PROTO_FRSKYL
+		LR12
+		LR12_6CH
 	PROTO_FRSKYR9
 		R9_915
 		R9_868

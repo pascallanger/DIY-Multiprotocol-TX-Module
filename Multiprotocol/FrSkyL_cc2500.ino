@@ -18,7 +18,7 @@
 
 #include "iface_cc2500.h"
 
-#define FRSKYL_FORCE_ID
+//#define FRSKYL_FORCE_ID
 #define FRSKYL_PACKET_LEN	256
 #define FRSKYL_PERIOD		18000
 

@@ -408,7 +408,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 Use the identifier learnt from another FrSky radio when binding with the FrSkyRX/CloneTX mode.
 
 ## FRSKYX2 - *64*
-Same as FrSkyX but for D16 v2.1.0 FCC/LBT.
+Same as [FrskyX](Protocols_Details.md#FRSKYX---15) but for D16 v2.1.0 FCC/LBT.
 
 ## FRSKY_RX - *55*
 

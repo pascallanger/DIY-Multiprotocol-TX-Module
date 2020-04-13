@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	86
+#define VERSION_PATCH_LEVEL	87
 
 //******************
 // Protocols
@@ -209,12 +209,18 @@ enum MJXQ
 	H26WH	= 5,
 	PHOENIX = 6,
 };
+enum FRSKYD
+{
+	FRSKYD	= 0,
+	DCLONE	= 1,
+};
 enum FRSKYX
 {
 	CH_16	= 0,
 	CH_8	= 1,
 	EU_16	= 2,
 	EU_8	= 3,
+	XCLONE	= 4,
 };
 enum HONTAI
 {
@@ -657,7 +663,10 @@ enum {
 #define AFHDS2A_EEPROM_OFFSET2	250		// RX ID, 4 bytes per model id, end is 250+192=442
 #define HOTT_EEPROM_OFFSET		442		// RX ID, 5 bytes per model id, end is 320+442=762
 #define BAYANG_RX_EEPROM_OFFSET	762		// (5) TX ID + (4) channels, 9 bytes, end is 771 
-//#define CONFIG_EEPROM_OFFSET 	771		// Current configuration of the multimodule
+#define FRSKYD_CLONE_EEPROM_OFFSET	771	// (1) format + (3) TX ID + (47) channels, 51 bytes, end is 822
+#define FRSKYX_CLONE_EEPROM_OFFSET	822	// (1) format + (3) TX ID + (47) channels, 51 bytes, end is 873
+#define FRSKYX2_CLONE_EEPROM_OFFSET	873	// (1) format + (3) TX ID, 4 bytes, end is 877
+//#define CONFIG_EEPROM_OFFSET 	877		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***
@@ -814,11 +823,21 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			E010		4
 			H26WH		5
 			PHOENIX		6
+		sub_protocol==FRSKYD
+			FRSKYD		0
+			DCLONE		1
 		sub_protocol==FRSKYX
 			CH_16		0
 			CH_8		1
 			EU_16		2
 			EU_8		3
+			XCLONE		4
+		sub_protocol==FRSKYX2
+			CH_16		0
+			CH_8		1
+			EU_16		2
+			EU_8		3
+			XCLONE		4
 		sub_protocol==HONTAI
 			HONTAI	0
 			JJRCX1	1

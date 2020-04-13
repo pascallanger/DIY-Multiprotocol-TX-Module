@@ -97,7 +97,7 @@ static void __attribute__((unused)) frsky2way_data_frame()
 uint16_t initFrSky_2way()
 {
 	//FrskyD init hop
-	if (eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET+4)==127 && eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET)==2)// bound in FRSKY-RX CloneTX -> use clone mode
+	if (sub_protocol==DCLONE)
 		Frsky_init_clone();
 	else
 		for(uint8_t i=0;i<50;i++)

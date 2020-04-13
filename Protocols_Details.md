@@ -87,12 +87,12 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|||||||||A7105|
 [Flyzone](Protocols_Details.md#FLYZONE---53)|53|FZ410||||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|||||||||NRF24L01|SSV7241
-[FrskyD](Protocols_Details.md#FRSKYD---3)|3|||||||||CC2500|
+[FrskyD](Protocols_Details.md#FRSKYD---3)|3|D8|Cloned|||||||CC2500|
 [FrskyL](Protocols_Details.md#FRSKYL---67)|67|LR12|LR12 6CH|||||||CC2500|
 [FrskyR9](Protocols_Details.md#FRSKYR9---65)|65|FrskyR9|R9_915|R9_868||||||SX1276|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
-[FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|||||CC2500|
-[FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|||||CC2500|
+[FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|Cloned||||CC2500|
+[FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|Cloned||||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|RX|CloneTX|||||||CC2500|
 [FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
@@ -336,6 +336,14 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
+### Sub_protocol D8 - *0*
+Use the internal multi module Identifier.
+
+### Sub_protocol Cloned - *1*
+Use the identifier learnt from another FrSky radio when binding with the FrSkyRX/CloneTX mode.
+
+RX number can't be used anymore and is ignored.
+
 ## FRSKYL - *67*
 Models: FrSky receivers L9R. Also known as LR12.
 
@@ -396,15 +404,18 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
+### Sub_protocol Cloned - *4*
+Use the identifier learnt from another FrSky radio when binding with the FrSkyRX/CloneTX mode.
+
 ## FRSKYX2 - *64*
-Same as FrSkyX but for v2.1.0.
+Same as FrSkyX but for D16 v2.1.0 FCC/LBT.
 
 ## FRSKY_RX - *55*
 
 ### Sub_protocol RX - *0*
 The FrSky receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
-Auto selection of FrSkyD/D8 and FrSkyX/D16 v1.xxx FCC/LBT at bind time.
+Auto selection of the protocol being used by the FrSky TX: FrSkyD/D8, FrSkyX/D16 v1.xxx FCC/LBT and FrSkyX/D16 v2.1.0 FCC/LBT at bind time.
 
 Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 
@@ -420,18 +431,24 @@ Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
 
 ### Sub_protocol CloneTX - *1*
-Enables to clone a FrSky TX in FrSkyD/D8 or FrSkyX/D16 v1.xxx FCC/LBT mode.
+This subprotocol makes a clone of a FrSky TX identifier based on the protocol.
+
+There are 3 slots available, 1 slot for D8 cloning, 1 slot for FrSkyX (D16v1) cloning and 1 slot for FrSkyX2 (D16v2.1.0) cloning.
+The same TX or different TXs can be used for each slot but a maximum of 1 per slot.
+If you launch the FrSky_RX/CloneTX protocol and do a bind with a FrSky TX (genuine or not) on with the protocol D8 it will be saved in the slot D8. Same for D16v1 and D16v2.1 .
+Then the system will alow you to enable cloning as you whish for each model using the FrSkyD/X/X2 "Cloned" subprotocol. This way you can have models working with the original MPM indetifier and models which are shared by both the cloned TX and MPM.
 
 Clone mode operation:
-- Select the FrSkyRX protocol, subprotocol CloneTX
-- Place both the orginal TX and multi in bind mode
+- Select the FrSky_RX protocol, subprotocol CloneTX
+- Select on the TX to be cloned the protocol you want to clone the identifier from: FrSkyD/D8 or FrSkyX/D16 v1.xxx FCC/LBT or FrSkyX/D16 v2.1.0 FCC/LBT
+- Place both the TX and MPM in bind mode
 - Wait for the bind to complete
-- From there the FrSkyD or FrSkyX protocol will now clone the original TX depending on which protocol it was using
+- To use the cloned TX identifier, open a new model select the protocol you just cloned/binded and select the subprotocol "Cloned"
 
 Notes:
+- OpenTX 2.3.8 latest nightly is needed to have access to the "D8Cloned" and "D16Cloned" subprotocols
 - For FrSkyD, only the RX number used during bind is cloned -> you can't use RX num anymore
-- For FrSkyX, RX number has to be adjusted on each model to match the original TX model
-- Once CloneTX is activated the FrSkyD or FrSkyX protocol will always clone the original TX. If you want to disable CloneTX, you must do a bind with the FrSkyRX protocol and subprotocol RX (even if dummy).
+- For FrSkyX and FrSkyX2, RX number has to be adjusted on each model to match the original TX model
 
 ## HITEC - *39*
 Models: OPTIMA, MINIMA and MICRO receivers.

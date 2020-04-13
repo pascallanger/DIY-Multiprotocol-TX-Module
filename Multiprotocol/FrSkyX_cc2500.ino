@@ -20,7 +20,7 @@
 static void __attribute__((unused)) FrSkyX_build_bind_packet()
 {
 	uint8_t packet_size = 0x1D;
-	if(protocol==PROTO_FRSKYX && (sub_protocol & 2 ))
+	if(protocol==PROTO_FRSKYX && (FrSkyFormat & 2 ))
 		packet_size=0x20;				// FrSkyX V1 LBT
 	//Header
 	packet[0] = packet_size;			// Number of bytes in the packet (after this one)
@@ -97,7 +97,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 		{
 			FS_flag = 0x10;
 			failsafe_chan = 0;
-		} else if (FS_flag & 0x10 && failsafe_chan < (sub_protocol & 0x01 ? 8-1:16-1))
+		} else if (FS_flag & 0x10 && failsafe_chan < (FrSkyFormat & 0x01 ? 8-1:16-1))
 		{
 			FS_flag = 0x10 | ((FS_flag + 2) & 0x0F);					//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
 			failsafe_chan ++;
@@ -111,7 +111,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	#endif
 	
 	uint8_t packet_size = 0x1D;
-	if(protocol==PROTO_FRSKYX && (sub_protocol & 2 ))
+	if(protocol==PROTO_FRSKYX && (FrSkyFormat & 2 ))
 		packet_size=0x20;				// FrSkyX V1 LBT
 	//Header
 	packet[0] = packet_size;			// Number of bytes in the packet (after this one)
@@ -155,7 +155,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 		packet[9+i+1]=(((chan_0>>8) & 0x0F)|(chan_1 << 4));
 		packet[9+i+2]=chan_1>>4;
 	}
-	if(sub_protocol & 0x01 )											//In X8 mode send only 8ch every 9ms
+	if(FrSkyFormat & 0x01 )											//In X8 mode send only 8ch every 9ms
 		chan_offset = 0 ;
 	else
 		chan_offset^=0x08;
@@ -285,14 +285,14 @@ uint16_t ReadFrSkyX()
 			}
 			FrSkyX_set_start(hopping_frequency_no);
 			FrSkyX_build_packet();
-			if(sub_protocol & 2)
+			if(FrSkyFormat & 2)
 			{// LBT
 				CC2500_Strobe(CC2500_SRX);								//Acquire RSSI
 				state++;
 				return 400;		// LBT v2.1
 			}
 		case FRSKY_DATA2:
-			if(sub_protocol & 2)
+			if(FrSkyFormat & 2)
 			{
 				uint16_t rssi=0;
 				for(uint8_t i=0;i<4;i++)
@@ -316,7 +316,7 @@ uint16_t ReadFrSkyX()
 			hopping_frequency_no = (hopping_frequency_no+FrSkyX_chanskip)%47;
 			CC2500_WriteData(packet, packet[0]+1);
 			state=FRSKY_DATA3;
-			if(sub_protocol & 2)
+			if(FrSkyFormat & 2)
 				return 4000;	// LBT v2.1
 			else
 				return 5200;	// FCC v2.1
@@ -325,7 +325,7 @@ uint16_t ReadFrSkyX()
 			CC2500_SetTxRxMode(RX_EN);
 			CC2500_Strobe(CC2500_SRX);
 			state++;
-			if(sub_protocol & 2)
+			if(FrSkyFormat & 2)
 				return 4100;	// LBT v2.1
 			else
 				return 3300;	// FCC v2.1
@@ -383,12 +383,15 @@ uint16_t ReadFrSkyX()
 uint16_t initFrSkyX()
 {
 	set_rx_tx_addr(MProtocol_id_master);
-	rx_tx_addr[1]=0x02;		// ID related, hw version?
-
-	if (eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET+4)==127 && eeprom_read_byte((EE_ADDR)FRSKY_RX_EEPROM_OFFSET)<2)// bound in FRSKY-RX CloneTX -> use clone mode
+	FrSkyFormat = sub_protocol;
+	
+	if (sub_protocol==XCLONE)
 		Frsky_init_clone();
 	else if(protocol==PROTO_FRSKYX)
+	{
 		Frsky_init_hop();
+		rx_tx_addr[1]=0x02;		// ID related, hw version?
+	}
 	else
 	{
 		#ifdef FRSKYX2_FORCE_ID
@@ -396,6 +399,7 @@ uint16_t initFrSkyX()
 			rx_tx_addr[2]=0x1C;
 			FrSkyX_chanskip=18;
 		#endif
+		rx_tx_addr[1]=0x02;		// ID related, hw version?
 		FrSkyX2_init_hop();
 	}
 	

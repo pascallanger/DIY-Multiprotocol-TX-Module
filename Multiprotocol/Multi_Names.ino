@@ -84,7 +84,8 @@ const char STR_PROPEL[]		="PROPEL";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
-const char STR_SUBTYPE_FRSKYX[] =     "\x07""D16\0   ""D16 8ch""LBT(EU)""LBT 8ch";
+const char STR_SUBTYPE_FRSKYD[] =     "\x06""D8\0   ""Cloned";
+const char STR_SUBTYPE_FRSKYX[] =     "\x07""D16\0   ""D16 8ch""LBT(EU)""LBT 8ch""Cloned\0";
 const char STR_SUBTYPE_HISKY[] =      "\x05""Std\0 ""HK310";
 const char STR_SUBTYPE_V2X2[] =       "\x06""Std\0  ""JXD506";
 const char STR_SUBTYPE_DSM[] =        "\x06""2 22ms""2 11ms""X 22ms""X 11ms";
@@ -151,7 +152,7 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_HUBSAN,     STR_HUBSAN,    3, STR_SUBTYPE_HUBSAN,    OPTION_VIDFREQ },
 #endif
 #if defined(FRSKYD_CC2500_INO)
-	{PROTO_FRSKYD,     STR_FRSKYD,    0, NO_SUBTYPE,            OPTION_RFTUNE  },
+	{PROTO_FRSKYD,     STR_FRSKYD,    2, STR_SUBTYPE_FRSKYD,    OPTION_RFTUNE  },
 #endif
 #if defined(HISKY_NRF24L01_INO)
 	{PROTO_HISKY,      STR_HISKY,     2, STR_SUBTYPE_HISKY,     OPTION_NONE    },
@@ -187,8 +188,8 @@ const mm_protocol_definition multi_protocols[] = {
 	{PROTO_BAYANG,     STR_BAYANG,    5, STR_SUBTYPE_BAYANG,    OPTION_TELEM   },
 #endif
 #if defined(FRSKYX_CC2500_INO)
-	{PROTO_FRSKYX,     STR_FRSKYX,    4, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
-	{PROTO_FRSKYX2,    STR_FRSKYX2,   4, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
+	{PROTO_FRSKYX,     STR_FRSKYX,    5, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
+	{PROTO_FRSKYX2,    STR_FRSKYX2,   5, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
 #endif
 #if defined(ESKY_NRF24L01_INO)
 	{PROTO_ESKY,       STR_ESKY,      2, STR_SUBTYPE_ESKY,      OPTION_NONE    },

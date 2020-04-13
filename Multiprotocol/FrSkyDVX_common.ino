@@ -50,6 +50,8 @@ enum {
 	FRSKY_DATA5,
 };
 
+uint8_t FrSkyFormat=0;
+
 void Frsky_init_hop(void)
 {
 	uint8_t val;
@@ -86,15 +88,14 @@ void FrSkyX2_init_hop(void)
 	{
 		channel = 5 * (uint16_t(inc * i) % 47) + offset;
 		//Exception list from dumps
-		if(sub_protocol & 2 )// LBT or FCC
-		{
-			//LBT
+		if(FrSkyFormat & 2 )// LBT or FCC
+		{//LBT
 			if( channel <=1 || channel == 43 || channel == 44 || channel == 87 || channel == 88 || channel == 129 || channel == 130 || channel == 173 || channel == 174)
 				channel += 2;
 			else if( channel == 216 || channel == 217 || channel == 218)
 				channel += 3;
 		}
-		else // FCC
+		else //FCC
 			if ( channel == 3 || channel == 4 || channel == 46 || channel == 47 || channel == 90 || channel == 91  || channel == 133 || channel == 134 || channel == 176 || channel == 177 || channel == 220 || channel == 221 )
 				channel += 2;
 		//Store
@@ -107,15 +108,29 @@ void FrSkyX2_init_hop(void)
 
 void Frsky_init_clone(void)
 {
-	uint16_t temp = FRSKY_RX_EEPROM_OFFSET;
-	temp++;
+	debugln("Clone mode");
+	uint16_t temp = FRSKYD_CLONE_EEPROM_OFFSET;
+	if(protocol==PROTO_FRSKYX)
+		temp=FRSKYX_CLONE_EEPROM_OFFSET;
+	else if(protocol==PROTO_FRSKYX2)
+		temp=FRSKYX2_CLONE_EEPROM_OFFSET;
+	FrSkyFormat=eeprom_read_byte((EE_ADDR)temp++);
+	if(protocol==PROTO_FRSKYX)
+		FrSkyFormat >>= 1;
+	else
+		FrSkyFormat >>= 2;
+	FrSkyFormat <<= 1;	//FCC_16/LBT_16
 	rx_tx_addr[3] = eeprom_read_byte((EE_ADDR)temp++);
 	rx_tx_addr[2] = eeprom_read_byte((EE_ADDR)temp++);
 	rx_tx_addr[1] = eeprom_read_byte((EE_ADDR)temp++);
-	temp++;
-	for (uint8_t ch = 0; ch < 47; ch++)
-		hopping_frequency[ch] = eeprom_read_byte((EE_ADDR)temp++);
-	debugln("Clone mode");
+	memset(hopping_frequency,0x00,50);
+	if(protocol!=PROTO_FRSKYX2)
+	{//D8 and D16v1
+		for (uint8_t ch = 0; ch < 47; ch++)
+			hopping_frequency[ch] = eeprom_read_byte((EE_ADDR)temp++);
+	}
+	else
+		FrSkyX2_init_hop();
 }
 
 #endif
@@ -325,11 +340,11 @@ static void __attribute__((unused)) FrSkyX_init()
 	if(protocol==PROTO_FRSKYL)
 		FRSKY_init_cc2500(FRSKYL_cc2500_conf);
 	else
-		FRSKY_init_cc2500((sub_protocol&2)?FRSKYXEU_cc2500_conf:FRSKYX_cc2500_conf); // LBT or FCC
+		FRSKY_init_cc2500((FrSkyFormat&2)?FRSKYXEU_cc2500_conf:FRSKYX_cc2500_conf); // LBT or FCC
 	if(protocol==PROTO_FRSKYX2)
 	{
 		CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x05);		// Enable CRC
-		if(!(sub_protocol&2))
+		if(!(FrSkyFormat&2))
 		{ // FCC
 			CC2500_WriteReg(CC2500_17_MCSM1, 0x0E);		// Go/Stay in RX mode
 			CC2500_WriteReg(CC2500_11_MDMCFG3, 0x84);	// bitrate 70K->77K

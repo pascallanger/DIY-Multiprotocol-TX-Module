@@ -367,7 +367,7 @@ CH1|CH2|CH3|CH4|CH5|CH6
 CH1|CH2|CH3|CH4|CH5|CH6
 
 ## FRSKYX - *15*
-Models: FrSky v1.xxx receivers X4R, X6R and X8R. Protocol also known as D16.
+Models: FrSky v1.xxx receivers X4R, X6R and X8R. Protocol also known as D16 v1 FCC/LBT.
 
 Extended limits and failsafe supported
 
@@ -391,14 +391,14 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ### Sub_protocol EU_16 - *2*
-EU-LBT protocol 16 channels @18ms. Note that the LBT part is not implemented, the TX transmits right away.
+EU-LBT protocol 16 channels @18ms.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
 ### Sub_protocol EU_8 - *3*
-EU-LBT protocol 8 channels @9ms. Note that the LBT part is not implemented, the TX transmits right away.
+EU-LBT protocol 8 channels @9ms.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---

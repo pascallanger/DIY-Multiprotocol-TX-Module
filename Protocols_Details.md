@@ -446,7 +446,7 @@ Clone mode operation:
 - To use the cloned TX identifier, open a new model select the protocol you just cloned/binded and select the subprotocol "Cloned"
 
 Notes:
-- OpenTX 2.3.8 latest nightly is needed to have access to the "D8Cloned" and "D16Cloned" subprotocols
+- OpenTX 2.3.8 N184 (nightly) or later is needed to have access to the "D8Cloned" and "D16Cloned" subprotocols
 - For FrSkyD, only the RX number used during bind is cloned -> you can't use RX num anymore
 - For FrSkyX and FrSkyX2, RX number has to be adjusted on each model to match the original TX model
 

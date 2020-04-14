@@ -79,6 +79,11 @@
 		#error "The FrSkyD forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_FRSKYL_TUNING
+	#if ( FORCE_FRSKYL_TUNING < -127 ) || ( FORCE_FRSKYL_TUNING > 127 )
+		#error "The FrSkyL forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 #ifdef FORCE_FRSKYV_TUNING
 	#if ( FORCE_FRSKYV_TUNING < -127 ) || ( FORCE_FRSKYV_TUNING > 127 )
 		#error "The FrSkyV forced frequency tuning value is outside of the range -127..127."

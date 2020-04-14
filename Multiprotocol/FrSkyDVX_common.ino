@@ -39,7 +39,7 @@ uint16_t FrSkyX_crc(uint8_t *data, uint8_t len, uint8_t init=0)
 #endif
 
 
-#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYX_CC2500_INO)
+#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKY_RX_CC2500_INO)
 enum {
 	FRSKY_BIND		= 0,
 	FRSKY_BIND_DONE	= 1000,

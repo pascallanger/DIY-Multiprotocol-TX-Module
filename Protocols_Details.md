@@ -415,7 +415,7 @@ Same as [FrskyX](Protocols_Details.md#FRSKYX---15) but for D16 v2.1.0 FCC/LBT.
 ### Sub_protocol RX - *0*
 The FrSky receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
-Auto selection of the protocol being used by the FrSky TX: FrSkyD/D8, FrSkyX/D16 v1.xxx FCC/LBT and FrSkyX/D16 v2.1.0 FCC/LBT at bind time.
+Auto detection of the protocol used by a TX transmitting FrSkyD/D8, FrSkyX/D16 v1.xxx FCC/LBT or FrSkyX/D16 v2.1.0 FCC/LBT at bind time.
 
 Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 
@@ -431,12 +431,12 @@ Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
 
 ### Sub_protocol CloneTX - *1*
-This subprotocol makes a clone of a FrSky TX identifier based on the protocol.
+This subprotocol makes a clone of a TX identifier transmitting FrSkyD/D8, FrSkyX/D16 v1.xxx FCC/LBT and FrSkyX/D16 v2.1.0 FCC/LBT.
 
 There are 3 slots available, 1 slot for D8 cloning, 1 slot for FrSkyX (D16v1) cloning and 1 slot for FrSkyX2 (D16v2.1.0) cloning.
 The same TX or different TXs can be used for each slot but a maximum of 1 per slot.
-If you launch the FrSky_RX/CloneTX protocol and do a bind with a FrSky TX (genuine or not) on with the protocol D8 it will be saved in the slot D8. Same for D16v1 and D16v2.1 .
-Then the system will alow you to enable cloning as you whish for each model using the FrSkyD/X/X2 "Cloned" subprotocol. This way you can have models working with the original MPM indetifier and models which are shared by both the cloned TX and MPM.
+If you launch the FrSky_RX/CloneTX protocol and do a bind with a TX transmitting with the D8 protocol, it will be saved in the slot D8. Same for D16v1 and D16v2.1 .
+Then the system will alow you to enable cloning as you wish for each model using the FrSkyD/X/X2 "Cloned" subprotocol. This way you can have models working with the original MPM indentifier and models which are shared by both the cloned TX and MPM.
 
 Clone mode operation:
 - Select the FrSky_RX protocol, subprotocol CloneTX
@@ -446,7 +446,7 @@ Clone mode operation:
 - To use the cloned TX identifier, open a new model select the protocol you just cloned/binded and select the subprotocol "Cloned"
 
 Notes:
-- OpenTX 2.3.8 N184 (nightly) or later is needed to have access to the "D8Cloned" and "D16Cloned" subprotocols
+- OpenTX 2.3.8 N184 (nightly) or later is needed to have access to the "D8Cloned" and "D16Cloned" subprotocols, D16v2.1 "Cloned" is available under FrSkyX2/Cloned.
 - For FrSkyD, only the RX number used during bind is cloned -> you can't use RX num anymore
 - For FrSkyX and FrSkyX2, RX number has to be adjusted on each model to match the original TX model
 

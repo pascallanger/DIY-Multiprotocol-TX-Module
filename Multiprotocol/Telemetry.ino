@@ -120,15 +120,14 @@ static void telemetry_set_input_sync(uint16_t refreshRate)
 
 static void multi_send_status()
 {
-	#ifdef MULTI_NAMES
-	if(multi_protocols_index != 0xFF)
-		multi_send_header(MULTI_TELEMETRY_STATUS, 24);
-	else
-	#endif
 	#ifdef MULTI_TELEMETRY
-		multi_send_header(MULTI_TELEMETRY_STATUS, 6);
+		#ifdef MULTI_NAMES
+			multi_send_header(MULTI_TELEMETRY_STATUS, 24);
+		#else
+			multi_send_header(MULTI_TELEMETRY_STATUS, 5);
+		#endif
 	#else
-		multi_send_header(MULTI_TELEMETRY_STATUS, 6);
+		multi_send_header(MULTI_TELEMETRY_STATUS, 5);
 	#endif
 
 	// Build flags
@@ -141,13 +140,18 @@ static void multi_send_status()
 	{
 		flags |= 0x04;
 		#ifdef MULTI_NAMES
-			if((sub_protocol&0x07) && multi_protocols_index != 0xFF)
-			{
-				uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
-				if(protocol==PROTO_DSM) nbr++;	//Auto sub_protocol
-				if((sub_protocol&0x07)>=nbr)
-					flags &= ~0x04;		//Invalid sub protocol
-			}
+			if(multi_protocols_index == 0xFF||remote_callback==0)
+				flags &= ~0x04;			//Invalid protocol
+			else if(sub_protocol&0x07)
+				{
+					uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+					if(protocol==PROTO_DSM) nbr++;	//Auto sub_protocol
+					if((sub_protocol&0x07)>=nbr)
+						flags &= ~0x04;		//Invalid sub protocol
+				}
+		#else
+			if(remote_callback==0)
+				flags &= ~0x04;			//Invalid protocol
 		#endif
 		if (IS_WAIT_BIND_on)
 			flags |= 0x10;
@@ -177,36 +181,35 @@ static void multi_send_status()
 	#endif
 	
 	#ifdef MULTI_NAMES
-		if(multi_protocols_index != 0xFF)
+		if(multi_protocols_index == 0xFF)											// selection out of list... send first available protocol
+			multi_protocols_index=0;
+		// Protocol next/prev
+		if(multi_protocols[multi_protocols_index+1].protocol != 0)
+			Serial_write(multi_protocols[multi_protocols_index+1].protocol);		// next protocol number
+		else
+			Serial_write(multi_protocols[multi_protocols_index].protocol);			// end of list
+		if(multi_protocols_index>0)
+			Serial_write(multi_protocols[multi_protocols_index-1].protocol);		// prev protocol number
+		else
+			Serial_write(multi_protocols[multi_protocols_index].protocol);			// begining of list
+		// Protocol
+		for(uint8_t i=0;i<7;i++)
+			Serial_write(multi_protocols[multi_protocols_index].ProtoString[i]);	// protocol name
+		// Sub-protocol
+		uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+		Serial_write(nbr | (multi_protocols[multi_protocols_index].optionType<<4));	// number of sub protocols && option type
+		uint8_t j=0;
+		if(nbr && (sub_protocol&0x07)<nbr)
 		{
-			// Protocol next/prev
-			if(multi_protocols[multi_protocols_index+1].protocol != 0)
-				Serial_write(multi_protocols[multi_protocols_index+1].protocol);		// next protocol number
-			else
-				Serial_write(protocol);													// end of list
-			if(multi_protocols_index>0)
-				Serial_write(multi_protocols[multi_protocols_index-1].protocol);		// prev protocol number
-			else
-				Serial_write(protocol);													// begining of list
-			// Protocol
-			for(uint8_t i=0;i<7;i++)
-				Serial_write(multi_protocols[multi_protocols_index].ProtoString[i]);	// protocol name
-			// Sub-protocol
-			uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
-			Serial_write(nbr | (multi_protocols[multi_protocols_index].optionType<<4));	// number of sub protocols && option type
-			uint8_t j=0;
-			if(nbr && (sub_protocol&0x07)<nbr)
-			{
-				uint8_t len=multi_protocols[multi_protocols_index].SubProtoString[0];
-				uint8_t offset=len*(sub_protocol&0x07)+1;
-				for(;j<len;j++)
-					Serial_write(multi_protocols[multi_protocols_index].SubProtoString[j+offset]);	// current sub protocol name
-			}
-			for(;j<8;j++)
-				Serial_write(0x00);
-			// Channels function
-			//TODO
+			uint8_t len=multi_protocols[multi_protocols_index].SubProtoString[0];
+			uint8_t offset=len*(sub_protocol&0x07)+1;
+			for(;j<len;j++)
+				Serial_write(multi_protocols[multi_protocols_index].SubProtoString[j+offset]);	// current sub protocol name
 		}
+		for(;j<8;j++)
+			Serial_write(0x00);
+		// Channels function
+		//TODO
 	#endif
 }
 #endif

@@ -208,14 +208,12 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(FQ777_NRF24L01_INO)
 		{PROTO_FQ777,      STR_FQ777,     0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
+//OpenTX 2.3.x issue: DO NOT CHANGE ORDER below
+	#if defined(FRSKY_RX_CC2500_INO)
+		{PROTO_FRSKY_RX,   STR_FRSKY_RX,  2, STR_SUBTYPE_FRSKY_RX,  OPTION_RFTUNE  },
+	#endif
 	#if defined(FRSKYD_CC2500_INO)
 		{PROTO_FRSKYD,     STR_FRSKYD,    2, STR_SUBTYPE_FRSKYD,    OPTION_RFTUNE  },
-	#endif
-	#if defined(FRSKYL_CC2500_INO)
-		{PROTO_FRSKYL,     STR_FRSKYL,    2, STR_SUBTYPE_FRSKYL,    OPTION_RFTUNE  },
-	#endif
-	#if defined(FRSKYR9_SX1276_INO)
-		{PROTO_FRSKY_R9,   STR_FRSKYR9,   4, STR_SUBTYPE_FRSKYR9,   OPTION_NONE  },
 	#endif
 	#if defined(FRSKYV_CC2500_INO)
 		{PROTO_FRSKYV,      STR_FRSKYV,   0, NO_SUBTYPE,            OPTION_RFTUNE  },
@@ -224,8 +222,12 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_FRSKYX,     STR_FRSKYX,    5, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
 		{PROTO_FRSKYX2,    STR_FRSKYX2,   5, STR_SUBTYPE_FRSKYX,    OPTION_RFTUNE  },
 	#endif
-	#if defined(FRSKY_RX_CC2500_INO)
-		{PROTO_FRSKY_RX,   STR_FRSKY_RX,  2, STR_SUBTYPE_FRSKY_RX,  OPTION_RFTUNE  },
+//OpenTX 2.3.x issue: DO NOT CHANGE ORDER above
+	#if defined(FRSKYL_CC2500_INO)
+		{PROTO_FRSKYL,     STR_FRSKYL,    2, STR_SUBTYPE_FRSKYL,    OPTION_RFTUNE  },
+	#endif
+	#if defined(FRSKYR9_SX1276_INO)
+		{PROTO_FRSKY_R9,   STR_FRSKYR9,   4, STR_SUBTYPE_FRSKYR9,   OPTION_NONE  },
 	#endif
 	#if defined(FX816_NRF24L01_INO)
 		{PROTO_FX816,      STR_FX816,     1, STR_SUBTYPE_FX816,     OPTION_NONE    },

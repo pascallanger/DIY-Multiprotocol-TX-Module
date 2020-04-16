@@ -176,8 +176,8 @@
 
 //The protocols below need a CC2500 to be installed
 #define	CORONA_CC2500_INO
-#define	FRSKYD_CC2500_INO
 #define	FRSKYL_CC2500_INO
+#define	FRSKYD_CC2500_INO
 #define	FRSKYV_CC2500_INO
 #define	FRSKYX_CC2500_INO
 #define	FRSKY_RX_CC2500_INO

@@ -265,6 +265,12 @@
 	#undef FRSKYR9_SX1276_INO
 #endif
 
+//OpenTX 2.3.x issue
+#if defined (FRSKYD_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(FRSKYX_CC2500_INO)
+	#define	FRSKYX_CC2500_INO
+	#define	FRSKY_RX_CC2500_INO
+#endif
+
 //Make sure telemetry is selected correctly
 #ifndef TELEMETRY
 	#undef INVERT_TELEMETRY

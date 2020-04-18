@@ -529,6 +529,11 @@ void setup()
 				option			=	FORCE_CORONA_TUNING;		// Use config-defined tuning value for CORONA
 			else
 		#endif
+		#if defined(FORCE_SKYARTEC_TUNING) && defined(SKYARTEC_CC2500_INO)
+			if (protocol==PROTO_SKYARTEC)
+				option			=	FORCE_SKYARTEC_TUNING;		// Use config-defined tuning value for SKYARTEC
+			else
+		#endif
 		#if defined(FORCE_REDPINE_TUNING) && defined(REDPINE_CC2500_INO)
 			if (protocol==PROTO_REDPINE)
 				option			=	FORCE_REDPINE_TUNING;		// Use config-defined tuning value for REDPINE
@@ -1158,6 +1163,14 @@ static void protocol_init()
 						remote_callback = ReadCORONA;
 						break;
 				#endif
+				#if defined(SKYARTEC_CC2500_INO)
+					case PROTO_SKYARTEC:
+						PE1_off;	//antenna RF2
+						PE2_on;
+						next_callback = initSKYARTEC();
+						remote_callback = ReadSKYARTEC;
+						break;
+				#endif
 				#if defined(REDPINE_CC2500_INO)
 					case PROTO_REDPINE:
 						PE1_off;	//antenna RF2
@@ -1644,6 +1657,11 @@ void update_serial_data()
 	#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)
 		if (protocol==PROTO_CORONA)
 			option=FORCE_CORONA_TUNING;			// Use config-defined tuning value for CORONA
+		else
+	#endif
+	#if defined(FORCE_SKYARTEC_TUNING) && defined(SKYARTEC_CC2500_INO)
+		if (protocol==PROTO_SKYARTEC)
+			option=FORCE_SKYARTEC_TUNING;			// Use config-defined tuning value for SKYARTEC
 		else
 	#endif
 	#if defined(FORCE_REDPINE_TUNING) && defined(REDPINE_CC2500_INO)

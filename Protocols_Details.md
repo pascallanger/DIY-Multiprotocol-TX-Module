@@ -118,8 +118,9 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
-[SFHSS](Protocols_Details.md#SFHSS---21)|21|SFHSS||||||||CC2500|
-[Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
+[SFHSS](Protocols_Details.md#SFHSS---21)|21|||||||||CC2500|
+[Shenqi](Protocols_Details.md#Shenqi---19)|19|||||||||NRF24L01|LT8900
+[Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
 [Tiger](Protocols_Details.md#Tiger---61)|61|Tiger||||||||NRF24L01|XN297
@@ -499,6 +500,9 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 Basic telemetry is available on OpenTX 2.3.3+ with RX voltage, Rx temperature, RX RSSI, RX LQI, TX RSSI and TX LQI. Lowest the TX_LQI value is best the quality link is, it's a good indicator of how well the module is tuned.
 
+## Scanner - *54*
+2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.
+
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.
 
@@ -511,8 +515,14 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
-## Scanner - *54*
-2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.
+## Skyartec - *68*
+
+Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7
 
 ***
 # CYRF6936 RF Module

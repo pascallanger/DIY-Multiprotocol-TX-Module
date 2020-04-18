@@ -81,6 +81,7 @@ const char STR_XK[]			="XK";
 const char STR_XN297DUMP[]	="XN297DP";
 const char STR_FRSKYR9[]	="FrSkyR9";
 const char STR_PROPEL[]		="PROPEL";
+const char STR_SKYARTEC[]	="Skyartc";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -227,7 +228,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_FRSKYL,     STR_FRSKYL,    2, STR_SUBTYPE_FRSKYL,    OPTION_RFTUNE  },
 	#endif
 	#if defined(FRSKYR9_SX1276_INO)
-		{PROTO_FRSKY_R9,   STR_FRSKYR9,   4, STR_SUBTYPE_FRSKYR9,   OPTION_NONE  },
+		{PROTO_FRSKY_R9,   STR_FRSKYR9,   4, STR_SUBTYPE_FRSKYR9,   OPTION_NONE    },
 	#endif
 	#if defined(FX816_NRF24L01_INO)
 		{PROTO_FX816,      STR_FX816,     1, STR_SUBTYPE_FX816,     OPTION_NONE    },
@@ -284,7 +285,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_POTENSIC,   STR_POTENSIC,  1, STR_SUBTYPE_POTENSIC,  OPTION_NONE    },
 	#endif
 	#if defined(PROPEL_NRF24L01_INO)
-		{PROTO_PROPEL,     STR_PROPEL,    4, STR_SUBTYPE_PROPEL,    OPTION_NONE  },
+		{PROTO_PROPEL,     STR_PROPEL,    4, STR_SUBTYPE_PROPEL,    OPTION_NONE    },
 	#endif
 	#if defined(CX10_NRF24L01_INO)
 		{PROTO_Q2X2,       STR_Q2X2,      3, STR_SUBTYPE_Q2X2,      OPTION_NONE    },
@@ -304,8 +305,11 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(SHENQI_NRF24L01_INO)
 		{PROTO_SHENQI,     STR_SHENQI,    0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
+	#if defined(SKYARTEC_CC2500_INO)
+		{PROTO_SKYARTEC,   STR_SKYARTEC,  0, NO_SUBTYPE,            OPTION_NONE    },
+	#endif
 	#if defined(SLT_NRF24L01_INO)
-		{PROTO_SLT,        STR_SLT,       5, STR_SUBTYPE_SLT,       OPTION_RFTUNE    },
+		{PROTO_SLT,        STR_SLT,       5, STR_SUBTYPE_SLT,       OPTION_RFTUNE  },
 	#endif
 	#if defined(SYMAX_NRF24L01_INO)
 		{PROTO_SYMAX,      STR_SYMAX,     2, STR_SUBTYPE_SYMAX,     OPTION_NONE    },

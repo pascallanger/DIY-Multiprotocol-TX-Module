@@ -99,6 +99,11 @@
 		#error "The HITEC forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_HOTT_TUNING
+	#if ( FORCE_HOTT_TUNING < -127 ) || ( FORCE_HOTT_TUNING > 127 )
+		#error "The HOTT forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 #ifdef FORCE_REDPINE_TUNING
 	#if ( FORCE_REDPINE_TUNING < -127 ) || ( FORCE_REDPINE_TUNING > 127 )
 		#error "The REDPINE forced frequency tuning value is outside of the range -127..127."
@@ -109,9 +114,9 @@
 		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
-#ifdef FORCE_HOTT_TUNING
-	#if ( FORCE_HOTT_TUNING < -127 ) || ( FORCE_HOTT_TUNING > 127 )
-		#error "The HOTT forced frequency tuning value is outside of the range -127..127."
+#ifdef FORCE_SKYARTEC_TUNING
+	#if ( FORCE_SKYARTEC_TUNING < -127 ) || ( FORCE_SKYARTEC_TUNING > 127 )
+		#error "The SKYARTEC forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
 //A7105
@@ -188,12 +193,12 @@
 
 //Make sure protocols are selected correctly
 #ifndef A7105_INSTALLED
-	#undef FLYSKY_A7105_INO
-	#undef HUBSAN_A7105_INO
 	#undef AFHDS2A_A7105_INO
-	#undef BUGS_A7105_INO
-	#undef FLYZONE_A7105_INO
 	#undef AFHDS2A_RX_A7105_INO
+	#undef BUGS_A7105_INO
+	#undef FLYSKY_A7105_INO
+	#undef FLYZONE_A7105_INO
+	#undef HUBSAN_A7105_INO
 	#undef PELIKAN_A7105_INO
 #endif
 #ifndef CYRF6936_INSTALLED
@@ -201,62 +206,63 @@
 	#undef	DSM_CYRF6936_INO
 	#undef	HOTT_CC2500_INO
 	#undef	J6PRO_CYRF6936_INO
+	#undef	TRAXXAS_CYRF6936_INO
 	#undef	WFLY_CYRF6936_INO
 	#undef	WK2x01_CYRF6936_INO
-	#undef	TRAXXAS_CYRF6936_INO
 #endif
 #ifndef CC2500_INSTALLED
+	#undef	CORONA_CC2500_INO
 	#undef	FRSKYD_CC2500_INO
 	#undef	FRSKYL_CC2500_INO
 	#undef	FRSKYV_CC2500_INO
 	#undef	FRSKYX_CC2500_INO
-	#undef	SFHSS_CC2500_INO
-	#undef	CORONA_CC2500_INO
-	#undef	REDPINE_CC2500_INO
-	#undef	HITEC_CC2500_INO
-	#undef	SCANNER_CC2500_INO
 	#undef	FRSKY_RX_CC2500_INO
+	#undef	HITEC_CC2500_INO
 	#undef	HOTT_CC2500_INO
+	#undef	REDPINE_CC2500_INO
+	#undef	SCANNER_CC2500_INO
+	#undef	SFHSS_CC2500_INO
+	#undef	SKYARTEC_CC2500_INO
 #endif
 #ifndef NRF24L01_INSTALLED
+	#undef	ASSAN_NRF24L01_INO
 	#undef	BAYANG_NRF24L01_INO
+	#undef	BAYANG_RX_NRF24L01_INO
+	#undef	BUGSMINI_NRF24L01_INO
+	#undef	CABELL_NRF24L01_INO
+	#undef	CFLIE_NRF24L01_INO
 	#undef	CG023_NRF24L01_INO
 	#undef	CX10_NRF24L01_INO
+	#undef	DM002_NRF24L01_INO
+	#undef	E01X_NRF24L01_INO
 	#undef	ESKY_NRF24L01_INO
-	#undef	HISKY_NRF24L01_INO
-	#undef	KF606_NRF24L01_INO
-	#undef	KN_NRF24L01_INO
-	#undef	SLT_NRF24L01_INO
-	#undef	SYMAX_NRF24L01_INO
-	#undef	V2X2_NRF24L01_INO
-	#undef	YD717_NRF24L01_INO
-	#undef	MT99XX_NRF24L01_INO
-	#undef	MJXQ_NRF24L01_INO
-	#undef	SHENQI_NRF24L01_INO
+	#undef	ESKY150_NRF24L01_INO
+	#undef	FQ777_NRF24L01_INO
 	#undef	FX816_NRF24L01_INO
 	#undef	FY326_NRF24L01_INO
-	#undef	FQ777_NRF24L01_INO
-	#undef	ASSAN_NRF24L01_INO
-	#undef	HONTAI_NRF24L01_INO
-	#undef	Q303_NRF24L01_INO
-	#undef	GW008_NRF24L01_INO
 	#undef	GD00X_NRF24L01_INO
-	#undef	DM002_NRF24L01_INO
-	#undef	CABELL_NRF24L01_INO
-	#undef	ESKY150_NRF24L01_INO
+	#undef	GW008_NRF24L01_INO
 	#undef	H8_3D_NRF24L01_INO
-	#undef	CFLIE_NRF24L01_INO
-	#undef	BUGSMINI_NRF24L01_INO
+	#undef	HISKY_NRF24L01_INO
+	#undef	HONTAI_NRF24L01_INO
+	#undef	KF606_NRF24L01_INO
+	#undef	KN_NRF24L01_INO
+	#undef	MJXQ_NRF24L01_INO
+	#undef	MT99XX_NRF24L01_INO
 	#undef	NCC1701_NRF24L01_INO
-	#undef	E01X_NRF24L01_INO
+	#undef	POTENSIC_NRF24L01_INO
+	#undef	PROPEL_NRF24L01_INO
+	#undef	Q303_NRF24L01_INO
+	#undef	SHENQI_NRF24L01_INO
+	#undef	SLT_NRF24L01_INO
+	#undef	SYMAX_NRF24L01_INO
+	#undef	TIGER_NRF24L01_INO
+	#undef	V2X2_NRF24L01_INO
 	#undef	V761_NRF24L01_INO
 	#undef	V911S_NRF24L01_INO
-	#undef	POTENSIC_NRF24L01_INO
-	#undef	ZSX_NRF24L01_INO
-	#undef	BAYANG_RX_NRF24L01_INO
-	#undef	TIGER_NRF24L01_INO
 	#undef	XK_NRF24L01_INO
-	#undef	PROPEL_NRF24L01_INO
+	#undef	YD717_NRF24L01_INO
+	#undef	ZSX_NRF24L01_INO
 #endif
 #if not defined(STM32_BOARD)
 	#undef SX1276_INSTALLED

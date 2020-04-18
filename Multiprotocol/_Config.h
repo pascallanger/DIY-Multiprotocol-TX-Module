@@ -96,6 +96,7 @@
 //#define FORCE_FRSKYV_TUNING	0
 //#define FORCE_FRSKYX_TUNING	0
 //#define FORCE_SFHSS_TUNING	0
+//#define FORCE_SKYARTEC_TUNING	0
 //#define FORCE_HITEC_TUNING	0
 //#define FORCE_HOTT_TUNING		0
 //#define FORCE_REDPINE_TUNING	0
@@ -185,6 +186,7 @@
 #define	HOTT_CC2500_INO
 #define	SCANNER_CC2500_INO
 #define	SFHSS_CC2500_INO
+#define	SKYARTEC_CC2500_INO
 #define	REDPINE_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
@@ -670,6 +672,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_SFHSS
 		NONE
 	PROTO_SHENQI
+		NONE
+	PROTO_SKYARTEC
 		NONE
 	PROTO_SLT
 		SLT_V1

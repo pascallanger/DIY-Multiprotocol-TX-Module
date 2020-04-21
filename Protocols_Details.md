@@ -1254,7 +1254,7 @@ Model: Shenqiwei 1/20 Mini Motorcycle
 
 CH1|CH2|CH3|CH4
 ---|---|---|---
- | |T|R
+-|-|T|R
 
 Throttle +100%=full forward,0%=stop,-100%=full backward.
 
@@ -1438,7 +1438,7 @@ Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
-||T|R|LIGHT
+-|-|T|R|LIGHT
 
 # SX1276 RF Module
 

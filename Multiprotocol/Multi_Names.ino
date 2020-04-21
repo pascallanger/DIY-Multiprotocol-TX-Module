@@ -62,7 +62,7 @@ const char STR_TRAXXAS[]	="Traxxas";
 const char STR_NCC1701[]	="NCC1701";
 const char STR_E01X[]		="E01X";
 const char STR_V911S[]		="V911S";
-const char STR_GD00X[]		="GD00X";
+const char STR_GD00X[]		="GD00x";
 const char STR_V761[]		="V761";
 const char STR_KF606[]		="KF606";
 const char STR_REDPINE[]	="Redpine";
@@ -128,6 +128,7 @@ const char STR_SUBTYPE_ESKY[] =       "\x03""Std""ET4";
 const char STR_SUBTYPE_PROPEL[] =     "\x04""74-Z";
 const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""RX\0    ""CloneTX";
 const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
+const char STR_SUBTYPE_WFLY[] =       "\x06""WFR0xS";
 
 enum
 {
@@ -330,7 +331,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_V911S,      STR_V911S,     2, STR_SUBTYPE_V911S,     OPTION_RFTUNE  },
 	#endif
 	#if defined(WFLY_CYRF6936_INO)
-		{PROTO_WFLY,       STR_WFLY,      0, NO_SUBTYPE,            OPTION_NONE    },
+		{PROTO_WFLY,       STR_WFLY,      1, STR_SUBTYPE_WFLY,      OPTION_NONE    },
 	#endif
 	#if defined(WK2x01_CYRF6936_INO)
 		{PROTO_WK2x01,     STR_WK2x01,    6, STR_SUBTYPE_WK2x01,    OPTION_NONE    },
@@ -349,8 +350,5 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 		{0x00,             nullptr,       0, nullptr,               0 }
 };
-
-
-
 
 #endif

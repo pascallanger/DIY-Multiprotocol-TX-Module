@@ -141,7 +141,10 @@ static void multi_send_status()
 		flags |= 0x04;
 		#ifdef MULTI_NAMES
 			if(multi_protocols_index == 0xFF)
-				flags &= ~0x04;			//Invalid protocol
+			{
+				if(protocol!=PROTO_SCANNER)
+					flags &= ~0x04;			//Invalid protocol
+			}
 			else if(sub_protocol&0x07)
 				{
 					uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;

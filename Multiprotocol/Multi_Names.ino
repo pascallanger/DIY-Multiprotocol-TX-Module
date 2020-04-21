@@ -298,7 +298,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_REDPINE,    STR_REDPINE,   2, STR_SUBTYPE_REDPINE,   OPTION_RFTUNE  },
 	#endif
 	#if defined(SCANNER_CC2500_INO)
-		{PROTO_SCANNER,    STR_SCANNER,   0, NO_SUBTYPE,            OPTION_NONE    },
+	//	{PROTO_SCANNER,    STR_SCANNER,   0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(SFHSS_CC2500_INO)
 		{PROTO_SFHSS,      STR_SFHSS,     0, NO_SUBTYPE,            OPTION_RFTUNE  },

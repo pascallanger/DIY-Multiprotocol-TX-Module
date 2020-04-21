@@ -307,7 +307,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_SHENQI,     STR_SHENQI,    0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(SKYARTEC_CC2500_INO)
-		{PROTO_SKYARTEC,   STR_SKYARTEC,  0, NO_SUBTYPE,            OPTION_NONE    },
+		{PROTO_SKYARTEC,   STR_SKYARTEC,  0, NO_SUBTYPE,            OPTION_RFTUNE  },
 	#endif
 	#if defined(SLT_NRF24L01_INO)
 		{PROTO_SLT,        STR_SLT,       5, STR_SUBTYPE_SLT,       OPTION_RFTUNE  },

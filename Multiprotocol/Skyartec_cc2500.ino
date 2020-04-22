@@ -19,7 +19,6 @@
 
 //#define SKYARTEC_FORCE_ID
 
-#define SKYARTEC_BIND_CHANNEL		0x7D
 #define SKYARTEC_COARSE				0x00
 #define SKYARTEC_TX_ADDR			rx_tx_addr[1]
 #define SKYARTEC_TX_CHANNEL			rx_tx_addr[0]
@@ -41,7 +40,7 @@ enum {
 
 const PROGMEM uint8_t SKYARTEC_init_values[] = {
   /* 04 */ 0x13, 0x18, 0xFF, 0x05,
-  /* 08 */ 0x05, 0x43, SKYARTEC_BIND_CHANNEL, 0x09, 0x00, 0x5D, 0x93, 0xB1 + SKYARTEC_COARSE,
+  /* 08 */ 0x05, 0x43, 0xCD, 0x09, 0x00, 0x5D, 0x93, 0xB1 + SKYARTEC_COARSE,
   /* 10 */ 0x2D, 0x20, 0x73, 0x22, 0xF8, 0x50, 0x07, 0x30,
   /* 18 */ 0x18, 0x1D, 0x1C, 0xC7, 0x00, 0xB2, 0x87, 0x6B,
   /* 20 */ 0xF8, 0xB6, 0x10, 0xEA, 0x0A, 0x00, 0x11, 0x41,
@@ -60,6 +59,10 @@ static void __attribute__((unused)) SKYARTEC_rf_init()
 
 	CC2500_SetTxRxMode(TX_EN);
 	CC2500_SetPower();
+	CC2500_Strobe(CC2500_SFTX);
+	CC2500_Strobe(CC2500_SFRX);
+	CC2500_Strobe(CC2500_SXOFF);
+	CC2500_Strobe(CC2500_SIDLE);
 }
 
 static void __attribute__((unused)) SKYARTEC_send_data_packet()
@@ -78,13 +81,12 @@ static void __attribute__((unused)) SKYARTEC_send_data_packet()
 	}
 	//checks
     uint8_t xor1 = 0;
-    for(uint8_t i = 3; i <= 16; i++)
-        xor1 ^= packet[i];
-    packet[17] = xor1;
-    uint8_t xor2 = 0;
     for(uint8_t i = 3; i <= 14; i++)
-        xor2 ^= packet[i];
-    packet[18] = xor2;
+        xor1 ^= packet[i];
+    packet[18] = xor1;
+    xor1 ^= packet[15];
+    xor1 ^= packet[16];
+    packet[17] = xor1;
     packet[19] = packet[3] + packet[5] + packet[7] + packet[9] + packet[11] + packet[13];
 
 	CC2500_WriteReg(CC2500_04_SYNC1,	rx_tx_addr[3]);
@@ -101,7 +103,10 @@ static void __attribute__((unused)) SKYARTEC_send_bind_packet()
 	packet[1] = 0x7d;
 	packet[2] = 0x01;
 	packet[3] = 0x01;
-	memcpy(&packet[4], rx_tx_addr, 4);
+	packet[4] = rx_tx_addr[0];
+	packet[5] = rx_tx_addr[1];
+	packet[6] = rx_tx_addr[2];
+	packet[7] = rx_tx_addr[3];
 	packet[8] = 0x00;
 	packet[9] = 0x00;
 	packet[10] = SKYARTEC_TX_ADDR;
@@ -112,7 +117,7 @@ static void __attribute__((unused)) SKYARTEC_send_bind_packet()
 	CC2500_WriteReg(CC2500_04_SYNC1,	0x7d);
 	CC2500_WriteReg(CC2500_05_SYNC0,	0x7d);
 	CC2500_WriteReg(CC2500_09_ADDR,		0x7d);
-	CC2500_WriteReg(CC2500_0A_CHANNR,	SKYARTEC_BIND_CHANNEL);
+	CC2500_WriteReg(CC2500_0A_CHANNR,	0x7d);
 	CC2500_WriteData(packet, 12);
 }
 
@@ -158,7 +163,7 @@ uint16_t initSKYARTEC()
 {
     SKYARTEC_rf_init();
 
-	#ifdef SKYARTEC_FORCEID
+	#ifdef SKYARTEC_FORCE_ID
 		memset(rx_tx_addr,0x00,4);
 	#endif
 	if(rx_tx_addr[0]==0) rx_tx_addr[0]=0xB2;

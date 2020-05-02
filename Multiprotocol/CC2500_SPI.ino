@@ -150,6 +150,11 @@ void CC2500_SetPower()
 		#else
 			power=CC2500_HIGH_POWER;
 		#endif
+	if(IS_LBT_POWER_on)
+	{
+		power=CC2500_LBT_POWER;
+		LBT_POWER_off;			// Only accept once
+	}
 	if(IS_RANGE_FLAG_on)
 		power=CC2500_RANGE_POWER;
 	if(prev_power != power)

@@ -302,10 +302,10 @@ uint16_t ReadFrSkyX()
 					uint8_t rssi_level=convert_channel_8b(CH16)>>1;		//CH16 0..127
 					if ( rssi > rssi_level && rssi < 128)				//test rssi level dynamically
 				#else
-					if ( rssi > 72 && rssi < 128)						//LBT and RSSI between -36 and -8.5 dBm
+					if ( rssi > 14 && rssi < 128)						// if RSSI above -65dBm (12=-70) => ETSI requirement
 				#endif
 				{
-					POWER_FLAG_off;										// Reduce to low power before transmitting
+					LBT_POWER_on;										// Reduce to low power before transmitting
 					debugln("Busy %d %d",hopping_frequency_no,rssi);
 				}
 			}

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	93
+#define VERSION_PATCH_LEVEL	94
 
 //******************
 // Protocols
@@ -487,6 +487,11 @@ enum MultiPacketTypes
 #define DISABLE_TELEM_on		protocol_flags3 |= _BV(3)
 #define IS_DISABLE_TELEM_on		( ( protocol_flags3 & _BV(3) ) !=0 )
 #define IS_DISABLE_TELEM_off	( ( protocol_flags3 & _BV(3) ) ==0 )
+//LBT power
+#define LBT_POWER_off		protocol_flags3 &= ~_BV(7)
+#define LBT_POWER_on		protocol_flags3 |= _BV(7)
+#define IS_LBT_POWER_on		( ( protocol_flags3 & _BV(7) ) !=0 )
+#define IS_LBT_POWER_off	( ( protocol_flags3 & _BV(7) ) ==0 )
 
 
 // Failsafe
@@ -611,6 +616,7 @@ enum CC2500_POWER
 	CC2500_POWER_17 = 0xFF	//  +1dbm
 };
 #define CC2500_HIGH_POWER	CC2500_POWER_17
+#define CC2500_LBT_POWER	CC2500_POWER_14
 #define CC2500_LOW_POWER	CC2500_POWER_13
 #define CC2500_RANGE_POWER	CC2500_POWER_1
 #define CC2500_BIND_POWER	CC2500_POWER_1

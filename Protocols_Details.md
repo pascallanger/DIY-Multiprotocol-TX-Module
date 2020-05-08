@@ -944,9 +944,9 @@ Notes:
  - RX output will match the eSky standard TAER independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
  - To run this protocol you need both CC2500 and NRF24L01 to be enabled for code reasons, only the CC2500 is really used.
  
-CH1|CH2|CH3|CH4|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15 |CH16
----|---|---|---|----||----|----|----|----|----|----|----|----|----|----|----
-A|E|T|R|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14 |CH15 |CH16
+CH1|CH2|CH3|CH4|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|----|----|----|----|----|----|----|----|----|----|----|----
+A|E|T|R|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
 ## FX816 - *58*
 Model: FEI XIONG FX816 P38

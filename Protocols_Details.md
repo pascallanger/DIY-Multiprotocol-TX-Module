@@ -82,6 +82,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|Std|ET4||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
+[ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|||||||||CC2500|NRF24L01
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|||||||||A7105|
@@ -935,6 +936,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
 A|E|T|R|FMODE|AUX6|AUX7
 
 FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..100%=>3
+
+## ESKY150V2 - *69*
+ESky protocol for small models: 150 V2, F150 V2, Blade 70s(?)
+
+Notes:
+ - RX output will match the eSky standard TAER independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+ - To run this protocol you need both CC2500 and NRF24L01 to be enabled for code reasons, only the CC2500 is really used.
+ 
+CH1|CH2|CH3|CH4|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15 |CH16
+---|---|---|---|----||----|----|----|----|----|----|----|----|----|----|----
+A|E|T|R|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14 |CH15 |CH16
 
 ## FX816 - *58*
 Model: FEI XIONG FX816 P38

@@ -75,7 +75,11 @@ uint32_t blink=0,last_signal=0;
 //
 uint16_t counter;
 uint8_t  channel;
-uint8_t  packet[50];
+#ifdef ESKY150V2_CC2500_INO
+	uint8_t  packet[150];
+#else
+	uint8_t  packet[50];
+#endif
 
 #define NUM_CHN 16
 // Servo data
@@ -97,7 +101,7 @@ uint16_t packet_period;
 uint8_t  packet_count;
 uint8_t  packet_sent;
 uint8_t  packet_length;
-#ifdef HOTT_CC2500_INO
+#if defined(HOTT_CC2500_INO) || defined(ESKY150V2_CC2500_INO)
 	uint8_t  hopping_frequency[75];
 #else
 	uint8_t  hopping_frequency[50];
@@ -1211,6 +1215,14 @@ static void protocol_init()
 						remote_callback = FrSky_Rx_callback;
 						break;
 				#endif
+				#if defined(ESKY150V2_CC2500_INO)
+					case PROTO_ESKY150V2:
+						PE1_off;
+						PE2_on;	//antenna RF2
+						next_callback = initESKY150V2();
+						remote_callback = ESKY150V2_callback;
+						break;
+				#endif
 			#endif
 			#ifdef CYRF6936_INSTALLED
 				#if defined(DSM_CYRF6936_INO)
@@ -2181,6 +2193,51 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 		(void)create_new;
 		return FORCE_GLOBAL_ID;
 	#endif
+}
+
+// Generate frequency hopping sequence in the range [02..77]
+static void __attribute__((unused)) calc_fh_channels(uint8_t num_ch)
+{
+	uint8_t idx = 0;
+	uint32_t rnd = MProtocol_id;
+	uint8_t max=(num_ch/3)+2;
+	
+	while (idx < num_ch)
+	{
+		uint8_t i;
+		uint8_t count_2_26 = 0, count_27_50 = 0, count_51_74 = 0;
+
+		rnd = rnd * 0x0019660D + 0x3C6EF35F; // Randomization
+		// Use least-significant byte. 73 is prime, so channels 76..77 are unused
+		uint8_t next_ch = ((rnd >> 8) % 73) + 2;
+		// Keep a distance of 5 between consecutive channels
+		if (idx !=0)
+		{
+			if(hopping_frequency[idx-1]>next_ch)
+			{
+				if(hopping_frequency[idx-1]-next_ch<5)
+					continue;
+			}
+			else
+				if(next_ch-hopping_frequency[idx-1]<5)
+					continue;
+		}
+		// Check that it's not duplicated and spread uniformly
+		for (i = 0; i < idx; i++) {
+			if(hopping_frequency[i] == next_ch)
+				break;
+			if(hopping_frequency[i] <= 26)
+				count_2_26++;
+			else if (hopping_frequency[i] <= 50)
+				count_27_50++;
+			else
+				count_51_74++;
+		}
+		if (i != idx)
+			continue;
+		if ( (next_ch <= 26 && count_2_26 < max) || (next_ch >= 27 && next_ch <= 50 && count_27_50 < max) || (next_ch >= 51 && count_51_74 < max) )
+			hopping_frequency[idx++] = next_ch;//find hopping frequency
+	}
 }
 
 /**************************/

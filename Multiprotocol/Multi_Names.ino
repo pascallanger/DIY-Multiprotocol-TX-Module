@@ -51,6 +51,7 @@ const char STR_GW008[]		="GW008";
 const char STR_DM002[]		="DM002";
 const char STR_CABELL[]		="Cabell";
 const char STR_ESKY150[]	="Esky150";
+const char STR_ESKY150V2[]	="EskyV2";
 const char STR_H8_3D[]		="H8 3D";
 const char STR_CORONA[]		="Corona";
 const char STR_CFLIE[]		="CFlie";
@@ -121,6 +122,7 @@ const char STR_SUBTYPE_FLYZONE[] =    "\x05""FZ410";
 const char STR_SUBTYPE_FX816[] =      "\x03""P38";
 const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ";
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4CH""7CH";
+const char STR_SUBTYPE_ESKY150V2[] =  "\x05""150V2";
 const char STR_SUBTYPE_V911S[] =      "\x05""V911S""E119\0";
 const char STR_SUBTYPE_XK[] =         "\x04""X450""X420";
 const char STR_SUBTYPE_FRSKYR9[] =    "\x07""915MHz\0""868MHz\0""915 8ch""868 8ch";
@@ -194,6 +196,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(ESKY150_NRF24L01_INO)
 		{PROTO_ESKY150,    STR_ESKY150,   2, STR_SUBTYPE_ESKY150,   OPTION_NONE    },
+	#endif
+	#if defined(ESKY150V2_CC2500_INO)
+		{PROTO_ESKY150V2,  STR_ESKY150V2, 1, STR_SUBTYPE_ESKY150V2, OPTION_RFTUNE  },
 	#endif
 	#if defined(FLYSKY_A7105_INO)
 		{PROTO_FLYSKY,     STR_FLYSKY,    5, STR_SUBTYPE_FLYSKY,    OPTION_NONE    },

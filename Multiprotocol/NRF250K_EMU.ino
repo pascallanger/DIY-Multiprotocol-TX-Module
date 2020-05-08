@@ -383,7 +383,11 @@ static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t l
 	}
 	//CC2500
 	#ifdef CC2500_INSTALLED
-		uint8_t buf[35];
+		#if defined(ESKY150V2_CC2500_INO)
+			uint8_t buf[158];
+		#else
+			uint8_t buf[35];
+		#endif
 		uint8_t last = 0;
 		uint8_t i;
 
@@ -417,10 +421,40 @@ static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t l
 		CC2500_Strobe(CC2500_SFTX);
 		// packet length
 		CC2500_WriteReg(CC2500_3F_TXFIFO, last);
-		// nrf packet
-		CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buf, last);
-		// transmit
-		CC2500_Strobe(CC2500_STX);
+		// transmit nrf packet
+		uint8_t *buff=buf;
+		uint8_t status;
+		if(last>63)
+		{
+			CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buff, 63);
+			CC2500_Strobe(CC2500_STX);
+			last-=63;
+			buff+=63;
+			while(last)
+			{//Loop until all the data is sent
+				do
+				{// Wait for the FIFO to become available
+					status=CC2500_ReadReg(CC2500_3A_TXBYTES | CC2500_READ_BURST);
+				}
+				while((status&0x7F)>31 && (status&0x80)==0);
+				if(last>31)
+				{//Send 31 bytes
+					CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buff, 31);
+					last-=31;
+					buff+=31;
+				}
+				else
+				{//Send last bytes
+					CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buff, last);
+					last=0;
+				}
+			}
+		}
+		else
+		{//Send packet
+			CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buff, last);
+			CC2500_Strobe(CC2500_STX);
+		}
 	#endif
 }
 

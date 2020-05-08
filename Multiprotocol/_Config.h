@@ -177,6 +177,7 @@
 
 //The protocols below need a CC2500 to be installed
 #define	CORONA_CC2500_INO
+#define	ESKY150V2_CC2500_INO	//Need both CC2500 and NRF
 #define	FRSKYL_CC2500_INO
 #define	FRSKYD_CC2500_INO
 #define	FRSKYV_CC2500_INO
@@ -552,6 +553,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_ESKY150
 		ESKY150_4CH
 		ESKY150_7CH
+	PROTO_ESKY150V2
+		NONE
 	PROTO_FLYSKY
 		Flysky
 		V9X9

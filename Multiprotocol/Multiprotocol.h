@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	0
-#define VERSION_PATCH_LEVEL	94
+#define VERSION_PATCH_LEVEL	95
 
 //******************
 // Protocols
@@ -95,6 +95,7 @@ enum PROTOCOLS
 	PROTO_PROPEL	= 66,	// =>NRF24L01
 	PROTO_FRSKYL	= 67,	// =>CC2500
 	PROTO_SKYARTEC	= 68,	// =>CC2500
+	PROTO_ESKY150V2	= 69,	// =>CC2500+NRF24L01
 };
 
 enum Flysky
@@ -397,7 +398,7 @@ enum MultiPacketTypes
 //***  Tests  ***
 //***************
 #define IS_FAILSAFE_PROTOCOL	( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_HOTT || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 )
-#define IS_CHMAP_PROTOCOL		( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_DSM || protocol==PROTO_SLT || protocol==PROTO_FLYSKY || protocol==PROTO_ESKY || protocol==PROTO_J6PRO || protocol==PROTO_PELIKAN  || protocol==PROTO_SKYARTEC )
+#define IS_CHMAP_PROTOCOL		( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_DSM || protocol==PROTO_SLT || protocol==PROTO_FLYSKY || protocol==PROTO_ESKY || protocol==PROTO_J6PRO || protocol==PROTO_PELIKAN  || protocol==PROTO_SKYARTEC || protocol==ESKY150V2 )
 
 //***************
 //***  Flags  ***
@@ -760,6 +761,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				PROPEL		66
 				FRSKYL		67
 				SKYARTEC	68
+				ESKY150V2	69
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

@@ -162,6 +162,31 @@ static void __attribute__((unused)) DEVO_build_data_pkt()
 	DEVO_add_pkt_suffix();
 }
 
+static void __attribute__((unused)) DEVO_parse_telemetry_packet()
+{
+	DEVO_scramble_pkt(); //This will unscramble the packet
+	
+	debugln("RX");
+	if ((((uint32_t)packet[15] << 16) | ((uint32_t)packet[14] << 8) | packet[13]) != (MProtocol_id & 0x00ffffff))
+		return;	// ID does not match
+	
+	//RSSI
+	TX_RSSI = CYRF_ReadRegister(CYRF_13_RSSI) & 0x1F;
+	TX_RSSI = (TX_RSSI << 1) + TX_RSSI;
+	RX_RSSI = TX_RSSI;
+	telemetry_link = 1;
+
+	//TODO: FW telemetry https://github.com/DeviationTX/deviation/blob/5efb6a28bea697af9a61b5a0ed2528cc8d203f90/src/protocol/devo_cyrf6936.c#L232
+
+	debug("P[0]=%02X",packet[0]);
+	
+	if (packet[0] == 0x30)	// Volt packet
+	{
+		v_lipo1 = packet[1] << 1;
+		v_lipo2 = packet[3] << 1;
+	}
+}
+
 static void __attribute__((unused)) DEVO_cyrf_set_bound_sop_code()
 {
 	/* crc == 0 isn't allowed, so use 1 if the math results in 0 */
@@ -270,6 +295,82 @@ static void __attribute__((unused)) DEVO_BuildPacket()
 uint16_t devo_callback()
 {
 	static uint8_t txState=0;
+	
+#if defined DEVO_HUB_TELEMETRY  
+	int delay;
+	
+	if (txState == 0)
+	{
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(2400);
+		#endif
+		DEVO_BuildPacket();
+		CYRF_WriteDataPacket(packet);
+		txState = 1;
+		return 900;
+	}
+	if (txState == 1)
+	{
+		int i = 0;
+		uint8_t reg;
+		while (! ((reg = CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS)) & 0x02))
+		{
+			if (++i >= DEVO_NUM_WAIT_LOOPS)
+				break;
+		}
+		if (((reg & 0x22) == 0x20) || (CYRF_ReadRegister(CYRF_02_TX_CTRL) & 0x80))
+		{
+			CYRF_Reset();
+			DEVO_cyrf_init();
+			DEVO_cyrf_set_bound_sop_code();
+			CYRF_ConfigRFChannel(*hopping_frequency_ptr);
+			//printf("Rst CYRF\n");
+			delay = 1500;
+			txState = 15;
+		}
+		else
+		{
+			if (phase == DEVO_BOUND)
+			{
+				/* exit binding state */
+				phase = DEVO_BOUND_3;
+				DEVO_cyrf_set_bound_sop_code();
+			}
+			if((packet_count != 0) && (bind_counter == 0))
+			{
+				CYRF_SetTxRxMode(RX_EN); //Receive mode
+				CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87); //0x80??? //Prepare to receive
+				txState = 2;
+				return 1300;
+			}
+		}
+		if(packet_count == 0)
+		{
+			CYRF_SetPower(0x08);		//Keep tx power updated
+			hopping_frequency_ptr = hopping_frequency_ptr == &hopping_frequency[2] ? hopping_frequency : hopping_frequency_ptr + 1;
+			CYRF_ConfigRFChannel(*hopping_frequency_ptr);
+		}
+		delay = 1500;
+	}
+	if(txState == 2)
+	{
+		uint8_t rx_state = CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
+		if((rx_state & 0x03) == 0x02)
+		{  // RXC=1, RXE=0 then 2nd check is required (debouncing)
+			rx_state |= CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);   
+		}
+		if((rx_state & 0x07) == 0x02)
+		{ // good data (complete with no errors)
+			CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);	// need to set RXOW before data read
+			CYRF_ReadDataPacketLen(packet, CYRF_ReadRegister(CYRF_09_RX_COUNT));
+			DEVO_parse_telemetry_packet();
+		}
+		CYRF_SetTxRxMode(TX_EN); //Write mode
+		delay = 200;
+	}
+	txState = 0;   
+	return delay;
+#else
 	if (txState == 0)
 	{
 		#ifdef MULTI_SYNC
@@ -298,6 +399,7 @@ uint16_t devo_callback()
 		CYRF_ConfigRFChannel(*hopping_frequency_ptr);
 	}
 	return 1200;
+#endif
 }
 
 uint16_t DevoInit()

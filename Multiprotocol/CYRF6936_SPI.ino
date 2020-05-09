@@ -284,7 +284,7 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 	}
 	CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation
 	CYRF_SetTxRxMode(TX_EN);
-	CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Clear abort RX
+	CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);		// Clear abort RX
 }
 
 #if defined(DEVO_CYRF6936_INO) || defined(J6PRO_CYRF6936_INO)

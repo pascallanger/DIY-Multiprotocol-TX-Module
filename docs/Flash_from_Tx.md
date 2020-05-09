@@ -1,14 +1,21 @@
 # Flashing from the Transmitter
 
-For radios running erskyTx and OpenTX, there is an option to flash a precompiled firmware file to the multiprotocol module using the transmitter's Bootloader mode.
+For radios running erskyTx and OpenTX, there is an option to flash a precompiled firmware file to the multiprotocol module:
+- OpenTX: using the SD card browser
+- erskyTX : using the transmitter's Bootloader mode.
 
-## Tools required
-* A compatible transmitter running an erskyTx bootloader v2.9 or newer. This is true for both OpenTX and erskyTx.
+What you need:
 * A precompiled multiprotocol firmware file (.hex for Atmega328p or .bin for STM32)
 * A **Flash from TX** bootloader installed on an Atmega328p or STM32 multiprotocol module
 * A means to get the firmware file onto the transmitter's SD card
 
-## Radio bootloader and apps
+## OpenTX 2.3.3 or newer
+1. Copy the firmware file to the radio's SD card - it doesn't matter where you put it
+1. Switch the radio on normally and use the radio menu to locate the file on the SD card
+1. Highlight the file and press the ENTER button
+1. Choose Flash internal module or Flash external module as appropriate
+
+## erskyTX
 
 ### How to check the bootloader version
 1. Push both horizontals trims inwards (close to each others) while powering on the radio
@@ -35,9 +42,7 @@ For radios running erskyTx and OpenTX, there is an option to flash a precompiled
    1. Long press it and select `Flash bootloader`
 1. Check by rebooting the radio in bootloader mode that everything is [ok](###-How-to-check-the-bootloader-version)
 
-**Note**: For OpenTX radio, this bootloader is an upgraded version of the existing bootloader shipped with OpenTX. It's providing you the exact same level of default features while adding more through apps. You can go back and forth between the 2 bootloaders without an issue.
-
-## Multimodule upgrade procedure
+### Multimodule upgrade procedure
 1. Either:
    1. Connect the transmitter using a USB cable and power it on, or 
    1. Remove the SD card from the transmitter and mount it using a suitable reader

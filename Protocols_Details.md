@@ -940,7 +940,7 @@ A|E|T|R|FMODE|AUX6|AUX7
 FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..100%=>3
 
 ## ESKY150V2 - *69*
-ESky protocol for small models: 150 V2, F150 V2, Blade 70s(?)
+ESky protocol for small models: 150 V2, F150 V2, Blade 70s
 
 Notes:
  - RX output will match the eSky standard TAER independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
@@ -949,6 +949,8 @@ Notes:
 CH1|CH2|CH3|CH4|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|----|----|----|----|----|----|----|----|----|----|----|----
 A|E|T|R|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
+RATE for the F150 V2 is assigned to channel 5: -100%=low, 100%=high
 
 ## FX816 - *58*
 Model: FEI XIONG FX816 P38

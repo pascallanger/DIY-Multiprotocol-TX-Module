@@ -199,23 +199,25 @@ static void __attribute__((unused)) DSM_abort_channel_rx(uint8_t ch)
 uint16_t DSM_Rx_callback()
 {
 	uint8_t rx_status;
-	static uint8_t read_retry=10;
+	static uint8_t read_retry=0;
 	static uint16_t pps_counter;
 	static uint32_t pps_timer = 0;
 
 	switch (phase)
 	{
 		case DSM_RX_BIND1:
+			if(packet_count==0)
+				read_retry=0;
 			//Check received data
 			rx_status = CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
 			if((rx_status & 0x03) == 0x02)  							// RXC=1, RXE=0 then 2nd check is required (debouncing)
 				rx_status |= CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
-			if((rx_status & 0x07) == 0x02 && read_retry)
+			if((rx_status & 0x07) == 0x02)
 			{ // data received with no errors
 				CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);		// Need to set RXOW before data read
-				rx_status=CYRF_ReadRegister(CYRF_09_RX_COUNT);
-				debugln("RX:%d",rx_status);
-				if(rx_status==16)
+				len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
+				debugln("RX:%d, CH:%d",len,hopping_frequency_no);
+				if(len==16)
 				{
 					CYRF_ReadDataPacketLen(packet_in, 16);
 					if(DSM_Rx_bind_check_validity())
@@ -263,29 +265,41 @@ uint16_t DSM_Rx_callback()
 						debugln(", num_ch=%d, type=%02X",num_ch, DSM_rx_type);
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);	// Abort RX operation
 						CYRF_SetTxRxMode(TX_EN);					// Force end state TX
+						CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84", 16);
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);	// Clear abort RX
 						DSM_Rx_build_bind_packet();
 						bind_counter=500;
 						phase++;									// DSM_RX_BIND2;
+						return 1000;
 					}
 				}
-				if(read_retry)
-					read_retry--;
+				DSM_abort_channel_rx(0);							// Abort RX operation and receive
+				if(read_retry==0)
+					read_retry=4;
 			}
 			else
+				if(rx_status & 0x02)								// RX error
+					DSM_abort_channel_rx(0);						// Abort RX operation and receive
+			packet_count++;
+			if(packet_count>12)
 			{
-				hopping_frequency_no++;								// Change channel
-				hopping_frequency_no %= 0x50;
-				hopping_frequency_no |= 0x01;						// Odd channels only
-				CYRF_ConfigRFChannel(hopping_frequency_no);
-				//debugln("ch:%d",hopping_frequency_no);
-				read_retry = 10;
-				DSM_abort_channel_rx(0);							// Abort RX operation and receive
+				packet_count=1;
+				if(read_retry)
+					read_retry--;
+				if(read_retry==0)
+				{
+					packet_count=0;
+					hopping_frequency_no++;								// Change channel
+					hopping_frequency_no %= 0x50;
+					hopping_frequency_no |= 0x01;						// Odd channels only
+					CYRF_ConfigRFChannel(hopping_frequency_no);
+					DSM_abort_channel_rx(0);							// Abort RX operation and receive
+				}
 			}
-			return 12500;
+			return 1000;
 		case DSM_RX_BIND2:
 			//Transmit settings back
-			CYRF_WriteDataPacketLen(packet,10);						// Does not work ?!?!?
+			CYRF_WriteDataPacketLen(packet,10);						// Send packet
 			if(bind_counter--==0)
 			{
 				BIND_DONE;
@@ -296,7 +310,6 @@ uint16_t DSM_Rx_callback()
 			hopping_frequency_no = 0;
 			read_retry=0;
 			rx_data_started = false;
-			read_retry=0;
 			pps_counter = 0;
 			RX_LQI = 100;
 			DSM_cyrf_configdata();
@@ -457,7 +470,10 @@ uint16_t initDSM_Rx()
 	hopping_frequency_no = 0;
 	
 	if (IS_BIND_IN_PROGRESS)
+	{
+		packet_count=0;
 		phase = DSM_RX_BIND1;
+	}
 	else
 	{
 		uint16_t temp = DSM_RX_EEPROM_OFFSET;
@@ -471,7 +487,7 @@ uint16_t initDSM_Rx()
 		debugln(", type=%02X", DSM_rx_type);
 		phase = DSM_RX_DATA_PREP;
 	}
-	return 1000;
+	return 15000;
 }
 
 #endif

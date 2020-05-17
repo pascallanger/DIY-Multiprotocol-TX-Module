@@ -77,6 +77,7 @@ const uint8_t PROGMEM DSM_init_vals[][2] = {
 	{CYRF_28_CLK_EN, 0x02},					// Force receive clock enable
 	{CYRF_32_AUTO_CAL_TIME, 0x3c},			// Default init value
 	{CYRF_35_AUTOCAL_OFFSET, 0x14},			// Default init value
+	{CYRF_26_XTAL_CFG, 0x08},				// Start delay
 	{CYRF_06_RX_CFG, 0x4A},					// LNA enabled, RX override enabled, Fast turn mode enabled, RX is 1MHz below TX
 	{CYRF_1B_TX_OFFSET_LSB, 0x55},			// Default init value
 	{CYRF_1C_TX_OFFSET_MSB, 0x05},			// Default init value

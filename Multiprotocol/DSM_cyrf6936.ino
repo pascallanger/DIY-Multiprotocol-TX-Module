@@ -230,7 +230,7 @@ uint16_t ReadDsm()
 	#if defined DSM_TELEMETRY
 		case DSM_BIND_CHECK:
 			//64 SDR Mode is configured so only the 8 first values are needed but we need to write 16 values...
-			CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84\xC9\x2C\x06\x93\x86\xB9\x9E\xD7", 16);
+			CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84", 16);
 			CYRF_SetTxRxMode(RX_EN);						//Receive mode
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);		//Prepare to receive
 			bind_counter=2*DSM_BIND_COUNT;					//Timeout of 4.2s if no packet received
@@ -255,6 +255,10 @@ uint16_t ReadDsm()
 						return 2000;
 					}
 				}
+				CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation
+				CYRF_SetTxRxMode(RX_EN);						// Force end state read
+				CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);		// Clear abort RX operation
+				CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);		// Prepare to receive
 			}
 			else
 				if((rx_phase & 0x02) != 0x02)

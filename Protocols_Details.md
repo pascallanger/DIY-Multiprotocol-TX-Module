@@ -674,10 +674,9 @@ Also on er9x you will need to be sure to match the polarity of the telemetry ser
 The DSM receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
 Notes:
- - Automatically support DSM 2/X 11/22 1024/2048
- - Currently the bind response does not work which means that the TX doesn't know what the DSM RX protocol has selected. **You must manually select the right protocol on the TX**. By default the RX will select DSMX/11ms.
- - Available in OpenTX 2.3.3, Trainer Mode Master/Multi
- - Channels 1..4 are remapped to the module default
+ - Automatically detect DSM 2/X 11/22ms 1024/2048res
+ - Available in OpenTX 2.3.3+, Trainer Mode Master/Multi
+ - Channels 1..4 are remapped to the module default channel order unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
  - Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12

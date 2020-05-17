@@ -33,6 +33,15 @@ enum {
     HOTT_RX2   = 0x04,
 };
 
+#ifdef HOTT_FW_TELEMETRY
+	#define HOTT_SENSOR_TYPE 6
+	#define HOTT_SENSOR_SEARCH_PERIOD 120
+	uint8_t HOTT_sensor_cur=0;
+	uint8_t HOTT_sensor_pages=0;
+	uint8_t HOTT_sensor_valid=false;
+	uint8_t HOTT_sensor_ok[HOTT_SENSOR_TYPE];
+#endif
+
 #define HOTT_FREQ0_VAL 0x6E
 
 // Some important initialization parameters, all others are either default,
@@ -213,21 +222,30 @@ static void __attribute__((unused)) HOTT_data_packet()
 
 	#ifdef HOTT_FW_TELEMETRY
 		static uint8_t prev_SerialRX_val=0;
-		if(HoTT_SerialRX && HoTT_SerialRX_val >= 0xD7 && HoTT_SerialRX_val <= 0xDF)
-		{
-			if(prev_SerialRX_val!=HoTT_SerialRX_val)
-			{
-				prev_SerialRX_val=HoTT_SerialRX_val;
-				packet[28] = HoTT_SerialRX_val;			// send the touch being pressed only once
+		if(HoTT_SerialRX)
+		{//Text mode
+			uint8_t sensor=HoTT_SerialRX_val&0xF0;
+			if((sensor&0x80) && sensor!=0xF0 && (HoTT_SerialRX_val&0x0F) >= 0x07)
+			{//Valid Text query
+				if(sensor==0x80) HoTT_SerialRX_val&=0x0F;	// RX only
+				if(prev_SerialRX_val!=HoTT_SerialRX_val)
+				{
+					prev_SerialRX_val=HoTT_SerialRX_val;
+					packet[28] = HoTT_SerialRX_val;			// send the button being pressed only once
+				}
+				else
+					packet[28] = HoTT_SerialRX_val | 0x0F;	// no button pressed
+				packet[29] = 0x01;							// 0x01->Text config menu
 			}
-			else
-				packet[28] = 0xDF;						// no touch pressed
-			packet[29] = 0x01;							// 0x01->config menu
 		}
 		else
 		{
-			packet[28] = 0x8C;							// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets, 0x0F->config menu
-			packet[29] = 0x02;							// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->config menu, 0x0A->no more RX telemetry
+			#ifdef HOTT_FW_TELEMETRY
+				packet[28] = 0x89+HOTT_sensor_cur;		// 0x89/8A/8B/8C/8D/8E during normal packets
+			#else
+				packet[28] = 0x80;						// no sensor
+			#endif
+			packet[29] = 0x02;							// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
 		}
 	#endif
 
@@ -296,8 +314,8 @@ uint16_t ReadHOTT()
 			if (len==HOTT_RX_PACKET_LEN+2)
 			{
 				CC2500_ReadData(packet_in, len);
-				if(memcmp(rx_tx_addr,packet_in,5)==0)
-				{ // TX ID matches
+				if((packet_in[HOTT_RX_PACKET_LEN+1]&0x80) && memcmp(rx_tx_addr,packet_in,5)==0)
+				{ // CRC OK and TX ID matches
 					if(IS_BIND_IN_PROGRESS)
 					{
 						debug("B:");
@@ -317,16 +335,49 @@ uint16_t ReadHOTT()
 							// [5..9] = RXID
 							// [10] = 0x40 bind, 0x00 normal, 0x80 config menu
 							// [11] = telmetry pages. For sensors 0x00 to 0x04, for config mennu 0x00 to 0x12.
-							// Normal telem page 0 = 0x00, 0x33, 0x34, 0x46, 0x64, 0x33, 0x0A, 0x00, 0x00, 0x00
-							//				= 0x55, 0x32, 0x38, 0x55, 0x64, 0x32, 0xD0, 0x07, 0x00, 0x55
-							//   Page 0 [12] = [21] = ??
-							//   Page 0 [13] = RX_Voltage*10 in V
+							// Normal telem page 0 = 0x55, 0x32, 0x38, 0x55, 0x64, 0x32, 0xD0, 0x07, 0x00, 0x55
+							//   Page 0 [12] = [21] = [15]
+							//   Page 0 [13] = RX_Voltage Cur*10 in V
 							//   Page 0 [14] = Temperature-20 in °C
-							//   Page 0 [15] = RX_RSSI
-							//   Page 0 [16] = RX_LQI ??
-							//   Page 0 [17] = RX_STR ??
+							//   Page 0 [15] = RX_RSSI CC2500 formated (a<128:a/2-71dBm, a>=128:(a-256)/2-71dBm)
+							//   Page 0 [16] = RX_LQI in %
+							//   Page 0 [17] = RX_Voltage Min*10 in V
 							//   Page 0 [18,19] = [19]*256+[18]=max lost packet time in ms, max value seems 2s=0x7D0
 							//   Page 0 [20] = 0x00 ??
+							//   Page 1 = 00 01 C0 00 00 72 00 70 00 00 00 34 // ESC Telem 1
+							//   Page 1 [12] = 0xC0 ?? ESC type ??
+							//   Page 1 [13] = 0x00 ??
+							//   Page 1 [14] = 0x00 ??
+							//   Page 1 [15] = Batt_L Cur voltage*10 in V
+							//   Page 1 [16] = Batt_H Cur -> not sure since I can't test but
+							//   Page 1 [17] = Batt_L Min voltage*10 in V
+							//   Page 1 [18] = Batt_H Min -> not sure since I can't test but
+							//   Page 1 [19] = 0x00 ??
+							//   Page 1 [20] = 0x00 ??
+							//   Page 1 [21] = 0x29..34 looks like temperature-20 in °C
+							//   Page 2 =00 02 30 00 00 00 00 B4 1F 8E 2E 14  // ESC Telem 2
+							//   Page 2 [12] = Page 1 [21] = 0x29..34 looks like temperature-20 in °C
+							//   Page 2 [13] = 0x00 ??
+							//   Page 2 [14] = 0x00 ??
+							//   Page 2 [15] = 0x00 ??
+							//   Page 2 [16] = 0x00 ??
+							//   Page 2 [17] = RPM_L Cur
+							//   Page 2 [18] = RPM_H Cur
+							//   Page 2 [19] = RPM_L Max
+							//   Page 2 [20] = RPM_H Max
+							//   Page 2 [21] = 0x14 ??
+							//   Page 3 =00 03 14 00 00 00 00 00 00 00 00 00  // ESC Telem 3
+							//   Page 3 [12] = Page 2 [21] = ??
+							//   Page 3 [13] = 0x00 ??
+							//   Page 3 [14] = 0x00 ??
+							//   Page 3 [15] = 0x00 ??
+							//   Page 3 [16] = 0x00 ??
+							//   Page 3 [17] = 0x00 ??
+							//   Page 3 [18] = 0x00 ??
+							//   Page 3 [19] = 0x00 ??
+							//   Page 3 [20] = 0x00 ??
+							//   Page 3 [21] = 0x00 ??
+							//
 							// Config menu consists of the different telem pages put all together
 							//   Page X [12] = seems like all the telem pages with the same value are going together to make the full config menu text. Seen so far 'a', 'b', 'c', 'd' 
 							//   Page X [13..21] = 9 ascii chars to be displayed, char is highlighted when ascii|0x80
@@ -334,22 +385,69 @@ uint16_t ReadHOTT()
 							//   Menu commands are sent through TX packets:
 							//     packet[28]= 0xXF=>no key press, 0xXD=>down, 0xXB=>up, 0xX9=>enter, 0xXE=>right, 0xX7=>left with X=0 or D
 							//     packet[29]= 0xX1/0xX9 with X=0 or X counting 0,1,1,2,2,..,9,9
-							TX_RSSI = packet_in[22];
-							if(TX_RSSI >=128)
-								TX_RSSI -= 128;
-							else
-								TX_RSSI += 128;
 							// Reduce telemetry to 14 bytes
-							packet_in[0]= TX_RSSI;
+							packet_in[0]= packet_in[HOTT_RX_PACKET_LEN];
 							packet_in[1]= TX_LQI;
-							debug("T=");
+							bool send_telem=true;
+							bool disp = true;
+							if(packet[29]==2)	// Requesting binary sensor
+							{
+								if( packet_in[11]==1 )									// Page 1
+								{
+									if(packet_sent)
+										packet_sent--;
+									if( packet_in[12] == ((HOTT_sensor_cur+9)<<4) )		// The current sensor is responding: 0x90/A0/B0/C0/D0/E0
+									{
+										HOTT_sensor_pages = 0;							// Sensor first page received
+										HOTT_sensor_valid = true;						// Data from the expected sensor is being received
+										HOTT_sensor_ok[HOTT_sensor_cur]=true;
+									}
+									else
+									{
+										HOTT_sensor_valid = false;
+										HOTT_sensor_pages = 0x1E;						// Switch to next sensor
+									}
+								}
+								if(HOTT_sensor_valid && packet_in[11] )					// Valid & page !=0
+								{
+									packet_in[10] = HOTT_sensor_cur+9;					// Marking telem with sensor ID
+									HOTT_sensor_pages |= 1<<packet_in[11];				// Page received
+								}
+								if(packet_in[11] && !HOTT_sensor_valid)
+									send_telem=false;
+							}
+							else
+							{ //Text mode
+								HOTT_sensor_pages = 0;
+								HOTT_sensor_valid = false;
+								packet_in[10] = 0x80;									// Marking telem Text mode
+								packet_in[12] = 0;
+								for(uint8_t i=0; i<HOTT_SENSOR_TYPE;i++)
+									packet_in[12] |= HOTT_sensor_ok[i]<<i;				// Send detected sensors
+							}
+							if(disp) debug("T%d=",send_telem);
 							for(uint8_t i=10;i < HOTT_RX_PACKET_LEN; i++)
 							{
 								packet_in[i-8]=packet_in[i];
-								debug(" %02X",packet_in[i]);
+								if(disp) debug(" %02X",packet_in[i]);
 							}
-							debugln("");
-							telemetry_link=2;
+							if(disp) debugln("");
+							if(send_telem)
+								telemetry_link=2;
+							if((HOTT_sensor_pages&0x1E) == 0x1E)						// All 4 pages received from the sensor
+							{
+								HOTT_sensor_valid=false;
+								HOTT_sensor_pages=0;
+								uint8_t loop=0;
+								do
+								{
+									HOTT_sensor_cur++;									// Switch to next sensor
+									HOTT_sensor_cur %= HOTT_SENSOR_TYPE;
+									loop++;
+								}
+								while(HOTT_sensor_ok[HOTT_sensor_cur]==false && loop<HOTT_SENSOR_TYPE+1 && packet_sent==0);
+								debugln("Sensor:%02X",((HOTT_sensor_cur+9)<<4));
+							}										
 						}
 						pps_counter++;
 					#endif
@@ -360,6 +458,14 @@ uint16_t ReadHOTT()
 				if(packet_count>=100)
 				{
 					TX_LQI=pps_counter;
+					if(pps_counter==0)
+					{ // lost connection with RX, power cycle? research sensors again.
+						HOTT_sensor_cur=0;
+						HOTT_sensor_valid=false;
+						for(uint8_t i=0; i<HOTT_SENSOR_TYPE;i++)
+							HOTT_sensor_ok[i]=false;	// no sensors detected
+						packet_sent=HOTT_SENSOR_SEARCH_PERIOD;
+					}
 					pps_counter=packet_count=0;
 				}
 			#endif
@@ -375,10 +481,16 @@ uint16_t initHOTT()
 	num_ch=random(0xfefefefe)%16;
 	HOTT_init();
 	HOTT_rf_init();
-	packet_count=0;
 	#ifdef HOTT_FW_TELEMETRY
 		HoTT_SerialRX_val=0;
 		HoTT_SerialRX=false;
+		HOTT_sensor_cur=0;
+		HOTT_sensor_pages=0;
+		HOTT_sensor_valid=false;
+		for(uint8_t i=0; i<HOTT_SENSOR_TYPE;i++)
+			HOTT_sensor_ok[i]=false;	// no sensors detected
+		packet_count=0;
+		packet_sent=HOTT_SENSOR_SEARCH_PERIOD;
 	#endif
 	phase = HOTT_START;
 	return 10000;

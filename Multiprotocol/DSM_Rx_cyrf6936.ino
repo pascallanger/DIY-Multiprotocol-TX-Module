@@ -33,6 +33,7 @@ enum {
 static void __attribute__((unused)) DSM_Rx_init()
 {
 	DSM_cyrf_config();
+	rx_disable_lna = IS_POWER_FLAG_on;
 	if(IS_BIND_IN_PROGRESS)
 	{
 		//64 SDR Mode is configured so only the 8 first values are needed but need to write 16 values...
@@ -44,9 +45,10 @@ static void __attribute__((unused)) DSM_Rx_init()
 		CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);					// Prepare to receive
 	}
 	else
+	{
 		DSM_cyrf_configdata();
-	rx_disable_lna = IS_POWER_FLAG_on;
-	CYRF_WriteRegister(CYRF_06_RX_CFG, rx_disable_lna ? 0x0A:0xCA);	// AGC enabled/disabled, LNA enabled/disabled, Attenuator disabled, RX override enabled, Fast turn mode enabled, RX is 1MHz below TX
+		CYRF_WriteRegister(CYRF_06_RX_CFG, rx_disable_lna ? 0x0A:0x4A);	// AGC disabled, LNA disabled/enabled, Attenuator disabled, RX override enabled, Fast turn mode enabled, RX is 1MHz below TX
+	}
 }
 
 uint16_t convert_channel_DSM_nolimit(int32_t val)
@@ -67,11 +69,15 @@ static uint8_t __attribute__((unused)) DSM_Rx_check_packet()
 		rx_status |= CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
 	if((rx_status & 0x07) == 0x02)
 	{ // data received with no errors
-		if(CYRF_ReadRegister(CYRF_09_RX_COUNT)==16)
-		{// 16 bytes
+		len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
+		#ifdef DSM_DEBUG_RF
+			debugln("l=%d",len);
+		#endif
+		if(len>=2 && len<=16)
+		{
 			// Read packet
 			CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);		// Need to set RXOW before data read
-			CYRF_ReadDataPacketLen(packet, 16);
+			CYRF_ReadDataPacketLen(packet, len);
 
 			// Check packet ID
 			if ((DSM_rx_type&0x80) == 0)
@@ -93,9 +99,14 @@ static void __attribute__((unused)) DSM_Rx_build_telemetry_packet()
 	if((DSM_rx_type&0xF0) == 0x00)
 		nbr_bits=10;												// Only DSM_22 is using a resolution of 1024
 
+	// Use packet length to calculate the number of channels
+	len -= 2;														// Remove header length
+	len >>= 1;														// Channels are on 2 bytes
+	if(len==0) return;												// No channels...
+
 	// Extract channels
 	uint8_t idx;
-	for (uint8_t i = 0; i < 7; i++)
+	for (uint8_t i = 0; i < len; i++)
 	{
 		uint16_t value=(packet[i*2+2]<<8) | packet[i*2+3];
 		if(value!=0xFFFF)
@@ -174,10 +185,10 @@ static void __attribute__((unused)) DSM_abort_channel_rx(uint8_t ch)
 {
 	CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);						// Abort RX operation
 	CYRF_SetTxRxMode(IS_POWER_FLAG_on ? TXRX_OFF:RX_EN);			// Force end state read
-	if (rx_disable_lna != IS_POWER_FLAG_on)
+	if (rx_disable_lna != IS_POWER_FLAG_on && IS_BIND_DONE)
 	{
 		rx_disable_lna = IS_POWER_FLAG_on;
-		CYRF_WriteRegister(CYRF_06_RX_CFG, rx_disable_lna ? 0x0A:0xCA);	// AGC enabled/disabled, LNA enabled/disabled, Attenuator disabled, RX override enabled, Fast turn mode enabled, RX is 1MHz below TX
+		CYRF_WriteRegister(CYRF_06_RX_CFG, rx_disable_lna ? 0x0A:0x4A);	// AGC disabled, LNA disabled/enabled, Attenuator disabled, RX override enabled, Fast turn mode enabled, RX is 1MHz below TX
 	}
 	if(ch&0x02) DSM_set_sop_data_crc(true ,DSM_rx_type&0x80);		// Set sop data,crc seed and rf channel using CH1, DSM2/X
 	if(ch&0x01) DSM_set_sop_data_crc(false,DSM_rx_type&0x80);		// Set sop data,crc seed and rf channel using CH1, DSM2/X
@@ -215,7 +226,7 @@ uint16_t DSM_Rx_callback()
 						for(uint8_t i=0;i<4;i++)
 						{
 							cyrfmfg_id[i]=packet_in[i]^0xFF;
-							//eeprom_write_byte((EE_ADDR)temp++, cyrfmfg_id[i]);
+							eeprom_write_byte((EE_ADDR)temp++, cyrfmfg_id[i]);
 							debug(" %02X", cyrfmfg_id[i]);
 						}
 						// check num_ch
@@ -248,7 +259,7 @@ uint16_t DSM_Rx_callback()
 								DSM_rx_type = 0xB2;
 								break;
 						}
-						// eeprom_write_byte((EE_ADDR)temp, DSM_rx_type);
+						eeprom_write_byte((EE_ADDR)temp, DSM_rx_type);
 						debugln(", num_ch=%d, type=%02X",num_ch, DSM_rx_type);
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);	// Abort RX operation
 						CYRF_SetTxRxMode(TX_EN);					// Force end state TX
@@ -456,7 +467,7 @@ uint16_t initDSM_Rx()
 			cyrfmfg_id[i]=eeprom_read_byte((EE_ADDR)temp++);
 			debug(" %02X", cyrfmfg_id[i]);
 		}
-		DSM_rx_type=0xB2; //eeprom_read_byte((EE_ADDR)temp);
+		DSM_rx_type=eeprom_read_byte((EE_ADDR)temp);
 		debugln(", type=%02X", DSM_rx_type);
 		phase = DSM_RX_DATA_PREP;
 	}

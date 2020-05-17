@@ -204,6 +204,7 @@
 #ifndef CYRF6936_INSTALLED
 	#undef	DEVO_CYRF6936_INO
 	#undef	DSM_CYRF6936_INO
+	#undef	DSM_RX_CYRF6936_INO
 	#undef	HOTT_CC2500_INO
 	#undef	J6PRO_CYRF6936_INO
 	#undef	TRAXXAS_CYRF6936_INO
@@ -307,6 +308,7 @@
 	#undef BAYANG_RX_TELEMETRY
 	#undef BAYANG_RX_NRF24L01_INO
 	#undef DEVO_HUB_TELEMETRY
+	#undef DSM_RX_CYRF6936_INO
 #else
 	#if defined(MULTI_TELEMETRY) && defined(MULTI_STATUS)
 		#error You should choose either MULTI_TELEMETRY or MULTI_STATUS but not both.

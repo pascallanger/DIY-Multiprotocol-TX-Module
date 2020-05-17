@@ -170,6 +170,7 @@
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO
 #define	DSM_CYRF6936_INO
+#define DSM_RX_CYRF6936_INO
 #define	J6PRO_CYRF6936_INO
 #define	TRAXXAS_CYRF6936_INO
 #define	WFLY_CYRF6936_INO
@@ -231,7 +232,7 @@
 #define	ZSX_NRF24L01_INO
 
 //The protocols below need a SX1276 to be installed
-//#define FRSKYR9_SX1276_INO
+#define FRSKYR9_SX1276_INO
 
 /***************************/
 /*** PROTOCOLS SETTINGS  ***/
@@ -544,6 +545,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		DSM2_11
 		DSMX_22
 		DSMX_11
+	PROTO_DSM_RX
+		NONE
 	PROTO_E01X
 		E012
 		E015

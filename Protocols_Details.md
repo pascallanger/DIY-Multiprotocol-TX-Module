@@ -79,6 +79,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Devo](Protocols_Details.md#DEVO---7)|7|Devo|8CH|10CH|12CH|6CH|7CH|||CYRF6936|
 [DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01|XN297
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2-22|DSM2-11|DSMX-22|DSMX-11|AUTO||||CYRF6936|
+[DSM_RX](Protocols_Details.md#DSM_RX---70)|70|||||||||CYRF6936|
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|Std|ET4||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
@@ -668,6 +669,20 @@ The "AUTO" feature enables the TX to automatically choose what are the best sett
 The current radio firmware which are able to use the "AUTO" feature are erskyTX (9XR Pro, 9Xtreme, Taranis, ...), er9x for M128(9XR)&M2561 and OpenTX (mostly Taranis).
 For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx".
 Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on erskyTX you can set "Invert COM1" accordinlgy.
+
+## DSM_RX - *70*
+The DSM receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
+
+Notes:
+ - Automatically support DSM 2/X 11/22 1024/2048
+ - Currently the bind response does not work which means that the TX doesn't know what the DSM RX protocol has selected. **You must manually select the right protocol on the TX**. By default the RX will select DSMX/11ms.
+ - Available in OpenTX 2.3.3, Trainer Mode Master/Multi
+ - Channels 1..4 are remapped to the module default
+ - Extended limits supported
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ## J6Pro - *22*
 

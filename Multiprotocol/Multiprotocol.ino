@@ -751,7 +751,7 @@ bool Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT) || (protocol==PROTO_FRSKYX2) || (protocol==PROTO_PROPEL) || (protocol==PROTO_DEVO))
+			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT) || (protocol==PROTO_FRSKYX2) || (protocol==PROTO_PROPEL) || (protocol==PROTO_DEVO) || (protocol==PROTO_DSM_RX))
 		#endif
 				if(IS_DISABLE_TELEM_off)
 					TelemetryUpdate();
@@ -1230,6 +1230,13 @@ static void protocol_init()
 						PE2_on;	//antenna RF4
 						next_callback = initDsm();
 						remote_callback = ReadDsm;
+						break;
+				#endif
+				#if defined(DSM_RX_CYRF6936_INO)
+					case PROTO_DSM_RX:
+						PE2_on;	//antenna RF4
+						next_callback = initDSM_Rx();
+						remote_callback = DSM_Rx_callback;
 						break;
 				#endif
 				#if defined(WFLY_CYRF6936_INO)

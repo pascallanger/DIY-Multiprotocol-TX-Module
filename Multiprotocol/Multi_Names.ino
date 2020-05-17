@@ -21,6 +21,7 @@ const char STR_FRSKYD[]		="FrSky D";
 const char STR_HISKY[]		="Hisky";
 const char STR_V2X2[]		="V2x2";
 const char STR_DSM[]		="DSM";
+const char STR_DSM_RX[]		="DSM_RX";
 const char STR_DEVO[]		="Devo";
 const char STR_YD717[]		="YD717";
 const char STR_KN[]			="KN";
@@ -190,6 +191,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(DSM_CYRF6936_INO)
 		{PROTO_DSM,        STR_DSM,       4, STR_SUBTYPE_DSM,       OPTION_MAXTHR  },
+	#endif
+	#if defined(DSM_RX_CYRF6936_INO)
+		{PROTO_DSM_RX,     STR_DSM_RX,    0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(ESKY_NRF24L01_INO)
 		{PROTO_ESKY,       STR_ESKY,      2, STR_SUBTYPE_ESKY,      OPTION_NONE    },

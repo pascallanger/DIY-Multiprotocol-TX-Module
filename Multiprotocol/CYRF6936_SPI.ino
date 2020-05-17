@@ -313,6 +313,7 @@ const uint8_t PROGMEM DEVO_j6pro_sopcodes[][8] = {
 #endif
 };
 #endif
+
 static void __attribute__((unused)) CYRF_PROGMEM_ConfigSOPCode(const uint8_t *data)
 {
 	uint8_t code[8];

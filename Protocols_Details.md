@@ -480,7 +480,7 @@ Basic telemetry using FrSky Hub on er9x, erskyTX, OpenTX and any radio with FrSk
 **The TX must be close to the RX for the bind negotiation to complete successfully**
 
 ### Sub_protocol MINIMA - *2*
-MINIMA, MICRO and RED receivers
+MINIMA, MICRO and RED receivers. Also used by ARES planes.
 
 ## HoTT - *57*
 Models: Graupner HoTT receivers (tested on GR-12L and GR-16L).

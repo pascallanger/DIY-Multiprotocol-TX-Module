@@ -37,14 +37,15 @@ enum JJRC345_FLAGS {
 static uint8_t __attribute__((unused)) JJRC345_convert_channel(uint8_t num)
 {
 	uint8_t val=convert_channel_8b(num);
-	// Should be 70..60..41..01, 80 center, 81..C1..E0..F0
-	// Trying 7F..01, 80 center, 81..FF
+	// 70..60..41..01, 80 center, 81..C1..E0..F0
 	if(val<0x80)
 	{
 		val=0x80-val;	// 80..01
-		if(val==0x80)
-			val--;		// 7F..01
+		if(val>0x70)
+			val=0x70;	// 70..01
 	}
+	else if(val>0xF0)
+		val=0xF0;			// 81..F0
 	return val;
 }
 
@@ -54,6 +55,7 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	packet[2] = 0x00;
 	if (IS_BIND_IN_PROGRESS)
 	{ //00 05 00 0A 46 4A 41 47 00 00 40 46 A5 4A F1 18
+		debug("CH:%d,",JJRC345_RF_BIND_CHANNEL);
 		packet[1]  = JJRC345_RF_BIND_CHANNEL;
 		packet[4]  = hopping_frequency[0];
 		packet[5]  = hopping_frequency[1];
@@ -63,15 +65,29 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	}
 	else
 	{ //00 41 00 0A 00 80 80 80 00 00 40 46 00 49 F1 18
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
-		if (hopping_frequency_no >= JJRC345_NUM_CHANNELS)
-			hopping_frequency_no = 0;
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+		debug("CH:%d,", hopping_frequency[hopping_frequency_no]);
+		hopping_frequency_no++;
+		hopping_frequency_no %= JJRC345_NUM_CHANNELS;
 		packet[1]  = hopping_frequency[hopping_frequency_no];	// next packet will be sent on this channel
 
 		packet[4]  = convert_channel_8b(THROTTLE);				// throttle: 00..FF
 		packet[5]  = JJRC345_convert_channel(RUDDER);			// rudder: 70..60..41..01, 80 center, 81..C1..E0..F0
 		packet[6]  = JJRC345_convert_channel(ELEVATOR);			// elevator: 70..60..41..01, 80 center, 81..C1..E0..F0
 		packet[7]  = JJRC345_convert_channel(AILERON);			// aileron: 70..60..41..01, 80 center, 81..C1..E0..F0
+
+		if(CH5_SW)	//Flip
+		{
+			if(packet[6]>90)
+				packet[6]=0xFF;
+			else if(packet[6]<80 && packet[6]>10)
+				packet[6]=0x7F;
+			else if(packet[7]>90)
+				packet[7]=0xFF;
+			else if(packet[7]<80 && packet[7]>10)
+				packet[7]=0x7F;
+		}
+		
 		packet[12] = 0x02;										// Rate: 00-01-02
 	}
 	packet[3] = (packet[4] >= 0xB7) ? 0x0e : 0x0a;				// Some throttle flag. 0A when Thr <= B6, 0E when Thr >= B7, sometimes 06 when moving Ele/Ail
@@ -85,11 +101,17 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	// Checksum
 	packet[13] = 0xf8;
 	for (uint8_t i = 0; i < 13; i++)
+	{
+		debug(" %02X", packet[i]);
 		packet[13] += packet[i];
-
+	}
+	debug("%02X ", packet[13]);
+	
 	// TX ID
 	packet[14] = rx_tx_addr[2];
+	debug(" %02X", packet[14]);
 	packet[15] = rx_tx_addr[3];
+	debugln(" %02X", packet[15]);
 
 	// Power on, TX mode
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));

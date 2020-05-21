@@ -1103,7 +1103,7 @@ Model: JJRC345
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
-A|E|T|R||HEADLESS
+A|E|T|R|FLIP|HEADLESS
 
 ## KF606 - *49*
 Model: KF606

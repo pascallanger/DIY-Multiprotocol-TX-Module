@@ -1101,9 +1101,9 @@ ARM|
 ## JJRC345 - *71*
 Model: JJRC345
 
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|FLIP|HEADLESS
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|FLIP|HEADLESS|RTH
 
 ## KF606 - *49*
 Model: KF606

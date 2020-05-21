@@ -30,8 +30,8 @@
 
 enum JJRC345_FLAGS {
     // flags going to packet[8]
-    //JJRC345_FLAG_FLIP		= 0x80,
 	JJRC345_FLAG_HEADLESS	= 0x40,
+	JJRC345_FLAG_RTH		= 0x80,
 };
 
 static uint8_t __attribute__((unused)) JJRC345_convert_channel(uint8_t num)
@@ -92,7 +92,9 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	}
 	packet[3] = (packet[4] >= 0xB7) ? 0x0e : 0x0a;				// Some throttle flag. 0A when Thr <= B6, 0E when Thr >= B7, sometimes 06 when moving Ele/Ail
 
-	packet[8] = GET_FLAG(CH6_SW,JJRC345_FLAG_HEADLESS);			// Headless mode: 00 normal, 40 headless. Rudder trim, 00 when not used, 01..1F when trimmed left, 20..3F
+	packet[8] = 0x00											// Rudder trim, 00 when not used, 01..1F when trimmed left, 20..3F
+				| GET_FLAG(CH6_SW,JJRC345_FLAG_HEADLESS)		// Headless mode: 00 normal, 40 headless
+				| GET_FLAG(CH7_SW,JJRC345_FLAG_RTH);			// RTH: 80 active
 	packet[9] = 0;												// Elevator trim, 00 when not used, 20..25 when trimmed up, 0..1F when trimmed down
 	packet[10] = 0x40;											// Aileron trim, 40 when not used, 40..5F when trimmed left, 61..7F when trimmed right
 

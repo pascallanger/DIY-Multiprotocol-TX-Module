@@ -90,7 +90,7 @@ static void __attribute__((unused)) JJRC345_send_packet()
 		
 		packet[12] = 0x02;										// Rate: 00-01-02
 	}
-	packet[3] = (packet[4] >= 0xB7) ? 0x0e : 0x0a;				// Some throttle flag. 0A when Thr <= B6, 0E when Thr >= B7, sometimes 06 when moving Ele/Ail
+	packet[3] = (packet[4] >= 0xB7) ? 0x0e : 0x0a;				// Some flag or check... 0A when Thr <= B6, 0E when Thr >= B7, sometimes 06 when moving Ele/Ail
 
 	packet[8] = 0x00											// Rudder trim, 00 when not used, 01..1F when trimmed left, 20..3F
 				| GET_FLAG(CH6_SW,JJRC345_FLAG_HEADLESS)		// Headless mode: 00 normal, 40 headless
@@ -101,7 +101,7 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	packet[11] = hopping_frequency[0];							// First hopping frequency
 
 	// Checksum
-	packet[13] = 0xf8;
+	packet[13] = 0x02-packet[3];
 	for (uint8_t i = 0; i < 13; i++)
 	{
 		debug(" %02X", packet[i]);

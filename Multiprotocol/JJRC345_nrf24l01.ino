@@ -37,18 +37,14 @@ enum JJRC345_FLAGS {
 static uint8_t __attribute__((unused)) JJRC345_convert_channel(uint8_t num)
 {
 	uint8_t val=convert_channel_8b(num);
-	// 7F..01=left, 00=center, 80..FF=right
-	if(val==0x80)
-		val=0;				// 0
-	else
-		if(val>0x80)
-			val--;			// 80..FE
-		else
-		{
-			val=0x80-val;	// 80..01
-			if(val==0x80)
-				val--;		// 7F..01
-		}
+	// Should be 70..60..41..01, 80 center, 81..C1..E0..F0
+	// Trying 7F..01, 80 center, 81..FF
+	if(val<0x80)
+	{
+		val=0x80-val;	// 80..01
+		if(val==0x80)
+			val--;		// 7F..01
+	}
 	return val;
 }
 

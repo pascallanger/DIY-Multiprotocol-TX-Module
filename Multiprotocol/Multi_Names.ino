@@ -40,6 +40,7 @@ const char STR_SHENQI[]		="Shenqi";
 const char STR_FY326[]		="FY326";
 const char STR_SFHSS[]		="SFHSS";
 const char STR_J6PRO[]		="J6 Pro";
+const char STR_JJRC345[]	="JJRC345";
 const char STR_FQ777[]		="FQ777";
 const char STR_ASSAN[]		="Assan";
 const char STR_FRSKYV[]		="FrSky V";
@@ -272,6 +273,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(J6PRO_CYRF6936_INO)
 		{PROTO_J6PRO,      STR_J6PRO,     0, NO_SUBTYPE,            OPTION_NONE    },
+	#endif
+	#if defined(JJRC345_NRF24L01_INO)
+		{PROTO_JJRC345,    STR_JJRC345,   0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(KF606_NRF24L01_INO)
 		{PROTO_KF606,      STR_KF606,     0, NO_SUBTYPE,            OPTION_RFTUNE  },

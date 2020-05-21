@@ -106,7 +106,8 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01|XN297
 [HoTT](Protocols_Details.md#HoTT---57)|57|||||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105|
-[J6Pro](Protocols_Details.md#J6Pro---22)|22|J6PRO||||||||CYRF6936|
+[J6Pro](Protocols_Details.md#J6Pro---22)|22|||||||||CYRF6936|
+[JJRC345](Protocols_Details.md#JJRC345---71)|71|||||||||NRF24L01|XN297
 [KF606](Protocols_Details.md#KF606---49)|49|KF606*||||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
@@ -1096,6 +1097,13 @@ ARM|
 ### Sub_protocol X5C1 clone - *2*
 
 ### Sub_protocol FQ777_951 - *3*
+
+## JJRC345 - *71*
+Model: JJRC345
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R||HEADLESS
 
 ## KF606 - *49*
 Model: KF606

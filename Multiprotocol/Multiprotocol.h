@@ -97,6 +97,7 @@ enum PROTOCOLS
 	PROTO_SKYARTEC	= 68,	// =>CC2500
 	PROTO_ESKY150V2	= 69,	// =>CC2500+NRF24L01
 	PROTO_DSM_RX	= 70,	// =>CYRF6936
+	PROTO_JJRC345	= 71,	// =>NRF24L01
 };
 
 enum Flysky
@@ -764,6 +765,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				FRSKYL		67
 				SKYARTEC	68
 				ESKY150V2	69
+				DSM_RX		70
+				JJRC345		71
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

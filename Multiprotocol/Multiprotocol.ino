@@ -1542,6 +1542,12 @@ static void protocol_init()
 						remote_callback = XN297Dump_callback;
 						break;
 				#endif
+				#if defined(JJRC345_NRF24L01_INO)
+					case PROTO_JJRC345:
+						next_callback=initJJRC345();
+						remote_callback = JJRC345_callback;
+						break;
+				#endif
 			#endif
 			#ifdef SX1276_INSTALLED
 				#if defined(FRSKYR9_SX1276_INO)

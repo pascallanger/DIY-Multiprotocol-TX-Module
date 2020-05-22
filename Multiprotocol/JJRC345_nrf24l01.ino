@@ -76,13 +76,13 @@ static void __attribute__((unused)) JJRC345_send_packet()
 
 		if(CH5_SW)	//Flip
 		{
-			if(packet[6]>0x90)
+			if(packet[6]>0xF0)
 				packet[6]=0xFF;
-			else if(packet[6]<0x80 && packet[6]>0x10)
+			else if(packet[6]<0x80 && packet[6]>0x70)
 				packet[6]=0x7F;
-			else if(packet[7]>0x90)
+			if(packet[7]>0xF0)
 				packet[7]=0xFF;
-			else if(packet[7]<0x80 && packet[7]>0x10)
+			else if(packet[7]<0x80 && packet[7]>0x70)
 				packet[7]=0x7F;
 		}
 		

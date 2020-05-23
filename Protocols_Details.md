@@ -488,6 +488,8 @@ Models: Graupner HoTT receivers (tested on GR-12L and GR-16L).
 
 Extended limits  and failsafe supported
 
+Full telemetry and full text config mode are available in OpenTX 2.3.8+.
+
 **RX_Num is used to give a number a given RX. You must use a different RX_Num per RX. A maximum of 64 HoTT RXs are supported.**
 
 **Failsafe MUST be configured once with the desired channel values (hold or position) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
@@ -500,8 +502,6 @@ Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
-
-Basic telemetry is available on OpenTX 2.3.3+ with RX voltage, Rx temperature, RX RSSI, RX LQI, TX RSSI and TX LQI. Lowest the TX_LQI value is best the quality link is, it's a good indicator of how well the module is tuned.
 
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.

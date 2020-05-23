@@ -123,7 +123,7 @@ uint8_t  num_ch;
 #ifdef CC2500_INSTALLED
 	#ifdef SCANNER_CC2500_INO
 		uint8_t calData[255];
-	#elif defined(HOTT_CC2500_INO)
+	#elif defined(HOTT_CC2500_INO) || defined(ESKY150V2_CC2500_INO)
 		uint8_t calData[75];
 	#else
 		uint8_t calData[50];

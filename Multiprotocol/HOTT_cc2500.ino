@@ -240,13 +240,12 @@ static void __attribute__((unused)) HOTT_data_packet()
 		}
 		else
 		{
-			#ifdef HOTT_FW_TELEMETRY
-				packet[28] = 0x89+HOTT_sensor_cur;		// 0x89/8A/8B/8C/8D/8E during normal packets
-			#else
-				packet[28] = 0x80;						// no sensor
-			#endif
-			packet[29] = 0x02;							// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
+			packet[28] = 0x89+HOTT_sensor_cur;				// 0x89/8A/8B/8C/8D/8E during normal packets
+			packet[29] = 0x02;								// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
 		}
+	#else
+		packet[28] = 0x80;									// no sensor
+		packet[29] = 0x02;									// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
 	#endif
 
 	CC2500_SetTxRxMode(TX_EN);
@@ -310,7 +309,7 @@ uint16_t ReadHOTT()
 			return 4500;
 		case HOTT_RX2:
 			//Telemetry
-			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
+			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
 			if (len==HOTT_RX_PACKET_LEN+2)
 			{
 				CC2500_ReadData(packet_in, len);
@@ -344,39 +343,6 @@ uint16_t ReadHOTT()
 							//   Page 0 [17] = RX_Voltage Min*10 in V
 							//   Page 0 [18,19] = [19]*256+[18]=max lost packet time in ms, max value seems 2s=0x7D0
 							//   Page 0 [20] = 0x00 ??
-							//   Page 1 = 00 01 C0 00 00 72 00 70 00 00 00 34 // ESC Telem 1
-							//   Page 1 [12] = 0xC0 ?? ESC type ??
-							//   Page 1 [13] = 0x00 ??
-							//   Page 1 [14] = 0x00 ??
-							//   Page 1 [15] = Batt_L Cur voltage*10 in V
-							//   Page 1 [16] = Batt_H Cur -> not sure since I can't test but
-							//   Page 1 [17] = Batt_L Min voltage*10 in V
-							//   Page 1 [18] = Batt_H Min -> not sure since I can't test but
-							//   Page 1 [19] = 0x00 ??
-							//   Page 1 [20] = 0x00 ??
-							//   Page 1 [21] = 0x29..34 looks like temperature-20 in °C
-							//   Page 2 =00 02 30 00 00 00 00 B4 1F 8E 2E 14  // ESC Telem 2
-							//   Page 2 [12] = Page 1 [21] = 0x29..34 looks like temperature-20 in °C
-							//   Page 2 [13] = 0x00 ??
-							//   Page 2 [14] = 0x00 ??
-							//   Page 2 [15] = 0x00 ??
-							//   Page 2 [16] = 0x00 ??
-							//   Page 2 [17] = RPM_L Cur
-							//   Page 2 [18] = RPM_H Cur
-							//   Page 2 [19] = RPM_L Max
-							//   Page 2 [20] = RPM_H Max
-							//   Page 2 [21] = 0x14 ??
-							//   Page 3 =00 03 14 00 00 00 00 00 00 00 00 00  // ESC Telem 3
-							//   Page 3 [12] = Page 2 [21] = ??
-							//   Page 3 [13] = 0x00 ??
-							//   Page 3 [14] = 0x00 ??
-							//   Page 3 [15] = 0x00 ??
-							//   Page 3 [16] = 0x00 ??
-							//   Page 3 [17] = 0x00 ??
-							//   Page 3 [18] = 0x00 ??
-							//   Page 3 [19] = 0x00 ??
-							//   Page 3 [20] = 0x00 ??
-							//   Page 3 [21] = 0x00 ??
 							//
 							// Config menu consists of the different telem pages put all together
 							//   Page X [12] = seems like all the telem pages with the same value are going together to make the full config menu text. Seen so far 'a', 'b', 'c', 'd' 
@@ -389,7 +355,6 @@ uint16_t ReadHOTT()
 							packet_in[0]= packet_in[HOTT_RX_PACKET_LEN];
 							packet_in[1]= TX_LQI;
 							bool send_telem=true;
-							bool disp = true;
 							if(packet[29]==2)	// Requesting binary sensor
 							{
 								if( packet_in[11]==1 )									// Page 1
@@ -425,13 +390,13 @@ uint16_t ReadHOTT()
 								for(uint8_t i=0; i<HOTT_SENSOR_TYPE;i++)
 									packet_in[12] |= HOTT_sensor_ok[i]<<i;				// Send detected sensors
 							}
-							if(disp) debug("T%d=",send_telem);
+							debug("T%d=",send_telem);
 							for(uint8_t i=10;i < HOTT_RX_PACKET_LEN; i++)
 							{
 								packet_in[i-8]=packet_in[i];
-								if(disp) debug(" %02X",packet_in[i]);
+								debug(" %02X",packet_in[i]);
 							}
-							if(disp) debugln("");
+							debugln("");
 							if(send_telem)
 								telemetry_link=2;
 							if((HOTT_sensor_pages&0x1E) == 0x1E)						// All 4 pages received from the sensor

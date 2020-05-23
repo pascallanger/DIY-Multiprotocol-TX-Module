@@ -80,36 +80,11 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 	debugln("");*/
 }
 
-#define FrSkyX_FAILSAFE_TIME 1032
 static void __attribute__((unused)) FrSkyX_build_packet()
 {
 	//0x1D 0xB3 0xFD 0x02 0x56 0x07 0x15 0x00 0x00 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x08 0x00 0x00 0x00 0x00 0x00 0x00 0x96 0x12
-	//
-	static uint8_t chan_offset=0;
-	uint16_t chan_0 ;
-	uint16_t chan_1 ; 
-	//
     // data frames sent every 9ms; failsafe every 9 seconds
-	#ifdef FAILSAFE_ENABLE
-		static uint16_t failsafe_count=0;
-		static uint8_t FS_flag=0,failsafe_chan=0;
-		if (FS_flag == 0  &&  failsafe_count > FrSkyX_FAILSAFE_TIME  &&  chan_offset == 0  &&  IS_FAILSAFE_VALUES_on)
-		{
-			FS_flag = 0x10;
-			failsafe_chan = 0;
-		} else if (FS_flag & 0x10 && failsafe_chan < (FrSkyFormat & 0x01 ? 8-1:16-1))
-		{
-			FS_flag = 0x10 | ((FS_flag + 2) & 0x0F);					//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
-			failsafe_chan ++;
-		} else if (FS_flag & 0x10)
-		{
-			FS_flag = 0;
-			failsafe_count = 0;
-			FAILSAFE_VALUES_off;
-		}
-		failsafe_count++;
-	#endif
-	
+	//
 	uint8_t packet_size = 0x1D;
 	if(protocol==PROTO_FRSKYX && (FrSkyFormat & 2 ))
 		packet_size=0x20;				// FrSkyX V1 LBT
@@ -122,43 +97,10 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	packet[4] = (FrSkyX_chanskip<<6)|hopping_frequency_no; 
 	packet[5] = FrSkyX_chanskip>>2;
 	packet[6] = RX_num;
-	//packet[7] = FLAGS 00 - standard packet
-	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
-	//20 - range check packet
-	#ifdef FAILSAFE_ENABLE
-		packet[7] = FS_flag;
-	#else
-		packet[7] = 0;
-	#endif
-	packet[8] = 0;		
-	//
-	uint8_t startChan = chan_offset;
-	for(uint8_t i = 0; i <12 ; i+=3)
-	{//12 bytes of channel data
-		#ifdef FAILSAFE_ENABLE
-			if( (FS_flag & 0x10) && ((failsafe_chan & 0x07) == (startChan & 0x07)) )
-				chan_0 = FrSkyX_scaleForPXX_FS(failsafe_chan);
-			else
-		#endif
-				chan_0 = FrSkyX_scaleForPXX(startChan);
-		startChan++;
-		//
-		#ifdef FAILSAFE_ENABLE
-			if( (FS_flag & 0x10) && ((failsafe_chan & 0x07) == (startChan & 0x07)) )
-				chan_1 = FrSkyX_scaleForPXX_FS(failsafe_chan);
-			else
-		#endif
-				chan_1 = FrSkyX_scaleForPXX(startChan);
-		startChan++;
-		//
-		packet[9+i] = lowByte(chan_0);									//3 bytes*4
-		packet[9+i+1]=(((chan_0>>8) & 0x0F)|(chan_1 << 4));
-		packet[9+i+2]=chan_1>>4;
-	}
-	if(FrSkyFormat & 0x01 )											//In X8 mode send only 8ch every 9ms
-		chan_offset = 0 ;
-	else
-		chan_offset^=0x08;
+
+	packet[8] = 0;						//??
+
+	FrSkyX_channels(9);					// Set packet[7] and packet[9..20] with channels data and failsafe
 	
 	//sequence and send SPort
 	for (uint8_t i=22;i<packet_size-1;i++)

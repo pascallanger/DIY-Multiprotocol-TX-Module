@@ -17,6 +17,10 @@
 /**  FrSky D and X routines  **/
 /******************************/
 
+#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKY_RX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
+	uint8_t FrSkyFormat=0;
+#endif
+
 #if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKY_RX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
 //**CRC**
 const uint16_t PROGMEM FrSkyX_CRC_Short[]={
@@ -38,6 +42,69 @@ uint16_t FrSkyX_crc(uint8_t *data, uint8_t len, uint8_t init=0)
 }
 #endif
 
+#if defined(FRSKYX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
+static void __attribute__((unused)) FrSkyX_channels(uint8_t offset)
+{
+	static uint8_t chan_start=0;
+
+	//packet[7] = FLAGS 00 - standard packet
+	//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
+	//20 - range check packet
+	#ifdef FAILSAFE_ENABLE
+		#define FRSKYX_FAILSAFE_TIMEOUT 1032
+		static uint16_t failsafe_count=0;
+		static uint8_t FS_flag=0,failsafe_chan=0;
+		if (FS_flag == 0  &&  failsafe_count > FRSKYX_FAILSAFE_TIMEOUT  &&  chan_start == 0  &&  IS_FAILSAFE_VALUES_on)
+		{
+			FS_flag = 0x10;
+			failsafe_chan = 0;
+		} else if (FS_flag & 0x10 && failsafe_chan < (FrSkyFormat & 0x01 ? 8-1:16-1))
+		{
+			FS_flag = 0x10 | ((FS_flag + 2) & 0x0F);					//10, 12, 14, 16, 18, 1A, 1C, 1E - failsafe packet
+			failsafe_chan ++;
+		} else if (FS_flag & 0x10)
+		{
+			FS_flag = 0;
+			failsafe_count = 0;
+			FAILSAFE_VALUES_off;
+		}
+		failsafe_count++;
+		packet[7] = FS_flag;
+	#else
+		packet[7] = 0;
+	#endif
+	//
+	uint8_t chan_index = chan_start;
+	uint16_t ch1,ch2;
+	for(uint8_t i = offset; i < 12+offset ; i+=3)
+	{//12 bytes of channel data
+		#ifdef FAILSAFE_ENABLE
+			if( (FS_flag & 0x10) && ((failsafe_chan & 0x07) == (chan_index & 0x07)) )
+				ch1 = FrSkyX_scaleForPXX_FS(failsafe_chan);
+			else
+		#endif
+				ch1 = FrSkyX_scaleForPXX(chan_index);
+		chan_index++;
+		//
+		#ifdef FAILSAFE_ENABLE
+			if( (FS_flag & 0x10) && ((failsafe_chan & 0x07) == (chan_index & 0x07)) )
+				ch2 = FrSkyX_scaleForPXX_FS(failsafe_chan);
+			else
+		#endif
+				ch2 = FrSkyX_scaleForPXX(chan_index);
+		chan_index++;
+		//3 bytes per channel
+		packet[i] = ch1;
+		packet[i+1]=(((ch1>>8) & 0x0F)|(ch2 << 4));
+		packet[i+2]=ch2>>4;
+	}
+	if(FrSkyFormat & 0x01)											//In X8 mode send only 8ch every 9ms
+		chan_start = 0 ;
+	else
+		chan_start^=0x08;
+}
+#endif
+
 
 #if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKY_RX_CC2500_INO)
 enum {
@@ -49,8 +116,6 @@ enum {
 	FRSKY_DATA4,
 	FRSKY_DATA5,
 };
-
-uint8_t FrSkyFormat=0;
 
 void Frsky_init_hop(void)
 {
@@ -325,8 +390,6 @@ uint8_t FrSkyX_RX_Seq ;
 	// Store FrskyX telemetry
 	struct t_FrSkyX_TX_Frame FrSkyX_TX_Frames[4] ;
 #endif
-
-#define FRSKYX_FAILSAFE_TIMEOUT 1032
 
 static void __attribute__((unused)) FrSkyX_set_start(uint8_t ch )
 {

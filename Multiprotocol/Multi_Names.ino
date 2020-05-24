@@ -49,6 +49,7 @@ const char STR_AFHDS2A[]	="FSky 2A";
 const char STR_Q2X2[]		="Q2x2";
 const char STR_WK2x01[]		="Walkera";
 const char STR_Q303[]		="Q303";
+const char STR_Q90C[]		="Q90C";
 const char STR_GW008[]		="GW008";
 const char STR_DM002[]		="DM002";
 const char STR_CABELL[]		="Cabell";
@@ -306,6 +307,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(Q303_NRF24L01_INO)
 		{PROTO_Q303,       STR_Q303,      4, STR_SUBTYPE_Q303,      OPTION_NONE    },
+	#endif
+	#if defined(Q90C_NRF24L01_INO)
+		{PROTO_Q90C,       STR_Q90C,      0, NO_SUBTYPE,            OPTION_RFTUNE  },
 	#endif
 	#if defined(REDPINE_CC2500_INO)
 		{PROTO_REDPINE,    STR_REDPINE,   2, STR_SUBTYPE_REDPINE,   OPTION_RFTUNE  },

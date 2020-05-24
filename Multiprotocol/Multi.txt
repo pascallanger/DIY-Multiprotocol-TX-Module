@@ -68,3 +68,4 @@
 68,Skyartec
 69,ESKYv2,150V2
 70,DSM_RX
+71,Q90C

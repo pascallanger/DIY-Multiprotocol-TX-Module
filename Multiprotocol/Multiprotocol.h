@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	2
+#define VERSION_PATCH_LEVEL	3
 
 //******************
 // Protocols
@@ -98,6 +98,7 @@ enum PROTOCOLS
 	PROTO_ESKY150V2	= 69,	// =>CC2500+NRF24L01
 	PROTO_DSM_RX	= 70,	// =>CYRF6936
 	PROTO_JJRC345	= 71,	// =>NRF24L01
+	PROTO_Q90C		= 72,	// =>NRF24L01 or CC2500
 };
 
 enum Flysky
@@ -767,6 +768,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				ESKY150V2	69
 				DSM_RX		70
 				JJRC345		71
+				Q90C		72
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

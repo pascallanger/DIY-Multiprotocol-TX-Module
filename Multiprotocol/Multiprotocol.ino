@@ -1548,6 +1548,13 @@ static void protocol_init()
 						remote_callback = JJRC345_callback;
 						break;
 				#endif
+				#if defined(Q90C_NRF24L01_INO)
+					case PROTO_Q90C:
+						next_callback=initQ90C();
+						remote_callback = Q90C_callback;
+						break;
+				#endif
+
 			#endif
 			#ifdef SX1276_INSTALLED
 				#if defined(FRSKYR9_SX1276_INO)

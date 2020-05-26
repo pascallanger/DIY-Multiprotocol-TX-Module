@@ -68,7 +68,7 @@ Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Su
 ---|---|---|---|---|---|---|---|---|---|---|---
 [Assan](Protocols_Details.md#ASSAN---24)|24|ASSAN||||||||NRF24L01|
 [Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4||||NRF24L01|XN297
-[Bayang RX](Protocols_Details.md#BAYANG-RX---59)|59|||||||||NRF24L01|XN297
+[Bayang RX](Protocols_Details.md#BAYANG-RX---59)|59|RX||||||||NRF24L01|XN297
 [Bugs](Protocols_Details.md#BUGS---41)|41|BUGS||||||||A7105|
 [BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI|BUGS3H|||||||NRF24L01|XN297
 [Cabell](Protocols_Details.md#Cabell---34)|34|Cabell_V3|C_TELEM|-|-|-|-|F_SAFE|UNBIND|NRF24L01|
@@ -79,16 +79,16 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Devo](Protocols_Details.md#DEVO---7)|7|Devo|8CH|10CH|12CH|6CH|7CH|||CYRF6936|
 [DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01|XN297
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2-22|DSM2-11|DSMX-22|DSMX-11|AUTO||||CYRF6936|
-[DSM_RX](Protocols_Details.md#DSM_RX---70)|70|||||||||CYRF6936|
+[DSM_RX](Protocols_Details.md#DSM_RX---70)|70|RX||||||||CYRF6936|
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
-[ESky](Protocols_Details.md#ESKY---16)|16|ESky|Std|ET4||||||NRF24L01|
+[ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
-[ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|||||||||CC2500|NRF24L01
+[ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|ESky150V2||||||||CC2500|NRF24L01
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105|
-[Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|||||||||A7105|
+[Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|RX||||||||A7105|
 [Flyzone](Protocols_Details.md#FLYZONE---53)|53|FZ410||||||||A7105|
-[FQ777](Protocols_Details.md#FQ777---23)|23|||||||||NRF24L01|SSV7241
+[FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|D8|Cloned|||||||CC2500|
 [FrskyL](Protocols_Details.md#FRSKYL---67)|67|LR12|LR12 6CH|||||||CC2500|
 [FrskyR9](Protocols_Details.md#FRSKYR9---65)|65|FrskyR9|R9_915|R9_868||||||SX1276|
@@ -104,36 +104,36 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01|
 [Hitec](Protocols_Details.md#HITEC---39)|39|OPT_FW|OPT_HUB|MINIMA||||||CC2500|
 [Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01|XN297
-[HoTT](Protocols_Details.md#HoTT---57)|57|||||||||CC2500|
+[HoTT](Protocols_Details.md#HoTT---57)|57|HoTT||||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105|
-[J6Pro](Protocols_Details.md#J6Pro---22)|22|||||||||CYRF6936|
-[JJRC345](Protocols_Details.md#JJRC345---71)|71|||||||||NRF24L01|XN297
+[J6Pro](Protocols_Details.md#J6Pro---22)|22|J6Pro||||||||CYRF6936|
+[JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345||||||||NRF24L01|XN297
 [KF606](Protocols_Details.md#KF606---49)|49|KF606*||||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None|
-[Pelikan](Protocols_Details.md#Pelikan---60)|60|||||||||A7105|
+[Pelikan](Protocols_Details.md#Pelikan---60)|60|Pelikan||||||||A7105|
 [Potensic](Protocols_Details.md#Potensic---51)|51|A20||||||||NRF24L01|XN297
 [PROPEL](Protocols_Details.md#PROPEL---66)|66|74-Z||||||||NRF24L01|
 [Q2X2](Protocols_Details.md#Q2X2---29)|29|Q222|Q242|Q282||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
-[SFHSS](Protocols_Details.md#SFHSS---21)|21|||||||||CC2500|
-[Shenqi](Protocols_Details.md#Shenqi---19)|19|||||||||NRF24L01|LT8900
-[Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
-[SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|
+[SFHSS](Protocols_Details.md#SFHSS---21)|21|SFHSS||||||||CC2500|
+[Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
+[Skyartec](Protocols_Details.md#Skyartec---68)|68|Skyartec||||||||CC2500|CC2500
+[SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|CC2500
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
 [Tiger](Protocols_Details.md#Tiger---61)|61|Tiger||||||||NRF24L01|XN297
-[Traxxas](Protocols_Details.md#Traxxas---43)|43|RX6519||||||||CYRF6936|
+[Traxxas](Protocols_Details.md#Traxxas---43)|43|6519 RX||||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|||||||NRF24L01|
 [V761](Protocols_Details.md#V761---48)|48|V761||||||||NRF24L01|XN297
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*|E119*|||||||NRF24L01|XN297
 [WFly](Protocols_Details.md#WFLY---40)|40|WFLY||||||||CYRF6936|
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936|
-[XK](Protocols_Details.md#XK---62)|62|XK|X450|X420||||||NRF24L01|XN297
+[XK](Protocols_Details.md#XK---62)|62|X450|X420|||||||NRF24L01|XN297
 [YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01|
 [ZSX](Protocols_Details.md#ZSX---52)|52|280||||||||NRF24L01|XN297
 * "*" Sub Protocols designated by * suffix are using a XN297L@250kbps which will be emulated by default with the NRF24L01. If option (freq tune) is diffrent from 0, the CC2500 module (if installed) will be used instead. Each specific sub protocol has a more detailed explanation.
@@ -1298,6 +1298,10 @@ Throttle +100%=full forward,0%=stop,-100%=full backward.
 
 ## SLT - *11*
 Autobind protocol
+
+This protocol is known to be problematic because it's using the NRF24L01 with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is a hardware issue with the accuracy of the components. (some Jumper models seem to be using a NRF24L01 clone)
+
+If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
 ### Sub_protocol V1 - *0*
 

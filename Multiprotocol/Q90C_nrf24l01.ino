@@ -47,13 +47,11 @@ static void __attribute__((unused)) Q90C_send_packet()
 		packet[8] = 0;
 		packet[9] = 0;
 		packet[10] = rx_tx_addr[4];
-		packet[11] = 0x3a;									// initial checksum value ?
 	}
 	else
 	{
 		XN297L_Hopping(hopping_frequency_no++);				// RF Freq
-		if (hopping_frequency_no >= Q90C_RF_NUM_CHANNELS)
-			hopping_frequency_no = 0;
+		hopping_frequency_no %= Q90C_RF_NUM_CHANNELS;
 		packet[0]= convert_channel_8b(THROTTLE);			// 0..255
 		// A,E,R have weird scaling, 0x00-0xff range (unsigned) but center isn't 7f or 80
 		// rudder ff-7a-00
@@ -83,16 +81,21 @@ static void __attribute__((unused)) Q90C_send_packet()
 		packet[8] = 0x00;									// flags: 3 position flight mode (Angle - Horizon - Acro), VTX Toggle HIGH = next vTX frequency
 		packet[9] = 0x00;
 		packet[10] = packet_count++;
-		packet[11] = 0x9c;									// initial checksum value ?
 	}
 
-    // checksum
+    uint8_t sum=0;
+	// checksum
     for (uint8_t i = 0; i < Q90C_PACKET_SIZE - 1; i++)
-        packet[11] += packet[i];
+    {
+		sum += packet[i];
+		debug("%02X ", packet[i]);
+	}
+	packet[11] = sum ^ (IS_BIND_IN_PROGRESS? 0xc6 : 0xa4);
+	debugln("%02X",packet[11]);
 
 	XN297L_SetFreqOffset();									// Set frequency offset
-	XN297L_WriteEnhancedPayload(packet, Q90C_PACKET_SIZE, 0);
 	XN297L_SetPower();										// Set tx_power
+	XN297L_WriteEnhancedPayload(packet, Q90C_PACKET_SIZE, 0);
 }
 
 static void __attribute__((unused)) Q90C_initialize_txid()

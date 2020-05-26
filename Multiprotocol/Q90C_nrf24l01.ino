@@ -56,9 +56,9 @@ static void __attribute__((unused)) Q90C_send_packet()
 		// A,E,R have weird scaling, 0x00-0xff range (unsigned) but center isn't 7f or 80
 		// rudder ff-7a-00
 		if (Channel_data[RUDDER] <= CHANNEL_MID)
-			packet[1] = Q90C_channel(RUDDER,   CHANNEL_MIN_100, CHANNEL_MID, 0x00, 0x7a );
+			packet[1] = Q90C_channel(RUDDER,   CHANNEL_MIN_100, CHANNEL_MID, 0xff, 0x7a );
 		else
-			packet[1] = Q90C_channel(RUDDER,   CHANNEL_MID, CHANNEL_MAX_100, 0x7a, 0xff );
+			packet[1] = Q90C_channel(RUDDER,   CHANNEL_MID, CHANNEL_MAX_100, 0x7a, 0x00 );
 		// elevator 00-88-ff
 		if (Channel_data[ELEVATOR] <= CHANNEL_MID)
 			packet[2] = Q90C_channel(ELEVATOR, CHANNEL_MIN_100, CHANNEL_MID, 0x00, 0x88);
@@ -66,9 +66,9 @@ static void __attribute__((unused)) Q90C_send_packet()
 			packet[2] = Q90C_channel(ELEVATOR, CHANNEL_MID, CHANNEL_MAX_100, 0x88, 0xff);
 		// aileron ff-88-00
 		if (Channel_data[AILERON] <= CHANNEL_MID)
-			packet[3] = Q90C_channel(AILERON,  CHANNEL_MIN_100, CHANNEL_MID, 0x00, 0x88);
+			packet[3] = Q90C_channel(AILERON,  CHANNEL_MIN_100, CHANNEL_MID, 0xff, 0x88);
 		else
-			packet[3] = Q90C_channel(AILERON,  CHANNEL_MID, CHANNEL_MAX_100, 0x88, 0xff);
+			packet[3] = Q90C_channel(AILERON,  CHANNEL_MID, CHANNEL_MAX_100, 0x88, 0x00);
 		// required to "arm" (low throttle + aileron to the right)
 		if (packet[0] < 5 && packet[3] < 25) {
 			packet[1] = 0x7a;
@@ -100,6 +100,7 @@ static void __attribute__((unused)) Q90C_send_packet()
 
 static void __attribute__((unused)) Q90C_initialize_txid()
 {
+	calc_fh_channels(Q90C_RF_NUM_CHANNELS);
 	#ifdef FORCE_Q90C_ORIGINAL_ID
 		memcpy(rx_tx_addr, (uint8_t*)"\x24\x03\x01\x82\x4B", Q90C_ADDRESS_LENGTH);
 		memcpy(hopping_frequency, (uint8_t*)"\x18\x26\x37", Q90C_RF_NUM_CHANNELS);

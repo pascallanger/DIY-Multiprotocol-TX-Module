@@ -152,7 +152,7 @@ uint16_t JJRC345_callback()
 
 static void __attribute__((unused)) JJRC345_initialize_txid()
 {
-	calc_fh_channels(4);
+	calc_fh_channels(JJRC345_NUM_CHANNELS);
 	
 	#ifdef JJRC345_FORCE_ID
 		//TX 1

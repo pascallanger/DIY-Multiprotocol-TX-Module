@@ -29,17 +29,19 @@ enum {
     HOTT_START = 0x00,
     HOTT_CAL   = 0x01,
     HOTT_DATA1 = 0x02,
-    HOTT_RX1   = 0x03,
-    HOTT_RX2   = 0x04,
+    HOTT_DATA2 = 0x03,
+    HOTT_RX1   = 0x04,
+    HOTT_RX2   = 0x05,
 };
 
 #ifdef HOTT_FW_TELEMETRY
 	#define HOTT_SENSOR_TYPE 6
-	#define HOTT_SENSOR_SEARCH_PERIOD 120
+	#define HOTT_SENSOR_SEARCH_PERIOD 2000
 	uint8_t HOTT_sensor_cur=0;
 	uint8_t HOTT_sensor_pages=0;
 	uint8_t HOTT_sensor_valid=false;
 	uint8_t HOTT_sensor_ok[HOTT_SENSOR_TYPE];
+	uint8_t HOTT_sensor_seq=0;
 #endif
 
 #define HOTT_FREQ0_VAL 0x6E
@@ -112,7 +114,7 @@ static void __attribute__((unused)) HOTT_tune_freq()
 		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 		CC2500_WriteReg(CC2500_0F_FREQ0, HOTT_FREQ0_VAL + HOTT_COARSE);
 		prev_option = option ;
-		phase = HOTT_START;	// Restart the tune process if option is changed to get good tuned values
+		phase = HOTT_START;								// Restart the tune process if option is changed to get good tuned values
 	}
 }
 
@@ -143,36 +145,37 @@ static void __attribute__((unused)) HOTT_init()
 
 	for(uint8_t i=0; i<HOTT_NUM_RF_CHANNELS; i++)
 		hopping_frequency[i]=pgm_read_byte_near( &HOTT_hop[num_ch][i] );
-	
 	#ifdef HOTT_FORCE_ID
-		memcpy(rx_tx_addr,"\x7C\x94\x00\x0D\x50",5);
+		memcpy(rx_tx_addr,"\x7C\x94\x00\x0D\x50",5);	//TX1
+		memcpy(rx_tx_addr,"\xEA\x4D\x00\x01\x50",5);	//TX2
 	#endif
 	memset(&packet[30],0xFF,9);
-	packet[39]=0x07;		// unknown and constant
+	packet[39]=0x07;									// unknown and constant
 	if(IS_BIND_IN_PROGRESS)
 	{
-		packet[28] = 0x80;	// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets
-		packet[29] = 0x02;	// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets
 		memset(&packet[40],0xFA,5);
 		memcpy(&packet[45],rx_tx_addr,5);
 	}
 	else
 	{
-		packet[28] = 0x8C;	// unknown 0x80 when bind starts then when RX replies start normal, 0x89/8A/8B/8C/8D/8E during normal packets, 0x0F->config menu
-		packet[29] = 0x02;	// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->config menu, 0x0A->no more RX telemetry
 		memcpy(&packet[40],rx_tx_addr,5);
-
 		uint8_t addr=HOTT_EEPROM_OFFSET+RX_num*5;
+		debug("RXID: ");
 		for(uint8_t i=0;i<5;i++)
+		{
 			packet[45+i]=eeprom_read_byte((EE_ADDR)(addr+i));
+			debug(" %02X",packet[45+i]);
+		}
+		debugln("");
 	}
 }
 
-static void __attribute__((unused)) HOTT_data_packet()
+static void __attribute__((unused)) HOTT_prep_data_packet()
 {
+	
 	packet[2] = hopping_frequency_no;
 
-	packet[3] = 0x00;	// used for failsafe but may also be used for additional channels
+	packet[3] = 0x00;									// used for failsafe but may also be used for additional channels
 	#ifdef FAILSAFE_ENABLE
 		static uint8_t failsafe_count=0;
 		if(IS_FAILSAFE_VALUES_on && IS_BIND_DONE)
@@ -219,39 +222,42 @@ static void __attribute__((unused)) HOTT_data_packet()
 		packet[i] = val;
 		packet[i+1] = val>>8;
 	}
-
 	#ifdef HOTT_FW_TELEMETRY
-		static uint8_t prev_SerialRX_val=0;
-		if(HoTT_SerialRX)
-		{//Text mode
-			uint8_t sensor=HoTT_SerialRX_val&0xF0;
-			if((sensor&0x80) && sensor!=0xF0 && (HoTT_SerialRX_val&0x0F) >= 0x07)
-			{//Valid Text query
-				if(sensor==0x80) HoTT_SerialRX_val&=0x0F;	// RX only
-				if(prev_SerialRX_val!=HoTT_SerialRX_val)
-				{
-					prev_SerialRX_val=HoTT_SerialRX_val;
-					packet[28] = HoTT_SerialRX_val;			// send the button being pressed only once
+		if(IS_BIND_DONE)
+		{
+			static uint8_t prev_SerialRX_val=0;
+			if(HoTT_SerialRX)
+			{//Text mode
+				uint8_t sensor=HoTT_SerialRX_val&0xF0;
+				if((sensor&0x80) && sensor!=0xF0 && (HoTT_SerialRX_val&0x0F) >= 0x07)
+				{//Valid Text query
+					if(sensor==0x80) HoTT_SerialRX_val&=0x0F;	// RX only
+					if(prev_SerialRX_val!=HoTT_SerialRX_val)
+					{
+						prev_SerialRX_val=HoTT_SerialRX_val;
+						packet[28] = HoTT_SerialRX_val;			// send the button being pressed only once
+					}
+					else
+						packet[28] = HoTT_SerialRX_val | 0x0F;	// no button pressed
+					packet[29] = 0x01;							// 0x01->Text config menu
 				}
-				else
-					packet[28] = HoTT_SerialRX_val | 0x0F;	// no button pressed
-				packet[29] = 0x01;							// 0x01->Text config menu
+			}
+			else
+			{
+				packet[28] = 0x89+HOTT_sensor_cur;				// 0x89/8A/8B/8C/8D/8E during normal packets
+				packet[29] = ((HOTT_sensor_seq+1)<<3) | 2;		// Telemetry packet sequence
+				//debugln("28=%02X,29=%02X",packet[28],packet[29]);
 			}
 		}
 		else
-		{
-			packet[28] = 0x89+HOTT_sensor_cur;				// 0x89/8A/8B/8C/8D/8E during normal packets
-			packet[29] = 0x02;								// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
-		}
-	#else
-		packet[28] = 0x80;									// no sensor
-		packet[29] = 0x02;									// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
 	#endif
+		{
+			packet[28] = 0x80;									// no sensor
+			packet[29] = 0x02;									// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
+		}
 
-	CC2500_SetTxRxMode(TX_EN);
-	CC2500_SetPower();
-	CC2500_WriteReg(CC2500_06_PKTLEN, 0x32);
-	CC2500_WriteData(packet, HOTT_TX_PACKET_LEN);
+	CC2500_WriteReg(CC2500_06_PKTLEN, HOTT_TX_PACKET_LEN);
+	CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, packet, HOTT_TX_PACKET_LEN);
 	#if 0
 		debug("RF:%02X P:",rf_ch_num);
 		for(uint8_t i=0;i<HOTT_TX_PACKET_LEN;i++)
@@ -266,7 +272,7 @@ static void __attribute__((unused)) HOTT_data_packet()
 uint16_t ReadHOTT()
 {
 	#ifdef HOTT_FW_TELEMETRY
-		static uint8_t pps_counter=0;
+		static uint8_t pps_counter=0, HOTT_sensor_rx=0;
 	#endif
 
 	switch(phase)
@@ -285,28 +291,72 @@ uint16_t ReadHOTT()
 				hopping_frequency_no = 0;
 				rf_ch_num=hopping_frequency[hopping_frequency_no];
 				counter = 0;
+				CC2500_SetTxRxMode(RX_EN);
 				phase = HOTT_DATA1;
 			}
 			return 2000;
 
 		/* Work cycle: 10ms */
 		case HOTT_DATA1:
-			//TX
+			//Set RF freq, setup LBT and prep packet
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(HOTT_PACKET_PERIOD);
 			#endif
+			//Clear all
+			CC2500_Strobe(CC2500_SIDLE);
+			CC2500_Strobe(CC2500_SNOP);
+			CC2500_Strobe(CC2500_SFTX);
+			CC2500_Strobe(CC2500_SFRX);
+			CC2500_WriteReg(CC2500_04_SYNC1, 0xD3);
+			CC2500_WriteReg(CC2500_05_SYNC0, 0x91);
+			//Set RF freq
 			HOTT_tune_freq();
 			HOTT_tune_chan_fast();
-			HOTT_data_packet();
-			phase = HOTT_RX1;
-			return 4500;
+			//Setup LBT
+			CC2500_WriteReg(CC2500_1B_AGCCTRL2, 0xFF);
+			CC2500_WriteReg(CC2500_1C_AGCCTRL1, 0x0C);
+			CC2500_Strobe(CC2500_SRX);
+			//Prep packet
+			HOTT_prep_data_packet();
+			//Listen
+			CC2500_WriteReg(CC2500_17_MCSM1, 0x10);		//??
+			CC2500_WriteReg(CC2500_18_MCSM0, 0x18);		//??
+			CC2500_Strobe(CC2500_SRX);					//??
+			phase++;		//HOTT_DATA2
+			return 1095;
+		case HOTT_DATA2:
+			//LBT
+			if((CC2500_ReadReg(CC2500_38_PKTSTATUS | CC2500_READ_BURST)&0x10)==0)
+			{ //Channel is busy
+				LBT_POWER_on;										// Reduce to low power before transmitting
+				debugln("Busy %d",rf_ch_num);
+			}
+			CC2500_WriteReg(CC2500_17_MCSM1, 0x00);		//??
+			CC2500_WriteReg(CC2500_18_MCSM0, 0x08);		//??
+			CC2500_SetPower();
+			//Send packet
+			CC2500_SetTxRxMode(TX_EN);
+			CC2500_Strobe(CC2500_STX);
+			phase++;		//HOTT_RX1
+			return 3880;
 		case HOTT_RX1:
+			//Clear all
+			CC2500_Strobe(CC2500_SIDLE);
+			CC2500_Strobe(CC2500_SFTX);
+			CC2500_Strobe(CC2500_SFRX);
 			//RX
+			if(packet[29] & 0xF8)
+			{// binary telemetry
+				CC2500_WriteReg(CC2500_04_SYNC1, 0x2C);
+				CC2500_WriteReg(CC2500_05_SYNC0, 0x6E);
+			}
 			CC2500_SetTxRxMode(RX_EN);
+			CC2500_WriteReg(CC2500_1B_AGCCTRL2, 0xC7);
+			CC2500_WriteReg(CC2500_1C_AGCCTRL1, 0x09);
 			CC2500_WriteReg(CC2500_06_PKTLEN, HOTT_RX_PACKET_LEN);
 			CC2500_Strobe(CC2500_SRX);
-			phase = HOTT_RX2;
-			return 4500;
+			phase++;		//HOTT_RX2
+			return 4025;
 		case HOTT_RX2:
 			//Telemetry
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
@@ -317,6 +367,10 @@ uint16_t ReadHOTT()
 				{ // CRC OK and TX ID matches
 					if(IS_BIND_IN_PROGRESS)
 					{
+						//GR-16:  D4 20 F2 E6 F6 31 BD 01 00 90 00 FF 03 00 9E 1B 00 00 00 00 00 00
+						//GR-12L: D4 20 F2 E6 F6 6E EE 01 00 B1 00 FF 03 00 0E 08 10 00 02 00 00 00
+						//Vector: D4 20 F2 E6 F6 00 00 3A 01 A1 00 00 1A 24 35 1A 00 24 00 00 00 1A
+						//        -----TXID----- -----RXID----- ---------------Unknown-------------
 						debug("B:");
 						for(uint8_t i=0;i<HOTT_RX_PACKET_LEN;i++)
 							debug(" %02X", packet_in[i]);
@@ -341,7 +395,7 @@ uint16_t ReadHOTT()
 							//   Page 0 [15] = RX_RSSI CC2500 formated (a<128:a/2-71dBm, a>=128:(a-256)/2-71dBm)
 							//   Page 0 [16] = RX_LQI in %
 							//   Page 0 [17] = RX_Voltage Min*10 in V
-							//   Page 0 [18,19] = [19]*256+[18]=max lost packet time in ms, max value seems 2s=0x7D0
+							//   Page 0 [18,19] = [19]<<8+[18]=max lost packet time in ms, max value seems 2s=0x7D0
 							//   Page 0 [20] = 0x00 ??
 							//
 							// Config menu consists of the different telem pages put all together
@@ -355,17 +409,30 @@ uint16_t ReadHOTT()
 							packet_in[0]= packet_in[HOTT_RX_PACKET_LEN];
 							packet_in[1]= TX_LQI;
 							bool send_telem=true;
-							if(packet[29]==2)	// Requesting binary sensor
-							{
+							if(packet[29]==1)
+							{ //Text mode
+								HOTT_sensor_pages = 0;
+								HOTT_sensor_valid = false;
+								packet_in[10] = 0x80;									// Marking telem Text mode
+								packet_in[12] = 0;
+								for(uint8_t i=0; i<HOTT_SENSOR_TYPE;i++)
+									packet_in[12] |= HOTT_sensor_ok[i]<<i;				// Send detected sensors
+							}
+							else
+							{ //Binary sensor
+								HOTT_sensor_seq++;										// Increment RX sequence counter
+								HOTT_sensor_seq %= 5;									// 5 pages in binary mode per sensor
+								if(state==0 && HOTT_sensor_ok[0]==false && HOTT_sensor_ok[1]==false && HOTT_sensor_ok[2]==false && HOTT_sensor_ok[3]==false && HOTT_sensor_ok[4]==false && HOTT_sensor_ok[5]==false)
+									HOTT_sensor_seq=0;									// No sensors always ask page 0
+								if(state)
+									state--;
 								if( packet_in[11]==1 )									// Page 1
 								{
-									if(packet_sent)
-										packet_sent--;
-									if( packet_in[12] == ((HOTT_sensor_cur+9)<<4) )		// The current sensor is responding: 0x90/A0/B0/C0/D0/E0
-									{
+									if( packet_in[12] == (HOTT_sensor_cur+9)<<4 )
+									{ //Requested sensor is sending: 0x90/A0/B0/C0/D0/E0
 										HOTT_sensor_pages = 0;							// Sensor first page received
 										HOTT_sensor_valid = true;						// Data from the expected sensor is being received
-										HOTT_sensor_ok[HOTT_sensor_cur]=true;
+										HOTT_sensor_ok[(packet_in[12]>>4)-9]=true;					
 									}
 									else
 									{
@@ -381,15 +448,6 @@ uint16_t ReadHOTT()
 								if(packet_in[11] && !HOTT_sensor_valid)
 									send_telem=false;
 							}
-							else
-							{ //Text mode
-								HOTT_sensor_pages = 0;
-								HOTT_sensor_valid = false;
-								packet_in[10] = 0x80;									// Marking telem Text mode
-								packet_in[12] = 0;
-								for(uint8_t i=0; i<HOTT_SENSOR_TYPE;i++)
-									packet_in[12] |= HOTT_sensor_ok[i]<<i;				// Send detected sensors
-							}
 							debug("T%d=",send_telem);
 							for(uint8_t i=10;i < HOTT_RX_PACKET_LEN; i++)
 							{
@@ -400,9 +458,7 @@ uint16_t ReadHOTT()
 							if(send_telem)
 								telemetry_link=2;
 							if((HOTT_sensor_pages&0x1E) == 0x1E)						// All 4 pages received from the sensor
-							{
-								HOTT_sensor_valid=false;
-								HOTT_sensor_pages=0;
+							{ //Next sensor
 								uint8_t loop=0;
 								do
 								{
@@ -410,8 +466,11 @@ uint16_t ReadHOTT()
 									HOTT_sensor_cur %= HOTT_SENSOR_TYPE;
 									loop++;
 								}
-								while(HOTT_sensor_ok[HOTT_sensor_cur]==false && loop<HOTT_SENSOR_TYPE+1 && packet_sent==0);
-								debugln("Sensor:%02X",((HOTT_sensor_cur+9)<<4));
+								while(HOTT_sensor_ok[HOTT_sensor_cur]==false && loop<HOTT_SENSOR_TYPE+1 && state==0);
+								HOTT_sensor_valid=false;
+								HOTT_sensor_pages=0;
+								HOTT_sensor_seq=0;
+								debugln("Sensor:%02X",HOTT_sensor_cur+9);
 							}										
 						}
 						pps_counter++;
@@ -425,16 +484,16 @@ uint16_t ReadHOTT()
 					TX_LQI=pps_counter;
 					if(pps_counter==0)
 					{ // lost connection with RX, power cycle? research sensors again.
-						HOTT_sensor_cur=0;
+						HOTT_sensor_cur=3;
+						HOTT_sensor_seq=0;
 						HOTT_sensor_valid=false;
 						for(uint8_t i=0; i<HOTT_SENSOR_TYPE;i++)
 							HOTT_sensor_ok[i]=false;	// no sensors detected
-						packet_sent=HOTT_SENSOR_SEARCH_PERIOD;
+						state=HOTT_SENSOR_SEARCH_PERIOD;
 					}
 					pps_counter=packet_count=0;
 				}
 			#endif
-			CC2500_Strobe(CC2500_SFRX);							//Flush the RXFIFO
 			phase=HOTT_DATA1;
 			return 1000;
 	}
@@ -449,13 +508,14 @@ uint16_t initHOTT()
 	#ifdef HOTT_FW_TELEMETRY
 		HoTT_SerialRX_val=0;
 		HoTT_SerialRX=false;
-		HOTT_sensor_cur=0;
+		HOTT_sensor_cur=3;
 		HOTT_sensor_pages=0;
 		HOTT_sensor_valid=false;
+		HOTT_sensor_seq=0;
 		for(uint8_t i=0; i<HOTT_SENSOR_TYPE;i++)
 			HOTT_sensor_ok[i]=false;	// no sensors detected
 		packet_count=0;
-		packet_sent=HOTT_SENSOR_SEARCH_PERIOD;
+		state=HOTT_SENSOR_SEARCH_PERIOD;
 	#endif
 	phase = HOTT_START;
 	return 10000;

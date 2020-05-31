@@ -119,6 +119,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [PROPEL](Protocols_Details.md#PROPEL---66)|66|74-Z||||||||NRF24L01|
 [Q2X2](Protocols_Details.md#Q2X2---29)|29|Q222|Q242|Q282||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
+[Q90C](Protocols_Details.md#Q90C---72)|72|Q90C*||||||||NRF24L01|XN297
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
 [SFHSS](Protocols_Details.md#SFHSS---21)|21|SFHSS||||||||CC2500|
@@ -484,9 +485,9 @@ Basic telemetry using FrSky Hub on er9x, erskyTX, OpenTX and any radio with FrSk
 MINIMA, MICRO and RED receivers. Also used by ARES planes.
 
 ## HoTT - *57*
-Models: Graupner HoTT receivers (tested on GR-12L and GR-16L).
+Models: Graupner HoTT receivers (tested on GR-12, GR-12L, GR-16 and Vector).
 
-Extended limits  and failsafe supported
+Extended limits, failsafe and LBT supported.
 
 Full telemetry and full text config mode are available in OpenTX 2.3.8+.
 
@@ -494,7 +495,7 @@ Full telemetry and full text config mode are available in OpenTX 2.3.8+.
 
 **Failsafe MUST be configured once with the desired channel values (hold or position) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
 
-The RX features configuration are done using the OpenTX script "Graupner HoTT.lua" .
+The RX and sensors/FC features configuration are done through the OpenTX script "Graupner HoTT.lua".
 
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
@@ -1278,6 +1279,18 @@ CH5|CH6
 ARM|FLIP
 
 ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
+
+## Q90C - *72*
+
+This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
+
+If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+**Only 1 ID available. FMODE and VTX+ are not supported yet. If you have a TX then contact me on GitHub or RCGroups.**
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|FMODE|VTX+
 
 ## Redpine - *50*
 [Link to the forum](https://www.rcgroups.com/forums/showthread.php?3236043-Redpine-Lowest-latency-RC-protocol)

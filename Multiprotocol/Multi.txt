@@ -54,7 +54,7 @@
 54,Scanner
 55,Frsky_RX,RX,CloneTX
 56,AFHDS2A_RX
-57,HoTT
+57,HoTT,Sync,No_Sync
 58,FX816,P38
 59,Bayang_RX
 60,Pelikan

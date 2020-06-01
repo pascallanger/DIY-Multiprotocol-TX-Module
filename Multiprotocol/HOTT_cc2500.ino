@@ -245,7 +245,10 @@ static void __attribute__((unused)) HOTT_prep_data_packet()
 			else
 			{
 				packet[28] = 0x89+HOTT_sensor_cur;				// 0x89/8A/8B/8C/8D/8E during normal packets
-				packet[29] = ((HOTT_sensor_seq+1)<<3) | 2;		// Telemetry packet sequence
+				if(sub_protocol == HOTT_SYNC)
+					packet[29] = ((HOTT_sensor_seq+1)<<3) | 2;	// Telemetry packet sequence
+				else
+					packet[29] = 0x02;
 				//debugln("28=%02X,29=%02X",packet[28],packet[29]);
 			}
 		}
@@ -272,7 +275,7 @@ static void __attribute__((unused)) HOTT_prep_data_packet()
 uint16_t ReadHOTT()
 {
 	#ifdef HOTT_FW_TELEMETRY
-		static uint8_t pps_counter=0, HOTT_sensor_rx=0;
+		static uint8_t pps_counter=0;
 	#endif
 
 	switch(phase)

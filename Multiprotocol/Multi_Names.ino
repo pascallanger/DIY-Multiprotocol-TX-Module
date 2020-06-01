@@ -134,6 +134,7 @@ const char STR_SUBTYPE_PROPEL[] =     "\x04""74-Z";
 const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""RX\0    ""CloneTX";
 const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 const char STR_SUBTYPE_WFLY[] =       "\x06""WFR0xS";
+const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 
 enum
 {
@@ -267,7 +268,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_HONTAI,     STR_HONTAI,    4, STR_SUBTYPE_HONTAI,    OPTION_NONE    },
 	#endif
 	#if defined(HOTT_CC2500_INO)
-		{PROTO_HOTT,       STR_HOTT,      0, NO_SUBTYPE,            OPTION_RFTUNE  },
+		{PROTO_HOTT,       STR_HOTT,      2, STR_SUBTYPE_HOTT,      OPTION_RFTUNE  },
 	#endif
 	#if defined(HUBSAN_A7105_INO)
 		{PROTO_HUBSAN,     STR_HUBSAN,    3, STR_SUBTYPE_HUBSAN,    OPTION_VIDFREQ },

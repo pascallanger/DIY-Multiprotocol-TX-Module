@@ -504,6 +504,12 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
+### Sub_protocol Sync - *0*
+Recommended for best telemetry performance.
+
+### Sub_protocol No_Sync - *1*
+Compatibility mode with older receiver firmwares.
+
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.
 

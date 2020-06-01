@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	5
+#define VERSION_PATCH_LEVEL	6
 
 //******************
 // Protocols
@@ -356,6 +356,12 @@ enum FRSKYL
 {
 	LR12		= 0,
 	LR12_6CH	= 1,
+};
+
+enum HOTT
+{
+	HOTT_SYNC	= 0,
+	HOTT_NO_SYNC= 1,
 };
 
 #define NONE 		0
@@ -943,6 +949,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==FRSKYL
 			LR12		0
 			LR12_6CH	1
+		sub_protocol==HOTT
+			HOTT_SYNC		0
+			HOTT_NO_SYNC	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

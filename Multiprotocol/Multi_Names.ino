@@ -101,7 +101,7 @@ const char STR_SUBTYPE_SYMAX[] =      "\x03""Std""X5C";
 const char STR_SUBTYPE_SLT[] =        "\x06""V1_6ch""V2_8ch""Q100\0 ""Q200\0 ""MR100\0";
 const char STR_SUBTYPE_CX10[] =       "\x07""Green\0 ""Blue\0  ""DM007\0 ""-\0     ""JC3015a""JC3015b""MK33041";
 const char STR_SUBTYPE_CG023[] =      "\x05""Std\0 ""YD829";
-const char STR_SUBTYPE_BAYANG[] =     "\x07""Std\0   ""H8S3D\0 ""X16 AH\0""IRDrone""DHD D4\0""CX100\0 ";
+const char STR_SUBTYPE_BAYANG[] =     "\x07""Std\0   ""H8S3D\0 ""X16 AH\0""IRDrone""DHD D4\0""QX100\0 ";
 const char STR_SUBTYPE_MT99[] =       "\x06""MT99\0 ""H7\0   ""YZ\0   ""LS\0   ""FY805";
 const char STR_SUBTYPE_MJXQ[] =       "\x07""WLH08\0 ""X600\0  ""X800\0  ""H26D\0  ""E010\0  ""H26WH\0 ""Phoenix";
 const char STR_SUBTYPE_FY326[] =      "\x05""Std\0 ""FY319";
@@ -157,7 +157,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_ASSAN,      STR_ASSAN,     0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(BAYANG_NRF24L01_INO)
-		{PROTO_BAYANG,     STR_BAYANG,    5, STR_SUBTYPE_BAYANG,    OPTION_TELEM   },
+		{PROTO_BAYANG,     STR_BAYANG,    6, STR_SUBTYPE_BAYANG,    OPTION_TELEM   },
 	#endif
 	#if defined(BAYANG_RX_NRF24L01_INO)
 		{PROTO_BAYANG_RX,  STR_BAYANG_RX, 0, NO_SUBTYPE,            OPTION_NONE    },	

@@ -195,7 +195,7 @@ enum BAYANG
     X16_AH  = 2,
 	IRDRONE = 3,
 	DHD_D4	= 4,
-	CX100   = 5,
+	QX100   = 5,
 };
 enum MT99XX
 {
@@ -834,6 +834,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			X16_AH		2
 			IRDRONE		3
 			DHD_D4		4
+      QX100     5
 		sub_protocol==MT99XX
 			MT99		0
 			H7			1

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	6
+#define VERSION_PATCH_LEVEL	7
 
 //******************
 // Protocols
@@ -195,6 +195,7 @@ enum BAYANG
     X16_AH  = 2,
 	IRDRONE = 3,
 	DHD_D4	= 4,
+	CX100   = 5,
 };
 enum MT99XX
 {

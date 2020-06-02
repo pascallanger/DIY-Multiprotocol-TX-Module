@@ -510,6 +510,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		X16_AH
 		IRDRONE
 		DHD_D4
+		CX100
 	PROTO_BAYANG_RX
 		NONE
 	PROTO_BUGS

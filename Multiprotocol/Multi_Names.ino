@@ -135,6 +135,7 @@ const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""RX\0    ""CloneTX";
 const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 const char STR_SUBTYPE_WFLY[] =       "\x06""WFR0xS";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
+const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
 
 enum
 {
@@ -295,7 +296,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_NCC1701,    STR_NCC1701,   0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(PELIKAN_A7105_INO)
-		{PROTO_PELIKAN,    STR_PELIKAN  , 0, NO_SUBTYPE,            OPTION_NONE    },	
+		{PROTO_PELIKAN,    STR_PELIKAN  , 2, STR_SUBTYPE_PELIKAN,   OPTION_NONE    },	
 	#endif
 	#if defined(POTENSIC_NRF24L01_INO)
 		{PROTO_POTENSIC,   STR_POTENSIC,  1, STR_SUBTYPE_POTENSIC,  OPTION_NONE    },

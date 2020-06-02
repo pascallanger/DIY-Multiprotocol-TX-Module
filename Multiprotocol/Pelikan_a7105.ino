@@ -19,11 +19,13 @@
 #include "iface_a7105.h"
 
 //#define PELIKAN_FORCE_ID
+#define PELIKAN_LITE_FORCE_ID
 
 #define PELIKAN_BIND_COUNT		400
 #define PELIKAN_BIND_RF			0x3C
 #define PELIKAN_NUM_RF_CHAN 	0x1D
-#define PELIKAN_PAQUET_PERIOD	7980
+#define PELIKAN_PACKET_PERIOD	7980
+#define PELIKAN_LITE_PACKET_PERIOD 18000
 
 static void __attribute__((unused)) pelikan_build_packet()
 {
@@ -36,7 +38,10 @@ static void __attribute__((unused)) pelikan_build_packet()
 		packet[3] = rx_tx_addr[1];
 		packet[4] = rx_tx_addr[2];
 		packet[5] = rx_tx_addr[3];
-		packet[6] = 0x05;			//??
+		if(sub_protocol==PELIKAN_PRO)
+			packet[6] = 0x05;		//sub version??
+		else //PELIKAN_LITE
+			packet[6] = 0x03;		//sub version??
 		packet[7] = 0x00;			//??
 		packet[8] = 0x55;			//??
 		packet_length = 10;
@@ -72,7 +77,7 @@ static void __attribute__((unused)) pelikan_build_packet()
 		packet[9]=upper?0xAA:0x00;
 		upper=!upper;
 		//Hopping counters
-		if(++packet_count>4)
+		if(sub_protocol==PELIKAN_LITE || ++packet_count>4)
 		{
 			packet_count=0;
 			if(++hopping_frequency_no>=PELIKAN_NUM_RF_CHAN)
@@ -106,24 +111,41 @@ static void __attribute__((unused)) pelikan_build_packet()
 
 uint16_t ReadPelikan()
 {
-	#ifndef FORCE_PELIKAN_TUNING
-		A7105_AdjustLOBaseFreq(1);
-	#endif
-	if(IS_BIND_IN_PROGRESS)
+	if(phase==0)
 	{
-		bind_counter--;
-		if (bind_counter==0)
+		#ifndef FORCE_PELIKAN_TUNING
+			A7105_AdjustLOBaseFreq(1);
+		#endif
+		if(IS_BIND_IN_PROGRESS)
 		{
-			BIND_DONE;
-			A7105_Strobe(A7105_STANDBY);
-			A7105_WriteReg(A7105_03_FIFOI,0x28);
+			bind_counter--;
+			if (bind_counter==0)
+			{
+				BIND_DONE;
+				A7105_Strobe(A7105_STANDBY);
+				if(sub_protocol==PELIKAN_PRO)
+					A7105_WriteReg(A7105_03_FIFOI,0x28);
+				else//PELIKAN_LITE
+					A7105_WriteID((rx_tx_addr[0]<<24)|(rx_tx_addr[1]<<16)|(rx_tx_addr[2]<<8)|(rx_tx_addr[3]));
+			}
 		}
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(sub_protocol==PELIKAN_PRO?PELIKAN_PACKET_PERIOD:PELIKAN_LITE_PACKET_PERIOD);
+		#endif
+		pelikan_build_packet();
+		if(sub_protocol==PELIKAN_PRO || IS_BIND_IN_PROGRESS)
+			return PELIKAN_PACKET_PERIOD;
+		//PELIKAN_LITE
+		phase++;
+		return 942;
 	}
-	#ifdef MULTI_SYNC
-		telemetry_set_input_sync(PELIKAN_PAQUET_PERIOD);
-	#endif
-	pelikan_build_packet();
-	return PELIKAN_PAQUET_PERIOD;
+	//PELIKAN_LITE
+	A7105_Strobe(A7105_TX);
+	phase++;
+	if(phase==1)
+		return 942;
+	phase=0;
+	return PELIKAN_LITE_PACKET_PERIOD-942-942;
 }
 
 static uint8_t pelikan_firstCh(uint8_t u, uint8_t l)
@@ -213,27 +235,50 @@ const uint8_t PROGMEM pelikan_hopp[][PELIKAN_NUM_RF_CHAN] = {
 };
 #endif
 
+#ifdef PELIKAN_LITE_FORCE_ID
+const uint8_t PROGMEM pelikan_lite_hopp[][PELIKAN_NUM_RF_CHAN] = {
+	{ 0x5A,0x46,0x32,0x6E,0x6C,0x58,0x44,0x42,0x40,0x6A,0x56,0x54,0x52,0x3E,0x68,0x66,0x64,0x50,0x3C,0x3A,0x38,0x62,0x4E,0x4C,0x5E,0x4A,0x36,0x5C,0x34 }
+};
+#endif
+
 uint16_t initPelikan()
 {
 	A7105_Init();
-	if(IS_BIND_IN_PROGRESS)
+	if(IS_BIND_IN_PROGRESS || sub_protocol==PELIKAN_LITE)
 		A7105_WriteReg(A7105_03_FIFOI,0x10);
-	
 	//ID from dump
-	#ifdef PELIKAN_FORCE_ID
-		rx_tx_addr[0]=0x0D;		// hopping freq
-		rx_tx_addr[1]=0xF4;		// hopping freq
-		rx_tx_addr[2]=0x50;		// ID
-		rx_tx_addr[3]=0x18;		// ID
-		// Fill frequency table
-		for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
-			hopping_frequency[i]=pgm_read_byte_near(&pelikan_hopp[0][i]);
+	#if defined(PELIKAN_FORCE_ID)
+		if(sub_protocol==PELIKAN_PRO)
+		{
+			rx_tx_addr[0]=0x0D;		// hopping freq
+			rx_tx_addr[1]=0xF4;		// hopping freq
+			rx_tx_addr[2]=0x50;		// ID
+			rx_tx_addr[3]=0x18;		// ID
+			// Fill frequency table
+			for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
+				hopping_frequency[i]=pgm_read_byte_near(&pelikan_hopp[0][i]);
+		}
+	#elif defined(PELIKAN_LITE_FORCE_ID)
+		if(sub_protocol==PELIKAN_LITE)
+		{
+			rx_tx_addr[0]=0x04;		// hopping freq
+			rx_tx_addr[1]=0x63;		// hopping freq
+			rx_tx_addr[2]=0x60;		// ID
+			rx_tx_addr[3]=0x18;		// ID
+			// Fill frequency table
+			for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
+				hopping_frequency[i]=pgm_read_byte_near(&pelikan_lite_hopp[0][i]);
+		}
 	#else
 		pelikan_init_hop();
 	#endif
 
+	if(sub_protocol==PELIKAN_LITE && IS_BIND_DONE)
+		A7105_WriteID((rx_tx_addr[0]<<24)|(rx_tx_addr[1]<<16)|(rx_tx_addr[2]<<8)|(rx_tx_addr[3]));
+
 	hopping_frequency_no=PELIKAN_NUM_RF_CHAN;
 	packet_count=5;
+	phase=0;
 	return 2400;
 }
 #endif

@@ -67,7 +67,7 @@ You've upgraded the module but the radio does not display the name of the protoc
 Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Sub_Proto 4|Sub_Proto 5|Sub_Proto 6|Sub_Proto 7|RF Module|Emulation
 ---|---|---|---|---|---|---|---|---|---|---|---
 [Assan](Protocols_Details.md#ASSAN---24)|24|ASSAN||||||||NRF24L01|
-[Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4||||NRF24L01|XN297
+[Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4|QX100|||NRF24L01|XN297
 [Bayang RX](Protocols_Details.md#BAYANG-RX---59)|59|RX||||||||NRF24L01|XN297
 [Bugs](Protocols_Details.md#BUGS---41)|41|BUGS||||||||A7105|
 [BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI|BUGS3H|||||||NRF24L01|XN297
@@ -104,7 +104,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01|
 [Hitec](Protocols_Details.md#HITEC---39)|39|OPT_FW|OPT_HUB|MINIMA||||||CC2500|
 [Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01|XN297
-[HoTT](Protocols_Details.md#HoTT---57)|57|HoTT||||||||CC2500|
+[HoTT](Protocols_Details.md#HoTT---57)|57|Sync|No_Sync|||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105|
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|J6Pro||||||||CYRF6936|
 [JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345||||||||NRF24L01|XN297
@@ -114,7 +114,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None|
-[Pelikan](Protocols_Details.md#Pelikan---60)|60|Pelikan||||||||A7105|
+[Pelikan](Protocols_Details.md#Pelikan---60)|60|Pro|Lite|||||||A7105|
 [Potensic](Protocols_Details.md#Potensic---51)|51|A20||||||||NRF24L01|XN297
 [PROPEL](Protocols_Details.md#PROPEL---66)|66|74-Z||||||||NRF24L01|
 [Q2X2](Protocols_Details.md#Q2X2---29)|29|Q222|Q242|Q282||||||NRF24L01|
@@ -268,17 +268,21 @@ A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
 ANGLE: angle is +100%, acro is -100%
 
 ## Pelikan - *60*
-Models: TX: CADET PRO V4, RX: RX-602 V4
-
 Extended limits supported
-
-**Only 1 set of frequencies for now**
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
-Note that the RX ouput will be AETR.
+RX output will match the Pelikan standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+
+### Sub_protocol Pro - *0*
+Models: TX: CADET PRO V4, RX: RX-602 V4
+
+### Sub_protocol Lite - *1*
+Models: TX: CADET 4 LITE
+
+**Only 1 ID for now**
 
 ***
 # CC2500 RF Module

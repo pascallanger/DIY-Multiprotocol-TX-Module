@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	7
+#define VERSION_PATCH_LEVEL	8
 
 //******************
 // Protocols
@@ -363,6 +363,12 @@ enum HOTT
 {
 	HOTT_SYNC	= 0,
 	HOTT_NO_SYNC= 1,
+};
+
+enum PELIKAN
+{
+	PELIKAN_PRO	= 0,
+	PELIKAN_LITE= 1,
 };
 
 #define NONE 		0
@@ -953,6 +959,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==HOTT
 			HOTT_SYNC		0
 			HOTT_NO_SYNC	1
+		sub_protocol==PELIKAN
+			PELIKAN_PRO		0
+			PELIKAN_LITE	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

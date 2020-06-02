@@ -778,8 +778,8 @@ CH12|CH13
 ----|----
 TAKE_OFF|EMG_STOP
 
-### Sub_protocol CX100 - *5*
-Model: REVELL CX100
+### Sub_protocol QX100 - *5*
+Model: REVELL QX100
 
 ## BAYANG RX - *59*
 The Bayang receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...

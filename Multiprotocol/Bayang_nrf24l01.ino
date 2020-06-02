@@ -67,7 +67,7 @@ static void __attribute__((unused)) BAYANG_send_packet()
 		else
 	#endif
 			packet[0]= 0xA4;
-		if(sub_protocol==CX100)
+		if(sub_protocol==QX100)
 			packet[0] = 0x53;
 
 		for(i=0;i<5;i++)
@@ -76,7 +76,7 @@ static void __attribute__((unused)) BAYANG_send_packet()
 			packet[i+6]=hopping_frequency[i];
 		switch (sub_protocol)
 		{
-			case CX100:
+			case QX100:
 			case X16_AH:
 				packet[10] = 0x00;
 				packet[11] = 0x00;
@@ -165,7 +165,7 @@ static void __attribute__((unused)) BAYANG_send_packet()
 			packet[12] = rx_tx_addr[2];	// txid[2]
 			packet[13] = 0x34;
 			break;
-		case CX100:
+		case QX100:
 		case X16_AH:
 			packet[12] = 0;
 			packet[13] = 0;

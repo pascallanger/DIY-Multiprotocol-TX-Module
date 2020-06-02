@@ -195,7 +195,7 @@ enum BAYANG
     X16_AH  = 2,
 	IRDRONE = 3,
 	DHD_D4	= 4,
-	CX100   = 5,
+	QX100   = 5,
 };
 enum MT99XX
 {

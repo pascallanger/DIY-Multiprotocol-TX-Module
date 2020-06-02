@@ -489,9 +489,9 @@ Models: Graupner HoTT receivers (tested on GR-12, GR-12L, GR-16 and Vector).
 
 Extended limits, failsafe and LBT supported.
 
-Full telemetry and full text config mode are available in OpenTX 2.3.8+.
+Full telemetry and full text config mode are available starting from OpenTX 2.3.8N226.
 
-**RX_Num is used to give a number a given RX. You must use a different RX_Num per RX. A maximum of 64 HoTT RXs are supported.**
+**RX_Num is used to give a number to a given RX. You must use a different RX_Num per RX. A maximum of 64 HoTT RXs are supported.**
 
 **Failsafe MUST be configured once with the desired channel values (hold or position) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
 
@@ -508,7 +508,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 Recommended for best telemetry performance.
 
 ### Sub_protocol No_Sync - *1*
-Compatibility mode with older receiver firmwares.
+Telemetry compatibility mode when Sync does not work due to an old firmware on the RX.
+You should definitively upgrade your receivers/sensors to the latest firmware versions: https://www.rcgroups.com/forums/showpost.php?p=44668015&postcount=18022
 
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.

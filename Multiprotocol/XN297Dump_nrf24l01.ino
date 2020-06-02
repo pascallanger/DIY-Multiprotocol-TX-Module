@@ -392,6 +392,9 @@ static uint16_t XN297Dump_callback()
 					{	// Scan frequencies
 						hopping_frequency_no++;
 						bind_counter=0;
+						if(packet_count && packet_count<=5)
+							debug("\r\nTrying RF channel: ");
+						packet_count=0;
 						if(hopping_frequency_no>XN297DUMP_MAX_RF_CHANNEL)
 						{
 							debug("\r\n\r\n%d RF channels identified:",rf_ch_num);
@@ -472,10 +475,9 @@ static uint16_t XN297Dump_callback()
 									debug(" %02X",packet[i]);
 								packet_count++;
 								if(packet_count>5)
-								{
+								{//change channel
 									bind_counter=XN297DUMP_PERIOD_SCAN+1;
 									debug("\r\nTrying RF channel: ");
-									packet_count=0;
 								}
 							}
 						}

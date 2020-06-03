@@ -117,6 +117,8 @@ static void __attribute__((unused)) DSM_Rx_build_telemetry_packet()
 				if(nbr_bits==10) value <<= 1;						// switch to 11 bits
 				value &= 0x7FF;
 				rx_rc_chan[CH_TAER[idx]]=convert_channel_DSM_nolimit(value);
+				if(IS_DISABLE_CH_MAP_off && (CH_TAER[idx]==AILERON || CH_TAER[idx]==RUDDER))
+					rx_rc_chan[CH_TAER[idx]]=2047-rx_rc_chan[CH_TAER[idx]];	// Reverse AILERON and RUDDER channels
 			}
 		}
 	}

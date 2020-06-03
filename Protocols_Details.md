@@ -282,7 +282,7 @@ Models: TX: CADET PRO V4, RX: RX-602 V4
 ### Sub_protocol Lite - *1*
 Models: TX: CADET 4 LITE
 
-**Only 1 ID for now**
+**Only 1 frequency hopping table**
 
 ***
 # CC2500 RF Module
@@ -1300,7 +1300,7 @@ This protocol is known to be problematic because it's using the xn297L emulation
 
 If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
-**Only 1 ID available. FMODE and VTX+ are not supported yet. If you have a TX then contact me on GitHub or RCGroups.**
+**Only 1 ID available. FMODE and VTX+ are not supported. If you have a TX then contact me on GitHub or RCGroups.**
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---

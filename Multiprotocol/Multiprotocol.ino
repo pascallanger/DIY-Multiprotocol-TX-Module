@@ -1554,7 +1554,12 @@ static void protocol_init()
 						remote_callback = Q90C_callback;
 						break;
 				#endif
-
+				#if defined(TEST_CC2500_INO)
+					case PROTO_TEST:
+						next_callback=initTEST();
+						remote_callback = TEST_callback;
+						break;
+				#endif
 			#endif
 			#ifdef SX1276_INSTALLED
 				#if defined(FRSKYR9_SX1276_INO)

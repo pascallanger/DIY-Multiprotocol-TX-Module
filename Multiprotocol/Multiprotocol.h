@@ -99,6 +99,8 @@ enum PROTOCOLS
 	PROTO_DSM_RX	= 70,	// =>CYRF6936
 	PROTO_JJRC345	= 71,	// =>NRF24L01
 	PROTO_Q90C		= 72,	// =>NRF24L01 or CC2500
+
+	PROTO_TEST		= 127,	// =>CC2500
 };
 
 enum Flysky

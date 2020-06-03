@@ -19,7 +19,8 @@
 #include "iface_a7105.h"
 
 //#define PELIKAN_FORCE_ID
-#define PELIKAN_LITE_FORCE_ID
+//#define PELIKAN_LITE_FORCE_ID
+#define PELIKAN_LITE_FORCE_HOP
 
 #define PELIKAN_BIND_COUNT		400
 #define PELIKAN_BIND_RF			0x3C
@@ -246,6 +247,9 @@ uint16_t initPelikan()
 	A7105_Init();
 	if(IS_BIND_IN_PROGRESS || sub_protocol==PELIKAN_LITE)
 		A7105_WriteReg(A7105_03_FIFOI,0x10);
+
+	pelikan_init_hop();
+
 	//ID from dump
 	#if defined(PELIKAN_FORCE_ID)
 		if(sub_protocol==PELIKAN_PRO)
@@ -258,19 +262,23 @@ uint16_t initPelikan()
 			for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
 				hopping_frequency[i]=pgm_read_byte_near(&pelikan_hopp[0][i]);
 		}
-	#elif defined(PELIKAN_LITE_FORCE_ID)
+	#endif
+	#if defined(PELIKAN_LITE_FORCE_ID) || defined(PELIKAN_LITE_FORCE_HOP)
 		if(sub_protocol==PELIKAN_LITE)
 		{
-			rx_tx_addr[0]=0x04;		// hopping freq
-			rx_tx_addr[1]=0x63;		// hopping freq
-			rx_tx_addr[2]=0x60;		// ID
-			rx_tx_addr[3]=0x18;		// ID
-			// Fill frequency table
-			for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
-				hopping_frequency[i]=pgm_read_byte_near(&pelikan_lite_hopp[0][i]);
+			#if defined(PELIKAN_LITE_FORCE_ID)
+				// ID
+				rx_tx_addr[2]=0x60;
+				rx_tx_addr[3]=0x18;
+			#endif
+			#if defined(PELIKAN_LITE_FORCE_HOP)
+				// Hop frequency table
+				rx_tx_addr[0]=0x04;		// hopping freq
+				rx_tx_addr[1]=0x63;		// hopping freq
+				for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
+					hopping_frequency[i]=pgm_read_byte_near(&pelikan_lite_hopp[0][i]);
+			#endif
 		}
-	#else
-		pelikan_init_hop();
 	#endif
 
 	if(sub_protocol==PELIKAN_LITE && IS_BIND_DONE)

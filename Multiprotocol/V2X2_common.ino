@@ -34,7 +34,7 @@ const uint8_t PROGMEM v2x2_freq_hopping[][16] = {
 		0x18, 0x2A, 0x21, 0x38, 0x10, 0x26, 0x20, 0x1F }  //  03
 };
 
-static void __attribute__((unused)) V2X2_set_tx_id(void)
+static void V2X2_set_tx_id(void)
 {
 	uint8_t sum;
 	sum = rx_tx_addr[1] + rx_tx_addr[2] + rx_tx_addr[3];

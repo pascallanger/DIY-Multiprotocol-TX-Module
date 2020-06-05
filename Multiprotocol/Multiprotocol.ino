@@ -1554,14 +1554,12 @@ static void protocol_init()
 						remote_callback = Q90C_callback;
 						break;
 				#endif
-
 				#if defined(V2X2_RX_NRF24L01_INO)
 					case PROTO_V2X2_RX:
 						next_callback=initV2X2_Rx();
 						remote_callback = V2X2_Rx_callback;
 						break;
 				#endif
-
 				#if defined(TEST_CC2500_INO)
 					case PROTO_TEST:
 						next_callback=initTEST();

@@ -17,7 +17,6 @@
 
 #define V2X2_RX_PACKET_SIZE 16
 #define V2X2_RX_RF_BIND_CHANNEL 0x08
-#define V2X2_RX_RF_NUM_CHANNELS 5
 
 enum {
 	V2X2_RX_BIND,
@@ -31,50 +30,140 @@ static void __attribute__((unused)) V2X2_Rx_init_nrf24l01()
 	NRF24L01_WriteRegisterMulti(NRF24L01_0B_RX_ADDR_P1, (uint8_t*)"\x66\x88\x68\x68\x68", 5);
 	NRF24L01_FlushRx();
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     	// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      	// No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x3F);  	// Enable all data pipes
+	// Enable Auto Acknowldgement on rx pipe 0
+	// That might be required by original wltoys transmitters
+	// Only works if both tx and rx are using original
+	// Nordic nrf24l01+ IC since some clones have the NO_ACK flag wrong
+	// see https://hackaday.com/2015/02/23/nordic-nrf24l01-real-vs-fake/#comment-2474764
+	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x01);
+	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x02);  	// Enable rx data pipe 1
 	NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, V2X2_RX_PACKET_SIZE);
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, BAYANG_RX_RF_BIND_CHANNEL);
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, V2X2_RX_RF_BIND_CHANNEL);
 	NRF24L01_SetBitrate(NRF24L01_BR_1M);             	// 1Mbps
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// reset registers status
-	NRF24L01_SetTxRxMode(TXRX_OFF);
-	NRF24L01_SetTxRxMode(RX_EN);
-	// switch to RX mode
+	NRF24L01_WriteReg(NRF24L01_17_FIFO_STATUS, 0x00);
+	NRF24L01_SetTxRxMode(RX_EN);						// enable LNA
+	// switch to RX mode, 16 bit CRC
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
 }
 
 static uint8_t __attribute__((unused)) V2X2_Rx_check_validity()
 {
+	uint8_t i, sum;
 	// check transmitter id
-
+	if (phase == V2X2_RX_DATA) {
+		for (i = 0; i < 3; i++) {
+			if (rx_tx_addr[i + 1] != packet[i + 7]) {
+				return 0;
+			}
+		}
+	}
 	// checksum
-
+	sum = packet[0];
+	for (i=1; i<15; i++)
+		sum += packet[i];
+	return (sum == packet[15]);
 }
 
 static void __attribute__((unused)) V2X2_Rx_build_telemetry_packet()
 {
-
+	// TODO
 }
 
 uint16_t initV2X2_Rx()
 {
+	debugln("initV2X2_Rx()");
 	V2X2_Rx_init_nrf24l01();
-	
-	phase = V2X2_RX_BIND;
+	hopping_frequency_no = 0;
+	rx_data_started = false;
+	rx_data_received = false;
+	if (IS_BIND_IN_PROGRESS) {
+		phase = V2X2_RX_BIND;
+	}
+	else {
+		uint16_t temp = V2X2_RX_EEPROM_OFFSET;
+		for (uint8_t i = 1; i < 4; i++)
+			rx_tx_addr[i] = eeprom_read_byte((EE_ADDR)temp++);
+		V2X2_set_tx_id(); // compute frequency hopping channels
+		phase = V2X2_RX_DATA;
+	}
 	return 1000;
 }
 
 uint16_t V2X2_Rx_callback()
 {
+	uint8_t i;
+	static int8_t read_retry;
+	static uint16_t pps_counter;
+	static uint32_t pps_timer = 0;
+
 	switch (phase) {
 		case V2X2_RX_BIND:
-			// V2X2_set_tx_id();
+			if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) {
+				NRF24L01_ReadPayload(packet, V2X2_RX_PACKET_SIZE);
+				if (packet[14] == 0xC0 && V2X2_Rx_check_validity()) {
+					// store transmitter id into eeprom
+					uint16_t temp = V2X2_RX_EEPROM_OFFSET;
+					for (i = 0; i < 3; i++) {
+						rx_tx_addr[i+1] = packet[i+7];
+						eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[i+1]);
+					}
+					V2X2_set_tx_id(); // compute frequency hopping channels
+					NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+					phase = V2X2_RX_DATA;
+					BIND_DONE;
+				}
+			}
+			NRF24L01_FlushRx();
+			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 			break;
 		case V2X2_RX_DATA:
-
-			break;
+			if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) {
+				NRF24L01_ReadPayload(packet, V2X2_RX_PACKET_SIZE);
+				if (V2X2_Rx_check_validity()) {
+					if (telemetry_link == 0) {
+						V2X2_Rx_build_telemetry_packet();
+						telemetry_link = 1;
+					}
+					rx_data_started = true;
+					rx_data_received = true;
+					read_retry = 16; // hop to next channel
+					pps_counter++;
+				}
+			}
+			// packets per second
+			if (millis() - pps_timer >= 1000) {
+				pps_timer = millis();
+				debugln("%d pps", pps_counter);
+				RX_LQI = pps_counter;
+				pps_counter = 0;
+			}
+			// frequency hopping, 16x250us = 4ms
+			if (read_retry++ >= 16) {
+				hopping_frequency_no = (hopping_frequency_no + 1) & 0x1F;
+				NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no >> 1]);
+				NRF24L01_FlushRx();
+				NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+				if (rx_data_started)
+				{
+					if (rx_data_received)
+					{ // In sync, take a rest
+						rx_data_received = false;
+						read_retry = 13;
+						return 3500;
+					}
+					else
+					{ // packet lost
+						read_retry = 0;
+						if (RX_LQI == 0)	// communication lost
+							rx_data_started = false;
+					}
+				}
+				else
+					read_retry = -32; // retry longer until first packet is caught
+			}
+			return 250;
 	}
-	return 0;
+	return 1000;
 }
 
 #endif

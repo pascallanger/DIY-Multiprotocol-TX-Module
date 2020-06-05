@@ -443,15 +443,18 @@ uint16_t ReadHOTT()
 										HOTT_sensor_pages = 0x1E;						// Switch to next sensor
 									}
 								}
-								if(HOTT_sensor_valid && packet_in[11] )					// Valid & page !=0
-								{
-									packet_in[10] = HOTT_sensor_cur+9;					// Marking telem with sensor ID
-									HOTT_sensor_pages |= 1<<packet_in[11];				// Page received
+								if(packet_in[11])
+								{ //Page != 0
+									if(HOTT_sensor_valid)								// Valid
+									{
+										packet_in[10] = HOTT_sensor_cur+9;				// Mark telem with sensor ID
+										HOTT_sensor_pages |= 1<<packet_in[11];			// Page received
+									}
+									else
+										send_telem=false;								// Do not send
 								}
-								if(packet_in[11] && !HOTT_sensor_valid)
-									send_telem=false;
-								if(packet_in[11]==0)
-									packet_in[10]=0;
+								else
+									packet_in[10]=0;									// Mark telem with sensor 0=RX
 							}
 							debug("T%d=",send_telem);
 							for(uint8_t i=10;i < HOTT_RX_PACKET_LEN; i++)

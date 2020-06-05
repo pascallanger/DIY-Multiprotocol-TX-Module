@@ -30,12 +30,7 @@ static void __attribute__((unused)) V2X2_Rx_init_nrf24l01()
 	NRF24L01_WriteRegisterMulti(NRF24L01_0B_RX_ADDR_P1, (uint8_t*)"\x66\x88\x68\x68\x68", 5);
 	NRF24L01_FlushRx();
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     	// Clear data ready, data sent, and retransmit
-	// Enable Auto Acknowldgement on rx pipe 0
-	// That might be required by original wltoys transmitters
-	// Only works if both tx and rx are using original
-	// Nordic nrf24l01+ IC since some clones have the NO_ACK flag wrong
-	// see https://hackaday.com/2015/02/23/nordic-nrf24l01-real-vs-fake/#comment-2474764
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x01);
+	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// disable Auto Acknowldgement
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x02);  	// Enable rx data pipe 1
 	NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, V2X2_RX_PACKET_SIZE);
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, V2X2_RX_RF_BIND_CHANNEL);
@@ -66,7 +61,46 @@ static uint8_t __attribute__((unused)) V2X2_Rx_check_validity()
 
 static void __attribute__((unused)) V2X2_Rx_build_telemetry_packet()
 {
-	// TODO
+	uint32_t bits = 0;
+	uint8_t bitsavailable = 0;
+	uint8_t idx = 0;
+
+	packet_in[idx++] = RX_LQI;
+	packet_in[idx++] = RX_LQI >> 1;	// no RSSI: 125..0
+	packet_in[idx++] = 0;			// start channel
+	packet_in[idx++] = 11;			// number of channels in packet
+
+	const uint8_t aetr_idx[4] = {3, 2, 0, 1};
+
+	// convert & pack channels
+	for (uint8_t i = 0; i < packet_in[3]; i++) {
+		uint32_t val = CHANNEL_MIN_100;
+		if (i < 4) {
+			// AETR
+			uint8_t rx_val = packet[aetr_idx[i]];
+			if (i != 2 && rx_val < 128)
+				rx_val = 127 - rx_val;
+			val = CHANNEL_MIN_100 + ((rx_val << 5) / 5);
+			val += (rx_val >> 5);
+		}
+		else if (((i == 4) && (packet[14] & 0x04)) ||	// flip
+				((i == 5) && (packet[14] & 0x10)) ||	// led light
+				((i == 6) && (packet[14] & 0x01)) ||	// snapshot
+				((i == 7) && (packet[14] & 0x02)) ||	// video
+				((i == 8) && (packet[10] & 0x02)) ||	// headless
+				((i == 9) && (packet[10] & 0x08)) ||	// calibrate x
+				((i == 10) && (packet[10] & 0x20))) {	// calibrate y
+			// set channel to 100% if feature is enabled
+			val = CHANNEL_MAX_100;
+		}
+		bits |= val << bitsavailable;
+		bitsavailable += 11;
+		while (bitsavailable >= 8) {
+			packet_in[idx++] = bits & 0xff;
+			bits >>= 8;
+			bitsavailable -= 8;
+		}
+	}
 }
 
 uint16_t initV2X2_Rx()
@@ -134,7 +168,7 @@ uint16_t V2X2_Rx_callback()
 			if (millis() - pps_timer >= 1000) {
 				pps_timer = millis();
 				debugln("%d pps", pps_counter);
-				RX_LQI = pps_counter;
+				RX_LQI = pps_counter; // 0-250
 				pps_counter = 0;
 			}
 			// frequency hopping, 16x250us = 4ms

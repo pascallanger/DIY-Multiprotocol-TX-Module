@@ -29,6 +29,29 @@
 #define V2X2_PACKET_CHKTIME  100
 #define V2X2_PAYLOADSIZE 16
 
+//
+
+enum e_v2x2 {
+	V2X2_FLAG_CAMERA = 0x01, // also automatic Missile Launcher and Hoist in one direction
+	V2X2_FLAG_VIDEO = 0x02, // also Sprayer, Bubbler, Missile Launcher(1), and Hoist in the other dir.
+	V2X2_FLAG_FLIP = 0x04,
+	V2X2_FLAG_UNK9 = 0x08,
+	V2X2_FLAG_LIGHT = 0x10,
+	V2X2_FLAG_UNK10 = 0x20,
+	V2X2_FLAG_BIND = 0xC0,
+	// flags going to byte 10
+	V2X2_FLAG_HEADLESS = 0x02,
+	V2X2_FLAG_MAG_CAL_X = 0x08,
+	V2X2_FLAG_MAG_CAL_Y = 0x20,
+	V2X2_FLAG_EMERGENCY = 0x80,	// JXD-506
+	// flags going to byte 11 (JXD-506)
+	V2X2_FLAG_START_STOP = 0x40,
+	V2X2_FLAG_CAMERA_UP = 0x01,
+	V2X2_FLAG_CAMERA_DN = 0x02,
+};
+
+//
+
 enum {
 	V202_INIT2 = 0,
 	V202_INIT2_NO_BIND,//1

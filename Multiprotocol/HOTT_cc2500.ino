@@ -450,6 +450,8 @@ uint16_t ReadHOTT()
 								}
 								if(packet_in[11] && !HOTT_sensor_valid)
 									send_telem=false;
+								if(packet_in[11]==0)
+									packet_in[10]=0;
 							}
 							debug("T%d=",send_telem);
 							for(uint8_t i=10;i < HOTT_RX_PACKET_LEN; i++)

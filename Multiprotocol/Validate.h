@@ -185,10 +185,22 @@
 	#undef CC25_CSN_pin
 	#undef NRF24L01_INSTALLED	// Disable NRF for OrangeTX module
 	#undef NRF_CSN_pin
-	#undef SX1276_INSTALLED		// Disable NRF for OrangeTX module
+	#undef SX1276_INSTALLED		// Disable SX1276 for OrangeTX module
 	#define TELEMETRY			// Enable telemetry
 	#define INVERT_TELEMETRY	// Enable invert telemetry
 	#define DSM_TELEMETRY		// Enable DSM telemetry
+#endif
+
+//Change/Force RF chip configuration if MULTI_5IN1_INTERNAL
+#ifdef MULTI_5IN1_INTERNAL
+	#if not defined(STM32_BOARD)
+		#error "Error MULTI_5IN1_INTERNAL is only for STM32 boards."
+	#endif
+	#define A7105_INSTALLED
+	#define CYRF6936_INSTALLED
+	#define CC2500_INSTALLED
+	#define NRF24L01_INSTALLED
+	#define SX1276_INSTALLED
 #endif
 
 //Make sure protocols are selected correctly

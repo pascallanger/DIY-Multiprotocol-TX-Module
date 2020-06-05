@@ -69,15 +69,20 @@
 /****************/
 /*** RF CHIPS ***/
 /****************/
-//There are 4 RF components supported. If one of them is not installed you must comment it using "//".
+//There are 5 RF components supported. If one of them is not installed you must comment it using "//".
 //If a chip is not installed all associated protocols are automatically disabled.
-//4-in-1 modules have all RF chips installed
+//4-in-1 modules have the A7105, CYRF6936, CC2500 and NRF24L01 RF chips installed
+//5-in-1 modules have all RF chips installed
 //!!!If a RF chip is present it MUST be marked as installed!!! or weird things will happen you have been warned.
 #define A7105_INSTALLED
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
 #define NRF24L01_INSTALLED
 //#define SX1276_INSTALLED		// only supported on STM32 modules
+
+//Uncomment (remove //) if you have an internal 5-in-1 Multi module.
+//All components are considered to be installed and specifics to that module are automatically configured 
+//#define MULTI_5IN1_INTERNAL
 
 /** OrangeRX TX **/
 //If you compile for the OrangeRX TX module you need to select the correct board type.

@@ -1512,7 +1512,11 @@ CH1|CH2|CH3|CH4|CH5
 # SX1276 RF Module
 
 ## FRSKYR9 - *65*
-Extended limits supported
+Extended limits and failsafe supported.
+
+**R9 RXs must be flashed with ACCST Flex.**
+
+Telemetry and power adjustment not yet supported.
 
 ### Sub_protocol R9_915 - *0*
 915MHz, 16 channels
@@ -1546,4 +1550,3 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ## OpenLRS - *27*
 This is a reservation for OpenLRSng which is using Multi's serial protocol for their modules: https://openlrsng.org/. On the Multi side there is no protocol affected on 27 so it's just ignored.
-

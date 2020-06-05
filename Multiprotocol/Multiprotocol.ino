@@ -300,12 +300,12 @@ void setup()
 		PORTE.DIRCLR = 0x02 ;
 		// Timer1 config
 		// TCC1 16-bit timer, clocked at 0.5uS
-		EVSYS.CH3MUX = 0x80 + 0x04 ;	// Prescaler of 16
+		EVSYS.CH3MUX = 0x80 + 0x04 ;				// Prescaler of 16
 		TCC1.CTRLB = 0; TCC1.CTRLC = 0; TCC1.CTRLD = 0; TCC1.CTRLE = 0;
 		TCC1.INTCTRLA = 0; TIMSK1 = 0;
 		TCC1.PER = 0xFFFF ;
 		TCNT1 = 0 ;
-		TCC1.CTRLA = 0x0B ;	// Event3 (prescale of 16)
+		TCC1.CTRLA = 0x0B ;							// Event3 (prescale of 16)
 	#elif defined STM32_BOARD
 		//STM32
 		afio_cfg_debug_ports(AFIO_DEBUG_NONE);
@@ -322,7 +322,7 @@ void setup()
 		pinMode(RX_INV_pin,OUTPUT);
 		#if defined TELEMETRY
 			#if defined INVERT_SERIAL
-				TX_INV_on;	//activate inverter for both serial TX and RX signals
+				TX_INV_on;							// activate inverter for both serial TX and RX signals
 				RX_INV_on;
 			#else
 				TX_INV_off;
@@ -331,11 +331,20 @@ void setup()
 		#endif
 		pinMode(BIND_pin,INPUT_PULLUP);
 		pinMode(PPM_pin,INPUT);
-		pinMode(S1_pin,INPUT_PULLUP);//dial switch
+		pinMode(S1_pin,INPUT_PULLUP);				// dial switch
 		pinMode(S2_pin,INPUT_PULLUP);
 		pinMode(S3_pin,INPUT_PULLUP);
 		pinMode(S4_pin,INPUT_PULLUP);
 		
+		#ifdef MULTI_5IN1_INTERNAL
+			//pinMode(SX1276_RST_pin,OUTPUT);		// already done by LED2_pin
+			pinMode(SX1276_TXEN_pin,OUTPUT);		// PB0
+			pinMode(SX1276_DIO0_pin,INPUT_PULLUP);
+		#else
+			//Random pin
+			pinMode(RND_pin, INPUT_ANALOG);			// set up PB0 pin for analog input
+		#endif
+	
 		#if defined ENABLE_DIRECT_INPUTS
 			#if defined (DI1_PIN)
 				pinMode(DI1_PIN,INPUT_PULLUP);
@@ -350,12 +359,9 @@ void setup()
 				pinMode(DI4_PIN,INPUT_PULLUP);
 			#endif
 		#endif
-		
-		//Random pins
-		pinMode(PB0, INPUT_ANALOG); // set up pin for analog input
 
 		//Timers
-		init_HWTimer();			//0.5us
+		init_HWTimer();								//0.5us
 	#else
 		//ATMEGA328p
 		// all inputs
@@ -410,6 +416,10 @@ void setup()
 	#ifdef NRF_CSN_pin
 		NRF_CSN_on;
 	#endif
+	#ifdef SPI_CSN_pin
+		SPI_CSN_on;
+	#endif
+
 	//	Set SPI lines
 	#ifdef	STM32_BOARD
 		initSPI2();
@@ -473,7 +483,12 @@ void setup()
 	#ifdef STM32_BOARD
 		uint32_t seed=0;
 		for(uint8_t i=0;i<4;i++)
-			seed=(seed<<8) | (analogRead(PB0)& 0xFF);
+		#ifdef RND_pin
+			seed=(seed<<8) | (analogRead(RND_pin)& 0xFF);
+		#else
+		//TODO find something to randomize...
+			seed=(seed<<8);
+		#endif
 		randomSeed(seed);
 	#else
 		//Init the seed with a random value created from watchdog timer for all protocols requiring random values
@@ -597,8 +612,8 @@ void setup()
 			#endif
 		#endif //ENABLE_SERIAL
 	}
-	LED2_on;
 	debugln("Init complete");
+	LED2_on;
 }
 
 // Main

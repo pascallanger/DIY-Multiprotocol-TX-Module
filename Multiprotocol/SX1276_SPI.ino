@@ -33,18 +33,32 @@ void SX1276_WriteRegisterMulti(uint8_t address, const uint8_t* data, uint8_t len
 
 uint8_t SX1276_Reset()
 {
-	//TODO
-
+	//TODO when pin is not wired
+	#ifdef SX1276_RST_pin
+		SX1276_RST_off;
+		delayMicroseconds(200);
+		SX1276_RST_on;
+	#endif
     return 0;
+}
+
+void SX1276_SetTxRxMode(uint8_t mode)
+{
+	#ifdef SX1276_TXEN_pin
+		if(mode == TX_EN)
+			SX1276_TXEN_on;
+		else
+			SX1276_RXEN_on;
+	#endif
 }
 
 void SX1276_SetFrequency(uint32_t frequency)
 {
 	uint32_t f = frequency / 61;
 	uint8_t data[3];
-	data[0] = (f & (0xFF << 16)) >> 16;
-	data[1] = (f & (0xFF << 8)) >> 8;
-	data[2] = f & 0xFF;
+	data[0] = f >> 16;
+	data[1] = f >> 8;
+	data[2] = f;
 	
 	SX1276_WriteRegisterMulti(SX1276_06_FRFMSB, data, 3);
 }

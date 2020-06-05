@@ -223,6 +223,8 @@
 	#define	S3_pin			PA6
 	#define	S4_pin			PA7
 	//
+	#define	RND_pin			PB0
+	//
 	#define	PE1_pin			PB4								//PE1
 	#define	PE2_pin			PB5								//PE2
 	//CS pins
@@ -313,6 +315,20 @@
 		#define DEBUG_PIN_toggle
 	#endif
 
+	#ifdef MULTI_5IN1_INTERNAL
+		#undef	RND_pin
+		#define	SX1276_RST_pin	PA2		//LED2 on other modules
+		#define	SX1276_TXEN_pin	PB0		//Random gen on other modules
+		#define	SX1276_DIO0_pin	PC13	//Unused on other modules
+		
+		#define	SX1276_RST_on	digitalWrite(SX1276_RST_pin,HIGH)
+		#define	SX1276_RST_off	digitalWrite(SX1276_RST_pin,LOW)
+		#define	SX1276_TXEN_on	digitalWrite(SX1276_TXEN_pin,HIGH)
+		#define	SX1276_RXEN_on	digitalWrite(SX1276_TXEN_pin,LOW)
+		#define	IS_DIO0_on		( digitalRead(SX1276_DIO0_pin)==HIGH )
+		#define	IS_DIO0_off		( digitalRead(SX1276_DIO0_pin)==LOW )
+	#endif
+	
 	#define	cli() 			noInterrupts()
 	#define	sei() 			interrupts()
 	#define	delayMilliseconds(x) delay(x)

@@ -414,7 +414,7 @@ static uint16_t XN297Dump_callback()
 							packet_count=0;
 							bind_counter=0;
 							debugln("Time between CH:%d and CH:%d",hopping_frequency[0],hopping_frequency[hopping_frequency_no]);
-							time_rf[hopping_frequency_no]=-1;
+							time_rf[hopping_frequency_no]=0xFFFFFFFF;
 							NRF24L01_WriteReg(NRF24L01_05_RF_CH,hopping_frequency[0]);
 							uint16_t timeL=TCNT1;
 							if(TIMER2_BASE->SR & TIMER_SR_UIF)
@@ -504,7 +504,7 @@ static uint16_t XN297Dump_callback()
 							do
 							{
 								time=time_rf[i];
-								if(time!=-1)
+								if(time!=0xFFFFFFFF)
 								{
 									next=i;
 									for(uint8_t j=2;j<rf_ch_num;j++)

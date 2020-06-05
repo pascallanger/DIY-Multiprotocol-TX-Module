@@ -59,25 +59,6 @@ enum {
 	V202_DATA//4
 };
 
-// This is frequency hopping table for V202 protocol
-// The table is the first 4 rows of 32 frequency hopping
-// patterns, all other rows are derived from the first 4.
-// For some reason the protocol avoids channels, dividing
-// by 16 and replaces them by subtracting 3 from the channel
-// number in this case.
-// The pattern is defined by 5 least significant bits of
-// sum of 3 bytes comprising TX id
-const uint8_t PROGMEM freq_hopping[][16] = {
-	{ 0x27, 0x1B, 0x39, 0x28, 0x24, 0x22, 0x2E, 0x36,
-		0x19, 0x21, 0x29, 0x14, 0x1E, 0x12, 0x2D, 0x18 }, //  00
-	{ 0x2E, 0x33, 0x25, 0x38, 0x19, 0x12, 0x18, 0x16,
-		0x2A, 0x1C, 0x1F, 0x37, 0x2F, 0x23, 0x34, 0x10 }, //  01
-	{ 0x11, 0x1A, 0x35, 0x24, 0x28, 0x18, 0x25, 0x2A,
-		0x32, 0x2C, 0x14, 0x27, 0x36, 0x34, 0x1C, 0x17 }, //  02
-	{ 0x22, 0x27, 0x17, 0x39, 0x34, 0x28, 0x2B, 0x1D,
-		0x18, 0x2A, 0x21, 0x38, 0x10, 0x26, 0x20, 0x1F }  //  03
-};
-
 static void __attribute__((unused)) v202_init()
 {
 	NRF24L01_Initialize();
@@ -120,21 +101,6 @@ static void __attribute__((unused)) V202_init2()
 	// Turn radio power on
     NRF24L01_SetTxRxMode(TX_EN);
 	//Done by TX_EN??? => NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-}
-
-static void __attribute__((unused)) V2X2_set_tx_id(void)
-{
-	uint8_t sum;
-	sum = rx_tx_addr[1] + rx_tx_addr[2] + rx_tx_addr[3];
-	// Higher 3 bits define increment to corresponding row
-	uint8_t increment = (sum & 0x1e) >> 2;
-	// Base row is defined by lowest 2 bits
-	sum &=0x03;
-	for (uint8_t i = 0; i < 16; ++i) {
-		uint8_t val = pgm_read_byte_near(&freq_hopping[sum][i]) + increment;
-		// Strange avoidance of channels divisible by 16
-		hopping_frequency[i] = (val & 0x0f) ? val : val - 3;
-	}
 }
 
 static void __attribute__((unused)) V2X2_add_pkt_checksum()

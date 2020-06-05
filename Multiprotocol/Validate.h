@@ -263,6 +263,7 @@
 	#undef	SYMAX_NRF24L01_INO
 	#undef	TIGER_NRF24L01_INO
 	#undef	V2X2_NRF24L01_INO
+	#undef	V2X2_RX_NRF24L01_INO
 	#undef	V761_NRF24L01_INO
 	#undef	V911S_NRF24L01_INO
 	#undef	XK_NRF24L01_INO
@@ -311,6 +312,8 @@
 	#undef BAYANG_RX_NRF24L01_INO
 	#undef DEVO_HUB_TELEMETRY
 	#undef DSM_RX_CYRF6936_INO
+	#undef V2X2_RX_TELEMETRY
+	#undef V2X2_RX_NRF24L01_INO
 #else
 	#if defined(MULTI_TELEMETRY) && defined(MULTI_STATUS)
 		#error You should choose either MULTI_TELEMETRY or MULTI_STATUS but not both.
@@ -330,6 +333,10 @@
 	#if not defined(BAYANG_RX_NRF24L01_INO) || not defined(BAYANG_RX_TELEMETRY)
 		#undef BAYANG_RX_TELEMETRY
 		#undef BAYANG_RX_NRF24L01_INO
+	#endif
+	#if not defined(V2X2_RX_NRF24L01_INO) || not defined(V2X2_RX_TELEMETRY)
+		#undef V2X2_RX_TELEMETRY
+		#undef V2X2_RX_NRF24L01_INO
 	#endif
 	#if not defined(BAYANG_NRF24L01_INO)
 		#undef BAYANG_HUB_TELEMETRY
@@ -373,7 +380,7 @@
 	#if not defined(HOTT_CC2500_INO)
 		#undef HOTT_FW_TELEMETRY
 	#endif
-	#if not defined(HOTT_FW_TELEMETRY) && not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKY_RX_TELEMETRY) && not defined(AFHDS2A_RX_TELEMETRY) && not defined(BAYANG_RX_TELEMETRY) && not defined(DEVO_HUB_TELEMETRY)
+	#if not defined(HOTT_FW_TELEMETRY) && not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKY_RX_TELEMETRY) && not defined(AFHDS2A_RX_TELEMETRY) && not defined(BAYANG_RX_TELEMETRY) && not defined(DEVO_HUB_TELEMETRY) && not defined(V2X2_RX_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 		#undef MULTI_TELEMETRY

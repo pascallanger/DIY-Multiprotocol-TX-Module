@@ -227,6 +227,7 @@
 #define	SYMAX_NRF24L01_INO
 #define	TIGER_NRF24L01_INO
 #define	V2X2_NRF24L01_INO
+#define V2X2_RX_NRF24L01_INO
 #define	V761_NRF24L01_INO
 #define	V911S_NRF24L01_INO
 #define	XK_NRF24L01_INO
@@ -313,6 +314,7 @@
 #define AFHDS2A_RX_TELEMETRY		// Forward channels data to TX
 #define HOTT_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
 #define BAYANG_RX_TELEMETRY			// Forward channels data to TX
+#define V2X2_RX_TELEMETRY			// Forward channels data to TX
 
 /****************************/
 /*** SERIAL MODE SETTINGS ***/
@@ -707,6 +709,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_V2X2
 		V2X2
 		JXD506
+	PROTO_V2X2_RX
+		NONE
 	PROTO_V761
 		NONE
 	PROTO_V911S

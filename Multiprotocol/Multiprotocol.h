@@ -99,6 +99,7 @@ enum PROTOCOLS
 	PROTO_DSM_RX	= 70,	// =>CYRF6936
 	PROTO_JJRC345	= 71,	// =>NRF24L01
 	PROTO_Q90C		= 72,	// =>NRF24L01 or CC2500
+	PROTO_V2X2_RX	= 73,	// =>NRF24L01
 
 	PROTO_TEST		= 127,	// =>CC2500
 };
@@ -693,7 +694,8 @@ enum {
 #define FRSKYX_CLONE_EEPROM_OFFSET	822	// (1) format + (3) TX ID + (47) channels, 51 bytes, end is 873
 #define FRSKYX2_CLONE_EEPROM_OFFSET	873	// (1) format + (3) TX ID, 4 bytes, end is 877
 #define DSM_RX_EEPROM_OFFSET	877		// (4) TX ID + format, 5 bytes, end is 882
-//#define CONFIG_EEPROM_OFFSET 	882		// Current configuration of the multimodule
+#define V2X2_RX_EEPROM_OFFSET	882		// (3) TX ID, 3 bytes, end is 885
+//#define CONFIG_EEPROM_OFFSET 	885		// Current configuration of the multimodule
 
 //****************************************
 //*** MULTI protocol serial definition ***
@@ -784,6 +786,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				DSM_RX		70
 				JJRC345		71
 				Q90C		72
+				V2X2_RX		73
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

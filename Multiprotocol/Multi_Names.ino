@@ -20,6 +20,7 @@ const char STR_HUBSAN[]		="Hubsan";
 const char STR_FRSKYD[]		="FrSky D";
 const char STR_HISKY[]		="Hisky";
 const char STR_V2X2[]		="V2x2";
+const char STR_V2X2_RX[]	="V2x2 RX";
 const char STR_DSM[]		="DSM";
 const char STR_DSM_RX[]		="DSM_RX";
 const char STR_DEVO[]		="Devo";
@@ -343,6 +344,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(V2X2_NRF24L01_INO)
 		{PROTO_V2X2,       STR_V2X2,      2, STR_SUBTYPE_V2X2,      OPTION_NONE    },
+	#endif
+	#if defined(V2X2_RX_NRF24L01_INO)
+		{PROTO_V2X2_RX,    STR_V2X2_RX,   0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(V761_NRF24L01_INO)
 		{PROTO_V761,       STR_V761,      0, NO_SUBTYPE,            OPTION_NONE    },

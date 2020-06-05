@@ -98,9 +98,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	packet[5] = FrSkyX_chanskip>>2;
 	packet[6] = RX_num;
 
-	packet[8] = 0;						//??
-
-	FrSkyX_channels(9);					// Set packet[7] and packet[9..20] with channels data and failsafe
+	FrSkyX_channels(7);					// Set packet[7]=failsafe, packet[8]=0?? and packet[9..20]=channels data
 	
 	//sequence and send SPort
 	for (uint8_t i=22;i<packet_size-1;i++)

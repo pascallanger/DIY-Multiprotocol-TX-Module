@@ -69,14 +69,18 @@ static void __attribute__((unused)) FrSkyX_channels(uint8_t offset)
 			FAILSAFE_VALUES_off;
 		}
 		failsafe_count++;
-		packet[7] = FS_flag;
+		if(protocol==PROTO_FRSKY_R9)
+			failsafe_count++;					// R9 is 20ms, X is 9ms
+		packet[offset] = FS_flag;
 	#else
-		packet[7] = 0;
+		packet[offset] = 0;
 	#endif
+	//
+	packet[offset+1] = 0;						//??
 	//
 	uint8_t chan_index = chan_start;
 	uint16_t ch1,ch2;
-	for(uint8_t i = offset; i < 12+offset ; i+=3)
+	for(uint8_t i = offset+2; i < 12+offset+2 ; i+=3)
 	{//12 bytes of channel data
 		#ifdef FAILSAFE_ENABLE
 			if( (FS_flag & 0x10) && ((failsafe_chan & 0x07) == (chan_index & 0x07)) )

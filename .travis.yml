@@ -9,6 +9,7 @@ env:
     - BOARD="multi4in1:avr:multiatmega328p:bootloader=none"
     - BOARD="multi4in1:avr:multiatmega328p:bootloader=optiboot"
     - BOARD="multi4in1:avr:multixmega32d4"
+    - BOARD="multi4in1:STM32F1:multi5in1t18int"
     - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=none"
     - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=native"
     - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=ftdi"
@@ -238,6 +239,26 @@ before_install:
         exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin;
         return $exitcode; };
+    elif [[ "$BOARD" == "multi4in1:STM32F1:multi5in1t18int" ]]; then
+      buildReleaseFiles(){
+        printf "\n\e[33;1mBuilding multi-t18int-opentx-aetr-v$MULTI_VERSION.bin\e[0m";
+        exitcode=0;
+        buildMulti;
+        exitcode=$((exitcode+$?));
+        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-aetr-v$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-t18int-opentx-taer-v$MULTI_VERSION.bin\e[0m";
+        opt_replace AETR TAER;
+        exitcode=0;
+        buildMulti;
+        exitcode=$((exitcode+$?));
+        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-taer-v$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-t18int-opentx-reta-v$MULTI_VERSION.bin\e[0m";
+        opt_replace TAER RETA;
+        exitcode=0;
+        buildMulti;
+        exitcode=$((exitcode+$?));
+        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-reta-v$MULTI_VERSION.bin;
+        return $exitcode; };
     else
       buildReleaseFiles() { echo "No release files for this board."; };
     fi
@@ -287,15 +308,24 @@ before_script:
   - CC2500_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]_]*_CC2500_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
   - CYRF6936_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]_]*_CYRF6936_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
   - NRF24L01_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]_]*_NRF24L01_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
+  - SX1276_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]_]*_SX1276_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
+
+  # Get the full set of protocols for each board
   - if [[ "$BOARD" =~ "multi4in1:avr:multixmega32d4" ]]; then
       ALL_PROTOCOLS=$(echo $CYRF6936_PROTOCOLS);
-    else
+    elif [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:" ]]; then
       ALL_PROTOCOLS=$(echo $A7105_PROTOCOLS $CC2500_PROTOCOLS $CYRF6936_PROTOCOLS $NRF24L01_PROTOCOLS);
+    elif [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+      ALL_PROTOCOLS=$(echo $A7105_PROTOCOLS $CC2500_PROTOCOLS $CYRF6936_PROTOCOLS $NRF24L01_PROTOCOLS $SX1276_PROTOCOLS);
     fi
   - echo $ALL_PROTOCOLS
 
   # Declare all the installed modules
-  - ALL_RFMODULES=$(echo A7105_INSTALLED CYRF6936_INSTALLED CC2500_INSTALLED NRF24L01_INSTALLED);
+  - if [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+      ALL_RFMODULES=$(echo A7105_INSTALLED CYRF6936_INSTALLED CC2500_INSTALLED NRF24L01_INSTALLED SX1276_INSTALLED);
+    else
+      ALL_RFMODULES=$(echo A7105_INSTALLED CYRF6936_INSTALLED CC2500_INSTALLED NRF24L01_INSTALLED);
+    fi
 
   # Disable CHECK_FOR_BOOTLOADER when not needed
   - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
@@ -344,6 +374,9 @@ script:
 
   # Build each protocol individually
   - buildEachProtocol
+
+  # Restore the default configuration
+  - cp ./_Config.h.bak Multiprotocol/_Config.h
 
   # Restore the default configuration
   - cp ./_Config.h.bak Multiprotocol/_Config.h

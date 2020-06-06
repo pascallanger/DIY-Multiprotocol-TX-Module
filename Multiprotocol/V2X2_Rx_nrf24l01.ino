@@ -70,9 +70,8 @@ static void __attribute__((unused)) V2X2_Rx_build_telemetry_packet()
 	packet_in[idx++] = 0;			// start channel
 	packet_in[idx++] = 11;			// number of channels in packet
 
-	const uint8_t aetr_idx[4] = {3, 2, 0, 1};
-
 	// convert & pack channels
+	const uint8_t aetr_idx[4] = { 3, 2, 0, 1 };
 	for (uint8_t i = 0; i < packet_in[3]; i++) {
 		uint32_t val = CHANNEL_MIN_100;
 		if (i < 4) {
@@ -80,7 +79,7 @@ static void __attribute__((unused)) V2X2_Rx_build_telemetry_packet()
 			uint8_t rx_val = packet[aetr_idx[i]];
 			if (i != 2 && rx_val < 128)
 				rx_val = 127 - rx_val;
-			val = CHANNEL_MIN_100 + ((rx_val << 5) / 5);
+			val += (rx_val << 5) / 5;
 			val += (rx_val >> 5);
 		}
 		else if (((i == 4) && (packet[14] & 0x04)) ||	// flip

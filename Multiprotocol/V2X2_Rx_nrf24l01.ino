@@ -26,18 +26,28 @@ enum {
 static void __attribute__((unused)) V2X2_Rx_init_nrf24l01()
 {
 	NRF24L01_Initialize();
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);		// 5-byte RX/TX address
-	NRF24L01_WriteRegisterMulti(NRF24L01_0B_RX_ADDR_P1, (uint8_t*)"\x66\x88\x68\x68\x68", 5);
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     	// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// disable Auto Acknowldgement
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x02);  	// Enable rx data pipe 1
+	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);	// 5-byte RX/TX address
+	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x66\x88\x68\x68\x68", 5);
+	NRF24L01_WriteRegisterMulti(NRF24L01_0B_RX_ADDR_P1, (uint8_t*)"\x88\x66\x86\x86\x86", 5);
+	NRF24L01_WriteReg(NRF24L01_0C_RX_ADDR_P2, 0xC3); // LSB byte of pipe 2 receive address
+	NRF24L01_WriteReg(NRF24L01_0D_RX_ADDR_P3, 0xC4);
+	NRF24L01_WriteReg(NRF24L01_0E_RX_ADDR_P4, 0xC5);
+	NRF24L01_WriteReg(NRF24L01_0F_RX_ADDR_P5, 0xC6);
+	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, V2X2_RX_PACKET_SIZE);   // bytes of data payload for pipe 1
 	NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, V2X2_RX_PACKET_SIZE);
+	NRF24L01_WriteReg(NRF24L01_13_RX_PW_P2, V2X2_RX_PACKET_SIZE);
+	NRF24L01_WriteReg(NRF24L01_14_RX_PW_P3, V2X2_RX_PACKET_SIZE);
+	NRF24L01_WriteReg(NRF24L01_15_RX_PW_P4, V2X2_RX_PACKET_SIZE);
+	NRF24L01_WriteReg(NRF24L01_16_RX_PW_P5, V2X2_RX_PACKET_SIZE);
+	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// disable Auto Acknowldgement
+	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x3F);  	// Enable all data pipes
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, V2X2_RX_RF_BIND_CHANNEL);
 	NRF24L01_SetBitrate(NRF24L01_BR_1M);             	// 1Mbps
 	NRF24L01_WriteReg(NRF24L01_17_FIFO_STATUS, 0x00);
 	NRF24L01_SetTxRxMode(RX_EN);						// enable LNA
 	// switch to RX mode, 16 bit CRC
+	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     	// Clear data ready, data sent, and retransmit
+	NRF24L01_FlushRx();
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
 }
 

@@ -243,23 +243,24 @@ before_install:
         return $exitcode; };
     elif [[ "$BOARD" == "multi4in1:STM32F1:multi5in1t18int" ]]; then
       buildReleaseFiles(){
-        printf "\n\e[33;1mBuilding multi-t18int-opentx-aetr-v$MULTI_VERSION.bin\e[0m";
+        printf "\n\e[33;1mBuilding multi-t18int-opentx-aetr-noinv-v$MULTI_VERSION.bin\e[0m";
+        opt_disable INVERT_TELEMETRY;
         exitcode=0;
         buildMulti;
         exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-aetr-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-t18int-opentx-taer-v$MULTI_VERSION.bin\e[0m";
+        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-aetr-noinv-v$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-t18int-opentx-taer-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace AETR TAER;
         exitcode=0;
         buildMulti;
         exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-taer-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-t18int-opentx-reta-v$MULTI_VERSION.bin\e[0m";
+        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-taer-noinv-v$MULTI_VERSION.bin;
+        printf "\n\e[33;1mBuilding multi-t18int-opentx-reta-noinv-v$MULTI_VERSION.bin\e[0m";
         opt_replace TAER RETA;
         exitcode=0;
         buildMulti;
         exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-reta-v$MULTI_VERSION.bin;
+        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-reta-noinv-v$MULTI_VERSION.bin;
         return $exitcode; };
     else
       buildReleaseFiles() { echo "No release files for this board."; };

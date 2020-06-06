@@ -73,6 +73,7 @@ before_install:
         printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CC2500-inv-v$MULTI_VERSION.bin\e[0m";
         opt_disable $ALL_PROTOCOLS;
         opt_enable $CC2500_PROTOCOLS;
+        opt_disable HITEC_CC2500_INO REDPINE_CC2500_INO SKYARTEC_CC2500_INO SCANNER_CC2500_INO;
         buildMulti;
         mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CC2500-inv-v$MULTI_VERSION.bin;
         printf "\n\e[33;1mBuilding multi-avr-usbasp-aetr-CYRF6936-inv-v$MULTI_VERSION.bin\e[0m";
@@ -95,6 +96,7 @@ before_install:
         printf "\n\e[33;1mBuilding multi-avr-txflash-aetr-CC2500-inv-v$MULTI_VERSION.bin\e[0m";
         opt_disable $ALL_PROTOCOLS;
         opt_enable $CC2500_PROTOCOLS;
+        opt_disable HITEC_CC2500_INO REDPINE_CC2500_INO SKYARTEC_CC2500_INO SCANNER_CC2500_INO;
         buildMulti;
         exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CC2500-inv-v$MULTI_VERSION.bin;

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	13
+#define VERSION_PATCH_LEVEL	14
 
 //******************
 // Protocols
@@ -1070,6 +1070,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			OPTION_SRVFREQ	6
 			OPTION_MAXTHR	7
 			OPTION_RFCHAN	8
+			OPTION_RFPOWER	9
    [19&0x0F] Number of sub protocols
    [20..27] Sub protocol name [8], not null terminated if sub prototcol len == 8
    If the current protocol is invalid [12..27] are all 0x00.

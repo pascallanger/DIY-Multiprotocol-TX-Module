@@ -310,6 +310,7 @@
 #define DEVO_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define HUBSAN_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define NCC1701_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define PROPEL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, erskyTX and OpenTX
 #define HITEC_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX

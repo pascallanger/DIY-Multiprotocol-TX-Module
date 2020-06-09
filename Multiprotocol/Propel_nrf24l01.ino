@@ -252,28 +252,30 @@ uint16_t PROPEL_callback()
 			break;
 
 		case PROPEL_DATA1:
-			if (_BV(NRF24L01_07_RX_DR) & NRF24L01_ReadReg(NRF24L01_07_STATUS))
-			{// data received from the model
-				NRF24L01_ReadPayload(packet_in, PROPEL_PACKET_SIZE);
-				if (packet_in[0] == 0xa3 && memcmp(&packet_in[1],rx_id,3)==0)
-				{
-					telemetry_counter++;	//LQI
-					v_lipo1=packet[5];		//number of life left?
-					v_lipo2=packet[4];		//bit mask: 0x80=flying, 0x08=taking off, 0x04=landing, 0x00=landed/crashed
-					if(telemetry_lost==0)
-						telemetry_link=1;
+			#ifdef PROPEL_HUB_TELEMETRY
+				if (_BV(NRF24L01_07_RX_DR) & NRF24L01_ReadReg(NRF24L01_07_STATUS))
+				{// data received from the model
+					NRF24L01_ReadPayload(packet_in, PROPEL_PACKET_SIZE);
+					if (packet_in[0] == 0xa3 && memcmp(&packet_in[1],rx_id,3)==0)
+					{
+						telemetry_counter++;	//LQI
+						v_lipo1=packet[5];		//number of life left?
+						v_lipo2=packet[4];		//bit mask: 0x80=flying, 0x08=taking off, 0x04=landing, 0x00=landed/crashed
+						if(telemetry_lost==0)
+							telemetry_link=1;
+					}
 				}
-			}
+				packet_count++;
+				if(packet_count>=100)
+				{//LQI calculation
+					packet_count=0;
+					TX_LQI=telemetry_counter;
+					RX_RSSI=telemetry_counter;
+					telemetry_counter = 0;
+					telemetry_lost=0;
+				}
+			#endif
 			PROPEL_data_packet();
-			packet_count++;
-			if(packet_count>=100)
-			{//LQI calculation
-				packet_count=0;
-				TX_LQI=telemetry_counter;
-				RX_RSSI=telemetry_counter;
-				telemetry_counter = 0;
-				telemetry_lost=0;
-			}
 			break;
 	}
 	return PROPEL_PACKET_PERIOD;

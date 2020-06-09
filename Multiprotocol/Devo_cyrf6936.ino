@@ -162,6 +162,7 @@ static void __attribute__((unused)) DEVO_build_data_pkt()
 	DEVO_add_pkt_suffix();
 }
 
+#if defined DEVO_HUB_TELEMETRY
 static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 {
 	DEVO_scramble_pkt(); //This will unscramble the packet
@@ -186,6 +187,7 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 		v_lipo2 = packet[3] << 1;
 	}
 }
+#endif
 
 static void __attribute__((unused)) DEVO_cyrf_set_bound_sop_code()
 {
@@ -296,7 +298,7 @@ uint16_t devo_callback()
 {
 	static uint8_t txState=0;
 	
-#if defined DEVO_HUB_TELEMETRY  
+#if defined DEVO_HUB_TELEMETRY
 	int delay;
 	
 	if (txState == 0)

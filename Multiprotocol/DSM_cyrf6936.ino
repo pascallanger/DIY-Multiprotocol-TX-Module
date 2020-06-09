@@ -47,7 +47,7 @@ const uint8_t PROGMEM DSM_ch_map_progmem[][14] = {
 	{1, 0, 2, 3, 0xff, 0xff, 0xff, 1,    0,    2,    3, 0xff, 0xff,    0xff}, //4ch  - Guess
 	{1, 0, 2, 3, 4,    0xff, 0xff, 1,    0,    2,    3,    4, 0xff,    0xff}, //5ch  - Guess
 	{1, 5, 2, 3, 0,    4,    0xff, 1,    5,    2,    3,    0,    4,    0xff}, //6ch  - HP6DSM
-	{1, 5, 2, 4, 3,    6,    0,    1,    5,    2,    4,    3,    6,    0   }, //7ch  - DX6i
+	{1, 5, 2, 4, 3,    6,    0,    1,    5,    2,    4,    3,    6,    0xff}, //7ch  - DX6i		-> removed channel 0 on second packet to prevent some RXs to switch to 11ms
 //22ms for 8..12 channels
 	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    0xff, 0xff, 0xff, 0xff}, //8ch  - DX8/DX7
 	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    8,    0xff, 0xff, 0xff}, //9ch  - Guess
@@ -250,6 +250,9 @@ uint16_t ReadDsm()
 					if(DSM_Check_RX_packet())
 					{
 						packet_in[0]=0x80;
+						packet[6]&=0x0F;						// It looks like there is a flag 0x40 being added by some receivers
+						if(packet[6]>12) packet[6]=12;
+						else if(packet[6]<4) packet[6]=6;
 						telemetry_link=1;						// Send received data on serial
 						phase++;
 						return 2000;

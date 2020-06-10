@@ -250,9 +250,9 @@ uint16_t ReadDsm()
 					if(DSM_Check_RX_packet())
 					{
 						packet_in[0]=0x80;
-						packet[6]&=0x0F;						// It looks like there is a flag 0x40 being added by some receivers
-						if(packet[6]>12) packet[6]=12;
-						else if(packet[6]<4) packet[6]=6;
+						packet_in[6]&=0x0F;						// It looks like there is a flag 0x40 being added by some receivers
+						if(packet_in[6]>12) packet_in[6]=12;
+						else if(packet_in[6]<4) packet_in[6]=6;
 						telemetry_link=1;						// Send received data on serial
 						phase++;
 						return 2000;

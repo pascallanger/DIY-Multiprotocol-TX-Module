@@ -94,7 +94,7 @@ const char STR_SUBTYPE_FRSKYD[] =     "\x06""D8\0   ""Cloned";
 const char STR_SUBTYPE_FRSKYX[] =     "\x07""D16\0   ""D16 8ch""LBT(EU)""LBT 8ch""Cloned\0";
 const char STR_SUBTYPE_HISKY[] =      "\x05""Std\0 ""HK310";
 const char STR_SUBTYPE_V2X2[] =       "\x06""Std\0  ""JXD506";
-const char STR_SUBTYPE_DSM[] =        "\x06""2 22ms""2 11ms""X 22ms""X 11ms";
+const char STR_SUBTYPE_DSM[] =        "\x04""2 1F""2 2F""X 1F""X 2F""Auto";
 const char STR_SUBTYPE_DEVO[] =       "\x04""8ch\0""10ch""12ch""6ch\0""7ch\0";
 const char STR_SUBTYPE_YD717[] =      "\x07""Std\0   ""SkyWlkr""Syma X4""XINXUN\0""NIHUI\0 ";
 const char STR_SUBTYPE_KN[] =         "\x06""WLtoys""FeiLun";
@@ -193,7 +193,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_DM002,      STR_DM002,     0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(DSM_CYRF6936_INO)
-		{PROTO_DSM,        STR_DSM,       4, STR_SUBTYPE_DSM,       OPTION_MAXTHR  },
+		{PROTO_DSM,        STR_DSM,       5, STR_SUBTYPE_DSM,       OPTION_MAXTHR  },
 	#endif
 	#if defined(DSM_RX_CYRF6936_INO)
 		{PROTO_DSM_RX,     STR_DSM_RX,    0, NO_SUBTYPE,            OPTION_NONE    },

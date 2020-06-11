@@ -238,11 +238,11 @@ uint16_t DSM_Rx_callback()
 						if(num_ch>12) num_ch=12;
 						//check DSM_rx_type
 						/*packet[12]     1 byte -> max DSM type allowed:
-							0x01 => 22ms 1024 DSM2 1 packet => number of channels is <8 and no telemetry
-							0x02 => 22ms 1024 DSM2 2 packets => either a number of channel >7 or telemetry enable RX
-							0x12 => 11ms 2048 DSM2 2 packets => can be any number of channels with/without telemetry
-							0xA2 => 22ms 2048 DSMX 1 packet => number of channels is <8 and no telemetry
-							0xB2 => 11ms 2048 DSMX => can be any number of channels with/without telemetry
+							0x01 => 22ms 1024 DSM2 1 packet => number of channels is <8
+							0x02 => 22ms 1024 DSM2 2 packets => either a number of channel >7
+							0x12 => 11ms 2048 DSM2 2 packets => can be any number of channels
+							0xA2 => 22ms 2048 DSMX 1 packet => number of channels is <8
+							0xB2 => 11ms 2048 DSMX => can be any number of channels
 							(0x01 or 0xA2) and num_ch < 7 => 22ms else 11ms
 							&0x80 => false=DSM2, true=DSMX
 							&0xF0 => false=1024, true=2048 */

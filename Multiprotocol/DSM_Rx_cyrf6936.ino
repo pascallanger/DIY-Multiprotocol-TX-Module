@@ -18,6 +18,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #include "iface_cyrf6936.h"
 
 //#define DSM_DEBUG_RF
+//#define DSM_DEBUG_CH
 
 uint8_t DSM_rx_type;
 
@@ -85,6 +86,11 @@ static uint8_t __attribute__((unused)) DSM_Rx_check_packet()
 				packet[0] ^= 0xff;
 				packet[1] ^= 0xff;
 			}
+			#ifdef DSM_DEBUG_CH
+				for(uint8_t i=0;i<len;i++)
+					debug("%02X ",packet[i]);
+				debugln("");
+			#endif
 			if(packet[0] == cyrfmfg_id[2] && packet[1] == cyrfmfg_id[3])
 				return 0x02;										// Packet ok
 		}
@@ -111,7 +117,10 @@ static void __attribute__((unused)) DSM_Rx_build_telemetry_packet()
 		uint16_t value=(packet[i*2+2]<<8) | packet[i*2+3];
 		if(value!=0xFFFF)
 		{
-			idx=(value&0x7FFF)>>nbr_bits;							// retrieve channel index 0..12
+			idx=(value&0x7FFF)>>nbr_bits;							// retrieve channel index
+			#ifdef DSM_DEBUG_CH
+				debugln("i=%d,v=%d,u=%X",idx,value&0x7FF,value&0x8000);
+			#endif
 			if(idx<13)
 			{
 				if(nbr_bits==10) value <<= 1;						// switch to 11 bits

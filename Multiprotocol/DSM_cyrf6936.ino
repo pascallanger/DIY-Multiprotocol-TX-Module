@@ -54,12 +54,12 @@ const uint8_t PROGMEM DSM_ch_map_progmem[][14] = {
 	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    8,    0xff, 0xff, 0xff}, //9ch  - Guess
 	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    8,    9,    0xff, 0xff}, //10ch - Guess
 	{1, 5, 2, 3, 6,    10,   0xff, 4,    0,    7,    8,    9,    0xff, 0xff}, //11ch - Guess
-	{1, 5, 2, 4, 6,    10,   0xff, 0,    7,    3,    8,    9   , 11  , 0xff}, //12ch - DX18
+	{1, 5, 2, 4, 6,    10,   0xff, 0,    7,    3,    8,    9   , 11  , 0xff}, //12ch - DX18/DX8G2
 //11ms for 8..11 channels
 	{1, 5, 2, 3, 6,    7,    0xff, 1,    5,    2,    4,    0,    0xff, 0xff}, //8ch  - DX7
 	{1, 5, 2, 3, 6,    7,    0xff, 1,    5,    2,    4,    0,    8,    0xff}, //9ch  - Guess
-	{1, 5, 2, 3, 4,    8,    9,    1,    5,    2,    3,     0,   7,    6   }, //10ch - DX18
-	{1, 5, 2, 3, 4,    8,    9,    1,   10,    2,    3,     0,   7,    6   }, //11ch - Guess
+	{1, 5, 2, 3, 4,    8,    9,    1,    5,    2,    3,    0,    7,    6   }, //10ch - DX18
+	{1, 5, 2, 3, 4,    8,    9,    1,   10,    2,    3,    0,    7,    6   }, //11ch - Guess
 };
 
 static void __attribute__((unused)) DSM_build_bind_packet()
@@ -179,7 +179,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 					if(option & 0x80)
 						value=Channel_data[CH_TAER[idx]];								// -100%..+100% => 1024..1976us and -125%..+125% => 904..2096us based on Redcon 6 channel DSM2 RX
 					else
-						value=convert_channel_16b_nolimit(CH_TAER[idx],0x150,0x6B0);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000us based on Redcon 6 channel DSM2 RX
+						value=convert_channel_16b_nolimit(CH_TAER[idx],0x156,0x6AA);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000us based on a DX8 G2 dump
 				#endif
 			if(bits==10) value>>=1;
 			value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);
@@ -191,7 +191,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 
 static uint8_t __attribute__((unused)) DSM_Check_RX_packet()
 {
-	uint8_t result=1;						// assume good packet
+	uint8_t result=1;							// assume good packet
 	
 	uint16_t sum = 384 - 0x10;
 	for(uint8_t i = 1; i < 9; i++)
@@ -199,7 +199,7 @@ static uint8_t __attribute__((unused)) DSM_Check_RX_packet()
 		sum += packet_in[i];
 		if(i<5)
 			if(packet_in[i] != (0xff ^ cyrfmfg_id[i-1]))
-				result=0; 					// bad packet
+				result=0; 						// bad packet
 	}
 	if( packet_in[9] != (sum>>8)  && packet_in[10] != (uint8_t)sum )
 		result=0;

@@ -43,7 +43,11 @@ static void __attribute__((unused)) Q90C_send_packet()
 	{
 		memcpy(packet, rx_tx_addr, 4);
 		memcpy(&packet[4], hopping_frequency, 3);
-		packet[10] = rx_tx_addr[4];
+		packet[7] = 0x1e;	// 2e on Saimat 1???
+		packet[8] = 0x00;
+		packet[9] = 0x00;
+		packet[10] = 0x4B;
+		packet[11] = 0x4E;
 	}
 	else
 	{
@@ -74,25 +78,23 @@ static void __attribute__((unused)) Q90C_send_packet()
 		packet[4] = 0x1e;									// T trim 00-1e-3c
 		packet[5] = 0x1e;									// R trim 3c-1e-00
 		packet[6] = 0x1e;									// E trim 00-1e-3c
+		packet[7] = 0x1e;									// A trim 00-1e-3c
+		packet[8] = 0x00;									// flags: 3 position flight mode (Angle - Horizon - Acro), VTX Toggle HIGH = next vTX frequency
+		packet[9] = 0x00;
 		packet[10] = packet_count++;
 	}
-	packet[7] = 0x1e;									// A trim 00-1e-3c
-	packet[8] = 0x00;									// flags: 3 position flight mode (Angle - Horizon - Acro), VTX Toggle HIGH = next vTX frequency
-	packet[9] = 0x00;
 
-    uint8_t sum=0;
 	// checksum
-	if(IS_BIND_IN_PROGRESS)
-		packet[11]=0x4E;
-	else
+	if(IS_BIND_DONE)
 	{
+	    uint8_t sum=0;
 		for (uint8_t i = 0; i < Q90C_PACKET_SIZE - 1; i++)
 		{
 			sum += packet[i];
 			debug("%02X ", packet[i]);
 		}
+		packet[11] = sum ^ crc8;
 		debugln("%02X",packet[11]);
-		packet[11] = sum ^ (? 0xc6 : crc8);
 	}
 
 	XN297L_SetFreqOffset();									// Set frequency offset

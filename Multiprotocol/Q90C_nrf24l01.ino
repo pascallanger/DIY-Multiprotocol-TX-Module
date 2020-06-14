@@ -18,7 +18,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_nrf250k.h"
 
-#define FORCE_Q90C_ORIGINAL_ID
+//#define FORCE_Q90C_ORIGINAL_ID
 
 #define Q90C_BIND_COUNT			250
 #define Q90C_PACKET_PERIOD		7336
@@ -90,7 +90,7 @@ static void __attribute__((unused)) Q90C_send_packet()
 		sum += packet[i];
 		debug("%02X ", packet[i]);
 	}
-	packet[11] = sum ^ (IS_BIND_IN_PROGRESS? 0xc6 : 0xa4);
+	packet[11] = sum ^ (IS_BIND_IN_PROGRESS? 0xc6 : crc8);
 	debugln("%02X",packet[11]);
 
 	XN297L_SetFreqOffset();									// Set frequency offset
@@ -101,10 +101,14 @@ static void __attribute__((unused)) Q90C_send_packet()
 static void __attribute__((unused)) Q90C_initialize_txid()
 {
 	calc_fh_channels(Q90C_RF_NUM_CHANNELS);
+	rx_tx_addr[4]=0x4B;
 	#ifdef FORCE_Q90C_ORIGINAL_ID
 		memcpy(rx_tx_addr, (uint8_t*)"\x24\x03\x01\x82\x4B", Q90C_ADDRESS_LENGTH);
 		memcpy(hopping_frequency, (uint8_t*)"\x18\x26\x37", Q90C_RF_NUM_CHANNELS);
+		memcpy(rx_tx_addr, (uint8_t*)"\x4C\x0A\x02\x01\x4B", Q90C_ADDRESS_LENGTH);
+		memcpy(hopping_frequency, (uint8_t*)"\x17\x24\x54", Q90C_RF_NUM_CHANNELS);
 	#endif
+	crc8=rx_tx_addr[0]^rx_tx_addr[1]^rx_tx_addr[2]^rx_tx_addr[3];
 }
 
 static void __attribute__((unused)) Q90C_init()

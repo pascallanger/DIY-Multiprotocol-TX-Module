@@ -43,9 +43,7 @@ static void __attribute__((unused)) Q90C_send_packet()
 	{
 		memcpy(packet, rx_tx_addr, 4);
 		memcpy(&packet[4], hopping_frequency, 3);
-		packet[7] = 0x1e;	// 2e on Saimat 1???
-		packet[8] = 0x00;
-		packet[9] = 0x00;
+		//packet[7]  = 0x1e;	// 2e on Saimat 1???
 		packet[10] = 0x4B;
 		packet[11] = 0x4E;
 	}
@@ -78,11 +76,20 @@ static void __attribute__((unused)) Q90C_send_packet()
 		packet[4] = 0x1e;									// T trim 00-1e-3c
 		packet[5] = 0x1e;									// R trim 3c-1e-00
 		packet[6] = 0x1e;									// E trim 00-1e-3c
-		packet[7] = 0x1e;									// A trim 00-1e-3c
-		packet[8] = 0x00;									// flags: 3 position flight mode (Angle - Horizon - Acro), VTX Toggle HIGH = next vTX frequency
-		packet[9] = 0x00;
+		//packet[7] = 0x1e;									// A trim 00-1e-3c
+		if(state!=Channel_data[CH5])
+		{
+			state=Channel_data[CH5];
+			if(state<CHANNEL_MIN_COMMAND)
+				packet[8] ^= 0x04;							// Angle
+			else if(state>CHANNEL_MAX_COMMAND)
+				packet[8] ^= 0x10;							// Acro
+			else
+				packet[8] ^= 0x08;							// Horizon
+		}
 		packet[10] = packet_count++;
 	}
+	packet[7]  = 0x1e;	// bind 1e or 2e, normal: A trim 00-1e-3c
 
 	// checksum
 	if(IS_BIND_DONE)
@@ -153,6 +160,11 @@ uint16_t initQ90C()
 	hopping_frequency_no = 0;
 	packet_count = 0;
 	bind_counter=Q90C_BIND_COUNT;
+
+	//features
+	state=Channel_data[CH5];
+	packet[8]  = 0x00;
+	packet[9]  = 0x00;
 	return Q90C_INITIAL_WAIT;
 }
 

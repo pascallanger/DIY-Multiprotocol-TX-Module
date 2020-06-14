@@ -1302,11 +1302,12 @@ This protocol is known to be problematic because it's using the xn297L emulation
 
 If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
-**Only 1 ID available. FMODE and VTX+ are not supported. If you have a TX then contact me on GitHub or RCGroups.**
-
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|FMODE|VTX+
+
+FMODE: -100% angle, 0% horizon, +100% acro
+VTX+: not working yet
 
 ## Redpine - *50*
 [Link to the forum](https://www.rcgroups.com/forums/showthread.php?3236043-Redpine-Lowest-latency-RC-protocol)

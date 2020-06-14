@@ -21,7 +21,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 //#define FORCE_Q90C_ORIGINAL_ID
 
 #define Q90C_BIND_COUNT			250
-#define Q90C_PACKET_PERIOD		7336
+#define Q90C_PACKET_PERIOD		7336 // 6200 on saimat's TX...
 #define Q90C_INITIAL_WAIT		500
 #define Q90C_PACKET_SIZE		12
 #define Q90C_RF_BIND_CHANNEL	0x33
@@ -43,9 +43,6 @@ static void __attribute__((unused)) Q90C_send_packet()
 	{
 		memcpy(packet, rx_tx_addr, 4);
 		memcpy(&packet[4], hopping_frequency, 3);
-		packet[7] = 0x1e;
-		packet[8] = 0;
-		packet[9] = 0;
 		packet[10] = rx_tx_addr[4];
 	}
 	else
@@ -77,21 +74,26 @@ static void __attribute__((unused)) Q90C_send_packet()
 		packet[4] = 0x1e;									// T trim 00-1e-3c
 		packet[5] = 0x1e;									// R trim 3c-1e-00
 		packet[6] = 0x1e;									// E trim 00-1e-3c
-		packet[7] = 0x1e;									// A trim 00-1e-3c
-		packet[8] = 0x00;									// flags: 3 position flight mode (Angle - Horizon - Acro), VTX Toggle HIGH = next vTX frequency
-		packet[9] = 0x00;
 		packet[10] = packet_count++;
 	}
+	packet[7] = 0x1e;									// A trim 00-1e-3c
+	packet[8] = 0x00;									// flags: 3 position flight mode (Angle - Horizon - Acro), VTX Toggle HIGH = next vTX frequency
+	packet[9] = 0x00;
 
     uint8_t sum=0;
 	// checksum
-    for (uint8_t i = 0; i < Q90C_PACKET_SIZE - 1; i++)
-    {
-		sum += packet[i];
-		debug("%02X ", packet[i]);
+	if(IS_BIND_IN_PROGRESS)
+		packet[11]=0x4E;
+	else
+	{
+		for (uint8_t i = 0; i < Q90C_PACKET_SIZE - 1; i++)
+		{
+			sum += packet[i];
+			debug("%02X ", packet[i]);
+		}
+		debugln("%02X",packet[11]);
+		packet[11] = sum ^ (? 0xc6 : crc8);
 	}
-	packet[11] = sum ^ (IS_BIND_IN_PROGRESS? 0xc6 : crc8);
-	debugln("%02X",packet[11]);
 
 	XN297L_SetFreqOffset();									// Set frequency offset
 	XN297L_SetPower();										// Set tx_power
@@ -103,10 +105,15 @@ static void __attribute__((unused)) Q90C_initialize_txid()
 	calc_fh_channels(Q90C_RF_NUM_CHANNELS);
 	rx_tx_addr[4]=0x4B;
 	#ifdef FORCE_Q90C_ORIGINAL_ID
-		memcpy(rx_tx_addr, (uint8_t*)"\x24\x03\x01\x82\x4B", Q90C_ADDRESS_LENGTH);
+		//24 03 01 82 18 26 37 1E 00 00 4B 4E
+		memcpy(rx_tx_addr, (uint8_t*)"\x24\x03\x01\x82\x4B", Q90C_ADDRESS_LENGTH);	//Goebish
 		memcpy(hopping_frequency, (uint8_t*)"\x18\x26\x37", Q90C_RF_NUM_CHANNELS);
-		memcpy(rx_tx_addr, (uint8_t*)"\x4C\x0A\x02\x01\x4B", Q90C_ADDRESS_LENGTH);
-		memcpy(hopping_frequency, (uint8_t*)"\x17\x24\x54", Q90C_RF_NUM_CHANNELS);
+		//4C 0A 02 01 17 24 36 2E 00 00 4B 4E 
+		memcpy(rx_tx_addr, (uint8_t*)"\x4C\x0A\x02\x01\x4B", Q90C_ADDRESS_LENGTH);	//Saimat 1
+		memcpy(hopping_frequency, (uint8_t*)"\x17\x24\x36", Q90C_RF_NUM_CHANNELS);
+		//34 13 02 01 18 26 37 1E 00 00 4B 4E 
+		memcpy(rx_tx_addr, (uint8_t*)"\x34\x13\x02\x01\x4B", Q90C_ADDRESS_LENGTH);	//Saimat 2
+		memcpy(hopping_frequency, (uint8_t*)"\x18\x26\x37", Q90C_RF_NUM_CHANNELS);
 	#endif
 	crc8=rx_tx_addr[0]^rx_tx_addr[1]^rx_tx_addr[2]^rx_tx_addr[3];
 }

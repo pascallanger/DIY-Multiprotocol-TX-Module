@@ -57,11 +57,9 @@ bool SX1276_DetectChip() //to be called after reset, verfies the chip has been d
     }
     else
     {
-      debug("SX1276 not found! attempts: ");
-      debug(i + 1);
+      debug("SX1276 not found! attempts: %d", i);
       debug(" of ");
-      debug(MaxAttempts);
-      debugln(" SX1276 reg version=%d", ChipVersion);
+      debugln("%d SX1276 reg version=%d", MaxAttempts, ChipVersion);
       i++;
     }
   }

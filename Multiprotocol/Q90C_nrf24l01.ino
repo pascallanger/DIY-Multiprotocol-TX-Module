@@ -28,6 +28,8 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define Q90C_RF_NUM_CHANNELS	3
 #define Q90C_ADDRESS_LENGTH		5
 
+bool Q90C_VTX;
+
 int16_t Q90C_channel(uint8_t num, int16_t in_min,int16_t in_max, int16_t out_min,int16_t out_max)
 {
 	int32_t val=Channel_data[num];
@@ -87,6 +89,11 @@ static void __attribute__((unused)) Q90C_send_packet()
 				packet[8] ^= 0x10;							// Acro
 			else
 				packet[8] ^= 0x08;							// Horizon
+		}
+		if(Q90C_VTX!=CH6_SW)
+		{
+			Q90C_VTX=CH6_SW;
+			packet[8] ^= 0x20;								// VTX+
 		}
 		debugln("8=%02X",packet[8]);
 		packet[10] = packet_count++;
@@ -161,6 +168,7 @@ uint16_t initQ90C()
 
 	//features
 	state=Channel_data[CH5];
+	Q90C_VTX=CH6_SW;
 	packet[8]  = 0x00;
 	packet[9]  = 0x00;
 	return Q90C_INITIAL_WAIT;

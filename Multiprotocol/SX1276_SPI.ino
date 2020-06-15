@@ -42,6 +42,41 @@ uint8_t SX1276_Reset()
     return 0;
 }
 
+bool SX1276_DetectChip() //to be called after reset, verfies the chip has been detected
+{
+  #define MaxAttempts 5
+  uint8_t i = 0;
+  bool chipFound = false;
+  while ((i < MaxAttempts) && !chipFound)
+  {
+    uint8_t ChipVersion = SX1276_ReadReg(0x42);
+    if (ChipVersion == 0x12)
+    {
+      debugln("SX1276 reg version=%d", ChipVersion);
+      chipFound = true;
+    }
+    else
+    {
+      debug("SX1276 not found! attempts: ");
+      debug(i + 1);
+      debug(" of ");
+      debug(MaxAttempts);
+      debugln(" SX1276 reg version=%d", ChipVersion);
+      i++;
+    }
+  }
+  if (!chipFound)
+  {
+    debugln("SX1276 not detected!!!");
+    return false;
+  }
+  else
+  {
+    debugln("Found SX1276 Device!");
+    return true;
+  }
+}
+
 void SX1276_SetTxRxMode(uint8_t mode)
 {
 	#ifdef SX1276_TXEN_pin

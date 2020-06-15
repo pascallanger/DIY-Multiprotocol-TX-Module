@@ -77,6 +77,7 @@ static void __attribute__((unused)) Q90C_send_packet()
 		packet[5] = 0x1e;									// R trim 3c-1e-00
 		packet[6] = 0x1e;									// E trim 00-1e-3c
 		//packet[7] = 0x1e;									// A trim 00-1e-3c
+		packet[8] |= 0x02;									// Rudder rate 0=min,1,2=max
 		if(state!=Channel_data[CH5])
 		{
 			state=Channel_data[CH5];
@@ -87,6 +88,7 @@ static void __attribute__((unused)) Q90C_send_packet()
 			else
 				packet[8] ^= 0x08;							// Horizon
 		}
+		debugln("8=%02X",packet[8]);
 		packet[10] = packet_count++;
 	}
 	packet[7]  = 0x1e;	// bind 1e or 2e, normal: A trim 00-1e-3c
@@ -96,12 +98,8 @@ static void __attribute__((unused)) Q90C_send_packet()
 	{
 	    uint8_t sum=0;
 		for (uint8_t i = 0; i < Q90C_PACKET_SIZE - 1; i++)
-		{
 			sum += packet[i];
-			debug("%02X ", packet[i]);
-		}
 		packet[11] = sum ^ crc8;
-		debugln("%02X",packet[11]);
 	}
 
 	XN297L_SetFreqOffset();									// Set frequency offset

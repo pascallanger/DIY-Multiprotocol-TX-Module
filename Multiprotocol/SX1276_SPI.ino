@@ -103,6 +103,16 @@ void SX1276_ConfigModem1(uint8_t bandwidth, uint8_t coding_rate, bool implicit_h
 	data = data | implicit_header_mode;
 
 	SX1276_WriteReg(SX1276_1D_MODEMCONFIG1, data);
+
+  if (bandwidth == SX1276_MODEM_CONFIG1_BW_500KHZ) //datasheet errata reconmendation http://caxapa.ru/thumbs/972894/SX1276_77_8_ErrataNote_1.1_STD.pdf
+  {
+    SX1276_WriteReg(0x36, 0x02);
+    SX1276_WriteReg(0x3a, 0x64);
+  }
+  else
+  {
+    SX1276_WriteReg(0x36, 0x03);
+  }
 }
 
 void SX1276_ConfigModem2(uint8_t spreading_factor, bool tx_continuous_mode, bool rx_payload_crc_on)

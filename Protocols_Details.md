@@ -1307,7 +1307,7 @@ CH1|CH2|CH3|CH4|CH5|CH6
 A|E|T|R|FMODE|VTX+
 
 FMODE: -100% angle, 0% horizon, +100% acro
-VTX+: not working yet
+VTX+: -100%->+100% channel+
 
 ## Redpine - *50*
 [Link to the forum](https://www.rcgroups.com/forums/showthread.php?3236043-Redpine-Lowest-latency-RC-protocol)

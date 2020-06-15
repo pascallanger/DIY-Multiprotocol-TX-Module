@@ -90,11 +90,10 @@ static void __attribute__((unused)) Q90C_send_packet()
 			else
 				packet[8] ^= 0x08;							// Horizon
 		}
-		if(Q90C_VTX!=CH6_SW)
-		{
-			Q90C_VTX=CH6_SW;
+		if(!Q90C_VTX && CH6_SW)
 			packet[8] ^= 0x20;								// VTX+
-		}
+		Q90C_VTX=CH6_SW;
+
 		debugln("8=%02X",packet[8]);
 		packet[10] = packet_count++;
 	}

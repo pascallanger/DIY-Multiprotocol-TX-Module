@@ -17,6 +17,8 @@
 
 #include "iface_cyrf6936.h"
 
+//#define DSM_GR300
+
 #define DSM_BIND_CHANNEL 0x0d //13 This can be any odd channel
 
 //During binding we will send BIND_COUNT/2 packets
@@ -220,8 +222,11 @@ uint16_t ReadDsm()
 		uint8_t len;
 	#endif
 	uint8_t start;
-	uint16_t timing=5000+(convert_channel_8b(CH13)*100);
-	//debugln("T=%u",timing);
+
+	#ifdef DSM_GR300
+		uint16_t timing=5000+(convert_channel_8b(CH13)*100);
+		debugln("T=%u",timing);
+	#endif
 	
 	switch(phase)
 	{
@@ -345,8 +350,10 @@ uint16_t ReadDsm()
 			phase++;										// change from CH2_CHECK to CH2_READ
 			CYRF_SetTxRxMode(RX_EN);						//Receive mode
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);		//0x80??? //Prepare to receive
-			if(num_ch==3)
-				return timing - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+			#ifdef DSM_GR300
+				if(num_ch==3)
+					return timing - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+			#endif
 			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
 		case DSM_CH2_READ_A:
 		case DSM_CH2_READ_B:
@@ -371,8 +378,10 @@ uint16_t ReadDsm()
 				CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);	// Clear abort RX operation
 				CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);	//0x80???	//Prepare to receive
 				phase = DSM_CH2_READ_B;
-				if(num_ch==3)
-					return timing;
+				#ifdef DSM_GR300
+					if(num_ch==3)
+						return timing;
+				#endif
 				return 11000;
 			}
 			if (phase == DSM_CH2_READ_A)
@@ -393,15 +402,19 @@ uint16_t ReadDsm()
 				else										
 				{											//Normal mode 22ms
 					phase = DSM_CH1_WRITE_A;				// change from CH2_CHECK_A to CH1_WRITE_A (ie no upper)
-					if(num_ch==3)
-						return timing - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
+					#ifdef DSM_GR300
+						if(num_ch==3)
+							return timing - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
+					#endif
 					return 22000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
 				}
 			}
 			else
 				phase = DSM_CH1_WRITE_A;					// change from CH2_CHECK_B to CH1_WRITE_A (upper already transmitted so transmit lower)
-			if(num_ch==3)
-				return timing - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
+			#ifdef DSM_GR300
+				if(num_ch==3)
+					return timing - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
+			#endif
 			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
 #endif
 	}

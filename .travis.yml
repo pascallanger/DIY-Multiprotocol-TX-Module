@@ -1,11 +1,9 @@
+os: linux
 dist: bionic
-sudo: true
 language: c
 
 env:
-  global:
-    - IDE_VERSION=1.8.9
-  matrix:
+  jobs:
     - BOARD="multi4in1:avr:multiatmega328p:bootloader=none"
     - BOARD="multi4in1:avr:multiatmega328p:bootloader=optiboot"
     - BOARD="multi4in1:avr:multixmega32d4"
@@ -25,16 +23,8 @@ before_install:
   - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/bin/*
   - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
 
-  # Arduino IDE adds a lot of noise caused by network traffic; firewall it
-  - sudo iptables -P INPUT DROP
-  - sudo iptables -P FORWARD DROP
-  - sudo iptables -P OUTPUT ACCEPT
-  - sudo iptables -A INPUT -i lo -j ACCEPT
-  - sudo iptables -A OUTPUT -o lo -j ACCEPT
-  - sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-
   # Helper functions for the builds
-  - buildMulti() { start_fold config_diff; travis_time_start; git diff Multiprotocol/_Config.h; end_fold config_diff; exitcode=0; BUILDCMD="arduino --verify --board $BOARD Multiprotocol/Multiprotocol.ino --pref build.path=./build/"; echo $BUILDCMD; $BUILDCMD; if [ $? -ne 0 ]; then exitcode=1; fi; echo; return $exitcode; }
+  - buildMulti() { start_fold config_diff; travis_time_start; git diff Multiprotocol/_Config.h; end_fold config_diff; exitcode=0; BUILDCMD="arduino-cli compile -b $BOARD Multiprotocol/Multiprotocol.ino --build-path ${TRAVIS_BUILD_DIR}/build/"; echo $BUILDCMD; $BUILDCMD; if [ $? -ne 0 ]; then exitcode=1; fi; echo; return $exitcode; }
   - buildProtocol() { exitcode=0; opt_disable $ALL_PROTOCOLS; opt_enable $1; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
   - buildEachProtocol() { exitcodesum=0; for PROTOCOL in $ALL_PROTOCOLS ; do printf "\e[33;1mBuilding $PROTOCOL\e[0m"; buildProtocol $PROTOCOL; if [ $? -ne 0 ]; then exitcodesum=$((exitcodesum + 1)); fi; done; return $exitcodesum; }
   - buildRFModule() { exitcode=0; opt_disable $ALL_RFMODULES; opt_enable $1; buildMulti; if [ $? -ne 0 ]; then exitcode=1; fi; return $exitcode; }
@@ -267,23 +257,23 @@ before_install:
     fi
 
 install:
-  # Install Arduino IDE
-  - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
-  - tar xf arduino-$IDE_VERSION-linux64.tar.xz
-  - mv arduino-$IDE_VERSION $HOME/arduino-ide
-  - export PATH=$PATH:$HOME/arduino-ide
+  # Install Arduino CLI
+  - mkdir ~/arduino-cli
+  - curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~/arduino-cli sh;
+  - export PATH=$PATH:$HOME/arduino-cli
 
-  # Set the Multi boards package URL
-  - arduino --pref "boardsmanager.additional.urls=https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json" --save-prefs
+  # Update the board url and package index
+  - arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json
 
   # Install the STM32 board if needed
   - if [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
-      arduino --install-boards multi4in1:STM32F1;
+      arduino-cli core install multi4in1:STM32F1 --additional-urls https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json;
     fi
 
   # Install the AVR board if needed
   - if [[ "$BOARD" =~ "multi4in1:avr:" ]]; then
-      arduino --install-boards multi4in1:avr;
+      arduino-cli core install arduino:avr;
+      arduino-cli core install multi4in1:avr --additional-urls https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json;
     fi
 
 before_script:
@@ -389,7 +379,7 @@ script:
 
 deploy:
   provider: releases
-  api_key:
+  token:
     secure: KGXaoqvd8rbZ3AZtL9Rrn1JYiocGsPaihRUyR8gM8vTfvH9WYAE1+h6SzROQOuJSwr89MvTo3SBOTlM/0PDBnEGLec9Irt7cwO0xf9xM2vPuUG8DYcUzmJJzME9dkn/7qHof1JGgRpp1duUAN1triE9NxhKxL1hbs+tUUbDPAejxwoFNfnta/T4PfD6xmkZNJbneIfYFuFgyLpwwFhuUy9JP7s1AFOiT+fCHxPaZrPn5GsXqAi95Cb7Q3w1iVSt3BmrGxL2j3CeNpWzFY1RrMdc8ay+ppOhSPEIl2vyM7VeLRRBL3EVeFWkiS4ywevqw70wOivTczluv3OeuIJAe5o2UU+w5+59c7+i44Nih23PDAZBhAG5JkLUYUN0XUJpXJ5ZlZsb8IS8sI1txlZa5tNVoXO9+soGEY4rKSpZaPptuENm792CzzAjcaUI9pOFJ/0CBoSCbu5MpM/plkJCMd8fY27EE8cNYvolMuRATNlXs7h9mURGR69pmcR1jFShH+A7Kyp1S1sH19sGCEU16rt2aAtf2FadFg/gKACC2y9rB3wBb4Qnapu2AwNRlTYNuU1+G+kb2FXRwMl04q+38S+cIBHH9NHfdftp9MRPf8Ekatojs92be/Ux21S+hcA7sx/DV22Dl45V6l4mXzR7U4x1nQcdn1SGuy5I4lL6IYCk=
   skip_cleanup: true
   file_glob: true

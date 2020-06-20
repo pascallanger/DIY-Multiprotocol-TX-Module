@@ -278,7 +278,7 @@ static uint16_t XN297Dump_callback()
 				XN297Dump_overflow();
 			}
 		}
-		else
+		else if(sub_protocol==XN297DUMP_AUTO)
 		{
 			switch(phase)
 			{
@@ -622,6 +622,79 @@ static uint16_t XN297Dump_callback()
 						XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
 					}
 					break;
+			}
+		}
+		else
+		{
+			if(phase==0)
+			{
+				address_length=5;
+				memcpy(rx_tx_addr, (uint8_t *)"\xC9\x59\xD2\x65\x34", 5);
+				bitrate=XN297DUMP_250K;
+				packet_length=16;
+				hopping_frequency_no=0x03;
+				
+				NRF24L01_Initialize();
+				NRF24L01_SetTxRxMode(TXRX_OFF);
+				NRF24L01_SetTxRxMode(RX_EN);
+				NRF24L01_FlushTx();
+				NRF24L01_FlushRx();
+				NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);						// Clear data ready, data sent, and retransmit
+				NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);							// No Auto Acknowledgment on all data pipes
+				NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);						// Enable data pipe 0 only
+				NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, address_length-2);			// RX/TX address length
+				NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, address_length);	// set up RX address
+				NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, packet_length);				// Enable rx pipe 0
+				NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency_no);
+
+				debug("NRF dump, len=%d, rf=%d, address length=%d, bitrate=",packet_length,hopping_frequency_no,address_length);
+				switch(bitrate)
+				{
+					case XN297DUMP_250K:
+						NRF24L01_SetBitrate(NRF24L01_BR_250K);
+						debugln("250K");
+						break;
+					case XN297DUMP_2M:
+						NRF24L01_SetBitrate(NRF24L01_BR_2M);
+						debugln("2M");
+						break;
+					default:
+						NRF24L01_SetBitrate(NRF24L01_BR_1M);
+						debugln("1M");
+						break;
+
+				}
+				NRF24L01_Activate(0x73);								// Activate feature register
+				NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);				// Disable dynamic payload length on all pipes
+				NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
+				NRF24L01_Activate(0x73);
+				NRF24L01_SetPower();
+				NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+				phase++;
+			}
+			else
+			{
+				if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
+				{ // RX fifo data ready
+					if(NRF24L01_ReadReg(NRF24L01_09_CD))
+					{
+						NRF24L01_ReadPayload(packet, packet_length);
+						if(memcmp(packet_in,packet,packet_length))
+						{
+							debug("P:");
+							for(uint8_t i=0;i<packet_length;i++)
+								debug(" %02X",packet[i]);
+							debugln("");
+							memcpy(packet_in,packet,packet_length);
+						}
+					}
+					// restart RX mode
+					NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
+					NRF24L01_SetTxRxMode(TXRX_OFF);
+					NRF24L01_SetTxRxMode(RX_EN);
+					NRF24L01_FlushRx();
+					NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+				}
 			}
 		}
 		bind_counter++;

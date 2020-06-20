@@ -19,7 +19,7 @@
 
 
 #include "iface_nrf24l01.h"
-
+#define V2X2_MR101_FORCE_ID
 
 #define V2X2_BIND_COUNT 1000
 // Timeout for callback in uSec, 4ms=4000us for V202
@@ -51,14 +51,6 @@ enum {
 
 //
 
-enum {
-	V202_INIT2 = 0,
-	V202_INIT2_NO_BIND,//1
-	V202_BIND1,//2
-	V202_BIND2,//3
-	V202_DATA//4
-};
-
 // This is frequency hopping table for V202 protocol
 // The table is the first 4 rows of 32 frequency hopping
 // patterns, all other rows are derived from the first 4.
@@ -87,39 +79,29 @@ static void __attribute__((unused)) v202_init()
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknoledgement
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x3F);  // Enable all data pipes
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0xFF); // 4ms retransmit t/o, 15 tries
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x08);      // Channel 8
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);                          // 1Mbps
+	// NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0xFF); // 4ms retransmit t/o, 15 tries
+	// NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x08);      // Channel 8
+	NRF24L01_SetBitrate(sub_protocol==V2X2_MR101?NRF24L01_BR_250K:NRF24L01_BR_1M);
 	NRF24L01_SetPower();
 	
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
 	//    NRF24L01_WriteReg(NRF24L01_08_OBSERVE_TX, 0x00); // no write bits in this field
 	//    NRF24L01_WriteReg(NRF24L01_00_CD, 0x00);         // same
-	NRF24L01_WriteReg(NRF24L01_0C_RX_ADDR_P2, 0xC3); // LSB byte of pipe 2 receive address
-	NRF24L01_WriteReg(NRF24L01_0D_RX_ADDR_P3, 0xC4);
-	NRF24L01_WriteReg(NRF24L01_0E_RX_ADDR_P4, 0xC5);
-	NRF24L01_WriteReg(NRF24L01_0F_RX_ADDR_P5, 0xC6);
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, V2X2_PAYLOADSIZE);   // bytes of data payload for pipe 1
-	NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, V2X2_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_13_RX_PW_P2, V2X2_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_14_RX_PW_P3, V2X2_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_15_RX_PW_P4, V2X2_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_16_RX_PW_P5, V2X2_PAYLOADSIZE);
-	NRF24L01_WriteReg(NRF24L01_17_FIFO_STATUS, 0x00); // Just in case, no real bits to write here
+	// NRF24L01_WriteReg(NRF24L01_0C_RX_ADDR_P2, 0xC3); // LSB byte of pipe 2 receive address
+	// NRF24L01_WriteReg(NRF24L01_0D_RX_ADDR_P3, 0xC4);
+	// NRF24L01_WriteReg(NRF24L01_0E_RX_ADDR_P4, 0xC5);
+	// NRF24L01_WriteReg(NRF24L01_0F_RX_ADDR_P5, 0xC6);
+	// NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, V2X2_PAYLOADSIZE);   // bytes of data payload for pipe 1
+	// NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, V2X2_PAYLOADSIZE);
+	// NRF24L01_WriteReg(NRF24L01_13_RX_PW_P2, V2X2_PAYLOADSIZE);
+	// NRF24L01_WriteReg(NRF24L01_14_RX_PW_P3, V2X2_PAYLOADSIZE);
+	// NRF24L01_WriteReg(NRF24L01_15_RX_PW_P4, V2X2_PAYLOADSIZE);
+	// NRF24L01_WriteReg(NRF24L01_16_RX_PW_P5, V2X2_PAYLOADSIZE);
+	// NRF24L01_WriteReg(NRF24L01_17_FIFO_STATUS, 0x00); // Just in case, no real bits to write here
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t *)"\x66\x88\x68\x68\x68", 5);
-	NRF24L01_WriteRegisterMulti(NRF24L01_0B_RX_ADDR_P1, (uint8_t *)"\x88\x66\x86\x86\x86", 5);
+	// NRF24L01_WriteRegisterMulti(NRF24L01_0B_RX_ADDR_P1, (uint8_t *)"\x88\x66\x86\x86\x86", 5);
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t *)"\x66\x88\x68\x68\x68", 5);
-}
-
-static void __attribute__((unused)) V202_init2()
-{
-	NRF24L01_FlushTx();
-	packet_sent = 0;
-	hopping_frequency_no = 0;
-
-	// Turn radio power on
     NRF24L01_SetTxRxMode(TX_EN);
-	//Done by TX_EN??? => NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 }
 
 static void __attribute__((unused)) V2X2_set_tx_id(void)
@@ -135,20 +117,24 @@ static void __attribute__((unused)) V2X2_set_tx_id(void)
 		// Strange avoidance of channels divisible by 16
 		hopping_frequency[i] = (val & 0x0f) ? val : val - 3;
 	}
+	#ifdef V2X2_MR101_FORCE_ID
+		rx_tx_addr[1]=0x83;
+		rx_tx_addr[2]=0x03;
+		rx_tx_addr[3]=0xAE;
+		memcpy(hopping_frequency,"\x05\x12\x08\x0C\x04\x0E\x10",7);
+	#endif
 }
 
-static void __attribute__((unused)) V2X2_add_pkt_checksum()
+static void __attribute__((unused)) V2X2_send_packet()
 {
-	uint8_t sum = 0;
-	for (uint8_t i = 0; i < 15;  ++i)
-		sum += packet[i];
-	packet[15] = sum;
-}
+	uint8_t rf_ch = hopping_frequency[hopping_frequency_no >> 1];
+	hopping_frequency_no = (hopping_frequency_no + 1) & 0x1F;
+	if(sub_protocol==V2X2_MR101 && hopping_frequency_no>13)
+			hopping_frequency_no=0;
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch);
 
-static void __attribute__((unused)) V2X2_send_packet(uint8_t bind)
-{
 	uint8_t flags2=0;
-	if (bind)
+	if (IS_BIND_IN_PROGRESS)
 	{
 		flags     = V2X2_FLAG_BIND;
 		packet[0] = 0;
@@ -174,31 +160,35 @@ static void __attribute__((unused)) V2X2_send_packet(uint8_t bind)
 		flags=0;
 		// Channel 5
 		if (CH5_SW)	flags = V2X2_FLAG_FLIP;
-		// Channel 6
-		if (CH6_SW)	flags |= V2X2_FLAG_LIGHT;
-		// Channel 7
-		if (CH7_SW)	flags |= V2X2_FLAG_CAMERA;
-		// Channel 8
-		if (CH8_SW)	flags |= V2X2_FLAG_VIDEO;
 
-		//Flags2
-		// Channel 9
-		if (CH9_SW)
-			flags2 = V2X2_FLAG_HEADLESS;
-		if(sub_protocol==JXD506)
-		{
-			// Channel 11
-			if (CH11_SW)
-				flags2 |= V2X2_FLAG_EMERGENCY;
-		}
-		else
-		{
-			// Channel 10
-			if (CH10_SW)
-				flags2 |= V2X2_FLAG_MAG_CAL_X;
-			// Channel 11
-			if (CH11_SW)
-				flags2 |= V2X2_FLAG_MAG_CAL_Y;
+		if(sub_protocol!=V2X2_MR101)
+		{//V2X2 & JXD506
+			// Channel 6
+			if (CH6_SW)	flags |= V2X2_FLAG_LIGHT;
+			// Channel 7
+			if (CH7_SW)	flags |= V2X2_FLAG_CAMERA;
+			// Channel 8
+			if (CH8_SW)	flags |= V2X2_FLAG_VIDEO;
+
+			//Flags2
+			// Channel 9
+			if (CH9_SW)
+				flags2 = V2X2_FLAG_HEADLESS;
+			if(sub_protocol==JXD506)
+			{
+				// Channel 11
+				if (CH11_SW)
+					flags2 |= V2X2_FLAG_EMERGENCY;
+			}
+			else
+			{//V2X2
+				// Channel 10
+				if (CH10_SW)
+					flags2 |= V2X2_FLAG_MAG_CAL_X;
+				// Channel 11
+				if (CH11_SW)
+					flags2 |= V2X2_FLAG_MAG_CAL_Y;
+			}
 		}
 	}
 	// TX id
@@ -223,16 +213,26 @@ static void __attribute__((unused)) V2X2_send_packet(uint8_t bind)
 		packet[12] = 0x40;
 		packet[13] = 0x40;
 	}
+	else if(sub_protocol==V2X2_MR101)
+	{
+		
+		if (CH10_SW) packet[11]  = 0x04;	// Motors start/stop
+		if (CH11_SW) packet[11] |= 0x40;	// Auto Land=-100% Takeoff=+100%
+		if (CH7_SW)	 flags |= 0x02;			// Picture
+		if (CH8_SW)	 flags |= 0x01;			// Video
+		if(IS_BIND_IN_PROGRESS)
+			flags = 0x80;
+		flags |= (hopping_frequency_no & 0x01)<<6;
+	}
 	packet[14] = flags;
-	V2X2_add_pkt_checksum();
+	uint8_t sum = packet[0];
+	for (uint8_t i = 1; i < 15;  ++i)
+		sum += packet[i];
+	packet[15] = sum;
 
-	packet_sent = 0;
-	uint8_t rf_ch = hopping_frequency[hopping_frequency_no >> 1];
-	hopping_frequency_no = (hopping_frequency_no + 1) & 0x1F;
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch);
 	NRF24L01_FlushTx();
 	NRF24L01_WritePayload(packet, V2X2_PAYLOADSIZE);
-	packet_sent = 1;
+	//packet_sent = 1;
 
 	if (! hopping_frequency_no)
 		NRF24L01_SetPower();
@@ -240,35 +240,26 @@ static void __attribute__((unused)) V2X2_send_packet(uint8_t bind)
 
 uint16_t ReadV2x2()
 {
-	switch (phase) {
-		case V202_INIT2:
-			V202_init2();
-			phase = V202_BIND2;
-			return 150;
-			break;
-		case V202_INIT2_NO_BIND:
-			V202_init2();
-			phase = V202_DATA;
-			return 150;
-			break;
-		case V202_BIND2:
-			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
-				return V2X2_PACKET_CHKTIME;
-			V2X2_send_packet(1);
-			if (--bind_counter == 0)
+	//if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
+	//	return V2X2_PACKET_CHKTIME;
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(V2X2_PACKET_PERIOD);
+	#endif
+	V2X2_send_packet();
+	if(IS_BIND_IN_PROGRESS)
+	{
+		if (--bind_counter == 0)
+		{
+			BIND_DONE;
+			if(sub_protocol==V2X2_MR101)
 			{
-				phase = V202_DATA;
-				BIND_DONE;
+				#ifdef V2X2_MR101_FORCE_ID
+					NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t *)"\xC9\x59\xD2\x65\x34", 5);
+					memcpy(hopping_frequency,"\x03\x05\x15\x0D\x06\x14\x0B",7);
+				#endif
 			}
-			break;
-		case V202_DATA:
-			if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
-				return V2X2_PACKET_CHKTIME;
-			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(V2X2_PACKET_PERIOD);
-			#endif
-			V2X2_send_packet(0);
-			break;
+			hopping_frequency_no = 0;
+		}
 	}
 	// Packet every 4ms
 	return V2X2_PACKET_PERIOD;
@@ -276,15 +267,13 @@ uint16_t ReadV2x2()
 
 uint16_t initV2x2()
 {	
+	if(sub_protocol==V2X2_MR101)
+		BIND_IN_PROGRESS;
+	//packet_sent = 0;
+	hopping_frequency_no = 0;
+	bind_counter = V2X2_BIND_COUNT;
+
 	v202_init();
-	//
-	if (IS_BIND_IN_PROGRESS)
-	{
-		bind_counter = V2X2_BIND_COUNT;
-		phase = V202_INIT2;
-	}
-	else
-		phase = V202_INIT2_NO_BIND;
 	V2X2_set_tx_id();
 	return 50000;
 }

@@ -129,7 +129,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
 [Tiger](Protocols_Details.md#Tiger---61)|61|Tiger||||||||NRF24L01|XN297
 [Traxxas](Protocols_Details.md#Traxxas---43)|43|6519 RX||||||||CYRF6936|
-[V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|||||||NRF24L01|
+[V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
 [V761](Protocols_Details.md#V761---48)|48|V761||||||||NRF24L01|XN297
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*|E119*|||||||NRF24L01|XN297
 [WFly](Protocols_Details.md#WFLY---40)|40|WFLY||||||||CYRF6936|
@@ -1435,6 +1435,23 @@ Model: JXD 506
 CH10|CH11|CH12
 ---|---|---
 Start/Stop|EMERGENCY|CAMERA_UP/DN
+
+### Sub_protocol MR101 - *2*
+TX: MR101, model: Dromida XL
+
+**Only 1 ID** available. If you have a TX contact me on GitHub or RCGroups.
+
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
+A|E|T|R|FLIP||PICTURE|VIDEO||MOT_ON_OFF|AUTO
+
+MOT_ON_OFF: momentary switch (you need to maintaint it for at least 1.5sec for on or off)
+
+AUTO: Land=-100% Takeoff=+100%
+
+The model can work with a none centered throttle.
 
 ## Tiger - *61*
 Autobind protocol

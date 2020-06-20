@@ -93,7 +93,7 @@ const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
 const char STR_SUBTYPE_FRSKYD[] =     "\x06""D8\0   ""Cloned";
 const char STR_SUBTYPE_FRSKYX[] =     "\x07""D16\0   ""D16 8ch""LBT(EU)""LBT 8ch""Cloned\0";
 const char STR_SUBTYPE_HISKY[] =      "\x05""Std\0 ""HK310";
-const char STR_SUBTYPE_V2X2[] =       "\x06""Std\0  ""JXD506";
+const char STR_SUBTYPE_V2X2[] =       "\x06""Std\0  ""JXD506""MR101\0";
 const char STR_SUBTYPE_DSM[] =        "\x04""2 1F""2 2F""X 1F""X 2F""Auto";
 const char STR_SUBTYPE_DEVO[] =       "\x04""8ch\0""10ch""12ch""6ch\0""7ch\0";
 const char STR_SUBTYPE_YD717[] =      "\x07""Std\0   ""SkyWlkr""Syma X4""XINXUN\0""NIHUI\0 ";
@@ -124,7 +124,7 @@ const char STR_SUBTYPE_POTENSIC[] =   "\x03""A20";
 const char STR_SUBTYPE_ZSX[] =        "\x07""280JJRC";
 const char STR_SUBTYPE_FLYZONE[] =    "\x05""FZ410";
 const char STR_SUBTYPE_FX816[] =      "\x03""P38";
-const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ";
+const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ""NRF\0   ";
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4ch""7ch";
 const char STR_SUBTYPE_ESKY150V2[] =  "\x05""150V2";
 const char STR_SUBTYPE_V911S[] =      "\x05""V911S""E119\0";
@@ -343,7 +343,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_TRAXXAS,    STR_TRAXXAS,   1, STR_SUBTYPE_TRAXXAS,   OPTION_NONE    },
 	#endif
 	#if defined(V2X2_NRF24L01_INO)
-		{PROTO_V2X2,       STR_V2X2,      2, STR_SUBTYPE_V2X2,      OPTION_NONE    },
+		{PROTO_V2X2,       STR_V2X2,      3, STR_SUBTYPE_V2X2,      OPTION_NONE    },
 	#endif
 	#if defined(V761_NRF24L01_INO)
 		{PROTO_V761,       STR_V761,      0, NO_SUBTYPE,            OPTION_NONE    },
@@ -361,7 +361,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_XK,         STR_XK       , 2, STR_SUBTYPE_XK,        OPTION_RFTUNE  },	
 	#endif
 	#if defined(XN297DUMP_NRF24L01_INO)
-		{PROTO_XN297DUMP,  STR_XN297DUMP, 4, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },
+		{PROTO_XN297DUMP,  STR_XN297DUMP, 5, STR_SUBTYPE_XN297DUMP, OPTION_RFCHAN  },
 	#endif
 	#if defined(YD717_NRF24L01_INO)
 		{PROTO_YD717,      STR_YD717,     5, STR_SUBTYPE_YD717,     OPTION_NONE    },

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	21
+#define VERSION_PATCH_LEVEL	22
 
 //******************
 // Protocols
@@ -241,6 +241,7 @@ enum V2X2
 {
 	V2X2	= 0,
 	JXD506	= 1,
+	V2X2_MR101 = 2,
 };
 enum FY326
 {
@@ -884,6 +885,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==V2X2
 			V2X2		0
 			JXD506		1
+			V2X2_MR101 2
 		sub_protocol==FY326
 			FY326		0
 			FY319		1

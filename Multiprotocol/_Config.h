@@ -165,17 +165,17 @@
 
 //The protocols below need an A7105 to be installed
 #define	AFHDS2A_A7105_INO
-#define AFHDS2A_RX_A7105_INO
+#define	AFHDS2A_RX_A7105_INO
 #define	BUGS_A7105_INO
 #define	FLYSKY_A7105_INO
 #define	FLYZONE_A7105_INO
 #define	HUBSAN_A7105_INO
-#define PELIKAN_A7105_INO
+#define	PELIKAN_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO
 #define	DSM_CYRF6936_INO
-#define DSM_RX_CYRF6936_INO
+#define	DSM_RX_CYRF6936_INO
 #define	J6PRO_CYRF6936_INO
 #define	TRAXXAS_CYRF6936_INO
 #define	WFLY_CYRF6936_INO
@@ -217,7 +217,7 @@
 #define	HISKY_NRF24L01_INO
 #define	HONTAI_NRF24L01_INO
 #define	H8_3D_NRF24L01_INO
-#define JJRC345_NRF24L01_INO
+#define	JJRC345_NRF24L01_INO
 #define	KF606_NRF24L01_INO
 #define	KN_NRF24L01_INO
 #define	MJXQ_NRF24L01_INO
@@ -239,7 +239,7 @@
 #define	ZSX_NRF24L01_INO
 
 //The protocols below need a SX1276 to be installed
-#define FRSKYR9_SX1276_INO
+#define	FRSKYR9_SX1276_INO
 
 /***************************/
 /*** PROTOCOLS SETTINGS  ***/

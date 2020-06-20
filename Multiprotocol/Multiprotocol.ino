@@ -1160,6 +1160,10 @@ static void protocol_init()
 				#if defined(FRSKYX_CC2500_INO)
 					case PROTO_FRSKYX:
 					case PROTO_FRSKYX2:
+						#ifdef EU_MODULE
+							if(sub_protocol<2)
+								break;
+						#endif
 						PE1_off;	//antenna RF2
 						PE2_on;
 						next_callback = initFrSkyX();

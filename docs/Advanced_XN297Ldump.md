@@ -6,9 +6,10 @@ To get the XN297L dump feature working on your module you must know:
 
 Procedure to use the XN297L dump feature:
 1. Start the Multi module in serial debug mode with the Arduion IDE Serial Monitor open<br> <img src="images/Serial_Monitor_2.png" />
-1. Select the protocol 63 or "Custom 63" to enable the XN297L Dump protocol
+1. Select the protocol XN297DP, 63 or "Custom 63" to enable the XN297L Dump protocol
 1. This protocol parameters are:
-   * sub_protocol or type or the second number after "Custom 63" is used to set the transmission speed: 0=250Kbps, 1=1Mbps and 2=2Mbps. Any other value will default to 1Mbps.
+   * sub_protocol or type or the second number after "Custom 63" is used to set the transmission speed: 0=250Kbps, 1=1Mbps, 2=2Mbps and 3=Auto.
+     * Auto is the recommended mode since it gives many information like channels, timing, order as well as finding bytes meaning
    * RX_num or Receiver number sets the address length 3, 4 or 5 bytes. Any other value will default to an address length of 5 bytes.
    * option sets the RF channel number used to receive packets between 0..84 . A value of -1 will automatically scan all channels one by one. Any other value will default to the RF channel 0.
 

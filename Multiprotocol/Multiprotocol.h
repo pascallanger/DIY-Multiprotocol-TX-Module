@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	22
+#define VERSION_PATCH_LEVEL	23
 
 //******************
 // Protocols
@@ -100,6 +100,7 @@ enum PROTOCOLS
 	PROTO_JJRC345	= 71,	// =>NRF24L01
 	PROTO_Q90C		= 72,	// =>NRF24L01 or CC2500
 
+	PROTO_FAKE		= 126,	// =>CC2500+NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
 };
 
@@ -372,6 +373,12 @@ enum PELIKAN
 {
 	PELIKAN_PRO	= 0,
 	PELIKAN_LITE= 1,
+};
+
+enum V761
+{
+	V761_STD	= 0,
+	V761_EACHINE= 1,
 };
 
 #define NONE 		0
@@ -966,6 +973,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==PELIKAN
 			PELIKAN_PRO		0
 			PELIKAN_LITE	1
+		sub_protocol==V761
+			V761_STD		0
+			V761_EACHINE	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

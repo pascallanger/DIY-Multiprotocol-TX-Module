@@ -87,6 +87,7 @@ const char STR_FRSKYR9[]	="FrSkyR9";
 const char STR_PROPEL[]		="Propel";
 const char STR_SKYARTEC[]	="Skyartc";
 const char STR_TEST[]		="Test";
+const char STR_FAKE[]		="Fake";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -137,6 +138,7 @@ const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 const char STR_SUBTYPE_WFLY[] =       "\x06""WFR0xS";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
+const char STR_SUBTYPE_V761[] =       "\x07""Std\0   ""Eachine";
 
 enum
 {
@@ -346,7 +348,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_V2X2,       STR_V2X2,      3, STR_SUBTYPE_V2X2,      OPTION_NONE    },
 	#endif
 	#if defined(V761_NRF24L01_INO)
-		{PROTO_V761,       STR_V761,      0, NO_SUBTYPE,            OPTION_NONE    },
+		{PROTO_V761,       STR_V761,      2, STR_SUBTYPE_V761,      OPTION_NONE    },
 	#endif
 	#if defined(V911S_NRF24L01_INO)
 		{PROTO_V911S,      STR_V911S,     2, STR_SUBTYPE_V911S,     OPTION_RFTUNE  },
@@ -371,6 +373,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(TEST_CC2500_INO)
 		{PROTO_TEST,       STR_TEST,      0, NO_SUBTYPE,            OPTION_RFTUNE  },
+	#endif
+	#if defined(FAKE_NRF24L01_INO)
+		{PROTO_FAKE,       STR_FAKE,      0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 		{0x00,             nullptr,       0, nullptr,               0 }
 };

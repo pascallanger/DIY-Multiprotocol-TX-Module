@@ -1463,13 +1463,24 @@ CH1|CH2|CH3|CH4|CH5|CH6
 A|E|T|R|FLIP|LIGHT
 
 ## V761 - *48*
-Model: Volantex V761 and may be other
 
-Warning: Only 3 IDs, you can cycle through them using RX_Num.
+Warning: **Only 3 IDs**, you can cycle through them using RX_Num.
+
+### Sub_protocol Std - *0*
+Model: Volantex V761 and may be other
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 -|E|T|R|GYRO
+
+Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
+
+### Sub_protocol Eachine - *1*
+Model: Eachine P51-D, F4U, F22 and may be other
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|GYRO|FLIP
 
 Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
 

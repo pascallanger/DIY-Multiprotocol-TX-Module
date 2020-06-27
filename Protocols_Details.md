@@ -1464,27 +1464,25 @@ A|E|T|R|FLIP|LIGHT
 
 ## V761 - *48*
 
-Warning: **Only 5 IDs**, you can cycle through them using RX_Num.
+Warning: **Only 3 IDs**, you can cycle through them using RX_Num.
+
+### Sub_protocol Std - *0*
+Model: Volantex V761 and may be other
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+-|E|T|R|GYRO
 
 Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
-Calib: momentary switch, calib will happen one the channel goes from -100% to +100%
-Flip: momentary switch: hold flip(+100%), indicate flip direction with Ele or Ail, release flip(-100%)
-RTN_ACT and RTN: -100% disable, +100% enable
 
-### Sub_protocol 3CH - *0*
-Model: Volantex V761-1, V761-3 and may be others
+### Sub_protocol Eachine - *1*
+Model: Eachine P51-D, F4U, F22 and may be other
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
--|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|GYRO|FLIP
 
-### Sub_protocol 4CH - *1*
-Model: Volantex V761-4+ and Eachine P51-D, F4U, F22 and may be others
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
-
+Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
 
 ## V911S - *46*
 This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.

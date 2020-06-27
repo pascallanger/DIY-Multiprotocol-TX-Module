@@ -48,8 +48,7 @@ before_install:
         buildMulti;
         exitcode=$((exitcode+$?));
         mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-blue-inv-v$MULTI_VERSION.bin;
-        cp Multiprotocol/Multi.txt ./binaries/Multi.txt;
-        cp Lua_scripts/ ./binaries/;
+        cp Multiprotocol/Multi.txt ./binaries/Multi.txt; 
         return $exitcode; };
     elif [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
       buildReleaseFiles(){

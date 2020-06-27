@@ -377,8 +377,8 @@ enum PELIKAN
 
 enum V761
 {
-	V761_3CH	= 0,
-	V761_4CH	= 1,
+	V761_STD	= 0,
+	V761_EACHINE= 1,
 };
 
 #define NONE 		0
@@ -974,8 +974,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			PELIKAN_PRO		0
 			PELIKAN_LITE	1
 		sub_protocol==V761
-			V761_3CH	0
-			V761_4CH	1
+			V761_STD		0
+			V761_EACHINE	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

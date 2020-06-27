@@ -138,7 +138,7 @@ const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 const char STR_SUBTYPE_WFLY[] =       "\x06""WFR0xS";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
-const char STR_SUBTYPE_V761[] =       "\x03""3CH""4CH";
+const char STR_SUBTYPE_V761[] =       "\x07""Std\0   ""Eachine";
 
 enum
 {

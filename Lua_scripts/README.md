@@ -17,7 +17,7 @@ If you like this project and want to support further development please consider
 
 Automatically name the channels based on the loaded Multi protocol and sub protocol including the channel convention.
 
-Located on the radio SD card under \SCRIPTS\TOOLS. This script needs MultiChan.txt to be present in the same folder.
+Need OpenTX 2.3.9 or above. Located on the radio SD card under \SCRIPTS\TOOLS. This script needs MultiChan.txt to be present in the same folder.
 
 [![MultiChannelsUpdater](https://img.youtube.com/vi/L58ayXuewyA/0.jpg)](https://www.youtube.com/watch?v=L58ayXuewyA)
 
@@ -25,7 +25,7 @@ Located on the radio SD card under \SCRIPTS\TOOLS. This script needs MultiChan.t
 
 Enable text configuration of the HoTT RX and sensors: Vario, GPS, ESC, GAM and EAM.
 
-Located on the radio SD card under \SCRIPTS\TOOLS.
+Need OpenTX 2.3.9 or above. Located on the radio SD card under \SCRIPTS\TOOLS.
 
 Notes:
 - Menu is used to cycle through the detected sensors.

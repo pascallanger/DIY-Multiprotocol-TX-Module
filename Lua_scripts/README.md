@@ -15,7 +15,7 @@ If you like this project and want to support further development please consider
 
 ## MultiChannelsUpdater.lua
 
-Automatically name the channels based on the loaded Multi protocol and sub protocol including the channel convention.
+Automatically name the channels based on the loaded Multi protocol and sub protocol including the module channel order convention.
 
 Need OpenTX 2.3.9 or above. Located on the radio SD card under \SCRIPTS\TOOLS. This script needs MultiChan.txt to be present in the same folder.
 
@@ -29,6 +29,6 @@ Need OpenTX 2.3.9 or above. Located on the radio SD card under \SCRIPTS\TOOLS.
 
 Notes:
 - Menu is used to cycle through the detected sensors.
-- It's normal to lose the telemetry feed while using the text mode configuration. Telemetry will resume if the script is exited by pressing the exit button.
+- It's normal to lose the telemetry feed while using the text mode configuration. Telemetry will resume properly if the script is exited by doing a short press on the exit button.
 
 [![Text mode video](https://img.youtube.com/vi/81wd8NlF3Qw/0.jpg)](https://www.youtube.com/watch?v=81wd8NlF3Qw)

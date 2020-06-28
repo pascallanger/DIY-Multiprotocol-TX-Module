@@ -1,4 +1,4 @@
-# Multiprotocol TX Module
+# Multiprotocol TX Module OpenTX LUA scripts
 <img align="right" width=300 src="../docs/images/multi.png" />
 
 If you like this project and want to support further development please consider making a [donation](../docs/Donations.md).  
@@ -17,10 +17,18 @@ If you like this project and want to support further development please consider
 
 Automatically name the channels based on the loaded Multi protocol and sub protocol including the channel convention.
 
-This script needs MultiChan.txt to be present in the same folder.
+Located on the radio SD card under \SCRIPTS\TOOLS. This script needs MultiChan.txt to be present in the same folder.
+
+[![MultiChannelsUpdater](https://img.youtube.com/vi/L58ayXuewyA/0.jpg)](https://www.youtube.com/watch?v=L58ayXuewyA)
 
 ## Graupner HoTT.ua
 
-Enable text configuration of the HoTT RX and attached sensors.
+Enable text configuration of the HoTT RX and sensors: Vario, GPS, ESC, GAM and EAM.
 
-Menu is used to cycle through the dedicated sensors.
+Located on the radio SD card under \SCRIPTS\TOOLS.
+
+Notes:
+- Menu is used to cycle through the detected sensors.
+- It's normal to lose the telemetry feed while using the text mode configuration. Telemetry will resume if the script is exited by pressing the exit button.
+
+[![Text mode video](https://img.youtube.com/vi/81wd8NlF3Qw/0.jpg)](https://www.youtube.com/watch?v=81wd8NlF3Qw)

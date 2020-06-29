@@ -78,7 +78,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [CX10](Protocols_Details.md#CX10---12)|12|GREEN|BLUE|DM007|-|J3015_1|J3015_2|MK33041||NRF24L01|XN297
 [Devo](Protocols_Details.md#DEVO---7)|7|Devo|8CH|10CH|12CH|6CH|7CH|||CYRF6936|
 [DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01|XN297
-[DSM](Protocols_Details.md#DSM---6)|6|DSM2-22|DSM2-11|DSMX-22|DSMX-11|AUTO||||CYRF6936|
+[DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO||||CYRF6936|
 [DSM_RX](Protocols_Details.md#DSM_RX---70)|70|RX||||||||CYRF6936|
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
@@ -655,35 +655,31 @@ Extended limits supported
 
 Telemetry enabled for TSSI and plugins
 
-option=number of channels from 4 to 12. An invalid option value will end up with 6 channels.
-
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|CH14
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|TH_KILL
 
 Notes:
- - model/type/number of channels indicated on the RX can be different from what the RX is in fact wanting to see. So don't hesitate to test different combinations until you have something working. Using Auto is the best way to find these settings.
+ - The "AUTO" sub protocol is recommended to automatically select the best settings for your DSM RX. If the RX doesn't bind or work properly after bind, don't hesitate to test different combinations of sub protocol and number of channels until you have something working.
+ - Servo refresh rate is 22ms unless you select 11ms available in OpenTX 2.3.10+
  - RX output will match the Spektrum standard TAER independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
  - RX output will match the Spektrum standard throw (1500µs +/- 400µs -> 1100..1900µs) for a 100% input. This is true for both Serial and PPM input. For PPM, make sure the end points PPM_MIN_100 and PPM_MAX_100 in _config.h are matching your TX ouput. The maximum ouput is 1000..2000µs based on an input of 125%.
     - If you want to override the above and get maximum throw either uncomment in _config.h the line #define DSM_MAX_THROW or on OpenTX 2.3.3+ use the "Enable max throw" feature on the GUI (0=No,1=Yes). In this mode to achieve standard throw use a channel weight of 84%.
  - TH_KILL is a feature which is enabled on channel 14 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 14 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
  - To allow SAFE to be ON with a switch assignment you must remove the bind plug after powering up the RX but before turning on the TX to bind. If you select Autodetect to bind, The MPM will choose DSMX 11ms and Channels 1-7 ( Change to 1-9 if you wish to assign switch above channel 7 ). Then in order to use the manuals diagram of both sticks "Down-Inside" to set a SAFE Select Switch Designation, you must have Throttle and Elevator channels set to Normal direction but the Aileron and Rudder set to Reverse direction. If setting up a new model with all channels set to Normal you can hold both sticks "Down- OUTSIDE" to assign the switch with 5x flips. Tested on a Mode2 radio.
-
  
-### Sub_protocol DSM2_22 - *0*
-DSM2, Resolution 1024, refresh rate 22ms
-### Sub_protocol DSM2_11 - *1*
-DSM2, Resolution 2048, refresh rate 11ms
-### Sub_protocol DSMX_22 - *2*
-DSMX, Resolution 2048, refresh rate 22ms
-### Sub_protocol DSMX_11 - *3*
-DSMX, Resolution 2048, refresh rate 11ms
-### Sub_protocol AUTO - *4*
-The "AUTO" feature enables the TX to automatically choose what are the best settings for your DSM RX and update your model protocol settings accordingly.
+Option=number of channels from 3 to 12. Option|0x80 enables Max Throw. Option|0x40 enables a servo refresh rate of 11ms.
 
-The current radio firmware which are able to use the "AUTO" feature are erskyTX (9XR Pro, 9Xtreme, Taranis, ...), er9x for M128(9XR)&M2561 and OpenTX (mostly Taranis).
-For these firmwares, you must have a telemetry enabled TX and you have to make sure you set the Telemetry "Usr proto" to "DSMx".
-Also on er9x you will need to be sure to match the polarity of the telemetry serial (normal or inverted by bitbashing), while on erskyTX you can set "Invert COM1" accordinlgy.
+### Sub_protocol DSM2_1F - *0*
+DSM2, Resolution 1024, servo refresh rate can only be 22ms
+### Sub_protocol DSM2_2F - *1*
+DSM2, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
+### Sub_protocol DSMX_1F - *2*
+DSMX, Resolution 2048, servo refresh rate can only be 22ms
+### Sub_protocol DSMX_2F - *3*
+DSMX, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
+### Sub_protocol AUTO - *4*
+"AUTO" is recommended to automatically select the best settings for your DSM RX.
 
 ## DSM_RX - *70*
 The DSM receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...

@@ -6,14 +6,31 @@
 uint8_t FrSkyR9_step = 1;
 uint32_t FrSkyR9_freq_map[FREQ_MAP_SIZE];
 
+static void __attribute__((unused)) FrSkyR9_build_freq()
+{
+	uint32_t start_freq=914472960;		// 915
+	if(sub_protocol & 0x01 && IS_BIND_DONE)
+		start_freq=859504640;			// 868 and bind completed
+	for(uint8_t i=0;i<FREQ_MAP_SIZE-2;i++)
+	{
+		FrSkyR9_freq_map[i]=start_freq;
+		debugln("F%d=%lu", i, FrSkyR9_freq_map[i]);
+		start_freq+=0x7A000;
+	}
+    // Last two frequencies determined by FrSkyR9_step
+	FrSkyR9_freq_map[FREQ_MAP_SIZE-2] = FrSkyR9_freq_map[FrSkyR9_step];
+	debugln("F%d=%lu", FREQ_MAP_SIZE-2, FrSkyR9_freq_map[FREQ_MAP_SIZE-2]);
+	FrSkyR9_freq_map[FREQ_MAP_SIZE-1] = FrSkyR9_freq_map[FrSkyR9_step+1];
+	debugln("F%d=%lu", FREQ_MAP_SIZE-1, FrSkyR9_freq_map[FREQ_MAP_SIZE-1]);
+	hopping_frequency_no = 0;
+}
+
 static void __attribute__((unused)) FrSkyR9_build_packet()
 {
-	//Header
-	packet[0] = 0x3C; 					// unknown but constant
-
 	//ID
-	packet[1] = rx_tx_addr[3];
-	packet[2] = rx_tx_addr[2];
+	packet[0] = rx_tx_addr[1];
+	packet[1] = rx_tx_addr[2];
+	packet[2] = rx_tx_addr[3];
 
 	//Hopping
 	packet[3] = hopping_frequency_no;	// current channel index
@@ -27,7 +44,12 @@ static void __attribute__((unused)) FrSkyR9_build_packet()
 
 	//Bind
 	if(IS_BIND_IN_PROGRESS)
-		packet[6] = 0x41; 
+	{
+		if(sub_protocol & 1)
+			packet[6] = 0x61;			// 868
+		else
+			packet[6] = 0x41;			// 915
+	}
 
 	//SPort
 	packet[20] = 0x08;					//FrSkyX_TX_Seq=8 at startup
@@ -50,22 +72,8 @@ uint16_t initFrSkyR9()
 	debugln("Step=%d", FrSkyR9_step);
 	
 	//Frequency table
-	uint32_t start_freq=914472960;		//915
-	if(sub_protocol & 0x01)
-		start_freq=859504640;			//868
-	for(uint8_t i=0;i<FREQ_MAP_SIZE-2;i++)
-	{
-		FrSkyR9_freq_map[i]=start_freq;
-		debugln("F%d=%lu", i, FrSkyR9_freq_map[i]);
-		start_freq+=0x7A000;
-	}
-    // Last two frequencies determined by FrSkyR9_step
-	FrSkyR9_freq_map[FREQ_MAP_SIZE-2] = FrSkyR9_freq_map[FrSkyR9_step];
-	debugln("F%d=%lu", FREQ_MAP_SIZE-2, FrSkyR9_freq_map[FREQ_MAP_SIZE-2]);
-	FrSkyR9_freq_map[FREQ_MAP_SIZE-1] = FrSkyR9_freq_map[FrSkyR9_step+1];
-	debugln("F%d=%lu", FREQ_MAP_SIZE-1, FrSkyR9_freq_map[FREQ_MAP_SIZE-1]);
-	hopping_frequency_no = 0;
-
+	FrSkyR9_build_freq();
+	
 	//Set FrSkyFormat
 	if((sub_protocol & 0x02) == 0)
 		FrSkyFormat=0;					// 16 channels
@@ -98,6 +106,11 @@ uint16_t initFrSkyR9()
 
 uint16_t FrSkyR9_callback()
 {
+	static boolean bind=false;
+	if(bind && IS_BIND_DONE)
+		FrSkyR9_build_freq();			// 868 is binding at 915, need to switch back to 868 once bind is completed
+	bind=IS_BIND_IN_PROGRESS;
+	
 	//Force standby
 	SX1276_SetMode(true, false, SX1276_OPMODE_STDBY);
 

@@ -44,11 +44,14 @@ static void __attribute__((unused)) FrSkyR9_build_packet()
 
 	//Bind
 	if(IS_BIND_IN_PROGRESS)
-	{
+	{// 915 0x01=CH1-8_TELEM_ON 0x41=CH1-8_TELEM_OFF 0xC1=CH9-16_TELEM_OFF 0x81=CH9-16_TELEM_ON
+		packet[6] = 0x01;				// bind indicator
 		if(sub_protocol & 1)
-			packet[6] = 0x61;			// 868
-		else
-			packet[6] = 0x41;			// 915
+			packet[6] |= 0x20;			// 868
+		if(binding_idx&0x01)
+			packet[6] |= 0x40;			// telem OFF
+		if(binding_idx&0x02)
+			packet[6] |= 0x80;			// ch9-16
 	}
 
 	//SPort

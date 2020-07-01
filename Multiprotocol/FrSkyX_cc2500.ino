@@ -367,7 +367,6 @@ uint16_t initFrSkyX()
 		SportHead=SportTail=0;				// empty data buffer
 	#endif
 	FrSkyX_RX_Seq = 0 ;						// Seq 0 to start with
-	binding_idx=0;							// CH1-8 and Telem on
 	return 10000;
 }	
 #endif

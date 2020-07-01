@@ -1063,7 +1063,8 @@ static void protocol_init()
 					rx_rc_chan[ch] = 1024;
 			#endif
 		#endif
-
+		binding_idx=0;
+		
 		//Set global ID and rx_tx_addr
 		MProtocol_id = RX_num + MProtocol_id_master;
 		set_rx_tx_addr(MProtocol_id);
@@ -1878,8 +1879,8 @@ void update_serial_data()
 	#endif
 	if(rx_len>27)
 	{ // Data available for the current protocol
-		#if defined FRSKYX_CC2500_INO
-			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2) && rx_len==28)
+		#if defined(FRSKYX_CC2500_INO) and defined(FRSKYR9_SX1276_INO)
+			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9) && rx_len==28)
 			{//Protocol waiting for 1 byte during bind
 				binding_idx=rx_ok_buff[27];
 			}

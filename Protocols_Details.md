@@ -523,6 +523,8 @@ Models: Futaba RXs and XK models.
 
 Extended limits and failsafe supported
 
+RX output will match the Futaba standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 

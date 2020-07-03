@@ -1543,11 +1543,15 @@ CH1|CH2|CH3|CH4|CH5
 # SX1276 RF Module
 
 ## FRSKYR9 - *65*
-Extended limits and failsafe supported.
-
 **R9 RXs must be flashed with ACCST Flex.**
 
-Telemetry and power adjustment not yet supported.
+Extended limits and failsafe supported.
+
+Full telemetry from RX to TX is supported (not yet from TX to RX).
+
+Notes:
+- The choices of CH1-8/CH9-16 and Telem ON/OFF will be available in OpenTX 2.3.10+. The default is CH1-8 Telem ON.
+- Power adjustment is not supported on the T18.
 
 ### Sub_protocol R9_915 - *0*
 915MHz, 16 channels

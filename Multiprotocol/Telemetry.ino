@@ -33,7 +33,6 @@ uint8_t RetrySequence ;
 #if defined SPORT_TELEMETRY	
 	#define FRSKY_SPORT_PACKET_SIZE   8
 	#define FX_BUFFERS	4
-	uint8_t RxBt = 0;
 	uint8_t Sport_Data = 0;
 	uint8_t pktx1[FRSKY_SPORT_PACKET_SIZE*FX_BUFFERS];
 
@@ -348,26 +347,28 @@ void frskySendStuffed()
 	Serial_write(START_STOP);
 }
 
-void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
+void frsky_check_telemetry(uint8_t *buffer,uint8_t len)
 {
-	if(packet_in[1] != rx_tx_addr[3] || packet_in[2] != rx_tx_addr[2] || len != packet_in[0] + 3 )
-		return;										// Bad address or length...
-
+	if(protocol!=PROTO_FRSKY_R9)
+	{
+		if(buffer[1] != rx_tx_addr[3] || buffer[2] != rx_tx_addr[2] || len != buffer[0] + 3 )
+			return;										// Bad address or length...
+		// RSSI and LQI are the 2 last bytes
+		TX_RSSI = buffer[len-2];
+		if(TX_RSSI >=128)
+			TX_RSSI -= 128;
+		else
+			TX_RSSI += 128;
+		TX_LQI = buffer[len-1]&0x7F;
+	}
 	telemetry_link|=1;								// Telemetry data is available
-	// RSSI and LQI are the 2 last bytes
-	TX_RSSI = packet_in[len-2];
-	if(TX_RSSI >=128)
-		TX_RSSI -= 128;
-	else
-		TX_RSSI += 128;
-	TX_LQI = packet_in[len-1]&0x7F;
-	
+
 #if defined FRSKYD_CC2500_INO
 	if (protocol==PROTO_FRSKYD)
 	{
 		//Save current buffer
 		for (uint8_t i=3;i<len-2;i++)
-			telemetry_in_buffer[i]=packet_in[i];	// Buffer telemetry values to be sent
+			telemetry_in_buffer[i]=buffer[i];	// Buffer telemetry values to be sent
 	
 		//Check incoming telemetry sequence
 		if(telemetry_in_buffer[6]>0 && telemetry_in_buffer[6]<=10)
@@ -392,7 +393,7 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 	}
 #endif
 
-#if defined SPORT_TELEMETRY && defined FRSKYX_CC2500_INO
+#if defined SPORT_TELEMETRY && (defined FRSKYX_CC2500_INO || defined FRSKYR9_SX1276_INO)
 	if (protocol==PROTO_FRSKYX||protocol==PROTO_FRSKYX2)
 	{
 		/*Telemetry frames(RF) SPORT info 
@@ -413,29 +414,30 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 		[12] STRM6  D1 D1 D0 D0
 		[13] CHKSUM1 --|2 CRC bytes sent by RX (calculated on RX side crc16/table)
 		[14] CHKSUM2 --|*/
-		telemetry_lost=0;
-
-		uint16_t lcrc = FrSkyX_crc(&packet_in[3], len-7 ) ;
-		if ( ( (lcrc >> 8) != packet_in[len-4]) || ( (lcrc & 0x00FF ) != packet_in[len-3]) )
+		//len=17 -> len-7=10 -> 3..12
+		uint16_t lcrc = FrSkyX_crc(&buffer[3], len-7 ) ;
+		if ( ( (lcrc >> 8) != buffer[len-4]) || ( (lcrc & 0x00FF ) != buffer[len-3]) )
 			return;									// Bad CRC
 		
-		if(packet_in[4] & 0x80)
-			RX_RSSI=packet_in[4] & 0x7F ;
+		if(buffer[4] & 0x80)
+			RX_RSSI=buffer[4] & 0x7F ;
 		else
-			RxBt = (packet_in[4]<<1) + 1 ;
+			v_lipo1 = (buffer[4]<<1) + 1 ;
 		#if defined(TELEMETRY_FRSKYX_TO_FRSKYD) && defined(ENABLE_PPM)
 			if(mode_select != MODE_SERIAL)
-			{//PPM
-				v_lipo1=RxBt;
 				return;
-			}
 		#endif
+	}
+	if (protocol==PROTO_FRSKYX||protocol==PROTO_FRSKYX2||protocol==PROTO_FRSKY_R9)
+	{
+		telemetry_lost=0;
+
 		//Save outgoing telemetry sequence
-		FrSkyX_TX_IN_Seq=packet_in[5] >> 4;
+		FrSkyX_TX_IN_Seq=buffer[5] >> 4;
 
 		//Check incoming telemetry sequence
-		uint8_t packet_seq=packet_in[5] & 0x03;
-		if ( packet_in[5] & 0x08 )
+		uint8_t packet_seq=buffer[5] & 0x03;
+		if ( buffer[5] & 0x08 )
 		{//Request init
 			FrSkyX_RX_Seq = 0x08 ;
 			FrSkyX_RX_NextFrame = 0x00 ;
@@ -448,17 +450,17 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 		{//In sequence
 			struct t_FrSkyX_RX_Frame *p ;
 			uint8_t count ;
-			// packet_in[4] RSSI
-			// packet_in[5] sequence control
-			// packet_in[6] payload count
-			// packet_in[7-12] payload			
+			// buffer[4] RSSI
+			// buffer[5] sequence control
+			// buffer[6] payload count
+			// buffer[7-12] payload			
 			p = &FrSkyX_RX_Frames[packet_seq] ;
-			count = packet_in[6];					// Payload length
+			count = buffer[6];					// Payload length
 			if ( count <= 6 )
 			{//Store payload
 				p->count = count ;
 				for ( uint8_t i = 0 ; i < count ; i++ )
-					p->payload[i] = packet_in[i+7] ;
+					p->payload[i] = buffer[i+7] ;
 			}
 			else
 				p->count = 0 ;						// Discard
@@ -477,19 +479,19 @@ void frsky_check_telemetry(uint8_t *packet_in,uint8_t len)
 		{//Not in sequence
 			struct t_FrSkyX_RX_Frame *q ;
 			uint8_t count ;
-			// packet_in[4] RSSI
-			// packet_in[5] sequence control
-			// packet_in[6] payload count
-			// packet_in[7-12] payload			
+			// buffer[4] RSSI
+			// buffer[5] sequence control
+			// buffer[6] payload count
+			// buffer[7-12] payload			
 			if ( packet_seq == ( ( FrSkyX_RX_Seq +1 ) & 3 ) )
 			{//Received next sequence -> save it
 				q = &FrSkyX_RX_Frames[packet_seq] ;
-				count = packet_in[6];				// Payload length
+				count = buffer[6];				// Payload length
 				if ( count <= 6 )
 				{//Store payload
 					q->count = count ;
 					for ( uint8_t i = 0 ; i < count ; i++ )
-						q->payload[i] = packet_in[i+7] ;
+						q->payload[i] = buffer[i+7] ;
 				}
 				else
 					q->count = 0 ;
@@ -725,7 +727,7 @@ void sportSendFrame()
 		case 0:
 			frame[2] = 0x05;
 			frame[3] = 0xf1;
-			frame[4] = 0x02 ;//dummy values if swr 20230f00
+			frame[4] = 0x02; //dummy values if swr 20230f00
 			frame[5] = 0x23;
 			frame[6] = 0x0F;
 			break;
@@ -740,7 +742,7 @@ void sportSendFrame()
 		case 4: //BATT
 			frame[2] = 0x04;
 			frame[3] = 0xf1;
-			frame[4] = RxBt;//a1;
+			frame[4] = v_lipo1; //a1;
 			break;								
 		default:
 			if(Sport_Data)
@@ -870,7 +872,7 @@ void TelemetryUpdate()
 		#endif
 	#endif
 	#if defined SPORT_TELEMETRY
-		if ((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2) && telemetry_link 
+		if ((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2||protocol==PROTO_FRSKY_R9) && telemetry_link 
 		#ifdef TELEMETRY_FRSKYX_TO_FRSKYD
 			&& mode_select==MODE_SERIAL
 		#endif

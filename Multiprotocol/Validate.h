@@ -375,7 +375,7 @@
 	#if not defined(FRSKYD_CC2500_INO)
 		#undef HUB_TELEMETRY
 	#endif
-	#if not defined(FRSKYX_CC2500_INO)
+	#if not defined(FRSKYX_CC2500_INO) && not defined(FRSKYR9_SX1276_INO)
 		#undef SPORT_TELEMETRY
 		#undef SPORT_SEND
 	#endif

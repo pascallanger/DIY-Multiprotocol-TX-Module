@@ -16,9 +16,8 @@ uint8_t SX1276_ReadReg(uint8_t address)
 { 
 	SPI_CSN_off;
 	SPI_Write(address & 0x7F);
-	uint8_t result = SPI_Read();  
+	uint8_t result = SPI_Read();
 	SPI_CSN_on;
-
 	return result;
 }
 
@@ -29,6 +28,17 @@ void SX1276_WriteRegisterMulti(uint8_t address, const uint8_t* data, uint8_t len
 
 	for(uint8_t i = 0; i < length; i++)
 		SPI_Write(data[i]);
+
+	SPI_CSN_on;
+}
+
+void SX1276_ReadRegisterMulti(uint8_t address, uint8_t* data, uint8_t length)
+{ 
+	SPI_CSN_off;
+	SPI_Write(address & 0x7F);
+
+	for(uint8_t i = 0; i < length; i++)
+		data[i]=SPI_Read();
 
 	SPI_CSN_on;
 }

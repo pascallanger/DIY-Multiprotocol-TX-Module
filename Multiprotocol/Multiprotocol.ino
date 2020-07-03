@@ -766,7 +766,7 @@ bool Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_FRSKYX2) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT) || (protocol==PROTO_PROPEL) || (protocol==PROTO_DEVO) || (protocol==PROTO_DSM_RX))
+			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_FRSKYX2) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT) || (protocol==PROTO_PROPEL) || (protocol==PROTO_DEVO) || (protocol==PROTO_DSM_RX) || (protocol==PROTO_FRSKY_R9))
 		#endif
 				if(IS_DISABLE_TELEM_off)
 					TelemetryUpdate();
@@ -782,8 +782,8 @@ bool Update_All()
 		{ // Autobind is on and BIND_CH went down
 			BIND_CH_PREV_off;
 			//Request protocol to terminate bind
-			#if defined(FRSKYD_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO)
-			if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A )
+			#if defined(FRSKYD_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO) || defined(FRSKYR9_SX1276_INO)
+			if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9)
 				BIND_DONE;
 			else
 			#endif
@@ -1886,7 +1886,7 @@ void update_serial_data()
 			}
 		#endif
 		#ifdef SPORT_SEND
-			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2) && rx_len==35)
+			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || PROTO_FRSKY_R9) && rx_len==35)
 			{//Protocol waiting for 8 bytes
 				#define BYTE_STUFF	0x7D
 				#define STUFF_MASK	0x20

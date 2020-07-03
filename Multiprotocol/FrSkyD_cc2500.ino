@@ -54,7 +54,7 @@ static void __attribute__((unused)) frsky2way_build_bind_packet()
 	packet[14] = 0x00;
 	packet[15] = 0x00;
 	packet[16] = 0x00;
-	packet[17] = 0x01;
+	packet[17] = rx_tx_addr[1];
 }
 
 static void __attribute__((unused)) frsky2way_data_frame()
@@ -71,7 +71,7 @@ static void __attribute__((unused)) frsky2way_data_frame()
 		packet[4] = 0x00;
 	#endif
 
-	packet[5] = 0x01;
+	packet[5] = rx_tx_addr[1];
 	//
 	packet[10] = 0;
 	packet[11] = 0;
@@ -100,6 +100,7 @@ uint16_t initFrSky_2way()
 	if (sub_protocol==DCLONE)
 		Frsky_init_clone();
 	else
+	{
 		for(uint8_t i=0;i<50;i++)
 		{
 			uint8_t freq = (i * 0x1e) % 0xeb;
@@ -109,6 +110,8 @@ uint16_t initFrSky_2way()
 				freq=0;
 			hopping_frequency[i]=freq;
 		}
+		rx_tx_addr[1]=1;		// keep compatibility with already bound RXs
+	}
 	
 	packet_count=0;
 	if(IS_BIND_IN_PROGRESS)

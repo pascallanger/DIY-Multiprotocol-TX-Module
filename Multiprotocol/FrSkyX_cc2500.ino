@@ -229,7 +229,7 @@ uint16_t ReadFrSkyX()
 			{// LBT
 				CC2500_Strobe(CC2500_SRX);								//Acquire RSSI
 				state++;
-				return 400;		// LBT v2.1
+				return 400;		// LBT
 			}
 		case FRSKY_DATA2:
 			if(FrSkyFormat & 2)
@@ -257,19 +257,19 @@ uint16_t ReadFrSkyX()
 			CC2500_WriteData(packet, packet[0]+1);
 			state=FRSKY_DATA3;
 			if(FrSkyFormat & 2)
-				return 4000;	// LBT v2.1
+				return 4000;	// LBT
 			else
-				return 5200;	// FCC v2.1
+				return 5200;	// FCC
 		case FRSKY_DATA3:
 			CC2500_Strobe(CC2500_SIDLE);
 			CC2500_SetTxRxMode(RX_EN);
 			CC2500_Strobe(CC2500_SRX);
 			state++;
 			if(FrSkyFormat & 2)
-				return 4100;	// LBT v2.1
+				return 4200;	// LBT
 			else
-				return 3300;	// FCC v2.1
-	case FRSKY_DATA4:
+				return 3400;	// FCC
+		case FRSKY_DATA4:
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(9000);
 			#endif
@@ -277,11 +277,19 @@ uint16_t ReadFrSkyX()
 				telemetry_link=1;										//Send telemetry out anyway
 			#endif
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
-			if (len && (len<=(0x0E + 3)))								//Telemetry frame is 17
+			if (len <= 17)												//Telemetry frame is 17 bytes
 			{
 				//debug("Telem:");
 				packet_count=0;
-				CC2500_ReadData(packet_in, len);
+				CC2500_ReadData(packet_in, len);						//Read what has been received so far
+				if(len<17)
+				{//not all bytes were received
+					uint8_t last_len=CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
+					if(last_len==17)									//All bytes received
+						CC2500_ReadData(packet_in+len, last_len-len);	//Finish to read
+					else
+						len=0;											//Discard frame
+				}
 				#if defined TELEMETRY
 					if(protocol==PROTO_FRSKYX || (protocol==PROTO_FRSKYX2 && (packet_in[len-1] & 0x80)) )
 					{//with valid crc for FRSKYX2
@@ -315,7 +323,7 @@ uint16_t ReadFrSkyX()
 				CC2500_Strobe(CC2500_SFRX);								//Flush the RXFIFO
 			}
 			state = FRSKY_DATA1;
-			return 500;	// FCC & LBT v2.1
+			return 400;	// FCC & LBT
 	}		
 	return 1;		
 }

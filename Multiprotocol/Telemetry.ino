@@ -463,7 +463,7 @@ bool frsky_process_telemetry(uint8_t *buffer,uint8_t len)
 					p->payload[i] = buffer[i+7] ;
 			}
 			else
-				p->count = 0 ;						// Discard
+				p->count = 0 ;					// Discard
 			p->valid = true ;
 
 			FrSkyX_RX_Seq = ( FrSkyX_RX_Seq + 1 ) & 0x03 ;	// Move to next sequence

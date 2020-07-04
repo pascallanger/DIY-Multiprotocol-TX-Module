@@ -65,7 +65,6 @@ static void __attribute__((unused)) FrSkyR9_build_packet()
 	packet[20] |= FrSkyX_TX_Seq ;		//TX=8 at startup
 	if ( !(FrSkyX_TX_IN_Seq & 0xF8) )
 		FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;	// Next iteration send next packet
-	packet[20] = 0x08;					//FrSkyX_TX_Seq=8 at startup
 	packet[21] = 0x00;					// length?
 	packet[22] = 0x00;					// data1?
 	packet[23] = 0x00;					// data2?
@@ -177,6 +176,7 @@ uint16_t FrSkyR9_callback()
 			phase++;
 			return 7400;
 		case FRSKYR9_RX2:
+			telemetry_link=0;
 			if( (SX1276_ReadReg(SX1276_12_REGIRQFLAGS)&0xF0) == (_BV(SX1276_REGIRQFLAGS_RXDONE) | _BV(SX1276_REGIRQFLAGS_VALIDHEADER)) )
 			{
 				if(SX1276_ReadReg(SX1276_13_REGRXNBBYTES)==13)
@@ -211,7 +211,7 @@ uint16_t FrSkyR9_callback()
 					#endif
 					packet_count=0;
 					telemetry_lost=1;
-					telemetry_link=0;					//Stop sending telemetry
+					telemetry_link=0;						//Stop sending telemetry
 				}
 				CC2500_Strobe(CC2500_SFRX);					//Flush the RXFIFO
 			}

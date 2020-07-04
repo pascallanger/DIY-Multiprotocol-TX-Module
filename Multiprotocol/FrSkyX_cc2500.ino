@@ -277,7 +277,7 @@ uint16_t ReadFrSkyX()
 				telemetry_link=1;										//Send telemetry out anyway
 			#endif
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
-			if (len <= 17)												//Telemetry frame is 17 bytes
+			if (len && len <= 17)										//Telemetry frame is 17 bytes
 			{
 				//debug("Telem:");
 				packet_count=0;
@@ -291,8 +291,8 @@ uint16_t ReadFrSkyX()
 						len=0;											//Discard frame
 				}
 				#if defined TELEMETRY
-					if(protocol==PROTO_FRSKYX || (protocol==PROTO_FRSKYX2 && (packet_in[len-1] & 0x80)) )
-					{//with valid crc for FRSKYX2
+					if(len==17 && (protocol==PROTO_FRSKYX || (protocol==PROTO_FRSKYX2 && (packet_in[len-1] & 0x80))) )
+					{//Telemetry received with valid crc for FRSKYX2
 						//Debug
 						//for(uint8_t i=0;i<len;i++)
 						//	debug(" %02X",packet_in[i]);
@@ -301,7 +301,7 @@ uint16_t ReadFrSkyX()
 				#endif
 				//debugln("");
 			}
-			else
+			if(len!=17)
 			{
 				packet_count++;
 				//debugln("M %d",packet_count);

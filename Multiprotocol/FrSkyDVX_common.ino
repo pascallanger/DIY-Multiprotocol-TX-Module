@@ -17,8 +17,9 @@
 /**  FrSky D and X routines  **/
 /******************************/
 
-#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKY_RX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
+#if defined(FRSKYD_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKY_RX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
 	uint8_t FrSkyFormat=0;
+	uint8_t FrSkyX_chanskip;
 #endif
 
 #if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKY_RX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
@@ -380,21 +381,22 @@ void Frsky_init_clone(void)
 	}
 #endif
 
-#if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO)
-uint8_t FrSkyX_chanskip;
+#if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
 uint8_t FrSkyX_TX_Seq, FrSkyX_TX_IN_Seq;
 uint8_t FrSkyX_RX_Seq ;
 
-#ifdef SPORT_SEND
-	struct t_FrSkyX_TX_Frame
-	{
-		uint8_t count;
-		uint8_t payload[8];
-	} ;
-	// Store FrskyX telemetry
-	struct t_FrSkyX_TX_Frame FrSkyX_TX_Frames[4] ;
+	#ifdef SPORT_SEND
+		struct t_FrSkyX_TX_Frame
+		{
+			uint8_t count;
+			uint8_t payload[8];
+		} ;
+		// Store FrskyX telemetry
+		struct t_FrSkyX_TX_Frame FrSkyX_TX_Frames[4] ;
+	#endif
 #endif
 
+#if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO)
 static void __attribute__((unused)) FrSkyX_set_start(uint8_t ch )
 {
 	CC2500_Strobe(CC2500_SIDLE);

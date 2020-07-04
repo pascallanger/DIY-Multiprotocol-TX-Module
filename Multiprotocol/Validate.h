@@ -201,6 +201,7 @@
 	#define CC2500_INSTALLED
 	#define NRF24L01_INSTALLED
 	#define SX1276_INSTALLED
+	#undef ENABLE_PPM
 #endif
 
 //Make sure protocols are selected correctly

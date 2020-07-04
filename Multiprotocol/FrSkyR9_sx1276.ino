@@ -3,7 +3,6 @@
 
 #define FREQ_MAP_SIZE	29
 
-uint8_t FrSkyR9_step = 1;
 uint32_t FrSkyR9_freq_map[FREQ_MAP_SIZE];
 
 enum {
@@ -24,10 +23,10 @@ static void __attribute__((unused)) FrSkyR9_build_freq()
 		debugln("F%d=%lu", i, FrSkyR9_freq_map[i]);
 		start_freq+=0x7A000;
 	}
-    // Last two frequencies determined by FrSkyR9_step
-	FrSkyR9_freq_map[FREQ_MAP_SIZE-2] = FrSkyR9_freq_map[FrSkyR9_step];
+    // Last two frequencies determined by FrSkyX_chanskip
+	FrSkyR9_freq_map[FREQ_MAP_SIZE-2] = FrSkyR9_freq_map[FrSkyX_chanskip];
 	debugln("F%d=%lu", FREQ_MAP_SIZE-2, FrSkyR9_freq_map[FREQ_MAP_SIZE-2]);
-	FrSkyR9_freq_map[FREQ_MAP_SIZE-1] = FrSkyR9_freq_map[FrSkyR9_step+1];
+	FrSkyR9_freq_map[FREQ_MAP_SIZE-1] = FrSkyR9_freq_map[FrSkyX_chanskip+1];
 	debugln("F%d=%lu", FREQ_MAP_SIZE-1, FrSkyR9_freq_map[FREQ_MAP_SIZE-1]);
 	hopping_frequency_no = 0;
 }
@@ -41,7 +40,7 @@ static void __attribute__((unused)) FrSkyR9_build_packet()
 
 	//Hopping
 	packet[3] = hopping_frequency_no;	// current channel index
-	packet[4] = FrSkyR9_step;			// step size and last 2 channels start index
+	packet[4] = FrSkyX_chanskip;		// step size and last 2 channels start index
 
 	//RX number
 	packet[5] = RX_num;					// receiver number from OpenTX
@@ -81,9 +80,9 @@ uint16_t initFrSkyR9()
 {
 	set_rx_tx_addr(MProtocol_id_master);
 
-	//FrSkyR9_step
-	FrSkyR9_step = 1 + (random(0xfefefefe) % 24);
-	debugln("Step=%d", FrSkyR9_step);
+	//FrSkyX_chanskip
+	FrSkyX_chanskip = 1 + (random(0xfefefefe) % 24);
+	debugln("Step=%d", FrSkyX_chanskip);
 	
 	//Frequency table
 	FrSkyR9_build_freq();
@@ -142,7 +141,7 @@ uint16_t FrSkyR9_callback()
 			if(bind && IS_BIND_DONE)
 				FrSkyR9_build_freq();
 			bind=IS_BIND_IN_PROGRESS;
-			hopping_frequency_no = (hopping_frequency_no + FrSkyR9_step) % FREQ_MAP_SIZE;
+			hopping_frequency_no = (hopping_frequency_no + FrSkyX_chanskip) % FREQ_MAP_SIZE;
 			SX1276_SetFrequency(FrSkyR9_freq_map[hopping_frequency_no]); // set current center frequency
 			//Set power
 			// max power: 15dBm (10.8 + 0.6 * MaxPower [dBm])

@@ -192,7 +192,7 @@ uint16_t FrSkyR9_callback()
 						TX_RSSI=SX1276_ReadReg(SX1276_1A_PACKETRSSI)-157;
 						for(uint8_t i=0;i<9;i++)
 							packet[4+i]=packet_in[i];		//Adjust buffer to match FrSkyX
-						frsky_check_telemetry(packet,len);	//Check and parse telemetry packets
+						frsky_process_telemetry(packet,len);	//Check and parse telemetry packets
 					}
 				}
 			}

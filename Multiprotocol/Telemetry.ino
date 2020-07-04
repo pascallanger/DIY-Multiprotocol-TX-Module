@@ -347,12 +347,12 @@ void frskySendStuffed()
 	Serial_write(START_STOP);
 }
 
-void frsky_check_telemetry(uint8_t *buffer,uint8_t len)
+bool frsky_process_telemetry(uint8_t *buffer,uint8_t len)
 {
 	if(protocol!=PROTO_FRSKY_R9)
 	{
 		if(buffer[1] != rx_tx_addr[3] || buffer[2] != rx_tx_addr[2] || len != buffer[0] + 3 )
-			return;										// Bad address or length...
+			return false;										// Bad address or length...
 		// RSSI and LQI are the 2 last bytes
 		TX_RSSI = buffer[len-2];
 		if(TX_RSSI >=128)
@@ -417,7 +417,7 @@ void frsky_check_telemetry(uint8_t *buffer,uint8_t len)
 		//len=17 -> len-7=10 -> 3..12
 		uint16_t lcrc = FrSkyX_crc(&buffer[3], len-7 ) ;
 		if ( ( (lcrc >> 8) != buffer[len-4]) || ( (lcrc & 0x00FF ) != buffer[len-3]) )
-			return;									// Bad CRC
+			return false;									// Bad CRC
 		
 		if(buffer[4] & 0x80)
 			RX_RSSI=buffer[4] & 0x7F ;
@@ -425,7 +425,7 @@ void frsky_check_telemetry(uint8_t *buffer,uint8_t len)
 			v_lipo1 = (buffer[4]<<1) + 1 ;
 		#if defined(TELEMETRY_FRSKYX_TO_FRSKYD) && defined(ENABLE_PPM)
 			if(mode_select != MODE_SERIAL)
-				return;
+				return true;
 		#endif
 	}
 	if (protocol==PROTO_FRSKYX||protocol==PROTO_FRSKYX2||protocol==PROTO_FRSKY_R9)
@@ -503,6 +503,7 @@ void frsky_check_telemetry(uint8_t *buffer,uint8_t len)
 		}
 	}
 #endif
+	return true;
 }
 
 void init_frskyd_link_telemetry()

@@ -280,15 +280,15 @@ uint16_t ReadFrSkyX()
 			if (len && len <= 17)										//Telemetry frame is 17 bytes
 			{
 				//debug("Telem:");
-				packet_count=0;
 				CC2500_ReadData(packet_in, len);						//Read what has been received so far
 				if(len<17)
 				{//not all bytes were received
 					uint8_t last_len=CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
 					if(last_len==17)									//All bytes received
+					{
 						CC2500_ReadData(packet_in+len, last_len-len);	//Finish to read
-					else
-						len=0;											//Discard frame
+						len=17;
+					}
 				}
 				#if defined TELEMETRY
 					if(len==17 && (protocol==PROTO_FRSKYX || (protocol==PROTO_FRSKYX2 && (packet_in[len-1] & 0x80))) )
@@ -296,7 +296,10 @@ uint16_t ReadFrSkyX()
 						//Debug
 						//for(uint8_t i=0;i<len;i++)
 						//	debug(" %02X",packet_in[i]);
-						frsky_check_telemetry(packet_in,len);			//Check and parse telemetry packets
+						if(frsky_process_telemetry(packet_in,len))		//Check and process telemetry packets
+							packet_count=0;								// good
+						else
+							len=0;										// bad
 					}
 				#endif
 				//debugln("");

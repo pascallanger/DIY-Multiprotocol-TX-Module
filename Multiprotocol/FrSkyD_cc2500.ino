@@ -181,7 +181,7 @@ uint16_t ReadFrSky_2way()
 					if(packet_in[len-1] & 0x80)
 					{//with valid crc
 						packet_count=0;
-						frsky_check_telemetry(packet_in,len);	//check if valid telemetry packets and buffer them.
+						frsky_process_telemetry(packet_in,len);	//check if valid telemetry packets and buffer them.
 					}
 				#endif
 			}

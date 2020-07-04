@@ -359,13 +359,13 @@ bool frsky_process_telemetry(uint8_t *buffer,uint8_t len)
 			TX_RSSI -= 128;
 		else
 			TX_RSSI += 128;
-		TX_LQI = buffer[len-1]&0x7F;
 	}
 	telemetry_link|=1;								// Telemetry data is available
 
 #if defined FRSKYD_CC2500_INO
 	if (protocol==PROTO_FRSKYD)
 	{
+		TX_LQI = buffer[len-1]&0x7F;
 		//Save current buffer
 		for (uint8_t i=3;i<len-2;i++)
 			telemetry_in_buffer[i]=buffer[i];	// Buffer telemetry values to be sent

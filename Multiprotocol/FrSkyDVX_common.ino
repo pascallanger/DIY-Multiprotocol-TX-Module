@@ -280,7 +280,7 @@ void Frsky_init_clone(void)
 	//FRSKYX
 		/*02_IOCFG0*/  	 0x06 ,
 		/*00_IOCFG2*/  	 0x06 ,
-		/*17_MCSM1*/   	 0x0c ,	//X2->0x0E -> Go/Stay in RX mode
+		/*17_MCSM1*/   	 0x0c ,	//X2->0x0E -> RX stays in RX and TX stays in TX???
 		/*18_MCSM0*/   	 0x18 ,
 		/*06_PKTLEN*/  	 0x1E ,
 		/*07_PKTCTRL1*/	 0x04 ,
@@ -511,7 +511,7 @@ static void __attribute__((unused)) FrSkyX_init()
 		CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x05);		// Enable CRC
 		if(!(FrSkyFormat&2))
 		{ // FCC
-			CC2500_WriteReg(CC2500_17_MCSM1, 0x0E);		// Go/Stay in RX mode
+			CC2500_WriteReg(CC2500_17_MCSM1, 0x0E);		//0x0E -> RX stays in RX and TX stays in TX???
 			CC2500_WriteReg(CC2500_11_MDMCFG3, 0x84);	// bitrate 70K->77K
 		}
 	}

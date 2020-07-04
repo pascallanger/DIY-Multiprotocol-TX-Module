@@ -45,8 +45,8 @@ static void __attribute__((unused)) FrSkyR9_build_packet()
 	//RX number
 	packet[5] = RX_num;					// receiver number from OpenTX
 
-	// Set packet[6]=failsafe, packet[7]=0?? and packet[8..19]=channels data
-	FrSkyX_channels(6);
+	//Channels
+	FrSkyX_channels(6);					// Set packet[6]=failsafe, packet[7]=0?? and packet[8..19]=channels data
 
 	//Bind
 	if(IS_BIND_IN_PROGRESS)
@@ -60,14 +60,8 @@ static void __attribute__((unused)) FrSkyR9_build_packet()
 			packet[6] |= 0x80;			// ch9-16
 	}
 
-	//SPort
-	packet[20] = FrSkyX_RX_Seq << 4;
-	packet[20] |= FrSkyX_TX_Seq ;		//TX=8 at startup
-	if ( !(FrSkyX_TX_IN_Seq & 0xF8) )
-		FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;	// Next iteration send next packet
-	packet[21] = 0x00;					// length?
-	packet[22] = 0x00;					// data1?
-	packet[23] = 0x00;					// data2?
+	//Sequence and send SPort
+	FrSkyX_seq_sport(20,23);			//20=RX|TXseq, 21=bytes count, 22&23=data
 
 	//CRC
 	uint16_t crc = FrSkyX_crc(packet, 24);
@@ -182,23 +176,23 @@ uint16_t FrSkyR9_callback()
 						//TX_LQI=~(SX1276_ReadReg(SX1276_19_PACKETSNR)>>2)+1;
 						TX_RSSI=SX1276_ReadReg(SX1276_1A_PACKETRSSI)-157;
 						for(uint8_t i=0;i<9;i++)
-							packet[4+i]=packet_in[i];		//Adjust buffer to match FrSkyX
-						frsky_process_telemetry(packet,len);	//Check and parse telemetry packets
+							packet[4+i]=packet_in[i];		// Adjust buffer to match FrSkyX
+						frsky_process_telemetry(packet,len);	// Process telemetry packet
 						pps_counter++;
 						if(TX_LQI==0)
-							TX_LQI++;						//Recover telemetry right away
+							TX_LQI++;						// Recover telemetry right away
 					}
 				}
 			}
 			if (millis() - pps_timer >= 1000)
-			{//50pps @20ms
+			{//1 packet every 20ms
 				pps_timer = millis();
 				debugln("%d pps", pps_counter);
-				TX_LQI = pps_counter<<1;					// Max=100pps
+				TX_LQI = pps_counter<<1;					// Max=100%
 				pps_counter = 0;
 			}
 			if(TX_LQI==0)
-				FrSkyX_telem_init();
+				FrSkyX_telem_init();						// Reset telemetry
 			else
 				telemetry_link=1;							// Send telemetry out anyway
 			//Clear all flags

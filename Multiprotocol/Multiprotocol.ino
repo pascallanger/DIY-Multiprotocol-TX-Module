@@ -119,8 +119,8 @@ uint16_t state;
 uint8_t  len;
 uint8_t  armed, arm_flags, arm_channel_previous;
 uint8_t  num_ch;
-uint32_t pps_timer = 0;
-uint16_t pps_counter = 0;
+uint32_t pps_timer;
+uint16_t pps_counter;
 
 #ifdef CC2500_INSTALLED
 	#ifdef SCANNER_CC2500_INO
@@ -1043,6 +1043,8 @@ static void protocol_init()
 			#endif
 			tx_pause();
 			init_frskyd_link_telemetry();
+			pps_timer=millis();
+			pps_counter=0;
 			#ifdef BASH_SERIAL
 				TIMSK0 = 0 ;			// Stop all timer 0 interrupts
 				#ifdef INVERT_SERIAL

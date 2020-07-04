@@ -382,8 +382,8 @@ void Frsky_init_clone(void)
 #endif
 
 #if defined(FRSKYX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
-uint8_t FrSkyX_TX_Seq, FrSkyX_TX_IN_Seq;
-uint8_t FrSkyX_RX_Seq ;
+	uint8_t FrSkyX_TX_Seq, FrSkyX_TX_IN_Seq;
+	uint8_t FrSkyX_RX_Seq ;
 
 	#ifdef SPORT_SEND
 		struct t_FrSkyX_TX_Frame
@@ -394,20 +394,102 @@ uint8_t FrSkyX_RX_Seq ;
 		// Store FrskyX telemetry
 		struct t_FrSkyX_TX_Frame FrSkyX_TX_Frames[4] ;
 	#endif
+	
+	static void __attribute__((unused)) FrSkyX_seq_sport(uint8_t start, uint8_t end)
+	{
+		for (uint8_t i=start+1;i<=end;i++)
+			packet[i]=0;
+		packet[start] = FrSkyX_RX_Seq << 4;									//TX=8 at startup
+		#ifdef SPORT_SEND
+			if (FrSkyX_TX_IN_Seq!=0xFF)
+			{//RX has replied at least once
+				if (FrSkyX_TX_IN_Seq & 0x08)
+				{//Request init
+					//debugln("Init");
+					FrSkyX_TX_Seq = 0 ;	
+					for(uint8_t i=0;i<4;i++)
+						FrSkyX_TX_Frames[i].count=0;						//Discard frames in current output buffer
+				}
+				else if (FrSkyX_TX_IN_Seq & 0x04)
+				{//Retransmit the requested packet
+					debugln("Retry:%d",FrSkyX_TX_IN_Seq&0x03);
+					packet[start] |= FrSkyX_TX_IN_Seq&0x03;
+					packet[start+1]  = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq&0x03].count;
+					for (uint8_t i=start+2;i<start+2+FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq&0x03].count;i++)
+						packet[i] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq&0x03].payload[i];
+				}
+				else if ( FrSkyX_TX_Seq != 0x08 )
+				{
+					if(FrSkyX_TX_Seq==FrSkyX_TX_IN_Seq)
+					{//Send packet from the incoming radio buffer
+						//debugln("Send:%d",FrSkyX_TX_Seq);
+						packet[start] |= FrSkyX_TX_Seq;
+						uint8_t nbr_bytes=0;
+						for (uint8_t i=start+2;i<=end;i++)
+						{
+							if(SportHead==SportTail)
+								break; //buffer empty
+							packet[i]=SportData[SportHead];
+							FrSkyX_TX_Frames[FrSkyX_TX_Seq].payload[i-start+2]=SportData[SportHead];
+							SportHead=(SportHead+1) & (MAX_SPORT_BUFFER-1);
+							nbr_bytes++;
+						}
+						packet[start+1]=nbr_bytes;
+						FrSkyX_TX_Frames[FrSkyX_TX_Seq].count=nbr_bytes;
+						if(nbr_bytes)
+						{//Check the buffer status
+							uint8_t used = SportTail;
+							if ( SportHead > SportTail )
+								used += MAX_SPORT_BUFFER - SportHead ;
+							else
+								used -= SportHead ;
+							if ( used < (MAX_SPORT_BUFFER>>1) )
+							{
+								DATA_BUFFER_LOW_off;
+								debugln("Ok buf:%d",used);
+							}
+						}
+						FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;		//Next iteration send next packet
+					}
+					else
+					{//Not in sequence somehow, transmit what the receiver wants but why not asking for retransmit...
+						//debugln("RX_Seq:%d,TX:%d",FrSkyX_TX_IN_Seq,FrSkyX_TX_Seq);
+						packet[start] |= FrSkyX_TX_IN_Seq;
+						packet[start+1] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].count;
+						for (uint8_t i=start+2;i<start+2+FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].count;i++)
+							packet[i] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].payload[i-start+2];
+					}
+				}
+				else
+					packet[start] |= 0x08 ;									//FrSkyX_TX_Seq=8 at startup
+			}
+			if(packet[start+1])
+			{//Debug
+				debug("SP: ");
+				for(uint8_t i=0;i<packet[start+1];i++)
+					debug("%02X ",packet[start+2+i]);
+				debugln("");
+			}
+		#else
+			packet[start] |= FrSkyX_TX_Seq ;//TX=8 at startup
+			if ( !(FrSkyX_TX_IN_Seq & 0xF8) )
+				FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;				// Next iteration send next packet
+		#endif // SPORT_SEND
+	}
 
-static void __attribute__((unused)) FrSkyX_telem_init(void)
-{
-	FrSkyX_TX_Seq = 0x08 ;				// Request init
-	#ifdef SPORT_SEND
-		FrSkyX_TX_IN_Seq = 0xFF ;		// No sequence received yet
-		for(uint8_t i=0;i<4;i++)
-			FrSkyX_TX_Frames[i].count=0;// discard frames in current output buffer
-		SportHead=SportTail=0;			// empty data buffer
-	#endif
-	FrSkyX_RX_Seq = 0 ;					// Seq 0 to start with
-	telemetry_lost=1;
-	telemetry_link=0;					//Stop sending telemetry
-}
+	static void __attribute__((unused)) FrSkyX_telem_init(void)
+	{
+		FrSkyX_TX_Seq = 0x08 ;				// Request init
+		#ifdef SPORT_SEND
+			FrSkyX_TX_IN_Seq = 0xFF ;		// No sequence received yet
+			for(uint8_t i=0;i<4;i++)
+				FrSkyX_TX_Frames[i].count=0;// discard frames in current output buffer
+			SportHead=SportTail=0;			// empty data buffer
+		#endif
+		FrSkyX_RX_Seq = 0 ;					// Seq 0 to start with
+		telemetry_lost=1;
+		telemetry_link=0;					//Stop sending telemetry
+	}
 #endif
 
 #if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO)

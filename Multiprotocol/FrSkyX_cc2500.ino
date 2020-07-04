@@ -98,87 +98,11 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	packet[5] = FrSkyX_chanskip>>2;
 	packet[6] = RX_num;
 
+	//Channels
 	FrSkyX_channels(7);					// Set packet[7]=failsafe, packet[8]=0?? and packet[9..20]=channels data
 	
-	//sequence and send SPort
-	for (uint8_t i=22;i<packet_size-1;i++)
-		packet[i]=0;
-	packet[21] = FrSkyX_RX_Seq << 4;									//TX=8 at startup
-	#ifdef SPORT_SEND
-		if (FrSkyX_TX_IN_Seq!=0xFF)
-		{//RX has replied at least once
-			if (FrSkyX_TX_IN_Seq & 0x08)
-			{//Request init
-				//debugln("Init");
-				FrSkyX_TX_Seq = 0 ;	
-				for(uint8_t i=0;i<4;i++)
-					FrSkyX_TX_Frames[i].count=0;						//Discard frames in current output buffer
-			}
-			else if (FrSkyX_TX_IN_Seq & 0x04)
-			{//Retransmit the requested packet
-				debugln("Retry:%d",FrSkyX_TX_IN_Seq&0x03);
-				packet[21] |= FrSkyX_TX_IN_Seq&0x03;
-				packet[22]  = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq&0x03].count;
-				for (uint8_t i=23;i<23+FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq&0x03].count;i++)
-					packet[i] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq&0x03].payload[i];
-			}
-			else if ( FrSkyX_TX_Seq != 0x08 )
-			{
-				if(FrSkyX_TX_Seq==FrSkyX_TX_IN_Seq)
-				{//Send packet from the incoming radio buffer
-					//debugln("Send:%d",FrSkyX_TX_Seq);
-					packet[21] |= FrSkyX_TX_Seq;
-					uint8_t nbr_bytes=0;
-					for (uint8_t i=23;i<packet_size-1;i++)
-					{
-						if(SportHead==SportTail)
-							break; //buffer empty
-						packet[i]=SportData[SportHead];
-						FrSkyX_TX_Frames[FrSkyX_TX_Seq].payload[i-23]=SportData[SportHead];
-						SportHead=(SportHead+1) & (MAX_SPORT_BUFFER-1);
-						nbr_bytes++;
-					}
-					packet[22]=nbr_bytes;
-					FrSkyX_TX_Frames[FrSkyX_TX_Seq].count=nbr_bytes;
-					if(nbr_bytes)
-					{//Check the buffer status
-						uint8_t used = SportTail;
-						if ( SportHead > SportTail )
-							used += MAX_SPORT_BUFFER - SportHead ;
-						else
-							used -= SportHead ;
-						if ( used < (MAX_SPORT_BUFFER>>1) )
-						{
-							DATA_BUFFER_LOW_off;
-							debugln("Ok buf:%d",used);
-						}
-					}
-					FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;		//Next iteration send next packet
-				}
-				else
-				{//Not in sequence somehow, transmit what the receiver wants but why not asking for retransmit...
-					//debugln("RX_Seq:%d,TX:%d",FrSkyX_TX_IN_Seq,FrSkyX_TX_Seq);
-					packet[21] |= FrSkyX_TX_IN_Seq;
-					packet[22] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].count;
-					for (uint8_t i=23;i<23+FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].count;i++)
-						packet[i] = FrSkyX_TX_Frames[FrSkyX_TX_IN_Seq].payload[i-23];
-				}
-			}
-			else
-				packet[21] |= 0x08 ;									//FrSkyX_TX_Seq=8 at startup
-		}
-		if(packet[22])
-		{//Debug
-			debug("SP: ");
-			for(uint8_t i=0;i<packet[22];i++)
-				debug("%02X ",packet[23+i]);
-			debugln("");
-		}
-	#else
-		packet[21] |= FrSkyX_TX_Seq ;//TX=8 at startup
-		if ( !(FrSkyX_TX_IN_Seq & 0xF8) )
-			FrSkyX_TX_Seq = ( FrSkyX_TX_Seq + 1 ) & 0x03 ;				// Next iteration send next packet
-	#endif // SPORT_SEND
+	//Sequence and send SPort
+	FrSkyX_seq_sport(21,packet_size-2);	//21=RX|TXseq, 22=bytes count, 23..packet_size-2=data
 
 	//CRC
 	uint16_t lcrc = FrSkyX_crc(&packet[3], packet_size-4);
@@ -274,7 +198,6 @@ uint16_t ReadFrSkyX()
 				telemetry_set_input_sync(9000);
 			#endif
 			#if defined TELEMETRY
-				telemetry_link=1;										//Send telemetry out anyway
 				len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
 				if (len && len <= 17)										//Telemetry frame is 17 bytes
 				{
@@ -289,28 +212,33 @@ uint16_t ReadFrSkyX()
 							len=17;
 						}
 					}
-						if(len==17 && (protocol==PROTO_FRSKYX || (protocol==PROTO_FRSKYX2 && (packet_in[len-1] & 0x80))) )
-						{//Telemetry received with valid crc for FRSKYX2
-							//Debug
-							//for(uint8_t i=0;i<len;i++)
-							//	debug(" %02X",packet_in[i]);
-							if(frsky_process_telemetry(packet_in,len))		//Check and process telemetry packets
-								packet_count=0;								// good
-							else
-								len=0;										// bad
+					if(len==17 && (protocol==PROTO_FRSKYX || (protocol==PROTO_FRSKYX2 && (packet_in[len-1] & 0x80))) )
+					{//Telemetry received with valid crc for FRSKYX2
+						//Debug
+						//for(uint8_t i=0;i<len;i++)
+						//	debug(" %02X",packet_in[i]);
+						if(frsky_process_telemetry(packet_in,len))			//Check and process telemetry packet
+						{//good packet received
+							pps_counter++;
+							if(TX_LQI==0)
+								TX_LQI++;									//Recover telemetry right away
 						}
+					}
 					//debugln("");
 				}
-				if(len!=17)
-				{
-					packet_count++;
-					//debugln("M %d",packet_count);
-					// restart sequence on missed packet - might need count or timeout instead of one missed
-					if(packet_count>100)//~1sec
-						FrSkyX_telem_init();
+				if (millis() - pps_timer >= 900)
+				{//1 packet every 9ms
+					pps_timer = millis();
+					debugln("%d pps", pps_counter);
+					TX_LQI = pps_counter;									//Max=100%
+					pps_counter = 0;
 				}
+				if(TX_LQI==0)
+					FrSkyX_telem_init();									//Reset telemetry
+				else
+					telemetry_link=1;										//Send telemetry out anyway
 			#endif
-			CC2500_Strobe(CC2500_SFRX);								//Flush the RXFIFO
+			CC2500_Strobe(CC2500_SFRX);										//Flush the RXFIFO
 			state = FRSKY_DATA1;
 			return 400;	// FCC & LBT
 	}

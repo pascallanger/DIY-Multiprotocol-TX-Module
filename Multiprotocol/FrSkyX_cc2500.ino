@@ -275,59 +275,45 @@ uint16_t ReadFrSkyX()
 			#endif
 			#if defined TELEMETRY
 				telemetry_link=1;										//Send telemetry out anyway
+				len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
+				if (len && len <= 17)										//Telemetry frame is 17 bytes
+				{
+					//debug("Telem:");
+					CC2500_ReadData(packet_in, len);						//Read what has been received so far
+					if(len<17)
+					{//not all bytes were received
+						uint8_t last_len=CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
+						if(last_len==17)									//All bytes received
+						{
+							CC2500_ReadData(packet_in+len, last_len-len);	//Finish to read
+							len=17;
+						}
+					}
+						if(len==17 && (protocol==PROTO_FRSKYX || (protocol==PROTO_FRSKYX2 && (packet_in[len-1] & 0x80))) )
+						{//Telemetry received with valid crc for FRSKYX2
+							//Debug
+							//for(uint8_t i=0;i<len;i++)
+							//	debug(" %02X",packet_in[i]);
+							if(frsky_process_telemetry(packet_in,len))		//Check and process telemetry packets
+								packet_count=0;								// good
+							else
+								len=0;										// bad
+						}
+					//debugln("");
+				}
+				if(len!=17)
+				{
+					packet_count++;
+					//debugln("M %d",packet_count);
+					// restart sequence on missed packet - might need count or timeout instead of one missed
+					if(packet_count>100)//~1sec
+						FrSkyX_telem_init();
+				}
 			#endif
-			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
-			if (len && len <= 17)										//Telemetry frame is 17 bytes
-			{
-				//debug("Telem:");
-				CC2500_ReadData(packet_in, len);						//Read what has been received so far
-				if(len<17)
-				{//not all bytes were received
-					uint8_t last_len=CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
-					if(last_len==17)									//All bytes received
-					{
-						CC2500_ReadData(packet_in+len, last_len-len);	//Finish to read
-						len=17;
-					}
-				}
-				#if defined TELEMETRY
-					if(len==17 && (protocol==PROTO_FRSKYX || (protocol==PROTO_FRSKYX2 && (packet_in[len-1] & 0x80))) )
-					{//Telemetry received with valid crc for FRSKYX2
-						//Debug
-						//for(uint8_t i=0;i<len;i++)
-						//	debug(" %02X",packet_in[i]);
-						if(frsky_process_telemetry(packet_in,len))		//Check and process telemetry packets
-							packet_count=0;								// good
-						else
-							len=0;										// bad
-					}
-				#endif
-				//debugln("");
-			}
-			if(len!=17)
-			{
-				packet_count++;
-				//debugln("M %d",packet_count);
-				// restart sequence on missed packet - might need count or timeout instead of one missed
-				if(packet_count>100)
-				{//~1sec
-					FrSkyX_TX_Seq = 0x08 ;								//Request init
-					FrSkyX_TX_IN_Seq = 0xFF ;							//No sequence received yet
-					#ifdef SPORT_SEND
-						for(uint8_t i=0;i<4;i++)
-							FrSkyX_TX_Frames[i].count=0;				//Discard frames in current output buffer
-					#endif
-					packet_count=0;
-					#if defined TELEMETRY
-						telemetry_lost=1;
-						telemetry_link=0;								//Stop sending telemetry
-					#endif
-				}
-				CC2500_Strobe(CC2500_SFRX);								//Flush the RXFIFO
-			}
+			CC2500_Strobe(CC2500_SFRX);								//Flush the RXFIFO
 			state = FRSKY_DATA1;
 			return 400;	// FCC & LBT
-	}		
+	}
 	return 1;		
 }
 
@@ -370,14 +356,7 @@ uint16_t initFrSkyX()
 		state = FRSKY_DATA1;
 		FrSkyX_initialize_data(0);
 	}
-	FrSkyX_TX_Seq = 0x08 ;					// Request init
-	FrSkyX_TX_IN_Seq = 0xFF ;				// No sequence received yet
-	#ifdef SPORT_SEND
-		for(uint8_t i=0;i<4;i++)
-			FrSkyX_TX_Frames[i].count=0;	// discard frames in current output buffer
-		SportHead=SportTail=0;				// empty data buffer
-	#endif
-	FrSkyX_RX_Seq = 0 ;						// Seq 0 to start with
+	FrSkyX_telem_init();
 	return 10000;
-}	
+}
 #endif

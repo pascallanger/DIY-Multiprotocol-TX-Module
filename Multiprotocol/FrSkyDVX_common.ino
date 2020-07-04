@@ -381,7 +381,7 @@ void Frsky_init_clone(void)
 	}
 #endif
 
-#if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
+#if defined(FRSKYX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
 uint8_t FrSkyX_TX_Seq, FrSkyX_TX_IN_Seq;
 uint8_t FrSkyX_RX_Seq ;
 
@@ -394,6 +394,20 @@ uint8_t FrSkyX_RX_Seq ;
 		// Store FrskyX telemetry
 		struct t_FrSkyX_TX_Frame FrSkyX_TX_Frames[4] ;
 	#endif
+
+static void __attribute__((unused)) FrSkyX_telem_init(void)
+{
+	FrSkyX_TX_Seq = 0x08 ;				// Request init
+	#ifdef SPORT_SEND
+		FrSkyX_TX_IN_Seq = 0xFF ;		// No sequence received yet
+		for(uint8_t i=0;i<4;i++)
+			FrSkyX_TX_Frames[i].count=0;// discard frames in current output buffer
+		SportHead=SportTail=0;			// empty data buffer
+	#endif
+	FrSkyX_RX_Seq = 0 ;					// Seq 0 to start with
+	telemetry_lost=1;
+	telemetry_link=0;					//Stop sending telemetry
+}
 #endif
 
 #if defined(FRSKYX_CC2500_INO) || defined(FRSKYL_CC2500_INO)

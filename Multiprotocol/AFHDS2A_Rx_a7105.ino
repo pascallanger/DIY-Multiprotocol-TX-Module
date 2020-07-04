@@ -90,8 +90,6 @@ uint16_t initAFHDS2A_Rx()
 
 uint16_t AFHDS2A_Rx_callback()
 {
-	static uint32_t pps_timer = 0;
-	static uint16_t pps_counter = 0;
 	static int8_t read_retry;
 	int16_t temp;
 	uint8_t i;

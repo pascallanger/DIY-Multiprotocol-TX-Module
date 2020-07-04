@@ -274,10 +274,6 @@ static void __attribute__((unused)) HOTT_prep_data_packet()
 
 uint16_t ReadHOTT()
 {
-	#ifdef HOTT_FW_TELEMETRY
-		static uint8_t pps_counter=0;
-	#endif
-
 	switch(phase)
 	{
 		case HOTT_START:

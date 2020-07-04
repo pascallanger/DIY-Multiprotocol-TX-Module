@@ -379,8 +379,6 @@ uint16_t initFrSky_Rx()
 
 uint16_t FrSky_Rx_callback()
 {
-	static uint32_t pps_timer=0;
-	static uint8_t pps_counter=0;
 	static int8_t read_retry = 0;
 	static int8_t tune_low, tune_high;
 	uint8_t len, ch;

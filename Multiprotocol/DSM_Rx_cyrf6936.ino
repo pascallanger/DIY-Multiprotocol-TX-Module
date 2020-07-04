@@ -209,8 +209,6 @@ uint16_t DSM_Rx_callback()
 {
 	uint8_t rx_status;
 	static uint8_t read_retry=0;
-	static uint16_t pps_counter;
-	static uint32_t pps_timer = 0;
 
 	switch (phase)
 	{

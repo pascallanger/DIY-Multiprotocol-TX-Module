@@ -113,17 +113,9 @@ uint16_t initFrSkyR9()
 	SX1276_SetPaDac(true);
 	SX1276_SetTxRxMode(TX_EN);			// Set RF switch to TX
 
-	FrSkyX_TX_Seq = 0x08 ;					// Request init
-	FrSkyX_TX_IN_Seq = 0xFF ;				// No sequence received yet
-	#ifdef SPORT_SEND
-		for(uint8_t i=0;i<4;i++)
-			FrSkyX_TX_Frames[i].count=0;	// discard frames in current output buffer
-		SportHead=SportTail=0;				// empty data buffer
-	#endif
-	FrSkyX_RX_Seq = 0 ;						// Seq 0 to start with
+	FrSkyX_telem_init();
 	
 	phase=FRSKYR9_FREQ;
-
 	return 20000;						// start calling FrSkyR9_callback in 20 milliseconds
 }
 
@@ -176,7 +168,6 @@ uint16_t FrSkyR9_callback()
 			phase++;
 			return 7400;
 		case FRSKYR9_RX2:
-			telemetry_link=0;
 			if( (SX1276_ReadReg(SX1276_12_REGIRQFLAGS)&0xF0) == (_BV(SX1276_REGIRQFLAGS_RXDONE) | _BV(SX1276_REGIRQFLAGS_VALIDHEADER)) )
 			{
 				if(SX1276_ReadReg(SX1276_13_REGRXNBBYTES)==13)
@@ -188,34 +179,27 @@ uint16_t FrSkyR9_callback()
 							RX_RSSI=packet_in[0]<<1;
 						else
 							v_lipo1=(packet_in[0]<<1)+1;
-						TX_LQI=~(SX1276_ReadReg(SX1276_19_PACKETSNR)>>2)+1;
+						//TX_LQI=~(SX1276_ReadReg(SX1276_19_PACKETSNR)>>2)+1;
 						TX_RSSI=SX1276_ReadReg(SX1276_1A_PACKETRSSI)-157;
 						for(uint8_t i=0;i<9;i++)
 							packet[4+i]=packet_in[i];		//Adjust buffer to match FrSkyX
 						frsky_process_telemetry(packet,len);	//Check and parse telemetry packets
+						pps_counter++;
+						if(TX_LQI==0)
+							TX_LQI++;						//Recover telemetry right away
 					}
 				}
 			}
-			if(!telemetry_link)
-			{
-				packet_count++;
-				//debugln("M %d",packet_count);
-				// restart sequence on missed packet - might need count or timeout instead of one missed
-				if(packet_count>100)
-				{//~1sec
-					FrSkyX_TX_Seq = 0x08 ;					//Request init
-					FrSkyX_TX_IN_Seq = 0xFF ;				//No sequence received yet
-					#ifdef SPORT_SEND
-						for(uint8_t i=0;i<4;i++)
-							FrSkyX_TX_Frames[i].count=0;	//Discard frames in current output buffer
-					#endif
-					packet_count=0;
-					telemetry_lost=1;
-					telemetry_link=0;						//Stop sending telemetry
-				}
-				CC2500_Strobe(CC2500_SFRX);					//Flush the RXFIFO
+			if (millis() - pps_timer >= 1000)
+			{//50pps @20ms
+				pps_timer = millis();
+				debugln("%d pps", pps_counter);
+				TX_LQI = pps_counter<<1;					// Max=100pps
+				pps_counter = 0;
 			}
-			if(!telemetry_lost)
+			if(TX_LQI==0)
+				FrSkyX_telem_init();
+			else
 				telemetry_link=1;							// Send telemetry out anyway
 			//Clear all flags
 			SX1276_WriteReg(SX1276_12_REGIRQFLAGS,0xFF);

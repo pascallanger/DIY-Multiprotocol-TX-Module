@@ -126,8 +126,6 @@ uint16_t Bayang_Rx_callback()
 {
 	uint8_t i;
 	static int8_t read_retry;
-	static uint16_t pps_counter;
-	static uint32_t pps_timer = 0;
 
 	switch (phase) {
 	case BAYANG_RX_BIND:

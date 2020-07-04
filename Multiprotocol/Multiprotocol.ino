@@ -119,6 +119,8 @@ uint16_t state;
 uint8_t  len;
 uint8_t  armed, arm_flags, arm_channel_previous;
 uint8_t  num_ch;
+uint32_t pps_timer = 0;
+uint16_t pps_counter = 0;
 
 #ifdef CC2500_INSTALLED
 	#ifdef SCANNER_CC2500_INO

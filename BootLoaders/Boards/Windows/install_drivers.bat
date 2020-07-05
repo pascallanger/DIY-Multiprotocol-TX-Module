@@ -1,11 +1,11 @@
 @echo off
 
-echo Installing Maple DFU driver...
-"%~dp0wdi-simple" --vid 0x1EAF --pid 0x0003 --type 1 --name "Maple DFU" --dest "%~dp0maple-dfu"
+echo Installing MULTI-Module DFU Bootloader Driver...
+"%~dp0wdi-simple" --vid 0x1EAF --pid 0x0003 --type 2 --name "MULTI-Module DFU Bootloader" --dest "%~dp0MULTI-DFU-Bootloader" -b
 echo.
 
-echo Installing Maple Serial driver...
-"%~dp0wdi-simple" --vid 0x1EAF --pid 0x0004 --type 3 --name "Maple Serial" --dest "%~dp0maple-serial"
+echo Installing MULTI-Module USB Serial Driver...
+"%~dp0wdi-simple" --vid 0x1EAF --pid 0x0004 --type 3 --name "MULTI-Module USB Serial" --dest "%~dp0MULTI-USB-Serial" -b
 echo.
 
 pause

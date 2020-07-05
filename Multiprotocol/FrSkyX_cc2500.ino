@@ -137,21 +137,21 @@ uint16_t ReadFrSkyX()
 			FrSkyX_initialize_data(0);
 			hopping_frequency_no=0;
 			BIND_DONE;
-			state++;													//FRSKY_DATA1
+			state++;														//FRSKY_DATA1
 			break;
 
 		case FRSKY_DATA1:
 			CC2500_Strobe(CC2500_SIDLE);
 			if ( prev_option != option )
 			{
-				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);				//Frequency offset hack 
+				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);					//Frequency offset hack 
 				prev_option = option ;
 			}
 			FrSkyX_set_start(hopping_frequency_no);
 			FrSkyX_build_packet();
 			if(FrSkyFormat & 2)
 			{// LBT
-				CC2500_Strobe(CC2500_SRX);								//Acquire RSSI
+				CC2500_Strobe(CC2500_SRX);									//Acquire RSSI
 				state++;
 				return 400;		// LBT
 			}
@@ -163,18 +163,18 @@ uint16_t ReadFrSkyX()
 					rssi += CC2500_ReadReg(CC2500_34_RSSI | CC2500_READ_BURST);	// 0.5 db/count, RSSI value read from the RSSI status register is a 2's complement number
 				rssi>>=2;
 				#if 0
-					uint8_t rssi_level=convert_channel_8b(CH16)>>1;		//CH16 0..127
-					if ( rssi > rssi_level && rssi < 128)				//test rssi level dynamically
+					uint8_t rssi_level=convert_channel_8b(CH16)>>1;			//CH16 0..127
+					if ( rssi > rssi_level && rssi < 128)					//test rssi level dynamically
 				#else
-					if ( rssi > 14 && rssi < 128)						// if RSSI above -65dBm (12=-70) => ETSI requirement
+					if ( rssi > 14 && rssi < 128)							//if RSSI above -65dBm (12=-70) => ETSI requirement
 				#endif
 				{
-					LBT_POWER_on;										// Reduce to low power before transmitting
+					LBT_POWER_on;											//Reduce to low power before transmitting
 					debugln("Busy %d %d",hopping_frequency_no,rssi);
 				}
 			}
 			CC2500_Strobe(CC2500_SIDLE);
-			CC2500_Strobe(CC2500_SFTX);
+			CC2500_Strobe(CC2500_SFTX);										//Flush the TXFIFO
 			CC2500_SetTxRxMode(TX_EN);
 			CC2500_SetPower();
 			hopping_frequency_no = (hopping_frequency_no+FrSkyX_chanskip)%47;
@@ -186,6 +186,7 @@ uint16_t ReadFrSkyX()
 				return 5200;	// FCC
 		case FRSKY_DATA3:
 			CC2500_Strobe(CC2500_SIDLE);
+			CC2500_Strobe(CC2500_SFRX);										//Flush the RXFIFO
 			CC2500_SetTxRxMode(RX_EN);
 			CC2500_Strobe(CC2500_SRX);
 			state++;
@@ -238,7 +239,6 @@ uint16_t ReadFrSkyX()
 				else
 					telemetry_link=1;										//Send telemetry out anyway
 			#endif
-			CC2500_Strobe(CC2500_SFRX);										//Flush the RXFIFO
 			state = FRSKY_DATA1;
 			return 400;	// FCC & LBT
 	}

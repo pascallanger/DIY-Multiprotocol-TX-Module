@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	36
+#define VERSION_PATCH_LEVEL	37
 
 //******************
 // Protocols
@@ -344,6 +344,10 @@ enum FRSKY_R9
 	R9_868		= 1,
 	R9_915_8CH	= 2,
 	R9_868_8CH	= 3,
+	R9_FCC		= 4,
+	R9_EU		= 5,
+	R9_FCC_8CH	= 6,
+	R9_EU_8CH	= 7,
 };
 enum ESKY
 {
@@ -958,6 +962,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			R9_868		1
 			R9_915_8CH	2
 			R9_868_8CH	3
+			R9_FCC		4
+			R9_EU		5
+			R9_FCC_8CH	6
+			R9_EU_8CH	7
 		sub_protocol==ESKY
 			ESKY_STD	0
 			ESKY_ET4	1

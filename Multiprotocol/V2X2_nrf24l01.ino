@@ -118,10 +118,13 @@ static void __attribute__((unused)) V2X2_set_tx_id(void)
 		hopping_frequency[i] = (val & 0x0f) ? val : val - 3;
 	}
 	#ifdef V2X2_MR101_FORCE_ID
+	if(sub_protocol==V2X2_MR101)
+	{
 		rx_tx_addr[1]=0x83;
 		rx_tx_addr[2]=0x03;
 		rx_tx_addr[3]=0xAE;
 		memcpy(hopping_frequency,"\x05\x12\x08\x0C\x04\x0E\x10",7);
+	}
 	#endif
 }
 

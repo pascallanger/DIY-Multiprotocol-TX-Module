@@ -86,6 +86,7 @@ const char STR_XN297DUMP[]	="XN297DP";
 const char STR_FRSKYR9[]	="FrSkyR9";
 const char STR_PROPEL[]		="Propel";
 const char STR_SKYARTEC[]	="Skyartc";
+const char STR_KYOSHO[]		="Kyosho";
 const char STR_TEST[]		="Test";
 const char STR_FAKE[]		="Fake";
 
@@ -289,6 +290,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(KN_NRF24L01_INO)
 		{PROTO_KN,         STR_KN,        2, STR_SUBTYPE_KN,        OPTION_NONE    },
+	#endif
+	#if defined(KYOSHO_A7105_INO)
+		{PROTO_KYOSHO,     STR_KYOSHO,    0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(MJXQ_NRF24L01_INO)
 		{PROTO_MJXQ,       STR_MJXQ,      7, STR_SUBTYPE_MJXQ,      OPTION_RFTUNE  },

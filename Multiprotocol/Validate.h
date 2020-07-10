@@ -150,6 +150,11 @@
 		#error "The Hubsan forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
+#ifdef FORCE_KYOSHO_TUNING
+	#if ( FORCE_KYOSHO_TUNING < -300 ) || ( FORCE_KYOSHO_TUNING > 300 )
+		#error "The Kyosho forced frequency tuning value is outside of the range -300..300."
+	#endif
+#endif
 
 #ifndef USE_A7105_CH15_TUNING
 	#ifndef FORCE_BUGS_TUNING
@@ -163,6 +168,9 @@
 	#endif
 	#ifndef FORCE_PELIKAN_TUNING
 		#define FORCE_PELIKAN_TUNING 0
+	#endif
+	#ifndef FORCE_KYOSHO_TUNING
+		#define FORCE_KYOSHO_TUNING 0
 	#endif
 	#ifndef FORCE_HUBSAN_TUNING
 		#define FORCE_HUBSAN_TUNING 0
@@ -212,6 +220,7 @@
 	#undef FLYSKY_A7105_INO
 	#undef FLYZONE_A7105_INO
 	#undef HUBSAN_A7105_INO
+	#undef KYOSHO_A7105_INO
 	#undef PELIKAN_A7105_INO
 #endif
 #ifndef CYRF6936_INSTALLED

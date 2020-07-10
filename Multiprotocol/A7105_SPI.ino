@@ -202,6 +202,11 @@ void A7105_AdjustLOBaseFreq(uint8_t cmd)
 					offset=(int16_t)FORCE_PELIKAN_TUNING;
 				#endif
 				break;
+			case PROTO_KYOSHO:
+				#ifdef FORCE_KYOSHO_TUNING
+					offset=(int16_t)FORCE_KYOSHO_TUNING;
+				#endif
+				break;
 			case PROTO_AFHDS2A:
 			case PROTO_AFHDS2A_RX:
 				#ifdef FORCE_AFHDS2A_TUNING
@@ -306,6 +311,14 @@ const uint8_t PROGMEM PELIKAN_A7105_regs[] = {
 	0x01, 0x0f // 30 - 31
 };
 #endif
+#ifdef KYOSHO_A7105_INO
+const uint8_t PROGMEM KYOSHO_A7105_regs[] = {
+	0xff, 0x42, 0xff, 0x25, 0x00, 0xff, 0xff ,0x00, 0x00, 0x00, 0x00, 0x01, 0x21, 0x05, 0x00, 0x50,	// 00 - 0f
+	0x9e, 0x4b, 0x00, 0x02, 0x16, 0x2b, 0x12, 0x40, 0x62, 0x80, 0x80, 0x00, 0x0a, 0x32, 0x03, 0x1f,	// 10 - 1f
+	0x1e, 0x00, 0x00, 0xff, 0x00, 0x00, 0x23, 0x70, 0x1F, 0x47, 0x80, 0x57, 0x01, 0x45, 0x19, 0x00,	// 20 - 2f
+	0x01, 0x0f // 30 - 31
+};
+#endif
 
 #define ID_NORMAL 0x55201041
 #define ID_PLUS   0xAA201041
@@ -348,13 +361,15 @@ void A7105_Init(void)
 			#ifdef FLYSKY_A7105_INO
 				if(protocol==PROTO_FLYSKY)
 					A7105_Regs=(uint8_t*)FLYSKY_A7105_regs;
-				else
 			#endif
-				{
-					#if defined(AFHDS2A_A7105_INO) || defined(AFHDS2A_RX_A7105_INO)
-						A7105_Regs=(uint8_t*)AFHDS2A_A7105_regs;
-					#endif
-				}
+			#if defined(AFHDS2A_A7105_INO) || defined(AFHDS2A_RX_A7105_INO)
+				if(protocol==PROTO_AFHDS2A)
+					A7105_Regs=(uint8_t*)AFHDS2A_A7105_regs;
+			#endif
+			#ifdef KYOSHO_A7105_INO
+				if(protocol==PROTO_KYOSHO)
+					A7105_Regs=(uint8_t*)KYOSHO_A7105_regs;
+			#endif
 		}
 
 	for (uint8_t i = 0; i < 0x32; i++)
@@ -373,54 +388,68 @@ void A7105_Init(void)
 	}
 	A7105_Strobe(A7105_STANDBY);
 
-	//IF Filter Bank Calibration
-	A7105_WriteReg(A7105_02_CALC,1);
-	while(A7105_ReadReg(A7105_02_CALC));			// Wait for calibration to end
-//	A7105_ReadReg(A7105_22_IF_CALIB_I);
-//	A7105_ReadReg(A7105_24_VCO_CURCAL);
-
-	if(protocol!=PROTO_HUBSAN)
-	{
-		//VCO Current Calibration
-		A7105_WriteReg(A7105_24_VCO_CURCAL,0x13);	//Recommended calibration from A7105 Datasheet
-		//VCO Bank Calibration
-		A7105_WriteReg(A7105_26_VCO_SBCAL_II,0x3b);	//Recommended calibration from A7105 Datasheet
+	if(protocol==PROTO_KYOSHO)
+	{//strange calibration...
+		//IF Filter Bank Calibration
+		A7105_WriteReg(A7105_02_CALC,0x0F);
+		while(A7105_ReadReg(A7105_02_CALC));			// Wait for calibration to end
+	//	A7105_ReadReg(A7105_22_IF_CALIB_I);
+	//	A7105_ReadReg(A7105_24_VCO_CURCAL);
+	//	A7105_ReadReg(25_VCO_SBCAL_I);
+	//	A7105_ReadReg(1A_RX_GAIN_II);
+	//	A7105_ReadReg(1B_RX_GAIN_III);
 	}
-
-	//VCO Bank Calibrate channel 0
-	A7105_WriteReg(A7105_0F_CHANNEL, 0);
-	A7105_WriteReg(A7105_02_CALC,2);
-	while(A7105_ReadReg(A7105_02_CALC));			// Wait for calibration to end
-	vco_calibration0 = A7105_ReadReg(A7105_25_VCO_SBCAL_I);
-	
-	//VCO Bank Calibrate channel A0
-	A7105_WriteReg(A7105_0F_CHANNEL, 0xa0);
-	A7105_WriteReg(A7105_02_CALC, 2);
-	while(A7105_ReadReg(A7105_02_CALC));			// Wait for calibration to end
-	vco_calibration1 = A7105_ReadReg(A7105_25_VCO_SBCAL_I);
-
-	if(protocol==PROTO_BUGS)
-		A7105_SetVCOBand(vco_calibration0 & 0x07, vco_calibration1 & 0x07);	// Set calibration band value to best match
 	else
+	{
+		//IF Filter Bank Calibration
+		A7105_WriteReg(A7105_02_CALC,1);
+		while(A7105_ReadReg(A7105_02_CALC));			// Wait for calibration to end
+	//	A7105_ReadReg(A7105_22_IF_CALIB_I);
+	//	A7105_ReadReg(A7105_24_VCO_CURCAL);
+
 		if(protocol!=PROTO_HUBSAN)
 		{
-			switch(protocol)
-			{
-				case PROTO_FLYSKY:
-					vco_calibration1=0x08;
-					break;
-				case PROTO_FLYZONE:
-					vco_calibration1=0x02;
-					break;
-				case PROTO_PELIKAN:
-					vco_calibration1=0x0C;
-					break;
-				default:
-					vco_calibration1=0x0A;
-					break;
-			}
-			A7105_WriteReg(A7105_25_VCO_SBCAL_I,vco_calibration1);	//Reset VCO Band calibration
+			//VCO Current Calibration
+			A7105_WriteReg(A7105_24_VCO_CURCAL,0x13);	//Recommended calibration from A7105 Datasheet
+			//VCO Bank Calibration
+			A7105_WriteReg(A7105_26_VCO_SBCAL_II,0x3b);	//Recommended calibration from A7105 Datasheet
 		}
+
+		//VCO Bank Calibrate channel 0
+		A7105_WriteReg(A7105_0F_CHANNEL, 0);
+		A7105_WriteReg(A7105_02_CALC,2);
+		while(A7105_ReadReg(A7105_02_CALC));			// Wait for calibration to end
+		vco_calibration0 = A7105_ReadReg(A7105_25_VCO_SBCAL_I);
+		
+		//VCO Bank Calibrate channel A0
+		A7105_WriteReg(A7105_0F_CHANNEL, 0xa0);
+		A7105_WriteReg(A7105_02_CALC, 2);
+		while(A7105_ReadReg(A7105_02_CALC));			// Wait for calibration to end
+		vco_calibration1 = A7105_ReadReg(A7105_25_VCO_SBCAL_I);
+
+		if(protocol==PROTO_BUGS)
+			A7105_SetVCOBand(vco_calibration0 & 0x07, vco_calibration1 & 0x07);	// Set calibration band value to best match
+		else
+			if(protocol!=PROTO_HUBSAN)
+			{
+				switch(protocol)
+				{
+					case PROTO_FLYSKY:
+						vco_calibration1=0x08;
+						break;
+					case PROTO_FLYZONE:
+						vco_calibration1=0x02;
+						break;
+					case PROTO_PELIKAN:
+						vco_calibration1=0x0C;
+						break;
+					default:
+						vco_calibration1=0x0A;
+						break;
+				}
+				A7105_WriteReg(A7105_25_VCO_SBCAL_I,vco_calibration1);	//Reset VCO Band calibration
+			}
+	}
 	A7105_SetTxRxMode(TX_EN);
 	A7105_SetPower();
 

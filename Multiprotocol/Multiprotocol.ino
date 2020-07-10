@@ -1136,6 +1136,13 @@ static void protocol_init()
 						remote_callback = ReadPelikan;
 						break;
 				#endif
+				#if defined(KYOSHO_A7105_INO)
+					case PROTO_KYOSHO:
+						PE1_off;	//antenna RF1
+						next_callback = initKyosho();
+						remote_callback = ReadKyosho;
+						break;
+				#endif
 			#endif
 			#ifdef CC2500_INSTALLED
 				#if defined(FRSKYD_CC2500_INO)

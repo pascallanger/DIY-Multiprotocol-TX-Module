@@ -110,6 +110,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345||||||||NRF24L01|XN297
 [KF606](Protocols_Details.md#KF606---49)|49|KF606*||||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
+[Kyosho](Protocols_Details.md#Kyosho---73)|73|||||||||A7105|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
@@ -142,6 +143,19 @@ CFlie|38|CFlie||||||||NRF24L01|
 # A7105 RF Module
 
 If USE_A7105_CH15_TUNING is enabled, the value of channel 15 is used by all A7105 protocols for tuning the frequency. This is required in rare cases where some A7105 modules and/or RXs have an inaccurate crystal oscillator.
+
+## BUGS - *41*
+Models: MJX Bugs 3, 6 and 8
+
+Telemetry enabled for RX & TX RSSI, Battery voltage good/bad
+
+**RX_Num is used to give a number to a given model. You must use a different RX_Num per MJX Bugs. A maximum of 16 Bugs are supported.**
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
+
+ANGLE: angle is +100%, acro is -100%
 
 ## FLYSKY - *1*
 Extended limits supported
@@ -254,18 +268,12 @@ H122D: FLIP
 
 H123D: FMODES -> -100%=Sport mode 1,0%=Sport mode 2,+100%=Acro
 
-## BUGS - *41*
-Models: MJX Bugs 3, 6 and 8
+## Kyosho - *73*
+Transmiter: KT-531P and others
 
-Telemetry enabled for RX & TX RSSI, Battery voltage good/bad
-
-**RX_Num is used to give a number to a given model. You must use a different RX_Num per MJX Bugs. A maximum of 16 Bugs are supported.**
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|---
-A|E|T|R|ARM|ANGLE|FLIP|PICTURE|VIDEO|LED
-
-ANGLE: angle is +100%, acro is -100%
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
+---|---|---|---|---|---|---|---|---|----|----|----|----|----
+Steering|T|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 
 ## Pelikan - *60*
 Extended limits supported

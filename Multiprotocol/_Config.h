@@ -118,8 +118,9 @@
 //#define FORCE_BUGS_TUNING		0
 //#define FORCE_FLYSKY_TUNING	0
 //#define FORCE_FLYZONE_TUNING	0
-//#define FORCE_PELIKAN_TUNING	0
 //#define FORCE_HUBSAN_TUNING	0
+//#define FORCE_KYOSHO_TUNING	0
+//#define FORCE_PELIKAN_TUNING	0
 
 /** CYRF6936 Fine Frequency Tuning **/
 //This is required in rare cases where some CYRF6936 modules and/or RXs have an inaccurate crystal oscillator.
@@ -170,6 +171,7 @@
 #define	FLYSKY_A7105_INO
 #define	FLYZONE_A7105_INO
 #define	HUBSAN_A7105_INO
+#define KYOSHO_A7105_INO
 #define	PELIKAN_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
@@ -656,6 +658,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_KN
 		WLTOYS
 		FEILUN
+	PROTO_KYOSHO
+		NONE
 	PROTO_MJXQ
 		WLH08
 		X600

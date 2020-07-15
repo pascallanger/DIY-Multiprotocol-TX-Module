@@ -39,7 +39,7 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 	packet_in[idx++] = 14; // number of channels in packet
 	// pack channels
 	for (uint8_t i = 0; i < 14; i++) {
-		uint32_t val = packet[9+i*2] | (packet[10+i*2] << 8);
+		uint32_t val = packet[9+i*2] | ((packet[10+i*2] << 8)&0x0F);
 		if (val < 860)
 			val = 860;
 		// convert ppm (860-2140) to Multi (0-2047)

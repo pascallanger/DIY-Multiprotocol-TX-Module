@@ -263,7 +263,6 @@
 //When enabled (remove the "//"), the below setting makes LQI (Link Quality Indicator) available on one of the RX ouput channel (5-14).
 //#define AFHDS2A_LQI_CH 14
 
-
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
@@ -508,6 +507,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		PPM_IBUS
 		PWM_SBUS
 		PPM_SBUS
+		PWM_IB16
+		PPM_IB16
 	PROTO_AFHDS2A_RX
 		NONE
 	PROTO_ASSAN

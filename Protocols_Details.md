@@ -85,7 +85,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
 [ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|ESky150V2||||||||CC2500|NRF24L01
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
-[Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|||||A7105|
+[Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|PWM_IBUS16|PPM_IBUS16|||A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|RX||||||||A7105|
 [Flyzone](Protocols_Details.md#FLYZONE---53)|53|FZ410||||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
@@ -195,14 +195,11 @@ Extended limits and failsafe supported
 Telemetry enabled protocol:
  - by defaut using FrSky Hub protocol (for example er9x): RX(A1), battery voltage FS-CVT01(A2) and RX&TX RSSI
  - if using erskyTX and OpenTX: full telemetry information available
+ - if telemetry is incomplete (missing RX RSSI for example), it means that you have to upgrade your RX firmware to version 1.6 or later. You can do it from an original Flysky TX or using a STLink like explained in [this tutorial](https://www.rcgroups.com/forums/showthread.php?2677694-How-to-upgrade-Flysky-Turnigy-iA6B-RX-to-firmware-1-6-with-a-ST-Link).
 
 Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 70 gives 400Hz (max). Specific refresh rate value can be calculated like this option=(refresh_rate-50)/5.
 
 **RX_Num is used to give a number a given RX. You must use a different RX_Num per RX. A maximum of 64 AFHDS2A RXs are supported.**
-
-OpenTX suggested RSSI alarm threshold settings (Telemetry tab): Low=15, Critical=12.
-
-If telemetry is incomplete (missing RX RSSI for example), it means that you have to upgrade your RX firmware to version 1.6 or later. You can do it from an original Flysky TX or using a STLink like explained in [this tutorial](https://www.rcgroups.com/forums/showthread.php?2677694-How-to-upgrade-Flysky-Turnigy-iA6B-RX-to-firmware-1-6-with-a-ST-Link).
 
 AFHDS2A_LQI_CH is a feature which is disabled by defaut in the _config.h file. When enabled, it makes LQI (Link Quality Indicator) available on one of the RX ouput channel (5-14).
 
@@ -216,6 +213,25 @@ Note that the RX ouput will be AETR whatever the input channel order is.
 ### Sub_protocol PPM_IBUS - *1*
 ### Sub_protocol PWM_SBUS - *2*
 ### Sub_protocol PPM_SBUS - *3*
+### Sub_protocol PWM_IBUS16 - *4*
+
+3 additional channels
+
+CH15|CH16|CH17
+---|---|---
+CH15|CH16|LQI
+
+LQI: Link Quality Indicator
+
+### Sub_protocol PPM_IBUS16 - *5*
+
+3 additional channels
+
+CH15|CH16|CH17
+---|---|---
+CH15|CH16|LQI
+
+LQI: Link Quality Indicator
 
 ## FLYSKY AFHDS2A RX - *56*
 The Flysky AFHDS2A receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...

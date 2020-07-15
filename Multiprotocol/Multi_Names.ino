@@ -109,7 +109,7 @@ const char STR_SUBTYPE_MT99[] =       "\x06""MT99\0 ""H7\0   ""YZ\0   ""LS\0   "
 const char STR_SUBTYPE_MJXQ[] =       "\x07""WLH08\0 ""X600\0  ""X800\0  ""H26D\0  ""E010\0  ""H26WH\0 ""Phoenix";
 const char STR_SUBTYPE_FY326[] =      "\x05""Std\0 ""FY319";
 const char STR_SUBTYPE_HONTAI[] =     "\x07""Std\0   ""JJRC X1""X5C1\0  ""FQ_951";
-const char STR_SUBTYPE_AFHDS2A[] =    "\x08""PWM,IBUS""PPM,IBUS""PWM,SBUS""PPM,SBUS";
+const char STR_SUBTYPE_AFHDS2A[] =    "\x08""PWM,IBUS""PPM,IBUS""PWM,SBUS""PPM,SBUS""PWM,IB16""PPM,IB16";
 const char STR_SUBTYPE_Q2X2[] =       "\x04""Q222""Q242""Q282";
 const char STR_SUBTYPE_WK2x01[] =     "\x06""WK2801""WK2401""W6_5_1""W6_6_1""W6_HeL""W6_HeI";
 const char STR_SUBTYPE_Q303[] =       "\x06""Std\0  ""CX35\0 ""CX10D\0""CX10WD";
@@ -217,7 +217,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_FLYSKY,     STR_FLYSKY,    5, STR_SUBTYPE_FLYSKY,    OPTION_NONE    },
 	#endif
 	#if defined(AFHDS2A_A7105_INO)
-		{PROTO_AFHDS2A,    STR_AFHDS2A,   4, STR_SUBTYPE_AFHDS2A,   OPTION_SRVFREQ },
+		{PROTO_AFHDS2A,    STR_AFHDS2A,   6, STR_SUBTYPE_AFHDS2A,   OPTION_SRVFREQ },
 	#endif
 	#if defined(AFHDS2A_RX_A7105_INO)
 		{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,0, NO_SUBTYPE,            OPTION_NONE    },

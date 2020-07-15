@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	39
+#define VERSION_PATCH_LEVEL	40
 
 //******************
 // Protocols
@@ -129,6 +129,8 @@ enum AFHDS2A
 	PPM_IBUS = 1,
 	PWM_SBUS = 2,
 	PPM_SBUS = 3,
+	PWM_IB16 = 4,
+	PPM_IB16 = 5,
 };
 enum Hisky
 {
@@ -895,6 +897,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			PPM_IBUS	1
 			PWM_SBUS	2
 			PPM_SBUS	3
+			PWM_IB16	4
+			PPM_IB16	5
 		sub_protocol==V2X2
 			V2X2		0
 			JXD506		1

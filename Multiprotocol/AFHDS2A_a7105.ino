@@ -78,8 +78,6 @@ enum{
 
 static void AFHDS2A_update_telemetry()
 {
-	if(packet[0]==0xAA && packet[9]==0xFD)
-		return;	// ignore packets which contain the RX configuration: FD FF 32 00 01 00 FF FF FF 05 DC 05 DE FA FF FF FF FF FF FF FF FF FF FF FF FF FF FF
 	// Read TX RSSI
 	int16_t temp=256-(A7105_ReadReg(A7105_1D_RSSI_THOLD)*8)/5;		// value from A7105 is between 8 for maximum signal strength to 160 or less
 	if(temp<0) temp=0;
@@ -183,37 +181,64 @@ static void AFHDS2A_build_packet(uint8_t type)
 	{
 		case AFHDS2A_PACKET_STICKS:		
 			packet[0] = 0x58;
-			for(uint8_t ch=0; ch<14; ch++)
+			//16 channels + RX_LQI on channel 17
+			for(uint8_t ch=0; ch<num_ch; ch++)
 			{
-				uint16_t channelMicros = convert_channel_ppm(CH_AETR[ch]);
-				packet[9 +  ch*2] = channelMicros&0xFF;
-				packet[10 + ch*2] = (channelMicros>>8)&0xFF;
+				if(ch == 16 // CH17=RX_LQI
+				#ifdef AFHDS2A_LQI_CH
+					|| ch == (AFHDS2A_LQI_CH-1)	// override channel with LQI
+				#endif
+					)
+					val = 2000 - 10*RX_LQI;
+				else
+					val = convert_channel_ppm(CH_AETR[ch]);
+				if(ch<14)
+				{
+					packet[9 +  ch*2] = val;
+					packet[10 + ch*2] = (val>>8)&0x0F;
+				}
+				else
+				{
+					packet[10 + (ch-14)*6] |= (val)<<4;
+					packet[12 + (ch-14)*6] |= (val)&0xF0;
+					packet[14 + (ch-14)*6] |= (val>>4)&0xF0;
+				}
 			}
-			#ifdef AFHDS2A_LQI_CH
-				// override channel with LQI
-				val = 2000 - 10*RX_LQI;
-				packet[9+((AFHDS2A_LQI_CH-1)*2)] = val & 0xff;
-				packet[10+((AFHDS2A_LQI_CH-1)*2)] = (val >> 8) & 0xff;
-			#endif
 			break;
 		case AFHDS2A_PACKET_FAILSAFE:
 			packet[0] = 0x56;
-			for(uint8_t ch=0; ch<14; ch++)
+			for(uint8_t ch=0; ch<num_ch; ch++)
 			{
 				#ifdef FAILSAFE_ENABLE
-					uint16_t failsafeMicros = Failsafe_data[CH_AETR[ch]];
-					if( failsafeMicros!=FAILSAFE_CHANNEL_HOLD && failsafeMicros!=FAILSAFE_CHANNEL_NOPULSES)
+					if(ch<16)
+						val = Failsafe_data[CH_AETR[ch]];
+					else
+						val = FAILSAFE_CHANNEL_NOPULSES;
+					if(val!=FAILSAFE_CHANNEL_HOLD && val!=FAILSAFE_CHANNEL_NOPULSES)
 					{ // Failsafe values
-						failsafeMicros = (((failsafeMicros<<2)+failsafeMicros)>>3)+860;
-						packet[9 + ch*2] =  failsafeMicros & 0xff;
-						packet[10+ ch*2] = ( failsafeMicros >> 8) & 0xff;
+						val = (((val<<2)+val)>>3)+860;
+						if(ch<14)
+						{
+							packet[9 +  ch*2] = val;
+							packet[10 + ch*2] = (val>>8)&0x0F;
+						}
+						else
+						{
+							packet[10 + (ch-14)*6] &= 0x0F;
+							packet[10 + (ch-14)*6] |= (val)<<4;
+							packet[12 + (ch-14)*6] &= 0x0F;
+							packet[12 + (ch-14)*6] |= (val)&0xF0;
+							packet[14 + (ch-14)*6] &= 0x0F;
+							packet[14 + (ch-14)*6] |= (val>>4)&0xF0;
+						}
 					}
 					else
 				#endif
-					{ // no values
-						packet[9 + ch*2] = 0xff;
-						packet[10+ ch*2] = 0xff;
-					}
+						if(ch<14)
+						{ // no values
+							packet[9 + ch*2] = 0xff;
+							packet[10+ ch*2] = 0xff;
+						}
 			}
 			break;
 		case AFHDS2A_PACKET_SETTINGS:
@@ -224,17 +249,14 @@ static void AFHDS2A_build_packet(uint8_t type)
 			if(val<50 || val>400) val=50;	// default is 50Hz
 			packet[11]= val;
 			packet[12]= val >> 8;
-			if(sub_protocol == PPM_IBUS || sub_protocol == PPM_SBUS)
-				packet[13] = 0x01;	// PPM output enabled
-			else
-				packet[13] = 0x00;
+			packet[13] = sub_protocol & 0x01;	// 1 -> PPM output enabled
 			packet[14]= 0x00;
 			for(uint8_t i=15; i<37; i++)
 				packet[i] = 0xff;
 			packet[18] = 0x05;		// ?
 			packet[19] = 0xdc;		// ?
 			packet[20] = 0x05;		// ?
-			if(sub_protocol == PWM_SBUS || sub_protocol == PPM_SBUS)
+			if(sub_protocol&2)
 				packet[21] = 0xdd;	// SBUS output enabled
 			else
 				packet[21] = 0xde;	// IBUS
@@ -352,24 +374,19 @@ uint16_t ReadAFHDS2A()
 				if(packet[0] == 0xAA && packet[9] == 0xFC)
 					packet_type=AFHDS2A_PACKET_SETTINGS;	// RX is asking for settings
 				else
-					if(packet[0] == 0xAA || packet[0] == 0xAC)
-					{
+					if((packet[0] == 0xAA && packet[9]!=0xFD) || packet[0] == 0xAC)
+					{// Normal telemetry packet, ignore packets which contain the RX configuration: AA FD FF 32 00 01 00 FF FF FF 05 DC 05 DE FA FF FF FF FF FF FF FF FF FF FF FF FF FF FF
 						if(!memcmp(&packet[1], rx_tx_addr, 4))
 						{ // TX address validated
-							#ifdef AFHDS2A_LQI_CH
-								if(packet[0]==0xAA && packet[9]!=0xFD)
-								{// Normal telemetry packet
-									for(uint8_t sensor=0; sensor<7; sensor++)
-									{//read LQI value for RX output
-										uint8_t index = 9+(4*sensor);
-										if(packet[index]==AFHDS2A_SENSOR_RX_ERR_RATE && packet[index+2]<=100)
-										{
-											RX_LQI=packet[index+2];
-											break;
-										}
-									}
+							for(uint8_t sensor=0; sensor<7; sensor++)
+							{//read LQI value for RX output
+								uint8_t index = 9+(4*sensor);
+								if(packet[index]==AFHDS2A_SENSOR_RX_ERR_RATE && packet[index+2]<=100)
+								{
+									RX_LQI=packet[index+2];
+									break;
 								}
-							#endif
+							}
 							#if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)
 								AFHDS2A_update_telemetry();
 							#endif
@@ -416,6 +433,10 @@ uint16_t initAFHDS2A()
 			rx_id[i]=eeprom_read_byte((EE_ADDR)(addr+i));
 	}
 	hopping_frequency_no = 0;
+	if(sub_protocol&0x04)
+		num_ch=17;
+	else
+		num_ch=14;
 	return 50000;
 }
 #endif

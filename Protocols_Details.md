@@ -215,7 +215,7 @@ Note that the RX ouput will be AETR whatever the input channel order is.
 ### Sub_protocol PPM_SBUS - *3*
 ### Sub_protocol PWM_IBUS16 - *4*
 
-3 additional channels
+3 additional channels. Need recent or updated RXs.
 
 CH15|CH16|CH17
 ---|---|---
@@ -225,7 +225,7 @@ LQI: Link Quality Indicator
 
 ### Sub_protocol PPM_IBUS16 - *5*
 
-3 additional channels
+3 additional channels. Need recent or updated RXs.
 
 CH15|CH16|CH17
 ---|---|---

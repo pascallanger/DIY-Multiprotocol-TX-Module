@@ -48,16 +48,16 @@ Connection is lost at -73 and +35; the median is -19:
 `(-73 + 35) / 2 = -19`
 
 ### Finally
-Once the **Freq** value is known it should be applied to all other models which use this protocol and, if they were previously bound, the receivers must be re-bound.
-
-For convenience this can be applied once for all per protocol using the FORCE commands described below in `_Config.h` (or `_MyConfig.h`) configuration file.
+Usually all RXs using the same protocol&sub_protocol can use the same **Freq** value but it can't harm to do all of them.
+If you change the Freq value it is best to rebind the receiver(s).
 
 #### Forced tuning values
-Once known-good tuning values have been determined, they can be stored in the configuration file to be automatically applied to all models which use the given protocol.
-
+For convenience the freq value can be applied once for all per protocol using the FORCE commands described below in `_Config.h` (or `_MyConfig.h`) configuration file.
 These settings can also be used to force different tuning values for different multiprotocol modules, removing the need to alter the tuning option on the transmitter when swapping between modules. (Assuming that the modules also share a common hardware ID.)
 
-**Note:** If a forced tuning value is set in the configuration, it cannot be overriden by the protocol's **Freq** option on the radio for any model.
+Once known-good tuning values have been determined, they can be stored in the configuration file to be automatically applied to all models which use the given protocol.
+
+**Note:** If a forced tuning value is set in the configuration, the protocol's **Freq** option on the radio GUI will be ignored whatever the value is set to.
 
 ```
 /*******************************/

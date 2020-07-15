@@ -269,7 +269,7 @@ H122D: FLIP
 H123D: FMODES -> -100%=Sport mode 1,0%=Sport mode 2,+100%=Acro
 
 ## Kyosho - *73*
-Transmiter: KT-531P and others
+Surface protocol called FHSS introduced in 2017. Transmitters: KT-531P, KT-431PT, Flysky Noble NB4 (fw>2.0.67)...
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----
@@ -1551,14 +1551,15 @@ CH1|CH2|CH3|CH4|CH5
 # SX1276 RF Module
 
 ## FRSKYR9 - *65*
-**R9 RXs must be flashed with ACCST Flex.**
+**R9 RXs must be flashed with latest ACCST.**
 
 Extended limits and failsafe supported.
 
-Full telemetry from RX to TX is supported (not yet from TX to RX).
+Full telemetry supported.
 
 Notes:
-- The choices of CH1-8/CH9-16 and Telem ON/OFF will be available in OpenTX 2.3.10+. The default is CH1-8 Telem ON.
+- The choices of CH1-8/CH9-16 and Telem ON/OFF is available in OpenTX 2.3.10 nightlies. The default is CH1-8 Telem ON.
+- Telemetry from TX to RX is available in OpenTX 2.3.10 nightlies.
 - Power adjustment is not supported on the T18.
 
 ### Sub_protocol R9_915 - *0*
@@ -1584,6 +1585,20 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ### Sub_protocol R9_868_8CH - *3*
 868MHz, 8 channels
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+### Sub_protocol R9_FCC - *4*
+FCC, 16 channels
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
+### Sub_protocol R9_FCC_8CH - *6*
+FCC, 8 channels
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---

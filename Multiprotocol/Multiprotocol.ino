@@ -1890,7 +1890,7 @@ void update_serial_data()
 	#endif
 	if(rx_len>27)
 	{ // Data available for the current protocol
-		#if defined(FRSKYX_CC2500_INO) and defined(FRSKYR9_SX1276_INO)
+		#if defined(FRSKYX_CC2500_INO) || defined(FRSKYR9_SX1276_INO)
 			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9) && rx_len==28)
 			{//Protocol waiting for 1 byte during bind
 				binding_idx=rx_ok_buff[27];

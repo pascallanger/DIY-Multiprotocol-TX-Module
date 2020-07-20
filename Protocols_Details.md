@@ -6,24 +6,20 @@ Here are detailed descriptions of every supported protocols (sorted by RF module
  The Deviation project (on which this project was based) have a useful list of models and protocols [here](http://www.deviationtx.com/wiki/supported_models).
 
 ## Useful notes and definitions
-- **Extended limits supported** - A command range of -125%..+125% will be transmitted. Otherwise the default is -100%..+100% only.
-- **Channel Order** - The channel order assumed in all the documentation is AETR. You can change this in the compilation settings. The module will take whatever input channel order and will rearrange them to match the output channel order required by the selected protocol. 
+- **Channel Order** - The channel order assumed in all the documentation is AETR. You can change this in the compilation settings or by using a precompiled firmware. The module will take whatever input channel order you have choosen and will rearrange them to match the output channel order required by the selected protocol. 
+- **Channel ranges** - A radio output of -100%..0%..+100% will match on the selected protocol -100%,0%,+100%. No convertion needs to be done.
+- **Extended limits supported** - A channel range of -125%..+125% will be transmitted. Otherwise it will be truncated to -100%..+100%.
 - **Italic numbers** are referring to protocol/sub_protocol numbers that you should use if the radio (serial mode only) is not displaying (yet) the protocol you want to access.
-- **Autobind protocol**:
+- **Autobind protocol** - The transmitter will automatically initiate a bind sequence on power up or model/protocol selection.  This is for models where the receiver expects to rebind every time it is powered up. In these protocols you do not need to press the bind button at power up to bind, it will be done automatically. In case a protocol is not autobind but you want to enable it, change the "Autobind" or "Bind on channel" on OpenTX setting to Y for the specific model/entry.
 
-1. The transmitter will automatically initiate a bind sequence on power up.  This is for models where the receiver expects to rebind every time it is powered up. In these protocols you do not need to press the bind button at power up to bind, it will be done automatically. In case a protocol is not autobind but you want to enable it, change the "Autobind" (or "Bind at powerup" on OpenTX) setting to Y for the specific model/entry.
-2. Enable Bind from channel feature:
-   * Bind from channel can be globally enabled/disabled in _config.h using ENABLE_BIND_CH.
-   * Bind from channel can be locally enabled/disabled by setting Autobind to Y/N per model for serial or per dial switch number for ppm.
-   * Bind channel can be choosen on any channel between 5 and 16 using BIND_CH in _config.h. Default is 16.
-   * Bind will only happen if all these elements are happening at the same time:
-      - Autobind = Y
+## Bind on channel feature
+   * Bind on channel can be globally enabled/disabled in _config.h using ENABLE_BIND_CH. Any channel between 5 and 16 can be used by configuring BIND_CH in _config.h. Default is 16.
+   * Bind on channel can be locally enabled/disabled by setting "Bind on channel" or "Autobind" per model for serial or per dial switch number for ppm.
+   * Once activated, any bind will only happen if all these elements are happening at the same time:
+      - Bind on channel = Y
       - Throttle = LOW (<-95%)
-      - Bind channel is going from -100% to +100%
-
-* Additional notes:
-  - **It's recommended to combine the bind switch with Throttle cut or throttle at -100% to drive the bind channel. This will prevent to launch a bind while flying** and enable you to use the bind switch for something else.
-  - Using channel 16 for the bind channel seems the most relevant as only one protocol so far is using 16 channels which is FrSkyX. But even on FrSkyX this feature won't have any impact since there is NO valid reason to have Autobind set to Y for such a protocol.
+      - Bind channel (16 by default) is going from -100% to +100%
+      - **It's recommended to combine the bind switch with Throttle cut or throttle at -100% to drive the bind channel. This will prevent to launch a bind while flying** and enable you to use the bind switch for something else.
 
 ## Protocol selection in PPM mode
 The protocol selection is based on 2 parameters:

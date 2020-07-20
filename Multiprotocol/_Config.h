@@ -606,7 +606,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		CH_8
 		EU_16
 		EU_8
-		XCLONE
+		XCLONE_16
+		XCLONE_8
 	PROTO_FRSKYX2
 		CH_16
 		CH_8

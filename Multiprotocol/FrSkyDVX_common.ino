@@ -185,11 +185,18 @@ void Frsky_init_clone(void)
 	else if(protocol==PROTO_FRSKYX2)
 		temp=FRSKYX2_CLONE_EEPROM_OFFSET;
 	FrSkyFormat=eeprom_read_byte((EE_ADDR)temp++);
+	/*	FRSKY_RX_D8			=0,
+	FRSKY_RX_D16FCC		=1,
+	FRSKY_RX_D16LBT		=2,
+	FRSKY_RX_D16v2FCC	=3,
+	FRSKY_RX_D16v2LBT	=4,*/
 	if(protocol==PROTO_FRSKYX)
 		FrSkyFormat >>= 1;
 	else
 		FrSkyFormat >>= 2;
 	FrSkyFormat <<= 1;	//FCC_16/LBT_16
+	if(sub_protocol==XCLONE_8)
+		FrSkyFormat++;	//FCC_8/LBT_8
 	rx_tx_addr[3] = eeprom_read_byte((EE_ADDR)temp++);
 	rx_tx_addr[2] = eeprom_read_byte((EE_ADDR)temp++);
 	rx_tx_addr[1] = eeprom_read_byte((EE_ADDR)temp++);

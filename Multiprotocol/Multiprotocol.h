@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	41
+#define VERSION_PATCH_LEVEL	42
 
 //******************
 // Protocols
@@ -228,11 +228,12 @@ enum FRSKYD
 };
 enum FRSKYX
 {
-	CH_16	= 0,
-	CH_8	= 1,
-	EU_16	= 2,
-	EU_8	= 3,
-	XCLONE	= 4,
+	CH_16		= 0,
+	CH_8		= 1,
+	EU_16		= 2,
+	EU_8		= 3,
+	XCLONE_16	= 4,
+	XCLONE_8	= 5,
 };
 enum HONTAI
 {

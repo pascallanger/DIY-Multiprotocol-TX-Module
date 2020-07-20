@@ -250,7 +250,7 @@ uint16_t initFrSkyX()
 	set_rx_tx_addr(MProtocol_id_master);
 	FrSkyFormat = sub_protocol;
 	
-	if (sub_protocol==XCLONE)
+	if (sub_protocol==XCLONE_16||sub_protocol==XCLONE_8)
 		Frsky_init_clone();
 	else if(protocol==PROTO_FRSKYX)
 	{

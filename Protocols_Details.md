@@ -93,8 +93,8 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyL](Protocols_Details.md#FRSKYL---67)|67|LR12|LR12 6CH|||||||CC2500|
 [FrskyR9](Protocols_Details.md#FRSKYR9---65)|65|FrskyR9|R9_915|R9_868||||||SX1276|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
-[FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|Cloned||||CC2500|
-[FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|Cloned||||CC2500|
+[FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
+[FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|RX|CloneTX|||||||CC2500|
 [FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
@@ -439,6 +439,13 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ### Sub_protocol Cloned - *4*
 Use the identifier learnt from another FrSky radio when binding with the FrSkyRX/CloneTX mode.
+
+16 channels.
+
+### Sub_protocol Cloned_8 - *5*
+Use the identifier learnt from another FrSky radio when binding with the FrSkyRX/CloneTX mode.
+
+8 channels.
 
 ## FRSKYX2 - *64*
 Same as [FrskyX](Protocols_Details.md#FRSKYX---15) but for D16 v2.1.0 FCC/LBT.

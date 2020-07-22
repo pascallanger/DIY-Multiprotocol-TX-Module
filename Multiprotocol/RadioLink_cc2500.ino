@@ -73,7 +73,8 @@ static void __attribute__((unused)) RLINK_tune_freq()
 
 static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 {
-	uint32_t pseudo=0, bits = 0;
+	static uint32_t pseudo=0;
+	uint32_t bits = 0;
 	uint8_t bitsavailable = 0;
 	uint8_t idx = 6;
 
@@ -117,7 +118,7 @@ static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 	
 	// check
 	uint8_t sum=0;
-	for(uint8_t i=0;i<33;i++)
+	for(uint8_t i=1;i<33;i++)
 		sum+=packet[i];
 	packet[33]=sum;
 
@@ -126,7 +127,12 @@ static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 	
 	// packets type
 	packet_count++;
-	if(packet_count>6) packet_count=0;
+	if(packet_count>5) packet_count=0;
+
+	//debug("P:");
+	//for(uint8_t i=0;i<RLINK_TX_PACKET_LEN+1;i++)
+	//	debug(" 0x%02X",packet[i]);
+	//debugln("");
 }
 
 #define RLINK_TIMING_PROTO	20000

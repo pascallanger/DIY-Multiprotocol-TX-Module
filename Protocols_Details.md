@@ -564,6 +564,8 @@ Surface protocol. TXs: RC4GS,RC6GS. Compatible RXs:R7FG(Std),R6FG,R6F,R8EF,R8FM,
 
 CH1=Steering, CH2=Throttle, CH8=Gyro gain
 
+Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%), A1=RX_Batt, A2=Batt
+
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.
 

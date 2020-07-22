@@ -286,7 +286,7 @@ Surface protocol called FHSS introduced in 2017. Transmitters: KT-531P, KT-431PT
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----
-Steering|T|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
+STEERING|THROTTLE|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 
 ## Pelikan - *60*
 Extended limits supported

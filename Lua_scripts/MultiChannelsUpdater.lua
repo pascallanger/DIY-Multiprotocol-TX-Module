@@ -280,7 +280,7 @@ local function Multi_Init()
   end
  
   --Exceptions on first 4 channels...
-  if ( protocol == 74 and sub_protocol == 0 ) then -- RadioLink Surface
+  if ( protocol == 73 or (protocol == 74 and sub_protocol == 0) ) then -- Kyosho or RadioLink Surface
     channel_names[1] = "ST"
     channel_names[2] = "THR"
     channel_names[3] = "CH3"

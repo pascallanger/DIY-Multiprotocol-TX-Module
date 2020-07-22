@@ -278,6 +278,15 @@ local function Multi_Init()
     ch_order = math.floor(ch_order/4)
     channel_names[bitand(ch_order,3)+1] = stick_names[1]
   end
+ 
+  --Exceptions on first 4 channels...
+  if ( protocol == 74 and sub_protocol == 0 ) then -- RadioLink Surface
+    channel_names[1] = "ST"
+    channel_names[2] = "THR"
+    channel_names[3] = "CH3"
+    channel_names[4] = "CH4"
+  end
+ 
   --Check MultiChan.txt
   local f = io.open("/SCRIPTS/TOOLS/MultiChan.txt", "r")
   if f == nil then return end

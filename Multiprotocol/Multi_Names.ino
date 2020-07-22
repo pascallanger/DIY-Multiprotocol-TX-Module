@@ -87,6 +87,7 @@ const char STR_FRSKYR9[]	="FrSkyR9";
 const char STR_PROPEL[]		="Propel";
 const char STR_SKYARTEC[]	="Skyartc";
 const char STR_KYOSHO[]		="Kyosho";
+const char STR_RLINK[]		="RadLink";
 const char STR_TEST[]		="Test";
 const char STR_FAKE[]		="Fake";
 
@@ -140,6 +141,7 @@ const char STR_SUBTYPE_WFLY[] =       "\x06""WFR0xS";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
 const char STR_SUBTYPE_V761[] =       "\x03""3CH""4CH";
+const char STR_SUBTYPE_RLINK[] =      "\x07""Surface";
 
 enum
 {
@@ -323,6 +325,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(REDPINE_CC2500_INO)
 		{PROTO_REDPINE,    STR_REDPINE,   2, STR_SUBTYPE_REDPINE,   OPTION_RFTUNE  },
+	#endif
+	#if defined(RLINK_CC2500_INO)
+		{PROTO_RLINK,      STR_RLINK,     1, STR_SUBTYPE_RLINK,     OPTION_RFTUNE  },
 	#endif
 	#if defined(SCANNER_CC2500_INO)
 	//	{PROTO_SCANNER,    STR_SCANNER,   0, NO_SUBTYPE,            OPTION_NONE    },

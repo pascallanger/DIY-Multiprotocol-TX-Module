@@ -197,6 +197,7 @@
 #define	SFHSS_CC2500_INO
 #define	SKYARTEC_CC2500_INO
 #define	REDPINE_CC2500_INO
+#define	RLINK_CC2500_INO
 
 //The protocols below need a NRF24L01 to be installed
 #define	ASSAN_NRF24L01_INO
@@ -313,6 +314,7 @@
 #define NCC1701_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define PROPEL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
+#define RLINK_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, erskyTX and OpenTX
 #define HITEC_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
@@ -699,6 +701,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_REDPINE
 		RED_FAST
 		RED_SLOW
+	PROTO_RLINK
+		NONE
 	PROTO_SCANNER
 		NONE
 	PROTO_SFHSS

@@ -71,3 +71,4 @@
 71,JJRC345
 72,Q90C
 73,Kyosho
+74,RadioLink,Surface

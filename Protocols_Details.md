@@ -117,6 +117,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Q2X2](Protocols_Details.md#Q2X2---29)|29|Q222|Q242|Q282||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
 [Q90C](Protocols_Details.md#Q90C---72)|72|Q90C*||||||||NRF24L01|XN297
+[RadioLink](Protocols_Details.md#RadioLink---74)|74|Surface||||||||CC2500|
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
 [SFHSS](Protocols_Details.md#SFHSS---21)|21|SFHSS||||||||CC2500|
@@ -544,6 +545,24 @@ You should definitively upgrade your receivers/sensors to the latest firmware ve
 
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.
+
+## RadioLink - *74*
+
+Extended limits
+
+Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|FS_CH1|FS_CH2|FS_CH3|FS_CH4|FS_CH5|FS_CH6|FS_CH7|FS_CH8
+
+FS=FailSafe
+
+### Sub_protocol Surface - *0*
+Surface protocol. TXs: RC4GS,RC6GS. Compatible RXs:R7FG(Std),R6FG,R6F,R8EF,R8FM,R8F,R4FGM
+
+CH1=Steering, CH2=Throttle, CH8=Gyro gain
 
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	42
+#define VERSION_PATCH_LEVEL	43
 
 //******************
 // Protocols
@@ -100,6 +100,7 @@ enum PROTOCOLS
 	PROTO_JJRC345	= 71,	// =>NRF24L01
 	PROTO_Q90C		= 72,	// =>NRF24L01 or CC2500
 	PROTO_KYOSHO	= 73,	// =>A7105
+	PROTO_RLINK		= 74,	// =>CC2500
 
 	PROTO_FAKE		= 126,	// =>CC2500+NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -801,6 +802,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				JJRC345		71
 				Q90C		72
 				KYOSHO		73
+				RLINK		74
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

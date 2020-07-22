@@ -494,8 +494,10 @@ void Frsky_init_clone(void)
 			SportHead=SportTail=0;			// empty data buffer
 		#endif
 		FrSkyX_RX_Seq = 0 ;					// Seq 0 to start with
-		telemetry_lost=1;
-		telemetry_link=0;					//Stop sending telemetry
+		#ifdef TELEMETRY
+			telemetry_lost=1;
+			telemetry_link=0;					//Stop sending telemetry
+		#endif
 	}
 #endif
 

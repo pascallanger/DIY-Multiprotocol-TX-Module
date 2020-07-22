@@ -20,6 +20,10 @@
 #define AFHDS2A_RXPACKET_SIZE	37
 #define AFHDS2A_NUMFREQ			16
 
+#if not defined TELEMETRY
+	uint8_t RX_LQI=0;
+#endif
+
 enum{
 	AFHDS2A_PACKET_STICKS,
 	AFHDS2A_PACKET_SETTINGS,
@@ -65,7 +69,6 @@ static void AFHDS2A_calc_channels()
 	}
 }
 
-#if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)
 // telemetry sensors ID
 enum{
 	AFHDS2A_SENSOR_RX_VOLTAGE   = 0x00,
@@ -76,6 +79,7 @@ enum{
 	AFHDS2A_SENSOR_A3_VOLTAGE   = 0x03,
 };
 
+#if defined(AFHDS2A_FW_TELEMETRY) || defined(AFHDS2A_HUB_TELEMETRY)
 static void AFHDS2A_update_telemetry()
 {
 	// Read TX RSSI

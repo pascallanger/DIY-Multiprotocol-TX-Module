@@ -18,7 +18,7 @@
 
 #include "iface_cc2500.h"
 
-//#define RLINK_FORCE_ID
+#define RLINK_FORCE_ID
 
 #define RLINK_TX_PACKET_LEN	33
 #define RLINK_RX_PACKET_LEN	15
@@ -40,12 +40,15 @@ const PROGMEM uint8_t RLINK_init_values[] = {
 
 static void __attribute__((unused)) RLINK_init()
 {
-	rf_ch_num=(random(0xfefefefe)&0x0F)+1;		// 0x01..0x10
-	memcpy(hopping_frequency,"\x12\xBA\x66\x72\x1E\x42\x06\x4E\x36\xAE\x8A\xA2\x2A\x7E\x96\x5A",16);
-	hopping_frequency[rf_ch_num]=0xC6;
 	#ifdef RLINK_FORCE_ID
 		memcpy(rx_tx_addr,"\x3A\x99\x22\x3A",RLINK_TX_ID_LEN);
 	#endif
+
+	// channels order depend on ID and currently unknown...
+	memcpy(hopping_frequency,"\x12\xBA\x66\x72\x1E\x42\x06\x4E\x36\xAE\x8A\xA2\x2A\x7E\x96\x5A",16);	// 1,15,8,9,2,5,0,6,4,14,11,13,3,10,12,7 : end value is value*12+6
+
+	rf_ch_num=(random(0xfefefefe)&0x0F)+1;		// 0x01..0x10
+	hopping_frequency[rf_ch_num]=0xC6;
 }
 
 static void __attribute__((unused)) RLINK_rf_init()
@@ -108,8 +111,8 @@ static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 	}
 	
 	// hop
-	pseudo=((pseudo * 0xAA) + 3) % 0x7673;	// calc next pseudo random value
-	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[pseudo &0x0F]);
+	pseudo=((pseudo * 0xAA) + 0x03) % 0x7673;	// calc next pseudo random value
+	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[pseudo & 0x0F]);
 	packet[28]= pseudo;
 	packet[29]= pseudo >> 8;
 	packet[30]= 0x00;						// unknown
@@ -168,7 +171,7 @@ uint16_t RLINK_callback()
 			{
 				//debug("Telem:");
 				CC2500_ReadData(packet_in, len);
-				if(packet_in[0]==RLINK_RX_PACKET_LEN && (packet_in[len-1] & 0x80) && memcmp(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN)==0 && packet_in[6]==0x03)
+				if(packet_in[0]==RLINK_RX_PACKET_LEN && (packet_in[len-1] & 0x80) && memcmp(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN)==0 && packet_in[6]==packet[1])
 				{//Correct telemetry received: length, CRC, ID and type
 					//Debug
 					//for(uint8_t i=0;i<len;i++)

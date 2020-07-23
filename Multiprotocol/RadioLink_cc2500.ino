@@ -136,7 +136,7 @@ static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 }
 
 #define RLINK_TIMING_PROTO	20000
-#define RLINK_TIMING_RFSEND	10223
+#define RLINK_TIMING_RFSEND	10500
 #define RLINK_TIMING_CHECK	2000
 uint16_t RLINK_callback()
 {
@@ -179,8 +179,8 @@ uint16_t RLINK_callback()
 					else
 						TX_RSSI += 128;
 					RX_RSSI=packet_in[7];					//Should be packet_in[7]-256 but since it's an uint8_t...
-					v_lipo1=packet_in[8];
-					v_lipo2=packet_in[9];
+					v_lipo1=packet_in[8]<<1;
+					v_lipo2=packet_in[9]<<1;
 					telemetry_link=1;						//Send telemetry out
 					pps_counter++;
 					packet_count=0;

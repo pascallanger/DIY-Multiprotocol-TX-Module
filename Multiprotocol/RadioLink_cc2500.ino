@@ -23,6 +23,7 @@
 #define RLINK_TX_PACKET_LEN	33
 #define RLINK_RX_PACKET_LEN	15
 #define RLINK_TX_ID_LEN		4
+#define RLINK_HOP			16
 
 enum {
 	RLINK_DATA	= 0x00,
@@ -40,15 +41,32 @@ const PROGMEM uint8_t RLINK_init_values[] = {
 
 static void __attribute__((unused)) RLINK_init()
 {
+	hopping_frequency[RLINK_HOP]=16;
+	// channels order depend on ID and currently unknown...
 	#ifdef RLINK_FORCE_ID
+		//surface
 		memcpy(rx_tx_addr,"\x3A\x99\x22\x3A",RLINK_TX_ID_LEN);
+		memcpy(hopping_frequency,"\x1\xF\x8\x9\x2\x5\x0\x6\x4\xE\xB\xD\x3\xA\xC\x7",RLINK_HOP);	//end value is value*12+6
+		//air
+		memcpy(rx_tx_addr,"\xFC\x11\x0D\x20",RLINK_TX_ID_LEN);
+		memcpy(hopping_frequency,"\xB\xC\xF\xE\x5\x9\x8\x4\x3\x7\xA\x1\xD\x0\x6\x2",RLINK_HOP);	//end value is value*12
 	#endif
 
-	// channels order depend on ID and currently unknown...
-	memcpy(hopping_frequency,"\x12\xBA\x66\x72\x1E\x42\x06\x4E\x36\xAE\x8A\xA2\x2A\x7E\x96\x5A",16);	// 1,15,8,9,2,5,0,6,4,14,11,13,3,10,12,7 : end value is value*12+6
+	// set channels value based on ID
+	for(uint8_t i=0;i<=RLINK_HOP;i++)
+		hopping_frequency[i]=3*(4*hopping_frequency[i]+(rx_tx_addr[0]&3));
 
-	rf_ch_num=(random(0xfefefefe)&0x0F)+1;		// 0x01..0x10
-	hopping_frequency[rf_ch_num]=0xC6;
+	// replace one of the channel randomely
+	rf_ch_num=random(0xfefefefe)&0x0F;		// 0x00..0x0F
+	if(hopping_frequency[RLINK_HOP]==0xC9)
+		hopping_frequency[rf_ch_num]=0xC6;
+	else
+		hopping_frequency[rf_ch_num]=hopping_frequency[RLINK_HOP];
+
+	debug("Hop(%d):", rf_ch_num);
+	for(uint8_t i=0;i<RLINK_HOP;i++)
+		debug(" 0x%02X",hopping_frequency[i]);
+	debugln("");
 }
 
 static void __attribute__((unused)) RLINK_rf_init()
@@ -86,8 +104,15 @@ static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 	// packet length
 	packet[0] = RLINK_TX_PACKET_LEN;
 	// header
-	packet[1] = packet_count>3?0x03:0x01;	// packet type: 0x01 normal, 0x03 request telemetry
-	//if(RX_num) packet[1] |= ((RX_num+2)<<4)+4;	// RX number limited to 10 values, 0 is a wildcard
+	if(sub_protocol)
+		packet[1] = 0x21;	//air 0x21 on dump but it looks to support telemetry
+	else
+	{//surface
+		packet[1] = 0x00;
+		//radiolink additionnal ID which is working only on a small set of RXs
+		//if(RX_num) packet[1] |= ((RX_num+2)<<4)+4;	// RX number limited to 10 values, 0 is a wildcard
+	}
+	packet[1] |= packet_count>3?0x03:0x01;	// packet type: 0x01 normal, 0x03 request telemetry
 	
 	// ID
 	memcpy(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN);
@@ -132,7 +157,7 @@ static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 	packet_count++;
 	if(packet_count>5) packet_count=0;
 
-	//debug("P:");
+	//debug("P(%02X):",hopping_frequency[pseudo & 0x0F]);
 	//for(uint8_t i=0;i<RLINK_TX_PACKET_LEN+1;i++)
 	//	debug(" 0x%02X",packet[i]);
 	//debugln("");
@@ -154,10 +179,10 @@ uint16_t RLINK_callback()
 #if not defined RLINK_HUB_TELEMETRY
 				return RLINK_TIMING_PROTO;
 #else
-			if(packet[1]==0x01)
-				return RLINK_TIMING_PROTO;
+			if(!(packet[1]&0x02))
+				return RLINK_TIMING_PROTO;					//Normal packet
 			phase++;										// RX1
-			return RLINK_TIMING_RFSEND;
+			return RLINK_TIMING_RFSEND;						//Telemetry packet
 		case RLINK_RX1:
 			CC2500_Strobe(CC2500_SIDLE);
 			CC2500_Strobe(CC2500_SFRX);
@@ -191,8 +216,9 @@ uint16_t RLINK_callback()
 				//debugln("");
 			}
 			if (millis() - pps_timer >= 2000)
-			{//1 packet every 20ms
+			{//1 telemetry packet every 100ms
 				pps_timer = millis();
+				pps_counter*=5;
 				debugln("%d pps", pps_counter);
 				TX_LQI = pps_counter;						//Max=100%
 				pps_counter = 0;

@@ -2,8 +2,6 @@
 #ifndef _ExpressLRS_H_
 #define _ExpressLRS_H_
 
-#include "iface_SX1276.h"
-
 #define One_Bit_Switches
 
 extern uint8_t UID[6];

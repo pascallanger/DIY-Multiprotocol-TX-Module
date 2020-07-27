@@ -1,4 +1,4 @@
-#if defined(ELRS_SX1276_INO)
+#if defined(ELRS_SX1276_INO) && defined(SX1276_INSTALLED)
 
 #include "iface_sx1276.h"
 #include "ExpressLRS.h"

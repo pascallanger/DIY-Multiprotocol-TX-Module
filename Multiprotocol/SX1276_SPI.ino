@@ -48,8 +48,9 @@ uint8_t SX1276_Reset()
 	//TODO when pin is not wired
 	#ifdef SX1276_RST_pin
 		SX1276_RST_off;
-		delayMicroseconds(200);
+		delayMicroseconds(500);
 		SX1276_RST_on;
+		delayMicroseconds(500);
 	#endif
     return 0;
 }
@@ -95,6 +96,21 @@ void SX1276_SetTxRxMode(uint8_t mode)
 		else
 			SX1276_RXEN_on;
 	#endif
+}
+
+void SX1276_SetFrequency_expresslrs(uint32_t freq) // freqs given by bottom function are about 500khz high 
+{
+	#define FREQ_STEP 61.03515625
+
+	int32_t FRQ = ((uint32_t)((double)freq / (double)FREQ_STEP));
+
+	uint8_t FRQ_MSB = (uint8_t)((FRQ >> 16) & 0xFF);
+	uint8_t FRQ_MID = (uint8_t)((FRQ >> 8) & 0xFF);
+	uint8_t FRQ_LSB = (uint8_t)(FRQ & 0xFF);
+
+	uint8_t outbuff[3] = {FRQ_MSB, FRQ_MID, FRQ_LSB};
+
+	SX1276_WriteRegisterMulti(SX1276_06_FRFMSB, outbuff, sizeof(outbuff));
 }
 
 void SX1276_SetFrequency(uint32_t frequency)
@@ -190,6 +206,18 @@ void SX1276_SetPreambleLength(uint16_t length)
 	SX1276_WriteRegisterMulti(SX1276_20_PREAMBLEMSB, data, 2);
 }
 
+void SX1276_SetSyncWord(uint8_t syncWord)
+{
+
+  if (syncWord == 0x34) //sync word reserved for LoRaWAN networks
+  {
+    syncWord++;
+    debugln("Reserved Syncword detected in UID config, Using 0x35 instead");
+  }
+
+  SX1276_WriteReg(SX1276_39_REGSYNCWORD, syncWord);
+}
+
 void SX1276_SetDetectionThreshold(uint8_t threshold)
 {
 	SX1276_WriteReg(SX1276_37_DETECTIONTHRESHOLD, threshold);
@@ -241,6 +269,11 @@ void SX1276_WritePayloadToFifo(uint8_t* payload, uint8_t length)
 	SX1276_WriteReg(SX1276_0E_FIFOTXBASEADDR, 0x00);
 	SX1276_WriteReg(SX1276_0D_FIFOADDRPTR, 0x00);
 	SX1276_WriteRegisterMulti(SX1276_00_FIFO, payload, length);
+}
+
+void SX1276_ClearIRQFlags()
+{
+    SX1276_WriteReg(SX1276_12_REGIRQFLAGS, 0b11111111);
 }
 
 #endif

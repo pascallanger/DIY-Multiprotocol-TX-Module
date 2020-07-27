@@ -39,6 +39,7 @@ enum
     SX1276_26_MODEMCONFIG3          = 0x26,
     SX1276_31_DETECTOPTIMIZE        = 0x31,
     SX1276_37_DETECTIONTHRESHOLD    = 0x37,
+    SX1276_39_REGSYNCWORD           = 0x39,
     SX1276_40_DIOMAPPING1           = 0x40,
     SX1276_42_VERSION               = 0x42,
     SX1276_4D_PADAC                 = 0x4D

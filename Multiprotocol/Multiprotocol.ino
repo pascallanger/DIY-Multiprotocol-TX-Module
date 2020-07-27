@@ -1613,6 +1613,12 @@ static void protocol_init()
 						remote_callback = FrSkyR9_callback;
 						break;
 				#endif
+				#if defined(ELRS_SX1276_INO)
+					case PROTO_ELRS:
+						next_callback = initExpressLRS();
+						remote_callback = ExpressLRS_callback;
+						break;
+				#endif
 			#endif	
 		}
 		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);

@@ -242,7 +242,10 @@
 #define	ZSX_NRF24L01_INO
 
 //The protocols below need a SX1276 to be installed
-#define	FRSKYR9_SX1276_INO
+#define FRSKYR9_SX1276_INO
+#define ELRS_SX1276_INO
+
+
 
 /***************************/
 /*** PROTOCOLS SETTINGS  ***/

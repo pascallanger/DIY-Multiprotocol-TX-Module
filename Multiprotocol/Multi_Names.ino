@@ -125,7 +125,7 @@ const char STR_SUBTYPE_GD00X[] =      "\x05""GD_V1""GD_V2";
 const char STR_SUBTYPE_REDPINE[] =    "\x04""Fast""Slow";
 const char STR_SUBTYPE_POTENSIC[] =   "\x03""A20";
 const char STR_SUBTYPE_ZSX[] =        "\x07""280JJRC";
-const char STR_SUBTYPE_FLYZONE[] =    "\x05""FZ410""FZ8xx";
+const char STR_SUBTYPE_FLYZONE[] =    "\x05""FZ410";
 const char STR_SUBTYPE_FX816[] =      "\x03""P38";
 const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ""NRF\0   ";
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4ch""7ch";
@@ -225,7 +225,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(FLYZONE_A7105_INO)
-		{PROTO_FLYZONE,    STR_FLYZONE,   2, STR_SUBTYPE_FLYZONE,   OPTION_NONE    },
+		{PROTO_FLYZONE,    STR_FLYZONE,   1, STR_SUBTYPE_FLYZONE,   OPTION_NONE    },
 	#endif
 	#if defined(FQ777_NRF24L01_INO)
 		{PROTO_FQ777,      STR_FQ777,     0, NO_SUBTYPE,            OPTION_NONE    },

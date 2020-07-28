@@ -31,6 +31,50 @@ enum {
 	RLINK_RX2	= 0x02,
 };
 
+const PROGMEM uint8_t RLINK_hopping[][8] = {
+  /* 00 */ { 0x1F, 0x89, 0x25, 0x06, 0x4E, 0xBD, 0x3A, 0xC7 },
+  /* 01 */ { 0xBC, 0xFE, 0x59, 0x84, 0x37, 0xA1, 0xD0, 0x62 }
+};
+
+static void __attribute__((unused)) RLINK_load_hopp(uint8_t num)
+{
+	uint8_t inc=3*(rx_tx_addr[0]&3);
+	
+	for (uint8_t i = 0; i < RLINK_HOP>>1; i++)
+	{
+		uint8_t val=pgm_read_byte_near(&RLINK_hopping[num][i]);
+		hopping_frequency[ i<<1   ]=12*(val>>4  )+inc;
+		hopping_frequency[(i<<1)+1]=12*(val&0x0F)+inc;
+	}
+
+	// replace one of the channel randomely
+	rf_ch_num=random(0xfefefefe)%0x11;		// 0x00..0x10
+	if(inc==9) inc=6;						// frequency exception
+	hopping_frequency[rf_ch_num]=12*16+inc;
+}
+
+static void __attribute__((unused)) RLINK_init()
+{
+	// channels order depend on ID and currently unknown...
+	#ifdef RLINK_FORCE_ID
+		//surface RC6GS
+		memcpy(rx_tx_addr,"\x3A\x99\x22\x3A",RLINK_TX_ID_LEN);
+		RLINK_load_hopp(0);
+		//air T8FB
+		//memcpy(rx_tx_addr,"\xFC\x11\x0D\x20",RLINK_TX_ID_LEN);
+		//RLINK_load_hopp(1);
+	#endif
+
+	debug("ID:");
+	for(uint8_t i=0;i<RLINK_TX_ID_LEN;i++)
+		debug(" 0x%02X",rx_tx_addr[i]);
+	debugln("");
+	debug("Hop(%d):", rf_ch_num);
+	for(uint8_t i=0;i<RLINK_HOP;i++)
+		debug(" 0x%02X",hopping_frequency[i]);
+	debugln("");
+}
+
 const PROGMEM uint8_t RLINK_init_values[] = {
   /* 00 */ 0x5B, 0x06, 0x5C, 0x07, 0xAB, 0xCD, 0x40, 0x04,
   /* 08 */ 0x45, 0x00, 0x00, 0x06, 0x00, 0x5C, 0x62, 0x76,
@@ -38,36 +82,6 @@ const PROGMEM uint8_t RLINK_init_values[] = {
   /* 18 */ 0x18, 0x16, 0x6C, 0x43, 0x40, 0x91, 0x87, 0x6B,
   /* 20 */ 0xF8, 0x56, 0x10, 0xA9, 0x0A, 0x00, 0x11
 };
-
-static void __attribute__((unused)) RLINK_init()
-{
-	hopping_frequency[RLINK_HOP]=16;
-	// channels order depend on ID and currently unknown...
-	#ifdef RLINK_FORCE_ID
-		//surface
-		memcpy(rx_tx_addr,"\x3A\x99\x22\x3A",RLINK_TX_ID_LEN);
-		memcpy(hopping_frequency,"\x1\xF\x8\x9\x2\x5\x0\x6\x4\xE\xB\xD\x3\xA\xC\x7",RLINK_HOP);	//end value is value*12+6
-		//air
-		memcpy(rx_tx_addr,"\xFC\x11\x0D\x20",RLINK_TX_ID_LEN);
-		memcpy(hopping_frequency,"\xB\xC\xF\xE\x5\x9\x8\x4\x3\x7\xA\x1\xD\x0\x6\x2",RLINK_HOP);	//end value is value*12
-	#endif
-
-	// set channels value based on ID
-	for(uint8_t i=0;i<=RLINK_HOP;i++)
-		hopping_frequency[i]=3*(4*hopping_frequency[i]+(rx_tx_addr[0]&3));
-
-	// replace one of the channel randomely
-	rf_ch_num=random(0xfefefefe)&0x0F;		// 0x00..0x0F
-	if(hopping_frequency[RLINK_HOP]==0xC9)
-		hopping_frequency[rf_ch_num]=0xC6;
-	else
-		hopping_frequency[rf_ch_num]=hopping_frequency[RLINK_HOP];
-
-	debug("Hop(%d):", rf_ch_num);
-	for(uint8_t i=0;i<RLINK_HOP;i++)
-		debug(" 0x%02X",hopping_frequency[i]);
-	debugln("");
-}
 
 static void __attribute__((unused)) RLINK_rf_init()
 {
@@ -105,14 +119,15 @@ static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 	packet[0] = RLINK_TX_PACKET_LEN;
 	// header
 	if(sub_protocol)
-		packet[1] = 0x21;	//air 0x21 on dump but it looks to support telemetry
+		packet[1] = 0x21;					//air 0x21 on dump but it looks to support telemetry at least RSSI
 	else
 	{//surface
-		packet[1] = 0x00;
+		packet[1] = 0x01;
 		//radiolink additionnal ID which is working only on a small set of RXs
 		//if(RX_num) packet[1] |= ((RX_num+2)<<4)+4;	// RX number limited to 10 values, 0 is a wildcard
 	}
-	packet[1] |= packet_count>3?0x03:0x01;	// packet type: 0x01 normal, 0x03 request telemetry
+	if(packet_count>3)
+		packet[1] |= 0x02;					// 0x02 telemetry request flag
 	
 	// ID
 	memcpy(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN);
@@ -142,7 +157,7 @@ static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 	packet[29]= pseudo >> 8;
 	packet[30]= 0x00;						// unknown
 	packet[31]= 0x00;						// unknown
-	packet[32]= rf_ch_num;					// value equal to 0xC6 in the RF table
+	packet[32]= rf_ch_num;					// index of value changed in the RF table
 	
 	// check
 	uint8_t sum=0;
@@ -157,13 +172,14 @@ static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
 	packet_count++;
 	if(packet_count>5) packet_count=0;
 
-	//debug("P(%02X):",hopping_frequency[pseudo & 0x0F]);
-	//for(uint8_t i=0;i<RLINK_TX_PACKET_LEN+1;i++)
+	//debugln("C= 0x%02X",hopping_frequency[pseudo & 0x0F]);
+	//debug("P=");
+	//for(uint8_t i=1;i<RLINK_TX_PACKET_LEN+1;i++)
 	//	debug(" 0x%02X",packet[i]);
 	//debugln("");
 }
 
-#define RLINK_TIMING_PROTO	20000
+#define RLINK_TIMING_PROTO	20000-100		// -100 for compatibility with R8EF
 #define RLINK_TIMING_RFSEND	10500
 #define RLINK_TIMING_CHECK	2000
 uint16_t RLINK_callback()
@@ -177,12 +193,13 @@ uint16_t RLINK_callback()
 			RLINK_tune_freq();
 			RLINK_TIMING_RFSEND_packet();
 #if not defined RLINK_HUB_TELEMETRY
-				return RLINK_TIMING_PROTO;
+			return RLINK_TIMING_PROTO;
 #else
 			if(!(packet[1]&0x02))
 				return RLINK_TIMING_PROTO;					//Normal packet
+															//Telemetry packet
 			phase++;										// RX1
-			return RLINK_TIMING_RFSEND;						//Telemetry packet
+			return RLINK_TIMING_RFSEND;
 		case RLINK_RX1:
 			CC2500_Strobe(CC2500_SIDLE);
 			CC2500_Strobe(CC2500_SFRX);
@@ -218,9 +235,12 @@ uint16_t RLINK_callback()
 			if (millis() - pps_timer >= 2000)
 			{//1 telemetry packet every 100ms
 				pps_timer = millis();
-				pps_counter*=5;
+				if(pps_counter<20)
+					pps_counter*=5;
+				else
+					pps_counter=100;
 				debugln("%d pps", pps_counter);
-				TX_LQI = pps_counter;						//Max=100%
+				TX_LQI = pps_counter;						//0..100%
 				pps_counter = 0;
 			}
 			CC2500_SetTxRxMode(TX_EN);

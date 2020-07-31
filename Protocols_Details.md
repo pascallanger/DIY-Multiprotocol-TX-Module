@@ -576,7 +576,7 @@ CH1=Steering, CH2=Throttle, CH8=Gyro gain
 Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%), A1=RX_Batt, A2=Batt
 
 ### Sub_protocol Air - *1*
-Surface protocol. TXs: T8FB,. Compatible RXs:R8EF,R8FM,R4FG,R4F and more
+Air protocol. TXs: T8FB,T8S. Compatible RXs:R8EF,R8FM,R4FG,R4F and more
 
 Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%)
 

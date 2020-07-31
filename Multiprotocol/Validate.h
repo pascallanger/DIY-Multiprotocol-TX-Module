@@ -4,7 +4,7 @@
 #endif
 #if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 	//Atmega328p
-	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_MULTI_NO_BOOT) && not defined(ARDUINO_MULTI_FLASH_FROM_TX) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO)
+	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_MULTI_NO_BOOT) && not defined(ARDUINO_MULTI_FLASH_FROM_TX) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO) && not defined(ARDUINO_AVR_DUEMILANOVE)
 		#error You must select one of these boards: "Multi 4-in-1", "Arduino Pro or Pro Mini" or "Arduino Mini"
 	#endif
 	#if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)

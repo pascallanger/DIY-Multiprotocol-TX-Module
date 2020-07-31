@@ -1915,7 +1915,7 @@ void update_serial_data()
 			}
 		#endif
 		#ifdef SPORT_SEND
-			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || PROTO_FRSKY_R9) && rx_len==35)
+			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9) && rx_len==35)
 			{//Protocol waiting for 8 bytes
 				#define BYTE_STUFF	0x7D
 				#define STUFF_MASK	0x20

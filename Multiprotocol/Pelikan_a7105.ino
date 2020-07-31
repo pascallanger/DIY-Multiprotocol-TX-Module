@@ -127,7 +127,7 @@ uint16_t ReadPelikan()
 				if(sub_protocol==PELIKAN_PRO)
 					A7105_WriteReg(A7105_03_FIFOI,0x28);
 				else//PELIKAN_LITE
-					A7105_WriteID((rx_tx_addr[0]<<24)|(rx_tx_addr[1]<<16)|(rx_tx_addr[2]<<8)|(rx_tx_addr[3]));
+					A7105_WriteID(MProtocol_id);
 			}
 		}
 		#ifdef MULTI_SYNC
@@ -281,8 +281,9 @@ uint16_t initPelikan()
 		}
 	#endif
 
+	MProtocol_id=((uint32_t)rx_tx_addr[0]<<24)|((uint32_t)rx_tx_addr[1]<<16)|((uint32_t)rx_tx_addr[2]<<8)|(rx_tx_addr[3]);
 	if(sub_protocol==PELIKAN_LITE && IS_BIND_DONE)
-		A7105_WriteID((rx_tx_addr[0]<<24)|(rx_tx_addr[1]<<16)|(rx_tx_addr[2]<<8)|(rx_tx_addr[3]));
+		A7105_WriteID(MProtocol_id);
 
 	hopping_frequency_no=PELIKAN_NUM_RF_CHAN;
 	packet_count=5;

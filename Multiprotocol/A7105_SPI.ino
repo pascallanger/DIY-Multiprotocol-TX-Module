@@ -383,6 +383,10 @@ void A7105_Init(void)
 				if(i==0x20) val=0x1E;
 			}
 		#endif
+		#ifdef FLYZONE_A7105_INO
+			if(protocol==PROTO_FLYZONE && sub_protocol==FLYZONE_8CH)
+				if(i==0x03) val=0x0A;
+		#endif
 		if( val != 0xFF)
 			A7105_WriteReg(i, val);
 	}

@@ -33,6 +33,12 @@ static void __attribute__((unused)) flyzone_build_packet()
 	packet[5] = convert_channel_8b(THROTTLE);	//00..FF
 	packet[6] = convert_channel_8b(RUDDER);		//00..80..FF
     packet[7] = convert_channel_8b(CH5);		//00..80..FF
+    if(sub_protocol == FLYZONE_8CH)
+	{
+		packet[8] = convert_channel_8b(CH6);	//00..80..FF
+		packet[9] = convert_channel_8b(CH7);	//00..80..FF
+		packet[10] = convert_channel_8b(CH8);	//00..80..FF
+	}
 }
 
 uint16_t ReadFlyzone()
@@ -59,7 +65,7 @@ uint16_t ReadFlyzone()
 				telemetry_set_input_sync(20*1500);
 			#endif
 			flyzone_build_packet();
-			A7105_WriteData(8, hopping_frequency[0]);
+			A7105_WriteData(sub_protocol?11:8, hopping_frequency[0]);
 			A7105_SetPower();
 		}
 		else

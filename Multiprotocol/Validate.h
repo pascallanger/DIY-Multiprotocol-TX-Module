@@ -109,6 +109,11 @@
 		#error "The REDPINE forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_RADIOLINK_TUNING
+	#if ( FORCE_RADIOLINK_TUNING < -127 ) || ( FORCE_RADIOLINK_TUNING > 127 )
+		#error "The RADIOLINK forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 #ifdef FORCE_SFHSS_TUNING
 	#if ( FORCE_SFHSS_TUNING < -127 ) || ( FORCE_SFHSS_TUNING > 127 )
 		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."

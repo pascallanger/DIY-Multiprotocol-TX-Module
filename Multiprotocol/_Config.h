@@ -100,11 +100,12 @@
 //#define FORCE_FRSKYL_TUNING	0
 //#define FORCE_FRSKYV_TUNING	0
 //#define FORCE_FRSKYX_TUNING	0
-//#define FORCE_SFHSS_TUNING	0
-//#define FORCE_SKYARTEC_TUNING	0
 //#define FORCE_HITEC_TUNING	0
 //#define FORCE_HOTT_TUNING		0
+//#define FORCE_RADIOLINK_TUNING	0
 //#define FORCE_REDPINE_TUNING	0
+//#define FORCE_SFHSS_TUNING	0
+//#define FORCE_SKYARTEC_TUNING	0
 
 /** A7105 Fine Frequency Tuning **/
 //This is required in rare cases where some A7105 modules and/or RXs have an inaccurate crystal oscillator.
@@ -580,7 +581,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		V912
 		CX20
 	PROTO_FLYZONE
-		FZ410
+		FLYZONE_5CH
+		FLYZONE_8CH
 	PROTO_FQ777
 		NONE
 	PROTO_FRSKY_RX

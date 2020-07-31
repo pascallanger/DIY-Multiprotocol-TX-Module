@@ -240,11 +240,20 @@ Extended limits supported
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
 
 ## FLYZONE - *53*
+
+### Sub_protocol 5CH - *0*
 Models using the Flyzone FZ-410 TX: Fokker D.VII Micro EP RTF. Models using the old ARES TX (prior to Hitec RED) Tiger Moth, eRC Micro Stick and Rage R/C. 
 
-CH1|CH2|CH3|CH4
----|---|---|---
-A|E|T|R
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|Gear
+
+### Sub_protocol 8CH - *1*
+Models using the new 8 channels radio Flyzone, eRC and Rage R/C. 
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|Gear|Gyro|Flap|Light
 
 ## HUBSAN - *2*
 
@@ -548,6 +557,8 @@ You should definitively upgrade your receivers/sensors to the latest firmware ve
 
 Extended limits
 
+**64 IDs available, use RX num to scroll through them**
+
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 
@@ -560,16 +571,12 @@ FS=FailSafe
 ### Sub_protocol Surface - *0*
 Surface protocol. TXs: RC4GS,RC6GS. Compatible RXs:R7FG(Std),R6FG,R6F,R8EF,R8FM,R8F,R4FGM and more
 
-**Only 1 ID for now**
-
 CH1=Steering, CH2=Throttle, CH8=Gyro gain
 
 Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%), A1=RX_Batt, A2=Batt
 
 ### Sub_protocol Air - *1*
 Surface protocol. TXs: T8FB,. Compatible RXs:R8EF,R8FM,R4FG,R4F and more
-
-**Only 1 ID for now**
 
 Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%)
 

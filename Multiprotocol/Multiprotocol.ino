@@ -560,6 +560,11 @@ void setup()
 				option			=	FORCE_REDPINE_TUNING;		// Use config-defined tuning value for REDPINE
 			else
 		#endif
+		#if defined(FORCE_RADIOLINK_TUNING) && defined(RADIOLINK_CC2500_INO)
+			if (protocol==PROTO_RADIOLINK)
+				option			=	FORCE_RADIOLINK_TUNING;		// Use config-defined tuning value for RADIOLINK
+			else
+		#endif
 		#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
 			if (protocol==PROTO_HITEC)
 				option			=	FORCE_HITEC_TUNING;		// Use config-defined tuning value for HITEC
@@ -1749,6 +1754,11 @@ void update_serial_data()
 	#if defined(FORCE_REDPINE_TUNING) && defined(REDPINE_CC2500_INO)
 		if (protocol==PROTO_REDPINE)
 			option=FORCE_REDPINE_TUNING;		// Use config-defined tuning value for REDPINE
+		else
+	#endif
+	#if defined(FORCE_RADIOLINK_TUNING) && defined(RADIOLINK_CC2500_INO)
+		if (protocol==PROTO_RADIOLINK)
+			option			=	FORCE_RADIOLINK_TUNING;		// Use config-defined tuning value for RADIOLINK
 		else
 	#endif
 	#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)

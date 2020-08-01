@@ -7,7 +7,7 @@
 	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_MULTI_NO_BOOT) && not defined(ARDUINO_MULTI_FLASH_FROM_TX) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO) && not defined(ARDUINO_AVR_DUEMILANOVE)
 		#error You must select one of these boards: "Multi 4-in-1", "Arduino Pro or Pro Mini" or "Arduino Mini"
 	#endif
-	#if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
+	#if F_CPU != 16000000L || not (defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__))
 		#error You must select the processor type "ATmega328(5V, 16MHz)"
 	#endif
 #endif

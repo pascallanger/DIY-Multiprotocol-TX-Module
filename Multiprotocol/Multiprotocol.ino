@@ -1120,11 +1120,11 @@ static void protocol_init()
 						remote_callback = ReadBUGS;
 						break;
 				#endif
-				#if defined(FLYZONE_A7105_INO)
-					case PROTO_FLYZONE:
+				#if defined(HEIGHT_A7105_INO)
+					case PROTO_HEIGHT:
 						PE1_off;	//antenna RF1
-						next_callback = initFlyzone();
-						remote_callback = ReadFlyzone;
+						next_callback = initHeight();
+						remote_callback = ReadHeight;
 						break;
 				#endif
 				#if defined(AFHDS2A_RX_A7105_INO)

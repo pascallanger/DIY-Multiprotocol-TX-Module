@@ -140,9 +140,9 @@
 		#error "The Flysky forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
-#ifdef FORCE_FLYZONE_TUNING
-	#if ( FORCE_FLYZONE_TUNING < -300 ) || ( FORCE_FLYZONE_TUNING > 300 )
-		#error "The Flyzone forced frequency tuning value is outside of the range -300..300."
+#ifdef FORCE_HEIGHT_TUNING
+	#if ( FORCE_HEIGHT_TUNING < -300 ) || ( FORCE_HEIGHT_TUNING > 300 )
+		#error "The Height forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
 #ifdef FORCE_PELIKAN_TUNING
@@ -168,8 +168,8 @@
 	#ifndef FORCE_FLYSKY_TUNING
 		#define FORCE_FLYSKY_TUNING 0
 	#endif
-	#ifndef FORCE_FLYZONE_TUNING
-		#define FORCE_FLYZONE_TUNING 0
+	#ifndef FORCE_HEIGHT_TUNING
+		#define FORCE_HEIGHT_TUNING 0
 	#endif
 	#ifndef FORCE_PELIKAN_TUNING
 		#define FORCE_PELIKAN_TUNING 0
@@ -223,7 +223,7 @@
 	#undef AFHDS2A_RX_A7105_INO
 	#undef BUGS_A7105_INO
 	#undef FLYSKY_A7105_INO
-	#undef FLYZONE_A7105_INO
+	#undef HEIGHT_A7105_INO
 	#undef HUBSAN_A7105_INO
 	#undef KYOSHO_A7105_INO
 	#undef PELIKAN_A7105_INO

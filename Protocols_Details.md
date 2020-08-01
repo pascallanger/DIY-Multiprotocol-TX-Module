@@ -83,7 +83,6 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|PWM_IBUS16|PPM_IBUS16|||A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|RX||||||||A7105|
-[Flyzone](Protocols_Details.md#FLYZONE---53)|53|FZ410||||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|D8|Cloned|||||||CC2500|
 [FrskyL](Protocols_Details.md#FRSKYL---67)|67|LR12|LR12 6CH|||||||CC2500|
@@ -97,6 +96,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|
 [GW008](Protocols_Details.md#GW008---32)|32|GW008||||||||NRF24L01|XN297
 [H8_3D](Protocols_Details.md#H8_3D---36)|36|H8_3D|H20H|H20Mini|H30Mini|||||NRF24L01|XN297
+[Height](Protocols_Details.md#HEIGHT---53)|53|5ch|8ch|||||||A7105|
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01|
 [Hitec](Protocols_Details.md#HITEC---39)|39|OPT_FW|OPT_HUB|MINIMA||||||CC2500|
 [Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01|XN297
@@ -239,17 +239,17 @@ Extended limits supported
 
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
 
-## FLYZONE - *53*
+## HEIGHT - *53*
 
 ### Sub_protocol 5CH - *0*
-Models using the Flyzone FZ-410 TX: Fokker D.VII Micro EP RTF. Models using the old ARES TX (prior to Hitec RED) Tiger Moth, eRC Micro Stick and Rage R/C. 
+Models from Height, Flyzone, Rage R/C, eRC and the old ARES (prior to Hitec RED).
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|Gear
 
 ### Sub_protocol 8CH - *1*
-Models using the new 8 channels radio Flyzone, eRC and Rage R/C. 
+Models from Height and Rage R/C. 
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---

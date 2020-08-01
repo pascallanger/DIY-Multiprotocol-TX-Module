@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	50
+#define VERSION_PATCH_LEVEL	49
 
 //******************
 // Protocols
@@ -79,7 +79,7 @@ enum PROTOCOLS
 	PROTO_REDPINE	= 50,	// =>CC2500
 	PROTO_POTENSIC	= 51,	// =>NRF24L01
 	PROTO_ZSX		= 52,	// =>NRF24L01
-	PROTO_FLYZONE	= 53,	// =>A7105
+	PROTO_HEIGHT	= 53,	// =>A7105
 	PROTO_SCANNER	= 54,	// =>CC2500
 	PROTO_FRSKY_RX	= 55,	// =>CC2500
 	PROTO_AFHDS2A_RX= 56,	// =>A7105
@@ -114,7 +114,7 @@ enum Flysky
 	V912	= 3,
 	CX20	= 4,
 };
-enum Flyzone
+enum Height
 {
 	FZ410	= 0,
 };
@@ -390,10 +390,10 @@ enum V761
 	V761_4CH	= 1,
 };
 
-enum FLYZONE
+enum HEIGHT
 {
-	FLYZONE_5CH	= 0,
-	FLYZONE_8CH	= 1,
+	HEIGHT_5CH	= 0,
+	HEIGHT_8CH	= 1,
 };
 
 #define NONE 		0
@@ -787,7 +787,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				REDPINE		50
 				POTENSIC	51
 				ZSX			52
-				FLYZONE		53
+				HEIGHT		53
 				SCANNER		54
 				FRSKY_RX	55
 				AFHDS2A_RX	56
@@ -999,9 +999,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==V761
 			V761_3CH	0
 			V761_4CH	1
-		sub_protocol==FLYZONE
-			FLYZONE_5CH	0
-			FLYZONE_8CH	1
+		sub_protocol==HEIGHT
+			HEIGHT_5CH	0
+			HEIGHT_8CH	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

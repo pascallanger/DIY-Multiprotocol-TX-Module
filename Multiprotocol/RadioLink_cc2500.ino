@@ -123,9 +123,9 @@ static void __attribute__((unused)) RLINK_init()
 {
 	// channels order depend on ID and currently unknown so using a table of 64 entries...
 	uint8_t id=rx_tx_addr[3]&0x3F;
-	RLINK_load_hopp(id);
 	memcpy(rx_tx_addr,"\x4C\x49\x4E\x4B",RLINK_TX_ID_LEN);
 	rx_tx_addr[0] += id;
+	RLINK_load_hopp(id);
 	
 	#ifdef RLINK_FORCE_ID
 		//surface RC6GS

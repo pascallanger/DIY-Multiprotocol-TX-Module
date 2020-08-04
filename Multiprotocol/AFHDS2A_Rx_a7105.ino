@@ -104,6 +104,7 @@ uint16_t AFHDS2A_Rx_callback()
 
 	switch(phase) {
 	case AFHDS2A_RX_BIND1:
+		if(IS_BIND_DONE) return initAFHDS2A_Rx();	// Abort bind
 		if (AFHDS2A_Rx_data_ready()) {
 			A7105_ReadData(AFHDS2A_RX_TXPACKET_SIZE);
 			if ((packet[0] == 0xbb && packet[9] == 0x01) ||	(packet[0] == 0xbc && packet[9] <= 0x02)) {
@@ -118,6 +119,7 @@ uint16_t AFHDS2A_Rx_callback()
 		return 10000;
 
 	case AFHDS2A_RX_BIND2:
+		if(IS_BIND_DONE) return initAFHDS2A_Rx();	// Abort bind
 		// got 2nd bind packet from tx ?
 		if (AFHDS2A_Rx_data_ready()) {
 			A7105_ReadData(AFHDS2A_RX_TXPACKET_SIZE);
@@ -143,6 +145,7 @@ uint16_t AFHDS2A_Rx_callback()
 		packet[9] = 0x01;
 		packet[10] = 0x00;
 		memset(&packet[11], 0xFF, 26);
+		A7105_SetTxRxMode(TX_EN);
 		A7105_WriteData(AFHDS2A_RX_RXPACKET_SIZE, packet_count++ & 1 ? 0x0D : 0x8C);
 		phase |= AFHDS2A_RX_WAIT_WRITE;
 		return 1700;
@@ -153,6 +156,7 @@ uint16_t AFHDS2A_Rx_callback()
 		while (micros() - pps_timer < 700) // Wait max 700µs, using serial+telemetry exit in about 120µs
 			if (!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 				break;
+		A7105_SetTxRxMode(RX_EN);
 		A7105_Strobe(A7105_RX);
 		phase &= ~AFHDS2A_RX_WAIT_WRITE;
 		return 10000;

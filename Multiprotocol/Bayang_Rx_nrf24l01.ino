@@ -129,6 +129,7 @@ uint16_t Bayang_Rx_callback()
 
 	switch (phase) {
 	case BAYANG_RX_BIND:
+		if(IS_BIND_DONE) return initBayang_Rx();	// Abort bind
 		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) {
 			// data received from TX
 			if (XN297_ReadPayload(packet, BAYANG_RX_PACKET_SIZE) && ( packet[0] == 0xA4 || packet[0] == 0xA2 ) && Bayang_Rx_check_validity()) {

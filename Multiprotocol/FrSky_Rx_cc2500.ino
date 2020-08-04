@@ -383,6 +383,8 @@ uint16_t FrSky_Rx_callback()
 	static int8_t tune_low, tune_high;
 	uint8_t len, ch;
 
+	if(IS_BIND_DONE && phase != FRSKY_RX_DATA) return initFrSky_Rx();	// Abort bind
+
 	if ((prev_option != option) && (phase >= FRSKY_RX_DATA))
 	{
 		if (option == 0)

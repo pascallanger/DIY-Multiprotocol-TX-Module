@@ -358,7 +358,6 @@ static void __attribute__((unused)) frsky_rx_data()
 
 uint16_t initFrSky_Rx()
 {
-	state = 0;
 	frsky_rx_chanskip = 1;
 	hopping_frequency_no = 0;
 	rx_data_started = false;
@@ -414,6 +413,7 @@ uint16_t FrSky_Rx_callback()
 					phase = FRSKY_RX_TUNE_LOW;
 					debugln("FRSKY_RX_TUNE_LOW");
 					frsky_rx_strobe_rx();
+					state = 0;
 					return 1000;
 				}
 			}
@@ -485,7 +485,7 @@ uint16_t FrSky_Rx_callback()
 						}
 					}
 					else
-						state=0x3FF; //No hop table for D16v2
+						state = 0x3FF; //No hop table for D16v2
 					if (state == 0x3FF)
 					{
 						debugln("Bind complete");

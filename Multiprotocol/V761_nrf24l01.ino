@@ -166,7 +166,9 @@ static void __attribute__((unused)) V761_initialize_txid()
 			memcpy(hopping_frequency,(uint8_t *)"\x14\x1e",3);
 			break;
 	}
+	//rx_tx_addr[0]+=RX_num;
 	hopping_frequency[2]=hopping_frequency[0]+0x37;
+	debugln("ID: %02X %02X %02X %02X , HOP: %02X %02X %02X",rx_tx_addr[0],rx_tx_addr[1],rx_tx_addr[2],rx_tx_addr[3],hopping_frequency[0],hopping_frequency[1],hopping_frequency[2]);
 }
 
 uint16_t V761_callback()
@@ -223,7 +225,11 @@ uint16_t initV761(void)
 		phase = V761_BIND1;
 	}
 	else
+	{
+		XN297_SetTXAddr(rx_tx_addr, 4);
 		phase = V761_DATA;
+	}
+		
 	V761_init();
 	hopping_frequency_no = 0;
 	packet_count = 0;

@@ -297,7 +297,7 @@ uint16_t RLINK_callback()
 						TX_RSSI += 128;
 					RX_RSSI=packet_in[7];					//Should be packet_in[7]-256 but since it's an uint8_t...
 					v_lipo1=packet_in[8]<<1;				//RX Batt
-					v_lipo2=packet_in[9]<<1;				//Batt
+					v_lipo2=packet_in[9];					//Batt
 					telemetry_link=1;						//Send telemetry out
 					pps_counter++;
 					packet_count=0;

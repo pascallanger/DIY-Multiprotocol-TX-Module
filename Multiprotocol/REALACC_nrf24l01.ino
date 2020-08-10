@@ -54,7 +54,7 @@ static void __attribute__((unused)) REALACC_send_packet()
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency_no);
 	hopping_frequency_no++;
 	hopping_frequency_no %= REALACC_RF_NUM_CHANNELS;
-	XN297_WritePayload(packet, REALACC_PAYLOAD_SIZE);
+	XN297_WriteEnhancedPayload(packet, REALACC_PAYLOAD_SIZE,0);
 }
 
 static void __attribute__((unused)) REALACC_send_bind_packet()
@@ -63,7 +63,7 @@ static void __attribute__((unused)) REALACC_send_bind_packet()
 	memcpy(&packet[1],rx_tx_addr,4);
 	memcpy(&packet[5],hopping_frequency,5);
 
-	XN297_WritePayload(packet, REALACC_BIND_PAYLOAD_SIZE);
+	XN297_WriteEnhancedPayload(packet, REALACC_BIND_PAYLOAD_SIZE,1);
 }
 
 static void __attribute__((unused)) REALACC_initialize_txid()

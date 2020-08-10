@@ -166,7 +166,6 @@ static void __attribute__((unused)) RLINK_rf_init()
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	
 	CC2500_SetTxRxMode(TX_EN);
-	CC2500_SetPower();
 }
 
 static void __attribute__((unused)) RLINK_tune_freq()
@@ -178,7 +177,7 @@ static void __attribute__((unused)) RLINK_tune_freq()
 	}
 }
 
-static void __attribute__((unused)) RLINK_TIMING_RFSEND_packet()
+static void __attribute__((unused)) RLINK_send_packet()
 {
 	static uint32_t pseudo=0;
 	uint32_t bits = 0;
@@ -262,8 +261,9 @@ uint16_t RLINK_callback()
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(RLINK_TIMING_PROTO);
 			#endif
+			CC2500_SetPower();
 			RLINK_tune_freq();
-			RLINK_TIMING_RFSEND_packet();
+			RLINK_send_packet();
 #if not defined RLINK_HUB_TELEMETRY
 			return RLINK_TIMING_PROTO;
 #else

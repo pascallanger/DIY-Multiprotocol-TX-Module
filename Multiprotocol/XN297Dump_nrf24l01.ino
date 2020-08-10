@@ -23,7 +23,7 @@
 
 // Parameters which can be modified
 #define XN297DUMP_PERIOD_SCAN		50000 	// 25000
-#define XN297DUMP_MAX_RF_CHANNEL	84		// Default 84
+#define XN297DUMP_MAX_RF_CHANNEL	127		// Default 84
 
 // Do not touch from there
 #define XN297DUMP_INITIAL_WAIT		500

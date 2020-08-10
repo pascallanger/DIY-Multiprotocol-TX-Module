@@ -72,3 +72,4 @@
 72,Q90C
 73,Kyosho
 74,RadioLink,Surface
+76,Realacc,R11

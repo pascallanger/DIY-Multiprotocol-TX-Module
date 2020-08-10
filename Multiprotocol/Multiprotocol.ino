@@ -1598,6 +1598,12 @@ static void protocol_init()
 						remote_callback = Q90C_callback;
 						break;
 				#endif
+				#if defined(REALACC_NRF24L01_INO)
+					case PROTO_REALACC:
+						next_callback=initREALACC();
+						remote_callback = REALACC_callback;
+						break;
+				#endif
 				#if defined(TEST_CC2500_INO)
 					case PROTO_TEST:
 						next_callback=initTEST();

@@ -207,7 +207,8 @@ uint16_t initFrSkyR9()
 	SX1276_SetHopPeriod(0);										// 0 = disabled, we hop frequencies manually
 	SX1276_SetPaDac(true);
 	SX1276_SetTxRxMode(TX_EN);									// Set RF switch to TX
-
+	//Enable all IRQ flags
+	SX1276_WriteReg(SX1276_11_IRQFLAGSMASK,0x00);
 	FrSkyX_telem_init();
 	
 	hopping_frequency_no=0;
@@ -256,6 +257,8 @@ uint16_t FrSkyR9_callback()
 			SX1276_WriteReg(SX1276_0D_FIFOADDRPTR, 0x00);
 			//Set RF switch to RX
 			SX1276_SetTxRxMode(RX_EN);
+			//Clear all IRQ flags
+			SX1276_WriteReg(SX1276_12_REGIRQFLAGS,0xFF);
 			//Switch to RX
 			SX1276_WriteReg(SX1276_01_OPMODE, 0x85);
 			phase++;
@@ -294,8 +297,6 @@ uint16_t FrSkyR9_callback()
 				FrSkyX_telem_init();							// Reset telemetry
 			else
 				telemetry_link=1;								// Send telemetry out anyway
-			//Clear all flags
-			SX1276_WriteReg(SX1276_12_REGIRQFLAGS,0xFF);
 			phase=FRSKYR9_FREQ;
 			break;
 #endif

@@ -17,12 +17,12 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_nrf24l01.h"
 
+//#define V761_FORCE_ID
+
 #define V761_PACKET_PERIOD		7060 // Timeout for callback in uSec
 #define V761_INITIAL_WAIT		500
 #define V761_PACKET_SIZE		8
 #define V761_BIND_COUNT			200
-
-//Fx chan management
 #define V761_BIND_FREQ			0x28
 #define V761_RF_NUM_CHANNELS	3
 
@@ -143,31 +143,39 @@ static void __attribute__((unused)) V761_init()
 
 static void __attribute__((unused)) V761_initialize_txid()
 {
-	switch(RX_num%5)
-	{
-		case 1:	//Dump from air on Protonus TX
-			memcpy(rx_tx_addr,(uint8_t *)"\xE8\xE4\x45\x09",4);
-			memcpy(hopping_frequency,(uint8_t *)"\x0D\x21",2);
-			break;
-		case 2:	//Dump from air on mshagg2 TX
-			memcpy(rx_tx_addr,(uint8_t *)"\xAE\xD1\x45\x09",4);
-			memcpy(hopping_frequency,(uint8_t *)"\x13\x1D",2);
-			break;
-		case 3:	//Dump from air on MikeHRC Eachine TX
-			memcpy(rx_tx_addr,(uint8_t *)"\x08\x03\x00\xA0",4);		// To be checked
-			memcpy(hopping_frequency,(uint8_t *)"\x0D\x21",2);		// To be checked
-			break;
-		case 4:	//Dump from air on Crashanium Eachine TX
-			memcpy(rx_tx_addr,(uint8_t *)"\x58\x08\x00\xA0",4);		// To be checked
-			memcpy(hopping_frequency,(uint8_t *)"\x0D\x31",3);		// To be checked
-			break;
-		default: //Dump from SPI
-			memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
-			memcpy(hopping_frequency,(uint8_t *)"\x14\x1e",3);
-			break;
-	}
-	//rx_tx_addr[0]+=RX_num;
+	#ifdef V761_FORCE_ID
+		switch(RX_num%5)
+		{
+			case 1:	//Dump from air on Protonus TX
+				memcpy(rx_tx_addr,(uint8_t *)"\xE8\xE4\x45\x09",4);
+				memcpy(hopping_frequency,(uint8_t *)"\x0D\x21",2);
+				break;
+			case 2:	//Dump from air on mshagg2 TX
+				memcpy(rx_tx_addr,(uint8_t *)"\xAE\xD1\x45\x09",4);
+				memcpy(hopping_frequency,(uint8_t *)"\x13\x1D",2);
+				break;
+			case 3:	//Dump from air on MikeHRC Eachine TX
+				memcpy(rx_tx_addr,(uint8_t *)"\x08\x03\x00\xA0",4);
+				memcpy(hopping_frequency,(uint8_t *)"\x0D\x21",2);
+				break;
+			case 4:	//Dump from air on Crashanium Eachine TX
+				memcpy(rx_tx_addr,(uint8_t *)"\x58\x08\x00\xA0",4);
+				memcpy(hopping_frequency,(uint8_t *)"\x0D\x31",2);
+				break;
+			default: //Dump from SPI
+				memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
+				memcpy(hopping_frequency,(uint8_t *)"\x14\x1e",2);
+				break;
+		}
+	#else
+		//Tested with Eachine RX
+		rx_tx_addr[0]+=RX_num;
+		hopping_frequency[0]=(rx_tx_addr[0]&0x0F)+0x05;
+		hopping_frequency[1]=hopping_frequency[0]+0x05+(RX_num%0x2D);
+	#endif
+
 	hopping_frequency[2]=hopping_frequency[0]+0x37;
+
 	debugln("ID: %02X %02X %02X %02X , HOP: %02X %02X %02X",rx_tx_addr[0],rx_tx_addr[1],rx_tx_addr[2],rx_tx_addr[3],hopping_frequency[0],hopping_frequency[1],hopping_frequency[2]);
 }
 

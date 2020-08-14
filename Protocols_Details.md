@@ -1524,8 +1524,6 @@ A|E|T|R|FLIP|LIGHT
 
 ## V761 - *48*
 
-Warning: **Only 5 IDs**, you can cycle through them using RX_Num.
-
 Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
 Calib: momentary switch, calib will happen one the channel goes from -100% to +100%
 Flip: momentary switch: hold flip(+100%), indicate flip direction with Ele or Ail, release flip(-100%)

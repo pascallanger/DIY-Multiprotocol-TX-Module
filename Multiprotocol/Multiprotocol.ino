@@ -1604,6 +1604,12 @@ static void protocol_init()
 						remote_callback = REALACC_callback;
 						break;
 				#endif
+				#if defined(OMP_NRF24L01_INO)
+					case PROTO_OMP:
+						next_callback=initOMP();
+						remote_callback = OMP_callback;
+						break;
+				#endif
 				#if defined(TEST_CC2500_INO)
 					case PROTO_TEST:
 						next_callback=initTEST();

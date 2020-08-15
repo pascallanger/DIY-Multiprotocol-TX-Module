@@ -89,6 +89,7 @@ const char STR_SKYARTEC[]	="Skyartc";
 const char STR_KYOSHO[]		="Kyosho";
 const char STR_RLINK[]		="RadLink";
 const char STR_REALACC[]	="Realacc";
+const char STR_OMP[]		="OMP";
 const char STR_TEST[]		="Test";
 const char STR_FAKE[]		="Fake";
 
@@ -306,6 +307,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(NCC1701_NRF24L01_INO)
 		{PROTO_NCC1701,    STR_NCC1701,   0, NO_SUBTYPE,            OPTION_NONE    },
+	#endif
+	#if defined(OMP_NRF24L01_INO)
+		{PROTO_OMP,        STR_OMP,       0, NO_SUBTYPE,            OPTION_RFTUNE  },
 	#endif
 	#if defined(PELIKAN_A7105_INO)
 		{PROTO_PELIKAN,    STR_PELIKAN  , 2, STR_SUBTYPE_PELIKAN,   OPTION_NONE    },	

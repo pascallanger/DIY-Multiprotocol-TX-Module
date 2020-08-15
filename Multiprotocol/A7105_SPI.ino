@@ -192,9 +192,9 @@ void A7105_AdjustLOBaseFreq(uint8_t cmd)
 					offset=(int16_t)FORCE_FLYSKY_TUNING;
 				#endif
 				break;
-			case PROTO_FLYZONE:
-				#ifdef FORCE_FLYZONE_TUNING
-					offset=(int16_t)FORCE_FLYZONE_TUNING;
+			case PROTO_HEIGHT:
+				#ifdef FORCE_HEIGHT_TUNING
+					offset=(int16_t)FORCE_HEIGHT_TUNING;
 				#endif
 				break;
 			case PROTO_PELIKAN:
@@ -287,8 +287,8 @@ const uint8_t PROGMEM FLYSKY_A7105_regs[] = {
 	0x01, 0x0f // 30 - 31
 };
 #endif
-#ifdef FLYZONE_A7105_INO
-const uint8_t PROGMEM FLYZONE_A7105_regs[] = {
+#ifdef HEIGHT_A7105_INO
+const uint8_t PROGMEM HEIGHT_A7105_regs[] = {
 	0xff, 0x42, 0x00, 0x07, 0x00, 0xff, 0xff ,0x00, 0x00, 0x00, 0x00, 0x01, 0x21, 0x05, 0x01, 0x50,	// 00 - 0f
 	0x9e, 0x4b, 0x00, 0x02, 0x16, 0x2b, 0x12, 0x00, 0x62, 0x80, 0x80, 0x00, 0x0a, 0x32, 0xc3, 0x1f,	// 10 - 1f
 	0x12, 0x00, 0x00, 0xff, 0x00, 0x00, 0x3a, 0x00, 0x3f, 0x47, 0x80, 0x03, 0x01, 0x45, 0x18, 0x00,	// 20 - 2f
@@ -327,10 +327,10 @@ void A7105_Init(void)
 	uint8_t *A7105_Regs=0;
     uint8_t vco_calibration0, vco_calibration1;
 	
-	#ifdef FLYZONE_A7105_INO
-		if(protocol==PROTO_FLYZONE)
+	#ifdef HEIGHT_A7105_INO
+		if(protocol==PROTO_HEIGHT)
 		{
-			A7105_Regs=(uint8_t*)FLYZONE_A7105_regs;
+			A7105_Regs=(uint8_t*)HEIGHT_A7105_regs;
 			A7105_WriteID(0x25A53C45);
 		}
 		else
@@ -382,6 +382,10 @@ void A7105_Init(void)
 				if(i==0x1F) val=0x1F;
 				if(i==0x20) val=0x1E;
 			}
+		#endif
+		#ifdef HEIGHT_A7105_INO
+			if(protocol==PROTO_HEIGHT && sub_protocol==HEIGHT_8CH)
+				if(i==0x03) val=0x0A;
 		#endif
 		if( val != 0xFF)
 			A7105_WriteReg(i, val);
@@ -437,7 +441,7 @@ void A7105_Init(void)
 					case PROTO_FLYSKY:
 						vco_calibration1=0x08;
 						break;
-					case PROTO_FLYZONE:
+					case PROTO_HEIGHT:
 						vco_calibration1=0x02;
 						break;
 					case PROTO_PELIKAN:

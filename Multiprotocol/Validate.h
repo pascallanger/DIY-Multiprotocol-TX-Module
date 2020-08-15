@@ -4,10 +4,10 @@
 #endif
 #if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 	//Atmega328p
-	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_MULTI_NO_BOOT) && not defined(ARDUINO_MULTI_FLASH_FROM_TX) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO)
+	#if not defined(ARDUINO_AVR_PRO) && not defined(ARDUINO_MULTI_NO_BOOT) && not defined(ARDUINO_MULTI_FLASH_FROM_TX) && not defined(ARDUINO_AVR_MINI) && not defined(ARDUINO_AVR_NANO) && not defined(ARDUINO_AVR_DUEMILANOVE)
 		#error You must select one of these boards: "Multi 4-in-1", "Arduino Pro or Pro Mini" or "Arduino Mini"
 	#endif
-	#if F_CPU != 16000000L || not defined(__AVR_ATmega328P__)
+	#if F_CPU != 16000000L || not (defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__))
 		#error You must select the processor type "ATmega328(5V, 16MHz)"
 	#endif
 #endif
@@ -109,6 +109,11 @@
 		#error "The REDPINE forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
+#ifdef FORCE_RADIOLINK_TUNING
+	#if ( FORCE_RADIOLINK_TUNING < -127 ) || ( FORCE_RADIOLINK_TUNING > 127 )
+		#error "The RADIOLINK forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 #ifdef FORCE_SFHSS_TUNING
 	#if ( FORCE_SFHSS_TUNING < -127 ) || ( FORCE_SFHSS_TUNING > 127 )
 		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."
@@ -135,9 +140,9 @@
 		#error "The Flysky forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
-#ifdef FORCE_FLYZONE_TUNING
-	#if ( FORCE_FLYZONE_TUNING < -300 ) || ( FORCE_FLYZONE_TUNING > 300 )
-		#error "The Flyzone forced frequency tuning value is outside of the range -300..300."
+#ifdef FORCE_HEIGHT_TUNING
+	#if ( FORCE_HEIGHT_TUNING < -300 ) || ( FORCE_HEIGHT_TUNING > 300 )
+		#error "The Height forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
 #ifdef FORCE_PELIKAN_TUNING
@@ -163,8 +168,8 @@
 	#ifndef FORCE_FLYSKY_TUNING
 		#define FORCE_FLYSKY_TUNING 0
 	#endif
-	#ifndef FORCE_FLYZONE_TUNING
-		#define FORCE_FLYZONE_TUNING 0
+	#ifndef FORCE_HEIGHT_TUNING
+		#define FORCE_HEIGHT_TUNING 0
 	#endif
 	#ifndef FORCE_PELIKAN_TUNING
 		#define FORCE_PELIKAN_TUNING 0
@@ -218,7 +223,7 @@
 	#undef AFHDS2A_RX_A7105_INO
 	#undef BUGS_A7105_INO
 	#undef FLYSKY_A7105_INO
-	#undef FLYZONE_A7105_INO
+	#undef HEIGHT_A7105_INO
 	#undef HUBSAN_A7105_INO
 	#undef KYOSHO_A7105_INO
 	#undef PELIKAN_A7105_INO
@@ -276,10 +281,12 @@
 	#undef	MJXQ_NRF24L01_INO
 	#undef	MT99XX_NRF24L01_INO
 	#undef	NCC1701_NRF24L01_INO
+	#undef	OMP_NRF24L01_INO
 	#undef	POTENSIC_NRF24L01_INO
 	#undef	PROPEL_NRF24L01_INO
 	#undef	Q303_NRF24L01_INO
 	#undef	Q90C_NRF24L01_INO
+	#undef	REALACC_NRF24L01_INO
 	#undef	SHENQI_NRF24L01_INO
 	#undef	SLT_NRF24L01_INO
 	#undef	SYMAX_NRF24L01_INO

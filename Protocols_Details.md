@@ -83,7 +83,6 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|PWM_IBUS16|PPM_IBUS16|||A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|RX||||||||A7105|
-[Flyzone](Protocols_Details.md#FLYZONE---53)|53|FZ410||||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|D8|Cloned|||||||CC2500|
 [FrskyL](Protocols_Details.md#FRSKYL---67)|67|LR12|LR12 6CH|||||||CC2500|
@@ -94,9 +93,10 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|RX|CloneTX|||||||CC2500|
 [FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
-[GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|
+[GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
 [GW008](Protocols_Details.md#GW008---32)|32|GW008||||||||NRF24L01|XN297
 [H8_3D](Protocols_Details.md#H8_3D---36)|36|H8_3D|H20H|H20Mini|H30Mini|||||NRF24L01|XN297
+[Height](Protocols_Details.md#HEIGHT---53)|53|5ch|8ch|||||||A7105|
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01|
 [Hitec](Protocols_Details.md#HITEC---39)|39|OPT_FW|OPT_HUB|MINIMA||||||CC2500|
 [Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01|XN297
@@ -110,6 +110,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
+[OMP](Protocols_Details.md#OMP---77)|77|||||||||NRF24L01|XN297L
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None|
 [Pelikan](Protocols_Details.md#Pelikan---60)|60|Pro|Lite|||||||A7105|
 [Potensic](Protocols_Details.md#Potensic---51)|51|A20||||||||NRF24L01|XN297
@@ -117,7 +118,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Q2X2](Protocols_Details.md#Q2X2---29)|29|Q222|Q242|Q282||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
 [Q90C](Protocols_Details.md#Q90C---72)|72|Q90C*||||||||NRF24L01|XN297
-[RadioLink](Protocols_Details.md#RadioLink---74)|74|Surface||||||||CC2500|
+[RadioLink](Protocols_Details.md#RadioLink---74)|74|Surface|Air|||||||CC2500|
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
 [SFHSS](Protocols_Details.md#SFHSS---21)|21|SFHSS||||||||CC2500|
@@ -239,12 +240,21 @@ Extended limits supported
 
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
 
-## FLYZONE - *53*
-Models using the Flyzone FZ-410 TX: Fokker D.VII Micro EP RTF. Models using the old ARES TX (prior to Hitec RED) Tiger Moth, eRC Micro Stick and Rage R/C. 
+## HEIGHT - *53*
 
-CH1|CH2|CH3|CH4
----|---|---|---
-A|E|T|R
+### Sub_protocol 5CH - *0*
+Models from Height, Flyzone, Rage R/C, eRC and the old ARES (prior to Hitec RED).
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|Gear
+
+### Sub_protocol 8CH - *1*
+Models from Height and Rage R/C. 
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|Gear|Gyro|Flap|Light
 
 ## HUBSAN - *2*
 
@@ -548,6 +558,8 @@ You should definitively upgrade your receivers/sensors to the latest firmware ve
 
 Extended limits
 
+**64 IDs available, use RX num to scroll through them**
+
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 
@@ -558,13 +570,16 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|FS_CH1|FS_CH2|FS_CH3|FS_CH4|FS_CH5|FS_CH6|FS_CH7
 FS=FailSafe
 
 ### Sub_protocol Surface - *0*
-Surface protocol. TXs: RC4GS,RC6GS. Compatible RXs:R7FG(Std),R6FG,R6F,R8EF,R8FM,R8F,R4FGM
-
-**Only 1 ID for now**
+Surface protocol. TXs: RC4GS,RC6GS. Compatible RXs:R7FG(Std),R6FG,R6F,R8EF,R8FM,R8F,R4FGM,R4F and more
 
 CH1=Steering, CH2=Throttle, CH8=Gyro gain
 
-Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%), A1=RX_Batt, A2=Batt
+Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%), A1=RX_Batt, A2=Batt/2 (adjust the ratio)
+
+### Sub_protocol Air - *1*
+Air protocol. TXs: T8FB,T8S. Compatible RXs:R8EF,R8FM,R8SM,R4FG,R4F and more
+
+Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%)
 
 ## SFHSS - *21*
 Models: Futaba RXs and XK models.
@@ -1263,6 +1278,21 @@ CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|Warp
 
+## OMP - *77*
+Model: OMPHOBBY M2
+
+This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
+
+If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|HOLD|IDLE|MODE
+
+IDLE= 3 pos switch: -100% Idle0, 0% Idle1, +100% Idle2
+
+MODE= 3 pos switch -100% Attitude, 0% Attitude, +100% 3D 
+
 ## Potensic - *51*
 Model: Potensic A20
 
@@ -1509,8 +1539,6 @@ CH1|CH2|CH3|CH4|CH5|CH6
 A|E|T|R|FLIP|LIGHT
 
 ## V761 - *48*
-
-Warning: **Only 5 IDs**, you can cycle through them using RX_Num.
 
 Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
 Calib: momentary switch, calib will happen one the channel goes from -100% to +100%

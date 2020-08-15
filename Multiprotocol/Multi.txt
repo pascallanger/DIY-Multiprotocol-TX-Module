@@ -50,7 +50,7 @@
 50,Redpine,Fast,Slow
 51,Potensic,A20
 52,ZSX,280
-53,Flyzone,FZ-410
+53,Height,5ch,8ch
 54,Scanner
 55,Frsky_RX,RX,CloneTX
 56,AFHDS2A_RX
@@ -72,3 +72,5 @@
 72,Q90C
 73,Kyosho
 74,RadioLink,Surface
+76,Realacc,R11
+77,OMP

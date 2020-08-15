@@ -14,16 +14,16 @@
  */
 // Compatible with FZ-410 TX
 
-#if defined(FLYZONE_A7105_INO)
+#if defined(HEIGHT_A7105_INO)
 
 #include "iface_a7105.h"
 
-//#define FLYZONE_FORCEID
+//#define HEIGHT_FORCEID
 
-#define FLYZONE_BIND_COUNT	220		// 5 sec
-#define FLYZONE_BIND_CH		0x18	// TX, RX for bind end is 0x17
+#define HEIGHT_BIND_COUNT	220		// 5 sec
+#define HEIGHT_BIND_CH		0x18	// TX, RX for bind end is 0x17
 
-static void __attribute__((unused)) flyzone_build_packet()
+static void __attribute__((unused)) HEIGHT_build_packet()
 {
     packet[0] = 0xA5;
     packet[1] = rx_tx_addr[2];
@@ -33,11 +33,17 @@ static void __attribute__((unused)) flyzone_build_packet()
 	packet[5] = convert_channel_8b(THROTTLE);	//00..FF
 	packet[6] = convert_channel_8b(RUDDER);		//00..80..FF
     packet[7] = convert_channel_8b(CH5);		//00..80..FF
+    if(sub_protocol == HEIGHT_8CH)
+	{
+		packet[8] = convert_channel_8b(CH6);	//00..80..FF
+		packet[9] = convert_channel_8b(CH7);	//00..80..FF
+		packet[10] = convert_channel_8b(CH8);	//00..80..FF
+	}
 }
 
-uint16_t ReadFlyzone()
+uint16_t ReadHeight()
 {
-	#ifndef FORCE_FLYZONE_TUNING
+	#ifndef FORCE_HEIGHT_TUNING
 		A7105_AdjustLOBaseFreq(1);
 	#endif
 	if(IS_BIND_IN_PROGRESS)
@@ -45,7 +51,7 @@ uint16_t ReadFlyzone()
 		packet[0] = 0x1B;
 		packet[1] = rx_tx_addr[2];
 		packet[2] = rx_tx_addr[3];
-		A7105_WriteData(3, FLYZONE_BIND_CH);
+		A7105_WriteData(3, HEIGHT_BIND_CH);
 		if (bind_counter--==0)
 			BIND_DONE;
 		return 22700;
@@ -58,8 +64,8 @@ uint16_t ReadFlyzone()
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(20*1500);
 			#endif
-			flyzone_build_packet();
-			A7105_WriteData(8, hopping_frequency[0]);
+			HEIGHT_build_packet();
+			A7105_WriteData(sub_protocol?11:8, hopping_frequency[0]);
 			A7105_SetPower();
 		}
 		else
@@ -72,14 +78,14 @@ uint16_t ReadFlyzone()
 	return 1500;
 }
 
-uint16_t initFlyzone()
+uint16_t initHeight()
 {
 	A7105_Init();
 
 	hopping_frequency[0]=((random(0xfefefefe) & 0x0F)+2)<<2;
 	hopping_frequency[1]=hopping_frequency[0]+0x50;
 	
-	#ifdef FLYZONE_FORCEID
+	#ifdef HEIGHT_FORCEID
 		rx_tx_addr[2]=0x35;
 		rx_tx_addr[3]=0xD0;
 		hopping_frequency[0]=0x18;
@@ -87,7 +93,7 @@ uint16_t initFlyzone()
 	#endif
 	
 	phase=255;
-	bind_counter = FLYZONE_BIND_COUNT;
+	bind_counter = HEIGHT_BIND_COUNT;
 	return 2400;
 }
 #endif

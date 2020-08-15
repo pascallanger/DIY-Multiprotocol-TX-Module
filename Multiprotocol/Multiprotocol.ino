@@ -560,6 +560,11 @@ void setup()
 				option			=	FORCE_REDPINE_TUNING;		// Use config-defined tuning value for REDPINE
 			else
 		#endif
+		#if defined(FORCE_RADIOLINK_TUNING) && defined(RADIOLINK_CC2500_INO)
+			if (protocol==PROTO_RADIOLINK)
+				option			=	FORCE_RADIOLINK_TUNING;		// Use config-defined tuning value for RADIOLINK
+			else
+		#endif
 		#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
 			if (protocol==PROTO_HITEC)
 				option			=	FORCE_HITEC_TUNING;		// Use config-defined tuning value for HITEC
@@ -1115,11 +1120,11 @@ static void protocol_init()
 						remote_callback = ReadBUGS;
 						break;
 				#endif
-				#if defined(FLYZONE_A7105_INO)
-					case PROTO_FLYZONE:
+				#if defined(HEIGHT_A7105_INO)
+					case PROTO_HEIGHT:
 						PE1_off;	//antenna RF1
-						next_callback = initFlyzone();
-						remote_callback = ReadFlyzone;
+						next_callback = initHeight();
+						remote_callback = ReadHeight;
 						break;
 				#endif
 				#if defined(AFHDS2A_RX_A7105_INO)
@@ -1593,6 +1598,18 @@ static void protocol_init()
 						remote_callback = Q90C_callback;
 						break;
 				#endif
+				#if defined(REALACC_NRF24L01_INO)
+					case PROTO_REALACC:
+						next_callback=initREALACC();
+						remote_callback = REALACC_callback;
+						break;
+				#endif
+				#if defined(OMP_NRF24L01_INO)
+					case PROTO_OMP:
+						next_callback=initOMP();
+						remote_callback = OMP_callback;
+						break;
+				#endif
 				#if defined(TEST_CC2500_INO)
 					case PROTO_TEST:
 						next_callback=initTEST();
@@ -1751,6 +1768,11 @@ void update_serial_data()
 			option=FORCE_REDPINE_TUNING;		// Use config-defined tuning value for REDPINE
 		else
 	#endif
+	#if defined(FORCE_RADIOLINK_TUNING) && defined(RADIOLINK_CC2500_INO)
+		if (protocol==PROTO_RADIOLINK)
+			option			=	FORCE_RADIOLINK_TUNING;		// Use config-defined tuning value for RADIOLINK
+		else
+	#endif
 	#if defined(FORCE_HITEC_TUNING) && defined(HITEC_CC2500_INO)
 		if (protocol==PROTO_HITEC)
 			option=FORCE_HITEC_TUNING;			// Use config-defined tuning value for HITEC
@@ -1905,7 +1927,7 @@ void update_serial_data()
 			}
 		#endif
 		#ifdef SPORT_SEND
-			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || PROTO_FRSKY_R9) && rx_len==35)
+			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9) && rx_len==35)
 			{//Protocol waiting for 8 bytes
 				#define BYTE_STUFF	0x7D
 				#define STUFF_MASK	0x20

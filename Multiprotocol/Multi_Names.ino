@@ -72,7 +72,7 @@ const char STR_KF606[]		="KF606";
 const char STR_REDPINE[]	="Redpine";
 const char STR_POTENSIC[]	="Potensi";
 const char STR_ZSX[]		="ZSX";
-const char STR_FLYZONE[]	="FlyZone";
+const char STR_HEIGHT[]		="Height";
 const char STR_SCANNER[]	="Scanner";
 const char STR_FRSKY_RX[]	="FrSkyRX";
 const char STR_AFHDS2A_RX[]	="FS2A_RX";
@@ -88,6 +88,8 @@ const char STR_PROPEL[]		="Propel";
 const char STR_SKYARTEC[]	="Skyartc";
 const char STR_KYOSHO[]		="Kyosho";
 const char STR_RLINK[]		="RadLink";
+const char STR_REALACC[]	="Realacc";
+const char STR_OMP[]		="OMP";
 const char STR_TEST[]		="Test";
 const char STR_FAKE[]		="Fake";
 
@@ -125,7 +127,7 @@ const char STR_SUBTYPE_GD00X[] =      "\x05""GD_V1""GD_V2";
 const char STR_SUBTYPE_REDPINE[] =    "\x04""Fast""Slow";
 const char STR_SUBTYPE_POTENSIC[] =   "\x03""A20";
 const char STR_SUBTYPE_ZSX[] =        "\x07""280JJRC";
-const char STR_SUBTYPE_FLYZONE[] =    "\x05""FZ410";
+const char STR_SUBTYPE_HEIGHT[] =    "\x03""5ch""8ch";
 const char STR_SUBTYPE_FX816[] =      "\x03""P38";
 const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ""NRF\0   ";
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4ch""7ch";
@@ -140,8 +142,9 @@ const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 const char STR_SUBTYPE_WFLY[] =       "\x06""WFR0xS";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
-const char STR_SUBTYPE_V761[] =       "\x03""3CH""4CH";
-const char STR_SUBTYPE_RLINK[] =      "\x07""Surface";
+const char STR_SUBTYPE_V761[] =       "\x03""3ch""4ch";
+const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ";
+const char STR_SUBTYPE_REALACC[] =     "\x03""R11";
 
 enum
 {
@@ -224,8 +227,8 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(AFHDS2A_RX_A7105_INO)
 		{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
-	#if defined(FLYZONE_A7105_INO)
-		{PROTO_FLYZONE,    STR_FLYZONE,   1, STR_SUBTYPE_FLYZONE,   OPTION_NONE    },
+	#if defined(HEIGHT_A7105_INO)
+		{PROTO_HEIGHT,    STR_HEIGHT,   2, STR_SUBTYPE_HEIGHT,   OPTION_NONE    },
 	#endif
 	#if defined(FQ777_NRF24L01_INO)
 		{PROTO_FQ777,      STR_FQ777,     0, NO_SUBTYPE,            OPTION_NONE    },
@@ -305,6 +308,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(NCC1701_NRF24L01_INO)
 		{PROTO_NCC1701,    STR_NCC1701,   0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
+	#if defined(OMP_NRF24L01_INO)
+		{PROTO_OMP,        STR_OMP,       0, NO_SUBTYPE,            OPTION_RFTUNE  },
+	#endif
 	#if defined(PELIKAN_A7105_INO)
 		{PROTO_PELIKAN,    STR_PELIKAN  , 2, STR_SUBTYPE_PELIKAN,   OPTION_NONE    },	
 	#endif
@@ -323,11 +329,14 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(Q90C_NRF24L01_INO)
 		{PROTO_Q90C,       STR_Q90C,      0, NO_SUBTYPE,            OPTION_RFTUNE  },
 	#endif
+	#if defined(RLINK_CC2500_INO)
+		{PROTO_RLINK,      STR_RLINK,     2, STR_SUBTYPE_RLINK,     OPTION_RFTUNE  },
+	#endif
+	#if defined(REALACC_NRF24L01_INO)
+		{PROTO_REALACC,    STR_REALACC,   1, STR_SUBTYPE_REALACC,   OPTION_NONE    },
+	#endif
 	#if defined(REDPINE_CC2500_INO)
 		{PROTO_REDPINE,    STR_REDPINE,   2, STR_SUBTYPE_REDPINE,   OPTION_RFTUNE  },
-	#endif
-	#if defined(RLINK_CC2500_INO)
-		{PROTO_RLINK,      STR_RLINK,     1, STR_SUBTYPE_RLINK,     OPTION_RFTUNE  },
 	#endif
 	#if defined(SCANNER_CC2500_INO)
 	//	{PROTO_SCANNER,    STR_SCANNER,   0, NO_SUBTYPE,            OPTION_NONE    },

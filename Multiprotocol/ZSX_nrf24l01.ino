@@ -16,7 +16,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(ZSX_NRF24L01_INO)
 
-#include "iface_nrf250k.h"
+#include "iface_nrf24l01.h"
 
 //#define FORCE_ZSX_ORIGINAL_ID
 

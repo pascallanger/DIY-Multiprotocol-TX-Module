@@ -102,6 +102,61 @@ static void __attribute__((unused)) FrSkyR9_build_packet()
 	packet[25] = crc >> 8;				// high byte
 }
 
+static uint8_t __attribute__((unused)) FrSkyR9_CRC8(uint8_t *p, uint8_t l)
+{
+	uint8_t crc = 0xFF;
+	for (uint8_t i = 0; i < l; i++)
+    {
+		crc = crc ^ p[i];
+		for ( uint8_t j = 0; j < 8; j++ ) 
+			if ( crc & 0x80 )
+			{
+				crc <<= 1;
+				crc ^= 0x07;
+			}
+			else
+				crc <<= 1;
+	}
+	return crc;
+}
+
+static void __attribute__((unused)) FrSkyR9_build_EU_packet()
+{
+	//ID
+	packet[0] = rx_tx_addr[1];
+	packet[1] = rx_tx_addr[2];
+	packet[2] = rx_tx_addr[3];
+
+	//Hopping
+	packet[3] = FrSkyX_chanskip;		// step size and last 2 channels start index
+
+	//RX number
+	packet[4] = RX_num;					// receiver number from OpenTX
+
+	//Channels
+	//TODO FrSkyX_channels(5,4);			// Set packet[5]=failsafe and packet[6..11]=4 channels data
+
+	//Bind
+	if(IS_BIND_IN_PROGRESS)
+	{
+		packet[5] = 0x01;				// bind indicator
+		if((sub_protocol & 2) == 0)
+			packet[5] |= 0x10;			// 16CH
+		// if(sub_protocol & 1)
+			// packet[5] |= 0x20;			// 868
+		if(binding_idx&0x01)
+			packet[5] |= 0x40;			// telem OFF
+		if(binding_idx&0x02)
+			packet[5] |= 0x80;			// ch9-16
+	}
+
+	//Sequence and send SPort
+	packet[12] = (FrSkyX_RX_Seq << 4)|0x08;	//TX=8 at startup
+
+	//CRC
+	packet[13] = FrSkyR9_CRC8(packet, 13);
+}
+
 uint16_t initFrSkyR9()
 {
 	//Check frequencies
@@ -127,6 +182,12 @@ uint16_t initFrSkyR9()
 		FrSkyFormat=1;											// 8 channels
 	debugln("%dCH", FrSkyFormat&1 ? 8:16);
 	
+	//EU packet length
+	if( (sub_protocol & 0xFD) == R9_EU )
+		packet_length=14;
+	else
+		packet_length=26;
+
 	//SX1276 Init
 	SX1276_SetMode(true, false, SX1276_OPMODE_SLEEP);
 	SX1276_SetMode(true, false, SX1276_OPMODE_STDBY);
@@ -146,7 +207,8 @@ uint16_t initFrSkyR9()
 	SX1276_SetHopPeriod(0);										// 0 = disabled, we hop frequencies manually
 	SX1276_SetPaDac(true);
 	SX1276_SetTxRxMode(TX_EN);									// Set RF switch to TX
-
+	//Enable all IRQ flags
+	SX1276_WriteReg(SX1276_11_IRQFLAGSMASK,0x00);
 	FrSkyX_telem_init();
 	
 	hopping_frequency_no=0;
@@ -168,14 +230,17 @@ uint16_t FrSkyR9_callback()
 			// output_power: 2 dBm (17-(15-OutputPower) (if pa_boost_pin == true))
 			SX1276_SetPaConfig(true, 7, 0);						// Lowest power for the T18
 			//Build packet
-			FrSkyR9_build_packet();
+			if( packet_length == 26 )
+				FrSkyR9_build_packet();
+			else
+				FrSkyR9_build_EU_packet();
 			phase++;
 			return 460;											// Frequency settle time
 		case FRSKYR9_DATA:
 			//Set RF switch to TX
 			SX1276_SetTxRxMode(TX_EN);
 			//Send packet
-			SX1276_WritePayloadToFifo(packet, 26);
+			SX1276_WritePayloadToFifo(packet, packet_length);
 			SX1276_SetMode(true, false, SX1276_OPMODE_TX);
 #if not defined TELEMETRY
 			phase=FRSKYR9_FREQ;
@@ -192,6 +257,8 @@ uint16_t FrSkyR9_callback()
 			SX1276_WriteReg(SX1276_0D_FIFOADDRPTR, 0x00);
 			//Set RF switch to RX
 			SX1276_SetTxRxMode(RX_EN);
+			//Clear all IRQ flags
+			SX1276_WriteReg(SX1276_12_REGIRQFLAGS,0xFF);
 			//Switch to RX
 			SX1276_WriteReg(SX1276_01_OPMODE, 0x85);
 			phase++;
@@ -230,8 +297,6 @@ uint16_t FrSkyR9_callback()
 				FrSkyX_telem_init();							// Reset telemetry
 			else
 				telemetry_link=1;								// Send telemetry out anyway
-			//Clear all flags
-			SX1276_WriteReg(SX1276_12_REGIRQFLAGS,0xFF);
 			phase=FRSKYR9_FREQ;
 			break;
 #endif

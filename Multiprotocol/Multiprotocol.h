@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	45
+#define VERSION_PATCH_LEVEL	56
 
 //******************
 // Protocols
@@ -79,7 +79,7 @@ enum PROTOCOLS
 	PROTO_REDPINE	= 50,	// =>CC2500
 	PROTO_POTENSIC	= 51,	// =>NRF24L01
 	PROTO_ZSX		= 52,	// =>NRF24L01
-	PROTO_FLYZONE	= 53,	// =>A7105
+	PROTO_HEIGHT	= 53,	// =>A7105
 	PROTO_SCANNER	= 54,	// =>CC2500
 	PROTO_FRSKY_RX	= 55,	// =>CC2500
 	PROTO_AFHDS2A_RX= 56,	// =>A7105
@@ -101,6 +101,8 @@ enum PROTOCOLS
 	PROTO_Q90C		= 72,	// =>NRF24L01 or CC2500
 	PROTO_KYOSHO	= 73,	// =>A7105
 	PROTO_RLINK		= 74,	// =>CC2500
+	PROTO_REALACC	= 76,	// =>NRF24L01
+	PROTO_OMP		= 77,	// =>NRF24L01
 
 	PROTO_FAKE		= 126,	// =>CC2500+NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -114,7 +116,7 @@ enum Flysky
 	V912	= 3,
 	CX20	= 4,
 };
-enum Flyzone
+enum Height
 {
 	FZ410	= 0,
 };
@@ -390,6 +392,12 @@ enum V761
 	V761_4CH	= 1,
 };
 
+enum HEIGHT
+{
+	HEIGHT_5CH	= 0,
+	HEIGHT_8CH	= 1,
+};
+
 #define NONE 		0
 #define P_HIGH		1
 #define P_LOW		0
@@ -596,17 +604,17 @@ enum {
 };
 
 // A7105 power
-//	Power amp is ~+16dBm so:
+// The numbers do not take into account any outside amplifier
 enum A7105_POWER
 {
-	A7105_POWER_0 = 0x00<<3 | 0x00,	// TXPOWER_100uW  = -23dBm == PAC=0 TBG=0
-	A7105_POWER_1 = 0x00<<3 | 0x01,	// TXPOWER_300uW  = -20dBm == PAC=0 TBG=1
-	A7105_POWER_2 = 0x00<<3 | 0x02,	// TXPOWER_1mW    = -16dBm == PAC=0 TBG=2
-	A7105_POWER_3 = 0x00<<3 | 0x04,	// TXPOWER_3mW    = -11dBm == PAC=0 TBG=4
-	A7105_POWER_4 = 0x01<<3 | 0x05,	// TXPOWER_10mW   =  -6dBm == PAC=1 TBG=5
-	A7105_POWER_5 = 0x02<<3 | 0x07,	// TXPOWER_30mW   =   0dBm == PAC=2 TBG=7
-	A7105_POWER_6 = 0x03<<3 | 0x07,	// TXPOWER_100mW  =   1dBm == PAC=3 TBG=7
-	A7105_POWER_7 = 0x03<<3 | 0x07	// TXPOWER_150mW  =   1dBm == PAC=3 TBG=7
+	A7105_POWER_0 = 0x00<<3 | 0x00,	// -23dBm == PAC=0 TBG=0
+	A7105_POWER_1 = 0x00<<3 | 0x01,	// -20dBm == PAC=0 TBG=1
+	A7105_POWER_2 = 0x00<<3 | 0x02,	// -16dBm == PAC=0 TBG=2
+	A7105_POWER_3 = 0x00<<3 | 0x04,	// -11dBm == PAC=0 TBG=4
+	A7105_POWER_4 = 0x01<<3 | 0x05,	//  -6dBm == PAC=1 TBG=5
+	A7105_POWER_5 = 0x02<<3 | 0x07,	//   0dBm == PAC=2 TBG=7
+	A7105_POWER_6 = 0x03<<3 | 0x07,	//  +1dBm == PAC=3 TBG=7
+	A7105_POWER_7 = 0x03<<3 | 0x07	//  +1dBm == PAC=3 TBG=7
 };
 #define A7105_HIGH_POWER	A7105_POWER_7
 #define	A7105_LOW_POWER		A7105_POWER_3
@@ -614,14 +622,13 @@ enum A7105_POWER
 #define	A7105_BIND_POWER	A7105_POWER_0
 
 // NRF Power
-// Power setting is 0..3 for nRF24L01
-// Claimed power amp for nRF24L01 from eBay is 20dBm. 
+// The numbers do not take into account any outside amplifier
 enum NRF_POWER
-{						//      Raw            w 20dBm PA
-	NRF_POWER_0 = 0x00,	// 0 : -18dBm  (16uW)   2dBm (1.6mW)
-	NRF_POWER_1 = 0x01,	// 1 : -12dBm  (60uW)   8dBm   (6mW)
-	NRF_POWER_2 = 0x02,	// 2 :  -6dBm (250uW)  14dBm  (25mW)
-	NRF_POWER_3 = 0x03	// 3 :   0dBm   (1mW)  20dBm (100mW)
+{
+	NRF_POWER_0 = 0x00,	// -18dBm
+	NRF_POWER_1 = 0x01,	// -12dBm
+	NRF_POWER_2 = 0x02,	//  -6dBm
+	NRF_POWER_3 = 0x03	//   0dBm
 };
 #define NRF_HIGH_POWER		NRF_POWER_3
 #define	NRF_LOW_POWER		NRF_POWER_1
@@ -658,6 +665,7 @@ enum CC2500_POWER
 #define CC2500_BIND_POWER	CC2500_POWER_1
 
 // CYRF power
+// The numbers do not take into account any outside amplifier
 enum CYRF_POWER
 {
 	CYRF_POWER_0 = 0x00,	// -35dbm
@@ -781,7 +789,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				REDPINE		50
 				POTENSIC	51
 				ZSX			52
-				FLYZONE		53
+				HEIGHT		53
 				SCANNER		54
 				FRSKY_RX	55
 				AFHDS2A_RX	56
@@ -803,6 +811,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				Q90C		72
 				KYOSHO		73
 				RLINK		74
+				REALACC		76
+				OMP			77
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -993,6 +1003,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==V761
 			V761_3CH	0
 			V761_4CH	1
+		sub_protocol==HEIGHT
+			HEIGHT_5CH	0
+			HEIGHT_8CH	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

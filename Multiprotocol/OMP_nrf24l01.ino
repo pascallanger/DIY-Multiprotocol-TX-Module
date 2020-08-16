@@ -79,7 +79,6 @@ static void __attribute__((unused)) OMP_send_packet()
 		packet[13]  = channel>>8;
 
 		//unknown
-		//packet[13] = 0x00;
 		//packet[14] = 0x00;
 		packet[15] = 0x04;
 	}
@@ -115,7 +114,10 @@ uint16_t OMP_callback()
 {
 	if(IS_BIND_IN_PROGRESS)
 		if(--bind_counter==0)
+		{
 			BIND_DONE;
+			XN297L_SetTXAddr(rx_tx_addr, 5);
+		}
 	OMP_send_packet();
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(OMP_PACKET_PERIOD);
@@ -128,7 +130,10 @@ uint16_t initOMP()
 	OMP_initialize_txid();
 	OMP_init();
 	hopping_frequency_no = 0;
-	bind_counter=OMP_BIND_COUNT;
+	if(IS_BIND_IN_PROGRESS)
+		bind_counter=OMP_BIND_COUNT;
+	else
+		XN297L_SetTXAddr(rx_tx_addr, 5);
 	return OMP_INITIAL_WAIT;
 }
 

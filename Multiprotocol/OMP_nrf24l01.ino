@@ -17,7 +17,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_nrf250k.h"
 
-#define FORCE_OMP_ORIGINAL_ID
+//#define FORCE_OMP_ORIGINAL_ID
 
 #define OMP_INITIAL_WAIT	500
 #define OMP_PACKET_PERIOD	5000
@@ -67,19 +67,19 @@ static void __attribute__((unused)) OMP_send_packet()
 		uint16_t channel=convert_channel_16b_limit(THROTTLE,0,2047);
 		packet[7 ]  = channel;
 		packet[8 ]  = channel>>8;
-		channel=convert_channel_16b_limit(AILERON,0,2047);
+		channel=convert_channel_16b_limit(AILERON,2047,0);
 		packet[8 ] |= channel<<3;
 		packet[9 ]  = channel>>5;
 		channel=convert_channel_16b_limit(ELEVATOR,0,2047);
-		packet[10] |= channel<<6;
-		packet[11]  = channel>>2;
-		packet[12]  = channel>>10;
-		channel=convert_channel_16b_limit(RUDDER,0,2047);
-		packet[12] |= channel<<1;
-		packet[13]  = channel>>8;
+		packet[9] |= channel<<6;
+		packet[10]  = channel>>2;
+		packet[11]  = channel>>10;
+		channel=convert_channel_16b_limit(RUDDER,2047,0);
+		packet[11] |= channel<<1;
+		packet[12]  = channel>>7;
 
 		//unknown
-		//packet[14] = 0x00;
+		//packet[13..15]
 		packet[15] = 0x04;
 	}
 

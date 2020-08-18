@@ -1631,28 +1631,28 @@ Notes:
 - Power adjustment is not supported on the T18.
 
 ### Sub_protocol R9_915 - *0*
-915MHz, 16 channels
+FLEX 915MHz, 16 channels
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
 ### Sub_protocol R9_868 - *1*
-868MHz, 16 channels
+FLEX 868MHz, 16 channels
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
 ### Sub_protocol R9_915_8CH - *2*
-915MHz, 8 channels
+FLEX 915MHz, 8 channels
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
 ### Sub_protocol R9_868_8CH - *3*
-868MHz, 8 channels
+FLEX 868MHz, 8 channels
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---

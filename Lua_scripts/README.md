@@ -28,7 +28,7 @@ Enable text configuration of the HoTT RX and sensors: Vario, GPS, ESC, GAM and E
 Need OpenTX 2.3.9 or above. Located on the radio SD card under \SCRIPTS\TOOLS.
 
 Notes:
-- Menu is used to cycle through the detected sensors.
+- Menu/MDL/Model is used to cycle through the detected sensors.
 - It's normal to lose the telemetry feed while using the text mode configuration. Telemetry will resume properly if the script is exited by doing a short press on the exit button.
 
 [![Text mode video](https://img.youtube.com/vi/81wd8NlF3Qw/0.jpg)](https://www.youtube.com/watch?v=81wd8NlF3Qw)

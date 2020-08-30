@@ -1287,11 +1287,11 @@ If the model does not respond well to inputs or hard to bind, you can try to swi
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
-A|E|T|R|HOLD|IDLE|MODE
+A|E|THR_PITCH|R|THR_HOLD|IDLE|MODE
 
-IDLE= 3 pos switch: -100% Idle0, 0% Idle1, +100% Idle2
+IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
 
-MODE= 3 pos switch -100% Attitude, 0% Attitude, +100% 3D 
+MODE= 3 pos switch -100% Attitude(?), 0% Attitude, +100% 3D 
 
 ## Potensic - *51*
 Model: Potensic A20

@@ -119,7 +119,8 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)|31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
 [Q90C](Protocols_Details.md#Q90C---72)|72|Q90C*||||||||NRF24L01|XN297
 [RadioLink](Protocols_Details.md#RadioLink---74)|74|Surface|Air|||||||CC2500|
-[Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|
+[Realacc](Protocols_Details.md#Realacc---76)|76|R11||||||||NRF24L01|
+[Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
 [SFHSS](Protocols_Details.md#SFHSS---21)|21|SFHSS||||||||CC2500|
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
@@ -1384,6 +1385,19 @@ A|E|T|R|FMODE|VTX+
 
 FMODE: -100% angle, 0% horizon, +100% acro
 VTX+: -100%->+100% channel+
+
+## Realacc - *76*
+Model: Realacc R11
+
+Untested protocol, let me know if it works.
+
+Autobind protocol
+
+### Sub_protocol R11 - *0*
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|FLIP|LIGHT|CALIB|HLESS|RTH|UNK
 
 ## Redpine - *50*
 [Link to the forum](https://www.rcgroups.com/forums/showthread.php?3236043-Redpine-Lowest-latency-RC-protocol)

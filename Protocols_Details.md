@@ -1287,7 +1287,7 @@ If the model does not respond well to inputs or hard to bind, you can try to swi
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
-A|E|THR_PITCH|R|THR_HOLD|IDLE|MODE
+A|E|T_PITCH|R|T_HOLD|IDLE|MODE
 
 IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
 

@@ -123,6 +123,7 @@
 17,3,MT99XX,LS,1,Flip,Invert,Pict,Video,HLess
 17,4,MT99XX,FY805,1,Flip,n-a,n-a,n-a,HLess
 44,0,NCC1701,Std,1,Warp
+77,0,OMP,M2,0,THold,IdleUp,6G_3D
 60,0,Pelikan,PRO_V4,0,CH5,CH6,CH7,CH8
 60,1,Pelikan,LITE_V4,0,CH5,CH6,CH7,CH8
 51,0,Potensic,A20,1,TakLan,Emerg,Mode,HLess

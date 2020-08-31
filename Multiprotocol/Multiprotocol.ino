@@ -256,6 +256,10 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		uint8_t HoTT_SerialRX_val=0;
 		bool HoTT_SerialRX=false;
 	#endif
+	#ifdef DSM_FWD_PGM
+		uint8_t DSM_SerialRX_val[7];
+		bool DSM_SerialRX=false;
+	#endif
 #endif // TELEMETRY
 
 // Callback
@@ -1927,7 +1931,7 @@ void update_serial_data()
 			}
 		#endif
 		#ifdef SPORT_SEND
-			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9) && rx_len==35)
+			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9) && rx_len==27+8)
 			{//Protocol waiting for 8 bytes
 				#define BYTE_STUFF	0x7D
 				#define STUFF_MASK	0x20
@@ -1971,10 +1975,17 @@ void update_serial_data()
 			}
 		#endif //SPORT_SEND
 		#ifdef HOTT_FW_TELEMETRY
-			if(protocol==PROTO_HOTT && rx_len==28)
+			if(protocol==PROTO_HOTT && rx_len==27+1)
 			{//Protocol waiting for 1 byte
 				HoTT_SerialRX_val=rx_ok_buff[27];
 				HoTT_SerialRX=true;
+			}
+		#endif
+		#ifdef DSM_FWD_PGM
+			if(protocol==PROTO_DSM && rx_len==27+7)
+			{//Protocol waiting for 7 bytes
+				memcpy(DSM_SerialRX_val, (const void *)&rx_ok_buff[27],7);
+				DSM_SerialRX=true;
 			}
 		#endif
 	}
@@ -2484,7 +2495,7 @@ static void __attribute__((unused)) calc_fh_channels(uint8_t num_ch)
 		ISR(TIMER1_COMPB_vect)
 	#endif
 	{	// Timer1 compare B interrupt
-		if(rx_idx>=26 && rx_idx<RXBUFFER_SIZE)
+		if(rx_idx>=26 && rx_idx<=RXBUFFER_SIZE)
 		{
 			// A full frame has been received
 			if(!IS_RX_DONOTUPDATE_on)
@@ -2503,7 +2514,7 @@ static void __attribute__((unused)) calc_fh_channels(uint8_t num_ch)
 		}
 		#ifdef DEBUG_SERIAL
 			else
-				debugln("RX frame too short");
+				debugln("RX frame size incorrect");
 		#endif
 		discard_frame=true;
 		#ifdef STM32_BOARD

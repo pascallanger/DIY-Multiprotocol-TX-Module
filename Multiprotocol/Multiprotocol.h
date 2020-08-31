@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	59
+#define VERSION_PATCH_LEVEL	60
 
 //******************
 // Protocols
@@ -1032,6 +1032,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
       FrSkyX and FrSkyX2: Stream[27] during bind Telem on=0x00,off=0x01 | CH1-8=0x00,CH9-16=0x02
       FrSkyX and FrSkyX2: Stream[27..34] during normal operation unstuffed SPort data to be sent
 	  HoTT: Stream[27] 1 byte for telemetry type
+	  DSM: Stream[27..33] Forward Programming
 */
 /*
   Multimodule Status

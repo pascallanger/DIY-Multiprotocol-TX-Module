@@ -1280,7 +1280,7 @@ CH1|CH2|CH3|CH4|CH5
 A|E|T|R|Warp
 
 ## OMP - *77*
-Model: OMPHOBBY M2
+Model: OMPHOBBY M2 Heli, T720 RC Glider
 
 This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
 

@@ -292,6 +292,39 @@ void setup()
 
 		delay(50);  // Brief delay for FTDI debugging
 		debugln("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
+		#ifdef STM32_BOARD
+			//Read module flash size
+			unsigned short *flashSize = (unsigned short *) (0x1FFFF7E0);// Address register 
+			debugln("Module Flash size: %dKB",(int)(*flashSize & 0xffff));
+			if((int)(*flashSize & 0xffff) < 128)
+				while (true) { //SOS
+					for(uint8_t i=0; i<3;i++)
+					{
+						LED_on;
+						delay(100);
+						LED_off;
+						delay(100);
+					}
+					for(uint8_t i=0; i<3;i++)
+					{
+						LED_on;
+						delay(500);
+						LED_off;
+						delay(100);
+					}
+					for(uint8_t i=0; i<3;i++)
+					{
+						LED_on;
+						delay(100);
+						LED_off;
+						delay(100);
+					}
+					LED_off;
+					delay(1000);
+					currMillis = millis();
+				}
+		#endif
+
 	#endif
 
 	// General pinout
@@ -506,7 +539,7 @@ void setup()
 	MProtocol_id_master=random_id(EEPROM_ID_OFFSET,false);
 
 	debugln("Module Id: %lx", MProtocol_id_master);
-	
+
 #ifdef ENABLE_PPM
 	//Protocol and interrupts initialization
 	if(mode_select != MODE_SERIAL)

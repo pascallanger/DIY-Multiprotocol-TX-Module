@@ -292,39 +292,6 @@ void setup()
 
 		delay(50);  // Brief delay for FTDI debugging
 		debugln("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
-		#ifdef STM32_BOARD
-			//Read module flash size
-			unsigned short *flashSize = (unsigned short *) (0x1FFFF7E0);// Address register 
-			debugln("Module Flash size: %dKB",(int)(*flashSize & 0xffff));
-			if((int)(*flashSize & 0xffff) < 128)
-				while (true) { //SOS
-					for(uint8_t i=0; i<3;i++)
-					{
-						LED_on;
-						delay(100);
-						LED_off;
-						delay(100);
-					}
-					for(uint8_t i=0; i<3;i++)
-					{
-						LED_on;
-						delay(500);
-						LED_off;
-						delay(100);
-					}
-					for(uint8_t i=0; i<3;i++)
-					{
-						LED_on;
-						delay(100);
-						LED_off;
-						delay(100);
-					}
-					LED_off;
-					delay(1000);
-					currMillis = millis();
-				}
-		#endif
-
 	#endif
 
 	// General pinout
@@ -348,6 +315,7 @@ void setup()
 	#elif defined STM32_BOARD
 		//STM32
 		afio_cfg_debug_ports(AFIO_DEBUG_NONE);
+		pinMode(LED_pin,OUTPUT);
 		pinMode(LED2_pin,OUTPUT);
 		pinMode(A7105_CSN_pin,OUTPUT);
 		pinMode(CC25_CSN_pin,OUTPUT);
@@ -401,6 +369,36 @@ void setup()
 
 		//Timers
 		init_HWTimer();								//0.5us
+
+		//Read module flash size
+		unsigned short *flashSize = (unsigned short *) (0x1FFFF7E0);// Address register 
+		debugln("Module Flash size: %dKB",(int)(*flashSize & 0xffff));
+		if((int)(*flashSize & 0xffff) < 128)  // Not supported by this project
+			while (true) { //SOS
+				for(uint8_t i=0; i<3;i++)
+				{
+					LED_on;
+					delay(100);
+					LED_off;
+					delay(100);
+				}
+				for(uint8_t i=0; i<3;i++)
+				{
+					LED_on;
+					delay(500);
+					LED_off;
+					delay(100);
+			  	}
+				for(uint8_t i=0; i<3;i++)
+				{
+					LED_on;
+					delay(100);
+					LED_off;
+					delay(100);
+				}
+				LED_off;
+				delay(1000);
+			}
 	#else
 		//ATMEGA328p
 		// all inputs

@@ -1651,10 +1651,10 @@ static void protocol_init()
 						remote_callback = TEST_callback;
 						break;
 				#endif
-				#if defined(FAKE_NRF24L01_INO)
-					case PROTO_FAKE:
-						next_callback=initFAKE();
-						remote_callback = FAKE_callback;
+				#if defined(NANORF_NRF24L01_INO)
+					case PROTO_NANORF:
+						next_callback=initNANORF();
+						remote_callback = NANORF_callback;
 						break;
 				#endif
 			#endif

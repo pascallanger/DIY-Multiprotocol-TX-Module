@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	62
+#define VERSION_PATCH_LEVEL	63
 
 //******************
 // Protocols
@@ -104,7 +104,7 @@ enum PROTOCOLS
 	PROTO_REALACC	= 76,	// =>NRF24L01
 	PROTO_OMP		= 77,	// =>NRF24L01
 
-	PROTO_FAKE		= 126,	// =>CC2500+NRF24L01
+	PROTO_NANORF	= 126,	// =>NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
 };
 

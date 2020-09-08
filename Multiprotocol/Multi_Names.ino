@@ -222,7 +222,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_FLYSKY,     STR_FLYSKY,    5, STR_SUBTYPE_FLYSKY,    OPTION_NONE    },
 	#endif
 	#if defined(AFHDS2A_A7105_INO)
-		{PROTO_AFHDS2A,    STR_AFHDS2A,   6, STR_SUBTYPE_AFHDS2A,   OPTION_SRVFREQ },
+		{PROTO_AFHDS2A,    STR_AFHDS2A,   8, STR_SUBTYPE_AFHDS2A,   OPTION_SRVFREQ },
 	#endif
 	#if defined(AFHDS2A_RX_A7105_INO)
 		{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,0, NO_SUBTYPE,            OPTION_NONE    },

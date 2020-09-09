@@ -371,34 +371,36 @@ void setup()
 		init_HWTimer();								//0.5us
 
 		//Read module flash size
-		unsigned short *flashSize = (unsigned short *) (0x1FFFF7E0);// Address register 
-		debugln("Module Flash size: %dKB",(int)(*flashSize & 0xffff));
-		if((int)(*flashSize & 0xffff) < 128)  // Not supported by this project
-			while (true) { //SOS
-				for(uint8_t i=0; i<3;i++)
-				{
-					LED_on;
-					delay(100);
+		#ifndef DISABLE_FLASH_SIZE_CHECK
+			unsigned short *flashSize = (unsigned short *) (0x1FFFF7E0);// Address register 
+			debugln("Module Flash size: %dKB",(int)(*flashSize & 0xffff));
+			if((int)(*flashSize & 0xffff) < 128)  // Not supported by this project
+				while (true) { //SOS
+					for(uint8_t i=0; i<3;i++)
+					{
+						LED_on;
+						delay(100);
+						LED_off;
+						delay(100);
+					}
+					for(uint8_t i=0; i<3;i++)
+					{
+						LED_on;
+						delay(500);
+						LED_off;
+						delay(100);
+					}
+					for(uint8_t i=0; i<3;i++)
+					{
+						LED_on;
+						delay(100);
+						LED_off;
+						delay(100);
+					}
 					LED_off;
-					delay(100);
+					delay(1000);
 				}
-				for(uint8_t i=0; i<3;i++)
-				{
-					LED_on;
-					delay(500);
-					LED_off;
-					delay(100);
-			  	}
-				for(uint8_t i=0; i<3;i++)
-				{
-					LED_on;
-					delay(100);
-					LED_off;
-					delay(100);
-				}
-				LED_off;
-				delay(1000);
-			}
+		#endif
 	#else
 		//ATMEGA328p
 		// all inputs

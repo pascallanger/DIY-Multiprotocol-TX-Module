@@ -201,7 +201,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 				packet[i*2+5]=DSM_SerialRX_val[i+1];
 			}
 			DSM_SerialRX=false;
-			#if DSM_DEBUG_FWD_PGM
+			#ifdef DSM_DEBUG_FWD_PGM
 				debug("FWD=");
 				for(uint8_t i=4; i<16;i++)
 					debug(" %02X",packet[i]);
@@ -388,7 +388,7 @@ uint16_t ReadDsm()
 				if(len>TELEMETRY_BUFFER_SIZE-2)
 					len=TELEMETRY_BUFFER_SIZE-2;
 				CYRF_ReadDataPacketLen(packet_in+1, len);
-				#if DSM_DEBUG_FWD_PGM
+				#ifdef DSM_DEBUG_FWD_PGM
 					//debug(" %02X", packet_in[1]);
 					if(packet_in[1]==9)
 					{

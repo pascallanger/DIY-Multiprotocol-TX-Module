@@ -17,6 +17,8 @@
 
 #include "iface_cyrf6936.h"
 
+//#define DSM_DEBUG_FWD_PGM
+
 //#define DSM_GR300
 
 #define DSM_BIND_CHANNEL 0x0d //13 This can be any odd channel
@@ -151,6 +153,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		if(sub_protocol==DSM2_22)
 			bits=10;								// Only DSM2_22 is using a resolution of 1024
 	}
+
 	#ifdef DSM_THROTTLE_KILL_CH
 		uint16_t kill_ch=Channel_data[DSM_THROTTLE_KILL_CH-1];
 	#endif
@@ -189,6 +192,23 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		packet[i*2+2] = (value >> 8) & 0xff;
 		packet[i*2+3] = (value >> 0) & 0xff;
 	}
+	#ifdef DSM_FWD_PGM
+		if(upper==0 && DSM_SerialRX && (DSM_SerialRX_val[0]&0xF8)==0x70 )
+		{ // Send forward programming data if available
+			for(uint8_t i=0; i<(DSM_SerialRX_val[0]&0x07);i++)
+			{
+				packet[i*2+4]=0x70+i;
+				packet[i*2+5]=DSM_SerialRX_val[i+1];
+			}
+			DSM_SerialRX=false;
+			#if DSM_DEBUG_FWD_PGM
+				debug("FWD=");
+				for(uint8_t i=4; i<16;i++)
+					debug(" %02X",packet[i]);
+				debugln("");
+			#endif
+		}
+	#endif
 }
 
 static uint8_t __attribute__((unused)) DSM_Check_RX_packet()
@@ -307,9 +327,9 @@ uint16_t ReadDsm()
 				telemetry_set_input_sync(11000);			// Always request 11ms spacing even if we don't use half of it in 22ms mode
 			#endif
 		case DSM_CH1_WRITE_B:
+			DSM_build_data_packet(phase == DSM_CH1_WRITE_B);	// build lower or upper channels
 		case DSM_CH2_WRITE_A:
 		case DSM_CH2_WRITE_B:
-			DSM_build_data_packet(phase == DSM_CH1_WRITE_B||phase == DSM_CH2_WRITE_B);	// build lower or upper channels
 			CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS);		// clear IRQ flags
 			CYRF_WriteDataPacket(packet);
 			#if 0
@@ -368,6 +388,15 @@ uint16_t ReadDsm()
 				if(len>TELEMETRY_BUFFER_SIZE-2)
 					len=TELEMETRY_BUFFER_SIZE-2;
 				CYRF_ReadDataPacketLen(packet_in+1, len);
+				#if DSM_DEBUG_FWD_PGM
+					//debug(" %02X", packet_in[1]);
+					if(packet_in[1]==9)
+					{
+						for(uint8_t i=0;i<len;i++)
+							debug(" %02X", packet_in[i+1]);
+						debugln("");
+					}
+				#endif
 				packet_in[0]=CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;// store RSSI of the received telemetry signal
 				telemetry_link=1;
 			}

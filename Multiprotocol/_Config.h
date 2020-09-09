@@ -262,6 +262,9 @@
 // For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
 #define DSM_THROTTLE_KILL_CH 14 
 
+//Enable DSM Forward Programming
+#define DSM_FWD_PGM
+
 //AFHDS2A specific settings
 //-------------------------
 //When enabled (remove the "//"), the below setting makes LQI (Link Quality Indicator) available on one of the RX ouput channel (5-14).

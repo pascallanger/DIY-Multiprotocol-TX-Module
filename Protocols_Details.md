@@ -752,6 +752,7 @@ The DSM receiver protocol enables master/slave trainning, separate access from 2
 
 Notes:
  - Automatically detect DSM 2/X 11/22ms 1024/2048res
+ - Bind should be done with all other modules off in the radio
  - Available in OpenTX 2.3.3+, Trainer Mode Master/Multi
  - Channels 1..4 are remapped to the module default channel order unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
  - Extended limits supported

@@ -71,6 +71,7 @@
 71,JJRC345
 72,Q90C
 73,Kyosho
-74,RadioLink,Surface
+74,RadioLink,Surface,Air
+75,---
 76,Realacc,R11
 77,OMP

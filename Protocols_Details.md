@@ -110,7 +110,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
-[OMP](Protocols_Details.md#OMP---77)|77|||||||||NRF24L01|XN297L
+[OMP](Protocols_Details.md#OMP---77)|77|||||||||CC2500&NRF24L01|XN297L
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None|
 [Pelikan](Protocols_Details.md#Pelikan---60)|60|Pro|Lite|||||||A7105|
 [Potensic](Protocols_Details.md#Potensic---51)|51|A20||||||||NRF24L01|XN297
@@ -551,6 +551,24 @@ Recommended for best telemetry performance.
 ### Sub_protocol No_Sync - *1*
 Telemetry compatibility mode when Sync does not work due to an old firmware on the RX.
 You should definitively upgrade your receivers/sensors to the latest firmware versions: https://www.rcgroups.com/forums/showpost.php?p=44668015&postcount=18022
+
+## OMP - *77*
+Model: OMPHOBBY M2 Heli, T720 RC Glider
+
+Telemetry supported with A1=battery voltage (you need to adjust the offset with a voltmeter since there are some large differences between the models), RX_RSSI = TQly = percentage of received telemetry packets which has nothing to do with well the RX is receiving the TX but instead how well the TX=multi module is receiving the RX.
+
+Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+This protocol is using both the CC2500 and NRF24L01 to control the model and read the telemetry.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T_PITCH|R|T_HOLD|IDLE|MODE
+
+IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
+
+MODE= 3 pos switch -100% Attitude(?), 0% Attitude, +100% 3D 
 
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.
@@ -1279,21 +1297,6 @@ Only 9 IDs available, cycle through them using RX_Num.
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|Warp
-
-## OMP - *77*
-Model: OMPHOBBY M2 Heli, T720 RC Glider
-
-This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
-
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T_PITCH|R|T_HOLD|IDLE|MODE
-
-IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
-
-MODE= 3 pos switch -100% Attitude(?), 0% Attitude, +100% 3D 
 
 ## Potensic - *51*
 Model: Potensic A20

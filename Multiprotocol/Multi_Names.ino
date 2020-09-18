@@ -228,7 +228,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(HEIGHT_A7105_INO)
-		{PROTO_HEIGHT,    STR_HEIGHT,   2, STR_SUBTYPE_HEIGHT,   OPTION_NONE    },
+		{PROTO_HEIGHT,     STR_HEIGHT,    2, STR_SUBTYPE_HEIGHT,    OPTION_NONE    },
 	#endif
 	#if defined(FQ777_NRF24L01_INO)
 		{PROTO_FQ777,      STR_FQ777,     0, NO_SUBTYPE,            OPTION_NONE    },
@@ -308,7 +308,7 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(NCC1701_NRF24L01_INO)
 		{PROTO_NCC1701,    STR_NCC1701,   0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
-	#if defined(OMP_NRF24L01_INO)
+	#if defined(OMP_CC2500_INO)
 		{PROTO_OMP,        STR_OMP,       0, NO_SUBTYPE,            OPTION_RFTUNE  },
 	#endif
 	#if defined(PELIKAN_A7105_INO)

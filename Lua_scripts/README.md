@@ -21,6 +21,16 @@ Need OpenTX 2.3.9 or above. Located on the radio SD card under \SCRIPTS\TOOLS. T
 
 [![MultiChannelsUpdater](https://img.youtube.com/vi/L58ayXuewyA/0.jpg)](https://www.youtube.com/watch?v=L58ayXuewyA)
 
+## DSM Forward Programming
+
+This is a work in progress. It's only available for color screens (Horus, TX16S, T16, T18...).
+
+If some text appears as Unknown_xxx, please report xxx and what the exact text display should be.
+
+Need OpenTX 2.3.10 nightly or above. Located on the radio SD card under \SCRIPTS\TOOLS.
+
+[![DSM Forward Programming](https://img.youtube.com/vi/sjIaDw5j9nE/0.jpg)](https://www.youtube.com/watch?v=sjIaDw5j9nE)
+
 ## Graupner HoTT.ua
 
 Enable text configuration of the HoTT RX and sensors: Vario, GPS, ESC, GAM and EAM.

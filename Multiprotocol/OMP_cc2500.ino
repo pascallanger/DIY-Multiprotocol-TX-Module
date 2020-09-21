@@ -187,7 +187,11 @@ uint16_t OMP_callback()
 							// packet_in = 01 00 98 2C 03 19 19 F0 49 02 00 00 00 00 00 00
 							// all bytes are fixed and unknown except 2 and 3 which represent the battery voltage: packet_in[3]*256+packet_in[2]=lipo voltage*100 in V
 							telemetry_counter++;	//LQI
-							v_lipo1=((packet_in[3]<<8)+packet_in[2]-400)/50;
+							uint16_t v=((packet_in[3]<<8)+packet_in[2]-400)/50;
+							if(v>255)
+								v_lipo1=255;
+							else
+								v_lipo1=v;
 							telemetry_link=1;
 							if(telemetry_lost)
 							{

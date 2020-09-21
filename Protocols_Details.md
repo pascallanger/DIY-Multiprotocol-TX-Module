@@ -556,6 +556,7 @@ You should definitively upgrade your receivers/sensors to the latest firmware ve
 Model: OMPHOBBY M2 Heli, T720 RC Glider
 
 Telemetry supported with A1=battery voltage (you need to adjust the offset with a voltmeter since there are some large differences between the models), RX_RSSI = TQly = percentage of received telemetry packets which has nothing to do with well the RX is receiving the TX but instead how well the TX=multi module is receiving the RX.
+Telemetry is using the NRF24L01 RF component @250K so depending on your module it might not work well.
 
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.

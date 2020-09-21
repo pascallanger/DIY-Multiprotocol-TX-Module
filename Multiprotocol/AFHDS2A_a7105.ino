@@ -270,6 +270,13 @@ static void AFHDS2A_build_packet(uint8_t type)
 }
 
 #define AFHDS2A_WAIT_WRITE 0x80
+
+#ifdef STM32_BOARD
+	#define AFHDS2A_WRITE_TIME 1500
+#else
+	#define AFHDS2A_WRITE_TIME 1700
+#endif
+
 uint16_t ReadAFHDS2A()
 {
 	static uint8_t packet_type;
@@ -399,7 +406,7 @@ uint16_t ReadAFHDS2A()
 			}
 			packet_counter++;
 			phase |= AFHDS2A_WAIT_WRITE;
-			return 1700;
+			return AFHDS2A_WRITE_TIME;
 		case AFHDS2A_DATA|AFHDS2A_WAIT_WRITE:
 			//Wait for TX completion
 			start=micros();
@@ -410,7 +417,7 @@ uint16_t ReadAFHDS2A()
 			A7105_SetTxRxMode(RX_EN);
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;
-			return 2150;
+			return 3850-AFHDS2A_WRITE_TIME;
 	}
 	return 3850; // never reached, please the compiler
 }

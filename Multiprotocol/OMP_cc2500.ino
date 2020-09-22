@@ -121,9 +121,10 @@ static void __attribute__((unused)) OMP_init()
 	//Config NRF
 	option=0;									// Select the NRF
 	XN297L_Init();
-	NRF24L01_SetTxRxMode(TXRX_OFF);				// Turn it off for now
+	XN297_Configure(_BV(NRF24L01_00_EN_CRC));
 	XN297_SetRXAddr(rx_tx_addr, 5);				// Set the RX address
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, OMP_PAYLOAD_SIZE + 2); // packet length +2 bytes of CRC
+	NRF24L01_SetTxRxMode(TXRX_OFF);				// Turn it off for now
+	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, OMP_PAYLOAD_SIZE + 4); // packet length +4 bytes of PCF+CRC
 #endif
 }
 
@@ -139,6 +140,19 @@ static void __attribute__((unused)) OMP_initialize_txid()
 		for(uint8_t i=0; i<OMP_RF_NUM_CHANNELS;i++)
 			hopping_frequency[i]=(i+3)*5;
 	#endif
+}
+
+static void __attribute__((unused)) OMP_Send_Telemetry(uint8_t v)
+{
+	v_lipo1=v;
+	telemetry_counter++;	//LQI
+	telemetry_link=1;
+	if(telemetry_lost)
+	{
+		telemetry_lost = 0;
+		packet_count = 100;
+		telemetry_counter = 100;
+	}
 }
 
 enum {
@@ -178,32 +192,49 @@ uint16_t OMP_callback()
 				{
 					if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
 					{ // a packet has been received
-						if(XN297_ReadEnhancedPayload(packet_in, 16) == 16)
+						if(XN297_ReadEnhancedPayload(packet_in, OMP_PAYLOAD_SIZE) == OMP_PAYLOAD_SIZE)
 						{ // packet with good CRC and length
 							#ifdef OMP_TELEM_DEBUG
-								for(uint8_t i=0;i<16;i++)
+								debug("OK :");
+								for(uint8_t i=0;i<OMP_PAYLOAD_SIZE;i++)
 									debug(" %02X",packet_in[i]);
 							#endif
 							// packet_in = 01 00 98 2C 03 19 19 F0 49 02 00 00 00 00 00 00
 							// all bytes are fixed and unknown except 2 and 3 which represent the battery voltage: packet_in[3]*256+packet_in[2]=lipo voltage*100 in V
-							telemetry_counter++;	//LQI
 							uint16_t v=((packet_in[3]<<8)+packet_in[2]-400)/50;
-							if(v>255)
-								v_lipo1=255;
-							else
-								v_lipo1=v;
-							telemetry_link=1;
-							if(telemetry_lost)
-							{
-								telemetry_lost = 0;
-								packet_count = 100;
-								telemetry_counter = 100;
+							if(v>255) v=255;
+							v_lipo2=v;
+							OMP_Send_Telemetry(v);
+						}
+						else
+						{ // As soon as the motor spins the telem packets are becoming really bad and the CRC throws most of them in error as it should but...
+							#ifdef OMP_TELEM_DEBUG
+								debug("NOK:");
+								for(uint8_t i=0;i<OMP_PAYLOAD_SIZE;i++)
+										debug(" %02X",packet_in[i]);
+							#endif
+							if(packet_in[0]==0x01 && packet_in[1]==0x00)
+							{// the start of the packet looks ok...
+								uint16_t v=((packet_in[3]<<8)+packet_in[2]-400)/50;
+								if(v<260 && v>180)
+								{ //voltage is less than 13V and more than 9V (3V/element)
+									if(v>255) v=255;
+									uint16_t v1=v-v_lipo2;
+									if(v1&0x8000) v1=-v1;
+									if(v1<20) // the batt voltage is within 1V from a good reading...
+									{
+										OMP_Send_Telemetry(v);	// ok to send
+										#ifdef OMP_TELEM_DEBUG
+											debug(" OK");
+										#endif
+									}
+								}
 							}
+							else
+								telemetry_counter++;	//LQI
 						}
 						#ifdef OMP_TELEM_DEBUG
-						else
-							debug("Bad RX");
-						debugln("");
+							debugln("");
 						#endif
 					}
 					NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -235,6 +266,7 @@ uint16_t OMP_callback()
 						break;
 				}
 			}
+			NRF_CE_on;
 			PE1_on;PE2_off;						// NRF24L01 antenna RF3
 			phase = OMP_DATA;
 			return OMP_PACKET_PERIOD-OMP_WRITE_TIME;

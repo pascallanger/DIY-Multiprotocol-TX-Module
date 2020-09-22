@@ -529,7 +529,7 @@ boolean XN297_ReadPayload(uint8_t* msg, uint8_t len)
 }
 
 uint8_t XN297_ReadEnhancedPayload(uint8_t* msg, uint8_t len)
-{ //!!! Don't forget do a +2 and if using CRC add +2 on any of the used NRF24L01_11_RX_PW_Px !!!
+{ //!!! Don't forget do a +2 and if using CRC add +4 on any of the used NRF24L01_11_RX_PW_Px !!!
 	uint8_t buffer[32];
 	uint8_t pcf_size; // pcf payload size
 	if (xn297_crc)

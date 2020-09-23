@@ -581,8 +581,6 @@ For M2: MODE= 3 pos switch -100% 6G, 0% 3D, +100% 3D
 
 Extended limits
 
-**64 IDs available, use RX num to scroll through them**
-
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 

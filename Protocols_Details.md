@@ -571,7 +571,8 @@ A|E|T_PITCH|R|T_HOLD|IDLE|MODE
 
 IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
 
-MODE= 3 pos switch -100% Attitude(?), 0% Attitude, +100% 3D 
+From the TX manual: MODE= 3 pos switch -100% Attitude, 0% Attitude(?), +100% 3D
+For M2: MODE= 3 pos switch -100% 6G, 0% 3D, +100% 3D
 
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.

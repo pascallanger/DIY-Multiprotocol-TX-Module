@@ -555,13 +555,15 @@ You should definitively upgrade your receivers/sensors to the latest firmware ve
 ## OMP - *77*
 Model: OMPHOBBY M2 Heli, T720 RC Glider
 
-Telemetry supported with A1=battery voltage (you need to adjust the offset with a voltmeter since there are some large differences between the models), RX_RSSI = TQly = percentage of received telemetry packets which has nothing to do with well the RX is receiving the TX but instead how well the TX=multi module is receiving the RX.
-Telemetry is using the NRF24L01 RF component @250K so depending on your module it might not work well.
+Telemetry supported:
+- A1 = battery voltage including "recovered" battery voltage from bad telemetry packets
+- A2 = battery voltage from only good packets
+- You must adjust the offset with a voltmeter since there are some large differences between the models
+- RX_RSSI = TQly = percentage of received telemetry packets (good and bad) received from the model which has nothing to do with well the RX is receiving the TX
+- Telemetry is using the NRF24L01 RF component @250K so depending on your module it might not work so well
 
-Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
-
-This protocol is using both the CC2500 and NRF24L01 to control the model and read the telemetry.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---

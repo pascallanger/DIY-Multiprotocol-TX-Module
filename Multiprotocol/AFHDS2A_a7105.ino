@@ -272,7 +272,7 @@ static void AFHDS2A_build_packet(uint8_t type)
 #define AFHDS2A_WAIT_WRITE 0x80
 
 #ifdef STM32_BOARD
-	#define AFHDS2A_WRITE_TIME 1500
+	#define AFHDS2A_WRITE_TIME 1550
 #else
 	#define AFHDS2A_WRITE_TIME 1700
 #endif
@@ -281,7 +281,7 @@ uint16_t ReadAFHDS2A()
 {
 	static uint8_t packet_type;
 	static uint16_t packet_counter;
-	uint8_t data_rx;
+	uint8_t data_rx=0;
 	uint16_t start;
 	#ifndef FORCE_AFHDS2A_TUNING
 		A7105_AdjustLOBaseFreq(1);
@@ -358,10 +358,8 @@ uint16_t ReadAFHDS2A()
 				telemetry_set_input_sync(3850);
 			#endif
 			AFHDS2A_build_packet(packet_type);
-			if((A7105_ReadReg(A7105_00_MODE) & 0x01))		// Check if something has been received...
-				data_rx=0;
-			else
-				data_rx=1;									// Yes
+			if((A7105_ReadReg(A7105_00_MODE) & 0x01)==0)		// Check if something has been received...
+				data_rx=1;										// Yes
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, hopping_frequency[hopping_frequency_no++]);
 			if(hopping_frequency_no >= AFHDS2A_NUMFREQ)
 				hopping_frequency_no = 0;
@@ -377,13 +375,13 @@ uint16_t ReadAFHDS2A()
 					}
 					else
 				#endif
-						packet_type = AFHDS2A_PACKET_STICKS;		// todo : check for settings changes
+						packet_type = AFHDS2A_PACKET_STICKS;	// todo : check for settings changes
 			}
 			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)) && data_rx==1)
 			{ // RX+FECF+CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 				if(packet[0] == 0xAA && packet[9] == 0xFC)
-					packet_type=AFHDS2A_PACKET_SETTINGS;	// RX is asking for settings
+					packet_type=AFHDS2A_PACKET_SETTINGS;		// RX is asking for settings
 				else
 					if((packet[0] == 0xAA && packet[9]!=0xFD) || packet[0] == 0xAC)
 					{// Normal telemetry packet, ignore packets which contain the RX configuration: AA FD FF 32 00 01 00 FF FF FF 05 DC 05 DE FA FF FF FF FF FF FF FF FF FF FF FF FF FF FF

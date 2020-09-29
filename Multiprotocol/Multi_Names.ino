@@ -145,6 +145,7 @@ const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
 const char STR_SUBTYPE_V761[] =       "\x03""3ch""4ch";
 const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ";
 const char STR_SUBTYPE_REALACC[] =     "\x03""R11";
+const char STR_SUBTYPE_KYOSHO[] =      "\x04""FHSS""Hype";
 
 enum
 {
@@ -297,7 +298,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_KN,         STR_KN,        2, STR_SUBTYPE_KN,        OPTION_NONE    },
 	#endif
 	#if defined(KYOSHO_A7105_INO)
-		{PROTO_KYOSHO,     STR_KYOSHO,    0, NO_SUBTYPE,            OPTION_NONE    },
+		{PROTO_KYOSHO,     STR_KYOSHO,    2, STR_SUBTYPE_KYOSHO,    OPTION_NONE    },
 	#endif
 	#if defined(MJXQ_NRF24L01_INO)
 		{PROTO_MJXQ,       STR_MJXQ,      7, STR_SUBTYPE_MJXQ,      OPTION_RFTUNE  },

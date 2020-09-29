@@ -318,6 +318,12 @@ const uint8_t PROGMEM KYOSHO_A7105_regs[] = {
 	0x1e, 0x00, 0x00, 0xff, 0x00, 0x00, 0x23, 0x70, 0x1F, 0x47, 0x80, 0x57, 0x01, 0x45, 0x19, 0x00,	// 20 - 2f
 	0x01, 0x0f // 30 - 31
 };
+const uint8_t PROGMEM KYOSHO_HYPE_A7105_regs[] = {
+	0xff, 0x42, 0x00, 0x05, 0xC0, 0xff, 0xff ,0x00, 0x00, 0x00, 0x00, 0x01, 0x09, 0x05, 0x01, 0x04,	// 00 - 0f
+	0x9e, 0x4b, 0x00, 0x02, 0x16, 0x2b, 0x12, 0x00, 0x62, 0x80, 0x80, 0x00, 0x0a, 0x96, 0xc2, 0x1f,	// 10 - 1f
+	0x12, 0x00, 0x00, 0xff, 0x00, 0x00, 0x3a, 0x00, 0x17, 0x47, 0x80, 0x03, 0x01, 0x45, 0x18, 0x00,	// 20 - 2f
+	0x01, 0x0f // 30 - 31
+};
 #endif
 
 #define ID_NORMAL 0x55201041
@@ -367,8 +373,10 @@ void A7105_Init(void)
 					A7105_Regs=(uint8_t*)AFHDS2A_A7105_regs;
 			#endif
 			#ifdef KYOSHO_A7105_INO
-				if(protocol==PROTO_KYOSHO)
+				if(protocol==PROTO_KYOSHO && sub_protocol==KYOSHO_FHSS)
 					A7105_Regs=(uint8_t*)KYOSHO_A7105_regs;
+				else
+					A7105_Regs=(uint8_t*)KYOSHO_HYPE_A7105_regs;
 			#endif
 		}
 
@@ -392,7 +400,7 @@ void A7105_Init(void)
 	}
 	A7105_Strobe(A7105_STANDBY);
 
-	if(protocol==PROTO_KYOSHO)
+	if(protocol==PROTO_KYOSHO && sub_protocol==KYOSHO_FHSS)
 	{//strange calibration...
 		//IF Filter Bank Calibration
 		A7105_WriteReg(A7105_02_CALC,0x0F);
@@ -445,6 +453,7 @@ void A7105_Init(void)
 						vco_calibration1=0x02;
 						break;
 					case PROTO_PELIKAN:
+					case PROTO_KYOSHO: //sub_protocol Hype
 						vco_calibration1=0x0C;
 						break;
 					default:

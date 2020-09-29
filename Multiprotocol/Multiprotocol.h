@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	69
+#define VERSION_PATCH_LEVEL	70
 
 //******************
 // Protocols
@@ -396,6 +396,12 @@ enum HEIGHT
 {
 	HEIGHT_5CH	= 0,
 	HEIGHT_8CH	= 1,
+};
+
+enum KYOSHO
+{
+	KYOSHO_FHSS	= 0,
+	KYOSHO_HYPE	= 1,
 };
 
 #define NONE 		0

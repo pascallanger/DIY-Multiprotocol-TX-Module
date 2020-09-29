@@ -17,7 +17,8 @@
 
 #include "iface_a7105.h"
 
-//#define KYOSHO_FORCE_ID
+//#define KYOSHO_FORCE_ID_FHSS
+//#define KYOSHO_FORCE_ID_HYPE
 
 //Kyosho constants & variables
 #define KYOSHO_BIND_COUNT 2500
@@ -67,11 +68,48 @@ static void __attribute__((unused)) kyosho_send_packet()
 		packet[36] |= (hopping_frequency_no&0xF0);		// last byte is ending with F on the dumps so let's see
 		hopping_frequency_no &= 0x1F;
 	}
-	// debug("ch=%02X P=",rf_ch_num);
-	// for(uint8_t i=0; i<37; i++)
-		// debug("%02X ", packet[i]);
-	// debugln("");
+	#if 0
+		debug("ch=%02X P=",rf_ch_num);
+		for(uint8_t i=0; i<37; i++)
+			debug("%02X ", packet[i]);
+		debugln("");
+	#endif
 	A7105_WriteData(37, rf_ch_num);
+}
+
+static void __attribute__((unused)) kyosho_hype_send_packet()
+{
+	if(IS_BIND_IN_PROGRESS)
+	{
+		packet[0] = rx_tx_addr[1];
+		packet[1] = rx_tx_addr[3];
+		//RF table
+		for(uint8_t i=0; i<15;i++)
+			packet[i+2]=hopping_frequency[i];
+		rf_ch_num=0x01;
+		packet_length=17;
+		packet_period=1423;
+	}
+	else
+	{
+		//original TX is only refreshing the packet every 20ms and only do retransmit in between
+		//6 channels: AETR
+		for(uint8_t i=0; i<6;i++)
+			packet[i]  = convert_channel_8b(i);
+		rf_ch_num=hopping_frequency[hopping_frequency_no];
+		hopping_frequency_no++;
+		if(hopping_frequency_no>14)
+			hopping_frequency_no = 0;
+		packet_length=6;
+		packet_period=909;	//packet period fluctuates a lot...
+	}
+	#if 0
+		debug("ch=%02X P=",rf_ch_num);
+		for(uint8_t i=0; i<packet_length; i++)
+			debug("%02X ", packet[i]);
+		debugln("");
+	#endif
+	A7105_WriteData(packet_length, rf_ch_num);
 }
 
 uint16_t ReadKyosho()
@@ -83,34 +121,61 @@ uint16_t ReadKyosho()
 	{
 		bind_counter--;
 		if (bind_counter==0)
+		{
 			BIND_DONE;
+			if(sub_protocol==KYOSHO_HYPE)
+				A7105_WriteID(MProtocol_id);
+		}
 	}
 	else
 	{
-		A7105_SetPower();
+		if(hopping_frequency_no==0)
+			A7105_SetPower();
 		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(3852);
+			telemetry_set_input_sync(packet_period);
 		#endif
 	}
-	kyosho_send_packet();
-	return 3852;
+	if(sub_protocol==KYOSHO_FHSS)
+		kyosho_send_packet();
+	else//HYPE
+		kyosho_hype_send_packet();
+	return packet_period;
 }
 
 uint16_t initKyosho()
 {
 	A7105_Init();
-	
-	// compute 32 channels from ID
-	calc_fh_channels(32);
+
+	// compute channels from ID
+	calc_fh_channels(sub_protocol==KYOSHO_FHSS?32:15);
 	hopping_frequency_no=0;
 
-	#ifdef KYOSHO_FORCE_ID
-		memcpy(rx_tx_addr,"\x3A\x39\x37\x00",4);
-		memcpy(hopping_frequency,"\x29\x4C\x67\x92\x31\x1C\x77\x18\x23\x6E\x81\x5C\x8F\x5A\x51\x94\x7A\x12\x45\x6C\x7F\x1E\x0D\x88\x63\x8C\x4F\x37\x26\x61\x2C\x8A",32);
+	#ifdef KYOSHO_FORCE_ID_FHSS
+		if(sub_protocol==KYOSHO_FHSS)
+		{
+			memcpy(rx_tx_addr,"\x3A\x39\x37\x00",4);
+			memcpy(hopping_frequency,"\x29\x4C\x67\x92\x31\x1C\x77\x18\x23\x6E\x81\x5C\x8F\x5A\x51\x94\x7A\x12\x45\x6C\x7F\x1E\x0D\x88\x63\x8C\x4F\x37\x26\x61\x2C\x8A",32);
+		}
 	#endif
+	if(sub_protocol==KYOSHO_HYPE)
+	{
+		#ifdef KYOSHO_FORCE_ID_HYPE
+			MProtocol_id=0xAF90738C;
+			set_rx_tx_addr(MProtocol_id);
+			memcpy(hopping_frequency,"\x27\x1B\x63\x75\x03\x39\x57\x69\x87\x0F\x7B\x3F\x33\x51\x6F",15);
+		#endif
+		MProtocol_id &= 0x00FF00FF;
+		MProtocol_id |= 0xAF007300;
+		if(IS_BIND_IN_PROGRESS)
+			A7105_WriteID(0xAF00FF00);
+		else
+			A7105_WriteID(MProtocol_id);
+	}
 
 	if(IS_BIND_IN_PROGRESS)
 		bind_counter = KYOSHO_BIND_COUNT;
+
+	packet_period=3852;		//FHSS
 	return 2000;
 }
 #endif

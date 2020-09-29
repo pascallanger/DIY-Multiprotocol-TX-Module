@@ -70,7 +70,7 @@
 70,DSM_RX
 71,JJRC345
 72,Q90C
-73,Kyosho
+73,Kyosho,FHSS,Hype
 74,RadioLink,Surface,Air
 75,---
 76,Realacc,R11

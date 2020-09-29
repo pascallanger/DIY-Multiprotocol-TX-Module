@@ -1380,7 +1380,16 @@ Each toggle of VTX will increment the channel.
 
 Gimbal is full range.
 
-### Sub_protocol CX10D  - *2* and Sub_protocol CX10WD - *3*
+### Sub_protocol CX10D  - *2*
+Models CX10D and CX33W
+
+CH5|CH6
+---|---
+ARM|FLIP
+
+ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
+
+### Sub_protocol CX10WD - *3*
 CH5|CH6
 ---|---
 ARM|FLIP

@@ -124,7 +124,10 @@ uint16_t ReadKyosho()
 		{
 			BIND_DONE;
 			if(sub_protocol==KYOSHO_HYPE)
+			{
 				A7105_WriteID(MProtocol_id);
+				A7105_WriteReg(A7105_03_FIFOI,0x05);
+			}
 		}
 	}
 	else
@@ -169,7 +172,10 @@ uint16_t initKyosho()
 		if(IS_BIND_IN_PROGRESS)
 			A7105_WriteID(0xAF00FF00);
 		else
+		{
 			A7105_WriteID(MProtocol_id);
+			A7105_WriteReg(A7105_03_FIFOI,0x05);
+		}
 	}
 
 	if(IS_BIND_IN_PROGRESS)

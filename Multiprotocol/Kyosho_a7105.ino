@@ -174,13 +174,15 @@ uint16_t initKyosho()
 	#endif
 	if(sub_protocol==KYOSHO_HYPE)
 	{
+		MProtocol_id &= 0x00FF00FF;
+		rx_tx_addr[0] = 0xAF - (rx_tx_addr[1]&0x0F);
+		rx_tx_addr[2] = 0xFF -  rx_tx_addr[3];
+		MProtocol_id |= (rx_tx_addr[0]<<24) + (rx_tx_addr[2]<<8);
 		#ifdef KYOSHO_FORCE_ID_HYPE
 			MProtocol_id=0xAF90738C;
 			set_rx_tx_addr(MProtocol_id);
 			memcpy(hopping_frequency,"\x27\x1B\x63\x75\x03\x39\x57\x69\x87\x0F\x7B\x3F\x33\x51\x6F",15);
 		#endif
-		MProtocol_id &= 0x00FF00FF;
-		MProtocol_id |= 0xAF007300;
 		if(IS_BIND_IN_PROGRESS)
 			A7105_WriteID(0xAF00FF00);
 		else

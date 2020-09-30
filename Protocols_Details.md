@@ -300,8 +300,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 STEERING|THROTTLE|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 
 ### Sub_protocol Hype - *1*
-Transmitter: ST6DF, HK6S, Flightsport
-Receivers: ST6DF, HK6DF
+Transmitters: ST6DF, HK6S, Flightsport. Receivers: ST6DF, HK6DF.
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---

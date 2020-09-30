@@ -192,7 +192,7 @@ CH5|CH6|CH7
 Extended limits and failsafe supported
 
 Telemetry enabled protocol:
- - by defaut using FrSky Hub protocol (for example er9x): RX(A1), battery voltage FS-CVT01(A2) and RX&TX RSSI
+ - by defaut using FrSky Hub protocol (for example er9x): A1=RX voltage (set the ratio to 12.7 and adjust with offset), A2=battery voltage FS-CVT01 (set the ratio to 12.7 and adjust with offset) and RX&TX RSSI
  - if using erskyTX and OpenTX: full telemetry information available
  - if telemetry is incomplete (missing RX RSSI for example), it means that you have to upgrade your RX firmware to version 1.6 or later. You can do it from an original Flysky TX or using a STLink like explained in [this tutorial](https://www.rcgroups.com/forums/showthread.php?2677694-How-to-upgrade-Flysky-Turnigy-iA6B-RX-to-firmware-1-6-with-a-ST-Link).
 
@@ -259,7 +259,7 @@ A|E|T|R|Gear|Gyro|Flap|Light
 
 ## HUBSAN - *2*
 
-Telemetry enabled for battery voltage and TX RSSI
+Telemetry enabled for A1=battery voltage (set the ratio to 12.7 and adjust with offset) and TX RSSI
 
 Option=vTX frequency (H107D) 5645 - 5900 MHz
 
@@ -569,8 +569,8 @@ Model: OMPHOBBY M2 Heli, T720 RC Glider
 
 Telemetry supported:
 - A1 = battery voltage including "recovered" battery voltage from corrupted telemetry packets
-- A2 = battery voltage from only good packets
-- You must adjust the battery voltage offset with a voltmeter since there are some large differences between the models
+- A2 = battery voltage from only good telemetry packets
+- For both A1 and A2, you must set the ratio to 12.7 and then adjust the offset to match the battery voltage using a voltmeter since there are some large differences between the models
 - RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) received from the model which has nothing to do with how well the RX is receiving the TX
 
 Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
@@ -606,7 +606,7 @@ Surface protocol. TXs: RC4GS,RC6GS. Compatible RXs:R7FG(Std),R6FG,R6F,R8EF,R8FM,
 
 CH1=Steering, CH2=Throttle, CH8=Gyro gain
 
-Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%), A1=RX_Batt, A2=Batt/2 (adjust the ratio)
+Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%), A1=RX_Batt (set the ratio to 12.7 and adjust with offset), A2=Batt (set the ratio to 25.5 and adjust with offset)
 
 ### Sub_protocol Air - *1*
 Air protocol. TXs: T8FB,T8S. Compatible RXs:R8EF,R8FM,R8SM,R4FG,R4F and more
@@ -650,7 +650,7 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 RX output will match the Devo standard EATR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
 
-Basic telemetry is available if RX supports it: TX_RSSI, A1 and A2
+Basic telemetry is available if RX supports it: TX_RSSI, A1 (set the ratio to 12.7) and A2 (set the ratio to 12.7)
 
 Bind procedure using serial:
 - With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
@@ -846,7 +846,7 @@ Models: Eachine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
 Option=0 -> normal Bayang protocol
 
-Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage, A2=compensated battery voltage
+Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage (set the ratio to 12.7 and adjust with offset), A2=compensated battery voltage (set the ratio to 12.7 and adjust with offset)
 
 Option=2 -> enable analog aux channels with [NFE Silverware firmware](https://github.com/NotFastEnuf/NFE_Silverware). Two otherwise static bytes in the protocol overridden to add two 'analog' (non-binary) auxiliary channels.
 

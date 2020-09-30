@@ -81,35 +81,47 @@ static void __attribute__((unused)) kyosho_hype_send_packet()
 {
 	if(IS_BIND_IN_PROGRESS)
 	{
-		packet[0] = rx_tx_addr[1];
-		packet[1] = rx_tx_addr[3];
-		//RF table
-		for(uint8_t i=0; i<15;i++)
-			packet[i+2]=hopping_frequency[i];
-		rf_ch_num=0x01;
-		packet_length=17;
-		packet_period=1423;
+		if(packet_sent==0)
+		{//build the packet and send it
+			packet[0] = rx_tx_addr[1];
+			packet[1] = rx_tx_addr[3];
+			//RF table
+			for(uint8_t i=0; i<15;i++)
+				packet[i+2]=hopping_frequency[i];
+			A7105_WriteData(17, 0x01);
+			packet_sent++;
+			packet_period=1421;
+			#if 0
+				debug("ch=01 P=");
+				for(uint8_t i=0; i<17; i++)
+					debug("%02X ", packet[i]);
+				debugln("");
+			#endif
+		}
+		else
+			A7105_Strobe(A7105_TX);	//only send
 	}
 	else
 	{
-		//original TX is only refreshing the packet every 20ms and only do retransmit in between
-		//6 channels: AETR
-		for(uint8_t i=0; i<6;i++)
-			packet[i]  = convert_channel_8b(i);
+		//original TX is only refreshing the packet every 20ms and keep repeating the same packet in between (STROBE_TX) 
+		//build packet=6 channels with order AETR
+		for(uint8_t i=0;i<6;i++)
+			packet[i] = convert_channel_8b(i);
+		//set RF channel
 		rf_ch_num=hopping_frequency[hopping_frequency_no];
 		hopping_frequency_no++;
 		if(hopping_frequency_no>14)
 			hopping_frequency_no = 0;
-		packet_length=6;
-		packet_period=909;	//packet period fluctuates a lot...
+		//send it
+		A7105_WriteData(6, rf_ch_num);
+		packet_period=931;	//packet period fluctuates a lot on the original TX from one packet to the other but stable if looking over a period of 40ms
+		#if 0
+			debug("ch=%02X P=",rf_ch_num);
+			for(uint8_t i=0; i<6; i++)
+				debug("%02X ", packet[i]);
+			debugln("");
+		#endif
 	}
-	#if 0
-		debug("ch=%02X P=",rf_ch_num);
-		for(uint8_t i=0; i<packet_length; i++)
-			debug("%02X ", packet[i]);
-		debugln("");
-	#endif
-	A7105_WriteData(packet_length, rf_ch_num);
 }
 
 uint16_t ReadKyosho()
@@ -181,6 +193,7 @@ uint16_t initKyosho()
 	if(IS_BIND_IN_PROGRESS)
 		bind_counter = KYOSHO_BIND_COUNT;
 
+	packet_sent=0;
 	packet_period=3852;		//FHSS
 	return 2000;
 }

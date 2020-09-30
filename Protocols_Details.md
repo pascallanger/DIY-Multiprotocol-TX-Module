@@ -163,7 +163,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
-Note that the RX ouput will be AETR.
+RX output will match the Flysky standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
 
 ### Sub_protocol Flysky - *0*
 
@@ -206,7 +206,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 
-Note that the RX ouput will be AETR whatever the input channel order is.
+RX output will match the Flysky standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
 
 ### Sub_protocol PWM_IBUS - *0*
 ### Sub_protocol PPM_IBUS - *1*
@@ -300,11 +300,14 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 STEERING|THROTTLE|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 
 ### Sub_protocol Hype - *1*
-Transmitter: ST6DF
+Transmitter: ST6DF, HK6S, Flightsport
+Receivers: ST6DF, HK6DF
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|CH5|CH6
+
+RX output will match the Hype standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
 
 ## Pelikan - *60*
 Extended limits supported

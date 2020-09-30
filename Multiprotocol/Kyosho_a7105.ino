@@ -106,7 +106,7 @@ static void __attribute__((unused)) kyosho_hype_send_packet()
 		//original TX is only refreshing the packet every 20ms and keep repeating the same packet in between (STROBE_TX) 
 		//build packet=6 channels with order AETR
 		for(uint8_t i=0;i<6;i++)
-			packet[i] = convert_channel_8b(i);
+			packet[i] = convert_channel_8b(CH_AETR[i]);
 		//set RF channel
 		rf_ch_num=hopping_frequency[hopping_frequency_no];
 		hopping_frequency_no++;

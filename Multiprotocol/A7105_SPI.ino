@@ -373,10 +373,13 @@ void A7105_Init(void)
 					A7105_Regs=(uint8_t*)AFHDS2A_A7105_regs;
 			#endif
 			#ifdef KYOSHO_A7105_INO
-				if(protocol==PROTO_KYOSHO && sub_protocol==KYOSHO_FHSS)
-					A7105_Regs=(uint8_t*)KYOSHO_A7105_regs;
-				else
-					A7105_Regs=(uint8_t*)KYOSHO_HYPE_A7105_regs;
+				if(protocol==PROTO_KYOSHO)
+				{
+					if(sub_protocol==KYOSHO_FHSS)
+						A7105_Regs=(uint8_t*)KYOSHO_A7105_regs;
+					else
+						A7105_Regs=(uint8_t*)KYOSHO_HYPE_A7105_regs;
+				}
 			#endif
 		}
 

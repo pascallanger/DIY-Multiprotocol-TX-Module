@@ -53,70 +53,16 @@ before_install:
       };
     elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
       buildReleaseFiles(){
-        printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin\e[0m";
-        exitcode=0;
-        opt_enable CHECK_FOR_BOOTLOADER;
-        opt_disable $ALL_PROTOCOLS;
-        opt_add XN297DUMP_NRF24L01_INO;
-        opt_enable MULTI_STATUS;
-        opt_disable MULTI_TELEMETRY;
-        opt_enable INVERT_TELEMETRY;
-        buildMulti;
-        exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin\e[0m";
-        opt_disable $ALL_PROTOCOLS;
-        opt_disable MULTI_STATUS;
-        opt_enable MULTI_TELEMETRY;
-        opt_enable INVERT_TELEMETRY;
-        buildMulti;
-        exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin;
-        return $exitcode; };
+        build_release_stm32f1_native_debug;
+      };
     elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=ftdi" ]]; then
       buildReleaseFiles(){
-        printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin\e[0m";
-        exitcode=0;
-        opt_enable CHECK_FOR_BOOTLOADER;
-        opt_disable $ALL_PROTOCOLS;
-        opt_add XN297DUMP_NRF24L01_INO;
-        opt_enable MULTI_STATUS;
-        opt_disable MULTI_TELEMETRY;
-        opt_enable INVERT_TELEMETRY;
-        buildMulti;
-        exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin\e[0m";
-        opt_disable $ALL_PROTOCOLS;
-        opt_disable MULTI_STATUS;
-        opt_enable MULTI_TELEMETRY;
-        opt_enable INVERT_TELEMETRY;
-        buildMulti;
-        exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-inv-ftdidebug-v$MULTI_VERSION.bin;
-        return $exitcode; };
+        build_release_stm32f1_serial_debug;
+      };
     elif [[ "$BOARD" == "multi4in1:STM32F1:multi5in1t18int" ]]; then
       buildReleaseFiles(){
-        printf "\n\e[33;1mBuilding multi-t18int-opentx-aetr-noinv-v$MULTI_VERSION.bin\e[0m";
-        opt_disable ENABLE_PPM;
-        opt_disable INVERT_TELEMETRY;
-        exitcode=0;
-        buildMulti;
-        exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-aetr-noinv-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-t18int-opentx-taer-noinv-v$MULTI_VERSION.bin\e[0m";
-        opt_replace AETR TAER;
-        exitcode=0;
-        buildMulti;
-        exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-taer-noinv-v$MULTI_VERSION.bin;
-        printf "\n\e[33;1mBuilding multi-t18int-opentx-reta-noinv-v$MULTI_VERSION.bin\e[0m";
-        opt_replace TAER RETA;
-        exitcode=0;
-        buildMulti;
-        exitcode=$((exitcode+$?));
-        mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-opentx-reta-noinv-v$MULTI_VERSION.bin;
-        return $exitcode; };
+        build_release_stm32f1_t18int;
+      };
     else
       buildReleaseFiles() { echo "No release files for this board."; };
     fi
@@ -182,11 +128,14 @@ before_script:
   - echo $ALL_PROTOCOLS
 
   # Declare all the installed modules
-  - if [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
-      ALL_RFMODULES=$(echo A7105_INSTALLED CYRF6936_INSTALLED CC2500_INSTALLED NRF24L01_INSTALLED SX1276_INSTALLED);
-    else
+  - if [[ "$BOARD" =~ "multi4in1:avr:multixmega32d4" ]]; then
+      ALL_RFMODULES=$(echo CYRF6936_INSTALLED);
+    elif [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:" ]]; then
       ALL_RFMODULES=$(echo A7105_INSTALLED CYRF6936_INSTALLED CC2500_INSTALLED NRF24L01_INSTALLED);
+    elif [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+      ALL_RFMODULES=$(echo A7105_INSTALLED CYRF6936_INSTALLED CC2500_INSTALLED NRF24L01_INSTALLED SX1276_INSTALLED);
     fi
+  - echo $ALL_RFMODULES
 
   # Disable CHECK_FOR_BOOTLOADER when not needed
   - if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then

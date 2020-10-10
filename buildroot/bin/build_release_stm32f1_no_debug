@@ -25,12 +25,12 @@ buildMulti;
 exitcode=$((exitcode+$?));
 mv build/Multiprotocol.ino.bin ./binaries/multi-stm-reta-v$MULTI_VERSION.bin;
 
-
 printf "\n\e[33;1mBuilding multi-cc2500-aetr-v$MULTI_VERSION.bin\e[0m";
 opt_replace RETA AETR;
 opt_disable A7105_INSTALLED;
 opt_disable CYRF6936_INSTALLED;
 opt_disable NRF24L01_INSTALLED;
+opt_disable INVERT_TELEMETRY;
 buildMulti;
 exitcode=$((exitcode+$?));
 mv build/Multiprotocol.ino.bin ./binaries/multi-cc2500-aetr-v$MULTI_VERSION.bin;

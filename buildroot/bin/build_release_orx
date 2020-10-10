@@ -20,6 +20,6 @@ cp Multiprotocol/Multi.txt ./binaries/Multi.txt;
 mkdir -p SCRIPTS/TOOLS;
 cp Lua_scripts/*.lua SCRIPTS/TOOLS/;
 cp Lua_scripts/*.txt SCRIPTS/TOOLS/;
-zip ./binaries/MultiLuaScripts.zip SCRIPTS/TOOLS/*;
+zip -q ./binaries/MultiLuaScripts.zip SCRIPTS/TOOLS/*;
 
 exit $exitcode;

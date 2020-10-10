@@ -2,25 +2,12 @@
 
 exitcode=0;
 
-printf "\n\e[33;1mBuilding multi-stm-erskytx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin\e[0m";
+printf "\n\e[33;1mBuilding multi-stm-xn297dump-usbdebug-v$MULTI_VERSION.bin\e[0m";
 exitcode=0;
-opt_enable CHECK_FOR_BOOTLOADER;
 opt_disable $ALL_PROTOCOLS;
 opt_add XN297DUMP_NRF24L01_INO;
-opt_enable MULTI_STATUS;
-opt_disable MULTI_TELEMETRY;
-opt_enable INVERT_TELEMETRY;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-erskytx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin;
-
-printf "\n\e[33;1mBuilding multi-stm-opentx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin\e[0m";
-opt_disable $ALL_PROTOCOLS;
-opt_disable MULTI_STATUS;
-opt_enable MULTI_TELEMETRY;
-opt_enable INVERT_TELEMETRY;
-buildMulti;
-exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-opentx-xn297dump-inv-usbdebug-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-xn297dump-usbdebug-v$MULTI_VERSION.bin;
 
 exit $exitcode;

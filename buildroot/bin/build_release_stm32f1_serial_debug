@@ -3,7 +3,6 @@
 exitcode=0;
 
 printf "\n\e[33;1mBuilding multi-stm-xn297dump-ftdidebug-v$MULTI_VERSION.bin\e[0m";
-exitcode=0;
 opt_disable $ALL_PROTOCOLS;
 opt_add XN297DUMP_NRF24L01_INO;
 buildMulti;

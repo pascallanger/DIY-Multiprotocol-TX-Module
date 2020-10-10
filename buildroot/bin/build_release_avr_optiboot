@@ -25,4 +25,4 @@ buildMulti;
 exitcode=$((exitcode+$?));
 mv build/Multiprotocol.ino.bin ./binaries/multi-avr-txflash-aetr-CYRF6936-inv-v$MULTI_VERSION.bin; 
 
-return $exitcode;
+exit $exitcode;

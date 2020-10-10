@@ -15,10 +15,11 @@ buildMulti;
 exitcode=$((exitcode+$?));
 mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-blue-inv-v$MULTI_VERSION.bin;
 
+printf "\n\e[33;1mPackaging ancilliary files for v$MULTI_VERSION\e[0m";
 cp Multiprotocol/Multi.txt ./binaries/Multi.txt;
 mkdir -p SCRIPTS/TOOLS;
 cp Lua_scripts/*.lua SCRIPTS/TOOLS/;
 cp Lua_scripts/*.txt SCRIPTS/TOOLS/;
 zip ./binaries/MultiLuaScripts.zip SCRIPTS/TOOLS/*;
 
-return $exitcode;
+exit $exitcode;

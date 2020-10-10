@@ -189,9 +189,6 @@ script:
   # Restore the default configuration
   - cp ./_Config.h.bak Multiprotocol/_Config.h
 
-  # Restore the default configuration
-  - cp ./_Config.h.bak Multiprotocol/_Config.h
-
   # Builds the files for a release - always built, but only copied to Github if the test is tagged as a release
   - buildReleaseFiles
 

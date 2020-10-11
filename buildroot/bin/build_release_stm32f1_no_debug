@@ -2,25 +2,25 @@
 
 exitcode=0;
 
-printf "\n\e[33;1mBuilding multi-stm-aetr-v$MULTI_VERSION.bin\e[0m";
+printf "\n\e[33;1mBuilding multi-stm-serial-aetr-v$MULTI_VERSION.bin\e[0m";
 opt_disable ENABLE_PPM;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-serial-aetr-v$MULTI_VERSION.bin;
 
-printf "\n\e[33;1mBuilding multi-stm-taer-v$MULTI_VERSION.bin\e[0m";
+printf "\n\e[33;1mBuilding multi-stm-serial-taer-v$MULTI_VERSION.bin\e[0m";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-serial-taer-v$MULTI_VERSION.bin;
 
-printf "\n\e[33;1mBuilding multi-stm-reta-v$MULTI_VERSION.bin\e[0m";
+printf "\n\e[33;1mBuilding multi-stm-serial-reta-v$MULTI_VERSION.bin\e[0m";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-serial-reta-v$MULTI_VERSION.bin;
 
-printf "\n\e[33;1mBuilding multi-cc2500-aetr-v$MULTI_VERSION.bin\e[0m";
+printf "\n\e[33;1mBuilding multi-stm-cc2500-aetr-v$MULTI_VERSION.bin\e[0m";
 opt_replace RETA AETR;
 opt_disable A7105_INSTALLED;
 opt_disable CYRF6936_INSTALLED;
@@ -28,19 +28,19 @@ opt_disable NRF24L01_INSTALLED;
 opt_disable INVERT_TELEMETRY;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-cc2500-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-cc2500-aetr-v$MULTI_VERSION.bin;
 
-printf "\n\e[33;1mBuilding multi-cc2500-taer-v$MULTI_VERSION.bin\e[0m";
+printf "\n\e[33;1mBuilding multi-stm-cc2500-taer-v$MULTI_VERSION.bin\e[0m";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-cc2500-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-cc2500-taer-v$MULTI_VERSION.bin;
 
-printf "\n\e[33;1mBuilding multi-cc2500-reta-v$MULTI_VERSION.bin\e[0m";
+printf "\n\e[33;1mBuilding multi-stm-cc2500-reta-v$MULTI_VERSION.bin\e[0m";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-cc2500-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-cc2500-reta-v$MULTI_VERSION.bin;
 
 printf "\n\e[33;1mBuilding multi-stm-ppm-aetr-v$MULTI_VERSION.bin\e[0m";
 opt_enable A7105_INSTALLED;

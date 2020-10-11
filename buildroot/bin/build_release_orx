@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+exitcode=0;
+
+printf "\n\e[33;1mBuilding multi-orangerx-aetr-green-inv-v$MULTI_VERSION.bin\e[0m";
+opt_enable $ALL_PROTOCOLS;
+opt_disable ORANGE_TX_BLUE;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-green-inv-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-orangerx-aetr-blue-inv-v$MULTI_VERSION.bin\e[0m";
+opt_enable ORANGE_TX_BLUE;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-orangerx-aetr-blue-inv-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mPackaging ancilliary files for v$MULTI_VERSION\e[0m\n";
+cp Multiprotocol/Multi.txt ./binaries/Multi.txt;
+mkdir -p SCRIPTS/TOOLS;
+cp Lua_scripts/*.lua SCRIPTS/TOOLS/;
+cp Lua_scripts/*.txt SCRIPTS/TOOLS/;
+zip -q ./binaries/MultiLuaScripts.zip SCRIPTS/TOOLS/*;
+
+printf "\n";
+
+exit $exitcode;

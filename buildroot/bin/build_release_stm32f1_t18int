@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+exitcode=0;
+
+printf "\n\e[33;1mBuilding multi-t18int-aetr-v$MULTI_VERSION.bin\e[0m";
+opt_disable ENABLE_PPM;
+opt_disable INVERT_TELEMETRY;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-aetr-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-t18int-taer-v$MULTI_VERSION.bin\e[0m";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-taer-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-t18int-reta-v$MULTI_VERSION.bin\e[0m";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-reta-v$MULTI_VERSION.bin;
+
+exit $exitcode;

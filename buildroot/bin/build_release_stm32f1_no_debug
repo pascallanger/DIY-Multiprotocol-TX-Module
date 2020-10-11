@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+exitcode=0;
+
+printf "\n\e[33;1mBuilding multi-stm-aetr-v$MULTI_VERSION.bin\e[0m";
+opt_disable ENABLE_PPM;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-aetr-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-stm-taer-v$MULTI_VERSION.bin\e[0m";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-taer-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-stm-reta-v$MULTI_VERSION.bin\e[0m";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-reta-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-cc2500-aetr-v$MULTI_VERSION.bin\e[0m";
+opt_replace RETA AETR;
+opt_disable A7105_INSTALLED;
+opt_disable CYRF6936_INSTALLED;
+opt_disable NRF24L01_INSTALLED;
+opt_disable INVERT_TELEMETRY;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-cc2500-aetr-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-cc2500-taer-v$MULTI_VERSION.bin\e[0m";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-cc2500-taer-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-cc2500-reta-v$MULTI_VERSION.bin\e[0m";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-cc2500-reta-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-stm-ppm-aetr-v$MULTI_VERSION.bin\e[0m";
+opt_enable A7105_INSTALLED;
+opt_enable CYRF6936_INSTALLED;
+opt_enable NRF24L01_INSTALLED;
+opt_enable ENABLE_PPM;
+opt_disable ENABLE_SERIAL;
+opt_replace RETA AETR;
+opt_disable MULTI_STATUS;
+opt_disable MULTI_TELEMETRY;
+opt_set NBR_BANKS 5;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-aetr-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-stm-ppm-taer-v$MULTI_VERSION.bin\e[0m";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-taer-v$MULTI_VERSION.bin;
+
+printf "\n\e[33;1mBuilding multi-stm-ppm-reta-v$MULTI_VERSION.bin\e[0m";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-reta-v$MULTI_VERSION.bin; 
+
+exit $exitcode;

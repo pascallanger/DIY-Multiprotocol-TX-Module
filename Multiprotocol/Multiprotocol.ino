@@ -374,7 +374,7 @@ void setup()
 		#ifndef DISABLE_FLASH_SIZE_CHECK
 			unsigned short *flashSize = (unsigned short *) (0x1FFFF7E0);// Address register 
 			debugln("Module Flash size: %dKB",(int)(*flashSize & 0xffff));
-			if((int)(*flashSize & 0xffff) < 128)  // Not supported by this project
+			if((int)(*flashSize & 0xffff) < MCU_EXPECTED_FLASH_SIZE)  // Not supported by this project
 				while (true) { //SOS
 					for(uint8_t i=0; i<3;i++)
 					{

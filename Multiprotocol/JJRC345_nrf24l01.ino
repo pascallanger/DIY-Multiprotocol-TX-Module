@@ -24,6 +24,7 @@
 #define JJRC345_INITIAL_WAIT		500
 #define JJRC345_PACKET_SIZE			16
 #define JJRC345_RF_BIND_CHANNEL		5
+#define SKYTMBLR_RF_BIND_CHANNEL	40
 #define JJRC345_BIND_COUNT			500
 #define JJRC345_NUM_CHANNELS		4
 
@@ -32,6 +33,12 @@ enum JJRC345_FLAGS {
     // flags going to packet[8]
 	JJRC345_FLAG_HEADLESS	= 0x40,
 	JJRC345_FLAG_RTH		= 0x80,
+    // flags going to packet[9]
+	SKYTMBLR_FLAG_UNK1	    = 0x40,
+	SKYTMBLR_FLAG_UNK2	    = 0x80,
+    // flags going to packet[10]
+	SKYTMBLR_FLAG_LED	    = 0x40,
+	SKYTMBLR_FLAG_UNK3	    = 0x80,
 };
 
 static uint8_t __attribute__((unused)) JJRC345_convert_channel(uint8_t num)
@@ -55,7 +62,7 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	packet[2] = 0x00;
 	if (IS_BIND_IN_PROGRESS)
 	{ //00 05 00 0A 46 4A 41 47 00 00 40 46 A5 4A F1 18
-		packet[1]  = JJRC345_RF_BIND_CHANNEL;
+		packet[1]  = (sub_protocol == JJRC345 ? JJRC345_RF_BIND_CHANNEL:SKYTMBLR_RF_BIND_CHANNEL);
 		packet[4]  = hopping_frequency[0];
 		packet[5]  = hopping_frequency[1];
 		packet[6]  = hopping_frequency[2];
@@ -92,10 +99,14 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	packet[3] = 0x00;											// Checksum upper bits
 
 	packet[8] = 0x00											// Rudder trim, 00 when not used, 01..1F when trimmed left, 20..3F
-				| GET_FLAG(CH6_SW,JJRC345_FLAG_HEADLESS)		// Headless mode: 00 normal, 40 headless
-				| GET_FLAG(CH7_SW,JJRC345_FLAG_RTH);			// RTH: 80 active
-	packet[9] = 0;												// Elevator trim, 00 when not used, 20..25 when trimmed up, 0..1F when trimmed down
-	packet[10] = 0x40;											// Aileron trim, 40 when not used, 40..5F when trimmed left, 61..7F when trimmed right
+				| GET_FLAG(CH6_SW ,JJRC345_FLAG_HEADLESS)		// 0x40 HeadLess
+				| GET_FLAG(CH7_SW ,JJRC345_FLAG_RTH);			// 0x80 RTH
+	packet[9] = 0x00												// Elevator trim, 00 when not used, 20..25 when trimmed up, 0..1F when trimmed down
+				| GET_FLAG(CH9_SW ,SKYTMBLR_FLAG_UNK1)			// 0x40 Unknown
+				| GET_FLAG(CH10_SW,SKYTMBLR_FLAG_UNK2);			// 0x80 Unknown
+	packet[10] = 0x00											// Aileron  trim, 00 when not used, 00..1F when trimmed left, 21..3F when trimmed right
+				| GET_FLAG(!CH8_SW,SKYTMBLR_FLAG_LED)			// 0x40 LED
+				| GET_FLAG(CH11_SW,SKYTMBLR_FLAG_UNK3);			// 0x80 Unknown
 
 	packet[11] = hopping_frequency[0];							// First hopping frequency
 
@@ -124,7 +135,7 @@ static void __attribute__((unused)) JJRC345_init()
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
     XN297_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
-    NRF24L01_WriteReg(NRF24L01_05_RF_CH, JJRC345_RF_BIND_CHANNEL);	// Bind channel
+    NRF24L01_WriteReg(NRF24L01_05_RF_CH, sub_protocol == JJRC345 ? JJRC345_RF_BIND_CHANNEL:SKYTMBLR_RF_BIND_CHANNEL);	// Bind channel
     NRF24L01_FlushTx();
     NRF24L01_FlushRx();
     NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);					// Clear data ready, data sent, and retransmit

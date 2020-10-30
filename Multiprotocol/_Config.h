@@ -90,7 +90,7 @@
 //#define ORANGE_TX_BLUE
 
 /** CC2500 Fine Frequency Tuning **/
-//For optimal performance the CC2500 RF module used by the CORONA, FrSkyD, FrSkyV, FrSkyX, Hitec, HoTT, SFHSS and Redpine protocols needs to be tuned for each protocol.
+//For optimal performance the CC2500 RF module used by the CORONA, FrSkyD, FrSkyV, FrSkyX, Hitec, HoTT, Futaba/SFHSS and Redpine protocols needs to be tuned for each protocol.
 //Initial tuning should be done via the radio menu with a genuine CORONA/FrSky/Hitec/HoTT/Futaba/Redpine receiver.  
 //Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
 //For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
@@ -104,7 +104,7 @@
 //#define FORCE_HOTT_TUNING		0
 //#define FORCE_RADIOLINK_TUNING	0
 //#define FORCE_REDPINE_TUNING	0
-//#define FORCE_SFHSS_TUNING	0
+//#define FORCE_FUTABA_TUNING	0
 //#define FORCE_SKYARTEC_TUNING	0
 
 /** A7105 Fine Frequency Tuning **/
@@ -196,7 +196,7 @@
 #define	HOTT_CC2500_INO
 #define	OMP_CC2500_INO			//Need both CC2500 and NRF
 #define	SCANNER_CC2500_INO
-#define	SFHSS_CC2500_INO
+#define	FUTABA_CC2500_INO
 #define	SKYARTEC_CC2500_INO
 #define	REDPINE_CC2500_INO
 #define	RLINK_CC2500_INO
@@ -273,7 +273,7 @@
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
-//The following protocols are supporting failsafe: FrSkyX, Devo, WK2x01, SFHSS, HISKY/HK310 and AFHDS2A
+//The following protocols are supporting failsafe: FrSkyX, Devo, WK2x01, Futaba/SFHSS, HISKY/HK310 and AFHDS2A
 //In Serial mode failsafe is configured on the radio itself.
 //In PPM mode and only after the module is up and fully operational, press the bind button for at least 5sec to send the current stick positions as failsafe to the RX.
 //If you want to disable failsafe globally comment the line below using "//".
@@ -406,7 +406,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 /*	5	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	3	,	P_HIGH	,	NO_AUTOBIND	,	0	,	0x00000000 },	// RX number 3
 /*	6	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	2	,	P_HIGH	,	NO_AUTOBIND	,	0	,	0x00000000 },	// RX number 4
 /*	7	*/	{PROTO_AFHDS2A,	PWM_IBUS	,	3	,	P_HIGH	,	NO_AUTOBIND	,	0	,	0x00000000 },	// RX number 5
-/*	8	*/	{PROTO_SFHSS,	H107		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0	,	0x00000000 },
+/*	8	*/	{PROTO_FUTABA,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0	,	0x00000000 },	// option=fine freq tuning
 /*	9	*/	{PROTO_FRSKYV,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40	,	0x00000000 },	// option=fine freq tuning
 /*	10	*/	{PROTO_FRSKYD,	NONE		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40	,	0x00000000 },	// option=fine freq tuning
 /*	11	*/	{PROTO_FRSKYX,	CH_16		,	0	,	P_HIGH	,	NO_AUTOBIND	,	40	,	0x00000000 },	// option=fine freq tuning
@@ -664,7 +664,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_J6PRO
 		NONE
 	PROTO_JJRC345
-		NONE
+		JJRC345
+		SKYTMBLR
 	PROTO_KF606
 		NONE
 	PROTO_KN
@@ -718,7 +719,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		NONE
 	PROTO_SCANNER
 		NONE
-	PROTO_SFHSS
+	PROTO_FUTABA
 		NONE
 	PROTO_SHENQI
 		NONE

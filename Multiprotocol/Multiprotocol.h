@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	75
+#define VERSION_PATCH_LEVEL	76
 
 //******************
 // Protocols
@@ -47,7 +47,7 @@ enum PROTOCOLS
 	PROTO_MJXQ		= 18,	// =>NRF24L01
 	PROTO_SHENQI	= 19,	// =>NRF24L01
 	PROTO_FY326		= 20,	// =>NRF24L01
-	PROTO_SFHSS		= 21,	// =>CC2500
+	PROTO_FUTABA		= 21,	// =>CC2500
 	PROTO_J6PRO		= 22,	// =>CYRF6936
 	PROTO_FQ777		= 23,	// =>NRF24L01
 	PROTO_ASSAN		= 24,	// =>NRF24L01
@@ -404,6 +404,12 @@ enum KYOSHO
 	KYOSHO_HYPE	= 1,
 };
 
+enum JJRC345
+{
+	JJRC345		= 0,
+	SKYTMBLR	= 1,
+};
+
 #define NONE 		0
 #define P_HIGH		1
 #define P_LOW		0
@@ -446,8 +452,8 @@ enum MultiPacketTypes
 //***************
 //***  Tests  ***
 //***************
-#define IS_FAILSAFE_PROTOCOL	( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_HOTT || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9)
-#define IS_CHMAP_PROTOCOL		( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_SFHSS || protocol==PROTO_WK2x01 || protocol== PROTO_DSM || protocol==PROTO_SLT || protocol==PROTO_FLYSKY || (protocol==PROTO_KYOSHO && sub_protocol==KYOSHO_HYPE) || protocol==PROTO_ESKY || protocol==PROTO_J6PRO || protocol==PROTO_PELIKAN  || protocol==PROTO_SKYARTEC || protocol==PROTO_ESKY150V2 || protocol==PROTO_DSM_RX)
+#define IS_FAILSAFE_PROTOCOL	( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_FUTABA || protocol==PROTO_WK2x01 || protocol== PROTO_HOTT || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9)
+#define IS_CHMAP_PROTOCOL		( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_FUTABA || protocol==PROTO_WK2x01 || protocol== PROTO_DSM || protocol==PROTO_SLT || protocol==PROTO_FLYSKY || (protocol==PROTO_KYOSHO && sub_protocol==KYOSHO_HYPE) || protocol==PROTO_ESKY || protocol==PROTO_J6PRO || protocol==PROTO_PELIKAN  || protocol==PROTO_SKYARTEC || protocol==PROTO_ESKY150V2 || protocol==PROTO_DSM_RX)
 
 //***************
 //***  Flags  ***
@@ -1012,6 +1018,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==HEIGHT
 			HEIGHT_5CH	0
 			HEIGHT_8CH	1
+		sub_protocol==JJRC345
+			JJRC345		0
+			SKYTMBLR	1
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

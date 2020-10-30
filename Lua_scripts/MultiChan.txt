@@ -105,7 +105,8 @@
 2,1,Hubsan,H301,0,RTH,Light,Stab,Video
 2,2,Hubsan,H501,0,RTH,Light,Pict,Video,HLess,GPS_H,ALT_H,Flip,FModes
 22,0,J6Pro,Std,0,CH5,CH6,CH7,CH8,CH9,CH10,CH11,CH12
-71,0,JJRC345,Std,1,Flip,HLess,RTH
+71,0,JJRC345,JJRC345,1,Flip,HLess,RTH,LED,UNK1,UNK2,UNK3
+71,1,JJRC345,SkyTmblr,1,Flip,HLess,RTH,LED,UNK1,UNK2,UNK3
 49,0,KF606,Std,1,Trim
 9,0,KN,WLToys,0,DRate,THold,IdleUp,Gyro,Ttrim,Atrim,Etrim
 9,1,KN,Feilun,0,DRate,THold,IdleUp,Gyro,Ttrim,Atrim,Etrim
@@ -141,7 +142,7 @@
 76,0,Realacc,R11,1,Flip,Light,Calib,HLess,RTH,UNK
 50,0,Redpine,Fast,0,sCH5,sCH6,sCH7,sCH8,sCH9,sCH10,sCH11,sCH12,sCH13,sCH14,sCH15,sCH16
 50,1,Redpine,Slow,0,sCH5,sCH6,sCH7,sCH8,sCH9,sCH10,sCH11,sCH12,sCH13,sCH14,sCH15,sCH16
-21,0,SFHSS,Std,0,CH5,CH6,CH7,CH8
+21,0,Futaba,SFHSS,0,CH5,CH6,CH7,CH8
 19,0,Shenqi,Cycle,1
 68,0,Skyartec,Std,0,CH5,CH6,CH7
 11,0,SLT,V1,0,Gear,Pitch

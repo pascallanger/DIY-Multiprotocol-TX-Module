@@ -14,7 +14,7 @@
  */
 // Last sync with main deviation/sfhss_cc2500.c dated 2016-03-23
 
-#if defined(SFHSS_CC2500_INO)
+#if defined(FUTABA_CC2500_INO)
 
 #include "iface_cc2500.h"
 

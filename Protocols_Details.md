@@ -91,6 +91,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|RX|CloneTX|||||||CC2500|
+[Futaba/SFHSS](Protocols_Details.md#Futaba---21)|21|SFHSS||||||||CC2500|
 [FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
@@ -103,7 +104,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [HoTT](Protocols_Details.md#HoTT---57)|57|Sync|No_Sync|||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105|
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|J6Pro||||||||CYRF6936|
-[JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345||||||||NRF24L01|XN297
+[JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345|SkyTmblr|||||||NRF24L01|XN297
 [KF606](Protocols_Details.md#KF606---49)|49|KF606*||||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
@@ -122,7 +123,6 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Realacc](Protocols_Details.md#Realacc---76)|76|R11||||||||NRF24L01|
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
-[SFHSS](Protocols_Details.md#SFHSS---21)|21|SFHSS||||||||CC2500|
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|Skyartec||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|CC2500
@@ -612,8 +612,8 @@ Air protocol. TXs: T8FB,T8S. Compatible RXs:R8EF,R8FM,R8SM,R4FG,R4F and more
 
 Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%)
 
-## SFHSS - *21*
-Models: Futaba RXs and XK models.
+## Futaba - *21*
+Also called SFHSS depending on radio version. Models: Futaba SFHSS RXs and XK models.
 
 Extended limits and failsafe supported
 
@@ -1209,11 +1209,18 @@ ARM|
 ### Sub_protocol FQ777_951 - *3*
 
 ## JJRC345 - *71*
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|----|----
+A|E|T|R|FLIP|HEADLESS|RTH|LED|UNK1|UNK2|UNK3
+
+### Sub_protocol JJRC345 - *0*
 Model: JJRC345
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|FLIP|HEADLESS|RTH
+### Sub_protocol SkyTmblr - *1*
+Model: DF drones SkyTumbler
+
+RTH not supported
 
 ## KF606 - *49*
 Model: KF606

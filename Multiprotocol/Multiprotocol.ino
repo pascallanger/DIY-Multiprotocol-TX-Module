@@ -577,9 +577,9 @@ void setup()
 				option			=	FORCE_FRSKYX_TUNING;		// Use config-defined tuning value for FrSkyX
 			else
 		#endif 
-		#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
-			if (protocol==PROTO_SFHSS)
-				option			=	FORCE_SFHSS_TUNING;			// Use config-defined tuning value for SFHSS
+		#if defined(FORCE_FUTABA_TUNING) && defined(FUTABA_CC2500_INO)
+			if (protocol==PROTO_FUTABA)
+				option			=	FORCE_FUTABA_TUNING;			// Use config-defined tuning value for SFHSS
 			else
 		#endif
 		#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)
@@ -1224,8 +1224,8 @@ static void protocol_init()
 						remote_callback = ReadFrSkyX;
 						break;
 				#endif
-				#if defined(SFHSS_CC2500_INO)
-					case PROTO_SFHSS:
+				#if defined(FUTABA_CC2500_INO)
+					case PROTO_FUTABA:
 						PE1_off;	//antenna RF2
 						PE2_on;
 						next_callback = initSFHSS();
@@ -1785,9 +1785,9 @@ void update_serial_data()
 			option=FORCE_FRSKYX_TUNING;			// Use config-defined tuning value for FrSkyX
 		else
 	#endif 
-	#if defined(FORCE_SFHSS_TUNING) && defined(SFHSS_CC2500_INO)
-		if (protocol==PROTO_SFHSS)
-			option=FORCE_SFHSS_TUNING;			// Use config-defined tuning value for SFHSS
+	#if defined(FORCE_FUTABA_TUNING) && defined(FUTABA_CC2500_INO)
+		if (protocol==PROTO_FUTABA)
+			option=FORCE_FUTABA_TUNING;			// Use config-defined tuning value for SFHSS
 		else
 	#endif
 	#if defined(FORCE_CORONA_TUNING) && defined(CORONA_CC2500_INO)

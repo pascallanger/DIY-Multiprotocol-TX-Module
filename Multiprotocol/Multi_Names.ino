@@ -38,7 +38,7 @@ const char STR_MT99XX[]		="MT99XX";
 const char STR_MJXQ[]		="MJXq";
 const char STR_SHENQI[]		="Shenqi";
 const char STR_FY326[]		="FY326";
-const char STR_SFHSS[]		="SFHSS";
+const char STR_SFHSS[]		="Futaba";
 const char STR_J6PRO[]		="J6 Pro";
 const char STR_JJRC345[]	="JJRC345";
 const char STR_FQ777[]		="FQ777";
@@ -144,8 +144,10 @@ const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
 const char STR_SUBTYPE_V761[] =       "\x03""3ch""4ch";
 const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ";
-const char STR_SUBTYPE_REALACC[] =     "\x03""R11";
-const char STR_SUBTYPE_KYOSHO[] =      "\x04""FHSS""Hype";
+const char STR_SUBTYPE_REALACC[] =    "\x03""R11";
+const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
+const char STR_SUBTYPE_SFHSS[] =      "\x05""SFHSS";
+const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
 
 enum
 {
@@ -289,7 +291,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_J6PRO,      STR_J6PRO,     0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(JJRC345_NRF24L01_INO)
-		{PROTO_JJRC345,    STR_JJRC345,   0, NO_SUBTYPE,            OPTION_NONE    },
+		{PROTO_JJRC345,    STR_JJRC345,   2, STR_SUBTYPE_JJRC345,   OPTION_NONE    },
 	#endif
 	#if defined(KF606_NRF24L01_INO)
 		{PROTO_KF606,      STR_KF606,     0, NO_SUBTYPE,            OPTION_RFTUNE  },
@@ -342,8 +344,8 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(SCANNER_CC2500_INO)
 	//	{PROTO_SCANNER,    STR_SCANNER,   0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
-	#if defined(SFHSS_CC2500_INO)
-		{PROTO_SFHSS,      STR_SFHSS,     0, NO_SUBTYPE,            OPTION_RFTUNE  },
+	#if defined(FUTABA_CC2500_INO)
+		{PROTO_FUTABA,      STR_SFHSS,     1, STR_SUBTYPE_SFHSS,     OPTION_RFTUNE  },
 	#endif
 	#if defined(SHENQI_NRF24L01_INO)
 		{PROTO_SHENQI,     STR_SHENQI,    0, NO_SUBTYPE,            OPTION_NONE    },

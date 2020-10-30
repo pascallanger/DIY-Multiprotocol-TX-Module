@@ -21,9 +21,9 @@ If you like this project and want to support further development please consider
 
 Multiprotocol downloads: <img src=https://img.shields.io/github/downloads/pascallanger/DIY-Multiprotocol-TX-Module/total.svg>
 
-Current Multiprotocol code check status: [![Travis Build Status for Multi](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module.svg?branch=master)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module)
+Current Multiprotocol code check status: [![Travis Build Status for Multi](https://api.travis-ci.com/pascallanger/DIY-Multiprotocol-TX-Module.svg?branch=master)](https://travis-ci.com/pascallanger/DIY-Multiprotocol-TX-Module)
 
-Current Multiprotocol boards check status: [![Travis Build Status for Multi Boards](https://api.travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards.svg?branch=master)](https://travis-ci.org/pascallanger/DIY-Multiprotocol-TX-Module-Boards)
+Current Multiprotocol boards check status: [![Travis Build Status for Multi Boards](https://api.travis-ci.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards.svg?branch=master)](https://travis-ci.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards)
 
 ## Quicklinks
 * [Download latest releases of the firmware](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases) and [instructions to upload .hex files](docs/Advanced_Manually_Setting_ATmega328_Fuses.md)

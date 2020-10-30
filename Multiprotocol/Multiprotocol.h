@@ -732,6 +732,15 @@ enum {
 #define DSM_RX_EEPROM_OFFSET	877		// (4) TX ID + format, 5 bytes, end is 882
 //#define CONFIG_EEPROM_OFFSET 	882		// Current configuration of the multimodule
 
+/* STM32 Flash Size */
+#ifndef DISABLE_FLASH_SIZE_CHECK
+	#ifdef MCU_STM32F103C8
+		#define MCU_EXPECTED_FLASH_SIZE 64	// STM32F103C8 has 64KB of flash space
+	#else
+		#define MCU_EXPECTED_FLASH_SIZE 128	// STM32F103CB has 128KB of flash space
+	#endif
+#endif
+
 //****************************************
 //*** MULTI protocol serial definition ***
 //****************************************

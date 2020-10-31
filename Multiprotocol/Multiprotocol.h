@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	76
+#define VERSION_PATCH_LEVEL	77
 
 //******************
 // Protocols
@@ -778,7 +778,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				MJXQ		18
 				SHENQI		19
 				FY326		20
-				SFHSS		21
+				Futaba		21
 				J6PRO		22
 				FQ777		23
 				ASSAN		24

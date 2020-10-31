@@ -116,7 +116,7 @@
 #endif
 #ifdef FORCE_FUTABA_TUNING
 	#if ( FORCE_FUTABA_TUNING < -127 ) || ( FORCE_FUTABA_TUNING > 127 )
-		#error "The SFHSS forced frequency tuning value is outside of the range -127..127."
+		#error "The Futaba forced frequency tuning value is outside of the range -127..127."
 	#endif
 #endif
 #ifdef FORCE_SKYARTEC_TUNING

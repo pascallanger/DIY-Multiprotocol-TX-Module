@@ -1218,7 +1218,7 @@ A|E|T|R|FLIP|HEADLESS|RTH|LED|UNK1|UNK2|UNK3
 Model: JJRC345
 
 ### Sub_protocol SkyTmblr - *1*
-Model: DF drones SkyTumbler
+Model: DF-Models SkyTumbler
 
 RTH not supported
 

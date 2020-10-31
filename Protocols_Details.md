@@ -564,12 +564,13 @@ Telemetry compatibility mode when Sync does not work due to an old firmware on t
 You should definitively upgrade your receivers/sensors to the latest firmware versions: https://www.rcgroups.com/forums/showpost.php?p=44668015&postcount=18022
 
 ## OMP - *77*
-Model: OMPHOBBY M2 Heli, T720 RC Glider
+Model: OMPHOBBY M1 & M2 Helis, T720 RC Glider
 
 Telemetry supported:
 - A1 = battery voltage including "recovered" battery voltage from corrupted telemetry packets
 - A2 = battery voltage from only good telemetry packets
-- For both A1 and A2, you must set the ratio to 12.7 and then adjust the offset to match the battery voltage using a voltmeter since there are some large differences between the models
+- How to calculate accurately the OpenTX Ratio and Offset:
+Set the Ratio to 12.7 and Offset to 0, plug 2 batteries with extreme voltage values, write down the values Batt1=12.5V & Telem1=12.2V, Batt2=7V & Telem2=6.6V then calculate/set Ratio=12.7*[(12.5-7)/(12.2-6.6)]=12.47 => 12.5 and Offset=12.5-12.2*[(12.5-7)/(12.2-6.6)]=0.517 => 0.5
 - RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) received from the model which has nothing to do with how well the RX is receiving the TX
 
 Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
@@ -583,6 +584,7 @@ IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
 
 From the TX manual: MODE= 3 pos switch -100% Attitude, 0% Attitude(?), +100% 3D
 For M2: MODE= 3 pos switch -100% 6G, 0% 3D, +100% 3D
+
 
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.
@@ -613,11 +615,14 @@ Air protocol. TXs: T8FB,T8S. Compatible RXs:R8EF,R8FM,R8SM,R4FG,R4F and more
 Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%)
 
 ## Futaba - *21*
-Also called SFHSS depending on radio version. Models: Futaba SFHSS RXs and XK models.
+Also called SFHSS depending on radio version.
+
+### Sub_protocol SFHSS - *0*
+Models: Futaba SFHSS RXs and XK models.
 
 Extended limits and failsafe supported
 
-RX output will match the Futaba standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+RX output will match the Futaba standard servo throw, mid point and the channel order AETR independently of the input configuration AETR, RETA... unless if on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
 
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.

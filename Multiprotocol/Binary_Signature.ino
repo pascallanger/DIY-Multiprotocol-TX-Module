@@ -48,6 +48,7 @@ Bit(s)  Bitmask    Option                  Comment
 11      0x400      MULTI_STATUS            Indicates if MULTI_STATUS is defined
 12      0x800      MULTI_TELEMETRY         Indicates if MULTI_TELEMETRY is defined
 13      0x1000     DEBUG_SERIAL            Indicates if DEBUG_SERIAL is defined
+14-16   0xE000     Module sub-type         Reads as a three-bit value indicating a number from 0-7 which maps to a module sub-type (right-shift 13 bits to read)
 
 The 8-byte version number is the version number zero-padded to a fixed width of two-bytes per segment and no separator.  
 E.g. 1.2.3.45 becomes 01020345.
@@ -60,9 +61,15 @@ OpenTX            2               10
 
 Module types are mapped to the following decimal / binary values:
 Module Type       Decimal Value   Binary Valsue
-AVR               0               00
-STM32             1               01
-OrangeRX          2               10
+AVR (Atmega328p)  0               00
+STM32 (F103)      1               01
+OrangeRX (Xmega)  2               10
+
+Module sub-type is currently used for STM32F103 only and is mapped as follows:
+Module Type       Sub Type        Decimal Value    Binary Value
+STM32 (F103)      STM32F103CB     0                000
+STM32 (F103)      STM32F103C8     1                001
+STM32 (F103)      T18 5in1        2                010
 
 Channel orders are mapped to the following decimal / binary values:
 Channel Order	  Decimal Value	  Binary Value
@@ -107,6 +114,17 @@ RTEA	          23	          10111
 #endif
 #if defined (DEBUG_SERIAL)
     bool firmwareFlag_DEBUG_SERIAL = true;
+#endif
+
+// STM32 Module sub-type flags
+#if defined (MCU_STM32F103CB)
+    bool firmwareFlag_MCU_STM32F103CB = true;
+#endif
+#if defined (MCU_STM32F103C8)
+    bool firmwareFlag_MCU_STM32F103C8 = true;
+#endif
+#if defined (MULTI_5IN1_INTERNAL)
+    bool firmwareFlag_MULTI_5IN1_INTERNAL = true;
 #endif
 
 // Channel order flags

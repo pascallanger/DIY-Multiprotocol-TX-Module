@@ -8,9 +8,10 @@ env:
     - BOARD="multi4in1:avr:multiatmega328p:bootloader=optiboot"
     - BOARD="multi4in1:avr:multixmega32d4"
     - BOARD="multi4in1:STM32F1:multi5in1t18int"
-    - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=none"
-    - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=native"
-    - BOARD="multi4in1:STM32F1:multistm32f103c:debug_option=ftdi"
+    - BOARD="multi4in1:STM32F1:multistm32f103cb:debug_option=none"
+    - BOARD="multi4in1:STM32F1:multistm32f103cb:debug_option=native"
+    - BOARD="multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi"
+    - BOARD="multi4in1:STM32F1:multistm32f103c8:debug_option=none"
 
 notifications:
   email: false
@@ -48,15 +49,15 @@ before_install:
       buildReleaseFiles(){
         build_release_avr_optiboot;
       };
-    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=none" ]]; then
+    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=none" ]]; then
       buildReleaseFiles(){
         build_release_stm32f1_no_debug;
       };
-    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
+    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=native" ]]; then
       buildReleaseFiles(){
         build_release_stm32f1_native_debug;
       };
-    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=ftdi" ]]; then
+    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi" ]]; then
       buildReleaseFiles(){
         build_release_stm32f1_serial_debug;
       };
@@ -65,7 +66,7 @@ before_install:
         build_release_stm32f1_t18int;
       };
     else
-      buildReleaseFiles() { echo "No release files for this board."; };
+      buildReleaseFiles() { printf "No release files for this board."; };
     fi
 
 install:
@@ -143,8 +144,14 @@ before_script:
       opt_disable CHECK_FOR_BOOTLOADER;
     fi
 
-  # Trim the enabled protocols down for the STM32 board with debugging
-  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=ftdi" ]] || [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c:debug_option=native" ]]; then
+  # Trim the enabled protocols down for the STM32F103CB board with debugging
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi" ]] || [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=native" ]]; then
+      opt_disable $ALL_PROTOCOLS;
+      opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
+    fi
+
+  # Trim the enabled protocols down for the STM32F103C8 board
+  - if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c8:debug_option=none" ]]; then
       opt_disable $ALL_PROTOCOLS;
       opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
     fi

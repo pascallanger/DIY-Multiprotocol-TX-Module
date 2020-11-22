@@ -23,7 +23,8 @@ Original FrSky, Futaba, Corona Hitec and HoTT receivers have been frequency-tune
 The procedure can be performed in serial or PPM mode, but is easier with in serial mode where the effect of the change can be seen in real-time.
 
 ### Preparation
-The radio needs to be bound with the receiver.
+The radio needs to be bound with the receiver in order to fine tune.  If the receiver does not bind, use *coarse* tuning (varying the **Freq** value in steps of +/- 40) until the receiver binds.
+
 1. Configure the radio with the appropriate protocol
 1. Set the **Freq** value to 0
 1. Put the receiver into **Binding** mode

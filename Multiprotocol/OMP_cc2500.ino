@@ -142,18 +142,20 @@ static void __attribute__((unused)) OMP_initialize_txid()
 	#endif
 }
 
-static void __attribute__((unused)) OMP_Send_Telemetry(uint8_t v)
-{
-	v_lipo1=v;
-	telemetry_counter++;	//LQI
-	telemetry_link=1;
-	if(telemetry_lost)
+#ifdef OMP_HUB_TELEMETRY
+	static void __attribute__((unused)) OMP_Send_Telemetry(uint8_t v)
 	{
-		telemetry_lost = 0;
-		packet_count = 100;
-		telemetry_counter = 100;
+		v_lipo1=v;
+		telemetry_counter++;	//LQI
+		telemetry_link=1;
+		if(telemetry_lost)
+		{
+			telemetry_lost = 0;
+			packet_count = 100;
+			telemetry_counter = 100;
+		}
 	}
-}
+#endif
 
 enum {
 	OMP_BIND		= 0x00,

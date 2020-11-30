@@ -401,6 +401,17 @@ void setup()
 					delay(1000);
 				}
 		#endif
+
+		// Initialize the EEPROM
+		uint16_t eepromStatus = EEPROM.init();
+		debugln("EEPROM initialized: %d",eepromStatus);
+
+		// If there was no valid EEPROM page the EEPROM is corrupt or uninitialized and should be formatted
+		if( eepromStatus == EEPROM_NO_VALID_PAGE )
+		{
+			EEPROM.format();
+			debugln("No valid EEPROM page, EEPROM formatted");
+		}
 	#else
 		//ATMEGA328p
 		// all inputs

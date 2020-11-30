@@ -344,6 +344,7 @@
 	#undef OMP_HUB_TELEMETRY
 	#undef RLINK_HUB_TELEMETRY
 	#undef DSM_RX_CYRF6936_INO
+	#undef DSM_FWD_PGM
 #else
 	#if defined(MULTI_TELEMETRY) && defined(MULTI_STATUS)
 		#error You should choose either MULTI_TELEMETRY or MULTI_STATUS but not both.

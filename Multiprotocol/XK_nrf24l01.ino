@@ -29,7 +29,16 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static uint16_t __attribute__((unused)) XK_convert_channel(uint8_t num)
 {
-	uint16_t val=convert_channel_10b(num);
+	uint16_t val;
+	if(num==RUDDER)
+	{// introduce deadband on rudder to prevent twitching
+		//debug("RUD:%d",val);
+		val=convert_channel_8b_limit_deadband(RUDDER,0x00,0x80, 0xFF, 40)<<2;
+		//debugln(",%d",val);
+	}
+	else
+		val=convert_channel_10b(num);
+
 	// 1FF..01=left, 00=center, 200..3FF=right
 	if(val==0x200)
 		val=0;									// 0
@@ -58,16 +67,16 @@ static void __attribute__((unused)) XK_send_packet()
 	{
 		uint16_t val=convert_channel_10b(THROTTLE);
 		packet[0] = val>>2;						// 0..255
-		//packet[12] |= val & 2;
+		packet[12] |= val & 2;
 		val=XK_convert_channel(RUDDER);
 		packet[1] = val>>2;
-		//packet[12] |= (val & 2)<<2;
+		packet[12] |= (val & 2)<<2;
 		val=XK_convert_channel(ELEVATOR);
 		packet[2] = val>>2;
-		//packet[13] |= val & 2;
+		packet[13] |= val & 2;
 		val=XK_convert_channel(AILERON);
 		packet[3] = val>>2;
-		//packet[13] |= (val & 2)<<2;
+		packet[13] |= (val & 2)<<2;
 		
 		memset(&packet[4],0x40,3);				// Trims
 		
@@ -84,6 +93,7 @@ static void __attribute__((unused)) XK_send_packet()
 					 |GET_FLAG(CH6_SW,0x40);	// Take off momentary switch
 		packet[14]  = GET_FLAG(CH9_SW,0x01)		// Photo momentary switch
 					 |GET_FLAG(CH10_SW,0x2);	// Video momentary switch
+		//debugln("P1:%02X,P12:%02X",packet[1],packet[12]);
 	}
 
 	crc=packet[0];

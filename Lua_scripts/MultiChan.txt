@@ -175,3 +175,4 @@
 8,3,YD717,XinXun,1,Flip,Light,Pict,Video,HLess
 8,4,YD717,NiHui,1,Flip,Light,Pict,Video,HLess
 52,0,ZSX,280,1,Light
+78,0,M-Link,Std,0,CH5,CH6,CH7,CH8,CH9,CH10,CH11,CH12,CH13,CH14,CH15,CH16

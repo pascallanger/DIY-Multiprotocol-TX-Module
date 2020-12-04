@@ -90,6 +90,7 @@ const char STR_KYOSHO[]		="Kyosho";
 const char STR_RLINK[]		="RadLink";
 const char STR_REALACC[]	="Realacc";
 const char STR_OMP[]		="OMP";
+const char STR_MLINK[]		="M-Link";
 const char STR_TEST[]		="Test";
 const char STR_NANORF[]		="NanoRF";
 
@@ -307,6 +308,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(MJXQ_NRF24L01_INO)
 		{PROTO_MJXQ,       STR_MJXQ,      7, STR_SUBTYPE_MJXQ,      OPTION_RFTUNE  },
+	#endif
+	#if defined(MLINK_CYRF6936_INO)
+		{PROTO_MLINK,      STR_MLINK,     0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(MT99XX_NRF24L01_INO)
 		{PROTO_MT99XX,     STR_MT99XX,    5, STR_SUBTYPE_MT99,      OPTION_NONE    },

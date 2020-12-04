@@ -101,8 +101,8 @@ uint16_t packet_period;
 uint8_t  packet_count;
 uint8_t  packet_sent;
 uint8_t  packet_length;
-#if defined(HOTT_CC2500_INO) || defined(ESKY150V2_CC2500_INO)
-	uint8_t  hopping_frequency[75];
+#if defined(HOTT_CC2500_INO) || defined(ESKY150V2_CC2500_INO) || defined(MLINK_CYRF6936_INO)
+	uint8_t  hopping_frequency[78];
 #else
 	uint8_t  hopping_frequency[50];
 #endif
@@ -1336,6 +1336,13 @@ static void protocol_init()
 						PE2_on;	//antenna RF4
 						next_callback = initWFLY();
 						remote_callback = ReadWFLY;
+						break;
+				#endif
+				#if defined(MLINK_CYRF6936_INO)
+					case PROTO_MLINK:
+						PE2_on;	//antenna RF4
+						next_callback = initMLINK();
+						remote_callback = ReadMLINK;
 						break;
 				#endif
 				#if defined(DEVO_CYRF6936_INO)

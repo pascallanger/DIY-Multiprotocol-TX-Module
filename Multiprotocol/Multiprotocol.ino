@@ -1196,6 +1196,13 @@ static void protocol_init()
 						remote_callback = ReadKyosho;
 						break;
 				#endif
+				#if defined(WFLYRF_A7105_INO)
+					case PROTO_WFLY:
+						PE1_off;	//antenna RF1
+						next_callback = initWFLYRF();
+						remote_callback = ReadWFLYRF;
+						break;
+				#endif
 			#endif
 			#ifdef CC2500_INSTALLED
 				#if defined(FRSKYD_CC2500_INO)

@@ -31,6 +31,12 @@ Need OpenTX 2.3.10 nightly or above. Located on the radio SD card under \SCRIPTS
 
 [![DSM Forward Programming](https://img.youtube.com/vi/sjIaDw5j9nE/0.jpg)](https://www.youtube.com/watch?v=sjIaDw5j9nE)
 
+## DSM PID Flight log gain parameters for Blade micros
+
+Lua telemetry script from [feathering on RCGroups](https://www.rcgroups.com/forums/showpost.php?p=46033341&postcount=20728) to facilitate setting the Gain Parameters on the Blade 150S FBL. It doesn't use Forward Programming but instead it just reads telemetry data from the Multi-module and displays it on a telemetry display.
+
+It is very similar to the Telemetry Based Text Generator functionality on Spektrum transmitters where one doesn't need to rely on the angle of the swashplate to determine selection/value.
+
 ## Graupner HoTT.ua
 
 Enable text configuration of the HoTT RX and sensors: Vario, GPS, ESC, GAM and EAM.

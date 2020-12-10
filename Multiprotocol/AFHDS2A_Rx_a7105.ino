@@ -153,7 +153,7 @@ uint16_t AFHDS2A_Rx_callback()
 	case AFHDS2A_RX_BIND2 | AFHDS2A_RX_WAIT_WRITE:
 		//Wait for TX completion
 		pps_timer = micros();
-		while (micros() - pps_timer < 700) // Wait max 700µs, using serial+telemetry exit in about 120µs
+		while ((uint32_t)(micros() - pps_timer) < 700) // Wait max 700µs, using serial+telemetry exit in about 120µs
 			if (!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 				break;
 		A7105_SetTxRxMode(RX_EN);

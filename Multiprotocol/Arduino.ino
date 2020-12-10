@@ -115,7 +115,7 @@ void delayMilliseconds(unsigned long ms)
    uint16_t lms = ms ;
 
    while (lms > 0) {
-      if (((uint16_t)micros() - start) >= 1000) {
+      if ((uint16_t)((uint16_t)micros() - start) >= 1000) {
          lms--;
          start += 1000;
       }

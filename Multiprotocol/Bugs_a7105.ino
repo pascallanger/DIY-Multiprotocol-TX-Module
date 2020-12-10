@@ -340,7 +340,7 @@ uint16_t ReadBUGS(void)
 		case BUGS_BIND_2:
 			//Wait for TX completion
 			start=micros();
-			while ((uint16_t)micros()-start < 500)			// Wait max 500µs, using serial+telemetry exit in about 60µs
+			while ((uint16_t)((uint16_t)micros()-start) < 500)			// Wait max 500µs, using serial+telemetry exit in about 60µs
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
 			A7105_SetTxRxMode(RX_EN);
@@ -399,7 +399,7 @@ uint16_t ReadBUGS(void)
 		case BUGS_DATA_2:
 			//Wait for TX completion
 			start=micros();
-			while ((uint16_t)micros()-start < 500)			// Wait max 500µs, using serial+telemetry exit in about 60µs
+			while ((uint16_t)((uint16_t)micros()-start) < 500)			// Wait max 500µs, using serial+telemetry exit in about 60µs
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
 			A7105_SetTxRxMode(RX_EN);

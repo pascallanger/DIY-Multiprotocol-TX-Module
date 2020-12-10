@@ -326,7 +326,7 @@ uint16_t ReadAFHDS2A()
 		case AFHDS2A_BIND3|AFHDS2A_WAIT_WRITE:
 			//Wait for TX completion
 			start=micros();
-			while ((uint16_t)micros()-start < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
+			while ((uint16_t)((uint16_t)micros()-start) < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
 			A7105_SetPower();
@@ -408,7 +408,7 @@ uint16_t ReadAFHDS2A()
 		case AFHDS2A_DATA|AFHDS2A_WAIT_WRITE:
 			//Wait for TX completion
 			start=micros();
-			while ((uint16_t)micros()-start < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
+			while ((uint16_t)((uint16_t)micros()-start) < 700)			// Wait max 700µs, using serial+telemetry exit in about 120µs
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
 			A7105_SetPower();

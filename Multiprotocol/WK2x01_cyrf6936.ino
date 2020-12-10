@@ -451,7 +451,7 @@ uint16_t WK_cb()
 	}
 	packet_sent = 0;
 	uint8_t start=micros();
-	while ((uint8_t)micros()-start < 100)			// Wait max 100µs
+	while ((uint8_t)((uint8_t)micros()-start) < 100)			// Wait max 100µs
 		if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
 			break;
 	if((packet_count & 0x03) == 0)

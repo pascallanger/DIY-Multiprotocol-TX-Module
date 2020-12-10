@@ -1197,7 +1197,7 @@ static void protocol_init()
 						break;
 				#endif
 				#if defined(WFLYRF_A7105_INO)
-					case PROTO_WFLY:
+					case PROTO_WFLYRF:
 						PE1_off;	//antenna RF1
 						next_callback = initWFLYRF();
 						remote_callback = ReadWFLYRF;

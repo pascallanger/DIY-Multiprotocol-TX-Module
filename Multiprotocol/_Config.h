@@ -122,6 +122,7 @@
 //#define FORCE_HUBSAN_TUNING	0
 //#define FORCE_KYOSHO_TUNING	0
 //#define FORCE_PELIKAN_TUNING	0
+//#define FORCE_WFLYRF_TUNING	0
 
 /** CYRF6936 Fine Frequency Tuning **/
 //This is required in rare cases where some CYRF6936 modules and/or RXs have an inaccurate crystal oscillator.

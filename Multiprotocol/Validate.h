@@ -160,6 +160,11 @@
 		#error "The Kyosho forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
+#ifdef FORCE_WFLYRF_TUNING
+	#if ( FORCE_WFLYRF_TUNING < -300 ) || ( FORCE_WFLYRF_TUNING > 300 )
+		#error "The WFLYRF forced frequency tuning value is outside of the range -300..300."
+	#endif
+#endif
 
 #ifndef USE_A7105_CH15_TUNING
 	#ifndef FORCE_BUGS_TUNING
@@ -176,6 +181,9 @@
 	#endif
 	#ifndef FORCE_KYOSHO_TUNING
 		#define FORCE_KYOSHO_TUNING 0
+	#endif
+	#ifndef FORCE_WFLYRF_TUNING
+		#define FORCE_WFLYRF_TUNING 0
 	#endif
 	#ifndef FORCE_HUBSAN_TUNING
 		#define FORCE_HUBSAN_TUNING 0

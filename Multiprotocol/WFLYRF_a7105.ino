@@ -20,132 +20,222 @@
 #define WFLYRF_FORCE_ID
 
 //WFLYRF constants & variables
-#define WFLYRF_BIND_COUNT 2500
+#define WFLYRF_BIND_COUNT		2500
+#define WFLYRF_PACKET_SIZE		32
 
-static void __attribute__((unused)) WFLYRF_send_packet()
+enum{
+	WFLYRF_BIND,
+	WFLYRF_DATA,
+	WFLYRF_PLL_TX,
+	WFLYRF_RX,
+};
+
+static void __attribute__((unused)) WFLYRF_send_bind_packet()
 {
+	//Header
+	packet[0] = 0x0F;			// Bind packet
+
 	//ID
-	packet[1] = rx_tx_addr[0];
-	packet[2] = rx_tx_addr[1];
-	packet[3] = rx_tx_addr[2];
-	packet[4] = rx_tx_addr[3];
-	//unknown may be RX ID on some other remotes
-	memset(packet+5,0xFF,4);
-	
-	if(IS_BIND_IN_PROGRESS)
-	{
-		packet[ 0]  = 0xBC;						// bind indicator
-		packet[ 9] &= 0x01;
-		packet[ 9] ^= 0x01;						// high/ low part of the RF table
-		packet[10]  = 0x00;
-		//RF table
-		for(uint8_t i=0; i<16;i++)
-			packet[i+11]=hopping_frequency[i+(packet[9]<<4)];
-		//unknwon
-		packet[27]  = 0x05;
-		packet[28]  = 0x00;
-		memset(packet+29,0xFF,8);
-		//frequency hop during bind
-		if(packet[9])
-			rf_ch_num=0x8C;
-		else
-			rf_ch_num=0x0D;
-	}
-	else
-	{
-		packet[ 0]  = 0x58;						// normal packet
-		//14 channels: steering, throttle, ...
-		for(uint8_t i = 0; i < 14; i++)
-		{
-			uint16_t temp=convert_channel_ppm(i);
-			packet[9 + i*2]=temp&0xFF;			// low byte of servo timing(1000-2000us)
-			packet[10 + i*2]=(temp>>8)&0xFF;	// high byte of servo timing(1000-2000us)
-		}
-		rf_ch_num=hopping_frequency[hopping_frequency_no];
-		hopping_frequency_no++;
-		packet[34] |= (hopping_frequency_no&0x0F)<<4;
-		packet[36] |= (hopping_frequency_no&0xF0);		// last byte is ending with F on the dumps so let's see
-		hopping_frequency_no &= 0x1F;
-	}
+	packet[1] = rx_tx_addr[3];
+	packet[2] = rx_tx_addr[2];
+	packet[3] = rx_tx_addr[1];
+
+	//Unknown
+	packet[4] = 0x00;
+	packet[5] = 0x01;
+
+	//Freq
+	packet[6] = (hopping_frequency_no<<1)+0x0E;
+	rf_ch_num = (hopping_frequency_no<<2)+0x2C;
+	hopping_frequency_no++;	// not sure which frequencies are used since the dump only goes from 0x0E to 0x2C and stops...
+	if(hopping_frequency_no > 0x1A) hopping_frequency_no=0x00;
+
+	//Unknown
+	memset(&packet[7],0x00,25);
+
+	//Debug
 	#if 0
 		debug("ch=%02X P=",rf_ch_num);
-		for(uint8_t i=0; i<37; i++)
+		for(uint8_t i=0; i<WFLYRF_PACKET_SIZE; i++)
 			debug("%02X ", packet[i]);
 		debugln("");
 	#endif
-	A7105_WriteData(37, rf_ch_num);
+
+	//Send
+	A7105_WriteData(WFLYRF_PACKET_SIZE, rf_ch_num);
 }
+
+static void __attribute__((unused)) WFLYRF_build_packet()
+{
+	static uint16_t pseudo=0;
+
+	//Header
+	packet[0] = 0x00;	// Normal packet
+
+	//Pseudo
+	uint16_t high_bit=(pseudo & 0x8000) ^ 0x8000; 							// toggle 0x8000 every other line
+	pseudo <<= 1;															// *2
+	if( (pseudo & 0x8000) || pseudo == 0 ) pseudo ^= 0x8A87;				// Randomisation, pseudo==0 is a guess but would give the start value seen on the dump when P[2]P[1]=0 at init and will prevent a lock up
+	pseudo |= high_bit;														// include toggle
+	packet[1] = pseudo;
+	packet[2] = pseudo>>8;
+	
+	//RF channel
+	int8_t prev = rf_ch_num & 0x1F;
+	rf_ch_num = (pseudo ^ (pseudo >> 7)) & 0x57;
+	if(rf_ch_num & 0x10)
+	{
+		rf_ch_num |= 0x08;
+		rf_ch_num &= 0x4F;
+	}
+	if(rf_ch_num & 0x40)
+	{
+		rf_ch_num |= 0x10;
+		rf_ch_num &= 0x1F;
+	}
+	rf_ch_num ^= rx_tx_addr[3] & 0x1F;
+	if(abs((int8_t)rf_ch_num-prev) <= 9)
+	{
+		if(high_bit)
+			rf_ch_num |= 0x20;
+	}
+	else
+		if(!high_bit)
+			rf_ch_num |= 0x20;
+
+	//Partial ID
+	packet[3] = rx_tx_addr[3];
+	packet[4] = rx_tx_addr[2] & 0x1F;	//not sure... could be 0x1F down to 0x03
+
+	//10 channels
+	for(uint8_t i = 0; i < 5; i++)
+	{
+		uint16_t temp=convert_channel_16b_nolimit(i*2 , 0x0000, 0x0FFF);	// need to check channels min/max...
+		packet[5 + i*3]  = temp&0xFF;		// low byte
+		packet[7 + i*3]  = (temp>>8)&0x0F;	// high byte
+		temp=convert_channel_16b_nolimit(i*2+1, 0x0000, 0x0FFF);	// need to check channels min/max...
+		packet[6 + i*3]  = temp&0xFF;		// low byte
+		packet[7 + i*3] |= (temp>>4)&0xF0;	// high byte
+	}
+	
+	//Unknown
+	memset(&packet[20],0x00,12);
+
+	//Debug
+	#if 0
+		debug("ch=%02X,%02X P=",rf_ch_num,(rf_ch_num<<1)+0x10);
+		for(uint8_t i=0; i<WFLYRF_PACKET_SIZE; i++)
+			debug("%02X ", packet[i]);
+		debugln("");
+	#endif
+}
+
+#define WFLYRF_PACKET_PERIOD	3600 //3600
+#define WFLYRF_BUFFER_TIME		1500
+#define WFLYRF_WRITE_TIME		942 //942
 
 uint16_t ReadWFLYRF()
 {
+	uint16_t start;
 	#ifndef FORCE_WFLYRF_TUNING
 		A7105_AdjustLOBaseFreq(1);
 	#endif
-	if(IS_BIND_IN_PROGRESS)
+	switch(phase)
 	{
-		bind_counter--;
-		if (bind_counter==0)
-		{
-			BIND_DONE;
-			if(sub_protocol==WFLYRF_HYPE)
+		case WFLYRF_BIND:
+			bind_counter--;
+			if (bind_counter == 0)
 			{
+				BIND_DONE;
 				A7105_WriteID(MProtocol_id);
-				A7105_WriteReg(A7105_03_FIFOI,0x05);
+				rf_ch_num = 0;
+				phase++;	// WFLYRF_DATA
 			}
-		}
-	}
-	else
-	{
-		if(hopping_frequency_no==0)
+			WFLYRF_send_bind_packet();
+			return WFLYRF_PACKET_PERIOD;
+
+		case WFLYRF_DATA:
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(WFLYRF_PACKET_PERIOD);
+			#endif
+			//Build packet
+			WFLYRF_build_packet();
+
+			//Fill the buffer
+			A7105_WriteReg(A7105_03_FIFOI, 0x1F);
+			A7105_CSN_off;
+			SPI_Write(A7105_RST_WRPTR);
+			SPI_Write(A7105_05_FIFO_DATA);
+			for (uint8_t i = 0; i < WFLYRF_PACKET_SIZE; i++)
+				SPI_Write(packet[i]);
+			A7105_CSN_on;
+			
+			phase++;	// WFLYRF_PLL_TX
+			return WFLYRF_BUFFER_TIME;
+		case WFLYRF_PLL_TX:
+			A7105_Strobe(A7105_PLL);
+			//Check if RX
+			//if((A7105_ReadReg(A7105_00_MODE) & 0x01) && !(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)))
+			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)))
+			{ // RX+FECF+CRCF Ok
+				A7105_ReadData(WFLYRF_PACKET_SIZE);
+				//Debug
+				#if 0
+					debug("T:");
+					for(uint8_t i=0; i<WFLYRF_PACKET_SIZE; i++)
+						debug(" %02X", packet[i]);
+					debugln("");
+				#endif
+			}
+			//Change channel
+			A7105_WriteReg(A7105_0F_PLL_I, rf_ch_num);
+			//Send
 			A7105_SetPower();
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(packet_period);
-		#endif
+			A7105_SetTxRxMode(TX_EN);
+			A7105_Strobe(A7105_TX);
+			phase++;	// WFLYRF_RX
+			return WFLYRF_WRITE_TIME;
+		case WFLYRF_RX:
+			//Wait for TX completion
+			start=micros();
+			while ((uint16_t)((uint16_t)micros()-start) < 700)				// Wait max 700µs
+				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
+					break;
+			A7105_WriteReg(A7105_0F_PLL_I, rf_ch_num);
+			A7105_SetTxRxMode(RX_EN);
+			A7105_Strobe(A7105_RX);
+			phase = WFLYRF_DATA;
+			return WFLYRF_PACKET_PERIOD-WFLYRF_WRITE_TIME-WFLYRF_PLL_TX;
 	}
-	WFLYRF_send_packet();
-	return packet_period;
+	return WFLYRF_PACKET_PERIOD; // never reached, please the compiler
 }
 
 uint16_t initWFLYRF()
 {
 	A7105_Init();
 
-	// compute channels from ID
-	calc_fh_channels(sub_protocol==WFLYRF_FHSS?32:15);
-	hopping_frequency_no=0;
-
-	#ifdef WFLYRF_FORCE_ID_FHSS
-		if(sub_protocol==WFLYRF_FHSS)
-		{
-			memcpy(rx_tx_addr,"\x3A\x39\x37\x00",4);
-			memcpy(hopping_frequency,"\x29\x4C\x67\x92\x31\x1C\x77\x18\x23\x6E\x81\x5C\x8F\x5A\x51\x94\x7A\x12\x45\x6C\x7F\x1E\x0D\x88\x63\x8C\x4F\x37\x26\x61\x2C\x8A",32);
-		}
+	#ifdef WFLYRF_FORCE_ID
+		//MProtocol_id = 0x50002313;	//Richard
+		MProtocol_id = 0x50000223;	//Pascal
 	#endif
-	if(sub_protocol==WFLYRF_HYPE)
-	{
-		MProtocol_id &= 0x00FF00FF;
-		rx_tx_addr[0] = 0xAF - (rx_tx_addr[1]&0x0F);
-		rx_tx_addr[2] = 0xFF -  rx_tx_addr[3];
-		MProtocol_id |= (rx_tx_addr[0]<<24) + (rx_tx_addr[2]<<8);
-		#ifdef WFLYRF_FORCE_ID_HYPE
-			MProtocol_id=0xAF90738C;
-			set_rx_tx_addr(MProtocol_id);
-			memcpy(hopping_frequency,"\x27\x1B\x63\x75\x03\x39\x57\x69\x87\x0F\x7B\x3F\x33\x51\x6F",15);
-		#endif
-		if(IS_BIND_IN_PROGRESS)
-			A7105_WriteID(0xAF00FF00);
-		else
-		{
-			A7105_WriteID(MProtocol_id);
-			A7105_WriteReg(A7105_03_FIFOI,0x05);
-		}
-	}
+	MProtocol_id &= 0x0FFFFFFF;		// Since the bind ID starts with 50 this mask might start with 00 instead 0F
+	MProtocol_id |= 0x50000000;		// As recommended on the A7105 datasheet
+	set_rx_tx_addr(MProtocol_id);	// Update the ID
+	
+	hopping_frequency_no=0;
+	rf_ch_num = 0;
 
 	if(IS_BIND_IN_PROGRESS)
+	{
 		bind_counter = WFLYRF_BIND_COUNT;
-
-	packet_sent=0;
-	packet_period=3852;		//FHSS
+		A7105_WriteID(0x50FFFFFE);	// Bind ID
+		phase = WFLYRF_BIND;
+	}
+	else
+	{
+		A7105_WriteID(MProtocol_id);
+		phase = WFLYRF_DATA;
+	}
 	return 2000;
 }
 #endif

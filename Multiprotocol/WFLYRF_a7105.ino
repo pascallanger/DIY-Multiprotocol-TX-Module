@@ -130,9 +130,9 @@ static void __attribute__((unused)) WFLYRF_build_packet()
 	#endif
 }
 
-#define WFLYRF_PACKET_PERIOD	3600 //3600
+#define WFLYRF_PACKET_PERIOD	3600
 #define WFLYRF_BUFFER_TIME		1500
-#define WFLYRF_WRITE_TIME		942 //942
+#define WFLYRF_WRITE_TIME		942
 
 uint16_t ReadWFLYRF()
 {

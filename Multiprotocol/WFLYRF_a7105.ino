@@ -237,7 +237,7 @@ uint16_t ReadWFLYRF()
 						debugln("");
 					#endif
 					//Packet match the ID ?
-					if(packet[0]==0 && packet[1]==rx_tx_addr[3] && packet[2]==rx_tx_addr[2]) //need to check if this is the full rx_tx_addr[2] or the partial one...
+					if(packet[0]==0 && packet[1]==rx_tx_addr[3] && packet[2]==(rx_tx_addr[2] & 0x1F))	//not sure... could be 0x1F down to 0x03
 						WFLYRF_Send_Telemetry();							// Packet looks good do send telem to the radio
 				}
 			#endif

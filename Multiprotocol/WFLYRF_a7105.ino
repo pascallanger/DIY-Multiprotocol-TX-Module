@@ -17,10 +17,10 @@
 
 #include "iface_a7105.h"
 
-#define WFLYRF_FORCE_ID
+//#define WFLYRF_FORCE_ID
 
 //WFLYRF constants & variables
-#define WFLYRF_BIND_COUNT		2500
+#define WFLYRF_BIND_COUNT		1000
 #define WFLYRF_PACKET_SIZE		32
 
 enum{
@@ -105,7 +105,7 @@ static void __attribute__((unused)) WFLYRF_build_packet()
 
 	//Partial ID
 	packet[3] = rx_tx_addr[3];
-	packet[4] = rx_tx_addr[2] & 0x1F;	//not sure... could be 0x1F down to 0x03
+	packet[4] = rx_tx_addr[2] & 0x03;
 
 	//10 channels
 	for(uint8_t i = 0; i < 5; i++)
@@ -113,7 +113,7 @@ static void __attribute__((unused)) WFLYRF_build_packet()
 		uint16_t temp=convert_channel_16b_nolimit(i*2 , 0x0000, 0x0FFF);	// need to check channels min/max...
 		packet[5 + i*3]  = temp&0xFF;		// low byte
 		packet[7 + i*3]  = (temp>>8)&0x0F;	// high byte
-		temp=convert_channel_16b_nolimit(i*2+1, 0x0000, 0x0FFF);	// need to check channels min/max...
+		temp=convert_channel_16b_nolimit(i*2+1, 0x0000, 0x0FFF);			// need to check channels min/max...
 		packet[6 + i*3]  = temp&0xFF;		// low byte
 		packet[7 + i*3] |= (temp>>4)&0xF0;	// high byte
 	}
@@ -188,13 +188,7 @@ uint16_t ReadWFLYRF()
 			WFLYRF_build_packet();
 
 			//Fill the TX buffer without sending
-			A7105_WriteReg(A7105_03_FIFOI, 0x1F);
-			A7105_CSN_off;
-			SPI_Write(A7105_RST_WRPTR);
-			SPI_Write(A7105_05_FIFO_DATA);
-			for (uint8_t i = 0; i < WFLYRF_PACKET_SIZE; i++)
-				SPI_Write(packet[i]);
-			A7105_CSN_on;
+			A7105_WriteData(WFLYRF_PACKET_SIZE,0);
 			
 			#ifdef WFLYRF_HUB_TELEMETRY
 				//LQI calculation
@@ -237,7 +231,7 @@ uint16_t ReadWFLYRF()
 						debugln("");
 					#endif
 					//Packet match the ID ?
-					if(packet[0]==0 && packet[1]==rx_tx_addr[3] && packet[2]==(rx_tx_addr[2] & 0x1F))	//not sure... could be 0x1F down to 0x03
+					if(packet[0]==0 && packet[1]==rx_tx_addr[3] && packet[2]==(rx_tx_addr[2] & 0x03))
 						WFLYRF_Send_Telemetry();							// Packet looks good do send telem to the radio
 				}
 			#endif
@@ -260,8 +254,6 @@ uint16_t ReadWFLYRF()
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
 			
-			//A7105_WriteReg(A7105_0F_PLL_I, (rf_ch_num<<1)+0x10);			// Again in dumps?? It should not be needed...
-			
 			//Switch to RX
 			A7105_SetTxRxMode(RX_EN);
 			A7105_Strobe(A7105_RX);
@@ -277,10 +269,10 @@ uint16_t initWFLYRF()
 	A7105_Init();
 
 	#ifdef WFLYRF_FORCE_ID
-		//MProtocol_id = 0x50002313;	//Richard
-		MProtocol_id = 0x50000223;	//Pascal
+		MProtocol_id = 0x50002313;	//Richard
+		//MProtocol_id = 0x50000223;	//Pascal
 	#endif
-	MProtocol_id &= 0x0FFFFFFF;		// Since the bind ID starts with 50 this mask might start with 00 instead 0F
+	MProtocol_id &= 0x00FFFFFF;		// Since the bind ID starts with 50, let's keep only the last 3 bytes of the ID
 	MProtocol_id |= 0x50000000;		// As recommended on the A7105 datasheet
 	set_rx_tx_addr(MProtocol_id);	// Update the ID
 	

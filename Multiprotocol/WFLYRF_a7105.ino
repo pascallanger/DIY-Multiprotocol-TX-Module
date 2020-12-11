@@ -135,6 +135,7 @@ static void __attribute__((unused)) WFLYRF_build_packet()
 	{
 		//Incoming packet values
 		v_lipo1=packet[3]<<1;		// RX_batt*10 in V
+		v_lipo2=packet[5]<<1;		// Ext_batt*10 in V
 		RX_RSSI=(255-packet[7])>>1;	// Looks to be the RX RSSI value direct from A7105
 
 		// Read TX RSSI

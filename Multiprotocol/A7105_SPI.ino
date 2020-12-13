@@ -27,7 +27,7 @@ void A7105_WriteData(uint8_t len, uint8_t channel)
 	for (i = 0; i < len; i++)
 		SPI_Write(packet[i]);
 	A7105_CSN_on;
-	if(protocol!=PROTO_WFLYRF)
+	if(protocol!=PROTO_WFLY2)
 	{
 		if(!(protocol==PROTO_FLYSKY || protocol==PROTO_KYOSHO))
 		{
@@ -210,9 +210,9 @@ void A7105_AdjustLOBaseFreq(uint8_t cmd)
 					offset=(int16_t)FORCE_KYOSHO_TUNING;
 				#endif
 				break;
-			case PROTO_WFLYRF:
-				#ifdef FORCE_WFLYRF_TUNING
-					offset=(int16_t)FORCE_WFLYRF_TUNING;
+			case PROTO_WFLY2:
+				#ifdef FORCE_WFLY2_TUNING
+					offset=(int16_t)FORCE_WFLY2_TUNING;
 				#endif
 				break;
 			case PROTO_AFHDS2A:
@@ -333,8 +333,8 @@ const uint8_t PROGMEM KYOSHO_HYPE_A7105_regs[] = {
 	0x01, 0x0f // 30 - 31
 };
 #endif
-#ifdef WFLYRF_A7105_INO //A7106 values
-const uint8_t PROGMEM WFLYRF_A7105_regs[] = {
+#ifdef WFLY2_A7105_INO //A7106 values
+const uint8_t PROGMEM WFLY2_A7105_regs[] = {
 	0xff, 0x62, 0xff, 0x1F, 0x40, 0xff, 0xff ,0x00, 0x00, 0x00, 0x00, 0x33, 0x33, 0x05, 0x00, 0x64,	// 00 - 0f Changes: 0B:19->33, 0C:01,33
 	0x9e, 0x4b, 0x00, 0x02, 0x16, 0x2b, 0x12, 0x40, 0x62, 0x80, 0x80, 0x00, 0x0a, 0x32, 0x03, 0x0f,	// 10 - 1f 1C:4A->0A
 	0x12, 0x00, 0x00, 0xff, 0x00, 0x00, 0x23, 0x70, 0x15, 0x47, 0x80, 0x03, 0x01, 0x45, 0x18, 0x00,	// 20 - 2f 2B:77->03, 2E:19->18
@@ -349,10 +349,10 @@ void A7105_Init(void)
 	uint8_t *A7105_Regs=0;
     uint8_t vco_calibration0, vco_calibration1;
 	
-	#ifdef WFLYRF_A7105_INO
-		if(protocol==PROTO_WFLYRF)
+	#ifdef WFLY2_A7105_INO
+		if(protocol==PROTO_WFLY2)
 		{
-			A7105_Regs=(uint8_t*)WFLYRF_A7105_regs;
+			A7105_Regs=(uint8_t*)WFLY2_A7105_regs;
 		}
 		else
 	#endif
@@ -465,7 +465,7 @@ void A7105_Init(void)
 		while(A7105_ReadReg(A7105_02_CALC));			// Wait for calibration to end
 		vco_calibration1 = A7105_ReadReg(A7105_25_VCO_SBCAL_I);
 
-		if(protocol==PROTO_BUGS || protocol==PROTO_WFLYRF)
+		if(protocol==PROTO_BUGS || protocol==PROTO_WFLY2)
 			A7105_SetVCOBand(vco_calibration0 & 0x07, vco_calibration1 & 0x07);	// Set calibration band value to best match
 		else
 			if(protocol!=PROTO_HUBSAN)

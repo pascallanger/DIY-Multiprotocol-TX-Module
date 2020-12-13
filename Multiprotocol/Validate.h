@@ -160,9 +160,9 @@
 		#error "The Kyosho forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
-#ifdef FORCE_WFLYRF_TUNING
-	#if ( FORCE_WFLYRF_TUNING < -300 ) || ( FORCE_WFLYRF_TUNING > 300 )
-		#error "The WFLYRF forced frequency tuning value is outside of the range -300..300."
+#ifdef FORCE_WFLY2_TUNING
+	#if ( FORCE_WFLY2_TUNING < -300 ) || ( FORCE_WFLY2_TUNING > 300 )
+		#error "The WFLY2 forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
 
@@ -182,8 +182,8 @@
 	#ifndef FORCE_KYOSHO_TUNING
 		#define FORCE_KYOSHO_TUNING 0
 	#endif
-	#ifndef FORCE_WFLYRF_TUNING
-		#define FORCE_WFLYRF_TUNING 0
+	#ifndef FORCE_WFLY2_TUNING
+		#define FORCE_WFLY2_TUNING 0
 	#endif
 	#ifndef FORCE_HUBSAN_TUNING
 		#define FORCE_HUBSAN_TUNING 0
@@ -235,7 +235,7 @@
 	#undef HUBSAN_A7105_INO
 	#undef KYOSHO_A7105_INO
 	#undef PELIKAN_A7105_INO
-	#undef WFLYRF_A7105_INO
+	#undef WFLY2_A7105_INO
 #endif
 #ifndef CYRF6936_INSTALLED
 	#undef	DEVO_CYRF6936_INO
@@ -355,7 +355,7 @@
 	#undef RLINK_HUB_TELEMETRY
 	#undef DSM_RX_CYRF6936_INO
 	#undef DSM_FWD_PGM
-	#undef WFLYRF_HUB_TELEMETRY
+	#undef WFLY2_HUB_TELEMETRY
 #else
 	#if defined(MULTI_TELEMETRY) && defined(MULTI_STATUS)
 		#error You should choose either MULTI_TELEMETRY or MULTI_STATUS but not both.
@@ -427,10 +427,10 @@
 	#if not defined(HOTT_CC2500_INO)
 		#undef HOTT_FW_TELEMETRY
 	#endif
-	#if not defined(WFLYRF_A7105_INO)
-		#undef WFLYRF_HUB_TELEMETRY
+	#if not defined(WFLY2_A7105_INO)
+		#undef WFLY2_HUB_TELEMETRY
 	#endif
-	#if not defined(HOTT_FW_TELEMETRY) && not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(RLINK_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKY_RX_TELEMETRY) && not defined(AFHDS2A_RX_TELEMETRY) && not defined(BAYANG_RX_TELEMETRY) && not defined(DEVO_HUB_TELEMETRY) && not defined(PROPEL_HUB_TELEMETRY) && not defined(OMP_HUB_TELEMETRY) && not defined(WFLYRF_HUB_TELEMETRY)
+	#if not defined(HOTT_FW_TELEMETRY) && not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(RLINK_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKY_RX_TELEMETRY) && not defined(AFHDS2A_RX_TELEMETRY) && not defined(BAYANG_RX_TELEMETRY) && not defined(DEVO_HUB_TELEMETRY) && not defined(PROPEL_HUB_TELEMETRY) && not defined(OMP_HUB_TELEMETRY) && not defined(WFLY2_HUB_TELEMETRY)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 		#undef MULTI_TELEMETRY

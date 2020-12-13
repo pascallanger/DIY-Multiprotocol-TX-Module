@@ -59,7 +59,8 @@ const char STR_H8_3D[]		="H8 3D";
 const char STR_CORONA[]		="Corona";
 const char STR_CFLIE[]		="CFlie";
 const char STR_HITEC[]		="Hitec";
-const char STR_WFLY[]		="WFly";
+const char STR_WFLY[]		="WFLY";
+const char STR_WFLY2[]		="WFLY2";
 const char STR_BUGS[]		="Bugs";
 const char STR_BUGSMINI[]	="BugMini";
 const char STR_TRAXXAS[]	="Traxxas";
@@ -141,7 +142,7 @@ const char STR_SUBTYPE_PROPEL[] =     "\x04""74-Z";
 const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""RX\0    ""CloneTX";
 const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 const char STR_SUBTYPE_WFLY[] =       "\x05""WFR0x";
-const char STR_SUBTYPE_WFLYRF[] =     "\x05""RF20x";
+const char STR_SUBTYPE_WFLY2[] =      "\x05""RF20x";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
 const char STR_SUBTYPE_V761[] =       "\x03""3ch""4ch";
@@ -385,8 +386,8 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(WFLY_CYRF6936_INO)
 		{PROTO_WFLY,       STR_WFLY,      1, STR_SUBTYPE_WFLY,      OPTION_NONE    },
 	#endif
-	#if defined(WFLYRF_A7105_INO)
-		{PROTO_WFLYRF,     STR_WFLY,      1, STR_SUBTYPE_WFLYRF,    OPTION_NONE    },
+	#if defined(WFLY2_A7105_INO)
+		{PROTO_WFLY2,      STR_WFLY2,     1, STR_SUBTYPE_WFLY2,     OPTION_NONE    },
 	#endif
 	#if defined(XK_NRF24L01_INO)
 		{PROTO_XK,         STR_XK       , 2, STR_SUBTYPE_XK,        OPTION_RFTUNE  },	

@@ -172,10 +172,11 @@ static void __attribute__((unused)) HOTT_init()
 
 static void __attribute__((unused)) HOTT_prep_data_packet()
 {
+	static uint8_t upper=0;
 	
 	packet[2] = hopping_frequency_no;
 
-	packet[3] = 0x00;									// used for failsafe but may also be used for additional channels
+	packet[3] = upper;									// used for failsafe and upper channels (only supporting 16 channels)
 	#ifdef FAILSAFE_ENABLE
 		static uint8_t failsafe_count=0;
 		if(IS_FAILSAFE_VALUES_on && IS_BIND_DONE)
@@ -195,13 +196,16 @@ static void __attribute__((unused)) HOTT_prep_data_packet()
 	uint16_t val;
 	for(uint8_t i=4;i<28;i+=2)
 	{
-		val=Channel_data[(i-4)>>1];
+		uint8_t ch=(i-4)>>1;
+		if(upper && ch >= 8)
+			ch+=4;										// when upper swap CH9..CH12 by CH13..16
+		val=Channel_data[ch];
 		val=(((val<<2)+val)>>2)+860*2;					// value range 860<->2140 *2 <-> -125%<->+125%
 		#ifdef FAILSAFE_ENABLE
 			if(failsafe_count==1)
 			{ // first failsafe packet
-				packet[3]=0x40;
-				uint16_t fs=Failsafe_data[(i-4)>>1];
+				packet[3] |= 0x40;
+				uint16_t fs=Failsafe_data[ch];
 				if( fs == FAILSAFE_CHANNEL_HOLD || fs == FAILSAFE_CHANNEL_NOPULSES)
 					val|=0x8000;						// channel hold flag
 				else
@@ -212,7 +216,7 @@ static void __attribute__((unused)) HOTT_prep_data_packet()
 			}
 			else if(failsafe_count==2)
 			{ // second failsafe packet=timing?
-				packet[3]=0x50;
+				packet[3] |= 0x50;
 				if(i==4)
 					val=2;
 				else
@@ -222,6 +226,8 @@ static void __attribute__((unused)) HOTT_prep_data_packet()
 		packet[i] = val;
 		packet[i+1] = val>>8;
 	}
+	upper ^= 0x01;										// toggle between CH9..CH12 and CH13..16
+	
 	#ifdef HOTT_FW_TELEMETRY
 		if(IS_BIND_DONE)
 		{

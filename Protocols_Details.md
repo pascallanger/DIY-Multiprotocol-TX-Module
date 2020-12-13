@@ -537,7 +537,7 @@ Basic telemetry using FrSky Hub on er9x, erskyTX, OpenTX and any radio with FrSk
 MINIMA, MICRO and RED receivers. Also used by ARES planes.
 
 ## HoTT - *57*
-Models: Graupner HoTT receivers (tested on GR-12, GR-12L, GR-16 and Vector).
+Models: Graupner HoTT receivers (tested on GR-12, GR-12L, GR-16, GR-32 and Vector).
 
 Extended limits, failsafe and LBT supported.
 
@@ -552,9 +552,9 @@ The RX and sensors/FC features configuration are done through the OpenTX script 
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|----|----|----
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
 ### Sub_protocol Sync - *0*
 Recommended for best telemetry performance.

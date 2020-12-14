@@ -45,10 +45,11 @@ static void __attribute__((unused)) WFLY2_send_bind_packet()
 	packet[5] = 0x01;
 
 	//Freq
-	packet[6] = (hopping_frequency_no<<1)+0x0E;
-	rf_ch_num = (hopping_frequency_no<<2)+0x2C;
-	hopping_frequency_no++;	// not sure which frequencies are used since the dump only goes from 0x0E to 0x2C and stops...
-	if(hopping_frequency_no > 0x1A) hopping_frequency_no=0x00;
+	rf_ch_num = (hopping_frequency_no<<1)+0x08;
+	packet[6] = rf_ch_num;
+	rf_ch_num = (rf_ch_num<<1)+0x10;
+	hopping_frequency_no++;
+	if(hopping_frequency_no > 0x17) hopping_frequency_no=0x00;
 
 	//Unknown
 	memset(&packet[7],0x00,25);
@@ -107,13 +108,13 @@ static void __attribute__((unused)) WFLY2_build_packet()
 	packet[3] = rx_tx_addr[3];
 	packet[4] = rx_tx_addr[2] & 0x03;
 
-	//10 channels
+	//10 channels -100%=0x2C1...0%=0x800...+100%=0xD3F
 	for(uint8_t i = 0; i < 5; i++)
 	{
-		uint16_t temp=convert_channel_16b_nolimit(i*2 , 0x0000, 0x0FFF);	// need to check channels min/max...
+		uint16_t temp=convert_channel_16b_nolimit(i*2 , 0x2C1, 0xD3F);
 		packet[5 + i*3]  = temp&0xFF;		// low byte
 		packet[7 + i*3]  = (temp>>8)&0x0F;	// high byte
-		temp=convert_channel_16b_nolimit(i*2+1, 0x0000, 0x0FFF);			// need to check channels min/max...
+		temp=convert_channel_16b_nolimit(i*2+1, 0x2C1, 0xD3F);
 		packet[6 + i*3]  = temp&0xFF;		// low byte
 		packet[7 + i*3] |= (temp>>4)&0xF0;	// high byte
 	}

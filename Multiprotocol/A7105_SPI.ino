@@ -27,7 +27,7 @@ void A7105_WriteData(uint8_t len, uint8_t channel)
 	for (i = 0; i < len; i++)
 		SPI_Write(packet[i]);
 	A7105_CSN_on;
-	if(protocol!=PROTO_WFLY2 || phase==0)
+	if(protocol!=PROTO_WFLY2)
 	{
 		if(!(protocol==PROTO_FLYSKY || protocol==PROTO_KYOSHO))
 		{

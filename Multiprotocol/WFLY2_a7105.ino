@@ -153,7 +153,7 @@ static void __attribute__((unused)) WFLY2_build_packet()
 	}
 #endif
 
-#define WFLY2_PACKET_PERIOD	3600	//3600
+#define WFLY2_PACKET_PERIOD		3600	//3600
 #define WFLY2_BUFFER_TIME		1500	//1500
 #define WFLY2_WRITE_TIME		800		//942
 
@@ -171,15 +171,18 @@ uint16_t ReadWFLY2()
 	{
 		case WFLY2_BIND:
 			bind_counter--;
-			if (bind_counter == 0)
+			if (bind_counter)
+			{
+				WFLY2_send_bind_packet();
+				return WFLY2_PACKET_PERIOD;
+			}
+			else
 			{
 				BIND_DONE;
 				A7105_WriteID(MProtocol_id);
 				rf_ch_num = 0;
 				phase++;	// WFLY2_DATA
 			}
-			WFLY2_send_bind_packet();
-			return WFLY2_PACKET_PERIOD;
 
 		case WFLY2_DATA:
 			#ifdef MULTI_SYNC

@@ -132,8 +132,8 @@ CFlie|38|CFlie||||||||NRF24L01|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
 [V761](Protocols_Details.md#V761---48)|48|V761||||||||NRF24L01|XN297
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*|E119*|||||||NRF24L01|XN297
-[WFLY](Protocols_Details.md#WFLY---40)|40|WFLY||||||||CYRF6936|
-[WFLY2](Protocols_Details.md#WFLY---79)|79|WFLY2||||||||A7105|
+[WFLY](Protocols_Details.md#WFLY---40)|40|WFR0x||||||||CYRF6936|
+[WFLY2](Protocols_Details.md#WFLY2---79)|79|RF20x||||||||A7105|
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936|
 [XK](Protocols_Details.md#XK---62)|62|X450|X420|||||||NRF24L01|XN297
 [YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01|

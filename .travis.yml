@@ -72,7 +72,7 @@ before_install:
 install:
   # Install Arduino CLI
   - mkdir ~/arduino-cli
-  - curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~/arduino-cli sh;
+  - curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~/arduino-cli sh -s 0.13.0;
   - export PATH=$PATH:$HOME/arduino-cli
 
   # Update the board url and package index

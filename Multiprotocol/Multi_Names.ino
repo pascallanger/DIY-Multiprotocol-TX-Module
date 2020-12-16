@@ -258,7 +258,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_FRSKY_R9,   STR_FRSKYR9,   8, STR_SUBTYPE_FRSKYR9,   OPTION_NONE    },
 	#endif
 	#if defined(FUTABA_CC2500_INO)
-		{PROTO_FUTABA,      STR_FUTABA,     1, STR_SUBTYPE_FUTABA,     OPTION_RFTUNE  },
+		{PROTO_FUTABA,     STR_FUTABA,    1, STR_SUBTYPE_FUTABA,    OPTION_RFTUNE  },
 	#endif
 	#if defined(FX816_NRF24L01_INO)
 		{PROTO_FX816,      STR_FX816,     1, STR_SUBTYPE_FX816,     OPTION_NONE    },
@@ -387,7 +387,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_WFLY,       STR_WFLY,      1, STR_SUBTYPE_WFLY,      OPTION_NONE    },
 	#endif
 	#if defined(WFLY2_A7105_INO)
-		{PROTO_WFLY2,      STR_WFLY2,     1, STR_SUBTYPE_WFLY2,     OPTION_NONE    },
+		{PROTO_WFLY2,      STR_WFLY2,     1, STR_SUBTYPE_WFLY2,     OPTION_OPTION  },
 	#endif
 	#if defined(XK_NRF24L01_INO)
 		{PROTO_XK,         STR_XK       , 2, STR_SUBTYPE_XK,        OPTION_RFTUNE  },	

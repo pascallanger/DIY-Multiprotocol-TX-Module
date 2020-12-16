@@ -32,7 +32,6 @@ enum{
 static void __attribute__((unused)) WFLY2_build_packet()
 {
 	static uint16_t pseudo=0;
-	uint8_t offset=0;
 
 	//End bind
 	if(IS_BIND_IN_PROGRESS && bind_counter)
@@ -72,18 +71,6 @@ static void __attribute__((unused)) WFLY2_build_packet()
 	}
 	else
 	{
-		//Header
-		//packet[0] = 0x00;	// Normal packet
-		#ifdef FAILSAFE_ENABLE
-			if(IS_FAILSAFE_VALUES_on)
-			{
-				packet[0] = 0x01;	//Failsafe packet
-				packet[5] = 0x58;	// unknown, values are counting 58,59,5A,5B and rollover
-				packet[6] = 0x55;	// unknown and constant
-				offset=2;
-			}
-		#endif
-
 		//Pseudo
 		uint16_t high_bit=(pseudo & 0x8000) ^ 0x8000; 							// toggle 0x8000 every other line
 		pseudo <<= 1;															// *2
@@ -111,22 +98,50 @@ static void __attribute__((unused)) WFLY2_build_packet()
 		packet[3] = rx_tx_addr[3];
 		packet[4] = rx_tx_addr[2] & 0x03;
 
-		//10 channels -100%=0x2C1...0%=0x800...+100%=0xD3F
-		for(uint8_t i = 0; i < 5; i++)
-		{
-			uint16_t temp=convert_channel_16b_nolimit(i*2 , 0x2C1, 0xD3F, IS_FAILSAFE_VALUES_on);
-			packet[5 + offset + i*3]  = temp&0xFF;		// low byte
-			packet[7 + offset + i*3]  = (temp>>8)&0x0F;	// high byte
-			temp=convert_channel_16b_nolimit(i*2+1, 0x2C1, 0xD3F, IS_FAILSAFE_VALUES_on);
-			packet[6 + offset + i*3]  = temp&0xFF;		// low byte
-			packet[7 + offset + i*3] |= (temp>>4)&0xF0;	// high byte
+		//Header
+		if(prev_option!=option)
+		{//Set the RX PPM/WBUS on change
+			packet[0] = 0x05;	//PPM/WBUS packet
+			packet[5] = 0x01;
+			if(option)
+				packet[6] = 0x00;	// WBUS
+			else
+				packet[6] = 0x01;	// PPM
+			prev_option = option;
 		}
-		
-		//Unknown bytes 20+offset..31
-		
-		#ifdef FAILSAFE_ENABLE
-			FAILSAFE_VALUES_off;
-		#endif
+		else
+		{//Normal or Failsafe packets
+			uint8_t offset=0;
+			
+			//packet[0] = 0x00;	// Normal packet
+
+			#ifdef FAILSAFE_ENABLE
+				if(IS_FAILSAFE_VALUES_on)
+				{//Failsafe packet
+					packet[0] = 0x01;	//Failsafe packet
+					packet[5] = 0x58;	// unknown, values are counting 58,59,5A,5B and rollover
+					packet[6] = 0x55;	// unknown and constant
+					offset=2;
+				}
+			#endif
+
+			//10 channels -100%=0x2C1...0%=0x800...+100%=0xD3F
+			for(uint8_t i = 0; i < 5; i++)
+			{
+				uint16_t temp=convert_channel_16b_nolimit(i*2 , 0x2C1, 0xD3F, IS_FAILSAFE_VALUES_on);
+				packet[5 + offset + i*3]  = temp&0xFF;		// low byte
+				packet[7 + offset + i*3]  = (temp>>8)&0x0F;	// high byte
+				temp=convert_channel_16b_nolimit(i*2+1, 0x2C1, 0xD3F, IS_FAILSAFE_VALUES_on);
+				packet[6 + offset + i*3]  = temp&0xFF;		// low byte
+				packet[7 + offset + i*3] |= (temp>>4)&0xF0;	// high byte
+			}
+			
+			//Unknown bytes 20+offset..31
+			
+			#ifdef FAILSAFE_ENABLE
+				FAILSAFE_VALUES_off;
+			#endif
+		}
 	}
 
 	//Debug
@@ -289,6 +304,7 @@ uint16_t initWFLY2()
 	rf_ch_num = 0;
 	bind_counter = WFLY2_BIND_COUNT;
 	phase = WFLY2_DATA;
+	prev_option = option;
 	#ifdef WFLY2_HUB_TELEMETRY
 		packet_count = 0;
 		telemetry_lost = 1;

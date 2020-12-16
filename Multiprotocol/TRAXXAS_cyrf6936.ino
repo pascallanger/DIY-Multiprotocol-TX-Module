@@ -77,19 +77,19 @@ static void __attribute__((unused)) TRAXXAS_send_data_packet()
 	packet[0] = 0x01;
 	memset(&packet[1],0x00,TRAXXAS_PACKET_SIZE-1);
 	//Steering
-	uint16_t ch = convert_channel_16b_nolimit(RUDDER,500,1000);
+	uint16_t ch = convert_channel_16b_nolimit(RUDDER,500,1000,false);
 	packet[2]=ch>>8;
 	packet[3]=ch;
 	//Throttle
-	ch = convert_channel_16b_nolimit(THROTTLE,500,1000);
+	ch = convert_channel_16b_nolimit(THROTTLE,500,1000,false);
 	packet[4]=ch>>8;
 	packet[5]=ch;
 	//AUX3
-	ch = convert_channel_16b_nolimit(AILERON,500,1000);
+	ch = convert_channel_16b_nolimit(AILERON,500,1000,false);
 	packet[6]=ch>>8;
 	packet[7]=ch;
 	//AUX4???
-	ch = convert_channel_16b_nolimit(ELEVATOR,500,1000);
+	ch = convert_channel_16b_nolimit(ELEVATOR,500,1000,false);
 	packet[12]=ch>>8;
 	packet[13]=ch;
 

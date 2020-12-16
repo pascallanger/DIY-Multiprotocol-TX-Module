@@ -146,7 +146,7 @@ static void __attribute__((unused)) DEVO_build_data_pkt()
 	uint8_t sign = 0x0b;
 	for (uint8_t i = 0; i < 4; i++)
 	{
-		int16_t value=convert_channel_16b_nolimit(CH_EATR[ch_idx * 4 + i],-1600,1600);//range -1600..+1600
+		int16_t value=convert_channel_16b_nolimit(CH_EATR[ch_idx * 4 + i],-1600,1600,false);//range -1600..+1600
 		if(value < 0)
 		{
 			value = -value;

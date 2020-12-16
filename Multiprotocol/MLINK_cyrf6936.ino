@@ -196,7 +196,7 @@ static void __attribute__((unused)) MLINK_build_data_packet()
 	//Channels 426..1937..3448
 	for(uint8_t i=0;i<3;i++)
 	{
-		uint16_t tmp=ch[i]<16 ? convert_channel_16b_nolimit(ch[i],426,3448) : 0x0000;
+		uint16_t tmp=ch[i]<16 ? convert_channel_16b_nolimit(ch[i],426,3448,false) : 0x0000;
 		packet[i*2+1]=tmp>>8;
 		packet[i*2+2]=tmp;
 	}

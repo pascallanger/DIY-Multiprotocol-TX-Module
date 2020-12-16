@@ -182,7 +182,7 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 	#endif
 		{	//Normal data
 			for(uint8_t i=0;i<4;i++)
-				ch[i] = convert_channel_16b_nolimit(CH_AETR[ch_offset+i],2020,1020);
+				ch[i] = convert_channel_16b_nolimit(CH_AETR[ch_offset+i],2020,1020,false);
 		}
 
 	

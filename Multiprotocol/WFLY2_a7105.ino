@@ -32,6 +32,7 @@ enum{
 static void __attribute__((unused)) WFLY2_build_packet()
 {
 	static uint16_t pseudo=0;
+	uint8_t offset=0;
 
 	//End bind
 	if(IS_BIND_IN_PROGRESS && bind_counter)
@@ -73,6 +74,15 @@ static void __attribute__((unused)) WFLY2_build_packet()
 	{
 		//Header
 		//packet[0] = 0x00;	// Normal packet
+		#ifdef FAILSAFE_ENABLE
+			if(IS_FAILSAFE_VALUES_on)
+			{
+				packet[0] = 0x01;	//Failsafe packet
+				packet[5] = 0x58;	// unknown, values are counting 58,59,5A,5B and rollover
+				packet[6] = 0x55;	// unknown and constant
+				offset=2;
+			}
+		#endif
 
 		//Pseudo
 		uint16_t high_bit=(pseudo & 0x8000) ^ 0x8000; 							// toggle 0x8000 every other line
@@ -104,15 +114,19 @@ static void __attribute__((unused)) WFLY2_build_packet()
 		//10 channels -100%=0x2C1...0%=0x800...+100%=0xD3F
 		for(uint8_t i = 0; i < 5; i++)
 		{
-			uint16_t temp=convert_channel_16b_nolimit(i*2 , 0x2C1, 0xD3F);
-			packet[5 + i*3]  = temp&0xFF;		// low byte
-			packet[7 + i*3]  = (temp>>8)&0x0F;	// high byte
-			temp=convert_channel_16b_nolimit(i*2+1, 0x2C1, 0xD3F);
-			packet[6 + i*3]  = temp&0xFF;		// low byte
-			packet[7 + i*3] |= (temp>>4)&0xF0;	// high byte
+			uint16_t temp=convert_channel_16b_nolimit(i*2 , 0x2C1, 0xD3F, IS_FAILSAFE_VALUES_on);
+			packet[5 + offset + i*3]  = temp&0xFF;		// low byte
+			packet[7 + offset + i*3]  = (temp>>8)&0x0F;	// high byte
+			temp=convert_channel_16b_nolimit(i*2+1, 0x2C1, 0xD3F, IS_FAILSAFE_VALUES_on);
+			packet[6 + offset + i*3]  = temp&0xFF;		// low byte
+			packet[7 + offset + i*3] |= (temp>>4)&0xF0;	// high byte
 		}
 		
-		//Unknown bytes 20..31
+		//Unknown bytes 20+offset..31
+		
+		#ifdef FAILSAFE_ENABLE
+			FAILSAFE_VALUES_off;
+		#endif
 	}
 
 	//Debug

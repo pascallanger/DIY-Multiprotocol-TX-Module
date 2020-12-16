@@ -165,7 +165,7 @@ static void __attribute__((unused)) HITEC_build_packet()
 		packet[0] = 0x1A;		// 26 bytes to follow
 		for(uint8_t i=0;i<9;i++)
 		{
-			uint16_t ch = convert_channel_16b_nolimit(i,0x1B87,0x3905);
+			uint16_t ch = convert_channel_16b_nolimit(i,0x1B87,0x3905,false);
 			packet[4+2*i] = ch >> 8;
 			packet[5+2*i] = ch & 0xFF;
 		}

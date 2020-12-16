@@ -177,7 +177,7 @@ static void __attribute__((unused)) RLINK_send_packet()
 	// pack 16 channels on 11 bits values between 170 and 1876, 1023 middle. The last 8 channels are failsafe values associated to the first 8 values.
 	for (uint8_t i = 0; i < 16; i++)
 	{
-		uint32_t val = convert_channel_16b_nolimit(i,170,1876);		// allow extended limits
+		uint32_t val = convert_channel_16b_nolimit(i,170,1876,false);		// allow extended limits
 		if (val & 0x8000)
 			val = 0;
 		else if (val > 2047)

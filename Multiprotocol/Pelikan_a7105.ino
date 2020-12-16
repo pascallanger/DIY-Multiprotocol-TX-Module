@@ -56,16 +56,16 @@ static void __attribute__((unused)) pelikan_build_packet()
 		packet[13] = rx_tx_addr[3];
 		//Channels
 		uint8_t offset=upper?4:0;
-		uint16_t channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871);
+		uint16_t channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871,false);
 		uint8_t top=(channel>>2) & 0xC0;
 		packet[2]  = channel;
-		channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871);
+		channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871,false);
 		top|=(channel>>4) & 0x30;
 		packet[3]  = channel;
-		channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871);
+		channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871,false);
 		top|=(channel>>6) & 0x0C;
 		packet[4]  = channel;
-		channel=convert_channel_16b_nolimit(CH_AETR[offset], 153, 871);
+		channel=convert_channel_16b_nolimit(CH_AETR[offset], 153, 871,false);
 		top|=(channel>>8) & 0x03;
 		packet[5]  = channel;
 		packet[6]  = top;

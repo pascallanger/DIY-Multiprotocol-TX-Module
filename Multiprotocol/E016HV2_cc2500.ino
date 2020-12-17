@@ -13,19 +13,19 @@ Multiprotocol is distributed in the hope that it will be useful,
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(E016H_CC2500_INO)
+#if defined(E016HV2_CC2500_INO)
 
 #include "iface_nrf250k.h"
 
-#define FORCE_E016H_ORIGINAL_ID
+#define FORCE_E016HV2_ORIGINAL_ID
 
-#define E016H_INITIAL_WAIT		500
-#define E016H_PACKET_PERIOD		10000
-#define E016H_RF_BIND_CHANNEL	5
-#define E016H_PAYLOAD_SIZE		11
-#define E016H_BIND_COUNT		300	//3sec
+#define E016HV2_INITIAL_WAIT		500
+#define E016HV2_PACKET_PERIOD		10000
+#define E016HV2_RF_BIND_CHANNEL	5
+#define E016HV2_PAYLOAD_SIZE		11
+#define E016HV2_BIND_COUNT		300	//3sec
 
-static void __attribute__((unused)) E016H_send_packet()
+static void __attribute__((unused)) E016HV2_send_packet()
 {
 	//payload length (after this byte)
 	packet[0 ] = 0x0A;
@@ -98,7 +98,7 @@ static void __attribute__((unused)) E016H_send_packet()
 
 	// payload
 	debug("P:")
-	for (uint8_t i = 0; i < E016H_PAYLOAD_SIZE; ++i)
+	for (uint8_t i = 0; i < E016HV2_PAYLOAD_SIZE; ++i)
 	{
 		uint8_t byte = (bit_reverse(packet[i])<<1) | (packet[i+1]&0x01);
 		debug(" %02X",byte)
@@ -115,30 +115,30 @@ static void __attribute__((unused)) E016H_send_packet()
 	CC2500_Strobe(CC2500_STX);
 }
 
-uint16_t E016H_callback()
+uint16_t E016HV2_callback()
 {
-	E016H_send_packet();
-	return E016H_PACKET_PERIOD;
+	E016HV2_send_packet();
+	return E016HV2_PACKET_PERIOD;
 }
 
-uint16_t initE016H()
+uint16_t initE016HV2()
 {
 	//Config CC2500
 	if(option==0)
 		option=1;									// Select the CC2500
 	XN297L_Init();
-	XN297L_RFChannel(E016H_RF_BIND_CHANNEL);		// Set bind channel
+	XN297L_RFChannel(E016HV2_RF_BIND_CHANNEL);		// Set bind channel
 
 	//need to figure out ID&Freq
-	#ifdef FORCE_E016H_ORIGINAL_ID
+	#ifdef FORCE_E016HV2_ORIGINAL_ID
 		rx_tx_addr[2]=0x27;
 		rx_tx_addr[3]=0x1B;
 		hopping_frequency_no = 44;
 	#endif
 
-	bind_counter = E016H_BIND_COUNT;
+	bind_counter = E016HV2_BIND_COUNT;
 	BIND_IN_PROGRESS;								// Autobind protocol
-	return E016H_INITIAL_WAIT;
+	return E016HV2_INITIAL_WAIT;
 }
 
 #endif

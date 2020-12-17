@@ -188,7 +188,7 @@
 
 //The protocols below need a CC2500 to be installed
 #define	CORONA_CC2500_INO
-#define	E016H_CC2500_INO
+#define	E016HV2_CC2500_INO
 #define	ESKY150V2_CC2500_INO	//Need both CC2500 and NRF
 #define	FRSKYL_CC2500_INO
 #define	FRSKYD_CC2500_INO
@@ -572,7 +572,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		DSMX_11
 	PROTO_DSM_RX
 		NONE
-	PROTO_E016H
+	PROTO_E016HV2
 		NONE
 	PROTO_E01X
 		E012

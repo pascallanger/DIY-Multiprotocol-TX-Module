@@ -628,11 +628,11 @@ static uint16_t XN297Dump_callback()
 		{
 			if(phase==0)
 			{
-				address_length=5;
-				memcpy(rx_tx_addr, (uint8_t *)"\xC9\x59\xD2\x65\x34", 5);
+				address_length=4;
+				memcpy(rx_tx_addr, (uint8_t *)"\xE7\xE7\xE7\xE7", 4);
 				bitrate=XN297DUMP_250K;
-				packet_length=16;
-				hopping_frequency_no=0x03;
+				packet_length=14;
+				hopping_frequency_no=5; //bind 5, normal 44
 				
 				NRF24L01_Initialize();
 				NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -669,7 +669,7 @@ static uint16_t XN297Dump_callback()
 				NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
 				NRF24L01_Activate(0x73);
 				NRF24L01_SetPower();
-				NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+				NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX)); //_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | 
 				phase++;
 			}
 			else
@@ -679,21 +679,30 @@ static uint16_t XN297Dump_callback()
 					if(NRF24L01_ReadReg(NRF24L01_09_CD))
 					{
 						NRF24L01_ReadPayload(packet, packet_length);
-						if(memcmp(packet_in,packet,packet_length))
-						{
-							debug("P:");
-							for(uint8_t i=0;i<packet_length;i++)
-								debug(" %02X",packet[i]);
-							debugln("");
-							memcpy(packet_in,packet,packet_length);
-						}
+						crc=0;
+						for (uint8_t i = 1; i < 12; ++i)
+							crc = crc16_update(crc, packet[i], 8);
+						if(packet[12]==((crc>>8)&0xFF) && packet[13]==(crc&0xFF))
+							if(memcmp(&packet_in[1],&packet[1],packet_length-1))
+							{
+								/*debug("P:");
+								for(uint8_t i=0;i<packet_length;i++)
+									debug(" %02X",packet[i]);
+								debug(" CRC: %04X",crc);
+								debugln("");*/
+								debug("P(%02X):",packet[0]);
+								for(uint8_t i=1;i<packet_length-2;i++)
+									debug(" %02X",((bit_reverse(packet[i])<<1)|(bit_reverse(packet[i-1])>>7))&0xFF);
+								debugln("");
+								memcpy(packet_in,packet,packet_length);
+							}
 					}
 					// restart RX mode
 					NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
 					NRF24L01_SetTxRxMode(TXRX_OFF);
 					NRF24L01_SetTxRxMode(RX_EN);
 					NRF24L01_FlushRx();
-					NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+					NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX)); //  _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) |
 				}
 			}
 		}

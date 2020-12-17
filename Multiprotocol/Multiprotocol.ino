@@ -1322,6 +1322,14 @@ static void protocol_init()
 						remote_callback = RLINK_callback;
 						break;
 				#endif
+				#if defined(E016H_CC2500_INO)
+					case PROTO_E016H:
+						PE1_off;
+						PE2_on;	//antenna RF2
+						next_callback = initE016H();
+						remote_callback = E016H_callback;
+						break;
+				#endif
 			#endif
 			#ifdef CYRF6936_INSTALLED
 				#if defined(DSM_CYRF6936_INO)

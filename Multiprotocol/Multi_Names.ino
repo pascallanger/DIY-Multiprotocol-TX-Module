@@ -94,6 +94,7 @@ const char STR_OMP[]		="OMP";
 const char STR_MLINK[]		="M-Link";
 const char STR_TEST[]		="Test";
 const char STR_NANORF[]		="NanoRF";
+const char STR_E016H[]      ="E016Hv2";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -211,6 +212,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(DSM_RX_CYRF6936_INO)
 		{PROTO_DSM_RX,     STR_DSM_RX,    0, NO_SUBTYPE,            OPTION_NONE    },
+	#endif
+	#if defined(E016H_CC2500_INO)
+		{PROTO_E016H,      STR_E016H,     0, NO_SUBTYPE,            OPTION_RFTUNE  },
 	#endif
 	#if defined(E01X_NRF24L01_INO)
 		{PROTO_E01X,       STR_E01X,      3, STR_SUBTYPE_E01X,      OPTION_OPTION  },

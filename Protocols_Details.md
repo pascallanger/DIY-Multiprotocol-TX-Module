@@ -76,6 +76,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01|XN297
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO||||CYRF6936|
 [DSM_RX](Protocols_Details.md#DSM_RX---70)|70|RX||||||||CYRF6936|
+[E016H](Protocols_Details.md#E016H---80)|80|E016Hv2||||||||CC2500/NRF24L01|unknown
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
@@ -370,6 +371,22 @@ To bind V2 RXs you must follow the below procedure (original):
 
 ### Sub_protocol FD_V3 - *2*
 FlyDream RXs like IS-4R and IS-4R0
+
+## E016H - *80*
+Models: E016H v2
+
+**Only 1 ID available**
+
+Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+ 
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|TAKE_OFF/LANDING|EMERGENCY|FLIP|HEADLESS|RTH
+
+TAKE_OFF/LANDING: this is a momentary switch to arm the motors or land the quad. This switch is not really needed as you can start the quad with throttle low then increase throttle until the motor arms and continue to increase to lift off; To land just bring throttle all the way down, the quad will just stops when touching the ground.
+
+EMERGENCY: Can be used along with the throttle cut switch: Throttle cut=set throttle at -100% and set EMERGENCY to 100%
 
 ## FRSKYV - *25*
 Models: FrSky receivers V8R4, V8R7 and V8FR.

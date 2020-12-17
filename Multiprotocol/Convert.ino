@@ -91,9 +91,15 @@ int16_t convert_channel_16b_limit(uint8_t num,int16_t min,int16_t max)
 }
 
 // Channel value -125%<->125% is scaled to 16bit value with no limit
-int16_t convert_channel_16b_nolimit(uint8_t num, int16_t min, int16_t max)
+int16_t convert_channel_16b_nolimit(uint8_t num, int16_t min, int16_t max, bool failsafe)
 {
-	int32_t val=Channel_data[num];				// 0<->2047
+	int32_t val;
+	#ifdef FAILSAFE_ENABLE
+	if(failsafe)
+		val=Failsafe_data[num];				// 0<->2047
+	else
+	#endif
+		val=Channel_data[num];				// 0<->2047
 	val=(val-CHANNEL_MIN_100)*(max-min)/(CHANNEL_MAX_100-CHANNEL_MIN_100)+min;
 	return (uint16_t)val;
 }
@@ -151,14 +157,14 @@ static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX( uint8_t i, uint8_t 
 }
 
 #ifdef FAILSAFE_ENABLE
-static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX_FS( uint8_t i )
+static uint16_t  __attribute__((unused)) FrSkyX_scaleForPXX_FS( uint8_t i, uint8_t num_chan=8)
 {	//mapped 1,2046(125%) range to 64,1984(PXX values);
 	uint16_t chan_val=((Failsafe_data[i]*15)>>4)+64;
 	if(Failsafe_data[i]==FAILSAFE_CHANNEL_NOPULSES)
 		chan_val=FAILSAFE_CHANNEL_NOPULSES;
 	else if(Failsafe_data[i]==FAILSAFE_CHANNEL_HOLD)
 		chan_val=FAILSAFE_CHANNEL_HOLD;
-	if(i>7) chan_val|=2048;   // upper channels offset
+	if(i>=num_chan) chan_val|=2048;   // upper channels offset
 	return chan_val;
 }
 #endif

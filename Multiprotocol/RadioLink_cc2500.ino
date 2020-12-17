@@ -133,6 +133,12 @@ static void __attribute__((unused)) RLINK_rf_init()
 	for (uint8_t i = 0; i < 39; ++i)
 		CC2500_WriteReg(i, pgm_read_byte_near(&RLINK_init_values[i]));
 
+	if(sub_protocol==RLINK_DUMBORC)
+	{
+		CC2500_WriteReg(4, 0xBA);
+		CC2500_WriteReg(5, 0xDC);
+	}
+
 	prev_option = option;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	
@@ -160,16 +166,22 @@ static void __attribute__((unused)) RLINK_send_packet()
 	// packet length
 	packet[0] = RLINK_TX_PACKET_LEN;
 	// header
-	if(sub_protocol)
-		packet[1] = 0x21;					//air 0x21 on dump but it looks to support telemetry at least RSSI
-	else
-	{//surface
-		packet[1] = 0x01;
-		//radiolink additionnal ID which is working only on a small set of RXs
-		//if(RX_num) packet[1] |= ((RX_num+2)<<4)+4;	// RX number limited to 10 values, 0 is a wildcard
-	}
 	if(packet_count>3)
-		packet[1] |= 0x02;					// 0x02 telemetry request flag
+		packet[1] = 0x02;					// 0x02 telemetry request flag
+	switch(sub_protocol)
+	{
+		case RLINK_SURFACE:
+			packet[1] |= 0x01;
+			//radiolink additionnal ID which is working only on a small set of RXs
+			//if(RX_num) packet[1] |= ((RX_num+2)<<4)+4;	// RX number limited to 10 values, 0 is a wildcard
+			break;
+		case RLINK_AIR:
+			packet[1] |= 0x21;					//air 0x21 on dump but it looks to support telemetry at least RSSI
+			break;
+		case RLINK_DUMBORC:
+			packet[1]  = 0x00;					//always 0x00 on dump
+			break;
+	}
 	
 	// ID
 	memcpy(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN);

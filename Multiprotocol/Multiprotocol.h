@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	88
+#define VERSION_PATCH_LEVEL	89
 
 //******************
 // Protocols
@@ -411,6 +411,13 @@ enum JJRC345
 {
 	JJRC345		= 0,
 	SKYTMBLR	= 1,
+};
+
+enum RLINK
+{
+	RLINK_SURFACE	= 0,
+	RLINK_AIR		= 1,
+	RLINK_DUMBORC	= 2,
 };
 
 #define NONE 		0
@@ -1036,6 +1043,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==JJRC345
 			JJRC345		0
 			SKYTMBLR	1
+		sub_protocol==RLINK
+			RLINK_SURFACE	0
+			RLINK_AIR		1
+			RLINK_DUMBORC	2
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;

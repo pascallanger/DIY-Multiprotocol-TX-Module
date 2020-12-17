@@ -632,16 +632,19 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|FS_CH1|FS_CH2|FS_CH3|FS_CH4|FS_CH5|FS_CH6|FS_CH7
 FS=FailSafe
 
 ### Sub_protocol Surface - *0*
-Surface protocol. TXs: RC4GS,RC6GS. Compatible RXs:R7FG(Std),R6FG,R6F,R8EF,R8FM,R8F,R4FGM,R4F
+Surface protocol. TXs: RC4GS,RC6GS. Compatible RXs: R7FG(Std),R6FG,R6F,R8EF,R8FM,R8F,R4FGM,R4F
 
 CH1=Steering, CH2=Throttle, CH8=Gyro gain
 
 Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%), A1=RX_Batt (set the ratio to 12.7 and adjust with offset), A2=Batt (set the ratio to 25.5 and adjust with offset)
 
 ### Sub_protocol Air - *1*
-Air protocol. TXs: T8FB,T8S. Compatible RXs:R8EF,R8FM,R8SM,R4FG,R4F
+Air protocol. TXs: T8FB,T8S. Compatible RXs: R8EF,R8FM,R8SM,R4FG,R4F
 
 Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%)
+
+### Sub_protocol DumboRC - *2*
+Compatible RXs: X6/X6F/X6FG
 
 ## Futaba - *21*
 Also called SFHSS depending on radio version.

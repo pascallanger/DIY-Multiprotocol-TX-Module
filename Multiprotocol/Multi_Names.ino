@@ -147,10 +147,10 @@ const char STR_SUBTYPE_WFLY2[] =      "\x05""RF20x";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
 const char STR_SUBTYPE_V761[] =       "\x03""3ch""4ch";
-const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ";
+const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ""DumboRC";
 const char STR_SUBTYPE_REALACC[] =    "\x03""R11";
 const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
-const char STR_SUBTYPE_FUTABA[] =      "\x05""SFHSS";
+const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
 
 enum
@@ -346,7 +346,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_Q90C,       STR_Q90C,      0, NO_SUBTYPE,            OPTION_RFTUNE  },
 	#endif
 	#if defined(RLINK_CC2500_INO)
-		{PROTO_RLINK,      STR_RLINK,     2, STR_SUBTYPE_RLINK,     OPTION_RFTUNE  },
+		{PROTO_RLINK,      STR_RLINK,     3, STR_SUBTYPE_RLINK,     OPTION_RFTUNE  },
 	#endif
 	#if defined(REALACC_NRF24L01_INO)
 		{PROTO_REALACC,    STR_REALACC,   1, STR_SUBTYPE_REALACC,   OPTION_NONE    },

@@ -27,7 +27,10 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static void __attribute__((unused)) E016H_send_packet()
 {
-	packet[0 ] = rx_tx_addr[0];
+	//payload length (after this byte)
+	packet[0 ] = 0x0A;
+	
+	//bind indicator
 	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[1 ] = 0x02;
@@ -41,6 +44,8 @@ static void __attribute__((unused)) E016H_send_packet()
 	}
 	else
 		packet[1 ] = 0x20;
+	
+	//ID
 	packet[2 ] = rx_tx_addr[2];
 	packet[3 ] = rx_tx_addr[3];
 
@@ -116,18 +121,6 @@ uint16_t E016H_callback()
 	return E016H_PACKET_PERIOD;
 }
 
-static void __attribute__((unused)) E016H_initialize_txid()
-{
-	//need to figure out ID&Freq
-	#ifdef FORCE_E016H_ORIGINAL_ID
-		rx_tx_addr[0]=0x0A;
-		rx_tx_addr[1]=0x02;		// not used in the code
-		rx_tx_addr[2]=0x27;
-		rx_tx_addr[3]=0x1B;
-		hopping_frequency_no = 44;
-	#endif
-}
-
 uint16_t initE016H()
 {
 	//Config CC2500
@@ -136,7 +129,12 @@ uint16_t initE016H()
 	XN297L_Init();
 	XN297L_RFChannel(E016H_RF_BIND_CHANNEL);		// Set bind channel
 
-	E016H_initialize_txid();
+	//need to figure out ID&Freq
+	#ifdef FORCE_E016H_ORIGINAL_ID
+		rx_tx_addr[2]=0x27;
+		rx_tx_addr[3]=0x1B;
+		hopping_frequency_no = 44;
+	#endif
 
 	bind_counter = E016H_BIND_COUNT;
 	BIND_IN_PROGRESS;								// Autobind protocol

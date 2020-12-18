@@ -332,6 +332,8 @@ Receivers: RF201S,RF206S,RF207S,RF209S
 
 Extended limits supported
 
+Failsafe is only supported by value per channel, it's not yet possible to set Hold or No pulse.
+
 Telemetry enabled for A1=RX_Batt (Ratio 12.7), A2=Ext_Batt (Ratio 12.7), RX RSSI, TX RSSI, TX LQI (100=all telem packets received...0=no telem packets).
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10

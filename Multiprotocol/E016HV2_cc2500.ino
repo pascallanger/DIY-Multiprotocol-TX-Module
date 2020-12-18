@@ -17,7 +17,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_nrf250k.h"
 
-#define FORCE_E016HV2_ORIGINAL_ID
+//#define FORCE_E016HV2_ORIGINAL_ID
 
 #define E016HV2_INITIAL_WAIT		500
 #define E016HV2_PACKET_PERIOD		10000
@@ -27,10 +27,10 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static void __attribute__((unused)) E016HV2_send_packet()
 {
-	//payload length (after this byte)
+	//payload length (after this byte)??
 	packet[0 ] = 0x0A;
 	
-	//bind indicator
+	//bind indicator??
 	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[1 ] = 0x02;
@@ -39,11 +39,18 @@ static void __attribute__((unused)) E016HV2_send_packet()
 		else
 		{
 			BIND_DONE;
-			XN297L_RFChannel(hopping_frequency_no);	// Set main channel
+			XN297L_RFChannel(rf_ch_num);	// Set main channel
 		}
 	}
 	else
+	{
 		packet[1 ] = 0x20;
+		if(prev_option!=option)
+		{
+			XN297L_RFChannel(option);	// Set main channel
+			prev_option=option;
+		}
+	}
 	
 	//ID
 	packet[2 ] = rx_tx_addr[2];
@@ -54,7 +61,7 @@ static void __attribute__((unused)) E016HV2_send_packet()
 	if(IS_BIND_IN_PROGRESS)
 		channel=0x64;								// Throttle must be centered during bind
 	else
-		channel=convert_channel_8b_limit_deadband(THROTTLE,0x00,0x64,0xC8, 160);
+		channel=convert_channel_8b_limit_deadband(THROTTLE,0x00,0x64,0xC8, 20);
 	packet[4 ]  = channel;
 	channel=convert_channel_16b_limit(RUDDER,0x00,0xC8);
 	packet[5 ]  = channel;
@@ -129,13 +136,24 @@ uint16_t initE016HV2()
 	XN297L_Init();
 	XN297L_RFChannel(E016HV2_RF_BIND_CHANNEL);		// Set bind channel
 
-	//need to figure out ID&Freq
 	#ifdef FORCE_E016HV2_ORIGINAL_ID
 		rx_tx_addr[2]=0x27;
 		rx_tx_addr[3]=0x1B;
-		hopping_frequency_no = 44;
+		//rf_ch_num = 44;
 	#endif
-
+	//General ID
+	//3F1B -> 68,2C1B -> 49,2B1B -> 48,2A1B -> 47,291B -> 46,281B -> 45,271B -> 44,261B -> 43,251B -> 42
+	//241B -> no bind,231B -> no bind,221B -> 71,211B -> 70,201B -> 69,1F1B -> 68,1E1B -> 67,1D1B -> 66,1C1B -> 65,1B1B -> 64,1A1B -> 63,191B -> 62,181B -> 61,171B -> 60,161B -> 59
+	//0C1B -> 49,051B -> 42,041B -> no bind,031B -> no bind,021B -> 71,011B -> 70,001B -> no bind
+	if(rx_tx_addr[2]<3) rx_tx_addr[2]+=3;			// rx_tx_addr[2]=0 is invalid
+	if(rx_tx_addr[3]==0) rx_tx_addr[3]+=64;			// rx_tx_addr[3]=0 is invalid
+	rf_ch_num = (rx_tx_addr[2] + rx_tx_addr[3]) % 32 + 42;
+	if(rf_ch_num>71)								// channels 72 and 73 are invalid
+	{
+		rx_tx_addr[2]-=2;
+		rf_ch_num-=2;
+	}
+	
 	bind_counter = E016HV2_BIND_COUNT;
 	BIND_IN_PROGRESS;								// Autobind protocol
 	return E016HV2_INITIAL_WAIT;

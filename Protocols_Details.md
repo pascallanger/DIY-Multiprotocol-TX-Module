@@ -375,11 +375,11 @@ FlyDream RXs like IS-4R and IS-4R0
 ## E016HV2 - *80*
 Models: E016H v2
 
-**Only 1 ID available** so you can't fly multiple E016H v2 at the same time.
-
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable or bind won't even work.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
- 
+
+**Again make sure to set the RF frequency right to be able to bind**. FYI, on my module I needed +80.
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|TAKE_OFF/LANDING|EMERGENCY|FLIP|HEADLESS|RTH

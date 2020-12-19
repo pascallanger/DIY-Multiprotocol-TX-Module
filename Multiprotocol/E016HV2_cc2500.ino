@@ -71,9 +71,14 @@ static void __attribute__((unused)) E016HV2_send_packet()
 	packet[7 ]  = channel;
 
 	//flags
-	packet[8 ] = GET_FLAG(CH7_SW, 0x01)				// 0x01=Flip
-			   | GET_FLAG(CH8_SW, 0x02)				// 0x02=Headless
-			   | GET_FLAG(CH9_SW, 0x04);			// 0x04=One Key Return
+	if(CH8_SW && !phase) //toggle calib flag
+		flags ^= 0x40;
+	phase=CH8_SW;
+
+	packet[8 ] = GET_FLAG(CH7_SW,  0x01)			// 0x01=Flip
+			   | GET_FLAG(CH9_SW,  0x02)			// 0x02=Headless
+			   | GET_FLAG(CH10_SW, 0x04)			// 0x04=One Key Return
+			   | flags;								// 0x40=Calib
 
 	packet[9 ] = 0x02;								// Speed control 0x00:low, 0x01:medium, 0x02:high
 	
@@ -154,6 +159,8 @@ uint16_t initE016HV2()
 		rf_ch_num-=2;
 	}
 	
+	phase=CH8_SW;
+	flags=0;
 	bind_counter = E016HV2_BIND_COUNT;
 	BIND_IN_PROGRESS;								// Autobind protocol
 	return E016HV2_INITIAL_WAIT;

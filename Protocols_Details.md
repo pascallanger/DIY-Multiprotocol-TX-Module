@@ -382,9 +382,9 @@ Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 
 **Again make sure to set the RF frequency right to be able to bind**. FYI, on my module I needed +80.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|TAKE_OFF/LANDING|EMERGENCY|FLIP|HEADLESS|RTH
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|TAKE_OFF/LANDING|EMERGENCY|FLIP|CALIB|HEADLESS|RTH
 
 TAKE_OFF/LANDING: this is a momentary switch to arm the motors or land the quad. This switch is not really needed as you can start the quad with throttle low then increase throttle until the motor arms and continue to increase to lift off; To land just bring throttle all the way down, the quad will just stops when touching the ground.
 

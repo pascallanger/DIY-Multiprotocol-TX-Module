@@ -9,11 +9,15 @@ on:
     - '**'
     tags-ignore:
       - '**'
-  
+    paths:
+    - 'Multiprotocol/**'
+
   # Trigger the workflow on pull requests to the master branch
   pull_request:
     branches:
       - master
+    paths:
+    - 'Multiprotocol/**'
 
   # Triggers the workflow on release creation
   release:
@@ -21,7 +25,7 @@ on:
       - created
 
   # Allows the workflow to be triggered manually from the Actions tab
-  workflow_dispatch:
+  # workflow_dispatch:
 
 jobs:
   build:

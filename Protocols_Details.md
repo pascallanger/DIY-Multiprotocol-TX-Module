@@ -340,6 +340,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 
+Option is used to select between WBUS=0 and PPM=1
+
 ***
 # CC2500 RF Module
 

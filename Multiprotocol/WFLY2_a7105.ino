@@ -104,9 +104,9 @@ static void __attribute__((unused)) WFLY2_build_packet()
 			packet[0] = 0x05;	//PPM/WBUS packet
 			packet[5] = 0x01;
 			if(option)
-				packet[6] = 0x00;	// WBUS
-			else
 				packet[6] = 0x01;	// PPM
+			else
+				packet[6] = 0x00;	// WBUS
 			prev_option = option;
 		}
 		else

@@ -1,0 +1,160 @@
+# Workflow for testing MULTI-Module firmware builds
+
+name: CI
+
+on:
+  # Trigger the workflow on pushes, except those that are tagged (avoids double-testing releases)
+  push:
+    branches:
+    - '**'
+    tags-ignore:
+      - '**'
+  
+  # Trigger the workflow on pull requests to the master branch
+  pull_request:
+    branches:
+      - master
+
+  # Triggers the workflow on release creation
+  release:
+    types:
+      - created
+
+  # Allows the workflow to be triggered manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Configure the board matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        board: [
+          "multi4in1:avr:multiatmega328p:bootloader=none", 
+          "multi4in1:avr:multiatmega328p:bootloader=optiboot", 
+          "multi4in1:avr:multixmega32d4", 
+          "multi4in1:STM32F1:multi5in1t18int", 
+          "multi4in1:STM32F1:multistm32f103cb:debug_option=none", 
+          "multi4in1:STM32F1:multistm32f103cb:debug_option=native", 
+          "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi", 
+          "multi4in1:STM32F1:multistm32f103c8:debug_option=none"
+        ]
+
+    # Set the environment variables
+    env:
+      BOARD: ${{ matrix.board }}
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1.1.1
+      
+      - name: Prepare build environment
+        run: |
+          echo "Github Ref: $GITHUB_REF"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Event action: ${{ github.event.action }}"
+          echo "Tag name: ${{ github.event.release.tag_name }}"
+
+          arduino-cli config init --additional-urls https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json
+          arduino-cli core update-index
+          
+          if [[ "$BOARD" =~ "multi4in1:avr:" ]]; then
+            arduino-cli core install arduino:avr;
+            arduino-cli core install multi4in1:avr
+          fi
+
+          if [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+            arduino-cli core install multi4in1:STM32F1
+          fi
+
+          chmod +x ${GITHUB_WORKSPACE}/buildroot/bin/*
+          echo "${GITHUB_WORKSPACE}/buildroot/bin" >> $GITHUB_PATH
+
+          mkdir ./build
+          mkdir ./binaries
+
+      - name: Configure MULTI-Module firmware options
+        run: |
+          # Load the build functions
+          source ./buildroot/bin/buildFunctions;  
+          
+          # Get all the protocols for this board
+          getAllProtocols
+
+          # Disable CHECK_FOR_BOOTLOADER when not needed
+          if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
+            opt_disable CHECK_FOR_BOOTLOADER;
+          fi
+
+          # Trim the build down for the Atmega328p board
+          if [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:" ]]; then
+            opt_disable $ALL_PROTOCOLS
+            opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
+          fi
+
+          # Trim the enabled protocols down for the STM32F103CB board with debugging or the STM32F103C8 board in general
+          if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi" ]] || [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=native" ]] || [[ "$BOARD" =~ "multi4in1:STM32F1:multistm32f103c8" ]]; then
+            opt_disable $ALL_PROTOCOLS;
+            opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
+          fi
+
+      - name: Save default firmware configuration
+        run: |
+          cat Multiprotocol/_Config.h
+          cp Multiprotocol/_Config.h ./_Config.h.bak
+
+      - name: Build default configuration
+        run: |
+          source ./buildroot/bin/buildFunctions;
+          buildMulti
+
+      - name: Build serial only
+        run: |
+          source ./buildroot/bin/buildFunctions;
+          cp ./_Config.h.bak Multiprotocol/_Config.h
+          opt_disable ENABLE_PPM;
+          buildMulti;
+      
+      - name: Build PPM only
+        run: |
+          source ./buildroot/bin/buildFunctions;
+          cp ./_Config.h.bak Multiprotocol/_Config.h
+          opt_disable ENABLE_SERIAL;
+          buildMulti;
+
+      - name: Build each RF module individually
+        run: |
+          source ./buildroot/bin/buildFunctions;
+          cp ./_Config.h.bak Multiprotocol/_Config.h;
+          buildEachRFModule;
+
+      - name: Build each protocol individually
+        run: |
+          source ./buildroot/bin/buildFunctions;
+          cp ./_Config.h.bak Multiprotocol/_Config.h;
+          buildEachProtocol;
+
+      - name: Build release files
+        run: |
+          source ./buildroot/bin/buildFunctions;
+          cp ./_Config.h.bak Multiprotocol/_Config.h;
+          buildReleaseFiles;
+          ls -al ./binaries;
+
+          NUM_FILES=$(ls -l ./binaries | grep ^- | wc -l);
+          if [ $NUM_FILES -gt 0 ]; then 
+            echo "HAVE_FILES=true" >> $GITHUB_ENV
+          else
+            echo "HAVE_FILES=false" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy files to release
+        if: github.event_name == 'release' && github.event.action == 'created' && env.HAVE_FILES == 'true'
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: './binaries/*'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

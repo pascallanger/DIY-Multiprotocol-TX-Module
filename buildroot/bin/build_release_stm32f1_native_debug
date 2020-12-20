@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
+source ./buildroot/bin/buildFunctions;
+getMultiVersion;
 exitcode=0;
 
-printf "\n\e[33;1mBuilding multi-stm-xn297dump-usbdebug-v$MULTI_VERSION.bin\e[0m";
+printf "\e[33;1mBuilding multi-stm-xn297dump-usbdebug-v$MULTI_VERSION.bin\e[0m\n";
 opt_disable $ALL_PROTOCOLS;
 opt_add XN297DUMP_NRF24L01_INO;
 buildMulti;

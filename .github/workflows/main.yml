@@ -185,5 +185,5 @@ jobs:
         if: env.HAVE_FILES == 'true'
         uses: actions/upload-artifact@v2
         with:
-          name: build-artifacts
+          name: multi-test-build
           path: ./binaries/

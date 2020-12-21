@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 source ./buildroot/bin/buildFunctions;
-getMultiVersion;
 exitcode=0;
 
 printf "\e[33;1mBuilding multi-stm-xn297dump-ftdidebug-v$MULTI_VERSION.bin\e[0m\n";

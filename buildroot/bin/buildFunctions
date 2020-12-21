@@ -54,7 +54,6 @@ buildProtocol() {
 }
 
 buildEachProtocol() {
-    getAllProtocols;
     exitcodesum=0;
     for PROTOCOL in $ALL_PROTOCOLS ; do 
         printf "\e[33;1mBuilding $PROTOCOL\e[0m\n"; 
@@ -74,7 +73,6 @@ buildRFModule() {
 }
 
 buildEachRFModule() {
-    getAllRFModules;
     exitcodesum=0;
     for RFMODULE in $ALL_RFMODULES; do
         printf "\e[33;1mBuilding $RFMODULE\e[0m\n";

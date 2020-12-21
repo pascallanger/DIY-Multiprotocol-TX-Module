@@ -21,7 +21,7 @@ If you like this project and want to support further development please consider
 
 Multiprotocol downloads: <img src=https://img.shields.io/github/downloads/pascallanger/DIY-Multiprotocol-TX-Module/total.svg>
 
-Current Multiprotocol code check status: [<img src=https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/workflows/CI/badge.svg>](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/actions). Download the latest test build [here](https://nightly.link/pascallanger/DIY-Multiprotocol-TX-Module/workflows/main/master/multi-test-build.zip).
+Current Multiprotocol code check status: [<img src=https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/workflows/CI/badge.svg>](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/actions). Download the latest **test** build [here](https://nightly.link/pascallanger/DIY-Multiprotocol-TX-Module/workflows/main/master/multi-test-build.zip).
 
 Current Multiprotocol boards check status: [![Travis Build Status for Multi Boards](https://api.travis-ci.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards.svg?branch=master)](https://travis-ci.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards)
 

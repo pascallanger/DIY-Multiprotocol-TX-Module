@@ -10,6 +10,8 @@ on:
     tags-ignore:
       - '**'
     paths:
+    - '.github/workflows/**'
+    - 'buildroot/bin/**'
     - 'Multiprotocol/**'
 
   # Trigger the workflow on pull requests to the master branch
@@ -17,6 +19,8 @@ on:
     branches:
       - master
     paths:
+    - '.github/workflows/**'
+    - 'buildroot/bin/**'
     - 'Multiprotocol/**'
 
   # Triggers the workflow on release creation
@@ -86,8 +90,22 @@ jobs:
           # Load the build functions
           source ./buildroot/bin/buildFunctions;  
           
+          # Get the version
+          getMultiVersion
+          echo "MULTI_VERSION=$(echo $MULTI_VERSION)" >> $GITHUB_ENV
+
           # Get all the protocols for this board
           getAllProtocols
+          echo "A7105_PROTOCOLS=$(echo $A7105_PROTOCOLS)" >> $GITHUB_ENV
+          echo "CC2500_PROTOCOLS=$(echo $CC2500_PROTOCOLS)" >> $GITHUB_ENV
+          echo "CYRF6936_PROTOCOLS=$(echo $CYRF6936_PROTOCOLS)" >> $GITHUB_ENV
+          echo "NRF24L01_PROTOCOLS=$(echo $NRF24L01_PROTOCOLS)" >> $GITHUB_ENV
+          echo "SX1276_PROTOCOLS=$(echo $SX1276_PROTOCOLS)" >> $GITHUB_ENV
+          echo "ALL_PROTOCOLS=$(echo $ALL_PROTOCOLS)" >> $GITHUB_ENV
+
+          # Get all the RF modules for this board
+          getAllRFModules
+          echo "ALL_RFMODULES=$(echo $ALL_RFMODULES)" >> $GITHUB_ENV
 
           # Disable CHECK_FOR_BOOTLOADER when not needed
           if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then

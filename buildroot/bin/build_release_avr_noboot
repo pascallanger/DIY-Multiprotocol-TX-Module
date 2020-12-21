@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 source ./buildroot/bin/buildFunctions;
-getMultiVersion;
 exitcode=0;
 
 printf "\e[33;1mBuilding multi-avr-usbasp-aetr-A7105-inv-v$MULTI_VERSION.bin\e[0m\n";
@@ -15,8 +14,9 @@ mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-A7105-inv-v$MULT
 printf "\e[33;1mBuilding multi-avr-usbasp-aetr-CC2500-inv-v$MULTI_VERSION.bin\e[0m\n";
 opt_disable $ALL_PROTOCOLS;
 opt_enable $CC2500_PROTOCOLS;
-opt_disable HITEC_CC2500_INO REDPINE_CC2500_INO SKYARTEC_CC2500_INO SCANNER_CC2500_INO;
+opt_disable HITEC_CC2500_INO REDPINE_CC2500_INO OMP_CC2500_INO SKYARTEC_CC2500_INO SCANNER_CC2500_INO;
 buildMulti;
+exitcode=$((exitcode+$?));
 mv build/Multiprotocol.ino.bin ./binaries/multi-avr-usbasp-aetr-CC2500-inv-v$MULTI_VERSION.bin;
 
 printf "\e[33;1mBuilding multi-avr-usbasp-aetr-CYRF6936-inv-v$MULTI_VERSION.bin\e[0m\n";

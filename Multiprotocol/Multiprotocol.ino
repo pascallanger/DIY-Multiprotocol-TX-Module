@@ -75,7 +75,7 @@ uint32_t blink=0,last_signal=0;
 //
 uint16_t counter;
 uint8_t  channel;
-#ifdef ESKY150V2_CC2500_INO
+#if defined(ESKY150V2_CC2500_INO) || defined(E010R5_CYRF6936_INO)
 	uint8_t  packet[150];
 #else
 	uint8_t  packet[50];
@@ -1358,6 +1358,13 @@ static void protocol_init()
 						PE2_on;	//antenna RF4
 						next_callback = initMLINK();
 						remote_callback = ReadMLINK;
+						break;
+				#endif
+				#if defined(E010R5_CYRF6936_INO)
+					case PROTO_E010R5:
+						PE2_on;	//antenna RF4
+						next_callback = initE010R5();
+						remote_callback = ReadE010R5;
 						break;
 				#endif
 				#if defined(DEVO_CYRF6936_INO)

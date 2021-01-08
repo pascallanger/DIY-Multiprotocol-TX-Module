@@ -76,6 +76,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01|XN297
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO||||CYRF6936|
 [DSM_RX](Protocols_Details.md#DSM_RX---70)|70|RX||||||||CYRF6936|
+[E010R5](Protocols_Details.md#E010R5---81)|81|E010r5||||||||CYRF6936/NRF24L01|unknown
 [E016HV2](Protocols_Details.md#E016HV2---80)|80|E016Hv2||||||||CC2500/NRF24L01|unknown
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
@@ -831,6 +832,15 @@ Notes:
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+## E010R5 - *81*
+Models: E010 R5, JJRC H36
+
+**Only 1 ID available**
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|FLIP|HEADLESS|RTH
 
 ## J6Pro - *22*
 

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	1
-#define VERSION_PATCH_LEVEL	94
+#define VERSION_PATCH_LEVEL	96
 
 //******************
 // Protocols
@@ -106,6 +106,7 @@ enum PROTOCOLS
 	PROTO_MLINK		= 78,	// =>CYRF6936
 	PROTO_WFLY2		= 79,	// =>A7105
 	PROTO_E016HV2	= 80,	// =>CC2500 & NRF24L01
+	PROTO_E010R5	= 81,	// =>CYRF6936
 
 	PROTO_NANORF	= 126,	// =>NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -847,6 +848,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				MLINK		78
 				WFLY2		79
 				E016HV2		80
+				E010R5		81
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

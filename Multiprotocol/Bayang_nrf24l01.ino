@@ -143,19 +143,19 @@ static void __attribute__((unused)) BAYANG_send_packet()
 		if(CH13_SW)
 			packet[3] |= BAYANG_FLAG_EMG_STOP;
 		//Aileron
-		val = convert_channel_10b(AILERON);
+		val = convert_channel_10b(AILERON, false);
 		packet[4] = (val>>8) + (dyntrim ? ((val>>2) & 0xFC) : 0x7C);
 		packet[5] = val & 0xFF;
 		//Elevator
-		val = convert_channel_10b(ELEVATOR);
+		val = convert_channel_10b(ELEVATOR, false);
 		packet[6] = (val>>8) + (dyntrim ? ((val>>2) & 0xFC) : 0x7C);
 		packet[7] = val & 0xFF;
 		//Throttle
-		val = convert_channel_10b(THROTTLE);
+		val = convert_channel_10b(THROTTLE, false);
 		packet[8] = (val>>8) + 0x7C;
 		packet[9] = val & 0xFF;
 		//Rudder
-		val = convert_channel_10b(RUDDER);
+		val = convert_channel_10b(RUDDER, false);
 		packet[10] = (val>>8) + (dyntrim ? ((val>>2) & 0xFC) : 0x7C);
 		packet[11] = val & 0xFF;
 	}

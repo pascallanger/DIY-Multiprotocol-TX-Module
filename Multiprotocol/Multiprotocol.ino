@@ -261,6 +261,10 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		bool DSM_SerialRX=false;
 	#endif
 #endif // TELEMETRY
+#ifdef LOLI_NRF24L01_INO
+	bool LOLI_SerialRX=false;
+	uint8_t LOLI_P1=0, LOLI_P2=0;
+#endif
 
 // Callback
 typedef uint16_t (*void_function_t) (void);//pointer to a function with no parameters which return an uint16_t integer
@@ -821,7 +825,7 @@ bool Update_All()
 	update_led_status();
 	#if defined(TELEMETRY)
 		#if ( !( defined(MULTI_TELEMETRY) || defined(MULTI_STATUS) ) )
-			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_FRSKYX2) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT) || (protocol==PROTO_PROPEL) || (protocol==PROTO_OMP) || (protocol==PROTO_DEVO) || (protocol==PROTO_DSM_RX) || (protocol==PROTO_FRSKY_R9) || (protocol==PROTO_RLINK) || (protocol==PROTO_WFLY2))
+			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_FRSKYX2) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT) || (protocol==PROTO_PROPEL) || (protocol==PROTO_OMP) || (protocol==PROTO_DEVO) || (protocol==PROTO_DSM_RX) || (protocol==PROTO_FRSKY_R9) || (protocol==PROTO_RLINK) || (protocol==PROTO_WFLY2) || (protocol==PROTO_LOLI))
 		#endif
 				if(IS_DISABLE_TELEM_off)
 					TelemetryUpdate();
@@ -1495,6 +1499,12 @@ static void protocol_init()
 						remote_callback = MT99XX_callback;
 						break;
 				#endif
+				#if defined(LOLI_NRF24L01_INO)
+					case PROTO_LOLI:
+						next_callback=initLOLI();
+						remote_callback = LOLI_callback;
+						break;
+				#endif
 				#if defined(MJXQ_NRF24L01_INO)
 					case PROTO_MJXQ:
 						next_callback=initMJXQ();
@@ -2061,6 +2071,14 @@ void update_serial_data()
 				DSM_SerialRX=true;
 			}
 		#endif
+		#ifdef LOLI_NRF24L01_INO
+			if(protocol==PROTO_LOLI && rx_len==27+2)
+			{//Protocol waiting for 2 bytes
+				LOLI_SerialRX=true;
+				LOLI_P1=rx_ok_buff[27];
+				LOLI_P2=rx_ok_buff[28];
+			}
+		#endif
 	}
 
 	RX_DONOTUPDATE_off;
@@ -2305,7 +2323,7 @@ void pollBoot()
 #if defined(TELEMETRY)
 void PPM_Telemetry_serial_init()
 {
-	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG)|| (protocol==PROTO_NCC1701) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_PROPEL) || (protocol==PROTO_OMP) || (protocol==PROTO_RLINK) || (protocol==PROTO_WFLY2)
+	if( (protocol==PROTO_FRSKYD) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_BAYANG)|| (protocol==PROTO_NCC1701) || (protocol==PROTO_CABELL)  || (protocol==PROTO_HITEC) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_PROPEL) || (protocol==PROTO_OMP) || (protocol==PROTO_RLINK) || (protocol==PROTO_WFLY2)  || (protocol==PROTO_LOLI)
 	#ifdef TELEMETRY_FRSKYX_TO_FRSKYD
 		 || (protocol==PROTO_FRSKYX) || (protocol==PROTO_FRSKYX2)
 	#endif

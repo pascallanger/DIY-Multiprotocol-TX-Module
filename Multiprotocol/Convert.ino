@@ -32,9 +32,15 @@ uint16_t convert_channel_ppm(uint8_t num)
 }
 
 // Channel value 100% is converted to 10bit values 0<->1023
-uint16_t convert_channel_10b(uint8_t num)
+uint16_t convert_channel_10b(uint8_t num, bool failsafe)
 {
-	uint16_t val=Channel_data[num];
+	uint16_t val;
+	#ifdef FAILSAFE_ENABLE
+	if(failsafe)
+		val=Failsafe_data[num];				// 0<->2047
+	else
+	#endif
+		val=Channel_data[num];
 	val=((val<<2)+val)>>3;
 	if(val<=128) return 0;
 	if(val>=1152) return 1023;

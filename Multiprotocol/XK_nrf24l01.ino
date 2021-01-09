@@ -37,7 +37,7 @@ static uint16_t __attribute__((unused)) XK_convert_channel(uint8_t num)
 		//debugln(",%d",val);
 	}
 	else
-		val=convert_channel_10b(num);
+		val=convert_channel_10b(num, false);
 
 	// 1FF..01=left, 00=center, 200..3FF=right
 	if(val==0x200)
@@ -65,7 +65,7 @@ static void __attribute__((unused)) XK_send_packet()
 		packet[14] = 0xC0;
 	else
 	{
-		uint16_t val=convert_channel_10b(THROTTLE);
+		uint16_t val=convert_channel_10b(THROTTLE, false);
 		packet[0] = val>>2;						// 0..255
 		packet[12] |= val & 2;
 		val=XK_convert_channel(RUDDER);

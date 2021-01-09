@@ -96,6 +96,7 @@ const char STR_TEST[]		="Test";
 const char STR_NANORF[]		="NanoRF";
 const char STR_E016HV2[]    ="E016Hv2";
 const char STR_E010R5[]     ="E010r5";
+const char STR_LOLI[]       ="LOLI";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -315,6 +316,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(KYOSHO_A7105_INO)
 		{PROTO_KYOSHO,     STR_KYOSHO,    2, STR_SUBTYPE_KYOSHO,    OPTION_NONE    },
+	#endif
+	#if defined(LOLI_NRF24L01_INO)
+		{PROTO_LOLI,       STR_LOLI,      0, NO_SUBTYPE,            OPTION_NONE    },
 	#endif
 	#if defined(MJXQ_NRF24L01_INO)
 		{PROTO_MJXQ,       STR_MJXQ,      7, STR_SUBTYPE_MJXQ,      OPTION_RFTUNE  },

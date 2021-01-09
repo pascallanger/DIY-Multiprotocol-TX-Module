@@ -110,6 +110,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [KF606](Protocols_Details.md#KF606---49)|49|KF606*||||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
+[LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
@@ -834,7 +835,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ## E010R5 - *81*
-Models: E010 R5, JJRC H36
+Models: E010 R5 red boards, JJRC H36
 
 **Only 1 ID available**
 
@@ -1283,6 +1284,21 @@ If the model does not respond well to inputs or hard to bind, you can try to swi
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A||T||TRIM
+
+## LOLI - *82*
+LOLI receivers.
+
+Failsafe supported. Once failsafe values for the 8 channels have been configured in Custom mode, wait for the RX to learn them, then set Failsafe to Receiver.
+
+Telemetry supported: RX RSSI, TX LQI (percentage of received packets), A1 and A2.
+
+Extended limits supported.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+Assigning functions to outputs is not supported yet.
 
 ## MJXQ - *18*
 Autobind protocol

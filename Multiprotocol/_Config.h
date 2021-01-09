@@ -229,6 +229,7 @@
 #define	JJRC345_NRF24L01_INO
 #define	KF606_NRF24L01_INO
 #define	KN_NRF24L01_INO
+#define LOLI_NRF24L01_INO
 #define	MJXQ_NRF24L01_INO
 #define	MT99XX_NRF24L01_INO
 #define	NCC1701_NRF24L01_INO
@@ -327,6 +328,7 @@
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define RLINK_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define WFLY2_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
+#define LOLI_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, erskyTX and OpenTX
 #define HITEC_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
@@ -683,6 +685,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_KYOSHO
 		KYOSHO_FHSS
 		KYOSHO_HYPE
+	PROTO_LOLI
+		NONE
 	PROTO_MJXQ
 		WLH08
 		X600

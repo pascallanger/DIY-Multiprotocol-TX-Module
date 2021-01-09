@@ -59,7 +59,7 @@ static void __attribute__((unused)) j6pro_build_data_packet()
     packet[0] = 0xaa; //FIXME what is this?
     for (i = 0; i < 12; i++)
     {
-        value = convert_channel_10b(CH_AETR[i]);
+        value = convert_channel_10b(CH_AETR[i], false);
         packet[i+1] = value & 0xff;
         upperbits |= (value >> 8) << (i * 2);
     }

@@ -125,16 +125,16 @@ static void __attribute__((unused)) kn_bind_init()
 static void __attribute__((unused)) kn_update_packet_control_data()
 {
 	uint16_t value;
-	value = convert_channel_10b(THROTTLE);
+	value = convert_channel_10b(THROTTLE, false);
 	packet[0]  = (value >> 8) & 0xFF;
 	packet[1]  = value & 0xFF;
-	value = convert_channel_10b(AILERON);
+	value = convert_channel_10b(AILERON, false);
 	packet[2]  = (value >> 8) & 0xFF;
 	packet[3]  = value & 0xFF;
-	value = convert_channel_10b(ELEVATOR);
+	value = convert_channel_10b(ELEVATOR, false);
 	packet[4]  = (value >> 8) & 0xFF;
 	packet[5]  = value & 0xFF;
-	value = convert_channel_10b(RUDDER);
+	value = convert_channel_10b(RUDDER, false);
 	packet[6]  = (value >> 8) & 0xFF;
 	packet[7]  = value & 0xFF;
 	// Trims, middle is 0x64 (100) range 0-200

@@ -172,7 +172,7 @@ uint16_t ReadE010R5()
 			hopping_frequency_no++;
 			hopping_frequency_no &= 3;
 			if(IS_BIND_IN_PROGRESS)
-				rf_ch_num = 48 + (hopping_frequency_no<<3);
+				rf_ch_num = 0x30 + (hopping_frequency_no<<3);
 			else
 				rf_ch_num = hopping_frequency[hopping_frequency_no];
 			CYRF_ConfigRFChannel(rf_ch_num);
@@ -193,10 +193,10 @@ uint16_t initE010R5()
     E010R5_cyrf_init();
     
     #ifdef E010R5_FORCE_ID
-        hopping_frequency[0]=48;
-        hopping_frequency[1]=69;
-        hopping_frequency[2]=64;
-        hopping_frequency[3]=53;
+        hopping_frequency[0]=0x30;	//48
+        hopping_frequency[1]=0x45;	//69
+        hopping_frequency[2]=0x40;	//64
+        hopping_frequency[3]=0x35;	//53
         rx_tx_addr[0]=0x00;
         rx_tx_addr[1]=0x45;
         rx_tx_addr[2]=0x46;

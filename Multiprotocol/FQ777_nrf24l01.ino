@@ -52,12 +52,6 @@ static void __attribute__((unused)) ssv_pack_dpl(uint8_t addr[], uint8_t pid, ui
 	header[0] = (addr[4] >> 7);
 
 	// calculate the crc
-	union 
-	{
-		uint8_t bytes[2];
-		uint16_t val;
-	} crca;
-
 	crc=0x3c18;
 	for (i = 0; i < 7; ++i)
 		crc16_update(header[i],8);

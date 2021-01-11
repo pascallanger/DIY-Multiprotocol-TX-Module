@@ -74,7 +74,7 @@ static boolean __attribute__((unused)) NCC_Decrypt_Packet()
 	debug("RX: ");
 	for(uint8_t i=0; i< NCC_RX_PACKET_LEN-2; i++)
 	{
-		crc=crc16_update( packet[i], 8);
+		crc16_update( packet[i], 8);
 		packet[i]^=NCC_xor[i];
 		debug("%02X ",packet[i]);
 	}

@@ -92,7 +92,7 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 	// address
 	for (uint8_t i = 0; i < address_length; i++)
 	{
-		crc = crc16_update(crc, packet[i], 8);
+		crc16_update( packet[i], 8);
 		packet_un[address_length-1-i]=packet[i];
 		packet_sc[address_length-1-i]=packet[i] ^ xn297_scramble[i];
 	}
@@ -100,7 +100,7 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 	// payload
 	for (uint8_t i = address_length; i < XN297DUMP_MAX_PACKET_LEN-XN297DUMP_CRC_LENGTH; i++)
 	{
-		crc = crc16_update(crc, packet[i], 8);
+		crc16_update( packet[i], 8);
 		packet_sc[i] = bit_reverse(packet[i]^xn297_scramble[i]);
 		packet_un[i] = bit_reverse(packet[i]);
 		// check crc
@@ -125,14 +125,13 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 	//Try enhanced payload
 	crc = 0xb5d2;
 	packet_length=0;
-	uint16_t crc_enh;
 	for (uint8_t i = 0; i < XN297DUMP_MAX_PACKET_LEN-XN297DUMP_CRC_LENGTH; i++)
 	{
 		packet_sc[i]=packet[i]^xn297_scramble[i];
-		crc = crc16_update(crc, packet[i], 8);
-		crc_enh = crc16_update(crc, packet[i+1] & 0xC0, 2);
+		crc16_update( packet[i], 8);
+		crc16_update( packet[i+1] & 0xC0, 2);
 		crcxored=(packet[i+1]<<10)|(packet[i+2]<<2)|(packet[i+3]>>6) ;
-		if((crc_enh ^ pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[i - 3])) == crcxored)
+		if((crc ^ pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[i - 3])) == crcxored)
 		{ // Found a valid CRC for the enhanced payload mode
 			packet_length=i;
 			scramble=true;
@@ -141,7 +140,7 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 			memcpy(packet_un,packet_sc,packet_length+2); // unscramble packet
 			break;
 		}
-		if((crc_enh ^ pgm_read_word(&xn297_crc_xorout_enhanced[i - 3])) == crcxored)
+		if((crc ^ pgm_read_word(&xn297_crc_xorout_enhanced[i - 3])) == crcxored)
 		{ // Found a valid CRC for the enhanced payload mode
 			packet_length=i;
 			scramble=false;
@@ -629,10 +628,10 @@ static uint16_t XN297Dump_callback()
 			if(phase==0)
 			{
 				address_length=4;
-				memcpy(rx_tx_addr, (uint8_t *)"\xE7\xE7\xE7\xE7", 4);
-				bitrate=XN297DUMP_250K;
-				packet_length=14;
-				hopping_frequency_no=5; //bind 5, normal 44
+				memcpy(rx_tx_addr, (uint8_t *)"\xEE\x96\x54\x0E", address_length);
+				bitrate=XN297DUMP_1M;
+				packet_length=32;
+				hopping_frequency_no=48; //bind ?, normal 48
 				
 				NRF24L01_Initialize();
 				NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -679,9 +678,45 @@ static uint16_t XN297Dump_callback()
 					if(NRF24L01_ReadReg(NRF24L01_09_CD))
 					{
 						NRF24L01_ReadPayload(packet, packet_length);
-						crc=0;
+						#define XN_DEB 0	//6	//0
+						#define XN_LON 32	//4	//32
+						bool ok=true;
+						uint8_t buffer[40];
+						memcpy(buffer,packet,packet_length);
+						if(memcmp(&packet_in[XN_DEB],&packet[XN_DEB],XN_LON))
+						{
+							//realign bits
+							for(uint8_t i=0; i<packet_length; i++)
+								buffer[i]=buffer[i+2];
+							
+							//check for validity and decode
+							memset(packet_in,0,packet_length);
+							for(uint8_t i=0; i<packet_length-2; i++)
+							{
+								for(uint8_t j=0;j<2;j++)
+								{
+									packet_in[i>>2] >>= 1;
+									if( (buffer[i]&0xC0) == 0xC0 && (buffer[i]&0x30) == 0x00 )
+										packet_in[i>>2] |= 0x80;
+									else if( (buffer[i]&0xC0) == 0x00 && (buffer[i]&0x30) == 0x30 )
+										packet_in[i>>2] |= 0x00;
+									else
+										ok=false;	// error
+									buffer[i] <<= 4;
+								}
+							}
+							if(ok)
+							{
+								debug("P:(%02X,%02X):",packet[0],packet[1]);
+								for(uint8_t i=0;i<packet_length/4;i++)
+									debug(" %02X",packet_in[i]);
+								debugln("");
+								memcpy(packet_in,packet,packet_length);
+							}
+						}
+						/*crc=0;
 						for (uint8_t i = 1; i < 12; ++i)
-							crc = crc16_update(crc, packet[i], 8);
+							crc16_update( packet[i], 8);
 						if(packet[12]==((crc>>8)&0xFF) && packet[13]==(crc&0xFF))
 							if(memcmp(&packet_in[1],&packet[1],packet_length-1))
 							{
@@ -689,13 +724,13 @@ static uint16_t XN297Dump_callback()
 								for(uint8_t i=0;i<packet_length;i++)
 									debug(" %02X",packet[i]);
 								debug(" CRC: %04X",crc);
-								debugln("");*/
+								debugln("");
 								debug("P(%02X):",packet[0]);
 								for(uint8_t i=1;i<packet_length-2;i++)
 									debug(" %02X",((bit_reverse(packet[i])<<1)|(bit_reverse(packet[i-1])>>7))&0xFF);
 								debugln("");
 								memcpy(packet_in,packet,packet_length);
-							}
+							}*/
 					}
 					// restart RX mode
 					NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit

@@ -750,6 +750,18 @@ void loop()
 	}
 }
 
+void End_Bind()
+{
+	//Request protocol to terminate bind
+	#if defined(FRSKYD_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO) || defined(FRSKYR9_SX1276_INO) || defined(DSM_RX_CYRF6936_INO) || defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO)
+	if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9 || protocol==PROTO_DSM_RX || protocol==PROTO_AFHDS2A_RX || protocol==PROTO_FRSKY_RX)
+		BIND_DONE;
+	else
+	#endif
+		if(bind_counter>2)
+			bind_counter=2;
+}
+
 bool Update_All()
 {
 	#ifdef ENABLE_SERIAL
@@ -840,14 +852,7 @@ bool Update_All()
 		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_on && Channel_data[BIND_CH-1]<CHANNEL_MIN_COMMAND)
 		{ // Autobind is on and BIND_CH went down
 			BIND_CH_PREV_off;
-			//Request protocol to terminate bind
-			#if defined(FRSKYD_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO) || defined(FRSKYR9_SX1276_INO)
-			if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9)
-				BIND_DONE;
-			else
-			#endif
-			if(bind_counter>2)
-				bind_counter=2;
+			End_Bind();
 		}
 	#endif //ENABLE_BIND_CH
 	if(IS_CHANGE_PROTOCOL_FLAG_on)
@@ -1947,13 +1952,7 @@ void update_serial_data()
 		else
 			if( ((rx_ok_buff[1]&0x80)==0) && ((cur_protocol[1]&0x80)!=0) )	// Bind flag has been reset
 			{ // Request protocol to end bind
-				#if defined(FRSKYD_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO) || defined(FRSKYR9_SX1276_INO) || defined(DSM_RX_CYRF6936_INO) || defined(AFHDS2A_RX_A7105_INO)
-				if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9 || protocol==PROTO_DSM_RX || protocol==PROTO_AFHDS2A_RX)
-					BIND_DONE;
-				else
-				#endif
-				if(bind_counter>2)
-					bind_counter=2;
+				End_Bind();
 			}
 			
 	//store current protocol values

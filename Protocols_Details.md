@@ -606,7 +606,7 @@ Telemetry supported:
 - A2 = battery voltage from only good telemetry packets
 - How to calculate accurately the OpenTX Ratio and Offset:
 Set the Ratio to 12.7 and Offset to 0, plug 2 batteries with extreme voltage values, write down the values Batt1=12.5V & Telem1=12.2V, Batt2=7V & Telem2=6.6V then calculate/set Ratio=12.7*[(12.5-7)/(12.2-6.6)]=12.47 => 12.5 and Offset=12.5-12.2*[(12.5-7)/(12.2-6.6)]=0.517 => 0.5
-- RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) received from the model which has nothing to do with how well the RX is receiving the TX
+- RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) from the model which has nothing to do with how well the RX is receiving the TX
 
 Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
@@ -1286,11 +1286,11 @@ CH1|CH2|CH3|CH4|CH5
 A||T||TRIM
 
 ## LOLI - *82*
-LOLI receivers.
+LOLI3 receivers: https://github.com/wooddoor/Loli3
 
 Failsafe supported. Once failsafe values for the 8 channels have been configured in Custom mode, wait for the RX to learn them, then set Failsafe to Receiver.
 
-Telemetry supported: RX RSSI, TX LQI (percentage of received packets), A1 and A2.
+Telemetry supported: RX RSSI, TX LQI (percentage of received telemetry packets), A1 and A2.
 
 Extended limits supported.
 

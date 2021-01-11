@@ -300,29 +300,6 @@ const uint16_t xn297_crc_xorout_enhanced[] = {
     0xABFC, 0xE68E, 0x0DE7, 0x28A2, 0x1965 };
 #endif
 
-static uint8_t bit_reverse(uint8_t b_in)
-{
-    uint8_t b_out = 0;
-    for (uint8_t i = 0; i < 8; ++i)
-	{
-        b_out = (b_out << 1) | (b_in & 1);
-        b_in >>= 1;
-    }
-    return b_out;
-}
-
-static const uint16_t polynomial = 0x1021;
-static uint16_t crc16_update(uint16_t crc, uint8_t a, uint8_t bits)
-{
-	crc ^= a << 8;
-    while(bits--)
-        if (crc & 0x8000)
-            crc = (crc << 1) ^ polynomial;
-		else
-            crc = crc << 1;
-    return crc;
-}
-
 void XN297_SetTXAddr(const uint8_t* addr, uint8_t len)
 {
 	if (len > 5) len = 5;
@@ -403,7 +380,7 @@ void XN297_WritePayload(uint8_t* msg, uint8_t len)
 		uint8_t offset = xn297_addr_len < 4 ? 1 : 0;
 		uint16_t crc = 0xb5d2;
 		for (uint8_t i = offset; i < last; ++i)
-			crc = crc16_update(crc, buf[i], 8);
+			crc16_update( buf[i], 8);
 		if(xn297_scramble_enabled)
 			crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
 		else
@@ -468,8 +445,8 @@ void XN297_WriteEnhancedPayload(uint8_t* msg, uint8_t len, uint8_t noack)
 		uint8_t offset = xn297_addr_len < 4 ? 1 : 0;
 		uint16_t crc = 0xb5d2;
 		for (uint8_t i = offset; i < last; ++i)
-			crc = crc16_update(crc, packet[i], 8);
-		crc = crc16_update(crc, packet[last] & 0xc0, 2);
+			crc16_update( packet[i], 8);
+		crc16_update( packet[last] & 0xc0, 2);
 		if (xn297_scramble_enabled)
 			crc ^= pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[xn297_addr_len-3+len]);
 		//else
@@ -512,11 +489,11 @@ boolean XN297_ReadPayload(uint8_t* msg, uint8_t len)
 		uint8_t b_in=xn297_rx_addr[xn297_addr_len-i-1];
 		if(xn297_scramble_enabled)
 			b_in ^=  xn297_scramble[i];
-		crc = crc16_update(crc, b_in, 8);
+		crc16_update( b_in, 8);
 	}
 	//process payload
 	for (uint8_t i = 0; i < len; ++i)
-		crc = crc16_update(crc, buf[i], 8);
+		crc16_update( buf[i], 8);
 	//xorout
 	if(xn297_scramble_enabled)
 		crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
@@ -559,12 +536,12 @@ uint8_t XN297_ReadEnhancedPayload(uint8_t* msg, uint8_t len)
 		uint8_t b_in=xn297_rx_addr[xn297_addr_len-i-1];
 		if(xn297_scramble_enabled)
 			b_in ^=  xn297_scramble[i];
-		crc = crc16_update(crc, b_in, 8);
+		crc16_update( b_in, 8);
 	}
 	//process payload
 	for (uint8_t i = 0; i < len+1; ++i)
-		crc = crc16_update(crc, buffer[i], 8);
-	crc = crc16_update(crc, buffer[len+1] & 0xc0, 2);
+		crc16_update( buffer[i], 8);
+	crc16_update( buffer[len+1] & 0xc0, 2);
 	//xorout
 	if (xn297_scramble_enabled)
 		crc ^= pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[xn297_addr_len-3+len]);
@@ -606,9 +583,10 @@ void HS6200_SetTXAddr(const uint8_t* addr, uint8_t len)
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t*)"\xaa\xaa\xaa\xaa\xaa", 5);
 
 	// precompute address crc
-	hs6200_crc_init = 0xffff;
+	crc = 0xffff;
 	for(int i=0; i<len; i++)
-		hs6200_crc_init = crc16_update(hs6200_crc_init, addr[len-1-i], 8);
+		crc16_update(addr[len-1-i], 8);
+	hs6200_crc_init=crc;
 	memcpy(hs6200_tx_addr, addr, len);
 	hs6200_address_length = len;
 }
@@ -616,14 +594,14 @@ void HS6200_SetTXAddr(const uint8_t* addr, uint8_t len)
 static uint16_t hs6200_calc_crc(uint8_t* msg, uint8_t len)
 {
     uint8_t pos;
-    uint16_t crc = hs6200_crc_init;
     
+	crc = hs6200_crc_init;
     // pcf + payload
     for(pos=0; pos < len-1; pos++)
-        crc = crc16_update(crc, msg[pos], 8);
+        crc16_update(msg[pos], 8);
     // last byte (1 bit only)
     if(len > 0)
-        crc = crc16_update(crc, msg[pos+1], 1);
+        crc16_update(msg[pos+1], 1);
     return crc;
 }
 
@@ -817,14 +795,14 @@ uint8_t LT8900_ReadPayload(uint8_t* msg, uint8_t len)
 	//Check len
 	if(LT8900_Flags&_BV(LT8900_PACKET_LENGTH_EN))
 	{
-		crc=crc16_update(crc,buffer[pos],8);
+		crc16_update(buffer[pos],8);
 		if(bit_reverse(len)!=buffer[pos++])
 			return 0; // wrong len...
 	}
 	//Decode message 
 	for(i=0;i<len;i++)
 	{
-		crc=crc16_update(crc,buffer[pos],8);
+		crc16_update(buffer[pos],8);
 		msg[i]=bit_reverse(buffer[pos++]);
 	}
 	//Check CRC
@@ -846,14 +824,14 @@ void LT8900_WritePayload(uint8_t* msg, uint8_t len)
 	{
 		tmp=bit_reverse(len);
 		buffer[pos++]=tmp;
-		crc=crc16_update(crc,tmp,8);
+		crc16_update(tmp,8);
 	}
 	//Add payload
 	for(i=0;i<len;i++)
 	{
 		tmp=bit_reverse(msg[i]);
 		buffer[pos++]=tmp;
-		crc=crc16_update(crc,tmp,8);
+		crc16_update(tmp,8);
 	}
 	//Add CRC
 	if(LT8900_Flags&_BV(LT8900_CRC_ON))

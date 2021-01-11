@@ -126,7 +126,6 @@ static void __attribute__((unused)) XN297L_WritePayload(uint8_t* msg, uint8_t le
 		uint8_t buf[32];
 		uint8_t last = 0;
 		uint8_t i;
-		static const uint16_t initial = 0xb5d2;
 
 		// address
 		for (i = 0; i < xn297_addr_len; ++i)
@@ -147,9 +146,9 @@ static void __attribute__((unused)) XN297L_WritePayload(uint8_t* msg, uint8_t le
 		}
 
 		// crc
-		uint16_t crc = initial;
+		uint16_t crc = 0xb5d2;
 		for (uint8_t i = 0; i < last; ++i)
-			crc = crc16_update(crc, buf[i], 8);
+			crc16_update( buf[i], 8);
 		if(xn297_scramble_enabled)
 			crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
 		else
@@ -230,8 +229,8 @@ static void __attribute__((unused)) XN297L_WriteEnhancedPayload(uint8_t* msg, ui
 		{
 			uint16_t crc = 0xb5d2;
 			for (uint8_t i = 0; i < last; ++i)
-				crc = crc16_update(crc, buf[i], 8);
-			crc = crc16_update(crc, buf[last] & 0xc0, 2);
+				crc16_update( buf[i], 8);
+			crc16_update( buf[last] & 0xc0, 2);
 			if (xn297_scramble_enabled)
 				crc ^= pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[xn297_addr_len-3+len]);
 			//else
@@ -399,7 +398,7 @@ static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t l
 		// crc
 		uint16_t crc = 0xffff;
 		for (uint8_t i = 1; i < last; ++i)
-			crc = crc16_update(crc, buf[i], 8);
+			crc16_update( buf[i], 8);
 		buf[last++] = crc >> 8;
 		buf[last++] = crc & 0xff;
 		buf[last++] = 0;

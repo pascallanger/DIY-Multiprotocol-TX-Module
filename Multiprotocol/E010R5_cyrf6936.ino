@@ -19,17 +19,6 @@
 
 #define E010R5_FORCE_ID
 
-static uint8_t __attribute__((unused)) E010R5_BR(uint8_t byte)
-{
-	uint8_t result = 0;
-	for(uint8_t i=0;i<8;i++)
-	{
-		result = (result<<1) | (byte & 0x01);
-		byte >>= 1;
-	}
-	return result;
-}
-
 static void __attribute__((unused)) E010R5_build_data_packet()
 {
 	uint8_t buf[16];
@@ -44,10 +33,13 @@ static void __attribute__((unused)) E010R5_build_data_packet()
 	buf[ 6] = 0x20;									// Trim Elevator
 	buf[ 7] = 0x20;									// Trim Aileron
 	buf[ 8] = 0x01									// Flags: high=0x01, low=0x00
-			| GET_FLAG(CH6_SW, 0x10)				//		  headless=0x10
-			| GET_FLAG(CH7_SW, 0x20);				//		  one key return=0x20
+			| GET_FLAG(CH5_SW, 0x04)				//        flip=0x04
+			| GET_FLAG(CH6_SW, 0x08)				//        led=0x08
+			| GET_FLAG(CH8_SW, 0x10)				//		  headless=0x10
+			| GET_FLAG(CH9_SW, 0x20);				//		  one key return=0x20
 	buf[ 9] = IS_BIND_IN_PROGRESS ? 0x80 : 0x00		// Flags: bind=0x80
-			| GET_FLAG(CH5_SW, 0x01);				//		  flip=0x01
+			| GET_FLAG(CH7_SW, 0x20)				//        calib=0x20
+			| GET_FLAG(CH10_SW, 0x01);				//		  strange effect=0x01=long press on right button
 	buf[10] = rx_tx_addr[0];
 	buf[11] = rx_tx_addr[1];
 	buf[12] = rx_tx_addr[2];
@@ -58,9 +50,9 @@ static void __attribute__((unused)) E010R5_build_data_packet()
 	//Add CRC
 	crc=0x00;
 	for(uint8_t i=0;i<14;i++)
-		crc=crc16_update(crc,E010R5_BR(buf[i]),8);
-	buf[14] = E010R5_BR(crc>>8);
-	buf[15] = E010R5_BR(crc);
+		crc16_update(bit_reverse(buf[i]),8);
+	buf[14] = bit_reverse(crc>>8);
+	buf[15] = bit_reverse(crc);
 
 	#if 0
 		debug("B:");
@@ -96,7 +88,7 @@ static void __attribute__((unused)) E010R5_build_data_packet()
 
 	//CYRF wants LSB first
 	for(uint8_t i=0;i<71;i++)
-		packet[i]=E010R5_BR(packet[i]);
+		packet[i]=bit_reverse(packet[i]);
 }
 
 const uint8_t PROGMEM E010R5_init_vals[][2] = {
@@ -109,7 +101,7 @@ const uint8_t PROGMEM E010R5_init_vals[][2] = {
 	{CYRF_1B_TX_OFFSET_LSB, 0x00},	// Tx frequency offset LSB
 	{CYRF_1C_TX_OFFSET_MSB, 0x00},	// Tx frequency offset MSB
 	{CYRF_0F_XACT_CFG, 0x24},		// Force End State, transaction end state = idle
-	{CYRF_03_TX_CFG, 0x00 | 7},		// GFSK mode, PA = +4 dBm
+	{CYRF_03_TX_CFG, 0x00},			// GFSK mode
 	{CYRF_12_DATA64_THOLD, 0x0a},	// 64 Chip Data PN Code Correlator Threshold = 10
 	{CYRF_0F_XACT_CFG, 0x04},		// Transaction End State = idle
 	{CYRF_39_ANALOG_CTRL, 0x01},	// synth setting time for all channels is the same as for slow channels
@@ -118,7 +110,7 @@ const uint8_t PROGMEM E010R5_init_vals[][2] = {
 	{CYRF_12_DATA64_THOLD, 0x0a},	//set pn correlation threshold
 	{CYRF_10_FRAMING_CFG, 0x4a},	//set sop len and threshold
 	{CYRF_29_RX_ABORT, 0x0f},		//Clear RX abort?
-	{CYRF_03_TX_CFG, 0x00 | 4},		// GFSK mode, set power (0-7)
+	{CYRF_03_TX_CFG, 0x00},			// GFSK mode
 	{CYRF_10_FRAMING_CFG, 0x4a},	// 0b11000000 //set sop len and threshold
 	{CYRF_1F_TX_OVERRIDE, 0x04},	//disable tx CRC
 	{CYRF_1E_RX_OVERRIDE, 0x14},	//disable rx crc
@@ -177,6 +169,7 @@ uint16_t ReadE010R5()
 				rf_ch_num = hopping_frequency[hopping_frequency_no];
 			CYRF_ConfigRFChannel(rf_ch_num);
 			debugln("%d",hopping_frequency[hopping_frequency_no]);
+			CYRF_SetPower(0x00);
 			packet_count = 0;
 		case 3:
 			E010R5_build_data_packet();

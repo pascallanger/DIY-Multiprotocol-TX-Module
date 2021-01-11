@@ -112,7 +112,9 @@ uint8_t  rf_ch_num;
 uint8_t  throttle, rudder, elevator, aileron;
 uint8_t  flags;
 uint16_t crc;
+uint16_t crc16_polynomial;
 uint8_t  crc8;
+uint8_t  crc8_polynomial;
 uint16_t seed;
 uint16_t failsafe_count;
 uint16_t state;
@@ -1094,6 +1096,8 @@ static void protocol_init()
 		next_callback=0;				// Default is immediate call back
 		LED_off;						// Led off during protocol init
 		modules_reset();				// Reset all modules
+		crc16_polynomial = 0x1021;		// Default CRC crc16_polynomial
+		crc8_polynomial  = 0x31;		// Default CRC crc8_polynomial
 
 		// reset telemetry
 		#ifdef TELEMETRY
@@ -2431,6 +2435,37 @@ static void __attribute__((unused)) calc_fh_channels(uint8_t num_ch)
 		if ( (next_ch <= 26 && count_2_26 < max) || (next_ch >= 27 && next_ch <= 50 && count_27_50 < max) || (next_ch >= 51 && count_51_74 < max) )
 			hopping_frequency[idx++] = next_ch;//find hopping frequency
 	}
+}
+
+static uint8_t __attribute__((unused)) bit_reverse(uint8_t b_in)
+{
+    uint8_t b_out = 0;
+    for (uint8_t i = 0; i < 8; ++i)
+	{
+        b_out = (b_out << 1) | (b_in & 1);
+        b_in >>= 1;
+    }
+    return b_out;
+}
+
+static void __attribute__((unused)) crc16_update(uint8_t a, uint8_t bits)
+{
+	crc ^= a << 8;
+    while(bits--)
+        if (crc & 0x8000)
+            crc = (crc << 1) ^ crc16_polynomial;
+		else
+            crc = crc << 1;
+}
+
+static void __attribute__((unused)) crc8_update(uint8_t byte)
+{
+	crc8 = crc8 ^ byte;
+	for ( uint8_t j = 0; j < 8; j++ )
+		if ( crc8 & 0x80 )
+			crc8 = (crc8<<1) ^ crc8_polynomial;
+		else
+			crc8 <<= 1;
 }
 
 /**************************/

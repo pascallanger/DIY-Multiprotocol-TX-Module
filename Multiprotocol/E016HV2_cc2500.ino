@@ -115,7 +115,7 @@ static void __attribute__((unused)) E016HV2_send_packet()
 		uint8_t byte = (bit_reverse(packet[i])<<1) | (packet[i+1]&0x01);
 		debug(" %02X",byte)
 		CC2500_WriteReg(CC2500_3F_TXFIFO,byte);
-		crc=crc16_update(crc, byte, 8);
+		crc16_update(byte, 8);
 	}
 
 	// crc

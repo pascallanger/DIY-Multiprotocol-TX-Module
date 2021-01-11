@@ -312,7 +312,6 @@
 	#undef	XK_NRF24L01_INO
 	#undef	YD717_NRF24L01_INO
 	#undef	ZSX_NRF24L01_INO
-	#undef	E010R5_CYRF6936_INO		// Use both CYRF and NRF code
 #endif
 #if not defined(STM32_BOARD)
 	#undef SX1276_INSTALLED

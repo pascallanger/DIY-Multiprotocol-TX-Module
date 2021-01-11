@@ -98,14 +98,14 @@ void CYRF_SetTxRxMode(uint8_t mode)
 {
 	if(mode==TXRX_OFF)
 	{
-		if(protocol!=PROTO_WFLY)
+		if( protocol!=PROTO_WFLY && protocol!=PROTO_MLINK )
 			CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24); // 4=IDLE, 8=TX, C=RX
 		CYRF_WriteRegister(CYRF_0E_GPIO_CTRL,0x00); // XOUT=0 PACTL=0
 	}
 	else
 	{
 		//Set the post tx/rx state
-		if(protocol!=PROTO_WFLY)
+		if( protocol!=PROTO_WFLY && protocol!=PROTO_MLINK )
 			CYRF_WriteRegister(CYRF_0F_XACT_CFG, mode == TX_EN ? 0x28 : 0x2C); // 4=IDLE, 8=TX, C=RX
 		if(mode == TX_EN)
 #ifdef ORANGE_TX_BLUE

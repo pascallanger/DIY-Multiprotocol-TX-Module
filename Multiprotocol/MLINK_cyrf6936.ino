@@ -17,6 +17,8 @@
 
 #include "iface_cyrf6936.h"
 
+#undef MLINK_HUB_TELEMETRY
+
 #define MLINK_FORCE_ID
 #define MLINK_BIND_COUNT	696	// around 20s
 #define MLINK_NUM_FREQ		78
@@ -28,11 +30,17 @@ enum {
 	MLINK_BIND_PREP_RX,
 	MLINK_BIND_RX,
 	MLINK_PREP_DATA,
-	MLINK_RF,
-	MLINK_SEND,
+	MLINK_SEND1,
+	MLINK_CHECK1,
+	MLINK_SEND2,
+	MLINK_CHECK2,
+	MLINK_SEND3,
+	MLINK_CHECK3,
+	MLINK_RX,
+	MLINK_CHECK4,
 };
 
-uint8_t MLINK_Data_Code[16], MLINK_Offset;
+uint8_t MLINK_Data_Code[16], MLINK_CRC_Init, MLINK_Unk_6_2;
 
 const uint8_t PROGMEM MLINK_init_vals[][2] = {
 	//Init from dump
@@ -45,7 +53,7 @@ const uint8_t PROGMEM MLINK_init_vals[][2] = {
 	//{ CYRF_0C_XTAL_CTRL,	0x00 },	// Set to GPIO on reset
 	//{ CYRF_0D_IO_CFG,		0x00 },	// Set to GPIO on reset
 	//{ CYRF_0E_GPIO_CTRL,	0x00 }, // Set by the CYRF_SetTxRxMode function
-	//{ CYRF_0F_XACT_CFG,		0x04 },	// end state idle -> Set by the CYRF_SetTxRxMode function
+	{ CYRF_0F_XACT_CFG,		0x04 },	// end state idle
 	{ CYRF_10_FRAMING_CFG,	0x00 },	// SOP disabled
 	{ CYRF_11_DATA32_THOLD,	0x05 }, // not used???
 	{ CYRF_12_DATA64_THOLD,	0x0F }, // 64 Chip Data PN Code Correlator Threshold
@@ -72,58 +80,37 @@ static void __attribute__((unused)) MLINK_cyrf_config()
 	CYRF_SetTxRxMode(TX_EN);
 }
 
-static uint8_t __attribute__((unused)) MLINK_BR(uint8_t byte)
-{
-	uint8_t result = 0;
-	for(uint8_t i=0;i<8;i++)
-	{
-		result = (result<<1) | (byte & 0x01);
-		byte >>= 1;
-	}
-	return result;
-}
-
-static void __attribute__((unused)) MLINK_CRC(uint8_t byte)
-{
-	crc8 = crc8 ^ MLINK_BR(byte);	// Reflected in
-	for ( uint8_t j = 0; j < 8; j++ ) 
-		if ( crc8 & 0x80 )
-			crc8 = (crc8<<1) ^ 0x31;
-		else
-			crc8 <<= 1;
-}
-
 static void __attribute__((unused)) MLINK_send_bind_data_packet()
 {
 	uint8_t p_c=packet_count>>1;
 	
-	memset(packet, p_c<0x16?0x00:0xFF, MLINK_PACKET_SIZE);
+	memset(packet, p_c<0x16?0x00:0xFF, MLINK_PACKET_SIZE-1);
 	packet[0]=0x0F;	// bind
 	packet[1]=p_c;
 	switch(p_c)
 	{
 		case 0x00:
-			packet[2]=0x40;	//unknown
-			packet[4]=0x01;	//unknown
-			packet[5]=0x03;	//unknown
-			packet[6]=0xE3;	//unknown
+			packet[2]=0x40;			//unknown but seems constant
+			packet[4]=0x01;			//unknown but seems constant
+			packet[5]=0x03;			//unknown but seems constant
+			packet[6]=0xE3;			//unknown but seems constant
 			break;
 		case 0x05:
-			packet[6]=0x07;	//unknown
+			packet[6]=MLINK_CRC_Init;	//CRC init value
 			break;
 		case 0x06:
-			packet[2]=0x3A;	//unknown
+			packet[2]=MLINK_Unk_6_2;	//unknown and different
 			//Start of hopping frequencies
 			for(uint8_t i=0;i<4;i++)
 				packet[i+3]=hopping_frequency[i];
 			break;
 		case 0x15:
-			packet[6]=0x51;	//unknown
+			packet[6]=0x51;			//unknown but seems constant
 			break;
 		case 0x16:
-			packet[2]=0x51;	//unknown
-			packet[3]=0xEC;	//unknown
-			packet[4]=0x05;	//unknown
+			packet[2]=0x51;			//unknown but seems constant
+			packet[3]=0xEC;			//unknown but seems constant
+			packet[4]=0x05;			//unknown but seems constant
 			break;
 		case 0x1A:
 			packet[1]=0xFF;
@@ -145,18 +132,26 @@ static void __attribute__((unused)) MLINK_send_bind_data_packet()
 				if(i+p_c_5<MLINK_NUM_FREQ)
 					packet[i+2]=hopping_frequency[i+p_c_5];
 		}
+		else
+			if(p_c>0x19)
+			{
+				packet[1]=0xFF;
+				memset(&packet[2], 0x00, MLINK_PACKET_SIZE-3);
+			}
 
 	//Calculate CRC
 	crc8=0xFF;	// Init = 0xFF
 	for(uint8_t i=0;i<MLINK_PACKET_SIZE-1;i++)
-		MLINK_CRC(packet[i]);
-	packet[7] = MLINK_BR(crc8);			// CRC reflected out
+		crc8_update(bit_reverse(packet[i]));
+	packet[7] = bit_reverse(crc8);			// CRC reflected out
 
 	//Debug
-	debug("P(%02d):",p_c);
-	for(uint8_t i=0;i<8;i++)
-		debug(" %02X",packet[i]);
-	debugln("");
+	#if 1
+		debug("P(%02d):",p_c);
+		for(uint8_t i=0;i<8;i++)
+			debug(" %02X",packet[i]);
+		debugln("");
+	#endif
 
 	//Send packet
 	CYRF_WriteDataPacketLen(packet, MLINK_PACKET_SIZE);
@@ -164,61 +159,92 @@ static void __attribute__((unused)) MLINK_send_bind_data_packet()
 
 static void __attribute__((unused)) MLINK_build_data_packet()
 {
+	static uint8_t tog=0;
+	if(hopping_frequency_no==0)
+		tog=1;
 	//Channels to be sent
-	uint8_t ch[3];
-	switch(packet_count%6)
+	if(phase==MLINK_SEND1 || ((hopping_frequency_no%5==0) && (phase==MLINK_SEND2)))
 	{
-		case 0:
-			packet[0] = 0x88;
-			ch[0]=4; ch[1]=2; ch[2]=0;
-			break;
-		case 1:
-			packet[0] = 0x80;
-			ch[0]=5; ch[1]=3; ch[2]=1;
-			break;
-		case 2:
-			packet[0] = 0x0A;
-			ch[0]=16; ch[1]=14; ch[2]=12;
-			break;
-		case 3:
-			packet[0] = 0x09;
-			ch[0]=10; ch[1]=8; ch[2]=6;
-			break;
-		case 4:
-			packet[0] = 0x02;
-			ch[0]=16; ch[1]=15; ch[2]=13;
-			break;
-		case 5:
-			packet[0] = 0x01;
-			ch[0]=11; ch[1]=9; ch[2]=7;
-			break;
+		if((hopping_frequency_no&1)==0)
+			packet[0] = 0x09;	//10,8,6
+		else
+			packet[0] = 0x01;	//11,9,7
 	}
+	else
+		if(phase==MLINK_SEND2)
+		{
+			if(tog)
+				packet[0] = 0x02;	//x,15,13
+			else
+				packet[0] = 0x0A;	//x,14,12
+			tog^=1;
+		}
+		else
+		{//phase==MLINK_SEND3
+			if((hopping_frequency_no&1)==0)
+				packet[0] = 0x88;	//4,2,0
+			else
+				packet[0] = 0x80;	//5,3,1
+		}
+
+	//Start channel
+	uint8_t ch=4+6*(packet[0]&3);
+	if((packet[0]&0x08)==0)
+		ch++;
+	
 	//Channels 426..1937..3448
 	for(uint8_t i=0;i<3;i++)
 	{
-		uint16_t tmp=ch[i]<16 ? convert_channel_16b_nolimit(ch[i],426,3448,false) : 0x0000;
+		uint16_t tmp=ch<16 ? convert_channel_16b_nolimit(ch,426,3448,false) : 0x0000;
+		ch-=2;	// switch to next channel
 		packet[i*2+1]=tmp>>8;
 		packet[i*2+2]=tmp;
 	}
 
 	//Calculate CRC
-	crc8=MLINK_BR(hopping_frequency_no + MLINK_Offset);	// Init = relected freq index + offset
+	crc8=bit_reverse(hopping_frequency_no + MLINK_CRC_Init);	// Init = relected freq index + offset
 	for(uint8_t i=0;i<MLINK_PACKET_SIZE-1;i++)
-		MLINK_CRC(packet[i]);
-	packet[7] = MLINK_BR(crc8);			// CRC reflected out
+		crc8_update(bit_reverse(packet[i]));
+	packet[7] = bit_reverse(crc8);			// CRC reflected out
 
-/*	//Debug
-	debug("P(%02d,%02d):",packet_count,hopping_frequency_no);
-	for(uint8_t i=0;i<8;i++)
-		debug(" %02X",packet[i]);
-	debugln("");*/
+	//Debug
+	#if 0
+		debug("P(%02d):",hopping_frequency_no);
+		for(uint8_t i=0;i<8;i++)
+			debug(" %02X",packet[i]);
+		debugln("");
+	#endif
 }
+
+#ifdef MLINK_HUB_TELEMETRY
+	static void __attribute__((unused)) MLINK_Send_Telemetry()
+	{
+		if(packet[0]==0x03)
+		{//Basic telemetry
+			//Incoming packet values
+			RX_RSSI = packet_in[2*2];		// Looks to be the RX RSSI value
+			RX_LQI  = packet_in[5*2];		// Looks to be connection lost
+		}
+
+		// Read TX RSSI
+		TX_RSSI = CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;
+
+		telemetry_counter++;			// TX LQI counter
+		telemetry_link = 1;
+		if(telemetry_lost)
+		{
+			telemetry_lost = 0;
+			packet_count = 100;
+			telemetry_counter = 100;
+		}
+	}
+#endif
 
 uint16_t ReadMLINK()
 {
 	uint8_t status;//,len,sum=0,check=0;
 	uint8_t start;
-	uint16_t sum=0;
+	//uint16_t sum=0;
 	//static uint8_t retry;
 
 	switch(phase)
@@ -234,20 +260,32 @@ uint16_t ReadMLINK()
 				{
 					CYRF_ReadDataPacketLen(packet, len*2);
 					debug("RX=");
-					for(uint8_t i=0;i<8*2;i++)
-						debug(" %02X",packet[i]);
+					for(uint8_t i=0;i<8;i++)
+						debug(" %02X",packet[i*2]);
 					debugln("");
 					//Check CRC
 					crc8=0xFF;	// Init = 0xFF
 					for(uint8_t i=0;i<MLINK_PACKET_SIZE-1;i++)
-						MLINK_CRC(packet[i*2]);
-					if(packet[14] == MLINK_BR(crc8))		// CRC is ok
-					{
+						crc8_update(bit_reverse(packet[i<<1]));
+					if(packet[14] == bit_reverse(crc8))
+					{// CRC is ok
 						debugln("CRC ok");
-						packet_count=3;
+						if(packet[0]==0x7F)
+							packet_count=3;					// Start sending bind payload
+						else if(packet_count > 0x19*2)
+						{
+							if(packet[0] == 0x8F)
+								packet_count++;
+							else if(packet[0] == 0x9F)
+								packet_count=0x80;			// End bind
+							else
+								packet_count=0;				// Restart bind...
+						}
 					}
 				}
 			}
+			else
+				packet_count=0;
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Enable RX abort
 			CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);		// Force end state
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);		// Disable RX abort
@@ -256,13 +294,14 @@ uint16_t ReadMLINK()
 			if(packet_count)
 				return 18136;
 		case MLINK_BIND_TX:
-			if(--bind_counter==0 || packet_count>=0x1A*2)
+			if(--bind_counter==0 || packet_count>=0x1B*2)
 			{ // Switch to normal mode
 				BIND_DONE;
 				phase=MLINK_PREP_DATA;
+				return 22720;
 			}
 			MLINK_send_bind_data_packet();
-			if(packet_count == 0)
+			if(packet_count == 0 || packet_count > 0x19*2)
 			{
 				phase++;		// MLINK_BIND_PREP_RX
 				return 4700;	// Original is 4900
@@ -280,58 +319,143 @@ uint16_t ReadMLINK()
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x82);			// Prepare to receive
 			phase++;	//MLINK_BIND_RX
 			return 28712-4700;
+
+
 		case MLINK_PREP_DATA:
 			CYRF_ConfigDataCode(MLINK_Data_Code,16);
+			MLINK_CRC_Init += 0xED;
 			hopping_frequency_no = 0x00;
-			packet_count = 0;
-			MLINK_build_data_packet();
-			phase++;
-		case MLINK_RF:
-			/*sum=0;
-			start=micros();
-			while ((uint8_t)((uint8_t)micros()-(uint8_t)start) < 200)				// Wait max 200µs for TX to finish
-			{
-				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
-					break;										// Packet transmission complete
-				sum++;
-			}
-			debugln("S:%d",sum);*/
-			//Set RF channel
 			CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
-			//Set power
 			CYRF_SetPower(0x38);
-			phase++;	// MLINK_SEND
-			return 3100;
-		case MLINK_SEND:
-			/*sum=0;
-			start=micros();
-			while ((uint8_t)((uint8_t)micros()-(uint8_t)start) < 200)				// Wait max 200µs for TX to finish
-			{
-				if(CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS) & 0x02)
-					break;										// Packet transmission complete
-				sum++;
-			}
-			debugln("SS:%d",sum);*/
-			//Send packet
+			#ifdef MLINK_HUB_TELEMETRY
+				packet_count = 0;
+				telemetry_lost = 1;
+			#endif
+			phase++;
+		case MLINK_SEND1:
+			MLINK_build_data_packet();
 			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
 			CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, packet, MLINK_PACKET_SIZE);
 			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x82);
-			//Build next packet
-			packet_count++;
-			if(packet_count >= 78)
-				packet_count=0;
-			if(packet_count%3 == 0)
-			{//Change RF channel every 3 packets
-				phase=MLINK_RF;
-				hopping_frequency_no++;
-				if(hopping_frequency_no>=MLINK_NUM_FREQ)
-					hopping_frequency_no=0;
-			}
-			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(6000);
-			#endif
+			phase++;
+			return 4880;
+		case MLINK_CHECK1:
+			status=CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS);
+			//debugln("C1:%02X",status);
+			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x00);
+			phase++;
+			return 1111;
+		case MLINK_SEND2:
 			MLINK_build_data_packet();
-			return 6000;
+			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
+			CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, packet, MLINK_PACKET_SIZE);
+			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x82);
+			phase++;
+			return 4617;
+		case MLINK_CHECK2:
+			status=CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS);
+			//debugln("C2:%02X",status);
+			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x00);
+			phase++;
+			if(hopping_frequency_no%5==0)
+				return 1017;
+			return 1422;
+		case MLINK_SEND3:
+			MLINK_build_data_packet();
+			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
+			CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, packet, MLINK_PACKET_SIZE);
+			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x82);
+			phase++;
+			return 4611;
+		case MLINK_CHECK3:
+			status=CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS);
+			//debugln("C3:%02X",status);
+			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x00);
+
+			//check RX but there is nothing to check...
+			status=CYRF_ReadRegister(CYRF_05_RX_CTRL);
+			//debugln("CTRL:%02X",status);
+			len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
+			//debugln("L=%02X",len)
+			if( len && len<=8 )
+				CYRF_ReadDataPacketLen(packet, len*2);
+			CYRF_WriteRegister(CYRF_05_RX_CTRL,0x00);
+			
+			//Next channel
+			hopping_frequency_no++;
+			if(hopping_frequency_no>=MLINK_NUM_FREQ)
+				hopping_frequency_no=0;
+			CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
+			
+			//Receive telemetry
+			if(hopping_frequency_no%5==0)
+			{//Receive telemetry
+				CYRF_SetTxRxMode(RX_EN);							// Receive mode
+				CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x82);			// Prepare to receive
+				phase++;	//MLINK_RX
+				return 8038;
+			}
+			else
+				CYRF_SetPower(0x38);
+			phase=MLINK_SEND1;
+			return 4470;
+		case MLINK_RX:
+			#ifdef MLINK_HUB_TELEMETRY
+				//TX LQI calculation
+				packet_count++;
+				if(packet_count>=100)
+				{
+					packet_count=0;
+					TX_LQI=telemetry_counter;
+					if(telemetry_counter==0)
+						telemetry_lost = 1;
+					telemetry_counter = 0;
+				}
+			#endif
+			status=CYRF_ReadRegister(CYRF_05_RX_CTRL);//CYRF_07_RX_IRQ_STATUS);
+			debug("T(%02X):",status);
+			//status=CYRF_ReadRegister(CYRF_05_RX_CTRL);
+			//if( (status&0x80) == 0 )
+			{//Packet received
+				len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
+				debug("(%X)",len)
+				if( len && len<=8 )
+				{
+					CYRF_ReadDataPacketLen(packet_in, len*2);
+					#ifdef MLINK_HUB_TELEMETRY
+						if(len==8)
+						{
+							//Check CRC
+							crc8=bit_reverse(MLINK_CRC_Init);
+							for(uint8_t i=0;i<MLINK_PACKET_SIZE-1;i++)
+								crc8_update(bit_reverse(packet[i<<1]));
+							if(packet_in[14] == bit_reverse(crc8))	// Packet CRC is ok
+							{
+								MLINK_Send_Telemetry();
+								for(uint8_t i=0;i<8;i++)
+									debug(" %02X",packet_in[i*2]);
+							}
+						}
+					#endif
+				}
+			}
+			debugln("");
+			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Enable RX abort
+			CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);		// Force end state
+			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);		// Disable RX abort
+			CYRF_SetTxRxMode(TX_EN);						// Transmit mode
+			phase++;
+			return 2434;
+		case MLINK_CHECK4:
+			status=CYRF_ReadRegister(CYRF_05_RX_CTRL);
+			debugln("C4: CTRL:%02X",status);
+			len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
+			debugln("L=%02X",len)
+			if( len && len<=8 )
+				CYRF_ReadDataPacketLen(packet, len*2);
+			CYRF_WriteRegister(CYRF_05_RX_CTRL,0x00);
+			phase=MLINK_SEND2;
+			return 410;
 	}
 	return 1000;
 }
@@ -343,16 +467,30 @@ uint16_t initMLINK()
 	#ifdef MLINK_FORCE_ID
 		//Cockpit SX
 		memcpy(MLINK_Data_Code,"\x4C\x97\x9D\xBF\xB8\x3D\xB5\xBE",8);
-		for(uint8_t i=0;i<8;i++)
-			MLINK_Data_Code[i+8]=MLINK_Data_Code[7-i];
 		memcpy(hopping_frequency,"\x0D\x41\x09\x43\x17\x2D\x05\x31\x13\x3B\x1B\x3D\x0B\x41\x11\x45\x09\x2B\x17\x4D\x19\x3F\x03\x3F\x0F\x37\x1F\x47\x1B\x49\x07\x35\x27\x2F\x15\x33\x23\x39\x1F\x33\x19\x45\x0D\x2D\x11\x35\x0B\x47\x25\x3D\x21\x37\x1D\x3B\x05\x2F\x21\x39\x23\x4B\x03\x31\x25\x29\x07\x4F\x1D\x4B\x15\x4D\x13\x4F\x0F\x49\x29\x2B\x27\x43",78);
-		MLINK_Offset = 0xF4;
+		MLINK_Unk_6_2  = 0x3A;		//unknown value sent during bind but doesn't seem to matter
+		MLINK_CRC_Init = 0x07;		//value sent during bind then used to init the CRC
+
+		//HFM3
+		memcpy(MLINK_Data_Code,"\xC0\x90\x8F\xBB\x7C\x8E\x2B\x8E",8);
+		memcpy(hopping_frequency,"\x05\x41\x27\x4B\x17\x33\x11\x39\x0F\x3F\x05\x2F\x13\x2D\x25\x31\x1F\x2D\x25\x35\x03\x41\x1B\x43\x09\x3D\x1F\x29\x1D\x35\x0D\x3B\x19\x49\x23\x3B\x17\x47\x1D\x2B\x13\x37\x0B\x31\x23\x33\x29\x3F\x07\x37\x07\x43\x11\x2B\x1B\x39\x0B\x4B\x03\x4F\x21\x47\x0F\x4D\x15\x45\x21\x4F\x09\x3D\x19\x2F\x15\x45\x0D\x49\x27\x4D",78);
+		MLINK_Unk_6_2  = 0x02;		//unknown value but doesn't seem to matter
+		MLINK_CRC_Init = 0x3E;		//value sent during bind then used to init the CRC
+		
+		//Other TX
+		//MLINK_Unk_6_2  = 0x7e;		//unknown value but doesn't seem to matter
+		//MLINK_CRC_Init = 0xA2;		//value sent during bind then used to init the CRC
 	#endif
+
+	for(uint8_t i=0;i<8;i++)
+		MLINK_Data_Code[i+8]=MLINK_Data_Code[7-i];
 
 	debug("ID:")
 	for(uint8_t i=0;i<16;i++)
 		debug(" %02X", MLINK_Data_Code[i]);
 	debugln("");
+
+	debugln("CRC init: %02X", MLINK_CRC_Init)
 
 	debug("RF:")
 	for(uint8_t i=0;i<MLINK_NUM_FREQ;i++)

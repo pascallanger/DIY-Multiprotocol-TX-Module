@@ -1290,7 +1290,7 @@ LOLI3 receivers: https://github.com/wooddoor/Loli3
 
 Failsafe supported. Once failsafe values for the 8 channels have been configured in Custom mode, wait for the RX to learn them, then set Failsafe to Receiver.
 
-Telemetry supported: RX RSSI, TX LQI (percentage of received telemetry packets), A1 and A2.
+Telemetry supported: RX RSSI, TX LQI (percentage of received telemetry packets), A1 and A2 with a Ratio=25.5 and Offset=0.
 
 Extended limits supported.
 
@@ -1298,7 +1298,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
-Assigning functions to outputs is not supported yet.
+Features:
+Config on | For channel | Switch | Servo | PPM | SBUS | PWM
+----|-----|-------|----|------|---|------
+CH9 | CH1 | -100% | 0% | +50% | - | +100%
+CH10| CH2 | -100% | 0% | - | - | -
+CH11| CH3 | -100% | 0% | - | - | -
+CH12| CH4 | -100% | 0% | - | - | -
+CH13| CH5 | -100% | 0% | - | +50% | +100%
+CH14| CH6 | -100% | 0% |  | - | -
+CH15| CH7 | -100% | 0% | - | - | +100%
+CH16| CH8 | -100% | 0% | - | - | -
 
 ## MJXQ - *18*
 Autobind protocol

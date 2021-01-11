@@ -263,10 +263,6 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		bool DSM_SerialRX=false;
 	#endif
 #endif // TELEMETRY
-#ifdef LOLI_NRF24L01_INO
-	bool LOLI_SerialRX=false;
-	uint8_t LOLI_P1=0, LOLI_P2=0;
-#endif
 
 // Callback
 typedef uint16_t (*void_function_t) (void);//pointer to a function with no parameters which return an uint16_t integer
@@ -2072,14 +2068,6 @@ void update_serial_data()
 			{//Protocol waiting for 7 bytes
 				memcpy(DSM_SerialRX_val, (const void *)&rx_ok_buff[27],7);
 				DSM_SerialRX=true;
-			}
-		#endif
-		#ifdef LOLI_NRF24L01_INO
-			if(protocol==PROTO_LOLI && rx_len==27+2)
-			{//Protocol waiting for 2 bytes
-				LOLI_SerialRX=true;
-				LOLI_P1=rx_ok_buff[27];
-				LOLI_P2=rx_ok_buff[28];
 			}
 		#endif
 	}

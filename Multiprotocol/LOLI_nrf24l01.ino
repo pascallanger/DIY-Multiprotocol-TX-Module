@@ -57,6 +57,10 @@ static void __attribute__((unused)) LOLI_init()
 #define LOLI_FLAG_SW2    0x40
 #define LOLI_FLAG_SW1    0x80
 
+#ifdef LOLI_NRF24L01_INO
+	uint8_t LOLI_P1, LOLI_P2;
+#endif
+
 static void __attribute__((unused)) LOLI_send_packet()
 {
 	if(IS_BIND_IN_PROGRESS)
@@ -68,12 +72,38 @@ static void __attribute__((unused)) LOLI_send_packet()
 	}
 	else
 	{
-		if(LOLI_SerialRX)
-		{// RX config
+		//Check RX config
+		uint8_t P1=0;
+		uint8_t P2=0;
+		//ch1: PWM/PPM
+		if(Channel_data[CH1+8] > CHANNEL_MAX_COMMAND)
+			P1|=LOLI_FLAG_PWM1;
+		else if(Channel_data[CH1+8] > CHANNEL_SWITCH)
+			P1|=LOLI_FLAG_PPM;
+		//ch2: PWM
+		if(Channel_data[CH2+8] > CHANNEL_MAX_COMMAND)
+			P1|=LOLI_FLAG_PWM2;
+		//ch5: SBUS
+		if(Channel_data[CH7+8] > CHANNEL_SWITCH)
+			P1|=LOLI_FLAG_SBUS;
+		//ch7: PWM
+		if(Channel_data[CH7+8] > CHANNEL_MAX_COMMAND)
+			P1|=LOLI_FLAG_PWM7;
+
+		//switches
+		for(uint8_t i=0;i<8;i++)
+			if(Channel_data[i+8]<CHANNEL_MIN_COMMAND)
+				P2 |= 1 << (7-i);
+
+		if(LOLI_P1!=P1 || LOLI_P2!=P2)
+			flags=10;
+		if(flags)
+		{// Send RX config since P1 or P2 have changed
+			LOLI_P1=P1;LOLI_P2=P2;
 			packet[0] = 0xa2;
 			packet[1] = LOLI_P1;	// CH1:LOLI_FLAG_PPM || LOLI_FLAG_PWM1, CH2:LOLI_FLAG_PWM2, CH5:LOLI_FLAG_SBUS, CH7:LOLI_FLAG_PWM7
 			packet[2] = LOLI_P2;	// CHx switch bit(8-x)=1
-			LOLI_SerialRX=false;
+			flags--;
 		}
 		else
 		{// Normal packet
@@ -191,6 +221,8 @@ uint16_t LOLI_callback()
 			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 			NRF24L01_FlushRx();
 			packet_count = 0;
+			//defaut RX config with servo outputs
+			LOLI_P1=0;LOLI_P2=0;flags=10;
 			phase++;
 
 		case LOLI_DATA1:
@@ -206,8 +238,12 @@ uint16_t LOLI_callback()
 						debugln("");
 					#endif
 					RX_RSSI = packet[0]<<1;
-					v_lipo1 = (packet[1] << 8) | packet[2];
-					v_lipo2 = (packet[3] << 8) | packet[4];
+					uint16_t val=((packet[1] << 8) | packet[2])/10;
+					if(val > 255) val=255;
+					v_lipo1 = val;
+					val=((packet[3] << 8) | packet[4])/10;
+					if(val > 255) val=255;
+					v_lipo2 = val;
 					telemetry_link = 1;
 					telemetry_counter++;			// TX LQI counter
 					if(telemetry_lost)

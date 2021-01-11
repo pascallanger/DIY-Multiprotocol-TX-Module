@@ -56,21 +56,20 @@ static void __attribute__((unused)) ssv_pack_dpl(uint8_t addr[], uint8_t pid, ui
 	{
 		uint8_t bytes[2];
 		uint16_t val;
-	} crc;
+	} crca;
 
 	crc=0x3c18;
 	for (i = 0; i < 7; ++i)
 		crc16_update(header[i],8);
 	for (i = 0; i < *len; ++i)
 		crc16_update(payload[i],8);
-	crc.val=crc;
 
 	// encode payload and crc
 	// xor with this:
 	for (i = 0; i < *len; ++i)
 		payload[i] ^= ssv_xor[i];
-	crc.bytes[1] ^= ssv_xor[i++];
-	crc.bytes[0] ^= ssv_xor[i++];
+	crc ^= ssv_xor[i++]<<8;
+	crc ^= ssv_xor[i++];
 
 	// pack the pcf, payload, and crc into packed_payload
 	packed_payload[0] = pcf >> 1;
@@ -79,11 +78,11 @@ static void __attribute__((unused)) ssv_pack_dpl(uint8_t addr[], uint8_t pid, ui
 	for (i = 0; i < *len - 1; ++i)
 		packed_payload[i+2] = (payload[i] << 7) | (payload[i+1] >> 1);
 
-	packed_payload[i+2] = (payload[i] << 7) | (crc.val >> 9);
+	packed_payload[i+2] = (payload[i] << 7) | (crc >> 9);
 	++i;
-	packed_payload[i+2] = (crc.val >> 1 & 0x80 ) | (crc.val >> 1 & 0x7F);
+	packed_payload[i+2] = (crc >> 1 & 0x80 ) | (crc >> 1 & 0x7F);
 	++i;
-	packed_payload[i+2] = (crc.val << 7);
+	packed_payload[i+2] = (crc << 7);
 
 	*len += 4;
 }

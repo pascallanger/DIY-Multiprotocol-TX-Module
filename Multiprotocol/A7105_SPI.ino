@@ -392,7 +392,7 @@ void A7105_Init(void)
 					A7105_Regs=(uint8_t*)FLYSKY_A7105_regs;
 			#endif
 			#if defined(AFHDS2A_A7105_INO) || defined(AFHDS2A_RX_A7105_INO)
-				if(protocol==PROTO_AFHDS2A)
+				if(protocol==PROTO_AFHDS2A || protocol==PROTO_AFHDS2A_RX)
 					A7105_Regs=(uint8_t*)AFHDS2A_A7105_regs;
 			#endif
 			#ifdef KYOSHO_A7105_INO

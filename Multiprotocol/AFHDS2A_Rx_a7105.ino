@@ -114,7 +114,6 @@ uint16_t AFHDS2A_Rx_callback()
 			}
 		}
 		A7105_WriteReg(A7105_0F_PLL_I, (packet_count++ & 1) ? 0x0D : 0x8C); // bind channels
-		A7105_SetTxRxMode(RX_EN);
 		A7105_Strobe(A7105_RX);
 		return 10000;
 
@@ -145,7 +144,6 @@ uint16_t AFHDS2A_Rx_callback()
 		packet[9] = 0x01;
 		packet[10] = 0x00;
 		memset(&packet[11], 0xFF, 26);
-		A7105_SetTxRxMode(TX_EN);
 		A7105_WriteData(AFHDS2A_RX_RXPACKET_SIZE, packet_count++ & 1 ? 0x0D : 0x8C);
 		phase |= AFHDS2A_RX_WAIT_WRITE;
 		return 1700;
@@ -156,7 +154,6 @@ uint16_t AFHDS2A_Rx_callback()
 		while ((uint32_t)(micros() - pps_timer) < 700) // Wait max 700µs, using serial+telemetry exit in about 120µs
 			if (!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 				break;
-		A7105_SetTxRxMode(RX_EN);
 		A7105_Strobe(A7105_RX);
 		phase &= ~AFHDS2A_RX_WAIT_WRITE;
 		return 10000;

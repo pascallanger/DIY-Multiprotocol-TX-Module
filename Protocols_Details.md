@@ -170,6 +170,12 @@ A|E|T|R|CH5|CH6|CH7|CH8
 RX output will match the Flysky standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
 
 ### Sub_protocol Flysky - *0*
+Supports a variety of Flysky receivers and integrated boards.
+
+Kyosho FHS MINI-Z also uses this protocol with this channel assignement:
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+Steering|Throttle|Lights|Steering travel|Others:not sure
 
 ### Sub_protocol V9X9 - *1*
 CH5|CH6|CH7|CH8

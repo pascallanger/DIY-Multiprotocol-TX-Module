@@ -39,7 +39,7 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 	packet_in[idx++] = 14; // number of channels in packet
 	// pack channels
 	for (uint8_t i = 0; i < 14; i++) {
-		uint32_t val = packet[9+i*2] | ((packet[10+i*2] << 8)&0x0F);
+		uint32_t val = packet[9+i*2] | (((packet[10+i*2])&0x0F) << 8);
 		if (val < 860)
 			val = 860;
 		// convert ppm (860-2140) to Multi (0-2047)
@@ -144,6 +144,8 @@ uint16_t AFHDS2A_Rx_callback()
 		packet[9] = 0x01;
 		packet[10] = 0x00;
 		memset(&packet[11], 0xFF, 26);
+		A7105_SetTxRxMode(TX_EN);
+		rx_disable_lna = !IS_POWER_FLAG_on;
 		A7105_WriteData(AFHDS2A_RX_RXPACKET_SIZE, packet_count++ & 1 ? 0x0D : 0x8C);
 		phase |= AFHDS2A_RX_WAIT_WRITE;
 		return 1700;

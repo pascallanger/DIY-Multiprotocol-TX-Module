@@ -628,10 +628,10 @@ static uint16_t XN297Dump_callback()
 			if(phase==0)
 			{
 				address_length=4;
-				memcpy(rx_tx_addr, (uint8_t *)"\xEE\x96\x54\x0E", address_length);
+				memcpy(rx_tx_addr, (uint8_t *)"\x5A\x20\x12\xAC", address_length); //"\xA3\x05\x22\xC1"
 				bitrate=XN297DUMP_1M;
 				packet_length=32;
-				hopping_frequency_no=48; //bind ?, normal 48
+				hopping_frequency_no=60; //bind ?, normal 60
 				
 				NRF24L01_Initialize();
 				NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -678,16 +678,16 @@ static uint16_t XN297Dump_callback()
 					if(NRF24L01_ReadReg(NRF24L01_09_CD))
 					{
 						NRF24L01_ReadPayload(packet, packet_length);
-						#define XN_DEB 0	//6	//0
-						#define XN_LON 32	//4	//32
 						bool ok=true;
 						uint8_t buffer[40];
 						memcpy(buffer,packet,packet_length);
-						if(memcmp(&packet_in[XN_DEB],&packet[XN_DEB],XN_LON))
+						if(memcmp(&packet_in[0],&packet[0],packet_length))
 						{
 							//realign bits
 							for(uint8_t i=0; i<packet_length; i++)
 								buffer[i]=buffer[i+2];
+							//for(uint8_t i=0; i<packet_length; i++)
+							//	buffer[i]=(buffer[i]<<4)+(buffer[i+1]>>4);
 							
 							//check for validity and decode
 							memset(packet_in,0,packet_length);
@@ -720,7 +720,7 @@ static uint16_t XN297Dump_callback()
 						if(packet[12]==((crc>>8)&0xFF) && packet[13]==(crc&0xFF))
 							if(memcmp(&packet_in[1],&packet[1],packet_length-1))
 							{
-								/*debug("P:");
+								debug("P:");
 								for(uint8_t i=0;i<packet_length;i++)
 									debug(" %02X",packet[i]);
 								debug(" CRC: %04X",crc);

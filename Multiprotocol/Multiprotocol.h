@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	2
+#define VERSION_PATCH_LEVEL	3
 
 //******************
 // Protocols
@@ -108,6 +108,7 @@ enum PROTOCOLS
 	PROTO_E016HV2	= 80,	// =>CC2500 & NRF24L01
 	PROTO_E010R5	= 81,	// =>CYRF6936
 	PROTO_LOLI		= 82,	// =>NRF24L01
+	PROTO_E129		= 83,	// =>CYRF6936
 
 	PROTO_NANORF	= 126,	// =>NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -767,8 +768,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				0x54	sub_protocol values are 32..63	Stream contains channels
 				0x57	sub_protocol values are 0..31	Stream contains failsafe
 				0x56	sub_protocol values are 32..63	Stream contains failsafe
+				Note: V2 adds the 2 top bits to extend the number of protocols to 256 in Stream[26]
   Stream[1]   = sub_protocol|BindBit|RangeCheckBit|AutoBindBit;
-   sub_protocol is 0..31 (bits 0..4), value should be added with 32 if Stream[0] = 0x54 | 0x56
+   sub_protocol is 0..31 (bits 0..4)
 				Reserved	0
 				Flysky		1
 				Hubsan		2
@@ -851,6 +853,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				E016HV2		80
 				E010R5		81
 				LOLI		82
+				E129		83
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

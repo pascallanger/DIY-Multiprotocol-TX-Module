@@ -111,8 +111,8 @@ static void __attribute__((unused)) cyrf_datainit()
 {
     /* Use when already bound */
     uint8_t sop_idx = (0xff & (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + cyrfmfg_id[3] - cyrfmfg_id[5])) % 19;
-    uint16_t crc =  (0xff & (cyrfmfg_id[1] - cyrfmfg_id[4] + cyrfmfg_id[5])) |
-                   ((0xff & (cyrfmfg_id[2] + cyrfmfg_id[3] - cyrfmfg_id[4] + cyrfmfg_id[5])) << 8);
+    crc =  (0xff & (cyrfmfg_id[1] - cyrfmfg_id[4] + cyrfmfg_id[5])) |
+           ((0xff & (cyrfmfg_id[2] + cyrfmfg_id[3] - cyrfmfg_id[4] + cyrfmfg_id[5])) << 8);
     //CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);
     CYRF_PROGMEM_ConfigSOPCode(DEVO_j6pro_sopcodes[sop_idx]);
     CYRF_ConfigCRCSeed(crc);

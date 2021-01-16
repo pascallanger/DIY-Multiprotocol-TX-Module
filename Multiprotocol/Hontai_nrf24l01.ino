@@ -38,7 +38,7 @@ enum{
 #define HONTAI_POLY 0x8408
 static void __attribute__((unused)) crc16(uint8_t *data_p, uint8_t length)
 {
-	uint16_t crc = 0xffff;
+	crc = 0xffff;
 
 	length -= 2;
 	do

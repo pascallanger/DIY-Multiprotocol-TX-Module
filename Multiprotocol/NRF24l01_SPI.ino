@@ -378,7 +378,7 @@ void XN297_WritePayload(uint8_t* msg, uint8_t len)
 	if (xn297_crc)
 	{
 		uint8_t offset = xn297_addr_len < 4 ? 1 : 0;
-		uint16_t crc = 0xb5d2;
+		crc = 0xb5d2;
 		for (uint8_t i = offset; i < last; ++i)
 			crc16_update( buf[i], 8);
 		if(xn297_scramble_enabled)
@@ -443,7 +443,7 @@ void XN297_WriteEnhancedPayload(uint8_t* msg, uint8_t len, uint8_t noack)
 	if (xn297_crc)
 	{
 		uint8_t offset = xn297_addr_len < 4 ? 1 : 0;
-		uint16_t crc = 0xb5d2;
+		crc = 0xb5d2;
 		for (uint8_t i = offset; i < last; ++i)
 			crc16_update( packet[i], 8);
 		crc16_update( packet[last] & 0xc0, 2);
@@ -482,7 +482,7 @@ boolean XN297_ReadPayload(uint8_t* msg, uint8_t len)
 		return true;	// No CRC so OK by default...
 
 	// Calculate CRC
-	uint16_t crc = 0xb5d2;
+	crc = 0xb5d2;
 	//process address
 	for (uint8_t i = 0; i < xn297_addr_len; ++i)
 	{
@@ -529,7 +529,7 @@ uint8_t XN297_ReadEnhancedPayload(uint8_t* msg, uint8_t len)
 		return pcf_size;	// No CRC so OK by default...
 
 	// Calculate CRC
-	uint16_t crc = 0xb5d2;
+	crc = 0xb5d2;
 	//process address
 	for (uint8_t i = 0; i < xn297_addr_len; ++i)
 	{
@@ -775,7 +775,8 @@ void LT8900_SetAddress(uint8_t *address,uint8_t addr_size)
 uint8_t LT8900_ReadPayload(uint8_t* msg, uint8_t len)
 {
 	uint8_t i,pos=0,shift,end,buffer[32];
-	unsigned int crc=LT8900_CRC_Initial_Data,a;
+	unsigned int a;
+	crc=LT8900_CRC_Initial_Data;
 	pos=LT8900_buffer_overhead_bits/8-LT8900_buffer_start;
 	end=pos+len+(LT8900_Flags&_BV(LT8900_PACKET_LENGTH_EN)?1:0)+(LT8900_Flags&_BV(LT8900_CRC_ON)?2:0);
 	//Read payload
@@ -817,8 +818,9 @@ uint8_t LT8900_ReadPayload(uint8_t* msg, uint8_t len)
 
 void LT8900_WritePayload(uint8_t* msg, uint8_t len)
 {
-	unsigned int crc=LT8900_CRC_Initial_Data,a,mask;
+	unsigned int a,mask;
 	uint8_t i, pos=0,tmp, buffer[64], pos_final,shift;
+	crc=LT8900_CRC_Initial_Data;
 	//Add packet len
 	if(LT8900_Flags&_BV(LT8900_PACKET_LENGTH_EN))
 	{

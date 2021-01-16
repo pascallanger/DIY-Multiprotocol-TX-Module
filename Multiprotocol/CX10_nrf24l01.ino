@@ -19,17 +19,17 @@
 
 #include "iface_nrf24l01.h"
 
-#define CX10_BIND_COUNT		4360   // 6 seconds
+#define CX10_BIND_COUNT		4360	// 6 seconds
 #define CX10_PACKET_SIZE	15
-#define CX10A_PACKET_SIZE	19       // CX10 blue board packets have 19-byte payload
+#define CX10A_PACKET_SIZE	19		// CX10 blue board packets have 19-byte payload
 #define Q2X2_PACKET_SIZE	21
-#define CX10_PACKET_PERIOD	1316  // Timeout for callback in uSec
+#define CX10_PACKET_PERIOD	1316	// Timeout for callback in uSec
 #define CX10A_PACKET_PERIOD	6000
 
 #define CX10_INITIAL_WAIT     500
 
 // flags
-#define CX10_FLAG_FLIP       0x10 // goes to rudder channel
+#define CX10_FLAG_FLIP       0x10	// goes to rudder channel
 #define CX10_FLAG_MODE_MASK  0x03
 #define CX10_FLAG_HEADLESS   0x04
 // flags2
@@ -181,7 +181,7 @@ static void __attribute__((unused)) CX10_init()
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);				// No Auto Acknowledgment on all data pipes
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);			// Enable data pipe 0 only
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, packet_length);	// rx pipe 0 (used only for blue board)
-    NRF24L01_WriteReg(NRF24L01_05_RF_CH, CX10_RF_BIND_CHANNEL);
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, CX10_RF_BIND_CHANNEL);
 	NRF24L01_SetBitrate(NRF24L01_BR_1M);					// 1Mbps
 	NRF24L01_SetPower();
 }
@@ -220,7 +220,8 @@ uint16_t CX10_callback()
 				NRF24L01_FlushTx();
 				NRF24L01_SetTxRxMode(TX_EN);
 				CX10_Write_Packet(1);
-				delayMicroseconds(400);
+				// wait for packet to be sent
+				while( (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)) == 0);	//delayMicroseconds(400);
 				// switch to RX mode
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_FlushRx();

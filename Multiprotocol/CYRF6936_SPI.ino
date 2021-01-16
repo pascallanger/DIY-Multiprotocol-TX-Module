@@ -168,10 +168,10 @@ void CYRF_SetPower(uint8_t val)
 /*
 *
 */
-void CYRF_ConfigCRCSeed(uint16_t crc)
+void CYRF_ConfigCRCSeed(uint16_t crc_seed)
 {
-	CYRF_WriteRegister(CYRF_15_CRC_SEED_LSB,crc & 0xff);
-	CYRF_WriteRegister(CYRF_16_CRC_SEED_MSB,crc >> 8);
+	CYRF_WriteRegister(CYRF_15_CRC_SEED_LSB,crc_seed & 0xff);
+	CYRF_WriteRegister(CYRF_16_CRC_SEED_MSB,crc_seed >> 8);
 }
 /*
 * these are the recommended sop codes from Cyrpress

@@ -859,9 +859,9 @@ A|E|T|R|Take off/Land|Emergency|Trim A|Trim E|Trim R
 
 Trims can be done to some extent on the AETR channels directly but if you push them too far you won't be able to arm like explained below. In this case use the associated trim TrimA/E/R instead.
 
-Take off with a none spring throttle is easier by putting both sticks down outwards (like on the original radio) in Mode 1, not sure about other modes.
+Take off with a none spring throttle is easier by putting both sticks down outwards (like on the original radio) in Mode 1/2, not sure about other modes.
 
-Calib is the same as the original radio with both sticks down and to the left in Mode 1, not sure about other modes.
+Calib is the same as the original radio with both sticks down and to the left in Mode 1/2, not sure about other modes.
 
 ## J6Pro - *22*
 

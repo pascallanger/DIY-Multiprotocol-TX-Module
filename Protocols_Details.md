@@ -842,16 +842,16 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ## E010R5 - *81*
-Models: E010 R5 red boards, JJRC H36
+Models: E010 R5 red boards, JJRC H36 and H36S
 
 **Only 1 ID available**. More IDs can be added if you send me your "unused" original TX.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|CALIB|HEADLESS|RTH|UNK
+A|E|T|R|FLIP|LED|CALIB|HEADLESS|RTH|GLIDE
 
 ## E129 - *83*
-Models: E129
+Models: E129 and E130
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---

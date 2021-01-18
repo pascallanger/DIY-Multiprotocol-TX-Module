@@ -1,5 +1,5 @@
 
-local toolName = "TNS|Multi chan namer|TNE"
+local toolName = "TNS|Multi channels namer|TNE"
 
 ---- #########################################################################
 ---- #                                                                       #

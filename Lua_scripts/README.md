@@ -13,13 +13,31 @@ If you like this project and want to support further development please consider
   </tr>
 </table>
 
-## MultiChannelsUpdater.lua
+## MultiChannelsUpdater
 
 Automatically name the channels based on the loaded Multi protocol and sub protocol including the module channel order convention.
 
 Need OpenTX 2.3.9 or above. Located on the radio SD card under \SCRIPTS\TOOLS. This script needs MultiChan.txt to be present in the same folder.
 
 [![MultiChannelsUpdater](https://img.youtube.com/vi/L58ayXuewyA/0.jpg)](https://www.youtube.com/watch?v=L58ayXuewyA)
+
+## MultiLOLI
+
+Script to set the channels function (switch, servo, pwm, ppm, sbus) on a [LOLI RX](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md#loli---82)
+
+[![MultiLOLIconfig](https://img.youtube.com/vi/e698pQxfv-A/0.jpg)](https://www.youtube.com/watch?v=e698pQxfv-A)
+
+## Graupner HoTT
+
+Enable text configuration of the HoTT RX and sensors: Vario, GPS, ESC, GAM and EAM.
+
+Need OpenTX 2.3.9 or above. Located on the radio SD card under \SCRIPTS\TOOLS.
+
+Notes:
+- Menu/MDL/Model is used to cycle through the detected sensors.
+- It's normal to lose the telemetry feed while using the text mode configuration. Telemetry will resume properly if the script is exited by doing a short press on the exit button.
+
+[![Text mode video](https://img.youtube.com/vi/81wd8NlF3Qw/0.jpg)](https://www.youtube.com/watch?v=81wd8NlF3Qw)
 
 ## DSM Forward Programming
 
@@ -36,15 +54,3 @@ Need OpenTX 2.3.10 nightly or above. Located on the radio SD card under \SCRIPTS
 Lua telemetry script from [feathering on RCGroups](https://www.rcgroups.com/forums/showpost.php?p=46033341&postcount=20728) to facilitate setting the Gain Parameters on the Blade 150S FBL. It doesn't use Forward Programming but instead it just reads telemetry data from the Multi-module and displays it on a telemetry display.
 
 It is very similar to the Telemetry Based Text Generator functionality on Spektrum transmitters where one doesn't need to rely on the angle of the swashplate to determine selection/value.
-
-## Graupner HoTT.ua
-
-Enable text configuration of the HoTT RX and sensors: Vario, GPS, ESC, GAM and EAM.
-
-Need OpenTX 2.3.9 or above. Located on the radio SD card under \SCRIPTS\TOOLS.
-
-Notes:
-- Menu/MDL/Model is used to cycle through the detected sensors.
-- It's normal to lose the telemetry feed while using the text mode configuration. Telemetry will resume properly if the script is exited by doing a short press on the exit button.
-
-[![Text mode video](https://img.youtube.com/vi/81wd8NlF3Qw/0.jpg)](https://www.youtube.com/watch?v=81wd8NlF3Qw)

@@ -84,7 +84,7 @@ static void __attribute__((unused)) LOLI_send_packet()
 		if(Channel_data[CH2+8] > CHANNEL_MAX_COMMAND)
 			P1|=LOLI_FLAG_PWM2;
 		//ch5: SBUS
-		if(Channel_data[CH7+8] > CHANNEL_SWITCH)
+		if(Channel_data[CH5+8] > CHANNEL_SWITCH)
 			P1|=LOLI_FLAG_SBUS;
 		//ch7: PWM
 		if(Channel_data[CH7+8] > CHANNEL_MAX_COMMAND)
@@ -166,6 +166,8 @@ enum{
 	LOLI_SET_RX_CONFIG,
 	LOLI_SET_FAILSAFE
 };
+
+#define LOLI_WRITE_TIME 1000
 
 uint16_t LOLI_callback()
 {
@@ -270,15 +272,17 @@ uint16_t LOLI_callback()
 			
 	#ifdef LOLI_HUB_TELEMETRY
 			phase ++;
-			return 2000;
+			return LOLI_WRITE_TIME;
 		case LOLI_DATA2:
+			// Wait for packet to be sent
+			while( (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)) == 0);
 			// Switch to RX mode
 			NRF24L01_SetTxRxMode(TXRX_OFF);
 			NRF24L01_FlushRx();
 			NRF24L01_SetTxRxMode(RX_EN);
 			NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x3b);  // 8bit CRC, RX
 			phase = LOLI_DATA1;
-			return 18000;
+			return 20000 - LOLI_WRITE_TIME;
 	#else
 			break;
 	#endif

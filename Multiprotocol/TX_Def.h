@@ -35,16 +35,16 @@
 #endif
 
 //Channel MIN MAX values
-#define CHANNEL_MAX_100	1844	//	100%
-#define CHANNEL_MIN_100	204		//	100%
-#define CHANNEL_MAX_125	2047	//	125%
-#define CHANNEL_MIN_125	0		//	125%
+#define CHANNEL_MAX_100	1844	//	+100%
+#define CHANNEL_MIN_100	204		//	-100%
+#define CHANNEL_MAX_125	2047	//	+125%
+#define CHANNEL_MIN_125	0		//	-125%
 
 #define CHANNEL_MID		1024
 
-#define CHANNEL_MIN_COMMAND 784		// 1350us
-#define CHANNEL_SWITCH		1104	// 1550us
-#define CHANNEL_MAX_COMMAND 1424	// 1750us
+#define CHANNEL_MIN_COMMAND 409		// -75%
+#define CHANNEL_SWITCH		1106	// +10%
+#define CHANNEL_MAX_COMMAND 1639	// +75%
 
 //Channel definitions
 #define	CH1		0

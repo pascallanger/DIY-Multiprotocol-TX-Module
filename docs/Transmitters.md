@@ -64,8 +64,7 @@ The telemetry mod for these transmitters has evolved.  The original and popular 
 
 A good tutorial to follow is Oscar Liang's [here](http://blog.oscarliang.net/turnigy-9x-advance-mod/) but when you get to wiring up the Tx Module bay pins, you only need to perform the steps relevant for Pin 5.
 
-You can see Midelic's original instructions [here](http://www.rcgroups.com/forums/showpost.php?p=28359305&postcount=2)  
-
+If the telemetry output was wired incorrectly, the Multiprotocol module will not continue past the bootloader (some rapid flashes from the red LED, and then no light).
 
 ## Other Notes:  
 

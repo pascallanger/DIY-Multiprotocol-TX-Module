@@ -391,13 +391,11 @@ Models: E016H v2
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable or bind won't even work.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 
-**Again make sure to set the RF frequency right to be able to bind**. FYI, on my module I needed +80.
-
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 A|E|T|R|TAKE_OFF/LANDING|EMERGENCY|FLIP|CALIB|HEADLESS|RTH
 
-TAKE_OFF/LANDING: this is a momentary switch to arm the motors or land the quad. This switch is not really needed as you can start the quad with throttle low then increase throttle until the motor arms and continue to increase to lift off; To land just bring throttle all the way down, the quad will just stops when touching the ground.
+TAKE_OFF/LANDING: this is a momentary switch to arm the motors or land the quad. This switch is not really needed as you can start the quad with throttle low then increase throttle until the motor arms, move throttle to mid-stick and then increase it quickly to lift off; To land just bring throttle all the way down, the quad will just stops when touching the ground.
 
 EMERGENCY: Can be used along with the throttle cut switch: Throttle cut=set throttle at -100% and set EMERGENCY to 100%
 

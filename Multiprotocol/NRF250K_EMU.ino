@@ -17,6 +17,7 @@
 
 static void __attribute__((unused)) XN297L_Init()
 {
+	prev_option = option;
 	#ifdef CC2500_INSTALLED
 	if(option==0)
 	#endif

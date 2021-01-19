@@ -27,10 +27,13 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static void __attribute__((unused)) E016HV2_send_packet()
 {
-	//payload length (after this byte)??
+	if(option==0)
+		option=1;									// Select the CC2500
+
+	//payload length (after this byte)
 	packet[0 ] = 0x0A;
 	
-	//bind indicator??
+	//bind indicator
 	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[1 ] = 0x02;
@@ -39,18 +42,11 @@ static void __attribute__((unused)) E016HV2_send_packet()
 		else
 		{
 			BIND_DONE;
-			XN297L_RFChannel(rf_ch_num);	// Set main channel
+			XN297L_RFChannel(rf_ch_num);			// Set main channel
 		}
 	}
 	else
-	{
 		packet[1 ] = 0x20;
-		if(prev_option!=option)
-		{
-			XN297L_RFChannel(option);	// Set main channel
-			prev_option=option;
-		}
-	}
 	
 	//ID
 	packet[2 ] = rx_tx_addr[2];
@@ -85,8 +81,6 @@ static void __attribute__((unused)) E016HV2_send_packet()
 	packet[10] = GET_FLAG(CH5_SW, 0x01)				// 0x01=TakeOff/Land  (momentary switch)
 			   | GET_FLAG(CH6_SW, 0x04);			// 0x04=Emergeny Stop (momentary switch)
 
-	if(option==0)
-		option=1;									// Select the CC2500
 	XN297L_SetPower();								// Set tx_power
 	XN297L_SetFreqOffset();							// Set frequency offset
 
@@ -109,11 +103,11 @@ static void __attribute__((unused)) E016HV2_send_packet()
 	pid++;
 
 	// payload
-	debug("P:")
+	//debug("P:")
 	for (uint8_t i = 0; i < E016HV2_PAYLOAD_SIZE; ++i)
 	{
 		uint8_t byte = (bit_reverse(packet[i])<<1) | (packet[i+1]&0x01);
-		debug(" %02X",byte)
+		//debug(" %02X",byte)
 		CC2500_WriteReg(CC2500_3F_TXFIFO,byte);
 		crc16_update(byte, 8);
 	}
@@ -121,7 +115,7 @@ static void __attribute__((unused)) E016HV2_send_packet()
 	// crc
 	CC2500_WriteReg(CC2500_3F_TXFIFO,crc >> 8);
 	CC2500_WriteReg(CC2500_3F_TXFIFO,crc);
-	debugln(" %04X",crc)
+	//debugln(" %04X",crc)
 
 	// transmit
 	CC2500_Strobe(CC2500_STX);

@@ -260,6 +260,7 @@ uint16_t SLT_callback()
 
 uint16_t initSLT()
 {
+	BIND_DONE;	// Not a TX bind protocol
 	packet_count = 0;
 	packet_sent = 0;
 	hopping_frequency_no = 0;

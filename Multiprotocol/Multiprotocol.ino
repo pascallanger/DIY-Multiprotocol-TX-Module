@@ -751,11 +751,11 @@ void loop()
 void End_Bind()
 {
 	//Request protocol to terminate bind
-	#if defined(FRSKYD_CC2500_INO) || defined(FRSKYL_CC2500_INO) || defined(FRSKYX_CC2500_INO) || defined(FRSKYV_CC2500_INO) || defined(AFHDS2A_A7105_INO) || defined(FRSKYR9_SX1276_INO) || defined(DSM_RX_CYRF6936_INO) || defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO)
-	if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_AFHDS2A || protocol==PROTO_FRSKY_R9 || protocol==PROTO_DSM_RX || protocol==PROTO_AFHDS2A_RX || protocol==PROTO_FRSKY_RX)
+	if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_FRSKY_R9
+	|| protocol==PROTO_DSM_RX || protocol==PROTO_AFHDS2A_RX || protocol==PROTO_FRSKY_RX || protocol==PROTO_BAYANG_RX
+	|| protocol==PROTO_AFHDS2A || protocol==PROTO_BUGS || protocol==PROTO_BUGSMINI || protocol==PROTO_HOTT || protocol==PROTO_ASSAN)
 		BIND_DONE;
 	else
-	#endif
 		if(bind_counter>2)
 			bind_counter=2;
 }

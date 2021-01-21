@@ -93,28 +93,49 @@ uint16_t ReadE010R5()
 uint16_t initE010R5()
 {
 	BIND_IN_PROGRESS;									// Autobind protocol
-    bind_counter = 2600;
+	bind_counter = 2600;
 
-    //RF2500 emu init
+	//RF2500 emu init
 	RF2500_Init(E010R5_PAYLOAD_SIZE, false);			// 14 bytes, not scrambled
-    RF2500_SetTXAddr((uint8_t*)"\x0E\x54\x96\xEE");		// Same address for bind and normal packets
+	RF2500_SetTXAddr((uint8_t*)"\x0E\x54\x96\xEE");		// Same address for bind and normal packets
 	
-    #ifdef E010R5_FORCE_ID
-        hopping_frequency[0]=0x30;	//48
-        hopping_frequency[1]=0x45;	//69
-        hopping_frequency[2]=0x40;	//64
-        hopping_frequency[3]=0x35;	//53
-        rx_tx_addr[0]=0x00;
-        rx_tx_addr[1]=0x45;
-        rx_tx_addr[2]=0x46;
+	#ifdef E010R5_FORCE_ID
+		switch(rx_tx_addr[3]%3)
+		{
+			case 0:
+				//TX1
+				hopping_frequency[0]=0x35;	//53
+				hopping_frequency[1]=0x30;	//48
+				rx_tx_addr[1]=0x45;
+				rx_tx_addr[2]=0x46;
+				break;
+			case 1:
+				//TX2
+				hopping_frequency[0]=0x35;	//53
+				hopping_frequency[1]=0x3C;	//60
+				rx_tx_addr[1]=0x1B;
+				rx_tx_addr[2]=0x9E;
+				break;
+			default:
+				//TX3
+				hopping_frequency[0]=0x30;	//48
+				hopping_frequency[1]=0x38;	//56
+				rx_tx_addr[1]=0x17;
+				rx_tx_addr[2]=0x0D;
+				break;
+		}
     #endif
+	rx_tx_addr[0]=0x00;
+	// This is the same as the E010 v1...
+	hopping_frequency[2]=hopping_frequency[0]+0x10;
+	hopping_frequency[3]=hopping_frequency[1]+0x10;
 
 	E010R5_build_data_packet();
 	RF2500_RFChannel(hopping_frequency[0]);
 	hopping_frequency_no=0;
 	packet_count=0;
 
-    return 3400;
+	return 3400;
 }
 
 #endif

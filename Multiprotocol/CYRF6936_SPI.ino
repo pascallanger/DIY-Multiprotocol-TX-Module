@@ -385,8 +385,5 @@ static void __attribute__((unused)) CYRF_GFSK1M_SendPayload(uint8_t *buffer, uin
 		CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, buffer, len);		// Add the remaining bytes to the buffer
 	}
 }
-static void __attribute__((unused)) CYRF_GFSK1M_SetPower()
-{
-	CYRF_SetPower(0x00);
-}
+#define CYRF_GFSK1M_SetPower() CYRF_SetPower(0x00)
 #endif

@@ -321,4 +321,72 @@ static void __attribute__((unused)) CYRF_PROGMEM_ConfigSOPCode(const uint8_t *da
 		code[i]=pgm_read_byte_near(&data[i]);
 	CYRF_ConfigSOPCode(code);
 }
+
+//CYRF GFSK 1Mb functions
+const uint8_t PROGMEM CYRF_GFSK1M_init_vals[][2] = {
+	{CYRF_02_TX_CTRL, 0x00},		// transmit err & complete interrupts disabled
+	{CYRF_05_RX_CTRL, 0x00},		// receive err & complete interrupts disabled
+	{CYRF_28_CLK_EN, 0x02},			// Force Receive Clock Enable, MUST be set
+	{CYRF_32_AUTO_CAL_TIME, 0x3c},	// must be set to 3C
+	{CYRF_35_AUTOCAL_OFFSET, 0x14},	// must be  set to 14
+	{CYRF_06_RX_CFG, 0x48},			// LNA manual control, Rx Fast Turn Mode Enable
+	{CYRF_1B_TX_OFFSET_LSB, 0x00},	// Tx frequency offset LSB
+	{CYRF_1C_TX_OFFSET_MSB, 0x00},	// Tx frequency offset MSB
+	{CYRF_0F_XACT_CFG, 0x24},		// Force End State, transaction end state = idle
+	{CYRF_03_TX_CFG, 0x00},			// GFSK mode
+	{CYRF_12_DATA64_THOLD, 0x0a},	// 64 Chip Data PN Code Correlator Threshold = 10
+	{CYRF_0F_XACT_CFG, 0x04},		// Transaction End State = idle
+	{CYRF_39_ANALOG_CTRL, 0x01},	// synth setting time for all channels is the same as for slow channels
+	{CYRF_0F_XACT_CFG, 0x24},		//Force IDLE
+	{CYRF_29_RX_ABORT, 0x00},		//Clear RX abort
+	{CYRF_12_DATA64_THOLD, 0x0a},	//set pn correlation threshold
+	{CYRF_10_FRAMING_CFG, 0x4a},	//set sop len and threshold
+	{CYRF_29_RX_ABORT, 0x0f},		//Clear RX abort?
+	{CYRF_03_TX_CFG, 0x00},			// GFSK mode
+	{CYRF_10_FRAMING_CFG, 0x4a},	// 0b11000000 //set sop len and threshold
+	{CYRF_1F_TX_OVERRIDE, 0x04},	//disable tx CRC
+	{CYRF_1E_RX_OVERRIDE, 0x14},	//disable rx crc
+	{CYRF_14_EOP_CTRL, 0x00},		//set EOP sync == 0
+};
+static void __attribute__((unused)) CYRF_GFSK1M_Init(uint8_t payload_length, uint8_t preamble_len)
+{
+	for(uint8_t i = 0; i < sizeof(CYRF_GFSK1M_init_vals) / 2; i++)	
+		CYRF_WriteRegister(pgm_read_byte_near(&CYRF_GFSK1M_init_vals[i][0]), pgm_read_byte_near(&CYRF_GFSK1M_init_vals[i][1]));
+
+
+	CYRF_WriteRegister(CYRF_01_TX_LENGTH, payload_length);
+	
+	CYRF_WritePreamble(0xAAAA00 | preamble_len);
+
+	CYRF_SetPower(0x00);
+	
+	CYRF_SetTxRxMode(TX_EN);
+}
+static void __attribute__((unused)) CYRF_GFSK1M_SendPayload(uint8_t *buffer, uint8_t len)
+{
+	uint8_t send=len>16 ? 16 : len;
+	CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
+	CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, buffer, send);			// Fill the buffer with 16 bytes max
+	CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x80);							// Start send
+	buffer += send;
+	len -= send;
+
+	while(len>8)
+	{
+		while((CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS)&0x10) == 0);	// Wait that half of the buffer is empty
+		CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, buffer, 8);			// Add 8 bytes to the buffer
+		buffer+=8;
+		len-=8;
+	}
+
+	if(len)
+	{
+		while((CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS)&0x10) == 0);	// Wait that half of the buffer is empty
+		CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, buffer, len);		// Add the remaining bytes to the buffer
+	}
+}
+static void __attribute__((unused)) CYRF_GFSK1M_SetPower()
+{
+	CYRF_SetPower(0x00);
+}
 #endif

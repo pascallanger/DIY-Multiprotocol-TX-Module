@@ -15,7 +15,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(E016HV2_CC2500_INO)
 
-#include "iface_nrf250k.h"
+#include "iface_cc2500.h"
 
 //#define FORCE_E016HV2_ORIGINAL_ID
 
@@ -27,9 +27,6 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static void __attribute__((unused)) E016HV2_send_packet()
 {
-	if(option==0)
-		option=1;									// Select the CC2500
-
 	//payload length (after this byte)
 	packet[0 ] = 0x0A;
 	
@@ -42,7 +39,7 @@ static void __attribute__((unused)) E016HV2_send_packet()
 		else
 		{
 			BIND_DONE;
-			XN297L_RFChannel(rf_ch_num);			// Set main channel
+			CC2500_250K_RFChannel(rf_ch_num);			// Set main channel
 		}
 	}
 	else
@@ -81,8 +78,8 @@ static void __attribute__((unused)) E016HV2_send_packet()
 	packet[10] = GET_FLAG(CH5_SW, 0x01)				// 0x01=TakeOff/Land  (momentary switch)
 			   | GET_FLAG(CH6_SW, 0x04);			// 0x04=Emergeny Stop (momentary switch)
 
-	XN297L_SetPower();								// Set tx_power
-	XN297L_SetFreqOffset();							// Set frequency offset
+	CC2500_SetPower();								// Set tx_power
+	CC2500_SetFreqOffset();							// Set frequency offset
 
 	//Build real packet and send it
 	static uint8_t pid=0;
@@ -130,10 +127,8 @@ uint16_t E016HV2_callback()
 uint16_t initE016HV2()
 {
 	//Config CC2500
-	if(option==0)
-		option=1;									// Select the CC2500
-	XN297L_Init();
-	XN297L_RFChannel(E016HV2_RF_BIND_CHANNEL);		// Set bind channel
+	CC2500_250K_Init();
+	CC2500_250K_RFChannel(E016HV2_RF_BIND_CHANNEL);		// Set bind channel
 
 	#ifdef FORCE_E016HV2_ORIGINAL_ID
 		rx_tx_addr[2]=0x27;

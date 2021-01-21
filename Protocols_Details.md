@@ -76,13 +76,13 @@ CFlie|38|CFlie||||||||NRF24L01|
 [DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01|XN297
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO||||CYRF6936|
 [DSM_RX](Protocols_Details.md#DSM_RX---70)|70|RX||||||||CYRF6936|
-[E010R5](Protocols_Details.md#E010R5---81)|81|||||||||CYRF6936/NRF24L01|unknown
+[E010R5](Protocols_Details.md#E010R5---81)|81|||||||||CYRF6936/NRF24L01|RF2500
 [E016HV2](Protocols_Details.md#E016HV2---80)|80|||||||||CC2500/NRF24L01|unknown
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
-[E129](Protocols_Details.md#E129---83)|83|||||||||CYRF6936/NRF24L01|unknown
+[E129](Protocols_Details.md#E129---83)|83|||||||||CYRF6936/NRF24L01|RF2500
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
-[ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|ESky150V2||||||||CC2500|NRF24L01
+[ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|ESky150V2||||||||CC2500|NRF51822
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|PWM_IBUS16|PPM_IBUS16|||A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|RX||||||||A7105|
@@ -399,6 +399,19 @@ TAKE_OFF/LANDING: this is a momentary switch to arm the motors or land the quad.
 
 EMERGENCY: Can be used along with the throttle cut switch: Throttle cut=set throttle at -100% and set EMERGENCY to 100%
 
+## ESKY150V2 - *69*
+ESky protocol for small models: 150 V2, F150 V2, Blade 70s
+
+Notes:
+ - RX output will match the eSky standard TAER independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+ - To run this protocol you need both CC2500 and NRF24L01 to be enabled for code reasons, only the CC2500 is really used.
+ 
+CH1|CH2|CH3|CH4|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|----|----|----|----|----|----|----|----|----|----|----|----
+A|E|T|R|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
+RATE for the F150 V2 is assigned to channel 5: -100%=low, 100%=high
+
 ## FRSKYV - *25*
 Models: FrSky receivers V8R4, V8R7 and V8FR.
  - FrSkyV = FrSky 1 way
@@ -602,29 +615,6 @@ Recommended for best telemetry performance.
 ### Sub_protocol No_Sync - *1*
 Telemetry compatibility mode when Sync does not work due to an old firmware on the RX.
 You should definitively upgrade your receivers/sensors to the latest firmware versions: https://www.rcgroups.com/forums/showpost.php?p=44668015&postcount=18022
-
-## OMP - *77*
-Model: OMPHOBBY M1 & M2 Helis, T720 RC Glider
-
-Telemetry supported:
-- A1 = battery voltage including "recovered" battery voltage from corrupted telemetry packets
-- A2 = battery voltage from only good telemetry packets
-- How to calculate accurately the OpenTX Ratio and Offset:
-Set the Ratio to 12.7 and Offset to 0, plug 2 batteries with extreme voltage values, write down the values Batt1=12.5V & Telem1=12.2V, Batt2=7V & Telem2=6.6V then calculate/set Ratio=12.7*[(12.5-7)/(12.2-6.6)]=12.47 => 12.5 and Offset=12.5-12.2*[(12.5-7)/(12.2-6.6)]=0.517 => 0.5
-- RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) from the model which has nothing to do with how well the RX is receiving the TX
-
-Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
-Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T_PITCH|R|T_HOLD|IDLE|MODE
-
-IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
-
-From the TX manual: MODE= 3 pos switch -100% Attitude, 0% Attitude(?), +100% 3D
-For M2: MODE= 3 pos switch -100% 6G, 0% 3D, +100% 3D
-
 
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.
@@ -1134,19 +1124,6 @@ A|E|T|R|FMODE|AUX6|AUX7
 
 FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..100%=>3
 
-## ESKY150V2 - *69*
-ESky protocol for small models: 150 V2, F150 V2, Blade 70s
-
-Notes:
- - RX output will match the eSky standard TAER independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
- - To run this protocol you need both CC2500 and NRF24L01 to be enabled for code reasons, only the CC2500 is really used.
- 
-CH1|CH2|CH3|CH4|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|----|----|----|----|----|----|----|----|----|----|----|----
-A|E|T|R|CH5 |CH6 |CH7 |CH8 |CH9 |CH10|CH11|CH12|CH13|CH14|CH15|CH16
-
-RATE for the F150 V2 is assigned to channel 5: -100%=low, 100%=high
-
 ## FX816 - *58*
 Model: FEI XIONG FX816 P38
 
@@ -1411,6 +1388,30 @@ Only 9 IDs available, cycle through them using RX_Num.
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|Warp
+
+## OMP - *77*
+Model: OMPHOBBY M1 & M2 Helis, T720 RC Glider
+
+This protocol requires both a NRF24L01 and CC2500 RF components to operate.
+
+Telemetry supported:
+- A1 = battery voltage including "recovered" battery voltage from corrupted telemetry packets
+- A2 = battery voltage from only good telemetry packets
+- How to calculate accurately the OpenTX Ratio and Offset:
+Set the Ratio to 12.7 and Offset to 0, plug 2 batteries with extreme voltage values, write down the values Batt1=12.5V & Telem1=12.2V, Batt2=7V & Telem2=6.6V then calculate/set Ratio=12.7*[(12.5-7)/(12.2-6.6)]=12.47 => 12.5 and Offset=12.5-12.2*[(12.5-7)/(12.2-6.6)]=0.517 => 0.5
+- RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) from the model which has nothing to do with how well the RX is receiving the TX
+
+Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T_PITCH|R|T_HOLD|IDLE|MODE
+
+IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
+
+From the TX manual: MODE= 3 pos switch -100% Attitude, 0% Attitude(?), +100% 3D
+For M2: MODE= 3 pos switch -100% 6G, 0% 3D, +100% 3D
 
 ## Potensic - *51*
 Model: Potensic A20

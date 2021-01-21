@@ -15,7 +15,7 @@
 
 #if defined(ESKY150V2_CC2500_INO)
 
-#include "iface_nrf250k.h"
+#include "iface_cc2500.h"
 
 //#define ESKY150V2_FORCE_ID
 
@@ -52,17 +52,17 @@ static void __attribute__((unused)) ESKY150V2_set_freq(void)
 	hopping_frequency[ESKY150V2_NFREQCHANNELS]=ESKY150V2_BIND_CHANNEL;
 	
 	//Calib all channels
-	NRF250K_SetFreqOffset();	// Set frequency offset
-	NRF250K_HoppingCalib(ESKY150V2_NFREQCHANNELS+1);
+	CC2500_SetFreqOffset();	// Set frequency offset
+	CC2500_250K_HoppingCalib(ESKY150V2_NFREQCHANNELS+1);
 }
 
 static void __attribute__((unused)) ESKY150V2_send_packet()
 {
-	NRF250K_SetFreqOffset();	// Set frequency offset
-	NRF250K_Hopping(hopping_frequency_no);
+	CC2500_SetFreqOffset();	// Set frequency offset
+	CC2500_250K_Hopping(hopping_frequency_no);
 	if (++hopping_frequency_no >= ESKY150V2_NFREQCHANNELS)
 		hopping_frequency_no = 0;
-	NRF250K_SetPower();			//Set power level
+	CC2500_SetPower();			//Set power level
 
 	packet[0] = 0xFA;		// Unknown
 	packet[1] = 0x41;		// Unknown
@@ -74,7 +74,7 @@ static void __attribute__((unused)) ESKY150V2_send_packet()
 		packet[4+2*i] = channel;
 		packet[5+2*i] = channel>>8;
 	}
-	NRF250K_WritePayload(packet, ESKY150V2_PAYLOADSIZE);
+	CC2500_250K_NRF_WritePayload(packet, ESKY150V2_PAYLOADSIZE);
 }
 
 uint16_t ESKY150V2_callback()
@@ -90,14 +90,14 @@ uint16_t ESKY150V2_callback()
 	else
 	{
 		BIND_DONE;					//Need full power for bind to work...
-		NRF250K_SetPower();			//Set power level
+		CC2500_SetPower();			//Set power level
 		BIND_IN_PROGRESS;
-		NRF250K_WritePayload(packet, ESKY150V2_BINDPAYLOADSIZE);
+		CC2500_250K_NRF_WritePayload(packet, ESKY150V2_BINDPAYLOADSIZE);
 		if (--bind_counter == 0)
 		{
 			BIND_DONE;
 			// Change TX address from bind to normal mode
-			NRF250K_SetTXAddr(rx_tx_addr, ESKY150V2_TXID_SIZE);
+			CC2500_250K_NRF_SetTXAddr(rx_tx_addr, ESKY150V2_TXID_SIZE);
 			memset(packet,0x00,ESKY150V2_PAYLOADSIZE);
 		}
 		return 30000; //ESKY150V2_BINDING_PACKET_PERIOD;
@@ -108,7 +108,7 @@ uint16_t ESKY150V2_callback()
 uint16_t initESKY150V2()
 {
 	if(option==0) option=1;		 // Trick the RF component auto select system
-	NRF250K_Init();
+	CC2500_250K_Init();
 	ESKY150V2_set_freq();
 	hopping_frequency_no = 0;
 
@@ -120,8 +120,8 @@ uint16_t initESKY150V2()
 
 	if(IS_BIND_IN_PROGRESS)
 	{
-		NRF250K_SetTXAddr((uint8_t *)"\x73\x73\x74\x63", ESKY150V2_TXID_SIZE);	//Bind address
-		NRF250K_Hopping(ESKY150V2_NFREQCHANNELS);	//Bind channel
+		CC2500_250K_NRF_SetTXAddr((uint8_t *)"\x73\x73\x74\x63", ESKY150V2_TXID_SIZE);	//Bind address
+		CC2500_250K_Hopping(ESKY150V2_NFREQCHANNELS);	//Bind channel
 		memcpy(packet,"\x73\x73\x74\x63", ESKY150V2_TXID_SIZE);
 		memcpy(&packet[ESKY150V2_TXID_SIZE],rx_tx_addr, ESKY150V2_TXID_SIZE);
 		packet[8]=0x41;								//Unknown
@@ -134,7 +134,7 @@ uint16_t initESKY150V2()
 		bind_counter=100;
 	}
 	else
-		NRF250K_SetTXAddr(rx_tx_addr, ESKY150V2_TXID_SIZE);
+		CC2500_250K_NRF_SetTXAddr(rx_tx_addr, ESKY150V2_TXID_SIZE);
 	return 50000;
 }
 

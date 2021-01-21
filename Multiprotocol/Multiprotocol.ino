@@ -1094,6 +1094,7 @@ static void protocol_init()
 		modules_reset();				// Reset all modules
 		crc16_polynomial = 0x1021;		// Default CRC crc16_polynomial
 		crc8_polynomial  = 0x31;		// Default CRC crc8_polynomial
+		prev_option = option;
 
 		// reset telemetry
 		#ifdef TELEMETRY

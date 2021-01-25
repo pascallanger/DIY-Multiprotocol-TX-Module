@@ -122,11 +122,7 @@ uint16_t ReadFRSKYV()
 		#endif
 		uint8_t chan = FRSKYV_calc_channel();
 		CC2500_Strobe(CC2500_SIDLE);
-		if (option != prev_option)
-		{
-			CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-			prev_option=option;
-		}
+		CC2500_SetFreqOffset();
 		CC2500_WriteReg(CC2500_0A_CHANNR, chan * 5 + 6);
 		FRSKYV_build_data_packet();
 

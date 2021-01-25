@@ -54,7 +54,6 @@ static void __attribute__((unused)) SKYARTEC_rf_init()
 	for (uint8_t i = 4; i <= 0x2E; ++i)
 		CC2500_WriteReg(i, pgm_read_byte_near(&SKYARTEC_init_values[i-4]));
 	
-	prev_option = option;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 
 	CC2500_SetTxRxMode(TX_EN);
@@ -130,11 +129,7 @@ uint16_t ReadSKYARTEC()
 		{
 			CC2500_SetPower();
 			// Tune frequency if it has been changed
-			if ( prev_option != option )
-			{
-				CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-				prev_option = option ;
-			}
+			CC2500_SetFreqOffset();
 			phase = SKYARTEC_PKT1;
 		}
 		else

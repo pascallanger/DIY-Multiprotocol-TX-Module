@@ -142,11 +142,7 @@ uint16_t ReadFrSkyX()
 
 		case FRSKY_DATA1:
 			CC2500_Strobe(CC2500_SIDLE);
-			if ( prev_option != option )
-			{
-				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);					//Frequency offset hack 
-				prev_option = option ;
-			}
+			CC2500_SetFreqOffset();
 			FrSkyX_set_start(hopping_frequency_no);
 			FrSkyX_build_packet();
 			if(FrSkyFormat & 2)

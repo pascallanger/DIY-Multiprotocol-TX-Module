@@ -61,7 +61,6 @@ static void __attribute__((unused)) CORONA_rf_init()
 		CC2500_WriteReg(CC2500_15_DEVIATN, 0x50);
 	}
 	
-	prev_option = option;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 
 	//not sure what they are doing to the PATABLE since basically only the first byte is used and it's only 8 bytes long. So I think they end up filling the PATABLE fully with 0xFF
@@ -262,11 +261,7 @@ uint16_t ReadCORONA()
 		telemetry_set_input_sync(22000);
 	#endif
 	// Tune frequency if it has been changed
-	if ( prev_option != option )
-	{
-		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-		prev_option = option ;
-	}
+	CC2500_SetFreqOffset();
 
 	if(IS_BIND_IN_PROGRESS)
 	{

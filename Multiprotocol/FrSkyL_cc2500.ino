@@ -200,11 +200,7 @@ uint16_t ReadFrSkyL()
 			break;
 
 		case FRSKY_DATA1:
-			if ( prev_option != option )
-			{
-				CC2500_WriteReg(CC2500_0C_FSCTRL0,option);				//Frequency offset hack 
-				prev_option = option ;
-			}
+			CC2500_SetFreqOffset();
 			FrSkyX_set_start(hopping_frequency_no);
 			FrSkyL_build_packet();
 			FrSkyL_encode_packet(true);

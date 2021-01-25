@@ -375,7 +375,6 @@ void Frsky_init_clone(void)
 				val=option;
 			CC2500_WriteReg(reg,val);
 		}
-		prev_option = option ;		// Save option to monitor FSCTRL0 change
 		for(uint8_t i=0;i<17;i++)
 		{
 			uint8_t reg=pgm_read_byte_near(&FRSKY_common_end_cc2500_conf[i][0]);
@@ -406,7 +405,7 @@ void Frsky_init_clone(void)
 	{
 		for (uint8_t i=start+1;i<=end;i++)
 			packet[i]=0;
-		packet[start] = FrSkyX_RX_Seq << 4;									//TX=8 at startup
+		packet[start] = FrSkyX_RX_Seq << 4;
 		#ifdef SPORT_SEND
 			if (FrSkyX_TX_IN_Seq!=0xFF)
 			{//RX has replied at least once

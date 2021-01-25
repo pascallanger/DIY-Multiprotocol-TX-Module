@@ -203,11 +203,7 @@ uint16_t ReadFrSky_2way()
 		}
 		CC2500_Strobe(CC2500_SIDLE);
 		CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[counter % 47]);
-		if ( prev_option != option )
-		{
-			CC2500_WriteReg(CC2500_0C_FSCTRL0,option);	// Frequency offset hack 
-			prev_option = option ;
-		}
+		CC2500_SetFreqOffset();
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);
 		CC2500_Strobe(CC2500_SFRX);        
 		frsky2way_data_frame();

@@ -98,11 +98,7 @@ static void REDPINE_data_frame() {
 
 static uint16_t ReadREDPINE()
 {
-	if ( prev_option != option )
-	{ // Frequency adjust
-		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-		prev_option = option ;
-	}
+	CC2500_SetFreqOffset();
 	if(IS_BIND_IN_PROGRESS)
 	{
         if (state == REDPINE_BIND) {
@@ -122,22 +118,18 @@ static uint16_t ReadREDPINE()
 		}
 		return 4000;
 	}
-	else
-	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(packet_period);
-		#endif
-		CC2500_SetTxRxMode(TX_EN);
-		REDPINE_set_channel(hopping_frequency_no);
-		CC2500_SetPower();
-		CC2500_Strobe(CC2500_SFRX);
-		REDPINE_data_frame();
-		CC2500_Strobe(CC2500_SIDLE);
-		hopping_frequency_no = (hopping_frequency_no + 1) % 49;
-		CC2500_WriteData(packet, REDPINE_PACKET_SIZE);
-		return packet_period;
-	}
-	return 1;
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(packet_period);
+	#endif
+	CC2500_SetTxRxMode(TX_EN);
+	REDPINE_set_channel(hopping_frequency_no);
+	CC2500_SetPower();
+	CC2500_Strobe(CC2500_SFRX);
+	REDPINE_data_frame();
+	CC2500_Strobe(CC2500_SIDLE);
+	hopping_frequency_no = (hopping_frequency_no + 1) % 49;
+	CC2500_WriteData(packet, REDPINE_PACKET_SIZE);
+	return packet_period;
 }
 
 // register, fast 250k, slow
@@ -189,7 +181,6 @@ static void REDPINE_init(uint8_t format)
 		CC2500_WriteReg(REDPINE_init_data[i][0], REDPINE_init_data[i][format+1]);
 	}
 
-	prev_option = option;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	CC2500_Strobe(CC2500_SIDLE);
 

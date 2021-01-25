@@ -30,7 +30,8 @@ Multiprotocol is distributed in the hope that it will be useful,
 static void __attribute__((unused)) OMP_send_packet()
 {
 #ifdef OMP_HUB_TELEMETRY
-	if(option==0) option=1;								// Select the CC2500 by default
+	if(option==0)
+		prev_option=option=1;							// Select the CC2500 by default
 	PE1_off; PE2_on; 									// CC2500 antenna RF2
 #endif
 
@@ -110,7 +111,7 @@ static void __attribute__((unused)) OMP_init()
 	//Config CC2500
 #ifdef OMP_HUB_TELEMETRY
 	if(option==0)
-		option=1;								// Select the CC2500
+		prev_option=option=1;					// Select the CC2500
 #endif
 	XN297L_Init();
 	XN297L_SetTXAddr((uint8_t*)"FLPBD", 5);
@@ -119,7 +120,7 @@ static void __attribute__((unused)) OMP_init()
 
 #ifdef OMP_HUB_TELEMETRY
 	//Config NRF
-	option=0;									// Select the NRF
+	prev_option=option=0;						// Select the NRF
 	XN297L_Init();
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC));
 	XN297_SetRXAddr(rx_tx_addr, 5);				// Set the RX address

@@ -304,7 +304,6 @@ uint16_t initWFLY2()
 	rf_ch_num = 0;
 	bind_counter = WFLY2_BIND_COUNT;
 	phase = WFLY2_DATA;
-	prev_option = option;
 	#ifdef WFLY2_HUB_TELEMETRY
 		packet_count = 0;
 		telemetry_lost = 1;

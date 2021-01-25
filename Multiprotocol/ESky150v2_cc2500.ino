@@ -79,7 +79,6 @@ static void __attribute__((unused)) ESKY150V2_send_packet()
 
 uint16_t ESKY150V2_callback()
 {
-	if(option==0) option=1; 	//Trick the RF component auto select system
 	if(IS_BIND_DONE)
 	{
 		#ifdef MULTI_SYNC
@@ -107,7 +106,6 @@ uint16_t ESKY150V2_callback()
 
 uint16_t initESKY150V2()
 {
-	if(option==0) option=1;		 // Trick the RF component auto select system
 	CC2500_250K_Init();
 	ESKY150V2_set_freq();
 	hopping_frequency_no = 0;

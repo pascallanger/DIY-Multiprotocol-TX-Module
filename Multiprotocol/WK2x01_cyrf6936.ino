@@ -477,7 +477,6 @@ uint16_t WK_setup()
 	packet_count = 0;
 	packet_sent = 0;
 	WK_last_beacon = 0;
-	prev_option=option;
 	if(sub_protocol!=WK2801 || option==0)
 	{
 		CYRF_GetMfgData(cyrfmfg_id);

@@ -54,7 +54,6 @@ static void __attribute__((unused)) HITEC_CC2500_init()
 	for (uint8_t i = 0; i < 39; ++i)
 		CC2500_WriteReg(i, pgm_read_byte_near(&HITEC_init_values[i]));
 
-	prev_option = option;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	
 	CC2500_SetTxRxMode(TX_EN);

@@ -320,7 +320,7 @@ uint16_t ReadAFHDS2A()
 				return 3850;
 			}
 			phase |= AFHDS2A_WAIT_WRITE;
-			return 1700;
+			return AFHDS2A_WRITE_TIME;
 		case AFHDS2A_BIND1|AFHDS2A_WAIT_WRITE:
 		case AFHDS2A_BIND2|AFHDS2A_WAIT_WRITE:
 		case AFHDS2A_BIND3|AFHDS2A_WAIT_WRITE:
@@ -336,7 +336,7 @@ uint16_t ReadAFHDS2A()
 			phase++;
 			if(phase > AFHDS2A_BIND3)
 				phase = AFHDS2A_BIND1;
-			return 2150;
+			return 3850-AFHDS2A_WRITE_TIME;
 		case AFHDS2A_BIND4:
 			AFHDS2A_build_bind_packet();
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, packet_count%2 ? 0x0d : 0x8c);

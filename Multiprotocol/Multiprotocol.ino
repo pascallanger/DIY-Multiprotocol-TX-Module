@@ -292,7 +292,7 @@ void setup()
 			currMillis = millis();
 		}
 
-		delay(50);  // Brief delay for FTDI debugging
+		delay(250);  // Brief delay for FTDI debugging
 		debugln("Multiprotocol version: %d.%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_PATCH_LEVEL);
 	#endif
 

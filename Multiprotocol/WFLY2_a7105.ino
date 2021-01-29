@@ -116,12 +116,38 @@ static void __attribute__((unused)) WFLY2_build_packet()
 			//packet[0] = 0x00;	// Normal packet
 
 			#ifdef FAILSAFE_ENABLE
-				if(IS_FAILSAFE_VALUES_on)
-				{//Failsafe packet
-					packet[0] = 0x01;	//Failsafe packet
-					packet[5] = 0x58;	// unknown, values are counting 58,59,5A,5B and rollover
-					packet[6] = 0x55;	// unknown and constant
+				#define WFLY2_NUM_FS_PKTS 2	//the original TX sends 4 but that's not needed...
+				if(IS_FAILSAFE_VALUES_on && packet_sent >= WFLY2_NUM_FS_PKTS)	//Failsafe packet arrived from radio
+					packet_sent = 0;		// send FS config packets
+					
+				if(packet_sent < WFLY2_NUM_FS_PKTS)
+				{// Send failsafe packets
+					packet[0] = 0x01;		//Failsafe packet
+					packet[5] = 0x08 | packet_sent;
+					/*if(packet_sent > 1)	// needed when more than 2 FS packets are sent
+					{
+						packet[5] |= 0x50;	// all channels in failsafe
+						packet[6]  = 0x55;	// all channels in failsafe
+					}
+					else*/
+					{
+						uint8_t val=0;
+						for(uint8_t i = 0; i < 6; i++)
+						{
+							val >>= 2;
+							if(Failsafe_data[i+packet_sent*6] == FAILSAFE_CHANNEL_NOPULSES)		//no pulse value = 2
+								val |= 0x80;
+							else if(Failsafe_data[i+packet_sent*6] != FAILSAFE_CHANNEL_HOLD)	//hold value = 0
+								val |= 0x40;													//fs value = 1
+							//debug("ch%d=%04X, val=%02X | ",i+1+packet_sent*6, Failsafe_data[i+packet_sent*6],val);
+							if(i==1)
+								packet[5] |= val;
+						}
+						packet[6] = val;
+					}
 					offset=2;
+					packet_sent++;
+					//debugln("5=%02X, 6=%02X", packet[5], packet[6]);
 				}
 			#endif
 
@@ -136,11 +162,12 @@ static void __attribute__((unused)) WFLY2_build_packet()
 				packet[7 + offset + i*3] |= (temp>>4)&0xF0;	// high byte
 			}
 			
-			//Unknown bytes 20+offset..31
-			
 			#ifdef FAILSAFE_ENABLE
-				FAILSAFE_VALUES_off;
+				if(packet_sent >= WFLY2_NUM_FS_PKTS)
+					FAILSAFE_VALUES_off;
 			#endif
+
+			//Unknown bytes 20+offset..31
 		}
 	}
 
@@ -230,7 +257,7 @@ uint16_t ReadWFLY2()
 			if((status & 0x21)==0)
 			{ // Packet received and CRC OK
 				//Debug
-				#if 1
+				#if 0
 					debug("T:");
 					for(uint8_t i=0; i<WFLY2_PACKET_SIZE-20; i++)		// Can't send the full telemetry at full speed
 						debug(" %02X", packet[i]);
@@ -303,6 +330,7 @@ uint16_t initWFLY2()
 	hopping_frequency_no=0;
 	rf_ch_num = 0;
 	bind_counter = WFLY2_BIND_COUNT;
+	packet_sent = 255;
 	phase = WFLY2_DATA;
 	#ifdef WFLY2_HUB_TELEMETRY
 		packet_count = 0;

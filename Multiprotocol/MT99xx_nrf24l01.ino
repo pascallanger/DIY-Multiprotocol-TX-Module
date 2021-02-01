@@ -23,12 +23,12 @@
 #define MT99XX_PACKET_PERIOD_FY805	2460
 #define MT99XX_PACKET_PERIOD_MT		2625
 #define MT99XX_PACKET_PERIOD_YZ		3125
-#define MT99XX_PACKET_PERIOD_A180	3300
+#define MT99XX_PACKET_PERIOD_A180	3400	// timing changes between the packets 2 x 27220 then 1x 26080, it seems that it is only on the first RF channel which jitters by 1.14ms but hard to pinpoint with XN297dump
 #define MT99XX_INITIAL_WAIT			500
 #define MT99XX_PACKET_SIZE			9
 
-#define checksum_offset	rf_ch_num
-#define channel_offset	phase
+#define MT99XX_checksum_offset	rf_ch_num
+#define MT99XX_channel_offset	phase
 
 enum{
     // flags going to packet[6] (MT99xx, H7)
@@ -118,7 +118,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		packet[4] = rx_tx_addr[0];
 		packet[5] = rx_tx_addr[1];
 		packet[6] = rx_tx_addr[2];
-		packet[7] = checksum_offset;									// checksum offset
+		packet[7] = MT99XX_checksum_offset;									// checksum offset
 		packet[8] = 0xAA;												// fixed
 	}
 	else
@@ -161,7 +161,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					packet[7]=0x01
 						|GET_FLAG( CH5_SW, FLAG_MT_FLIP )
 						|GET_FLAG( CH9_SW, FLAG_FY805_HEADLESS );		//HEADLESS
-					checksum_offset=0;
+					MT99XX_checksum_offset=0;
 					break;
 				case A180:
 					packet[6] = FLAG_A180_RATE
@@ -169,7 +169,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					packet[7] = 0x00;
 					break;
 			}
-			uint8_t result=checksum_offset;
+			uint8_t result=MT99XX_checksum_offset;
 			for(uint8_t i=0; i<8; i++)
 				result += packet[i];
 			packet[8] = result;
@@ -207,7 +207,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		if(sub_protocol==FY805)
 			NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x4B); // FY805 always transmits on the same channel
 		else // MT99 & H7 & YZ & A180
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no] + channel_offset);
+			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no] + MT99XX_channel_offset);
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
@@ -264,15 +264,25 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 		case LS:
 			rx_tx_addr[0] = 0xCC;
 			break;
+	#ifdef FORCE_A180_ID
+		case A180:
+			rx_tx_addr[0] = 0x84;
+			rx_tx_addr[1] = 0x62;
+			rx_tx_addr[2] = 0x4A;
+			//MT99XX_checksum_offset = 0x30
+			//MT99XX_channel_offset  = 0x03;
+			break;
+	#endif
 		default: //MT99 & H7 & A180
 			rx_tx_addr[2] = 0x00;
+			break;
 	}
 	
 	rx_tx_addr[3] = 0xCC;
 	rx_tx_addr[4] = 0xCC;
 
-	checksum_offset = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2];
-	channel_offset = (((checksum_offset & 0xf0)>>4) + (checksum_offset & 0x0f)) % 8;
+	MT99XX_checksum_offset = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2];
+	MT99XX_channel_offset = (((MT99XX_checksum_offset & 0xf0)>>4) + (MT99XX_checksum_offset & 0x0f)) % 8;
 }
 
 uint16_t MT99XX_callback()

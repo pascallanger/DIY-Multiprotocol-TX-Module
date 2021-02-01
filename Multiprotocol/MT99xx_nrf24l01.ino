@@ -90,13 +90,6 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		packet[0] = 0x20;
 		switch(sub_protocol)
 		{
-			case A180:
-				packet_period = MT99XX_PACKET_PERIOD_A180;
-			default:	// MT99 & H7 & A180
-				packet[1] = 0x14;
-				packet[2] = 0x03;
-				packet[3] = 0x25;
-				break;
 			case YZ:
 				packet_period = MT99XX_PACKET_PERIOD_YZ;
 				packet[1] = 0x15;
@@ -113,6 +106,13 @@ static void __attribute__((unused)) MT99XX_send_packet()
 				packet[1] = 0x15;
 				packet[2] = 0x12;
 				packet[3] = 0x17;
+				break;
+			case A180:
+				packet_period = MT99XX_PACKET_PERIOD_A180;
+			default:	// MT99 & H7 & A180
+				packet[1] = 0x14;
+				packet[2] = 0x03;
+				packet[3] = 0x25;
 				break;
 		}
 		packet[4] = rx_tx_addr[0];
@@ -249,24 +249,25 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 {
 	rx_tx_addr[1] = rx_tx_addr[3]; // RX_Num
 
-    if(sub_protocol == YZ)
+	switch(protocol)
 	{
-		rx_tx_addr[0] = 0x53; // test (SB id)
-		rx_tx_addr[1] = 0x00;
-		rx_tx_addr[2] = 0x00;
-	}
-	else
-		if(sub_protocol == FY805)
-		{
+		case YZ:
+			rx_tx_addr[0] = 0x53; // test (SB id)
+			rx_tx_addr[1] = 0x00;
+			rx_tx_addr[2] = 0x00;
+			break;
+		case FY805:
 			rx_tx_addr[0] = 0x81; // test (SB id)
 			rx_tx_addr[1] = 0x0F;
 			rx_tx_addr[2] = 0x00;
-		}
-		else
-			if(sub_protocol == LS)
-				rx_tx_addr[0] = 0xCC;
-			else //MT99 & H7 & A180
-				rx_tx_addr[2] = 0x00;
+			break;
+		case LS:
+			rx_tx_addr[0] = 0xCC;
+			break;
+		default: //MT99 & H7 & A180
+			rx_tx_addr[2] = 0x00;
+	}
+	
 	rx_tx_addr[3] = 0xCC;
 	rx_tx_addr[4] = 0xCC;
 

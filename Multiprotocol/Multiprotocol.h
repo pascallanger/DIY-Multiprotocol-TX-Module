@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	16
+#define VERSION_PATCH_LEVEL	17
 
 //******************
 // Protocols
@@ -219,6 +219,7 @@ enum MT99XX
 	YZ		= 2,
 	LS		= 3,
 	FY805	= 4,
+	A180	= 5,
 };
 enum MJXQ
 {

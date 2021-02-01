@@ -1376,6 +1376,13 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP||||HEADLESS
 
+### Sub_protocol A180 - *5*
+Model: XK A180
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|3D6G
+
 ## NCC1701 - *44*
 Model: Air Hogs Star Trek USS Enterprise NCC-1701-A
 

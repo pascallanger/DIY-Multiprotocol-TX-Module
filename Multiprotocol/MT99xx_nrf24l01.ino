@@ -27,6 +27,8 @@
 #define MT99XX_INITIAL_WAIT			500
 #define MT99XX_PACKET_SIZE			9
 
+#define FORCE_A180_ID
+
 enum{
     // flags going to packet[6] (MT99xx, H7)
     FLAG_MT_RATE1   = 0x01, // (H7 & A180 high rate)
@@ -313,7 +315,8 @@ uint16_t MT99XX_callback()
 
 uint16_t initMT99XX(void)
 {
-	BIND_IN_PROGRESS;	// autobind protocol
+	if(sub_protocol != A180)
+		BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = MT99XX_BIND_COUNT;
 
 	MT99XX_initialize_txid();

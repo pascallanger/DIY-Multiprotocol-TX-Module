@@ -27,9 +27,6 @@
 #define MT99XX_INITIAL_WAIT			500
 #define MT99XX_PACKET_SIZE			9
 
-#define MT99XX_checksum_offset	rf_ch_num
-#define MT99XX_channel_offset	phase
-
 enum{
     // flags going to packet[6] (MT99xx, H7)
     FLAG_MT_RATE1   = 0x01, // (H7 & A180 high rate)
@@ -118,7 +115,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		packet[4] = rx_tx_addr[0];
 		packet[5] = rx_tx_addr[1];
 		packet[6] = rx_tx_addr[2];
-		packet[7] = MT99XX_checksum_offset;									// checksum offset
+		packet[7] = crc8;												// checksum offset
 		packet[8] = 0xAA;												// fixed
 	}
 	else
@@ -161,7 +158,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					packet[7]=0x01
 						|GET_FLAG( CH5_SW, FLAG_MT_FLIP )
 						|GET_FLAG( CH9_SW, FLAG_FY805_HEADLESS );		//HEADLESS
-					MT99XX_checksum_offset=0;
+					crc8=0;
 					break;
 				case A180:
 					packet[6] = FLAG_A180_RATE
@@ -169,7 +166,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					packet[7] = 0x00;
 					break;
 			}
-			uint8_t result=MT99XX_checksum_offset;
+			uint8_t result=crc8;
 			for(uint8_t i=0; i<8; i++)
 				result += packet[i];
 			packet[8] = result;
@@ -207,7 +204,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		if(sub_protocol==FY805)
 			NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x4B); // FY805 always transmits on the same channel
 		else // MT99 & H7 & YZ & A180
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no] + MT99XX_channel_offset);
+			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
@@ -269,8 +266,8 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 			rx_tx_addr[0] = 0x84;
 			rx_tx_addr[1] = 0x62;
 			rx_tx_addr[2] = 0x4A;
-			//MT99XX_checksum_offset = 0x30
-			//MT99XX_channel_offset  = 0x03;
+			//crc8 = 0x30
+			//channel_offset  = 0x03;
 			break;
 	#endif
 		default: //MT99 & H7 & A180
@@ -281,8 +278,16 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 	rx_tx_addr[3] = 0xCC;
 	rx_tx_addr[4] = 0xCC;
 
-	MT99XX_checksum_offset = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2];
-	MT99XX_channel_offset = (((MT99XX_checksum_offset & 0xf0)>>4) + (MT99XX_checksum_offset & 0x0f)) % 8;
+	crc8 = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2];
+	uint8_t channel_offset = (((crc8 & 0xf0)>>4) + (crc8 & 0x0f)) % 8;
+
+	//memcpy(hopping_frequency,"\x02\x48\x0C\x3e\x16\x34\x20\x2A\x2A\x20\x34\x16\x3e\x0c\x48\x02",16); // each channel + channel_offset
+	for(uint8_t i=0; i<8; i++)
+	{
+		hopping_frequency[(i<<1)  ]=0x02 + (10*i) +channel_offset;
+		hopping_frequency[(i<<1)+1]=0x48 - (10*i) +channel_offset;
+	}
+	hopping_frequency_no=0;
 }
 
 uint16_t MT99XX_callback()
@@ -311,9 +316,6 @@ uint16_t initMT99XX(void)
 	BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = MT99XX_BIND_COUNT;
 
-	memcpy(hopping_frequency,"\x02\x48\x0C\x3e\x16\x34\x20\x2A\x2A\x20\x34\x16\x3e\x0c\x48\x02",16);
-	hopping_frequency_no=0;
-	
 	MT99XX_initialize_txid();
 	MT99XX_init();
 

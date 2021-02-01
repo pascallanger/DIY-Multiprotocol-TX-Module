@@ -164,16 +164,14 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 			//    3584-4095 -> looks to be used for the throttle channel with values ranging from 880µs to 1520µs
 			for(uint8_t i=0;i<4;i++)
 			{
-				ch[i]=Failsafe_data[CH_AETR[ch_offset+i]];
-				if(ch[i]==FAILSAFE_CHANNEL_HOLD)
+				uint16_t val=Failsafe_data[CH_AETR[ch_offset+i]];
+				if(val==FAILSAFE_CHANNEL_HOLD)
 					ch[i]=1024;
-				else if(ch[i]==FAILSAFE_CHANNEL_NOPULSES)
+				else if(val==FAILSAFE_CHANNEL_NOPULSES)
 					ch[i]=0;
 				else
 				{ //Use channel value
-					ch[i]=(ch[i]>>1)+2560;
-					//if(IS_DISABLE_CH_MAP_off && ch_offset+i==CH3 && ch[i]<3072)		// Throttle
-					//	ch[i]+=1024;
+					ch[i] = convert_channel_16b_nolimit(CH_AETR[ch_offset+i],3472,2672,true);
 				}
 			}
 		}

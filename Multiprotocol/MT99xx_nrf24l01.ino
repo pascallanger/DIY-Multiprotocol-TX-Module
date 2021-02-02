@@ -27,7 +27,7 @@
 #define MT99XX_INITIAL_WAIT			500
 #define MT99XX_PACKET_SIZE			9
 
-#define FORCE_A180_ID
+//#define FORCE_A180_ID
 
 enum{
     // flags going to packet[6] (MT99xx, H7)
@@ -251,12 +251,12 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 	switch(protocol)
 	{
 		case YZ:
-			rx_tx_addr[0] = 0x53; // test (SB id)
+			rx_tx_addr[0] = 0x53;	// test (SB id)
 			rx_tx_addr[1] = 0x00;
 			rx_tx_addr[2] = 0x00;
 			break;
 		case FY805:
-			rx_tx_addr[0] = 0x81; // test (SB id)
+			rx_tx_addr[0] = 0x81;	// test (SB id)
 			rx_tx_addr[1] = 0x0F;
 			rx_tx_addr[2] = 0x00;
 			break;
@@ -265,7 +265,7 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 			break;
 	#ifdef FORCE_A180_ID
 		case A180:
-			rx_tx_addr[0] = 0x84;
+			rx_tx_addr[0] = 0x84;	// MikeHRC ID
 			rx_tx_addr[1] = 0x62;
 			rx_tx_addr[2] = 0x4A;
 			//crc8 = 0x30
@@ -281,13 +281,12 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 	rx_tx_addr[4] = 0xCC;
 
 	crc8 = rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2];
-	uint8_t channel_offset = (((crc8 & 0xf0)>>4) + (crc8 & 0x0f)) % 8;
 
-	//memcpy(hopping_frequency,"\x02\x48\x0C\x3e\x16\x34\x20\x2A\x2A\x20\x34\x16\x3e\x0c\x48\x02",16); // each channel + channel_offset
+	//memcpy(hopping_frequency,"\x02\x48\x0C\x3e\x16\x34\x20\x2A\x2A\x20\x34\x16\x3e\x0c\x48\x02",16);
 	for(uint8_t i=0; i<8; i++)
 	{
-		hopping_frequency[(i<<1)  ]=0x02 + (10*i) +channel_offset;
-		hopping_frequency[(i<<1)+1]=0x48 - (10*i) +channel_offset;
+		hopping_frequency[(i<<1)  ]=0x02 + (10*i);
+		hopping_frequency[(i<<1)+1]=0x48 - (10*i);
 	}
 	hopping_frequency_no=0;
 }
@@ -301,6 +300,9 @@ uint16_t MT99XX_callback()
 		{
 			// set tx address for data packets
 			XN297_SetTXAddr(rx_tx_addr, 5);
+			uint8_t channel_offset = (((crc8 & 0xf0)>>4) + (crc8 & 0x0f)) % 8;
+			for(uint8_t i=0;i<16;i++)
+				hopping_frequency[i] += channel_offset;
 			BIND_DONE;
 		}
 	}

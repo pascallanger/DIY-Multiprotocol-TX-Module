@@ -171,7 +171,7 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 					ch[i]=0;
 				else
 				{ //Use channel value
-					ch[i] = convert_channel_16b_nolimit(CH_AETR[ch_offset+i],3536,2607,true); //3472,2672: not enough throw
+					ch[i] = convert_channel_16b_nolimit(CH_AETR[ch_offset+i],3571,2571,true); //3472,2672: not enough throw
 				}
 			}
 		}

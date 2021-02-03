@@ -535,7 +535,7 @@ void frsky_link_frame()
 		frame[1] = v_lipo1;
 		frame[2] = v_lipo2;
 		frame[3] = RX_RSSI;
-		telemetry_link=0;
+		telemetry_link &= ~1 ;		// Sent
 	}
 	frame[4] = TX_RSSI;
 	frame[5] = RX_LQI;
@@ -563,7 +563,7 @@ void frsky_user_frame()
 		else
 		{
 			frame[1]=telemetry_in_buffer[6];			// packet size
-			telemetry_link=0;			// only 1 packet or processing second packet
+			telemetry_link &= ~2;			// only 1 packet or processing second packet
 		}
 		frame[2] = telemetry_in_buffer[7];
 		for(uint8_t i=0;i<USER_MAX_BYTES;i++)
@@ -578,7 +578,7 @@ void frsky_user_frame()
 		#endif
 	}
 	else
-		telemetry_link=0;
+		telemetry_link &= ~2;
 }
 /*
 HuB RX packets.
@@ -958,7 +958,7 @@ void TelemetryUpdate()
 			return;
 		}
 	#if defined HUB_TELEMETRY
-		if((telemetry_link & 2) && protocol == PROTO_FRSKYD)
+		if((telemetry_link & 2) && ( protocol == PROTO_FRSKYD || protocol == PROTO_BAYANG ) )
 		{	// FrSkyD
 			frsky_user_frame();
 			return;

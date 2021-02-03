@@ -218,7 +218,7 @@ static void __attribute__((unused)) BAYANG_check_rx(void)
 		for (uint8_t i=1; i < BAYANG_PACKET_SIZE-1; i++)
 			check += packet[i];
 		// decode data , check sum is ok as well, since there is no crc
-		if (packet[0] == 0x85 && packet[14] == check)
+		if (packet[0] == 0x85 && packet[14] == check && telemetry_link == 0)
 		{
 			// uncompensated battery volts*100/2
 			v_lipo1 = (packet[3]<<7) + (packet[4]>>1);
@@ -230,9 +230,32 @@ static void __attribute__((unused)) BAYANG_check_rx(void)
 			//Flags
 			//uint8_t flags = packet[3] >> 3;
 			// battery low: flags & 1
+			#if defined HUB_TELEMETRY
+				// Multiplexed P, I, D values in packet[8] and packet[9].
+    	        // The two most significant bits specify which term is sent.
+        	    // Remaining 14 bits represent the value: 0 .. 16383	telemetry_in_buffer[6] = 4;
+				telemetry_in_buffer[6]  = 0x04;
+				telemetry_in_buffer[7]  = 0x00;
+				telemetry_in_buffer[8]  = 0x5E;
+				telemetry_in_buffer[9]  = 0x24+(packet[8]>>6);	//0x24 = ACCEL_X_ID, so ACCEL_X_ID=P, ACCEL_Y_ID=I, ACCEL_Z_ID=D
+				uint8_t pos=11;
+				telemetry_in_buffer[10] = packet[9];
+				if(telemetry_in_buffer[10] == 0x5D || telemetry_in_buffer[10] == 0x5E)
+				{// Byte stuffing... I'm not sure if we really care about these 2 values, may be it would be simpler and shorter to just send the value above or below.
+					telemetry_in_buffer[11] = telemetry_in_buffer[10] ^ 0x60;
+					telemetry_in_buffer[10] = 0x5D;
+					telemetry_in_buffer[6]++;
+					pos++;
+				}
+				telemetry_in_buffer[pos] = packet[8] & 0x3F;
+			#endif
 			telemetry_counter++;
 			if(telemetry_lost==0)
-				telemetry_link=1;
+				#if defined HUB_TELEMETRY
+					telemetry_link=3;
+				#else
+					telemetry_link=1;
+				#endif
 		}
 	}
 	NRF24L01_SetTxRxMode(TXRX_OFF);

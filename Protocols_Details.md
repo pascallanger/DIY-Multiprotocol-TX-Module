@@ -560,6 +560,11 @@ Notes:
 - For FrSkyD, only the RX number used during bind is cloned -> you can't use RX num anymore
 - For FrSkyX and FrSkyX2, RX number has to be adjusted on each model to match the original TX model
 
+### Sub_protocol EraseTX - *2*
+This subprotocol erases ALL the clone IDs which have been recorded.
+
+To erase ALL the clone information, select the sub_protocol EraseTX and execute a bind.
+
 ## HITEC - *39*
 Models: OPTIMA, MINIMA and MICRO receivers.
 
@@ -1378,8 +1383,6 @@ A|E|T|R|FLIP||||HEADLESS
 
 ### Sub_protocol A180 - *5*
 Model: XK A180
-
-**Only 1 ID available**
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---

@@ -143,7 +143,7 @@ const char STR_SUBTYPE_XK[] =         "\x04""X450""X420";
 const char STR_SUBTYPE_FRSKYR9[] =    "\x07""915MHz\0""868MHz\0""915 8ch""868 8ch""FCC\0   ""--\0    ""FCC 8ch""-- 8ch\0";
 const char STR_SUBTYPE_ESKY[] =       "\x03""Std""ET4";
 const char STR_SUBTYPE_PROPEL[] =     "\x04""74-Z";
-const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""RX\0    ""CloneTX";
+const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""RX\0    ""CloneTX""EraseTX";
 const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 const char STR_SUBTYPE_WFLY[] =       "\x05""WFR0x";
 const char STR_SUBTYPE_WFLY2[] =      "\x05""RF20x";
@@ -251,7 +251,7 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 //OpenTX 2.3.x issue: DO NOT CHANGE ORDER below
 	#if defined(FRSKY_RX_CC2500_INO)
-		{PROTO_FRSKY_RX,   STR_FRSKY_RX,  2, STR_SUBTYPE_FRSKY_RX,  OPTION_RFTUNE  },
+		{PROTO_FRSKY_RX,   STR_FRSKY_RX,  3, STR_SUBTYPE_FRSKY_RX,  OPTION_RFTUNE  },
 	#endif
 	#if defined(FRSKYD_CC2500_INO)
 		{PROTO_FRSKYD,     STR_FRSKYD,    2, STR_SUBTYPE_FRSKYD,    OPTION_RFTUNE  },

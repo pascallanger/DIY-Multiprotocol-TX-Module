@@ -52,7 +52,7 @@
 52,ZSX,280
 53,Height,5ch,8ch
 54,Scanner
-55,Frsky_RX,RX,CloneTX
+55,Frsky_RX,RX,CloneTX,EraseTX
 56,AFHDS2A_RX
 57,HoTT,Sync,No_Sync
 58,FX816,P38

@@ -358,21 +358,35 @@ static void __attribute__((unused)) frsky_rx_data()
 
 uint16_t initFrSky_Rx()
 {
-	frsky_rx_chanskip = 1;
-	hopping_frequency_no = 0;
-	rx_data_started = false;
-	frsky_rx_finetune = 0;
-	telemetry_link = 0;
-	packet_count = 0;
-	if (IS_BIND_IN_PROGRESS)
+	if(sub_protocol == FRSKY_ERASE)
 	{
-		frsky_rx_format = FRSKY_RX_D8;
-		frsky_rx_initialise_cc2500();
-		phase = FRSKY_RX_TUNE_START;
-		debugln("FRSKY_RX_TUNE_START");
+		if(IS_BIND_IN_PROGRESS)
+		{// Clear all cloned addresses
+			uint16_t addr[]={ FRSKYD_CLONE_EEPROM_OFFSET+1, FRSKYX_CLONE_EEPROM_OFFSET+1, FRSKYX2_CLONE_EEPROM_OFFSET+1 };
+			for(uint8_t i=0; i<3;i++)
+				for(uint8_t j=0; j<3;j++)
+					eeprom_write_byte((EE_ADDR)(addr[i]+j), 0xFF);
+			packet_count = 100;
+		}			
 	}
 	else
-		frsky_rx_data();
+	{
+		frsky_rx_chanskip = 1;
+		hopping_frequency_no = 0;
+		rx_data_started = false;
+		frsky_rx_finetune = 0;
+		telemetry_link = 0;
+		packet_count = 0;
+		if (IS_BIND_IN_PROGRESS)
+		{
+			frsky_rx_format = FRSKY_RX_D8;
+			frsky_rx_initialise_cc2500();
+			phase = FRSKY_RX_TUNE_START;
+			debugln("FRSKY_RX_TUNE_START");
+		}
+		else
+			frsky_rx_data();
+	}
 	return 1000;
 }
 
@@ -381,6 +395,15 @@ uint16_t FrSky_Rx_callback()
 	static int8_t read_retry = 0;
 	static int8_t tune_low, tune_high;
 	uint8_t len, ch;
+
+	if(sub_protocol == FRSKY_ERASE)
+	{
+		if(packet_count)
+			packet_count--;
+		else
+			BIND_DONE;
+		return 10000;	//  Nothing to do...
+	}
 
 	if(IS_BIND_DONE && phase != FRSKY_RX_DATA) return initFrSky_Rx();	// Abort bind
 

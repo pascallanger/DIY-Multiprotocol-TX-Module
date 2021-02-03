@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	24
+#define VERSION_PATCH_LEVEL	25
 
 //******************
 // Protocols
@@ -373,6 +373,7 @@ enum FRSKY_RX
 {
 	FRSKY_RX	= 0,
 	FRSKY_CLONE	= 1,
+	FRSKY_ERASE	= 2,
 };
 
 enum FRSKYL

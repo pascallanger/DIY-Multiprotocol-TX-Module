@@ -103,7 +103,7 @@ Multiprotocol firmware can be compiled and flashed with your customized firmware
 1. Under **Tools -> Debug Option** select **None**
 
 ### Configure the firmware
-Make any changes you require to the firmware by editing the _config.h file. All the firmware configuration is done in this one file which enables full customization and a must for any PPM application.
+Make any changes you require to the firmware by editing the [_config.h](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Multiprotocol/_Config.h) file which is part of the source package you downloaded. All the firmware configuration is done in this one file which enables full customization and a must for any PPM application. 
 
 The STM32F103CB module has more than enough flash space for all the available protocols so, unlike the Atmega328p-based or STM32F103C8 module, it is not necessary to disable unused protocols.
 

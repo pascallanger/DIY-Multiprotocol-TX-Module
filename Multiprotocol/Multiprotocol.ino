@@ -234,6 +234,11 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		uint8_t	SportHead=0, SportTail=0;
 	#endif
 
+	// Functions definition when required
+	#ifdef HUB_TELEMETRY
+		static void __attribute__((unused)) frsky_send_user_frame(uint8_t, uint8_t, uint8_t);
+	#endif
+
 	//RX protocols
 	#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO) || defined(BAYANG_RX_NRF24L01_INO) || defined(DSM_RX_CYRF6936_INO)
 		bool rx_data_started;

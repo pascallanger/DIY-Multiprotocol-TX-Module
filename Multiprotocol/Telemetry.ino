@@ -594,6 +594,29 @@ packet_in[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 0A     0F          5E 3A 06 00 5E 5E 3B 09 00 5E
 05     10          5E 06 16 72 5E 5E 3A 06 00 5E
 */
+static void __attribute__((unused)) frsky_send_user_frame(uint8_t ID, uint8_t low, uint8_t high)
+{
+	telemetry_in_buffer[6]  = 0x04;		// number of bytes in the payload
+	telemetry_in_buffer[7]  = 0x00;		// unknown?
+	telemetry_in_buffer[8]  = 0x5E;		// start of payload
+	telemetry_in_buffer[9]  = ID;		// ID must be less than 0x40
+	uint8_t pos=10;
+	uint8_t value = low;
+	for(uint i=0;i<2;i++)
+	{// Byte stuffing
+		if(value == 0x5D || value == 0x5E)
+		{// Byte stuffing
+			telemetry_in_buffer[pos+1] = value ^ 0x60;
+			telemetry_in_buffer[pos] = 0x5D;
+			telemetry_in_buffer[6]++;	// 1 more byte in the payload
+			pos += 2;
+		}
+		else
+			telemetry_in_buffer[pos++] = value;
+		value = high;
+	}
+	telemetry_link |= 2;						// request to send frame
+}
 #endif
 
 

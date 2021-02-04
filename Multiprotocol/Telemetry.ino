@@ -602,7 +602,7 @@ static void __attribute__((unused)) frsky_send_user_frame(uint8_t ID, uint8_t lo
 	telemetry_in_buffer[9]  = ID;		// ID must be less than 0x40
 	uint8_t pos=10;
 	uint8_t value = low;
-	for(uint i=0;i<2;i++)
+	for(uint8_t i=0;i<2;i++)
 	{// Byte stuffing
 		if(value == 0x5D || value == 0x5E)
 		{// Byte stuffing

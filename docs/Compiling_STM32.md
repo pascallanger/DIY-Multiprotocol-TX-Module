@@ -103,16 +103,16 @@ Multiprotocol firmware can be compiled and flashed with your customized firmware
 1. Under **Tools -> Debug Option** select **None**
 
 ### Configure the firmware
-Make any changes you require to the firmware.
+Make any changes you require to the firmware by editing the _config.h file. All the firmware configuration is done in this one file which enables full customization and a must for any PPM application.
 
-The STM32 module has more than enough flash space for all the available protocols so, unlike the Atmega328p-based module, it is not necessary to disable unused protocols.
+The STM32F103CB module has more than enough flash space for all the available protocols so, unlike the Atmega328p-based or STM32F103C8 module, it is not necessary to disable unused protocols.
 
 You can still disable protocols if you wish, and you may also enable or disable other optional Multiprotocol features.
 
 ### Verify the firmware
 To check that the program will compile correctly and fit in the STM32 click **Sketch -> Verify/Compile**, or press **Ctrl+R**.
 
-If there are errors, carefully read it, go to the line number indicated and correct your typo.
+If there are errors, carefully read it, go to the line number indicated and correct your typo. Arduino has different ways to indicate that the firmware is too big so check this by removing a large number of protocols and reenable them as you need.
 
 If there are no errors and you see output like this:
 ```

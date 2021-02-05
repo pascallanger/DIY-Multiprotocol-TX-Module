@@ -131,8 +131,13 @@ jobs:
 
       - name: Build default configuration
         run: |
-          source ./buildroot/bin/buildFunctions;
-          buildMulti
+          # Skip the default build for boards where it's too large now
+          if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=none" ]] || [[ "$BOARD" == "multi4in1:STM32F1:multi5in1t18int" ]]; then
+            printf "Not testing default build for $BOARD.";
+          else
+            source ./buildroot/bin/buildFunctions;
+            buildMulti
+          fi
 
       - name: Build serial only
         run: |

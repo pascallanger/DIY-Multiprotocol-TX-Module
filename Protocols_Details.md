@@ -845,7 +845,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 A|E|T|R|FLIP|LED|CALIB|HEADLESS|RTH|GLIDE
 
 ## E129 - *83*
-Models: E129 and E130
+Models: Eachine E129/E130 and Twister Ninja 250
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---

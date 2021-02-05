@@ -29,11 +29,9 @@ enum {
 	MLINK_BIND_RX,
 	MLINK_PREP_DATA,
 	MLINK_SEND1,
-	MLINK_BUILD1,
 	MLINK_SEND2,
-	MLINK_BUILD2,
 	MLINK_SEND3,
-	MLINK_BUILD3,
+	MLINK_CHECK3,
 	MLINK_RX,
 	MLINK_BUILD4,
 };
@@ -155,7 +153,7 @@ static void __attribute__((unused)) MLINK_send_bind_packet()
 	CYRF_WriteDataPacketLen(packet, MLINK_PACKET_SIZE);
 }
 
-static void __attribute__((unused)) MLINK_build_data_packet()
+static void __attribute__((unused)) MLINK_send_data_packet()
 {
 	static uint8_t tog=0;
 	if(hopping_frequency_no==0)
@@ -204,6 +202,9 @@ static void __attribute__((unused)) MLINK_build_data_packet()
 	for(uint8_t i=0;i<MLINK_PACKET_SIZE-1;i++)
 		crc8_update(bit_reverse(packet[i]));
 	packet[7] = bit_reverse(crc8);			// CRC reflected out
+
+	//Send
+	CYRF_WriteDataPacketLen(packet, MLINK_PACKET_SIZE);
 
 	//Debug
 	#if 0
@@ -338,38 +339,23 @@ uint16_t ReadMLINK()
 				telemetry_lost = 1;
 			#endif
 			phase++;
-			MLINK_build_data_packet();
 
 
 		case MLINK_SEND1:
-			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
-			CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, packet, MLINK_PACKET_SIZE);
-			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x82);
+			MLINK_send_data_packet();
 			phase++;
-			return 4880;
-		case MLINK_BUILD1:
-			phase++;
-			MLINK_build_data_packet();
-			return 1111;
+			return 4880+1111;
 		case MLINK_SEND2:
-			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
-			CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, packet, MLINK_PACKET_SIZE);
-			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x82);
+			MLINK_send_data_packet();
 			phase++;
-			return 4617;
-		case MLINK_BUILD2:
-			phase++;
-			MLINK_build_data_packet();
 			if(hopping_frequency_no%5==0)
-				return 1017;
-			return 1422;
+				return 4617+1017;
+			return 4617+1422;
 		case MLINK_SEND3:
-			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x40);
-			CYRF_WriteRegisterMulti(CYRF_20_TX_BUFFER, packet, MLINK_PACKET_SIZE);
-			CYRF_WriteRegister(CYRF_02_TX_CTRL, 0x82);
+			MLINK_send_data_packet();
 			phase++;
 			return 4611;
-		case MLINK_BUILD3:
+		case MLINK_CHECK3:
 			//Switch to next channel
 			hopping_frequency_no++;
 			if(hopping_frequency_no>=MLINK_NUM_FREQ)
@@ -387,7 +373,6 @@ uint16_t ReadMLINK()
 			else
 				CYRF_SetPower(0x38);
 			phase=MLINK_SEND1;
-			MLINK_build_data_packet();
 			return 4470;
 		case MLINK_RX:
 			#ifdef MLINK_HUB_TELEMETRY
@@ -402,7 +387,7 @@ uint16_t ReadMLINK()
 					telemetry_counter = 0;
 				}
 			#endif
-			status=CYRF_ReadRegister(CYRF_05_RX_CTRL);//CYRF_07_RX_IRQ_STATUS);
+			status=CYRF_ReadRegister(CYRF_05_RX_CTRL);
 			debug("T(%02X):",status);
 			if( (status&0x80) == 0 )
 			{//Packet received
@@ -436,7 +421,6 @@ uint16_t ReadMLINK()
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);		// Disable RX abort
 			CYRF_SetTxRxMode(TX_EN);						// Transmit mode
 			phase=MLINK_SEND2;
-			MLINK_build_data_packet();
 			return 1000;
 	}
 	return 1000;
@@ -504,6 +488,7 @@ uint16_t initMLINK()
 	}
 	else
 		phase = MLINK_PREP_DATA;
+
 	return 10000;
 }
 

@@ -113,6 +113,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
 [LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
+[MLINK](Protocols_Details.md#MLINK---78)|78|Slow||||||||CYRF6936|
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
 [OMP](Protocols_Details.md#OMP---77)|77|||||||||CC2500&NRF24L01|XN297L
@@ -862,6 +863,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
+## MLINK - *78*
+Extended limits supported
+
+Telemetry: the 2 RXs I have are sending different information in different format, I've done something which might work or not so please report
+
+### Sub_protocol Slow - *0*
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12||CH13|CH14|CH15|CH16
+
 ## Traxxas - *43*
 Receiver 6519
 
@@ -910,7 +922,7 @@ Models: Eachine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
 Option=0 -> normal Bayang protocol
 
-Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage (set the ratio to 5.0 and adjust with offset), A2=compensated battery voltage (set the ratio to 5.0 and adjust with offset) and if supported AccX=P, AccY=I, ACCZ=D
+Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage (set the ratio to 5.0 and adjust with offset), A2=compensated battery voltage (set the ratio to 5.0 and adjust with offset) and if supported AccX=P, AccY=I, ACCZ=D (which you can rename after the sensors discovery)
 
 Option=2 -> enable analog aux channels with [NFE Silverware firmware](https://github.com/NotFastEnuf/NFE_Silverware). Two otherwise static bytes in the protocol overridden to add two 'analog' (non-binary) auxiliary channels.
 

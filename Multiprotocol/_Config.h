@@ -184,6 +184,7 @@
 #define	E010R5_CYRF6936_INO
 #define	E129_CYRF6936_INO
 #define	J6PRO_CYRF6936_INO
+#define	MLINK_CYRF6936_INO
 #define	TRAXXAS_CYRF6936_INO
 #define	WFLY_CYRF6936_INO
 #define	WK2x01_CYRF6936_INO
@@ -330,6 +331,7 @@
 #define RLINK_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define WFLY2_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define LOLI_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
+#define MLINK_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, erskyTX and OpenTX
 #define HITEC_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX

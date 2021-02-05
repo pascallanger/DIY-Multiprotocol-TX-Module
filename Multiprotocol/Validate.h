@@ -223,6 +223,10 @@
 	#define NRF24L01_INSTALLED
 	#define SX1276_INSTALLED
 	#undef ENABLE_PPM
+	#ifdef MLINK_CYRF6936_INO
+		#undef MLINK_CYRF6936_INO
+		#warning "Disabling the MLink protocol to fit in the Flash."
+	#endif
 #endif
 
 //Make sure protocols are selected correctly

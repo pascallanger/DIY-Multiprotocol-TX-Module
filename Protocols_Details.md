@@ -866,11 +866,13 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ## MLINK - *78*
 Extended limits supported
 
-**Failsafe MUST be configured once with the desired channel values (position) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
-
-Telemetry: the 2 RXs I have are sending different information in different format, I've done something which might work or not so please report
-
 Bind: the RX must be really close to the TX
+
+**Failsafe MUST be configured once with the desired channel values (hold or no pulses are not supported) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
+
+Telemetry: the 2 RXs I have are sending different information in different format
+- RX-5: RX_RSSI=RSSI=sort of RSSI or link quality, RX_LQI=number of connection lost, TX_RSSI=RSSI from the TX perspective, TX_LQI=percentage of received telemetry packets
+- RX-9-DR: A1=RX Batt (Ratio=12.7), **RX_RSSI=TX_LQI**=percentage of received telemetry packets **from the TX** perspective **not RX**, TX_RSSI=RSSI from the TX perspective, TX_LQI=percentage of received telemetry packets
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----

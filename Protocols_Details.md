@@ -113,7 +113,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
 [LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
-[MLINK](Protocols_Details.md#MLINK---78)|78|Slow||||||||CYRF6936|
+[MLINK](Protocols_Details.md#MLINK---78)|78|||||||||CYRF6936|
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
 [OMP](Protocols_Details.md#OMP---77)|77|||||||||CC2500&NRF24L01|XN297L
@@ -866,9 +866,9 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ## MLINK - *78*
 Extended limits supported
 
-Telemetry: the 2 RXs I have are sending different information in different format, I've done something which might work or not so please report
+**Failsafe MUST be configured once with the desired channel values (position) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
 
-### Sub_protocol Slow - *0*
+Telemetry: the 2 RXs I have are sending different information in different format, I've done something which might work or not so please report
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----

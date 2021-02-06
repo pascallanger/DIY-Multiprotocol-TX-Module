@@ -156,45 +156,84 @@ static void __attribute__((unused)) MLINK_send_bind_packet()
 static void __attribute__((unused)) MLINK_send_data_packet()
 {
 	static uint8_t tog=0;
-	if(hopping_frequency_no==0)
-		tog=1;
-	//Channels to be sent
-	if(phase==MLINK_SEND1 || ((hopping_frequency_no%5==0) && (phase==MLINK_SEND2)))
+	uint8_t start;
+	
+#ifdef FAILSAFE_ENABLE
+	static uint8_t fs=0;
+	if(IS_FAILSAFE_VALUES_on && phase==MLINK_SEND1)
 	{
-		if((hopping_frequency_no&1)==0)
-			packet[0] = 0x09;	//10,8,6
-		else
-			packet[0] = 0x01;	//11,9,7
+		fs=10;	// Original radio is sending 70 packets
+		FAILSAFE_VALUES_off;
+	}
+	if(fs)
+	{// Failsafe packets
+		switch(phase)
+		{
+			case MLINK_SEND2:
+				packet[0]=0x06;
+				start=17;
+				break;
+			case MLINK_SEND3:
+				packet[0]=0x84;
+				start=5;
+				fs--;
+				break;
+			default: //MLINK_SEND1:
+				packet[0]=0x05;
+				start=11;
+				break;
+		}
+		//Pack 6 channels per packet
+		for(uint8_t i=0;i<6;i++)
+		{
+			uint8_t val=start<16 ? convert_channel_16b_nolimit(start,426 >> 4,3448 >> 4,true) : 0x00;
+			start--;	// switch to next channel
+			packet[i+1]=val;
+		}
 	}
 	else
-		if(phase==MLINK_SEND2)
+#endif
+	{// Normal packets
+		if(hopping_frequency_no==0)
+			tog=1;
+		//Channels to be sent
+		if(phase==MLINK_SEND1 || ((hopping_frequency_no%5==0) && (phase==MLINK_SEND2)))
 		{
-			if(tog)
-				packet[0] = 0x02;	//x,15,13
+			if((hopping_frequency_no&1)==0)
+				packet[0] = 0x09;	//10,8,6
 			else
-				packet[0] = 0x0A;	//x,14,12
-			tog^=1;
+				packet[0] = 0x01;	//11,9,7
 		}
 		else
-		{//phase==MLINK_SEND3
-			if((hopping_frequency_no&1)==0)
-				packet[0] = 0x88;	//4,2,0
+			if(phase==MLINK_SEND2)
+			{
+				if(tog)
+					packet[0] = 0x02;	//x,15,13
+				else
+					packet[0] = 0x0A;	//x,14,12
+				tog^=1;
+			}
 			else
-				packet[0] = 0x80;	//5,3,1
-		}
+			{//phase==MLINK_SEND3
+				if((hopping_frequency_no&1)==0)
+					packet[0] = 0x88;	//4,2,0
+				else
+					packet[0] = 0x80;	//5,3,1
+			}
 
-	//Start channel
-	uint8_t ch=4+6*(packet[0]&3);
-	if((packet[0]&0x08)==0)
-		ch++;
-	
-	//Channels 426..1937..3448
-	for(uint8_t i=0;i<3;i++)
-	{
-		uint16_t tmp=ch<16 ? convert_channel_16b_nolimit(ch,426,3448,false) : 0x0000;
-		ch-=2;	// switch to next channel
-		packet[i*2+1]=tmp>>8;
-		packet[i*2+2]=tmp;
+		//Start channel
+		start=4+6*(packet[0]&3);
+		if((packet[0]&0x08)==0)
+			start++;
+		
+		//Channels 426..1937..3448
+		for(uint8_t i=0;i<3;i++)
+		{
+			uint16_t val=start<16 ? convert_channel_16b_nolimit(start,426,3448,false) : 0x0000;
+			start-=2;	// switch to next channel
+			packet[i*2+1]=val>>8;
+			packet[i*2+2]=val;
+		}
 	}
 
 	//Calculate CRC

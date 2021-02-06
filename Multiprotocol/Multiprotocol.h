@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	28
+#define VERSION_PATCH_LEVEL	29
 
 //******************
 // Protocols
@@ -467,7 +467,7 @@ enum MultiPacketTypes
 //***************
 //***  Tests  ***
 //***************
-#define IS_FAILSAFE_PROTOCOL	( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_FUTABA || protocol==PROTO_WK2x01 || protocol== PROTO_HOTT || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9 || protocol==PROTO_WFLY2 || protocol==PROTO_LOLI)
+#define IS_FAILSAFE_PROTOCOL	( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_FUTABA || protocol==PROTO_WK2x01 || protocol== PROTO_HOTT || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9 || protocol==PROTO_WFLY2 || protocol==PROTO_LOLI || protocol==PROTO_MLINK)
 #define IS_CHMAP_PROTOCOL		( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_FUTABA || protocol==PROTO_WK2x01 || protocol== PROTO_DSM || protocol==PROTO_SLT || protocol==PROTO_FLYSKY || (protocol==PROTO_KYOSHO && sub_protocol==KYOSHO_HYPE) || protocol==PROTO_ESKY || protocol==PROTO_J6PRO || protocol==PROTO_PELIKAN  || protocol==PROTO_SKYARTEC || protocol==PROTO_ESKY150V2 || protocol==PROTO_DSM_RX)
 
 //***************

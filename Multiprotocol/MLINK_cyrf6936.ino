@@ -465,18 +465,40 @@ uint16_t ReadMLINK()
 	return 1000;
 }
 
+static void __attribute__((unused)) MLINK_shuffle_freqs(uint32_t seed, uint8_t *hop)
+{
+	randomSeed(seed);
+	
+	for(uint8_t i=0; i < MLINK_NUM_FREQ/2; i++)
+	{
+		uint8_t r   = random(0xfefefefe) % (MLINK_NUM_FREQ/2);
+		uint8_t tmp = hop[r];
+		hop[r] = hop[i];
+		hop[i] = tmp;
+	}
+}
+
 uint16_t initMLINK()
 { 
 	MLINK_cyrf_config();
 
 	//Init ID and RF freqs
+	for(uint8_t i=0; i < MLINK_NUM_FREQ/2; i++)
+	{
+		hopping_frequency[i                 ] = (i<<1) + 3;
+		hopping_frequency[i+MLINK_NUM_FREQ/2] = (i<<1) + 3;
+	}
+	// part1
 	memcpy(MLINK_Data_Code  ,rx_tx_addr,4);
-	calc_fh_channels(MLINK_NUM_FREQ/2);
-	memcpy(&hopping_frequency[MLINK_NUM_FREQ/2],hopping_frequency,MLINK_NUM_FREQ/2);
+	MLINK_shuffle_freqs(MProtocol_id, hopping_frequency);
+
+	// part2
 	MProtocol_id ^= 0x6FBE3201;
 	set_rx_tx_addr(MProtocol_id);
 	memcpy(MLINK_Data_Code+4,rx_tx_addr,4);
-	calc_fh_channels(MLINK_NUM_FREQ/2);
+	MLINK_shuffle_freqs(MProtocol_id, &hopping_frequency[MLINK_NUM_FREQ/2]);
+	
+	// part3
 	MLINK_CRC_Init = rx_tx_addr[3];		//value sent during bind then used to init the CRC
 	MLINK_Unk_6_2  = 0x3A;		//unknown value sent during bind but doesn't seem to matter
 	

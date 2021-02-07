@@ -320,7 +320,7 @@ static void __attribute__((unused)) MLINK_send_data_packet()
 
 uint16_t ReadMLINK()
 {
-	uint8_t status;//,len,sum=0,check=0;
+	uint8_t status;
 	uint16_t start;
 
 	switch(phase)

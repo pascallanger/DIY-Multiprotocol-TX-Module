@@ -257,30 +257,62 @@ static void __attribute__((unused)) MLINK_send_data_packet()
 #ifdef MLINK_HUB_TELEMETRY
 	static void __attribute__((unused)) MLINK_Send_Telemetry()
 	{ // not sure how MLINK telemetry works, the 2 RXs I have are sending something completly different...
-		RX_RSSI = TX_LQI;
+		telemetry_counter += 2;				// TX LQI counter
+		telemetry_link = 1;
 
 		if(packet_in[0]==0x13)
 		{ // RX-9-DR : 13 1A C8 00 01 64 00
-			v_lipo1 = packet_in[5*2];		// Rx_Batt*20
+			uint8_t id;
+			for(uint i=1; i<5; i+=3)
+			{//2 sensors per packet
+				id=0x00;
+				switch(packet_in[i]&0x0F)
+				{
+					case 1: //voltage
+						if((packet_in[i]&0xF0) == 0x00)
+							v_lipo1 = packet_in[i+1];		// Rx_Batt*20
+						else
+							v_lipo2 = packet_in[i+1];
+						break;
+					case 2: //current
+						id = 0x28;
+						break;
+					case 5: //rpm
+						id = 0x03;
+						break;
+					case 6: //temp
+						id = 0x02;
+						break;
+					case 10: //lqi
+						RX_RSSI=RX_LQI=packet_in[i+1]>>1;
+						break;
+				}
+				#if defined HUB_TELEMETRY
+					if(id)
+					{
+						uint16_t val=((packet_in[i+2]&0x80)<<8)|((packet_in[i+2]&0x7F)<<7)|(packet_in[i+1]>>1);	//remove the alarm LSB bit, move the sign bit to MSB
+						frsky_send_user_frame(id, val, val>>8);
+					}
+				#endif
+			}
 		}
-		
-		if(packet_in[0]==0x03)
-		{ // RX-5 :    03 15 23 00 00 01 02
-			//Incoming packet values
-			RX_RSSI = packet_in[2*2]<<1;	// Looks to be the RX RSSI value
-			RX_LQI  = packet_in[5*2];		// Looks to be connection lost
-		}
+		else
+			if(packet_in[0]==0x03)
+			{ // RX-5 :    03 15 23 00 00 01 02
+				//Incoming packet values
+				RX_RSSI = packet_in[2]<<1;	// Looks to be the RX RSSI value
+				RX_LQI  = packet_in[5];		// Looks to be connection lost
+			}
+			else
+				RX_RSSI = TX_LQI;
 
 		// Read TX RSSI
 		TX_RSSI = CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;
 
-		telemetry_counter++;				// TX LQI counter
-		telemetry_link = 1;
-
 		if(telemetry_lost)
 		{
 			telemetry_lost = 0;
-			packet_count = 100;
+			packet_count = 50;
 			telemetry_counter = 100;
 		}
 	}
@@ -417,7 +449,7 @@ uint16_t ReadMLINK()
 			#ifdef MLINK_HUB_TELEMETRY
 				//TX LQI calculation
 				packet_count++;
-				if(packet_count>=100)
+				if(packet_count>=50)
 				{
 					packet_count=0;
 					TX_LQI=telemetry_counter;
@@ -443,8 +475,9 @@ uint16_t ReadMLINK()
 							crc8=bit_reverse(MLINK_CRC_Init);
 							for(uint8_t i=0;i<MLINK_PACKET_SIZE-1;i++)
 							{
-								crc8_update(bit_reverse(packet_in[i<<1]));
-								debug(" %02X",packet_in[i<<1]);
+								packet_in[i]=packet_in[i<<1];
+								crc8_update(bit_reverse(packet_in[i]));
+								debug(" %02X",packet_in[i]);
 							}
 							if(packet_in[14] == bit_reverse(crc8))	// Packet CRC is ok
 								MLINK_Send_Telemetry();

@@ -531,7 +531,7 @@ void frsky_link_frame()
 		telemetry_link |= 2 ;		// Send hub if available
 	}
 	else
-	{//PROTO_HUBSAN, PROTO_AFHDS2A, PROTO_BAYANG, PROTO_NCC1701, PROTO_CABELL, PROTO_HITEC, PROTO_BUGS, PROTO_BUGSMINI, PROTO_FRSKYX, PROTO_FRSKYX2, PROTO_PROPEL, PROTO_DEVO, PROTO_RLINK, PROTO_OMP, PROTO_WFLY2, PROTO_LOLI
+	{//PROTO_HUBSAN, PROTO_AFHDS2A, PROTO_BAYANG, PROTO_NCC1701, PROTO_CABELL, PROTO_HITEC, PROTO_BUGS, PROTO_BUGSMINI, PROTO_FRSKYX, PROTO_FRSKYX2, PROTO_PROPEL, PROTO_DEVO, PROTO_RLINK, PROTO_OMP, PROTO_WFLY2, PROTO_LOLI, PROTO_MLINK
 		frame[1] = v_lipo1;
 		frame[2] = v_lipo2;
 		frame[3] = RX_RSSI;
@@ -975,14 +975,14 @@ void TelemetryUpdate()
 	#endif
 
 		if( telemetry_link & 1 )
-		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell + Hitec + Bugs + BugsMini + NCC1701 + PROPEL + RLINK + OMP
+		{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell + Hitec + Bugs + BugsMini + NCC1701 + PROPEL + RLINK + OMP + MLINK
 			// FrSkyX telemetry if in PPM
 			frsky_link_frame();
 			return;
 		}
 	#if defined HUB_TELEMETRY
-		if((telemetry_link & 2) && ( protocol == PROTO_FRSKYD || protocol == PROTO_BAYANG ) )
-		{	// FrSkyD
+		if((telemetry_link & 2) && ( protocol == PROTO_FRSKYD || protocol == PROTO_BAYANG || protocol == PROTO_MLINK ) )
+		{	// FrSkyD + Bayang + MLINK
 			frsky_user_frame();
 			return;
 		}

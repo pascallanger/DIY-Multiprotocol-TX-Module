@@ -263,7 +263,7 @@ static void __attribute__((unused)) MLINK_send_data_packet()
 		if(packet_in[0]==0x13)
 		{ // RX-9-DR : 13 1A C8 00 01 64 00
 			uint8_t id;
-			for(uint i=1; i<5; i+=3)
+			for(uint8_t i=1; i<5; i+=3)
 			{//2 sensors per packet
 				id=0x00;
 				switch(packet_in[i]&0x0F)

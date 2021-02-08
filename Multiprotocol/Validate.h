@@ -223,10 +223,6 @@
 	#define NRF24L01_INSTALLED
 	#define SX1276_INSTALLED
 	#undef ENABLE_PPM
-	#ifdef MLINK_CYRF6936_INO
-		#undef MLINK_CYRF6936_INO
-		#warning "Disabling the MLink protocol to fit in the Flash."
-	#endif
 #endif
 
 //Make sure protocols are selected correctly
@@ -345,7 +341,6 @@
 	#undef SPORT_TELEMETRY
 	#undef SPORT_SEND
 	#undef DSM_TELEMETRY
-	#undef MULTI_STATUS
 	#undef MULTI_TELEMETRY
 	#undef SCANNER_TELEMETRY
 	#undef SCANNER_CC2500_INO
@@ -365,9 +360,6 @@
 	#undef WFLY2_HUB_TELEMETRY
 	#undef LOLI_HUB_TELEMETRY
 #else
-	#if defined(MULTI_TELEMETRY) && defined(MULTI_STATUS)
-		#error You should choose either MULTI_TELEMETRY or MULTI_STATUS but not both.
-	#endif
 	#if not defined(SCANNER_CC2500_INO) || not defined(SCANNER_TELEMETRY)
 		#undef SCANNER_TELEMETRY
 		#undef SCANNER_CC2500_INO
@@ -448,7 +440,6 @@
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 		#undef MULTI_TELEMETRY
-		#undef MULTI_STATUS
 	#endif
 #endif
 

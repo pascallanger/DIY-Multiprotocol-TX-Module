@@ -304,13 +304,9 @@
 //For STM32 and OrangeRX modules, comment to prevent the TX from forcing the serial telemetry polarity normal/invert.
 #define INVERT_TELEMETRY_TX
 
-//Uncomment if you want to send Multi status telemetry frames (Protocol available, Bind in progress, version...)
-//Use with er9x/erskyTX, for OpenTX you must select MULTI_TELEMETRY below
-//#define MULTI_STATUS
-
-//Sends Multi status and allow OpenTX to autodetect the telemetry format. Comment to disable.
-//Supported by OpenTX version 2.2 RC9 and newer. NOT supported by er9x/erskyTX use MULTI_STATUS instead.
+//Sends Multi status and allow OpenTX and erskyTX to autodetect the telemetry format. Comment to disable.
 #define MULTI_TELEMETRY
+
 //Work in progress: Sync OpenTX frames with the current protocol timing. This feature is only available on the STM32 module. Uncomment to enable.
 //#define MULTI_SYNC
 
@@ -332,7 +328,7 @@
 #define WFLY2_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define LOLI_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define MLINK_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
-#define HITEC_HUB_TELEMETRY			// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, erskyTX and OpenTX
+//#define HITEC_HUB_TELEMETRY		// Use FrSkyD Hub format to send basic telemetry to the radios which can decode it like er9x, erskyTX and OpenTX
 #define HITEC_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
 #define SCANNER_TELEMETRY			// Forward spectrum scanner data to TX
 #define FRSKY_RX_TELEMETRY			// Forward channels data to TX

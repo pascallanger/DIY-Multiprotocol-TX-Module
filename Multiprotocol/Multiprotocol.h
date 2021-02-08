@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	31
+#define VERSION_PATCH_LEVEL	32
 
 //******************
 // Protocols
@@ -1086,35 +1086,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 	  DSM: Stream[27..33] Forward Programming
 */
 /*
-  Multimodule Status
-  Based on #define MULTI_STATUS
-
-  Serial: 100000 Baud 8e2 (same as input)
-
-  Format: header (2 bytes) + data (variable)
-   [0] = 'M' (0x4d)
-   [1] Length (excluding the 2 header bytes)
-   [2-xx] data
-
-  Type = 0x01 Multimodule Status:
-   [2] Flags
-   0x01 = Input signal detected
-   0x02 = Serial mode enabled
-   0x04 = Protocol is valid
-   0x08 = Module is in binding mode
-   0x10 = Module waits a bind event to load the protocol
-   0x20 = Current protocol supports failsafe
-   0x40 = Current protocol supports disable channel mapping
-   0x80 = Data buffer is almost full
-   [3] major
-   [4] minor
-   [5] revision
-   [6] patchlevel,
-   version of multi code, should be displayed as major.minor.revision.patchlevel
-*/
-/*
-  Multiprotocol telemetry/command definition for OpenTX
-  Based on #define MULTI_TELEMETRY enables OpenTX to get the multimodule status and select the correct telemetry type automatically.
+  Multiprotocol telemetry/command definition for OpenTX and erskyTX
+  Based on #define MULTI_TELEMETRY enables OpenTX and erskyTX to get the multimodule status and select the correct telemetry type automatically.
 
   Serial: 100000 Baud 8e2 (same as input)
 

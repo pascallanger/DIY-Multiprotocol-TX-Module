@@ -4,7 +4,7 @@
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
-Multiprotocol is distributed in the hope that it will be useful,
+ Multiprotocol is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
@@ -31,7 +31,7 @@ enum {
 	DSM_RX_DATA_CH2,
 };
 
-static void __attribute__((unused)) DSM_Rx_init()
+static void __attribute__((unused)) DSM_RX_RF_init()
 {
 	DSM_cyrf_config();
 	rx_disable_lna = IS_POWER_FLAG_on;
@@ -63,7 +63,7 @@ uint16_t convert_channel_DSM_nolimit(int32_t val)
 	return (uint16_t)val;
 }
 
-static uint8_t __attribute__((unused)) DSM_Rx_check_packet()
+static uint8_t __attribute__((unused)) DSM_RX_check_packet()
 {
  	uint8_t rx_status=CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
 	if((rx_status & 0x03) == 0x02)  									// RXC=1, RXE=0 then 2nd check is required (debouncing)
@@ -99,7 +99,7 @@ static uint8_t __attribute__((unused)) DSM_Rx_check_packet()
 	return rx_status;												// Return error code
 }
 
-static void __attribute__((unused)) DSM_Rx_build_telemetry_packet()
+static void __attribute__((unused)) DSM_RX_build_telemetry_packet()
 {
 	uint8_t nbr_bits = 11;
 	if((DSM_rx_type&0xF0) == 0x00)
@@ -157,7 +157,7 @@ static void __attribute__((unused)) DSM_Rx_build_telemetry_packet()
 	telemetry_link = 1;
 }
 
-static bool __attribute__((unused)) DSM_Rx_bind_check_validity()
+static bool __attribute__((unused)) DSM_RX_bind_check_validity()
 {
 	uint16_t sum = 384 - 0x10;//
 	for(uint8_t i = 0; i < 8; i++)
@@ -173,7 +173,7 @@ static bool __attribute__((unused)) DSM_Rx_bind_check_validity()
 	return true;
 }
 
-static void __attribute__((unused)) DSM_Rx_build_bind_packet()
+static void __attribute__((unused)) DSM_RX_build_bind_packet()
 {
 	uint16_t sum = 384 - 0x10;//
 	packet[0] = 0xff ^ cyrfmfg_id[0];								// ID
@@ -205,7 +205,7 @@ static void __attribute__((unused)) DSM_abort_channel_rx(uint8_t ch)
 	CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);						// Prepare to receive
 }
 
-uint16_t DSM_Rx_callback()
+uint16_t DSM_RX_callback()
 {
 	uint8_t rx_status;
 	static uint8_t read_retry=0;
@@ -232,7 +232,7 @@ uint16_t DSM_Rx_callback()
 				if(len==16)
 				{
 					CYRF_ReadDataPacketLen(packet_in, 16);
-					if(DSM_Rx_bind_check_validity())
+					if(DSM_RX_bind_check_validity())
 					{
 						// store tx info into eeprom
 						uint16_t temp = DSM_RX_EEPROM_OFFSET;
@@ -279,7 +279,7 @@ uint16_t DSM_Rx_callback()
 						CYRF_SetTxRxMode(TX_EN);					// Force end state TX
 						CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84", 16);
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);	// Clear abort RX
-						DSM_Rx_build_bind_packet();
+						DSM_RX_build_bind_packet();
 						bind_counter=500;
 						phase++;									// DSM_RX_BIND2;
 						return 1000;
@@ -346,7 +346,7 @@ uint16_t DSM_Rx_callback()
 			break;
 		case DSM2_RX_SCAN:											// Scan for DSM2 frequencies
 			//Received something ?
-			rx_status = DSM_Rx_check_packet();
+			rx_status = DSM_RX_check_packet();
 			if(rx_status == 0x02)
 			{ // data received with no errors
 				debugln("CH%d:Found %d",rf_ch_num+1,hopping_frequency[rf_ch_num]);
@@ -401,13 +401,13 @@ uint16_t DSM_Rx_callback()
 				pps_counter = 0;
 			}
 			//Received something ?
-			rx_status = DSM_Rx_check_packet();
+			rx_status = DSM_RX_check_packet();
 			if(rx_status == 0x02)
 			{ // data received with no errors
 				#ifdef DSM_DEBUG_RF
 					debugln("CH1:RX");
 				#endif
-				DSM_Rx_build_telemetry_packet();
+				DSM_RX_build_telemetry_packet();
 				rx_data_started = true;
 				pps_counter++;
 				DSM_abort_channel_rx(2);							// Abort RX operation, set sop&data&seed&rf using CH2, DSM2/X and receive
@@ -452,13 +452,13 @@ uint16_t DSM_Rx_callback()
 			}
 			return 500;
 		case DSM_RX_DATA_CH2:
-			rx_status = DSM_Rx_check_packet();
+			rx_status = DSM_RX_check_packet();
 			if(rx_status == 0x02)
 			{ // data received with no errors
 				#ifdef DSM_DEBUG_RF
 					debugln("CH2:RX");
 				#endif
-				DSM_Rx_build_telemetry_packet();
+				DSM_RX_build_telemetry_packet();
 				pps_counter++;
 			}
 			#ifdef DSM_DEBUG_RF
@@ -476,9 +476,9 @@ uint16_t DSM_Rx_callback()
 	return 10000;
 }
 
-uint16_t initDSM_Rx()
+void DSM_RX_init()
 {
-	DSM_Rx_init();
+	DSM_RX_RF_init();
 	hopping_frequency_no = 0;
 	
 	if (IS_BIND_IN_PROGRESS)
@@ -499,7 +499,6 @@ uint16_t initDSM_Rx()
 		debugln(", type=%02X", DSM_rx_type);
 		phase = DSM_RX_DATA_PREP;
 	}
-	return 15000;
 }
 
 #endif

@@ -277,7 +277,7 @@ static void AFHDS2A_build_packet(uint8_t type)
 	#define AFHDS2A_WRITE_TIME 1700
 #endif
 
-uint16_t ReadAFHDS2A()
+uint16_t AFHDS2A_callback()
 {
 	static uint8_t packet_type;
 	static uint16_t packet_counter;
@@ -420,7 +420,7 @@ uint16_t ReadAFHDS2A()
 	return 3850; // never reached, please the compiler
 }
 
-uint16_t initAFHDS2A()
+void AFHDS2A_init()
 {
 	A7105_Init();
 
@@ -446,6 +446,5 @@ uint16_t initAFHDS2A()
 		num_ch=17;
 	else
 		num_ch=14;
-	return 50000;
 }
 #endif

@@ -356,7 +356,7 @@ static void __attribute__((unused)) CABELL_setAddress()
 }
 
 //-----------------------------------------------------------------------------------------
-static void __attribute__((unused)) CABELL_init()
+static void __attribute__((unused)) CABELL_RF_init()
 {
 	NRF24L01_Initialize();
 	CABELL_SetPower();
@@ -414,7 +414,7 @@ uint16_t CABELL_callback()
 	else if (bind_counter == 0)
 	{
 		BIND_DONE;
-		CABELL_init();   // non-bind address 
+		CABELL_RF_init();   // non-bind address 
 	}
 	else
 	{
@@ -425,17 +425,15 @@ uint16_t CABELL_callback()
 }
 
 //-----------------------------------------------------------------------------------------
-uint16_t initCABELL(void)
+void CABELL_init(void)
 {
 	if (IS_BIND_DONE)
 		bind_counter = 0;
 	else  
 		bind_counter = CABELL_BIND_COUNT;
-	CABELL_init();
+	CABELL_RF_init();
 
 	packet_period = CABELL_PACKET_PERIOD;
-
-	return packet_period;
 }
 
 #endif

@@ -222,7 +222,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	NRF24L01_SetPower();
 }
 
-static void __attribute__((unused)) MT99XX_init()
+static void __attribute__((unused)) MT99XX_RF_init()
 {
     NRF24L01_Initialize();
     if(sub_protocol == YZ)
@@ -315,18 +315,17 @@ uint16_t MT99XX_callback()
     return packet_period;
 }
 
-uint16_t initMT99XX(void)
+void MT99XX_init(void)
 {
 	if(sub_protocol != A180)
 		BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = MT99XX_BIND_COUNT;
 
 	MT99XX_initialize_txid();
-	MT99XX_init();
+	MT99XX_RF_init();
 
 	packet_period = MT99XX_PACKET_PERIOD_MT;
 
 	packet_count=0;
-	return	MT99XX_INITIAL_WAIT+MT99XX_PACKET_PERIOD_MT;
 }
 #endif

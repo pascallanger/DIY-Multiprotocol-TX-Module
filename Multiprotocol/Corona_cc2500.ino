@@ -71,7 +71,7 @@ static void __attribute__((unused)) CORONA_rf_init()
 }
 
 // Generate id and hopping freq
-static void __attribute__((unused)) CORONA_init()
+static void __attribute__((unused)) CORONA_TXID_init()
 {
 	#ifdef CORONA_FORCE_ID
 		// Example of ID and channels taken from dumps
@@ -255,7 +255,7 @@ static uint16_t __attribute__((unused)) CORONA_build_packet()
 	return packet_period;
 }
 
-uint16_t ReadCORONA()
+uint16_t CORONA_callback()
 {
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(22000);
@@ -276,7 +276,7 @@ uint16_t ReadCORONA()
 	return packet_period;
 }
 
-uint16_t initCORONA()
+void CORONA_init()
 {
 	switch(sub_protocol)
 	{
@@ -293,9 +293,8 @@ uint16_t initCORONA()
 	state=400;					// Used by V2 to send RF channels + ID for 2.65s at startup
 	hopping_frequency_no=0;
 	fdv3_id_send = 0;
-	CORONA_init();
+	CORONA_TXID_init();
 	CORONA_rf_init();
-	return 10000;
 }
 
 #endif

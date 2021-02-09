@@ -95,7 +95,7 @@ static void __attribute__((unused)) RLINK_hop()
 	hopping_frequency[rf_ch_num]=12*16+inc;
 }
 
-static void __attribute__((unused)) RLINK_init()
+static void __attribute__((unused)) RLINK_TXID_init()
 {
 	#ifdef RLINK_FORCE_ID
 		//surface RC6GS
@@ -296,14 +296,13 @@ uint16_t RLINK_callback()
 	return 0;
 }
 
-uint16_t initRLINK()
+void RLINK_init()
 {
 	BIND_DONE;	// Not a TX bind protocol
-	RLINK_init();
+	RLINK_TXID_init();
 	RLINK_rf_init();
 	packet_count = 0;
 	phase = RLINK_DATA;
-	return 10000;
 }
 
 #endif

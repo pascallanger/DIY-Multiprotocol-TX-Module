@@ -137,7 +137,7 @@ const uint8_t PROGMEM HOTT_hop[][HOTT_NUM_RF_CHANNELS]=
 		};
 const uint16_t PROGMEM HOTT_hop_val[] = { 0xC06B, 0xC34A, 0xDB24, 0x8E09, 0x272E, 0x217F, 0x155B, 0xEDE8, 0x1D31, 0x0986, 0x56F7, 0x6454, 0xC42D, 0x01D2, 0xC253, 0x1180 };
 
-static void __attribute__((unused)) HOTT_init()
+static void __attribute__((unused)) HOTT_TXID_init()
 {
 	packet[0] = pgm_read_word_near( &HOTT_hop_val[num_ch] );
 	packet[1] = pgm_read_word_near( &HOTT_hop_val[num_ch] )>>8;
@@ -277,7 +277,7 @@ static void __attribute__((unused)) HOTT_prep_data_packet()
 	rf_ch_num=hopping_frequency[hopping_frequency_no];
 }
 
-uint16_t ReadHOTT()
+uint16_t HOTT_callback()
 {
 	switch(phase)
 	{
@@ -383,7 +383,7 @@ uint16_t ReadHOTT()
 						for(uint8_t i=0; i<5; i++)
 							eeprom_write_byte((EE_ADDR)(addr+i),packet_in[5+i]);
 						BIND_DONE;
-						HOTT_init();
+						HOTT_TXID_init();
 					}
 					#ifdef HOTT_FW_TELEMETRY
 						else
@@ -509,10 +509,10 @@ uint16_t ReadHOTT()
 	return 0;
 }
 
-uint16_t initHOTT()
+void HOTT_init()
 {
 	num_ch=random(0xfefefefe)%16;
-	HOTT_init();
+	HOTT_TXID_init();
 	HOTT_rf_init();
 	#ifdef HOTT_FW_TELEMETRY
 		HoTT_SerialRX_val=0;
@@ -527,7 +527,6 @@ uint16_t initHOTT()
 		state=HOTT_SENSOR_SEARCH_PERIOD;
 	#endif
 	phase = HOTT_START;
-	return 10000;
 }
 
 #endif

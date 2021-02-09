@@ -239,7 +239,7 @@ static void __attribute__((unused)) kn_calculate_freqency_hopping_channels()
 // V977 needs payload length in the packet. We should configure 24L01 to enable Packet Control Field(PCF)
 //   Some RX reg settings are actually for enable PCF
 //-------------------------------------------------------------------------------------------------
-static void __attribute__((unused)) kn_init()
+static void __attribute__((unused)) KN_RF_init()
 {
 	kn_calculate_tx_addr();
 	kn_calculate_freqency_hopping_channels();
@@ -272,7 +272,7 @@ static void __attribute__((unused)) kn_init()
 //================================================================================================
 // Private Functions
 //================================================================================================
-uint16_t initKN()
+void KN_init()
 {
 	if(sub_protocol==WLTOYS)
 	{
@@ -288,13 +288,11 @@ uint16_t initKN()
 		packet_count  = KN_FX_PACKET_SEND_COUNT;
 		seed = KN_FX_PACKET_SEND_COUNT * KN_FX_SENDING_PACKET_PERIOD;
 	}
-	kn_init();
+	KN_RF_init();
 	phase = IS_BIND_IN_PROGRESS ? KN_PHASE_PRE_BIND : KN_PHASE_PRE_SEND;
-
-	return KN_INIT_WAIT_MS;
 }
 
-uint16_t kn_callback()
+uint16_t KN_callback()
 {
 	switch (phase)
 	{

@@ -157,7 +157,7 @@ static void __attribute__((unused)) FrSkyR9_build_EU_packet()
 	packet[13] = FrSkyR9_CRC8(packet, 13);
 }
 
-uint16_t initFrSkyR9()
+void FRSKYR9_init()
 {
 	//Check frequencies
 	#ifdef DISP_FREQ_TABLE
@@ -213,10 +213,9 @@ uint16_t initFrSkyR9()
 	
 	hopping_frequency_no=0;
 	phase=FRSKYR9_FREQ;
-	return 20000;												// Start calling FrSkyR9_callback in 20 milliseconds
 }
 
-uint16_t FrSkyR9_callback()
+uint16_t FRSKYR9_callback()
 {
 	switch (phase)
 	{

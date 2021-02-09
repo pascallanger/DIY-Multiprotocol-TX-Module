@@ -219,7 +219,7 @@ static void __attribute__((unused)) HITEC_send_packet()
 		packet[23] >>= 1;	// packet sequence
 }
 
-uint16_t ReadHITEC()
+uint16_t HITEC_callback()
 {
 	switch(phase)
 	{
@@ -389,7 +389,7 @@ uint16_t ReadHITEC()
 	return 0;
 }
 
-uint16_t initHITEC()
+void HITEC_init()
 {
 	HITEC_RF_channels();
 	#ifdef HITEC_FORCE_ID	// ID and channels taken from dump
@@ -399,7 +399,6 @@ uint16_t initHITEC()
 		memcpy((void *)hopping_frequency,(void *)"\x00\x3A\x4A\x32\x0C\x58\x2A\x10\x26\x20\x08\x60\x68\x70\x78\x80\x88\x56\x5E\x66\x6E",HITEC_NUM_FREQUENCE);
 	#endif
 	phase = HITEC_START;
-	return 10000;
 }
 
 /* Full telemetry 

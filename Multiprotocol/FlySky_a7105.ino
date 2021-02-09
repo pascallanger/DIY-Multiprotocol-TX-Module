@@ -12,7 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Last sync with hexfet new_protocols/flysky_a7105.c dated 2015-09-28
+// Last sync with hexfet new_protocols/FLYSKY_a7105.c dated 2015-09-28
 
 #if defined(FLYSKY_A7105_INO)
 
@@ -53,7 +53,7 @@ enum {
 const uint8_t PROGMEM V912_X17_SEQ[10] =  { 0x14, 0x31, 0x40, 0x49, 0x49,    // sometime first byte is 0x15 ?
 											0x49, 0x49, 0x49, 0x49, 0x49, }; 
 
-static void __attribute__((unused)) flysky_apply_extension_flags()
+static void __attribute__((unused)) FLYSKY_apply_extension_flags()
 {
 	switch(sub_protocol)
 	{
@@ -129,7 +129,7 @@ static void __attribute__((unused)) flysky_apply_extension_flags()
 	}
 }
 
-static void __attribute__((unused)) flysky_build_packet(uint8_t init)
+static void __attribute__((unused)) FLYSKY_build_packet(uint8_t init)
 {
     uint8_t i;
 	//servodata timing range for flysky.
@@ -150,17 +150,17 @@ static void __attribute__((unused)) flysky_build_packet(uint8_t init)
 		packet[5 + i*2]=temp&0xFF;		//low byte of servo timing(1000-2000us)
 		packet[6 + i*2]=(temp>>8)&0xFF;	//high byte of servo timing(1000-2000us)
 	}
-    flysky_apply_extension_flags();
+    FLYSKY_apply_extension_flags();
 }
 
-uint16_t ReadFlySky()
+uint16_t FLYSKY_callback()
 {
 	#ifndef FORCE_FLYSKY_TUNING
 		A7105_AdjustLOBaseFreq(1);
 	#endif
 	if(IS_BIND_IN_PROGRESS)
 	{
-		flysky_build_packet(1);
+		FLYSKY_build_packet(1);
 		A7105_WriteData(21, 1);
 		bind_counter--;
 		if (bind_counter==0)
@@ -171,7 +171,7 @@ uint16_t ReadFlySky()
 		#ifdef MULTI_SYNC
 			telemetry_set_input_sync(packet_period);
 		#endif
-		flysky_build_packet(0);
+		FLYSKY_build_packet(0);
 		A7105_WriteData(21, hopping_frequency[hopping_frequency_no & 0x0F]);
 		A7105_SetPower();
 	}
@@ -179,7 +179,7 @@ uint16_t ReadFlySky()
 	return packet_period;
 }
 
-const uint8_t PROGMEM tx_channels[8][4] = {
+const uint8_t PROGMEM FLYSKY_tx_channels[8][4] = {
 	{ 0x12, 0x34, 0x56, 0x78},
 	{ 0x18, 0x27, 0x36, 0x45},
 	{ 0x41, 0x82, 0x36, 0x57},
@@ -190,7 +190,7 @@ const uint8_t PROGMEM tx_channels[8][4] = {
 	{ 0x71, 0x86, 0x43, 0x52}
 };
 
-uint16_t initFlySky()
+void FLYSKY_init()
 {
 	uint8_t chanrow;
 	uint8_t chanoffset;
@@ -208,7 +208,7 @@ uint16_t initFlySky()
 	chanoffset=rx_tx_addr[3]/16;
 	for(uint8_t i=0;i<16;i++)
 	{
-		temp=pgm_read_byte_near(&tx_channels[chanrow>>1][i>>2]);
+		temp=pgm_read_byte_near(&FLYSKY_tx_channels[chanrow>>1][i>>2]);
 		if(i&0x02)
 			temp&=0x0F;
 		else
@@ -242,6 +242,5 @@ uint16_t initFlySky()
 		bind_counter = FLYSKY_BIND_COUNT;
 	else
 		bind_counter = 0;
-	return 2400;
 }
 #endif

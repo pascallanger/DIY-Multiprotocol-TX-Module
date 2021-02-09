@@ -206,7 +206,7 @@ static void __attribute__((unused)) WFLY2_build_packet()
 #define WFLY2_BUFFER_TIME		1500	//1500
 #define WFLY2_WRITE_TIME		800		//942
 
-uint16_t ReadWFLY2()
+uint16_t WFLY2_callback()
 {
 	uint16_t start;
 	uint8_t status;
@@ -310,7 +310,7 @@ uint16_t ReadWFLY2()
 	return WFLY2_PACKET_PERIOD; // never reached, please the compiler
 }
 
-uint16_t initWFLY2()
+void WFLY2_init()
 {
 	A7105_Init();
 
@@ -336,6 +336,5 @@ uint16_t initWFLY2()
 		packet_count = 0;
 		telemetry_lost = 1;
 	#endif
-	return 2000;
 }
 #endif

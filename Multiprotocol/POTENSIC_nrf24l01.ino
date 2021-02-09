@@ -71,7 +71,7 @@ static void __attribute__((unused)) POTENSIC_send_packet()
 	NRF24L01_SetPower();
 }
 
-static void __attribute__((unused)) POTENSIC_init()
+static void __attribute__((unused)) POTENSIC_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -116,13 +116,12 @@ uint16_t POTENSIC_callback()
 	return POTENSIC_PACKET_PERIOD;
 }
 
-uint16_t initPOTENSIC(void)
+void POTENSIC_init(void)
 {
 	bind_counter = POTENSIC_BIND_COUNT;
 	POTENSIC_initialize_txid();
-	POTENSIC_init();
+	POTENSIC_RF_init();
 	hopping_frequency_no = 0;
-	return	POTENSIC_INITIAL_WAIT;
 }
 
 #endif

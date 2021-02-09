@@ -124,7 +124,7 @@ uint16_t E016HV2_callback()
 	return E016HV2_PACKET_PERIOD;
 }
 
-uint16_t initE016HV2()
+void E016HV2_init()
 {
 	//Config CC2500
 	CC2500_250K_Init();
@@ -152,7 +152,6 @@ uint16_t initE016HV2()
 	flags=0;
 	bind_counter = E016HV2_BIND_COUNT;
 	BIND_IN_PROGRESS;								// Autobind protocol
-	return E016HV2_INITIAL_WAIT;
 }
 
 #endif

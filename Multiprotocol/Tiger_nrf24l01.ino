@@ -88,7 +88,7 @@ static void __attribute__((unused)) TIGER_send_packet()
 	NRF24L01_SetPower();
 }
 
-static void __attribute__((unused)) TIGER_init()
+static void __attribute__((unused)) TIGER_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -142,14 +142,13 @@ uint16_t TIGER_callback()
 	return TIGER_PACKET_PERIOD;
 }
 
-uint16_t initTIGER()
+void TIGER_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	TIGER_initialize_txid();
-	TIGER_init();
+	TIGER_RF_init();
 	hopping_frequency_no = 0;
 	bind_counter=TIGER_BIND_COUNT;
-	return TIGER_INITIAL_WAIT;
 }
 
 #endif

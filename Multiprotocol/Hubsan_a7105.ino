@@ -285,7 +285,7 @@ static uint8_t __attribute__((unused)) hubsan_check_integrity()
 }
 #endif
 
-uint16_t ReadHubsan() 
+uint16_t HUBSAN_callback() 
 {
 #ifdef HUBSAN_HUB_TELEMETRY
 	static uint8_t rfMode=0;
@@ -446,7 +446,7 @@ uint16_t ReadHubsan()
 	return 0;
 }
 
-uint16_t initHubsan()
+void HUBSAN_init()
 {
 	const uint8_t allowed_ch[] = {0x14, 0x1e, 0x28, 0x32, 0x3c, 0x46, 0x50, 0x5a, 0x64, 0x6e, 0x78, 0x82};
 	A7105_Init();
@@ -467,7 +467,6 @@ uint16_t initHubsan()
 	}
 	packet_count=0;
 	bind_phase=0;
-	return 10000;
 }
 
 #endif

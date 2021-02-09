@@ -96,13 +96,13 @@ static void REDPINE_data_frame() {
         packet[10] = REDPINE_LOOPTIME_SLOW;
 }
 
-static uint16_t ReadREDPINE()
+uint16_t REDPINE_callback()
 {
 	CC2500_SetFreqOffset();
 	if(IS_BIND_IN_PROGRESS)
 	{
         if (state == REDPINE_BIND) {
-    		REDPINE_init(0);
+    		REDPINE_RF_init(0);
         }
 		REDPINE_set_channel(49);
         CC2500_SetTxRxMode(TX_EN);
@@ -114,7 +114,7 @@ static uint16_t ReadREDPINE()
 		if(--bind_counter==0)
 		{
 			BIND_DONE;
-			REDPINE_init(sub_protocol);
+			REDPINE_RF_init(sub_protocol);
 		}
 		return 4000;
 	}
@@ -171,7 +171,7 @@ static const uint8_t REDPINE_init_data[][3] = {
 	{CC2500_3E_PATABLE,   0xff, 0xff}
 };
 
-static void REDPINE_init(uint8_t format)
+static void REDPINE_RF_init(uint8_t format)
 {
 	CC2500_Reset();
 
@@ -195,7 +195,7 @@ static void REDPINE_init(uint8_t format)
 	}
 }
 
-static uint16_t initREDPINE()
+void REDPINE_init()
 {
 	hopping_frequency_no = 0;
 	// Used from kn_nrf24l01.c : kn_calculate_freqency_hopping_channels
@@ -228,8 +228,7 @@ static uint16_t initREDPINE()
 		packet_period = REDPINE_LOOPTIME_SLOW*1000;
 
 	bind_counter=REDPINE_BIND;
-	REDPINE_init(sub_protocol);
+	REDPINE_RF_init(sub_protocol);
 	CC2500_SetTxRxMode(TX_EN);  // enable PA
-	return 10000;
 }
 #endif

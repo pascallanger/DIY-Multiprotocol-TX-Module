@@ -110,7 +110,7 @@ static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
 	XN297L_SetFreqOffset();			// Set frequency offset
 }
 
-static void __attribute__((unused)) V911S_init()
+static void __attribute__((unused)) V911S_RF_init()
 {
 	XN297L_Init();
 	if(sub_protocol==V911S_STD)
@@ -161,7 +161,7 @@ uint16_t V911S_callback()
 	return	packet_period;
 }
 
-uint16_t initV911S(void)
+void V911S_init(void)
 {
 	V911S_initialize_txid();
 	#ifdef V911S_ORIGINAL_ID
@@ -191,7 +191,7 @@ uint16_t initV911S(void)
 		}
 	#endif
 
-	V911S_init();
+	V911S_RF_init();
 
 	if(IS_BIND_IN_PROGRESS)
 	{
@@ -204,7 +204,6 @@ uint16_t initV911S(void)
 		packet_period= V911S_PACKET_PERIOD;
 	}
 	hopping_frequency_no=0;
-	return	V911S_INITIAL_WAIT;
 }
 
 #endif

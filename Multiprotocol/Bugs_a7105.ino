@@ -315,7 +315,7 @@ static void __attribute__((unused)) BUGS_increment_counts()
 // FIFO config is one less than desired value
 #define BUGS_FIFO_SIZE_RX      15
 #define BUGS_FIFO_SIZE_TX      21
-uint16_t ReadBUGS(void)
+uint16_t BUGS_callback(void)
 {
 	uint8_t mode, base_adr;
 	uint16_t rxid;
@@ -437,7 +437,7 @@ uint16_t ReadBUGS(void)
 	return packet_period;
 }
 
-uint16_t initBUGS(void)
+void BUGS_init(void)
 {
 	uint16_t rxid=0;
 	uint8_t base_adr=BUGS_EEPROM_OFFSET+(RX_num&0x0F)*2;
@@ -459,8 +459,6 @@ uint16_t initBUGS(void)
 	armed = 0;
 	arm_flags = BUGS_FLAG_DISARM;		// initial value from captures
 	arm_channel_previous = BUGS_CH_SW_ARM;
-
-	return 10000;
 }
 
 #endif

@@ -223,7 +223,7 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	hopping_frequency_no %= 2 * MJXQ_RF_NUM_CHANNELS;	// channels repeated
 }
 
-static void __attribute__((unused)) MJXQ_init()
+static void __attribute__((unused)) MJXQ_RF_init()
 {
 	uint8_t addr[MJXQ_ADDRESS_LENGTH];
 	memcpy(addr, "\x6d\x6a\x77\x77\x77", MJXQ_ADDRESS_LENGTH);
@@ -350,14 +350,13 @@ uint16_t MJXQ_callback()
     return MJXQ_PACKET_PERIOD;
 }
 
-uint16_t initMJXQ(void)
+void MJXQ_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	bind_counter = MJXQ_BIND_COUNT;
     MJXQ_initialize_txid();
-    MJXQ_init();
+    MJXQ_RF_init();
 	packet_count=0;
-	return MJXQ_INITIAL_WAIT+MJXQ_PACKET_PERIOD;
 }
 
 #endif

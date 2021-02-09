@@ -126,7 +126,7 @@ static void __attribute__((unused)) j6pro_set_radio_channels()
     hopping_frequency[3] = hopping_frequency[0];
 }
 
-uint16_t ReadJ6Pro()
+uint16_t J6PRO_callback()
 {
     uint16_t start;
 
@@ -226,7 +226,7 @@ uint16_t ReadJ6Pro()
     return 0;
 }
 
-uint16_t initJ6Pro()
+void J6PRO_init()
 {
     j6pro_cyrf_init();
 
@@ -234,7 +234,6 @@ uint16_t initJ6Pro()
         phase = J6PRO_BIND;
     else
         phase = J6PRO_CHANSEL;
-    return 2400;
 }
 
 #endif

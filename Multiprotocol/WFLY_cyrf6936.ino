@@ -150,7 +150,7 @@ static uint16_t __attribute__((unused)) WFLY_send_data_packet()
 	return 1093;	// case 3
 }
 
-uint16_t ReadWFLY()
+uint16_t WFLY_callback()
 {
 	uint8_t status,len,sum=0,check=0;
 	uint8_t start;
@@ -244,7 +244,7 @@ uint16_t ReadWFLY()
 	return 1000;
 }
 
-uint16_t initWFLY()
+void WFLY_init()
 { 
 	//Random start channel
 	uint8_t ch=0x0A+random(0xfefefefe)%0x0E;
@@ -291,7 +291,6 @@ uint16_t initWFLY()
 	}
 	else
 		phase = WFLY_PREP_DATA;
-	return 10000;
 }
 
 #endif

@@ -70,7 +70,7 @@ const uint8_t PROGMEM freq_hopping[][16] = {
 		0x18, 0x2A, 0x21, 0x38, 0x10, 0x26, 0x20, 0x1F }  //  03
 };
 
-static void __attribute__((unused)) v202_init()
+static void __attribute__((unused)) V2X2_RF_init()
 {
 	NRF24L01_Initialize();
 
@@ -241,7 +241,7 @@ static void __attribute__((unused)) V2X2_send_packet()
 		NRF24L01_SetPower();
 }
 
-uint16_t ReadV2x2()
+uint16_t V2X2_callback()
 {
 	//if (packet_sent && NRF24L01_packet_ack() != PKT_ACKED)
 	//	return V2X2_PACKET_CHKTIME;
@@ -268,7 +268,7 @@ uint16_t ReadV2x2()
 	return V2X2_PACKET_PERIOD;
 }
 
-uint16_t initV2x2()
+void V2X2_init()
 {	
 	if(sub_protocol==V2X2_MR101)
 		BIND_IN_PROGRESS;
@@ -276,9 +276,8 @@ uint16_t initV2x2()
 	hopping_frequency_no = 0;
 	bind_counter = V2X2_BIND_COUNT;
 
-	v202_init();
+	V2X2_RF_init();
 	V2X2_set_tx_id();
-	return 50000;
 }
 
 #endif

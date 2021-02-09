@@ -40,7 +40,7 @@ enum {
 	FRSKY_RX_DATA,
 };
 
-const PROGMEM uint8_t frsky_rx_common_reg[][2] = {
+const PROGMEM uint8_t FRSKY_RX_common_reg[][2] = {
 	{CC2500_02_IOCFG0, 0x01},
 	{CC2500_18_MCSM0, 0x18},
 	{CC2500_07_PKTCTRL1, 0x05},
@@ -68,7 +68,7 @@ const PROGMEM uint8_t frsky_rx_common_reg[][2] = {
 	{CC2500_09_ADDR, 0x03},
 };
 
-const PROGMEM uint8_t frsky_rx_d16fcc_reg[][2] = {
+const PROGMEM uint8_t FRSKY_RX_d16fcc_reg[][2] = {
 	{CC2500_17_MCSM1, 0x0C},
 	{CC2500_0E_FREQ1, 0x76},
 	{CC2500_0F_FREQ0, 0x27},
@@ -81,7 +81,7 @@ const PROGMEM uint8_t frsky_rx_d16fcc_reg[][2] = {
 	{CC2500_15_DEVIATN, 0x51},
 };
 
-const PROGMEM uint8_t frsky_rx_d16lbt_reg[][2] = {
+const PROGMEM uint8_t FRSKY_RX_d16lbt_reg[][2] = {
 	{CC2500_17_MCSM1, 0x0E},
 	{CC2500_0E_FREQ1, 0x80},
 	{CC2500_0F_FREQ0, 0x00},
@@ -94,7 +94,7 @@ const PROGMEM uint8_t frsky_rx_d16lbt_reg[][2] = {
 	{CC2500_15_DEVIATN, 0x53},
 };
 
-const PROGMEM uint8_t frsky_rx_d8_reg[][2] = {
+const PROGMEM uint8_t FRSKY_RX_d8_reg[][2] = {
 	{CC2500_17_MCSM1,    0x0C},
 	{CC2500_0E_FREQ1,    0x76},
 	{CC2500_0F_FREQ0,    0x27},
@@ -107,32 +107,32 @@ const PROGMEM uint8_t frsky_rx_d8_reg[][2] = {
 	{CC2500_15_DEVIATN,  0x42},
 };
 
-static uint8_t frsky_rx_chanskip;
-static int8_t  frsky_rx_finetune;
-static uint8_t frsky_rx_format;
+static uint8_t FRSKY_RX_chanskip;
+static int8_t  FRSKY_RX_finetune;
+static uint8_t FRSKY_RX_format;
 
-static void __attribute__((unused)) frsky_rx_strobe_rx()
+static void __attribute__((unused)) FRSKY_RX_strobe_rx()
 {
 	 CC2500_Strobe(CC2500_SIDLE);
 	 CC2500_Strobe(CC2500_SFRX);
 	 CC2500_Strobe(CC2500_SRX);
 }
 
-static void __attribute__((unused)) frsky_rx_initialise_cc2500() {
-	const uint8_t frsky_rx_length[] = { FRSKY_RX_D8_LENGTH, FRSKY_RX_D16FCC_LENGTH, FRSKY_RX_D16LBT_LENGTH, FRSKY_RX_D16v2_LENGTH, FRSKY_RX_D16v2_LENGTH };
-	packet_length = frsky_rx_length[frsky_rx_format];
+static void __attribute__((unused)) FRSKY_RX_initialise_cc2500() {
+	const uint8_t FRSKY_RX_length[] = { FRSKY_RX_D8_LENGTH, FRSKY_RX_D16FCC_LENGTH, FRSKY_RX_D16LBT_LENGTH, FRSKY_RX_D16v2_LENGTH, FRSKY_RX_D16v2_LENGTH };
+	packet_length = FRSKY_RX_length[FRSKY_RX_format];
 	CC2500_Reset();
 	CC2500_Strobe(CC2500_SIDLE);
-	for (uint8_t i = 0; i < sizeof(frsky_rx_common_reg) / 2; i++)
-		CC2500_WriteReg(pgm_read_byte_near(&frsky_rx_common_reg[i][0]), pgm_read_byte_near(&frsky_rx_common_reg[i][1]));
+	for (uint8_t i = 0; i < sizeof(FRSKY_RX_common_reg) / 2; i++)
+		CC2500_WriteReg(pgm_read_byte_near(&FRSKY_RX_common_reg[i][0]), pgm_read_byte_near(&FRSKY_RX_common_reg[i][1]));
 
-	switch (frsky_rx_format)
+	switch (FRSKY_RX_format)
 	{
 		case FRSKY_RX_D16v2FCC:
 		case FRSKY_RX_D16FCC:
-			for (uint8_t i = 0; i < sizeof(frsky_rx_d16fcc_reg) / 2; i++)
-				CC2500_WriteReg(pgm_read_byte_near(&frsky_rx_d16fcc_reg[i][0]), pgm_read_byte_near(&frsky_rx_d16fcc_reg[i][1]));
-			if(frsky_rx_format==FRSKY_RX_D16v2FCC)
+			for (uint8_t i = 0; i < sizeof(FRSKY_RX_d16fcc_reg) / 2; i++)
+				CC2500_WriteReg(pgm_read_byte_near(&FRSKY_RX_d16fcc_reg[i][0]), pgm_read_byte_near(&FRSKY_RX_d16fcc_reg[i][1]));
+			if(FRSKY_RX_format==FRSKY_RX_D16v2FCC)
 			{
 				CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x05);	// Enable CRC
 				CC2500_WriteReg(CC2500_17_MCSM1, 0x0E);		// Go/Stay in RX mode
@@ -141,36 +141,36 @@ static void __attribute__((unused)) frsky_rx_initialise_cc2500() {
 			break;
 		case FRSKY_RX_D16v2LBT:
 		case FRSKY_RX_D16LBT:
-			for (uint8_t i = 0; i < sizeof(frsky_rx_d16lbt_reg) / 2; i++)
-				CC2500_WriteReg(pgm_read_byte_near(&frsky_rx_d16lbt_reg[i][0]), pgm_read_byte_near(&frsky_rx_d16lbt_reg[i][1]));
-			if(frsky_rx_format==FRSKY_RX_D16v2LBT)
+			for (uint8_t i = 0; i < sizeof(FRSKY_RX_d16lbt_reg) / 2; i++)
+				CC2500_WriteReg(pgm_read_byte_near(&FRSKY_RX_d16lbt_reg[i][0]), pgm_read_byte_near(&FRSKY_RX_d16lbt_reg[i][1]));
+			if(FRSKY_RX_format==FRSKY_RX_D16v2LBT)
 				CC2500_WriteReg(CC2500_08_PKTCTRL0, 0x05);	// Enable CRC
 			break;
 		case FRSKY_RX_D8:
-			for (uint8_t i = 0; i < sizeof(frsky_rx_d8_reg) / 2; i++)
-				CC2500_WriteReg(pgm_read_byte_near(&frsky_rx_d8_reg[i][0]), pgm_read_byte_near(&frsky_rx_d8_reg[i][1]));
+			for (uint8_t i = 0; i < sizeof(FRSKY_RX_d8_reg) / 2; i++)
+				CC2500_WriteReg(pgm_read_byte_near(&FRSKY_RX_d8_reg[i][0]), pgm_read_byte_near(&FRSKY_RX_d8_reg[i][1]));
 			CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);
 			break;
 	}
 	CC2500_WriteReg(CC2500_0A_CHANNR, 0);  // bind channel
 	rx_disable_lna = IS_POWER_FLAG_on;
 	CC2500_SetTxRxMode(rx_disable_lna ? TXRX_OFF : RX_EN); // lna disable / enable
-	frsky_rx_strobe_rx();
+	FRSKY_RX_strobe_rx();
 	delayMicroseconds(1000); // wait for RX to activate
 }
 
-static void __attribute__((unused)) frsky_rx_set_channel(uint8_t channel)
+static void __attribute__((unused)) FRSKY_RX_set_channel(uint8_t channel)
 {
 	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[channel]);
-	if(frsky_rx_format == FRSKY_RX_D8)
+	if(FRSKY_RX_format == FRSKY_RX_D8)
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);
 	CC2500_WriteReg(CC2500_25_FSCAL1, calData[channel]);
-	frsky_rx_strobe_rx();
+	FRSKY_RX_strobe_rx();
 }
 
-static void __attribute__((unused)) frsky_rx_calibrate()
+static void __attribute__((unused)) FRSKY_RX_calibrate()
 {
-	frsky_rx_strobe_rx();
+	FRSKY_RX_strobe_rx();
 	for (unsigned c = 0; c < 47; c++)
 	{
 		CC2500_Strobe(CC2500_SIDLE);
@@ -193,7 +193,7 @@ static uint8_t __attribute__((unused)) frskyx_rx_check_crc_id(bool bind,bool ini
 	uint8_t offset=bind?3:1;
 	
 	// Check D8 checksum
-	if (frsky_rx_format == FRSKY_RX_D8)
+	if (FRSKY_RX_format == FRSKY_RX_D8)
 	{
 		if((packet[packet_length+1] & 0x80) != 0x80)	// Check CRC_OK flag in status byte 2
 			return false; 								// Bad CRC
@@ -210,7 +210,7 @@ static uint8_t __attribute__((unused)) frskyx_rx_check_crc_id(bool bind,bool ini
 	}
 
 	// Check D16v2 checksum
-	if (frsky_rx_format == FRSKY_RX_D16v2LBT || frsky_rx_format == FRSKY_RX_D16v2FCC)
+	if (FRSKY_RX_format == FRSKY_RX_D16v2LBT || FRSKY_RX_format == FRSKY_RX_D16v2FCC)
 		if((packet[packet_length+1] & 0x80) != 0x80)	// Check CRC_OK flag in status byte 2
 			return false;
 	//debugln("HW Checksum ok");
@@ -222,12 +222,12 @@ static uint8_t __attribute__((unused)) frskyx_rx_check_crc_id(bool bind,bool ini
 		return false; 									// Bad CRC
 	//debugln("Checksum ok");
 
-	if (bind && (frsky_rx_format == FRSKY_RX_D16v2LBT || frsky_rx_format == FRSKY_RX_D16v2FCC))
+	if (bind && (FRSKY_RX_format == FRSKY_RX_D16v2LBT || FRSKY_RX_format == FRSKY_RX_D16v2FCC))
 		for(uint8_t i=3; i<packet_length-2; i++)		//unXOR bind packet
 			packet[i] ^= 0xA7;
 	
 	uint8_t offset2=0;
-	if (bind && (frsky_rx_format == FRSKY_RX_D16LBT || frsky_rx_format == FRSKY_RX_D16FCC))
+	if (bind && (FRSKY_RX_format == FRSKY_RX_D16LBT || FRSKY_RX_format == FRSKY_RX_D16FCC))
 		offset2=6;
 	if(init)
 	{//Save TXID
@@ -248,7 +248,7 @@ static uint8_t __attribute__((unused)) frskyx_rx_check_crc_id(bool bind,bool ini
 	return true;										// Full match
 }
 
-static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
+static void __attribute__((unused)) FRSKY_RX_build_telemetry_packet()
 {
 	uint16_t raw_channel[8];
 	uint32_t bits = 0;
@@ -256,7 +256,7 @@ static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
 	uint8_t idx = 0;
 	uint8_t i;
 
-	if (frsky_rx_format == FRSKY_RX_D8)
+	if (FRSKY_RX_format == FRSKY_RX_D8)
 	{// decode D8 channels
 		raw_channel[0] = ((packet[10] & 0x0F) << 8 | packet[6]);
 		raw_channel[1] = ((packet[10] & 0xF0) << 4 | packet[7]);
@@ -299,7 +299,7 @@ static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
 	packet_in[idx++] = RX_LQI;
 	packet_in[idx++] = RX_RSSI;
 	packet_in[idx++] = 0;  // start channel
-	packet_in[idx++] = frsky_rx_format == FRSKY_RX_D8 ? 8 : 16; // number of channels in packet
+	packet_in[idx++] = FRSKY_RX_format == FRSKY_RX_D8 ? 8 : 16; // number of channels in packet
 
 	// pack channels
 	for (i = 0; i < packet_in[3]; i++) {
@@ -313,29 +313,29 @@ static void __attribute__((unused)) frsky_rx_build_telemetry_packet()
 	}
 }
 
-static void __attribute__((unused)) frsky_rx_data()
+static void __attribute__((unused)) FRSKY_RX_data()
 {
 	uint16_t temp = FRSKY_RX_EEPROM_OFFSET;
-	frsky_rx_format = eeprom_read_byte((EE_ADDR)temp++) % FRSKY_RX_FORMATS;
+	FRSKY_RX_format = eeprom_read_byte((EE_ADDR)temp++) % FRSKY_RX_FORMATS;
 	rx_tx_addr[3] = eeprom_read_byte((EE_ADDR)temp++);
 	rx_tx_addr[2] = eeprom_read_byte((EE_ADDR)temp++);
 	rx_tx_addr[1] = eeprom_read_byte((EE_ADDR)temp++);
 	rx_tx_addr[0] = RX_num;
-	frsky_rx_finetune = eeprom_read_byte((EE_ADDR)temp++);
-	debug("format=%d, ", frsky_rx_format);
+	FRSKY_RX_finetune = eeprom_read_byte((EE_ADDR)temp++);
+	debug("format=%d, ", FRSKY_RX_format);
 	debug("addr[3]=%02X, ", rx_tx_addr[3]);
 	debug("addr[2]=%02X, ", rx_tx_addr[2]);
 	debug("addr[1]=%02X, ", rx_tx_addr[1]);
 	debug("rx_num=%02X, ",  rx_tx_addr[0]);
-	debugln("tune=%d", (int8_t)frsky_rx_finetune);
-	if(frsky_rx_format != FRSKY_RX_D16v2LBT && frsky_rx_format != FRSKY_RX_D16v2FCC)
+	debugln("tune=%d", (int8_t)FRSKY_RX_finetune);
+	if(FRSKY_RX_format != FRSKY_RX_D16v2LBT && FRSKY_RX_format != FRSKY_RX_D16v2FCC)
 	{//D8 & D16v1
 		for (uint8_t ch = 0; ch < 47; ch++)
 			hopping_frequency[ch] = eeprom_read_byte((EE_ADDR)temp++);
 	}
 	else
 	{
-		FrSkyFormat=frsky_rx_format == FRSKY_RX_D16v2FCC?0:2;
+		FrSkyFormat=FRSKY_RX_format == FRSKY_RX_D16v2FCC?0:2;
 		FrSkyX2_init_hop();
 	}
 	debug("ch:");
@@ -343,20 +343,20 @@ static void __attribute__((unused)) frsky_rx_data()
 		debug(" %02X", hopping_frequency[ch]);
 	debugln("");
 
-	frsky_rx_initialise_cc2500();
-	frsky_rx_calibrate();
+	FRSKY_RX_initialise_cc2500();
+	FRSKY_RX_calibrate();
 	CC2500_WriteReg(CC2500_18_MCSM0, 0x08); // FS_AUTOCAL = manual
 	CC2500_WriteReg(CC2500_09_ADDR, rx_tx_addr[3]); // set address
 	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05); // check address
 	if (option == 0)
-		CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
+		CC2500_WriteReg(CC2500_0C_FSCTRL0, FRSKY_RX_finetune);
 	else
 		CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-	frsky_rx_set_channel(hopping_frequency_no);
+	FRSKY_RX_set_channel(hopping_frequency_no);
 	phase = FRSKY_RX_DATA;
 }
 
-uint16_t initFrSky_Rx()
+void FRSKY_RX_init()
 {
 	if(sub_protocol == FRSKY_ERASE)
 	{
@@ -371,26 +371,25 @@ uint16_t initFrSky_Rx()
 	}
 	else
 	{
-		frsky_rx_chanskip = 1;
+		FRSKY_RX_chanskip = 1;
 		hopping_frequency_no = 0;
 		rx_data_started = false;
-		frsky_rx_finetune = 0;
+		FRSKY_RX_finetune = 0;
 		telemetry_link = 0;
 		packet_count = 0;
 		if (IS_BIND_IN_PROGRESS)
 		{
-			frsky_rx_format = FRSKY_RX_D8;
-			frsky_rx_initialise_cc2500();
+			FRSKY_RX_format = FRSKY_RX_D8;
+			FRSKY_RX_initialise_cc2500();
 			phase = FRSKY_RX_TUNE_START;
 			debugln("FRSKY_RX_TUNE_START");
 		}
 		else
-			frsky_rx_data();
+			FRSKY_RX_data();
 	}
-	return 1000;
 }
 
-uint16_t FrSky_Rx_callback()
+uint16_t FRSKY_RX_callback()
 {
 	static int8_t read_retry = 0;
 	static int8_t tune_low, tune_high;
@@ -405,12 +404,13 @@ uint16_t FrSky_Rx_callback()
 		return 10000;	//  Nothing to do...
 	}
 
-	if(IS_BIND_DONE && phase != FRSKY_RX_DATA) return initFrSky_Rx();	// Abort bind
+	if(IS_BIND_DONE && phase != FRSKY_RX_DATA)
+		FRSKY_RX_init();	// Abort bind
 
 	if ((prev_option != option) && (phase >= FRSKY_RX_DATA))
 	{
 		if (option == 0)
-			CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
+			CC2500_WriteReg(CC2500_0C_FSCTRL0, FRSKY_RX_finetune);
 		else
 			CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 		prev_option = option;
@@ -431,20 +431,20 @@ uint16_t FrSky_Rx_callback()
 				CC2500_ReadData(packet, len);
 				if(frskyx_rx_check_crc_id(true,true))
 				{
-					frsky_rx_finetune = -127;
-					CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
+					FRSKY_RX_finetune = -127;
+					CC2500_WriteReg(CC2500_0C_FSCTRL0, FRSKY_RX_finetune);
 					phase = FRSKY_RX_TUNE_LOW;
 					debugln("FRSKY_RX_TUNE_LOW");
-					frsky_rx_strobe_rx();
+					FRSKY_RX_strobe_rx();
 					state = 0;
 					return 1000;
 				}
 			}
-			frsky_rx_format = (frsky_rx_format + 1) % FRSKY_RX_FORMATS; // switch to next format (D8, D16FCC, D16LBT, D16v2FCC, D16v2LBT)
-			frsky_rx_initialise_cc2500();
-			frsky_rx_finetune += 10;
-			CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
-			frsky_rx_strobe_rx();
+			FRSKY_RX_format = (FRSKY_RX_format + 1) % FRSKY_RX_FORMATS; // switch to next format (D8, D16FCC, D16LBT, D16v2FCC, D16v2LBT)
+			FRSKY_RX_initialise_cc2500();
+			FRSKY_RX_finetune += 10;
+			CC2500_WriteReg(CC2500_0C_FSCTRL0, FRSKY_RX_finetune);
+			FRSKY_RX_strobe_rx();
 			return 18000;
 
 		case FRSKY_RX_TUNE_LOW:
@@ -452,18 +452,18 @@ uint16_t FrSky_Rx_callback()
 			{
 				CC2500_ReadData(packet, len);
 				if(frskyx_rx_check_crc_id(true,false)) {
-					tune_low = frsky_rx_finetune;
-					frsky_rx_finetune = 127;
-					CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
+					tune_low = FRSKY_RX_finetune;
+					FRSKY_RX_finetune = 127;
+					CC2500_WriteReg(CC2500_0C_FSCTRL0, FRSKY_RX_finetune);
 					phase = FRSKY_RX_TUNE_HIGH;
 					debugln("FRSKY_RX_TUNE_HIGH");
-					frsky_rx_strobe_rx();
+					FRSKY_RX_strobe_rx();
 					return 1000;
 				}
 			}
-			frsky_rx_finetune += 1;
-			CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
-			frsky_rx_strobe_rx();
+			FRSKY_RX_finetune += 1;
+			CC2500_WriteReg(CC2500_0C_FSCTRL0, FRSKY_RX_finetune);
+			FRSKY_RX_strobe_rx();
 			return 18000;
 
 		case FRSKY_RX_TUNE_HIGH:
@@ -471,9 +471,9 @@ uint16_t FrSky_Rx_callback()
 			{
 				CC2500_ReadData(packet, len);
 				if(frskyx_rx_check_crc_id(true,false)) {
-					tune_high = frsky_rx_finetune;
-					frsky_rx_finetune = (tune_low + tune_high) / 2;
-					CC2500_WriteReg(CC2500_0C_FSCTRL0, (int8_t)frsky_rx_finetune);
+					tune_high = FRSKY_RX_finetune;
+					FRSKY_RX_finetune = (tune_low + tune_high) / 2;
+					CC2500_WriteReg(CC2500_0C_FSCTRL0, (int8_t)FRSKY_RX_finetune);
 					if(tune_low < tune_high)
 					{
 						phase = FRSKY_RX_BIND;
@@ -484,13 +484,13 @@ uint16_t FrSky_Rx_callback()
 						phase = FRSKY_RX_TUNE_START;
 						debugln("FRSKY_RX_TUNE_START");
 					}
-					frsky_rx_strobe_rx();
+					FRSKY_RX_strobe_rx();
 					return 1000;
 				}
 			}
-			frsky_rx_finetune -= 1;
-			CC2500_WriteReg(CC2500_0C_FSCTRL0, frsky_rx_finetune);
-			frsky_rx_strobe_rx();
+			FRSKY_RX_finetune -= 1;
+			CC2500_WriteReg(CC2500_0C_FSCTRL0, FRSKY_RX_finetune);
+			FRSKY_RX_strobe_rx();
 			return 18000;
 
 		case FRSKY_RX_BIND:
@@ -498,7 +498,7 @@ uint16_t FrSky_Rx_callback()
 			{
 				CC2500_ReadData(packet, len);
 				if(frskyx_rx_check_crc_id(true,false)) {
-					if(frsky_rx_format != FRSKY_RX_D16v2LBT && frsky_rx_format != FRSKY_RX_D16v2FCC)
+					if(FRSKY_RX_format != FRSKY_RX_D16v2LBT && FRSKY_RX_format != FRSKY_RX_D16v2FCC)
 					{// D8 & D16v1
 						if(packet[5] <= 0x2D)
 						{
@@ -517,27 +517,27 @@ uint16_t FrSky_Rx_callback()
 						uint16_t temp = FRSKY_RX_EEPROM_OFFSET;
 						if(sub_protocol==FRSKY_CLONE)
 						{
-							if(frsky_rx_format==FRSKY_RX_D8)
+							if(FRSKY_RX_format==FRSKY_RX_D8)
 								temp=FRSKYD_CLONE_EEPROM_OFFSET;
-							else if(frsky_rx_format == FRSKY_RX_D16FCC || frsky_rx_format == FRSKY_RX_D16LBT)
+							else if(FRSKY_RX_format == FRSKY_RX_D16FCC || FRSKY_RX_format == FRSKY_RX_D16LBT)
 								temp=FRSKYX_CLONE_EEPROM_OFFSET;
 							else
 								temp=FRSKYX2_CLONE_EEPROM_OFFSET;
 						}
-						eeprom_write_byte((EE_ADDR)temp++, frsky_rx_format);
+						eeprom_write_byte((EE_ADDR)temp++, FRSKY_RX_format);
 						eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[3]);
 						eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[2]);
 						eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[1]);
 						if(sub_protocol==FRSKY_RX)
-							eeprom_write_byte((EE_ADDR)temp++, frsky_rx_finetune);
-						if(frsky_rx_format != FRSKY_RX_D16v2FCC && frsky_rx_format != FRSKY_RX_D16v2LBT)
+							eeprom_write_byte((EE_ADDR)temp++, FRSKY_RX_finetune);
+						if(FRSKY_RX_format != FRSKY_RX_D16v2FCC && FRSKY_RX_format != FRSKY_RX_D16v2LBT)
 							for (ch = 0; ch < 47; ch++)
 								eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[ch]);
-						frsky_rx_data();
+						FRSKY_RX_data();
 						debugln("FRSKY_RX_DATA");
 					}
 				}
-				frsky_rx_strobe_rx();
+				FRSKY_RX_strobe_rx();
 			}
 			return 1000;
 
@@ -554,30 +554,30 @@ uint16_t FrSky_Rx_callback()
 						RX_RSSI += 128;
 					bool chanskip_valid=true;
 					// hop to next channel
-					if (frsky_rx_format != FRSKY_RX_D8)
+					if (FRSKY_RX_format != FRSKY_RX_D8)
 					{//D16v1 & D16v2
 						if(rx_data_started)
 						{
-							if(frsky_rx_chanskip != (((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2)))
+							if(FRSKY_RX_chanskip != (((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2)))
 							{
 								chanskip_valid=false;	// chanskip value has changed which surely indicates a bad frame
 								packet_count++;
 								if(packet_count>5)		// the TX must have changed chanskip...
-									frsky_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);	// chanskip init
+									FRSKY_RX_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);	// chanskip init
 							}
 							else
 								packet_count=0;
 						}
 						else
-							frsky_rx_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);	// chanskip init
+							FRSKY_RX_chanskip = ((packet[4] & 0xC0) >> 6) | ((packet[5] & 0x3F) << 2);	// chanskip init
 					}
-					hopping_frequency_no = (hopping_frequency_no + frsky_rx_chanskip) % 47;
-					frsky_rx_set_channel(hopping_frequency_no);
+					hopping_frequency_no = (hopping_frequency_no + FRSKY_RX_chanskip) % 47;
+					FRSKY_RX_set_channel(hopping_frequency_no);
 					if(chanskip_valid)
 					{
 						if (telemetry_link == 0)
 						{ // send channels to TX
-							frsky_rx_build_telemetry_packet();
+							FRSKY_RX_build_telemetry_packet();
 							telemetry_link = 1;
 						}
 						pps_counter++;
@@ -602,8 +602,8 @@ uint16_t FrSky_Rx_callback()
 
 			// skip channel if no packet received in time
 			if (read_retry++ >= 9) {
-				hopping_frequency_no = (hopping_frequency_no + frsky_rx_chanskip) % 47;
-				frsky_rx_set_channel(hopping_frequency_no);
+				hopping_frequency_no = (hopping_frequency_no + FRSKY_RX_chanskip) % 47;
+				FRSKY_RX_set_channel(hopping_frequency_no);
 				if(rx_data_started)
 					read_retry = 0;
 				else

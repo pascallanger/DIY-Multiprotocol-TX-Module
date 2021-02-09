@@ -58,7 +58,7 @@ static void __attribute__((unused)) FX816_send_packet()
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) FX816_init()
+static void __attribute__((unused)) FX816_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -100,14 +100,13 @@ uint16_t FX816_callback()
 	return FX816_PACKET_PERIOD;
 }
 
-uint16_t initFX816()
+void FX816_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	FX816_initialize_txid();
-	FX816_init();
+	FX816_RF_init();
 	hopping_frequency_no = 0;
 	bind_counter=FX816_BIND_COUNT;
-	return FX816_INITIAL_WAIT;
 }
 
 #endif

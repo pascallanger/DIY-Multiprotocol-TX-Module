@@ -228,7 +228,7 @@ static uint8_t __attribute__((unused)) DSM_Check_RX_packet()
 	return result;
 }
 
-uint16_t ReadDsm()
+uint16_t DSM_callback()
 {
 	#define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
 	#ifdef STM32_BOARD
@@ -449,7 +449,7 @@ uint16_t ReadDsm()
 	return 0;		
 }
 
-uint16_t initDsm()
+void DSM_init()
 { 
 	CYRF_GetMfgData(cyrfmfg_id);
 	//Model match
@@ -496,7 +496,6 @@ uint16_t initDsm()
 	}
 	else
 		phase = DSM_CHANSEL;//
-	return 10000;
 }
 
 #endif

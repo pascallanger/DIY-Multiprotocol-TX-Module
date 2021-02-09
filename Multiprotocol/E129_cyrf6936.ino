@@ -74,7 +74,7 @@ static void __attribute__((unused)) E129_build_data_packet()
 	RF2500_BuildPayload(packet);
 }
 
-uint16_t ReadE129()
+uint16_t E129_callback()
 {
 	//Set RF channel
 	if(phase==0)
@@ -115,7 +115,7 @@ uint16_t ReadE129()
 	return 5200-1260;
 }
 
-uint16_t initE129()
+void E129_init()
 {
 	BIND_IN_PROGRESS;						// Autobind protocol
     bind_counter = 384;						// ~2sec
@@ -146,7 +146,6 @@ uint16_t initE129()
 	hopping_frequency_no=0;
 	packet_count=0;
 	phase=0;
-    return 1260;
 }
 
 #endif

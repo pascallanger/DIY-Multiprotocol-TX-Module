@@ -106,7 +106,7 @@ static void __attribute__((unused)) OMP_send_packet()
 	XN297L_WriteEnhancedPayload(packet, OMP_PAYLOAD_SIZE, packet_sent!=0);
 }
 
-static void __attribute__((unused)) OMP_init()
+static void __attribute__((unused)) OMP_RF_init()
 {
 	//Config CC2500
 #ifdef OMP_HUB_TELEMETRY
@@ -278,10 +278,10 @@ uint16_t OMP_callback()
 	return OMP_PACKET_PERIOD;
 }
 
-uint16_t initOMP()
+void OMP_init()
 {
 	OMP_initialize_txid();
-	OMP_init();
+	OMP_RF_init();
 	hopping_frequency_no = 0;
 	packet_sent = 0;
 	#ifdef OMP_HUB_TELEMETRY
@@ -295,7 +295,6 @@ uint16_t initOMP()
 	}
 	else
 		phase = OMP_PREPDATA;
-	return OMP_INITIAL_WAIT;
 }
 
 #endif

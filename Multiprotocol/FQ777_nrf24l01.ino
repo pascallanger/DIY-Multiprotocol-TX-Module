@@ -150,7 +150,7 @@ static void __attribute__((unused)) FQ777_send_packet(uint8_t bind)
 	NRF24L01_WritePayload(packet, packet_len);
 }
 
-static void __attribute__((unused)) FQ777_init()
+static void __attribute__((unused)) FQ777_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -191,7 +191,7 @@ uint16_t FQ777_callback()
 	return FQ777_PACKET_PERIOD;
 }
 
-uint16_t initFQ777(void)
+void FQ777_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	bind_counter = FQ777_BIND_COUNT;
@@ -204,8 +204,7 @@ uint16_t initFQ777(void)
 	rx_tx_addr[2] = 0x00;
 	rx_tx_addr[3] = 0xe7;
 	rx_tx_addr[4] = 0x67;
-	FQ777_init();
-	return	FQ777_INITIAL_WAIT;
+	FQ777_RF_init();
 }
 
 #endif

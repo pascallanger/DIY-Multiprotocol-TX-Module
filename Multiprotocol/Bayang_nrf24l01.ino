@@ -246,7 +246,7 @@ static void __attribute__((unused)) BAYANG_check_rx(void)
 }
 #endif
 
-static void __attribute__((unused)) BAYANG_init()
+static void __attribute__((unused)) BAYANG_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -363,15 +363,14 @@ static void __attribute__((unused)) BAYANG_initialize_txid()
 	hopping_frequency_no=0;
 }
 
-uint16_t initBAYANG(void)
+void BAYANG_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	phase=BAYANG_BIND;
     bind_counter = BAYANG_BIND_COUNT;
 	BAYANG_initialize_txid();
-	BAYANG_init();
+	BAYANG_RF_init();
 	packet_count=0;
-	return BAYANG_INITIAL_WAIT+BAYANG_PACKET_PERIOD;
 }
 
 #endif

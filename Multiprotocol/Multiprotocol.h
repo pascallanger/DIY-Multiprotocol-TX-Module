@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	32
+#define VERSION_PATCH_LEVEL	33
 
 //******************
 // Protocols
@@ -431,6 +431,7 @@ enum RLINK
 #define AUTOBIND	1
 #define NO_AUTOBIND	0
 
+//PPM protocols
 struct PPM_Parameters
 {
 	uint8_t protocol;
@@ -440,6 +441,33 @@ struct PPM_Parameters
 	uint8_t autobind	: 1;
 	int8_t option;
 	uint32_t chan_order;
+};
+
+//Callback
+typedef uint16_t (*uint16_function_t) (void);	//pointer to a function with no parameters which return an uint16_t integer
+typedef void     (*void_function_t  ) (void);	//pointer to a function with no parameters which returns nothing
+
+//Protocols definition
+struct mm_protocol_definition {
+	uint8_t protocol;
+	const char *ProtoString;
+	const char *SubProtoString;
+	uint8_t nbrSubProto        : 4;
+	uint8_t optionType         : 4;
+	uint8_t failSafe           : 1;
+	uint8_t chMap              : 1;
+	uint8_t rfSwitch           : 2;
+	void_function_t		Init;
+	uint16_function_t	CallBack;
+};
+extern const mm_protocol_definition multi_protocols[];
+
+enum RF_SWITCH
+{
+	SW_A7105	= 0,	//antenna RF1
+	SW_CC2500	= 1,	//antenna RF2
+	SW_NRF		= 2,	//antenna RF3
+	SW_CYRF		= 3,	//antenna RF4
 };
 
 // Telemetry
@@ -463,12 +491,6 @@ enum MultiPacketTypes
 
 // Macros
 #define NOP() __asm__ __volatile__("nop")
-
-//***************
-//***  Tests  ***
-//***************
-#define IS_FAILSAFE_PROTOCOL	( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_FUTABA || protocol==PROTO_WK2x01 || protocol== PROTO_HOTT || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9 || protocol==PROTO_WFLY2 || protocol==PROTO_LOLI || protocol==PROTO_MLINK)
-#define IS_CHMAP_PROTOCOL		( (protocol==PROTO_HISKY && sub_protocol==HK310) || protocol==PROTO_AFHDS2A || protocol==PROTO_DEVO || protocol==PROTO_FUTABA || protocol==PROTO_WK2x01 || protocol== PROTO_DSM || protocol==PROTO_SLT || protocol==PROTO_FLYSKY || (protocol==PROTO_KYOSHO && sub_protocol==KYOSHO_HYPE) || protocol==PROTO_ESKY || protocol==PROTO_J6PRO || protocol==PROTO_PELIKAN  || protocol==PROTO_SKYARTEC || protocol==PROTO_ESKY150V2 || protocol==PROTO_DSM_RX)
 
 //***************
 //***  Flags  ***

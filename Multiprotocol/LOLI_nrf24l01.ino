@@ -21,7 +21,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define LOLI_PACKET_SIZE	11
 #define LOLI_NUM_CHANNELS	5
 
-static void __attribute__((unused)) LOLI_init()
+static void __attribute__((unused)) LOLI_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_FlushTx();
@@ -290,7 +290,7 @@ uint16_t LOLI_callback()
 	return 20000;
 }
 
-uint16_t initLOLI()
+void LOLI_init()
 {
 	rx_tx_addr[1] %= 0x30;
 	calc_fh_channels(LOLI_NUM_CHANNELS);
@@ -306,9 +306,7 @@ uint16_t initLOLI()
 	else
 		phase = LOLI_PREP_DATA;
 
-	LOLI_init();
-
-	return 500;
+	LOLI_RF_init();
 }
 
 #endif

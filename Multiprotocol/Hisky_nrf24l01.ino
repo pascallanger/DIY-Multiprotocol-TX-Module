@@ -27,7 +27,7 @@ uint8_t bind_buf_arry[4][10];
 // HiSky protocol uses TX id as an address for nRF24L01, and uses frequency hopping sequence
 // which does not depend on this id and is passed explicitly in binding sequence. So we are free
 // to generate this sequence as we wish. It should be in the range [02..77]
-static void __attribute__((unused)) calc_fh_channels()
+static void __attribute__((unused)) HISKY_calc_fh_channels()
 {
 	uint8_t idx = 0;
 	uint32_t rnd = MProtocol_id;
@@ -61,7 +61,7 @@ static void __attribute__((unused)) calc_fh_channels()
 	}
 }
 
-static void __attribute__((unused)) build_binding_packet(void)
+static void __attribute__((unused)) HISKY_build_binding_packet(void)
 {
 	uint8_t i;
 	uint16_t sum=0;
@@ -95,7 +95,7 @@ static void __attribute__((unused)) build_binding_packet(void)
 	}
 }
 
-static void __attribute__((unused)) hisky_init()
+static void __attribute__((unused)) HISKY_RF_init()
 {
 	NRF24L01_Initialize();
 
@@ -116,7 +116,7 @@ static void __attribute__((unused)) hisky_init()
 
 // HiSky channel sequence: AILE  ELEV  THRO  RUDD  GEAR  PITCH, channel data value is from 0 to 1000
 // Channel 7 - Gyro mode, 0 - 6 axis, 3 - 3 axis 
-static void __attribute__((unused)) build_ch_data()
+static void __attribute__((unused)) HISKY_build_ch_data()
 {
 	uint16_t temp;
 	uint8_t i,j;
@@ -133,7 +133,7 @@ static void __attribute__((unused)) build_ch_data()
 	}
 }
 
-uint16_t hisky_cb()
+uint16_t HISKY_callback()
 {
 	phase++;
 	if(sub_protocol==HK310)
@@ -223,7 +223,7 @@ uint16_t hisky_cb()
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(9000);
 			#endif
-			build_ch_data();
+			HISKY_build_ch_data();
 			break;
 		case 8:
 			break;
@@ -236,7 +236,7 @@ uint16_t hisky_cb()
 	return 1000;  // send 1 binding packet and 1 data packet per 9ms	
 }
 
-static void __attribute__((unused)) initialize_tx_id()
+static void __attribute__((unused)) HISKY_initialize_tx_id()
 {
 	//Generate frequency hopping table	
 	if(sub_protocol==HK310)
@@ -248,14 +248,14 @@ static void __attribute__((unused)) initialize_tx_id()
 			hopping_frequency[i]=hopping_frequency_no++;	// Sequential order hop channels...
 	}
 	else
-		calc_fh_channels();
+		HISKY_calc_fh_channels();
 }
 
-uint16_t initHiSky()
+void HISKY_init()
 {
-	initialize_tx_id();
-	build_binding_packet();
-	hisky_init();
+	HISKY_initialize_tx_id();
+	HISKY_build_binding_packet();
+	HISKY_RF_init();
 	phase = 0;
 	hopping_frequency_no = 0;
 	binding_idx = 0;
@@ -264,7 +264,6 @@ uint16_t initHiSky()
 		bind_counter = HISKY_BIND_COUNT;
 	else 
 		bind_counter = 0;
-	return 1000;
 }
 
 #endif

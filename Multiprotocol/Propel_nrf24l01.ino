@@ -155,7 +155,7 @@ static void __attribute__((unused)) PROPEL_data_packet()
 	NRF24L01_WritePayload(packet, PROPEL_PACKET_SIZE);
 }
 
-static void __attribute__((unused)) PROPEL_init()
+static void __attribute__((unused)) PROPEL_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x7f);
@@ -281,14 +281,13 @@ uint16_t PROPEL_callback()
 	return PROPEL_PACKET_PERIOD;
 }
 
-uint16_t initPROPEL()
+void PROPEL_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	PROPEL_initialize_txid();
-	PROPEL_init();
+	PROPEL_RF_init();
 	hopping_frequency_no = 0;
 	phase=PROPEL_BIND1;
-	return PROPEL_INITIAL_WAIT;
 }
 
 #endif

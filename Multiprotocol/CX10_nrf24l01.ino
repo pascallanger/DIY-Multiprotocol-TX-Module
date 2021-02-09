@@ -169,7 +169,7 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 	NRF24L01_SetPower();
 }
 
-static void __attribute__((unused)) CX10_init()
+static void __attribute__((unused)) CX10_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -261,9 +261,13 @@ static void __attribute__((unused)) CX10_initialize_txid()
 	}
 }
 
-uint16_t initCX10(void)
+void CX10_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
+	
+	if(protocol == PROTO_Q2X2)
+		sub_protocol|=0x08;		// Increase the number of sub_protocols for CX-10
+	
 	if(sub_protocol==CX10_BLUE)
 	{
 		packet_length = CX10A_PACKET_SIZE;
@@ -286,8 +290,7 @@ uint16_t initCX10(void)
 		bind_counter = CX10_BIND_COUNT;
 	}
 	CX10_initialize_txid();
-	CX10_init();
-	return CX10_INITIAL_WAIT+packet_period;
+	CX10_RF_init();
 }
 
 #endif

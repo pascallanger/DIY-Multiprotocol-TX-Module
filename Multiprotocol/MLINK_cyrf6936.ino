@@ -318,7 +318,7 @@ static void __attribute__((unused)) MLINK_send_data_packet()
 	}
 #endif
 
-uint16_t ReadMLINK()
+uint16_t MLINK_callback()
 {
 	uint8_t status;
 	uint16_t start;
@@ -511,7 +511,7 @@ static void __attribute__((unused)) MLINK_shuffle_freqs(uint32_t seed, uint8_t *
 	}
 }
 
-uint16_t initMLINK()
+void MLINK_init()
 { 
 	MLINK_cyrf_config();
 
@@ -582,8 +582,6 @@ uint16_t initMLINK()
 	}
 	else
 		phase = MLINK_PREP_DATA;
-
-	return 10000;
 }
 
 #endif

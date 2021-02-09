@@ -148,7 +148,7 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 	NRF24L01_SetPower();
 }
 
-static void __attribute__((unused)) HONTAI_init()
+static void __attribute__((unused)) HONTAI_RF_init()
 {
 	NRF24L01_Initialize();
 
@@ -252,13 +252,12 @@ uint16_t HONTAI_callback()
 	return packet_period;
 }
 
-uint16_t initHONTAI()
+void HONTAI_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	bind_counter = HONTAI_BIND_COUNT;
 	HONTAI_initialize_txid();
-	HONTAI_init();
+	HONTAI_RF_init();
 	packet_period = sub_protocol == FQ777_951 ? FQ777_951_PACKET_PERIOD : HONTAI_PACKET_PERIOD;
-	return HONTAI_INITIAL_WAIT;
 }
 #endif

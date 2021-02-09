@@ -42,7 +42,7 @@ static void __attribute__((unused)) NANORF_send_packet()
 
 }
 
-static void __attribute__((unused)) NANORF_init()
+static void __attribute__((unused)) NANORF_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -63,11 +63,10 @@ uint16_t NANORF_callback()
 	return NANORF_PACKET_PERIOD;
 }
 
-uint16_t initNANORF()
+void NANORF_init()
 {	
 	BIND_DONE;
-	NANORF_init();
-	return	NANORF_INITIAL_WAIT;
+	NANORF_RF_init();
 }
 
 #endif

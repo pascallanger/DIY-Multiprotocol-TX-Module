@@ -116,7 +116,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	debugln("");*/
 }
 
-uint16_t ReadFrSkyX()
+uint16_t FRSKYX_callback()
 {
 	switch(state)
 	{	
@@ -241,7 +241,7 @@ uint16_t ReadFrSkyX()
 	return 1;		
 }
 
-uint16_t initFrSkyX()
+void FRSKYX_init()
 {
 	set_rx_tx_addr(MProtocol_id_master);
 	FrSkyFormat = sub_protocol;
@@ -268,7 +268,7 @@ uint16_t initFrSkyX()
 	while(!FrSkyX_chanskip)
 		FrSkyX_chanskip=random(0xfefefefe)%47;
 
-	FrSkyX_init();
+	FrSkyX_RF_init();
 
 	if(IS_BIND_IN_PROGRESS)
 	{	   
@@ -281,6 +281,5 @@ uint16_t initFrSkyX()
 		FrSkyX_initialize_data(0);
 	}
 	FrSkyX_telem_init();
-	return 10000;
 }
 #endif

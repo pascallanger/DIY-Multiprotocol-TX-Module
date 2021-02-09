@@ -75,7 +75,7 @@ static void __attribute__((unused)) GW008_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) GW008_init()
+static void __attribute__((unused)) GW008_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -148,14 +148,13 @@ uint16_t GW008_callback()
 	return GW008_PACKET_PERIOD;
 }
 
-uint16_t initGW008()
+void GW008_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	GW008_initialize_txid();
 	phase = GW008_BIND1;
-	GW008_init();
+	GW008_RF_init();
 	hopping_frequency_no = 0;
-	return GW008_INITIAL_WAIT;
 }
 
 #endif

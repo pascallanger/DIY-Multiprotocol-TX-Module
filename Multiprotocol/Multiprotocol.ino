@@ -185,6 +185,8 @@ volatile uint8_t rx_ok_buff[RXBUFFER_SIZE];
 volatile bool discard_frame = false;
 volatile uint8_t rx_idx=0, rx_len=0;
 
+// Callback
+uint16_function_t remote_callback = 0;
 
 // Telemetry
 #define TELEMETRY_BUFFER_SIZE 32
@@ -247,18 +249,6 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		uint16_t rx_rc_chan[16];
 	#endif
 	
-	//Multi names
-	#ifdef MULTI_NAMES
-		struct mm_protocol_definition {
-			uint8_t protocol;
-			const char *ProtoString;
-			uint8_t nbrSubProto;
-			const char *SubProtoString;
-			uint8_t optionType;
-		};
-		extern const mm_protocol_definition multi_protocols[];
-		uint8_t multi_protocols_index=0xFF;
-	#endif
 	#ifdef HOTT_FW_TELEMETRY
 		uint8_t HoTT_SerialRX_val=0;
 		bool HoTT_SerialRX=false;
@@ -269,9 +259,7 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 	#endif
 #endif // TELEMETRY
 
-// Callback
-typedef uint16_t (*void_function_t) (void);//pointer to a function with no parameters which return an uint16_t integer
-void_function_t remote_callback = 0;
+uint8_t multi_protocols_index=0xFF;
 
 // Init
 void setup()
@@ -1090,11 +1078,9 @@ inline void tx_resume()
 // Protocol start
 static void protocol_init()
 {
-	static uint16_t next_callback;
 	if(IS_WAIT_BIND_off)
 	{
 		remote_callback = 0;			// No protocol
-		next_callback=0;				// Default is immediate call back
 		LED_off;						// Led off during protocol init
 		modules_reset();				// Reset all modules
 		crc16_polynomial = 0x1021;		// Default CRC crc16_polynomial
@@ -1106,9 +1092,7 @@ static void protocol_init()
 			#ifdef MULTI_SYNC
 				inputRefreshRate = 0;	// Don't do it unless the protocol asks for it
 			#endif
-			#ifdef MULTI_NAMES
-				multi_protocols_index = 0xFF;
-			#endif
+			multi_protocols_index = 0xFF;
 			tx_pause();
 			init_frskyd_link_telemetry();
 			pps_timer=millis();
@@ -1148,622 +1132,55 @@ static void protocol_init()
 		
 		blink=millis();
 
-		PE1_on;							//NRF24L01 antenna RF3 by default
-		PE2_off;						//NRF24L01 antenna RF3 by default
-		
-		switch(protocol)				// Init the requested protocol
-		{
-			#ifdef A7105_INSTALLED
-				#if defined(FLYSKY_A7105_INO)
-					case PROTO_FLYSKY:
-						PE1_off;	//antenna RF1
-						next_callback = initFlySky();
-						remote_callback = ReadFlySky;
-						break;
-				#endif
-				#if defined(AFHDS2A_A7105_INO)
-					case PROTO_AFHDS2A:
-						PE1_off;	//antenna RF1
-						next_callback = initAFHDS2A();
-						remote_callback = ReadAFHDS2A;
-						break;
-				#endif
-				#if defined(HUBSAN_A7105_INO)
-					case PROTO_HUBSAN:
-						PE1_off;	//antenna RF1
-						if(IS_BIND_BUTTON_FLAG_on) random_id(EEPROM_ID_OFFSET,true); // Generate new ID if bind button is pressed.
-						next_callback = initHubsan();
-						remote_callback = ReadHubsan;
-						break;
-				#endif
-				#if defined(BUGS_A7105_INO)
-					case PROTO_BUGS:
-						PE1_off;	//antenna RF1
-						next_callback = initBUGS();
-						remote_callback = ReadBUGS;
-						break;
-				#endif
-				#if defined(HEIGHT_A7105_INO)
-					case PROTO_HEIGHT:
-						PE1_off;	//antenna RF1
-						next_callback = initHeight();
-						remote_callback = ReadHeight;
-						break;
-				#endif
-				#if defined(AFHDS2A_RX_A7105_INO)
-					case PROTO_AFHDS2A_RX:
-						PE1_off;	//antenna RF1
-						next_callback = initAFHDS2A_Rx();
-						remote_callback = AFHDS2A_Rx_callback;
-						break;
-				#endif
-				#if defined(PELIKAN_A7105_INO)
-					case PROTO_PELIKAN:
-						PE1_off;	//antenna RF1
-						next_callback = initPelikan();
-						remote_callback = ReadPelikan;
-						break;
-				#endif
-				#if defined(KYOSHO_A7105_INO)
-					case PROTO_KYOSHO:
-						PE1_off;	//antenna RF1
-						next_callback = initKyosho();
-						remote_callback = ReadKyosho;
-						break;
-				#endif
-				#if defined(WFLY2_A7105_INO)
-					case PROTO_WFLY2:
-						PE1_off;	//antenna RF1
-						next_callback = initWFLY2();
-						remote_callback = ReadWFLY2;
-						break;
-				#endif
-			#endif
-			#ifdef CC2500_INSTALLED
-				#if defined(FRSKYD_CC2500_INO)
-					case PROTO_FRSKYD:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initFrSky_2way();
-						remote_callback = ReadFrSky_2way;
-						break;
-				#endif
-				#if defined(FRSKYL_CC2500_INO)
-					case PROTO_FRSKYL:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initFrSkyL();
-						remote_callback = ReadFrSkyL;
-						break;
-				#endif
-				#if defined(FRSKYV_CC2500_INO)
-					case PROTO_FRSKYV:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initFRSKYV();
-						remote_callback = ReadFRSKYV;
-						break;
-				#endif
-				#if defined(FRSKYX_CC2500_INO)
-					case PROTO_FRSKYX:
-					case PROTO_FRSKYX2:
-						#ifdef EU_MODULE
-							if(sub_protocol<2)
-								break;
-						#endif
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initFrSkyX();
-						remote_callback = ReadFrSkyX;
-						break;
-				#endif
-				#if defined(FUTABA_CC2500_INO)
-					case PROTO_FUTABA:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initSFHSS();
-						remote_callback = ReadSFHSS;
-						break;
-				#endif
-				#if defined(CORONA_CC2500_INO)
-					case PROTO_CORONA:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initCORONA();
-						remote_callback = ReadCORONA;
-						break;
-				#endif
-				#if defined(SKYARTEC_CC2500_INO)
-					case PROTO_SKYARTEC:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initSKYARTEC();
-						remote_callback = ReadSKYARTEC;
-						break;
-				#endif
-				#if defined(REDPINE_CC2500_INO)
-					case PROTO_REDPINE:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initREDPINE();
-						remote_callback = ReadREDPINE;
-						break;
-				#endif
-				#if defined(HITEC_CC2500_INO)
-					case PROTO_HITEC:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initHITEC();
-						remote_callback = ReadHITEC;
-						break;
-				#endif
-				#if defined(HOTT_CC2500_INO)
-					case PROTO_HOTT:
-						PE1_off;	//antenna RF2
-						PE2_on;
-						next_callback = initHOTT();
-						remote_callback = ReadHOTT;
-						break;
-				#endif
-				#if defined(SCANNER_CC2500_INO)
-					case PROTO_SCANNER:
-						PE1_off;
-						PE2_on;	//antenna RF2
-						next_callback = initScanner();
-						remote_callback = Scanner_callback;
-						break;
-				#endif
-				#if defined(FRSKY_RX_CC2500_INO)
-					case PROTO_FRSKY_RX:
-						PE1_off;
-						PE2_on;	//antenna RF2
-						next_callback = initFrSky_Rx();
-						remote_callback = FrSky_Rx_callback;
-						break;
-				#endif
-				#if defined(ESKY150V2_CC2500_INO)
-					case PROTO_ESKY150V2:
-						PE1_off;
-						PE2_on;	//antenna RF2
-						next_callback = initESKY150V2();
-						remote_callback = ESKY150V2_callback;
-						break;
-				#endif
-				#if defined(RLINK_CC2500_INO)
-					case PROTO_RLINK:
-						PE1_off;
-						PE2_on;	//antenna RF2
-						next_callback = initRLINK();
-						remote_callback = RLINK_callback;
-						break;
-				#endif
-				#if defined(E016HV2_CC2500_INO)
-					case PROTO_E016HV2:
-						PE1_off;
-						PE2_on;	//antenna RF2
-						next_callback = initE016HV2();
-						remote_callback = E016HV2_callback;
-						break;
-				#endif
-			#endif
-			#ifdef CYRF6936_INSTALLED
-				#if defined(DSM_CYRF6936_INO)
-					case PROTO_DSM:
-						PE2_on;	//antenna RF4
-						next_callback = initDsm();
-						remote_callback = ReadDsm;
-						break;
-				#endif
-				#if defined(DSM_RX_CYRF6936_INO)
-					case PROTO_DSM_RX:
-						PE2_on;	//antenna RF4
-						next_callback = initDSM_Rx();
-						remote_callback = DSM_Rx_callback;
-						break;
-				#endif
-				#if defined(WFLY_CYRF6936_INO)
-					case PROTO_WFLY:
-						PE2_on;	//antenna RF4
-						next_callback = initWFLY();
-						remote_callback = ReadWFLY;
-						break;
-				#endif
-				#if defined(MLINK_CYRF6936_INO)
-					case PROTO_MLINK:
-						PE2_on;	//antenna RF4
-						next_callback = initMLINK();
-						remote_callback = ReadMLINK;
-						break;
-				#endif
-				#if defined(E010R5_CYRF6936_INO)
-					case PROTO_E010R5:
-						PE2_on;	//antenna RF4
-						next_callback = initE010R5();
-						remote_callback = ReadE010R5;
-						break;
-				#endif
-				#if defined(E129_CYRF6936_INO)
-					case PROTO_E129:
-						PE2_on;	//antenna RF4
-						next_callback = initE129();
-						remote_callback = ReadE129;
-						break;
-				#endif
-				#if defined(DEVO_CYRF6936_INO)
-					case PROTO_DEVO:
-						#ifdef ENABLE_PPM
-							if(mode_select) //PPM mode
-							{
-								if(IS_BIND_BUTTON_FLAG_on)
-								{
-									eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num),0x00);	// reset to autobind mode for the current model
-									option=0;
-								}
-								else
-								{	
-									option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num));	// load previous mode: autobind or fixed id
-									if(option!=1) option=0;								// if not fixed id mode then it should be autobind
-								}
-							}
-						#endif //ENABLE_PPM
-						PE2_on;	//antenna RF4
-						next_callback = DevoInit();
-						remote_callback = devo_callback;
-						break;
-				#endif
-				#if defined(WK2x01_CYRF6936_INO)
-					case PROTO_WK2x01:
-						#ifdef ENABLE_PPM
-							if(mode_select) //PPM mode
-							{
-								if(IS_BIND_BUTTON_FLAG_on)
-								{
-									eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num),0x00);	// reset to autobind mode for the current model
-									option=0;
-								}
-								else
-								{	
-									option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num));	// load previous mode: autobind or fixed id
-									if(option!=1) option=0;								// if not fixed id mode then it should be autobind
-								}
-							}
-						#endif //ENABLE_PPM
-						PE2_on;	//antenna RF4
-						next_callback = WK_setup();
-						remote_callback = WK_cb;
-						break;
-				#endif
-				#if defined(J6PRO_CYRF6936_INO)
-					case PROTO_J6PRO:
-						PE2_on;	//antenna RF4
-						next_callback = initJ6Pro();
-						remote_callback = ReadJ6Pro;
-						break;
-				#endif
-				#if defined(TRAXXAS_CYRF6936_INO)
-					case PROTO_TRAXXAS:
-						PE2_on;	//antenna RF4
-						next_callback = initTRAXXAS();
-						remote_callback = ReadTRAXXAS;
-						break;
-				#endif
-			#endif
-			#ifdef NRF24L01_INSTALLED
-				#if defined(HISKY_NRF24L01_INO)
-					case PROTO_HISKY:
-						next_callback=initHiSky();
-						remote_callback = hisky_cb;
-						break;
-				#endif
-				#if defined(V2X2_NRF24L01_INO)
-					case PROTO_V2X2:
-						next_callback = initV2x2();
-						remote_callback = ReadV2x2;
-						break;
-				#endif
-				#if defined(YD717_NRF24L01_INO)
-					case PROTO_YD717:
-						next_callback=initYD717();
-						remote_callback = yd717_callback;
-						break;
-				#endif
-				#if defined(KN_NRF24L01_INO)
-					case PROTO_KN:
-						next_callback = initKN();
-						remote_callback = kn_callback;
-						break;
-				#endif
-				#if defined(SYMAX_NRF24L01_INO)
-					case PROTO_SYMAX:
-						next_callback = initSymax();
-						remote_callback = symax_callback;
-						break;
-				#endif
-				#if defined(SLT_NRF24L01_INO)
-					case PROTO_SLT:
-						next_callback=initSLT();
-						remote_callback = SLT_callback;
-						break;
-				#endif
-				#if defined(CX10_NRF24L01_INO)
-					case PROTO_Q2X2:
-						sub_protocol|=0x08;		// Increase the number of sub_protocols for CX-10
-					case PROTO_CX10:
-						next_callback=initCX10();
-						remote_callback = CX10_callback;
-						break;
-				#endif
-				#if defined(CG023_NRF24L01_INO)
-					case PROTO_CG023:
-						next_callback=initCG023();
-						remote_callback = CG023_callback;
-						break;
-				#endif
-				#if defined(BAYANG_NRF24L01_INO)
-					case PROTO_BAYANG:
-						next_callback=initBAYANG();
-						remote_callback = BAYANG_callback;
-						break;
-				#endif
-				#if defined(ESKY_NRF24L01_INO)
-					case PROTO_ESKY:
-						next_callback=initESKY();
-						remote_callback = ESKY_callback;
-						break;
-				#endif
-				#if defined(MT99XX_NRF24L01_INO)
-					case PROTO_MT99XX:
-						next_callback=initMT99XX();
-						remote_callback = MT99XX_callback;
-						break;
-				#endif
-				#if defined(LOLI_NRF24L01_INO)
-					case PROTO_LOLI:
-						next_callback=initLOLI();
-						remote_callback = LOLI_callback;
-						break;
-				#endif
-				#if defined(MJXQ_NRF24L01_INO)
-					case PROTO_MJXQ:
-						next_callback=initMJXQ();
-						remote_callback = MJXQ_callback;
-						break;
-				#endif
-				#if defined(SHENQI_NRF24L01_INO)
-					case PROTO_SHENQI:
-						next_callback=initSHENQI();
-						remote_callback = SHENQI_callback;
-						break;
-				#endif
-				#if defined(FY326_NRF24L01_INO)
-					case PROTO_FY326:
-						next_callback=initFY326();
-						remote_callback = FY326_callback;
-						break;
-				#endif
-				#if defined(FQ777_NRF24L01_INO)
-					case PROTO_FQ777:
-						next_callback=initFQ777();
-						remote_callback = FQ777_callback;
-						break;
-				#endif
-				#if defined(ASSAN_NRF24L01_INO)
-					case PROTO_ASSAN:
-						next_callback=initASSAN();
-						remote_callback = ASSAN_callback;
-						break;
-				#endif
-				#if defined(HONTAI_NRF24L01_INO)
-					case PROTO_HONTAI:
-						next_callback=initHONTAI();
-						remote_callback = HONTAI_callback;
-						break;
-				#endif
-				#if defined(Q303_NRF24L01_INO)
-					case PROTO_Q303:
-						next_callback=initQ303();
-						remote_callback = Q303_callback;
-						break;
-				#endif
-				#if defined(GW008_NRF24L01_INO)
-					case PROTO_GW008:
-						next_callback=initGW008();
-						remote_callback = GW008_callback;
-						break;
-				#endif
-				#if defined(DM002_NRF24L01_INO)
-					case PROTO_DM002:
-						next_callback=initDM002();
-						remote_callback = DM002_callback;
-						break;
-				#endif
-				#if defined(CABELL_NRF24L01_INO)
-					case PROTO_CABELL:
-						next_callback=initCABELL();
-						remote_callback = CABELL_callback;
-						break;
-				#endif
-				#if defined(ESKY150_NRF24L01_INO)
-					case PROTO_ESKY150:
-						next_callback=initESKY150();
-						remote_callback = ESKY150_callback;
-						break;
-				#endif
-				#if defined(H8_3D_NRF24L01_INO)
-					case PROTO_H8_3D:
-						next_callback=initH8_3D();
-						remote_callback = H8_3D_callback;
-						break;
-				#endif
-				#if defined(CFLIE_NRF24L01_INO)
-					case PROTO_CFLIE:
-						next_callback=initCFlie();
-						remote_callback = cflie_callback;
-						break;
-				#endif
-				#if defined(BUGSMINI_NRF24L01_INO)
-					case PROTO_BUGSMINI:
-						next_callback=initBUGSMINI();
-						remote_callback = BUGSMINI_callback;
-						break;
-				#endif
-				#if defined(NCC1701_NRF24L01_INO)
-					case PROTO_NCC1701:
-						next_callback=initNCC();
-						remote_callback = NCC_callback;
-						break;
-				#endif
-				#if defined(E01X_NRF24L01_INO)
-					case PROTO_E01X:
-						next_callback=initE01X();
-						remote_callback = E01X_callback;
-						break;
-				#endif
-				#if defined(V911S_NRF24L01_INO)
-					case PROTO_V911S:
-						next_callback=initV911S();
-						remote_callback = V911S_callback;
-						break;
-				#endif
-				#if defined(GD00X_NRF24L01_INO)
-					case PROTO_GD00X:
-						next_callback=initGD00X();
-						remote_callback = GD00X_callback;
-						break;
-				#endif
-				#if defined(V761_NRF24L01_INO)
-					case PROTO_V761:
-						next_callback=initV761();
-						remote_callback = V761_callback;
-						break;
-				#endif
-				#if defined(KF606_NRF24L01_INO)
-					case PROTO_KF606:
-						next_callback=initKF606();
-						remote_callback = KF606_callback;
-						break;
-				#endif
-				#if defined(POTENSIC_NRF24L01_INO)
-					case PROTO_POTENSIC:
-						next_callback=initPOTENSIC();
-						remote_callback = POTENSIC_callback;
-						break;
-				#endif
-				#if defined(ZSX_NRF24L01_INO)
-					case PROTO_ZSX:
-						next_callback=initZSX();
-						remote_callback = ZSX_callback;
-						break;
-				#endif
-				#if defined(FX816_NRF24L01_INO)
-					case PROTO_FX816:
-						next_callback=initFX816();
-						remote_callback = FX816_callback;
-						break;
-				#endif
-				#if defined(BAYANG_RX_NRF24L01_INO)
-					case PROTO_BAYANG_RX:
-						next_callback=initBayang_Rx();
-						remote_callback = Bayang_Rx_callback;
-						break;
-				#endif
-				#if defined(TIGER_NRF24L01_INO)
-					case PROTO_TIGER:
-						next_callback=initTIGER();
-						remote_callback = TIGER_callback;
-						break;
-				#endif
-				#if defined(XK_NRF24L01_INO)
-					case PROTO_XK:
-						next_callback=initXK();
-						remote_callback = XK_callback;
-						break;
-				#endif
-				#if defined(PROPEL_NRF24L01_INO)
-					case PROTO_PROPEL:
-						next_callback=initPROPEL();
-						remote_callback = PROPEL_callback;
-						break;
-				#endif
-				#if defined(XN297DUMP_NRF24L01_INO)
-					case PROTO_XN297DUMP:
-						next_callback=initXN297Dump();
-						remote_callback = XN297Dump_callback;
-						break;
-				#endif
-				#if defined(JJRC345_NRF24L01_INO)
-					case PROTO_JJRC345:
-						next_callback=initJJRC345();
-						remote_callback = JJRC345_callback;
-						break;
-				#endif
-				#if defined(Q90C_NRF24L01_INO)
-					case PROTO_Q90C:
-						next_callback=initQ90C();
-						remote_callback = Q90C_callback;
-						break;
-				#endif
-				#if defined(REALACC_NRF24L01_INO)
-					case PROTO_REALACC:
-						next_callback=initREALACC();
-						remote_callback = REALACC_callback;
-						break;
-				#endif
-				#if defined(OMP_CC2500_INO)
-					case PROTO_OMP:
-						next_callback=initOMP();
-						remote_callback = OMP_callback;
-						break;
-				#endif
-				#if defined(TEST_CC2500_INO)
-					case PROTO_TEST:
-						next_callback=initTEST();
-						remote_callback = TEST_callback;
-						break;
-				#endif
-				#if defined(NANORF_NRF24L01_INO)
-					case PROTO_NANORF:
-						next_callback=initNANORF();
-						remote_callback = NANORF_callback;
-						break;
-				#endif
-			#endif
-			#ifdef SX1276_INSTALLED
-				#if defined(FRSKYR9_SX1276_INO)
-					case PROTO_FRSKY_R9:
-						next_callback = initFrSkyR9();
-						remote_callback = FrSkyR9_callback;
-						break;
-				#endif
-			#endif	
-		}
 		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
-		#ifdef MULTI_NAMES
-			uint8_t index=0;
-			while(multi_protocols[index].protocol != 0)
-			{
-				if(multi_protocols[index].protocol==protocol)
-				{
-					multi_protocols_index=index;
-					SEND_MULTI_STATUS_on;
-					#ifdef DEBUG_SERIAL
-						debug("Proto=%s",multi_protocols[multi_protocols_index].ProtoString);
-						uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
-						debug(", nbr_sub=%d, Sub=",nbr);
-						if(nbr && (sub_protocol&0x07)<nbr)
-						{
-							uint8_t len=multi_protocols[multi_protocols_index].SubProtoString[0];
-							uint8_t offset=len*(sub_protocol&0x07)+1;
-							for(uint8_t j=0;j<len;j++)
-								debug("%c",multi_protocols[multi_protocols_index].SubProtoString[j+offset]);
-						}
-						debugln(", Opt=%d",multi_protocols[multi_protocols_index].optionType);
-					#endif
-					break;
-				}
-				index++;
-			}
+		uint8_t index=0;
+		#if defined(FRSKYX_CC2500_INO) && defined(EU_MODULE)
+			if( ! ( (protocol == PROTO_FRSKYX || protocol == PROTO_FRSKYX2) && sub_protocol < 2 ) )
 		#endif
+		while(multi_protocols[index].protocol != 0)
+		{
+			if(multi_protocols[index].protocol==protocol)
+			{
+				//Save index
+				multi_protocols_index = index;
+				//Set the RF switch
+				switch(multi_protocols[multi_protocols_index].rfSwitch)
+				{
+					case SW_CC2500:
+						PE2_on;
+						break;
+					case SW_CYRF:
+						PE2_on;
+					case SW_NRF:
+						PE1_on;
+						break;
+				}
+				//Init protocol
+				multi_protocols[multi_protocols_index].Init();
+				//Save call back function address
+				remote_callback = multi_protocols[multi_protocols_index].CallBack;
+				//Send a telemetry status right now
+				SEND_MULTI_STATUS_on;
+				#ifdef DEBUG_SERIAL
+					debug("Proto=%s",multi_protocols[multi_protocols_index].ProtoString);
+					uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
+					debug(", nbr_sub=%d, Sub=",nbr);
+					if(nbr && (sub_protocol&0x07)<nbr)
+					{
+						uint8_t len=multi_protocols[multi_protocols_index].SubProtoString[0];
+						uint8_t offset=len*(sub_protocol&0x07)+1;
+						for(uint8_t j=0;j<len;j++)
+							debug("%c",multi_protocols[multi_protocols_index].SubProtoString[j+offset]);
+					}
+					debugln(", Opt=%d",multi_protocols[multi_protocols_index].optionType);
+					debugln(", FS=%d",multi_protocols[multi_protocols_index].failSafe);
+					debugln(", CHMap=%d",multi_protocols[multi_protocols_index].chMap);
+					debugln(", rfSw=%d",multi_protocols[multi_protocols_index].rfSwitch);
+				#endif
+				break;
+			}
+			index++;
+		}
 	}
 	
 	#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
@@ -1776,14 +1193,9 @@ static void protocol_init()
 	WAIT_BIND_off;
 	CHANGE_PROTOCOL_FLAG_off;
 
-	if(next_callback>32000)
-	{ // next_callback should not be more than 32767 so we will wait here...
-		uint16_t temp=(next_callback>>10)-2;
-		delayMilliseconds(temp);
-		next_callback-=temp<<10;				// between 2-3ms left at this stage
-	}
+	//Wait 5ms after protocol init
 	cli();										// disable global int
-	OCR1A = TCNT1 + next_callback*2;			// set compare A for callback
+	OCR1A = TCNT1 + 5000*2;						// set compare A for callback
 	#ifndef STM32_BOARD
 		TIFR1 = OCF1A_bm ;						// clear compare A flag
 	#else
@@ -1973,8 +1385,9 @@ void update_serial_data()
 		cur_protocol[i] =  rx_ok_buff[i];
 
 	//disable channel mapping
-	if(!IS_CHMAP_PROTOCOL)						//not a protocol supporting ch map to be disabled
-		DISABLE_CH_MAP_off;
+	if(multi_protocols[multi_protocols_index].chMap == 0)
+		DISABLE_CH_MAP_off;						//not a protocol supporting ch map to be disabled
+
 	if(prev_ch_mapping!=IS_DISABLE_CH_MAP_on)
 	{
 		prev_ch_mapping=IS_DISABLE_CH_MAP_on;

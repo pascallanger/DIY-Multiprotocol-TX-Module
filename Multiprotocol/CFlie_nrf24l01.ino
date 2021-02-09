@@ -644,7 +644,7 @@ static uint8_t crtp_log_setup_state_machine()
     return state_machine_completed;
 }
 
-static int cflie_init()
+static void CFLIE_RF_init()
 {
     NRF24L01_Initialize();
 
@@ -672,9 +672,6 @@ static int cflie_init()
 
     NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x01);       // Enable Dynamic Payload Length on pipe 0
     NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x06);     // Enable Dynamic Payload Length, enable Payload with ACK
-
-    // 50ms delay in callback
-    return 50000;
 }
 
 // TODO: Fix telemetry
@@ -749,7 +746,7 @@ static int cflie_init()
 //     }
 // }
 
-static uint16_t cflie_callback()
+static uint16_t CFLIE_callback()
 {
     switch (phase) {
     case CFLIE_INIT_SEARCH:
@@ -799,7 +796,7 @@ static uint16_t cflie_callback()
 }
 
 // Generate address to use from TX id and manufacturer id (STM32 unique id)
-static uint8_t initialize_rx_tx_addr()
+static uint8_t CFLIE_initialize_rx_tx_addr()
 {
     rx_tx_addr[0] = 
     rx_tx_addr[1] = 
@@ -844,19 +841,15 @@ static uint8_t initialize_rx_tx_addr()
     return CFLIE_INIT_SEARCH;
 }
 
-uint16_t initCFlie(void)
+void CFLIE_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 
-    phase = initialize_rx_tx_addr();
+    phase = CFLIE_initialize_rx_tx_addr();
     crtp_log_setup_state = CFLIE_CRTP_LOG_SETUP_STATE_INIT;
     packet_count=0;
 
-    int delay = cflie_init();
-
-    // debugln("CFlie init!");
-
-	return delay;
+    CFLIE_RF_init();
 }
 
 #endif

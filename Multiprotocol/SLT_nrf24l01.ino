@@ -52,7 +52,7 @@ enum {
 	SLT_BIND2,
 };
 
-static void __attribute__((unused)) SLT_init()
+static void __attribute__((unused)) SLT_RF_init()
 {
 	NRF250K_Init();
 	NRF250K_SetTXAddr(rx_tx_addr, SLT_TXID_SIZE);
@@ -258,7 +258,7 @@ uint16_t SLT_callback()
 	return 19000;
 }
 
-uint16_t initSLT()
+void SLT_init()
 {
 	BIND_DONE;	// Not a TX bind protocol
 	packet_count = 0;
@@ -273,10 +273,9 @@ uint16_t initSLT()
 		/*	rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x0B;rx_tx_addr[3]=0x57;*/
 		#endif
 	}
-	SLT_init();
+	SLT_RF_init();
 	SLT_set_freq();
 	phase = SLT_BUILD;
-	return 50000;
 }
 
 #endif

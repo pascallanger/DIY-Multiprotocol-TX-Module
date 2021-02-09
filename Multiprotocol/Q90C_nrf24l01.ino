@@ -131,7 +131,7 @@ static void __attribute__((unused)) Q90C_initialize_txid()
 	crc8=rx_tx_addr[0]^rx_tx_addr[1]^rx_tx_addr[2]^rx_tx_addr[3];
 }
 
-static void __attribute__((unused)) Q90C_init()
+static void __attribute__((unused)) Q90C_RF_init()
 {
 	XN297L_Init();
 	if(IS_BIND_IN_PROGRESS)
@@ -157,10 +157,10 @@ uint16_t Q90C_callback()
 	return Q90C_PACKET_PERIOD;
 }
 
-uint16_t initQ90C()
+void Q90C_init()
 {
 	Q90C_initialize_txid();
-	Q90C_init();
+	Q90C_RF_init();
 	hopping_frequency_no = 0;
 	packet_count = 0;
 	bind_counter=Q90C_BIND_COUNT;
@@ -170,7 +170,6 @@ uint16_t initQ90C()
 	Q90C_VTX=CH6_SW;
 	packet[8]  = 0x00;
 	packet[9]  = 0x00;
-	return Q90C_INITIAL_WAIT;
 }
 
 #endif

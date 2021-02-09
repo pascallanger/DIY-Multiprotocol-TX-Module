@@ -110,7 +110,7 @@ static void __attribute__((unused)) pelikan_build_packet()
 	A7105_SetPower();
 }
 
-uint16_t ReadPelikan()
+uint16_t PELIKAN_callback()
 {
 	if(phase==0)
 	{
@@ -242,7 +242,7 @@ const uint8_t PROGMEM pelikan_lite_hopp[][PELIKAN_NUM_RF_CHAN] = {
 };
 #endif
 
-uint16_t initPelikan()
+void PELIKAN_init()
 {
 	A7105_Init();
 	if(IS_BIND_IN_PROGRESS || sub_protocol==PELIKAN_LITE)
@@ -288,6 +288,5 @@ uint16_t initPelikan()
 	hopping_frequency_no=PELIKAN_NUM_RF_CHAN;
 	packet_count=5;
 	phase=0;
-	return 2400;
 }
 #endif

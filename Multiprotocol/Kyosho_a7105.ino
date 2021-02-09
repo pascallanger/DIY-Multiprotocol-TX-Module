@@ -23,7 +23,7 @@
 //Kyosho constants & variables
 #define KYOSHO_BIND_COUNT 2500
 
-static void __attribute__((unused)) kyosho_send_packet()
+static void __attribute__((unused)) KYOSHO_send_packet()
 {
 	//ID
 	packet[1] = rx_tx_addr[0];
@@ -77,7 +77,7 @@ static void __attribute__((unused)) kyosho_send_packet()
 	A7105_WriteData(37, rf_ch_num);
 }
 
-static void __attribute__((unused)) kyosho_hype_send_packet()
+static void __attribute__((unused)) KYOSHO_hype_send_packet()
 {
 	if(IS_BIND_IN_PROGRESS)
 	{
@@ -124,7 +124,7 @@ static void __attribute__((unused)) kyosho_hype_send_packet()
 	}
 }
 
-uint16_t ReadKyosho()
+uint16_t KYOSHO_callback()
 {
 	#ifndef FORCE_KYOSHO_TUNING
 		A7105_AdjustLOBaseFreq(1);
@@ -151,13 +151,13 @@ uint16_t ReadKyosho()
 		#endif
 	}
 	if(sub_protocol==KYOSHO_FHSS)
-		kyosho_send_packet();
+		KYOSHO_send_packet();
 	else//HYPE
-		kyosho_hype_send_packet();
+		KYOSHO_hype_send_packet();
 	return packet_period;
 }
 
-uint16_t initKyosho()
+void KYOSHO_init()
 {
 	A7105_Init();
 
@@ -197,6 +197,5 @@ uint16_t initKyosho()
 
 	packet_sent=0;
 	packet_period=3852;		//FHSS
-	return 2000;
 }
 #endif

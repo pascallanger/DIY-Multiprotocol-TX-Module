@@ -127,7 +127,7 @@ static void __attribute__((unused)) GD00X_send_packet()
 	XN297L_SetFreqOffset();	// Set frequency offset
 }
 
-static void __attribute__((unused)) GD00X_init()
+static void __attribute__((unused)) GD00X_RF_init()
 {
 	XN297L_Init();
 	if(sub_protocol==GD_V1)
@@ -214,18 +214,17 @@ uint16_t GD00X_callback()
 	return packet_period;
 }
 
-uint16_t initGD00X()
+void GD00X_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	GD00X_initialize_txid();
-	GD00X_init();
+	GD00X_RF_init();
 	hopping_frequency_no = 0;
 	bind_counter=GD00X_BIND_COUNT;
 	packet_period=sub_protocol==GD_V1?GD00X_PACKET_PERIOD:GD00X_V2_BIND_PACKET_PERIOD;
 	packet_length=sub_protocol==GD_V1?GD00X_PAYLOAD_SIZE:GD00X_V2_PAYLOAD_SIZE;
 	packet_count=0;
 	len=0;
-	return GD00X_INITIAL_WAIT;
 }
 
 #endif

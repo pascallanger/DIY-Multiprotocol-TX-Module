@@ -57,7 +57,7 @@ enum {
 #define BUGSMINI_FLAG_ANGLE   0x02    // angle/acro mode (set is angle mode)
 #define BUGSMINI_FLAG_ALTHOLD 0x04    // angle/altitude hold mode (set is altitude mode)
 
-static void __attribute__((unused)) BUGSMINI_init()
+static void __attribute__((unused)) BUGSMINI_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -357,11 +357,11 @@ static void __attribute__((unused)) BUGSMINI_initialize_txid()
 	BUGSMINI_txhash = pgm_read_byte_near( &BUGSMINI_tx_hash[rx_tx_addr[3]%BUGSMINI_NUM_TX_RF_MAPS] );
 }
 
-uint16_t initBUGSMINI()
+void BUGSMINI_init()
 {
 	BUGSMINI_initialize_txid();
 	memset(packet, (uint8_t)0, BUGSMINI_TX_PAYLOAD_SIZE);
-	BUGSMINI_init();
+	BUGSMINI_RF_init();
 	if(IS_BIND_IN_PROGRESS)
 	{
 		XN297_SetTXAddr((const uint8_t*)"mjxRC", 5);
@@ -378,7 +378,6 @@ uint16_t initBUGSMINI()
 	armed = 0;
 	arm_flags = BUGSMINI_FLAG_DISARM;    // initial value from captures
 	arm_channel_previous = BUGSMINI_CH_SW_ARM;
-	return BUGSMINI_INITIAL_WAIT;
 }
 
 #endif

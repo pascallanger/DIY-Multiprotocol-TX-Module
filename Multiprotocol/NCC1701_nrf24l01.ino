@@ -31,7 +31,7 @@ enum {
 	NCC_RX3,
 };
 
-static void __attribute__((unused)) NCC_init()
+static void __attribute__((unused)) NCC_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -247,7 +247,7 @@ const uint8_t PROGMEM NCC_TX_DATA[][6]= {
 	{ 0xC2, 0x93, 0x55, 0x44, 0x4C, 0x0B },
 };
 
-uint16_t initNCC(void)
+void NCC_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	
@@ -269,9 +269,8 @@ uint16_t initNCC(void)
 	hopping_frequency[4]=0x08;	// bind channel 1
 	hopping_frequency[5]=0x2A;	// bind channel 2
 	hopping_frequency_no=4;		// start with bind
-	NCC_init();
+	NCC_RF_init();
 	phase=NCC_BIND_TX1;
-	return 10000;
 }
 
 #endif

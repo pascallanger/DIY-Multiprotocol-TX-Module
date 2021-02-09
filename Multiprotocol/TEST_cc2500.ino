@@ -43,7 +43,7 @@ uint16_t TEST_callback()
 	return TEST_PACKET_PERIOD>>1;
 }
 
-uint16_t initTEST()
+void TEST_init()
 {
 	option=1;
 
@@ -57,7 +57,6 @@ uint16_t initTEST()
 	phase=0;
 	for(uint8_t i=0; i<TEST_PAYLOAD_SIZE; i++)
 		packet[i]= i;
-	return TEST_INITIAL_WAIT;
 }
 
 #endif

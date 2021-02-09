@@ -207,7 +207,7 @@ static void __attribute__((unused)) SFHSS_send_packet()
     CC2500_WriteData(packet, SFHSS_PACKET_LEN);
 }
 
-uint16_t ReadSFHSS()
+uint16_t SFHSS_callback()
 {
 	switch(phase)
 	{
@@ -285,7 +285,7 @@ static void __attribute__((unused)) SFHSS_get_tx_id()
 	rx_tx_addr[1] = fixed_id >> 0;
 }
 
-uint16_t initSFHSS()
+void SFHSS_init()
 {
 	BIND_DONE;	// Not a TX bind protocol
 	SFHSS_get_tx_id();
@@ -294,7 +294,6 @@ uint16_t initSFHSS()
 
 	SFHSS_rf_init();
 	phase = SFHSS_START;
-	return 10000;
 }
 
 #endif

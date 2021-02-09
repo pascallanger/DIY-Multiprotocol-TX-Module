@@ -431,7 +431,7 @@ static void __attribute__((unused)) WK_BuildPacket_2401()
 		WK_build_data_pkt_2401();
 }
 
-uint16_t WK_cb()
+uint16_t WK_callback()
 {
 	if (packet_sent == 0)
 	{
@@ -465,8 +465,24 @@ uint16_t WK_cb()
 	return 1200;
 }
 
-uint16_t WK_setup()
+void WK_init()
 {
+	#ifdef ENABLE_PPM
+		if(mode_select) //PPM mode
+		{
+			if(IS_BIND_BUTTON_FLAG_on)
+			{
+				eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num),0x00);	// reset to autobind mode for the current model
+				option=0;
+			}
+			else
+			{	
+				option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num));	// load previous mode: autobind or fixed id
+				if(option!=1) option=0;								// if not fixed id mode then it should be autobind
+			}
+		}
+	#endif //ENABLE_PPM
+
 	wk2x01_cyrf_init();
 	CYRF_SetTxRxMode(TX_EN);
 
@@ -497,7 +513,6 @@ uint16_t WK_setup()
 		phase = WK_BOUND_1;
 		BIND_DONE;
 	}
-	return 2800;
 }
 
 #endif

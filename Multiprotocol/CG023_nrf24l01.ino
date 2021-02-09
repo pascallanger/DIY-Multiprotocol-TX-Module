@@ -119,7 +119,7 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) CG023_init()
+static void __attribute__((unused)) CG023_RF_init()
 {
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
@@ -165,17 +165,16 @@ static void __attribute__((unused)) CG023_initialize_txid()
 	hopping_frequency_no = rx_tx_addr[0] - 0x7D;	// rf channel for data packets
 }
 
-uint16_t initCG023(void)
+void CG023_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = CG023_BIND_COUNT;
 	CG023_initialize_txid();
-	CG023_init();
+	CG023_RF_init();
 	if(sub_protocol==CG023)
 		packet_period=CG023_PACKET_PERIOD;
 	else // YD829
 		packet_period=YD829_PACKET_PERIOD;
-	return	CG023_INITIAL_WAIT+YD829_PACKET_PERIOD;
 }
 
 #endif

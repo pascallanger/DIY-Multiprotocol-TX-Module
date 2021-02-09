@@ -76,7 +76,7 @@ static void __attribute__((unused)) KF606_initialize_txid()
 	#endif
 }
 
-static void __attribute__((unused)) KF606_init()
+static void __attribute__((unused)) KF606_RF_init()
 {
 	XN297L_Init();
 	XN297L_SetTXAddr((uint8_t*)"\xe7\xe7\xe7\xe7\xe7", 5);
@@ -99,14 +99,13 @@ uint16_t KF606_callback()
 	return KF606_PACKET_PERIOD;
 }
 
-uint16_t initKF606()
+void KF606_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	KF606_initialize_txid();
-	KF606_init();
+	KF606_RF_init();
 	hopping_frequency_no = 0;
 	bind_counter=KF606_BIND_COUNT;
-	return KF606_INITIAL_WAIT;
 }
 
 #endif

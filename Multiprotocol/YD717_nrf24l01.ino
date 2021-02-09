@@ -12,7 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Last sync with hexfet new_protocols/yd717_nrf24l01.c dated 2015-09-28
+// Last sync with hexfet new_protocols/YD717_nrf24l01.c dated 2015-09-28
 
 #if defined(YD717_NRF24L01_INO)
 
@@ -33,10 +33,10 @@
 
 #define YD717_PAYLOADSIZE 8				// receive data pipes set to this size, but unused
 
-static void __attribute__((unused)) yd717_send_packet(uint8_t bind)
+static void __attribute__((unused)) YD717_send_packet()
 {
 	uint8_t rudder_trim, elevator_trim, aileron_trim;
-	if (bind)
+	if (IS_BIND_IN_PROGRESS)
 	{
 		packet[0]= rx_tx_addr[0]; // send data phase address in first 4 bytes
 		packet[1]= rx_tx_addr[1];
@@ -117,7 +117,7 @@ static void __attribute__((unused)) yd717_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) yd717_init()
+static void __attribute__((unused)) YD717_RF_init()
 {
 	NRF24L01_Initialize();
 
@@ -152,42 +152,32 @@ static void __attribute__((unused)) yd717_init()
     NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, bind_rx_tx_addr, 5);
 }
 
-uint16_t yd717_callback()
+uint16_t YD717_callback()
 {
-	if(IS_BIND_DONE)
+	if (bind_counter)
 	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(YD717_PACKET_PERIOD);
-		#endif
-		yd717_send_packet(0);
-	}
-	else
-	{
-		if (bind_counter == 0)
+		bind_counter--;
+		if(bind_counter==0)
 		{
 			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);	// set address
 			NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);
-			yd717_send_packet(0);
 			BIND_DONE;							// bind complete
 		}
-		else
-		{
-			yd717_send_packet(1);
-			bind_counter--;
-		}
 	}
+	else
+		#ifdef MULTI_SYNC
+			telemetry_set_input_sync(YD717_PACKET_PERIOD);
+		#endif
+	YD717_send_packet();
 	return YD717_PACKET_PERIOD;						// Packet every 8ms
 }
 
-uint16_t initYD717()
+void YD717_init()
 {
 	BIND_IN_PROGRESS;			// autobind protocol
 	rx_tx_addr[4] = 0xC1;		// always uses first data port
-	yd717_init();
+	YD717_RF_init();
 	bind_counter = YD717_BIND_COUNT;
-
-	// Call callback in 50ms
-	return YD717_INITIAL_WAIT;
 }
 
 #endif

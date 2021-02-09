@@ -113,7 +113,7 @@ static void __attribute__((unused)) FRSKYV_build_data_packet()
 	packet[14] = FRSKYV_crc8(crc8, packet, 14);
 }
 
-uint16_t ReadFRSKYV()
+uint16_t FRSKYV_callback(void)
 {
 	if(IS_BIND_DONE)
 	{	// Normal operation
@@ -148,7 +148,7 @@ uint16_t ReadFRSKYV()
 	return 53460;
 }
 
-uint16_t initFRSKYV()
+void FRSKYV_init(void)
 {
 	//ID is 15 bits. Using rx_tx_addr[2] and rx_tx_addr[3] since we want to use RX_Num for model match
 	rx_tx_addr[2]&=0x7F;
@@ -158,7 +158,6 @@ uint16_t initFRSKYV()
 	seed = 1;
 	binding_idx=0;
 	phase = FRSKYV_DATA1;
-	return 10000;
 }
 
 #endif

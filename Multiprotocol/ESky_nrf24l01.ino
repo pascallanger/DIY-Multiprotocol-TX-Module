@@ -35,7 +35,7 @@ static void __attribute__((unused)) ESKY_set_data_address()
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    rx_tx_addr, 4);
 }
 
-static void __attribute__((unused)) ESKY_init()
+static void __attribute__((unused)) ESKY_RF_init()
 {
 	NRF24L01_Initialize();
 
@@ -65,7 +65,7 @@ static void __attribute__((unused)) ESKY_init()
 	NRF24L01_WriteReg(NRF24L01_17_FIFO_STATUS, 0x00);      // Just in case, no real bits to write here
 }
 
-static void __attribute__((unused)) ESKY_init2()
+static void __attribute__((unused)) ESKY_TXID_init()
 {
 	NRF24L01_FlushTx();
 	if(sub_protocol==ESKY_STD)
@@ -187,7 +187,7 @@ uint16_t ESKY_callback()
 	return ESKY_STD_PACKET_PERIOD;
 }
 
-uint16_t initESKY(void)
+void ESKY_init(void)
 {
 	bind_counter = ESKY_BIND_COUNT;
 	rx_tx_addr[2] = rx_tx_addr[3];	// Model match
@@ -200,10 +200,9 @@ uint16_t initESKY(void)
 	  }
 	#endif
 	rx_tx_addr[3] = 0xBB;
-	ESKY_init();
-	ESKY_init2();
+	ESKY_RF_init();
+	ESKY_TXID_init();
 	packet_count=0;
-	return 50000;
 }
 
 #endif

@@ -88,7 +88,7 @@ static void __attribute__((unused)) FY326_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) FY326_init()
+static void __attribute__((unused)) FY326_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -209,20 +209,19 @@ static void __attribute__((unused)) FY326_initialize_txid()
 			hopping_frequency[i]=rx_tx_addr[0] & ~0x80;
 }
 
-uint16_t initFY326(void)
+void FY326_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
     rxid = 0xAA;
 	bind_counter = FY326_BIND_COUNT;
 	FY326_initialize_txid();
-	FY326_init();
+	FY326_RF_init();
 	if(sub_protocol==FY319)
 	{
 		phase=FY319_BIND1;
 	}
 	else
 		phase=FY326_BIND1;
-	return	FY326_INITIAL_WAIT;
 }
 
 #endif

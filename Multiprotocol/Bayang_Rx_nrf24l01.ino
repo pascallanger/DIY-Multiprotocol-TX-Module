@@ -98,7 +98,7 @@ static void __attribute__((unused)) Bayang_Rx_build_telemetry_packet()
 	}
 }
 
-uint16_t initBayang_Rx()
+void BAYANG_RX_init()
 {
 	uint8_t i;
 	Bayang_Rx_init_nrf24l01();
@@ -119,17 +119,20 @@ uint16_t initBayang_Rx()
 		XN297_SetRXAddr(rx_tx_addr, BAYANG_RX_ADDRESS_LENGTH);
 		phase = BAYANG_RX_DATA;
 	}
-	return 1000;
 }
 
-uint16_t Bayang_Rx_callback()
+uint16_t BAYANG_RX_callback()
 {
 	uint8_t i;
 	static int8_t read_retry;
 
 	switch (phase) {
 	case BAYANG_RX_BIND:
-		if(IS_BIND_DONE) return initBayang_Rx();	// Abort bind
+		if(IS_BIND_DONE)
+		{
+			BAYANG_RX_init();	// Abort bind
+			break;
+		}
 		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) {
 			// data received from TX
 			if (XN297_ReadPayload(packet, BAYANG_RX_PACKET_SIZE) && ( packet[0] == 0xA4 || packet[0] == 0xA2 ) && Bayang_Rx_check_validity()) {

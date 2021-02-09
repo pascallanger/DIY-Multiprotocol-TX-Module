@@ -86,7 +86,7 @@ static void __attribute__((unused)) REALACC_initialize_txid()
 	#endif
 }
 
-static void __attribute__((unused)) REALACC_init()
+static void __attribute__((unused)) REALACC_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -124,14 +124,13 @@ uint16_t REALACC_callback()
 	return REALACC_PACKET_PERIOD;
 }
 
-uint16_t initREALACC()
+void REALACC_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	REALACC_initialize_txid();
-	REALACC_init();
+	REALACC_RF_init();
 	bind_counter=REALACC_BIND_COUNT;
 	hopping_frequency_no=0;
-	return REALACC_INITIAL_WAIT;
 }
 
 #endif

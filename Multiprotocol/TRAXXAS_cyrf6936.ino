@@ -97,7 +97,7 @@ static void __attribute__((unused)) TRAXXAS_send_data_packet()
 	CYRF_WriteDataPacketLen(packet, TRAXXAS_PACKET_SIZE);
 }
 
-uint16_t ReadTRAXXAS()
+uint16_t TRAXXAS_callback()
 {
 	uint8_t status;
 	
@@ -171,10 +171,8 @@ uint16_t ReadTRAXXAS()
 	return 13940;
 }
 
-uint16_t initTRAXXAS()
+void TRAXXAS_init()
 { 
-	CYRF_Reset();
-
 	//Config CYRF registers
 	for(uint8_t i = 0; i < sizeof(TRAXXAS_init_vals) / 2; i++)	
 		CYRF_WriteRegister(pgm_read_byte_near(&TRAXXAS_init_vals[i][0]), pgm_read_byte_near(&TRAXXAS_init_vals[i][1]));
@@ -199,7 +197,6 @@ uint16_t initTRAXXAS()
 	}
 	else
 		phase = TRAXXAS_PREP_DATA;
-	return 1000;
 }
 
 /*

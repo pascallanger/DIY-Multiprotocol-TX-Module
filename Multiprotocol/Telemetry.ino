@@ -143,12 +143,15 @@ static void multi_send_status()
 		else
 			if (IS_BIND_IN_PROGRESS)
 				flags |= 0x08;
-		if(IS_CHMAP_PROTOCOL)
-			flags |= 0x40;				//Disable_ch_mapping supported
-		#ifdef FAILSAFE_ENABLE
-			if(IS_FAILSAFE_PROTOCOL)
-				flags |= 0x20;			//Failsafe supported
-		#endif
+		if(multi_protocols_index != 0xFF)
+		{
+			if(multi_protocols[multi_protocols_index].chMap)
+				flags |= 0x40;				//Disable_ch_mapping supported
+			#ifdef FAILSAFE_ENABLE
+				if(multi_protocols[multi_protocols_index].failSafe)
+					flags |= 0x20;			//Failsafe supported
+			#endif
+		}
 		if(IS_DATA_BUFFER_LOW_on)
 			flags |= 0x80;
 	}

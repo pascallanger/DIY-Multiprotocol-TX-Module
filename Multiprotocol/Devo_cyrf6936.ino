@@ -294,7 +294,7 @@ static void __attribute__((unused)) DEVO_BuildPacket()
 		packet_count = 0;
 }
 
-uint16_t devo_callback()
+uint16_t DEVO_callback()
 {
 	static uint8_t txState=0;
 	
@@ -404,8 +404,23 @@ uint16_t devo_callback()
 #endif
 }
 
-uint16_t DevoInit()
+void DEVO_init()
 {	
+	#ifdef ENABLE_PPM
+		if(mode_select) //PPM mode
+		{
+			if(IS_BIND_BUTTON_FLAG_on)
+			{
+				eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num),0x00);	// reset to autobind mode for the current model
+				option=0;
+			}
+			else
+			{	
+				option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num));	// load previous mode: autobind or fixed id
+				if(option!=1) option=0;								// if not fixed id mode then it should be autobind
+			}
+		}
+	#endif //ENABLE_PPM
 	switch(sub_protocol)
 	{
 		case 1:
@@ -453,7 +468,6 @@ uint16_t DevoInit()
 		bind_counter = 0;
 		DEVO_cyrf_set_bound_sop_code();
 	}  
-	return 2400;
 }
 
 #endif

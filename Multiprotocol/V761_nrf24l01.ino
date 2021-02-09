@@ -123,7 +123,7 @@ static void __attribute__((unused)) V761_send_packet()
 	NRF24L01_SetPower();
 }
 
-static void __attribute__((unused)) V761_init()
+static void __attribute__((unused)) V761_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -224,7 +224,7 @@ uint16_t V761_callback()
 	return V761_PACKET_PERIOD;
 }
 
-uint16_t initV761(void)
+void V761_init(void)
 {
 	V761_initialize_txid();
 	if(IS_BIND_IN_PROGRESS)
@@ -238,10 +238,9 @@ uint16_t initV761(void)
 		phase = V761_DATA;
 	}
 		
-	V761_init();
+	V761_RF_init();
 	hopping_frequency_no = 0;
 	packet_count = 0;
-	return	V761_INITIAL_WAIT;
 }
 
 #endif

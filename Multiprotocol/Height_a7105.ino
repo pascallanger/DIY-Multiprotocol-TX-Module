@@ -41,7 +41,7 @@ static void __attribute__((unused)) HEIGHT_build_packet()
 	}
 }
 
-uint16_t ReadHeight()
+uint16_t HEIGHT_callback()
 {
 	#ifndef FORCE_HEIGHT_TUNING
 		A7105_AdjustLOBaseFreq(1);
@@ -78,7 +78,7 @@ uint16_t ReadHeight()
 	return 1500;
 }
 
-uint16_t initHeight()
+void HEIGHT_init()
 {
 	A7105_Init();
 
@@ -94,7 +94,6 @@ uint16_t initHeight()
 	
 	phase=255;
 	bind_counter = HEIGHT_BIND_COUNT;
-	return 2400;
 }
 #endif
 // Normal packet is 8 bytes: 0xA5 0xAF 0x59 0x84 0x7A 0x00 0x80 0xFF

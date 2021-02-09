@@ -33,7 +33,7 @@ enum {
     ASSAN_DATA5
 };
 
-void ASSAN_init()
+void ASSAN_RF_init()
 {
     NRF24L01_Initialize();
     NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x02);			// 4 bytes rx/tx address
@@ -169,17 +169,16 @@ static void __attribute__((unused)) ASSAN_initialize_txid()
 	hopping_frequency[1]=freq2;
 }
 
-uint16_t initASSAN()
+void ASSAN_init()
 {
 	ASSAN_initialize_txid();
-	ASSAN_init();
+	ASSAN_RF_init();
 	hopping_frequency_no = 0;
 
 	if(IS_BIND_IN_PROGRESS)
 		phase=ASSAN_BIND0;
 	else 
 		phase=ASSAN_DATA0;
-	return 1000;
 }
 
 #endif

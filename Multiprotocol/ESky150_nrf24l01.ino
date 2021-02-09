@@ -23,7 +23,7 @@
 #define ESKY150_BINDING_PACKET_PERIOD	2000
 #define ESKY150_SENDING_PACKET_PERIOD	4800
 
-static void __attribute__((unused)) ESKY150_init()
+static void __attribute__((unused)) ESKY150_RF_init()
 {
 	//Original TX always sets for channelx 0x22 and 0x4a
 	// Use channels 2..79
@@ -171,16 +171,15 @@ uint16_t ESKY150_callback()
 	return ESKY150_SENDING_PACKET_PERIOD;
 }
 
-uint16_t initESKY150(void)
+void ESKY150_init(void)
 {
-	ESKY150_init();
+	ESKY150_RF_init();
 	if(IS_BIND_IN_PROGRESS)
 	{
 		bind_counter=3000;
 		ESKY150_bind_init();
 	}
 	hopping_frequency_no=0;
-	return 10000;
 }
 
 #endif

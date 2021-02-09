@@ -38,7 +38,7 @@ boolean ack;
 uint8_t pid;
 uint8_t bitrate;
 
-static void __attribute__((unused)) XN297Dump_init()
+static void __attribute__((unused)) XN297Dump_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(RX_EN);
@@ -284,7 +284,7 @@ static uint16_t XN297Dump_callback()
 				case 0:
 					debugln("------------------------");
 					debugln("Detecting XN297 packets.");
-					XN297Dump_init();
+					XN297Dump_RF_init();
 					debug("Trying RF channel: 0");
 					hopping_frequency_no=0;
 					bitrate=0;
@@ -301,7 +301,7 @@ static uint16_t XN297Dump_callback()
 							bitrate++;
 							bitrate%=3;
 							debugln("");
-							XN297Dump_init();
+							XN297Dump_RF_init();
 							debug("Trying RF channel: 0");
 						}
 						if(hopping_frequency_no)
@@ -756,7 +756,7 @@ static uint16_t XN297Dump_callback()
 	return 100;
 }
 
-uint16_t initXN297Dump(void)
+void XN297Dump_init(void)
 {
 	BIND_DONE;
 	if(sub_protocol<XN297DUMP_AUTO)
@@ -766,12 +766,11 @@ uint16_t initXN297Dump(void)
 	address_length=RX_num;
 	if(address_length<3||address_length>5)
 		address_length=5;	//default
-	XN297Dump_init();
+	XN297Dump_RF_init();
 	bind_counter=0;
 	rf_ch_num=0xFF;
 	prev_option=option^0x55;
 	phase=0;				// init
-	return XN297DUMP_INITIAL_WAIT;
 }
 
 #endif

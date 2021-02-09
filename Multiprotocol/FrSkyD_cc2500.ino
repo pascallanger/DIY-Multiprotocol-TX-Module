@@ -17,12 +17,12 @@
 
 #include "iface_cc2500.h"
 
-static void __attribute__((unused)) frsky2way_init(uint8_t bind)
+static void __attribute__((unused)) FRSKYD_RF_init()
 {
 	FRSKY_init_cc2500(FRSKYD_cc2500_conf);	
 
-	CC2500_WriteReg(CC2500_1B_AGCCTRL2, bind ? 0x43 : 0x03);
-	CC2500_WriteReg(CC2500_09_ADDR, bind ? 0x03 : rx_tx_addr[3]);
+	CC2500_WriteReg(CC2500_1B_AGCCTRL2, IS_BIND_IN_PROGRESS ? 0x43 : 0x03);
+	CC2500_WriteReg(CC2500_09_ADDR, IS_BIND_IN_PROGRESS ? 0x03 : rx_tx_addr[3]);
 	CC2500_WriteReg(CC2500_07_PKTCTRL1, 0x05);
 	CC2500_Strobe(CC2500_SIDLE);	// Go to idle...
 	//
@@ -32,7 +32,7 @@ static void __attribute__((unused)) frsky2way_init(uint8_t bind)
 	//#######END INIT########		
 }
 	
-static void __attribute__((unused)) frsky2way_build_bind_packet()
+static void __attribute__((unused)) FRSKYD_build_bind_packet()
 {
 	//11 03 01 d7 2d 00 00 1e 3c 5b 78 00 00 00 00 00 00 01
 	//11 03 01 19 3e 00 02 8e 2f bb 5c 00 00 00 00 00 00 01
@@ -57,7 +57,7 @@ static void __attribute__((unused)) frsky2way_build_bind_packet()
 	packet[17] = rx_tx_addr[1];
 }
 
-static void __attribute__((unused)) frsky2way_data_frame()
+static void __attribute__((unused)) FRSKYD_data_frame()
 {//pachet[4] is telemetry user frame counter(hub)
 	//11 d7 2d 22 00 01 c9 c9 ca ca 88 88 ca ca c9 ca 88 88
 	//11 57 12 00 00 01 f2 f2 f2 f2 06 06 ca ca ca ca 18 18
@@ -94,7 +94,7 @@ static void __attribute__((unused)) frsky2way_data_frame()
 	}
 } 
 
-uint16_t initFrSky_2way()
+void FRSKYD_init(void)
 {
 	//FrskyD init hop
 	if (sub_protocol==DCLONE)
@@ -116,21 +116,20 @@ uint16_t initFrSky_2way()
 	packet_count=0;
 	if(IS_BIND_IN_PROGRESS)
 	{
-		frsky2way_init(1);
+		FRSKYD_RF_init();
 		state = FRSKY_BIND;
 	}
 	else
 	{
 		state = FRSKY_BIND_DONE;
 	}
-	return 10000;
 }	
 		
-uint16_t ReadFrSky_2way()
+uint16_t FRSKYD_callback(void)
 { 
 	if (state < FRSKY_BIND_DONE)
 	{
-		frsky2way_build_bind_packet();
+		FRSKYD_build_bind_packet();
 		CC2500_Strobe(CC2500_SIDLE);
 		CC2500_WriteReg(CC2500_0A_CHANNR, 0x00);
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);		
@@ -144,10 +143,10 @@ uint16_t ReadFrSky_2way()
 	}
 	if (state == FRSKY_BIND_DONE)
 	{
-		state = FRSKY_DATA2;
-		frsky2way_init(0);
-		counter = 0;
 		BIND_DONE;
+		FRSKYD_RF_init();
+		counter = 0;
+		state = FRSKY_DATA2;
 	}
 	else
 		if (state == FRSKY_DATA5)
@@ -206,7 +205,7 @@ uint16_t ReadFrSky_2way()
 		CC2500_SetFreqOffset();
 		CC2500_WriteReg(CC2500_23_FSCAL3, 0x89);
 		CC2500_Strobe(CC2500_SFRX);        
-		frsky2way_data_frame();
+		FRSKYD_data_frame();
 		CC2500_WriteData(packet, packet[0]+1);
 		state++;
 	}				

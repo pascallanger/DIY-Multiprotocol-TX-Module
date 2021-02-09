@@ -137,7 +137,7 @@ static void __attribute__((unused))  FrSkyL_encode_packet(bool type)
 	}
 }
 
-uint16_t ReadFrSkyL()
+uint16_t FRSKYL_callback()
 {
 	static uint8_t written=0, send=0;
 	switch(send)
@@ -212,7 +212,7 @@ uint16_t ReadFrSkyL()
 	return 1;		
 }
 
-uint16_t initFrSkyL()
+void FRSKYL_init()
 {
 	set_rx_tx_addr(MProtocol_id_master);
 	rx_tx_addr[1]=0x02;		// ID related, hw version?
@@ -227,7 +227,7 @@ uint16_t initFrSkyL()
 	while(!FrSkyX_chanskip)
 		FrSkyX_chanskip=random(0xfefefefe)%47;
 
-	FrSkyX_init();
+	FrSkyX_RF_init();
 
 	//Prepare frame
 	memset(FrSkyL_buffer,0x00,FRSKYL_PACKET_LEN-3);
@@ -253,6 +253,5 @@ uint16_t initFrSkyL()
 		state = FRSKY_DATA1;
 		FrSkyX_initialize_data(0);
 	}
-	return 10000;
 }	
 #endif

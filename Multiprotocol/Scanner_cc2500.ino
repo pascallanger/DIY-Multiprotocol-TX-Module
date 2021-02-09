@@ -93,7 +93,7 @@ static int __attribute__((unused)) Scanner_scan_rssi()
 	return rssi_rel;
 }
 
-uint16_t Scanner_callback()
+uint16_t SCANNER_callback()
 {
 	uint8_t rssi,max_rssi;
 	
@@ -131,7 +131,7 @@ uint16_t Scanner_callback()
 	return 0;
 }
 
-uint16_t initScanner(void)
+void SCANNER_init(void)
 {
 	rf_ch_num = 0;
 	telemetry_link = 0;
@@ -141,7 +141,6 @@ uint16_t initScanner(void)
 	CC2500_Strobe(CC2500_SIDLE);
 	CC2500_SetTxRxMode(RX_EN);
 	CC2500_Strobe(CC2500_SRX);  // Receive mode
-	return 1250;
 }
 
 #endif

@@ -281,7 +281,7 @@ static void __attribute__((unused)) Q303_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) Q303_init()
+static void __attribute__((unused)) Q303_RF_init()
 {
 	const uint8_t bind_address[] = {0xcc,0xcc,0xcc,0xcc,0xcc};
 
@@ -377,10 +377,10 @@ uint16_t Q303_callback()
 	return packet_period;
 }
 
-uint16_t initQ303()
+void Q303_init()
 {
 	Q303_initialize_txid();
-	Q303_init();
+	Q303_RF_init();
 	bind_counter = Q303_BIND_COUNT;
 	switch(sub_protocol)
 	{
@@ -407,7 +407,6 @@ uint16_t initQ303()
 	}
 	hopping_frequency_no = 0;
 	BIND_IN_PROGRESS;	// autobind protocol
-	return Q303_INITIAL_WAIT;
 }
 
 #endif

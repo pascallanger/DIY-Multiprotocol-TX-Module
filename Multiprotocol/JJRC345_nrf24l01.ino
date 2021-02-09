@@ -130,7 +130,7 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) JJRC345_init()
+static void __attribute__((unused)) JJRC345_RF_init()
 {
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
@@ -183,13 +183,12 @@ static void __attribute__((unused)) JJRC345_initialize_txid()
 	#endif
 }
 
-uint16_t initJJRC345(void)
+void JJRC345_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = JJRC345_BIND_COUNT;
 	JJRC345_initialize_txid();
-	JJRC345_init();
-	return	JJRC345_INITIAL_WAIT;
+	JJRC345_RF_init();
 }
 
 #endif

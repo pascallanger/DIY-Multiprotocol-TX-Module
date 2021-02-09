@@ -95,7 +95,7 @@ static void __attribute__((unused)) DM002_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) DM002_init()
+static void __attribute__((unused)) DM002_RF_init()
 {
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
@@ -155,13 +155,12 @@ static void __attribute__((unused)) DM002_initialize_txid()
 	}
 }
 
-uint16_t initDM002(void)
+void DM002_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = DM002_BIND_COUNT;
 	DM002_initialize_txid();
-	DM002_init();
-	return	DM002_INITIAL_WAIT;
+	DM002_RF_init();
 }
 
 #endif

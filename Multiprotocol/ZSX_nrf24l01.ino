@@ -63,7 +63,7 @@ static void __attribute__((unused)) ZSX_initialize_txid()
 	#endif
 }
 
-static void __attribute__((unused)) ZSX_init()
+static void __attribute__((unused)) ZSX_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -94,13 +94,12 @@ uint16_t ZSX_callback()
 	return ZSX_PACKET_PERIOD;
 }
 
-uint16_t initZSX()
+void ZSX_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	ZSX_initialize_txid();
-	ZSX_init();
+	ZSX_RF_init();
 	bind_counter=ZSX_BIND_COUNT;
-	return ZSX_INITIAL_WAIT;
 }
 
 #endif

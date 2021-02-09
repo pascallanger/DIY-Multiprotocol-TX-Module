@@ -104,7 +104,7 @@ uint16_t ESKY150V2_callback()
 	return ESKY150V2_PACKET_PERIOD;
 }
 
-uint16_t initESKY150V2()
+void ESKY150V2_init()
 {
 	CC2500_250K_Init();
 	ESKY150V2_set_freq();
@@ -133,7 +133,6 @@ uint16_t initESKY150V2()
 	}
 	else
 		CC2500_250K_NRF_SetTXAddr(rx_tx_addr, ESKY150V2_TXID_SIZE);
-	return 50000;
 }
 
 #endif

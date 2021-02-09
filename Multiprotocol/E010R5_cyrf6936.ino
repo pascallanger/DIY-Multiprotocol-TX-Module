@@ -51,7 +51,7 @@ static void __attribute__((unused)) E010R5_build_data_packet()
 	RF2500_BuildPayload(packet);
 }
 
-uint16_t ReadE010R5()
+uint16_t E010R5_callback()
 {
 	//Bind
 	if(bind_counter)
@@ -90,7 +90,7 @@ uint16_t ReadE010R5()
 	return 0;
 }
 
-uint16_t initE010R5()
+void E010R5_init()
 {
 	BIND_IN_PROGRESS;									// Autobind protocol
 	bind_counter = 2600;
@@ -134,8 +134,6 @@ uint16_t initE010R5()
 	RF2500_RFChannel(hopping_frequency[0]);
 	hopping_frequency_no=0;
 	packet_count=0;
-
-	return 3400;
 }
 
 #endif

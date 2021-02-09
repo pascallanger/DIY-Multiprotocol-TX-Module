@@ -28,7 +28,7 @@ enum {
 	AFHDS2A_RX_DATA
 };
 
-static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
+static void __attribute__((unused)) AFHDS2A_RX_build_telemetry_packet()
 {
 	uint32_t bits = 0;
 	uint8_t bitsavailable = 0;
@@ -56,13 +56,13 @@ static void __attribute__((unused)) AFHDS2A_Rx_build_telemetry_packet()
 	}
 }
 
-static uint8_t __attribute__((unused)) AFHDS2A_Rx_data_ready()
+static uint8_t __attribute__((unused)) AFHDS2A_RX_data_ready()
 {
 	// check if FECF+CRCF Ok
 	return !(A7105_ReadReg(A7105_00_MODE) & (1 << 5 | 1 << 6 | 1 << 0));
 }
 
-uint16_t initAFHDS2A_Rx()
+void AFHDS2A_RX_init()
 {
 	uint8_t i;
 	A7105_Init();
@@ -84,12 +84,11 @@ uint16_t initAFHDS2A_Rx()
 			hopping_frequency[i] = eeprom_read_byte((EE_ADDR)temp++);
 		phase = AFHDS2A_RX_DATA;
 	}
-	return 1000;
 }
 
 #define AFHDS2A_RX_WAIT_WRITE 0x80
 
-uint16_t AFHDS2A_Rx_callback()
+uint16_t AFHDS2A_RX_callback()
 {
 	static int8_t read_retry;
 	int16_t temp;
@@ -105,9 +104,13 @@ uint16_t AFHDS2A_Rx_callback()
 
 	switch(phase) {
 	case AFHDS2A_RX_BIND1:
-		if(IS_BIND_DONE) return initAFHDS2A_Rx();	// Abort bind
+		if(IS_BIND_DONE)
+		{
+			AFHDS2A_RX_init();	// Abort bind
+			break;
+		}
 		debugln("bind p=%d", phase+1);
-		if (AFHDS2A_Rx_data_ready()) {
+		if (AFHDS2A_RX_data_ready()) {
 			A7105_ReadData(AFHDS2A_RX_TXPACKET_SIZE);
 			if ((packet[0] == 0xbb && packet[9] == 0x01) ||	(packet[0] == 0xbc && packet[9] <= 0x02)) {
 				memcpy(rx_id, &packet[1], 4); // TX id actually
@@ -121,9 +124,13 @@ uint16_t AFHDS2A_Rx_callback()
 		return 10000;
 
 	case AFHDS2A_RX_BIND2:
-		if(IS_BIND_DONE) return initAFHDS2A_Rx();	// Abort bind
+		if(IS_BIND_DONE)
+		{
+			AFHDS2A_RX_init();	// Abort bind
+			break;
+		}
 		// got 2nd bind packet from tx ?
-		if (AFHDS2A_Rx_data_ready()) {
+		if (AFHDS2A_RX_data_ready()) {
 			A7105_ReadData(AFHDS2A_RX_TXPACKET_SIZE);
 			if ((packet[0] == 0xBC && packet[9] == 0x02 && packet[10] == 0x00) &&
 				(memcmp(rx_id, &packet[1], 4) == 0) &&
@@ -156,7 +163,8 @@ uint16_t AFHDS2A_Rx_callback()
 		{
 			debugln("done");
 			BIND_DONE;
-			return initAFHDS2A_Rx();	// Restart protocol
+			AFHDS2A_RX_init();	// Restart protocol
+			break;
 		}
 		phase |= AFHDS2A_RX_WAIT_WRITE;
 		return 1700;
@@ -173,13 +181,13 @@ uint16_t AFHDS2A_Rx_callback()
 		return 10000;
 	
 	case AFHDS2A_RX_DATA:
-		if (AFHDS2A_Rx_data_ready()) {
+		if (AFHDS2A_RX_data_ready()) {
 			A7105_ReadData(AFHDS2A_RX_TXPACKET_SIZE);
 			if (memcmp(&packet[1], rx_id, 4) == 0 && memcmp(&packet[5], rx_tx_addr, 4) == 0) {
 				if (packet[0] == 0x58 && packet[37] == 0x00 && telemetry_link == 0) { // standard packet, send channels to TX
 					int rssi = min(A7105_ReadReg(A7105_1D_RSSI_THOLD),160);
 					RX_RSSI = map16b(rssi, 160, 8, 0, 128);
-					AFHDS2A_Rx_build_telemetry_packet();
+					AFHDS2A_RX_build_telemetry_packet();
 					telemetry_link = 1;
 				}
 				rx_data_started = true;

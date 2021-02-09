@@ -508,7 +508,7 @@ static void __attribute__((unused)) FrSkyX_set_start(uint8_t ch )
 	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[ch]);
 }		
 
-static void __attribute__((unused)) FrSkyX_init()
+static void __attribute__((unused)) FrSkyX_RF_init()
 {
 	if(protocol==PROTO_FRSKYL)
 		FRSKY_init_cc2500(FRSKYL_cc2500_conf);

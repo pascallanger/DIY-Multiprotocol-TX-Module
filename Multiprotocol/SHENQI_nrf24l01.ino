@@ -29,7 +29,7 @@ const uint8_t PROGMEM SHENQI_Freq[] = {
 			10,60,10,50,30,40,
 			20,10,40,30,60,20 };
 
-void SHENQI_init()
+void SHENQI_RF_init()
 {
     NRF24L01_Initialize();
     NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// Clear data ready, data sent, and retransmit
@@ -116,14 +116,13 @@ uint16_t SHENQI_callback()
     return packet_period;
 }
 
-uint16_t initSHENQI()
+void SHENQI_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
-	SHENQI_init();
+	SHENQI_RF_init();
 	hopping_frequency_no = 0;
 	packet_count=0;
 	packet_period=500;
-	return 1000;
 }
 
 #endif

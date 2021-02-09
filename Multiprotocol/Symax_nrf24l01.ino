@@ -189,7 +189,7 @@ static void __attribute__((unused)) SYMAX_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) symax_init()
+static void __attribute__((unused)) symax_rf_init()
 {
 	NRF24L01_Initialize();
 	//
@@ -331,7 +331,7 @@ static	uint8_t chans_data_x5c[] = {0x1d, 0x2f, 0x26, 0x3d, 0x15, 0x2b, 0x25, 0x2
 	packet_count = 0;
 }
 
-uint16_t symax_callback()
+uint16_t SYMAX_callback()
 {
 	switch (phase)
 	{
@@ -368,14 +368,13 @@ uint16_t symax_callback()
 	return SYMAX_PACKET_PERIOD;
 }
 
-uint16_t initSymax()
+void SYMAX_init()
 {	
 	packet_count = 0;
 	flags = 0;
 	BIND_IN_PROGRESS;	// autobind protocol
-	symax_init();
+	symax_rf_init();
 	phase = SYMAX_INIT1;
-	return	SYMAX_INITIAL_WAIT;
 }
 
 #endif

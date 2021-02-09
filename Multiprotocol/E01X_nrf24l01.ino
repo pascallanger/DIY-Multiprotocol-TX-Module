@@ -244,7 +244,7 @@ static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 	NRF24L01_SetPower();
 }
 
-static void __attribute__((unused)) E01X_init()
+static void __attribute__((unused)) E01X_RF_init()
 {
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(TX_EN);
@@ -322,7 +322,7 @@ static void __attribute__((unused)) E016H_initialize_txid()
 	}
 }
 
-uint16_t initE01X()
+void E01X_init()
 {
 	BIND_IN_PROGRESS;
 	if(sub_protocol==E012)
@@ -343,10 +343,9 @@ uint16_t initE01X()
 		E016H_initialize_txid();
 		packet_period=E016H_PACKET_PERIOD;
 	}
-	E01X_init();
+	E01X_RF_init();
 	bind_counter = E01X_BIND_COUNT;
 	hopping_frequency_no = 0;
-	return E01X_INITIAL_WAIT;
 }
 
 #endif

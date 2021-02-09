@@ -120,7 +120,7 @@ static void __attribute__((unused)) SKYARTEC_send_bind_packet()
 	CC2500_WriteData(packet, 12);
 }
 
-uint16_t ReadSKYARTEC()
+uint16_t SKYARTEC_callback()
 {
 	if (phase & 0x01)
 	{
@@ -154,7 +154,7 @@ uint16_t ReadSKYARTEC()
 	return 3000;
 }
 
-uint16_t initSKYARTEC()
+void SKYARTEC_init()
 {
     SKYARTEC_rf_init();
 
@@ -168,7 +168,6 @@ uint16_t initSKYARTEC()
 
 	bind_counter = 250;
 	phase = SKYARTEC_PKT1;
-	return 10000;
 }
 
 #endif

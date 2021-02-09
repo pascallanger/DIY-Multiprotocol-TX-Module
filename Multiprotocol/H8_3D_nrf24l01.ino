@@ -155,7 +155,7 @@ static void __attribute__((unused)) H8_3D_send_packet(uint8_t bind)
 	NRF24L01_SetPower();	// Set tx_power
 }
 
-static void __attribute__((unused)) H8_3D_init()
+static void __attribute__((unused)) H8_3D_RF_init()
 {
     NRF24L01_Initialize();
     NRF24L01_SetTxRxMode(TX_EN);
@@ -238,12 +238,12 @@ static void __attribute__((unused)) H8_3D_initialize_txid()
 	}
 }
 
-uint16_t initH8_3D(void)
+void H8_3D_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = H8_3D_BIND_COUNT;
 	H8_3D_initialize_txid();
-	H8_3D_init();
+	H8_3D_RF_init();
 	switch(sub_protocol)
 	{
         case H8_3D:
@@ -257,7 +257,6 @@ uint16_t initH8_3D(void)
 			packet_period=H20MINI_PACKET_PERIOD;
 			break;
 	}
-	return	H8_3D_INITIAL_WAIT;
 }
 
 #endif

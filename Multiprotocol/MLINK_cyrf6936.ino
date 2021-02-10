@@ -321,6 +321,24 @@ static void __attribute__((unused)) MLINK_send_data_packet()
 	}
 #endif
 
+#ifdef MLINK_FW_TELEMETRY
+	static void __attribute__((unused)) MLINK_Send_Telemetry()
+	{
+		telemetry_counter += 2;				// TX LQI counter
+		telemetry_link = 4;
+
+		// Read TX RSSI
+		TX_RSSI = CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;
+
+		if(telemetry_lost)
+		{
+			telemetry_lost = 0;
+			packet_count = 50;
+			telemetry_counter = 100;
+		}
+	}
+#endif
+
 uint16_t MLINK_callback()
 {
 	uint8_t status;
@@ -408,7 +426,7 @@ uint16_t MLINK_callback()
 			hopping_frequency_no = 0x00;
 			CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
 			CYRF_SetPower(0x38);
-			#ifdef MLINK_HUB_TELEMETRY
+			#if defined(MLINK_HUB_TELEMETRY) || defined(MLINK_FW_TELEMETRY)
 				packet_count = 0;
 				telemetry_lost = 1;
 			#endif
@@ -449,7 +467,7 @@ uint16_t MLINK_callback()
 			phase=MLINK_SEND1;
 			return 4470;
 		case MLINK_RX:
-			#ifdef MLINK_HUB_TELEMETRY
+			#if defined(MLINK_HUB_TELEMETRY) || defined(MLINK_FW_TELEMETRY)
 				//TX LQI calculation
 				packet_count++;
 				if(packet_count>=50)
@@ -470,7 +488,7 @@ uint16_t MLINK_callback()
 				if( len && len <= MLINK_PACKET_SIZE )
 				{
 					CYRF_ReadDataPacketLen(packet_in, len*2);
-					#ifdef MLINK_HUB_TELEMETRY
+					#if defined(MLINK_HUB_TELEMETRY) || defined(MLINK_FW_TELEMETRY)
 						if(len==MLINK_PACKET_SIZE)
 						{
 							for(uint8_t i=0;i<8;i++)

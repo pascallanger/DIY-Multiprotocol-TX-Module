@@ -203,6 +203,17 @@ static void multi_send_status()
 	}
 }
 
+#ifdef MLINK_FW_TELEMETRY
+	void MLINK_frame()
+	{
+		multi_send_header(MULTI_TELEMETRY_MLINK, 10);
+		Serial_write(TX_RSSI);					// RSSI
+		Serial_write(TX_LQI);					// LQI
+		for (uint8_t i = 0; i < 8; i++)			// followed by 8 bytes of telemetry data
+			Serial_write(packet_in[i]);
+	}
+#endif
+
 #ifdef DSM_TELEMETRY
 	void DSM_frame()
 	{
@@ -874,6 +885,14 @@ void TelemetryUpdate()
 	#endif // SPORT_TELEMETRY
 
 	#ifdef MULTI_TELEMETRY
+		#if defined MLINK_FW_TELEMETRY
+			if(telemetry_link && protocol == PROTO_MLINK)
+			{
+				MLINK_frame();
+				telemetry_link=0;
+				return;
+			}
+		#endif
 		#if defined DSM_TELEMETRY
 			if(telemetry_link && protocol == PROTO_DSM)
 			{	// DSM

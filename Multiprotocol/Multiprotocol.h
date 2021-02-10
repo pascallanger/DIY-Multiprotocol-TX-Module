@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	35
+#define VERSION_PATCH_LEVEL	36
 
 //******************
 // Protocols
@@ -488,6 +488,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_AFHDS2A_AC		= 12,
 	MULTI_TELEMETRY_RX_CHANNELS		= 13,
 	MULTI_TELEMETRY_HOTT			= 14,
+	MULTI_TELEMETRY_MLINK			= 15,
 };
 
 // Macros
@@ -1234,4 +1235,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[3] = page
    data[4-13] = data
 
+  Type 0x0F M-Link telemetry
+   length: 10
+   data[0] = TX_RSSI
+   data[1] = TX_LQI
+   data[2] = telem_type
+   data[3-9] = data
 */

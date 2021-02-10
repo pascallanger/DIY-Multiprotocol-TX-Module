@@ -24,10 +24,12 @@
 #define MT99XX_PACKET_PERIOD_MT		2625
 #define MT99XX_PACKET_PERIOD_YZ		3125
 #define MT99XX_PACKET_PERIOD_A180	3400	// timing changes between the packets 2 x 27220 then 1x 26080, it seems that it is only on the first RF channel which jitters by 1.14ms but hard to pinpoint with XN297dump
+#define MT99XX_PACKET_PERIOD_DRAGON	1038	// there is a pause of 2x1038 between the packets 3 and 4 from what XN297dump detects which I think are used for telemetry
 #define MT99XX_INITIAL_WAIT			500
 #define MT99XX_PACKET_SIZE			9
 
 //#define FORCE_A180_ID
+//#define FORCE_DRAGON_ID
 
 enum{
     // flags going to packet[6] (MT99xx, H7)
@@ -57,6 +59,13 @@ enum{
     // flags going to packet[6] (A180)
     FLAG_A180_3D6G	= 0x01,
     FLAG_A180_RATE	= 0x02,
+};
+
+enum{
+    // flags going to packet[6] (DRAGON)
+    FLAG_DRAGON_RATE	= 0x01,
+    FLAG_DRAGON_RTH		= 0x80,
+    FLAG_DRAGON_UNK		= 0x04,
 };
 
 enum {
@@ -108,7 +117,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 				break;
 			case A180:
 				packet_period = MT99XX_PACKET_PERIOD_A180;
-			default:	// MT99 & H7 & A180
+			default:	// MT99 & H7 & A180 & DRAGON
 				packet[1] = 0x14;
 				packet[2] = 0x03;
 				packet[3] = 0x25;
@@ -123,7 +132,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	else
 	{
 		if(sub_protocol != YZ)
-		{ // MT99XX & H7 & LS & FY805 & A180
+		{ // MT99XX & H7 & LS & FY805 & A180 & DRAGON
 			packet[0] = convert_channel_16b_limit(THROTTLE,0xE1,0x00);	// throttle
 			packet[1] = convert_channel_16b_limit(RUDDER  ,0x00,0xE1);	// rudder
 			packet[2] = convert_channel_16b_limit(AILERON ,0xE1,0x00);	// aileron
@@ -167,6 +176,17 @@ static void __attribute__((unused)) MT99XX_send_packet()
 						| GET_FLAG( CH5_SW, FLAG_A180_3D6G );
 					packet[7] = 0x00;
 					break;
+				case DRAGON:
+					if(CH5_SW)										// Advanced mode
+						packet[5] |= 0x80;
+					else
+						if(Channel_data[CH5] < CHANNEL_MIN_COMMAND)	// Beginner mode
+							packet[5] |= 0x40;
+					packet[6] = FLAG_DRAGON_RATE
+						| GET_FLAG( CH6_SW, FLAG_DRAGON_RTH );
+					//packet[6] |= 0x04;								// On the 1st rf channel, 1x4, 11x0, 2x4, 11x0, 2x4, 10x0, 2x4, 11x0, 2x4, 11x0, 2x4, 10x0, 2x4, 11x0, 2x4, 11x0 and restart... Not sure what's on the other channels
+					packet[7]  = 0x20;								// On the 1st rf channel, seq: 20 80 20 60 20 80 20 60... Not sure what's on the other channels
+					break;	
 			}
 			uint8_t result=crc8;
 			for(uint8_t i=0; i<8; i++)
@@ -186,7 +206,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					seq_num = 0;
 				packet_count=0;
 			}
-			packet[4] = yz_p4_seq[seq_num]; 
+			packet[4] = yz_p4_seq[seq_num];
 			packet[5] = 0x02 // expert ? (0=unarmed, 1=normal)
 						| GET_FLAG(CH8_SW, 0x10)		//VIDEO
 						| GET_FLAG(CH5_SW, 0x80)		//FLIP
@@ -205,15 +225,23 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	else
 		if(sub_protocol==FY805)
 			NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x4B); // FY805 always transmits on the same channel
-		else // MT99 & H7 & YZ & A180
+		else // MT99 & H7 & YZ & A180 & DRAGON
 			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 	XN297_WritePayload(packet, MT99XX_PACKET_SIZE);
 
+	if(sub_protocol == DRAGON)
+	{
+		if(hopping_frequency_no == 6)
+			packet_period = 3 * MT99XX_PACKET_PERIOD_DRAGON;	// hole probably for the telemetry
+		else
+			packet_period = MT99XX_PACKET_PERIOD_DRAGON;
+	}
+
 	hopping_frequency_no++;
-	if(sub_protocol == YZ || sub_protocol == A180)
+	if(sub_protocol == YZ || sub_protocol == A180 || sub_protocol == DRAGON )
 		hopping_frequency_no++; // skip every other channel
 
 	if(hopping_frequency_no > 15)
@@ -272,7 +300,16 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 			//channel_offset  = 0x03;
 			break;
 	#endif
-		default: //MT99 & H7 & A180
+	#ifdef FORCE_DRAGON_ID
+		case DRAGON:
+			rx_tx_addr[0] = 0x6C;	// Laurie ID
+			rx_tx_addr[1] = 0x00;
+			rx_tx_addr[2] = 0x22;
+			//crc8 = 0x
+			//channel_offset  = 0x
+			break;
+	#endif
+		default: //MT99 & H7 & A180 & DRAGON
 			rx_tx_addr[2] = 0x00;
 			break;
 	}
@@ -317,7 +354,7 @@ uint16_t MT99XX_callback()
 
 void MT99XX_init(void)
 {
-	if(sub_protocol != A180)
+	if(sub_protocol != A180 && sub_protocol != DRAGON)
 		BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = MT99XX_BIND_COUNT;
 

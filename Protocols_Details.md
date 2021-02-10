@@ -1404,6 +1404,15 @@ CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|3D6G
 
+### Sub_protocol DRAGON - *6*
+Model: Eachine Mini Wing Dragon
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|MODE|RTH
+
+MODE: -100%=Beginner, 0%=Intermediate, +100%=Advanced
+
 ## NCC1701 - *44*
 Model: Air Hogs Star Trek USS Enterprise NCC-1701-A
 

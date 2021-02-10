@@ -704,6 +704,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		YZ
 		LS
 		FY805
+		A180
+		DRAGON
 	PROTO_NCC1701
 		NONE
 	PROTO_OMP

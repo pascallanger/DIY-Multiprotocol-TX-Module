@@ -1172,9 +1172,9 @@ static void protocol_init()
 						for(uint8_t j=0;j<len;j++)
 							debug("%c",multi_protocols[multi_protocols_index].SubProtoString[j+offset]);
 					}
-					debugln(", Opt=%d",multi_protocols[multi_protocols_index].optionType);
-					debugln(", FS=%d",multi_protocols[multi_protocols_index].failSafe);
-					debugln(", CHMap=%d",multi_protocols[multi_protocols_index].chMap);
+					debug(", Opt=%d",multi_protocols[multi_protocols_index].optionType);
+					debug(", FS=%d",multi_protocols[multi_protocols_index].failSafe);
+					debug(", CHMap=%d",multi_protocols[multi_protocols_index].chMap);
 					debugln(", rfSw=%d",multi_protocols[multi_protocols_index].rfSwitch);
 				#endif
 				break;

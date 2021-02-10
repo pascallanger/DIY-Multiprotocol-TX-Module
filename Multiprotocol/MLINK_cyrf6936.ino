@@ -277,6 +277,9 @@ static void __attribute__((unused)) MLINK_send_data_packet()
 					case 2: //current
 						id = 0x28;
 						break;
+					case 3: //vario
+						id = 0x30;
+						break;
 					case 5: //rpm
 						id = 0x03;
 						break;

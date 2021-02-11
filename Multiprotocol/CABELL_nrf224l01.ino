@@ -255,7 +255,7 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 	*p |= (packet_count++)<<7;   // This causes the 8th bit of the first byte to toggle with each xmit so consecutive payloads are not identical.
 	// This is a work around for a reported bug in clone NRF24L01 chips that mis-took this case for a re-transmit of the same packet.
 
-	CABELL_SetPower();
+	NRF24L01_SetPower();
 	NRF24L01_WritePayload((uint8_t*)&TxPacket, packetSize);
 
 	#if defined CABELL_HUB_TELEMETRY 
@@ -359,45 +359,15 @@ static void __attribute__((unused)) CABELL_setAddress()
 static void __attribute__((unused)) CABELL_RF_init()
 {
 	NRF24L01_Initialize();
-	CABELL_SetPower();
+
 	NRF24L01_SetBitrate(NRF24L01_BR_250K);				// slower data rate gives better range/reliability
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknowledgment on all data pipes  
-	NRF24L01_SetTxRxMode(TX_EN);						//Power up and 16 bit CRC
-
 	CABELL_setAddress();
-
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, 0x20);		// 32 byte packet length
 	NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, 0x20);		// 32 byte packet length
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x5F);	// no retransmits
 	NRF24L01_Activate(0x73);							// Activate feature register
 	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3F);			// Enable dynamic payload length on all pipes
 	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x04);		// Enable dynamic Payload Length
 	NRF24L01_Activate(0x73);
-	prev_power = NRF_POWER_0;
-}
-
-//-----------------------------------------------------------------------------------------
-static void CABELL_SetPower()    // This over-ride the standard Set Power to allow an flag in option to indicate max power setting
-                          // Note that on many modules max power may actually be worse than the normal high power setting
-                          // test and only use max if it helps the range
-{
-	if(IS_BIND_DONE && !IS_RANGE_FLAG_on && ((option & CABELL_OPTION_MASK_MAX_POWER_OVERRIDE) != 0))
-	{   // If we are not in range or bind mode and power setting override is in effect, then set max power, else standard power logic
-		if(prev_power != NRF_POWER_3)   // prev_power is global variable for NRF24L01; NRF_POWER_3 is max power
-		{
-			uint8_t rf_setup = NRF24L01_ReadReg(NRF24L01_06_RF_SETUP);
-			rf_setup = (rf_setup & 0xF9) | (NRF_POWER_3 << 1);
-			NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
-			prev_power=NRF_POWER_3;
-		}    
-	}
-	else
-		NRF24L01_SetPower();
 }
 
 //-----------------------------------------------------------------------------------------

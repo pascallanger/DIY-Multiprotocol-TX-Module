@@ -24,43 +24,6 @@
 //
 uint8_t bind_buf_arry[4][10];
 
-// HiSky protocol uses TX id as an address for nRF24L01, and uses frequency hopping sequence
-// which does not depend on this id and is passed explicitly in binding sequence. So we are free
-// to generate this sequence as we wish. It should be in the range [02..77]
-static void __attribute__((unused)) HISKY_calc_fh_channels()
-{
-	uint8_t idx = 0;
-	uint32_t rnd = MProtocol_id;
-
-	while (idx < HISKY_FREQUENCE_NUM)
-	{
-		uint8_t i;
-		uint8_t count_2_26 = 0, count_27_50 = 0, count_51_74 = 0;
-
-		rnd = rnd * 0x0019660D + 0x3C6EF35F; // Randomization
-		// Use least-significant byte. 73 is prime, so channels 76..77 are unused
-		uint8_t next_ch = ((rnd >> 8) % 73) + 2;
-		// Keep the distance 2 between the channels - either odd or even
-		if (((next_ch ^ (uint8_t)rx_tx_addr[3]) & 0x01 )== 0)
-			continue;
-		// Check that it's not duplicated and spread uniformly
-		for (i = 0; i < idx; i++) {
-			if(hopping_frequency[i] == next_ch)
-				break;
-			if(hopping_frequency[i] <= 26)
-				count_2_26++;
-			else if (hopping_frequency[i] <= 50)
-				count_27_50++;
-			else
-				count_51_74++;
-		}
-		if (i != idx)
-			continue;
-		if ( (next_ch <= 26 && count_2_26 < 8) || (next_ch >= 27 && next_ch <= 50 && count_27_50 < 8) || (next_ch >= 51 && count_51_74 < 8) )
-			hopping_frequency[idx++] = next_ch;//find hopping frequency
-	}
-}
-
 static void __attribute__((unused)) HISKY_build_binding_packet(void)
 {
 	uint8_t i;
@@ -99,19 +62,12 @@ static void __attribute__((unused)) HISKY_RF_init()
 {
 	NRF24L01_Initialize();
 
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknowledgement
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);		// Enable p0 rx
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);		// 5-byte RX/TX address (byte -2)
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 81);			// binding packet must be set in channel 81
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, 10);		// payload size = 10
 	if(sub_protocol==HK310)
-		NRF24L01_SetBitrate(NRF24L01_BR_250K);				// 250Kbps
-	else
-		NRF24L01_SetBitrate(NRF24L01_BR_1M);				// 1Mbps
-	NRF24L01_SetPower();								// Set power
-	NRF24L01_SetTxRxMode(TX_EN);						// TX mode, 2-bytes CRC, radio on
+		NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps
 }
 
 // HiSky channel sequence: AILE  ELEV  THRO  RUDD  GEAR  PITCH, channel data value is from 0 to 1000
@@ -248,7 +204,10 @@ static void __attribute__((unused)) HISKY_initialize_tx_id()
 			hopping_frequency[i]=hopping_frequency_no++;	// Sequential order hop channels...
 	}
 	else
-		HISKY_calc_fh_channels();
+		calc_fh_channels(HISKY_FREQUENCE_NUM);
+		// HiSky air protocol uses TX id as an address for nRF24L01, and uses frequency hopping sequence
+		// which does not depend on this id and is passed explicitly in binding sequence. So we are free
+		// to generate this sequence as we wish. It should be in the range [02..77]
 }
 
 void HISKY_init()

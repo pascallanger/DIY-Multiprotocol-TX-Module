@@ -649,29 +649,20 @@ static void CFLIE_RF_init()
     NRF24L01_Initialize();
 
     // CRC, radio on
-    NRF24L01_SetTxRxMode(TX_EN);
-    NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP)); 
     NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x01);              // Auto Acknowledgement for data pipe 0
-    NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);          // Enable data pipe 0
-    NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, TX_ADDR_SIZE-2); // 5-byte RX/TX address
     NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x13);         // 3 retransmits, 500us delay
 
     NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch_num);        // Defined in initialize_rx_tx_addr
     NRF24L01_SetBitrate(data_rate);                          // Defined in initialize_rx_tx_addr
 
-    NRF24L01_SetPower();
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);             // Clear data ready, data sent, and retransmit
-
     NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, TX_ADDR_SIZE);
     NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, TX_ADDR_SIZE);
 
     // this sequence necessary for module from stock tx
-    NRF24L01_ReadReg(NRF24L01_1D_FEATURE);
     NRF24L01_Activate(0x73);                          // Activate feature register
-    NRF24L01_ReadReg(NRF24L01_1D_FEATURE);
-
     NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x01);       // Enable Dynamic Payload Length on pipe 0
     NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x06);     // Enable Dynamic Payload Length, enable Payload with ACK
+	NRF24L01_Activate(0x73);
 }
 
 // TODO: Fix telemetry

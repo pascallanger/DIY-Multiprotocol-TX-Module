@@ -249,23 +249,9 @@ static void __attribute__((unused)) BAYANG_check_rx(void)
 static void __attribute__((unused)) BAYANG_RF_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
 
 	XN297_SetTXAddr((uint8_t *)"\x00\x00\x00\x00\x00", BAYANG_ADDRESS_LENGTH);
-
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     	// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      	// No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  	// Enable data pipe 0 only
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, BAYANG_PACKET_SIZE);
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);             	// 1Mbps
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);	// No retransmits
-	NRF24L01_SetPower();
-	NRF24L01_Activate(0x73);							// Activate feature register
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);			// Disable dynamic payload length on all pipes
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
-	NRF24L01_Activate(0x73);
 	
 	switch (sub_protocol)
 	{

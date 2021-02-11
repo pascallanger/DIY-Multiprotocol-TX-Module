@@ -45,16 +45,9 @@ static void __attribute__((unused)) NANORF_send_packet()
 static void __attribute__((unused)) NANORF_RF_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
+
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR , (uint8_t *)"Nano1",5);
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknoledgement
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable all data pipes (even though not used?)
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00); // 4mS retransmit t/o, 15 tries (retries w/o AA?)
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, NANORF_RF_CHANNEL);
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);
-	NRF24L01_SetPower();	// Set tx_power
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));  // 
 }
 
 uint16_t NANORF_callback()

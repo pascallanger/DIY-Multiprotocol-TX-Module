@@ -74,23 +74,11 @@ static void __attribute__((unused)) POTENSIC_send_packet()
 static void __attribute__((unused)) POTENSIC_RF_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
+
 	if(IS_BIND_IN_PROGRESS)
 		XN297_SetTXAddr((uint8_t*)"\x01\x01\x01\x01\x06", 5);	// Bind address
 	else
 		XN297_SetTXAddr(rx_tx_addr,5);							// Normal address
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);		// Enable data pipe 0 only
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);		// set address length (5 bytes)
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);	// no retransmits
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);				// 1Mbps
-	NRF24L01_SetPower();
-	NRF24L01_Activate(0x73);							// Activate feature register
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);			// Disable dynamic payload length on all pipes
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
-	NRF24L01_Activate(0x73);
 }
 
 static void __attribute__((unused)) POTENSIC_initialize_txid()

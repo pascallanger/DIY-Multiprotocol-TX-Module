@@ -32,12 +32,6 @@ const uint8_t PROGMEM SHENQI_Freq[] = {
 void SHENQI_RF_init()
 {
     NRF24L01_Initialize();
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// Clear data ready, data sent, and retransmit
-    NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknowldgement on all data pipes
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);          // 1Mbps
-    NRF24L01_SetPower();
-
-    NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);		// 5 bytes rx/tx address
 
 	LT8900_Config(4, 8, _BV(LT8900_CRC_ON)|_BV(LT8900_PACKET_LENGTH_EN), 0xAA);
 	LT8900_SetChannel(2);

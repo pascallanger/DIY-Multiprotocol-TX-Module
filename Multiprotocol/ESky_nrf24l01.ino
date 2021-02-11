@@ -39,10 +39,6 @@ static void __attribute__((unused)) ESKY_RF_init()
 {
 	NRF24L01_Initialize();
 
-	// 2-bytes CRC, radio off
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO)); 
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);            // No Auto Acknowledgement
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);        // Enable data pipe 0
 	if (IS_BIND_IN_PROGRESS)
 	{
 		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);     // 3-byte RX/TX address for bind packets
@@ -51,11 +47,7 @@ static void __attribute__((unused)) ESKY_RF_init()
 	}
 	else
 		ESKY_set_data_address();
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0);          // No auto retransmission
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 50);              // Channel 50 for bind packets
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);                   // 1Mbps
-	NRF24L01_SetPower();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);           // Clear data ready, data sent, and retransmit
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, ESKY_PAYLOAD_SIZE);  // bytes of data payload for pipe 0
 	NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, ESKY_PAYLOAD_SIZE);
 	NRF24L01_WriteReg(NRF24L01_13_RX_PW_P2, ESKY_PAYLOAD_SIZE);

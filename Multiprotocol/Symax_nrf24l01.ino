@@ -193,19 +193,13 @@ static void __attribute__((unused)) symax_rf_init()
 {
 	NRF24L01_Initialize();
 	//
-	NRF24L01_SetTxRxMode(TX_EN);
-	//	
-	NRF24L01_ReadReg(NRF24L01_07_STATUS);
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO)); 
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknoledgement
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x3F);  // Enable all data pipes (even though not used?)
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // 5-byte RX/TX address
 	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0xff); // 4mS retransmit t/o, 15 tries (retries w/o AA?)
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x08);
 
 	if (sub_protocol==SYMAX5C)
 	{
-		NRF24L01_SetBitrate(NRF24L01_BR_1M);
+		//NRF24L01_SetBitrate(NRF24L01_BR_1M);
 		packet_length = 16;
 	}
 	else
@@ -214,8 +208,6 @@ static void __attribute__((unused)) symax_rf_init()
 		packet_length = 10;
 	}
 	//
-	NRF24L01_SetPower();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
 	NRF24L01_WriteReg(NRF24L01_08_OBSERVE_TX, 0x00);
 	NRF24L01_WriteReg(NRF24L01_09_CD, 0x00);
 	NRF24L01_WriteReg(NRF24L01_0C_RX_ADDR_P2, 0xC3); // LSB byte of pipe 2 receive address
@@ -231,14 +223,6 @@ static void __attribute__((unused)) symax_rf_init()
 	NRF24L01_WriteReg(NRF24L01_17_FIFO_STATUS, 0x00); // Just in case, no real bits to write here
 
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR , sub_protocol==SYMAX5C ? (uint8_t *)"\x6D\x6A\x73\x73\x73" : (uint8_t *)"\xAB\xAC\xAD\xAE\xAF" ,5);
-
-	NRF24L01_ReadReg(NRF24L01_07_STATUS);
-	NRF24L01_FlushTx();
-	NRF24L01_ReadReg(NRF24L01_07_STATUS);
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x0e);
-	NRF24L01_ReadReg(NRF24L01_00_CONFIG); 
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x0c); 
-	NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x0e);  // power on
 }
 
 static void __attribute__((unused)) symax_init1()

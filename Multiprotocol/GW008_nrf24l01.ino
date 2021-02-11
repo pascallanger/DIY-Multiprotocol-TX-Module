@@ -32,10 +32,10 @@ enum {
 	GW008_DATA
 };
 
-static void __attribute__((unused)) GW008_send_packet(uint8_t bind)
+static void __attribute__((unused)) GW008_send_packet()
 {
 	packet[0] = rx_tx_addr[0];
-	if(bind)
+	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[1] = 0x55;
 		packet[2] = hopping_frequency[0];
@@ -65,7 +65,7 @@ static void __attribute__((unused)) GW008_send_packet(uint8_t bind)
 
 	// Power on, TX mode, CRC enabled
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? GW008_RF_BIND_CHANNEL : hopping_frequency[(hopping_frequency_no++)/2]);
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? GW008_RF_BIND_CHANNEL : hopping_frequency[(hopping_frequency_no++)/2]);
 	hopping_frequency_no %= 8;
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
@@ -78,23 +78,10 @@ static void __attribute__((unused)) GW008_send_packet(uint8_t bind)
 static void __attribute__((unused)) GW008_RF_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
+
 	XN297_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
 	XN297_SetRXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, GW008_PAYLOAD_SIZE+2); // payload + 2 bytes for pcf
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00); // no retransmits
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);
-	NRF24L01_SetPower();
-	NRF24L01_Activate(0x73);                         // Activate feature register
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);      // Disable dynamic payload length on all pipes
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);    // Set feature bits on
-	NRF24L01_Activate(0x73);
 }
 
 static void __attribute__((unused)) GW008_initialize_txid()
@@ -123,7 +110,7 @@ uint16_t GW008_callback()
 			{
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_SetTxRxMode(TX_EN);
-				GW008_send_packet(1);
+				GW008_send_packet();
 				phase = GW008_BIND2;
 				return 850; // minimum value 750 for STM32
 			}
@@ -142,7 +129,7 @@ uint16_t GW008_callback()
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(GW008_PACKET_PERIOD);
 			#endif
-			GW008_send_packet(0);
+			GW008_send_packet();
 			break;
 	}
 	return GW008_PACKET_PERIOD;

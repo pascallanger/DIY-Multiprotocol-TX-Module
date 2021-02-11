@@ -246,25 +246,15 @@ static void __attribute__((unused)) MJXQ_RF_init()
 	else
 	{
 		NRF24L01_Initialize();
-		NRF24L01_SetTxRxMode(TX_EN);
 
 		if (sub_protocol == H26D || sub_protocol == H26WH)
 		{
-			NRF24L01_WriteReg(NRF24L01_03_SETUP_AW,		0x03);		// 5-byte RX/TX address
 			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, MJXQ_ADDRESS_LENGTH);
 		}
 		else
 			XN297_SetTXAddr(addr, MJXQ_ADDRESS_LENGTH);
 
-		NRF24L01_FlushTx();
-		NRF24L01_FlushRx();
-		NRF24L01_WriteReg(NRF24L01_07_STATUS,		0x70);		// Clear data ready, data sent, and retransmit
-		NRF24L01_WriteReg(NRF24L01_01_EN_AA,		0x00);		// No Auto Acknowledgment on all data pipes
-		NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR,	0x01);		// Enable data pipe 0 only
-		NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR,	0x00);		// no retransmits
 		NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0,		MJXQ_PACKET_SIZE);
-		NRF24L01_SetBitrate(NRF24L01_BR_1M);					// 1Mbps
-		NRF24L01_SetPower();
 	}
 }
 

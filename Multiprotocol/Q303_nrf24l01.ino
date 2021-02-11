@@ -286,32 +286,13 @@ static void __attribute__((unused)) Q303_RF_init()
 	const uint8_t bind_address[] = {0xcc,0xcc,0xcc,0xcc,0xcc};
 
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
-	switch(sub_protocol)
+
+	if(sub_protocol==Q303)
 	{
-		case CX35:
-		case CX10D:
-		case CX10WD:
-			NRF24L01_SetBitrate(NRF24L01_BR_1M);
-			break;
-		case Q303:
-			XN297_SetScrambledMode(XN297_UNSCRAMBLED);
-			NRF24L01_SetBitrate(NRF24L01_BR_250K);
-			break;
+		XN297_SetScrambledMode(XN297_UNSCRAMBLED);
+		NRF24L01_SetBitrate(NRF24L01_BR_250K);
 	}
 	XN297_SetTXAddr(bind_address, 5);
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);	// no retransmits
-	NRF24L01_SetPower();
-	NRF24L01_Activate(0x73);							// Activate feature register
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);			// Disable dynamic payload length on all pipes
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);		// Set feature bits on
-	NRF24L01_Activate(0x73);
 }
 
 static void __attribute__((unused)) Q303_initialize_txid()

@@ -247,25 +247,13 @@ static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 static void __attribute__((unused)) E01X_RF_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
+
 	if(sub_protocol==E012)
 		HS6200_SetTXAddr((uint8_t *)"\x55\x42\x9C\x8F\xC9", E01X_ADDRESS_LENGTH);
 	else if(sub_protocol==E015)
 		HS6200_SetTXAddr((uint8_t *)"\x62\x54\x79\x38\x53", E01X_ADDRESS_LENGTH);
 	else //E016H
 		XN297_SetTXAddr((uint8_t *)"\x5a\x53\x46\x30\x31", 5);  // bind address
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);
-	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00); // no retransmits
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1 Mbps
-	NRF24L01_SetPower();
-	NRF24L01_Activate(0x73);                          // Activate feature register
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);       // Disable dynamic payload length on all pipes
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);     // Set feature bits on
-	NRF24L01_Activate(0x73);
 }
 
 uint16_t E01X_callback()

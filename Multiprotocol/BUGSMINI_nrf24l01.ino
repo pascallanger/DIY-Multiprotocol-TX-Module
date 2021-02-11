@@ -60,19 +60,8 @@ enum {
 static void __attribute__((unused)) BUGSMINI_RF_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
+
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, BUGSMINI_RX_PAYLOAD_SIZE); // bytes of data payload for rx pipe 1
-	NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, 0x07);
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);
-	NRF24L01_SetPower();
-	NRF24L01_Activate(0x73);                          // Activate feature register
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);       // Disable dynamic payload length on all pipes
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x00);     // Set feature bits on
 }
 
 static void __attribute__((unused)) BUGSMINI_check_arming()
@@ -95,7 +84,7 @@ static void __attribute__((unused)) BUGSMINI_check_arming()
 	}
 }
 
-static void __attribute__((unused)) BUGSMINI_send_packet(uint8_t bind)
+static void __attribute__((unused)) BUGSMINI_send_packet()
 {
 	BUGSMINI_check_arming();  // sets globals arm_flags and armed
 
@@ -107,7 +96,7 @@ static void __attribute__((unused)) BUGSMINI_send_packet(uint8_t bind)
 	packet[1] = BUGSMINI_txid[0];
 	packet[2] = BUGSMINI_txid[1];
 	packet[3] = BUGSMINI_txid[2];
-	if(bind)
+	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[4] = 0x00;
 		packet[5] = 0x7d;
@@ -159,7 +148,7 @@ static void __attribute__((unused)) BUGSMINI_send_packet(uint8_t bind)
 		hopping_frequency_no++;
 		if(hopping_frequency_no >= BUGSMINI_NUM_RF_CHANNELS)
 			hopping_frequency_no = 0;
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? hopping_frequency[hopping_frequency_no+BUGSMINI_NUM_RF_CHANNELS] : hopping_frequency[hopping_frequency_no]);
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? hopping_frequency[hopping_frequency_no+BUGSMINI_NUM_RF_CHANNELS] : hopping_frequency[hopping_frequency_no]);
 	}
 
 	// Power on, TX mode, 2byte CRC
@@ -286,7 +275,7 @@ uint16_t BUGSMINI_callback()
 			}
 			NRF24L01_SetTxRxMode(TXRX_OFF);
 			NRF24L01_SetTxRxMode(TX_EN);
-			BUGSMINI_send_packet(1);
+			BUGSMINI_send_packet();
 			phase = BUGSMINI_BIND2;
 			return BUGSMINI_WRITE_WAIT;
 		case BUGSMINI_BIND2:
@@ -309,7 +298,7 @@ uint16_t BUGSMINI_callback()
 			}
 			NRF24L01_SetTxRxMode(TXRX_OFF);
 			NRF24L01_SetTxRxMode(TX_EN);
-			BUGSMINI_send_packet(0);
+			BUGSMINI_send_packet();
 			phase = BUGSMINI_DATA2;
 			return BUGSMINI_WRITE_WAIT;
 		case BUGSMINI_DATA2:

@@ -91,22 +91,16 @@ static void __attribute__((unused)) FY326_send_packet(uint8_t bind)
 static void __attribute__((unused)) FY326_RF_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
+
 	if(sub_protocol==FY319)
 		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);   // Five-byte rx/tx address
 	else
 		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);   // Three-byte rx/tx address
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    (uint8_t *)"\x15\x59\x23\xc6\x29", 5);
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t *)"\x15\x59\x23\xc6\x29", 5);
-    NRF24L01_FlushTx();
-    NRF24L01_FlushRx();
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-    NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowledgement on all data pipes
-    NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
     NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, FY326_PACKET_SIZE);
     NRF24L01_WriteReg(NRF24L01_05_RF_CH, FY326_RF_BIND_CHANNEL);
     NRF24L01_SetBitrate(NRF24L01_BR_250K);
-    NRF24L01_SetPower();
 
 	NRF24L01_Activate(0x73);
     NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3f);
@@ -115,7 +109,6 @@ static void __attribute__((unused)) FY326_RF_init()
 
 	//Switch to RX
 	NRF24L01_SetTxRxMode(TXRX_OFF);
-	NRF24L01_FlushRx();
 	NRF24L01_SetTxRxMode(RX_EN);
 }
 

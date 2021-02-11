@@ -172,18 +172,11 @@ static void __attribute__((unused)) CX10_Write_Packet(uint8_t bind)
 static void __attribute__((unused)) CX10_RF_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
+
 	XN297_SetTXAddr((uint8_t *)"\xcc\xcc\xcc\xcc\xcc",5);
 	XN297_SetRXAddr((uint8_t *)"\xcc\xcc\xcc\xcc\xcc",5);
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);				// No Auto Acknowledgment on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);			// Enable data pipe 0 only
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, packet_length);	// rx pipe 0 (used only for blue board)
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, CX10_RF_BIND_CHANNEL);
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);					// 1Mbps
-	NRF24L01_SetPower();
 }
 
 uint16_t CX10_callback()

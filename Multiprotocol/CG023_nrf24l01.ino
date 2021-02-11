@@ -49,7 +49,7 @@ enum YD829_FLAGS {
     YD829_FLAG_STILL    = 0x80,
 };
 
-static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
+static void __attribute__((unused)) CG023_send_packet()
 {
 	// throttle : 0x00 - 0xFF
 	throttle=convert_channel_8b(THROTTLE);
@@ -62,7 +62,7 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 	// aileron : 0x43 - 0x7F - 0xBB
 	aileron = convert_channel_16b_limit(AILERON, 0x43, 0xBB); 
 	
-	if (bind)
+	if (IS_BIND_IN_PROGRESS)
 		packet[0]= 0xaa;
 	else
 		packet[0]= 0x55;
@@ -106,7 +106,7 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 	// Power on, TX mode, 2byte CRC
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	if (bind)
+	if (IS_BIND_IN_PROGRESS)
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, CG023_RF_BIND_CHANNEL);
 	else
 		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency_no);
@@ -121,18 +121,9 @@ static void __attribute__((unused)) CG023_send_packet(uint8_t bind)
 
 static void __attribute__((unused)) CG023_RF_init()
 {
-    NRF24L01_Initialize();
-    NRF24L01_SetTxRxMode(TX_EN);
-	XN297_SetTXAddr((uint8_t *)"\x26\xA8\x67\x35\xCC", 5);
+	NRF24L01_Initialize();
 
-    NRF24L01_FlushTx();
-    NRF24L01_FlushRx();
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-    NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
-    NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
-    NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00); // no retransmits
-    NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
-    NRF24L01_SetPower();
+	XN297_SetTXAddr((uint8_t *)"\x26\xA8\x67\x35\xCC", 5);
 }
 
 uint16_t CG023_callback()
@@ -142,18 +133,15 @@ uint16_t CG023_callback()
 		#ifdef MULTI_SYNC
 			telemetry_set_input_sync(packet_period);
 		#endif
-		CG023_send_packet(0);
 	}
 	else
 	{
 		if (bind_counter == 0)
 			BIND_DONE;
 		else
-		{
-			CG023_send_packet(1);
 			bind_counter--;
-		}
 	}
+	CG023_send_packet();
 	return	packet_period;
 }
 

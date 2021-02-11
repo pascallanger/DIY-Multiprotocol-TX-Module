@@ -136,31 +136,17 @@ static void __attribute__((unused)) HONTAI_RF_init()
 {
 	NRF24L01_Initialize();
 
-	NRF24L01_SetTxRxMode(TX_EN);
-
 	if(sub_protocol == JJRCX1)
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t*)"\xd2\xb5\x99\xb3\x4a", 5);
 	else
 		XN297_SetTXAddr((const uint8_t*)"\xd2\xb5\x99\xb3\x4a", 5);
 
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);				// No Auto Acknowldgement on all data pipes
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);					// 1Mbps
-	NRF24L01_SetPower();
 	NRF24L01_Activate(0x73);								// Activate feature register
 	if(sub_protocol == JJRCX1)
 	{
 		NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0xff);	// JJRC uses dynamic payload length
 		NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3f);			// match other stock settings even though AA disabled...
 		NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);
-	}
-	else
-	{
-		NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);	// no retransmits
-		NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);			// Disable dynamic payload length on all pipes
-		NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x00);
 	}
 	NRF24L01_Activate(0x73);								// Deactivate feature register
 }

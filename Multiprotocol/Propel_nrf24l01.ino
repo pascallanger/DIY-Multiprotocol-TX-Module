@@ -158,24 +158,18 @@ static void __attribute__((unused)) PROPEL_data_packet()
 static void __attribute__((unused)) PROPEL_RF_init()
 {
 	NRF24L01_Initialize();
+
 	NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x7f);
 	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x3f);       // AA on all pipes
 	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x3f);   // Enable all pipes
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);    // 5-byte address
 	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x36);  // retransmit 1ms, 6 times
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);              // 1Mbps
-	NRF24L01_SetPower();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x07);      // ?? match protocol capture
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t *)"\x99\x77\x55\x33\x11", PROPEL_ADDRESS_LENGTH);	//Bind address
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR,    (uint8_t *)"\x99\x77\x55\x33\x11", PROPEL_ADDRESS_LENGTH);	//Bind address
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, PROPEL_BIND_RF_CHANNEL);
 	NRF24L01_Activate(0x73);                          // Activate feature register
 	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3f);       // Enable dynamic payload length
 	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);     // Enable all features
-	// Beken 2425 register bank 1 initialized here in stock tx capture
-	// Hopefully won't matter for nRF compatibility
-	NRF24L01_FlushTx();
-    NRF24L01_SetTxRxMode(TX_EN);
+	NRF24L01_Activate(0x73);                          // Activate feature register
 }
 
 const uint8_t PROGMEM PROPEL_hopping []= { 0x47,0x36,0x27,0x44,0x33,0x0D,0x3C,0x2E,0x1B,0x39,0x2A,0x18 };

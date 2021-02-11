@@ -253,22 +253,12 @@ static void __attribute__((unused)) MT99XX_send_packet()
 static void __attribute__((unused)) MT99XX_RF_init()
 {
     NRF24L01_Initialize();
+
     if(sub_protocol == YZ)
 		XN297_SetScrambledMode(XN297_UNSCRAMBLED);
-    NRF24L01_SetTxRxMode(TX_EN);
-    NRF24L01_FlushTx();
     XN297_SetTXAddr((uint8_t *)"\xCC\xCC\xCC\xCC\xCC", 5);
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);		// Clear data ready, data sent, and retransmit
-    NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);			// No Auto Acknowldgement on all data pipes
-    NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);		// Enable data pipe 0 only
-    NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x03);		// 5 bytes address
-    NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0x00);	// no auto retransmit
     if(sub_protocol == YZ)
         NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps (nRF24L01+ only)
-    else
-        NRF24L01_SetBitrate(NRF24L01_BR_1M);			// 1Mbps
-    NRF24L01_SetPower();
-	
     XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) );
 }
 

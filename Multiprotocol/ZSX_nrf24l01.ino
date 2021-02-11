@@ -66,14 +66,7 @@ static void __attribute__((unused)) ZSX_initialize_txid()
 static void __attribute__((unused)) ZSX_RF_init()
 {
 	NRF24L01_Initialize();
-	NRF24L01_SetTxRxMode(TX_EN);
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);	// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);		// No Auto Acknowldgement on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);	// Enable data pipe 0 only
-	NRF24L01_SetBitrate(NRF24L01_BR_1M);			// 1Mbps
-	NRF24L01_SetPower();
+
 	XN297_SetTXAddr((uint8_t*)"\xc1\xc2\xc3", 3);
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, ZSX_RF_BIND_CHANNEL);	// Set bind channel
 }
@@ -104,7 +97,7 @@ void ZSX_init()
 
 #endif
 
-// XN297 spped 1Mb, scrambled
+// XN297 speed 1Mb, scrambled
 // Bind
 //   channel 7
 //   address: C1 C2 C3

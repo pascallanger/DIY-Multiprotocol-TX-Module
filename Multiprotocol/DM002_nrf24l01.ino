@@ -98,16 +98,8 @@ static void __attribute__((unused)) DM002_send_packet(uint8_t bind)
 static void __attribute__((unused)) DM002_RF_init()
 {
     NRF24L01_Initialize();
-    NRF24L01_SetTxRxMode(TX_EN);
-	XN297_SetTXAddr((uint8_t *)"\x26\xA8\x67\x35\xCC", 5);
 
-    NRF24L01_FlushTx();
-    NRF24L01_FlushRx();
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-    NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowldgement on all data pipes
-    NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
-    NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
-    NRF24L01_SetPower();
+	XN297_SetTXAddr((uint8_t *)"\x26\xA8\x67\x35\xCC", 5);
 }
 
 uint16_t DM002_callback()

@@ -180,7 +180,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					if(CH5_SW)										// Advanced mode
 						packet[5] |= 0x80;
 					else
-						if(Channel_data[CH5] < CHANNEL_MIN_COMMAND)	// Beginner mode
+						if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)	// Beginner mode
 							packet[5] |= 0x40;
 					packet[6] = FLAG_DRAGON_RATE
 						| GET_FLAG( CH6_SW, FLAG_DRAGON_RTH );

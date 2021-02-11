@@ -34,37 +34,13 @@ enum{
     HONTAI_FLAG_CALIBRATE = 0x20,
 };
 
-// proudly swiped from http://www.drdobbs.com/implementing-the-ccitt-cyclical-redundan/199904926
-#define HONTAI_POLY 0x8408
-static void __attribute__((unused)) crc16(uint8_t *data_p, uint8_t length)
+static void __attribute__((unused)) HONTAI_send_packet()
 {
-	crc = 0xffff;
-
-	length -= 2;
-	do
-	{
-		for (uint8_t i = 0, data = (uint8_t)*data_p++;
-		i < 8;
-		i++, data >>= 1)
-		{
-			if ((crc & 0x01) ^ (data & 0x01))
-				crc = (crc >> 1) ^ HONTAI_POLY;
-			else
-				crc >>= 1;
-		}
-	} while (--length);
-
-	crc = ~crc;
-	*data_p++ = crc & 0xff;
-	*data_p   = crc >> 8;
-}
-
-static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
-{
-	if (bind)
+	if (IS_BIND_IN_PROGRESS)
 	{
 		memcpy(packet, rx_tx_addr, 5);
 		memset(&packet[5], 0, 3);
+		packet_length = HONTAI_BIND_PACKET_SIZE;
 	}
 	else
 	{
@@ -125,8 +101,16 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 				packet[6] |= GET_FLAG(CH9_SW, 0x40);				// Headless
 				break;
 		}
+		packet_length = HONTAI_PACKET_SIZE;
 	}
-	crc16(packet, bind ? HONTAI_BIND_PACKET_SIZE:HONTAI_PACKET_SIZE);
+
+	// CRC 16 bits reflected in and out
+	crc=0xFFFF;
+	for(uint8_t i=0; i< packet_length-2; i++)
+		crc16_update(bit_reverse(packet[i]),8);
+	crc ^= 0xFFFF;
+	packet[packet_length-2]=bit_reverse(crc>>8);
+	packet[packet_length-1]=bit_reverse(crc);
 
 	// Power on, TX mode, 2byte CRC
 	if(sub_protocol == JJRCX1)
@@ -134,16 +118,16 @@ static void __attribute__((unused)) HONTAI_send_packet(uint8_t bind)
 	else
 		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? HONTAI_RF_BIND_CHANNEL : hopping_frequency[hopping_frequency_no++]);
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? HONTAI_RF_BIND_CHANNEL : hopping_frequency[hopping_frequency_no++]);
 	hopping_frequency_no %= 3;
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 
 	if(sub_protocol == JJRCX1)
-		NRF24L01_WritePayload(packet, bind ? HONTAI_BIND_PACKET_SIZE:HONTAI_PACKET_SIZE);
+		NRF24L01_WritePayload(packet, packet_length);
 	else
-		XN297_WritePayload(packet, bind ? HONTAI_BIND_PACKET_SIZE:HONTAI_PACKET_SIZE);
+		XN297_WritePayload(packet, packet_length);
 
 	NRF24L01_SetPower();
 }
@@ -231,9 +215,9 @@ static void __attribute__((unused)) HONTAI_initialize_txid()
 
 uint16_t HONTAI_callback()
 {
-	if(bind_counter!=0)
+	HONTAI_send_packet();
+	if(bind_counter)
 	{
-		HONTAI_send_packet(1);
 		bind_counter--;
 		if (bind_counter == 0)
 		{
@@ -241,13 +225,10 @@ uint16_t HONTAI_callback()
 			BIND_DONE;
 		}
 	}
+	#ifdef MULTI_SYNC
 	else
-	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(packet_period);
-		#endif
-		HONTAI_send_packet(0);
-	}
+		telemetry_set_input_sync(packet_period);
+	#endif
 
 	return packet_period;
 }

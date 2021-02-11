@@ -296,7 +296,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_HITEC,      STR_HITEC,     STR_SUBTYPE_HITEC,     3, OPTION_RFTUNE,  0, 0, SW_CC2500, HITEC_init,      HITEC_callback      },
 	#endif
 	#if defined(HONTAI_NRF24L01_INO)                             
-		{PROTO_HONTAI,     STR_HONTAI,    STR_SUBTYPE_HONTAI,    4, OPTION_NONE,    0, 0, SW_NRF,    HONTAI_init,     HONTAI_callback     }, // review crc
+		{PROTO_HONTAI,     STR_HONTAI,    STR_SUBTYPE_HONTAI,    4, OPTION_NONE,    0, 0, SW_NRF,    HONTAI_init,     HONTAI_callback     },
 	#endif
 	#if defined(HOTT_CC2500_INO)                                 
 		{PROTO_HOTT,       STR_HOTT,      STR_SUBTYPE_HOTT,      2, OPTION_RFTUNE,  1, 0, SW_CC2500, HOTT_init,       HOTT_callback       },

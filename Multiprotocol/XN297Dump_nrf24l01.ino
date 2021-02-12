@@ -381,7 +381,7 @@ static uint16_t XN297Dump_callback()
 					{	// Scan frequencies
 						hopping_frequency_no++;
 						bind_counter=0;
-						if(packet_count && packet_count<=5)
+						if(packet_count && packet_count<=20)
 							debug("\r\nTrying RF channel: ");
 						packet_count=0;
 						if(hopping_frequency_no>XN297DUMP_MAX_RF_CHANNEL)
@@ -463,7 +463,7 @@ static uint16_t XN297Dump_callback()
 								for(uint8_t i=0;i<packet_length;i++)
 									debug(" %02X",packet[i]);
 								packet_count++;
-								if(packet_count>5)
+								if(packet_count>20)
 								{//change channel
 									bind_counter=XN297DUMP_PERIOD_SCAN+1;
 									debug("\r\nTrying RF channel: ");
@@ -565,7 +565,7 @@ static uint16_t XN297Dump_callback()
 									NRF24L01_WriteReg(NRF24L01_05_RF_CH,hopping_frequency[hopping_frequency_no]);
 								}
 								packet_count++;
-								if(packet_count>6)
+								if(packet_count>24)
 								{
 									bind_counter=XN297DUMP_PERIOD_SCAN+1;
 									packet_count=0;

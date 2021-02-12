@@ -658,11 +658,10 @@ static void CFLIE_RF_init()
     NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, TX_ADDR_SIZE);
     NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, TX_ADDR_SIZE);
 
-    // this sequence necessary for module from stock tx
-    NRF24L01_Activate(0x73);                          // Activate feature register
     NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x01);       // Enable Dynamic Payload Length on pipe 0
     NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x06);     // Enable Dynamic Payload Length, enable Payload with ACK
-	NRF24L01_Activate(0x73);
+
+	NRF24L01_SetTxRxMode(TX_EN);						// Clear data ready, data sent, retransmit and enable CRC 16bits, ready for TX
 }
 
 // TODO: Fix telemetry

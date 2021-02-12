@@ -91,15 +91,15 @@ static void __attribute__((unused)) POTENSIC_initialize_txid()
 
 uint16_t POTENSIC_callback()
 {
-	if(IS_BIND_IN_PROGRESS)
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(POTENSIC_PACKET_PERIOD);
+	#endif
+	if(bind_counter)
 		if(--bind_counter==0)
 		{
 			BIND_DONE;
 			XN297_SetTXAddr(rx_tx_addr,5);
 		}
-	#ifdef MULTI_SYNC
-		telemetry_set_input_sync(POTENSIC_PACKET_PERIOD);
-	#endif
 	POTENSIC_send_packet();
 	return POTENSIC_PACKET_PERIOD;
 }

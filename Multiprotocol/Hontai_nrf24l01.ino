@@ -141,14 +141,14 @@ static void __attribute__((unused)) HONTAI_RF_init()
 	else
 		XN297_SetTXAddr((const uint8_t*)"\xd2\xb5\x99\xb3\x4a", 5);
 
-	NRF24L01_Activate(0x73);								// Activate feature register
 	if(sub_protocol == JJRCX1)
 	{
 		NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0xff);	// JJRC uses dynamic payload length
 		NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3f);			// match other stock settings even though AA disabled...
 		NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);
 	}
-	NRF24L01_Activate(0x73);								// Deactivate feature register
+
+	NRF24L01_SetTxRxMode(TX_EN);							// Clear data ready, data sent, retransmit and enable CRC 16bits, ready for TX
 }
 
 const uint8_t PROGMEM HONTAI_hopping_frequency_nonels[][3] = {
@@ -201,7 +201,9 @@ static void __attribute__((unused)) HONTAI_initialize_txid()
 
 uint16_t HONTAI_callback()
 {
-	HONTAI_send_packet();
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(packet_period);
+	#endif
 	if(bind_counter)
 	{
 		bind_counter--;
@@ -211,11 +213,7 @@ uint16_t HONTAI_callback()
 			BIND_DONE;
 		}
 	}
-	#ifdef MULTI_SYNC
-	else
-		telemetry_set_input_sync(packet_period);
-	#endif
-
+	HONTAI_send_packet();
 	return packet_period;
 }
 

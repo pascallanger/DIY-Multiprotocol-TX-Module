@@ -204,13 +204,13 @@ static void __attribute__((unused)) GD00X_initialize_txid()
 
 uint16_t GD00X_callback()
 {
-	if(IS_BIND_IN_PROGRESS)
-		if(--bind_counter==0)
-			BIND_DONE;
-	GD00X_send_packet();
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(packet_period);
 	#endif
+	if(bind_counter)
+		if(--bind_counter==0)
+			BIND_DONE;
+	GD00X_send_packet();
 	return packet_period;
 }
 

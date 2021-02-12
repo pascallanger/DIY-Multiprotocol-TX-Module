@@ -55,11 +55,8 @@ uint16_t E010R5_callback()
 {
 	//Bind
 	if(bind_counter)
-	{
-		bind_counter--;
-		if(bind_counter==0)
+		if(--bind_counter==0)
 			BIND_DONE;
-	}
 
 	//Send packet
 	RF2500_SendPayload();

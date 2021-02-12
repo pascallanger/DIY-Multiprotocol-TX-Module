@@ -128,18 +128,14 @@ static void __attribute__((unused)) CG023_RF_init()
 
 uint16_t CG023_callback()
 {
-	if(IS_BIND_DONE)
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(packet_period);
+	#endif
+	if(bind_counter)
 	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(packet_period);
-		#endif
-	}
-	else
-	{
+		bind_counter--;
 		if (bind_counter == 0)
 			BIND_DONE;
-		else
-			bind_counter--;
 	}
 	CG023_send_packet();
 	return	packet_period;

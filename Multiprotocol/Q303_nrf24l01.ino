@@ -174,10 +174,10 @@ static uint8_t __attribute__((unused))  cx35_lastButton()
 	return command;
 }
 
-static void __attribute__((unused)) Q303_send_packet(uint8_t bind)
+static void __attribute__((unused)) Q303_send_packet()
 {
 	uint16_t aileron, elevator, throttle, rudder, slider;
-	if(bind)
+	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[0] = 0xaa;
 		memcpy(&packet[1], rx_tx_addr + 1, 4);
@@ -270,7 +270,7 @@ static void __attribute__((unused)) Q303_send_packet(uint8_t bind)
 	// Power on, TX mode, CRC enabled
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, bind ? Q303_RF_BIND_CHANNEL : hopping_frequency[hopping_frequency_no++]);
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? Q303_RF_BIND_CHANNEL : hopping_frequency[hopping_frequency_no++]);
 	hopping_frequency_no %= rf_ch_num;
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
@@ -334,27 +334,20 @@ static void __attribute__((unused)) Q303_initialize_txid()
 
 uint16_t Q303_callback()
 {
-	if(IS_BIND_DONE)
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(packet_period);
+	#endif
+	if(bind_counter)
 	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(packet_period);
-		#endif
-		Q303_send_packet(0);
-	}
-	else
-	{
+		bind_counter--;
 		if (bind_counter == 0)
 		{
 			XN297_SetTXAddr(rx_tx_addr, 5);
 			packet_count = 0;
 			BIND_DONE;
 		}
-		else
-		{
-			Q303_send_packet(1);
-			bind_counter--;
-		}
 	}
+	Q303_send_packet();
 	return packet_period;
 }
 

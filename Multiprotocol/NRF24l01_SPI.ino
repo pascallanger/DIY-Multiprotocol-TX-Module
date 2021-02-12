@@ -38,12 +38,8 @@ void NRF24L01_Initialize()
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW,		0x03);	// 5 bytes rx/tx address
 	NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR,	0x00); 	// no retransmits
 	NRF24L01_SetBitrate(NRF24L01_BR_1M);             	// 1Mbps
-	/* Already done in NRF24L01_Reset
-	NRF24L01_Activate(0x73);                          	// Activate feature register
 	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);       	// Disable dynamic payload length on all pipes
 	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);     	// Set feature bits off and enable the command NRF24L01_B0_TX_PYLD_NOACK
-	NRF24L01_Activate(0x73);
-	*/
 	NRF24L01_SetPower();
 	NRF24L01_SetTxRxMode(TX_EN);						// Clear data ready, data sent, retransmit and enable CRC 16bits, ready for TX
 }  
@@ -134,13 +130,13 @@ static uint8_t NRF24L01_GetDynamicPayloadSize()
     return len;
 }
 
-void NRF24L01_Activate(uint8_t code)
+/*void NRF24L01_Activate(uint8_t code)
 {
 	NRF_CSN_off;
 	SPI_Write(ACTIVATE);
 	SPI_Write(code);
 	NRF_CSN_on;
-}
+}*/
 
 void NRF24L01_SetBitrate(uint8_t bitrate)
 {
@@ -234,13 +230,6 @@ void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 
 void NRF24L01_Reset()
 {
-	//** not in deviation but needed to hot switch between models
-	NRF24L01_Activate(0x73);                          // Activate feature register
-	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);       // Disable dynamic payload length on all pipes
-	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);     // Set feature bits off
-	NRF24L01_Activate(0x73);
-	//**
-
 	NRF24L01_FlushTx();
     NRF24L01_FlushRx();
     NRF24L01_Strobe(0xff);			// NOP

@@ -43,11 +43,6 @@ static void __attribute__((unused)) XN297Dump_RF_init()
 	NRF24L01_Initialize();
 	NRF24L01_SetTxRxMode(RX_EN);
 
-	NRF24L01_FlushTx();
-	NRF24L01_FlushRx();
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-	NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);				// No Auto Acknowledgment on all data pipes
-	NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);			// Enable data pipe 0 only
 	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);			// 3 bytes RX/TX address
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x55\x0F\x71", 3);	// set up RX address to xn297 preamble
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, XN297DUMP_MAX_PACKET_LEN);	// Enable rx pipe 0
@@ -69,11 +64,6 @@ static void __attribute__((unused)) XN297Dump_RF_init()
 			break;
 
 	}
-    NRF24L01_Activate(0x73);								// Activate feature register
-    NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);				// Disable dynamic payload length on all pipes
-    NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
-    NRF24L01_Activate(0x73);
-	NRF24L01_SetPower();
 }
 
 static boolean __attribute__((unused)) XN297Dump_process_packet(void)
@@ -636,11 +626,6 @@ static uint16_t XN297Dump_callback()
 				NRF24L01_Initialize();
 				NRF24L01_SetTxRxMode(TXRX_OFF);
 				NRF24L01_SetTxRxMode(RX_EN);
-				NRF24L01_FlushTx();
-				NRF24L01_FlushRx();
-				NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);						// Clear data ready, data sent, and retransmit
-				NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);							// No Auto Acknowledgment on all data pipes
-				NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);						// Enable data pipe 0 only
 				NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, address_length-2);			// RX/TX address length
 				NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, address_length);	// set up RX address
 				NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, packet_length);				// Enable rx pipe 0
@@ -663,11 +648,6 @@ static uint16_t XN297Dump_callback()
 						break;
 
 				}
-				NRF24L01_Activate(0x73);								// Activate feature register
-				NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);				// Disable dynamic payload length on all pipes
-				NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x01);
-				NRF24L01_Activate(0x73);
-				NRF24L01_SetPower();
 				NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX)); //_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | 
 				phase++;
 			}

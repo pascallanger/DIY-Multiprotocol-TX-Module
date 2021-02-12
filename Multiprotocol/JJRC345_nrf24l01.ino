@@ -143,11 +143,10 @@ uint16_t JJRC345_callback()
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(JJRC345_PACKET_PERIOD);
 	#endif
-	if(IS_BIND_IN_PROGRESS)
+	if(bind_counter)
 	{
-		if (bind_counter)
-			bind_counter--;
-		else
+		bind_counter--;
+		if (bind_counter==0)
 			BIND_DONE;
 	}
 	JJRC345_send_packet();

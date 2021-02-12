@@ -129,7 +129,7 @@ static void __attribute__((unused)) FLYSKY_apply_extension_flags()
 	}
 }
 
-static void __attribute__((unused)) FLYSKY_build_packet(uint8_t init)
+static void __attribute__((unused)) FLYSKY_send_packet()
 {
     uint8_t i;
 	//servodata timing range for flysky.
@@ -137,7 +137,7 @@ static void __attribute__((unused)) FLYSKY_build_packet(uint8_t init)
 	//+100% =~ 0x07ca//=1994us(max)
 	//Center = 0x5d9//=1497us(center)
 	//channel order AIL;ELE;THR;RUD;CH5;CH6;CH7;CH8
-    packet[0] = init ? 0xaa : 0x55;
+    packet[0] = IS_BIND_IN_PROGRESS ? 0xaa : 0x55;
     packet[1] = rx_tx_addr[3];
     packet[2] = rx_tx_addr[2];
     packet[3] = rx_tx_addr[1];
@@ -151,31 +151,27 @@ static void __attribute__((unused)) FLYSKY_build_packet(uint8_t init)
 		packet[6 + i*2]=(temp>>8)&0xFF;	//high byte of servo timing(1000-2000us)
 	}
     FLYSKY_apply_extension_flags();
+
+	A7105_SetPower();
+	A7105_WriteData(21, IS_BIND_IN_PROGRESS ? 0x01:hopping_frequency[hopping_frequency_no & 0x0F]);
+	hopping_frequency_no++;
 }
 
 uint16_t FLYSKY_callback()
 {
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(packet_period);
+	#endif
 	#ifndef FORCE_FLYSKY_TUNING
 		A7105_AdjustLOBaseFreq(1);
 	#endif
-	if(IS_BIND_IN_PROGRESS)
+	if(bind_counter)
 	{
-		FLYSKY_build_packet(1);
-		A7105_WriteData(21, 1);
 		bind_counter--;
 		if (bind_counter==0)
 			BIND_DONE;
 	}
-	else
-	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(packet_period);
-		#endif
-		FLYSKY_build_packet(0);
-		A7105_WriteData(21, hopping_frequency[hopping_frequency_no & 0x0F]);
-		A7105_SetPower();
-	}
-	hopping_frequency_no++;
+	FLYSKY_send_packet();
 	return packet_period;
 }
 

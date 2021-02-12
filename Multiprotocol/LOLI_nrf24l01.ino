@@ -166,14 +166,11 @@ uint16_t LOLI_callback()
 	{
 		case LOLI_BIND1:
 			if(bind_counter)
-			{
-				bind_counter--;
-				if(bind_counter==0)
+				if(--bind_counter==0)
 				{
 					phase=LOLI_PREP_DATA;
 					break;
 				}
-			}
 			// send bind packet
 			NRF24L01_SetTxRxMode(TXRX_OFF);
 			NRF24L01_SetTxRxMode(TX_EN);

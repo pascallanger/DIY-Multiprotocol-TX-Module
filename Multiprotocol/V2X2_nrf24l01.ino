@@ -225,8 +225,7 @@ uint16_t V2X2_callback()
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(V2X2_PACKET_PERIOD);
 	#endif
-	V2X2_send_packet();
-	if(IS_BIND_IN_PROGRESS)
+	if(bind_counter)
 	{
 		if (--bind_counter == 0)
 		{
@@ -241,6 +240,7 @@ uint16_t V2X2_callback()
 			hopping_frequency_no = 0;
 		}
 	}
+	V2X2_send_packet();
 	// Packet every 4ms
 	return V2X2_PACKET_PERIOD;
 }

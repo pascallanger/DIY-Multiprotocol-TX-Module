@@ -102,10 +102,8 @@ static void __attribute__((unused)) FY326_RF_init()
     NRF24L01_WriteReg(NRF24L01_05_RF_CH, FY326_RF_BIND_CHANNEL);
     NRF24L01_SetBitrate(NRF24L01_BR_250K);
 
-	NRF24L01_Activate(0x73);
     NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3f);
     NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);
-	NRF24L01_Activate(0x73);
 
 	//Switch to RX
 	NRF24L01_SetTxRxMode(TXRX_OFF);

@@ -364,10 +364,10 @@ static void __attribute__((unused)) CABELL_RF_init()
 	CABELL_setAddress();
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, 0x20);		// 32 byte packet length
 	NRF24L01_WriteReg(NRF24L01_12_RX_PW_P1, 0x20);		// 32 byte packet length
-	NRF24L01_Activate(0x73);							// Activate feature register
 	NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3F);			// Enable dynamic payload length on all pipes
 	NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x04);		// Enable dynamic Payload Length
-	NRF24L01_Activate(0x73);
+
+	NRF24L01_SetTxRxMode(TX_EN);						// Clear data ready, data sent, retransmit and enable CRC 16bits, ready for TX
 }
 
 //-----------------------------------------------------------------------------------------

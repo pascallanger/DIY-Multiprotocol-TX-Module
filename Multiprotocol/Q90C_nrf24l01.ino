@@ -147,7 +147,7 @@ uint16_t Q90C_callback()
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(Q90C_PACKET_PERIOD);
 	#endif
-	if(IS_BIND_IN_PROGRESS)
+	if(bind_counter)
 		if(--bind_counter==0)
 		{
 			BIND_DONE;

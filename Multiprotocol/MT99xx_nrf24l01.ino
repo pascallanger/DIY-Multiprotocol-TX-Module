@@ -320,6 +320,9 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 
 uint16_t MT99XX_callback()
 {
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(packet_period);
+	#endif
 	if(bind_counter)
 	{
 		bind_counter--;
@@ -333,10 +336,6 @@ uint16_t MT99XX_callback()
 			BIND_DONE;
 		}
 	}
-	#ifdef MULTI_SYNC
-	else
-		telemetry_set_input_sync(packet_period);
-	#endif
 
 	MT99XX_send_packet();
     return packet_period;

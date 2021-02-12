@@ -95,14 +95,14 @@ static void __attribute__((unused)) E015_check_arming()
 	}
 }
 
-static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
+static void __attribute__((unused)) E01X_send_packet()
 {
     uint8_t can_flip = 0, calibrate = 1;
 	if(sub_protocol==E012)
 	{
 		packet_length=E012_PACKET_SIZE;
 		packet[0] = rx_tx_addr[1];
-		if(bind)
+		if(IS_BIND_IN_PROGRESS)
 		{
 			packet[1] = 0xaa;
 			memcpy(&packet[2], hopping_frequency, E012_NUM_RF_CHANNELS);
@@ -134,7 +134,7 @@ static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 	}
 	else if(sub_protocol==E015)
 	{ // E015
-		if(bind)
+		if(IS_BIND_IN_PROGRESS)
 		{
 			packet[0] = 0x18;
 			packet[1] = 0x04;
@@ -173,7 +173,7 @@ static void __attribute__((unused)) E01X_send_packet(uint8_t bind)
 	else
 	{ // E016H
 		packet_length=E016H_PACKET_SIZE;
-		if(bind)
+		if(IS_BIND_IN_PROGRESS)
 		{
 			rf_ch_num=E016H_BIND_CHANNEL;
 			memcpy(packet, &rx_tx_addr[1], 4);
@@ -258,8 +258,12 @@ static void __attribute__((unused)) E01X_RF_init()
 
 uint16_t E01X_callback()
 {
-	if(IS_BIND_IN_PROGRESS)
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(packet_period);
+	#endif
+	if(bind_counter)
 	{
+		bind_counter--;
 		if (bind_counter == 0)
 		{
 			if(sub_protocol==E016H)
@@ -268,19 +272,8 @@ uint16_t E01X_callback()
 				HS6200_SetTXAddr(rx_tx_addr,  E01X_ADDRESS_LENGTH);
 			BIND_DONE;
 		}
-		else
-		{
-			E01X_send_packet(1);
-			bind_counter--;
-		}
 	}
-	else
-	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(packet_period);
-		#endif
-		E01X_send_packet(0);
-	}
+	E01X_send_packet();
 	return packet_period;
 }
 

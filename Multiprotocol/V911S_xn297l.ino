@@ -35,9 +35,9 @@
 // flags going to packet[2]
 #define	V911S_FLAG_CALIB	0x01
 
-static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
+static void __attribute__((unused)) V911S_send_packet()
 {
-	if(bind)
+	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[0] = 0x42;
 		packet[1] = 0x4E;
@@ -104,7 +104,7 @@ static void __attribute__((unused)) V911S_send_packet(uint8_t bind)
 	if(sub_protocol==V911S_STD)
 		XN297L_WritePayload(packet, V911S_PACKET_SIZE);
 	else
-		XN297L_WriteEnhancedPayload(packet, V911S_PACKET_SIZE, bind?0:1);
+		XN297L_WriteEnhancedPayload(packet, V911S_PACKET_SIZE, IS_BIND_IN_PROGRESS?0:1);
 	
 	XN297L_SetPower();				// Set tx_power
 	XN297L_SetFreqOffset();			// Set frequency offset
@@ -135,29 +135,22 @@ static void __attribute__((unused)) V911S_initialize_txid()
 
 uint16_t V911S_callback()
 {
-	if(IS_BIND_DONE)
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(V911S_PACKET_PERIOD);
+	#endif
+	if(bind_counter)
 	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(V911S_PACKET_PERIOD);
-		#endif
-		V911S_send_packet(0);
-	}
-	else
-	{
+		bind_counter--;
 		if (bind_counter == 0)
 		{
 			BIND_DONE;
 			XN297_SetTXAddr(rx_tx_addr, 5);
 			packet_period=V911S_PACKET_PERIOD;
 		}
-		else
-		{
-			V911S_send_packet(1);
-			bind_counter--;
-			if(bind_counter==100)		// same as original TX...
-				packet_period=V911S_BIND_PACKET_PERIOD*3;
-		}
+		else if(bind_counter==100)		// same as original TX...
+			packet_period=V911S_BIND_PACKET_PERIOD*3;
 	}
+	V911S_send_packet();
 	return	packet_period;
 }
 

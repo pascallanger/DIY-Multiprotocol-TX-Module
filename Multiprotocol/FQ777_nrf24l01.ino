@@ -160,6 +160,9 @@ static void __attribute__((unused)) FQ777_RF_init()
 
 uint16_t FQ777_callback()
 {
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(FQ777_PACKET_PERIOD);
+	#endif
 	if(bind_counter)
 	{
 		bind_counter--;
@@ -169,11 +172,6 @@ uint16_t FQ777_callback()
 			BIND_DONE;
 		}
 	}
-	#ifdef MULTI_SYNC
-	else
-		telemetry_set_input_sync(FQ777_PACKET_PERIOD);
-	#endif
-
 	FQ777_send_packet();
 	return FQ777_PACKET_PERIOD;
 }

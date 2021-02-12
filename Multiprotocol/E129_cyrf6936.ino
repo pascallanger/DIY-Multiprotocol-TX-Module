@@ -92,14 +92,11 @@ uint16_t E129_callback()
 
 	//Bind
 	if(bind_counter)
-	{
-		bind_counter--;
-		if(bind_counter==0)
+		if(--bind_counter==0)
 		{
 			BIND_DONE;
 			RF2500_SetTXAddr(rx_tx_addr);	// 4 bytes of address
 		}
-	}
 
 	//Build packet
 	E129_build_data_packet();

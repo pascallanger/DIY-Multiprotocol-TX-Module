@@ -120,7 +120,7 @@ uint16_t TIGER_callback()
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(TIGER_PACKET_PERIOD);
 	#endif
-	if(IS_BIND_IN_PROGRESS)
+	if(bind_counter)
 		if(--bind_counter==0)
 		{
 			BIND_DONE;

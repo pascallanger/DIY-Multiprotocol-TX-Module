@@ -37,10 +37,10 @@ enum DM002_FLAGS {
     DM002_FLAG_CAMERA2	= 0x80,
 };
 
-static void __attribute__((unused)) DM002_send_packet(uint8_t bind)
+static void __attribute__((unused)) DM002_send_packet()
 {
 	memcpy(packet+5,(uint8_t *)"\x00\x7F\x7F\x7F\x00\x00\x00",7);
-	if(bind)
+	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[0] = 0xAA;
 		packet[1] = rx_tx_addr[0]; 
@@ -83,10 +83,7 @@ static void __attribute__((unused)) DM002_send_packet(uint8_t bind)
 	// Power on, TX mode, 2byte CRC
 	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	if (bind)
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, DM002_RF_BIND_CHANNEL);
-	else
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? DM002_RF_BIND_CHANNEL : hopping_frequency[hopping_frequency_no]);
 	// clear packet status bits and TX FIFO
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
@@ -104,26 +101,19 @@ static void __attribute__((unused)) DM002_RF_init()
 
 uint16_t DM002_callback()
 {
-	if(IS_BIND_DONE)
+	#ifdef MULTI_SYNC
+		telemetry_set_input_sync(DM002_PACKET_PERIOD);
+	#endif
+	if (bind_counter)
 	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(DM002_PACKET_PERIOD);
-		#endif
-		DM002_send_packet(0);
-	}
-	else
-	{
+		bind_counter--;
 		if (bind_counter == 0)
 		{
 			BIND_DONE;
 			XN297_SetTXAddr(rx_tx_addr, 5);
 		}
-		else
-		{
-			DM002_send_packet(1);
-			bind_counter--;
-		}
 	}
+	DM002_send_packet();
 	return	DM002_PACKET_PERIOD;
 }
 

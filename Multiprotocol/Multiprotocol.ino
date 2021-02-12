@@ -1144,6 +1144,8 @@ static void protocol_init()
 				//Save index
 				multi_protocols_index = index;
 				//Set the RF switch
+				PE1_off;
+				PE2_off;
 				switch(multi_protocols[multi_protocols_index].rfSwitch)
 				{
 					case SW_CC2500:

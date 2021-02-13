@@ -97,7 +97,7 @@ void E010R5_init()
 	RF2500_SetTXAddr((uint8_t*)"\x0E\x54\x96\xEE");		// Same address for bind and normal packets
 	
 	#ifdef E010R5_FORCE_ID
-		switch(rx_tx_addr[3]%3)
+		switch(rx_tx_addr[3]&0x03)
 		{
 			case 0:
 				//TX1
@@ -112,6 +112,13 @@ void E010R5_init()
 				hopping_frequency[1]=0x3C;	//60
 				rx_tx_addr[1]=0x1B;
 				rx_tx_addr[2]=0x9E;
+				break;
+			case 2:
+				//TX4
+				hopping_frequency[0]=0x30;	//48
+				hopping_frequency[1]=0x38;	//56
+				rx_tx_addr[1]=0x2E;
+				rx_tx_addr[2]=0xAE;
 				break;
 			default:
 				//TX3

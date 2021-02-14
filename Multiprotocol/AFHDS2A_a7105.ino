@@ -293,8 +293,8 @@ uint16_t AFHDS2A_callback()
 		case AFHDS2A_BIND3:
 			AFHDS2A_build_bind_packet();
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, packet_count%2 ? 0x0d : 0x8c);
-			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)))
-			{ // FECF+CRCF Ok
+			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5)))	//  removed FECF check due to issues with fs-x6b -> & (1<<5 | 1<<6)
+			{ // CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 				if(packet[0] == 0xbc && packet[9] == 0x01)
 				{
@@ -310,14 +310,14 @@ uint16_t AFHDS2A_callback()
 					}
 					phase = AFHDS2A_BIND4;
 					packet_count++;
-					return 3850;
+					break;
 				}
 			}
 			packet_count++;
 			if(IS_BIND_DONE)
 			{ // exit bind if asked to do so from the GUI
 				phase = AFHDS2A_BIND4;
-				return 3850;
+				break;
 			}
 			phase |= AFHDS2A_WAIT_WRITE;
 			return AFHDS2A_WRITE_TIME;
@@ -348,7 +348,7 @@ uint16_t AFHDS2A_callback()
 				phase = AFHDS2A_DATA_INIT;
 				BIND_DONE;
 			}
-			return 3850;
+			break;
 		case AFHDS2A_DATA_INIT:
 			packet_counter=0;
 			packet_type = AFHDS2A_PACKET_STICKS;
@@ -358,8 +358,7 @@ uint16_t AFHDS2A_callback()
 				telemetry_set_input_sync(3850);
 			#endif
 			AFHDS2A_build_packet(packet_type);
-			if((A7105_ReadReg(A7105_00_MODE) & 0x01)==0)		// Check if something has been received...
-				data_rx=1;										// Yes
+			data_rx=A7105_ReadReg(A7105_00_MODE);			// Check if something has been received...
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, hopping_frequency[hopping_frequency_no++]);
 			if(hopping_frequency_no >= AFHDS2A_NUMFREQ)
 				hopping_frequency_no = 0;
@@ -377,8 +376,8 @@ uint16_t AFHDS2A_callback()
 				#endif
 						packet_type = AFHDS2A_PACKET_STICKS;	// todo : check for settings changes
 			}
-			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5 | 1<<6)) && data_rx==1)
-			{ // RX+FECF+CRCF Ok
+			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5)) && !(data_rx & 1))	// removed FECF check due to issues with fs-x6b ->  & (1<<5 | 1<<6)
+			{ // RX+CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
 				if(packet[0] == 0xAA && packet[9] == 0xFC)
 					packet_type=AFHDS2A_PACKET_SETTINGS;		// RX is asking for settings
@@ -417,7 +416,7 @@ uint16_t AFHDS2A_callback()
 			phase &= ~AFHDS2A_WAIT_WRITE;
 			return 3850-AFHDS2A_WRITE_TIME;
 	}
-	return 3850; // never reached, please the compiler
+	return 3850;
 }
 
 void AFHDS2A_init()

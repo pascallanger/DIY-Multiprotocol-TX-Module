@@ -18,6 +18,7 @@
 #if defined(MT99XX_NRF24L01_INO)
 
 #include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define MT99XX_BIND_COUNT			928
 #define MT99XX_PACKET_PERIOD_FY805	2460

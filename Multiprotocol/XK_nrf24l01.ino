@@ -101,19 +101,32 @@ static void __attribute__((unused)) XK_send_packet()
 		crc+=packet[i];
 	packet[15]=crc;
 
-//	debug("C: %02X, P:",hopping_frequency[(IS_BIND_IN_PROGRESS?0:XK_RF_BIND_NUM_CHANNELS)+(hopping_frequency_no>>1)]);
-	XN297L_Hopping((IS_BIND_IN_PROGRESS?0:XK_RF_BIND_NUM_CHANNELS)+(hopping_frequency_no>>1));
+	rf_ch_num = (IS_BIND_IN_PROGRESS?0:XK_RF_BIND_NUM_CHANNELS)+(hopping_frequency_no>>1);
 	hopping_frequency_no++;
 	if(hopping_frequency_no >= (IS_BIND_IN_PROGRESS?XK_RF_BIND_NUM_CHANNELS*2:XK_RF_NUM_CHANNELS*2))
 		hopping_frequency_no=0;
-
-	XN297L_WritePayload(packet, XK_PAYLOAD_SIZE);
+	
+//	debug("C: %02X, P:",hopping_frequency[rf_ch_num]);
 //	for(uint8_t i=0; i<XK_PAYLOAD_SIZE; i++)
 //		debug(" %02X",packet[i]);
 //	debugln("");
 	
-	XN297L_SetPower();		// Set tx_power
-	XN297L_SetFreqOffset();	// Set frequency offset
+	if(sub_protocol==X420)
+	{
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[rf_ch_num]);
+		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+		NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+		NRF24L01_FlushTx();
+		XN297_WritePayload(packet, XK_PAYLOAD_SIZE);
+		NRF24L01_SetPower();		
+	}
+	else
+	{
+		XN297L_Hopping(rf_ch_num);
+		XN297L_WritePayload(packet, XK_PAYLOAD_SIZE);
+		XN297L_SetPower();		// Set tx_power
+		XN297L_SetFreqOffset();	// Set frequency offset
+	}
 }
 
 const uint8_t PROGMEM XK_bind_hop[XK_RF_BIND_NUM_CHANNELS]= { 0x07, 0x24, 0x3E, 0x2B, 0x47, 0x0E, 0x39, 0x1C };	// Bind
@@ -188,15 +201,21 @@ static void __attribute__((unused)) XK_initialize_txid()
 
 static void __attribute__((unused)) XK_RF_init()
 {
-	XN297L_Init();
-	XN297L_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);						// Bind address
-	XN297L_HoppingCalib(XK_RF_BIND_NUM_CHANNELS+XK_RF_NUM_CHANNELS);			// Calibrate all channels
+	if(sub_protocol==X420)
+	{
+		NRF24L01_Initialize();
+		XN297_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);						// Bind address
+	}
+	else
+	{
+		XN297L_Init();
+		XN297L_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);						// Bind address
+		XN297L_HoppingCalib(XK_RF_BIND_NUM_CHANNELS+XK_RF_NUM_CHANNELS);			// Calibrate all channels
+	}
 }
 
 uint16_t XK_callback()
 {
-	if(sub_protocol==X420)
-		option=0;																// Forcing the use of NRF24L01@1Mbps
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(XK_PACKET_PERIOD);
 	#endif
@@ -204,7 +223,10 @@ uint16_t XK_callback()
 		if(--bind_counter==0)
 		{
 			BIND_DONE;
-			XN297L_SetTXAddr(rx_tx_addr, 5);									// Normal packets address
+			if(sub_protocol==X420)
+				XN297_SetTXAddr(rx_tx_addr, 5);										// Normal packets address
+			else
+				XN297L_SetTXAddr(rx_tx_addr, 5);									// Normal packets address
 		}
 	XK_send_packet();
 	return XK_PACKET_PERIOD;
@@ -212,11 +234,9 @@ uint16_t XK_callback()
 
 void XK_init()
 {
-	BIND_IN_PROGRESS;															// Autobind protocol
+	BIND_IN_PROGRESS;																// Autobind protocol
 	XK_initialize_txid();
 	XK_RF_init();
-	if(sub_protocol==X420)
-		NRF24L01_SetBitrate(NRF24L01_BR_1M);									// X420/X520 runs @1Mbps
 	hopping_frequency_no = 0;
 	bind_counter=XK_BIND_COUNT;
 }

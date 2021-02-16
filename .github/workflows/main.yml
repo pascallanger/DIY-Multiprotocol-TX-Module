@@ -101,6 +101,7 @@ jobs:
           echo "CYRF6936_PROTOCOLS=$(echo $CYRF6936_PROTOCOLS)" >> $GITHUB_ENV
           echo "NRF24L01_PROTOCOLS=$(echo $NRF24L01_PROTOCOLS)" >> $GITHUB_ENV
           echo "SX1276_PROTOCOLS=$(echo $SX1276_PROTOCOLS)" >> $GITHUB_ENV
+          echo "CCNRF_INO_PROTOCOLS=$(echo $CCNRF_INO_PROTOCOLS)" >> $GITHUB_ENV
           echo "ALL_PROTOCOLS=$(echo $ALL_PROTOCOLS)" >> $GITHUB_ENV
 
           # Get all the RF modules for this board

@@ -4,10 +4,10 @@
 
 #if defined (CC2500_INSTALLED)
 	#include "iface_cc2500.h"
-#endif
-#if defined (NRF24L01_INSTALLED)
+#elif defined (NRF24L01_INSTALLED)
 	#include "iface_nrf24l01.h"
 #endif
+#include "iface_xn297.h"
 
 //XN297L
 static void __attribute__((unused)) XN297L_Init();

@@ -14,7 +14,7 @@
  */
 // compatible with V911S
 
-#if defined(V911S_NRF24L01_INO)
+#if defined(V911S_CCNRF_INO)
 
 #include "iface_nrf250k.h"
 
@@ -144,7 +144,7 @@ uint16_t V911S_callback()
 		if (bind_counter == 0)
 		{
 			BIND_DONE;
-			XN297_SetTXAddr(rx_tx_addr, 5);
+			XN297L_SetTXAddr(rx_tx_addr, 5);
 			packet_period=V911S_PACKET_PERIOD;
 		}
 		else if(bind_counter==100)		// same as original TX...
@@ -193,7 +193,7 @@ void V911S_init(void)
 	}
 	else
 	{
-		XN297_SetTXAddr(rx_tx_addr, 5);
+		XN297L_SetTXAddr(rx_tx_addr, 5);
 		packet_period= V911S_PACKET_PERIOD;
 	}
 	hopping_frequency_no=0;

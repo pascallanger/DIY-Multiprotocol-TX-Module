@@ -102,9 +102,4 @@ enum {
 #define REUSE_TX_PL   0xE3
 //#define NOP           0xFF
 
-// XN297 emulation layer
-enum {
-	XN297_UNSCRAMBLED = 0,
-	XN297_SCRAMBLED
-};
 #endif

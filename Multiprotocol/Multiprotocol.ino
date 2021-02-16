@@ -1075,6 +1075,23 @@ inline void tx_resume()
 	#endif
 }
 
+void rf_switch(uint8_t comp)
+{
+	PE1_off;
+	PE2_off;
+	switch(comp)
+	{
+		case SW_CC2500:
+			PE2_on;
+			break;
+		case SW_CYRF:
+			PE2_on;
+		case SW_NRF:
+			PE1_on;
+			break;
+	}
+}
+
 // Protocol start
 static void protocol_init()
 {
@@ -1144,19 +1161,7 @@ static void protocol_init()
 				//Save index
 				multi_protocols_index = index;
 				//Set the RF switch
-				PE1_off;
-				PE2_off;
-				switch(multi_protocols[multi_protocols_index].rfSwitch)
-				{
-					case SW_CC2500:
-						PE2_on;
-						break;
-					case SW_CYRF:
-						PE2_on;
-					case SW_NRF:
-						PE1_on;
-						break;
-				}
+				rf_switch(multi_protocols[multi_protocols_index].rfSwitch);
 				//Init protocol
 				multi_protocols[multi_protocols_index].Init();
 				//Save call back function address

@@ -277,7 +277,7 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(FY326_NRF24L01_INO)                              
 		{PROTO_FY326,      STR_FY326,     STR_SUBTYPE_FY326,     2, OPTION_NONE,    0, 0, SW_NRF,    FY326_init,      FY326_callback      },
 	#endif
-	#if defined(GD00X_NRF24L01_INO)                              
+	#if defined(GD00X_CCNRF_INO)                              
 		{PROTO_GD00X,      STR_GD00X,     STR_SUBTYPE_GD00X,     2, OPTION_RFTUNE,  0, 0, SW_NRF,    GD00X_init,      GD00X_callback      },
 	#endif
 	#if defined(GW008_NRF24L01_INO)                              
@@ -310,7 +310,7 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(JJRC345_NRF24L01_INO)                            
 		{PROTO_JJRC345,    STR_JJRC345,   STR_SUBTYPE_JJRC345,   2, OPTION_NONE,    0, 0, SW_NRF,    JJRC345_init,    JJRC345_callback    },
 	#endif
-	#if defined(KF606_NRF24L01_INO)                              
+	#if defined(KF606_CCNRF_INO)                              
 		{PROTO_KF606,      STR_KF606,     NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    KF606_init,      KF606_callback      },
 	#endif
 	#if defined(KN_NRF24L01_INO)                                 
@@ -352,7 +352,7 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(Q303_NRF24L01_INO)                               
 		{PROTO_Q303,       STR_Q303,      STR_SUBTYPE_Q303,      4, OPTION_NONE,    0, 0, SW_NRF,    Q303_init,       Q303_callback       },
 	#endif
-	#if defined(Q90C_NRF24L01_INO)                               
+	#if defined(Q90C_CCNRF_INO)                               
 		{PROTO_Q90C,       STR_Q90C,      NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    Q90C_init,       Q90C_callback       },
 	#endif
 	#if defined(RLINK_CC2500_INO)                                
@@ -373,7 +373,7 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(SKYARTEC_CC2500_INO)                             
 		{PROTO_SKYARTEC,   STR_SKYARTEC,  NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 1, SW_CC2500, SKYARTEC_init,   SKYARTEC_callback   },
 	#endif
-	#if defined(SLT_NRF24L01_INO)                                
+	#if defined(SLT_CCNRF_INO)                                
 		{PROTO_SLT,        STR_SLT,       STR_SUBTYPE_SLT,       5, OPTION_RFTUNE,  0, 1, SW_NRF,    SLT_init,        SLT_callback        },
 	#endif
 	#if defined(SYMAX_NRF24L01_INO)                              
@@ -391,7 +391,7 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(V761_NRF24L01_INO)                               
 		{PROTO_V761,       STR_V761,      STR_SUBTYPE_V761,      2, OPTION_NONE,    0, 0, SW_NRF,    V761_init,       V761_callback       },
 	#endif
-	#if defined(V911S_NRF24L01_INO)                              
+	#if defined(V911S_CCNRF_INO)                              
 		{PROTO_V911S,      STR_V911S,     STR_SUBTYPE_V911S,     2, OPTION_RFTUNE,  0, 0, SW_NRF,    V911S_init,      V911S_callback      },
 	#endif
 	#if defined(WK2x01_CYRF6936_INO)                             

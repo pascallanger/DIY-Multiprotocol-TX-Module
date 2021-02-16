@@ -15,6 +15,10 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(OMP_CC2500_INO)
 
+#ifndef NRF24L01_INSTALLED
+	#undef OMP_HUB_TELEMETRY
+#endif
+
 #include "iface_nrf250k.h"
 
 //#define FORCE_OMP_ORIGINAL_ID
@@ -29,11 +33,9 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static void __attribute__((unused)) OMP_send_packet()
 {
-#ifdef OMP_HUB_TELEMETRY
-	if(option==0)
-		prev_option=option=1;							// Select the CC2500 by default
-	PE1_off; PE2_on; 									// CC2500 antenna RF2
-#endif
+	#ifdef OMP_HUB_TELEMETRY
+		rf_switch(SW_CC2500);
+	#endif
 
 	if(IS_BIND_IN_PROGRESS)
 	{
@@ -109,10 +111,6 @@ static void __attribute__((unused)) OMP_send_packet()
 static void __attribute__((unused)) OMP_RF_init()
 {
 	//Config CC2500
-#ifdef OMP_HUB_TELEMETRY
-	if(option==0)
-		prev_option=option=1;					// Select the CC2500
-#endif
 	XN297L_Init();
 	XN297L_SetTXAddr((uint8_t*)"FLPBD", 5);
 	XN297L_HoppingCalib(OMP_RF_NUM_CHANNELS);	// Calibrate all channels
@@ -120,8 +118,9 @@ static void __attribute__((unused)) OMP_RF_init()
 
 #ifdef OMP_HUB_TELEMETRY
 	//Config NRF
-	prev_option=option=0;						// Select the NRF
-	XN297L_Init();
+	rf_switch(SW_NRF);
+	NRF24L01_Initialize();
+	NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC));
 	XN297_SetRXAddr(rx_tx_addr, 5);				// Set the RX address
 	NRF24L01_SetTxRxMode(TXRX_OFF);				// Turn it off for now
@@ -270,7 +269,7 @@ uint16_t OMP_callback()
 				}
 			}
 			NRF_CE_on;
-			PE1_on;PE2_off;						// NRF24L01 antenna RF3
+			rf_switch(SW_NRF);
 			phase = OMP_DATA;
 			return OMP_PACKET_PERIOD-OMP_WRITE_TIME;
 	#endif

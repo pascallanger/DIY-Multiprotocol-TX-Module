@@ -14,7 +14,7 @@ Multiprotocol is distributed in the hope that it will be useful,
  */
 // Compatible with Q90C quad.
 
-#if defined(Q90C_NRF24L01_INO)
+#if defined(Q90C_CCNRF_INO)
 
 #include "iface_nrf250k.h"
 

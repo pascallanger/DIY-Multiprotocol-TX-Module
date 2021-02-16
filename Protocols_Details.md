@@ -353,6 +353,225 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 Option is used to select between WBUS=0 and PPM=1
 
 ***
+# CYRF6936 RF Module
+
+If USE_CYRF6936_CH15_TUNING is enabled, the value of channel 15 is used by all CYRF6936 protocols for tuning the frequency. This is required in rare cases where some CYRF6936 modules and/or RXs have an inaccurate crystal oscillator.
+
+## DEVO - *7*
+Extended limits and failsafe supported
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+RX output will match the Devo standard EATR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+
+Basic telemetry is available if RX supports it: TX_RSSI, A1 (set the ratio to 12.7) and A2 (set the ratio to 12.7)
+
+Bind procedure using serial:
+- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
+- Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
+- Turn on RX (RX LED fast blink).
+- Turn on TX (RX LED solid, TX LED fast blink).
+- Wait for bind on the TX to complete (TX LED solid).
+- Make sure to set a uniq RX_Num value for model match.
+- Change option to 1 to use the global ID.
+- Do not touch option/RX_Num anymore.
+
+Bind procedure using PPM:
+- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
+- Turn on RX (RX LED fast blink).
+- Turn the dial to the model number running protocol DEVO on the module.
+- Press the bind button and turn on the TX. TX is now in autobind mode.
+- Release bind button after 1 second: RX LED solid, TX LED fast blink.
+- Wait for bind on the TX to complete (TX LED solid).
+- Press the bind button for 1 second. TX/RX is now in fixed ID mode.
+- To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
+- Note: Autobind/fixed ID mode is linked to the RX_Num number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
+
+### Sub_protocol 8CH - *0*
+### Sub_protocol 10CH - *1*
+### Sub_protocol 12CH - *2*
+### Sub_protocol 6CH - *3*
+### Sub_protocol 7CH - *4*
+
+## WK2X01 - *30*
+Extended limits supported
+Autobind protocol
+
+Note: RX ouput will always be AETR independently of the input AETR, RETA...
+
+### Sub_protocol WK2801 - *0*
+Failsafe supported.
+
+This roughly corresponds to the number of channels supported, but many of the newer 6-channel receivers actually support the WK2801 protocol. It is recommended to try the WK2801 protocol 1st when working with older Walkera models before attempting the WK2601 or WK2401 mode, as the WK2801 is a superior protocol. The WK2801 protocol supports up to 8 channels.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+Bind procedure using serial:
+- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
+- Turn on the TX, set protocol = WK2X01, sub_protocol = WK2801 with option=0, turn off the TX (TX is now in autobind mode).
+- Turn on RX (RX LED fast blink).
+- Turn on TX (RX LED solid, TX LED fast blink).
+- Wait for bind on the TX to complete (TX LED solid).
+- Make sure to set a uniq RX_Num value for model match.
+- Change option to 1 to use the global ID.
+- Do not touch option/RX_Num anymore.
+
+Bind procedure using PPM:
+- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
+- Turn on RX (RX LED fast blink).
+- Turn the dial to the model number running protocol protocol WK2X01 and sub_protocol WK2801 on the module.
+- Press the bind button and turn on the TX. TX is now in autobind mode.
+- Release bind button after 1 second: RX LED solid, TX LED fast blink.
+- Wait for bind on the TX to complete (TX LED solid).
+- Press the bind button for 1 second. TX/RX is now in fixed ID mode.
+- To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
+- Note: Autobind/fixed ID mode is linked to the RX_Num number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
+
+### Sub_protocol WK2401 - *1*
+The WK2401 protocol is used to control older Walkera models.
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+### Sub_protocol W6_5_1 - *2*
+WK2601 5+1: AIL, ELE, THR, RUD, GYRO (ch 7) are proportional. Gear (ch 5) is binary. Ch 6 is disabled
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|GEAR|DIS|GYRO
+
+### Sub_protocol W6_6_1 - *3*
+WK2601 6+1: AIL, ELE, THR, RUD, COL (ch 6), GYRO (ch 7) are proportional. Gear (ch 5) is binary. **This mode is highly experimental.**
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|GEAR|COL|GYRO
+
+### Sub_protocol W6_HEL - *4* and W6HEL_I - *5*
+WK2601 Heli: AIL, ELE, THR, RUD, GYRO are proportional. Gear (ch 5) is binary. COL (ch 6) is linked to Thr. If Ch6 >= 0, the receiver will apply a 3D curve to the Thr. If Ch6 < 0, the receiver will apply normal curves to the Thr. The value of Ch6 defines the ratio of COL to THR.
+
+W6HEL_I: Invert COL servo
+
+option= maximum range of COL servo
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|GEAR|COL|GYRO
+
+## DSM - *6*
+Extended limits supported
+
+Telemetry enabled for TSSI and plugins
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|CH14
+---|---|---|---|---|---|---|---|---|----|----|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|TH_KILL
+
+Notes:
+ - The "AUTO" sub protocol is recommended to automatically select the best settings for your DSM RX. If the RX doesn't bind or work properly after bind, don't hesitate to test different combinations of sub protocol and number of channels until you have something working.
+ - Servo refresh rate is 22ms unless you select 11ms available in OpenTX 2.3.10+
+ - RX output will match the Spektrum standard TAER independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+ - RX output will match the Spektrum standard throw (1500µs +/- 400µs -> 1100..1900µs) for a 100% input. This is true for both Serial and PPM input. For PPM, make sure the end points PPM_MIN_100 and PPM_MAX_100 in _config.h are matching your TX ouput. The maximum ouput is 1000..2000µs based on an input of 125%.
+    - If you want to override the above and get maximum throw either uncomment in _config.h the line #define DSM_MAX_THROW or on OpenTX 2.3.3+ use the "Enable max throw" feature on the GUI (0=No,1=Yes). In this mode to achieve standard throw use a channel weight of 84%.
+ - TH_KILL is a feature which is enabled on channel 14 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 14 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
+ - To allow SAFE to be ON with a switch assignment you must remove the bind plug after powering up the RX but before turning on the TX to bind. If you select Autodetect to bind, The MPM will choose DSMX 11ms and Channels 1-7 ( Change to 1-9 if you wish to assign switch above channel 7 ). Then in order to use the manuals diagram of both sticks "Down-Inside" to set a SAFE Select Switch Designation, you must have Throttle and Elevator channels set to Normal direction but the Aileron and Rudder set to Reverse direction. If setting up a new model with all channels set to Normal you can hold both sticks "Down- OUTSIDE" to assign the switch with 5x flips. Tested on a Mode2 radio.
+ 
+Option=number of channels from 3 to 12. Option|0x80 enables Max Throw. Option|0x40 enables a servo refresh rate of 11ms.
+
+### Sub_protocol DSM2_1F - *0*
+DSM2, Resolution 1024, servo refresh rate can only be 22ms
+### Sub_protocol DSM2_2F - *1*
+DSM2, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
+### Sub_protocol DSMX_1F - *2*
+DSMX, Resolution 2048, servo refresh rate can only be 22ms
+### Sub_protocol DSMX_2F - *3*
+DSMX, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
+### Sub_protocol AUTO - *4*
+"AUTO" is recommended to automatically select the best settings for your DSM RX.
+
+## DSM_RX - *70*
+The DSM receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
+
+Notes:
+ - Automatically detect DSM 2/X 11/22ms 1024/2048res
+ - Bind should be done with all other modules off in the radio
+ - Available in OpenTX 2.3.3+, Trainer Mode Master/Multi
+ - Channels 1..4 are remapped to the module default channel order unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+ - Extended limits supported
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+## E010R5 - *81*
+Models: E010 R5 red boards, JJRC H36, H36F and H36S
+
+**Only 4 IDs are available**. More IDs can be added if you send me your "unused" original TX.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|CALIB|HEADLESS|RTH|GLIDE
+
+## E129 - *83*
+Models: Eachine E129/E130 and Twister Ninja 250
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|Take off/Land|Emergency|Trim A|Trim E|Trim R
+
+Trims can be done to some extent on the AETR channels directly but if you push them too far you won't be able to arm like explained below. In this case use the associated trim TrimA/E/R instead.
+
+Take off with a none spring throttle is easier by putting both sticks down outwards (like on the original radio) in Mode 1/2, not sure about other modes.
+
+Calib is the same as the original radio with both sticks down and to the left in Mode 1/2, not sure about other modes.
+
+## J6Pro - *22*
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+## MLINK - *78*
+Extended limits supported
+
+Bind: the RX must be really close to the TX
+
+**Failsafe MUST be configured once with the desired channel values (hold or no pulses are not supported) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
+
+Telemetry: the 2 RXs I have are sending different information in different format
+- RX-5: RX_RSSI=RSSI=sort of RSSI or link quality, RX_LQI=number of connection lost, TX_RSSI=RSSI from the TX perspective, TX_LQI=percentage of received telemetry packets
+- RX-9-DR: A1=RX Batt (Ratio=12.7), **RX_RSSI=TX_LQI**=percentage of received telemetry packets **from the TX** perspective **not RX**, TX_RSSI=RSSI from the TX perspective, TX_LQI=percentage of received telemetry packets
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
+## Traxxas - *43*
+Receiver 6519
+
+Extended limits supported
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+AUX3|AUX4|THROTTLE|STEERING
+
+## WFLY - *40*
+Receivers: WFR04S, WFR07S, WFR09S
+
+Extended limits supported
+
+option=number of channels from 4 to 9. An invalid option value will end up sending 9 channels.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+
+***
 # CC2500 RF Module
 
 ## CORONA - *37*
@@ -622,6 +841,28 @@ Recommended for best telemetry performance.
 Telemetry compatibility mode when Sync does not work due to an old firmware on the RX.
 You should definitively upgrade your receivers/sensors to the latest firmware versions: https://www.rcgroups.com/forums/showpost.php?p=44668015&postcount=18022
 
+## OMP - *77*
+Model: OMPHOBBY M1 & M2 Helis, T720 RC Glider
+
+Telemetry is supported only if a NRF24L01 RF component is installed:
+- A1 = battery voltage including "recovered" battery voltage from corrupted telemetry packets
+- A2 = battery voltage from only good telemetry packets
+- How to calculate accurately the OpenTX Ratio and Offset:
+Set the Ratio to 12.7 and Offset to 0, plug 2 batteries with extreme voltage values, write down the values Batt1=12.5V & Telem1=12.2V, Batt2=7V & Telem2=6.6V then calculate/set Ratio=12.7*[(12.5-7)/(12.2-6.6)]=12.47 => 12.5 and Offset=12.5-12.2*[(12.5-7)/(12.2-6.6)]=0.517 => 0.5
+- RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) from the model which has nothing to do with how well the RX is receiving the TX
+
+Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T_PITCH|R|T_HOLD|IDLE|MODE
+
+IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
+
+From the TX manual: MODE= 3 pos switch -100% Attitude, 0% Attitude(?), +100% 3D
+For M2: MODE= 3 pos switch -100% 6G, 0% 3D, +100% 3D
+
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.
 
@@ -680,223 +921,128 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
 A|E|T|R|CH5|CH6|CH7
 
 ***
-# CYRF6936 RF Module
+# CC2500 and/or NRF24L01 RF Module(s)
 
-If USE_CYRF6936_CH15_TUNING is enabled, the value of channel 15 is used by all CYRF6936 protocols for tuning the frequency. This is required in rare cases where some CYRF6936 modules and/or RXs have an inaccurate crystal oscillator.
+If a CC2500 is installed it will be used for all the below protocols. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
-## DEVO - *7*
-Extended limits and failsafe supported
+If only a NRF24L01 is installed then these protocols might be problematic because they are using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+## GD00X - *47*
+Model: GD005 C-17 Transport, GD006 DA62 and ZC-Z50
 
-RX output will match the Devo standard EATR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A||T||TRIM|LED|RATE
 
-Basic telemetry is available if RX supports it: TX_RSSI, A1 (set the ratio to 12.7) and A2 (set the ratio to 12.7)
+TRIM: either use this channel for trim only or add a mixer with aileron to increase the roll rate.
 
-Bind procedure using serial:
-- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
-- Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
-- Turn on RX (RX LED fast blink).
-- Turn on TX (RX LED solid, TX LED fast blink).
-- Wait for bind on the TX to complete (TX LED solid).
-- Make sure to set a uniq RX_Num value for model match.
-- Change option to 1 to use the global ID.
-- Do not touch option/RX_Num anymore.
+RATE: -100% high rate, +100% low rate
 
-Bind procedure using PPM:
-- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
-- Turn on RX (RX LED fast blink).
-- Turn the dial to the model number running protocol DEVO on the module.
-- Press the bind button and turn on the TX. TX is now in autobind mode.
-- Release bind button after 1 second: RX LED solid, TX LED fast blink.
-- Wait for bind on the TX to complete (TX LED solid).
-- Press the bind button for 1 second. TX/RX is now in fixed ID mode.
-- To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
-- Note: Autobind/fixed ID mode is linked to the RX_Num number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
+### Sub_protocol GD_V1 - *0*
+First generation of GD models, ZC-Z50
 
-### Sub_protocol 8CH - *0*
-### Sub_protocol 10CH - *1*
-### Sub_protocol 12CH - *2*
-### Sub_protocol 6CH - *3*
-### Sub_protocol 7CH - *4*
+### Sub_protocol GD_V2 - *1*
+New generation of GD models
 
-## WK2X01 - *30*
-Extended limits supported
+## KF606 - *49*
+Model: KF606
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A||T||TRIM
+
+## Q90C - *72*
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|FMODE|VTX+
+
+FMODE: -100% angle, 0% horizon, +100% acro
+VTX+: -100%->+100% channel+
+
+## SLT - *11*
 Autobind protocol
 
-Note: RX ouput will always be AETR independently of the input AETR, RETA...
+### Sub_protocol V1 - *0*
 
-### Sub_protocol WK2801 - *0*
-Failsafe supported.
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|GEAR|PITCH
 
-This roughly corresponds to the number of channels supported, but many of the newer 6-channel receivers actually support the WK2801 protocol. It is recommended to try the WK2801 protocol 1st when working with older Walkera models before attempting the WK2601 or WK2401 mode, as the WK2801 is a superior protocol. The WK2801 protocol supports up to 8 channels.
+### Sub_protocol V2 - *1*
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
 
-Bind procedure using serial:
-- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
-- Turn on the TX, set protocol = WK2X01, sub_protocol = WK2801 with option=0, turn off the TX (TX is now in autobind mode).
-- Turn on RX (RX LED fast blink).
-- Turn on TX (RX LED solid, TX LED fast blink).
-- Wait for bind on the TX to complete (TX LED solid).
-- Make sure to set a uniq RX_Num value for model match.
-- Change option to 1 to use the global ID.
-- Do not touch option/RX_Num anymore.
+### Sub_protocol Q100 - *2*
+Models: Dromida Ominus UAV
 
-Bind procedure using PPM:
-- With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
-- Turn on RX (RX LED fast blink).
-- Turn the dial to the model number running protocol protocol WK2X01 and sub_protocol WK2801 on the module.
-- Press the bind button and turn on the TX. TX is now in autobind mode.
-- Release bind button after 1 second: RX LED solid, TX LED fast blink.
-- Wait for bind on the TX to complete (TX LED solid).
-- Press the bind button for 1 second. TX/RX is now in fixed ID mode.
-- To verify that the TX is in fixed mode: power cycle the TX, the module LED should be solid ON (no blink).
-- Note: Autobind/fixed ID mode is linked to the RX_Num number. Which means that you can have multiple dial numbers set to the same protocol DEVO with different RX_Num and have different bind modes at the same time. It enables PPM users to get model match under DEVO.
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|-|-|CALIB
 
-### Sub_protocol WK2401 - *1*
-The WK2401 protocol is used to control older Walkera models.
+RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
 
-CH1|CH2|CH3|CH4
----|---|---|---
-A|E|T|R
+CH7 and CH8 have no visible effect
 
-### Sub_protocol W6_5_1 - *2*
-WK2601 5+1: AIL, ELE, THR, RUD, GYRO (ch 7) are proportional. Gear (ch 5) is binary. Ch 6 is disabled
+MODE: -100% level, +100% acro
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|GEAR|DIS|GYRO
+FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
 
-### Sub_protocol W6_6_1 - *3*
-WK2601 6+1: AIL, ELE, THR, RUD, COL (ch 6), GYRO (ch 7) are proportional. Gear (ch 5) is binary. **This mode is highly experimental.**
+CALIB: -100% normal mode, +100% gyro calibration
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|GEAR|COL|GYRO
+### Sub_protocol Q200 - *3*
+Model: Dromida Ominus Quadcopter FPV, the Nine Eagles - FENG FPV and may be others
 
-### Sub_protocol W6_HEL - *4* and W6HEL_I - *5*
-WK2601 Heli: AIL, ELE, THR, RUD, GYRO are proportional. Gear (ch 5) is binary. COL (ch 6) is linked to Thr. If Ch6 >= 0, the receiver will apply a 3D curve to the Thr. If Ch6 < 0, the receiver will apply normal curves to the Thr. The value of Ch6 defines the ratio of COL to THR.
+Dromida Ominus FPV channels mapping:
 
-W6HEL_I: Invert COL servo
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VID_ON|VID_OFF|CALIB
 
-option= maximum range of COL servo
+FENG FPV: channels mapping:
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|GEAR|COL|GYRO
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|FLIP|MODE|VID_ON|VID_OFF|CALIB
 
-## DSM - *6*
-Extended limits supported
+RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
 
-Telemetry enabled for TSSI and plugins
+CH7 and CH8 have no visible effect
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|CH14
----|---|---|---|---|---|---|---|---|----|----|----|----|----
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|TH_KILL
+MODE: -100% level, +100% acro
 
-Notes:
- - The "AUTO" sub protocol is recommended to automatically select the best settings for your DSM RX. If the RX doesn't bind or work properly after bind, don't hesitate to test different combinations of sub protocol and number of channels until you have something working.
- - Servo refresh rate is 22ms unless you select 11ms available in OpenTX 2.3.10+
- - RX output will match the Spektrum standard TAER independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
- - RX output will match the Spektrum standard throw (1500µs +/- 400µs -> 1100..1900µs) for a 100% input. This is true for both Serial and PPM input. For PPM, make sure the end points PPM_MIN_100 and PPM_MAX_100 in _config.h are matching your TX ouput. The maximum ouput is 1000..2000µs based on an input of 125%.
-    - If you want to override the above and get maximum throw either uncomment in _config.h the line #define DSM_MAX_THROW or on OpenTX 2.3.3+ use the "Enable max throw" feature on the GUI (0=No,1=Yes). In this mode to achieve standard throw use a channel weight of 84%.
- - TH_KILL is a feature which is enabled on channel 14 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 14 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
- - To allow SAFE to be ON with a switch assignment you must remove the bind plug after powering up the RX but before turning on the TX to bind. If you select Autodetect to bind, The MPM will choose DSMX 11ms and Channels 1-7 ( Change to 1-9 if you wish to assign switch above channel 7 ). Then in order to use the manuals diagram of both sticks "Down-Inside" to set a SAFE Select Switch Designation, you must have Throttle and Elevator channels set to Normal direction but the Aileron and Rudder set to Reverse direction. If setting up a new model with all channels set to Normal you can hold both sticks "Down- OUTSIDE" to assign the switch with 5x flips. Tested on a Mode2 radio.
- 
-Option=number of channels from 3 to 12. Option|0x80 enables Max Throw. Option|0x40 enables a servo refresh rate of 11ms.
+FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
 
-### Sub_protocol DSM2_1F - *0*
-DSM2, Resolution 1024, servo refresh rate can only be 22ms
-### Sub_protocol DSM2_2F - *1*
-DSM2, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
-### Sub_protocol DSMX_1F - *2*
-DSMX, Resolution 2048, servo refresh rate can only be 22ms
-### Sub_protocol DSMX_2F - *3*
-DSMX, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
-### Sub_protocol AUTO - *4*
-"AUTO" is recommended to automatically select the best settings for your DSM RX.
+CALIB: -100% normal mode, +100% gyro calibration
 
-## DSM_RX - *70*
-The DSM receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
-
-Notes:
- - Automatically detect DSM 2/X 11/22ms 1024/2048res
- - Bind should be done with all other modules off in the radio
- - Available in OpenTX 2.3.3+, Trainer Mode Master/Multi
- - Channels 1..4 are remapped to the module default channel order unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
- - Extended limits supported
+### Sub_protocol MR100 - *4*
+Models: Vista UAV, FPV, FPV v2
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|----|----|----
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VIDEO|PICTURE
 
-## E010R5 - *81*
-Models: E010 R5 red boards, JJRC H36, H36F and H36S
+RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
 
-**Only 4 IDs are available**. More IDs can be added if you send me your "unused" original TX.
+CH7 and CH8 have no visible effect
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|CALIB|HEADLESS|RTH|GLIDE
+FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
 
-## E129 - *83*
-Models: Eachine E129/E130 and Twister Ninja 250
+MODE: -100% level, +100% acro
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|Take off/Land|Emergency|Trim A|Trim E|Trim R
+## V911S - *46*
 
-Trims can be done to some extent on the AETR channels directly but if you push them too far you won't be able to arm like explained below. In this case use the associated trim TrimA/E/R instead.
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|CALIB
 
-Take off with a none spring throttle is easier by putting both sticks down outwards (like on the original radio) in Mode 1/2, not sure about other modes.
+### Sub_protocol V911S - *0*
+Models: WLtoys V911S, XK A110
 
-Calib is the same as the original radio with both sticks down and to the left in Mode 1/2, not sure about other modes.
-
-## J6Pro - *22*
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|----|----|----
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
-
-## MLINK - *78*
-Extended limits supported
-
-Bind: the RX must be really close to the TX
-
-**Failsafe MUST be configured once with the desired channel values (hold or no pulses are not supported) while the RX is up (wait 10+sec for the RX to learn the config) and then failsafe MUST be set to RX/Receiver otherwise the servos will jitter!!!**
-
-Telemetry: the 2 RXs I have are sending different information in different format
-- RX-5: RX_RSSI=RSSI=sort of RSSI or link quality, RX_LQI=number of connection lost, TX_RSSI=RSSI from the TX perspective, TX_LQI=percentage of received telemetry packets
-- RX-9-DR: A1=RX Batt (Ratio=12.7), **RX_RSSI=TX_LQI**=percentage of received telemetry packets **from the TX** perspective **not RX**, TX_RSSI=RSSI from the TX perspective, TX_LQI=percentage of received telemetry packets
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
----|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
-
-## Traxxas - *43*
-Receiver 6519
-
-Extended limits supported
-
-CH1|CH2|CH3|CH4
----|---|---|---
-AUX3|AUX4|THROTTLE|STEERING
-
-## WFLY - *40*
-Receivers: WFR04S, WFR07S, WFR09S
-
-Extended limits supported
-
-option=number of channels from 4 to 9. An invalid option value will end up sending 9 channels.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+### Sub_protocol E119 - *1*
+Models: Eachine E119
 
 ***
 # NRF24L01 RF Module
@@ -1173,27 +1319,6 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|RTH|HEADLESS|EXPERT
 
-## GD00X - *47*
-Model: GD005 C-17 Transport, GD006 DA62 and ZC-Z50
-
-This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
-
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A||T||TRIM|LED|RATE
-
-TRIM: either use this channel for trim only or add a mixer with aileron to increase the roll rate.
-
-RATE: -100% high rate, +100% low rate
-
-### Sub_protocol GD_V1 - *0*
-First generation of GD models, ZC-Z50
-
-### Sub_protocol GD_V2 - *1*
-New generation of GD models
-
 ## GW008 - *32*
 Model: Global Drone GW008 from Banggood
 
@@ -1290,17 +1415,6 @@ Model: DF-Models SkyTumbler
 
 RTH not supported
 
-## KF606 - *49*
-Model: KF606
-
-This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
-
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-CH1|CH2|CH3|CH4|CH5
----|---|---|---|---
-A||T||TRIM
-
 ## LOLI - *82*
 LOLI3 receivers: https://github.com/wooddoor/Loli3
 
@@ -1345,9 +1459,9 @@ Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
 ### Sub_protocol E010 - *4*
 15 TX IDs available, change RX_Num value 0..14 to cycle through them
 
-This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
 ### Sub_protocol H26WH - *5*
 CH6|
@@ -1377,9 +1491,9 @@ Model: Yi Zhan i6S
 
 Only one model can be flown at the same time since the ID is hardcoded.
 
-This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
 ### Sub_protocol LS - *3*
 Models: LS114, 124, 215
@@ -1425,30 +1539,6 @@ Only 9 IDs available, cycle through them using RX_Num.
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|Warp
-
-## OMP - *77*
-Model: OMPHOBBY M1 & M2 Helis, T720 RC Glider
-
-This protocol requires both a NRF24L01 and CC2500 RF components to operate.
-
-Telemetry supported:
-- A1 = battery voltage including "recovered" battery voltage from corrupted telemetry packets
-- A2 = battery voltage from only good telemetry packets
-- How to calculate accurately the OpenTX Ratio and Offset:
-Set the Ratio to 12.7 and Offset to 0, plug 2 batteries with extreme voltage values, write down the values Batt1=12.5V & Telem1=12.2V, Batt2=7V & Telem2=6.6V then calculate/set Ratio=12.7*[(12.5-7)/(12.2-6.6)]=12.47 => 12.5 and Offset=12.5-12.2*[(12.5-7)/(12.2-6.6)]=0.517 => 0.5
-- RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) from the model which has nothing to do with how well the RX is receiving the TX
-
-Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
-Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T_PITCH|R|T_HOLD|IDLE|MODE
-
-IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
-
-From the TX manual: MODE= 3 pos switch -100% Attitude, 0% Attitude(?), +100% 3D
-For M2: MODE= 3 pos switch -100% 6G, 0% 3D, +100% 3D
 
 ## Potensic - *51*
 Model: Potensic A20
@@ -1501,9 +1591,9 @@ A|E|T|R
 
 ### Sub_protocol Q303 - *0*
 
-This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---
@@ -1538,19 +1628,6 @@ ARM|FLIP
 
 ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
 
-## Q90C - *72*
-
-This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
-
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|FMODE|VTX+
-
-FMODE: -100% angle, 0% horizon, +100% acro
-VTX+: -100%->+100% channel+
-
 ## Realacc - *76*
 Model: Realacc R11
 
@@ -1580,82 +1657,6 @@ CH1|CH2|CH3|CH4
 -|-|T|R
 
 Throttle +100%=full forward,0%=stop,-100%=full backward.
-
-## SLT - *11*
-Autobind protocol
-
-This protocol is known to be problematic because it's using the NRF24L01 with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is a hardware issue with the accuracy of the components. (some Jumper models seem to be using a NRF24L01 clone)
-
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-### Sub_protocol V1 - *0*
-
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|GEAR|PITCH
-
-### Sub_protocol V2 - *1*
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8
-
-### Sub_protocol Q100 - *2*
-Models: Dromida Ominus UAV
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|-|-|CALIB
-
-RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
-
-CH7 and CH8 have no visible effect
-
-MODE: -100% level, +100% acro
-
-FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
-
-CALIB: -100% normal mode, +100% gyro calibration
-
-### Sub_protocol Q200 - *3*
-Model: Dromida Ominus Quadcopter FPV, the Nine Eagles - FENG FPV and may be others
-
-Dromida Ominus FPV channels mapping:
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VID_ON|VID_OFF|CALIB
-
-FENG FPV: channels mapping:
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|RATES|-|CH7|CH8|FLIP|MODE|VID_ON|VID_OFF|CALIB
-
-RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
-
-CH7 and CH8 have no visible effect
-
-MODE: -100% level, +100% acro
-
-FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
-
-CALIB: -100% normal mode, +100% gyro calibration
-
-### Sub_protocol MR100 - *4*
-Models: Vista UAV, FPV, FPV v2
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|RATES|-|CH7|CH8|MODE|FLIP|VIDEO|PICTURE
-
-RATES takes any value between -50..+50%: -50%=min rates, 0%=mid rates (stock setting), +50%=max rates
-
-CH7 and CH8 have no visible effect
-
-FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
-
-MODE: -100% level, +100% acro
 
 ## Symax - *10*
 Autobind protocol
@@ -1739,21 +1740,6 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 A|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
 
 
-## V911S - *46*
-This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
-
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-CH1|CH2|CH3|CH4|CH5
----|---|---|---|---
-A|E|T|R|CALIB
-
-### Sub_protocol V911S - *0*
-Models: WLtoys V911S, XK A110
-
-### Sub_protocol E119 - *1*
-Models: Eachine E119
-
 ## XK - *62*
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
@@ -1765,9 +1751,9 @@ Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary swi
 ### Sub_protocol X450 - *0*
 Models: XK X450 (TX=X8)
 
-This protocol is known to be problematic because it's using the xn297L emulation with a transmission speed of 250kbps therefore it doesn't work very well with every modules, this is an hardware issue with the accuracy of the components.
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
-If the model does not respond well to inputs or hard to bind, you can try to switch the emulation from the default NRF24L01 RF component to the CC2500 by using an option value (freq tuning) different from 0. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
 ### Sub_protocol X420 - *1*
 Models: XK X420/X520 (TX=X4)

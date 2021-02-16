@@ -212,8 +212,6 @@ uint16_t XK_callback()
 
 void XK_init()
 {
-	if(sub_protocol==X420)
-		option=prev_option=0;													// Forcing the use of NRF24L01@1Mbps
 	BIND_IN_PROGRESS;															// Autobind protocol
 	XK_initialize_txid();
 	XK_RF_init();

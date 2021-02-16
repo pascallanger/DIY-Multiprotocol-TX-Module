@@ -12,65 +12,42 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifdef NRF24L01_INSTALLED
+#if defined(CC2500_INSTALLED) || defined(NRF24L01_INSTALLED)
+
 #include "iface_nrf250k.h"
+#include "iface_xn297.h"
 
 static void __attribute__((unused)) XN297L_Init()
 {
-	prev_option = option;
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{//NRF
-		debugln("Using NRF");
-		PE1_on;							//NRF24L01 antenna RF3 by default
-		PE2_off;						//NRF24L01 antenna RF3 by default
-		NRF24L01_Initialize();
-		NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps
-		return;
-	}
 	//CC2500
-	#ifdef CC2500_INSTALLED
+	#if defined(CC2500_INSTALLED)
 		debugln("Using CC2500");
 		xn297_scramble_enabled=XN297_SCRAMBLED;	//enabled by default
-		PE1_off; // antenna RF2
-		PE2_on;
+		rf_switch(SW_CC2500);
 		CC2500_250K_Init();
+	#elif defined(NRF24L01_INSTALLED)
+		debugln("Using NRF");
+		rf_switch(SW_NRF);
+		NRF24L01_Initialize();
+		NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps
 	#endif
 }
 
 static void __attribute__((unused)) XN297L_SetTXAddr(const uint8_t* addr, uint8_t len)
 {
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{//NRF
-		XN297_SetTXAddr(addr,len);
-		return;
-	}
-	//CC2500
-	#ifdef CC2500_INSTALLED
+	#if defined(CC2500_INSTALLED)
 		if (len > 5) len = 5;
 		if (len < 3) len = 3;
 		xn297_addr_len = len;
 		memcpy(xn297_tx_addr, addr, len);
+	#elif defined(NRF24L01_INSTALLED)
+		XN297_SetTXAddr(addr,len);
 	#endif
 }
 
 static void __attribute__((unused)) XN297L_WritePayload(uint8_t* msg, uint8_t len)
 {
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{//NRF
-		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-		NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-		NRF24L01_FlushTx();
-		XN297_WritePayload(msg, len);
-		return;
-	}
-	//CC2500
-	#ifdef CC2500_INSTALLED
+	#if defined(CC2500_INSTALLED)
 		uint8_t buf[32];
 		uint8_t last = 0;
 		uint8_t i;
@@ -116,23 +93,17 @@ static void __attribute__((unused)) XN297L_WritePayload(uint8_t* msg, uint8_t le
 		CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buf, last);
 		// transmit
 		CC2500_Strobe(CC2500_STX);
+	#elif defined(NRF24L01_INSTALLED)
+		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+		NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+		NRF24L01_FlushTx();
+		XN297_WritePayload(msg, len);
 	#endif
 }
 
 static void __attribute__((unused)) XN297L_WriteEnhancedPayload(uint8_t* msg, uint8_t len, uint8_t noack)
 {
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{//NRF
-		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-		NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-		NRF24L01_FlushTx();
-		XN297_WriteEnhancedPayload(msg, len, noack);
-		return;
-	}
-	//CC2500
-	#ifdef CC2500_INSTALLED
+	#if defined(CC2500_INSTALLED)
 		uint8_t buf[32];
 		uint8_t scramble_index=0;
 		uint8_t last = 0;
@@ -204,75 +175,54 @@ static void __attribute__((unused)) XN297L_WriteEnhancedPayload(uint8_t* msg, ui
 		CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buf, last);
 		// transmit
 		CC2500_Strobe(CC2500_STX);
+	#elif defined(NRF24L01_INSTALLED)
+		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+		NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+		NRF24L01_FlushTx();
+		XN297_WriteEnhancedPayload(msg, len, noack);
 	#endif
 }
 
 static void __attribute__((unused)) XN297L_HoppingCalib(uint8_t num_freq)
 {	//calibrate hopping frequencies
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-		return;		//NRF
-	#ifdef CC2500_INSTALLED
+	#if defined(CC2500_INSTALLED)
 		CC2500_250K_HoppingCalib(num_freq);
+	#elif defined(NRF24L01_INSTALLED)
+		(void)num_freq;
 	#endif
 }
 
 static void __attribute__((unused)) XN297L_Hopping(uint8_t index)
 {
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{//NRF
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[index]);
-		return;
-	}
-	#ifdef CC2500_INSTALLED
+	#if defined(CC2500_INSTALLED)
 		CC2500_250K_Hopping(index);
+	#elif defined(NRF24L01_INSTALLED)
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[index]);
 	#endif
 }
 
 static void __attribute__((unused)) XN297L_RFChannel(uint8_t number)
 {	//change channel
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{//NRF
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, number);
-		return;
-	}
-	#ifdef CC2500_INSTALLED
+	#if defined(CC2500_INSTALLED)
 		CC2500_250K_RFChannel(number);
+	#elif defined(NRF24L01_INSTALLED)
+		NRF24L01_WriteReg(NRF24L01_05_RF_CH, number);
 	#endif
 }
 
 static void __attribute__((unused)) XN297L_SetPower()
 {
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{//NRF
-		NRF24L01_SetPower();
-		return;
-	}
-	#ifdef CC2500_INSTALLED
+	#if defined(CC2500_INSTALLED)
 		CC2500_SetPower();
+	#elif defined(NRF24L01_INSTALLED)
+		NRF24L01_SetPower();
 	#endif
 }
 
 static void __attribute__((unused)) XN297L_SetFreqOffset()
 {	// Frequency offset
-	#ifdef CC2500_INSTALLED
-	if(option==0 && prev_option==0)
-	#endif
-		return;		//NRF
-	#ifdef CC2500_INSTALLED
-		if (prev_option != option)
-		{
-			if(prev_option==0 || option==0)
-				CHANGE_PROTOCOL_FLAG_on;	// switch from NRF <-> CC2500
-			CC2500_SetFreqOffset();
-		}
+	#if defined(CC2500_INSTALLED)
+		CC2500_SetFreqOffset();
 	#endif
 }
 
@@ -280,46 +230,31 @@ static void __attribute__((unused)) NRF250K_SetTXAddr(uint8_t* addr, uint8_t len
 {
 	if (len > 5) len = 5;
 	if (len < 3) len = 3;
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{//NRF
+	#if defined(CC2500_INSTALLED)
+		CC2500_250K_NRF_SetTXAddr(addr, len);
+	#elif defined(NRF24L01_INSTALLED)
 		NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, len-2);
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, len);
-		return;
-	}
-	//CC2500
-	#ifdef CC2500_INSTALLED
-		CC2500_250K_NRF_SetTXAddr(addr, len);
 	#endif
 }
 
 static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t len)
 {
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{//NRF
+	#if defined(CC2500_INSTALLED)
+		CC2500_250K_NRF_WritePayload(msg, len);
+	#elif defined(NRF24L01_INSTALLED)
 		NRF24L01_FlushTx();
 		NRF24L01_WriteReg(NRF24L01_07_STATUS, _BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_RX_DR) | _BV(NRF24L01_07_MAX_RT));
 		NRF24L01_WritePayload(msg, len);
-		return;
-	}
-	//CC2500
-	#ifdef CC2500_INSTALLED
-		CC2500_250K_NRF_WritePayload(msg, len);
 	#endif
 }
 
 static boolean __attribute__((unused)) NRF250K_IsPacketSent()
 {
-	#ifdef CC2500_INSTALLED
-	if(option==0)
-	#endif
-	{	//NRF
+	#if defined(CC2500_INSTALLED)
+		return true;	// don't know on the CC2500 how to detect if the packet has been transmitted...
+	#elif defined(NRF24L01_INSTALLED)
 		return NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS);
-	}
-	return true;	// don't know on the CC2500 how to detect if the packet has been transmitted...
+	#endif
 }
-
 #endif

@@ -14,7 +14,7 @@ Multiprotocol is distributed in the hope that it will be useful,
  */
 // Compatible with GD005 C-17 and GD006 DA62 planes.
 
-#if defined(GD00X_NRF24L01_INO)
+#if defined(GD00X_CCNRF_INO)
 
 #include "iface_nrf250k.h"
 

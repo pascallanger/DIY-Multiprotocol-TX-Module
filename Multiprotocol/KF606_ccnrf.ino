@@ -14,7 +14,7 @@ Multiprotocol is distributed in the hope that it will be useful,
  */
 // Compatible with KF606 plane.
 
-#if defined(KF606_NRF24L01_INO)
+#if defined(KF606_CCNRF_INO)
 
 #include "iface_nrf250k.h"
 
@@ -93,7 +93,7 @@ uint16_t KF606_callback()
 		if(--bind_counter==0)
 		{
 			BIND_DONE;
-			XN297_SetTXAddr(rx_tx_addr, 3);
+			XN297L_SetTXAddr(rx_tx_addr, 3);
 		}
 	KF606_send_packet();
 	return KF606_PACKET_PERIOD;

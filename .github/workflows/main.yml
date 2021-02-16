@@ -101,6 +101,7 @@ jobs:
           echo "CYRF6936_PROTOCOLS=$(echo $CYRF6936_PROTOCOLS)" >> $GITHUB_ENV
           echo "NRF24L01_PROTOCOLS=$(echo $NRF24L01_PROTOCOLS)" >> $GITHUB_ENV
           echo "SX1276_PROTOCOLS=$(echo $SX1276_PROTOCOLS)" >> $GITHUB_ENV
+          echo "CCNRF_INO_PROTOCOLS=$(echo $CCNRF_INO_PROTOCOLS)" >> $GITHUB_ENV
           echo "ALL_PROTOCOLS=$(echo $ALL_PROTOCOLS)" >> $GITHUB_ENV
 
           # Get all the RF modules for this board
@@ -115,7 +116,7 @@ jobs:
           # Trim the build down for the Atmega328p board
           if [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:" ]]; then
             opt_disable $ALL_PROTOCOLS
-            opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO H8_3D_NRF24L01_INO DSM_CYRF6936_INO;
+            opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
           fi
 
           # Trim the enabled protocols down for the STM32F103CB board with debugging or the STM32F103C8 board in general

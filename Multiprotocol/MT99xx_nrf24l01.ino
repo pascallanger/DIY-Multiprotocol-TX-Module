@@ -18,7 +18,7 @@
 #if defined(MT99XX_NRF24L01_INO)
 
 #include "iface_nrf24l01.h"
-#include "iface_xn297.h"
+#include "iface_nrf250k.h"
 
 #define MT99XX_BIND_COUNT			928
 #define MT99XX_PACKET_PERIOD_FY805	2460
@@ -88,6 +88,10 @@ const uint8_t ls_mys_byte[] = {
 };
 
 const uint8_t yz_p4_seq[] = {0xa0, 0x20, 0x60};
+
+#ifdef DRAGON_HUB_TELEMETRY
+	const uint8_t DRAGON_seq[] = {0x20, 0x60, 0x20, 0x80};
+#endif
 
 static void __attribute__((unused)) MT99XX_send_packet()
 {
@@ -185,9 +189,30 @@ static void __attribute__((unused)) MT99XX_send_packet()
 							packet[5] |= 0x40;
 					packet[6] = FLAG_DRAGON_RATE
 						| GET_FLAG( CH6_SW, FLAG_DRAGON_RTH );
-					//packet[6] |= 0x04;								// On the 1st rf channel, 1x4, 11x0, 2x4, 11x0, 2x4, 10x0, 2x4, 11x0, 2x4, 11x0, 2x4, 10x0, 2x4, 11x0, 2x4, 11x0 and restart... Not sure what's on the other channels
-					packet[7]  = 0x20;								// On the 1st rf channel, seq: 20 80 20 60 20 80 20 60... Not sure what's on the other channels
-					break;	
+					
+					#ifdef DRAGON_HUB_TELEMETRY
+						//Telemetry
+						// C=48 S=Y A= 6C 00 22 CC CC P(9)= 6C 00 22 27 00 00 00 00 60
+						// C=48 S=Y A= 6C 00 22 CC CC P(9)= 6C 00 22 28 00 00 00 00 61
+						// C=18 S=Y A= 6C 00 22 CC CC P(9)= 6C 00 22 24 00 00 00 00 5D
+						// 6C 00 22 = TX address, 27/28/24=vbatt, check = sum(P[0..7]) + AB, where AB comes from? Is it constant?
+						if(hopping_frequency_no == 0)
+						{
+							seq_num++;
+							seq_num &= 0x03;
+							packet_count++;
+							if(packet_count > 11)
+								packet_count = 0;
+						}
+						if(packet_count > 10)						// Telemetry packet request every 10 or 11 packets
+							packet[6] |= 0x04;						// Request telemetry flag
+						packet[7] = DRAGON_seq[seq_num];			// seq: 20 80 20 60 20 80 20 60... 80 changes to 80+batt from telem
+						if(seq_num==3)
+							packet[7] |= v_lipo1;
+						break;
+					#else
+						packet[7] = 0x20;
+					#endif
 			}
 			uint8_t result=crc8;
 			for(uint8_t i=0; i<8; i++)
@@ -296,8 +321,8 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 			rx_tx_addr[0] = 0x6C;	// Laurie ID
 			rx_tx_addr[1] = 0x00;
 			rx_tx_addr[2] = 0x22;
-			//crc8 = 0x
-			//channel_offset  = 0x
+			//crc8 = 0x8E
+			//channel_offset  = 0x06
 			break;
 	#endif
 		default: //MT99 & H7 & A180 & DRAGON

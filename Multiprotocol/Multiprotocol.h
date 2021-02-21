@@ -735,8 +735,8 @@ enum CYRF_POWER
 #define	CYRF_BIND_POWER		CYRF_POWER_0
 
 // SX1276
-#define JP_T18		0
-#define JP_TLite	1
+#define JP_T18		1
+#define JP_TLite	2
 
 enum TXRX_State {
 	TXRX_OFF,

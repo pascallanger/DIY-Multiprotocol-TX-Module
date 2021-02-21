@@ -205,7 +205,14 @@ void FRSKYR9_init()
 	SX1276_SetDetectionThreshold(SX1276_MODEM_DETECTION_THRESHOLD_SF6);
 	SX1276_SetLna(1, true);
 	SX1276_SetHopPeriod(0);										// 0 = disabled, we hop frequencies manually
-	SX1276_SetPaDac(true);
+	//RF Power
+	SX1276_SetPaDac(false);										// Disable 20dBm mode
+	#if MULTI_5IN1_INTERNAL == JP_T18
+		SX1276_SetPaConfig(true, 7, 0);							// Lowest power for the T18: 2dBm
+	#else
+		SX1276_SetPaConfig(true, 7, option);					// Use PA_HP on PA_BOOST, power=17-(15-option) dBm with option equal or lower to 15
+	#endif
+	SX1276_SetOcp(true,27);										// Set OCP to max 240mA
 	SX1276_SetTxRxMode(TX_EN);									// Set RF switch to TX
 	//Enable all IRQ flags
 	SX1276_WriteReg(SX1276_11_IRQFLAGSMASK,0x00);
@@ -226,8 +233,14 @@ uint16_t FRSKYR9_callback()
 			FrSkyR9_set_frequency(); 							// Set current center frequency
 			//Set power
 			// max power: 15dBm (10.8 + 0.6 * MaxPower [dBm])
-			// output_power: 2 dBm (17-(15-OutputPower) (if pa_boost_pin == true))
-			SX1276_SetPaConfig(true, 7, 0);						// Lowest power for the T18
+			// output_power: 2 dBm ( (if pa_boost_pin == true))
+			#if MULTI_5IN1_INTERNAL != JP_T18
+				if(option != prev_option)
+				{	// Set RF power if it has changed
+					SX1276_SetPaConfig(true, 7, option);		// Use PA_HP on PA_BOOST, power=17-(15-option) dBm with option equal or lower to 15
+					prev_option = option;
+				}
+			#endif
 			//Build packet
 			if( packet_length == 26 )
 				FrSkyR9_build_packet();

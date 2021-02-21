@@ -230,9 +230,14 @@ void SX1276_SetPaConfig(bool pa_boost_pin, uint8_t max_power, uint8_t output_pow
 	uint8_t data = 0x00;
 	data = data | (pa_boost_pin << 7);
 	data = data | (max_power << 4);
-	data = data | output_power;
+	data = data | (output_power & 0x0F);
 
 	SX1276_WriteReg(SX1276_09_PACONFIG, data);
+}
+
+void SX1276_SetOcp(bool OcpOn, uint8_t OcpTrim)
+{
+	SX1276_WriteReg(SX1276_0B_OCP, (OcpOn << 5) | OcpTrim);
 }
 
 void SX1276_WritePayloadToFifo(uint8_t* payload, uint8_t length)

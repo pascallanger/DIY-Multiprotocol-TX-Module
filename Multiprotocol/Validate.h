@@ -423,6 +423,7 @@
 	#endif
 	#if not defined(DSM_CYRF6936_INO)
 		#undef DSM_TELEMETRY
+		#undef DSM_FWD_PGM
 	#endif
 	#if not defined(MLINK_CYRF6936_INO)
 		#undef MLINK_HUB_TELEMETRY

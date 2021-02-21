@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	47
+#define VERSION_PATCH_LEVEL	48
 
 //******************
 // Protocols
@@ -734,6 +734,10 @@ enum CYRF_POWER
 #define	CYRF_RANGE_POWER	CYRF_POWER_1	// 1/30 of the full power distance
 #define	CYRF_BIND_POWER		CYRF_POWER_0
 
+// SX1276
+#define JP_T18		0
+#define JP_TLite	1
+
 enum TXRX_State {
 	TXRX_OFF,
 	TX_EN,
@@ -1152,16 +1156,17 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    [11] Prev valid protocol number, can be used to skip invalid protocols
    [12..18] Protocol name [7], not null terminated if prototcol len == 7
    [19>>4] Option text to be displayed: 
-			OPTION_NONE		0
-			OPTION_OPTION	1
-			OPTION_RFTUNE	2
-			OPTION_VIDFREQ	3
-			OPTION_FIXEDID	4
-			OPTION_TELEM	5
-			OPTION_SRVFREQ	6
-			OPTION_MAXTHR	7
-			OPTION_RFCHAN	8
-			OPTION_RFPOWER	9
+			OPTION_NONE		0	Hidden field
+			OPTION_OPTION	1	"Option:"		value=-128..0(default)..127
+			OPTION_RFTUNE	2	"RF freq tune:"	value=-128..0(default)..127
+			OPTION_VIDFREQ	3	"Video freq:"	value=-128..0(default)..127
+			OPTION_FIXEDID	4	"ID type:"		value="Auto":0(default), "Fixed":1
+			OPTION_TELEM	5	"Telem:"		value="Off":0(default), "On":1, "Off+Aux":2, "On+Aux":3
+			OPTION_SRVFREQ	6	"Servo freq(Hz):"	value="50":0(default).."400":70 => display=50+5*option with option=0..70
+			OPTION_MAXTHR	7	"Max throw:"	value="Disabled":0, "Enabled":1
+			OPTION_RFCHAN	8	"Select RF chan:"	value=-128..0(default)..127
+			OPTION_RFPOWER	9	"RF power:"		"1.6mW":0(default),"2.0mW":1,"2.5mW":2,"3.2mW":3,"4.0mW":4,"5.0mW":5,"6.3mW":6,"7.9mW":7,"10mW\0":8,"13mW\0":9,"16mW\0":10,"20mW\0":11,"25mW\0":12,"32mW\0":13,"40mW\0":14,"50mW\0":15
+			OPTION_WBUS		10	"Output:"		"WBUS":0(default),"PPM":1
    [19&0x0F] Number of sub protocols
    [20..27] Sub protocol name [8], not null terminated if sub prototcol len == 8
    If the current protocol is invalid [12..27] are all 0x00.

@@ -80,9 +80,10 @@
 #define NRF24L01_INSTALLED
 //#define SX1276_INSTALLED		// only supported on STM32 modules
 
-//Uncomment (remove //) if you have an internal 5-in-1 Multi module.
+//Uncomment (remove //) if you have an internal 5-in-1 Multi module in a Jumper T18 or T-Lite.
 //All components are considered to be installed and specifics to that module are automatically configured 
-//#define MULTI_5IN1_INTERNAL
+//#define MULTI_5IN1_INTERNAL JP_T18
+//#define MULTI_5IN1_INTERNAL JP_TLite
 
 /** OrangeRX TX **/
 //If you compile for the OrangeRX TX module you need to select the correct board type.

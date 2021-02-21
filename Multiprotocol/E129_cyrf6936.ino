@@ -51,7 +51,7 @@ static void __attribute__((unused)) E129_build_data_packet()
 		packet[ 6] = val;								// channel (0x000...0x200...0x3FF)
 		val = convert_channel_10b(ELEVATOR,false);
 		trim = convert_channel_8b(CH8) & 0xFC;
-		packet[ 7] = trim | (val >>8);				// Trim (0x00..0x1F..0x3E) << 2 | channel >> 8
+		packet[ 7] = trim | (val >>8);					// Trim (0x00..0x1F..0x3E) << 2 | channel >> 8
 		packet[ 8] = val;								// channel (0x000...0x200...0x3FF)
 		if(packet_count>200)
 			val = convert_channel_10b(THROTTLE,false);

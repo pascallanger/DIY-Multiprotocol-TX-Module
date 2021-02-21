@@ -217,6 +217,9 @@
 	#if not defined(STM32_BOARD)
 		#error "Error MULTI_5IN1_INTERNAL is only for STM32 boards."
 	#endif
+	#if ! MULTI_5IN1_INTERNAL+0
+		#define MULTI_5IN1_INTERNAL JP_T18	// make JP_T18 default if it has not been explicitly declared
+	#endif
 	#define A7105_INSTALLED
 	#define CYRF6936_INSTALLED
 	#define CC2500_INSTALLED

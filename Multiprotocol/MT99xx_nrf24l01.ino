@@ -209,10 +209,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 						packet[7] = DRAGON_seq[seq_num];			// seq: 20 80 20 60 20 80 20 60... 80 changes to 80+batt from telem
 						if(seq_num==3)
 							packet[7] |= v_lipo1;
-						break;
 					#else
 						packet[7] = 0x20;
 					#endif
+					break;
 			}
 			uint8_t result=crc8;
 			for(uint8_t i=0; i<8; i++)

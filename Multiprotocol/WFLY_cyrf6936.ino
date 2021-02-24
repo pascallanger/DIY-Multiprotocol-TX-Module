@@ -105,28 +105,35 @@ static uint16_t __attribute__((unused)) WFLY_send_data_packet()
 		len=4;
 		for(uint8_t i=0;i<3;i++)
 		{ // Channels
-			uint16_t ch = convert_channel_16b_nolimit(i*4+0,151,847,false);
+			uint16_t ch = convert_channel_16b_nolimit(i*4+0,151,847,IS_FAILSAFE_VALUES_on);
 			uint8_t offset=i*5;
-			packet[3+offset]|=ch<<6;
-			packet[4+offset]=ch>>2;
+			packet[3+offset] |= ch<<6;
+			packet[4+offset]  = ch>>2;
 			len++;
 			if(--nbr_ch==0) break;
-			ch = convert_channel_16b_nolimit(i*4+1,151,847,false);
-			packet[5+offset]=ch;
-			packet[6+offset]=ch>>8;
+			ch = convert_channel_16b_nolimit(i*4+1,151,847,IS_FAILSAFE_VALUES_on);
+			packet[5+offset]  = ch;
+			packet[6+offset]  = ch>>8;
 			len+=2;
 			if(--nbr_ch==0) break;
-			ch = convert_channel_16b_nolimit(i*4+2,151,847,false);
-			packet[6+offset]|=ch<<2;
-			packet[7+offset]=ch>>6;
+			ch = convert_channel_16b_nolimit(i*4+2,151,847,IS_FAILSAFE_VALUES_on);
+			packet[6+offset] |= ch<<2;
+			packet[7+offset]  = ch>>6;
 			len++;
 			if(--nbr_ch==0) break;
-			ch = convert_channel_16b_nolimit(i*4+3,151,847,false);
-			packet[7+offset]|=ch<<4;
-			packet[8+offset]=ch>>4;
+			ch = convert_channel_16b_nolimit(i*4+3,151,847,IS_FAILSAFE_VALUES_on);
+			packet[7+offset] |= ch<<4;
+			packet[8+offset]  = ch>>4;
 			len++;
 			if(--nbr_ch==0) break;
 		}
+		#ifdef FAILSAFE_ENABLE
+			if(IS_FAILSAFE_VALUES_on)
+			{
+				packet[2] |= 0x10;			// 19 times 3 times 0x10 followed by 3 times 0x18 and so on but 1 time 0x10 seems to be enough for the RX to learn
+				FAILSAFE_VALUES_off;
+			}
+		#endif
 	}
 
 	uint8_t sum=0;

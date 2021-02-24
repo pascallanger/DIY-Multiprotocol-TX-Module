@@ -403,7 +403,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_WK2x01,     STR_WK2x01,    STR_SUBTYPE_WK2x01,    6, OPTION_NONE,    1, 1, SW_CYRF,   WK_init,         WK_callback         },
 	#endif
 	#if defined(WFLY_CYRF6936_INO)
-		{PROTO_WFLY,       STR_WFLY,      STR_SUBTYPE_WFLY,      1, OPTION_NONE,    0, 0, SW_CYRF,   WFLY_init,       WFLY_callback       },
+		{PROTO_WFLY,       STR_WFLY,      STR_SUBTYPE_WFLY,      1, OPTION_NONE,    1, 0, SW_CYRF,   WFLY_init,       WFLY_callback       },
 	#endif
 	#if defined(WFLY2_A7105_INO)
 		{PROTO_WFLY2,      STR_WFLY2,     STR_SUBTYPE_WFLY2,     1, OPTION_OPTION,  1, 0, SW_A7105,  WFLY2_init,      WFLY2_callback      },

@@ -567,7 +567,9 @@ Receivers: WFR04S, WFR07S, WFR09S
 
 Extended limits supported
 
-option=number of channels from 4 to 9. An invalid option value will end up sending 9 channels.
+Failsafe values supported (not hold or none)
+
+Option=number of channels from 4 to 9. An invalid option value will end up sending 9 channels.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---

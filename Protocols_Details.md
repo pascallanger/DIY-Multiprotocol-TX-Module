@@ -513,7 +513,7 @@ Models: E010 R5 red boards, JJRC H36, H36F and H36S
 
 Autobind protocol.
 
-**Only 4 IDs are available**. More IDs can be added if you send me your "unused" original TX.
+**Only 5 IDs are available**. Use RX num to cycle through them. More IDs can be added if you send me your "unused" original TX.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|---

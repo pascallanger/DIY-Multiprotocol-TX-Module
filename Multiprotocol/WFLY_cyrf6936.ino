@@ -257,7 +257,7 @@ void WFLY_init()
 	uint8_t ch=0x0A+random(0xfefefefe)%0x0E;
 	if(ch%3==0)
 		ch++;								// remove these channels as they seem to not be working...
-	rf_ch_num=0x0C+(rx_tx_addr[1]%4)*3;		// use the start channels which do not seem to work to send the hopping table instead
+	rf_ch_num=0x0C+(rx_tx_addr[1]&0x03)*3;	// use the start channels which do not seem to work to send the hopping table instead
 	
 	#ifdef WFLY_FORCE_ID					// data taken from TX dump
 		rx_tx_addr[2]=0xBF;					// ID

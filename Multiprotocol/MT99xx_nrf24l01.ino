@@ -356,7 +356,8 @@ uint16_t MT99XX_callback()
 		{
 			// set tx address for data packets
 			XN297_SetTXAddr(rx_tx_addr, 5);
-			uint8_t channel_offset = (((crc8 & 0xf0)>>4) + (crc8 & 0x0f)) % 8;
+			// set rf channels
+			uint8_t channel_offset = ((crc8>>4) + (crc8 & 0x0f)) % 8;
 			for(uint8_t i=0;i<16;i++)
 				hopping_frequency[i] += channel_offset;
 			BIND_DONE;

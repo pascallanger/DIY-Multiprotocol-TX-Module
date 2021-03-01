@@ -118,7 +118,6 @@ static void __attribute__((unused)) OMP_RF_init()
 
 #ifdef OMP_HUB_TELEMETRY
 	//Config NRF
-	rf_switch(SW_NRF);
 	NRF24L01_Initialize();
 	NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps
 	XN297_Configure(_BV(NRF24L01_00_EN_CRC));
@@ -187,7 +186,7 @@ uint16_t OMP_callback()
 			#ifdef OMP_HUB_TELEMETRY
 				if(packet_sent == 0)
 				{
-					phase++;						// OMP_RX
+					phase++;					// OMP_RX
 					return OMP_WRITE_TIME;
 				}
 				else if(packet_sent == 1)

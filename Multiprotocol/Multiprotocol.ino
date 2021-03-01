@@ -257,6 +257,10 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		uint8_t DSM_SerialRX_val[7];
 		bool DSM_SerialRX=false;
 	#endif
+	#ifdef MULTI_CONFIG_INO
+		uint8_t CONFIG_SerialRX_val[7];
+		bool CONFIG_SerialRX=false;
+	#endif
 #endif // TELEMETRY
 
 uint8_t multi_protocols_index=0xFF;
@@ -1501,6 +1505,13 @@ void update_serial_data()
 			{//Protocol waiting for 7 bytes
 				memcpy(DSM_SerialRX_val, (const void *)&rx_ok_buff[27],7);
 				DSM_SerialRX=true;
+			}
+		#endif
+		#ifdef MULTI_CONFIG_INO
+			if(protocol==PROTO_CONFIG && rx_len==27+7)
+			{//Protocol waiting for 7 bytes
+				memcpy(CONFIG_SerialRX_val, (const void *)&rx_ok_buff[27],7);
+				CONFIG_SerialRX=true;
 			}
 		#endif
 	}

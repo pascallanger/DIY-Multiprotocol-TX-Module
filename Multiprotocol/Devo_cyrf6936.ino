@@ -163,6 +163,35 @@ static void __attribute__((unused)) DEVO_build_data_pkt()
 }
 
 #if defined DEVO_HUB_TELEMETRY
+static uint32_t __attribute__((unused)) DEVO_text_to_int(uint8_t *ptr, uint8_t len)
+{
+	uint32_t value = 0;
+	for(uint8_t i = 0; i < len; i++)
+		value = value * 10 + (ptr[i] - '0');
+	return value;
+}
+
+static void __attribute__((unused)) DEVO_float_to_ints(uint8_t *ptr, uint16_t *value, uint16_t *decimal)
+{
+	bool seen_decimal = false;
+	*value = 0;
+	*decimal = 0;
+	for(uint8_t i = 0; i < 7; i++)
+	{
+		if(ptr[i] == '.')
+		{
+			seen_decimal = true;
+			continue;
+		}
+		if(ptr[i] == 0)
+			break;
+		if(seen_decimal)
+			*decimal = *decimal * 10 + (ptr[i] - '0');
+		else
+			*value = *value * 10 + (ptr[i] - '0');
+	}
+}
+
 static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 {
 	DEVO_scramble_pkt(); //This will unscramble the packet
@@ -177,14 +206,55 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 	RX_RSSI = TX_RSSI;
 	telemetry_link = 1;
 
-	//TODO: FW telemetry https://github.com/DeviationTX/deviation/blob/5efb6a28bea697af9a61b5a0ed2528cc8d203f90/src/protocol/devo_cyrf6936.c#L232
-
 	debug("P[0]=%02X",packet[0]);
 	
-	if (packet[0] == 0x30)	// Volt packet
+	//Telemetry https://github.com/DeviationTX/deviation/blob/5efb6a28bea697af9a61b5a0ed2528cc8d203f90/src/protocol/devo_cyrf6936.c#L232
+	uint16_t val, dec;
+	switch(packet[0])
 	{
-		v_lipo1 = packet[1] << 1;
-		v_lipo2 = packet[3] << 1;
+		case 0x30:	// Volt and RPM packet
+			v_lipo1 = packet[1] << 1;
+			v_lipo2 = packet[3] << 1;
+			val = packet[7] * 120; //In RPM
+			frsky_send_user_frame(0x03, val, val>>8);														// RPM
+			break;
+		case 0x31:	// Temperature packet
+			if(packet[1]!=0xff)
+				frsky_send_user_frame(0x02, packet[1], 0x00);												// temp1
+			if(packet[2]!=0xff)
+				frsky_send_user_frame(0x05, packet[2], 0x00);												// temp2
+			break;
+		// GPS Data
+		case 0x32: // Longitude
+			val = DEVO_text_to_int(&packet[1], 3)*100 + DEVO_text_to_int(&packet[4], 2);					// dddmm
+			frsky_send_user_frame(0x12  , val, val>>8);
+			val = DEVO_text_to_int(&packet[7], 4);															// .mmmm
+			frsky_send_user_frame(0x12+8, val, val>>8);
+			frsky_send_user_frame(0x1A+8, packet[11], 0x00);												// 'E'/'W'
+			break;
+		case 0x33: // Latitude
+			val = DEVO_text_to_int(&packet[1], 2)*100 + DEVO_text_to_int(&packet[3], 2);					// ddmm
+			frsky_send_user_frame(0x13  , val, val>>8);
+			val = DEVO_text_to_int(&packet[6], 4);															// .mmmm
+			frsky_send_user_frame(0x13+8, val, val>>8);
+			frsky_send_user_frame(0x1B+8, packet[10], 0x00);												// 'N'/'S'
+			break;
+		case 0x34: // Altitude
+			DEVO_float_to_ints(&packet[1], &val, &dec);
+			frsky_send_user_frame(0x10, val, val>>8);
+			frsky_send_user_frame(0x21, dec, dec>>8);
+			break;
+		case 0x35: // Speed
+			DEVO_float_to_ints(&packet[7], &val, &dec);
+			frsky_send_user_frame(0x11  , val, val>>8);
+			frsky_send_user_frame(0x11+8, dec, dec>>8);
+			break;
+		case 0x36: // Time
+			frsky_send_user_frame(0x15, DEVO_text_to_int(&packet[9], 2), DEVO_text_to_int(&packet[7], 2));	// month, day
+			frsky_send_user_frame(0x16, DEVO_text_to_int(&packet[11], 2), 0x00);							// year
+			frsky_send_user_frame(0x17, DEVO_text_to_int(&packet[1], 2), DEVO_text_to_int(&packet[3], 2));	// hour, min
+			frsky_send_user_frame(0x18, DEVO_text_to_int(&packet[5], 2), 0x00);								// second
+			break;
 	}
 }
 #endif

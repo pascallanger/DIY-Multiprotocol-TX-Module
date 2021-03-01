@@ -173,6 +173,9 @@ enum
 
 const mm_protocol_definition multi_protocols[] = {
 // Protocol number, Protocol String, Sub_protocol strings, Number of sub_protocols, Option type, Failsafe, ChMap, RF switch, Init, Callback
+	#if defined(MULTI_CONFIG_INO)
+		{PROTO_CONFIG,     STR_CONFIG,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, 0,         CONFIG_init,     CONFIG_callback     },
+	#endif
 	#if defined(ASSAN_NRF24L01_INO)
 		{PROTO_ASSAN,      STR_ASSAN,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    ASSAN_init,      ASSAN_callback      },
 	#endif

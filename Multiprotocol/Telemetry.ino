@@ -53,6 +53,14 @@ uint8_t RetrySequence ;
 #if defined HUB_TELEMETRY
 	#define USER_MAX_BYTES 6
 	uint8_t prev_index;
+
+	struct t_FrSkyD_User_Frame
+	{
+		uint8_t ID;
+		uint8_t low;
+		uint8_t high;
+	} FrSkyD_User_Frame[8];
+	uint8_t FrSkyD_User_Frame_Start=0, FrSkyD_User_Frame_End=0;
 #endif // HUB_TELEMETRY
 
 #define START_STOP	0x7e
@@ -222,6 +230,15 @@ static void multi_send_status()
 			Serial_write(0x00);
 	}
 }
+
+#ifdef MULTI_CONFIG_INO
+	void CONFIG_frame()
+	{
+		multi_send_header(MULTI_TELEMETRY_CONFIG, packet_in[0]);
+		for (uint8_t i = 1; i <= packet_in[0]; i++)	// config data
+			Serial_write(packet_in[i]);
+	}
+#endif
 
 #ifdef MLINK_FW_TELEMETRY
 	void MLINK_frame()
@@ -498,6 +515,9 @@ void init_frskyd_link_telemetry()
 	TX_RSSI=0;
 	RX_LQI=0;
 	TX_LQI=0;
+	#if defined HUB_TELEMETRY
+		FrSkyD_User_Frame_Start=FrSkyD_User_Frame_End=0;
+	#endif
 }
 
 void frsky_link_frame()
@@ -575,7 +595,7 @@ packet_in[6]|(counter++)|00 01 02 03 04 05 06 07 08 09
 0A     0F          5E 3A 06 00 5E 5E 3B 09 00 5E
 05     10          5E 06 16 72 5E 5E 3A 06 00 5E
 */
-static void __attribute__((unused)) frsky_send_user_frame(uint8_t ID, uint8_t low, uint8_t high)
+static void __attribute__((unused)) frsky_write_user_frame(uint8_t ID, uint8_t low, uint8_t high)
 {
 	telemetry_in_buffer[6]  = 0x04;		// number of bytes in the payload
 	telemetry_in_buffer[7]  = 0x00;		// unknown?
@@ -596,7 +616,32 @@ static void __attribute__((unused)) frsky_send_user_frame(uint8_t ID, uint8_t lo
 			telemetry_in_buffer[pos++] = value;
 		value = high;
 	}
-	telemetry_link |= 2;						// request to send frame
+	telemetry_link |= 2;				// request to send frame
+}
+
+static void __attribute__((unused)) frsky_send_user_frame(uint8_t ID, uint8_t low, uint8_t high)
+{
+	if(telemetry_link&2)
+	{ // add to buffer
+		uint8_t test = (FrSkyD_User_Frame_End + 1) & 0x07;
+		if(test == FrSkyD_User_Frame_Start)
+			return;	// buffer full...
+		FrSkyD_User_Frame_End = test;
+		FrSkyD_User_Frame[FrSkyD_User_Frame_End].ID   = ID;
+		FrSkyD_User_Frame[FrSkyD_User_Frame_End].low  = low;
+		FrSkyD_User_Frame[FrSkyD_User_Frame_End].high = high;
+	}
+	else // send to TX direct
+		frsky_write_user_frame(ID, low, high);
+}
+
+static void __attribute__((unused)) frsky_check_user_frame()
+{
+	if(telemetry_link&2 || FrSkyD_User_Frame_Start == FrSkyD_User_Frame_End)
+		return;		// need to wait that the last frame is sent or buffer is empty
+	frsky_write_user_frame(FrSkyD_User_Frame[FrSkyD_User_Frame_Start].ID, FrSkyD_User_Frame[FrSkyD_User_Frame_Start].low, FrSkyD_User_Frame[FrSkyD_User_Frame_Start].high);
+	FrSkyD_User_Frame_Start++;
+	FrSkyD_User_Frame_Start &= 0x07;
 }
 #endif
 
@@ -905,6 +950,14 @@ void TelemetryUpdate()
 	#endif // SPORT_TELEMETRY
 
 	#ifdef MULTI_TELEMETRY
+		#if defined MULTI_CONFIG_INO
+			if(telemetry_link && protocol == PROTO_CONFIG)
+			{
+				CONFIG_frame();
+				telemetry_link=0;
+				return;
+			}
+		#endif
 		#if defined MLINK_FW_TELEMETRY
 			if(telemetry_link && protocol == PROTO_MLINK)
 			{
@@ -964,15 +1017,16 @@ void TelemetryUpdate()
 	#endif //MULTI_TELEMETRY
 	
 	if( telemetry_link & 1 )
-	{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell + Hitec + Bugs + BugsMini + NCC1701 + PROPEL + RLINK + OMP + MLINK
+	{	// FrSkyD + Hubsan + AFHDS2A + Bayang + Cabell + Hitec + Bugs + BugsMini + NCC1701 + PROPEL + RLINK + OMP + MLINK + DEVO
 		// FrSkyX telemetry if in PPM
 		frsky_link_frame();
 		return;
 	}
 	#if defined HUB_TELEMETRY
-		if((telemetry_link & 2) && ( protocol == PROTO_FRSKYD || protocol == PROTO_BAYANG || protocol == PROTO_MLINK ) )
-		{	// FrSkyD + Bayang + MLINK
+		if((telemetry_link & 2) && ( protocol == PROTO_FRSKYD || protocol == PROTO_BAYANG || protocol == PROTO_MLINK  || protocol == PROTO_DEVO ) )
+		{	// FrSkyD + Bayang + MLINK + DEVO
 			frsky_user_frame();
+			frsky_check_user_frame();
 			return;
 		}
 	#endif

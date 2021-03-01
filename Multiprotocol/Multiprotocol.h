@@ -19,14 +19,16 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	51
+#define VERSION_PATCH_LEVEL	52
+
+#define MODE_SERIAL 0
 
 //******************
 // Protocols
 //******************
 enum PROTOCOLS
 {
-	MODE_SERIAL		= 0,	// Serial commands
+	PROTO_CONFIG	= 0,	// Module config
 	PROTO_FLYSKY 	= 1,	// =>A7105
 	PROTO_HUBSAN	= 2,	// =>A7105
 	PROTO_FRSKYD	= 3,	// =>CC2500
@@ -489,6 +491,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_RX_CHANNELS		= 13,
 	MULTI_TELEMETRY_HOTT			= 14,
 	MULTI_TELEMETRY_MLINK			= 15,
+	MULTI_TELEMETRY_CONFIG			= 16,
 };
 
 // Macros

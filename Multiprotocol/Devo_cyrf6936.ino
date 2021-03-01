@@ -192,6 +192,8 @@ static void __attribute__((unused)) DEVO_float_to_ints(uint8_t *ptr, uint16_t *v
 	}
 }
 
+extern void frsky_send_user_frame(uint8_t, uint8_t, uint8_t);
+
 static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 {
 	DEVO_scramble_pkt(); //This will unscramble the packet

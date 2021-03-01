@@ -18,6 +18,8 @@
 
 #include "iface_cc2500.h"
 
+//#define SFHSS_DEBUG_TIMING
+
 #define SFHSS_COARSE	0
 
 #define SFHSS_PACKET_LEN 13
@@ -238,13 +240,21 @@ uint16_t SFHSS_callback()
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();
 			phase = SFHSS_DATA2;
+#ifdef SFHSS_DEBUG_TIMING
+			return SFHSS_DATA2_TIMING - 1024 + (Channel_data[CH15]>>1);
+#else
 			return SFHSS_DATA2_TIMING;								// original 1650
+#endif
 		case SFHSS_DATA2:
 			SFHSS_build_data_packet();
 			SFHSS_send_packet();
 			SFHSS_calc_next_chan();
 			phase = SFHSS_TUNE;
+#ifdef SFHSS_DEBUG_TIMING
+			return SFHSS_PACKET_PERIOD -2000 - (SFHSS_DATA2_TIMING - 1024 + (Channel_data[CH15]>>1));
+#else
 			return (SFHSS_PACKET_PERIOD -2000 -SFHSS_DATA2_TIMING);	// original 2000
+#endif
 		case SFHSS_TUNE:
 			phase = SFHSS_DATA1;
 			SFHSS_tune_freq();

@@ -373,7 +373,7 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 RX output will match the Devo standard EATR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
 
-Basic telemetry is available if RX supports it: TX_RSSI, A1 (set the ratio to 12.7) and A2 (set the ratio to 12.7)
+Full telemetry is available if the RX supports it: TX_RSSI, A1 (set the ratio to 12.7) and A2 (set the ratio to 12.7), VFAS, RPM, temperature 1&2, GPS position/speed/altitude/time.
 
 Bind procedure using serial:
 - With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
@@ -384,6 +384,7 @@ Bind procedure using serial:
 - Make sure to set a uniq RX_Num value for model match.
 - Change option to 1 to use the global ID.
 - Do not touch option/RX_Num anymore.
+- Note: it might be limited to only the RX705 but to get telemetry, the opion fields has to be set back to 0 at then end of the procedure...
 
 Bind procedure using PPM:
 - With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.

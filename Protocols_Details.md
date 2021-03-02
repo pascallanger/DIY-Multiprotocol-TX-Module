@@ -1439,7 +1439,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 
-Features:
+RX features can be configured using this LUA script on OpenTX https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/Lua_scripts#multiloli or manually using the table below:
+
 Config on | For channel | Switch | Servo | PPM | SBUS | PWM
 ----|-----|-------|----|------|---|------
 CH9 | CH1 | -100% | 0% | +50% | - | +100%

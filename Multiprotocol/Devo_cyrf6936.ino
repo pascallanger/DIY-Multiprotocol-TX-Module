@@ -208,14 +208,17 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 
 	debug("P[0]=%02X",packet[0]);
 	
-	//Telemetry https://github.com/DeviationTX/deviation/blob/5efb6a28bea697af9a61b5a0ed2528cc8d203f90/src/protocol/devo_cyrf6936.c#L232
 	#if defined HUB_TELEMETRY
+	//Telemetry https://github.com/DeviationTX/deviation/blob/5efb6a28bea697af9a61b5a0ed2528cc8d203f90/src/protocol/devo_cyrf6936.c#L232
 		uint16_t val, dec;
 		switch(packet[0])
 		{
 			case 0x30:	// Volt and RPM packet
 				v_lipo1 = packet[1] << 1;
 				v_lipo2 = packet[3] << 1;
+				val = packet[5]/10;
+				frsky_send_user_frame(0x3A, val, 0x00);															// volt3
+				frsky_send_user_frame(0x3B, packet[5] - val*10, 0x00);											// volt3
 				val = packet[7] * 120; //In RPM
 				frsky_send_user_frame(0x03, val, val>>8);														// RPM
 				break;

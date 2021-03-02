@@ -62,10 +62,10 @@ You've upgraded the module but the radio does not display the name of the protoc
 
 Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Sub_Proto 4|Sub_Proto 5|Sub_Proto 6|Sub_Proto 7|RF Module|Emulation
 ---|---|---|---|---|---|---|---|---|---|---|---
-[Assan](Protocols_Details.md#ASSAN---24)|24|ASSAN||||||||NRF24L01|
+[Assan](Protocols_Details.md#ASSAN---24)|24|||||||||NRF24L01|
 [Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4|QX100|||NRF24L01|XN297
-[Bayang RX](Protocols_Details.md#BAYANG-RX---59)|59|RX||||||||NRF24L01|XN297
-[Bugs](Protocols_Details.md#BUGS---41)|41|BUGS||||||||A7105|
+[Bayang RX](Protocols_Details.md#BAYANG-RX---59)|59|||||||||NRF24L01|XN297
+[Bugs](Protocols_Details.md#BUGS---41)|41|||||||||A7105|
 [BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI|BUGS3H|||||||NRF24L01|XN297
 [Cabell](Protocols_Details.md#Cabell---34)|34|Cabell_V3|C_TELEM|-|-|-|-|F_SAFE|UNBIND|NRF24L01|
 CFlie|38|CFlie||||||||NRF24L01|
@@ -73,24 +73,24 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Corona](Protocols_Details.md#CORONA---37)|37|COR_V1|COR_V2|FD_V3||||||CC2500|
 [CX10](Protocols_Details.md#CX10---12)|12|GREEN|BLUE|DM007|-|J3015_1|J3015_2|MK33041||NRF24L01|XN297
 [Devo](Protocols_Details.md#DEVO---7)|7|Devo|8CH|10CH|12CH|6CH|7CH|||CYRF6936|
-[DM002](Protocols_Details.md#DM002---33)|33|DM002||||||||NRF24L01|XN297
+[DM002](Protocols_Details.md#DM002---33)|33|||||||||NRF24L01|XN297
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO||||CYRF6936|
-[DSM_RX](Protocols_Details.md#DSM_RX---70)|70|RX||||||||CYRF6936|
+[DSM_RX](Protocols_Details.md#DSM_RX---70)|70|||||||||CYRF6936|
 [E010R5](Protocols_Details.md#E010R5---81)|81|||||||||CYRF6936/NRF24L01|RF2500
 [E016HV2](Protocols_Details.md#E016HV2---80)|80|||||||||CC2500/NRF24L01|unknown
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
 [E129](Protocols_Details.md#E129---83)|83|||||||||CYRF6936/NRF24L01|RF2500
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
-[ESky150](Protocols_Details.md#ESKY150---35)|35|ESKY150||||||||NRF24L01|
-[ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|ESky150V2||||||||CC2500|NRF51822
+[ESky150](Protocols_Details.md#ESKY150---35)|35|||||||||NRF24L01|
+[ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|||||||||CC2500|NRF51822
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|PWM_IBUS16|PPM_IBUS16|||A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|RX||||||||A7105|
-[FQ777](Protocols_Details.md#FQ777---23)|23|FQ777||||||||NRF24L01|SSV7241
+[FQ777](Protocols_Details.md#FQ777---23)|23|||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|D8|Cloned|||||||CC2500|
 [FrskyL](Protocols_Details.md#FRSKYL---67)|67|LR12|LR12 6CH|||||||CC2500|
 [FrskyR9](Protocols_Details.md#FRSKYR9---65)|65|FrskyR9|R9_915|R9_868||||||SX1276|
-[FrskyV](Protocols_Details.md#FRSKYV---25)|25|FrskyV||||||||CC2500|
+[FrskyV](Protocols_Details.md#FRSKYV---25)|25|||||||||CC2500|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|RX|CloneTX|||||||CC2500|
@@ -98,7 +98,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
-[GW008](Protocols_Details.md#GW008---32)|32|GW008||||||||NRF24L01|XN297
+[GW008](Protocols_Details.md#GW008---32)|32|||||||||NRF24L01|XN297
 [H8_3D](Protocols_Details.md#H8_3D---36)|36|H8_3D|H20H|H20Mini|H30Mini|||||NRF24L01|XN297
 [Height](Protocols_Details.md#HEIGHT---53)|53|5ch|8ch|||||||A7105|
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01|
@@ -106,16 +106,17 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01|XN297
 [HoTT](Protocols_Details.md#HoTT---57)|57|Sync|No_Sync|||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105|
-[J6Pro](Protocols_Details.md#J6Pro---22)|22|J6Pro||||||||CYRF6936|
+[J6Pro](Protocols_Details.md#J6Pro---22)|22|||||||||CYRF6936|
 [JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345|SkyTmblr|||||||NRF24L01|XN297
-[KF606](Protocols_Details.md#KF606---49)|49|KF606*||||||||NRF24L01|XN297
+[JOYSWAY](Protocols_Details.md#JOYSWAY---84)|84|||||||||NRF24L01|XN297
+[KF606](Protocols_Details.md#KF606---49)|49|||||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
 [LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MLINK](Protocols_Details.md#MLINK---78)|78|||||||||CYRF6936|
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805|A180|DRAGON||NRF24L01|XN297
-[NCC1701](Protocols_Details.md#NCC1701---44)|44|NCC1701||||||||NRF24L01|
+[NCC1701](Protocols_Details.md#NCC1701---44)|44|||||||||NRF24L01|
 [OMP](Protocols_Details.md#OMP---77)|77|||||||||CC2500&NRF24L01|XN297L
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None|
 [Pelikan](Protocols_Details.md#Pelikan---60)|60|Pro|Lite|||||||A7105|
@@ -129,13 +130,13 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
-[Skyartec](Protocols_Details.md#Skyartec---68)|68|Skyartec||||||||CC2500|CC2500
+[Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|CC2500
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
-[Tiger](Protocols_Details.md#Tiger---61)|61|Tiger||||||||NRF24L01|XN297
+[Tiger](Protocols_Details.md#Tiger---61)|61|||||||||NRF24L01|XN297
 [Traxxas](Protocols_Details.md#Traxxas---43)|43|6519 RX||||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
-[V761](Protocols_Details.md#V761---48)|48|V761||||||||NRF24L01|XN297
+[V761](Protocols_Details.md#V761---48)|48|3CH|4CH|||||||NRF24L01|XN297
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*|E119*|||||||NRF24L01|XN297
 [WFLY](Protocols_Details.md#WFLY---40)|40|WFR0x||||||||CYRF6936|
 [WFLY2](Protocols_Details.md#WFLY2---79)|79|RF20x||||||||A7105|
@@ -301,6 +302,12 @@ A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS|GPS_HOLD|ALT_HOLD|FLIP|FMODES
 H122D: FLIP
 
 H123D: FMODES -> -100%=Sport mode 1,0%=Sport mode 2,+100%=Acro
+
+## JOYSWAY - *84*
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+CH1|CH2|CH3|CH4
 
 ## Kyosho - *73*
 

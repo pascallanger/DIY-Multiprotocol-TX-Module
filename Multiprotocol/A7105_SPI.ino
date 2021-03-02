@@ -210,6 +210,11 @@ void A7105_AdjustLOBaseFreq(uint8_t cmd)
 					offset=(int16_t)FORCE_KYOSHO_TUNING;
 				#endif
 				break;
+			case PROTO_JOYSWAY:
+				#ifdef FORCE_JOYSWAY_TUNING
+					offset=(int16_t)FORCE_JOYSWAY_TUNING;
+				#endif
+				break;
 			case PROTO_WFLY2:
 				#ifdef FORCE_WFLY2_TUNING
 					offset=(int16_t)FORCE_WFLY2_TUNING;
@@ -341,6 +346,14 @@ const uint8_t PROGMEM WFLY2_A7105_regs[] = {
 	0x01, 0x0f // 30 - 31
 };
 #endif
+#ifdef JOYSWAY_A7105_INO
+const uint8_t PROGMEM JOYSWAY_A7105_regs[] = {
+	0xff, 0x62, 0xff, 0x0F, 0x00, 0xff, 0xff ,0x00, 0x00, 0x05, 0x00, 0x01, 0x00, 0xF5, 0x00, 0x15,	// 00 - 0f
+	0x9E, 0x4B, 0x00, 0x03, 0x56, 0x2B, 0x12, 0x4A, 0x02, 0x80, 0x80, 0x00, 0x0E, 0x91, 0x03, 0x0F,	// 10 - 1f
+	0x16, 0x2A, 0x00, 0xff, 0xff, 0xff, 0x3A, 0x06, 0x1F, 0x47, 0x80, 0x01, 0x05, 0x45, 0x18, 0x00,	// 20 - 2f
+	0x01, 0x0f // 30 - 31
+};
+#endif
 
 #define ID_NORMAL 0x55201041
 #define ID_PLUS   0xAA201041
@@ -349,6 +362,13 @@ void A7105_Init(void)
 	uint8_t *A7105_Regs=0;
     uint8_t vco_calibration0, vco_calibration1;
 	
+	#ifdef JOYSWAY_A7105_INO
+		if(protocol==PROTO_JOYSWAY)
+		{
+			A7105_Regs=(uint8_t*)JOYSWAY_A7105_regs;
+		}
+		else
+	#endif
 	#ifdef WFLY2_A7105_INO
 		if(protocol==PROTO_WFLY2)
 		{
@@ -481,6 +501,9 @@ void A7105_Init(void)
 					case PROTO_PELIKAN:
 					case PROTO_KYOSHO: //sub_protocol Hype
 						vco_calibration1=0x0C;
+						break;
+					case PROTO_JOYSWAY:
+						vco_calibration1=0x09;
 						break;
 					default:
 						vco_calibration1=0x0A;

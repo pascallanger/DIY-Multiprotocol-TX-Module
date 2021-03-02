@@ -39,6 +39,7 @@ const char STR_FY326[]		="FY326";
 const char STR_FUTABA[]		="Futaba";
 const char STR_J6PRO[]		="J6 Pro";
 const char STR_JJRC345[]	="JJRC345";
+const char STR_JOYSWAY[]	="JOYSWAY";
 const char STR_FQ777[]		="FQ777";
 const char STR_ASSAN[]		="Assan";
 const char STR_FRSKYV[]		="FrSky V";
@@ -317,6 +318,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(JJRC345_NRF24L01_INO)
 		{PROTO_JJRC345,    STR_JJRC345,   STR_SUBTYPE_JJRC345,   2, OPTION_NONE,    0, 0, SW_NRF,    JJRC345_init,    JJRC345_callback    },
+	#endif
+	#if defined(JOYSWAY_A7105_INO)
+		{PROTO_JOYSWAY,    STR_JOYSWAY,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_A7105,  JOYSWAY_init,    JOYSWAY_callback    },
 	#endif
 	#if defined(KF606_CCNRF_INO)
 		{PROTO_KF606,      STR_KF606,     NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    KF606_init,      KF606_callback      },

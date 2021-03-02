@@ -155,6 +155,11 @@
 		#error "The Hubsan forced frequency tuning value is outside of the range -300..300."
 	#endif
 #endif
+#ifdef FORCE_JOYSWAY_TUNING
+	#if ( FORCE_JOYSWAY_TUNING < -300 ) || ( FORCE_JOYSWAY_TUNING > 300 )
+		#error "The JOYSWAY forced frequency tuning value is outside of the range -300..300."
+	#endif
+#endif
 #ifdef FORCE_KYOSHO_TUNING
 	#if ( FORCE_KYOSHO_TUNING < -300 ) || ( FORCE_KYOSHO_TUNING > 300 )
 		#error "The Kyosho forced frequency tuning value is outside of the range -300..300."
@@ -178,6 +183,9 @@
 	#endif
 	#ifndef FORCE_PELIKAN_TUNING
 		#define FORCE_PELIKAN_TUNING 0
+	#endif
+	#ifndef FORCE_JOYSWAY_TUNING
+		#define FORCE_JOYSWAY_TUNING 0
 	#endif
 	#ifndef FORCE_KYOSHO_TUNING
 		#define FORCE_KYOSHO_TUNING 0
@@ -239,6 +247,7 @@
 	#undef FLYSKY_A7105_INO
 	#undef HEIGHT_A7105_INO
 	#undef HUBSAN_A7105_INO
+	#undef JOYSWAY_A7105_INO
 	#undef KYOSHO_A7105_INO
 	#undef PELIKAN_A7105_INO
 	#undef WFLY2_A7105_INO

@@ -244,10 +244,13 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 				break;
 			case 0x31:	// Temperature packet
 				//memcpy(&packet[1],"\x29\x2A\x2B\x00\x00\x00\x00\x00\x00\x00\x00\x00",12);							// 21°, 22°, 23°
-				if(packet[1]!=0xff)
-					frsky_send_user_frame(0x02, packet[1]-20, 0x00);												// temp1
-				if(packet[2]!=0xff)
-					frsky_send_user_frame(0x05, packet[2]-20, 0x00);												// temp2
+				for(uint8_t i=0; i<2;i++)
+					if(packet[i+1]!=0xff)
+					{
+						val = packet[i+1];
+						val -= 20;
+						frsky_send_user_frame(0x02 + i*3, val, val>>8);												// temp 1 & 2
+					}
 				break;
 			// GPS Data
 			case 0x32: // Longitude

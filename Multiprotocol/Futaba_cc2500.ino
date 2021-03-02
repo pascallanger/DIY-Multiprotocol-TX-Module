@@ -126,7 +126,7 @@ static void __attribute__((unused)) SFHSS_calc_next_chan()
 // Channel values are 12-bit values between 1020 and 2020, 1520 is the middle.
 // Futaba @140% is 2070...1520...970
 // Values grow down and to the right.
-static void __attribute__((unused)) SFHSS_build_data_packet()
+static void __attribute__((unused)) SFHSS_send_packet()
 {
 	uint16_t ch[4];
 	// command.bit0 is the packet number indicator: =0 -> SFHSS_DATA1, =1 -> SFHSS_DATA2
@@ -202,15 +202,17 @@ static void __attribute__((unused)) SFHSS_build_data_packet()
 	packet[10] = (ch[2] << 7) | ((ch[3] >> 5) & 0x7F );
 	packet[11] = (ch[3] << 3) | ((fhss_code >> 2) & 0x07 );
 	packet[12] = (fhss_code << 6) | command;
-}
 
-static void __attribute__((unused)) SFHSS_send_packet()
-{
     CC2500_WriteData(packet, SFHSS_PACKET_LEN);
 }
 
 uint16_t SFHSS_callback()
 {
+#ifdef SFHSS_DEBUG_TIMING
+	static uint16_t prev_adjust_timing=1024;
+	uint16_t adjust_timing = (Channel_data[CH15]>>3) - (1024>>3);	// +-102 @ 100%
+#endif
+
 	switch(phase)
 	{
 		case SFHSS_START:
@@ -237,23 +239,26 @@ uint16_t SFHSS_callback()
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(6800);
 			#endif
-			SFHSS_build_data_packet();
 			SFHSS_send_packet();
 			phase = SFHSS_DATA2;
 #ifdef SFHSS_DEBUG_TIMING
-			return SFHSS_DATA2_TIMING - 1024 + (Channel_data[CH15]>>1);
+			return SFHSS_DATA2_TIMING - adjust_timing;
 #else
 			return SFHSS_DATA2_TIMING;								// original 1650
 #endif
 		case SFHSS_DATA2:
-			SFHSS_build_data_packet();
 			SFHSS_send_packet();
 			SFHSS_calc_next_chan();
 			phase = SFHSS_TUNE;
 #ifdef SFHSS_DEBUG_TIMING
-			return SFHSS_PACKET_PERIOD -2000 - (SFHSS_DATA2_TIMING - 1024 + (Channel_data[CH15]>>1));
+			if(prev_adjust_timing != adjust_timing)
+			{
+				debugln("A:%d",(uint16_t)(SFHSS_DATA2_TIMING - adjust_timing));
+				prev_adjust_timing = adjust_timing;
+			}
+			return SFHSS_PACKET_PERIOD -2000 -(SFHSS_DATA2_TIMING - adjust_timing);
 #else
-			return (SFHSS_PACKET_PERIOD -2000 -SFHSS_DATA2_TIMING);	// original 2000
+			return SFHSS_PACKET_PERIOD -2000 -SFHSS_DATA2_TIMING;	// original 2000
 #endif
 		case SFHSS_TUNE:
 			phase = SFHSS_DATA1;

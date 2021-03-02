@@ -239,18 +239,15 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 					frsky_send_user_frame(0x3A, val, 0x00);															// volt3
 					frsky_send_user_frame(0x3B, dec, 0x00);															// volt3
 				}
-				if(packet[7] != 0)
-				{
-					val = packet[7] * 120;																			// change to RPM
-					frsky_send_user_frame(0x03, val, val>>8);														// RPM
-				}
+				val = packet[7] * 120;																				// change to RPM
+				frsky_send_user_frame(0x03, val, val>>8);															// RPM
 				break;
 			case 0x31:	// Temperature packet
-				//memcpy(&packet[1],"\x15\x16\x17\x00\x00\x00\x00\x00\x00\x00\x00\x00",12);							// guess 21°, 22°, 23°
+				//memcpy(&packet[1],"\x29\x2A\x2B\x00\x00\x00\x00\x00\x00\x00\x00\x00",12);							// 21°, 22°, 23°
 				if(packet[1]!=0xff)
-					frsky_send_user_frame(0x02, packet[1], 0x00);													// temp1
+					frsky_send_user_frame(0x02, packet[1]-20, 0x00);												// temp1
 				if(packet[2]!=0xff)
-					frsky_send_user_frame(0x05, packet[2], 0x00);													// temp2
+					frsky_send_user_frame(0x05, packet[2]-20, 0x00);												// temp2
 				break;
 			// GPS Data
 			case 0x32: // Longitude

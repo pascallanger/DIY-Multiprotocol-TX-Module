@@ -183,8 +183,12 @@ static void __attribute__((unused)) DEVO_float_to_ints(uint8_t *ptr, uint16_t *v
 			seen_decimal = true;
 			continue;
 		}
-		if(ptr[i] == 0)
-			break;
+		if(ptr[i] < '0' || ptr[i] > '9')
+		{
+			if(value!=0 || seen_decimal)
+				break;
+			continue;
+		}
 		if(seen_decimal)
 			*decimal = *decimal * 10 + (ptr[i] - '0');
 		else
@@ -193,20 +197,29 @@ static void __attribute__((unused)) DEVO_float_to_ints(uint8_t *ptr, uint16_t *v
 }
 
 static void __attribute__((unused)) DEVO_parse_telemetry_packet()
-{
+{ // Telemetry packets every 2.4ms
 	DEVO_scramble_pkt(); //This will unscramble the packet
 	
 	debugln("RX");
 	if ((((uint32_t)packet[15] << 16) | ((uint32_t)packet[14] << 8) | packet[13]) != (MProtocol_id & 0x00ffffff))
 		return;	// ID does not match
-	
+		
+	if((telemetry_link & 3) != 0)
+	{
+		debugln("S%d",telemetry_link);
+		return;	// Previous telemetry not sent yet...
+	}
+
 	//RSSI
 	TX_RSSI = CYRF_ReadRegister(CYRF_13_RSSI) & 0x1F;
 	TX_RSSI = (TX_RSSI << 1) + TX_RSSI;
 	RX_RSSI = TX_RSSI;
-	telemetry_link = 1;
+	telemetry_link |= 1;
 
-	debug("P[0]=%02X",packet[0]);
+	//debug
+	//for(uint8_t i=0;i<12;i++)
+	//	debug("%02X ",packet[i]);
+	//debugln("");
 	
 	#if defined HUB_TELEMETRY
 	//Telemetry https://github.com/DeviationTX/deviation/blob/5efb6a28bea697af9a61b5a0ed2528cc8d203f90/src/protocol/devo_cyrf6936.c#L232
@@ -216,48 +229,67 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 			case 0x30:	// Volt and RPM packet
 				v_lipo1 = packet[1] << 1;
 				v_lipo2 = packet[3] << 1;
-				val = packet[5]/10;
-				frsky_send_user_frame(0x3A, val, 0x00);															// volt3
-				frsky_send_user_frame(0x3B, packet[5] - val*10, 0x00);											// volt3
-				val = packet[7] * 120; //In RPM
-				frsky_send_user_frame(0x03, val, val>>8);														// RPM
+				//packet[5] = 127;																					// 12.7V
+				if(packet[5] != 0)
+				{
+					val  = (packet[5]*11)/21;																		// OpenTX strange transformation??
+					dec  = val;
+					val /= 10;
+					dec -= val*10;
+					frsky_send_user_frame(0x3A, val, 0x00);															// volt3
+					frsky_send_user_frame(0x3B, dec, 0x00);															// volt3
+				}
+				if(packet[7] != 0)
+				{
+					val = packet[7] * 120;																			// change to RPM
+					frsky_send_user_frame(0x03, val, val>>8);														// RPM
+				}
 				break;
 			case 0x31:	// Temperature packet
+				//memcpy(&packet[1],"\x15\x16\x17\x00\x00\x00\x00\x00\x00\x00\x00\x00",12);							// guess 21°, 22°, 23°
 				if(packet[1]!=0xff)
-					frsky_send_user_frame(0x02, packet[1], 0x00);												// temp1
+					frsky_send_user_frame(0x02, packet[1], 0x00);													// temp1
 				if(packet[2]!=0xff)
-					frsky_send_user_frame(0x05, packet[2], 0x00);												// temp2
+					frsky_send_user_frame(0x05, packet[2], 0x00);													// temp2
 				break;
 			// GPS Data
 			case 0x32: // Longitude
-				val = DEVO_text_to_int(&packet[1], 3)*100 + DEVO_text_to_int(&packet[4], 2);					// dddmm
+				//memcpy(&packet[1],"\x30\x33\x30\x32\x30\x2e\x38\x32\x37\x30\x45\xfb",12);							// 030°20.8270E
+				val = DEVO_text_to_int(&packet[1], 3)*100 + DEVO_text_to_int(&packet[4], 2);						// dddmm
 				frsky_send_user_frame(0x12  , val, val>>8);
-				val = DEVO_text_to_int(&packet[7], 4);															// .mmmm
+				val = DEVO_text_to_int(&packet[7], 4);																// .mmmm
 				frsky_send_user_frame(0x12+8, val, val>>8);
-				frsky_send_user_frame(0x1A+8, packet[11], 0x00);												// 'E'/'W'
+				frsky_send_user_frame(0x1A+8, packet[11], 0x00);													// 'E'/'W'
 				break;
 			case 0x33: // Latitude
-				val = DEVO_text_to_int(&packet[1], 2)*100 + DEVO_text_to_int(&packet[3], 2);					// ddmm
+				//memcpy(&packet[1],"\x35\x39\x35\x34\x2e\x37\x37\x37\x36\x4e\x07\x00",12);							// 59°54.776N
+				val = DEVO_text_to_int(&packet[1], 2)*100 + DEVO_text_to_int(&packet[3], 2);						// ddmm
 				frsky_send_user_frame(0x13  , val, val>>8);
-				val = DEVO_text_to_int(&packet[6], 4);															// .mmmm
+				val = DEVO_text_to_int(&packet[6], 4);																// .mmmm
 				frsky_send_user_frame(0x13+8, val, val>>8);
-				frsky_send_user_frame(0x1B+8, packet[10], 0x00);												// 'N'/'S'
+				frsky_send_user_frame(0x1B+8, packet[10], 0x00);													// 'N'/'S'
 				break;
 			case 0x34: // Altitude
+				//memcpy(&packet[1],"\x31\x32\x2e\x38\x00\x00\x00\x4d\x4d\x4e\x45\xfb",12);							// 12.8 MMNE
 				DEVO_float_to_ints(&packet[1], &val, &dec);
 				frsky_send_user_frame(0x10, val, val>>8);
 				frsky_send_user_frame(0x21, dec, dec>>8);
 				break;
 			case 0x35: // Speed
-				DEVO_float_to_ints(&packet[7], &val, &dec);
+				//memcpy(&packet[1],"\x00\x00\x00\x00\x00\x00\x30\x2e\x30\x30\x00\x00",12);							// 0.0
+				DEVO_float_to_ints(&packet[1], &val, &dec);
 				frsky_send_user_frame(0x11  , val, val>>8);
 				frsky_send_user_frame(0x11+8, dec, dec>>8);
 				break;
 			case 0x36: // Time
-				frsky_send_user_frame(0x15, DEVO_text_to_int(&packet[9], 2), DEVO_text_to_int(&packet[7], 2));	// month, day
-				frsky_send_user_frame(0x16, DEVO_text_to_int(&packet[11], 2), 0x00);							// year
-				frsky_send_user_frame(0x17, DEVO_text_to_int(&packet[1], 2), DEVO_text_to_int(&packet[3], 2));	// hour, min
-				frsky_send_user_frame(0x18, DEVO_text_to_int(&packet[5], 2), 0x00);								// second
+				//memcpy(&packet[1],"\x31\x38\x32\x35\x35\x32\x31\x35\x31\x30\x31\x32",12);							// 2012-10-15 18:25:52 (UTC)
+				if(packet[1]!=0)
+				{
+					frsky_send_user_frame(0x15, DEVO_text_to_int(&packet[9], 2), DEVO_text_to_int(&packet[7], 2));	// month, day
+					frsky_send_user_frame(0x16, DEVO_text_to_int(&packet[11], 2)+24, 0x00);							// year
+					frsky_send_user_frame(0x17, DEVO_text_to_int(&packet[1], 2), DEVO_text_to_int(&packet[3], 2));	// hour, min
+					frsky_send_user_frame(0x18, DEVO_text_to_int(&packet[5], 2), 0x00);								// second
+				}
 				break;
 		}
 	#else

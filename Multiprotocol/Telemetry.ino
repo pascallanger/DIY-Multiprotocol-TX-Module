@@ -637,7 +637,7 @@ static void __attribute__((unused)) frsky_send_user_frame(uint8_t ID, uint8_t lo
 
 static void __attribute__((unused)) frsky_check_user_frame()
 {
-	if(telemetry_link&2 || FrSkyD_User_Frame_Start == FrSkyD_User_Frame_End)
+	if((telemetry_link&2) || FrSkyD_User_Frame_Start == FrSkyD_User_Frame_End)
 		return;		// need to wait that the last frame is sent or buffer is empty
 	frsky_write_user_frame(FrSkyD_User_Frame[FrSkyD_User_Frame_Start].ID, FrSkyD_User_Frame[FrSkyD_User_Frame_Start].low, FrSkyD_User_Frame[FrSkyD_User_Frame_Start].high);
 	FrSkyD_User_Frame_Start++;

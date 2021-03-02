@@ -210,13 +210,7 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 		return;	// Previous telemetry not sent yet...
 	}
 
-	//RSSI
-	TX_RSSI = CYRF_ReadRegister(CYRF_13_RSSI) & 0x1F;
-	TX_RSSI = (TX_RSSI << 1) + TX_RSSI;
-	RX_RSSI = TX_RSSI;
-	telemetry_link |= 1;
-
-	//debug
+	//Debug telem RX
 	//for(uint8_t i=0;i<12;i++)
 	//	debug("%02X ",packet[i]);
 	//debugln("");
@@ -227,6 +221,11 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 		switch(packet[0])
 		{
 			case 0x30:	// Volt and RPM packet
+				//RSSI and voltage
+				TX_RSSI = CYRF_ReadRegister(CYRF_13_RSSI) & 0x1F;
+				TX_RSSI = (TX_RSSI << 1) + TX_RSSI;
+				RX_RSSI = TX_RSSI;
+				telemetry_link |= 1;
 				v_lipo1 = packet[1] << 1;
 				v_lipo2 = packet[3] << 1;
 				//packet[5] = 127;																					// 12.7V
@@ -295,6 +294,10 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 	#else
 		if(packet[0] == 0x30)
 		{
+			TX_RSSI = CYRF_ReadRegister(CYRF_13_RSSI) & 0x1F;
+			TX_RSSI = (TX_RSSI << 1) + TX_RSSI;
+			RX_RSSI = TX_RSSI;
+			telemetry_link |= 1;
 			v_lipo1 = packet[1] << 1;
 			v_lipo2 = packet[3] << 1;
 		}

@@ -185,14 +185,16 @@ static void __attribute__((unused)) DEVO_float_to_ints(uint8_t *ptr, uint16_t *v
 		}
 		if(ptr[i] < '0' || ptr[i] > '9')
 		{
-			if(value!=0 || seen_decimal)
-				break;
-			continue;
+			if(*value != 0 || seen_decimal)
+				return;
 		}
-		if(seen_decimal)
-			*decimal = *decimal * 10 + (ptr[i] - '0');
 		else
-			*value = *value * 10 + (ptr[i] - '0');
+		{
+			if(seen_decimal)
+				*decimal = *decimal * 10 + (ptr[i] - '0');
+			else
+				*value = *value * 10 + (ptr[i] - '0');
+		}
 	}
 }
 

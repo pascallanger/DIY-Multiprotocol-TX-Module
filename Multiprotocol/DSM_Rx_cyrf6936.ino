@@ -155,6 +155,10 @@ static void __attribute__((unused)) DSM_RX_build_telemetry_packet()
 		packet_in[idx++] = bits & 0xff;
 	// Send telemetry
 	telemetry_link = 1;
+	#if defined (SEND_SBUS_SERIAL) || defined (SEND_CPPM)
+		if(sub_protocol>0)
+			telemetry_link = 0x80 + sub_protocol;	// Disable telemetry output, type SBUS=1, type CPPM=2
+	#endif
 }
 
 static bool __attribute__((unused)) DSM_RX_bind_check_validity()

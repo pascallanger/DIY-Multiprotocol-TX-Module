@@ -66,6 +66,9 @@
 		void __irq_usart2(void);
 		void __irq_usart3(void);
 	}
+	#ifdef SEND_CPPM
+		HardwareTimer HWTimer1(1) ;
+	#endif				 
 #endif
 
 //Global constants/variables
@@ -830,6 +833,25 @@ bool Update_All()
 		}
 	#endif //ENABLE_PPM
 	update_led_status();
+	
+	#if defined(SEND_SBUS_SERIAL) || defined(SEND_CPPM)
+		if ( telemetry_link & 0x80 )
+		{ // Protocol requests telemetry to be disabled
+			if( protocol == PROTO_FRSKY_RX || protocol == PROTO_AFHDS2A_RX || protocol == PROTO_BAYANG_RX || protocol == PROTO_DSM_RX )
+			{ // RX protocol
+				#ifdef SEND_SBUS_SERIAL
+					if(telemetry_link & 1)
+						Send_SBUS_USART1();
+				#endif
+				#ifdef SEND_CPPM
+					if(telemetry_link & 2)
+						Send_CCPM_USART1();
+				#endif
+				telemetry_link = 0x80;						// update done
+			}
+		}
+		else
+	#endif
 	#if defined(TELEMETRY)
 		#ifndef MULTI_TELEMETRY
 			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_FRSKYX2) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT) || (protocol==PROTO_PROPEL) || (protocol==PROTO_OMP) || (protocol==PROTO_DEVO) || (protocol==PROTO_DSM_RX) || (protocol==PROTO_FRSKY_R9) || (protocol==PROTO_RLINK) || (protocol==PROTO_WFLY2) || (protocol==PROTO_LOLI) || (protocol==PROTO_MLINK))
@@ -840,8 +862,8 @@ bool Update_All()
 	#ifdef ENABLE_BIND_CH
 		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Channel_data[BIND_CH-1]>CHANNEL_MAX_COMMAND)
 		{ // Autobind is on and BIND_CH went up
-			CHANGE_PROTOCOL_FLAG_on;							//reload protocol
-			BIND_IN_PROGRESS;									//enable bind
+			CHANGE_PROTOCOL_FLAG_on;						// reload protocol
+			BIND_IN_PROGRESS;								// enable bind
 			BIND_CH_PREV_on;
 		}
 		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_on && Channel_data[BIND_CH-1]<CHANNEL_MIN_COMMAND)
@@ -852,7 +874,7 @@ bool Update_All()
 	#endif //ENABLE_BIND_CH
 	if(IS_CHANGE_PROTOCOL_FLAG_on)
 	{ // Protocol needs to be changed or relaunched for bind
-		protocol_init();									//init new protocol
+		protocol_init();									// init new protocol
 		return true;
 	}
 	return false;
@@ -2084,6 +2106,229 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 	}
 #endif //ENABLE_SERIAL
 
+/**************************/
+/**************************/
+/**  SBUS/CPPM routines  **/
+/**************************/
+/**************************/
+#if defined (SEND_SBUS_SERIAL) || defined (SEND_CPPM)
+	uint32_t TrainerTimer ;
+#endif
+
+#ifdef SEND_SBUS_SERIAL
+	uint8_t SbusFrame[26] ;
+	uint16_t SbusChannels[16] ;
+	bool SbusInitialised = false;
+
+	void Init_SBUS_USART1()
+	{
+		for ( uint8_t i = 0 ; i < NUM_CHN ; i += 1 )
+			SbusChannels[i] = 0x03E0 ;	// Centre position
+		usart_init(USART1);
+		usart_config_gpios_async(USART1,GPIOA,PIN_MAP[PA10].gpio_bit,GPIOA,PIN_MAP[PA9].gpio_bit,SERIAL_8E2);
+		usart_set_baud_rate(USART1, STM32_PCLK2, 100000);
+		USART1_BASE->CR1 |= USART_CR1_PCE_BIT;
+		usart_enable(USART1);
+		SbusInitialised = true;
+	}
+
+	void Send_SBUS_USART1()
+	{
+		if(SbusInitialised ==  false)
+			Init_SBUS_USART1();
+		TrainerTimer = millis() ;
+		len = packet_in[3] ;
+		// pad unused channels to 0x03E0 ;
+		// Scale used channels to centre of 0x03E0
+		uint32_t bitsavailable = 0 ;
+		uint32_t bits = 0 ; ;
+		uint32_t i ;
+		uint32_t value ;
+		uint8_t *packet ;
+		packet = &packet_in[4] ;
+		i = packet_in[2] ;	// Start channel
+		// Load changed channels
+		while ( len )
+		{
+			while ( bitsavailable < 11 )
+			{
+				bits |= *packet++ << bitsavailable ;
+				bitsavailable += 8 ;
+			}
+			value = bits & 0x07FF ;
+			value -= (0x0400 - 0x03E0) ;
+			SbusChannels[i++] = value ;
+			bitsavailable -= 11 ;
+			bits >>= 11 ;
+			len-- ;
+		}
+		bitsavailable = 0 ;
+		bits = 0 ;
+		packet = SbusFrame ;
+		*packet++ = 0x0F ;
+		for ( i = 0 ; i < 16 ; i += 1 )
+		{
+			bits |= SbusChannels[i] << bitsavailable ;
+			bitsavailable += 11 ;
+			while ( bitsavailable >= 8 )
+			{
+				*packet++ = bits ;
+				bits >>= 8 ;
+				bitsavailable -= 8 ;
+			}
+		}
+		*packet++ = 0 ;
+		*packet = 0 ;
+		usart_tx( USART1, SbusFrame, 25 ) ;
+	}
+#endif
+
+#ifdef SEND_CPPM
+	#define PPM_CENTER 1500*2
+	uint16_t *TrainerPulsePtr ;
+	uint16_t TrainerPpmStream[10] ;
+	int16_t CppmChannels[8] ;
+	bool CppmInitialised = false;
+
+	void setupTrainerPulses()
+	{
+		uint32_t i ;
+		uint32_t total ;
+		uint32_t pulse ;
+		uint16_t *ptr ;
+		uint32_t p = 8 ;
+		int16_t PPM_range = 512*2 ;										//range of 0.7..1.7msec
+
+		ptr = TrainerPpmStream ;
+
+		total = 22500u*2;												//Minimum Framelen=22.5 ms
+
+		if ( (millis() - TrainerTimer) < 400 )
+		{
+			for ( i = 0 ; i < p ; i += 1 )
+			{
+				pulse = max( (int)min(CppmChannels[i],PPM_range),-PPM_range) + PPM_CENTER ;
+
+				total -= pulse ;
+				*ptr++ = pulse ;
+			}
+		}
+		*ptr++ = total ;
+		*ptr = 0 ;
+		TIMER1_BASE->CCR1 = total - 1500 ;								// Update time
+		TIMER1_BASE->CCR2 = 300*2 ;
+	}
+
+	void init_trainer_ppm()
+	{
+		// Timer 1, channel 2 on PA9
+		RCC_BASE->APB2ENR |= RCC_APB2ENR_TIM1EN ;						// Enable clock
+		setupTrainerPulses() ;
+		RCC_BASE->APB2ENR |= RCC_APB2ENR_IOPAEN ;						// Enable portA clock
+		RCC_BASE->APB2ENR &= ~RCC_APB2ENR_USART1EN ;					// Disable USART1
+
+		GPIOA_BASE->CRH &= ~0x00F0 ;
+		GPIOA_BASE->CRH |= 0x00A0 ;										// AF PP OP2MHz
+
+		HWTimer1.pause() ;												// Pause the timer1 while we're configuring it
+		TIMER1_BASE->ARR = *TrainerPulsePtr++ ;
+		TIMER1_BASE->PSC = 72000000  / 2000000 - 1 ;					// 0.5uS
+		TIMER1_BASE->CCR2 = 600 ;										// 300 uS pulse
+		TIMER1_BASE->CCR1 = 5000 ;										// 2500 uS pulse
+		TIMER1_BASE->CCMR1 = 0x6000 ;									// PWM mode 1 (header file has incorrect bits)
+		TIMER1_BASE->EGR = 1 ;
+		TIMER1_BASE->CCER = TIMER_CCER_CC2E ;
+		//	TIMER1_BASE->DIER |= TIMER_DIER_CC2IE ;
+		TIMER1_BASE->DIER |= TIMER_DIER_UIE ;
+		TIMER1_BASE->CR1 = TIMER_CR1_CEN ;
+		nvic_irq_set_priority(NVIC_TIMER1_CC, 4 ) ;
+		nvic_irq_set_priority(NVIC_TIMER1_UP, 4 ) ;
+		HWTimer1.attachInterrupt(TIMER_UPDATE_INTERRUPT,tim1_up);		// Assign function to Timer1/Comp2 interrupt
+		HWTimer1.attachInterrupt(TIMER_CH1,tim1_cc);					// Assign function to Timer1/Comp2 interrupt
+		//	HWTimer1.attachInterrupt(TIMER_CH2,tim1_cc);				// Assign function to Timer1/Comp2 interrupt
+
+		CppmInitialised = true ;
+		HWTimer1.resume() ;
+	}
+
+	void tim1_up()
+	{
+		#define TIMER1_SR_MASK	0x1FFF
+		// PPM out update interrupt
+		if ( (TIMER1_BASE->DIER & TIMER_DIER_UIE) && ( TIMER1_BASE->SR & TIMER_SR_UIF ) )
+		{
+			GPIOA_BASE->BRR = 0x0200 ;
+			TIMER1_BASE->SR = TIMER1_SR_MASK & ~TIMER_SR_UIF ; 			// Clear flag
+			TIMER1_BASE->ARR = *TrainerPulsePtr++ ;
+			if ( *TrainerPulsePtr == 0 )
+			{
+				TIMER1_BASE->SR = 0x1FFF & ~TIMER_SR_CC1IF ;			// Clear this flag
+				TIMER1_BASE->DIER |= TIMER_DIER_CC1IE ;					// Enable this interrupt
+				TIMER1_BASE->DIER &= ~TIMER_DIER_UIE ;					// Stop this interrupt
+			}
+		}
+	}
+
+	void tim1_cc()
+	{
+		//	if ( ( TIMER1_BASE->DIER & TIMER_DIER_CC2IE ) && ( TIMER1_BASE->SR & TIMER_SR_CC2IF ) )
+		//	{
+		//		GPIOA_BASE->BSRR = 0x0200  ;
+		//  	TIMER1_BASE->SR = 0x1FFF & ~TIMER_SR_CC2IF ;			// Clear flag
+		//	}
+
+		if ( ( TIMER1_BASE->DIER & TIMER_DIER_CC1IE ) && ( TIMER1_BASE->SR & TIMER_SR_CC1IF ) )
+		{
+			// compare interrupt
+			TIMER1_BASE->DIER &= ~TIMER_DIER_CC1IE ;					// Stop this interrupt
+			TIMER1_BASE->SR = 0x1FFF & ~TIMER_SR_CC1IF ;				// Clear flag
+
+			setupTrainerPulses() ;
+
+			TrainerPulsePtr = TrainerPpmStream ;
+			TIMER1_BASE->SR = 0x1FFF & ~TIMER_SR_UIF ;					// Clear this flag
+			TIMER1_BASE->DIER |= TIMER_DIER_UIE ;						// Enable this interrupt
+		}
+	}
+
+	void Send_CCPM_USART1()
+	{
+		if ( CppmInitialised == false )
+			init_trainer_ppm() ;
+		TrainerTimer = millis() ;
+		len = packet_in[3] ;
+		uint32_t bitsavailable = 0 ;
+		uint32_t bits = 0 ; ;
+		uint32_t i ;
+		int16_t value ;
+		uint8_t *packet ;
+		packet = &packet_in[4] ;
+		i = packet_in[2] ;	// Start channel
+		// Load changed channels
+		while ( len )
+		{
+			while ( bitsavailable < 11 )
+			{
+				bits |= *packet++ << bitsavailable ;
+				bitsavailable += 8 ;
+			}
+			value = bits & 0x07FF ;
+			value -= 0x0400 ;
+			bitsavailable -= 11 ;
+			bits >>= 11 ;
+			if ( i < 8 )
+				CppmChannels[i] = value * 5 / 4 ;
+			i++ ;
+			len-- ;
+		}
+	}
+#endif	
+
+/**************************/
+/**************************/
+/**    Arduino random    **/
+/**************************/
+/**************************/
 #if not defined (ORANGE_TX) && not defined (STM32_BOARD)
 	static void random_init(void)
 	{

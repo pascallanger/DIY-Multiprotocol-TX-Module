@@ -52,11 +52,11 @@
 52,ZSX,280
 53,Height,5ch,8ch
 54,Scanner
-55,Frsky_RX,RX,CloneTX,EraseTX
-56,AFHDS2A_RX
+55,Frsky_RX,Multi,CloneTX,EraseTX,SBUS,CPPM
+56,AFHDS2A_RX,Multi,SBUS,CPPM
 57,HoTT,Sync,No_Sync
 58,FX816,P38
-59,Bayang_RX
+59,Bayang_RX,Multi,SBUS,CPPM
 60,Pelikan,Pro,Lite
 61,Tiger
 62,XK,X450,X420
@@ -67,7 +67,7 @@
 67,LR12,LR12,LR12_6ch
 68,Skyartec
 69,ESKYv2,150V2
-70,DSM_RX
+70,DSM_RX,Multi,SBUS,CPPM
 71,JJRC345,JJRC345,SkyTmblr
 72,Q90C
 73,Kyosho,FHSS,Hype

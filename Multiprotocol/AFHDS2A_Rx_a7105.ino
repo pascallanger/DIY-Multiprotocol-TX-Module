@@ -189,6 +189,10 @@ uint16_t AFHDS2A_RX_callback()
 					RX_RSSI = map16b(rssi, 160, 8, 0, 128);
 					AFHDS2A_RX_build_telemetry_packet();
 					telemetry_link = 1;
+					#if defined (SEND_SBUS_SERIAL) || defined (SEND_CPPM)
+						if(sub_protocol>0)
+							telemetry_link = 0x80 + sub_protocol;	// Disable telemetry output, type SBUS=1, type CPPM=2
+					#endif
 				}
 				rx_data_started = true;
 				read_retry = 10; // hop to next channel

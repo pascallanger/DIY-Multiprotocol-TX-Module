@@ -528,8 +528,16 @@
 	#error MAX_PPM_CHANNELS must be below or equal to 16. The default for this value is 16.
 #endif
 
-#if defined (STM32_BOARD) && defined (DEBUG_SERIAL) && defined (NRF24L01_INSTALLED)
-	#define XN297DUMP_NRF24L01_INO
+#if defined (STM32_BOARD) && defined (DEBUG_SERIAL)
+	#undef SEND_SBUS_SERIAL
+	#undef SEND_CPPM 
+	#ifdef NRF24L01_INSTALLED
+		#define XN297DUMP_NRF24L01_INO
+	#endif
+#endif
+#if not defined (STM32_BOARD) || not defined (TELEMETRY) || (not defined (FRSKY_RX_TELEMETRY) && not defined (AFHDS2A_RX_TELEMETRY) && not defined (BAYANG_RX_TELEMETRY) && not defined (DSM_RX_CYRF6936_INO))
+	#undef SEND_SBUS_SERIAL
+	#undef SEND_CPPM 
 #endif
 
 //Check if Direct inputs defined correctly

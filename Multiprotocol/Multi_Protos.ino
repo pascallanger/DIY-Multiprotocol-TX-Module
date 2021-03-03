@@ -142,7 +142,6 @@ const char STR_SUBTYPE_XK[] =         "\x04""X450""X420";
 const char STR_SUBTYPE_FRSKYR9[] =    "\x07""915MHz\0""868MHz\0""915 8ch""868 8ch""FCC\0   ""--\0    ""FCC 8ch""-- 8ch\0";
 const char STR_SUBTYPE_ESKY[] =       "\x03""Std""ET4";
 const char STR_SUBTYPE_PROPEL[] =     "\x04""74-Z";
-const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""RX\0    ""CloneTX""EraseTX";
 const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 const char STR_SUBTYPE_WFLY[] =       "\x05""WFR0x";
 const char STR_SUBTYPE_WFLY2[] =      "\x05""RF20x";
@@ -154,6 +153,20 @@ const char STR_SUBTYPE_REALACC[] =    "\x03""R11";
 const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
 const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
+
+#define NO_SUBTYPE		nullptr
+
+#if defined (SEND_SBUS_SERIAL) || defined (SEND_CPPM)
+	const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""Multi\0 ""CloneTX""EraseTX""SBUS\0  ""CPPM\0  ";
+	#define FRSBUSCPPM 5
+	const char STR_SBUS_CPPM[] =           "\x05""Multi""SBUS\0""CPPM\0";
+	#define SBUS_CPPM 3
+#else
+	const char STR_SUBTYPE_FRSKY_RX[] =   "\x07""Multi\0 ""CloneTX""EraseTX";
+	#define FRSBUSCPPM 3
+	#define STR_SBUS_CPPM NO_SUBTYPE
+	#define SBUS_CPPM 0
+#endif
 
 enum
 {
@@ -170,8 +183,6 @@ enum
 	OPTION_WBUS,
 };
 
-#define NO_SUBTYPE		nullptr
-
 const mm_protocol_definition multi_protocols[] = {
 // Protocol number, Protocol String, Sub_protocol strings, Number of sub_protocols, Option type, Failsafe, ChMap, RF switch, Init, Callback
 	#if defined(MULTI_CONFIG_INO)
@@ -184,7 +195,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_BAYANG,     STR_BAYANG,    STR_SUBTYPE_BAYANG,    6, OPTION_TELEM,   0, 0, SW_NRF,    BAYANG_init,     BAYANG_callback     },
 	#endif
 	#if defined(BAYANG_RX_NRF24L01_INO)
-		{PROTO_BAYANG_RX,  STR_BAYANG_RX, NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    BAYANG_RX_init,  BAYANG_RX_callback  },	
+		{PROTO_BAYANG_RX,  STR_BAYANG_RX, STR_SBUS_CPPM, SBUS_CPPM, OPTION_NONE,    0, 0, SW_NRF,    BAYANG_RX_init,  BAYANG_RX_callback  },	
 	#endif
 	#if defined(BUGS_A7105_INO)
 		{PROTO_BUGS,       STR_BUGS,      NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_A7105,  BUGS_init,       BUGS_callback       },
@@ -217,7 +228,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_DSM,        STR_DSM,       STR_SUBTYPE_DSM,       5, OPTION_MAXTHR,  0, 1, SW_CYRF,   DSM_init,        DSM_callback        },
 	#endif
 	#if defined(DSM_RX_CYRF6936_INO)
-		{PROTO_DSM_RX,     STR_DSM_RX,    NO_SUBTYPE,            0, OPTION_NONE,    0, 1, SW_CYRF,   DSM_RX_init,     DSM_RX_callback     },
+		{PROTO_DSM_RX,     STR_DSM_RX,    STR_SBUS_CPPM, SBUS_CPPM, OPTION_NONE,    0, 1, SW_CYRF,   DSM_RX_init,     DSM_RX_callback     },
 	#endif
 	#if defined(E010R5_CYRF6936_INO)
 		{PROTO_E010R5,     STR_E010R5,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CYRF,   E010R5_init,     E010R5_callback     },
@@ -247,14 +258,14 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_AFHDS2A,    STR_AFHDS2A,   STR_SUBTYPE_AFHDS2A,   8, OPTION_SRVFREQ, 1, 1, SW_A7105,  AFHDS2A_init,    AFHDS2A_callback    },
 	#endif
 	#if defined(AFHDS2A_RX_A7105_INO)
-		{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_A7105,  AFHDS2A_RX_init, AFHDS2A_RX_callback },
+		{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,STR_SBUS_CPPM, SBUS_CPPM, OPTION_NONE,    0, 0, SW_A7105,  AFHDS2A_RX_init, AFHDS2A_RX_callback },
 	#endif
 	#if defined(FQ777_NRF24L01_INO)
 		{PROTO_FQ777,      STR_FQ777,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    FQ777_init,      FQ777_callback      },
 	#endif
 //OpenTX 2.3.x issue: DO NOT CHANGE ORDER below
 	#if defined(FRSKY_RX_CC2500_INO)
-		{PROTO_FRSKY_RX,   STR_FRSKY_RX,  STR_SUBTYPE_FRSKY_RX,  3, OPTION_RFTUNE,  0, 0, SW_CC2500, FRSKY_RX_init,   FRSKY_RX_callback   },
+		{PROTO_FRSKY_RX,   STR_FRSKY_RX,  STR_SUBTYPE_FRSKY_RX, FRSBUSCPPM, OPTION_RFTUNE,  0, 0, SW_CC2500, FRSKY_RX_init,   FRSKY_RX_callback   },
 	#endif
 	#if defined(FRSKYD_CC2500_INO)
 		{PROTO_FRSKYD,     STR_FRSKYD,    STR_SUBTYPE_FRSKYD,    2, OPTION_RFTUNE,  0, 0, SW_CC2500, FRSKYD_init,     FRSKYD_callback     },

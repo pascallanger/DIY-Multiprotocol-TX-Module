@@ -2120,6 +2120,10 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 	uint32_t TrainerTimer ;
 #endif
 
+#ifdef SEND_CPPM
+	bool CppmInitialised = false;
+#endif
+
 #ifdef SEND_SBUS_SERIAL
 	uint8_t SbusFrame[26] ;
 	uint16_t SbusChannels[16] ;
@@ -2127,6 +2131,7 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 
 	void Init_SBUS_USART1()
 	{
+		RCC_BASE->APB2ENR |= RCC_APB2ENR_USART1EN ;					// Enable USART1
 		for ( uint8_t i = 0 ; i < NUM_CHN ; i += 1 )
 			SbusChannels[i] = 0x03E0 ;	// Centre position
 		usart_init(USART1);
@@ -2135,6 +2140,9 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 		USART1_BASE->CR1 |= USART_CR1_PCE_BIT;
 		usart_enable(USART1);
 		SbusInitialised = true;
+		#ifdef SEND_CPPM
+			CppmInitialised = false;
+		#endif
 	}
 
 	void Send_SBUS_USART1()
@@ -2193,7 +2201,6 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 	uint16_t *TrainerPulsePtr ;
 	uint16_t TrainerPpmStream[10] ;
 	int16_t CppmChannels[8] ;
-	bool CppmInitialised = false;
 
 	void setupTrainerPulses()
 	{
@@ -2230,6 +2237,13 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 		RCC_BASE->APB2ENR |= RCC_APB2ENR_TIM1EN ;						// Enable clock
 		setupTrainerPulses() ;
 		RCC_BASE->APB2ENR |= RCC_APB2ENR_IOPAEN ;						// Enable portA clock
+		#ifdef SEND_SBUS_SERIAL
+			if ( SbusInitialised == true )
+			{
+				SbusInitialised = false ;
+				USART1_BASE->CR1 = 0 ;
+			}
+		#endif
 		RCC_BASE->APB2ENR &= ~RCC_APB2ENR_USART1EN ;					// Disable USART1
 
 		GPIOA_BASE->CRH &= ~0x00F0 ;
@@ -2300,13 +2314,6 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 	{
 		if ( CppmInitialised == false )
 			init_trainer_ppm() ;
-#ifdef SEND_SBUS_SERIAL
-		if(	SbusInitialised == true )
-		{
-			usart_disable(USART1);
-			SbusInitialised = false;
-		}
-#endif
 		TrainerTimer = millis() ;
 		len = packet_in[3] ;
 		uint32_t bitsavailable = 0 ;

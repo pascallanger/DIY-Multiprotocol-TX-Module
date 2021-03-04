@@ -2141,7 +2141,11 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 		usart_enable(USART1);
 		SbusInitialised = true;
 		#ifdef SEND_CPPM
-			CppmInitialised = false;
+			if(CppmInitialised)
+			{
+				TIMER1_BASE->CR1 = 0 ;
+				CppmInitialised = false;
+			}
 		#endif
 	}
 
@@ -2238,7 +2242,7 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 		setupTrainerPulses() ;
 		RCC_BASE->APB2ENR |= RCC_APB2ENR_IOPAEN ;						// Enable portA clock
 		#ifdef SEND_SBUS_SERIAL
-			if ( SbusInitialised == true )
+			if(SbusInitialised)
 			{
 				SbusInitialised = false ;
 				USART1_BASE->CR1 = 0 ;

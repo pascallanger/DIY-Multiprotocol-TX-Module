@@ -839,15 +839,20 @@ bool Update_All()
 		{ // Protocol requests telemetry to be disabled
 			if( protocol == PROTO_FRSKY_RX || protocol == PROTO_AFHDS2A_RX || protocol == PROTO_BAYANG_RX || protocol == PROTO_DSM_RX )
 			{ // RX protocol
-				#ifdef SEND_SBUS_SERIAL
-					if(telemetry_link & 1)
-						Send_SBUS_USART1();
-				#endif
-				#ifdef SEND_CPPM
-					if(telemetry_link & 2)
-						Send_CCPM_USART1();
-				#endif
-				telemetry_link = 0x80;						// update done
+				if(RX_LQI == 0)
+					telemetry_link = 0x00;						// restore normal telemetry on connection loss
+				else
+				{
+					#ifdef SEND_SBUS_SERIAL
+						if(telemetry_link & 1)
+							Send_SBUS_USART1();
+					#endif
+					#ifdef SEND_CPPM
+						if(telemetry_link & 2)
+							Send_CCPM_USART1();
+					#endif
+					telemetry_link = 0x80;						// update done
+				}
 			}
 		}
 		else

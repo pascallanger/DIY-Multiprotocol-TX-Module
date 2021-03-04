@@ -575,7 +575,7 @@ uint16_t FRSKY_RX_callback()
 					FRSKY_RX_set_channel(hopping_frequency_no);
 					if(chanskip_valid)
 					{
-						if (telemetry_link == 0)
+						if ((telemetry_link & 0x7F) == 0)
 						{ // send channels to TX
 							FRSKY_RX_build_telemetry_packet();
 							telemetry_link = 1;

@@ -148,7 +148,7 @@ uint16_t BAYANG_RX_callback()
 	case BAYANG_RX_DATA:
 		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) {
 			if (XN297_ReadPayload(packet, BAYANG_RX_PACKET_SIZE) && packet[0] == 0xA5 && Bayang_Rx_check_validity()) {
-				if (telemetry_link == 0) {
+				if ((telemetry_link & 0x7F) == 0) {
 					Bayang_Rx_build_telemetry_packet();
 					telemetry_link = 1;
 					#if defined (SEND_SBUS_SERIAL) || defined (SEND_CPPM)

@@ -2300,6 +2300,13 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 	{
 		if ( CppmInitialised == false )
 			init_trainer_ppm() ;
+#ifdef SEND_SBUS_SERIAL
+		if(	SbusInitialised == true )
+		{
+			usart_disable(USART1);
+			SbusInitialised = false;
+		}
+#endif
 		TrainerTimer = millis() ;
 		len = packet_in[3] ;
 		uint32_t bitsavailable = 0 ;

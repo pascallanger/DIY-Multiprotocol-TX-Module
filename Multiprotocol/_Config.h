@@ -442,14 +442,14 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 #if NBR_BANKS > 1
 //******************************       BANK 2       ******************************
 //	Switch	Protocol 		Sub protocol	RX_Num	Power		Auto Bind		Option	Chan Order
-/*	1	*/	{PROTO_DSM	,	DSM2_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6	,	0x00000000 },	// option=number of channels
-/*	2	*/	{PROTO_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6	,	0x00000000 },	// option=number of channels
-/*	3	*/	{PROTO_DSM	,	DSMX_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6	,	0x00000000 },	// option=number of channels
-/*	4	*/	{PROTO_DSM	,	DSMX_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6	,	0x00000000 },	// option=number of channels
-/*	5	*/	{PROTO_DSM	,	DSM2_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8	,	0x00000000 },	// option=number of channels
-/*	6	*/	{PROTO_DSM	,	DSM2_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8	,	0x00000000 },	// option=number of channels
-/*	7	*/	{PROTO_DSM	,	DSMX_11		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8	,	0x00000000 },	// option=number of channels
-/*	8	*/	{PROTO_DSM	,	DSMX_22		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8	,	0x00000000 },	// option=number of channels
+/*	1	*/	{PROTO_DSM	,	DSM2_2F		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6	,	0x00000000 },	// option=number of channels
+/*	2	*/	{PROTO_DSM	,	DSM2_1F		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6	,	0x00000000 },	// option=number of channels
+/*	3	*/	{PROTO_DSM	,	DSMX_2F		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6	,	0x00000000 },	// option=number of channels
+/*	4	*/	{PROTO_DSM	,	DSMX_1F		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6	,	0x00000000 },	// option=number of channels
+/*	5	*/	{PROTO_DSM	,	DSM2_2F		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8	,	0x00000000 },	// option=number of channels
+/*	6	*/	{PROTO_DSM	,	DSM2_1F		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8	,	0x00000000 },	// option=number of channels
+/*	7	*/	{PROTO_DSM	,	DSMX_2F		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8	,	0x00000000 },	// option=number of channels
+/*	8	*/	{PROTO_DSM	,	DSMX_1F		,	0	,	P_HIGH	,	NO_AUTOBIND	,	8	,	0x00000000 },	// option=number of channels
 /*	9	*/	{PROTO_SLT	,	SLT_V1		,	0	,	P_HIGH	,	NO_AUTOBIND	,	6	,	0x00000000 },
 /*	10	*/	{PROTO_HUBSAN,	H107		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0	,	0x00000000 },
 /*	11	*/	{PROTO_HUBSAN,	H301		,	0	,	P_HIGH	,	NO_AUTOBIND	,	0	,	0x00000000 },
@@ -587,10 +587,10 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 	PROTO_DM002
 		NONE
 	PROTO_DSM
-		DSM2_22
-		DSM2_11
-		DSMX_22
-		DSMX_11
+		DSM2_1F
+		DSM2_2F
+		DSMX_1F
+		DSMX_2F
 	PROTO_DSM_RX
 		NONE
 	PROTO_E010R5

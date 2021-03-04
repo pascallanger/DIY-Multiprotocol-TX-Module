@@ -151,10 +151,10 @@ enum Hisky
 };
 enum DSM
 {
-	DSM2_22	= 0,
-	DSM2_11	= 1,
-	DSMX_22	= 2,
-	DSMX_11	= 3,
+	DSM2_1F	= 0,
+	DSM2_2F	= 1,
+	DSMX_1F	= 2,
+	DSMX_2F	= 3,
 	DSM_AUTO = 4,
 };
 enum YD717
@@ -911,10 +911,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			Hisky		0
 			HK310		1
 		sub_protocol==DSM
-			DSM2_22 	0
-			DSM2_11 	1
-			DSMX_22 	2
-			DSMX_11 	3
+			DSM2_1F 	0
+			DSM2_2F 	1
+			DSMX_1F 	2
+			DSMX_2F 	3
 			DSM_AUTO	4
 		sub_protocol==YD717
 			YD717		0

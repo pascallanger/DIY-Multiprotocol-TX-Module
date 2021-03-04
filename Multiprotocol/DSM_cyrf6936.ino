@@ -88,17 +88,17 @@ static void __attribute__((unused)) DSM_build_bind_packet()
 	else
 		packet[11] = num_ch;
 
-	if (sub_protocol==DSM2_22)
+	if (sub_protocol==DSM2_1F)
 		packet[12]=num_ch<8?0x01:0x02;		// DSM2/1024 1 or 2 packets depending on the number of channels
-	else if(sub_protocol==DSM2_11)
+	else if(sub_protocol==DSM2_2F)
 		packet[12]=0x12;					// DSM2/2048 2 packets
-	else if(sub_protocol==DSMX_22)
+	else if(sub_protocol==DSMX_1F)
 		#if defined DSM_TELEMETRY
 			packet[12] = 0xb2;				// DSMX/2048 2 packets
 		#else
 			packet[12] = num_ch<8? 0xa2 : 0xb2;	// DSMX/2048 1 or 2 packets depending on the number of channels
 		#endif
-	else									// DSMX_11 && DSM_AUTO
+	else									// DSMX_2F && DSM_AUTO
 		packet[12]=0xb2;					// DSMX/2048 2 packets
 	
 	packet[13] = 0x00;						//???
@@ -141,7 +141,7 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 	if(prev_option!=option)
 		DSM_update_channels();
 
-	if (sub_protocol==DSMX_11 || sub_protocol==DSMX_22 )
+	if (sub_protocol==DSMX_2F || sub_protocol==DSMX_1F )
 	{//DSMX
 		packet[0] = cyrfmfg_id[2];
 		packet[1] = cyrfmfg_id[3];
@@ -150,8 +150,8 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 	{//DSM2
 		packet[0] = (0xff ^ cyrfmfg_id[2]);
 		packet[1] = (0xff ^ cyrfmfg_id[3]);
-		if(sub_protocol==DSM2_22)
-			bits=10;								// Only DSM2_22 is using a resolution of 1024
+		if(sub_protocol==DSM2_1F)
+			bits=10;								// Only DSM2_1F is using a resolution of 1024
 	}
 
 	#ifdef DSM_THROTTLE_KILL_CH
@@ -320,7 +320,7 @@ uint16_t DSM_callback()
 			CYRF_SetTxRxMode(TX_EN);
 			hopping_frequency_no = 0;
 			phase = DSM_CH1_WRITE_A;						// in fact phase++
-			DSM_set_sop_data_crc(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B, sub_protocol==DSMX_11||sub_protocol==DSMX_22);
+			DSM_set_sop_data_crc(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B, sub_protocol==DSMX_2F||sub_protocol==DSMX_1F);
 			return 10000;
 		case DSM_CH1_WRITE_A:
 			#ifdef MULTI_SYNC
@@ -361,7 +361,7 @@ uint16_t DSM_callback()
 						CYRF_SetTxRxMode(TX_EN);
 					}
 				#endif
-				DSM_set_sop_data_crc(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B, sub_protocol==DSMX_11 || sub_protocol==DSMX_22);
+				DSM_set_sop_data_crc(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B, sub_protocol==DSMX_2F || sub_protocol==DSMX_1F);
 				phase++;										// change from CH1_CHECK to CH2_WRITE
 				return DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
 			}
@@ -400,7 +400,7 @@ uint16_t DSM_callback()
 				telemetry_link=1;
 			}
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation
-			if (phase == DSM_CH2_READ_A && (sub_protocol==DSM2_22 || sub_protocol==DSMX_22) && num_ch < 8)	// 22ms mode
+			if (phase == DSM_CH2_READ_A && (sub_protocol==DSM2_1F || sub_protocol==DSMX_1F) && num_ch < 8)	// 22ms mode
 			{
 				CYRF_SetTxRxMode(RX_EN);					// Force end state read
 				CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);	// Clear abort RX operation
@@ -418,14 +418,14 @@ uint16_t DSM_callback()
 				phase = DSM_CH1_WRITE_A;					//Transmit lower
 			CYRF_SetTxRxMode(TX_EN);						//TX mode
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);		//Clear abort RX operation
-			DSM_set_sop_data_crc(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B, sub_protocol==DSMX_11||sub_protocol==DSMX_22);
+			DSM_set_sop_data_crc(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B, sub_protocol==DSMX_2F||sub_protocol==DSMX_1F);
 			return DSM_READ_DELAY;
 #else
 			// No telemetry
-			DSM_set_sop_data_crc(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B, sub_protocol==DSMX_11||sub_protocol==DSMX_22);
+			DSM_set_sop_data_crc(phase==DSM_CH1_CHECK_A||phase==DSM_CH1_CHECK_B, sub_protocol==DSMX_2F||sub_protocol==DSMX_1F);
 			if (phase == DSM_CH2_CHECK_A)
 			{
-				if(num_ch > 7 || sub_protocol==DSM2_11 || sub_protocol==DSMX_11)
+				if(num_ch > 7 || sub_protocol==DSM2_2F || sub_protocol==DSMX_2F)
 					phase = DSM_CH1_WRITE_B;				//11ms mode or upper to transmit change from CH2_CHECK_A to CH1_WRITE_A
 				else										
 				{											//Normal mode 22ms
@@ -465,7 +465,7 @@ void DSM_init()
 	//Calc CRC seed
 	seed = (cyrfmfg_id[0] << 8) + cyrfmfg_id[1];
 	//Hopping frequencies
-	if (sub_protocol == DSMX_11 || sub_protocol == DSMX_22)
+	if (sub_protocol == DSMX_2F || sub_protocol == DSMX_1F)
 		DSM_calc_dsmx_channel();
 	else
 	{ 

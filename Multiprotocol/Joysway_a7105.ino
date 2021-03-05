@@ -100,10 +100,13 @@ void JOYSWAY_init()
 {
 	BIND_DONE;		// not a bind protocol
 
+	MProtocol_id &= 0x00FFFFFF;
+	MProtocol_id |= 0xF8000000;
 	#ifdef JOYSWAY_FORCE_ID
 		MProtocol_id = 0xf82dcaa0;
-		set_rx_tx_addr(MProtocol_id);
 	#endif
+
+	set_rx_tx_addr(MProtocol_id);
 
 	A7105_Init();
 	

@@ -64,7 +64,7 @@ Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Su
 ---|---|---|---|---|---|---|---|---|---|---|---
 [Assan](Protocols_Details.md#ASSAN---24)|24|||||||||NRF24L01|
 [Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4|QX100|||NRF24L01|XN297
-[Bayang RX](Protocols_Details.md#BAYANG-RX---59)|59|||||||||NRF24L01|XN297
+[Bayang RX](Protocols_Details.md#BAYANG-RX---59)|59|Multi|CPPM|||||||NRF24L01|XN297
 [Bugs](Protocols_Details.md#BUGS---41)|41|||||||||A7105|
 [BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI|BUGS3H|||||||NRF24L01|XN297
 [Cabell](Protocols_Details.md#Cabell---34)|34|Cabell_V3|C_TELEM|-|-|-|-|F_SAFE|UNBIND|NRF24L01|
@@ -75,7 +75,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Devo](Protocols_Details.md#DEVO---7)|7|Devo|8CH|10CH|12CH|6CH|7CH|||CYRF6936|
 [DM002](Protocols_Details.md#DM002---33)|33|||||||||NRF24L01|XN297
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO||||CYRF6936|
-[DSM_RX](Protocols_Details.md#DSM_RX---70)|70|||||||||CYRF6936|
+[DSM_RX](Protocols_Details.md#DSM_RX---70)|70|Multi|CPPM|||||||CYRF6936|
 [E010R5](Protocols_Details.md#E010R5---81)|81|||||||||CYRF6936/NRF24L01|RF2500
 [E016HV2](Protocols_Details.md#E016HV2---80)|80|||||||||CC2500/NRF24L01|unknown
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
@@ -85,7 +85,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|||||||||CC2500|NRF51822
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|PWM_IBUS16|PPM_IBUS16|||A7105|
-[Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|RX||||||||A7105|
+[Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|Multi|CPPM|||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|D8|Cloned|||||||CC2500|
 [FrskyL](Protocols_Details.md#FRSKYL---67)|67|LR12|LR12 6CH|||||||CC2500|
@@ -93,7 +93,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyV](Protocols_Details.md#FRSKYV---25)|25|||||||||CC2500|
 [FrskyX](Protocols_Details.md#FRSKYX---15)|15|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
-[Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|RX|CloneTX|||||||CC2500|
+[Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|Multi|CloneTX|EraseTX|CPPM|||||CC2500|
 [Futaba/SFHSS](Protocols_Details.md#Futaba---21)|21|SFHSS||||||||CC2500|
 [FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
@@ -253,6 +253,15 @@ Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 Extended limits supported
 
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
+
+### Sub_protocol Multi - *0*
+Use the telemetry to send the trainer information to the radio.
+Available in OpenTX 2.3.3, Trainer Mode Master/Multi
+
+### Sub_protocol CPPM - *1*
+Sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
+On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
+Hardware modification: add a 1K resistor between the STM32 USART1.TX pin (Boot0 programming TX pin) and the radio bay pin 2 (from top).
 
 ## HEIGHT - *53*
 
@@ -516,6 +525,14 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
+### Sub_protocol Multi - *0*
+Use the telemetry to send the trainer information to the radio.
+
+### Sub_protocol CPPM - *1*
+Sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
+On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
+Hardware modification: add a 1K resistor between the STM32 USART1.TX pin (Boot0 programming TX pin) and the radio bay pin 2 (from top).
+
 ## E010R5 - *81*
 Models: E010 R5 red boards, JJRC H36, H36F and H36S
 
@@ -754,7 +771,7 @@ Same as [FrskyX](Protocols_Details.md#FRSKYX---15) but for D16 v2.1.0 FCC/LBT.
 
 ## FRSKY_RX - *55*
 
-### Sub_protocol RX - *0*
+### Sub_protocol Multi - *0*
 The FrSky receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...
 
 Auto detection of the protocol used by a TX transmitting FrSkyD/D8, FrSkyX/D16 v1.xxx FCC/LBT or FrSkyX/D16 v2.1.0 FCC/LBT at bind time.
@@ -771,6 +788,11 @@ This value is different for each Module and **must** be accurate otherwise the l
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
+
+### Sub_protocol CPPM - *3*
+Equivalent to Multi but sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
+On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
+Hardware modification: add a 1K resistor between the STM32 USART1.TX pin (Boot0 programming TX pin) and the radio bay pin 2 (from top).
 
 ### Sub_protocol CloneTX - *1*
 This subprotocol makes a clone of a TX identifier transmitting FrSkyD/D8, FrSkyX/D16 v1.xxx FCC/LBT and FrSkyX/D16 v2.1.0 FCC/LBT.
@@ -1128,7 +1150,14 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|---
 A|E|T|R|ANAUX1|ANAUX2|FLIP|RTH|PICTURE|VIDEO
 
+### Sub_protocol Multi - *0*
+Use the telemetry to send the trainer information to the radio.
 Available in OpenTX 2.3.3, Trainer Mode Master/Multi
+
+### Sub_protocol CPPM - *1*
+Sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
+On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
+Hardware modification: add a 1K resistor between the STM32 USART1.TX pin (Boot0 programming TX pin) and the radio bay pin 2 (from top).
 
 ## BUGSMINI - *42*
 Models: MJX Bugs 3 Mini and 3H

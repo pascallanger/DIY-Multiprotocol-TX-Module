@@ -369,6 +369,10 @@ void setup()
 			#endif
 		#endif
 
+		#ifdef SEND_CPPM
+			pinMode(PA9,INPUT);						// make sure the USART1.TX pin is released for heartbeat use
+		#endif
+
 		//Timers
 		init_HWTimer();								//0.5us
 

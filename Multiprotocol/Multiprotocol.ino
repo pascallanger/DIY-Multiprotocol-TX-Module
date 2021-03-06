@@ -834,24 +834,17 @@ bool Update_All()
 	#endif //ENABLE_PPM
 	update_led_status();
 	
-	#if defined(SEND_SBUS_SERIAL) || defined(SEND_CPPM)
+	#ifdef SEND_CPPM
 		if ( telemetry_link & 0x80 )
 		{ // Protocol requests telemetry to be disabled
 			if( protocol == PROTO_FRSKY_RX || protocol == PROTO_AFHDS2A_RX || protocol == PROTO_BAYANG_RX || protocol == PROTO_DSM_RX )
 			{ // RX protocol
 				if(RX_LQI == 0)
-					telemetry_link = 0x00;						// restore normal telemetry on connection loss
-				else
-				{
-					#ifdef SEND_SBUS_SERIAL
-						if(telemetry_link & 1)
-							Send_SBUS_USART1();
-					#endif
-					#ifdef SEND_CPPM
-						if(telemetry_link & 2)
-							Send_CCPM_USART1();
-					#endif
-					telemetry_link = 0x80;						// update done
+					telemetry_link = 0x00;					// restore normal telemetry on connection loss
+				else if(telemetry_link & 1)
+				{ // New data available
+					Send_CCPM_USART1();
+					telemetry_link &= 0xFE;					// update done
 				}
 			}
 		}
@@ -1168,6 +1161,11 @@ static void protocol_init()
 			#endif
 		#endif
 		binding_idx=0;
+		
+		//Stop CPPM if it was previously running
+		#ifdef SEND_CPPM
+			release_trainer_ppm();
+		#endif
 		
 		//Set global ID and rx_tx_addr
 		MProtocol_id = RX_num + MProtocol_id_master;
@@ -2113,95 +2111,13 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 
 /**************************/
 /**************************/
-/**  SBUS/CPPM routines  **/
+/**    CPPM  routines    **/
 /**************************/
 /**************************/
-#if defined (SEND_SBUS_SERIAL) || defined (SEND_CPPM)
-	uint32_t TrainerTimer ;
-#endif
-
-#ifdef SEND_CPPM
-	bool CppmInitialised = false;
-#endif
-
-#ifdef SEND_SBUS_SERIAL
-	uint8_t SbusFrame[26] ;
-	uint16_t SbusChannels[16] ;
-	bool SbusInitialised = false;
-
-	void Init_SBUS_USART1()
-	{
-		RCC_BASE->APB2ENR |= RCC_APB2ENR_USART1EN ;					// Enable USART1
-		for ( uint8_t i = 0 ; i < NUM_CHN ; i += 1 )
-			SbusChannels[i] = 0x03E0 ;	// Centre position
-		usart_init(USART1);
-		usart_config_gpios_async(USART1,GPIOA,PIN_MAP[PA10].gpio_bit,GPIOA,PIN_MAP[PA9].gpio_bit,SERIAL_8E2);
-		usart_set_baud_rate(USART1, STM32_PCLK2, 100000);
-		USART1_BASE->CR1 |= USART_CR1_PCE_BIT;
-		usart_enable(USART1);
-		SbusInitialised = true;
-		#ifdef SEND_CPPM
-			if(CppmInitialised)
-			{
-				TIMER1_BASE->CR1 = 0 ;
-				CppmInitialised = false;
-			}
-		#endif
-	}
-
-	void Send_SBUS_USART1()
-	{
-		if(SbusInitialised ==  false)
-			Init_SBUS_USART1();
-		TrainerTimer = millis() ;
-		len = packet_in[3] ;
-		// pad unused channels to 0x03E0 ;
-		// Scale used channels to centre of 0x03E0
-		uint32_t bitsavailable = 0 ;
-		uint32_t bits = 0 ; ;
-		uint32_t i ;
-		uint32_t value ;
-		uint8_t *packet ;
-		packet = &packet_in[4] ;
-		i = packet_in[2] ;	// Start channel
-		// Load changed channels
-		while ( len )
-		{
-			while ( bitsavailable < 11 )
-			{
-				bits |= *packet++ << bitsavailable ;
-				bitsavailable += 8 ;
-			}
-			value = bits & 0x07FF ;
-			value -= (0x0400 - 0x03E0) ;
-			SbusChannels[i++] = value ;
-			bitsavailable -= 11 ;
-			bits >>= 11 ;
-			len-- ;
-		}
-		bitsavailable = 0 ;
-		bits = 0 ;
-		packet = SbusFrame ;
-		*packet++ = 0x0F ;
-		for ( i = 0 ; i < 16 ; i += 1 )
-		{
-			bits |= SbusChannels[i] << bitsavailable ;
-			bitsavailable += 11 ;
-			while ( bitsavailable >= 8 )
-			{
-				*packet++ = bits ;
-				bits >>= 8 ;
-				bitsavailable -= 8 ;
-			}
-		}
-		*packet++ = 0 ;
-		*packet = 0 ;
-		usart_tx( USART1, SbusFrame, 25 ) ;
-	}
-#endif
-
 #ifdef SEND_CPPM
 	#define PPM_CENTER 1500*2
+	uint32_t TrainerTimer ;
+	bool CppmInitialised = false;
 	uint16_t *TrainerPulsePtr ;
 	uint16_t TrainerPpmStream[10] ;
 	int16_t CppmChannels[8] ;
@@ -2241,13 +2157,6 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 		RCC_BASE->APB2ENR |= RCC_APB2ENR_TIM1EN ;						// Enable clock
 		setupTrainerPulses() ;
 		RCC_BASE->APB2ENR |= RCC_APB2ENR_IOPAEN ;						// Enable portA clock
-		#ifdef SEND_SBUS_SERIAL
-			if(SbusInitialised)
-			{
-				SbusInitialised = false ;
-				USART1_BASE->CR1 = 0 ;
-			}
-		#endif
 		RCC_BASE->APB2ENR &= ~RCC_APB2ENR_USART1EN ;					// Disable USART1
 
 		GPIOA_BASE->CRH &= ~0x00F0 ;
@@ -2261,17 +2170,25 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 		TIMER1_BASE->CCMR1 = 0x6000 ;									// PWM mode 1 (header file has incorrect bits)
 		TIMER1_BASE->EGR = 1 ;
 		TIMER1_BASE->CCER = TIMER_CCER_CC2E ;
-		//	TIMER1_BASE->DIER |= TIMER_DIER_CC2IE ;
 		TIMER1_BASE->DIER |= TIMER_DIER_UIE ;
 		TIMER1_BASE->CR1 = TIMER_CR1_CEN ;
 		nvic_irq_set_priority(NVIC_TIMER1_CC, 4 ) ;
 		nvic_irq_set_priority(NVIC_TIMER1_UP, 4 ) ;
 		HWTimer1.attachInterrupt(TIMER_UPDATE_INTERRUPT,tim1_up);		// Assign function to Timer1/Comp2 interrupt
 		HWTimer1.attachInterrupt(TIMER_CH1,tim1_cc);					// Assign function to Timer1/Comp2 interrupt
-		//	HWTimer1.attachInterrupt(TIMER_CH2,tim1_cc);				// Assign function to Timer1/Comp2 interrupt
 
 		CppmInitialised = true ;
 		HWTimer1.resume() ;
+	}
+
+	void release_trainer_ppm()
+	{
+		if ( CppmInitialised )
+		{
+			TIMER1_BASE->CR1 = 0 ;
+			pinMode(PA9,INPUT) ;
+			CppmInitialised = false ;
+		}
 	}
 
 	void tim1_up()
@@ -2294,12 +2211,6 @@ static void __attribute__((unused)) crc8_update(uint8_t byte)
 
 	void tim1_cc()
 	{
-		//	if ( ( TIMER1_BASE->DIER & TIMER_DIER_CC2IE ) && ( TIMER1_BASE->SR & TIMER_SR_CC2IF ) )
-		//	{
-		//		GPIOA_BASE->BSRR = 0x0200  ;
-		//  	TIMER1_BASE->SR = 0x1FFF & ~TIMER_SR_CC2IF ;			// Clear flag
-		//	}
-
 		if ( ( TIMER1_BASE->DIER & TIMER_DIER_CC1IE ) && ( TIMER1_BASE->SR & TIMER_SR_CC1IF ) )
 		{
 			// compare interrupt

@@ -347,12 +347,9 @@
 /**************************/
 // By default Multi uses the telemetry line to send the received channels using a RX protocol (FrSky, DSM, AFHDS2A, Bayang) to the radio.
 // But this does not work on FrSky radios since the telemetry lines of the internal and external modules are shared (hardware limitation).
-// Using one of the method below (both can be enabled) on a STM32 module enables to go around that issue but needs a hardware modification on the module itself.
-
-//SBUS signal needs an inverter between the STM32 USART1 TX pin and the radio bay pin 2
-//#define SEND_SBUS_SERIAL
-
-//CPPM signal needs a resistor between the STM32 USART1 TX pin and the radio bay pin 2
+// On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
+// Hardware modification: add a 1K resistor between the STM32 USART1 TX pin (Boot0 programming TX pin) and the radio bay pin 2.
+//Uncomment to enable
 //#define SEND_CPPM
 
 /****************************/

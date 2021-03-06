@@ -528,7 +528,7 @@ uint16_t FRSKY_RX_callback()
 						eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[3]);
 						eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[2]);
 						eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[1]);
-						if(sub_protocol == FRSKY_RX || sub_protocol >= FRSKY_SBUS)	// FRSKY_RX, FRSKY_SBUS, FRSKY_CPPM
+						if(sub_protocol == FRSKY_RX || sub_protocol == FRSKY_CPPM)	// FRSKY_RX, FRSKY_CPPM
 							eeprom_write_byte((EE_ADDR)temp++, FRSKY_RX_finetune);
 						if(FRSKY_RX_format != FRSKY_RX_D16v2FCC && FRSKY_RX_format != FRSKY_RX_D16v2LBT)
 							for (ch = 0; ch < 47; ch++)
@@ -579,9 +579,9 @@ uint16_t FRSKY_RX_callback()
 						{ // send channels to TX
 							FRSKY_RX_build_telemetry_packet();
 							telemetry_link = 1;
-							#if defined (SEND_SBUS_SERIAL) || defined (SEND_CPPM)
-								if(sub_protocol >= FRSKY_SBUS)
-									telemetry_link = 0x81 + sub_protocol - FRSKY_SBUS;	// Disable telemetry output, type SBUS=1, type CPPM=2
+							#ifdef SEND_CPPM
+								if(sub_protocol == FRSKY_CPPM)
+									telemetry_link |= 0x80;		// Disable telemetry output
 							#endif
 						}
 						pps_counter++;

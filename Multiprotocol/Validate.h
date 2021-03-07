@@ -237,6 +237,7 @@
 	#define NRF24L01_INSTALLED
 	#define SX1276_INSTALLED
 	#undef ENABLE_PPM
+	#undef SEND_CPPM
 #endif
 
 //Make sure protocols are selected correctly

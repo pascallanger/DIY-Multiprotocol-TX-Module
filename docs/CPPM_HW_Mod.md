@@ -12,9 +12,10 @@ For the hardware modification you need:
 
 The goal is to add the 1K resistor between the STM32 USART1.TX pin (Boot0 programming TX pin) and the radio bay pin 2.
 
-Here is the modification on a Banggood 4-in-1 or an iRangeX IRX4 / IRX4+:
+## Here is the modification on a Banggood 4-in-1 or an iRangeX IRX4 / IRX4+:
 
-    ![Image](/docs/images/CPPM_BG_IRX4_Mark.jpg)
+![Image](/docs/images/CPPM_BG_IRX4_Mark.jpg)
 
-Here is the modification on a Jumper 4-in-1:
-    ![Image](/docs/images/CPPM_JP4IN1_Mark.jpg)
+## Here is the modification on a Jumper 4-in-1:
+   
+![Image](/docs/images/CPPM_JP4IN1_Mark.jpg)

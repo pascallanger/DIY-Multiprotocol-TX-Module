@@ -261,7 +261,7 @@ Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 ### Sub_protocol CPPM - *1*
 Sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
 On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
-Hardware modification: add a 1K resistor between the STM32 USART1.TX pin (Boot0 programming TX pin) and the radio bay pin 2 (from top).
+For more information check the [CCPM Hardware Modification](/docs/CPPM_HW_Mod.md) page.
 
 ## HEIGHT - *53*
 
@@ -531,7 +531,7 @@ Use the telemetry to send the trainer information to the radio.
 ### Sub_protocol CPPM - *1*
 Sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
 On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
-Hardware modification: add a 1K resistor between the STM32 USART1.TX pin (Boot0 programming TX pin) and the radio bay pin 2 (from top).
+For more information check the [CCPM Hardware Modification](/docs/CPPM_HW_Mod.md) page.
 
 ## E010R5 - *81*
 Models: E010 R5 red boards, JJRC H36, H36F and H36S
@@ -790,9 +790,9 @@ Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
 Low power: enable/disable the LNA stage on the RF component to use depending on the distance with the TX.
 
 ### Sub_protocol CPPM - *3*
-Equivalent to Multi but sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
+Sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
 On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
-Hardware modification: add a 1K resistor between the STM32 USART1.TX pin (Boot0 programming TX pin) and the radio bay pin 2 (from top).
+For more information check the [CCPM Hardware Modification](/docs/CPPM_HW_Mod.md) page.
 
 ### Sub_protocol CloneTX - *1*
 This subprotocol makes a clone of a TX identifier transmitting FrSkyD/D8, FrSkyX/D16 v1.xxx FCC/LBT and FrSkyX/D16 v2.1.0 FCC/LBT.
@@ -1157,7 +1157,7 @@ Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 ### Sub_protocol CPPM - *1*
 Sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
 On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
-Hardware modification: add a 1K resistor between the STM32 USART1.TX pin (Boot0 programming TX pin) and the radio bay pin 2 (from top).
+For more information check the [CCPM Hardware Modification](/docs/CPPM_HW_Mod.md) page.
 
 ## BUGSMINI - *42*
 Models: MJX Bugs 3 Mini and 3H

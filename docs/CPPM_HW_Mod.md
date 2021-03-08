@@ -6,7 +6,7 @@ On a STM32 module and with a simple hardware modification, you can go around thi
 
 There are 2 ways to connect the module CPPM trainer signal available on the STM32 USART1.TX pin (BOOT0 programming TX pin) to the radio:
 1. Use the trainer jack input which is supported by all radios.
-1. Use the heart beat module bay pin 2, currently supported by erskyTX but not yet by OpenTX. It also seems from reports that not every FrSky radios (X10/X12?) supports this... **After this mod the module should be flashed with the radio off**
+1. Use the heart beat module bay pin 2, currently supported by erskyTX but not yet by OpenTX. It also seems from reports that not every FrSky radios (X10/X12?) supports this...
 
 For the hardware modification you need:
 1. 1K resistor

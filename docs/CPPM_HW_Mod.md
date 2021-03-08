@@ -1,4 +1,4 @@
-# CCPM Multi module hardware modification
+# CPPM Multi module hardware modification
 
 By default Multi uses the telemetry line to send the received channels using a RX protocol (FrSky, DSM, AFHDS2A, Bayang) to the radio.
 But this does not work on FrSky radios since the telemetry lines of the internal and external modules are shared.

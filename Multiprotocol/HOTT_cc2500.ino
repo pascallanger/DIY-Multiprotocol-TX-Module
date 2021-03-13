@@ -227,6 +227,8 @@ static void __attribute__((unused)) HOTT_prep_data_packet()
 	}
 	upper ^= 0x01;										// toggle between CH9..CH12 and CH13..16
 	
+	packet[28] = 0x80;									// no sensor
+	packet[29] = 0x02;									// 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
 	#ifdef HOTT_FW_TELEMETRY
 		if(IS_BIND_DONE)
 		{
@@ -244,25 +246,23 @@ static void __attribute__((unused)) HOTT_prep_data_packet()
 					}
 					else
 						packet[28] = HoTT_SerialRX_val | 0x0F;	// no button pressed
-					packet[29] = 0x01;							// 0x01->Text config menu
 				}
+				else
+					packet[28] = 0x0F;							// RX, no button pressed
+				if(sub_protocol == HOTT_SYNC)
+					packet[29] = ((HOTT_sensor_seq+1)<<3) | 1;	// Telemetry packet sequence
+				else
+					packet[29] = 0x01;							// 0x01->Text config menu
 			}
 			else
 			{
 				packet[28] = 0x89+HOTT_sensor_cur;				// 0x89/8A/8B/8C/8D/8E during normal packets
 				if(sub_protocol == HOTT_SYNC)
 					packet[29] = ((HOTT_sensor_seq+1)<<3) | 2;	// Telemetry packet sequence
-				else
-					packet[29] = 0x02;
-				//debugln("28=%02X,29=%02X",packet[28],packet[29]);
 			}
+			//debugln("28=%02X,29=%02X",packet[28],packet[29]);
 		}
-		else
 	#endif
-		{
-			packet[28] = 0x80;									// no sensor
-			packet[29] = 0x02;									// unknown 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
-		}
 
 	CC2500_WriteReg(CC2500_06_PKTLEN, HOTT_TX_PACKET_LEN);
 	CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, packet, HOTT_TX_PACKET_LEN);
@@ -413,8 +413,10 @@ uint16_t HOTT_callback()
 							packet_in[0]= packet_in[HOTT_RX_PACKET_LEN];
 							packet_in[1]= TX_LQI;
 							bool send_telem=true;
-							if(packet[29]==1)
+							HOTT_sensor_seq++;											// Increment RX sequence counter
+							if(packet[29] & 1)
 							{ //Text mode
+								HOTT_sensor_seq %= 19;									// 19 pages in Text mode
 								HOTT_sensor_pages = 0;
 								HOTT_sensor_valid = false;
 								packet_in[10] = 0x80;									// Marking telem Text mode
@@ -424,7 +426,6 @@ uint16_t HOTT_callback()
 							}
 							else
 							{ //Binary sensor
-								HOTT_sensor_seq++;										// Increment RX sequence counter
 								HOTT_sensor_seq %= 5;									// 5 pages in binary mode per sensor
 								if(state==0 && HOTT_sensor_ok[0]==false && HOTT_sensor_ok[1]==false && HOTT_sensor_ok[2]==false && HOTT_sensor_ok[3]==false && HOTT_sensor_ok[4]==false && HOTT_sensor_ok[5]==false)
 									HOTT_sensor_seq=0;									// No sensors always ask page 0
@@ -526,6 +527,7 @@ void HOTT_init()
 		packet_count=0;
 		state=HOTT_SENSOR_SEARCH_PERIOD;
 	#endif
+	packet_sent = 0;
 	phase = HOTT_START;
 }
 

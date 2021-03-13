@@ -261,6 +261,7 @@ uint16_t DSM_RX_callback()
 							&0x80 => false=DSM2, true=DSMX
 							&0xF0 => false=1024, true=2048 */
 						DSM_rx_type=packet_in[12];
+						debugln(", num_ch=%d, type=%02X",num_ch, DSM_rx_type);
 						switch(DSM_rx_type)
 						{
 							case 0x01:
@@ -278,7 +279,6 @@ uint16_t DSM_RX_callback()
 								break;
 						}
 						eeprom_write_byte((EE_ADDR)temp, DSM_rx_type);
-						debugln(", num_ch=%d, type=%02X",num_ch, DSM_rx_type);
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);	// Abort RX operation
 						CYRF_SetTxRxMode(TX_EN);					// Force end state TX
 						CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84", 16);
@@ -305,11 +305,11 @@ uint16_t DSM_RX_callback()
 				if(read_retry==0)
 				{
 					packet_count=0;
-					hopping_frequency_no++;								// Change channel
+					hopping_frequency_no++;							// Change channel
 					hopping_frequency_no %= 0x50;
-					hopping_frequency_no |= 0x01;						// Odd channels only
+					hopping_frequency_no |= 0x01;					// Odd channels only
 					CYRF_ConfigRFChannel(hopping_frequency_no);
-					DSM_abort_channel_rx(0);							// Abort RX operation and receive
+					DSM_abort_channel_rx(0);						// Abort RX operation and receive
 				}
 			}
 			return 1000;

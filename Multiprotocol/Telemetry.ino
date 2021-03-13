@@ -1159,6 +1159,12 @@ void TelemetryUpdate()
 				}
 		#ifdef STM32_BOARD	
 			}
+			else if(USART3_BASE->SR & USART_SR_RXNE)
+			{ //Should not get here...
+				uint8_t dummy = USART3_BASE->DR;
+				dummy++;
+				USART3_BASE->CR1 &= ~ USART_CR1_RE;		// Disable receive
+			}
 		#endif		
 	}
 #else	//BASH_SERIAL

@@ -350,7 +350,7 @@ uint16_t HOTT_callback()
 			CC2500_Strobe(CC2500_SFRX);
 			//RX
 			if(packet[29] & 0xF8)
-			{// binary telemetry
+			{// Sync telemetry
 				CC2500_WriteReg(CC2500_04_SYNC1, 0x2C);
 				CC2500_WriteReg(CC2500_05_SYNC0, 0x6E);
 			}

@@ -1066,7 +1066,6 @@ void TelemetryUpdate()
 				#else
 					#ifdef STM32_BOARD
 						usart3_begin(9600,SERIAL_8N1);		//USART3 
-						USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable RX leave TX enabled
 					#else
 						UBRR0H = 0x00;
 						UBRR0L = 0x67;
@@ -1087,7 +1086,6 @@ void TelemetryUpdate()
 				#else
 					#ifdef STM32_BOARD
 						usart3_begin(57600,SERIAL_8N1);		//USART3 
-						USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable RX leave TX enabled
 					#else
 						UBRR0H = 0x00;
 						UBRR0L = 0x22;
@@ -1108,7 +1106,6 @@ void TelemetryUpdate()
 				#else
 					#ifdef STM32_BOARD
 						usart3_begin(125000,SERIAL_8N1);	//USART3 
-						USART3_BASE->CR1 &= ~ USART_CR1_RE;	//disable RX leave TX enabled
 					#else
 						UBRR0H = 0x00;
 						UBRR0L = 0x07;
@@ -1158,12 +1155,6 @@ void TelemetryUpdate()
 					tx_pause(); // Check if all data is transmitted. If yes disable transmitter UDRE interrupt.
 				}
 		#ifdef STM32_BOARD	
-			}
-			else if(USART3_BASE->SR & USART_SR_RXNE)
-			{ //Should not get here...
-				uint8_t dummy = USART3_BASE->DR;
-				dummy++;
-				USART3_BASE->CR1 &= ~ USART_CR1_RE;		// Disable receive
 			}
 		#endif		
 	}

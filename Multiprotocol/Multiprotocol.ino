@@ -1636,9 +1636,8 @@ void modules_reset()
 			usart2_begin(100000,SERIAL_8E2);
 			USART2_BASE->CR1 |= USART_CR1_PCE_BIT;
 		}
-		usart3_begin(100000,SERIAL_8E2);
-		USART3_BASE->CR1 &= ~ USART_CR1_RE;		//disable receive
 		USART2_BASE->CR1 &= ~ USART_CR1_TE;		//disable transmit
+		usart3_begin(100000,SERIAL_8E2);
 	#else
 		//ATMEGA328p
 		#include <util/setbaud.h>	
@@ -1676,7 +1675,6 @@ void modules_reset()
 		usart_config_gpios_async(USART2,GPIOA,PIN_MAP[PA3].gpio_bit,GPIOA,PIN_MAP[PA2].gpio_bit,config);
 		LED2_output;
 		usart_set_baud_rate(USART2, STM32_PCLK1, baud);
-		USART2_BASE->CR1 &= ~ USART_CR1_TE;					// Disable transmit
 		usart_enable(USART2);
 	}
 	void usart3_begin(uint32_t baud,uint32_t config )
@@ -1684,18 +1682,19 @@ void modules_reset()
 		usart_init(USART3);
 		usart_config_gpios_async(USART3,GPIOB,PIN_MAP[PB11].gpio_bit,GPIOB,PIN_MAP[PB10].gpio_bit,config);
 		usart_set_baud_rate(USART3, STM32_PCLK1, baud);
-		USART3_BASE->CR1 &= ~ USART_CR1_RE;					// Disable receive
-		usart_enable(USART3);
+		USART3_BASE->CR3 &= ~USART_CR3_EIE & ~USART_CR3_CTSIE;	// Disable receive
+		USART3_BASE->CR1 &= ~USART_CR1_RE & ~USART_CR1_RXNEIE & ~USART_CR1_PEIE & ~USART_CR1_IDLEIE ; // Disable RX and interrupts
+    	USART3_BASE->CR1 |= (USART_CR1_TE | USART_CR1_UE);		// Enable USART3 and TX
 	}
 	void init_HWTimer()
 	{	
-		HWTimer2.pause();									// Pause the timer2 while we're configuring it
-		TIMER2_BASE->PSC = 35;								// 36-1;for 72 MHZ /0.5sec/(35+1)
-		TIMER2_BASE->ARR = 0xFFFF;							// Count until 0xFFFF
-		HWTimer2.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);	// Main scheduler
-		TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;			// Clear Timer2/Comp2 interrupt flag
-		TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;				// Disable Timer2/Comp2 interrupt
-		HWTimer2.refresh();									// Refresh the timer's count, prescale, and overflow
+		HWTimer2.pause();										// Pause the timer2 while we're configuring it
+		TIMER2_BASE->PSC = 35;									// 36-1;for 72 MHZ /0.5sec/(35+1)
+		TIMER2_BASE->ARR = 0xFFFF;								// Count until 0xFFFF
+		HWTimer2.setMode(TIMER_CH1, TIMER_OUTPUT_COMPARE);		// Main scheduler
+		TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC2IF;				// Clear Timer2/Comp2 interrupt flag
+		TIMER2_BASE->DIER &= ~TIMER_DIER_CC2IE;					// Disable Timer2/Comp2 interrupt
+		HWTimer2.refresh();										// Refresh the timer's count, prescale, and overflow
 		HWTimer2.resume();
 
 		#ifdef ENABLE_SERIAL

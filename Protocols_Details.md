@@ -263,6 +263,8 @@ Sending trainer channels to FrSky radios through telemetry does not work since t
 On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
 For more information check the [CCPM Hardware Modification](/docs/CPPM_HW_Mod.md) page.
 
+Once your **setup** is **completed**, you **must check the "Disable Telemetry" box** to stop the Multi module from sending any data to the radio and therfore freeing up the line for the internal module.
+
 ## HEIGHT - *53*
 
 ### Sub_protocol 5CH - *0*
@@ -533,6 +535,8 @@ Sending trainer channels to FrSky radios through telemetry does not work since t
 On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
 For more information check the [CCPM Hardware Modification](/docs/CPPM_HW_Mod.md) page.
 
+Once your **setup** is **completed**, you **must check the "Disable Telemetry" box** to stop the Multi module from sending any data to the radio and therfore freeing up the line for the internal module.
+
 ## E010R5 - *81*
 Models: E010 R5 red boards, JJRC H36, H36F and H36S
 
@@ -793,6 +797,8 @@ Low power: enable/disable the LNA stage on the RF component to use depending on 
 Sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
 On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
 For more information check the [CCPM Hardware Modification](/docs/CPPM_HW_Mod.md) page.
+
+Once your **setup** is **completed**, you **must check the "Disable Telemetry" box** to stop the Multi module from sending any data to the radio and therfore freeing up the line for the internal module.
 
 ### Sub_protocol CloneTX - *1*
 This subprotocol makes a clone of a TX identifier transmitting FrSkyD/D8, FrSkyX/D16 v1.xxx FCC/LBT and FrSkyX/D16 v2.1.0 FCC/LBT.
@@ -1158,6 +1164,8 @@ Available in OpenTX 2.3.3, Trainer Mode Master/Multi
 Sending trainer channels to FrSky radios through telemetry does not work since the telemetry lines of the internal and external modules are shared (hardware limitation).
 On a STM32 module and with a simple hardware modification, you can go around this limitation using CPPM to send the trainer information to the radio.
 For more information check the [CCPM Hardware Modification](/docs/CPPM_HW_Mod.md) page.
+
+Once your **setup** is **completed**, you **must check the "Disable Telemetry" box** to stop the Multi module from sending any data to the radio and therfore freeing up the line for the internal module.
 
 ## BUGSMINI - *42*
 Models: MJX Bugs 3 Mini and 3H

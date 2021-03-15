@@ -36,3 +36,4 @@ For the hardware modification you need:
    
 ![Image](/docs/images/CPPM_JP4IN1_Mark.jpg)
 ![Image](/docs/images/CPPM_JP4IN1_Soldered.jpg)
+![Image](/docs/images/CPPM_JP4IN1_Soldered2.jpg)

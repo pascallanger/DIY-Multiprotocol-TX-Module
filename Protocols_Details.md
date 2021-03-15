@@ -502,6 +502,9 @@ Notes:
  
 Option=number of channels from 3 to 12. Option|0x80 enables Max Throw. Option|0x40 enables a servo refresh rate of 11ms.
 
+Here is a table detailling the different RX output ranges based on the radio settings:
+![Image](/docs/images/DSM_RX_Output.JPG)
+
 ### Sub_protocol DSM2_1F - *0*
 DSM2, Resolution 1024, servo refresh rate can only be 22ms
 ### Sub_protocol DSM2_2F - *1*

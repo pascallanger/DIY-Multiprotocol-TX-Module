@@ -16,7 +16,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(FX816_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define FX816_INITIAL_WAIT    500
 #define FX816_PACKET_PERIOD   10000
@@ -27,7 +27,14 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static void __attribute__((unused)) FX816_send_packet()
 {
-	packet[0] = IS_BIND_IN_PROGRESS?0x55:0xAA;
+	if(IS_BIND_IN_PROGRESS)
+		packet[0] = 0x55;
+	else
+	{
+		XN297_Hopping(hopping_frequency_no++);
+		hopping_frequency_no%=FX816_RF_NUM_CHANNELS;
+		packet[0] = 0xAA;
+	}
 	packet[1] = rx_tx_addr[0];
 	packet[2] = rx_tx_addr[1];
 	uint8_t val=convert_channel_8b(AILERON);
@@ -44,25 +51,18 @@ static void __attribute__((unused)) FX816_send_packet()
 		val+=packet[i];
 	packet[5]=val;
 
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? FX816_RF_BIND_CHANNEL:hopping_frequency[hopping_frequency_no++]);
-	hopping_frequency_no%=FX816_RF_NUM_CHANNELS;
-
-	// clear packet status bits and TX FIFO
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+	// Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, FX816_PAYLOAD_SIZE);
-
-	// Power on, TX mode, 2byte CRC
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-
-	NRF24L01_SetPower();	// Set tx_power
 }
 
 static void __attribute__((unused)) FX816_RF_init()
 {
-	NRF24L01_Initialize();
-
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t *)"\xcc\xcc\xcc\xcc\xcc", 5);
+	//XN297_HoppingCalib(FX816_RF_NUM_CHANNELS);
+	XN297_RFChannel(FX816_RF_BIND_CHANNEL);
 }
 
 static void __attribute__((unused)) FX816_initialize_txid()

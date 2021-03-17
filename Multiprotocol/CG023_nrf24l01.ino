@@ -63,9 +63,15 @@ static void __attribute__((unused)) CG023_send_packet()
 	aileron = convert_channel_16b_limit(AILERON, 0x43, 0xBB); 
 	
 	if (IS_BIND_IN_PROGRESS)
+	{
 		packet[0]= 0xaa;
+		XN297_RFChannel(CG023_RF_BIND_CHANNEL);
+	}
 	else
+	{
 		packet[0]= 0x55;
+		XN297_RFChannel(hopping_frequency_no);
+	}
 	// transmitter id
 	packet[1] = rx_tx_addr[0]; 
 	packet[2] = rx_tx_addr[1];
@@ -85,7 +91,7 @@ static void __attribute__((unused)) CG023_send_packet()
 	if(sub_protocol==CG023)
 	{
 		// rate
-		packet[13] =					  CG023_FLAG_RATE_HIGH
+		packet[13] =				  CG023_FLAG_RATE_HIGH
 					| GET_FLAG(CH5_SW,CG023_FLAG_FLIP)
 					| GET_FLAG(CH6_SW,CG023_FLAG_LED_OFF)
 					| GET_FLAG(CH7_SW,CG023_FLAG_STILL)
@@ -95,7 +101,7 @@ static void __attribute__((unused)) CG023_send_packet()
 	else
 	{// YD829
 		// rate
-		packet[13] =					  YD829_FLAG_RATE_HIGH
+		packet[13] =				  YD829_FLAG_RATE_HIGH
 					| GET_FLAG(CH5_SW,YD829_FLAG_FLIP)
 					| GET_FLAG(CH7_SW,YD829_FLAG_STILL)
 					| GET_FLAG(CH8_SW,YD829_FLAG_VIDEO)
@@ -103,25 +109,15 @@ static void __attribute__((unused)) CG023_send_packet()
 	}
 	packet[14] = 0;
 	
-	// Power on, TX mode, 2byte CRC
-	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	if (IS_BIND_IN_PROGRESS)
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, CG023_RF_BIND_CHANNEL);
-	else
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency_no);
-
-	// clear packet status bits and TX FIFO
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+	// Send
+	XN297_SetTxRxMode(TX_EN);
+	XN297_SetPower();
 	XN297_WritePayload(packet, CG023_PACKET_SIZE);
-
-	NRF24L01_SetPower();	// Set tx_power
 }
 
 static void __attribute__((unused)) CG023_RF_init()
 {
-	NRF24L01_Initialize();
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 
 	XN297_SetTXAddr((uint8_t *)"\x26\xA8\x67\x35\xCC", 5);
 }
@@ -144,7 +140,7 @@ uint16_t CG023_callback()
 static void __attribute__((unused)) CG023_initialize_txid()
 {
 	rx_tx_addr[0]= 0x80 | (rx_tx_addr[0] % 0x40);
-	if( rx_tx_addr[0] == 0xAA)			// avoid using same freq for bind and data channel
+	if( rx_tx_addr[0] == 0xAA)						// avoid using same freq for bind and data channel
 		rx_tx_addr[0] ++;
 	hopping_frequency_no = rx_tx_addr[0] - 0x7D;	// rf channel for data packets
 }

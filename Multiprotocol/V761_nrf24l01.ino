@@ -115,18 +115,16 @@ static void __attribute__((unused)) V761_send_packet()
 			hopping_frequency_no = 0;
 	}
 	V761_set_checksum();
-	// Power on, TX mode, 2byte CRC
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+
+	// Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, V761_PACKET_SIZE);
-	NRF24L01_SetPower();
 }
 
 static void __attribute__((unused)) V761_RF_init()
 {
-	NRF24L01_Initialize();
-	NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x02);		// set address length (4 bytes)
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 }
 
 static void __attribute__((unused)) V761_initialize_txid()
@@ -175,7 +173,7 @@ uint16_t V761_callback()
 			if(bind_counter) 
 				bind_counter--;
 			packet_count ++;
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, V761_BIND_FREQ);
+			XN297_RFChannel(V761_BIND_FREQ);
 			XN297_SetTXAddr((uint8_t*)"\x34\x43\x10\x10", 4);
 			V761_send_packet();
 			if(packet_count >= 20) 
@@ -188,7 +186,7 @@ uint16_t V761_callback()
 			if(bind_counter) 
 				bind_counter--;
 			packet_count ++;
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[0]);
+			XN297_Hopping(0);
 			XN297_SetTXAddr(rx_tx_addr, 4);
 			V761_send_packet();
 			if(bind_counter == 0) 

@@ -15,10 +15,9 @@
 // compatible with MJX WLH08, X600, X800, H26D, Eachine E010
 // Last sync with hexfet new_protocols/mjxq_nrf24l01.c dated 2016-01-17
 
-#if defined(MJXQ_NRF24L01_INO)
+#if defined(MJXQ_CCNRF_INO)
 
-#include "iface_nrf24l01.h"
-#include "iface_nrf250k.h"
+#include "iface_xn297.h"
 
 #define MJXQ_BIND_COUNT		150
 #define MJXQ_PACKET_PERIOD	4000  // Timeout for callback in uSec
@@ -103,6 +102,12 @@ static uint8_t __attribute__((unused)) MJXQ_pan_tilt_value()
 #define MJXQ_CHAN2TRIM(X) (((X) & 0x80 ? (X) : 0x7f - (X)) >> 1)
 static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 {
+	//RF freq
+	hopping_frequency_no++;
+	XN297_Hopping(hopping_frequency_no / 2);
+	hopping_frequency_no %= 2 * MJXQ_RF_NUM_CHANNELS;	// channels repeated
+
+	//Build packet
 	packet[0] = convert_channel_8b(THROTTLE);
 	packet[1] = convert_channel_s8b(RUDDER);
 	packet[4] = 0x40;							// rudder does not work well with dyntrim
@@ -192,35 +197,26 @@ static void __attribute__((unused)) MJXQ_send_packet(uint8_t bind)
 	uint8_t sum = packet[0];
 	for (uint8_t i=1; i < MJXQ_PACKET_SIZE-1; i++) sum += packet[i];
 	packet[15] = sum;
-	hopping_frequency_no++;
-	if (sub_protocol == E010 || sub_protocol == PHOENIX)
+
+	// Send
+	XN297_SetTxRxMode(TX_EN);
+	XN297_SetPower();
+#ifdef NRF24L01_INSTALLED
+	if (sub_protocol == H26D || sub_protocol == H26WH)
 	{
-		XN297L_Hopping(hopping_frequency_no / 2);
-		XN297L_SetFreqOffset();
-		XN297L_SetPower();
-		XN297L_WritePayload(packet, MJXQ_PACKET_SIZE);
+		//NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no / 2]);
+		//NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+		//NRF24L01_FlushTx();
+		//NRF24L01_SetTxRxMode(TX_EN);
+		//NRF24L01_SetPower();
+		NRF24L01_WritePayload(packet, MJXQ_PACKET_SIZE);
 	}
 	else
-	{
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no / 2]);
-
-		NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-		NRF24L01_FlushTx();
-
-		// Power on, TX mode, 2byte CRC and send packet
-		if (sub_protocol == H26D || sub_protocol == H26WH)
-		{
-			NRF24L01_SetTxRxMode(TX_EN);
-			NRF24L01_WritePayload(packet, MJXQ_PACKET_SIZE);
-		}
-		else
-		{
-			XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-			XN297_WritePayload(packet, MJXQ_PACKET_SIZE);
-		}
-		NRF24L01_SetPower();
+#endif
+	{//E010, PHOENIX, WLH08, X600, X800
+		XN297_SetFreqOffset();
+		XN297_WritePayload(packet, MJXQ_PACKET_SIZE);
 	}
-	hopping_frequency_no %= 2 * MJXQ_RF_NUM_CHANNELS;	// channels repeated
 }
 
 static void __attribute__((unused)) MJXQ_RF_init()
@@ -239,22 +235,20 @@ static void __attribute__((unused)) MJXQ_RF_init()
 		}
 	if (sub_protocol == E010 || sub_protocol == PHOENIX)
 	{
-		XN297L_Init();
-		XN297L_SetTXAddr(addr, sizeof(addr));
-		XN297L_HoppingCalib(MJXQ_RF_NUM_CHANNELS);
+		XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K);
+		XN297_SetTXAddr(addr, MJXQ_ADDRESS_LENGTH);
+		XN297_HoppingCalib(MJXQ_RF_NUM_CHANNELS);
 	}
 	else
 	{
-		NRF24L01_Initialize();
-
+		XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);	// this will select the nrf and initialize it, therefore both H26 sub protocols can use common instructions
+#ifdef NRF24L01_INSTALLED
 		if (sub_protocol == H26D || sub_protocol == H26WH)
-		{
 			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, MJXQ_ADDRESS_LENGTH);
-		}
 		else
+#endif
 			XN297_SetTXAddr(addr, MJXQ_ADDRESS_LENGTH);
-
-		NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0,		MJXQ_PACKET_SIZE);
+		//NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0,		MJXQ_PACKET_SIZE);	// no RX???
 	}
 }
 
@@ -275,7 +269,7 @@ static void __attribute__((unused)) MJXQ_init2()
 				hopping_frequency[i]=pgm_read_byte_near( &E010_map_rfchan[rx_tx_addr[3]&0x0F][i] );
 				hopping_frequency[i+2]=hopping_frequency[i]+0x10;
 			}
-			XN297L_HoppingCalib(MJXQ_RF_NUM_CHANNELS);
+			XN297_HoppingCalib(MJXQ_RF_NUM_CHANNELS);
 			break;
 		case WLH08:
 			// do nothing

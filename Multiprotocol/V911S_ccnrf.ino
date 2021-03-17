@@ -58,7 +58,7 @@ static void __attribute__((unused)) V911S_send_packet()
 		}
 		if(rf_ch_num&2)
 			channel=7-channel;
-		XN297L_Hopping(channel);
+		XN297_Hopping(channel);
 		hopping_frequency_no++;
 		hopping_frequency_no&=7;							// 8 RF channels
 
@@ -102,23 +102,23 @@ static void __attribute__((unused)) V911S_send_packet()
 	}
 	
 	if(sub_protocol==V911S_STD)
-		XN297L_WritePayload(packet, V911S_PACKET_SIZE);
+		XN297_WritePayload(packet, V911S_PACKET_SIZE);
 	else
-		XN297L_WriteEnhancedPayload(packet, V911S_PACKET_SIZE, IS_BIND_IN_PROGRESS?0:1);
+		XN297_WriteEnhancedPayload(packet, V911S_PACKET_SIZE, IS_BIND_IN_PROGRESS?0:1);
 	
-	XN297L_SetPower();				// Set tx_power
-	XN297L_SetFreqOffset();			// Set frequency offset
+	XN297_SetPower();				// Set tx_power
+	XN297_SetFreqOffset();			// Set frequency offset
 }
 
 static void __attribute__((unused)) V911S_RF_init()
 {
-	XN297L_Init();
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K);
 	if(sub_protocol==V911S_STD)
-		XN297L_SetTXAddr((uint8_t *)"KNBND",5);		// V911S Bind address
+		XN297_SetTXAddr((uint8_t *)"KNBND",5);		// V911S Bind address
 	else
-		XN297L_SetTXAddr((uint8_t *)"XPBND",5);		// E119 Bind address
-	XN297L_HoppingCalib(V911S_NUM_RF_CHANNELS);		// Calibrate all channels
-	XN297L_RFChannel(V911S_RF_BIND_CHANNEL);		// Set bind channel
+		XN297_SetTXAddr((uint8_t *)"XPBND",5);		// E119 Bind address
+	XN297_HoppingCalib(V911S_NUM_RF_CHANNELS);		// Calibrate all channels
+	XN297_RFChannel(V911S_RF_BIND_CHANNEL);		// Set bind channel
 }
 
 static void __attribute__((unused)) V911S_initialize_txid()
@@ -144,7 +144,7 @@ uint16_t V911S_callback()
 		if (bind_counter == 0)
 		{
 			BIND_DONE;
-			XN297L_SetTXAddr(rx_tx_addr, 5);
+			XN297_SetTXAddr(rx_tx_addr, 5);
 			packet_period=V911S_PACKET_PERIOD;
 		}
 		else if(bind_counter==100)		// same as original TX...
@@ -193,7 +193,7 @@ void V911S_init(void)
 	}
 	else
 	{
-		XN297L_SetTXAddr(rx_tx_addr, 5);
+		XN297_SetTXAddr(rx_tx_addr, 5);
 		packet_period= V911S_PACKET_PERIOD;
 	}
 	hopping_frequency_no=0;

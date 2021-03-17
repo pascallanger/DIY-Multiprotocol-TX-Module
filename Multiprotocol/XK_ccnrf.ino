@@ -14,7 +14,7 @@ Multiprotocol is distributed in the hope that it will be useful,
  */
 // Compatible with X450 and X420/X520 plane.
 
-#if defined(XK_NRF24L01_INO)
+#if defined(XK_CCNRF_INO)
 
 #include "iface_nrf250k.h"
 
@@ -56,6 +56,13 @@ static uint16_t __attribute__((unused)) XK_convert_channel(uint8_t num)
 
 static void __attribute__((unused)) XK_send_packet()
 {
+	// RF channel
+	XN297_Hopping((IS_BIND_IN_PROGRESS?0:XK_RF_BIND_NUM_CHANNELS)+(hopping_frequency_no>>1));
+	hopping_frequency_no++;
+	if(hopping_frequency_no >= (IS_BIND_IN_PROGRESS?XK_RF_BIND_NUM_CHANNELS*2:XK_RF_NUM_CHANNELS*2))
+		hopping_frequency_no=0;
+	
+	// Build packet
 	memset(packet,0x00,7);
 	memset(&packet[10],0x00,5);
 
@@ -101,32 +108,16 @@ static void __attribute__((unused)) XK_send_packet()
 		crc+=packet[i];
 	packet[15]=crc;
 
-	rf_ch_num = (IS_BIND_IN_PROGRESS?0:XK_RF_BIND_NUM_CHANNELS)+(hopping_frequency_no>>1);
-	hopping_frequency_no++;
-	if(hopping_frequency_no >= (IS_BIND_IN_PROGRESS?XK_RF_BIND_NUM_CHANNELS*2:XK_RF_NUM_CHANNELS*2))
-		hopping_frequency_no=0;
-	
 //	debug("C: %02X, P:",hopping_frequency[rf_ch_num]);
 //	for(uint8_t i=0; i<XK_PAYLOAD_SIZE; i++)
 //		debug(" %02X",packet[i]);
 //	debugln("");
 	
-	if(sub_protocol==X420)
-	{
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[rf_ch_num]);
-		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-		NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-		NRF24L01_FlushTx();
-		XN297_WritePayload(packet, XK_PAYLOAD_SIZE);
-		NRF24L01_SetPower();		
-	}
-	else
-	{
-		XN297L_Hopping(rf_ch_num);
-		XN297L_WritePayload(packet, XK_PAYLOAD_SIZE);
-		XN297L_SetPower();		// Set tx_power
-		XN297L_SetFreqOffset();	// Set frequency offset
-	}
+	// Send
+	XN297_SetPower();			// Set tx_power
+	XN297_SetTxRxMode(TX_EN);
+	XN297_SetFreqOffset();		// Set frequency offset
+	XN297_WritePayload(packet, XK_PAYLOAD_SIZE);
 }
 
 const uint8_t PROGMEM XK_bind_hop[XK_RF_BIND_NUM_CHANNELS]= { 0x07, 0x24, 0x3E, 0x2B, 0x47, 0x0E, 0x39, 0x1C };	// Bind
@@ -201,17 +192,9 @@ static void __attribute__((unused)) XK_initialize_txid()
 
 static void __attribute__((unused)) XK_RF_init()
 {
-	if(sub_protocol==X420)
-	{
-		NRF24L01_Initialize();
-		XN297_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);						// Bind address
-	}
-	else
-	{
-		XN297L_Init();
-		XN297L_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);						// Bind address
-		XN297L_HoppingCalib(XK_RF_BIND_NUM_CHANNELS+XK_RF_NUM_CHANNELS);			// Calibrate all channels
-	}
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, sub_protocol==X420 ? XN297_1M : XN297_250K);
+	XN297_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);						// Bind address
+	XN297_HoppingCalib(XK_RF_BIND_NUM_CHANNELS+XK_RF_NUM_CHANNELS);				// Calibrate all channels
 }
 
 uint16_t XK_callback()
@@ -223,10 +206,7 @@ uint16_t XK_callback()
 		if(--bind_counter==0)
 		{
 			BIND_DONE;
-			if(sub_protocol==X420)
-				XN297_SetTXAddr(rx_tx_addr, 5);										// Normal packets address
-			else
-				XN297L_SetTXAddr(rx_tx_addr, 5);									// Normal packets address
+			XN297_SetTXAddr(rx_tx_addr, 5);										// Normal packets address
 		}
 	XK_send_packet();
 	return XK_PACKET_PERIOD;
@@ -234,7 +214,7 @@ uint16_t XK_callback()
 
 void XK_init()
 {
-	BIND_IN_PROGRESS;																// Autobind protocol
+	BIND_IN_PROGRESS;															// Autobind protocol
 	XK_initialize_txid();
 	XK_RF_init();
 	hopping_frequency_no = 0;

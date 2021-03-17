@@ -15,7 +15,7 @@
 
 #if defined(HONTAI_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"	// mix of nrf and xn297 at 1Mb...
 
 #define HONTAI_BIND_COUNT 80
 #define HONTAI_PACKET_PERIOD    13500
@@ -44,6 +44,11 @@ static void __attribute__((unused)) HONTAI_send_packet()
 	}
 	else
 	{
+		/*if(sub_protocol == JJRCX1)
+			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
+		else*/
+			XN297_Hopping(hopping_frequency_no++);
+		hopping_frequency_no %= 3;
 		memset(packet,0,HONTAI_PACKET_SIZE);
 		packet[3] = convert_channel_16b_limit(THROTTLE, 0, 127) << 1;	// Throttle
 		packet[4] = convert_channel_16b_limit(AILERON, 63, 0);			// Aileron
@@ -113,42 +118,44 @@ static void __attribute__((unused)) HONTAI_send_packet()
 	packet[packet_length-1]=bit_reverse(crc);
 
 	// Power on, TX mode, 2byte CRC
-	if(sub_protocol == JJRCX1)
+	/*if(sub_protocol == JJRCX1)
+	{
+		NRF24L01_SetPower();
 		NRF24L01_SetTxRxMode(TX_EN);
-	else
-		XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? HONTAI_RF_BIND_CHANNEL : hopping_frequency[hopping_frequency_no++]);
-	hopping_frequency_no %= 3;
-
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+		NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
+		NRF24L01_FlushTx();
+	}
+	else*/
+	{
+		XN297_SetPower();
+		XN297_SetTxRxMode(TX_EN);
+	}
 
 	if(sub_protocol == JJRCX1)
 		NRF24L01_WritePayload(packet, packet_length);
 	else
 		XN297_WritePayload(packet, packet_length);
-
-	NRF24L01_SetPower();
 }
 
 static void __attribute__((unused)) HONTAI_RF_init()
 {
-	NRF24L01_Initialize();
 
-	if(sub_protocol == JJRCX1)
-		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t*)"\xd2\xb5\x99\xb3\x4a", 5);
-	else
-		XN297_SetTXAddr((const uint8_t*)"\xd2\xb5\x99\xb3\x4a", 5);
-
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);	// this will select the nrf and initialize it, therefore both sub protocols can use common instructions
 	if(sub_protocol == JJRCX1)
 	{
+		//NRF24L01_Initialize();
+		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, (uint8_t*)"\xd2\xb5\x99\xb3\x4a", 5);
 		NRF24L01_WriteReg(NRF24L01_04_SETUP_RETR, 0xff);	// JJRC uses dynamic payload length
 		NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x3f);			// match other stock settings even though AA disabled...
 		NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x07);
+		//NRF24L01_WriteReg(NRF24L01_05_RF_CH, HONTAI_RF_BIND_CHANNEL);
 	}
-
-	NRF24L01_SetTxRxMode(TX_EN);							// Clear data ready, data sent, retransmit and enable CRC 16bits, ready for TX
+	else
+	{
+		XN297_SetTXAddr((const uint8_t*)"\xd2\xb5\x99\xb3\x4a", 5);
+		//XN297_HoppingCalib(3);
+	}
+	XN297_RFChannel(HONTAI_RF_BIND_CHANNEL);
 }
 
 const uint8_t PROGMEM HONTAI_hopping_frequency_nonels[][3] = {
@@ -172,9 +179,9 @@ static void __attribute__((unused)) HONTAI_init2()
 	data_tx_addr[3] = pgm_read_byte_near( &HONTAI_addr_vals[3][(rx_tx_addr[4] >> 4) & 0x0f]);
 	data_tx_addr[4] = 0x24;
 	if(sub_protocol == JJRCX1)
-		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, data_tx_addr, sizeof(data_tx_addr));
+		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, data_tx_addr, 5);
 	else
-		XN297_SetTXAddr(data_tx_addr, sizeof(data_tx_addr));
+		XN297_SetTXAddr(data_tx_addr, 5);
 
 	//Hopping frequency table
 	for(uint8_t i=0;i<3;i++)

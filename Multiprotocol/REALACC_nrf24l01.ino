@@ -51,7 +51,7 @@ static void __attribute__((unused)) REALACC_send_packet()
 		| GET_FLAG(CH5_SW, 0x01)				//   Flip
 		| GET_FLAG(CH6_SW, 0x80);				//   Light
 
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency_no);
+	XN297_Hopping(hopping_frequency_no);
 	hopping_frequency_no++;
 	hopping_frequency_no %= REALACC_RF_NUM_CHANNELS;
 	XN297_WriteEnhancedPayload(packet, REALACC_PAYLOAD_SIZE,0);
@@ -88,10 +88,9 @@ static void __attribute__((unused)) REALACC_initialize_txid()
 
 static void __attribute__((unused)) REALACC_RF_init()
 {
-	NRF24L01_Initialize();
-
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t*)"MAIN", 4);
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, REALACC_BIND_RF_CHANNEL);	// Set bind channel
+	XN297_RFChannel(REALACC_BIND_RF_CHANNEL);	// Set bind channel
 }
 
 uint16_t REALACC_callback()
@@ -99,10 +98,8 @@ uint16_t REALACC_callback()
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(REALACC_PACKET_PERIOD);
 	#endif
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-	NRF24L01_SetPower();
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	if(IS_BIND_IN_PROGRESS)
 	{
 		REALACC_send_bind_packet();

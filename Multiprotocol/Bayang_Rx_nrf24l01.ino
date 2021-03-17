@@ -15,7 +15,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(BAYANG_RX_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define BAYANG_RX_PACKET_SIZE		15
 #define BAYANG_RX_RF_NUM_CHANNELS	4
@@ -27,18 +27,15 @@ enum {
 	BAYANG_RX_DATA
 };
 
-static void __attribute__((unused)) Bayang_Rx_init_nrf24l01()
+static void __attribute__((unused)) Bayang_Rx_RF_init()
 {
 	const uint8_t bind_address[BAYANG_RX_ADDRESS_LENGTH] = { 0,0,0,0,0 };
-	NRF24L01_Initialize();
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr(bind_address, BAYANG_RX_ADDRESS_LENGTH);
-	XN297_SetRXAddr(bind_address, BAYANG_RX_ADDRESS_LENGTH);
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, BAYANG_RX_PACKET_SIZE + 2); // 2 extra bytes for xn297 crc
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, BAYANG_RX_RF_BIND_CHANNEL);
-	NRF24L01_SetTxRxMode(TXRX_OFF);
-	NRF24L01_FlushRx();
-	NRF24L01_SetTxRxMode(RX_EN);
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+	XN297_SetRXAddr(bind_address, BAYANG_RX_PACKET_SIZE);
+	XN297_RFChannel(BAYANG_RX_RF_BIND_CHANNEL);
+	XN297_SetTxRxMode(TXRX_OFF);
+	XN297_SetTxRxMode(RX_EN);
 }
 
 static uint8_t __attribute__((unused)) Bayang_Rx_check_validity() {
@@ -91,7 +88,7 @@ static void __attribute__((unused)) Bayang_Rx_build_telemetry_packet()
 void BAYANG_RX_init()
 {
 	uint8_t i;
-	Bayang_Rx_init_nrf24l01();
+	Bayang_Rx_RF_init();
 	hopping_frequency_no = 0;
 	rx_data_started = false;
 	rx_data_received = false;
@@ -105,8 +102,9 @@ void BAYANG_RX_init()
 			rx_tx_addr[i] = eeprom_read_byte((EE_ADDR)temp++);
 		for (i = 0; i < BAYANG_RX_RF_NUM_CHANNELS; i++)
 			hopping_frequency[i] = eeprom_read_byte((EE_ADDR)temp++);
+		//XN297_HoppingCalib(BAYANG_RX_RF_NUM_CHANNELS);
 		XN297_SetTXAddr(rx_tx_addr, BAYANG_RX_ADDRESS_LENGTH);
-		XN297_SetRXAddr(rx_tx_addr, BAYANG_RX_ADDRESS_LENGTH);
+		XN297_SetRXAddr(rx_tx_addr, BAYANG_RX_PACKET_SIZE);
 		phase = BAYANG_RX_DATA;
 	}
 }
@@ -116,86 +114,89 @@ uint16_t BAYANG_RX_callback()
 	uint8_t i;
 	static int8_t read_retry;
 
-	switch (phase) {
-	case BAYANG_RX_BIND:
-		if(IS_BIND_DONE)
-		{
-			BAYANG_RX_init();	// Abort bind
-			break;
-		}
-		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) {
-			// data received from TX
-			if (XN297_ReadPayload(packet, BAYANG_RX_PACKET_SIZE) && ( packet[0] == 0xA4 || packet[0] == 0xA2 ) && Bayang_Rx_check_validity()) {
-				// store tx info into eeprom
-				uint16_t temp = BAYANG_RX_EEPROM_OFFSET;
-				for (i = 0; i < 5; i++) {
-					rx_tx_addr[i] = packet[i + 1];
-					eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[i]);
-				}
-				for (i = 0; i < 4; i++) {
-					hopping_frequency[i] = packet[i + 6];
-					eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[i]);
-				}
-				XN297_SetTXAddr(rx_tx_addr, BAYANG_RX_ADDRESS_LENGTH);
-				XN297_SetRXAddr(rx_tx_addr, BAYANG_RX_ADDRESS_LENGTH);
-				BIND_DONE;
-				phase = BAYANG_RX_DATA;
-			}
-			NRF24L01_FlushRx();
-			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-		}
-		break;
-	case BAYANG_RX_DATA:
-		if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) {
-			if (XN297_ReadPayload(packet, BAYANG_RX_PACKET_SIZE) && packet[0] == 0xA5 && Bayang_Rx_check_validity()) {
-				if ((telemetry_link & 0x7F) == 0) {
-					Bayang_Rx_build_telemetry_packet();
-					telemetry_link = 1;
-					#ifdef SEND_CPPM
-						if(sub_protocol>0)
-							telemetry_link |= 0x80;	// Disable telemetry output
-					#endif
-				}
-				rx_data_started = true;
-				rx_data_received = true;
-				read_retry = 8;
-				pps_counter++;
-			}
-		}
-		// packets per second
-		if (millis() - pps_timer >= 1000) {
-			pps_timer = millis();
-			debugln("%d pps", pps_counter);
-			RX_LQI = pps_counter >> 1;
-			pps_counter = 0;
-		}
-		// frequency hopping
-		if (read_retry++ >= 8) {
-			hopping_frequency_no++;
-			if (hopping_frequency_no >= BAYANG_RX_RF_NUM_CHANNELS)
-				hopping_frequency_no = 0;
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
-			NRF24L01_FlushRx();
-			NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-			if (rx_data_started)
+	switch (phase)
+	{
+		case BAYANG_RX_BIND:
+			if(IS_BIND_DONE)
 			{
-				if(rx_data_received)
-				{ // In sync
-					rx_data_received = false;
-					read_retry = 5;
-					return 1500;
+				BAYANG_RX_init();	// Abort bind
+				break;
+			}
+			if ( XN297_IsRX() )
+			{
+				debugln("RX");
+				// data received from TX
+				if (XN297_ReadPayload(packet, BAYANG_RX_PACKET_SIZE) && ( packet[0] == 0xA4 || packet[0] == 0xA2 ) && Bayang_Rx_check_validity())
+				{
+					// store tx info into eeprom
+					uint16_t temp = BAYANG_RX_EEPROM_OFFSET;
+					for (i = 0; i < 5; i++) {
+						rx_tx_addr[i] = packet[i + 1];
+						eeprom_write_byte((EE_ADDR)temp++, rx_tx_addr[i]);
+					}
+					for (i = 0; i < 4; i++) {
+						hopping_frequency[i] = packet[i + 6];
+						eeprom_write_byte((EE_ADDR)temp++, hopping_frequency[i]);
+					}
+					//XN297_HoppingCalib(BAYANG_RX_RF_NUM_CHANNELS);
+					XN297_SetTXAddr(rx_tx_addr, BAYANG_RX_ADDRESS_LENGTH);
+					XN297_SetRXAddr(rx_tx_addr, BAYANG_RX_PACKET_SIZE);
+					BIND_DONE;
+					phase = BAYANG_RX_DATA;
+				}
+				XN297_SetTxRxMode(RX_EN);
+			}
+			break;
+		case BAYANG_RX_DATA:
+			if ( XN297_IsRX() ) {
+				if (XN297_ReadPayload(packet, BAYANG_RX_PACKET_SIZE) && packet[0] == 0xA5 && Bayang_Rx_check_validity()) {
+					if ((telemetry_link & 0x7F) == 0) {
+						Bayang_Rx_build_telemetry_packet();
+						telemetry_link = 1;
+						#ifdef SEND_CPPM
+							if(sub_protocol>0)
+								telemetry_link |= 0x80;	// Disable telemetry output
+						#endif
+					}
+					rx_data_started = true;
+					rx_data_received = true;
+					read_retry = 8;
+					pps_counter++;
+				}
+			}
+			// packets per second
+			if (millis() - pps_timer >= 1000) {
+				pps_timer = millis();
+				debugln("%d pps", pps_counter);
+				RX_LQI = pps_counter >> 1;
+				pps_counter = 0;
+			}
+			// frequency hopping
+			if (read_retry++ >= 8) {
+				hopping_frequency_no++;
+				if (hopping_frequency_no >= BAYANG_RX_RF_NUM_CHANNELS)
+					hopping_frequency_no = 0;
+				XN297_Hopping(hopping_frequency_no);
+				XN297_SetTxRxMode(RX_EN);
+				if (rx_data_started)
+				{
+					if(rx_data_received)
+					{ // In sync
+						rx_data_received = false;
+						read_retry = 5;
+						return 1500;
+					}
+					else
+					{ // packet lost
+						read_retry = 0;
+						if(RX_LQI==0)	// communication lost
+							rx_data_started=false;
+					}
 				}
 				else
-				{ // packet lost
-					read_retry = 0;
-					if(RX_LQI==0)	// communication lost
-						rx_data_started=false;
-				}
+					read_retry = -16; // retry longer until first packet is caught
 			}
-			else
-				read_retry = -16; // retry longer until first packet is caught
-		}
-		return 250;
+			return 250;
 	}
 	return 1000;
 }

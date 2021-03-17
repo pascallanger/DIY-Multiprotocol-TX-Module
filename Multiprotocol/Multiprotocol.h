@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	61
+#define VERSION_PATCH_LEVEL	62
 
 #define MODE_SERIAL 0
 
@@ -112,6 +112,7 @@ enum PROTOCOLS
 	PROTO_LOLI		= 82,	// =>NRF24L01
 	PROTO_E129		= 83,	// =>CYRF6936
 	PROTO_JOYSWAY	= 84,	// =>A7105
+	PROTO_E016H		= 85,	// =>NRF24L01
 
 	PROTO_NANORF	= 126,	// =>NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -587,6 +588,11 @@ enum MultiPacketTypes
 #define DISABLE_TELEM_on		protocol_flags3 |= _BV(3)
 #define IS_DISABLE_TELEM_on		( ( protocol_flags3 & _BV(3) ) !=0 )
 #define IS_DISABLE_TELEM_off	( ( protocol_flags3 & _BV(3) ) ==0 )
+//Valid/invalid sub_proto
+#define SUB_PROTO_VALID			protocol_flags3 &= ~_BV(6)
+#define SUB_PROTO_INVALID		protocol_flags3 |= _BV(6)
+#define IS_SUB_PROTO_INVALID	( ( protocol_flags3 & _BV(6) ) !=0 )
+#define IS_SUB_PROTO_VALID		( ( protocol_flags3 & _BV(6) ) ==0 )
 //LBT power
 #define LBT_POWER_off		protocol_flags3 &= ~_BV(7)
 #define LBT_POWER_on		protocol_flags3 |= _BV(7)
@@ -890,6 +896,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				E010R5		81
 				LOLI		82
 				E129		83
+				JOYSWAY		84
+				E016H		85
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No
@@ -1035,7 +1043,6 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==E01X
 			E012		0
 			E015		1
-			E016H		2
 		sub_protocol==GD00X
 			GD_V1		0
 			GD_V2		1

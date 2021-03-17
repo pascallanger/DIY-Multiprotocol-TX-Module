@@ -66,7 +66,7 @@ static void __attribute__((unused)) TIGER_send_packet()
 	packet[TIGER_PAYLOAD_SIZE-1]=crc8;
 
 	//Hopping frequency
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no>>1]);
+	XN297_Hopping(hopping_frequency_no>>1);
 	hopping_frequency_no++;
 	if(IS_BIND_IN_PROGRESS)
 	{
@@ -79,22 +79,16 @@ static void __attribute__((unused)) TIGER_send_packet()
 			hopping_frequency_no=2*TIGER_BIND_RF_NUM_CHANNELS;
 	}
 
-	//Clear packet status bits and TX FIFO
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-	//Send packet
+	//Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, TIGER_PAYLOAD_SIZE);
-	//Set tx_power
-	NRF24L01_SetPower();
 }
 
 static void __attribute__((unused)) TIGER_RF_init()
 {
-	NRF24L01_Initialize();
-
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t *)"\x68\x94\xA6\xD5\xC3", 5);
-	// Power on, TX mode, 2byte CRC
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 }
 
 static void __attribute__((unused)) TIGER_initialize_txid()

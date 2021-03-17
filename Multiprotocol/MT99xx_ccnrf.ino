@@ -15,10 +15,9 @@
 // compatible with MT99xx, Eachine H7, Yi Zhan i6S and LS114/124
 // Last sync with Goebish mt99xx_nrf24l01.c dated 2016-01-29
 
-#if defined(MT99XX_NRF24L01_INO)
+#if defined(MT99XX_CCNRF_INO)
 
-#include "iface_nrf24l01.h"
-#include "iface_nrf250k.h"
+#include "iface_xn297.h"
 
 #define MT99XX_BIND_COUNT			928
 #define MT99XX_PACKET_PERIOD_FY805	2460
@@ -246,17 +245,14 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		}
 	}
 
+	//RF freq
 	if(sub_protocol == LS)
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x2D); // LS always transmits on the same channel
+		XN297_RFChannel(0x2D); // LS always transmits on the same channel
 	else
 		if(sub_protocol==FY805)
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x4B); // FY805 always transmits on the same channel
+			XN297_RFChannel(0x4B); // FY805 always transmits on the same channel
 		else // MT99 & H7 & YZ & A180 & DRAGON
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
-
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-	XN297_WritePayload(packet, MT99XX_PACKET_SIZE);
+			XN297_Hopping(hopping_frequency_no);
 
 	if(sub_protocol == DRAGON)
 	{
@@ -269,23 +265,24 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	hopping_frequency_no++;
 	if(sub_protocol == YZ || sub_protocol == A180 || sub_protocol == DRAGON )
 		hopping_frequency_no++; // skip every other channel
-
 	if(hopping_frequency_no > 15)
 		hopping_frequency_no = 0;
 
-	NRF24L01_SetPower();
+	// Send
+	XN297_SetPower();
+	XN297_SetFreqOffset();
+	XN297_SetTxRxMode(TX_EN);
+	XN297_WritePayload(packet, MT99XX_PACKET_SIZE);
 }
 
 static void __attribute__((unused)) MT99XX_RF_init()
 {
-    NRF24L01_Initialize();
-
     if(sub_protocol == YZ)
-		XN297_SetScrambledMode(XN297_UNSCRAMBLED);
+		XN297_Configure(XN297_CRCEN, XN297_UNSCRAMBLED, XN297_250K);
+	else
+		XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
     XN297_SetTXAddr((uint8_t *)"\xCC\xCC\xCC\xCC\xCC", 5);
-    if(sub_protocol == YZ)
-        NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps (nRF24L01+ only)
-    XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) );
+	XN297_HoppingCalib(16);
 }
 
 static void __attribute__((unused)) MT99XX_initialize_txid()
@@ -360,6 +357,7 @@ uint16_t MT99XX_callback()
 			uint8_t channel_offset = ((crc8>>4) + (crc8 & 0x0f)) % 8;
 			for(uint8_t i=0;i<16;i++)
 				hopping_frequency[i] += channel_offset;
+			XN297_HoppingCalib(16);
 			BIND_DONE;
 		}
 	}

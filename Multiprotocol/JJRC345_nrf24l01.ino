@@ -71,7 +71,7 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	}
 	else
 	{ //00 41 00 0A 00 80 80 80 00 00 40 46 00 49 F1 18
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
+		XN297_Hopping(hopping_frequency_no);
 		hopping_frequency_no++;
 		hopping_frequency_no %= JJRC345_NUM_CHANNELS;
 		packet[1]  = hopping_frequency[hopping_frequency_no];	// next packet will be sent on this channel
@@ -121,21 +121,18 @@ static void __attribute__((unused)) JJRC345_send_packet()
 	packet[14] = rx_tx_addr[2];
 	packet[15] = rx_tx_addr[3];
 
-	// Power on, TX mode
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+	// Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, JJRC345_PACKET_SIZE);
-
-	NRF24L01_SetPower();	// Set tx_power
 }
 
 static void __attribute__((unused)) JJRC345_RF_init()
 {
-    NRF24L01_Initialize();
-
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
     XN297_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
-    NRF24L01_WriteReg(NRF24L01_05_RF_CH, sub_protocol == JJRC345 ? JJRC345_RF_BIND_CHANNEL:SKYTMBLR_RF_BIND_CHANNEL);	// Bind channel
+	//XN297_HoppingCalib(JJRC345_NUM_CHANNELS);
+	XN297_RFChannel(sub_protocol == JJRC345 ? JJRC345_RF_BIND_CHANNEL:SKYTMBLR_RF_BIND_CHANNEL);	// Bind channel
 }
 
 uint16_t JJRC345_callback()

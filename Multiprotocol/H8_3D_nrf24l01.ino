@@ -19,7 +19,7 @@
 
 #if defined(H8_3D_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define H8_3D_PACKET_PERIOD		1800
 #define H20H_PACKET_PERIOD		9340
@@ -122,17 +122,15 @@ static void __attribute__((unused)) H8_3D_send_packet()
 		sum += packet[i];
 	packet[19] = sum; // data checksum
 	
-	// Power on, TX mode, 2byte CRC
-	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+	// RF channel
 	if(sub_protocol!=H20H)
 	{ // H8_3D, H20MINI, H30MINI
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? hopping_frequency[0] : hopping_frequency[hopping_frequency_no++]);
+		XN297_RFChannel(IS_BIND_IN_PROGRESS ? hopping_frequency[0] : hopping_frequency[hopping_frequency_no++]);
 		hopping_frequency_no %= H8_3D_RF_NUM_CHANNELS;
 	}
 	else
-	{ //H20H
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? H20H_BIND_RF : hopping_frequency[packet_count>>3]);  
+	{ // H20H
+		XN297_RFChannel(IS_BIND_IN_PROGRESS ? H20H_BIND_RF : hopping_frequency[packet_count>>3]);  
 		if(IS_BIND_DONE)
 		{
 			packet_count++;
@@ -147,17 +145,15 @@ static void __attribute__((unused)) H8_3D_send_packet()
 		}
 	}
 	
-	// clear packet status bits and TX FIFO
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+	// Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, H8_3D_PACKET_SIZE);
-
-	NRF24L01_SetPower();	// Set tx_power
 }
 
 static void __attribute__((unused)) H8_3D_RF_init()
 {
-	NRF24L01_Initialize();
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 
 	if(sub_protocol==H20H)
 		XN297_SetTXAddr((uint8_t *)"\xEE\xDD\xCC\xBB\x11", 5);

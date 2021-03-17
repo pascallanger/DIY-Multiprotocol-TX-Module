@@ -45,14 +45,15 @@ static void __attribute__((unused)) KF606_send_packet()
 	}
 	if(IS_BIND_DONE)
 	{
-		XN297L_Hopping(hopping_frequency_no);
+		XN297_Hopping(hopping_frequency_no);
 		hopping_frequency_no ^= 1;			// 2 RF channels
 	}
 
-	XN297L_WritePayload(packet, KF606_PAYLOAD_SIZE);
-
-	XN297L_SetPower();		// Set tx_power
-	XN297L_SetFreqOffset();	// Set frequency offset
+	// Send
+	XN297_SetPower();
+	XN297_SetFreqOffset();
+	XN297_SetTxRxMode(TX_EN);
+	XN297_WritePayload(packet, KF606_PAYLOAD_SIZE);
 }
 
 static void __attribute__((unused)) KF606_initialize_txid()
@@ -78,10 +79,10 @@ static void __attribute__((unused)) KF606_initialize_txid()
 
 static void __attribute__((unused)) KF606_RF_init()
 {
-	XN297L_Init();
-	XN297L_SetTXAddr((uint8_t*)"\xe7\xe7\xe7\xe7\xe7", 5);
-	XN297L_HoppingCalib(KF606_RF_NUM_CHANNELS);	// Calibrate all channels
-	XN297L_RFChannel(KF606_RF_BIND_CHANNEL);	// Set bind channel
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K);
+	XN297_SetTXAddr((uint8_t*)"\xe7\xe7\xe7\xe7\xe7", 5);
+	XN297_HoppingCalib(KF606_RF_NUM_CHANNELS);					// Calibrate all channels
+	XN297_RFChannel(KF606_RF_BIND_CHANNEL);						// Set bind channel
 }
 
 uint16_t KF606_callback()
@@ -93,7 +94,7 @@ uint16_t KF606_callback()
 		if(--bind_counter==0)
 		{
 			BIND_DONE;
-			XN297L_SetTXAddr(rx_tx_addr, 3);
+			XN297_SetTXAddr(rx_tx_addr, 3);
 		}
 	KF606_send_packet();
 	return KF606_PACKET_PERIOD;

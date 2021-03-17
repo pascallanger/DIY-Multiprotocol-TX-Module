@@ -51,7 +51,7 @@ static void __attribute__((unused)) Q90C_send_packet()
 	}
 	else
 	{
-		XN297L_Hopping(hopping_frequency_no++);				// RF Freq
+		XN297_Hopping(hopping_frequency_no++);				// RF Freq
 		hopping_frequency_no %= Q90C_RF_NUM_CHANNELS;
 		packet[0]= convert_channel_8b(THROTTLE);			// 0..255
 		// A,E,R have weird scaling, 0x00-0xff range (unsigned) but center isn't 7f or 80
@@ -108,9 +108,11 @@ static void __attribute__((unused)) Q90C_send_packet()
 		packet[11] = sum ^ crc8;
 	}
 
-	XN297L_SetFreqOffset();									// Set frequency offset
-	XN297L_SetPower();										// Set tx_power
-	XN297L_WriteEnhancedPayload(packet, Q90C_PACKET_SIZE, 0);
+	// Send
+	XN297_SetFreqOffset();									// Set frequency offset
+	XN297_SetPower();										// Set tx_power
+	XN297_SetTxRxMode(TX_EN);
+	XN297_WriteEnhancedPayload(packet, Q90C_PACKET_SIZE, 0);
 }
 
 static void __attribute__((unused)) Q90C_initialize_txid()
@@ -133,13 +135,13 @@ static void __attribute__((unused)) Q90C_initialize_txid()
 
 static void __attribute__((unused)) Q90C_RF_init()
 {
-	XN297L_Init();
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K);
 	if(IS_BIND_IN_PROGRESS)
-		XN297L_SetTXAddr((uint8_t*)"\x4F\x43\x54\x81\x81", Q90C_ADDRESS_LENGTH);
+		XN297_SetTXAddr((uint8_t*)"\x4F\x43\x54\x81\x81", Q90C_ADDRESS_LENGTH);
 	else
-		XN297L_SetTXAddr(rx_tx_addr, Q90C_ADDRESS_LENGTH);
-	XN297L_HoppingCalib(Q90C_RF_NUM_CHANNELS);				// Calibrate all channels
-	XN297L_RFChannel(Q90C_RF_BIND_CHANNEL);					// Set bind channel
+		XN297_SetTXAddr(rx_tx_addr, Q90C_ADDRESS_LENGTH);
+	XN297_HoppingCalib(Q90C_RF_NUM_CHANNELS);				// Calibrate all channels
+	XN297_RFChannel(Q90C_RF_BIND_CHANNEL);					// Set bind channel
 }
 
 uint16_t Q90C_callback()
@@ -151,7 +153,7 @@ uint16_t Q90C_callback()
 		if(--bind_counter==0)
 		{
 			BIND_DONE;
-			XN297L_SetTXAddr(rx_tx_addr, Q90C_ADDRESS_LENGTH);
+			XN297_SetTXAddr(rx_tx_addr, Q90C_ADDRESS_LENGTH);
 		}
 	Q90C_send_packet();
 	return Q90C_PACKET_PERIOD;

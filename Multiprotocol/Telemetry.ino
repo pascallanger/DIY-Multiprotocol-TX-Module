@@ -139,11 +139,15 @@ static void multi_send_status()
 			if(protocol!=PROTO_SCANNER)
 				flags &= ~0x04;			//Invalid protocol
 		}
+		else if(IS_SUB_PROTO_INVALID)
+		{
+			flags &= ~0x04;				//Invalid sub protocol
+		}
 		else if(sub_protocol&0x07)
 			{
 				uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
 				//if(protocol==PROTO_DSM) nbr++;	//Auto sub_protocol
-				if((sub_protocol&0x07)>=nbr)
+				if((sub_protocol&0x07)>=nbr )
 					flags &= ~0x04;		//Invalid sub protocol
 			}
 		if (IS_WAIT_BIND_on)
@@ -174,12 +178,12 @@ static void multi_send_status()
 	// Channel order
 	Serial_write(RUDDER<<6|THROTTLE<<4|ELEVATOR<<2|AILERON);
 	
-	if(multi_protocols_index == 0xFF)												// selection out of list... send first available protocol
+	if(multi_protocols_index == 0xFF)													// selection out of list... send first available protocol
 	{
-		Serial_write(multi_protocols[0].protocol);									// begining of list
-		Serial_write(multi_protocols[0].protocol);									// begining of list
+		Serial_write(multi_protocols[0].protocol);										// begining of list
+		Serial_write(multi_protocols[0].protocol);										// begining of list
 		for(uint8_t i=0;i<16;i++)
-			Serial_write(0x00);														// everything else is invalid
+			Serial_write(0x00);															// everything else is invalid
 	}
 	else
 	{
@@ -191,13 +195,13 @@ static void multi_send_status()
 				if(multi_protocols[multi_protocols_index+2].protocol != 0)
 					Serial_write(multi_protocols[multi_protocols_index+2].protocol);	// skip to next protocol number
 				else
-					Serial_write(multi_protocols[multi_protocols_index].protocol);	// or end of list
+					Serial_write(multi_protocols[multi_protocols_index].protocol);		// or end of list
 			}
 			else
-				Serial_write(multi_protocols[multi_protocols_index+1].protocol);	// next protocol number
+				Serial_write(multi_protocols[multi_protocols_index+1].protocol);		// next protocol number
 		}
 		else
-			Serial_write(multi_protocols[multi_protocols_index].protocol);			// end of list
+			Serial_write(multi_protocols[multi_protocols_index].protocol);				// end of list
 		if(multi_protocols_index>0)
 		{
 			if(multi_protocols[multi_protocols_index-1].protocol==PROTO_SCANNER)
@@ -205,19 +209,22 @@ static void multi_send_status()
 				if(multi_protocols_index > 1)
 					Serial_write(multi_protocols[multi_protocols_index-2].protocol);	// skip to prev protocol number
 				else
-					Serial_write(multi_protocols[multi_protocols_index].protocol);	// begining of list
+					Serial_write(multi_protocols[multi_protocols_index].protocol);		// begining of list
 			}
 			else
-				Serial_write(multi_protocols[multi_protocols_index-1].protocol);	// prev protocol number
+				Serial_write(multi_protocols[multi_protocols_index-1].protocol);		// prev protocol number
 		}
 		else
-			Serial_write(multi_protocols[multi_protocols_index].protocol);			// begining of list
+			Serial_write(multi_protocols[multi_protocols_index].protocol);				// begining of list
 		// Protocol
 		for(uint8_t i=0;i<7;i++)
-			Serial_write(multi_protocols[multi_protocols_index].ProtoString[i]);	// protocol name
+			Serial_write(multi_protocols[multi_protocols_index].ProtoString[i]);		// protocol name
 		// Sub-protocol
 		uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
-		Serial_write(nbr | (multi_protocols[multi_protocols_index].optionType<<4));	// number of sub protocols && option type
+		if(option_override>0x0F)
+			Serial_write(nbr | (multi_protocols[multi_protocols_index].optionType<<4));	// number of sub protocols && option type
+		else
+			Serial_write(nbr | (option_override<<4));									// number of sub protocols && option_override type
 		uint8_t j=0;
 		if(nbr && (sub_protocol&0x07)<nbr)
 		{

@@ -28,7 +28,6 @@ void NRF24L01_Initialize()
 {
     rf_setup = 0x09;
 	prev_power = 0x00;	// Make sure prev_power is inline with current power
-	XN297_SetScrambledMode(XN297_SCRAMBLED);
 
 	//Load most likely default NRF config
 	NRF24L01_FlushTx();
@@ -196,11 +195,11 @@ void NRF24L01_SetPower()
 
 void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 {
+	NRF24L01_WriteReg(NRF24L01_07_STATUS, (1 << NRF24L01_07_RX_DR)    //reset the flag(s)
+										| (1 << NRF24L01_07_TX_DS)
+										| (1 << NRF24L01_07_MAX_RT));
 	if(mode == TX_EN) {
 		NRF_CE_off;
-		NRF24L01_WriteReg(NRF24L01_07_STATUS, (1 << NRF24L01_07_RX_DR)    //reset the flag(s)
-											| (1 << NRF24L01_07_TX_DS)
-											| (1 << NRF24L01_07_MAX_RT));
 		NRF24L01_WriteReg(NRF24L01_00_CONFIG, (1 << NRF24L01_00_EN_CRC)   // switch to TX mode
 											| (1 << NRF24L01_00_CRCO)
 											| (1 << NRF24L01_00_PWR_UP));
@@ -211,9 +210,6 @@ void NRF24L01_SetTxRxMode(enum TXRX_State mode)
 		if (mode == RX_EN)
 		{
 			NRF_CE_off;
-			NRF24L01_WriteReg(NRF24L01_07_STATUS, (1 << NRF24L01_07_RX_DR)    //reset the flag(s)
-												| (1 << NRF24L01_07_TX_DS)
-												| (1 << NRF24L01_07_MAX_RT));
 			NRF24L01_WriteReg(NRF24L01_00_CONFIG, (1 << NRF24L01_00_EN_CRC)   // switch to RX mode
 												| (1 << NRF24L01_00_CRCO)
 												| (1 << NRF24L01_00_PWR_UP)

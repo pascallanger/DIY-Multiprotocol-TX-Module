@@ -97,6 +97,7 @@ const char STR_E016HV2[]    ="E016Hv2";
 const char STR_E010R5[]     ="E010r5";
 const char STR_LOLI[]       ="LOLI";
 const char STR_E129[]       ="E129";
+const char STR_E016H[]      ="E016H";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -233,6 +234,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(E010R5_CYRF6936_INO)
 		{PROTO_E010R5,     STR_E010R5,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CYRF,   E010R5_init,     E010R5_callback     },
 	#endif
+	#if defined(E016H_NRF24L01_INO)
+		{PROTO_E016H,      STR_E016H,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    E016H_init,      E016H_callback      },
+	#endif
 	#if defined(E016HV2_CC2500_INO)
 		{PROTO_E016HV2,    STR_E016HV2,   NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_CC2500, E016HV2_init,    E016HV2_callback    },
 	#endif
@@ -345,20 +349,20 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(LOLI_NRF24L01_INO)
 		{PROTO_LOLI,       STR_LOLI,      NO_SUBTYPE,            0, OPTION_NONE,    1, 0, SW_NRF,    LOLI_init,       LOLI_callback       },
 	#endif
-	#if defined(MJXQ_NRF24L01_INO)
-		{PROTO_MJXQ,       STR_MJXQ,      STR_SUBTYPE_MJXQ,      7, OPTION_RFTUNE,  0, 0, SW_NRF,    MJXQ_init,       MJXQ_callback       },
+	#if defined(MJXQ_CCNRF_INO)
+		{PROTO_MJXQ,       STR_MJXQ,      STR_SUBTYPE_MJXQ,      7, OPTION_NONE,    0, 0, SW_NRF,    MJXQ_init,       MJXQ_callback       },
 	#endif
 	#if defined(MLINK_CYRF6936_INO)
 		{PROTO_MLINK,      STR_MLINK,     NO_SUBTYPE,            0, OPTION_NONE,    1, 0, SW_CYRF,   MLINK_init,      MLINK_callback      },
 	#endif
-	#if defined(MT99XX_NRF24L01_INO)
+	#if defined(MT99XX_CCNRF_INO)
 		{PROTO_MT99XX,     STR_MT99XX,    STR_SUBTYPE_MT99,      7, OPTION_NONE,    0, 0, SW_NRF,    MT99XX_init,     MT99XX_callback     },
 	#endif
 	#if defined(NCC1701_NRF24L01_INO)
 		{PROTO_NCC1701,    STR_NCC1701,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    NCC_init,        NCC_callback        },
 	#endif
-	#if defined(OMP_CC2500_INO)
-		{PROTO_OMP,        STR_OMP,       NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    OMP_init,        OMP_callback        },
+	#if defined(OMP_CCNRF_INO)
+		{PROTO_OMP,        STR_OMP,       NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    OMP_init,        OMP_callback        },
 	#endif
 	#if defined(PELIKAN_A7105_INO)
 		{PROTO_PELIKAN,    STR_PELIKAN,   STR_SUBTYPE_PELIKAN,   2, OPTION_NONE,    0, 1, SW_A7105,  PELIKAN_init,    PELIKAN_callback    },
@@ -372,7 +376,7 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(CX10_NRF24L01_INO)
 		{PROTO_Q2X2,       STR_Q2X2,      STR_SUBTYPE_Q2X2,      3, OPTION_NONE,    0, 0, SW_NRF,    CX10_init,       CX10_callback       },
 	#endif
-	#if defined(Q303_NRF24L01_INO)
+	#if defined(Q303_CCNRF_INO)
 		{PROTO_Q303,       STR_Q303,      STR_SUBTYPE_Q303,      4, OPTION_NONE,    0, 0, SW_NRF,    Q303_init,       Q303_callback       },
 	#endif
 	#if defined(Q90C_CCNRF_INO)
@@ -427,7 +431,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_WFLY2,      STR_WFLY2,     STR_SUBTYPE_WFLY2,     1, OPTION_OPTION,  1, 0, SW_A7105,  WFLY2_init,      WFLY2_callback      },
 //		{PROTO_WFLY2,      STR_WFLY2,     STR_SUBTYPE_WFLY2,     1, OPTION_WBUS,    1, 0, SW_A7105,  WFLY2_init,      WFLY2_callback      },// crash OpenTX...
 	#endif
-	#if defined(XK_NRF24L01_INO)
+	#if defined(XK_CCNRF_INO)
 		{PROTO_XK,         STR_XK,        STR_SUBTYPE_XK,        2, OPTION_RFTUNE,  0, 0, SW_NRF,    XK_init,         XK_callback         },	
 	#endif
 	#if defined(XN297DUMP_NRF24L01_INO)

@@ -77,8 +77,9 @@ CFlie|38|CFlie||||||||NRF24L01|
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO||||CYRF6936|
 [DSM_RX](Protocols_Details.md#DSM_RX---70)|70|Multi|CPPM|||||||CYRF6936|
 [E010R5](Protocols_Details.md#E010R5---81)|81|||||||||CYRF6936/NRF24L01|RF2500
+[E016H](Protocols_Details.md#E016H---85)|85|||||||||NRF24L01|XN297
 [E016HV2](Protocols_Details.md#E016HV2---80)|80|||||||||CC2500/NRF24L01|unknown
-[E01X](Protocols_Details.md#E01X---45)|45|E012|E015|E016H||||||NRF24L01|XN297/HS6200
+[E01X](Protocols_Details.md#E01X---45)|45|E012|E015|||||||NRF24L01|HS6200
 [E129](Protocols_Details.md#E129---83)|83|||||||||CYRF6936/NRF24L01|RF2500
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|||||||||NRF24L01|
@@ -884,28 +885,6 @@ Recommended for best telemetry performance.
 Telemetry compatibility mode when Sync does not work due to an old firmware on the RX.
 You should definitively upgrade your receivers/sensors to the latest firmware versions: https://www.rcgroups.com/forums/showpost.php?p=44668015&postcount=18022
 
-## OMP - *77*
-Model: OMPHOBBY M1 & M2 Helis, T720 RC Glider
-
-Telemetry is supported only if a NRF24L01 RF component is installed:
-- A1 = battery voltage including "recovered" battery voltage from corrupted telemetry packets
-- A2 = battery voltage from only good telemetry packets
-- How to calculate accurately the OpenTX Ratio and Offset:
-Set the Ratio to 12.7 and Offset to 0, plug 2 batteries with extreme voltage values, write down the values Batt1=12.5V & Telem1=12.2V, Batt2=7V & Telem2=6.6V then calculate/set Ratio=12.7*[(12.5-7)/(12.2-6.6)]=12.47 => 12.5 and Offset=12.5-12.2*[(12.5-7)/(12.2-6.6)]=0.517 => 0.5
-- RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) from the model which has nothing to do with how well the RX is receiving the TX
-
-Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
-Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T_PITCH|R|T_HOLD|IDLE|MODE
-
-IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
-
-From the TX manual: MODE= 3 pos switch -100% Attitude, 0% Attitude(?), +100% 3D
-For M2: MODE= 3 pos switch -100% 6G, 0% 3D, +100% 3D
-
 ## Scanner - *54*
 2.4GHz scanner accessible using the OpenTX 2.3 Spectrum Analyser tool.
 
@@ -968,7 +947,7 @@ A|E|T|R|CH5|CH6|CH7
 
 If a CC2500 is installed it will be used for all the below protocols. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
-If only a NRF24L01 is installed then these protocols might be problematic because they are using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+If only a NRF24L01 is installed then these protocols might be problematic because they are using the XN297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
 ## GD00X - *47*
 Model: GD005 C-17 Transport, GD006 DA62 and ZC-Z50
@@ -993,6 +972,176 @@ Model: KF606
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A||T||TRIM
+
+## MJXQ - *18*
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
+---|---|---|---|---|---|---|---|---|----|----|----|----|----
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT|RATE
+
+RATE: -100%(default)=>higher rates by enabling dynamic trims (except for Headless), 100%=>disable dynamic trims
+
+CC2500: only E010 and PHOENIX are supported.
+
+### Sub_protocol WLH08 - *0*
+
+### Sub_protocol X600 - *1*
+Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
+### Sub_protocol X800 - *2*
+Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
+### Sub_protocol H26D - *3*
+Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
+### Sub_protocol E010 - *4*
+15 TX IDs available, change RX_Num value 0..14 to cycle through them
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+### Sub_protocol H26WH - *5*
+CH6|
+---|
+ARM|
+
+Only 1 TX ID available
+
+### Sub_protocol PHOENIX - *6*
+CH6|
+---|
+ARM|
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+## MT99XX - *17*
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS
+
+CC2500: only YZ is supported.
+
+### Sub_protocol MT99 - *0*
+Models: MT99xx
+### Sub_protocol H7 - *1*
+Models: Eachine H7, Cheerson CX023
+### Sub_protocol YZ - *2*
+Model: Yi Zhan i6S
+
+Only one model can be flown at the same time since the ID is hardcoded.
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+### Sub_protocol LS - *3*
+Models: LS114, 124, 215
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|INVERT|PICTURE|VIDEO|HEADLESS
+
+### Sub_protocol FY805 - *4*
+Model: FY805
+
+**Only 1 ID available**
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP||||HEADLESS
+
+### Sub_protocol A180 - *5*
+Model: XK A180
+
+CH1|CH2|CH3|CH4|CH5
+---|---|---|---|---
+A|E|T|R|3D6G
+
+### Sub_protocol DRAGON - *6*
+Model: Eachine Mini Wing Dragon
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|MODE|RTH
+
+MODE: -100%=Beginner, 0%=Intermediate, +100%=Advanced
+
+## OMP - *77*
+Model: OMPHOBBY M1 & M2 Helis, T720 RC Glider
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+Telemetry is supported:
+- A1 = battery voltage including "recovered" battery voltage from corrupted telemetry packets
+- A2 = battery voltage from only good telemetry packets
+- How to calculate accurately the OpenTX Ratio and Offset:
+Set the Ratio to 12.7 and Offset to 0, plug 2 batteries with extreme voltage values, write down the values Batt1=12.5V & Telem1=12.2V, Batt2=7V & Telem2=6.6V then calculate/set Ratio=12.7*[(12.5-7)/(12.2-6.6)]=12.47 => 12.5 and Offset=12.5-12.2*[(12.5-7)/(12.2-6.6)]=0.517 => 0.5
+- RX_RSSI = TQly = percentage of received telemetry packets (good and corrupted) from the model which has nothing to do with how well the RX is receiving the TX
+
+Option for this protocol corresponds to the CC2500 fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T_PITCH|R|T_HOLD|IDLE|MODE
+
+IDLE= 3 pos switch: -100% Normal, 0% Idle1, +100% Idle2
+
+From the TX manual: MODE= 3 pos switch -100% Attitude, 0% Attitude(?), +100% 3D
+For M2: MODE= 3 pos switch -100% 6G, 0% 3D, +100% 3D
+
+## Q303 - *31*
+Autobind protocol
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
+CC2500: only Q303 is supported.
+
+### Sub_protocol Q303 - *0*
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---
+AHOLD|FLIP|PICTURE|VIDEO|HEADLESS|RTH|GIMBAL
+
+GIMBAL needs 3 position -100%/0%/100%
+
+### Sub_protocol CX35 - *1*
+CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---
+ARM|VTX|PICTURE|VIDEO||RTH|GIMBAL
+
+ARM is 2 positions: land / take off
+
+Each toggle of VTX will increment the channel.
+
+Gimbal is full range.
+
+### Sub_protocol CX10D  - *2*
+Models CX10D and CX33W
+
+CH5|CH6
+---|---
+ARM|FLIP
+
+ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
+
+### Sub_protocol CX10WD - *3*
+CH5|CH6
+---|---
+ARM|FLIP
+
+ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
 
 ## Q90C - *72*
 
@@ -1086,6 +1235,26 @@ Models: WLtoys V911S, XK A110
 
 ### Sub_protocol E119 - *1*
 Models: Eachine E119
+
+## XK - *62*
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|Flight_modes|Take_off|Emerg stop|3D/6G|Picture|Video
+
+Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary switches.
+
+CC2500: only X450 is supported.
+
+### Sub_protocol X450 - *0*
+Models: XK X450 (TX=X8)
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+### Sub_protocol X420 - *1*
+Models: XK X420/X520 (TX=X4)
 
 ***
 # NRF24L01 RF Module
@@ -1286,6 +1455,15 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|FLIP|LED|CAMERA1|CAMERA2|HEADLESS|RTH|RATE_LOW
 
+## E016H - *85*
+Autobind protocol
+
+Model: Eachine E016H
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|STOP|FLIP|-|HEADLESS|RTH
+
 ## E01X - *45*
 Autobind protocol
 
@@ -1306,13 +1484,6 @@ This protocol has been reported to not work properly due to the emulation of the
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|ARM|FLIP|LED|HEADLESS|RTH
-
-### Sub_protocol E016H - *2*
-Models: Eachine E016H
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|STOP|FLIP|-|HEADLESS|RTH
 
 ## ESKY - *16*
 
@@ -1493,93 +1664,6 @@ CH14| CH6 | -100% | 0% |  | - | -
 CH15| CH7 | -100% | 0% | - | - | +100%
 CH16| CH8 | -100% | 0% | - | - | -
 
-## MJXQ - *18*
-Autobind protocol
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
----|---|---|---|---|---|---|---|---|----|----|----|----|----
-A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|AUTOFLIP|PAN|TILT|RATE
-
-RATE: -100%(default)=>higher rates by enabling dynamic trims (except for Headless), 100%=>disable dynamic trims
-
-### Sub_protocol WLH08 - *0*
-### Sub_protocol X600 - *1*
-Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
-### Sub_protocol X800 - *2*
-Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
-### Sub_protocol H26D - *3*
-Only 3 TX IDs available, change RX_Num value 0..2 to cycle through them
-### Sub_protocol E010 - *4*
-15 TX IDs available, change RX_Num value 0..14 to cycle through them
-
-If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
-
-### Sub_protocol H26WH - *5*
-CH6|
----|
-ARM|
-
-Only 1 TX ID available
-
-### Sub_protocol PHOENIX - *6*
-CH6|
----|
-ARM|
-
-## MT99XX - *17*
-Autobind protocol
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS
-
-### Sub_protocol MT99 - *0*
-Models: MT99xx
-### Sub_protocol H7 - *1*
-Models: Eachine H7, Cheerson CX023
-### Sub_protocol YZ - *2*
-Model: Yi Zhan i6S
-
-Only one model can be flown at the same time since the ID is hardcoded.
-
-If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
-
-### Sub_protocol LS - *3*
-Models: LS114, 124, 215
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|INVERT|PICTURE|VIDEO|HEADLESS
-
-### Sub_protocol FY805 - *4*
-Model: FY805
-
-**Only 1 ID available**
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP||||HEADLESS
-
-### Sub_protocol A180 - *5*
-Model: XK A180
-
-CH1|CH2|CH3|CH4|CH5
----|---|---|---|---
-A|E|T|R|3D6G
-
-### Sub_protocol DRAGON - *6*
-Model: Eachine Mini Wing Dragon
-
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|MODE|RTH
-
-MODE: -100%=Beginner, 0%=Intermediate, +100%=Advanced
-
 ## NCC1701 - *44*
 Model: Air Hogs Star Trek USS Enterprise NCC-1701-A
 
@@ -1634,52 +1718,6 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 
 Model: JXD 509 is using Q282 with CH12=Start/Stop motors
-
-## Q303 - *31*
-Autobind protocol
-
-CH1|CH2|CH3|CH4
----|---|---|---
-A|E|T|R
-
-### Sub_protocol Q303 - *0*
-
-If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
-
-CH5|CH6|CH7|CH8|CH9|CH10|CH11
----|---|---|---|---|---|---
-AHOLD|FLIP|PICTURE|VIDEO|HEADLESS|RTH|GIMBAL
-
-GIMBAL needs 3 position -100%/0%/100%
-
-### Sub_protocol CX35 - *1*
-CH5|CH6|CH7|CH8|CH9|CH10|CH11
----|---|---|---|---|---|---
-ARM|VTX|PICTURE|VIDEO||RTH|GIMBAL
-
-ARM is 2 positions: land / take off
-
-Each toggle of VTX will increment the channel.
-
-Gimbal is full range.
-
-### Sub_protocol CX10D  - *2*
-Models CX10D and CX33W
-
-CH5|CH6
----|---
-ARM|FLIP
-
-ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
-
-### Sub_protocol CX10WD - *3*
-CH5|CH6
----|---
-ARM|FLIP
-
-ARM is 3 positions: -100%=land / 0%=manual / +100%=take off
 
 ## Realacc - *76*
 Model: Realacc R11
@@ -1791,25 +1829,6 @@ Model: Volantex V761-4+ and Eachine P51-D, F4U, F22 and may be others
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
-
-
-## XK - *62*
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|----
-A|E|T|R|Flight_modes|Take_off|Emerg stop|3D/6G|Picture|Video
-
-Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary switches.
-
-### Sub_protocol X450 - *0*
-Models: XK X450 (TX=X8)
-
-If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
-
-### Sub_protocol X420 - *1*
-Models: XK X420/X520 (TX=X4)
 
 ## YD717 - *8*
 Autobind protocol

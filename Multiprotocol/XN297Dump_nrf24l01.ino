@@ -19,7 +19,7 @@
 
 #ifdef XN297DUMP_NRF24L01_INO
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 // Parameters which can be modified
 #define XN297DUMP_PERIOD_SCAN		50000 	// 25000
@@ -65,6 +65,12 @@ static void __attribute__((unused)) XN297Dump_RF_init()
 
 	}
 }
+
+extern const uint8_t xn297_scramble[];
+extern const uint16_t PROGMEM xn297_crc_xorout_scrambled[];
+extern const uint16_t PROGMEM xn297_crc_xorout[];
+extern const uint16_t PROGMEM xn297_crc_xorout_scrambled_enhanced[];
+extern const uint16_t xn297_crc_xorout_enhanced[];
 
 static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 {
@@ -318,15 +324,16 @@ static uint16_t XN297Dump_callback()
 								switch(bitrate)
 								{
 									case XN297DUMP_250K:
-										NRF24L01_SetBitrate(NRF24L01_BR_250K);
+										XN297_Configure(XN297_CRCEN, scramble?XN297_SCRAMBLED:XN297_UNSCRAMBLED, XN297_250K);
 										debug("250K");
 										break;
 									case XN297DUMP_2M:
+										XN297_Configure(XN297_CRCEN, scramble?XN297_SCRAMBLED:XN297_UNSCRAMBLED, XN297_1M);
 										NRF24L01_SetBitrate(NRF24L01_BR_2M);
 										debug("2M");
 										break;
 									default:
-										NRF24L01_SetBitrate(NRF24L01_BR_1M);
+										XN297_Configure(XN297_CRCEN, scramble?XN297_SCRAMBLED:XN297_UNSCRAMBLED, XN297_1M);
 										debug("1M");
 										break;
 
@@ -358,20 +365,12 @@ static uint16_t XN297Dump_callback()
 								rf_ch_num=0;
 								packet_count=0;
 								debug("Trying RF channel: 0");
-								NRF24L01_Initialize();
-								XN297_SetScrambledMode(scramble?XN297_SCRAMBLED:XN297_UNSCRAMBLED);
+
 								XN297_SetTXAddr(rx_tx_addr,address_length);
-								XN297_SetRXAddr(rx_tx_addr,address_length);
-								NRF24L01_FlushRx();
-								NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     	// Clear data ready, data sent, and retransmit
-								NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      	// No Auto Acknowldgement on all data pipes
-								NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  	// Enable data pipe 0 only
-								NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, packet_length + 2 + (enhanced?2:0) ); // 2 extra bytes for xn297 crc
-								NRF24L01_WriteReg(NRF24L01_05_RF_CH,0);
-								NRF24L01_SetTxRxMode(TXRX_OFF);
-								NRF24L01_FlushRx();
-								NRF24L01_SetTxRxMode(RX_EN);
-								XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+								XN297_SetRXAddr(rx_tx_addr,packet_length);
+								XN297_RFChannel(0);
+								XN297_SetTxRxMode(TXRX_OFF);
+								XN297_SetTxRxMode(RX_EN);
 							}
 						}
 					}
@@ -404,7 +403,7 @@ static uint16_t XN297Dump_callback()
 							bind_counter=0;
 							debugln("Time between CH:%d and CH:%d",hopping_frequency[0],hopping_frequency[hopping_frequency_no]);
 							time_rf[hopping_frequency_no]=0xFFFFFFFF;
-							NRF24L01_WriteReg(NRF24L01_05_RF_CH,hopping_frequency[0]);
+							XN297_RFChannel(hopping_frequency[0]);
 							uint16_t timeL=TCNT1;
 							if(TIMER2_BASE->SR & TIMER_SR_UIF)
 							{//timer just rolled over...
@@ -412,29 +411,20 @@ static uint16_t XN297Dump_callback()
 								timeL=0;
 							}
 							time=(timeH<<16)+timeL;
-							NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-							NRF24L01_SetTxRxMode(TXRX_OFF);
-							NRF24L01_SetTxRxMode(RX_EN);
-							NRF24L01_FlushRx();
-							NRF24L01_WriteReg(NRF24L01_00_CONFIG, (0 << NRF24L01_00_EN_CRC)   // switch to RX mode and disable CRC
-															| (1 << NRF24L01_00_CRCO)
-															| (1 << NRF24L01_00_PWR_UP)
-															| (1 << NRF24L01_00_PRIM_RX));
+							XN297_SetTxRxMode(TXRX_OFF);
+							XN297_SetTxRxMode(RX_EN);
 							XN297Dump_overflow();
 							break;
 						}
 						debug(",%d",hopping_frequency_no);
-						NRF24L01_WriteReg(NRF24L01_05_RF_CH,hopping_frequency_no);
+						XN297_RFChannel(hopping_frequency_no);
 						// switch to RX mode
-						NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-						NRF24L01_SetTxRxMode(TXRX_OFF);
-						NRF24L01_SetTxRxMode(RX_EN);
-						NRF24L01_FlushRx();
-						XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+						XN297_SetTxRxMode(TXRX_OFF);
+						XN297_SetTxRxMode(RX_EN);
 					}
-					if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
+					if( XN297_IsRX() )
 					{ // RX fifo data ready
-						if(NRF24L01_ReadReg(NRF24L01_09_CD))
+						//	if(NRF24L01_ReadReg(NRF24L01_09_CD))
 						{
 							boolean res;
 							if(enhanced)
@@ -471,11 +461,8 @@ static uint16_t XN297Dump_callback()
 							}
 						}
 						// restart RX mode
-						NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-						NRF24L01_SetTxRxMode(TXRX_OFF);
-						NRF24L01_SetTxRxMode(RX_EN);
-						NRF24L01_FlushRx();
-						XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+						XN297_SetTxRxMode(TXRX_OFF);
+						XN297_SetTxRxMode(RX_EN);
 					}
 					XN297Dump_overflow();
 					break;
@@ -518,7 +505,7 @@ static uint16_t XN297Dump_callback()
 						}
 						debugln("Time between CH:%d and CH:%d",hopping_frequency[0],hopping_frequency[hopping_frequency_no]);
 						time_rf[hopping_frequency_no]=-1;
-						NRF24L01_WriteReg(NRF24L01_05_RF_CH,hopping_frequency[0]);
+						XN297_RFChannel(hopping_frequency[0]);
 						uint16_t timeL=TCNT1;
 						if(TIMER2_BASE->SR & TIMER_SR_UIF)
 						{//timer just rolled over...
@@ -527,15 +514,12 @@ static uint16_t XN297Dump_callback()
 						}
 						time=(timeH<<16)+timeL;
 						// switch to RX mode
-						NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-						NRF24L01_SetTxRxMode(TXRX_OFF);
-						NRF24L01_SetTxRxMode(RX_EN);
-						NRF24L01_FlushRx();
-						XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+						XN297_SetTxRxMode(TXRX_OFF);
+						XN297_SetTxRxMode(RX_EN);
 					}
-					if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
+					if( XN297_IsRX() )
 					{ // RX fifo data ready
-						if(NRF24L01_ReadReg(NRF24L01_09_CD))
+						//if(NRF24L01_ReadReg(NRF24L01_09_CD))
 						{
 							boolean res;
 							if(enhanced)
@@ -557,12 +541,12 @@ static uint16_t XN297Dump_callback()
 									if(time_rf[hopping_frequency_no] > (time>>1))
 										time_rf[hopping_frequency_no]=time>>1;
 									debugln("Time: %5luus", time>>1);
-									NRF24L01_WriteReg(NRF24L01_05_RF_CH,hopping_frequency[0]);
+									XN297_RFChannel(hopping_frequency[0]);
 								}
 								else
 								{
 									time=(timeH<<16)+timeL;
-									NRF24L01_WriteReg(NRF24L01_05_RF_CH,hopping_frequency[hopping_frequency_no]);
+									XN297_RFChannel(hopping_frequency[hopping_frequency_no]);
 								}
 								packet_count++;
 								if(packet_count>24)
@@ -573,18 +557,15 @@ static uint16_t XN297Dump_callback()
 							}
 						}
 						// restart RX mode
-						NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-						NRF24L01_SetTxRxMode(TXRX_OFF);
-						NRF24L01_SetTxRxMode(RX_EN);
-						NRF24L01_FlushRx();
-						XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+						XN297_SetTxRxMode(TXRX_OFF);
+						XN297_SetTxRxMode(RX_EN);
 					}
 					XN297Dump_overflow();
 					break;
 				case 4:
-					if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
+					if( XN297_IsRX() )
 					{ // RX fifo data ready
-						if(NRF24L01_ReadReg(NRF24L01_09_CD))
+						//if(NRF24L01_ReadReg(NRF24L01_09_CD))
 						{
 							boolean res;
 							if(enhanced)
@@ -604,11 +585,8 @@ static uint16_t XN297Dump_callback()
 							}
 						}
 						// restart RX mode
-						NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);			// Clear data ready, data sent, and retransmit
-						NRF24L01_SetTxRxMode(TXRX_OFF);
-						NRF24L01_SetTxRxMode(RX_EN);
-						NRF24L01_FlushRx();
-						XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+						XN297_SetTxRxMode(TXRX_OFF);
+						XN297_SetTxRxMode(RX_EN);
 					}
 					break;
 			}
@@ -618,10 +596,10 @@ static uint16_t XN297Dump_callback()
 			if(phase==0)
 			{
 				address_length=4;
-				memcpy(rx_tx_addr, (uint8_t *)"\x5A\x20\x12\xAC", address_length); //"\xA3\x05\x22\xC1"
-				bitrate=XN297DUMP_1M;
+				memcpy(rx_tx_addr, (uint8_t *)"\x5A\xF6\xC1\x71", address_length); //"\xA3\x05\x22\xC1""\x5A\x20\x12\xAC"
+				bitrate=XN297DUMP_250K;
 				packet_length=32;
-				hopping_frequency_no=60; //bind ?, normal 60
+				hopping_frequency_no=58; //bind ?, normal 60
 				
 				NRF24L01_Initialize();
 				NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -658,12 +636,18 @@ static uint16_t XN297Dump_callback()
 					if(NRF24L01_ReadReg(NRF24L01_09_CD))
 					{
 						NRF24L01_ReadPayload(packet, packet_length);
-						bool ok=true;
+						//bool ok=true;
 						uint8_t buffer[40];
 						memcpy(buffer,packet,packet_length);
 						if(memcmp(&packet_in[0],&packet[0],packet_length))
 						{
-							//realign bits
+							debug("P:");
+							for(uint8_t i=0;i<packet_length;i++)
+								debug(" %02X",packet[i]);
+							debugln("");
+							memcpy(packet_in,packet,packet_length);
+						}
+						/*//realign bits
 							for(uint8_t i=0; i<packet_length; i++)
 								buffer[i]=buffer[i+2];
 							//for(uint8_t i=0; i<packet_length; i++)
@@ -693,7 +677,7 @@ static uint16_t XN297Dump_callback()
 								debugln("");
 								memcpy(packet_in,packet,packet_length);
 							}
-						}
+						}*/
 						/*crc=0;
 						for (uint8_t i = 1; i < 12; ++i)
 							crc16_update( packet[i], 8);

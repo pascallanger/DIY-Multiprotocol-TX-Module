@@ -61,19 +61,20 @@ static void __attribute__((unused)) POTENSIC_send_packet()
 	}
 	POTENSIC_set_checksum();
 	packet[9] = hopping_frequency_no;
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no&0x03]);
+	
+	//RF channel
+	XN297_Hopping(hopping_frequency_no&0x03);
 	hopping_frequency_no++;
-	// Power on, TX mode, 2byte CRC
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+
+	// Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, POTENSIC_PACKET_SIZE);
-	NRF24L01_SetPower();
 }
 
 static void __attribute__((unused)) POTENSIC_RF_init()
 {
-	NRF24L01_Initialize();
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 
 	if(IS_BIND_IN_PROGRESS)
 		XN297_SetTXAddr((uint8_t*)"\x01\x01\x01\x01\x06", 5);	// Bind address

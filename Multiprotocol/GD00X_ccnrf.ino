@@ -113,7 +113,7 @@ static void __attribute__((unused)) GD00X_send_packet()
 
 	if(IS_BIND_DONE)
 	{
-		XN297L_Hopping(hopping_frequency_no);
+		XN297_Hopping(hopping_frequency_no);
 		if(sub_protocol==GD_V1)
 		{
 			hopping_frequency_no++;
@@ -121,21 +121,22 @@ static void __attribute__((unused)) GD00X_send_packet()
 		}
 	}
 
-	XN297L_WritePayload(packet, packet_length);
-
-	XN297L_SetPower();		// Set tx_power
-	XN297L_SetFreqOffset();	// Set frequency offset
+	// Send
+	XN297_SetFreqOffset();
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
+	XN297_WritePayload(packet, packet_length);
 }
 
 static void __attribute__((unused)) GD00X_RF_init()
 {
-	XN297L_Init();
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K);
 	if(sub_protocol==GD_V1)
-		XN297L_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
+		XN297_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
 	else
-		XN297L_SetTXAddr((uint8_t*)"GDKNx", 5);
-	XN297L_HoppingCalib(sub_protocol==GD_V1?GD00X_RF_NUM_CHANNELS:GD00X_V2_RF_NUM_CHANNELS);	// Calibrate all channels
-	XN297L_RFChannel(sub_protocol==GD_V1?GD00X_RF_BIND_CHANNEL:GD00X_V2_RF_BIND_CHANNEL);		// Set bind channel
+		XN297_SetTXAddr((uint8_t*)"GDKNx", 5);
+	XN297_HoppingCalib(sub_protocol==GD_V1?GD00X_RF_NUM_CHANNELS:GD00X_V2_RF_NUM_CHANNELS);	// Calibrate all channels
+	XN297_RFChannel(sub_protocol==GD_V1?GD00X_RF_BIND_CHANNEL:GD00X_V2_RF_BIND_CHANNEL);		// Set bind channel
 }
 
 static void __attribute__((unused)) GD00X_initialize_txid()

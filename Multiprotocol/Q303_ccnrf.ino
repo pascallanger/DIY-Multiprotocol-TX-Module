@@ -13,7 +13,7 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(Q303_NRF24L01_INO)
+#if defined(Q303_CCNRF_INO)
 
 #include "iface_nrf24l01.h"
 
@@ -185,6 +185,11 @@ static void __attribute__((unused)) Q303_send_packet()
 	}
 	else
 	{
+		//RF freq
+		XN297_Hopping(hopping_frequency_no++);
+		hopping_frequency_no %= rf_ch_num;
+
+		//Build packet
 		packet[0] = 0x55;
 		// sticks
 		switch(sub_protocol)
@@ -267,32 +272,27 @@ static void __attribute__((unused)) Q303_send_packet()
 		}
 	}
 
-	// Power on, TX mode, CRC enabled
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? Q303_RF_BIND_CHANNEL : hopping_frequency[hopping_frequency_no++]);
-	hopping_frequency_no %= rf_ch_num;
-
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-
+	// Send
+	XN297_SetPower();
+	XN297_SetFreqOffset();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, packet_length);
-
-	NRF24L01_SetPower();	// Set tx_power
 }
 
 static void __attribute__((unused)) Q303_RF_init()
 {
 	const uint8_t bind_address[] = {0xcc,0xcc,0xcc,0xcc,0xcc};
 
-	NRF24L01_Initialize();
-
 	if(sub_protocol==Q303)
 	{
-		XN297_SetScrambledMode(XN297_UNSCRAMBLED);
-		NRF24L01_SetBitrate(NRF24L01_BR_250K);
+		XN297_Configure(XN297_CRCEN, XN297_UNSCRAMBLED, XN297_250K);
+		XN297_HoppingCalib(rf_ch_num);
 	}
+	else
+		XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
+
 	XN297_SetTXAddr(bind_address, 5);
+	XN297_RFChannel(Q303_RF_BIND_CHANNEL);
 }
 
 static void __attribute__((unused)) Q303_initialize_txid()

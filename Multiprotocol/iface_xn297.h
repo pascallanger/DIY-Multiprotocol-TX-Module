@@ -8,76 +8,39 @@
 	#include "iface_nrf24l01.h"
 #endif
 
-///////////////
-// XN297 emulation layer
-// XN297 emulation layer
-enum {
-	XN297_UNSCRAMBLED = 0,
-	XN297_SCRAMBLED
-};
+#if defined (CC2500_INSTALLED) || defined (NRF24L01_INSTALLED)
 
-uint8_t xn297_scramble_enabled=XN297_SCRAMBLED;	//enabled by default
-uint8_t xn297_addr_len;
-uint8_t xn297_tx_addr[5];
-uint8_t xn297_rx_addr[5];
-uint8_t xn297_crc = 0;
+//////////////////
+// Configuration
+#define	XN297_UNSCRAMBLED   false
+#define	XN297_SCRAMBLED     true
+#define	XN297_CRCDIS        false
+#define	XN297_CRCEN         true
+#define	XN297_1M            false
+#define	XN297_250K          true
+#define	XN297_NRF           false
+#define	XN297_CC2500        true
 
-// xn297 address / pcf / payload scramble table
-const uint8_t xn297_scramble[] = {
-    0xE3, 0xB1, 0x4B, 0xEA, 0x85, 0xBC, 0xE5, 0x66,
-    0x0D, 0xAE, 0x8C, 0x88, 0x12, 0x69, 0xEE, 0x1F,
-    0xC7, 0x62, 0x97, 0xD5, 0x0B, 0x79, 0xCA, 0xCC,
-    0x1B, 0x5D, 0x19, 0x10, 0x24, 0xD3, 0xDC, 0x3F,
-    0x8E, 0xC5, 0x2F, 0xAA, 0x16, 0xF3, 0x95 };
+//////////////
+// Functions
+static bool __attribute__((unused)) XN297_Configure(bool, bool, bool);
+static void __attribute__((unused)) XN297_SetTXAddr(const uint8_t*, uint8_t);
+static void __attribute__((unused)) XN297_SetRXAddr(const uint8_t*, uint8_t);
+static void __attribute__((unused)) XN297_SetTxRxMode(enum TXRX_State);
+static void __attribute__((unused)) XN297_SendPayload(uint8_t*, uint8_t);
+static void __attribute__((unused)) XN297_WritePayload(uint8_t*, uint8_t);
+static void __attribute__((unused)) XN297_WriteEnhancedPayload(uint8_t*, uint8_t, uint8_t);
+static bool __attribute__((unused)) XN297_IsRX();
+static void __attribute__((unused)) XN297_ReceivePayload(uint8_t*, uint8_t);
+static bool __attribute__((unused)) XN297_ReadPayload(uint8_t*, uint8_t);
+static uint8_t __attribute__((unused)) XN297_ReadEnhancedPayload(uint8_t*, uint8_t);
+static void __attribute__((unused)) XN297_HoppingCalib(uint8_t);
+static void __attribute__((unused)) XN297_Hopping(uint8_t);
+static void __attribute__((unused)) XN297_RFChannel(uint8_t);
+static void __attribute__((unused)) XN297_SetPower();
+static void __attribute__((unused)) XN297_SetFreqOffset();
+static bool __attribute__((unused)) XN297_IsPacketSent();
 
-// scrambled, standard mode crc xorout table
-const uint16_t PROGMEM xn297_crc_xorout_scrambled[] = {
-    0x0000, 0x3448, 0x9BA7, 0x8BBB, 0x85E1, 0x3E8C,
-    0x451E, 0x18E6, 0x6B24, 0xE7AB, 0x3828, 0x814B,
-    0xD461, 0xF494, 0x2503, 0x691D, 0xFE8B, 0x9BA7,
-    0x8B17, 0x2920, 0x8B5F, 0x61B1, 0xD391, 0x7401,
-    0x2138, 0x129F, 0xB3A0, 0x2988, 0x23CA, 0xC0CB,
-    0x0C6C, 0xB329, 0xA0A1, 0x0A16, 0xA9D0 };
-
-// unscrambled, standard mode crc xorout table
-const uint16_t PROGMEM xn297_crc_xorout[] = {
-    0x0000, 0x3D5F, 0xA6F1, 0x3A23, 0xAA16, 0x1CAF,
-    0x62B2, 0xE0EB, 0x0821, 0xBE07, 0x5F1A, 0xAF15,
-    0x4F0A, 0xAD24, 0x5E48, 0xED34, 0x068C, 0xF2C9,
-    0x1852, 0xDF36, 0x129D, 0xB17C, 0xD5F5, 0x70D7,
-    0xB798, 0x5133, 0x67DB, 0xD94E, 0x0A5B, 0xE445,
-    0xE6A5, 0x26E7, 0xBDAB, 0xC379, 0x8E20 };
-
-// scrambled enhanced mode crc xorout table
-const uint16_t PROGMEM xn297_crc_xorout_scrambled_enhanced[] = {
-    0x0000, 0x7EBF, 0x3ECE, 0x07A4, 0xCA52, 0x343B,
-    0x53F8, 0x8CD0, 0x9EAC, 0xD0C0, 0x150D, 0x5186,
-    0xD251, 0xA46F, 0x8435, 0xFA2E, 0x7EBD, 0x3C7D,
-    0x94E0, 0x3D5F, 0xA685, 0x4E47, 0xF045, 0xB483,
-    0x7A1F, 0xDEA2, 0x9642, 0xBF4B, 0x032F, 0x01D2,
-    0xDC86, 0x92A5, 0x183A, 0xB760, 0xA953 };
-
-// unscrambled enhanced mode crc xorout table
-// unused so far
-#ifdef XN297DUMP_NRF24L01_INO
-const uint16_t xn297_crc_xorout_enhanced[] = {
-    0x0000, 0x8BE6, 0xD8EC, 0xB87A, 0x42DC, 0xAA89,
-    0x83AF, 0x10E4, 0xE83E, 0x5C29, 0xAC76, 0x1C69,
-    0xA4B2, 0x5961, 0xB4D3, 0x2A50, 0xCB27, 0x5128,
-    0x7CDB, 0x7A14, 0xD5D2, 0x57D7, 0xE31D, 0xCE42,
-    0x648D, 0xBF2D, 0x653B, 0x190C, 0x9117, 0x9A97,
-    0xABFC, 0xE68E, 0x0DE7, 0x28A2, 0x1965 };
-#endif
-
-#ifdef NRF24L01_INSTALLED
-void XN297_SetTXAddr(const uint8_t*, uint8_t);
-void XN297_SetRXAddr(const uint8_t*, uint8_t);
-void XN297_Configure(uint8_t);
-void XN297_SetScrambledMode(const uint8_t);
-void XN297_WritePayload(uint8_t*, uint8_t);
-void XN297_WriteEnhancedPayload(uint8_t*, uint8_t, uint8_t);
-boolean XN297_ReadPayload(uint8_t*, uint8_t);
-uint8_t XN297_ReadEnhancedPayload(uint8_t*, uint8_t);
 #endif
 
 #endif

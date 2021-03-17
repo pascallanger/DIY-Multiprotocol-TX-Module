@@ -16,14 +16,13 @@
 
 #if defined(DM002_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define DM002_PACKET_PERIOD		6100 // Timeout for callback in uSec
 #define DM002_INITIAL_WAIT		500
 #define DM002_PACKET_SIZE		12   // packets have 12-byte payload
 #define DM002_RF_BIND_CHANNEL	0x27
 #define DM002_BIND_COUNT		655  // 4 seconds
-
 
 enum DM002_FLAGS {
     // flags going to packet[9]
@@ -75,28 +74,23 @@ static void __attribute__((unused)) DM002_send_packet()
 		packet_count&=0x0F;
 		packet[10] = packet_count;
 		packet_count++;
+		XN297_Hopping(hopping_frequency_no);
 	}
 	//CRC
 	for(uint8_t i=0;i<DM002_PACKET_SIZE-1;i++)
 		packet[11]+=packet[i];
 	
-	// Power on, TX mode, 2byte CRC
-	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? DM002_RF_BIND_CHANNEL : hopping_frequency[hopping_frequency_no]);
-	// clear packet status bits and TX FIFO
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+	//Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, DM002_PACKET_SIZE);
-
-	NRF24L01_SetPower();	// Set tx_power
 }
 
 static void __attribute__((unused)) DM002_RF_init()
 {
-    NRF24L01_Initialize();
-
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t *)"\x26\xA8\x67\x35\xCC", 5);
+	XN297_RFChannel(DM002_RF_BIND_CHANNEL);
 }
 
 uint16_t DM002_callback()

@@ -17,7 +17,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(BAYANG_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define BAYANG_BIND_COUNT		1000
 #define BAYANG_PACKET_PERIOD	2000
@@ -97,6 +97,8 @@ static void __attribute__((unused)) BAYANG_send_packet()
 	}
 	else
 	{
+		XN297_Hopping(hopping_frequency_no++);
+		hopping_frequency_no%=BAYANG_RF_NUM_CHANNELS;
 		uint16_t val;
 		uint8_t dyntrim = 1;
 		switch (sub_protocol)
@@ -192,28 +194,18 @@ static void __attribute__((unused)) BAYANG_send_packet()
 	for (uint8_t i=0; i < BAYANG_PACKET_SIZE-1; i++)
 		packet[14] += packet[i];
 
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? rf_ch_num:hopping_frequency[hopping_frequency_no++]);
-	hopping_frequency_no%=BAYANG_RF_NUM_CHANNELS;
-
-	// Power on, TX mode, 2byte CRC
-	// Why CRC0? xn297 does not interpret it - either 16-bit CRC or nothing
-	NRF24L01_FlushTx();
-	NRF24L01_SetTxRxMode(TX_EN);
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+	// Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, BAYANG_PACKET_SIZE);
-
-	NRF24L01_SetPower();	// Set tx_power
 }
 
 #ifdef BAYANG_HUB_TELEMETRY
 static void __attribute__((unused)) BAYANG_check_rx(void)
 {
-	if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
+	if( XN297_IsRX() )
 	{ // data received from model
-		XN297_ReadPayload(packet, BAYANG_PACKET_SIZE);
-		NRF24L01_WriteReg(NRF24L01_07_STATUS, 255);
-
-		NRF24L01_FlushRx();
+		XN297_ReadPayload(packet, BAYANG_PACKET_SIZE);	// Strange can't test the CRC since it seems to be disabled on telemetry packets...
 		uint8_t check = packet[0];
 		for (uint8_t i=1; i < BAYANG_PACKET_SIZE-1; i++)
 			check += packet[i];
@@ -242,27 +234,21 @@ static void __attribute__((unused)) BAYANG_check_rx(void)
 				telemetry_link=0;	// Don't send anything yet
 		}
 	}
-	NRF24L01_SetTxRxMode(TXRX_OFF);
+	XN297_SetTxRxMode(TXRX_OFF);
 }
 #endif
 
 static void __attribute__((unused)) BAYANG_RF_init()
 {
-	NRF24L01_Initialize();
-
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t *)"\x00\x00\x00\x00\x00", BAYANG_ADDRESS_LENGTH);
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, BAYANG_PACKET_SIZE);
+	//XN297_HoppingCalib(BAYANG_RF_NUM_CHANNELS);
 	
-	switch (sub_protocol)
-	{
-		case X16_AH:
-		case IRDRONE:
-			rf_ch_num = BAYANG_RF_BIND_CHANNEL_X16_AH;
-			break;
-		default:
-			rf_ch_num = BAYANG_RF_BIND_CHANNEL;
-			break;
-	}
+	//Set bind channel
+	uint8_t ch = BAYANG_RF_BIND_CHANNEL;
+	if(sub_protocol == X16_AH || sub_protocol == IRDRONE)
+		ch = BAYANG_RF_BIND_CHANNEL_X16_AH;
+	XN297_RFChannel(ch);
 }
 
 enum {
@@ -287,7 +273,7 @@ uint16_t BAYANG_callback()
 			{
 				XN297_SetTXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
 				#ifdef BAYANG_HUB_TELEMETRY
-					XN297_SetRXAddr(rx_tx_addr, BAYANG_ADDRESS_LENGTH);
+					XN297_SetRXAddr(rx_tx_addr, BAYANG_PACKET_SIZE);
 				#endif
 				BIND_DONE;
 				phase++;	//WRITE
@@ -322,9 +308,9 @@ uint16_t BAYANG_callback()
 			// switch radio to rx as soon as packet is sent
 			start=(uint16_t)micros();
 			while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 1000)			// Wait max 1ms
-				if((NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_TX_DS)))
+				if(XN297_IsPacketSent())
 					break;
-			NRF24L01_WriteReg(NRF24L01_00_CONFIG, 0x03);
+			XN297_SetTxRxMode(RX_EN);
 			phase++;	// READ
 			return BAYANG_PACKET_TELEM_PERIOD - BAYANG_CHECK_DELAY - BAYANG_READ_DELAY;
 		case BAYANG_READ:

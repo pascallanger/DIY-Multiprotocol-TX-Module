@@ -15,7 +15,7 @@
 
 #if defined(ESKY150V2_CC2500_INO)
 
-#include "iface_cc2500.h"
+#include "iface_nrf250k.h"
 
 //#define ESKY150V2_FORCE_ID
 
@@ -74,7 +74,7 @@ static void __attribute__((unused)) ESKY150V2_send_packet()
 		packet[4+2*i] = channel;
 		packet[5+2*i] = channel>>8;
 	}
-	CC2500_250K_NRF_WritePayload(packet, ESKY150V2_PAYLOADSIZE);
+	NRF250K_WritePayload(packet, ESKY150V2_PAYLOADSIZE);
 }
 
 uint16_t ESKY150V2_callback()
@@ -91,12 +91,12 @@ uint16_t ESKY150V2_callback()
 		BIND_DONE;					//Need full power for bind to work...
 		CC2500_SetPower();			//Set power level
 		BIND_IN_PROGRESS;
-		CC2500_250K_NRF_WritePayload(packet, ESKY150V2_BINDPAYLOADSIZE);
+		NRF250K_WritePayload(packet, ESKY150V2_BINDPAYLOADSIZE);
 		if (--bind_counter == 0)
 		{
 			BIND_DONE;
 			// Change TX address from bind to normal mode
-			CC2500_250K_NRF_SetTXAddr(rx_tx_addr, ESKY150V2_TXID_SIZE);
+			NRF250K_SetTXAddr(rx_tx_addr, ESKY150V2_TXID_SIZE);
 			memset(packet,0x00,ESKY150V2_PAYLOADSIZE);
 		}
 		return 30000; //ESKY150V2_BINDING_PACKET_PERIOD;
@@ -118,7 +118,7 @@ void ESKY150V2_init()
 
 	if(IS_BIND_IN_PROGRESS)
 	{
-		CC2500_250K_NRF_SetTXAddr((uint8_t *)"\x73\x73\x74\x63", ESKY150V2_TXID_SIZE);	//Bind address
+		NRF250K_SetTXAddr((uint8_t *)"\x73\x73\x74\x63", ESKY150V2_TXID_SIZE);	//Bind address
 		CC2500_250K_Hopping(ESKY150V2_NFREQCHANNELS);	//Bind channel
 		memcpy(packet,"\x73\x73\x74\x63", ESKY150V2_TXID_SIZE);
 		memcpy(&packet[ESKY150V2_TXID_SIZE],rx_tx_addr, ESKY150V2_TXID_SIZE);
@@ -132,7 +132,7 @@ void ESKY150V2_init()
 		bind_counter=100;
 	}
 	else
-		CC2500_250K_NRF_SetTXAddr(rx_tx_addr, ESKY150V2_TXID_SIZE);
+		NRF250K_SetTXAddr(rx_tx_addr, ESKY150V2_TXID_SIZE);
 }
 
 #endif

@@ -19,7 +19,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(GW008_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define GW008_INITIAL_WAIT    500
 #define GW008_PACKET_PERIOD   2400
@@ -47,6 +47,9 @@ static void __attribute__((unused)) GW008_send_packet()
 	}
 	else
 	{
+		XN297_Hopping((hopping_frequency_no++)/2);
+		hopping_frequency_no %= 8;
+
 		packet[1] = 0x01 | GET_FLAG(CH5_SW, 0x40); // flip
 		packet[2] = convert_channel_16b_limit(AILERON , 200, 0); // aileron
 		packet[3] = convert_channel_16b_limit(ELEVATOR, 0, 200); // elevator
@@ -63,25 +66,21 @@ static void __attribute__((unused)) GW008_send_packet()
 	}
 	packet[14] = rx_tx_addr[1];
 
-	// Power on, TX mode, CRC enabled
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, IS_BIND_IN_PROGRESS ? GW008_RF_BIND_CHANNEL : hopping_frequency[(hopping_frequency_no++)/2]);
-	hopping_frequency_no %= 8;
-
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+	// Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WriteEnhancedPayload(packet, GW008_PAYLOAD_SIZE, 0);
-
-	NRF24L01_SetPower();	// Set tx_power
 }
 
 static void __attribute__((unused)) GW008_RF_init()
 {
-	NRF24L01_Initialize();
-
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
+	
 	XN297_SetTXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
-	XN297_SetRXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", 5);
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, GW008_PAYLOAD_SIZE+2); // payload + 2 bytes for pcf
+	XN297_SetRXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", GW008_PAYLOAD_SIZE);
+
+	//XN297_HoppingCalib(8);
+	XN297_RFChannel(GW008_RF_BIND_CHANNEL);
 }
 
 static void __attribute__((unused)) GW008_initialize_txid()
@@ -96,20 +95,20 @@ uint16_t GW008_callback()
 	switch(phase)
 	{
 		case GW008_BIND1:
-			if((NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) &&	// RX fifo data ready
+			if(XN297_IsRX() &&	// RX fifo data ready
 				XN297_ReadEnhancedPayload(packet, GW008_PAYLOAD_SIZE) == GW008_PAYLOAD_SIZE &&	// check payload size
 				packet[0] == rx_tx_addr[0] && packet[14] == rx_tx_addr[1])			// check tx id
 			{
-				NRF24L01_SetTxRxMode(TXRX_OFF);
-				NRF24L01_SetTxRxMode(TX_EN);
+				XN297_SetTxRxMode(TXRX_OFF);
+				XN297_SetTxRxMode(TX_EN);
 				rx_tx_addr[2] = packet[13];
 				BIND_DONE;
 				phase = GW008_DATA;
 			}
 			else
 			{
-				NRF24L01_SetTxRxMode(TXRX_OFF);
-				NRF24L01_SetTxRxMode(TX_EN);
+				XN297_SetTxRxMode(TXRX_OFF);
+				XN297_SetTxRxMode(TX_EN);
 				GW008_send_packet();
 				phase = GW008_BIND2;
 				return 850; // minimum value 750 for STM32
@@ -117,14 +116,10 @@ uint16_t GW008_callback()
 			break;
 		case GW008_BIND2:
 			// switch to RX mode
-			NRF24L01_SetTxRxMode(TXRX_OFF);
-			NRF24L01_FlushRx();
-			NRF24L01_SetTxRxMode(RX_EN);
-			XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) 
-						| _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX)); 
+			XN297_SetTxRxMode(TXRX_OFF);
+			XN297_SetTxRxMode(RX_EN);
 			phase = GW008_BIND1;
 			return 5000;
-			break;
 		case GW008_DATA:
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(GW008_PACKET_PERIOD);

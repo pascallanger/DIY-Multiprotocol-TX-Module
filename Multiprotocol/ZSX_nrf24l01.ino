@@ -44,12 +44,10 @@ static void __attribute__((unused)) ZSX_send_packet()
 				| GET_FLAG(CH5_SW, 0x80);				// Light
 	}
 
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
+	// Send
+	XN297_SetPower();
+	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, ZSX_PAYLOAD_SIZE);
-
-	NRF24L01_SetPower();		// Set tx_power
 }
 
 static void __attribute__((unused)) ZSX_initialize_txid()
@@ -65,10 +63,9 @@ static void __attribute__((unused)) ZSX_initialize_txid()
 
 static void __attribute__((unused)) ZSX_RF_init()
 {
-	NRF24L01_Initialize();
-
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t*)"\xc1\xc2\xc3", 3);
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, ZSX_RF_BIND_CHANNEL);	// Set bind channel
+	XN297_RFChannel(ZSX_RF_BIND_CHANNEL);	// Set bind channel
 }
 
 uint16_t ZSX_callback()
@@ -81,7 +78,7 @@ uint16_t ZSX_callback()
 		{
 			BIND_DONE;
 			XN297_SetTXAddr(rx_tx_addr, 3);
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, 0x00);
+			XN297_RFChannel(0x00);
 		}
 	ZSX_send_packet();
 	return ZSX_PACKET_PERIOD;

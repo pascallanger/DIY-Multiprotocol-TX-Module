@@ -158,6 +158,7 @@ uint8_t CH_EATR[]={ELEVATOR, AILERON, THROTTLE, RUDDER, CH5, CH6, CH7, CH8, CH9,
 // Mode_select variables
 uint8_t mode_select;
 uint8_t protocol_flags=0,protocol_flags2=0,protocol_flags3=0;
+uint8_t option_override;
 
 #ifdef ENABLE_PPM
 // PPM variable
@@ -1179,6 +1180,9 @@ static void protocol_init()
 			FAILSAFE_VALUES_off;
 		#endif
 		DATA_BUFFER_LOW_off;
+
+		SUB_PROTO_VALID;
+		option_override = 0xFF;
 		
 		blink=millis();
 

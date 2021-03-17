@@ -13,13 +13,9 @@ Multiprotocol is distributed in the hope that it will be useful,
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined(OMP_CC2500_INO)
+#if defined(OMP_CCNRF_INO)
 
-#ifndef NRF24L01_INSTALLED
-	#undef OMP_HUB_TELEMETRY
-#endif
-
-#include "iface_nrf250k.h"
+#include "iface_xn297.h"
 
 //#define FORCE_OMP_ORIGINAL_ID
 //#define OMP_TELEM_DEBUG
@@ -33,10 +29,6 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static void __attribute__((unused)) OMP_send_packet()
 {
-	#ifdef OMP_HUB_TELEMETRY
-		rf_switch(SW_CC2500);
-	#endif
-
 	if(IS_BIND_IN_PROGRESS)
 	{
 		memcpy(packet,"BND",3);
@@ -52,15 +44,12 @@ static void __attribute__((unused)) OMP_send_packet()
 		packet_sent++;
 		packet_sent %= OMP_RF_NUM_CHANNELS-1;			// Change telem RX channels every time
 		if(packet_sent==0)
-		{
 			packet[0] |= 0x40;							// |0x40 to request RX telemetry
-			NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no]);
-		}
 #endif
 		
 		//hopping frequency
 		packet[0 ] |= hopping_frequency_no;
-		XN297L_Hopping(hopping_frequency_no);
+		XN297_Hopping(hopping_frequency_no);
 		hopping_frequency_no++;
 		hopping_frequency_no &= OMP_RF_NUM_CHANNELS-1;	// 8 RF channels
 
@@ -103,27 +92,22 @@ static void __attribute__((unused)) OMP_send_packet()
 		packet[15] = 0x04;
 	}
 
-	XN297L_SetPower();									// Set tx_power
-	XN297L_SetFreqOffset();								// Set frequency offset
-	XN297L_WriteEnhancedPayload(packet, OMP_PAYLOAD_SIZE, packet_sent!=0);
+	XN297_SetPower();									// Set tx_power
+	XN297_SetFreqOffset();								// Set frequency offset
+	XN297_SetTxRxMode(TX_EN);
+	XN297_WriteEnhancedPayload(packet, OMP_PAYLOAD_SIZE, packet_sent!=0);
 }
 
 static void __attribute__((unused)) OMP_RF_init()
 {
 	//Config CC2500
-	XN297L_Init();
-	XN297L_SetTXAddr((uint8_t*)"FLPBD", 5);
-	XN297L_HoppingCalib(OMP_RF_NUM_CHANNELS);	// Calibrate all channels
-	XN297L_RFChannel(OMP_RF_BIND_CHANNEL);		// Set bind channel
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K);
+	XN297_SetTXAddr((uint8_t*)"FLPBD", 5);
+	XN297_HoppingCalib(OMP_RF_NUM_CHANNELS);	// Calibrate all channels
+	XN297_RFChannel(OMP_RF_BIND_CHANNEL);		// Set bind channel
 
 #ifdef OMP_HUB_TELEMETRY
-	//Config NRF
-	NRF24L01_Initialize();
-	NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps
-	XN297_Configure(_BV(NRF24L01_00_EN_CRC));
-	XN297_SetRXAddr(rx_tx_addr, 5);				// Set the RX address
-	NRF24L01_SetTxRxMode(TXRX_OFF);				// Turn it off for now
-	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, OMP_PAYLOAD_SIZE + 4); // packet length +4 bytes of PCF+CRC
+	XN297_SetRXAddr(rx_tx_addr, OMP_PAYLOAD_SIZE);
 #endif
 }
 
@@ -167,6 +151,8 @@ enum {
 
 uint16_t OMP_callback()
 {
+	bool rx;
+	
 	switch(phase)
 	{
 		case OMP_BIND:
@@ -176,11 +162,14 @@ uint16_t OMP_callback()
 			return OMP_PACKET_PERIOD;
 		case OMP_PREPDATA:
 			BIND_DONE;
-			XN297L_SetTXAddr(rx_tx_addr, 5);
+			XN297_SetTXAddr(rx_tx_addr, 5);
 			phase++;							// OMP_DATA
 		case OMP_DATA:
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(OMP_PACKET_PERIOD);
+			#endif
+			#ifdef OMP_HUB_TELEMETRY
+				rx = XN297_IsRX();				// Needed for the NRF24L01 since otherwise the bit gets cleared
 			#endif
 			OMP_send_packet();
 			#ifdef OMP_HUB_TELEMETRY
@@ -191,8 +180,11 @@ uint16_t OMP_callback()
 				}
 				else if(packet_sent == 1)
 				{
-					if( NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR))
+					if( rx )
 					{ // a packet has been received
+						#ifdef OMP_TELEM_DEBUG
+							debug("RX :");
+						#endif
 						if(XN297_ReadEnhancedPayload(packet_in, OMP_PAYLOAD_SIZE) == OMP_PAYLOAD_SIZE)
 						{ // packet with good CRC and length
 							#ifdef OMP_TELEM_DEBUG
@@ -238,7 +230,7 @@ uint16_t OMP_callback()
 							debugln("");
 						#endif
 					}
-					NRF24L01_SetTxRxMode(TXRX_OFF);
+					XN297_SetTxRxMode(TXRX_OFF);
 					packet_count++;
 					if(packet_count>=100)
 					{//LQI calculation
@@ -254,21 +246,15 @@ uint16_t OMP_callback()
 			return OMP_PACKET_PERIOD;
 	#ifdef OMP_HUB_TELEMETRY
 		case OMP_RX:
-			NRF24L01_WriteReg(NRF24L01_07_STATUS, (1 << NRF24L01_07_RX_DR)    //reset the flag(s)
-												| (1 << NRF24L01_07_TX_DS)
-												| (1 << NRF24L01_07_MAX_RT));
-			NRF24L01_FlushRx();
-			NRF24L01_WriteReg(NRF24L01_00_CONFIG, (1 << NRF24L01_00_PWR_UP) | (1 << NRF24L01_00_PRIM_RX) );	// Start RX
 			{
 				uint16_t start=(uint16_t)micros();
 				while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 500)
 				{
-					if(CC2500_ReadReg(CC2500_35_MARCSTATE | CC2500_READ_BURST) != 0x13)
+					if(XN297_IsPacketSent())
 						break;
 				}
 			}
-			NRF_CE_on;
-			rf_switch(SW_NRF);
+			XN297_SetTxRxMode(RX_EN);
 			phase = OMP_DATA;
 			return OMP_PACKET_PERIOD-OMP_WRITE_TIME;
 	#endif

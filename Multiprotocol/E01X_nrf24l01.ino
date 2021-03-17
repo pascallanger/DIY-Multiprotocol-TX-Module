@@ -33,11 +33,6 @@
 #define E015_PACKET_SIZE		10
 #define E015_BIND_PACKET_SIZE	9
 
-#define E016H_PACKET_PERIOD 4080
-#define E016H_PACKET_SIZE     10
-#define E016H_BIND_CHANNEL    80
-#define E016H_NUM_CHANNELS    4
-
 //Channels
 #define E01X_ARM_SW			CH5_SW
 #define E016H_STOP_SW		CH5_SW
@@ -64,17 +59,6 @@
 #define E015_FLAG_EXPERT	0x02
 #define E015_FLAG_INTERMEDIATE 0x01
 
-// E016H flags packet[1]
-#define E016H_FLAG_CALIBRATE	0x80
-#define E016H_FLAG_STOP		0x20
-#define E016H_FLAG_FLIP		0x04
-// E016H flags packet[3]
-#define E016H_FLAG_HEADLESS	0x10
-#define E016H_FLAG_RTH		0x04
-// E016H flags packet[7]
-#define E016H_FLAG_TAKEOFF	0x80
-#define E016H_FLAG_HIGHRATE	0x08
-
 static void __attribute__((unused)) E015_check_arming()
 {
 	uint8_t arm_channel = E01X_ARM_SW;
@@ -97,7 +81,6 @@ static void __attribute__((unused)) E015_check_arming()
 
 static void __attribute__((unused)) E01X_send_packet()
 {
-    uint8_t can_flip = 0, calibrate = 1;
 	if(sub_protocol==E012)
 	{
 		packet_length=E012_PACKET_SIZE;
@@ -132,7 +115,7 @@ static void __attribute__((unused)) E01X_send_packet()
 		packet[13] = 0x56; 
 		packet[14] = rx_tx_addr[2];
 	}
-	else if(sub_protocol==E015)
+	else
 	{ // E015
 		if(IS_BIND_IN_PROGRESS)
 		{
@@ -170,72 +153,14 @@ static void __attribute__((unused)) E01X_send_packet()
 			packet_length=E015_PACKET_SIZE;
 		}
 	}
-	else
-	{ // E016H
-		packet_length=E016H_PACKET_SIZE;
-		if(IS_BIND_IN_PROGRESS)
-		{
-			rf_ch_num=E016H_BIND_CHANNEL;
-			memcpy(packet, &rx_tx_addr[1], 4);
-			memcpy(&packet[4], hopping_frequency, 4);
-			packet[8] = 0x23;
-		}
-		else
-		{
-			// trim commands
-			packet[0] = 0;
-			// aileron
-			uint16_t val = convert_channel_16b_limit(AILERON, 0, 0x3ff);
-			can_flip |= (val < 0x100) || (val > 0x300);
-			packet[1] = val >> 8;
-			packet[2] = val & 0xff;
-			if(val < 0x300) calibrate = 0;
-			// elevator
-			val = convert_channel_16b_limit(ELEVATOR, 0x3ff, 0);
-			can_flip |= (val < 0x100) || (val > 0x300);
-			packet[3] = val >> 8;
-			packet[4] = val & 0xff;
-			if(val < 0x300) calibrate = 0;
-			// throttle
-			val = convert_channel_16b_limit(THROTTLE, 0, 0x3ff);
-			packet[5] = val >> 8;
-			packet[6] = val & 0xff;
-			if(val > 0x100) calibrate = 0;
-			// rudder
-			val = convert_channel_16b_limit(RUDDER, 0, 0x3ff);
-			packet[7] = val >> 8;
-			packet[8] = val & 0xff;
-			if(val > 0x100) calibrate = 0;
-			// flags
-			packet[1] |= GET_FLAG(E016H_STOP_SW, E016H_FLAG_STOP)
-					  |  (can_flip ? GET_FLAG(E01X_FLIP_SW, E016H_FLAG_FLIP) : 0)
-					  |  (calibrate ? E016H_FLAG_CALIBRATE : 0);
-			packet[3] |= GET_FLAG(E01X_HEADLESS_SW, E016H_FLAG_HEADLESS)
-					  |  GET_FLAG(E01X_RTH_SW, E016H_FLAG_RTH);
-			packet[7] |= E016H_FLAG_HIGHRATE;
-			// frequency hopping
-			rf_ch_num=hopping_frequency[hopping_frequency_no++ & 0x03];
-		}
-		// checksum
-		packet[9] = packet[0];
-		for (uint8_t i=1; i < E016H_PACKET_SIZE-1; i++)
-			packet[9] += packet[i];
-	}
 
-	// Power on, TX mode, CRC enabled
-	if(sub_protocol==E016H)
-		XN297_Configure( _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	else //E012 & E015
-		HS6200_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+	HS6200_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch_num);
 
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
 	NRF24L01_FlushTx();
 
-	if(sub_protocol==E016H)
-		XN297_WritePayload(packet, packet_length);
-	else
-		HS6200_WritePayload(packet, packet_length);
+	HS6200_WritePayload(packet, packet_length);
 
 	// Check and adjust transmission power. We do this after
 	// transmission to not bother with timeout after power
@@ -250,10 +175,8 @@ static void __attribute__((unused)) E01X_RF_init()
 
 	if(sub_protocol==E012)
 		HS6200_SetTXAddr((uint8_t *)"\x55\x42\x9C\x8F\xC9", E01X_ADDRESS_LENGTH);
-	else if(sub_protocol==E015)
+	else //E015
 		HS6200_SetTXAddr((uint8_t *)"\x62\x54\x79\x38\x53", E01X_ADDRESS_LENGTH);
-	else //E016H
-		XN297_SetTXAddr((uint8_t *)"\x5a\x53\x46\x30\x31", 5);  // bind address
 }
 
 uint16_t E01X_callback()
@@ -266,10 +189,7 @@ uint16_t E01X_callback()
 		bind_counter--;
 		if (bind_counter == 0)
 		{
-			if(sub_protocol==E016H)
-				XN297_SetTXAddr(rx_tx_addr, E01X_ADDRESS_LENGTH);
-			else
-				HS6200_SetTXAddr(rx_tx_addr,  E01X_ADDRESS_LENGTH);
+			HS6200_SetTXAddr(rx_tx_addr,  E01X_ADDRESS_LENGTH);
 			BIND_DONE;
 		}
 	}
@@ -288,21 +208,6 @@ static void __attribute__((unused)) E012_initialize_txid()
 	}
 }
 
-static void __attribute__((unused)) E016H_initialize_txid()
-{
-	// tx id
-    rx_tx_addr[0] = 0xa5;
-    rx_tx_addr[1] = 0x00;
-
-    // rf channels
-    uint32_t lfsr=random(0xfefefefe);
-    for(uint8_t i=0; i<E016H_NUM_CHANNELS; i++)
-    {
-		hopping_frequency[i] = (lfsr & 0xFF) % 80; 
-		lfsr>>=8;
-	}
-}
-
 void E01X_init()
 {
 	BIND_IN_PROGRESS;
@@ -311,18 +216,13 @@ void E01X_init()
 		E012_initialize_txid();
 		packet_period=E012_PACKET_PERIOD;
 	}
-	else if(sub_protocol==E015)
+	else //E015
 	{
 		packet_period=E015_PACKET_PERIOD;
 		rf_ch_num=E015_RF_CHANNEL;
 		armed = 0;
 		arm_flags = 0;
 		arm_channel_previous = E01X_ARM_SW;
-	}
-	else
-	{ // E016H
-		E016H_initialize_txid();
-		packet_period=E016H_PACKET_PERIOD;
 	}
 	E01X_RF_init();
 	bind_counter = E01X_BIND_COUNT;

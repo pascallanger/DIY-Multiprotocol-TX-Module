@@ -128,7 +128,7 @@ const char STR_SUBTYPE_CORONA[] =     "\x05""V1\0  ""V2\0  ""FD V3";
 const char STR_SUBTYPE_HITEC[] =      "\x07""Optima\0""Opt Hub""Minima\0";
 const char STR_SUBTYPE_BUGS_MINI[] =  "\x06""Std\0  ""Bugs3H";
 const char STR_SUBTYPE_TRAXXAS[] =    "\x04""6519";
-const char STR_SUBTYPE_E01X[] =       "\x05""E012\0""E015\0""E016H";
+const char STR_SUBTYPE_E01X[] =       "\x05""E012\0""E015\0";
 const char STR_SUBTYPE_GD00X[] =      "\x05""GD_V1""GD_V2";
 const char STR_SUBTYPE_REDPINE[] =    "\x04""Fast""Slow";
 const char STR_SUBTYPE_POTENSIC[] =   "\x03""A20";
@@ -241,7 +241,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_E016HV2,    STR_E016HV2,   NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_CC2500, E016HV2_init,    E016HV2_callback    },
 	#endif
 	#if defined(E01X_NRF24L01_INO)
-		{PROTO_E01X,       STR_E01X,      STR_SUBTYPE_E01X,      3, OPTION_OPTION,  0, 0, SW_NRF,    E01X_init,       E01X_callback       },
+		{PROTO_E01X,       STR_E01X,      STR_SUBTYPE_E01X,      2, OPTION_OPTION,  0, 0, SW_NRF,    E01X_init,       E01X_callback       },
 	#endif
 	#if defined(E129_CYRF6936_INO)
 		{PROTO_E129,       STR_E129,      NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CYRF,   E129_init,       E129_callback       },

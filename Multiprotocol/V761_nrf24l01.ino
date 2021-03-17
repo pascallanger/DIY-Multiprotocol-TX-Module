@@ -15,7 +15,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(V761_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 //#define V761_FORCE_ID
 

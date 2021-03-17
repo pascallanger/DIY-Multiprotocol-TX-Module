@@ -16,7 +16,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(Q90C_CCNRF_INO)
 
-#include "iface_nrf250k.h"
+#include "iface_xn297.h"
 
 //#define FORCE_Q90C_ORIGINAL_ID
 

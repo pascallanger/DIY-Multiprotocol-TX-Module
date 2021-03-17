@@ -16,7 +16,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(REALACC_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define FORCE_REALACC_ORIGINAL_ID
 

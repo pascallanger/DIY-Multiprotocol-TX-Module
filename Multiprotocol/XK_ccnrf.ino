@@ -16,7 +16,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(XK_CCNRF_INO)
 
-#include "iface_nrf250k.h"
+#include "iface_xn297.h"
 
 //#define FORCE_XK_ORIGINAL_ID
 

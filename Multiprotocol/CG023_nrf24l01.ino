@@ -16,7 +16,7 @@
 
 #if defined(CG023_NRF24L01_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define CG023_PACKET_PERIOD		8200 // Timeout for callback in uSec
 #define CG023_INITIAL_WAIT		500

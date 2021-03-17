@@ -16,7 +16,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #if defined(GD00X_CCNRF_INO)
 
-#include "iface_nrf250k.h"
+#include "iface_xn297.h"
 
 //#define FORCE_GD00X_ORIGINAL_ID
 

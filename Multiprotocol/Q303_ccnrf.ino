@@ -15,7 +15,7 @@
 
 #if defined(Q303_CCNRF_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_xn297.h"
 
 #define Q303_BIND_COUNT			1500
 #define Q303_INITIAL_WAIT		500

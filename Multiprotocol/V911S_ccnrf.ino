@@ -16,7 +16,7 @@
 
 #if defined(V911S_CCNRF_INO)
 
-#include "iface_nrf250k.h"
+#include "iface_xn297.h"
 
 //#define V911S_ORIGINAL_ID
 

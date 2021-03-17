@@ -242,7 +242,7 @@ static void __attribute__((unused)) XN297_WritePayload(uint8_t* msg, uint8_t len
 	uint8_t buf[32];
 	uint8_t last = 0;
 
-	if (xn297_rf == XN297_NRF && xn297_addr_len < 4)
+	if (xn297_rf == XN297_NRF && xn297_addr_len < 4 && xn297_rf == XN297_NRF)
 	{ // If address length (which is defined by receiver address length) is less than 4 the TX address can't fit the preamble, so the last byte goes here
 		buf[last++] = 0x55;
 	}
@@ -269,7 +269,7 @@ static void __attribute__((unused)) XN297_WritePayload(uint8_t* msg, uint8_t len
 	// crc
 	if (xn297_crc)
 	{
-		uint8_t offset = xn297_addr_len < 4 ? 1 : 0;
+		uint8_t offset = (xn297_addr_len < 4  && xn297_rf == XN297_NRF) ? 1 : 0;
 		crc = 0xb5d2;
 		for (uint8_t i = offset; i < last; ++i)
 			crc16_update( buf[i], 8);
@@ -292,7 +292,7 @@ static void __attribute__((unused)) XN297_WriteEnhancedPayload(uint8_t* msg, uin
 	uint8_t last = 0;
 	static uint8_t pid=0;
 
-	if (xn297_rf == XN297_NRF && xn297_addr_len < 4)
+	if (xn297_rf == XN297_NRF && xn297_addr_len < 4 && xn297_rf == XN297_NRF)
 	{ // If address length (which is defined by receiver address length) is less than 4 the TX address can't fit the preamble, so the last byte goes here
 		buf[last++] = 0x55;
 	}
@@ -334,7 +334,7 @@ static void __attribute__((unused)) XN297_WriteEnhancedPayload(uint8_t* msg, uin
 	// crc
 	if (xn297_crc)
 	{
-		uint8_t offset = xn297_addr_len < 4 ? 1 : 0;
+		uint8_t offset = (xn297_addr_len < 4 && xn297_rf == XN297_NRF) ? 1 : 0;
 		crc = 0xb5d2;
 		for (uint8_t i = offset; i < last; ++i)
 			crc16_update( buf[i], 8);

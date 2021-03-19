@@ -1191,7 +1191,7 @@ static void protocol_init()
 		#if defined(FRSKYX_CC2500_INO) && defined(EU_MODULE)
 			if( ! ( (protocol == PROTO_FRSKYX || protocol == PROTO_FRSKYX2) && sub_protocol < 2 ) )
 		#endif
-		while(multi_protocols[index].protocol != 0)
+		while(multi_protocols[index].protocol != 0xFF)
 		{
 			if(multi_protocols[index].protocol==protocol)
 			{
@@ -1831,7 +1831,7 @@ static uint32_t random_id(uint16_t address, uint8_t create_new)
 			}
 			if(id!=0x2AD141A7)	//ID with seed=0
 			{
-				debugln("Read ID from EEPROM");
+				//debugln("Read ID from EEPROM");
 				return id;
 			}
 		}

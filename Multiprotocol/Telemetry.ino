@@ -188,11 +188,11 @@ static void multi_send_status()
 	else
 	{
 		// Protocol next/prev
-		if(multi_protocols[multi_protocols_index+1].protocol != 0)
+		if(multi_protocols[multi_protocols_index+1].protocol != 0xFF)
 		{
 			if(multi_protocols[multi_protocols_index+1].protocol == PROTO_SCANNER)
 			{// if next is scanner
-				if(multi_protocols[multi_protocols_index+2].protocol != 0)
+				if(multi_protocols[multi_protocols_index+2].protocol != 0xFF)
 					Serial_write(multi_protocols[multi_protocols_index+2].protocol);	// skip to next protocol number
 				else
 					Serial_write(multi_protocols[multi_protocols_index].protocol);		// or end of list
@@ -202,7 +202,7 @@ static void multi_send_status()
 		}
 		else
 			Serial_write(multi_protocols[multi_protocols_index].protocol);				// end of list
-		if(multi_protocols_index>0)
+		if(multi_protocols_index>0 && multi_protocols[multi_protocols_index-1].protocol != 0)
 		{
 			if(multi_protocols[multi_protocols_index-1].protocol==PROTO_SCANNER)
 			{// if prev is scanner
@@ -241,8 +241,8 @@ static void multi_send_status()
 #ifdef MULTI_CONFIG_INO
 	void CONFIG_frame()
 	{
-		multi_send_header(MULTI_TELEMETRY_CONFIG, packet_in[0]);
-		for (uint8_t i = 1; i <= packet_in[0]; i++)	// config data
+		multi_send_header(MULTI_TELEMETRY_CONFIG, 21);
+		for (uint8_t i = 0; i < 21; i++)		// Config data
 			Serial_write(packet_in[i]);
 	}
 #endif

@@ -98,6 +98,7 @@ const char STR_E010R5[]     ="E010r5";
 const char STR_LOLI[]       ="LOLI";
 const char STR_E129[]       ="E129";
 const char STR_E016H[]      ="E016H";
+const char STR_CONFIG[]     ="Config";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -187,6 +188,7 @@ enum
 const mm_protocol_definition multi_protocols[] = {
 // Protocol number, Protocol String, Sub_protocol strings, Number of sub_protocols, Option type, Failsafe, ChMap, RF switch, Init, Callback
 	#if defined(MULTI_CONFIG_INO)
+		{0x00,             STR_CONFIG,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, 0,         CONFIG_init,     CONFIG_callback     },
 		{PROTO_CONFIG,     STR_CONFIG,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, 0,         CONFIG_init,     CONFIG_callback     },
 	#endif
 	#if defined(ASSAN_NRF24L01_INO)
@@ -449,5 +451,5 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(NANORF_NRF24L01_INO)
 		{PROTO_NANORF,     STR_NANORF,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    NANORF_init,     NANORF_callback     },
 	#endif
-		{0x00,             nullptr,       nullptr,               0, 0,              0, 0, 0,         nullptr,         nullptr             }
+		{0xFF,             nullptr,       nullptr,               0, 0,              0, 0, 0,         nullptr,         nullptr             }
 };

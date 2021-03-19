@@ -28,7 +28,7 @@
 //******************
 enum PROTOCOLS
 {
-	PROTO_CONFIG	= 0,	// Module config
+	//PROTO_CONFIG	= 0,	// Module config
 	PROTO_FLYSKY 	= 1,	// =>A7105
 	PROTO_HUBSAN	= 2,	// =>A7105
 	PROTO_FRSKYD	= 3,	// =>CC2500

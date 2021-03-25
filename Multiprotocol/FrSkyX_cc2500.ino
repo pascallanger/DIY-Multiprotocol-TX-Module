@@ -19,11 +19,8 @@
 
 static void __attribute__((unused)) FrSkyX_build_bind_packet()
 {
-	uint8_t packet_size = 0x1D;
-	if(protocol==PROTO_FRSKYX && (FrSkyFormat & 2 ))
-		packet_size=0x20;				// FrSkyX V1 LBT
 	//Header
-	packet[0] = packet_size;			// Number of bytes in the packet (after this one)
+	packet[0] = packet_length;			// Number of bytes in the packet (after this one)
 	packet[1] = 0x03;					// Bind packet
 	packet[2] = 0x01;					// Bind packet
 
@@ -43,7 +40,7 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 		packet[11] = rx_tx_addr[1];		// Unknown but constant ID?
 		packet[12] = RX_num;
 		//
-		memset(&packet[13], 0, packet_size - 14);
+		memset(&packet[13], 0, packet_length - 14);
 		if(binding_idx&0x01)
 			memcpy(&packet[13],(void *)"\x55\xAA\x5A\xA5",4);	// Telem off
 		if(binding_idx&0x02)
@@ -55,27 +52,27 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 		packet[5] = rx_tx_addr[1];		// Unknown but constant ID?
 		packet[6] = RX_num;
 		//Bind flags
-		packet[7]=0;
+		packet[7] = 0;
 		if(binding_idx&0x01)
 			packet[7] |= 0x40;				// Telem off
 		if(binding_idx&0x02)
 			packet[7] |= 0x80;				// CH9-16
 		//Unknown bytes
 		memcpy(&packet[8],"\x32\x0B\x00\x00\xA8\x26\x28\x01\xA1\x00\x00\x00\x3E\xF6\x87\xC7",16);
-		packet[20]^= 0x0E ^ rx_tx_addr[3];	// Update the ID
-		packet[21]^= 0x1C ^ rx_tx_addr[2];	// Update the ID
+		packet[20] ^= 0x0E ^ rx_tx_addr[3];	// Update the ID
+		packet[21] ^= 0x1C ^ rx_tx_addr[2];	// Update the ID
 		//Xor
-		for(uint8_t i=3; i<packet_size-1; i++)
+		for(uint8_t i=3; i<packet_length-1; i++)
 			packet[i] ^= 0xA7;
 	}
 	//CRC
-	uint16_t lcrc = FrSkyX_crc(&packet[3], packet_size-4);
-	packet[packet_size-1] = lcrc >> 8;
-	packet[packet_size] = lcrc;
+	uint16_t lcrc = FrSkyX_crc(&packet[3], packet_length-4);
+	packet[packet_length-1] = lcrc >> 8;
+	packet[packet_length]   = lcrc;
 
 	/*//Debug
 	debug("Bind:");
-	for(uint8_t i=0;i<=packet_size;i++)
+	for(uint8_t i=0;i<=packet_length;i++)
 		debug(" %02X",packet[i]);
 	debugln("");*/
 }
@@ -85,11 +82,8 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	//0x1D 0xB3 0xFD 0x02 0x56 0x07 0x15 0x00 0x00 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x00 0x04 0x40 0x08 0x00 0x00 0x00 0x00 0x00 0x00 0x96 0x12
     // data frames sent every 9ms; failsafe every 9 seconds
 	//
-	uint8_t packet_size = 0x1D;
-	if(protocol==PROTO_FRSKYX && (FrSkyFormat & 2 ))
-		packet_size=0x20;				// FrSkyX V1 LBT
 	//Header
-	packet[0] = packet_size;			// Number of bytes in the packet (after this one)
+	packet[0] = packet_length;			// Number of bytes in the packet (after this one)
 	packet[1] = rx_tx_addr[3];			// ID
 	packet[2] = rx_tx_addr[2];			// ID
 	packet[3] = rx_tx_addr[1];			// Unknown but constant ID?
@@ -102,16 +96,16 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	FrSkyX_channels(7);					// Set packet[7]=failsafe, packet[8]=0?? and packet[9..20]=channels data
 	
 	//Sequence and send SPort
-	FrSkyX_seq_sport(21,packet_size-2);	//21=RX|TXseq, 22=bytes count, 23..packet_size-2=data
+	FrSkyX_seq_sport(21,packet_length-2);	//21=RX|TXseq, 22=bytes count, 23..packet_length-2=data
 
 	//CRC
-	uint16_t lcrc = FrSkyX_crc(&packet[3], packet_size-4);
-	packet[packet_size-1] = lcrc >> 8;
-	packet[packet_size] = lcrc;
+	uint16_t lcrc = FrSkyX_crc(&packet[3], packet_length-4);
+	packet[packet_length-1] = lcrc >> 8;
+	packet[packet_length]   = lcrc;
 
 	/*//Debug
 	debug("Norm:");
-	for(uint8_t i=0;i<=packet_size;i++)
+	for(uint8_t i=0;i<=packet_length;i++)
 		debug(" %02X",packet[i]);
 	debugln("");*/
 }
@@ -132,7 +126,7 @@ uint16_t FRSKYX_callback()
 				state = FRSKY_BIND_DONE;
 			else
 				state++;
-			return 9000;
+			break;
 		case FRSKY_BIND_DONE:
 			FrSkyX_initialize_data(0);
 			hopping_frequency_no=0;
@@ -238,7 +232,7 @@ uint16_t FRSKYX_callback()
 			state = FRSKY_DATA1;
 			return 400;	// FCC & LBT
 	}
-	return 1;		
+	return 9000;
 }
 
 void FRSKYX_init()
@@ -248,22 +242,27 @@ void FRSKYX_init()
 	
 	if (sub_protocol==XCLONE_16||sub_protocol==XCLONE_8)
 		Frsky_init_clone();
-	else if(protocol==PROTO_FRSKYX)
-	{
-		Frsky_init_hop();
-		rx_tx_addr[1]=0x02;		// ID related, hw version?
-	}
 	else
 	{
-		#ifdef FRSKYX2_FORCE_ID
-			rx_tx_addr[3]=0x0E;
-			rx_tx_addr[2]=0x1C;
-			FrSkyX_chanskip=18;
-		#endif
 		rx_tx_addr[1]=0x02;		// ID related, hw version?
-		FrSkyX2_init_hop();
+		if(protocol==PROTO_FRSKYX)
+			Frsky_init_hop();
+		else
+		{
+			#ifdef FRSKYX2_FORCE_ID
+				rx_tx_addr[3]=0x0E;
+				rx_tx_addr[2]=0x1C;
+				FrSkyX_chanskip=18;
+			#endif
+			FrSkyX2_init_hop();
+		}
 	}
 	
+	if(protocol==PROTO_FRSKYX && (FrSkyFormat & 2 ))
+		packet_length = 0x20;	// FrSkyX V1 LBT
+	else
+		packet_length = 0x1D;
+
 	packet_count=0;
 	while(!FrSkyX_chanskip)
 		FrSkyX_chanskip=random(0xfefefefe)%47;

@@ -225,8 +225,8 @@ static void __attribute__((unused)) BAYANG_check_rx(void)
 			telemetry_link=1;
 			#if defined HUB_TELEMETRY
 				// Multiplexed P, I, D values in packet[8] and packet[9].
-    	        // The two most significant bits specify which term is sent.
-        	    // Remaining 14 bits represent the value: 0 .. 16383
+				// The two most significant bits specify which term is sent.
+				// Remaining 14 bits represent the value: 0 .. 16383
 				frsky_send_user_frame(0x24+(packet[8]>>6), packet[9], packet[8] & 0x3F );	//0x24 = ACCEL_X_ID, so ACCEL_X_ID=P, ACCEL_Y_ID=I, ACCEL_Z_ID=D
 			#endif
 			telemetry_counter++;

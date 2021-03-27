@@ -24,12 +24,19 @@
 #define MT99XX_PACKET_PERIOD_MT		2625
 #define MT99XX_PACKET_PERIOD_YZ		3125
 #define MT99XX_PACKET_PERIOD_A180	3400	// timing changes between the packets 2 x 27220 then 1x 26080, it seems that it is only on the first RF channel which jitters by 1.14ms but hard to pinpoint with XN297dump
-#define MT99XX_PACKET_PERIOD_DRAGON	1038	// there is a pause of 2x1038 between the packets 3 and 4 from what XN297dump detects which I think are used for telemetry
+#define MT99XX_PACKET_PERIOD_DRAGON	1038	// there is a pause of 2x1038 between two packets, no idea why and how since it is not even stable on a same dump...
+#define MT99XX_PACKET_PERIOD_DRAGON_TELEM	10265	// long pause to receive the telemetry packets, 3 are sent by the RX one after the other
 #define MT99XX_INITIAL_WAIT			500
 #define MT99XX_PACKET_SIZE			9
 
 //#define FORCE_A180_ID
 //#define FORCE_DRAGON_ID
+
+enum {
+    MT99XX_DATA,
+    MT99XX_RX,
+    MT99XX_CHECK,
+};
 
 enum{
     // flags going to packet[6] (MT99xx, H7)
@@ -68,12 +75,6 @@ enum{
     FLAG_DRAGON_UNK		= 0x04,
 };
 
-enum {
-    MT99XX_INIT = 0,
-    MT99XX_BIND,
-    MT99XX_DATA
-};
-
 const uint8_t h7_mys_byte[] = {
 	0x01, 0x11, 0x02, 0x12, 0x03, 0x13, 0x04, 0x14, 
 	0x05, 0x15, 0x06, 0x16, 0x07, 0x17, 0x00, 0x10
@@ -88,7 +89,7 @@ const uint8_t ls_mys_byte[] = {
 
 const uint8_t yz_p4_seq[] = {0xa0, 0x20, 0x60};
 
-#ifdef DRAGON_HUB_TELEMETRY
+#ifdef MT99XX_HUB_TELEMETRY
 	const uint8_t DRAGON_seq[] = {0x20, 0x60, 0x20, 0x80};
 #endif
 
@@ -189,12 +190,8 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					packet[6] = FLAG_DRAGON_RATE
 						| GET_FLAG( CH6_SW, FLAG_DRAGON_RTH );
 					
-					#ifdef DRAGON_HUB_TELEMETRY
+					#ifdef MT99XX_HUB_TELEMETRY
 						//Telemetry
-						// C=48 S=Y A= 6C 00 22 CC CC P(9)= 6C 00 22 27 00 00 00 00 60
-						// C=48 S=Y A= 6C 00 22 CC CC P(9)= 6C 00 22 28 00 00 00 00 61
-						// C=18 S=Y A= 6C 00 22 CC CC P(9)= 6C 00 22 24 00 00 00 00 5D
-						// 6C 00 22 = TX address, 27/28/24=vbatt, check = sum(P[0..7]) + AB, where AB comes from? Is it constant?
 						if(hopping_frequency_no == 0)
 						{
 							seq_num++;
@@ -204,7 +201,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 								packet_count = 0;
 						}
 						if(packet_count > 10)						// Telemetry packet request every 10 or 11 packets
+						{
 							packet[6] |= 0x04;						// Request telemetry flag
+							phase = MT99XX_RX;
+						}
 						packet[7] = DRAGON_seq[seq_num];			// seq: 20 80 20 60 20 80 20 60... 80 changes to 80+batt from telem
 						if(seq_num==3)
 							packet[7] |= v_lipo1;
@@ -254,14 +254,6 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		else // MT99 & H7 & YZ & A180 & DRAGON
 			XN297_Hopping(hopping_frequency_no);
 
-	if(sub_protocol == DRAGON)
-	{
-		if(hopping_frequency_no == 6)
-			packet_period = 3 * MT99XX_PACKET_PERIOD_DRAGON;	// hole probably for the telemetry
-		else
-			packet_period = MT99XX_PACKET_PERIOD_DRAGON;
-	}
-
 	hopping_frequency_no++;
 	if(sub_protocol == YZ || sub_protocol == A180 || sub_protocol == DRAGON )
 		hopping_frequency_no++; // skip every other channel
@@ -283,6 +275,10 @@ static void __attribute__((unused)) MT99XX_RF_init()
 		XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
     XN297_SetTXAddr((uint8_t *)"\xCC\xCC\xCC\xCC\xCC", 5);
 	XN297_HoppingCalib(16);
+	#ifdef MT99XX_HUB_TELEMETRY
+		XN297_SetRXAddr(rx_tx_addr, MT99XX_PACKET_SIZE);
+	#endif
+
 }
 
 static void __attribute__((unused)) MT99XX_initialize_txid()
@@ -343,27 +339,71 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 
 uint16_t MT99XX_callback()
 {
-	#ifdef MULTI_SYNC
-		telemetry_set_input_sync(packet_period);
-	#endif
-	if(bind_counter)
+	switch(phase)
 	{
-		bind_counter--;
-		if (bind_counter == 0)
-		{
-			// set tx address for data packets
-			XN297_SetTXAddr(rx_tx_addr, 5);
-			// set rf channels
-			uint8_t channel_offset = ((crc8>>4) + (crc8 & 0x0f)) % 8;
-			for(uint8_t i=0;i<16;i++)
-				hopping_frequency[i] += channel_offset;
-			XN297_HoppingCalib(16);
-			BIND_DONE;
-		}
+		case MT99XX_DATA:
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(packet_period);
+			#endif
+			if(bind_counter)
+			{
+				bind_counter--;
+				if (bind_counter == 0)
+				{
+					// set tx address for data packets
+					XN297_SetTXAddr(rx_tx_addr, 5);
+					// set rf channels
+					uint8_t channel_offset = ((crc8>>4) + (crc8 & 0x0f)) % 8;
+					for(uint8_t i=0;i<16;i++)
+						hopping_frequency[i] += channel_offset;
+					XN297_HoppingCalib(16);
+					BIND_DONE;
+				}
+			}
+			MT99XX_send_packet();
+			break;
+		#ifdef MT99XX_HUB_TELEMETRY
+		case MT99XX_RX:
+			//Switch to RX
+			XN297_SetTxRxMode(TXRX_OFF);
+			XN297_SetTxRxMode(RX_EN);
+			phase++;
+			return MT99XX_PACKET_PERIOD_DRAGON_TELEM - MT99XX_PACKET_PERIOD_DRAGON - 500;
+		case MT99XX_CHECK:
+			//Check telem
+			if(XN297_IsRX())
+			{
+				//debug("RX");
+				if(XN297_ReadPayload(packet_in, MT99XX_PACKET_SIZE))
+				{
+					// C=48 S=Y A= 6C 00 22 CC CC P(9)= 6C 00 22 27 00 00 00 00 60
+					// C=48 S=Y A= 6C 00 22 CC CC P(9)= 6C 00 22 28 00 00 00 00 61
+					// C=18 S=Y A= 6C 00 22 CC CC P(9)= 6C 00 22 24 00 00 00 00 5D
+					// 6C 00 22 = TX address, 27/28/24=vbatt, check = sum(P[0..7]) + AB
+					// D2 EE 00 25 00 00 00 00 90 -> check also + AB
+					//for(uint8_t i=0; i<MT99XX_PACKET_SIZE; i++)
+					//	debug(" %02X",packet_in[i]);
+					uint8_t check=0xAB;
+					for(uint8_t i=0; i<8; i++)
+						check += packet_in[i];
+					if(packet_in[8] == check && packet_in[0] == rx_tx_addr[0] && packet_in[1] == rx_tx_addr[1] && packet_in[2] == rx_tx_addr[2])
+					{ // checksum and address are ok
+					//	debug(" OK");
+						v_lipo1 = packet_in[3];
+						RX_RSSI=100;
+						telemetry_link = 1;
+					}
+				}
+				//debugln("");
+			}
+			//Switch to TX
+			XN297_SetTxRxMode(TXRX_OFF);
+			XN297_SetTxRxMode(TX_EN);
+			phase=MT99XX_DATA;
+			return 500;
+		#endif
 	}
-
-	MT99XX_send_packet();
-    return packet_period;
+	return packet_period;
 }
 
 void MT99XX_init(void)
@@ -378,5 +418,6 @@ void MT99XX_init(void)
 	packet_period = MT99XX_PACKET_PERIOD_MT;
 
 	packet_count=0;
+	phase=MT99XX_DATA;
 }
 #endif

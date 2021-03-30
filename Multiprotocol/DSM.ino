@@ -117,7 +117,9 @@ static void __attribute__((unused)) DSM_cyrf_configdata()
 
 static uint8_t __attribute__((unused)) DSM_get_pn_row(uint8_t channel, bool dsmx)
 {
-	return (dsmx ? (channel - 2) % 5 : channel % 5);	
+	if(protocol == PROTO_DSM && sub_protocol == DSMR)
+		return (channel + 2) % 5;
+	return (dsmx ? (channel - 2) % 5 : channel % 5);
 }
 
 static void __attribute__((unused)) DSM_set_sop_data_crc(bool ch2, bool dsmx)
@@ -127,10 +129,14 @@ static void __attribute__((unused)) DSM_set_sop_data_crc(bool ch2, bool dsmx)
 	if(ch2)
 		CYRF_ConfigCRCSeed(seed);	//CH2
 	else
-		CYRF_ConfigCRCSeed(~seed);	//CH1
+		CYRF_ConfigCRCSeed(~seed);	//CH1, DSMR only use CH1
 
 	uint8_t pn_row = DSM_get_pn_row(hopping_frequency[hopping_frequency_no], dsmx);
 	uint8_t code[16];
+	#if 0
+		debug_time();
+		debug(" crc:%04X,row:%d,col:%d,rf:%02X",(~seed)&0xffff,pn_row,sop_col,hopping_frequency[hopping_frequency_no]);
+	#endif
 	DSM_read_code(code,pn_row,sop_col,8);					// pn_row between 0 and 4, sop_col between 1 and 7
 	CYRF_ConfigSOPCode(code);
 	DSM_read_code(code,pn_row,7 - sop_col,8);				// 7-sop_col between 0 and 6

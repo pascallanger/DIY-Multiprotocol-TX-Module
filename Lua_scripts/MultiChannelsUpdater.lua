@@ -286,6 +286,12 @@ local function Multi_Init()
     channel_names[3] = "CH3"
     channel_names[4] = "CH4"
   end
+  if ( protocol == 6 and sub_protocol == 5 ) then -- DSMR
+    channel_names[1] = "ST"
+    channel_names[2] = "THR"
+    channel_names[3] = "AUX1"
+    channel_names[4] = "AUX2"
+  end
  
   --Check MultiChan.txt
   local f = io.open("/SCRIPTS/TOOLS/MultiChan.txt", "r")

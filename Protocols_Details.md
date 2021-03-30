@@ -74,7 +74,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [CX10](Protocols_Details.md#CX10---12)|12|GREEN|BLUE|DM007|-|J3015_1|J3015_2|MK33041||NRF24L01|XN297
 [Devo](Protocols_Details.md#DEVO---7)|7|Devo|8CH|10CH|12CH|6CH|7CH|||CYRF6936|
 [DM002](Protocols_Details.md#DM002---33)|33|||||||||NRF24L01|XN297
-[DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO||||CYRF6936|
+[DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO|DSMR_1F|||CYRF6936|
 [DSM_RX](Protocols_Details.md#DSM_RX---70)|70|Multi|CPPM|||||||CYRF6936|
 [E010R5](Protocols_Details.md#E010R5---81)|81|||||||||CYRF6936/NRF24L01|RF2500
 [E016H](Protocols_Details.md#E016H---85)|85|||||||||NRF24L01|XN297
@@ -516,6 +516,15 @@ DSMX, Resolution 2048, servo refresh rate can only be 22ms
 DSMX, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
 ### Sub_protocol AUTO - *4*
 "AUTO" is recommended to automatically select the best settings for your DSM RX.
+
+### Sub_protocol DSMR_1F - *5*
+DSMR receivers
+
+Telemetry enabled
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+STR|THR|AUX1|AUX2|AUX3|AUX4|AUX5
 
 ## DSM_RX - *70*
 The DSM receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...

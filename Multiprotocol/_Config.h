@@ -590,6 +590,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		DSM2_2F
 		DSMX_1F
 		DSMX_2F
+		DSMR
 	PROTO_DSM_RX
 		NONE
 	PROTO_E010R5

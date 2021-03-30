@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	65
+#define VERSION_PATCH_LEVEL	66
 
 #define MODE_SERIAL 0
 
@@ -153,11 +153,12 @@ enum Hisky
 };
 enum DSM
 {
-	DSM2_1F	= 0,
-	DSM2_2F	= 1,
-	DSMX_1F	= 2,
-	DSMX_2F	= 3,
-	DSM_AUTO = 4,
+	DSM2_1F		= 0,
+	DSM2_2F		= 1,
+	DSMX_1F		= 2,
+	DSMX_2F		= 3,
+	DSM_AUTO	= 4,
+	DSMR		= 5,
 };
 enum YD717
 {       			

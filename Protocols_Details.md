@@ -520,6 +520,8 @@ DSMX, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be avail
 ### Sub_protocol DSMR_1F - *5*
 DSMR receivers
 
+**Only 22 IDs available**, use RX num to cycle through them.
+
 Telemetry enabled
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7

@@ -244,7 +244,6 @@ void FRSKYX_init()
 		Frsky_init_clone();
 	else
 	{
-		rx_tx_addr[1]=0x02;		// ID related, hw version?
 		if(protocol==PROTO_FRSKYX)
 			Frsky_init_hop();
 		else
@@ -256,6 +255,7 @@ void FRSKYX_init()
 			#endif
 			FrSkyX2_init_hop();
 		}
+		rx_tx_addr[1]=0x02;		// ID related, hw version?
 	}
 	
 	if(protocol==PROTO_FRSKYX && (FrSkyFormat & 2 ))
@@ -275,10 +275,7 @@ void FRSKYX_init()
 		FrSkyX_initialize_data(1);
 	}
 	else
-	{
-		state = FRSKY_DATA1;
-		FrSkyX_initialize_data(0);
-	}
+		state = FRSKY_BIND_DONE;
 	FrSkyX_telem_init();
 }
 #endif

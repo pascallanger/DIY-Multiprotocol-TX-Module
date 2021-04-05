@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	68
+#define VERSION_PATCH_LEVEL	69
 
 #define MODE_SERIAL 0
 
@@ -456,7 +456,7 @@ typedef uint16_t (*uint16_function_t) (void);	//pointer to a function with no pa
 typedef void     (*void_function_t  ) (void);	//pointer to a function with no parameters which returns nothing
 
 //Protocols definition
-struct mm_protocol_definition {
+struct __attribute__((__packed__)) mm_protocol_definition {
 	uint8_t protocol;
 	const char *ProtoString;
 	const char *SubProtoString;

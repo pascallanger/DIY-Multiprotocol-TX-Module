@@ -20,13 +20,13 @@
 static void __attribute__((unused)) FrSkyX_build_bind_packet()
 {
 	//Header
-	packet[0] = packet_length;			// Number of bytes in the packet (after this one)
-	packet[1] = 0x03;					// Bind packet
-	packet[2] = 0x01;					// Bind packet
+	packet[0] = packet_length;				// Number of bytes in the packet (after this one)
+	packet[1] = 0x03;						// Bind packet
+	packet[2] = 0x01;						// Bind packet
 
 	//ID
-	packet[3] = rx_tx_addr[3];			// ID
-	packet[4] = rx_tx_addr[2];			// ID
+	packet[3] = rx_tx_addr[3];				// ID
+	packet[4] = rx_tx_addr[2];				// ID
 
 	if(protocol==PROTO_FRSKYX)
 	{
@@ -37,7 +37,7 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 		packet[8] = hopping_frequency[idx++];
 		packet[9] = hopping_frequency[idx++];
 		packet[10] = hopping_frequency[idx++];
-		packet[11] = rx_tx_addr[1];		// Unknown but constant ID?
+		packet[11] = rx_tx_addr[1];			// ID
 		packet[12] = RX_num;
 		//
 		memset(&packet[13], 0, packet_length - 14);
@@ -49,16 +49,20 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 	else
 	{
 		//packet 1D 03 01 0E 1C 02 00 00 32 0B 00 00 A8 26 28 01 A1 00 00 00 3E F6 87 C7 00 00 00 00 C9 C9
-		packet[5] = rx_tx_addr[1];		// Unknown but constant ID?
+		//Unknown bytes
+		if(state & 0x01)
+			memcpy(&packet[7],"\x00\x18\x0A\x00\x00\xE0\x02\x0B\x01\xD3\x08\x00\x00\x4C\xFE\x87\xC7",17);
+		else
+			memcpy(&packet[7],"\x27\xAD\x02\x00\x00\x64\xC8\x46\x00\x64\x00\x00\x00\xFB\xF6\x87\xC7",17);
+		//ID
+		packet[5] = rx_tx_addr[1];			// ID
 		packet[6] = RX_num;
 		//Bind flags
-		packet[7] = 0;
 		if(binding_idx&0x01)
 			packet[7] |= 0x40;				// Telem off
 		if(binding_idx&0x02)
 			packet[7] |= 0x80;				// CH9-16
-		//Unknown bytes
-		memcpy(&packet[8],"\x32\x0B\x00\x00\xA8\x26\x28\x01\xA1\x00\x00\x00\x3E\xF6\x87\xC7",16);
+		//Replace the ID
 		packet[20] ^= 0x0E ^ rx_tx_addr[3];	// Update the ID
 		packet[21] ^= 0x1C ^ rx_tx_addr[2];	// Update the ID
 		//Xor
@@ -271,6 +275,7 @@ void FRSKYX_init()
 
 	if(IS_BIND_IN_PROGRESS)
 	{	   
+		memset(packet, 0, packet_length);
 		state = FRSKY_BIND;
 		FrSkyX_initialize_data(1);
 	}

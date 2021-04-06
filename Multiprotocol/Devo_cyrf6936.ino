@@ -283,11 +283,12 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 				frsky_send_user_frame(0x11+8, dec, dec>>8);
 				break;
 			case 0x36: // Time
-				//memcpy(&packet[1],"\x31\x38\x32\x35\x35\x32\x31\x35\x31\x30\x31\x32",12);							// 2012-10-15 18:25:52 (UTC)
+				//memcpy(&packet[1],"\x31\x38\x32\x35\x35\x32\x31\x35\x31\x30\x31\x32",12);							// "182552151012" = 2012-10-15 18:25:52 (UTC)
 				if(packet[1]!=0)
 				{
 					frsky_send_user_frame(0x15, DEVO_text_to_int(&packet[9], 2), DEVO_text_to_int(&packet[7], 2));	// month, day
-					frsky_send_user_frame(0x16, DEVO_text_to_int(&packet[11], 2)+24, 0x00);							// year
+					val = 2000 + DEVO_text_to_int(&packet[11], 2);													// year
+					frsky_send_user_frame(0x16, val, val>>8);
 					frsky_send_user_frame(0x17, DEVO_text_to_int(&packet[1], 2), DEVO_text_to_int(&packet[3], 2));	// hour, min
 					frsky_send_user_frame(0x18, DEVO_text_to_int(&packet[5], 2), 0x00);								// second
 				}

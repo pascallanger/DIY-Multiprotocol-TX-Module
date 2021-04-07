@@ -279,39 +279,44 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 static void __attribute__((unused)) CABELL_getChannelSequence (uint8_t outArray[], uint8_t numChannels, uint64_t permutation)
 {
 	/* This procedure initializes an array with the sequence progression of channels.
-	* This is not the actual channels itself, but the sequence base to be used within bands of 
+	* This is not the actual channels itself, but the sequence base to be used within bands of
 	* channels.
-	* 
+	*
 	* There are numChannels! permutations for arranging the channels
 	* one of these permutations will be calculated based on the permutation input
 	* permutation should be between 1 and numChannels! but the routine will constrain it
 	* if these bounds are exceeded.  Typically the radio's unique TX ID should be used.
-	* 
+	*
 	* The maximum numChannels is 20.  Anything larger than this will cause the uint64_t
 	* variables to overflow, yielding unknown results (possibly infinite loop?).  Therefor
 	* this routine constrains the value.
-	*/  
+	*/
 	uint8_t i;   //iterator counts numChannels
-	uint64_t indexOfNextSequenceValue;
-	uint64_t numChannelsFactorial=1;
+	uint32_t indexOfNextSequenceValue;
+	uint32_t numChannelsFactorial=1;
+	uint32_t perm32 ;
 	uint8_t  sequenceValue;
 
-	numChannels = constrain(numChannels,1,20);
+	numChannels = constrain(numChannels,1,9);
 
 	for (i = 1; i <= numChannels;i++)
 	{
-		numChannelsFactorial *= i;      //  Calculate n!
-		outArray[i-1] = i-1;            //  Initialize array with the sequence
+		numChannelsFactorial *= i;					//  Calculate n!
+		outArray[i-1] = i-1;						//  Initialize array with the sequence
 	}
 
-	permutation = (permutation % numChannelsFactorial) + 1;    // permutation must be between 1 and n! or this algorithm will infinite loop
+	perm32 = permutation >> 8 ;						// Shift 40 bit input to 32 bit
+	perm32 = (perm32 % numChannelsFactorial);		// permutation must be between 1 and n! or this algorithm will infinite loop
+	perm32 <<= 8 ;									// Shift back 8 bits
+	perm32 += permutation & 0x00FF ;				// Tack on least 8 bits
+	perm32 = (perm32 % numChannelsFactorial) + 1;	// permutation must be between 1 and n! or this algorithm will infinite loop
 
 	//Rearrange the array elements based on the permutation selected
-	for (i=0, permutation--; i<numChannels; i++ )
+	for (i=0, perm32--; i<numChannels; i++ )
 	{
-		numChannelsFactorial /= ((uint64_t)numChannels)-i;
-		indexOfNextSequenceValue = i+(permutation/numChannelsFactorial);
-		permutation %= numChannelsFactorial;
+		numChannelsFactorial /= numChannels-i;
+		indexOfNextSequenceValue = i+(perm32/numChannelsFactorial);
+		perm32 %= numChannelsFactorial;
 
 		//Copy the value in the selected array position
 		sequenceValue = outArray[indexOfNextSequenceValue];

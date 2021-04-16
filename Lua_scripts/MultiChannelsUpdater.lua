@@ -280,11 +280,15 @@ local function Multi_Init()
   end
  
   --Exceptions on first 4 channels...
-  if ( protocol == 73 or (protocol == 74 and sub_protocol == 0) ) then -- Kyosho or RadioLink Surface
+  if ( protocol == 73 or (protocol == 74 and sub_protocol == 0) or (protocol == 60 and sub_protocol == 2) ) then -- Kyosho or RadioLink Surface or Pelikan/SCX24
     channel_names[1] = "ST"
     channel_names[2] = "THR"
     channel_names[3] = "CH3"
-    channel_names[4] = "CH4"
+    if(protocol == 60 and sub_protocol == 2) then
+      channel_names[4] = "n-a"
+    else
+      channel_names[4] = "CH4"
+    end
   end
   if ( protocol == 6 and sub_protocol == 5 ) then -- DSMR
     channel_names[1] = "ST"

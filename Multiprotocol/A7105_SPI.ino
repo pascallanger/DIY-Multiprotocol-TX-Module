@@ -499,6 +499,11 @@ void A7105_Init(void)
 						vco_calibration1=0x02;
 						break;
 					case PROTO_PELIKAN:
+						if(sub_protocol == PELIKAN_SCX24)
+						{
+							vco_calibration1=0x0A;
+							break;
+						}
 					case PROTO_KYOSHO: //sub_protocol Hype
 						vco_calibration1=0x0C;
 						break;

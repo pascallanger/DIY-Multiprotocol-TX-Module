@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	72
+#define VERSION_PATCH_LEVEL	73
 
 #define MODE_SERIAL 0
 
@@ -400,6 +400,7 @@ enum PELIKAN
 {
 	PELIKAN_PRO	= 0,
 	PELIKAN_LITE= 1,
+	PELIKAN_SCX24=2,
 };
 
 enum V761
@@ -1086,6 +1087,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==PELIKAN
 			PELIKAN_PRO		0
 			PELIKAN_LITE	1
+			PELIKAN_SCX24	2
 		sub_protocol==V761
 			V761_3CH	0
 			V761_4CH	1

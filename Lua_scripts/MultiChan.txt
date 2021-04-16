@@ -134,6 +134,7 @@
 77,0,OMP,M2,0,THold,IdleUp,6G_3D
 60,0,Pelikan,PRO_V4,0,CH5,CH6,CH7,CH8
 60,1,Pelikan,LITE_V4,0,CH5,CH6,CH7,CH8
+60,2,Pelikan,SCX24,0
 51,0,Potensic,A20,1,TakLan,Emerg,Mode,HLess
 66,0,Propel,74-Z,1,LEDs,RollCW,RolCCW,Fire,Weapon,Calib,AltHol,TakeOf,Land,Train
 29,0,Q2x2,Q222,1,Flip,LED,Mod2,Mod1,HLess,RTH,XCal,YCal

@@ -148,7 +148,7 @@ const char STR_SUBTYPE_FRSKYL[] =     "\x08""LR12\0   ""LR12 6ch";
 const char STR_SUBTYPE_WFLY[] =       "\x05""WFR0x";
 const char STR_SUBTYPE_WFLY2[] =      "\x05""RF20x";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
-const char STR_SUBTYPE_PELIKAN[] =    "\x04""Pro\0""Lite";
+const char STR_SUBTYPE_PELIKAN[] =    "\x05""Pro\0 ""Lite\0""SCX24";
 const char STR_SUBTYPE_V761[] =       "\x03""3ch""4ch";
 const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ""DumboRC";
 const char STR_SUBTYPE_REALACC[] =    "\x03""R11";
@@ -367,7 +367,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_OMP,        STR_OMP,       NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    OMP_init,        OMP_callback        },
 	#endif
 	#if defined(PELIKAN_A7105_INO)
-		{PROTO_PELIKAN,    STR_PELIKAN,   STR_SUBTYPE_PELIKAN,   2, OPTION_NONE,    0, 1, SW_A7105,  PELIKAN_init,    PELIKAN_callback    },
+		{PROTO_PELIKAN,    STR_PELIKAN,   STR_SUBTYPE_PELIKAN,   3, OPTION_NONE,    0, 1, SW_A7105,  PELIKAN_init,    PELIKAN_callback    },
 	#endif
 	#if defined(POTENSIC_NRF24L01_INO)
 		{PROTO_POTENSIC,   STR_POTENSIC,  STR_SUBTYPE_POTENSIC,  1, OPTION_NONE,    0, 0, SW_NRF,    POTENSIC_init,   POTENSIC_callback   },

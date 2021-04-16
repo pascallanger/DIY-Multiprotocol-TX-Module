@@ -356,6 +356,15 @@ Models: TX: CADET 4 LITE
 
 **Only 1 frequency hopping table**
 
+### Sub_protocol SCX24 - *2*
+Models: SCX24
+
+**Only 1 frequency hopping table**
+
+CH1|CH2|CH3
+---|---|---
+STEERING|THROTTLE|CH3
+
 ## WFLY2 - *79*
 Receivers: RF201S,RF206S,RF207S,RF209S
 

@@ -21,29 +21,48 @@
 //#define PELIKAN_FORCE_ID
 //#define PELIKAN_LITE_FORCE_ID
 #define PELIKAN_LITE_FORCE_HOP
+#define PELIKAN_SCX24_FORCE_ID
+#define PELIKAN_SCX24_FORCE_HOP
 
 #define PELIKAN_BIND_COUNT		400
 #define PELIKAN_BIND_RF			0x3C
 #define PELIKAN_NUM_RF_CHAN 	0x1D
 #define PELIKAN_PACKET_PERIOD	7980
 #define PELIKAN_LITE_PACKET_PERIOD 18000
+#define PELIKAN_SCX24_PACKET_PERIOD 15069
 
 static void __attribute__((unused)) pelikan_build_packet()
 {
 	static boolean upper=false;
-	packet[0] = 0x15;
+	uint8_t sum;
+	uint16_t channel;
+
+	if(sub_protocol == PELIKAN_SCX24)
+		packet[0] = 0x11;
+	else //PELIKAN_PRO & PELIKAN_LITE
+		packet[0] = 0x15;
     if(IS_BIND_IN_PROGRESS)
 	{
-		packet[1] = 0x04;			//version??
 		packet[2] = rx_tx_addr[0];
 		packet[3] = rx_tx_addr[1];
 		packet[4] = rx_tx_addr[2];
 		packet[5] = rx_tx_addr[3];
-		if(sub_protocol==PELIKAN_PRO)
-			packet[6] = 0x05;		//sub version??
-		else //PELIKAN_LITE
-			packet[6] = 0x03;		//sub version??
-		packet[7] = 0x00;			//??
+
+		if(sub_protocol == PELIKAN_SCX24)
+		{
+			packet[1] = 0x65;
+			packet[6] = 0x55;
+			packet[7] = 0xAA;
+		}
+		else
+		{//PELIKAN_PRO & PELIKAN_LITE
+			packet[1] = 0x04;			//version??
+			if(sub_protocol==PELIKAN_PRO)
+				packet[6] = 0x05;		//sub version??
+			else //PELIKAN_LITE
+				packet[6] = 0x03;		//sub version??
+			packet[7] = 0x00;			//??
+		}
 		packet[8] = 0x55;			//??
 		packet_length = 10;
 	}
@@ -51,60 +70,87 @@ static void __attribute__((unused)) pelikan_build_packet()
 	{
 		//ID
 		packet[1]  = rx_tx_addr[0];
-		packet[7]  = rx_tx_addr[1];
-		packet[12] = rx_tx_addr[2];
-		packet[13] = rx_tx_addr[3];
-		//Channels
-		uint8_t offset=upper?4:0;
-		uint16_t channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871,false);
-		uint8_t top=(channel>>2) & 0xC0;
-		packet[2]  = channel;
-		channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871,false);
-		top|=(channel>>4) & 0x30;
-		packet[3]  = channel;
-		channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871,false);
-		top|=(channel>>6) & 0x0C;
-		packet[4]  = channel;
-		channel=convert_channel_16b_nolimit(CH_AETR[offset], 153, 871,false);
-		top|=(channel>>8) & 0x03;
-		packet[5]  = channel;
-		packet[6]  = top;
-		//Check
-		crc8=0x15;
-		for(uint8_t i=1;i<8;i++)
-			crc8+=packet[i];
-		packet[8]=crc8;
-		//Low/Up channel flag
-		packet[9]=upper?0xAA:0x00;
-		upper=!upper;
-		//Hopping counters
-		if(sub_protocol==PELIKAN_LITE || ++packet_count>4)
+		if(sub_protocol == PELIKAN_SCX24)
 		{
-			packet_count=0;
-			if(++hopping_frequency_no>=PELIKAN_NUM_RF_CHAN)
-				hopping_frequency_no=0;
+			//ID
+			packet[4]  = rx_tx_addr[1];
+			//Channels
+			channel = Channel_data[0];		//STEERING: 1B1..23B..2C5 ???
+			packet[2]  = channel >> 9;
+			packet[3]  = channel >> 1;
+			channel = Channel_data[1];		//THROTTLE: 0DB..1FF..30E
+			packet[5]  = channel >> 9;
+			packet[6]  = channel >> 1;
+			channel = Channel_data[2];		//CH3: 055..3AA
+			packet[7]  = channel >> 9;
+			packet[8]  = channel >> 1;
+			//Hopping counters
+			if(++packet_count>2)
+			{
+				packet_count=0;
+				if(++hopping_frequency_no>=PELIKAN_NUM_RF_CHAN)
+					hopping_frequency_no=0;
+			}
+			//Length
+			packet_length = 14;
 		}
-		packet[10]=hopping_frequency_no;
-		packet[11]=packet_count;
-
-		packet_length = 15;
+		else
+		{//PELIKAN_PRO & PELIKAN_LITE
+			//ID
+			packet[7]  = rx_tx_addr[1];
+			//Channels
+			uint8_t offset=upper?4:0;
+			channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871,false);
+			uint8_t top=(channel>>2) & 0xC0;
+			packet[2]  = channel;
+			channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871,false);
+			top|=(channel>>4) & 0x30;
+			packet[3]  = channel;
+			channel=convert_channel_16b_nolimit(CH_AETR[offset++], 153, 871,false);
+			top|=(channel>>6) & 0x0C;
+			packet[4]  = channel;
+			channel=convert_channel_16b_nolimit(CH_AETR[offset], 153, 871,false);
+			top|=(channel>>8) & 0x03;
+			packet[5]  = channel;
+			packet[6]  = top;
+			//Check
+			sum=0x00;
+			for(uint8_t i=0;i<8;i++)
+				sum+=packet[i];
+			packet[8]=sum;
+			//Low/Up channel flag
+			packet[9]=upper?0xAA:0x00;
+			upper=!upper;
+			//Hopping counters
+			if(sub_protocol==PELIKAN_LITE || ++packet_count>4)
+			{
+				packet_count=0;
+				if(++hopping_frequency_no>=PELIKAN_NUM_RF_CHAN)
+					hopping_frequency_no=0;
+			}
+			//Length
+			packet_length = 15;
+		}
+		//Hopping
+		packet[packet_length-5] = hopping_frequency_no;
+		packet[packet_length-4] = packet_count;
+		//ID
+		packet[packet_length-3] = rx_tx_addr[2];
+		packet[packet_length-2] = rx_tx_addr[3];
 	}
 
 	//Check
-	crc8=0x15;
-	for(uint8_t i=1; i<packet_length-1 ;i++)
-		crc8+=packet[i];
-	packet[packet_length-1]=crc8;
+	sum=0x00;
+	for(uint8_t i=0; i<packet_length-1 ;i++)
+		sum+=packet[i];
+	packet[packet_length-1] = sum;
 
 	//Send
 	#ifdef DEBUG_SERIAL
-		if(packet[9]==0x00)
-		{
-			debug("C: %02X P(%d):",IS_BIND_IN_PROGRESS?PELIKAN_BIND_RF:hopping_frequency[hopping_frequency_no],packet_length);
-			for(uint8_t i=0;i<packet_length;i++)
-				debug(" %02X",packet[i]);
-			debugln("");
-		}
+		debug("C: %02X P(%d):",IS_BIND_IN_PROGRESS?PELIKAN_BIND_RF:hopping_frequency[hopping_frequency_no],packet_length);
+		for(uint8_t i=0;i<packet_length;i++)
+			debug(" %02X",packet[i]);
+		debugln("");
 	#endif
 	A7105_WriteData(packet_length, IS_BIND_IN_PROGRESS?PELIKAN_BIND_RF:hopping_frequency[hopping_frequency_no]);
 	A7105_SetPower();
@@ -126,16 +172,18 @@ uint16_t PELIKAN_callback()
 				A7105_Strobe(A7105_STANDBY);
 				if(sub_protocol==PELIKAN_PRO)
 					A7105_WriteReg(A7105_03_FIFOI,0x28);
+				else if(sub_protocol==PELIKAN_SCX24)
+					A7105_WriteReg(A7105_03_FIFOI,0x0D);
 				else//PELIKAN_LITE
 					A7105_WriteID(MProtocol_id);
 			}
 		}
 		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(sub_protocol==PELIKAN_PRO?PELIKAN_PACKET_PERIOD:PELIKAN_LITE_PACKET_PERIOD);
+			telemetry_set_input_sync(packet_period);
 		#endif
 		pelikan_build_packet();
-		if(sub_protocol==PELIKAN_PRO || IS_BIND_IN_PROGRESS)
-			return PELIKAN_PACKET_PERIOD;
+		if(IS_BIND_IN_PROGRESS || sub_protocol != PELIKAN_LITE)
+			return packet_period;
 		//PELIKAN_LITE
 		phase++;
 		return 942;
@@ -241,6 +289,11 @@ const uint8_t PROGMEM pelikan_lite_hopp[][PELIKAN_NUM_RF_CHAN] = {
 	{ 0x46,0x2A,0x3E,0x5A,0x5C,0x24,0x4E,0x32,0x54,0x26,0x2C,0x34,0x56,0x1E,0x3A,0x3C,0x50,0x4A,0x2E,0x42,0x20,0x52,0x28,0x22,0x44,0x58,0x36,0x38,0x4C }
 };
 #endif
+#ifdef PELIKAN_SCX24_FORCE_HOP
+const uint8_t PROGMEM pelikan_scx24_hopp[][PELIKAN_NUM_RF_CHAN] = {
+	{ 0x1E,0x32,0x46,0x5A,0x44,0x58,0x2E,0x42,0x56,0x2C,0x40,0x54,0x2A,0x3E,0x52,0x28,0x3C,0x50,0x26,0x3A,0x4E,0x24,0x38,0x4C,0x22,0x36,0x4A,0x20,0x1A }
+};
+#endif
 
 void PELIKAN_init()
 {
@@ -280,13 +333,43 @@ void PELIKAN_init()
 			#endif
 		}
 	#endif
+	#if defined(PELIKAN_SCX24_FORCE_ID) || defined(PELIKAN_SCX24_FORCE_HOP)
+		if(sub_protocol==PELIKAN_SCX24)
+		{
+			#if defined(PELIKAN_SCX24_FORCE_ID)
+				// ID
+				rx_tx_addr[2]=0x80;
+				rx_tx_addr[3]=0x19;
+			#endif
+			#if defined(PELIKAN_SCX24_FORCE_HOP)
+				// Hop frequency table
+				rx_tx_addr[0]=0x12;		// hopping freq
+				rx_tx_addr[1]=0x46;		// hopping freq
+				for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
+					hopping_frequency[i]=pgm_read_byte_near(&pelikan_scx24_hopp[0][i]);
+			#endif
+		}
+	#endif
 
-	MProtocol_id=((uint32_t)rx_tx_addr[0]<<24)|((uint32_t)rx_tx_addr[1]<<16)|((uint32_t)rx_tx_addr[2]<<8)|(rx_tx_addr[3]);
-	if(sub_protocol==PELIKAN_LITE && IS_BIND_DONE)
-		A7105_WriteID(MProtocol_id);
+	MProtocol_id = ((uint32_t)rx_tx_addr[0]<<24)|((uint32_t)rx_tx_addr[1]<<16)|((uint32_t)rx_tx_addr[2]<<8)|(rx_tx_addr[3]);
 
-	hopping_frequency_no=PELIKAN_NUM_RF_CHAN;
-	packet_count=5;
-	phase=0;
+	if(sub_protocol==PELIKAN_LITE)
+	{
+		if(IS_BIND_DONE)
+			A7105_WriteID(MProtocol_id);
+		packet_period = PELIKAN_LITE_PACKET_PERIOD;
+	}
+	else if(sub_protocol==PELIKAN_SCX24)
+	{
+		if(IS_BIND_DONE)
+			A7105_WriteReg(A7105_03_FIFOI,0x0D);
+		packet_period = PELIKAN_SCX24_PACKET_PERIOD;
+	}
+	else//PELIKAN_PRO
+		packet_period = PELIKAN_PACKET_PERIOD;
+	
+	hopping_frequency_no = PELIKAN_NUM_RF_CHAN;
+	packet_count = 5;
+	phase = 0;
 }
 #endif

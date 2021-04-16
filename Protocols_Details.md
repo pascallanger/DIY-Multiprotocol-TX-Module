@@ -359,7 +359,9 @@ Models: TX: CADET 4 LITE
 ### Sub_protocol SCX24 - *2*
 Models: SCX24
 
-**Only 1 frequency hopping table**
+**Only 1 ID**
+
+Extended limits supported
 
 CH1|CH2|CH3
 ---|---|---

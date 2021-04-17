@@ -29,7 +29,7 @@ void A7105_WriteData(uint8_t len, uint8_t channel)
 	A7105_CSN_on;
 	if(protocol!=PROTO_WFLY2)
 	{
-		if(!(protocol==PROTO_FLYSKY || protocol==PROTO_KYOSHO))
+		if(!(protocol==PROTO_FLYSKY || (protocol==PROTO_KYOSHO && sub_protocol==KYOSHO_HYPE))
 		{
 			A7105_Strobe(A7105_STANDBY);	//Force standby mode, ie cancel any TX or RX...
 			A7105_SetTxRxMode(TX_EN);		//Switch to PA

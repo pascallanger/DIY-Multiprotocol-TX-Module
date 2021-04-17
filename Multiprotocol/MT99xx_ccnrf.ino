@@ -389,7 +389,8 @@ uint16_t MT99XX_callback()
 					if(packet_in[8] == check && packet_in[0] == rx_tx_addr[0] && packet_in[1] == rx_tx_addr[1] && packet_in[2] == rx_tx_addr[2])
 					{ // checksum and address are ok
 					//	debug(" OK");
-						v_lipo1 = packet_in[3];
+						v_lipo1 = packet_in[3] & 0x7F;	// Batt
+						v_lipo2 = packet_in[3] & 0x80;	// Low batt flag
 						RX_RSSI=100;
 						telemetry_link = 1;
 					}

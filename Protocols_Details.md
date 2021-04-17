@@ -1085,7 +1085,7 @@ A|E|T|R|3D6G
 ### Sub_protocol DRAGON - *6*
 Model: Eachine Mini Wing Dragon
 
-Telemetry is supported: A1 = battery voltage with a Ratio of 25.5, RSSI = dummy value of 100
+Telemetry is supported: A1 = battery voltage with a Ratio of 25.5, A2=battery low flag (0=off,>0=on) and RSSI = dummy value of 100
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---

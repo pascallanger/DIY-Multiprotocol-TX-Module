@@ -98,6 +98,7 @@ const char STR_E010R5[]     ="E010r5";
 const char STR_LOLI[]       ="LOLI";
 const char STR_E129[]       ="E129";
 const char STR_E016H[]      ="E016H";
+const char STR_IKEA_ANSLUTA[]="Ansluta";
 const char STR_CONFIG[]     ="Config";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
@@ -329,6 +330,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(HUBSAN_A7105_INO)
 		{PROTO_HUBSAN,     STR_HUBSAN,    STR_SUBTYPE_HUBSAN,    3, OPTION_VIDFREQ, 0, 0, SW_A7105,  HUBSAN_init,     HUBSAN_callback     },
+	#endif
+	#if defined(IKEA_ANSLUTA_CC2500_INO)
+		{PROTO_IKEA_ANSLUTA,STR_IKEA_ANSLUTA,NO_SUBTYPE,         0, OPTION_OPTION,  0, 0, SW_CC2500, IKEA_ANSLUTA_init,IKEA_ANSLUTA_callback },
 	#endif
 	#if defined(J6PRO_CYRF6936_INO)
 		{PROTO_J6PRO,      STR_J6PRO,     NO_SUBTYPE,            0, OPTION_NONE,    0, 1, SW_CYRF,   J6PRO_init,      J6PRO_callback      },

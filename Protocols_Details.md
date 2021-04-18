@@ -357,9 +357,11 @@ Models: TX: CADET 4 LITE
 **Only 1 frequency hopping table**
 
 ### Sub_protocol SCX24 - *2*
-Models: SCX24
+TX: Axial AX-4 2.4GHz transmitter and Panda Hobby 3CH Smart Radio 2.4GHz (MT-305A)
 
-**Only 1 ID**
+Models: Axial SCX24: Deadbolt, Jeep Wranger Rubicon, Chevrolet 1967 C10, B-17 Betty and Panda Hobby: Tetra K1, X1, X2
+
+**Only 1 frequency hopping table**
 
 Extended limits supported
 

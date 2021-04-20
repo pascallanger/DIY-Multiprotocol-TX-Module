@@ -20,11 +20,11 @@
 
 //#define PELIKAN_FORCE_ID
 //#define PELIKAN_LITE_FORCE_ID
-#define PELIKAN_LITE_FORCE_HOP
+#define PELIKAN_LITE_FORCE_HOP				// hop sequence creation is unknown
 //#define PELIKAN_SCX24_FORCE_ID
-#define PELIKAN_SCX24_FORCE_HOP
+#define PELIKAN_SCX24_FORCE_HOP				// hop sequence creation is unknown
 
-#define PELIKAN_BIND_COUNT		400
+#define PELIKAN_BIND_COUNT		400			// 3sec
 #define PELIKAN_BIND_RF			0x3C
 #define PELIKAN_NUM_RF_CHAN 	0x1D
 #define PELIKAN_PACKET_PERIOD	7980
@@ -291,7 +291,8 @@ const uint8_t PROGMEM pelikan_lite_hopp[][PELIKAN_NUM_RF_CHAN] = {
 #endif
 #ifdef PELIKAN_SCX24_FORCE_HOP
 const uint8_t PROGMEM pelikan_scx24_hopp[][PELIKAN_NUM_RF_CHAN] = {
-	{ 0x1E,0x32,0x46,0x5A,0x44,0x58,0x2E,0x42,0x56,0x2C,0x40,0x54,0x2A,0x3E,0x52,0x28,0x3C,0x50,0x26,0x3A,0x4E,0x24,0x38,0x4C,0x22,0x36,0x4A,0x20,0x1A }
+	{ 0x1E,0x32,0x46,0x5A,0x44,0x58,0x2E,0x42,0x56,0x2C,0x40,0x54,0x2A,0x3E,0x52,0x28,0x3C,0x50,0x26,0x3A,0x4E,0x24,0x38,0x4C,0x22,0x36,0x4A,0x20,0x1A },
+	{ 0x2C,0x44,0x1E,0x52,0x56,0x22,0x3A,0x3E,0x34,0x4C,0x26,0x5A,0x50,0x2A,0x42,0x38,0x2E,0x46,0x20,0x54,0x4A,0x24,0x3C,0x32,0x28,0x40,0x58,0x1B,0x4E }
 };
 #endif
 
@@ -300,6 +301,8 @@ void PELIKAN_init()
 	A7105_Init();
 	if(IS_BIND_IN_PROGRESS || sub_protocol==PELIKAN_LITE)
 		A7105_WriteReg(A7105_03_FIFOI,0x10);
+
+	bind_counter = PELIKAN_BIND_COUNT;
 
 	if(sub_protocol==PELIKAN_PRO)
 	{
@@ -316,47 +319,64 @@ void PELIKAN_init()
 		#endif
 		packet_period = PELIKAN_PACKET_PERIOD;
 	}
-	else if(sub_protocol==PELIKAN_LITE)
+	else
 	{
-		#if defined(PELIKAN_LITE_FORCE_ID)
-			// ID
-			rx_tx_addr[2]=0x60;
-			rx_tx_addr[3]=0x18;
-		#endif
-		#if defined(PELIKAN_LITE_FORCE_HOP)
-			// Hop frequency table
-			rx_tx_addr[0]=0x04;		// hopping freq
-			rx_tx_addr[1]=0x63;		// hopping freq
-			for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
-				hopping_frequency[i]=pgm_read_byte_near(&pelikan_lite_hopp[0][i]);
-		#endif
-		MProtocol_id = ((uint32_t)rx_tx_addr[0]<<24)|((uint32_t)rx_tx_addr[1]<<16)|((uint32_t)rx_tx_addr[2]<<8)|(rx_tx_addr[3]);
-		if(IS_BIND_DONE)
-			A7105_WriteID(MProtocol_id);
-		packet_period = PELIKAN_LITE_PACKET_PERIOD;
-	}
-	else if(sub_protocol==PELIKAN_SCX24)
-	{
-		#if defined(PELIKAN_SCX24_FORCE_ID)
-			// ID
-			rx_tx_addr[2]=0x80;
-			rx_tx_addr[3]=0x19;
-		#endif
-		#if defined(PELIKAN_SCX24_FORCE_HOP)
-			// Hop frequency table
-			rx_tx_addr[0]=0x12;		// hopping freq
-			rx_tx_addr[1]=0x46;		// hopping freq
-			for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
-				hopping_frequency[i]=pgm_read_byte_near(&pelikan_scx24_hopp[0][i]);
-		#endif
-		A7105_WriteReg(A7105_0E_DATA_RATE,0x03);
-		if(IS_BIND_DONE)
-			A7105_WriteReg(A7105_03_FIFOI,0x0D);
-		packet_period = PELIKAN_SCX24_PACKET_PERIOD;
+		bind_counter >>= 1;
+		if(sub_protocol==PELIKAN_LITE)
+		{
+			#if defined(PELIKAN_LITE_FORCE_HOP)
+				// Hop frequency table
+				rx_tx_addr[0]=0x04;		// hopping freq
+				rx_tx_addr[1]=0x63;		// hopping freq
+				for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
+					hopping_frequency[i]=pgm_read_byte_near(&pelikan_lite_hopp[0][i]);
+			#endif
+			#if defined(PELIKAN_LITE_FORCE_ID)
+				// ID
+				rx_tx_addr[2]=0x60;
+				rx_tx_addr[3]=0x18;
+			#endif
+			MProtocol_id = ((uint32_t)rx_tx_addr[0]<<24)|((uint32_t)rx_tx_addr[1]<<16)|((uint32_t)rx_tx_addr[2]<<8)|(rx_tx_addr[3]);
+			if(IS_BIND_DONE)
+				A7105_WriteID(MProtocol_id);
+			packet_period = PELIKAN_LITE_PACKET_PERIOD;
+		}
+		else// if(sub_protocol==PELIKAN_SCX24)
+		{
+			#if defined(PELIKAN_SCX24_FORCE_HOP)
+				// Hop frequency table
+				uint8_t num=rx_tx_addr[3] & 0x01;
+				if(num)
+				{//1
+					rx_tx_addr[0]=0x10;		// hopping freq TX2
+					rx_tx_addr[1]=0x63;		// hopping freq TX2
+				}
+				else
+				{//0
+					rx_tx_addr[0]=0x12;		// hopping freq TX1
+					rx_tx_addr[1]=0x46;		// hopping freq TX1
+				}
+
+				for(uint8_t i=0;i<PELIKAN_NUM_RF_CHAN;i++)
+					hopping_frequency[i]=pgm_read_byte_near(&pelikan_scx24_hopp[num][i]);
+			#endif
+			#if defined(PELIKAN_SCX24_FORCE_ID)
+				// ID
+				rx_tx_addr[2]=0x80;			// TX1
+				rx_tx_addr[3]=0x19;			// TX1
+				rx_tx_addr[2]=0x80;			// TX2
+				rx_tx_addr[3]=0x22;			// TX2
+			#endif
+			A7105_WriteReg(A7105_0E_DATA_RATE,0x03);
+			if(IS_BIND_DONE)
+				A7105_WriteReg(A7105_03_FIFOI,0x0D);
+			packet_period = PELIKAN_SCX24_PACKET_PERIOD;
+		}
 	}
 
 	hopping_frequency_no = PELIKAN_NUM_RF_CHAN;
 	packet_count = 5;
 	phase = 0;
+	bind_counter = PELIKAN_BIND_COUNT;
 }
 #endif

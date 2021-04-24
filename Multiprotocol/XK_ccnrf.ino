@@ -29,15 +29,10 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static uint16_t __attribute__((unused)) XK_convert_channel(uint8_t num)
 {
-	uint16_t val;
-	if(num==RUDDER)
-	{// introduce deadband on rudder to prevent twitching
-		//debug("RUD:%d",val);
-		val=convert_channel_8b_limit_deadband(RUDDER,0x00,0x80, 0xFF, 40)<<2;
-		//debugln(",%d",val);
-	}
-	else
-		val=convert_channel_10b(num, false);
+	// Introduce deadband on all channels to prevent twitching
+	//debug("val:%d",val);
+	uint16_t val=convert_channel_8b_limit_deadband(num,0x00,0x80, 0xFF, 40)<<2;
+	//debugln(",%d",val);
 
 	// 1FF..01=left, 00=center, 200..3FF=right
 	if(val==0x200)

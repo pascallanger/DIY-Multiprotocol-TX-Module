@@ -203,6 +203,7 @@
 #define	FRSKY_RX_CC2500_INO
 #define	HITEC_CC2500_INO
 #define	HOTT_CC2500_INO
+//#define	IKEAANSLUTA_CC2500_INO  // This is mostly a "for-fun" kind of a thing, not needed for most users
 #define	SCANNER_CC2500_INO
 #define	FUTABA_CC2500_INO
 #define	SKYARTEC_CC2500_INO
@@ -693,6 +694,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		H107
 		H301
 		H501
+	PROTO_IKEAANSLUTA
 	PROTO_J6PRO
 		NONE
 	PROTO_JJRC345

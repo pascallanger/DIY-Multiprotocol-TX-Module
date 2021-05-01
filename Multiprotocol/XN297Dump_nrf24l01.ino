@@ -708,6 +708,7 @@ static uint16_t XN297Dump_callback()
 		}
 		else if(sub_protocol == XN297DUMP_CC2500)
 		{
+		#if defined (CC2500_INSTALLED)
 			if(phase==0)
 			{
 				address_length=5;
@@ -816,6 +817,7 @@ static uint16_t XN297Dump_callback()
 					CC2500_Strobe(CC2500_SRX);
 				}
 			}
+		#endif
 		}
 		bind_counter++;
 		if(IS_RX_FLAG_on)					// Let the radio update the protocol

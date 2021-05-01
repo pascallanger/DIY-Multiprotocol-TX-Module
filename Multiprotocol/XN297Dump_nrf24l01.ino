@@ -591,15 +591,16 @@ static uint16_t XN297Dump_callback()
 					break;
 			}
 		}
-		else
+		else if(sub_protocol == XN297DUMP_NRF)
 		{
 			if(phase==0)
 			{
-				address_length=4;
-				memcpy(rx_tx_addr, (uint8_t *)"\x5A\xF6\xC1\x71", address_length); //"\xA3\x05\x22\xC1""\x5A\x20\x12\xAC"
+				address_length=5;
+				memcpy(rx_tx_addr, (uint8_t *)"\x61\x94\x17\x27\xED", address_length); //"\xA3\x05\x22\xC1""\x5A\x20\x12\xAC"
+
 				bitrate=XN297DUMP_250K;
 				packet_length=32;
-				hopping_frequency_no=58; //bind ?, normal 60
+				hopping_frequency_no=54; //bind ?, normal 60
 				
 				NRF24L01_Initialize();
 				NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -639,7 +640,7 @@ static uint16_t XN297Dump_callback()
 						//bool ok=true;
 						uint8_t buffer[40];
 						memcpy(buffer,packet,packet_length);
-						if(memcmp(&packet_in[0],&packet[0],packet_length))
+						//if(memcmp(&packet_in[0],&packet[0],packet_length))
 						{
 							debug("P:");
 							for(uint8_t i=0;i<packet_length;i++)
@@ -702,6 +703,117 @@ static uint16_t XN297Dump_callback()
 					NRF24L01_SetTxRxMode(RX_EN);
 					NRF24L01_FlushRx();
 					NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX)); //  _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) |
+				}
+			}
+		}
+		else if(sub_protocol == XN297DUMP_CC2500)
+		{
+			if(phase==0)
+			{
+				address_length=5;
+				switch(RX_num)
+				{
+					case 0:
+						memcpy(rx_tx_addr, (uint8_t *)"\xAE\xD2\x71\x79\x46", address_length);
+						break;
+					case 1:
+						memcpy(rx_tx_addr, (uint8_t *)"\x5D\xA4\xE2\xF2\x8C", address_length);
+						break;
+					case 2:
+						memcpy(rx_tx_addr, (uint8_t *)"\xBB\x49\xC5\xE5\x18", address_length);
+						break;
+					case 3:
+						memcpy(rx_tx_addr, (uint8_t *)"\x76\x93\x8B\xCA\x30", address_length);
+						break;
+					case 4:
+						memcpy(rx_tx_addr, (uint8_t *)"\xED\x27\x17\x94\x61", address_length);
+						break;
+					case 5:
+						memcpy(rx_tx_addr, (uint8_t *)"\xDA\x4E\x2F\x28\xC2", address_length);
+						break;
+					case 6:
+						memcpy(rx_tx_addr, (uint8_t *)"\xAB\xB4\x9C\x5E\x51", address_length);
+						break;
+					case 7:
+						memcpy(rx_tx_addr, (uint8_t *)"\x57\x69\x38\xBC\xA3", address_length);
+						break;
+				}
+				packet_length=38;
+				hopping_frequency_no=54; //bind 30, normal 54
+				debugln("CC2500 dump, len=%d, rf=%d, address length=%d, bitrate=250K",packet_length,hopping_frequency_no,address_length);
+				
+				//Config CC2500
+				CC2500_250K_Init();
+				CC2500_SetFreqOffset();
+				CC2500_WriteReg(CC2500_04_SYNC1, rx_tx_addr[0]);	// Sync word, high byte
+				CC2500_WriteReg(CC2500_05_SYNC0, rx_tx_addr[1]);	// Sync word, low byte
+				CC2500_WriteReg(CC2500_09_ADDR,  rx_tx_addr[2]);	// Set addr
+				CC2500_WriteReg(CC2500_12_MDMCFG2,  0x12);			// Modem Configuration, GFSK, 16/16 Sync Word TX&RX
+				CC2500_WriteReg(CC2500_06_PKTLEN, packet_length);	// Packet len
+
+				//2.4001GHz: offfset of 100KHz
+				CC2500_WriteReg(CC2500_0D_FREQ2,    0x5C);   // Frequency Control Word, High Byte
+				CC2500_WriteReg(CC2500_0E_FREQ1,    0x4F);   // Frequency Control Word, Middle Byte
+				CC2500_WriteReg(CC2500_0F_FREQ0,    0xC1);   // Frequency Control Word, Low Byte
+
+				CC2500_250K_RFChannel(hopping_frequency_no);
+
+				CC2500_SetTxRxMode(RX_EN);
+				CC2500_Strobe(CC2500_SFRX);
+				CC2500_Strobe(CC2500_SRX);
+				phase++;
+			}
+			else
+			{
+				CC2500_SetFreqOffset();
+				if((CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F) == packet_length + 2) // 2 = RSSI + LQI
+				{ // RX fifo data ready
+					//debugln("f_off=%02X", CC2500_ReadReg(0x32 | CC2500_READ_BURST));
+					CC2500_ReadData(packet, packet_length+2);
+					bool ok=true;
+					//filter address
+					if(rx_tx_addr[2]!=packet[0] || rx_tx_addr[3]!=packet[1] || rx_tx_addr[4]!=packet[2] )
+						ok=false;
+					//filter constants
+					if(RX_num == 0 && ok)
+					{
+						if (packet[3] != 0x10 || (packet[4] & 0xFC) != 0x54 || packet[5] != 0x64)
+							ok=false;
+						else if(packet[6] != 0x10 && packet[6] != 0x25)
+								ok=false;
+						else if(memcmp(&packet[9],"\xC6\xE7\x50\x02\xAA\x49",6)!=0)
+								ok=false;
+					}
+					else if(RX_num == 4 && ok)
+					{
+						if (packet[3] != 0x05 || (packet[4] & 0xCF) != 0x46)
+							ok=false;
+						else if(packet[5] != 0x41 && packet[5] != 0x42)
+								ok=false;
+						else if((packet[6]&0xF0) != 0x50 && (packet[6]&0xF0) != 0x00)
+								ok=false;
+						else if((packet[8]&0x0F) != 0x0C)
+								ok=false;
+						else if(memcmp(&packet[9],"\x6E\x75\x00\x2A\xA4\x94\xA4\x6F",8)!=0)
+								ok=false;
+					}
+					if(ok)
+					{
+						//uint8_t buffer[100];
+						//memcpy(buffer,packet,packet_length);
+						//if(memcmp(&packet_in[0],&packet[0],packet_length))
+						{
+							debug("P:");
+							for(uint8_t i=0;i<packet_length;i++)
+								debug(" %02X",packet[i]);
+							debugln("");
+							memcpy(packet_in,packet,packet_length);
+						}
+					}
+					CC2500_SetTxRxMode(TXRX_OFF);
+					CC2500_SetTxRxMode(RX_EN);
+					CC2500_Strobe(CC2500_SFRX);
+					CC2500_Strobe(CC2500_SRX);
 				}
 			}
 		}

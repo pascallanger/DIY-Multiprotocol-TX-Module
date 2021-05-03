@@ -114,6 +114,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
 [LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
+[Losi](Protocols_Details.md#LOLI---89)|89|||||||||CYRF6936|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MLINK](Protocols_Details.md#MLINK---78)|78|||||||||CYRF6936|
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805|A180|DRAGON||NRF24L01|XN297
@@ -597,6 +598,8 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 ## Losi - *89*
 TX: LSR-3000
+
+**Only 1 ID available**. More IDs can be added if you dump your original TX.
 
 Extended limits supported
 

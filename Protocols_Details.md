@@ -595,6 +595,15 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
+## Losi - *89*
+TX: LSR-3000
+
+Extended limits supported
+
+CH1|CH2|CH3
+---|---|---
+ST|THR|CH3
+
 ## MLINK - *78*
 Extended limits supported
 

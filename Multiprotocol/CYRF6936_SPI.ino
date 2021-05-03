@@ -258,7 +258,7 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 	delayMilliseconds(1);
 	for(i = 0; i < NUM_FREQ; i++)
 	{
-		CYRF_ConfigRFChannel(i);
+		CYRF_ConfigRFChannel(protocol==PROTO_LOSI?i|1:i);
 		delayMicroseconds(270);					//slow channel require 270usec for synthesizer to settle
         if( !(CYRF_ReadRegister(CYRF_05_RX_CTRL) & 0x80)) {
             CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x80); //Prepare to receive

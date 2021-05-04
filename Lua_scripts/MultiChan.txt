@@ -192,3 +192,6 @@
 83,0,E129,E129,1,TakLan,EmStop,TrimA,TrimE,TrimR
 84,0,JOYSWAY,Std,0
 85,0,E016H,Std,1,Stop,Flip,n-a,HLess,RTH
+87,0,IKEA
+89,0,LOSI
+90,0,MouldKg,Std,E,F

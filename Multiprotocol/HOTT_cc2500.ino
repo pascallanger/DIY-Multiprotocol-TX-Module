@@ -527,7 +527,6 @@ void HOTT_init()
 		packet_count=0;
 		state=HOTT_SENSOR_SEARCH_PERIOD;
 	#endif
-	packet_sent = 0;
 	phase = HOTT_START;
 }
 

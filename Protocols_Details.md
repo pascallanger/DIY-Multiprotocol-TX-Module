@@ -1704,7 +1704,7 @@ CH15| CH7 | -100% | 0% | - | - | +100%
 CH16| CH8 | -100% | 0% | - | - | -
 
 ## MouldKg - *90*
-Mould King 2.4GHz TX
+Mould King 2.4GHz TX: Technic Brick models
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---

@@ -88,14 +88,13 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 
 static void __attribute__((unused)) MOULDKG_initialize_txid()
 {
-	rx_tx_addr[0]=rx_tx_addr[3];	// Use RX_num;
+	rx_tx_addr[0] = rx_tx_addr[3];	// Use RX_num;
+
 	#ifdef FORCE_MOULDKG_ORIGINAL_ID
 		rx_tx_addr[0]=0x57;
 		rx_tx_addr[1]=0x1B;
 		rx_tx_addr[2]=0xF8;
 	#endif
-	//Are the frequencies constant??? If not where are they coming from???
-	memcpy(hopping_frequency,(uint8_t*)"\x0F\x1C\x39\x3C", MOULDKG_RF_NUM_CHANNELS);	// 15,28,57,60
 }
 
 static void __attribute__((unused)) MOULDKG_RF_init()
@@ -114,23 +113,33 @@ uint16_t MOULDKG_callback()
 			{
 				//Example:	TX: C=11 S=Y A= 4B 44 48 P(7)= C0 37 02 4F 00 00 00
 				//			RX: C=76 S=Y A= 4B 44 48 P(7)= 5A 37 02 4F 03 0D 8E
+				// 03 0D 8E => RF channels 0F,1C,39,3C
 				XN297_ReadPayload(packet_in, MOULDKG_BIND_PAYLOAD_SIZE);
 				for(uint8_t i=0; i < MOULDKG_BIND_PAYLOAD_SIZE; i++)
 					debug("%02X ", packet_in[i]);
 				debugln();
 				//Not sure if I should test packet_in[0]
 				if(memcmp(&packet_in[1],&packet[1],3)==0)
-				{//TX ID match, use RX ID to transmit normal packets
+				{//TX ID match
+					//Use RX ID as address
 					XN297_SetTXAddr(&packet_in[4], 3);
-					XN297_SetTxRxMode(TXRX_OFF);
+					//Calculate frequencies based on RX ID
+					hopping_frequency[0] = 0x0C + (packet_in[4] & 0x0F);
+					hopping_frequency[1] = 0x1C + (packet_in[4] >> 4);
+					hopping_frequency[2] = 0x2C + (packet_in[5] & 0x0F);
+					hopping_frequency[3] = 0x3C + (packet_in[5] >> 4);
+					//Switch to normal mode
 					BIND_DONE;
+					XN297_SetTxRxMode(TXRX_OFF);
+					phase = MOULDKG_DATA;
+					break;
 				}
 			}
 			XN297_RFChannel(MOULDKG_TX_BIND_CHANNEL);	// Set TX bind channel
 			XN297_SetTxRxMode(TXRX_OFF);
 			MOULDKG_send_packet();
 			phase++;
-			return 500;
+			return 600;
 		case MOULDKG_BINDRX:
 			//Wait for the packet transmission to finish
 			while(XN297_IsPacketSent()==false);
@@ -139,7 +148,7 @@ uint16_t MOULDKG_callback()
 			XN297_RFChannel(MOULDKG_RX_BIND_CHANNEL);	// Set RX bind channel
 			XN297_SetTxRxMode(RX_EN);
 			phase = MOULDKG_BINDTX;
-			return MOULDKG_BIND_PACKET_PERIOD-500;
+			return MOULDKG_BIND_PACKET_PERIOD-600;
 		case MOULDKG_DATA:
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(MOULDKG_PACKET_PERIOD);
@@ -156,6 +165,7 @@ void MOULDKG_init()
 	MOULDKG_initialize_txid();
 	MOULDKG_RF_init();
 	bind_counter = MOULDKG_BIND_COUNT;
+	phase = MOULDKG_BINDTX;
 	packet_count = 0;
 }
 

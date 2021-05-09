@@ -1643,8 +1643,9 @@ A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim
 Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO: -100%=6G, +100%=3G
 
 ### Sub_protocol WLTOYS - *0*
+Models: V966/V977/F959S/...
+
 ### Sub_protocol FEILUN - *1*
-Same channels assignement as above.
 
 ## HONTAI - *26*
 Autobind protocol

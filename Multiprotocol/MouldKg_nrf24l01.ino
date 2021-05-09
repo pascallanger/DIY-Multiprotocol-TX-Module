@@ -46,7 +46,7 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 		XN297_RFChannel(hopping_frequency[(packet_count>>1)&0x03]);
 
 		uint8_t val=0;
-		if(packet_count&1)
+		if(packet_count&1==0)
 		{
 			packet[0] = 0x31;
 			//Button B

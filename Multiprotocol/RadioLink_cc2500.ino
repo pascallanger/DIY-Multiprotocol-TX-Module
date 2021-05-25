@@ -158,6 +158,9 @@ static void __attribute__((unused)) RLINK_send_packet()
 	// header
 	if(packet_count>3)
 		packet[1] = 0x02;					// 0x02 telemetry request flag
+	else
+		packet[1] = 0x00;					// no telemetry
+
 	switch(sub_protocol)
 	{
 		case RLINK_SURFACE:

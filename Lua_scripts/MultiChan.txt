@@ -194,4 +194,5 @@
 85,0,E016H,Std,1,Stop,Flip,n-a,HLess,RTH
 87,0,IKEA
 89,0,LOSI
-90,0,MouldKg,Std,E,F
+90,0,MouldKg,Analog
+90,1,MouldKg,Digit,E,F

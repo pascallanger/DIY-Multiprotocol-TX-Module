@@ -85,4 +85,4 @@
 85,E016H
 87,IKEA
 89,Losi
-90,MouldKg
+90,MouldKg,Analog,Digit

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	83
+#define VERSION_PATCH_LEVEL	84
 
 #define MODE_SERIAL 0
 
@@ -438,6 +438,12 @@ enum RLINK
 	RLINK_SURFACE	= 0,
 	RLINK_AIR		= 1,
 	RLINK_DUMBORC	= 2,
+};
+
+enum MOULDKG
+{
+	MOULDKG_ANALOG	= 0,
+	MOULDKG_DIGIT	= 1,
 };
 
 #define NONE 		0

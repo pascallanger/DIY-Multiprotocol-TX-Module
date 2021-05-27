@@ -121,14 +121,15 @@ uint16_t LOSI_callback()
 void LOSI_init()
 {
 	LOSI_cyrf_init();
-	CYRF_FindBestChannels(hopping_frequency, 1, 0, 0x13, 75);	// 75 is unknown since dump stops at 0x27, this routine resets the CRC Seed to 0
-	CYRF_ConfigRFChannel(hopping_frequency[0] | 1);				// Only odd channels
+	//CYRF_FindBestChannels(hopping_frequency, 1, 0, 0x13, 75);	// 75 is unknown since dump stops at 0x27, this routine resets the CRC Seed to 0
+	//CYRF_ConfigRFChannel(hopping_frequency[0] | 1);				// Only odd channels
 
 	#ifdef LOSI_FORCE_ID
 		rx_tx_addr[0] = 0x47;
 		rx_tx_addr[1] = 0x52;
 		rx_tx_addr[2] = 0xAE;
 		rx_tx_addr[3] = 0xAA;
+		CYRF_ConfigRFChannel(0x27);
 	#endif
 
 	if(IS_BIND_IN_PROGRESS)

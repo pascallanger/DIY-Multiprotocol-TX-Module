@@ -158,6 +158,7 @@ const char STR_SUBTYPE_REALACC[] =    "\x03""R11";
 const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
 const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
+const char STR_SUBTYPE_MOULKG[] =     "\x06""Analog""Digit\0";
 
 #define NO_SUBTYPE		nullptr
 
@@ -367,7 +368,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_MLINK,      STR_MLINK,     NO_SUBTYPE,            0, OPTION_NONE,    1, 0, SW_CYRF,   MLINK_init,      MLINK_callback      },
 	#endif
 	#if defined(MOULDKG_NRF24L01_INO)
-		{PROTO_MOULDKG,    STR_MOULDKG,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    MOULDKG_init,    MOULDKG_callback    },
+		{PROTO_MOULDKG,    STR_MOULDKG,   STR_SUBTYPE_MOULKG,    2, OPTION_NONE,    0, 0, SW_NRF,    MOULDKG_init,    MOULDKG_callback    },
 	#endif
 	#if defined(MT99XX_CCNRF_INO)
 		{PROTO_MT99XX,     STR_MT99XX,    STR_SUBTYPE_MT99,      7, OPTION_NONE,    0, 0, SW_NRF,    MT99XX_init,     MT99XX_callback     },

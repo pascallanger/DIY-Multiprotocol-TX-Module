@@ -117,7 +117,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Losi](Protocols_Details.md#Losi---89)|89|||||||||CYRF6936|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MLINK](Protocols_Details.md#MLINK---78)|78|||||||||CYRF6936|
-[MouldKg](Protocols_Details.md#mouldkg---90)|90|||||||||NRF24L01|XN297
+[MouldKg](Protocols_Details.md#mouldkg---90)|90|Analog|Digit|||||||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805|A180|DRAGON||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|||||||||NRF24L01|
 [OMP](Protocols_Details.md#OMP---77)|77|||||||||CC2500&NRF24L01|XN297L
@@ -1706,6 +1706,14 @@ CH16| CH8 | -100% | 0% | - | - | -
 
 ## MouldKg - *90*
 Mould King 2.4GHz TX: Technic Brick models
+
+### Sub_protocol Analog - *0*
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|B|C|D
+
+### Sub_protocol Digit - *1*
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---

@@ -22,7 +22,8 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define MOULDKG_BIND_PACKET_PERIOD	12000
 #define MOULDKG_TX_BIND_CHANNEL		11
 #define MOULDKG_RX_BIND_CHANNEL		76
-#define MOULDKG_PAYLOAD_SIZE		5
+#define MOULDKG_PAYLOAD_SIZE_DIGIT	5
+#define MOULDKG_PAYLOAD_SIZE_ANALOG	10
 #define MOULDKG_BIND_PAYLOAD_SIZE	7
 #define MOULDKG_BIND_COUNT			300
 #define MOULDKG_RF_NUM_CHANNELS		4
@@ -35,6 +36,7 @@ enum {
 
 static void __attribute__((unused)) MOULDKG_send_packet()
 {
+	uint8_t len = MOULDKG_BIND_PAYLOAD_SIZE;
 	memcpy(&packet[1],rx_tx_addr,3);
 	if(IS_BIND_IN_PROGRESS)
 	{
@@ -45,41 +47,52 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 	{
 		XN297_RFChannel(hopping_frequency[(packet_count>>1)&0x03]);
 
-		uint8_t val=0;
-		if(packet_count&1==0)
+		if(sub_protocol == MOULDKG_ANALOG)
 		{
-			packet[0] = 0x31;
-			//Button B
-			if(Channel_data[CH2]>CHANNEL_MAX_COMMAND) val |= 0x40;
-			else if(Channel_data[CH2]<CHANNEL_MIN_COMMAND) val |= 0x80;
-			//Button C
-			if(Channel_data[CH3]>CHANNEL_MAX_COMMAND) val |= 0x10;
-			else if(Channel_data[CH3]<CHANNEL_MIN_COMMAND) val |= 0x20;
+			packet[0] = 0x36;
+			uint8_t ch[]={ 1,0,2,3 };
+			for(uint8_t i=0;i<4;i++)
+				packet[i+4] = convert_channel_8b(ch[i]);
+			len = MOULDKG_PAYLOAD_SIZE_ANALOG;
 		}
 		else
-		{
-			packet[0] = 0x30;
-			val = 0x60
-				| GET_FLAG(CH5_SW, 0x80)	// Button E
-				| GET_FLAG(CH6_SW, 0x10);	// Button F
-		}
-		//Button A
-		if(Channel_data[CH1]>CHANNEL_MAX_COMMAND) val |= 0x01;
-		else if(Channel_data[CH1]<CHANNEL_MIN_COMMAND) val |= 0x02;
-		//Button D
-		if(Channel_data[CH4]>CHANNEL_MAX_COMMAND) val |= 0x04;
-		else if(Channel_data[CH4]<CHANNEL_MIN_COMMAND) val |= 0x08;
-		packet[4]= val;
+		{//DIGIT
+			len = MOULDKG_PAYLOAD_SIZE_DIGIT;
+			uint8_t val=0;
+			if(packet_count&1)
+			{
+				packet[0] = 0x31;
+				//Button B
+				if(Channel_data[CH2]>CHANNEL_MAX_COMMAND) val |= 0x40;
+				else if(Channel_data[CH2]<CHANNEL_MIN_COMMAND) val |= 0x80;
+				//Button C
+				if(Channel_data[CH3]>CHANNEL_MAX_COMMAND) val |= 0x10;
+				else if(Channel_data[CH3]<CHANNEL_MIN_COMMAND) val |= 0x20;
+			}
+			else
+			{
+				packet[0] = 0x30;
+				val = 0x60
+					| GET_FLAG(CH5_SW, 0x80)	// Button E
+					| GET_FLAG(CH6_SW, 0x10);	// Button F
+			}
+			//Button A
+			if(Channel_data[CH1]>CHANNEL_MAX_COMMAND) val |= 0x01;
+			else if(Channel_data[CH1]<CHANNEL_MIN_COMMAND) val |= 0x02;
+			//Button D
+			if(Channel_data[CH4]>CHANNEL_MAX_COMMAND) val |= 0x04;
+			else if(Channel_data[CH4]<CHANNEL_MIN_COMMAND) val |= 0x08;
+			packet[4]= val;
 
-		packet_count++;
+			packet_count++;
+		}
 	}
 
 	// Send
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);
-	XN297_WritePayload(packet, IS_BIND_IN_PROGRESS?MOULDKG_BIND_PAYLOAD_SIZE:MOULDKG_PAYLOAD_SIZE);
+	XN297_WritePayload(packet, len);
 	#if 0
-		uint8_t len = IS_BIND_IN_PROGRESS?MOULDKG_BIND_PAYLOAD_SIZE:MOULDKG_PAYLOAD_SIZE;
 		for(uint8_t i=0; i < len; i++)
 			debug("%02X ", packet[i]);
 		debugln();
@@ -170,3 +183,8 @@ void MOULDKG_init()
 }
 
 #endif
+
+// Analog
+// Bind TX: C=11 S=Y A= 4B 44 48 P(7)= C0 46 01 00 00 00 00
+// Bind RX: 5A 46 01 00 63 82 4E
+// Norm: C=15 S=Y A= 63 82 4E P(10)= 36 46 01 00 80 80 80 80 00 00

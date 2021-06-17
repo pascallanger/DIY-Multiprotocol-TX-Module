@@ -94,7 +94,12 @@ uint16_t CONFIG_callback()
 				if(CONFIG_SerialRX_val[1]==0xAA)
 				{
 					debugln("Format EE");
-					EEPROM.format();
+					#if defined(STM32_BOARD)
+						EEPROM.format();
+					#else
+						for (uint16_t i = 0; i < 512; i++)
+    						EEPROM.write(i, 0xFF);
+					#endif
 				}
 				break;
 		}

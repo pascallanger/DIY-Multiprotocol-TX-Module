@@ -13,6 +13,17 @@ If you like this project and want to support further development please consider
   </tr>
 </table>
 
+## MultiConfig
+
+Enables to modify on a Multi module the Global ID, Cyrf ID or format the EEPROM.
+
+Notes:
+- Supported from Multi v1.3.2.85 or above and OpenTX 2.3.12 or above
+- The Multi module to be configured must be active, if there is a second Multi module in the radio it must be off
+- Located on the radio SD card under \SCRIPTS\TOOLS
+
+[![MultiCconfig](https://img.youtube.com/vi/lGyCV2kpqHU/0.jpg)](https://www.youtube.com/watch?v=lGyCV2kpqHU)
+
 ## MultiChannelsUpdater
 
 Automatically name the channels based on the loaded Multi protocol and sub protocol including the module channel order convention.

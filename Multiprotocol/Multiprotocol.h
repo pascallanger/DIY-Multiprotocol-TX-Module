@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	84
+#define VERSION_PATCH_LEVEL	85
 
 #define MODE_SERIAL 0
 
@@ -28,7 +28,6 @@
 //******************
 enum PROTOCOLS
 {
-	//PROTO_CONFIG	= 0,	// Module config
 	PROTO_FLYSKY 	= 1,	// =>A7105
 	PROTO_HUBSAN	= 2,	// =>A7105
 	PROTO_FRSKYD	= 3,	// =>CC2500
@@ -784,6 +783,8 @@ enum {
 #define SPEED_125K	3
 
 /** EEPROM Layout */
+#define EEPROM_CID_INIT_OFFSET	0		// 1 byte flag that Cyrf ID is initialized
+#define EEPROM_CID_OFFSET		1		// 6 bytes Cyrf ID
 #define EEPROM_ID_OFFSET		10		// Module ID (4 bytes)
 #define EEPROM_BANK_OFFSET		15		// Current bank number (1 byte)
 #define EEPROM_ID_VALID_OFFSET	20		// 1 byte flag that ID is valid
@@ -800,7 +801,8 @@ enum {
 #define FRSKYX_CLONE_EEPROM_OFFSET	822	// (1) format + (3) TX ID + (47) channels, 51 bytes, end is 873
 #define FRSKYX2_CLONE_EEPROM_OFFSET	873	// (1) format + (3) TX ID, 4 bytes, end is 877
 #define DSM_RX_EEPROM_OFFSET	877		// (4) TX ID + format, 5 bytes, end is 882
-//#define CONFIG_EEPROM_OFFSET 	882		// Current configuration of the multimodule
+#define MOULDKG_EEPROM_OFFSET	882		// RX ID, 3 bytes per model, end is 882+64*3=1074
+//#define CONFIG_EEPROM_OFFSET 	1074	// Current configuration of the multimodule
 
 /* STM32 Flash Size */
 #ifndef DISABLE_FLASH_SIZE_CHECK

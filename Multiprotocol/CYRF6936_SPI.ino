@@ -79,13 +79,24 @@ uint8_t CYRF_Reset()
 void CYRF_GetMfgData(uint8_t data[])
 {
 #ifndef FORCE_CYRF_ID
-	/* Fuses power on */
-	CYRF_WriteRegister(CYRF_25_MFG_ID, 0xFF);
+	if(eeprom_read_byte((EE_ADDR)EEPROM_CID_INIT_OFFSET)==0xf0)
+	{//read Cyrf ID from EEPROM
+		for(uint8_t i=0;i<6;i++)
+			data[i] = eeprom_read_byte((EE_ADDR)EEPROM_CID_OFFSET+i);
+	}
+	else
+	{//read Cyrf ID and store it EEPROM
+		/* Fuses power on */
+		CYRF_WriteRegister(CYRF_25_MFG_ID, 0xFF);
 
-	CYRF_ReadRegisterMulti(CYRF_25_MFG_ID, data, 6);
+		CYRF_ReadRegisterMulti(CYRF_25_MFG_ID, data, 6);
+		for(uint8_t i=0;i<6;i++)
+			eeprom_write_byte((EE_ADDR)EEPROM_CID_OFFSET+i, data[i]);
+		eeprom_write_byte((EE_ADDR)EEPROM_CID_INIT_OFFSET, 0xf0);
 
-	/* Fuses power off */
-	CYRF_WriteRegister(CYRF_25_MFG_ID, 0x00); 
+		/* Fuses power off */
+		CYRF_WriteRegister(CYRF_25_MFG_ID, 0x00);
+	}
 #else
 	memcpy(data,FORCE_CYRF_ID,6);
 #endif

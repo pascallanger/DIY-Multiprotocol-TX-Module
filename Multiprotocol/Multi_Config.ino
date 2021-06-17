@@ -19,13 +19,19 @@
 #include "iface_cyrf6936.h"
 #endif
 
-void CONFIG_write_ID(uint32_t id)
+void CONFIG_write_GID(uint32_t id)
 {
 	for(uint8_t i=0;i<4;i++)
 		eeprom_write_byte((EE_ADDR)EEPROM_ID_OFFSET+i,id >> (i*8));
-	eeprom_write_byte((EE_ADDR)(EEPROM_ID_OFFSET+10),0xf0);
+	//eeprom_write_byte((EE_ADDR)(EEPROM_ID_OFFSET+10),0xf0);
 }
 
+void CONFIG_write_CID(uint8_t *data)
+{
+	for(uint8_t i=0;i<6;i++)
+		eeprom_write_byte((EE_ADDR)EEPROM_CID_OFFSET+i, data[i]);
+	//eeprom_write_byte((EE_ADDR)EEPROM_CID_INIT_OFFSET, 0xf0);
+}
 uint16_t CONFIG_callback()
 {
 	static uint8_t line=0, page=0;
@@ -51,7 +57,7 @@ uint16_t CONFIG_callback()
 					id |= CONFIG_SerialRX_val[i+1];
 				}
 				debugln("Update ID to %lx", id);
-				CONFIG_write_ID(id);
+				CONFIG_write_GID(id);
 				break;
 			case 2:
 				if(CONFIG_SerialRX_val[1]==0xAA)
@@ -59,7 +65,7 @@ uint16_t CONFIG_callback()
 					#define STM32_UUID ((uint32_t *)0x1FFFF7E8)
 					id = STM32_UUID[0] ^ STM32_UUID[1] ^ STM32_UUID[2];
 					debugln("Reset GID to %lx", id);
-					CONFIG_write_ID(id);
+					CONFIG_write_GID(id);
 				}
 				break;
 #ifdef CYRF6936_INSTALLED
@@ -68,6 +74,7 @@ uint16_t CONFIG_callback()
 				for(uint8_t i=0; i<6; i++)
 					debug("%02X ",CONFIG_SerialRX_val[i+1]);
 				debugln("");
+				CONFIG_write_CID(&CONFIG_SerialRX_val[1]);
 			case 5:
 				if(CONFIG_SerialRX_val[1]==0xAA)
 				{
@@ -79,6 +86,7 @@ uint16_t CONFIG_callback()
 					for(uint8_t i=0; i<6; i++)
 						debug("%02X ",data[i]);
 					debugln("");
+					CONFIG_write_CID(data);
 				}
 				break;
 #endif

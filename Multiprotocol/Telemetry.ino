@@ -190,7 +190,7 @@ static void multi_send_status()
 		// Protocol next/prev
 		if(multi_protocols[multi_protocols_index+1].protocol != 0xFF)
 		{
-			if(multi_protocols[multi_protocols_index+1].protocol == PROTO_SCANNER)
+			if(multi_protocols[multi_protocols_index+1].protocol == PROTO_SCANNER )//|| multi_protocols[multi_protocols_index+1].protocol == PROTO_CONFIG )
 			{// if next is scanner
 				if(multi_protocols[multi_protocols_index+2].protocol != 0xFF)
 					Serial_write(multi_protocols[multi_protocols_index+2].protocol);	// skip to next protocol number
@@ -204,7 +204,7 @@ static void multi_send_status()
 			Serial_write(multi_protocols[multi_protocols_index].protocol);				// end of list
 		if(multi_protocols_index>0 && multi_protocols[multi_protocols_index-1].protocol != 0)
 		{
-			if(multi_protocols[multi_protocols_index-1].protocol==PROTO_SCANNER)
+			if(multi_protocols[multi_protocols_index-1].protocol == PROTO_SCANNER )//|| multi_protocols[multi_protocols_index-1].protocol == PROTO_CONFIG )
 			{// if prev is scanner
 				if(multi_protocols_index > 1)
 					Serial_write(multi_protocols[multi_protocols_index-2].protocol);	// skip to prev protocol number

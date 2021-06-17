@@ -168,6 +168,9 @@
 //All the protocols will not fit in the Atmega328p module so you need to pick and choose.
 //Comment the protocols you are not using with "//" to save Flash space.
 
+//Protocol for module configuration
+#define MULTI_CONFIG_INO
+
 //The protocols below need an A7105 to be installed
 #define	AFHDS2A_A7105_INO
 #define	AFHDS2A_RX_A7105_INO

@@ -98,7 +98,7 @@ uint16_t CONFIG_callback()
 						EEPROM.format();
 					#else
 						for (uint16_t i = 0; i < 512; i++)
-    						EEPROM.write(i, 0xFF);
+    						eeprom_write_byte((EE_ADDR)i, 0xFF);
 					#endif
 				}
 				break;

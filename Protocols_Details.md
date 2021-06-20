@@ -1719,7 +1719,8 @@ Option field | Value
 
 To associate a brick to a RX number (RX_num above), set this RX number under the protocol, set option to 1, launch a bind and power on the brick you want to control. Repeat this for every brick using a different RX number each time and then indicate the number of bricks to be comtrolled using the Option field.
 
-Example: I want to control 2 bricks. I select RX number 1, set option to 1 and launch a bind on the first brick. I select RX number 2, set option to 1 and launch a bind on the second brick. Now to control both bricks I set RX number to 1, option to 2. Therefore brick1 will react to channels CH1 to CH4 and brick2 to channel CH5 to CH8.
+Example: I want to control 2 bricks. I select RX number 1, set option to 1 and launch a bind on the first brick. I select RX number 2, set option to 1 and launch a bind on the second brick. Now to control both bricks I set RX number to 1 and option to 2. Therefore brick1 will react to channels CH1 to CH4 and brick2 to channel CH5 to CH8.
+On another model I can control 4 other bricks, bind each brick to RX number 3 to 6 and then finaly set RX number to 3 and option to 4 to contol the 4 bricks with CH1 to CH16.
 
 ### Sub_protocol Analog - *0*
 

@@ -29,10 +29,14 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define MOULDKG_RF_NUM_CHANNELS		4
 
 enum {
-    MOULDKG_BINDTX=0,
-    MOULDKG_BINDRX,
-    MOULDKG_DATA,
+	MOULDKG_BINDTX=0,
+	MOULDKG_BINDRX,
+	MOULDKG_PREP_DATA,
+	MOULDKG_PREP_DATA1,
+	MOULDKG_DATA,
 };
+
+uint8_t MOULDKG_RX_id[4*3];
 
 static void __attribute__((unused)) MOULDKG_send_packet()
 {
@@ -45,14 +49,13 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 	}
 	else
 	{
-		XN297_RFChannel(hopping_frequency[(packet_count>>1)&0x03]);
-
+		uint8_t n = num_ch<<2;
 		if(sub_protocol == MOULDKG_ANALOG)
 		{
 			packet[0] = 0x36;
 			uint8_t ch[]={ 1,0,2,3 };
 			for(uint8_t i=0;i<4;i++)
-				packet[i+4] = convert_channel_8b(ch[i]);
+				packet[i+4] = convert_channel_8b(ch[i]+n);
 			len = MOULDKG_PAYLOAD_SIZE_ANALOG;
 		}
 		else
@@ -63,28 +66,26 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 			{
 				packet[0] = 0x31;
 				//Button B
-				if(Channel_data[CH2]>CHANNEL_MAX_COMMAND) val |= 0x40;
-				else if(Channel_data[CH2]<CHANNEL_MIN_COMMAND) val |= 0x80;
+				if(Channel_data[CH2+n]>CHANNEL_MAX_COMMAND) val |= 0x40;
+				else if(Channel_data[CH2+n]<CHANNEL_MIN_COMMAND) val |= 0x80;
 				//Button C
-				if(Channel_data[CH3]>CHANNEL_MAX_COMMAND) val |= 0x10;
-				else if(Channel_data[CH3]<CHANNEL_MIN_COMMAND) val |= 0x20;
+				if(Channel_data[CH3+n]>CHANNEL_MAX_COMMAND) val |= 0x10;
+				else if(Channel_data[CH3+n]<CHANNEL_MIN_COMMAND) val |= 0x20;
 			}
 			else
 			{
 				packet[0] = 0x30;
-				val = 0x60
-					| GET_FLAG(CH5_SW, 0x80)	// Button E
-					| GET_FLAG(CH6_SW, 0x10);	// Button F
+				val = 0x60;
+				//	| GET_FLAG(CH5_SW, 0x80)	// Button E
+				//	| GET_FLAG(CH6_SW, 0x10);	// Button F
 			}
 			//Button A
-			if(Channel_data[CH1]>CHANNEL_MAX_COMMAND) val |= 0x01;
-			else if(Channel_data[CH1]<CHANNEL_MIN_COMMAND) val |= 0x02;
+			if(Channel_data[CH1+n]>CHANNEL_MAX_COMMAND) val |= 0x01;
+			else if(Channel_data[CH1+n]<CHANNEL_MIN_COMMAND) val |= 0x02;
 			//Button D
-			if(Channel_data[CH4]>CHANNEL_MAX_COMMAND) val |= 0x04;
-			else if(Channel_data[CH4]<CHANNEL_MIN_COMMAND) val |= 0x08;
+			if(Channel_data[CH4+n]>CHANNEL_MAX_COMMAND) val |= 0x04;
+			else if(Channel_data[CH4+n]<CHANNEL_MIN_COMMAND) val |= 0x08;
 			packet[4]= val;
-
-			packet_count++;
 		}
 	}
 
@@ -101,7 +102,7 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 
 static void __attribute__((unused)) MOULDKG_initialize_txid()
 {
-	rx_tx_addr[0] = rx_tx_addr[3];	// Use RX_num;
+	//rx_tx_addr[0] = rx_tx_addr[3];	// Use RX_num;
 
 	#ifdef FORCE_MOULDKG_ORIGINAL_ID
 		rx_tx_addr[0]=0x57;
@@ -119,6 +120,8 @@ static void __attribute__((unused)) MOULDKG_RF_init()
 
 uint16_t MOULDKG_callback()
 {
+	uint8_t rf,n;
+	uint16_t addr;
 	switch(phase)
 	{
 		case MOULDKG_BINDTX:
@@ -134,17 +137,18 @@ uint16_t MOULDKG_callback()
 				//Not sure if I should test packet_in[0]
 				if(memcmp(&packet_in[1],&packet[1],3)==0)
 				{//TX ID match
-					//Use RX ID as address
-					XN297_SetTXAddr(&packet_in[4], 3);
-					//Calculate frequencies based on RX ID
-					hopping_frequency[0] = 0x0C + (packet_in[4] & 0x0F);
-					hopping_frequency[1] = 0x1C + (packet_in[4] >> 4);
-					hopping_frequency[2] = 0x2C + (packet_in[5] & 0x0F);
-					hopping_frequency[3] = 0x3C + (packet_in[5] >> 4);
-					//Switch to normal mode
-					BIND_DONE;
-					XN297_SetTxRxMode(TXRX_OFF);
-					phase = MOULDKG_DATA;
+					if(option == 0)
+					{
+						memcpy(MOULDKG_RX_id,&packet_in[4],3);
+						phase = MOULDKG_PREP_DATA1;
+					}
+					else
+					{// Store RX ID
+						addr=MOULDKG_EEPROM_OFFSET+RX_num*3;
+						for(uint8_t i=0;i<3;i++)
+							eeprom_write_byte((EE_ADDR)(addr+i),packet_in[4+i]);
+						phase = MOULDKG_PREP_DATA;
+					}
 					break;
 				}
 			}
@@ -162,24 +166,71 @@ uint16_t MOULDKG_callback()
 			XN297_SetTxRxMode(RX_EN);
 			phase = MOULDKG_BINDTX;
 			return MOULDKG_BIND_PACKET_PERIOD-600;
+		case MOULDKG_PREP_DATA:
+			addr=MOULDKG_EEPROM_OFFSET+RX_num*3;
+			debug("RXID: ");
+			for(uint8_t i=0;i<3*4;i++)
+			{ // load 4 consecutive RX IDs
+				MOULDKG_RX_id[i]=eeprom_read_byte((EE_ADDR)(addr+i));
+				debug(" %02X",MOULDKG_RX_id[i]);
+			}
+			debugln("");
+		case MOULDKG_PREP_DATA1:
+			//Switch to normal mode
+			BIND_DONE;
+			XN297_SetTxRxMode(TXRX_OFF);
+			phase = MOULDKG_DATA;
+			break;
 		case MOULDKG_DATA:
 			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(MOULDKG_PACKET_PERIOD);
+				if(num_ch==0)
+					telemetry_set_input_sync(MOULDKG_PACKET_PERIOD);
 			#endif
-			MOULDKG_send_packet();
+			if(option == 0) option++;
+			if(num_ch<option)
+			{
+				//Set RX ID address
+				n = num_ch*3;
+				XN297_SetTXAddr(&MOULDKG_RX_id[n], 3);
+				//Set frequency based on current RX ID and packet number
+				rf = 0x0C;
+				if(packet_count & 0x04)
+				{
+					n++;
+					rf += 0x20;
+				}
+				if(packet_count & 0x02)
+					rf += 0x10 + (MOULDKG_RX_id[n] >> 4);
+				else
+					rf += MOULDKG_RX_id[n] & 0x0F;
+				XN297_RFChannel(rf);
+				#if 1
+					debugln("num_ch=%d,packet_count=%d,rf=%02X,ID=%02X %02X %02X",num_ch,packet_count,rf,MOULDKG_RX_id[num_ch*3],MOULDKG_RX_id[num_ch*3+1],MOULDKG_RX_id[num_ch*3+2]);
+				#endif
+				MOULDKG_send_packet();
+				if(num_ch==0)
+					packet_count++;
+			}
+			num_ch++;
+			num_ch &= 0x03;
 			break;
 	}
-	return MOULDKG_PACKET_PERIOD;
+	return MOULDKG_PACKET_PERIOD/4;
 }
 
 void MOULDKG_init()
 {
-	BIND_IN_PROGRESS;	// autobind protocol
+	if(option == 0)
+		BIND_IN_PROGRESS;
 	MOULDKG_initialize_txid();
 	MOULDKG_RF_init();
 	bind_counter = MOULDKG_BIND_COUNT;
-	phase = MOULDKG_BINDTX;
+	if(IS_BIND_IN_PROGRESS)
+		phase = MOULDKG_BINDTX;
+	else
+		phase = MOULDKG_PREP_DATA;
 	packet_count = 0;
+	num_ch = 0;
 }
 
 #endif

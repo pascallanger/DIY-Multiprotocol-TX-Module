@@ -1707,17 +1707,31 @@ CH16| CH8 | -100% | 0% | - | - | -
 ## MouldKg - *90*
 Mould King 2.4GHz TX: Technic Brick models
 
+Up to 4 bricks can be controlled at the same time.
+
+Option field | Value
+-------------|------
+0|The module will act like the original radio which will bind every time and attach to the first brick in bind mode
+1|The module will control the brick number RX_num
+2|The module will control the brick number RX_num and RX_num+1
+3|The module will control the brick number RX_num, RX_num+1 and RX_num+2
+4|The module will control the brick number RX_num, RX_num+1, RX_num+2 and RX_num+3
+
+To associate a brick to a RX number (RX_num above), set this RX number under the protocol, set option to 1, launch a bind and power on the brick you want to control. Repeat this for every brick using a different RX number each time and then indicate the number of bricks to be comtrolled using the Option field.
+
+Example: I want to control 2 bricks. I select RX number 1, set option to 1 and launch a bind on the first brick. I select RX number 2, set option to 1 and launch a bind on the second brick. Now to control both bricks I set RX number to 1, option to 2. Therefore brick1 will react to channels CH1 to CH4 and brick2 to channel CH5 to CH8.
+
 ### Sub_protocol Analog - *0*
 
-CH1|CH2|CH3|CH4
----|---|---|---
-A|B|C|D
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+Brick1_A|Brick1_B|Brick1_C|Brick1_D|Brick2_A|Brick2_B|Brick2_C|Brick2_D|Brick3_A|Brick3_B|Brick3_C|Brick3_D|Brick4_A|Brick4_B|Brick4_C|Brick4_D
 
 ### Sub_protocol Digit - *1*
 
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|B|C|D|E|F
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+Brick1_A|Brick1_B|Brick1_C|Brick1_D|Brick2_A|Brick2_B|Brick2_C|Brick2_D|Brick3_A|Brick3_B|Brick3_C|Brick3_D|Brick4_A|Brick4_B|Brick4_C|Brick4_D
 
 ## NCC1701 - *44*
 Model: Air Hogs Star Trek USS Enterprise NCC-1701-A

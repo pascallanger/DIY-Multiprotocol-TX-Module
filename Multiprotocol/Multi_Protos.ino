@@ -367,7 +367,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_MLINK,      STR_MLINK,     NO_SUBTYPE,            0, OPTION_NONE,    1, 0, SW_CYRF,   MLINK_init,      MLINK_callback      },
 	#endif
 	#if defined(MOULDKG_NRF24L01_INO)
-		{PROTO_MOULDKG,    STR_MOULDKG,   STR_SUBTYPE_MOULKG,    2, OPTION_NONE,    0, 0, SW_NRF,    MOULDKG_init,    MOULDKG_callback    },
+		{PROTO_MOULDKG,    STR_MOULDKG,   STR_SUBTYPE_MOULKG,    2, OPTION_OPTION,  0, 0, SW_NRF,    MOULDKG_init,    MOULDKG_callback    },
 	#endif
 	#if defined(MT99XX_CCNRF_INO)
 		{PROTO_MT99XX,     STR_MT99XX,    STR_SUBTYPE_MT99,      7, OPTION_NONE,    0, 0, SW_NRF,    MT99XX_init,     MT99XX_callback     },

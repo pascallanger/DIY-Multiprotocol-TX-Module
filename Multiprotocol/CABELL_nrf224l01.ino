@@ -190,7 +190,9 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 		}
 		TxPacket.option = (bindMode) ? (option & (~CABELL_OPTION_MASK_CHANNEL_REDUCTION)) : option;		//remove channel reduction if in bind mode
 	}
-	TxPacket.reserved = 0;
+ 
+	rf_ch_num = CABELL_getNextChannel (hopping_frequency,CABELL_RADIO_CHANNELS, rf_ch_num);
+	TxPacket.reserved = rf_ch_num & 0x3F;
 	TxPacket.modelNum = RX_num;
 	uint16_t checkSum = TxPacket.modelNum + TxPacket.option + TxPacket.RxMode  + TxPacket.reserved;		// Start Calculate checksum
 
@@ -244,7 +246,6 @@ static void __attribute__((unused)) CABELL_send_packet(uint8_t bindMode)
 	TxPacket.checkSum_LSB = checkSum & 0x00FF;
 
 	// Set channel for next transmission
-	rf_ch_num = CABELL_getNextChannel (hopping_frequency,CABELL_RADIO_CHANNELS, rf_ch_num);
 	NRF24L01_WriteReg(NRF24L01_05_RF_CH,rf_ch_num); 
 
 	//NRF24L01_FlushTx();   //just in case things got hung up

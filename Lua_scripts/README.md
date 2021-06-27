@@ -17,6 +17,8 @@ If you like this project and want to support further development please consider
 
 Enables to modify on a Multi module the Global ID, Cyrf ID or format the EEPROM.
 
+Matching the ID of 2 Multi modules enable them to control the same receivers without rebinding. Be carefull the 2 modules should not be used at the same time unless you know what you are doing.
+
 Notes:
 - Supported from Multi v1.3.2.85 or above and OpenTX 2.3.12 or above
 - The Multi module to be configured must be active, if there is a second Multi module in the radio it must be off

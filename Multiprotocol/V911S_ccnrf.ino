@@ -30,7 +30,7 @@
 
 // flags going to packet[1]
 #define	V911S_FLAG_EXPERT	0x04
-#define	E119_FLAG_EXPERT	0x08
+#define	E119_FLAG_EXPERT	0x08	//0x00 low, 0x08 high
 #define	E119_FLAG_CALIB		0x40
 // flags going to packet[2]
 #define	V911S_FLAG_CALIB	0x01
@@ -66,12 +66,12 @@ static void __attribute__((unused)) V911S_send_packet()
 		memset(packet+1, 0x00, V911S_PACKET_SIZE - 1);
 		if(sub_protocol==V911S_STD)
 		{
-			packet[ 1]=V911S_FLAG_EXPERT;					// short press on left button
+			packet[ 1]=GET_FLAG(!CH6_SW,V911S_FLAG_EXPERT);	// short press on left button
 			packet[ 2]=GET_FLAG(CH5_SW,V911S_FLAG_CALIB);	// long  press on right button
 		}
 		else
-			packet[ 1]=E119_FLAG_EXPERT						// short  press on left button
-					  |GET_FLAG(CH5_SW,E119_FLAG_CALIB);	// short  press on right button
+			packet[ 1]=GET_FLAG(!CH6_SW,E119_FLAG_EXPERT)	// short  press on left button
+					  |GET_FLAG( CH5_SW,E119_FLAG_CALIB);	// short  press on right button
 			
 		//packet[3..6]=trims TAER signed
 		uint16_t ch=convert_channel_16b_limit(THROTTLE ,0,0x7FF);

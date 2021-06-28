@@ -1265,15 +1265,17 @@ MODE: -100% level, +100% acro
 
 ## V911S - *46*
 
-CH1|CH2|CH3|CH4|CH5
----|---|---|---|---
-A|E|T|R|CALIB
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|CALIB|RATE
+
+Rate: -100% High, +100% Low
 
 ### Sub_protocol V911S - *0*
 Models: WLtoys V911S, XK A110
 
 ### Sub_protocol E119 - *1*
-Models: Eachine E119
+Models: Eachine E119, JJRC W01-J3
 
 ## XK - *62*
 

@@ -53,7 +53,7 @@ const uint16_t xn297_crc_xorout_enhanced[] = {
     0xABFC, 0xE68E, 0x0DE7, 0x28A2, 0x1965 };
 #endif
 
-static bool __attribute__((unused)) XN297_Configure(bool crc_en, bool scramble_en, bool bitrate)
+static bool __attribute__((unused)) XN297_Configure(bool crc_en, bool scramble_en, bool bitrate, bool force_nrf)
 {
 	xn297_crc = crc_en;
 	xn297_scramble_enabled = scramble_en;
@@ -61,7 +61,7 @@ static bool __attribute__((unused)) XN297_Configure(bool crc_en, bool scramble_e
 	xn297_rf = XN297_NRF;
 	
 	#if defined(NRF24L01_INSTALLED) and defined(CC2500_INSTALLED)
-		if(bitrate == XN297_1M)
+		if(bitrate == XN297_1M || force_nrf)
 			xn297_rf = XN297_NRF;		// Use NRF24L01
 		else
 			xn297_rf = XN297_CC2500;	// Use CC2500

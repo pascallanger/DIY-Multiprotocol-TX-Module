@@ -119,29 +119,34 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 	}
 
 	//Try enhanced payload
-	crc = 0xb5d2;
+	uint16_t crc_save = 0xb5d2;
 	packet_length=0;
-	for (uint8_t i = 0; i < XN297DUMP_MAX_PACKET_LEN-XN297DUMP_CRC_LENGTH; i++)
+	for (uint8_t i = 0; i < XN297DUMP_MAX_PACKET_LEN-XN297DUMP_CRC_LENGTH; i++) 
 	{
 		packet_sc[i]=packet[i]^xn297_scramble[i];
+		crc = crc_save;
 		crc16_update( packet[i], 8);
+		crc_save = crc;
 		crc16_update( packet[i+1] & 0xC0, 2);
 		crcxored=(packet[i+1]<<10)|(packet[i+2]<<2)|(packet[i+3]>>6) ;
-		if((crc ^ pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[i - 3])) == crcxored)
-		{ // Found a valid CRC for the enhanced payload mode
-			packet_length=i;
-			scramble=true;
-			i++;
-			packet_sc[i]=packet[i]^xn297_scramble[i];
-			memcpy(packet_un,packet_sc,packet_length+2); // unscramble packet
-			break;
-		}
-		if((crc ^ pgm_read_word(&xn297_crc_xorout_enhanced[i - 3])) == crcxored)
-		{ // Found a valid CRC for the enhanced payload mode
-			packet_length=i;
-			scramble=false;
-			memcpy(packet_un,packet,packet_length+2); 	// packet is unscrambled
-			break;
+		if(i>=3)
+		{
+			if((crc ^ pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[i - 3])) == crcxored)
+			{ // Found a valid CRC for the enhanced payload mode
+				packet_length=i;
+				scramble=true;
+				i++;
+				packet_sc[i]=packet[i]^xn297_scramble[i];
+				memcpy(packet_un,packet_sc,packet_length+2); // unscramble packet
+				break;
+			}
+			if((crc ^ pgm_read_word(&xn297_crc_xorout_enhanced[i - 3])) == crcxored)
+			{ // Found a valid CRC for the enhanced payload mode
+				packet_length=i;
+				scramble=false;
+				memcpy(packet_un,packet,packet_length+2); 	// packet is unscrambled
+				break;
+			}
 		}
 	}
 	if(packet_length!=0)
@@ -324,7 +329,7 @@ static uint16_t XN297Dump_callback()
 								switch(bitrate)
 								{
 									case XN297DUMP_250K:
-										XN297_Configure(XN297_CRCEN, scramble?XN297_SCRAMBLED:XN297_UNSCRAMBLED, XN297_250K);
+										XN297_Configure(XN297_CRCEN, scramble?XN297_SCRAMBLED:XN297_UNSCRAMBLED, XN297_250K, true);
 										debug("250K");
 										break;
 									case XN297DUMP_2M:

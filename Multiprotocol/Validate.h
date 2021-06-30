@@ -334,6 +334,11 @@
 	#undef	XK_CCNRF_INO
 #endif
 #if not defined(STM32_BOARD)
+	//RF2500 emulation does not work on atmega...
+	#undef	E010R5_CYRF6936_INO
+	#undef	E129_CYRF6936_INO
+#endif
+#if not defined(STM32_BOARD)
 	#undef SX1276_INSTALLED
 #endif
 #ifndef SX1276_INSTALLED

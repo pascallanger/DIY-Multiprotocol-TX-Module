@@ -110,7 +110,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|||||||||CYRF6936|
 [JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345|SkyTmblr|||||||NRF24L01|XN297
 [JOYSWAY](Protocols_Details.md#JOYSWAY---84)|84|||||||||NRF24L01|XN297
-[KF606](Protocols_Details.md#KF606---49)|49|||||||||NRF24L01|XN297
+[KF606](Protocols_Details.md#KF606---49)|49|KF606|MIG320|||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
 [LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
@@ -1008,11 +1008,16 @@ First generation of GD models, ZC-Z50
 New generation of GD models
 
 ## KF606 - *49*
-Model: KF606
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A||T||TRIM
+
+### Sub_protocol KF606 - *0*
+Model: KF606
+
+### Sub_protocol MIG320 - *1*
+Model: Zhiyang MIG-320
 
 ## MJXQ - *18*
 Autobind protocol

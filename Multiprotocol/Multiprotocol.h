@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	87
+#define VERSION_PATCH_LEVEL	88
 
 #define MODE_SERIAL 0
 
@@ -443,6 +443,12 @@ enum MOULDKG
 {
 	MOULDKG_ANALOG	= 0,
 	MOULDKG_DIGIT	= 1,
+};
+
+enum KF606
+{
+	KF606_KF606		= 0,
+	KF606_MIG320	= 1,
 };
 
 #define NONE 		0

@@ -3,23 +3,23 @@
 source ./buildroot/bin/buildFunctions;
 exitcode=0;
 
-printf "\e[33;1mBuilding multi-t18int-aetr-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-t18int-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_disable ENABLE_PPM;
 opt_disable INVERT_TELEMETRY;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-aetr-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-t18int-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-t18int-taer-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-taer-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-t18int-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-t18int-reta-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-t18int-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-reta-v$MULTI_VERSION.bin;
 
 exit $exitcode;

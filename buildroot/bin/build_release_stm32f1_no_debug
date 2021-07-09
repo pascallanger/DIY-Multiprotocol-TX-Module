@@ -4,68 +4,68 @@ source ./buildroot/bin/buildFunctions;
 exitcode=0;
 
 # Generic 4-in-1 builds
-printf "\e[33;1mBuilding multi-stm-serial-aetr-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-serial-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_disable ENABLE_PPM;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-serial-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-aetr-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-stm-serial-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-serial-taer-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-serial-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-taer-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-stm-serial-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-serial-reta-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-serial-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-reta-v$MULTI_VERSION.bin;
 
 # DIY 5-in-1 builds
-printf "\e[33;1mBuilding multi-stm-5in1-aetr-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-5in1-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace RETA AETR;
 opt_enable SX1276_INSTALLED;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-5in1-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-aetr-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-stm-5in1-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-5in1-taer-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-5in1-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-taer-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-stm-5in1-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-5in1-reta-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-5in1-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-reta-v$MULTI_VERSION.bin;
 
 # T-Lite 5-in-1 builds
-printf "\e[33;1mBuilding multi-tlite5in1-aetr-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-tlite5in1-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace RETA AETR;
 opt_disable INVERT_TELEMETRY;
 opt_disable SX1276_INSTALLED;
 opt_enable "MULTI_5IN1_INTERNAL JP_TLite"
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-tlite5in1-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-aetr-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-tlite5in1-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-tlite5in1-taer-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-tlite5in1-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-taer-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-tlite5in1-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-tlite5in1-reta-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-tlite5in1-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-reta-v$MULTI_VERSION.bin;
 
 # CC2500-only builds
-printf "\e[33;1mBuilding multi-stm-cc2500-aetr-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-cc2500-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace RETA AETR;
 opt_disable "MULTI_5IN1_INTERNAL JP_TLite"
 opt_disable A7105_INSTALLED;
@@ -74,22 +74,22 @@ opt_disable NRF24L01_INSTALLED;
 opt_disable INVERT_TELEMETRY;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-cc2500-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-cc2500-aetr-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-stm-cc2500-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-cc2500-taer-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-cc2500-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-cc2500-taer-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-stm-cc2500-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-cc2500-reta-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-cc2500-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-cc2500-reta-v$MULTI_VERSION.bin;
 
 # 4-in-1 PPM builds
-printf "\e[33;1mBuilding multi-stm-ppm-aetr-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-ppm-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_enable A7105_INSTALLED;
 opt_enable CYRF6936_INSTALLED;
 opt_enable NRF24L01_INSTALLED;
@@ -101,18 +101,18 @@ opt_disable MULTI_TELEMETRY;
 opt_set NBR_BANKS 5;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-ppm-aetr-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-stm-ppm-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-ppm-taer-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-ppm-taer-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding multi-stm-ppm-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-ppm-reta-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-ppm-reta-v$MULTI_VERSION.bin; 
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-ppm-reta-v$MULTI_VERSION.bin; 
 
 exit $exitcode;

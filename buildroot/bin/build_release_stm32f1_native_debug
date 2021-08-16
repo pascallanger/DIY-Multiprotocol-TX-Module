@@ -3,11 +3,11 @@
 source ./buildroot/bin/buildFunctions;
 exitcode=0;
 
-printf "\e[33;1mBuilding multi-stm-xn297dump-usbdebug-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-xn297dump-usbdebug-v$MULTI_VERSION.bin\e[0m\n";
 opt_disable $ALL_PROTOCOLS;
 opt_add XN297DUMP_NRF24L01_INO;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/multi-stm-xn297dump-usbdebug-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-xn297dump-usbdebug-v$MULTI_VERSION.bin;
 
 exit $exitcode;

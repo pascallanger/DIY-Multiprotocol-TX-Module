@@ -247,10 +247,9 @@ uint16_t DSM_RX_callback()
 							eeprom_write_byte((EE_ADDR)temp++, cyrfmfg_id[i]);
 							debug(" %02X", cyrfmfg_id[i]);
 						}
-						// check num_ch
+						// save num_ch
 						num_ch=packet_in[11];
-						if(num_ch>12) num_ch=12;
-						//check DSM_rx_type
+						// store DSM_rx_type
 						/*packet[12]     1 byte -> max DSM type allowed:
 							0x01 => 22ms 1024 DSM2 1 packet => number of channels is <8
 							0x02 => 22ms 1024 DSM2 2 packets => either a number of channel >7
@@ -262,22 +261,6 @@ uint16_t DSM_RX_callback()
 							&0xF0 => false=1024, true=2048 */
 						DSM_rx_type=packet_in[12];
 						debugln(", num_ch=%d, type=%02X",num_ch, DSM_rx_type);
-						switch(DSM_rx_type)
-						{
-							case 0x01:
-								if(num_ch>7) DSM_rx_type = 0x02;	// Can't be 0x01 with this number of channels
-								break;
-							case 0xA2:
-								if(num_ch>7) DSM_rx_type = 0xB2;	// Can't be 0xA2 with this number of channels
-								break;
-							case 0x02:
-							case 0x12:
-							case 0xB2:
-								break;
-							default:								// Unknown type, default to DSMX 11ms
-								DSM_rx_type = 0xB2;
-								break;
-						}
 						eeprom_write_byte((EE_ADDR)temp, DSM_rx_type);
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);	// Abort RX operation
 						CYRF_SetTxRxMode(TX_EN);					// Force end state TX

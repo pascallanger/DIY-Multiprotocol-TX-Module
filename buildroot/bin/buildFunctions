@@ -98,6 +98,8 @@ buildReleaseFiles(){
         build_release_stm32f1_serial_debug;
     elif [[ "$BOARD" == "multi4in1:STM32F1:multi5in1t18int" ]]; then
         build_release_stm32f1_t18int;
+    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c8:debug_option=none" ]]; then
+        build_release_stm32f1_64k;
     else
       printf "No release files for this board.";
     fi

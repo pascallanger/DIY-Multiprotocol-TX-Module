@@ -258,6 +258,26 @@ static uint16_t XN297Dump_callback()
 							debug(" %02X",packet[i]);
 						}
 						debugln("");
+				/*******/
+						packet_sent++;
+						//if(packet_sent==0)
+						{
+							delayMicroseconds(3000);
+							debug("TX");
+							memcpy(packet,(uint8_t *)"\x11\x1A\x35\x43\x01\x00\x00\x00\x00\x1A",10);
+							//memcpy(packet,(uint8_t *)"\x10\x00\x35\x43\x01\x00\x00\x00\x00\x1A",10);
+							XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
+							XN297_SetTXAddr((uint8_t *)"\x56\x06\x23\x00\x13", 5);			// Bind address
+							XN297_SetTxRxMode(TXRX_OFF);
+							XN297_SetTxRxMode(TX_EN);
+							XN297_WriteEnhancedPayload(packet, 0, 0);
+							delayMicroseconds(1000);
+							XN297_WriteEnhancedPayload(packet, 10, 0);
+							delayMicroseconds(1000);
+							NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);			// 3 bytes RX/TX address
+							NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x55\x0F\x71", 3);	// set up RX address to xn297 preamble
+						}
+				/*******/
 					}
 					else
 					{
@@ -431,9 +451,12 @@ static uint16_t XN297Dump_callback()
 					{ // RX fifo data ready
 						//	if(NRF24L01_ReadReg(NRF24L01_09_CD))
 						{
-							boolean res;
+							uint8_t res;
 							if(enhanced)
+							{
 								res=XN297_ReadEnhancedPayload(packet, packet_length);
+								res++;
+							}
 							else
 								res=XN297_ReadPayload(packet, packet_length);
 							if(res)
@@ -526,9 +549,12 @@ static uint16_t XN297Dump_callback()
 					{ // RX fifo data ready
 						//if(NRF24L01_ReadReg(NRF24L01_09_CD))
 						{
-							boolean res;
+							uint8_t res;
 							if(enhanced)
+							{
 								res=XN297_ReadEnhancedPayload(packet, packet_length);
+								res++;
+							}
 							else
 								res=XN297_ReadPayload(packet, packet_length);
 							if(res)
@@ -572,9 +598,12 @@ static uint16_t XN297Dump_callback()
 					{ // RX fifo data ready
 						//if(NRF24L01_ReadReg(NRF24L01_09_CD))
 						{
-							boolean res;
+							uint8_t res;
 							if(enhanced)
+							{
 								res=XN297_ReadEnhancedPayload(packet, packet_length);
+								res++;
+							}
 							else
 								res=XN297_ReadPayload(packet, packet_length);
 							if(res)

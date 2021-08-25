@@ -292,7 +292,7 @@ static void __attribute__((unused)) XN297_WriteEnhancedPayload(uint8_t* msg, uin
 	uint8_t last = 0;
 	static uint8_t pid=0;
 
-	if (xn297_rf == XN297_NRF && xn297_addr_len < 4 && xn297_rf == XN297_NRF)
+	if (xn297_rf == XN297_NRF && xn297_addr_len < 4)
 	{ // If address length (which is defined by receiver address length) is less than 4 the TX address can't fit the preamble, so the last byte goes here
 		buf[last++] = 0x55;
 	}
@@ -314,22 +314,25 @@ static void __attribute__((unused)) XN297_WriteEnhancedPayload(uint8_t* msg, uin
 	buf[last] = (pid << 7) | (noack << 6);
 
 	// payload
-	buf[last]|= bit_reverse(msg[0]) >> 2; // first 6 bit of payload
-	if(xn297_scramble_enabled)
-		buf[last] ^= xn297_scramble[scramble_index++];
-
-	for (uint8_t i = 0; i < len-1; ++i)
+	if(len)
 	{
-		last++;
-		buf[last] = (bit_reverse(msg[i]) << 6) | (bit_reverse(msg[i+1]) >> 2);
+		buf[last]|= bit_reverse(msg[0]) >> 2; // first 6 bit of payload
 		if(xn297_scramble_enabled)
 			buf[last] ^= xn297_scramble[scramble_index++];
-	}
 
-	last++;
-	buf[last] = bit_reverse(msg[len-1]) << 6; // last 2 bit of payload
-	if(xn297_scramble_enabled)
-		buf[last] ^= xn297_scramble[scramble_index++] & 0xc0;
+		for (uint8_t i = 0; i < len-1; ++i)
+		{
+			last++;
+			buf[last] = (bit_reverse(msg[i]) << 6) | (bit_reverse(msg[i+1]) >> 2);
+			if(xn297_scramble_enabled)
+				buf[last] ^= xn297_scramble[scramble_index++];
+		}
+
+		last++;
+		buf[last] = bit_reverse(msg[len-1]) << 6; // last 2 bit of payload
+		if(xn297_scramble_enabled)
+			buf[last] ^= xn297_scramble[scramble_index++] & 0xc0;
+	}
 
 	// crc
 	if (xn297_crc)
@@ -444,7 +447,9 @@ static uint8_t __attribute__((unused)) XN297_ReadEnhancedPayload(uint8_t* msg, u
 	if(xn297_scramble_enabled)
 		pcf_size ^= xn297_scramble[xn297_addr_len];
 	pcf_size = pcf_size >> 1;
-	for(int i=0; i<len; i++)
+	if(pcf_size>32)
+		return 255;								// Error
+	for(int i=0; i< pcf_size; i++)
 	{
 		msg[i] = bit_reverse((buffer[i+1] << 2) | (buffer[i+2] >> 6));
 		if(xn297_scramble_enabled)
@@ -461,20 +466,20 @@ static uint8_t __attribute__((unused)) XN297_ReadEnhancedPayload(uint8_t* msg, u
 	for (uint8_t i = 0; i < xn297_addr_len; ++i)
 		crc16_update( xn297_rx_addr[xn297_addr_len-i-1], 8);
 	//process payload
-	for (uint8_t i = 0; i < len+1; ++i)
+	for (uint8_t i = 0; i < pcf_size+1; ++i)
 		crc16_update( buffer[i], 8);
-	crc16_update( buffer[len+1] & 0xc0, 2);
+	crc16_update( buffer[pcf_size+1] & 0xc0, 2);
 	//xorout
 	if (xn297_scramble_enabled)
-		crc ^= pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[xn297_addr_len-3+len]);
+		crc ^= pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[xn297_addr_len-3+pcf_size]);
 #ifdef XN297DUMP_NRF24L01_INO
 	else
-		crc ^= pgm_read_word(&xn297_crc_xorout_enhanced[xn297_addr_len - 3 + len]);
+		crc ^= pgm_read_word(&xn297_crc_xorout_enhanced[xn297_addr_len - 3 + pcf_size]);
 #endif
-	uint16_t crcxored=(buffer[len+1]<<10)|(buffer[len+2]<<2)|(buffer[len+3]>>6) ;
+	uint16_t crcxored=(buffer[pcf_size+1]<<10)|(buffer[pcf_size+2]<<2)|(buffer[pcf_size+3]>>6) ;
 	if( crc == crcxored)
-		return pcf_size;						// CRC  OK
-	return 0;									// CRC NOK
+		return pcf_size;					// CRC  OK
+	return 255;								// CRC NOK
 }
  
 static bool __attribute__((unused)) XN297_IsPacketSent()

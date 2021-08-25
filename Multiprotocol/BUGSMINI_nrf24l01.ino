@@ -147,7 +147,7 @@ static void __attribute__((unused)) BUGSMINI_send_packet()
 		hopping_frequency_no++;
 		if(hopping_frequency_no >= BUGSMINI_NUM_RF_CHANNELS)
 			hopping_frequency_no = 0;
-		XN297_Hopping(IS_BIND_IN_PROGRESS ? hopping_frequency[hopping_frequency_no+BUGSMINI_NUM_RF_CHANNELS] : hopping_frequency[hopping_frequency_no]);
+		XN297_Hopping(IS_BIND_IN_PROGRESS ? hopping_frequency_no+BUGSMINI_NUM_RF_CHANNELS : hopping_frequency_no);
 	}
 
 	// Send

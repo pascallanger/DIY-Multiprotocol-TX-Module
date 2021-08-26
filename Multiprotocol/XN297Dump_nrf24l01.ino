@@ -259,6 +259,7 @@ static uint16_t XN297Dump_callback()
 						}
 						debugln("");
 				/*******/
+						#ifdef XERALL
 						packet_sent++;
 						//if(packet_sent==0)
 						{
@@ -277,6 +278,7 @@ static uint16_t XN297Dump_callback()
 							NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, 0x01);			// 3 bytes RX/TX address
 							NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, (uint8_t*)"\x55\x0F\x71", 3);	// set up RX address to xn297 preamble
 						}
+						#endif
 				/*******/
 					}
 					else

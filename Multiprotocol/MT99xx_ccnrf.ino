@@ -32,7 +32,7 @@
 
 //#define FORCE_A180_ID
 //#define FORCE_DRAGON_ID
-#define FORCE_F949G_ID
+//#define FORCE_F949G_ID
 
 enum {
     MT99XX_DATA,
@@ -287,7 +287,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 
 static void __attribute__((unused)) MT99XX_RF_init()
 {
-    if(sub_protocol == YZ)
+    if(sub_protocol == YZ || sub_protocol == F949G)
 		XN297_Configure(XN297_CRCEN, XN297_UNSCRAMBLED, XN297_250K);
 	else
 		XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);

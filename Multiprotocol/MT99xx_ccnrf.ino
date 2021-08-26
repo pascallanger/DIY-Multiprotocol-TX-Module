@@ -32,7 +32,7 @@
 
 //#define FORCE_A180_ID
 //#define FORCE_DRAGON_ID
-//#define FORCE_F949G_ID
+#define FORCE_F949G_ID
 
 enum {
     MT99XX_DATA,

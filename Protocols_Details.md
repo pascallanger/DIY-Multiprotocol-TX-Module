@@ -1117,6 +1117,13 @@ A|E|T|R|MODE|RTH
 
 MODE: -100%=Beginner, 0%=Intermediate, +100%=Advanced
 
+### Sub_protocol F949G - *7*
+Model: F949G
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|6G3D|Light
+
 ## OMP - *77*
 Model: OMPHOBBY M1 & M2 Helis, T720 RC Glider
 

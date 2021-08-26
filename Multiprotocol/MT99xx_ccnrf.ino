@@ -26,11 +26,13 @@
 #define MT99XX_PACKET_PERIOD_A180	3400	// timing changes between the packets 2 x 27220 then 1x 26080, it seems that it is only on the first RF channel which jitters by 1.14ms but hard to pinpoint with XN297dump
 #define MT99XX_PACKET_PERIOD_DRAGON	1038	// there is a pause of 2x1038 between two packets, no idea why and how since it is not even stable on a same dump...
 #define MT99XX_PACKET_PERIOD_DRAGON_TELEM	10265	// long pause to receive the telemetry packets, 3 are sent by the RX one after the other
+#define MT99XX_PACKET_PERIOD_F949G	3450
 #define MT99XX_INITIAL_WAIT			500
 #define MT99XX_PACKET_SIZE			9
 
 //#define FORCE_A180_ID
 //#define FORCE_DRAGON_ID
+//#define FORCE_F949G_ID
 
 enum {
     MT99XX_DATA,
@@ -73,6 +75,12 @@ enum{
     FLAG_DRAGON_RATE	= 0x01,
     FLAG_DRAGON_RTH		= 0x80,
     FLAG_DRAGON_UNK		= 0x04,
+};
+
+enum{
+    // flags going to packet[6] (F949G)
+    FLAG_F949G_LIGHT	= 0x01,
+    FLAG_F949G_3D6G		= 0x20,
 };
 
 const uint8_t h7_mys_byte[] = {
@@ -120,9 +128,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 				packet[2] = 0x12;
 				packet[3] = 0x17;
 				break;
+			case F949G:
 			case A180:
 				packet_period = MT99XX_PACKET_PERIOD_A180;
-			default:	// MT99 & H7 & A180 & DRAGON
+			default:	// MT99 & H7 & A180 & DRAGON & F949G
 				packet[1] = 0x14;
 				packet[2] = 0x03;
 				packet[3] = 0x25;
@@ -132,12 +141,15 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		packet[5] = rx_tx_addr[1];
 		packet[6] = rx_tx_addr[2];
 		packet[7] = crc8;												// checksum offset
-		packet[8] = 0xAA;												// fixed
+		if(sub_protocol != F949G)
+			packet[8] = 0xAA;											// fixed
+		else
+			packet[8] = 0x00;
 	}
 	else
 	{
 		if(sub_protocol != YZ)
-		{ // MT99XX & H7 & LS & FY805 & A180 & DRAGON
+		{ // MT99XX & H7 & LS & FY805 & A180 & DRAGON & F949G
 			packet[0] = convert_channel_16b_limit(THROTTLE,0xE1,0x00);	// throttle
 			packet[1] = convert_channel_16b_limit(RUDDER  ,0x00,0xE1);	// rudder
 			packet[2] = convert_channel_16b_limit(AILERON ,0xE1,0x00);	// aileron
@@ -212,6 +224,12 @@ static void __attribute__((unused)) MT99XX_send_packet()
 						packet[7] = 0x20;
 					#endif
 					break;
+				case F949G:
+					packet[6] = 0x02
+							  | GET_FLAG( CH5_SW, FLAG_F949G_3D6G )
+							  | GET_FLAG( CH6_SW, FLAG_F949G_LIGHT );
+					packet[7] = 0x00;
+					break;
 			}
 			uint8_t result=crc8;
 			for(uint8_t i=0; i<8; i++)
@@ -251,11 +269,11 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	else
 		if(sub_protocol==FY805)
 			XN297_RFChannel(0x4B); // FY805 always transmits on the same channel
-		else // MT99 & H7 & YZ & A180 & DRAGON
+		else // MT99 & H7 & YZ & A180 & DRAGON & F949G
 			XN297_Hopping(hopping_frequency_no);
 
 	hopping_frequency_no++;
-	if(sub_protocol == YZ || sub_protocol == A180 || sub_protocol == DRAGON )
+	if(sub_protocol == YZ || sub_protocol == A180 || sub_protocol == DRAGON || sub_protocol == F949G)
 		hopping_frequency_no++; // skip every other channel
 	if(hopping_frequency_no > 15)
 		hopping_frequency_no = 0;
@@ -318,7 +336,16 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 			//channel_offset  = 0x06
 			break;
 	#endif
-		default: //MT99 & H7 & A180 & DRAGON
+	#ifdef FORCE_F949G_ID
+		case F949G:
+			rx_tx_addr[0] = 0x7E;	// LilTeo14 ID
+			rx_tx_addr[1] = 0x2F;
+			rx_tx_addr[2] = 0x29;
+			//crc8 = 0xD6
+			//channel_offset  = 0x03
+			break;
+	#endif
+		default: //MT99 & H7 & A180 & DRAGON & F949G
 			rx_tx_addr[2] = 0x00;
 			break;
 	}
@@ -409,7 +436,7 @@ uint16_t MT99XX_callback()
 
 void MT99XX_init(void)
 {
-	if(sub_protocol != A180 && sub_protocol != DRAGON)
+	if(sub_protocol != A180 && sub_protocol != DRAGON && sub_protocol != F949G)
 		BIND_IN_PROGRESS;	// autobind protocol
     bind_counter = MT99XX_BIND_COUNT;
 

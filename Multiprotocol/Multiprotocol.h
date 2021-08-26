@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	89
+#define VERSION_PATCH_LEVEL	91
 
 #define MODE_SERIAL 0
 
@@ -117,6 +117,7 @@ enum PROTOCOLS
 	PROTO_WILLIFM	= 88,	// 27/35ab/40/41/72 MHz module external project
 	PROTO_LOSI		= 89,	// =>CYRF6936
 	PROTO_MOULDKG	= 90,	// =>NRF24L01
+	PROTO_XERALL	= 91,	// =>NRF24L01
 
 	PROTO_NANORF	= 126,	// =>NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -230,6 +231,7 @@ enum MT99XX
 	FY805	= 4,
 	A180	= 5,
 	DRAGON	= 6,
+	F949G	= 7,
 };
 enum MJXQ
 {
@@ -921,6 +923,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				E129		83
 				JOYSWAY		84
 				E016H		85
+				XERALL		91
    BindBit=>		0x80	1=Bind/0=No
    AutoBindBit=>	0x40	1=Yes /0=No
    RangeCheck=>		0x20	1=Yes /0=No

@@ -288,8 +288,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 
 static void __attribute__((unused)) MT99XX_RF_init()
 {
-    if(sub_protocol == YZ || sub_protocol == F949G)
+    if(sub_protocol == YZ)
 		XN297_Configure(XN297_CRCEN, XN297_UNSCRAMBLED, XN297_250K);
+	else if(sub_protocol == F949G)
+		XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K);
 	else
 		XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
     XN297_SetTXAddr((uint8_t *)"\xCC\xCC\xCC\xCC\xCC", 5);

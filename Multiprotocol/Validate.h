@@ -236,8 +236,9 @@
 	#define CC2500_INSTALLED
 	#define NRF24L01_INSTALLED
 	#define SX1276_INSTALLED
-	#undef ENABLE_PPM
-	#undef SEND_CPPM
+	#undef	ENABLE_PPM
+	#undef	SEND_CPPM
+	#undef	IKEAANSLUTA_CC2500_INO
 #endif
 
 //Make sure protocols are selected correctly

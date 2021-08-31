@@ -102,7 +102,7 @@ const char STR_IKEAANSLUTA[]="Ansluta";
 const char STR_CONFIG[]     ="Config";
 const char STR_LOSI[]       ="Losi";
 const char STR_MOULDKG[]    ="MouldKg";
-const char STR_XERALL[]     ="XERALL";
+const char STR_XERALL[]     ="Xerall";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";

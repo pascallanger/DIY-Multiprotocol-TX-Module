@@ -449,7 +449,7 @@ static uint8_t __attribute__((unused)) XN297_ReadEnhancedPayload(uint8_t* msg, u
 	pcf_size = pcf_size >> 1;
 	if(pcf_size>32)
 		return 255;								// Error
-	for(int i=0; i< pcf_size; i++)
+	for(uint8_t i=0; i< pcf_size; i++)
 	{
 		msg[i] = bit_reverse((buffer[i+1] << 2) | (buffer[i+2] >> 6));
 		if(xn297_scramble_enabled)

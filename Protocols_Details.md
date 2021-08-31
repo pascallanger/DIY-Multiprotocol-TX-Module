@@ -144,6 +144,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [WFLY](Protocols_Details.md#WFLY---40)|40|WFR0x||||||||CYRF6936|
 [WFLY2](Protocols_Details.md#WFLY2---79)|79|RF20x||||||||A7105|
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936|
+[XERALL](Protocols_Details.md#XERALL---91)|91|Tank||||||||NRF24L01|XN297
 [XK](Protocols_Details.md#XK---62)|62|X450|X420|||||||NRF24L01|XN297
 [YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01|
 [ZSX](Protocols_Details.md#ZSX---52)|52|280||||||||NRF24L01|XN297
@@ -1917,6 +1918,13 @@ Model: Volantex V761-4+ and Eachine P51-D, F4U, F22 and may be others
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
+
+## XERALL - *91*
+Model: Xerall TankCopter
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|Flight/Ground|Takeoff/Land/Emerg|RATE|HEADLESS|Photo|Video|TrimR|TrimE|TrimA
 
 ## YD717 - *8*
 Autobind protocol

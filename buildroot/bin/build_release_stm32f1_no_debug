@@ -3,6 +3,10 @@
 source ./buildroot/bin/buildFunctions;
 exitcode=0;
 
+# Builds for the DIY 5-in-1 module exceed the 120KB working capacity of the STM32F103CB
+# To work around this we have to disable some protocols in the builds for this module
+DIY_5IN1_DISABLED="MOULDKG_NRF24L01_INO";
+
 # Generic 4-in-1 builds
 printf "\e[33;1mBuilding mm-stm-serial-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_disable ENABLE_PPM;
@@ -25,6 +29,7 @@ mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-reta-v$MULTI_VERSION.bin
 # DIY 5-in-1 builds
 printf "\e[33;1mBuilding mm-stm-5in1-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace RETA AETR;
+opt_disable $DIY_5IN1_DISABLED;
 opt_enable SX1276_INSTALLED;
 buildMulti;
 exitcode=$((exitcode+$?));
@@ -47,6 +52,7 @@ printf "\e[33;1mBuilding mm-tlite5in1-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace RETA AETR;
 opt_disable INVERT_TELEMETRY;
 opt_disable SX1276_INSTALLED;
+opt_enable $DIY_5IN1_DISABLED;
 opt_enable "MULTI_5IN1_INTERNAL JP_TLite"
 buildMulti;
 exitcode=$((exitcode+$?));

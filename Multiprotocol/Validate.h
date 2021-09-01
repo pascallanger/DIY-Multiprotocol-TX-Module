@@ -239,6 +239,7 @@
 	#undef	ENABLE_PPM
 	#undef	SEND_CPPM
 	#undef	IKEAANSLUTA_CC2500_INO
+	#undef	MOULDKG_NRF24L01_INO
 #endif
 
 //Make sure protocols are selected correctly

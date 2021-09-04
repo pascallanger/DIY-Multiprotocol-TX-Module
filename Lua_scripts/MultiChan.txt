@@ -198,4 +198,4 @@
 89,0,LOSI
 90,0,MouldKg,Analog,0
 90,1,MouldKg,Digit,0
-91,0,Xerall,Tank,0,FlGr,TakLan,Rate,HLess,Photo,Video,TrimR,TrimE,TrimA
+91,0,Xerall,Tank,0,FlTa,TakLan,Rate,HLess,Photo,Video,TrimR,TrimE,TrimA

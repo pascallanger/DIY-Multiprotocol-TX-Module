@@ -56,7 +56,7 @@ static void __attribute__((unused)) XERALL_send_packet()
 		if(IS_BIND_IN_PROGRESS)
 		{
 			if(packet_sent > 24)
-			packet_sent=0;			// Hopp after 25 packets
+			packet_sent=0;				// Hopp after 25 packets
 		}
 		else
 		{
@@ -87,15 +87,15 @@ static void __attribute__((unused)) XERALL_send_packet()
 			// Normal packet: 08 32 7C 1C 20 20 20 40 0A 00
 			packet[0] = 0x08;
 			//Throttle
-			packet[1] = convert_channel_16b_limit(THROTTLE ,0,0x32)<<1; //00..64 but only even values
+			packet[1] = convert_channel_16b_limit(THROTTLE ,0,0x32)<<1; 	//00..64 but only even values
 			//Rudder
-			packet[2] = (0xFF-convert_channel_8b(RUDDER))&0xF8;			//F8..00 -> 5 bits
+			packet[2] = (0xFF-convert_channel_8b(RUDDER))&0xF8;				//F8..00 -> 5 bits
 			//Elevator
 			uint8_t ch = convert_channel_8b(ELEVATOR)>>3;
-			packet[2] |= ch>>2;											//00..07 -> 3 bits high
-			packet[3]  = ch<<6;											//00,40,80,C0 -> 2 bits low
+			packet[2] |= ch>>2;												//00..07 -> 3 bits high
+			packet[3]  = ch<<6;												//00,40,80,C0 -> 2 bits low
 			//Aileron
-			packet[3] |= ((0xFF-convert_channel_8b(AILERON))>>3)<<1;	//5 bits
+			packet[3] |= ((0xFF-convert_channel_8b(AILERON))>>3)<<1;		//5 bits
 
 			//Trim Rudder 0x00..0x20..0x3F
 			packet[4] = convert_channel_8b(CH11)>>2;
@@ -129,7 +129,7 @@ static void __attribute__((unused)) XERALL_send_packet()
 	uint8_t sum = 0;
 	for(uint8_t i=1;i<8;i++)
 		sum += packet[i];
-	packet[8] = sum;
+	packet[8] = sum & 0x0F;
 
 	//0x00 -> 0x1A on first telemetry packet received
 	//packet[9] = 0x00;
@@ -236,23 +236,23 @@ uint16_t XERALL_callback()
 							XN297_SetTXAddr(rx_tx_addr, 5);
 						}
 						wait = 0;
-						phase = XERALL_DATA;				// Resume data
+						phase = XERALL_DATA;
 						break;
 					}
-					if(len == XERALL_PACKET_SIZE && packet_in[0] == 0x12)
+					else if(len == XERALL_PACKET_SIZE && packet_in[0] == 0x12)
 					{
 						BIND_DONE;
 						bind_phase = 0;
 						wait = 0;
-						phase = XERALL_DATA;				// Resume data
-						break;
 					}
-					if(len == 0)
+					else if(len == 0)
 						wait = 5;							// The quad wants to talk let's pause sending data...
 				}
-				// switch to RX mode
-				XN297_SetTxRxMode(TXRX_OFF);
-				XN297_SetTxRxMode(RX_EN);
+				if(wait)
+				{ // switch to RX mode
+					XN297_SetTxRxMode(TXRX_OFF);
+					XN297_SetTxRxMode(RX_EN);
+				}
 			}
 			if(wait)
 			{

@@ -1901,8 +1901,11 @@ A|E|T|R|FLIP|LIGHT
 ## V761 - *48*
 
 Gyro: -100%=Beginer mode (Gyro on, yaw and pitch rate limited), 0%=Mid Mode ( Gyro on no rate limits), +100%=Mode Expert Gyro off
+
 Calib: momentary switch, calib will happen one the channel goes from -100% to +100%
+
 Flip: momentary switch: hold flip(+100%), indicate flip direction with Ele or Ail, release flip(-100%)
+
 RTN_ACT and RTN: -100% disable, +100% enable
 
 ### Sub_protocol 3CH - *0*
@@ -1922,9 +1925,25 @@ A|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
 ## XERALL - *91*
 Model: Xerall TankCopter
 
+To bind/link the model faster put the throttle low before powering up the model.
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
 ---|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|Flight/Ground|Takeoff/Land/Emerg|RATE|HEADLESS|Photo|Video|TrimR|TrimE|TrimA
+A|E|T|R|Fly/Tank|Takeoff/Land/Emerg|Rate|HeadLess|Photo|Video|TrimR|TrimE|TrimA
+
+Fly/Tank: -100%=Fly, +100%=Tank
+
+Takeoff/Land/Emerg: momentary switch -100%->+100%, same switch for all 3 functions. For Takeoff throttle must be centered before actionning the momentary switch. For Emergency stop hold the momentary switch for a few sec.
+
+Unlock the motors is achieved like on the original radio by putting sticks in the bottom corners (position depends on your mode 1,2,3,4) and throttle has to be raised to center before recentering the sticks for the motors to keep spinning. Takeoff happens as soon as the throttle goes above center.
+
+Rate: -100%=Low, +100%=High
+
+HeadLess: -100%=Off, +100%=On
+
+Photo: momentary switch -100%->+100% (short press on the original remote)
+
+Video: -100%=Off, +100%=On (long press on the original remote)
 
 ## YD717 - *8*
 Autobind protocol

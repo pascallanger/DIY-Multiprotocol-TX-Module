@@ -56,20 +56,20 @@ static void __attribute__((unused)) XERALL_send_packet()
 		if(IS_BIND_IN_PROGRESS)
 		{
 			if(packet_sent > 24)
-			packet_sent=0;				// Hopp after 25 packets
+			packet_sent=0;													// Hopp after 25 packets
 		}
 		else
 		{
 			if(packet_sent > 18)
-				packet_sent = 0;		// Hopp after 19 packets
+				packet_sent = 0;											// Hopp after 19 packets
 		}
 
 		// Packet
-		if(IS_BIND_IN_PROGRESS && (bind_counter&0x10))					// Alternate bind and normal packets
+		if(IS_BIND_IN_PROGRESS && (bind_counter&0x10))						// Alternate bind and normal packets
 		{ // Bind packet: 01 56 06 23 00 13 20 40 02 00 and 01 F9 58 31 00 13 20 40 05 00
 			if(packet[0] != 0x01)
 			{
-				XN297_SetTXAddr((uint8_t *)"\x01\x01\x01\x01\x09", 5);	// Bind address
+				XN297_SetTXAddr((uint8_t *)"\x01\x01\x01\x01\x09", 5);		// Bind address
 				XN297_SetRXAddr((uint8_t *)"\x01\x01\x01\x01\x09", XERALL_PACKET_SIZE);
 			}
 			packet[0] = 0x01;

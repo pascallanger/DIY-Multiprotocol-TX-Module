@@ -765,6 +765,17 @@ void End_Bind()
 			bind_counter=2;
 }
 
+void Update_Telem()
+{
+	#if defined(TELEMETRY)
+		#ifndef MULTI_TELEMETRY
+			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_FRSKYX2) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT) || (protocol==PROTO_PROPEL) || (protocol==PROTO_OMP) || (protocol==PROTO_DEVO) || (protocol==PROTO_DSM_RX) || (protocol==PROTO_FRSKY_R9) || (protocol==PROTO_RLINK) || (protocol==PROTO_WFLY2) || (protocol==PROTO_LOLI) || (protocol==PROTO_MLINK) || (protocol==PROTO_MT99XX))
+		#endif
+				if(IS_DISABLE_TELEM_off)
+					TelemetryUpdate();
+	#endif
+}
+
 bool Update_All()
 {
 	#ifdef ENABLE_SERIAL
@@ -855,13 +866,9 @@ bool Update_All()
 		}
 		else
 	#endif
-	#if defined(TELEMETRY)
-		#ifndef MULTI_TELEMETRY
-			if((protocol == PROTO_BAYANG_RX) || (protocol == PROTO_AFHDS2A_RX) || (protocol == PROTO_FRSKY_RX) || (protocol == PROTO_SCANNER) || (protocol==PROTO_FRSKYD) || (protocol==PROTO_BAYANG) || (protocol==PROTO_NCC1701) || (protocol==PROTO_BUGS) || (protocol==PROTO_BUGSMINI) || (protocol==PROTO_HUBSAN) || (protocol==PROTO_AFHDS2A) || (protocol==PROTO_FRSKYX) || (protocol==PROTO_FRSKYX2) || (protocol==PROTO_DSM) || (protocol==PROTO_CABELL) || (protocol==PROTO_HITEC) || (protocol==PROTO_HOTT) || (protocol==PROTO_PROPEL) || (protocol==PROTO_OMP) || (protocol==PROTO_DEVO) || (protocol==PROTO_DSM_RX) || (protocol==PROTO_FRSKY_R9) || (protocol==PROTO_RLINK) || (protocol==PROTO_WFLY2) || (protocol==PROTO_LOLI) || (protocol==PROTO_MLINK) || (protocol==PROTO_MT99XX))
-		#endif
-				if(IS_DISABLE_TELEM_off)
-					TelemetryUpdate();
-	#endif
+
+	Update_Telem();
+
 	#ifdef ENABLE_BIND_CH
 		if(IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && Channel_data[BIND_CH-1]>CHANNEL_MAX_COMMAND)
 		{ // Autobind is on and BIND_CH went up
@@ -1204,7 +1211,6 @@ static void protocol_init()
 				//Save call back function address
 				remote_callback = multi_protocols[multi_protocols_index].CallBack;
 				//Send a telemetry status right now
-				SEND_MULTI_STATUS_on;
 				#ifdef DEBUG_SERIAL
 					debug("Proto=%s",multi_protocols[multi_protocols_index].ProtoString);
 					uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
@@ -1225,6 +1231,9 @@ static void protocol_init()
 			}
 			index++;
 		}
+		//Send an update right away
+		SEND_MULTI_STATUS_on;
+		Update_Telem();
 	}
 	
 	#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
@@ -1520,7 +1529,9 @@ void update_serial_data()
 					if ( used >= MAX_SPORT_BUFFER-(MAX_SPORT_BUFFER>>2) )
 					{
 						DATA_BUFFER_LOW_on;
-						SEND_MULTI_STATUS_on;	//Send Multi Status ASAP to inform the TX
+						//Send Multi Status ASAP to inform the TX
+						SEND_MULTI_STATUS_on;
+						Update_Telem();
 						debugln("Low buf=%d,h=%d,t=%d",used,SportHead,SportTail);
 					}
 				}

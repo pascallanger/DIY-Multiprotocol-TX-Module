@@ -5,7 +5,7 @@ exitcode=0;
 
 # Builds for the DIY 5-in-1 module exceed the 120KB working capacity of the STM32F103CB
 # To work around this we have to disable some protocols in the builds for this module
-DIY_5IN1_DISABLED="MOULDKG_NRF24L01_INO";
+DIY_5IN1_DISABLED="MOULDKG_NRF24L01_INO IKEAANSLUTA_CC2500_INO";
 
 # Generic 4-in-1 builds
 printf "\e[33;1mBuilding mm-stm-serial-aetr-v$MULTI_VERSION.bin\e[0m\n";

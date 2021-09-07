@@ -3,9 +3,12 @@
 source ./buildroot/bin/buildFunctions;
 exitcode=0;
 
+T18_DISABLED="MOULDKG_NRF24L01_INO IKEAANSLUTA_CC2500_INO";
+
 printf "\e[33;1mBuilding mm-t18int-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_disable ENABLE_PPM;
 opt_disable INVERT_TELEMETRY;
+opt_disable $T18_DISABLED;
 buildMulti;
 exitcode=$((exitcode+$?));
 mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-aetr-v$MULTI_VERSION.bin;

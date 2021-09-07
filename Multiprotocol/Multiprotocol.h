@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	2
-#define VERSION_PATCH_LEVEL	97
+#define VERSION_PATCH_LEVEL	98
 
 #define MODE_SERIAL 0
 
@@ -28,6 +28,7 @@
 //******************
 enum PROTOCOLS
 {
+	PROTO_PROTOLIST	= 0,	// NO RF
 	PROTO_FLYSKY 	= 1,	// =>A7105
 	PROTO_HUBSAN	= 2,	// =>A7105
 	PROTO_FRSKYD	= 3,	// =>CC2500
@@ -517,6 +518,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_HOTT			= 14,
 	MULTI_TELEMETRY_MLINK			= 15,
 	MULTI_TELEMETRY_CONFIG			= 16,
+	MULTI_TELEMETRY_PROTO			= 17,
 };
 
 // Macros
@@ -1289,4 +1291,17 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Type 0x10 Config telemetry
    length: 22
    data[0..21] = Config data
+   
+  Type 0x11 Protocol list export via telemetry. Used by the protocol PROTO_PROTOLIST=0, the list entry is given by the option field.
+   length: variable
+   data[0]     = protocol number, 0xFF is an invalid list entry (Option value too large)
+   data[1..n]  = protocol name null terminated
+   data[n+1]   = flags
+                 flags>>4 Option text number to be displayed (check multi status for description)
+                 flags&0x01 failsafe supported
+                 flags&0x02 Channel Map Disabled supported
+   data[n+2]   = number of sub protocols
+   data[n+3]   = sub protocols text length, only sent if nbr_sub != 0
+   data[n+4..] = sub protocol names, only sent if nbr_sub != 0
+   
 */

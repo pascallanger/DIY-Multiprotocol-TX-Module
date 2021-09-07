@@ -138,7 +138,7 @@ const char STR_SUBTYPE_GD00X[] =      "\x05""GD_V1""GD_V2";
 const char STR_SUBTYPE_REDPINE[] =    "\x04""Fast""Slow";
 const char STR_SUBTYPE_POTENSIC[] =   "\x03""A20";
 const char STR_SUBTYPE_ZSX[] =        "\x07""280JJRC";
-const char STR_SUBTYPE_HEIGHT[] =    "\x03""5ch""8ch";
+const char STR_SUBTYPE_HEIGHT[] =     "\x03""5ch""8ch";
 const char STR_SUBTYPE_FX816[] =      "\x03""P38";
 const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ""NRF\0   ""CC2500\0";
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4ch""7ch";
@@ -470,3 +470,70 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 		{0xFF,             nullptr,       nullptr,               0, 0,              0, 0, 0,         nullptr,         nullptr             }
 };
+
+#ifdef TELEMETRY
+uint16_t PROTOLIST_callback()
+{
+	if(option != prev_option)
+	{//Only send once
+		/* Type 0x11 Protocol list export via telemetry. Used by the protocol PROTO_PROTOLIST=0, the list entry is given by the option field.
+		   length: variable
+		   data[0]     = protocol number, 0xFF is an invalid list entry (Option value too large)
+		   data[1..n]  = protocol name null terminated
+		   data[n+1]   = flags
+						 flags>>4 Option text number to be displayed (check multi status for description)
+						 flags&0x01 failsafe supported
+						 flags&0x02 Channel Map Disabled supported
+		   data[n+2]   = number of sub protocols
+		   data[n+3]   = sub protocols text length, only sent if nbr_sub != 0
+		   data[n+4..] = sub protocol names, only sent if nbr_sub != 0
+		*/
+		prev_option = option;
+
+		if(option >= (sizeof(multi_protocols)/sizeof(mm_protocol_definition)) - 1)
+		{//option is above the end of the list
+			//Header
+			multi_send_header(MULTI_TELEMETRY_PROTO, 1);
+			//Error
+			Serial_write(0xFF);
+		}
+		else
+		{//valid option value
+			uint8_t proto_len = strlen(multi_protocols[option].ProtoString) + 1;
+			uint8_t nbr_sub = multi_protocols[option].nbrSubProto;
+			uint8_t sub_len = 0;
+			if(nbr_sub)
+				sub_len = multi_protocols[option].SubProtoString[0];
+			
+			//Header
+			multi_send_header(MULTI_TELEMETRY_PROTO, 1 + proto_len + 1 + 1 + (nbr_sub?1:0) + (nbr_sub * sub_len));
+			//Protocol number
+			Serial_write(multi_protocols[option].protocol);
+			//Protocol name
+			for(uint8_t i=0;i<proto_len;i++)
+				Serial_write(multi_protocols[option].ProtoString[i]);
+			//Flags
+			uint8_t flags=0;
+			#ifdef FAILSAFE_ENABLE
+				if(multi_protocols[multi_protocols_index].failSafe)
+					flags |= 0x01;		//Failsafe supported
+			#endif
+			if(multi_protocols[multi_protocols_index].chMap)
+				flags |= 0x02;			//Disable_ch_mapping supported
+			Serial_write( flags | (multi_protocols[option].optionType<<4));	// flags && option type
+			//Number of sub protocols
+			Serial_write(nbr_sub);
+			
+			if(nbr_sub !=0 )
+			{
+				//Sub protocols texts length
+				Serial_write(sub_len);
+				//Sub protocols texts
+				for(uint8_t i=1;i<nbr_sub*sub_len;i++)
+					Serial_write(multi_protocols[option].SubProtoString[i]);
+			}
+		}
+	}
+	return 1000;
+}
+#endif

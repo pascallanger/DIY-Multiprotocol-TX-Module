@@ -123,45 +123,32 @@ static void telemetry_set_input_sync(uint16_t refreshRate)
 
 static void multi_send_status()
 {
+	if(protocol == 0) return;
+	
 	multi_send_header(MULTI_TELEMETRY_STATUS, 24);
 
 	// Build flags
 	uint8_t flags=0;
-	if (IS_INPUT_SIGNAL_on)
+	if(IS_INPUT_SIGNAL_on)
 		flags |= 0x01;
-	if (mode_select==MODE_SERIAL)
+	if(mode_select==MODE_SERIAL)
 		flags |= 0x02;
-	if (remote_callback != 0)
+	if(remote_callback != 0)
 	{
-		flags |= 0x04;
-		if(multi_protocols_index == 0xFF)
-		{
-			if(protocol!=PROTO_SCANNER)
-				flags &= ~0x04;			//Invalid protocol
-		}
-		else if(IS_SUB_PROTO_INVALID)
-		{
-			flags &= ~0x04;				//Invalid sub protocol
-		}
-		else if(sub_protocol&0x07)
-			{
-				uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
-				//if(protocol==PROTO_DSM) nbr++;	//Auto sub_protocol
-				if((sub_protocol&0x07)>=nbr )
-					flags &= ~0x04;		//Invalid sub protocol
-			}
-		if (IS_WAIT_BIND_on)
+		if(multi_protocols_index != 0xFF && IS_SUB_PROTO_VALID)
+			flags |= 0x04;				//Invalid protocol / sub protocol, can't make the distinction since there is no more flags...
+		if(IS_WAIT_BIND_on)
 			flags |= 0x10;
 		else
-			if (IS_BIND_IN_PROGRESS)
+			if(IS_BIND_IN_PROGRESS)
 				flags |= 0x08;
 		if(multi_protocols_index != 0xFF)
 		{
 			if(multi_protocols[multi_protocols_index].chMap)
-				flags |= 0x40;				//Disable_ch_mapping supported
+				flags |= 0x40;			//Disable_ch_mapping supported
 			#ifdef FAILSAFE_ENABLE
 				if(multi_protocols[multi_protocols_index].failSafe)
-					flags |= 0x20;			//Failsafe supported
+					flags |= 0x20;		//Failsafe supported
 			#endif
 		}
 		if(IS_DATA_BUFFER_LOW_on)
@@ -226,7 +213,7 @@ static void multi_send_status()
 		else
 			Serial_write(nbr | (option_override<<4));									// number of sub protocols && option_override type
 		uint8_t j=0;
-		if(nbr && (sub_protocol&0x07)<nbr)
+		if(IS_SUB_PROTO_VALID)
 		{
 			uint8_t len=multi_protocols[multi_protocols_index].SubProtoString[0];
 			uint8_t offset=len*(sub_protocol&0x07)+1;

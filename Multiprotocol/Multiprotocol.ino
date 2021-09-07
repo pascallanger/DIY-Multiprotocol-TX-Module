@@ -1134,18 +1134,18 @@ static void protocol_init()
 	if(IS_WAIT_BIND_off)
 	{
 		remote_callback = 0;			// No protocol
-		LED_off;						// Led off during protocol init
 		modules_reset();				// Reset all modules
+		LED_off;						// Led off during protocol init
 		crc16_polynomial = 0x1021;		// Default CRC crc16_polynomial
 		crc8_polynomial  = 0x31;		// Default CRC crc8_polynomial
 		prev_option = option;
 
+		multi_protocols_index = 0xFF;
 		// reset telemetry
 		#ifdef TELEMETRY
 			#ifdef MULTI_SYNC
 				inputRefreshRate = 0;	// Don't do it unless the protocol asks for it
 			#endif
-			multi_protocols_index = 0xFF;
 			tx_pause();
 			init_frskyd_link_telemetry();
 			pps_timer=millis();
@@ -1167,7 +1167,7 @@ static void protocol_init()
 			TX_RX_PAUSE_off;
 			TX_MAIN_PAUSE_off;
 			tx_resume();
-			#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO) || defined(BAYANG_RX_NRF24L01_INO)
+			#if defined(AFHDS2A_RX_A7105_INO) || defined(FRSKY_RX_CC2500_INO) || defined(BAYANG_RX_NRF24L01_INO) || defined(DSM_RX_CYRF6936_INO)
 				for(uint8_t ch=0; ch<16; ch++)
 					rx_rc_chan[ch] = 1024;
 			#endif
@@ -1188,53 +1188,68 @@ static void protocol_init()
 		#endif
 		DATA_BUFFER_LOW_off;
 
-		SUB_PROTO_VALID;
+		SUB_PROTO_INVALID;
 		option_override = 0xFF;
 		
 		blink=millis();
 
 		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
-		uint8_t index=0;
-		#if defined(FRSKYX_CC2500_INO) && defined(EU_MODULE)
-			if( ! ( (protocol == PROTO_FRSKYX || protocol == PROTO_FRSKYX2) && sub_protocol < 2 ) )
-		#endif
-		while(multi_protocols[index].protocol != 0xFF)
+		if(protocol)
 		{
-			if(multi_protocols[index].protocol==protocol)
+			uint8_t index=0;
+			#if defined(FRSKYX_CC2500_INO) && defined(EU_MODULE)
+				if( ! ( (protocol == PROTO_FRSKYX || protocol == PROTO_FRSKYX2) && sub_protocol < 2 ) )
+			#endif
+			while(multi_protocols[index].protocol != 0xFF)
 			{
-				//Save index
-				multi_protocols_index = index;
-				//Set the RF switch
-				rf_switch(multi_protocols[multi_protocols_index].rfSwitch);
-				//Init protocol
-				multi_protocols[multi_protocols_index].Init();
-				//Save call back function address
-				remote_callback = multi_protocols[multi_protocols_index].CallBack;
-				//Send a telemetry status right now
-				#ifdef DEBUG_SERIAL
-					debug("Proto=%s",multi_protocols[multi_protocols_index].ProtoString);
-					uint8_t nbr=multi_protocols[multi_protocols_index].nbrSubProto;
-					debug(", nbr_sub=%d, Sub=",nbr);
-					if(nbr && (sub_protocol&0x07)<nbr)
-					{
-						uint8_t len=multi_protocols[multi_protocols_index].SubProtoString[0];
-						uint8_t offset=len*(sub_protocol&0x07)+1;
-						for(uint8_t j=0;j<len;j++)
-							debug("%c",multi_protocols[multi_protocols_index].SubProtoString[j+offset]);
+				if(multi_protocols[index].protocol==protocol)
+				{
+					//Save index
+					multi_protocols_index = index;
+					//Check sub protocol validity
+					if( ((sub_protocol&0x07) == 0) || (sub_protocol&0x07) < multi_protocols[index].nbrSubProto )
+						SUB_PROTO_VALID;
+					if(IS_SUB_PROTO_VALID)
+					{//Start the protocol
+						//Set the RF switch
+						rf_switch(multi_protocols[index].rfSwitch);
+						//Init protocol
+						multi_protocols[index].Init();		// Init could invalidate the sub proto in case it is not suuported
+						if(IS_SUB_PROTO_VALID)
+							remote_callback = multi_protocols[index].CallBack;	//Save call back function address
 					}
-					debug(", Opt=%d",multi_protocols[multi_protocols_index].optionType);
-					debug(", FS=%d",multi_protocols[multi_protocols_index].failSafe);
-					debug(", CHMap=%d",multi_protocols[multi_protocols_index].chMap);
-					debugln(", rfSw=%d",multi_protocols[multi_protocols_index].rfSwitch);
-				#endif
-				break;
+					#ifdef DEBUG_SERIAL
+						debug("Proto=%s", multi_protocols[index].ProtoString);
+						debug(", nbr_sub=%d, Sub=", multi_protocols[index].nbrSubProto);
+						if(IS_SUB_PROTO_VALID)
+						{
+							uint8_t len=multi_protocols[index].SubProtoString[0];
+							uint8_t offset=len*(sub_protocol&0x07)+1;
+							for(uint8_t j=0;j<len;j++)
+								debug("%c",multi_protocols[index].SubProtoString[j+offset]);
+						}
+						debug(", Opt=%d",multi_protocols[index].optionType);
+						debug(", FS=%d",multi_protocols[index].failSafe);
+						debug(", CHMap=%d",multi_protocols[index].chMap);
+						debugln(", rfSw=%d",multi_protocols[index].rfSwitch);
+					#endif
+					break;
+				}
+				index++;
 			}
-			index++;
+			//Send a telemetry status right now
+			SEND_MULTI_STATUS_on;
+			Update_Telem();
 		}
-		//Send an update right away
-		SEND_MULTI_STATUS_on;
-		Update_Telem();
+		#ifdef TELEMETRY
+			else
+			{//protocol=PROTO_PROTOLIST=0
+				remote_callback = PROTOLIST_callback;
+				prev_option = option + 1;
+			}
+		#endif
 	}
+	
 	
 	#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
 		if( IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && (cur_protocol[1]&0x80)==0 && mode_select == MODE_SERIAL)
@@ -1246,16 +1261,19 @@ static void protocol_init()
 	WAIT_BIND_off;
 	CHANGE_PROTOCOL_FLAG_off;
 
-	//Wait 5ms after protocol init
-	cli();										// disable global int
-	OCR1A = TCNT1 + 5000*2;						// set compare A for callback
-	#ifndef STM32_BOARD
-		TIFR1 = OCF1A_bm ;						// clear compare A flag
-	#else
-		TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
-	#endif	
-	sei();										// enable global int
-	BIND_BUTTON_FLAG_off;						// do not bind/reset id anymore even if protocol change
+	if(protocol)
+	{
+		//Wait 5ms after protocol init
+		cli();										// disable global int
+		OCR1A = TCNT1 + 5000*2;						// set compare A for callback
+		#ifndef STM32_BOARD
+			TIFR1 = OCF1A_bm ;						// clear compare A flag
+		#else
+			TIMER2_BASE->SR = 0x1E5F & ~TIMER_SR_CC1IF;	// Clear Timer2/Comp1 interrupt flag
+		#endif	
+		sei();										// enable global int
+		BIND_BUTTON_FLAG_off;						// do not bind/reset id anymore even if protocol change
+	}
 }
 
 void update_serial_data()

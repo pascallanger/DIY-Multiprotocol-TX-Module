@@ -1134,7 +1134,6 @@ static void protocol_init()
 	if(IS_WAIT_BIND_off)
 	{
 		remote_callback = 0;			// No protocol
-		modules_reset();				// Reset all modules
 		LED_off;						// Led off during protocol init
 		crc16_polynomial = 0x1021;		// Default CRC crc16_polynomial
 		crc8_polynomial  = 0x31;		// Default CRC crc8_polynomial
@@ -1196,6 +1195,9 @@ static void protocol_init()
 		debugln("Protocol selected: %d, sub proto %d, rxnum %d, option %d", protocol, sub_protocol, RX_num, option);
 		if(protocol)
 		{
+			//Reset all modules
+			modules_reset();				
+
 			uint8_t index=0;
 			#if defined(FRSKYX_CC2500_INO) && defined(EU_MODULE)
 				if( ! ( (protocol == PROTO_FRSKYX || protocol == PROTO_FRSKYX2) && sub_protocol < 2 ) )
@@ -1249,8 +1251,7 @@ static void protocol_init()
 			}
 		#endif
 	}
-	
-	
+
 	#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
 		if( IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && (cur_protocol[1]&0x80)==0 && mode_select == MODE_SERIAL)
 		{ // Autobind is active but no bind requested by either BIND_CH or BIND. But do not wait if in PPM mode...

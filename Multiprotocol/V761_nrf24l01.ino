@@ -110,7 +110,7 @@ static void __attribute__((unused)) V761_send_packet()
 		//packet counter
 		if(packet_count >= 12)
 			packet_count = 0;
-		NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency[hopping_frequency_no++]);
+		XN297_Hopping(hopping_frequency_no++);
 		if(hopping_frequency_no >= V761_RF_NUM_CHANNELS)
 			hopping_frequency_no = 0;
 	}

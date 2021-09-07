@@ -471,7 +471,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{0xFF,             nullptr,       nullptr,               0, 0,              0, 0, 0,         nullptr,         nullptr             }
 };
 
-#ifdef TELEMETRY
+#ifdef MULTI_TELEMETRY
 uint16_t PROTOLIST_callback()
 {
 	if(option != prev_option)

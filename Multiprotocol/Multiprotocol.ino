@@ -1241,7 +1241,7 @@ static void protocol_init()
 			SEND_MULTI_STATUS_on;
 			Update_Telem();
 		}
-		#ifdef TELEMETRY
+		#ifdef MULTI_TELEMETRY
 			else
 			{//protocol=PROTO_PROTOLIST=0
 				remote_callback = PROTOLIST_callback;

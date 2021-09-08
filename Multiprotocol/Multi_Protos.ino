@@ -478,7 +478,7 @@ uint16_t PROTOLIST_callback()
 	{//Only send once
 		/* Type 0x11 Protocol list export via telemetry. Used by the protocol PROTO_PROTOLIST=0, the list entry is given by the option field.
 		   length: variable
-		   data[0]     = protocol number, 0xFF is an invalid list entry (Option value too large)
+		   data[0]     = protocol number, 0xFF is an invalid list entry (Option value too large), Option == 0xFF -> number of protocols in the list
 		   data[1..n]  = protocol name null terminated
 		   data[n+1]   = flags
 						 flags>>4 Option text number to be displayed (check multi status for description)
@@ -494,8 +494,10 @@ uint16_t PROTOLIST_callback()
 		{//option is above the end of the list
 			//Header
 			multi_send_header(MULTI_TELEMETRY_PROTO, 1);
-			//Error
-			Serial_write(0xFF);
+			if(option == 0xFF)
+				Serial_write((sizeof(multi_protocols)/sizeof(mm_protocol_definition)) - 1);	//Nbr proto
+			else
+				Serial_write(0xFF);															//Error
 		}
 		else
 		{//valid option value

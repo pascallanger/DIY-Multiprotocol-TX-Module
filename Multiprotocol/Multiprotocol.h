@@ -1294,7 +1294,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    
   Type 0x11 Protocol list export via telemetry. Used by the protocol PROTO_PROTOLIST=0, the list entry is given by the option field.
    length: variable
-   data[0]     = protocol number, 0xFF is an invalid list entry (Option value too large)
+   data[0]     = protocol number, 0xFF is an invalid list entry (Option value too large), Option == 0xFF -> number of protocols in the list
    data[1..n]  = protocol name null terminated
    data[n+1]   = flags
                  flags>>4 Option text number to be displayed (check multi status for description)

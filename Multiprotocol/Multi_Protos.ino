@@ -525,11 +525,8 @@ uint16_t PROTOLIST_callback()
 			Serial_write(nbr_sub);
 			
 			if(nbr_sub !=0 )
-			{
-				//Sub protocols texts length
-				Serial_write(sub_len);
-				//Sub protocols texts
-				for(uint8_t i=1;i<nbr_sub*sub_len;i++)
+			{//Sub protocols length and texts
+				for(uint8_t i=0;i<=nbr_sub*sub_len;i++)
 					Serial_write(multi_protocols[option].SubProtoString[i]);
 			}
 		}

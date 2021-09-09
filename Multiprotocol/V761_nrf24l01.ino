@@ -50,24 +50,32 @@ static void __attribute__((unused)) V761_set_checksum()
 	}
 }
 
-
 static void __attribute__((unused)) V761_send_packet()
 {
 	static bool calib=false, prev_ch6=false;
-	
+
 	if(phase != V761_DATA)
 	{
 		packet[0] = rx_tx_addr[0];
 		packet[1] = rx_tx_addr[1];
 		packet[2] = rx_tx_addr[2];
-		packet[3] = rx_tx_addr[3];  
+		packet[3] = rx_tx_addr[3];
 		packet[4] = hopping_frequency[1];
 		packet[5] = hopping_frequency[2];
-		if(phase == V761_BIND2) 
+		if(phase == V761_BIND2)
 			packet[6] = 0xf0; // ?
 	}
 	else
 	{ 
+		XN297_Hopping(hopping_frequency_no++);
+		if(hopping_frequency_no >= V761_RF_NUM_CHANNELS)
+		{
+			hopping_frequency_no = 0;
+			packet_count++;
+			if(packet_count >= 4)
+				packet_count = 0;
+		}
+
 		packet[0] = convert_channel_8b(THROTTLE);		// Throttle
 		packet[2] = convert_channel_8b(ELEVATOR)>>1;	// Elevator
 
@@ -82,8 +90,8 @@ static void __attribute__((unused)) V761_send_packet()
 			packet[3] = convert_channel_8b(RUDDER)>>1;	// Rudder
 		}
 
-		packet[5] = (packet_count++ / 3)<<6;
-		packet[4] = (packet[5] == 0x40) ? 0x1a : 0x20;	// ?
+		packet[5] = packet_count<<6;					// 0X, 4X, 8X, CX
+		packet[4] = 0x20;								// Trims 00..20..40, 0X->20 4X->TrAil 8X->TrEle CX->TrRud
 
 		if(CH5_SW)										// Mode Expert Gyro off
 			flags = 0x0c;
@@ -105,17 +113,16 @@ static void __attribute__((unused)) V761_send_packet()
 					|GET_FLAG(CH8_SW, 0x08)				// RTH activation
 					|GET_FLAG(CH9_SW, 0x10);			// RTH on/off
 		if(sub_protocol==V761_3CH)
-			packet[6] |= 0x80;							// unknown, set on original V761-1 dump but not on eachine dumps, keeping for compatibility
-
-		//packet counter
-		if(packet_count >= 12)
-			packet_count = 0;
-		XN297_Hopping(hopping_frequency_no++);
-		if(hopping_frequency_no >= V761_RF_NUM_CHANNELS)
-			hopping_frequency_no = 0;
+			packet[6] |= 0x80;							// Unknown, set on original V761-1 dump but not on eachine dumps, keeping for compatibility
 	}
 	V761_set_checksum();
 
+	#if 0
+		debug("H:%02X P:",hopping_frequency_no);
+		for(uint8_t i=0;i<V761_PACKET_SIZE;i++)
+			debug(" %02X",packet[i]);
+		debugln("");
+	#endif
 	// Send
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);
@@ -191,8 +198,9 @@ uint16_t V761_callback()
 			V761_send_packet();
 			if(bind_counter == 0) 
 			{
-				phase = V761_DATA;
+				packet_count = 0;
 				BIND_DONE;
+				phase = V761_DATA;
 			}
 			else if(packet_count >= 20) 
 			{

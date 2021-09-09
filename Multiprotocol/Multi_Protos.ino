@@ -476,7 +476,7 @@ uint16_t PROTOLIST_callback()
 {
 	if(option != prev_option)
 	{//Only send once
-		/* Type 0x11 Protocol list export via telemetry. Used by the protocol PROTO_PROTOLIST=0, the list entry is given by the option field.
+		/* Type 0x11 Protocol list export via telemetry. Used by the protocol PROTO_PROTOLIST=0, the list entry is given by the Option field.
 		   length: variable
 		   data[0]     = protocol number, 0xFF is an invalid list entry (Option value too large), Option == 0xFF -> number of protocols in the list
 		   data[1..n]  = protocol name null terminated
@@ -517,10 +517,10 @@ uint16_t PROTOLIST_callback()
 			//Flags
 			uint8_t flags=0;
 			#ifdef FAILSAFE_ENABLE
-				if(multi_protocols[multi_protocols_index].failSafe)
+				if(multi_protocols[option].failSafe)
 					flags |= 0x01;		//Failsafe supported
 			#endif
-			if(multi_protocols[multi_protocols_index].chMap)
+			if(multi_protocols[option].chMap)
 				flags |= 0x02;			//Disable_ch_mapping supported
 			Serial_write( flags | (multi_protocols[option].optionType<<4));	// flags && option type
 			//Number of sub protocols

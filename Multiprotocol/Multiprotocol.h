@@ -1292,7 +1292,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    length: 22
    data[0..21] = Config data
    
-  Type 0x11 Protocol list export via telemetry. Used by the protocol PROTO_PROTOLIST=0, the list entry is given by the option field.
+  Type 0x11 Protocol list export via telemetry. Used by the protocol PROTO_PROTOLIST=0, the list entry is given by the Option field.
    length: variable
    data[0]     = protocol number, 0xFF is an invalid list entry (Option value too large), Option == 0xFF -> number of protocols in the list
    data[1..n]  = protocol name null terminated

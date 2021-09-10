@@ -150,6 +150,8 @@ enum AFHDS2A
 	PPM_SBUS = 3,
 	PWM_IB16 = 4,
 	PPM_IB16 = 5,
+	PWM_SB16 = 6,
+	PPM_SB16 = 7,
 };
 enum Hisky
 {

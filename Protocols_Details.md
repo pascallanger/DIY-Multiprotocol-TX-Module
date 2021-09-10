@@ -85,7 +85,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|||||||||NRF24L01|
 [ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|||||||||CC2500|NRF51822
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
-[Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|PWM_IBUS16|PPM_IBUS16|||A7105|
+[Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|PWM_IBUS16|PPM_IBUS16|PWM_SBUS16|PPM_SBUS16|A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|Multi|CPPM|||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|D8|Cloned|||||||CC2500|
@@ -229,17 +229,12 @@ RX output will match the Flysky standard AETR independently of the input configu
 ### Sub_protocol PPM_IBUS - *1*
 ### Sub_protocol PWM_SBUS - *2*
 ### Sub_protocol PPM_SBUS - *3*
+As stated above.
+
 ### Sub_protocol PWM_IBUS16 - *4*
-
-3 additional channels. Need recent or updated RXs.
-
-CH15|CH16|CH17
----|---|---
-CH15|CH16|LQI
-
-LQI: Link Quality Indicator
-
 ### Sub_protocol PPM_IBUS16 - *5*
+### Sub_protocol PWM_SBUS16 - *6*
+### Sub_protocol PPM_SBUS16 - *7*
 
 3 additional channels. Need recent or updated RXs.
 

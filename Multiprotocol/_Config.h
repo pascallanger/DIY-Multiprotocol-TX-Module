@@ -293,9 +293,9 @@
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
-//The following protocols are supporting failsafe: FrSkyX, Devo, WK2x01, Futaba/SFHSS, HISKY/HK310 and AFHDS2A
+//The following protocols are supporting failsafe: FrSkyX, FrSkyX2, FRSKYR9, Devo, WK2x01, Futaba/SFHSS, HISKY/HK310, HoTT, LOLI, MLINK, WFLY, WFLY2 and AFHDS2A
 //In Serial mode failsafe is configured on the radio itself.
-//In PPM mode and only after the module is up and fully operational, press the bind button for at least 5sec to send the current stick positions as failsafe to the RX.
+//In PPM mode and only after the module is up and fully operational, press the bind button for at least 5sec to send all the current channels positions as failsafe to the RX.
 //If you want to disable failsafe globally comment the line below using "//".
 #define FAILSAFE_ENABLE
 

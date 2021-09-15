@@ -183,11 +183,9 @@ void NRF24L01_SetPower()
 		power=NRF_POWER_0;
 	if(prev_power != power)
 	{
-		rf_setup = (rf_setup & 0xF9) | (power << 1);
+		rf_setup = (rf_setup & 0xF8) | (power << 1);
 		if(power==3)
-			rf_setup |=0x01;	// Si24r01 full power, unused bit for NRF
-		else
-			rf_setup &=0xFE;
+			rf_setup |= 0x01;	// Si24r01 full power, unused bit for NRF
 		NRF24L01_WriteReg(NRF24L01_06_RF_SETUP, rf_setup);
 		prev_power=power;
 	}

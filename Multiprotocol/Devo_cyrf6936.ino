@@ -55,14 +55,14 @@ static void __attribute__((unused)) DEVO_add_pkt_suffix()
 {
     uint8_t bind_state;
 	#ifdef ENABLE_PPM
-	if(mode_select && option==0 && IS_BIND_DONE) 			//PPM mode and option not already set and bind is finished
+	if(mode_select && (option&0x01)==0 && IS_BIND_DONE) 			//PPM mode and option not already set and bind is finished
 	{
 		BIND_SET_INPUT;
 		BIND_SET_PULLUP;										// set pullup
 		if(IS_BIND_BUTTON_on)
 		{
 			eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num),0x01);	// Set fixed id mode for the current model
-			option=1;
+			option |= 0x01;
 		}
 		BIND_SET_OUTPUT;
 	}
@@ -72,7 +72,7 @@ static void __attribute__((unused)) DEVO_add_pkt_suffix()
 		MProtocol_id = RX_num + MProtocol_id_master;
 		bind_counter=DEVO_BIND_COUNT;
 	}
-	if (option)
+	if (option&0x01)
 	{
         if (bind_counter > 0)
             bind_state = 0xc0;
@@ -220,6 +220,7 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 	#if defined HUB_TELEMETRY
 	//Telemetry https://github.com/DeviationTX/deviation/blob/5efb6a28bea697af9a61b5a0ed2528cc8d203f90/src/protocol/devo_cyrf6936.c#L232
 		uint16_t val, dec;
+		uint32_t val32;
 		switch(packet[0])
 		{
 			case 0x30:	// Volt and RPM packet
@@ -255,18 +256,29 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 				break;
 			// GPS Data
 			case 0x32: // Longitude
-				//memcpy(&packet[1],"\x30\x33\x30\x32\x30\x2e\x38\x32\x37\x30\x45\xfb",12);							// 030°20.8270E
-				val = DEVO_text_to_int(&packet[1], 3)*100 + DEVO_text_to_int(&packet[4], 2);						// dddmm
+				//memcpy(&packet[1],"\x30\x33\x30\x32\x30\x2e\x38\x32\x37\x30\x45\xfb",12);							// 030°20.8270E in ddmm.mmmm
+				//memcpy(&packet[1],"\x31\x31\x37\x31\x31\x2e\x35\x39\x34\x37\x57\xfb",12);							// RX705 sends 117°11.5947W which should be 11706.95685W in ddmm.mmmm
+				val = DEVO_text_to_int(&packet[1], 3)*100;															// dd00
+				val32 = DEVO_text_to_int(&packet[4], 2) * 10000 + DEVO_text_to_int(&packet[7], 4);					// mmmmmm
+				if(option&0x02)																						// if RX705 GPS format
+					val32 = (val32*3)/5;																			// then * 6/10 correction
+				dec = val32/10000;
+				val = val + dec;																					// dddmm
 				frsky_send_user_frame(0x12  , val, val>>8);
-				val = DEVO_text_to_int(&packet[7], 4);																// .mmmm
+				val = val32 - dec*10000;																			// .mmmm
 				frsky_send_user_frame(0x12+8, val, val>>8);
 				frsky_send_user_frame(0x1A+8, packet[11], 0x00);													// 'E'/'W'
 				break;
 			case 0x33: // Latitude
-				//memcpy(&packet[1],"\x35\x39\x35\x34\x2e\x37\x37\x37\x36\x4e\x07\x00",12);							// 59°54.776N
-				val = DEVO_text_to_int(&packet[1], 2)*100 + DEVO_text_to_int(&packet[3], 2);						// ddmm
+				//memcpy(&packet[1],"\x35\x39\x35\x34\x2e\x37\x37\x37\x36\x4e\x07\x00",12);							// 59°54.776N in ddmm.mmmm
+				//memcpy(&packet[1],"\x31\x37\x31\x31\x2e\x35\x39\x34\x37\x4e\xfb\x00",12);							// RX705 sends 17°11.5947N which should be 1706.95685N in ddmm.mmmm
+				val = DEVO_text_to_int(&packet[1], 2)*100 + DEVO_text_to_int(&packet[3], 2);						// dd00
+				val32 = DEVO_text_to_int(&packet[34], 2) * 10000 + DEVO_text_to_int(&packet[6], 4);					// mmmmmm
+				if(option&0x02)																						// if RX705 GPS format
+					val32 = (val32*3)/5;																			// then * 6/10 correction
+				val = val + dec;																					// dddmm
 				frsky_send_user_frame(0x13  , val, val>>8);
-				val = DEVO_text_to_int(&packet[6], 4);																// .mmmm
+				val = val32 - dec*10000;																			// .mmmm
 				frsky_send_user_frame(0x13+8, val, val>>8);
 				frsky_send_user_frame(0x1B+8, packet[10], 0x00);													// 'N'/'S'
 				break;
@@ -530,13 +542,13 @@ void DEVO_init()
 		{
 			if(IS_BIND_BUTTON_FLAG_on)
 			{
-				eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num),0x00);	// reset to autobind mode for the current model
-				option=0;
+				option &= 0xFE;
+				eeprom_write_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num),option);	// reset to autobind mode for the current model
 			}
 			else
 			{	
-				option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num));	// load previous mode: autobind or fixed id
-				if(option!=1) option=0;								// if not fixed id mode then it should be autobind
+				option=eeprom_read_byte((EE_ADDR)(MODELMODE_EEPROM_OFFSET+RX_num));		// load previous mode: autobind or fixed id
+				if(option > 3) option = 0;												// if invalid then it should be autobind
 			}
 		}
 	#endif //ENABLE_PPM
@@ -570,8 +582,13 @@ void DEVO_init()
 
 	packet_count = 0;
 
-	prev_option=option;
-	if(option==0)
+	if(option&0x01)
+	{
+		phase = DEVO_BOUND_1;
+		bind_counter = 0;
+		DEVO_cyrf_set_bound_sop_code();
+	}
+	else
 	{
 		MProtocol_id = ((uint32_t)(hopping_frequency[0] ^ cyrfmfg_id[0] ^ cyrfmfg_id[3]) << 16)
 					 | ((uint32_t)(hopping_frequency[1] ^ cyrfmfg_id[1] ^ cyrfmfg_id[4]) << 8)
@@ -581,12 +598,6 @@ void DEVO_init()
 		phase = DEVO_BIND;
 		BIND_IN_PROGRESS;
 	}
-	else
-	{
-		phase = DEVO_BOUND_1;
-		bind_counter = 0;
-		DEVO_cyrf_set_bound_sop_code();
-	}  
 }
 
 #endif

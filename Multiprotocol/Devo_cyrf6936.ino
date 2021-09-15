@@ -276,6 +276,7 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 				val32 = DEVO_text_to_int(&packet[34], 2) * 10000 + DEVO_text_to_int(&packet[6], 4);					// mmmmmm
 				if(option&0x02)																						// if RX705 GPS format
 					val32 = (val32*3)/5;																			// then * 6/10 correction
+				dec = val32/10000;
 				val = val + dec;																					// dddmm
 				frsky_send_user_frame(0x13  , val, val>>8);
 				val = val32 - dec*10000;																			// .mmmm

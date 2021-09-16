@@ -272,8 +272,8 @@ static void __attribute__((unused)) DEVO_parse_telemetry_packet()
 			case 0x33: // Latitude
 				//memcpy(&packet[1],"\x35\x39\x35\x34\x2e\x37\x37\x37\x36\x4e\x07\x00",12);							// 59°54.776N in ddmm.mmmm
 				//memcpy(&packet[1],"\x31\x37\x31\x31\x2e\x35\x39\x34\x37\x4e\xfb\x00",12);							// RX705 sends 17°11.5947N which should be 1706.95685N in ddmm.mmmm
-				val = DEVO_text_to_int(&packet[1], 2)*100 + DEVO_text_to_int(&packet[3], 2);						// dd00
-				val32 = DEVO_text_to_int(&packet[34], 2) * 10000 + DEVO_text_to_int(&packet[6], 4);					// mmmmmm
+				val = DEVO_text_to_int(&packet[1], 2)*100;															// dd00
+				val32 = DEVO_text_to_int(&packet[3], 2) * 10000 + DEVO_text_to_int(&packet[6], 4);					// mmmmmm
 				if(option&0x02)																						// if RX705 GPS format
 					val32 = (val32*3)/5;																			// then * 6/10 correction
 				dec = val32/10000;

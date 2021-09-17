@@ -1287,7 +1287,9 @@ Rate: -100% High, +100% Low
 Models: WLtoys V911S, XK A110
 
 ### Sub_protocol E119 - *1*
-Models: Eachine E119, JJRC W01-J3
+Models: Eachine E119, JJRC W01-J3, XK A220 P-40
+
+P-40 is using CH5 for 6G/3D.
 
 ## XK - *62*
 
@@ -1657,7 +1659,7 @@ A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim
 Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO: -100%=6G, +100%=3G
 
 ### Sub_protocol WLTOYS - *0*
-Models: V966/V977/F959S/...
+Models: V966/V977/F959S/A160 J3/...
 
 ### Sub_protocol FEILUN - *1*
 

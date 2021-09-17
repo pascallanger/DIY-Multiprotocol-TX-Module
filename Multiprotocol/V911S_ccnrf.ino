@@ -69,7 +69,7 @@ static void __attribute__((unused)) V911S_send_packet()
 			packet[ 1]=GET_FLAG(!CH6_SW,V911S_FLAG_EXPERT);	// short press on left button
 			packet[ 2]=GET_FLAG(CH5_SW,V911S_FLAG_CALIB);	// long  press on right button
 		}
-		else
+		else//E119
 			packet[ 1]=GET_FLAG(!CH6_SW,E119_FLAG_EXPERT)	// short  press on left button
 					  |GET_FLAG( CH5_SW,E119_FLAG_CALIB);	// short  press on right button
 			
@@ -90,7 +90,7 @@ static void __attribute__((unused)) V911S_send_packet()
 			packet[12] = ch>>5;
 		}
 		else
-		{
+		{//E119
 			ch=0x7FF-ch;
 			packet[ 9]|= ch<<6;
 			packet[10] = ch>>2;
@@ -103,7 +103,7 @@ static void __attribute__((unused)) V911S_send_packet()
 	
 	if(sub_protocol==V911S_STD)
 		XN297_WritePayload(packet, V911S_PACKET_SIZE);
-	else
+	else//E119
 		XN297_WriteEnhancedPayload(packet, V911S_PACKET_SIZE, IS_BIND_IN_PROGRESS?0:1);
 	
 	XN297_SetPower();				// Set tx_power
@@ -115,7 +115,7 @@ static void __attribute__((unused)) V911S_RF_init()
 	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K);
 	if(sub_protocol==V911S_STD)
 		XN297_SetTXAddr((uint8_t *)"KNBND",5);		// V911S Bind address
-	else
+	else//E119
 		XN297_SetTXAddr((uint8_t *)"XPBND",5);		// E119 Bind address
 	XN297_HoppingCalib(V911S_NUM_RF_CHANNELS);		// Calibrate all channels
 	XN297_RFChannel(V911S_RF_BIND_CHANNEL);		// Set bind channel
@@ -171,8 +171,7 @@ void V911S_init(void)
 			rf_ch_num=0;
 		}
 		else
-		{
-			//E119
+		{//E119
 			rx_tx_addr[0]=0x30;
 			rx_tx_addr[1]=0xFF;
 			rx_tx_addr[2]=0xD1;

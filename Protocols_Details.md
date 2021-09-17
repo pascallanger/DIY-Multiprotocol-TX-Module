@@ -396,18 +396,18 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 
 RX output will match the Devo standard EATR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
 
-Full telemetry is available if the RX supports it: TX_RSSI, A1 (set the ratio to 12.7) and A2 (set the ratio to 12.7), VFAS, RPM, temperature 1&2, GPS position/speed/altitude/time.
+Full telemetry is available if the RX supports it: TX_RSSI, A1 (set the ratio to 12.7) and A2 (set the ratio to 12.7), VFAS, RPM, temperature 1&2, GPS position/speed/altitude/time. The GPS coordinates come in two flavors which can't be distinguished programmatically, to switch from one to the other add 2 to the Option/FixedID setting value (0->2, 1->3).
 
 Bind procedure using serial:
 - With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.
-- Turn on the TX, set protocol = Devo with option=0, turn off the TX (TX is now in autobind mode).
+- Turn on the TX, set protocol = Devo with Option/FixedID=0, turn off the TX (TX is now in autobind mode).
 - Turn on RX (RX LED fast blink).
 - Turn on TX (RX LED solid, TX LED fast blink).
 - Wait for bind on the TX to complete (TX LED solid).
 - Make sure to set a uniq RX_Num value for model match.
-- Change option to 1 to use the global ID.
-- Do not touch option/RX_Num anymore.
-- Note: it might be limited to only the RX705 but to get telemetry, the opion fields has to be set back to 0 at then end of the procedure...
+- Change Option/FixedID to 1 to use the global ID.
+- Do not touch Option/FixedID and RX_Num anymore.
+- Note: it might be limited to only the RX705 but to get telemetry, the Option/FixedID field has to be set back to 0 at then end of the procedure...
 
 Bind procedure using PPM:
 - With the TX off, put the binding plug in and power on the RX (RX LED slow blink), then power it down and remove the binding plug. Receiver should now be in autobind mode.

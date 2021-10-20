@@ -54,6 +54,8 @@ Notes:
 
 ## DSM Forward Programming
 
+Navigation is mainly done using the scroll wheel and ENT. Short press on ENT will edit a value. When editing a value a long ENT press will restore the value to its default. To exit the script and terminate all current operations correctly short press RTN (if you don't do this the RX might not store the changes).
+
 This is a work in progress. It's only available for color screens (Horus, TX16S, T16, T18...).
 
 If some text appears as Unknown_xxx, please report xxx and what the exact text display should be.

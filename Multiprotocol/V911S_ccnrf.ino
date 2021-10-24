@@ -26,7 +26,7 @@
 #define V911S_PACKET_SIZE			16
 #define V911S_RF_BIND_CHANNEL		35
 #define V911S_NUM_RF_CHANNELS		8
-#define V911S_BIND_COUNT			200
+#define V911S_BIND_COUNT			800
 
 // flags going to packet[1]
 #define	V911S_FLAG_EXPERT	0x04

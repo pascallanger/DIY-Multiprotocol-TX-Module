@@ -250,11 +250,16 @@ uint16_t PROPEL_callback()
 				if (_BV(NRF24L01_07_RX_DR) & NRF24L01_ReadReg(NRF24L01_07_STATUS))
 				{// data received from the model
 					NRF24L01_ReadPayload(packet_in, PROPEL_PACKET_SIZE);
+					#if 1
+						for(uint8_t i=0; i<PROPEL_PACKET_SIZE; i++)
+							debug("%02X ",packet_in[i]);
+						debugln("");
+					#endif
 					if (packet_in[0] == 0xa3 && memcmp(&packet_in[1],rx_id,3)==0)
 					{
 						telemetry_counter++;	//LQI
-						v_lipo1=packet[5];		//number of life left?
-						v_lipo2=packet[4];		//bit mask: 0x80=flying, 0x08=taking off, 0x04=landing, 0x00=landed/crashed
+						v_lipo1=packet_in[5];	//number of life left?
+						v_lipo2=packet_in[4];	//bit mask: 0x80=flying, 0x08=taking off, 0x04=landing, 0x00=landed/crashed
 						if(telemetry_lost==0)
 							telemetry_link=1;
 					}

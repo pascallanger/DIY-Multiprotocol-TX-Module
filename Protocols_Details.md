@@ -1096,11 +1096,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 A|E|T|R|FLIP||||HEADLESS
 
 ### Sub_protocol A180 - *5*
-Model: XK A180
+Model: XK A180, F949S
 
-CH1|CH2|CH3|CH4|CH5
----|---|---|---|---
-A|E|T|R|3D6G
+A180:
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|3D6G|RATE
+
+F949S:
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|RATE|RXLED|3D6G
 
 ### Sub_protocol DRAGON - *6*
 Model: Eachine Mini Wing Dragon

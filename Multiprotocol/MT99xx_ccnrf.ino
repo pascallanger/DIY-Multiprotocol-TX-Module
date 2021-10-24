@@ -198,8 +198,9 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					crc8=0;
 					break;
 				case A180:
-					packet[6] = FLAG_A180_RATE
-						| GET_FLAG( CH5_SW, FLAG_A180_3D6G );
+					packet[6] = GET_FLAG( !CH6_SW,FLAG_A180_RATE)	// 0x02, A180=RATE,  F949S=LED
+							   |GET_FLAG( CH5_SW, FLAG_A180_3D6G )	// 0x01, A180=3D_6G, F949S=RATE
+							   |GET_FLAG( CH7_SW, 0x20 );			// 0x20, F949S=3D_6G
 					packet[7] = 0x00;
 					break;
 				case DRAGON:

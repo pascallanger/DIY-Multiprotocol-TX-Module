@@ -34,6 +34,7 @@
 #define	E119_FLAG_CALIB		0x40
 // flags going to packet[2]
 #define	V911S_FLAG_CALIB	0x01
+#define A220_FLAG_6G3D		0x04
 
 static void __attribute__((unused)) V911S_send_packet()
 {
@@ -70,8 +71,11 @@ static void __attribute__((unused)) V911S_send_packet()
 			packet[ 2]=GET_FLAG(CH5_SW,V911S_FLAG_CALIB);	// long  press on right button
 		}
 		else//E119
+		{
 			packet[ 1]=GET_FLAG(!CH6_SW,E119_FLAG_EXPERT)	// short  press on left button
 					  |GET_FLAG( CH5_SW,E119_FLAG_CALIB);	// short  press on right button
+			packet[ 2]=GET_FLAG( CH7_SW,A220_FLAG_6G3D);	// short  press on right button
+		}
 			
 		//packet[3..6]=trims TAER signed
 		uint16_t ch=convert_channel_16b_limit(THROTTLE ,0,0x7FF);

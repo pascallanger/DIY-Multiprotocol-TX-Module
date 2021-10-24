@@ -1289,7 +1289,9 @@ Models: WLtoys V911S, XK A110
 ### Sub_protocol E119 - *1*
 Models: Eachine E119, JJRC W01-J3, XK A220 P-40
 
-P-40 is using CH5 for 6G/3D.
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|CALIB|RATE|6G_3D
 
 ## XK - *62*
 
@@ -1783,7 +1785,7 @@ Model: PROPEL 74-Z Speeder Bike
 
 Autobind protocol
 
-Telemetry: RSSI is equal to TX_LQI which indicates how well the TX receives the RX (0-100%). A1 voltage should indicate the numbers of life remaining (not tested). A2 is giving the model status using a bit mask: 0x80=flying, 0x08=taking off, 0x04=landing, 0x00=landed/crashed
+Telemetry: RSSI is equal to TX_LQI which indicates how well the TX receives the RX (0-100%). A1 (with a ratio of 25.5) voltage should indicate the numbers of life remaining 0.2->0.1->0.0(not tested). A2 (with a ratio of 25.5) is giving the model status: 12.8=flying, 0.8=taking off, 0.4=landing, 0=landed/crashed
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----

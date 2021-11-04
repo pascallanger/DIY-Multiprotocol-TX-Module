@@ -309,8 +309,8 @@ static void multi_send_status()
 #ifdef HOTT_FW_TELEMETRY
 	void HOTT_short_frame()
 	{
-		multi_send_header(MULTI_TELEMETRY_HOTT, 14);
-		for (uint8_t i = 0; i < 14; i++)			// TX RSSI and TX LQI values followed by frame number and telemetry data
+		multi_send_header(MULTI_TELEMETRY_HOTT, 15);
+		for (uint8_t i = 0; i < 15; i++)			// TX RSSI and TX LQI values followed by frame number and telemetry data
 			Serial_write(packet_in[i]);
 	}
 #endif

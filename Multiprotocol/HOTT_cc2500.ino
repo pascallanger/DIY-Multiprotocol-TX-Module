@@ -390,7 +390,7 @@ uint16_t HOTT_callback()
 						{	//Telemetry
 							// [0..4] = TXID
 							// [5..9] = RXID
-							// [10] = 0x40 bind, 0x00 normal, 0x80 config menu
+							// [10] = holds warnings issued by hott devices
 							// [11] = telmetry pages. For sensors 0x00 to 0x04, for config mennu 0x00 to 0x12.
 							// Normal telem page 0 = 0x55, 0x32, 0x38, 0x55, 0x64, 0x32, 0xD0, 0x07, 0x00, 0x55
 							//   Page 0 [12] = [21] = [15]
@@ -400,7 +400,7 @@ uint16_t HOTT_callback()
 							//   Page 0 [16] = RX_LQI in %
 							//   Page 0 [17] = RX_Voltage Min*10 in V
 							//   Page 0 [18,19] = [19]<<8+[18]=max lost packet time in ms, max value seems 2s=0x7D0
-							//   Page 0 [20] = 0x00 ??
+							//   Page 0 [20] = rx events
 							//
 							// Config menu consists of the different telem pages put all together
 							//   Page X [12] = seems like all the telem pages with the same value are going together to make the full config menu text. Seen so far 'a', 'b', 'c', 'd' 
@@ -412,6 +412,7 @@ uint16_t HOTT_callback()
 							// Reduce telemetry to 14 bytes
 							packet_in[0]= packet_in[HOTT_RX_PACKET_LEN];
 							packet_in[1]= TX_LQI;
+							uint8_t hott_warnings = packet_in[10];						// save warnings from hott devices
 							bool send_telem=true;
 							HOTT_sensor_seq++;											// Increment RX sequence counter
 							if(packet[29] & 1)
@@ -464,6 +465,7 @@ uint16_t HOTT_callback()
 								packet_in[i-8]=packet_in[i];
 								debug(" %02X",packet_in[i]);
 							}
+							packet_in[14] = hott_warnings;								// restore saved warnings from hott devices
 							debugln("");
 							if(send_telem)
 								telemetry_link=2;

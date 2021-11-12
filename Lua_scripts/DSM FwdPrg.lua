@@ -534,6 +534,7 @@ local function DSM_Init()
   multiBuffer( 2, string.byte('M') )
 
   --Text to be displayed -> need to use a file instead?
+  Text[0x0001]="On"
   Text[0x0002]="Off"
   Text[0x0003]="Inh"
   Text[0x0004]="Act"
@@ -541,7 +542,7 @@ local function DSM_Init()
   Text[0x000D]="Gear"
   
   --RX names--
-  Text[0x0001]="AR636B"
+  --Text[0x0001]="AR636B" -- Hmm AR636B 4.40 says Unknown_1 conflicts with 637TA On.
   Text[0x0014]="SPM4651T"
   Text[0x0015]="AR637T"
   Text[0x0016]="AR637TA"
@@ -658,6 +659,7 @@ local function DSM_Init()
   Text[0x0109]="setup again."
   Text[0x0190]="Relearn Servo Settings"
   Text[0x019C]="Enter Receiver Bind Mode"
+  Text[0x01D7]="SAFE Select Channel"
   Text[0x01DC]="AS3X"
   Text[0x01DD]="AS3X Settings"
   Text[0x01DE]="AS3X Gains"
@@ -675,6 +677,7 @@ local function DSM_Init()
   Text[0x01F0]="High Thr to Pitch"
   Text[0x01F6]="Failsafe Angles"
   Text[0x01F8]="Safe Mode"
+  Text[0x01F9]="SAFE Select"
   Text[0x01FD]="SAFE Failsafe FMode"
   Text[0x0208]="Decay"
   Text[0x0209]="Save to Backup"

@@ -36,6 +36,7 @@ local MENU, LIST_MENU_NOCHANGING, LIST_MENU1, LIST_MENU2, VALUE_NOCHANGING = 0x1
 local Phase = RX_VERSION
 local Waiting_RX = 0
 local Text = {}
+local RxName = {}
 local Retry=100
 local Blink = 0
 local Value_Changed=0
@@ -70,6 +71,14 @@ end
 ------------------------------------------------------------------------------------------------------------
 local function Get_Text(index)
   out = Text[index]
+  if out == nil then -- unknown...
+    out = "Unknown_"..string.format("%X",index)
+  end
+  return out
+end
+------------------------------------------------------------------------------------------------------------
+local function Get_RxName(index)
+  out = RxName[index]
   if out == nil then -- unknown...
     out = "Unknown_"..string.format("%X",index)
   end
@@ -297,7 +306,7 @@ local function DSM_Send_Receive()
     
 	if multiBuffer(11) == 0x01 then -- read version
 	  --ex: 0x09 0x01 0x00 0x15 0x02 0x22 0x01 0x00 0x14 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-      RX.Name = Get_Text(multiBuffer(13))
+      RX.Name = Get_RxName(multiBuffer(13))
       RX.Version = multiBuffer(14).."."..multiBuffer(15).."."..multiBuffer(16)
       Phase = MENU_TITLE
     
@@ -533,18 +542,22 @@ local function DSM_Init()
   multiBuffer( 1, string.byte('S') )
   multiBuffer( 2, string.byte('M') )
 
+  --RX names--
+  RxName[0x0001]="AR636B"
+  RxName[0x0014]="SPM4651T"
+  RxName[0x0015]="AR637T"
+  RxName[0x0016]="AR637TA"
+  RxName[0x0018]="FC6250HX"
+  RxName[0x001E]="AR631"
+
   --Text to be displayed -> need to use a file instead?
+  Text[0x0001]="On"
   Text[0x0002]="Off"
   Text[0x0003]="Inh"
   Text[0x0004]="Act"
   Text[0x000C]="Inhibit?" --?
   Text[0x000D]="Gear"
   
-  --RX names--
-  Text[0x0014]="SPM4651T"
-  Text[0x0015]="AR637T"
-  Text[0x0018]="FC6250HX"
-  Text[0x001E]="AR631"
   --Lists--
   Text[0x002E]="11ms"
   Text[0x002F]="22ms"
@@ -655,6 +668,7 @@ local function DSM_Init()
   Text[0x0109]="setup again."
   Text[0x0190]="Relearn Servo Settings"
   Text[0x019C]="Enter Receiver Bind Mode"
+  Text[0x01D7]="SAFE Select Channel"
   Text[0x01DC]="AS3X"
   Text[0x01DD]="AS3X Settings"
   Text[0x01DE]="AS3X Gains"
@@ -672,6 +686,7 @@ local function DSM_Init()
   Text[0x01F0]="High Thr to Pitch"
   Text[0x01F6]="Failsafe Angles"
   Text[0x01F8]="Safe Mode"
+  Text[0x01F9]="SAFE Select"
   Text[0x01FD]="SAFE Failsafe FMode"
   Text[0x0208]="Decay"
   Text[0x0209]="Save to Backup"

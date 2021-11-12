@@ -541,10 +541,12 @@ local function DSM_Init()
   Text[0x000D]="Gear"
   
   --RX names--
+  Text[0x0001]="AR636B"
   Text[0x0014]="SPM4651T"
   Text[0x0015]="AR637T"
   Text[0x0018]="FC6250HX"
   Text[0x001E]="AR631"
+
   --Lists--
   Text[0x002E]="11ms"
   Text[0x002F]="22ms"

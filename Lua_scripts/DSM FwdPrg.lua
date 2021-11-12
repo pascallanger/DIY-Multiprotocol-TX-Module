@@ -36,6 +36,7 @@ local MENU, LIST_MENU_NOCHANGING, LIST_MENU1, LIST_MENU2, VALUE_NOCHANGING = 0x1
 local Phase = RX_VERSION
 local Waiting_RX = 0
 local Text = {}
+local RxName = {}
 local Retry=100
 local Blink = 0
 local Value_Changed=0
@@ -70,6 +71,14 @@ end
 ------------------------------------------------------------------------------------------------------------
 local function Get_Text(index)
   out = Text[index]
+  if out == nil then -- unknown...
+    out = "Unknown_"..string.format("%X",index)
+  end
+  return out
+end
+------------------------------------------------------------------------------------------------------------
+local function Get_RxName(index)
+  out = RxName[index]
   if out == nil then -- unknown...
     out = "Unknown_"..string.format("%X",index)
   end
@@ -297,7 +306,7 @@ local function DSM_Send_Receive()
     
 	if multiBuffer(11) == 0x01 then -- read version
 	  --ex: 0x09 0x01 0x00 0x15 0x02 0x22 0x01 0x00 0x14 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-      RX.Name = Get_Text(multiBuffer(13))
+      RX.Name = Get_RxName(multiBuffer(13))
       RX.Version = multiBuffer(14).."."..multiBuffer(15).."."..multiBuffer(16)
       Phase = MENU_TITLE
     
@@ -533,6 +542,14 @@ local function DSM_Init()
   multiBuffer( 1, string.byte('S') )
   multiBuffer( 2, string.byte('M') )
 
+  --RX names--
+  RxName[0x0001]="AR636B"
+  RxName[0x0014]="SPM4651T"
+  RxName[0x0015]="AR637T"
+  RxName[0x0016]="AR637TA"
+  RxName[0x0018]="FC6250HX"
+  RxName[0x001E]="AR631"
+
   --Text to be displayed -> need to use a file instead?
   Text[0x0001]="On"
   Text[0x0002]="Off"
@@ -541,14 +558,6 @@ local function DSM_Init()
   Text[0x000C]="Inhibit?" --?
   Text[0x000D]="Gear"
   
-  --RX names--
-  --Text[0x0001]="AR636B" -- Hmm AR636B 4.40 says Unknown_1 conflicts with 637TA On.
-  Text[0x0014]="SPM4651T"
-  Text[0x0015]="AR637T"
-  Text[0x0016]="AR637TA"
-  Text[0x0018]="FC6250HX"
-  Text[0x001E]="AR631"
-
   --Lists--
   Text[0x002E]="11ms"
   Text[0x002F]="22ms"

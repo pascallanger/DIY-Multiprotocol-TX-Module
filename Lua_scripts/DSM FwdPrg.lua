@@ -544,6 +544,7 @@ local function DSM_Init()
   Text[0x0001]="AR636B"
   Text[0x0014]="SPM4651T"
   Text[0x0015]="AR637T"
+  Text[0x0016]="AR637TA"
   Text[0x0018]="FC6250HX"
   Text[0x001E]="AR631"
 

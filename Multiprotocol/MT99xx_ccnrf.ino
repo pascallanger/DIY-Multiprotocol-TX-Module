@@ -285,6 +285,12 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	XN297_SetFreqOffset();
 	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, MT99XX_PACKET_SIZE);
+	
+	#if 0
+		for(uint8_t i=0; i<MT99XX_PACKET_SIZE; i++)
+			debug(" %02X",packet[i]);
+		debugln();
+	#endif
 }
 
 static void __attribute__((unused)) MT99XX_RF_init()

@@ -79,7 +79,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [E010R5](Protocols_Details.md#E010R5---81)|81|||||||||CYRF6936/NRF24L01|RF2500
 [E016H](Protocols_Details.md#E016H---85)|85|||||||||NRF24L01|XN297
 [E016HV2](Protocols_Details.md#E016HV2---80)|80|||||||||CC2500/NRF24L01|unknown
-[E01X](Protocols_Details.md#E01X---45)|45|E012|E015|||||||NRF24L01|HS6200
+[E01X](Protocols_Details.md#E01X---45)|45|E012|E015|||||||CYRF6936|HS6200
 [E129](Protocols_Details.md#E129---83)|83|||||||||CYRF6936/NRF24L01|RF2500
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|||||||||NRF24L01|
@@ -575,6 +575,25 @@ Autobind protocol.
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|LED|CALIB|HEADLESS|RTH|GLIDE
+
+## E01X - *45*
+Autobind protocol
+
+Not supported by Atmega328p modules.
+
+### Sub_protocol E012 - *0*
+Models: Eachine E012
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R||FLIP||HEADLESS|RTH
+
+### Sub_protocol E015 - *1*
+Models: Eachine E015
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|ARM|FLIP|LED|HEADLESS|RTH
 
 ## E129 - *83*
 Models: Eachine E129/E130 and Twister Ninja 250
@@ -1526,27 +1545,6 @@ Model: Eachine E016H
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|STOP|FLIP|-|HEADLESS|RTH
-
-## E01X - *45*
-Autobind protocol
-
-### Sub_protocol E012 - *0*
-Models: Eachine E012
-
-This protocol has been reported to not work properly due to the emulation of the HS6200 RF component using the NRF24L01. The option value is used to adjust the timing, try every values between -127 and +127. If it works please report which value you've used.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R||FLIP||HEADLESS|RTH
-
-### Sub_protocol E015 - *1*
-Models: Eachine E015
-
-This protocol has been reported to not work properly due to the emulation of the HS6200 RF component using the NRF24L01. The option value is used to adjust the timing, try every values between -127 and +127. If it works please report which value you've used.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|ARM|FLIP|LED|HEADLESS|RTH
 
 ## ESKY - *16*
 

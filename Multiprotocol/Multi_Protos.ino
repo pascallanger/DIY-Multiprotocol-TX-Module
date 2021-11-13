@@ -247,8 +247,8 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(E016HV2_CC2500_INO)
 		{PROTO_E016HV2,    STR_E016HV2,   NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_CC2500, E016HV2_init,    E016HV2_callback    },
 	#endif
-	#if defined(E01X_NRF24L01_INO)
-		{PROTO_E01X,       STR_E01X,      STR_SUBTYPE_E01X,      2, OPTION_OPTION,  0, 0, SW_NRF,    E01X_init,       E01X_callback       },
+	#if defined(E01X_CYRF6936_INO)
+		{PROTO_E01X,       STR_E01X,      STR_SUBTYPE_E01X,      2, OPTION_NONE,    0, 0, SW_CYRF,   E01X_init,       E01X_callback       },
 	#endif
 	#if defined(E129_CYRF6936_INO)
 		{PROTO_E129,       STR_E129,      NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CYRF,   E129_init,       E129_callback       },

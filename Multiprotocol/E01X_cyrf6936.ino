@@ -14,9 +14,9 @@
  */
 // compatible with E012 and E015
 
-#if defined(E01X_NRF24L01_INO)
+#if defined(E01X_CYRF6936_INO)
 
-#include "iface_nrf24l01.h"
+#include "iface_HS6200.h"
 
 //Protocols constants
 #define E01X_BIND_COUNT			500
@@ -28,7 +28,8 @@
 #define E012_NUM_RF_CHANNELS	4
 #define E012_PACKET_SIZE		15
 
-#define E015_PACKET_PERIOD		4500	// stock Tx=9000, but let's send more packets ...
+//#define E015_FORCE_ID
+#define E015_PACKET_PERIOD		9000
 #define E015_RF_CHANNEL			0x2d	// 2445 MHz
 #define E015_PACKET_SIZE		10
 #define E015_BIND_PACKET_SIZE	9
@@ -87,13 +88,15 @@ static void __attribute__((unused)) E01X_send_packet()
 		packet[0] = rx_tx_addr[1];
 		if(IS_BIND_IN_PROGRESS)
 		{
+			rf_ch_num = E012_RF_BIND_CHANNEL;
 			packet[1] = 0xaa;
 			memcpy(&packet[2], hopping_frequency, E012_NUM_RF_CHANNELS);
 			memcpy(&packet[6], rx_tx_addr, E01X_ADDRESS_LENGTH);
-			rf_ch_num=E012_RF_BIND_CHANNEL;
 		}
 		else
 		{
+			rf_ch_num = hopping_frequency[hopping_frequency_no++];
+			hopping_frequency_no %= E012_NUM_RF_CHANNELS;
 			packet[1] = 0x01
 				| GET_FLAG(E01X_RTH_SW,			E012_FLAG_RTH)
 				| GET_FLAG(E01X_HEADLESS_SW,	E012_FLAG_HEADLESS)
@@ -107,8 +110,6 @@ static void __attribute__((unused)) E01X_send_packet()
 			packet[8] = 0x00;
 			packet[9] = 0x00;
 			packet[10]= 0x00;
-			rf_ch_num=hopping_frequency[hopping_frequency_no++];
-			hopping_frequency_no %= E012_NUM_RF_CHANNELS;
 		}
 		packet[11] = 0x00;
 		packet[12] = 0x00;
@@ -117,6 +118,7 @@ static void __attribute__((unused)) E01X_send_packet()
 	}
 	else
 	{ // E015
+		rf_ch_num = E015_RF_CHANNEL;
 		if(IS_BIND_IN_PROGRESS)
 		{
 			packet[0] = 0x18;
@@ -124,10 +126,11 @@ static void __attribute__((unused)) E01X_send_packet()
 			packet[2] = 0x06;
 			// data phase address
 			memcpy(&packet[3], rx_tx_addr, E01X_ADDRESS_LENGTH);
+			packet[8] = 0x63;	// unknown calculation
 			// checksum
-			packet[8] = packet[3];
-			for(uint8_t i=4; i<8; i++)
-				packet[8] += packet[i];
+			//packet[8] = packet[3];
+			//for(uint8_t i=4; i<8; i++)
+			//	packet[8] += packet[i];
 			packet_length=E015_BIND_PACKET_SIZE;
 		}
 		else
@@ -154,24 +157,15 @@ static void __attribute__((unused)) E01X_send_packet()
 		}
 	}
 
-	HS6200_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, rf_ch_num);
-
-	NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
-	NRF24L01_FlushTx();
-
-	HS6200_WritePayload(packet, packet_length);
-
-	// Check and adjust transmission power. We do this after
-	// transmission to not bother with timeout after power
-	// settings change -  we have plenty of time until next
-	// packet.
-	NRF24L01_SetPower();
+	HS6200_RFChannel(rf_ch_num);
+	HS6200_SetPower();
+	delayMicroseconds(270);		// Wait for RF channel to settle
+	HS6200_SendPayload(packet, packet_length);
 }
 
 static void __attribute__((unused)) E01X_RF_init()
 {
-	NRF24L01_Initialize();
+	HS6200_Init(true);	// CRC enabled
 
 	if(sub_protocol==E012)
 		HS6200_SetTXAddr((uint8_t *)"\x55\x42\x9C\x8F\xC9", E01X_ADDRESS_LENGTH);
@@ -218,8 +212,21 @@ void E01X_init()
 	}
 	else //E015
 	{
+		#ifdef E015_FORCE_ID
+			rx_tx_addr[0] = 0x06;
+			rx_tx_addr[1] = 0xC6;
+			rx_tx_addr[2] = 0xB7;
+			rx_tx_addr[3] = 0x56;
+			rx_tx_addr[4] = 0x8A;
+		#endif
+
+		//force the sum to give 0x63 since the id calculation is unknown
+		uint8_t sum=0x63;
+		for(uint8_t i=0; i < 4; i++)
+			sum -= rx_tx_addr[i];
+		rx_tx_addr[4] = sum;
+
 		packet_period=E015_PACKET_PERIOD;
-		rf_ch_num=E015_RF_CHANNEL;
 		armed = 0;
 		arm_flags = 0;
 		arm_channel_previous = E01X_ARM_SW;

@@ -16,7 +16,7 @@
 
 #if defined(E01X_CYRF6936_INO)
 
-#include "iface_HS6200.h"
+#include "iface_hs6200.h"
 
 //Protocols constants
 #define E01X_BIND_COUNT			500

@@ -13,7 +13,7 @@
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifdef CYRF6936_INSTALLED
-#include "iface_HS6200.h"
+#include "iface_hs6200.h"
 
 static bool HS6200_crc;
 static uint16_t HS6200_crc_init;

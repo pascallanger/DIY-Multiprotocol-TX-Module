@@ -548,6 +548,7 @@ local function DSM_Init()
   RxName[0x0015]="AR637T"
   RxName[0x0016]="AR637TA"
   RxName[0x0018]="FC6250HX"
+  RxName[0x001A]="AR8360T"
   RxName[0x001E]="AR631"
 
   --Text to be displayed -> need to use a file instead?

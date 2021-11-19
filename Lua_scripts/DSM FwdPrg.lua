@@ -548,6 +548,7 @@ local function DSM_Init()
   RxName[0x0015]="AR637T"
   RxName[0x0016]="AR637TA"
   RxName[0x0018]="FC6250HX"
+  RxName[0x001A]="AR8360T"
   RxName[0x001E]="AR631"
 
   --Text to be displayed -> need to use a file instead?
@@ -714,10 +715,13 @@ local function DSM_Init()
   Text[0x0231]="This will overwrite the"
   Text[0x0232]="backup memory with your"
   Text[0x0233]="current configuartion."
+  Text[0x0234]="" -- blank line
+  Text[0x0235]="" -- blank line
   Text[0x0236]="This will overwrite the"
   Text[0x0237]="current config with"
   Text[0x0238]="that which is in"
   Text[0x0239]="the backup memory."
+  Text[0x023A]="" -- blank line
   Text[0x023D]="Copy Flight Mode Settings"
   Text[0x0240]="Utilities"
   Text[0x024C]="Gains will be captured on"

@@ -1312,7 +1312,7 @@ Rate: -100% High, +100% Low
 Models: WLtoys V911S, XK A110
 
 ### Sub_protocol E119 - *1*
-Models: Eachine E119, JJRC W01-J3, XK A220 P-40
+Models: Eachine E119, JJRC W01-J3, XK A220 P-40, newer XK A800
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---

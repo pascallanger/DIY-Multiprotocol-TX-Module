@@ -35,7 +35,7 @@
 //#define FORCE_A180_ID
 //#define FORCE_DRAGON_ID
 //#define FORCE_F949G_ID
-//#define FORCE_PA18_ID
+#define FORCE_PA18_ID
 
 enum {
     MT99XX_DATA,
@@ -178,7 +178,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 			packet[5] = 0x20; 											// roll trim (0x00-0x20-0x3f)
 			packet[6] = GET_FLAG( CH5_SW, FLAG_MT_FLIP );
 			if(sub_protocol != PA18+8)
-				packet[7] = h7_mys_byte[hopping_frequency_no];				// next rf channel index ?
+				packet[7] = h7_mys_byte[hopping_frequency_no];			// next rf channel index ?
 			else
 				packet[7] = (packet[7]&0xBF)|0x20;
 			switch(sub_protocol)

@@ -256,7 +256,7 @@
 #define	GD00X_CCNRF_INO
 #define	KF606_CCNRF_INO
 #define	MJXQ_CCNRF_INO
-#define	MT99XX_CCNRF_INO
+#define	MT99XX_CCNRF_INO		//Include MT99XX2 protocol
 #define	OMP_CCNRF_INO
 #define	Q303_CCNRF_INO
 #define	Q90C_CCNRF_INO
@@ -746,6 +746,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		A180
 		DRAGON
 		F949G
+	PROTO_MT99XX2
+		PA18
 	PROTO_NCC1701
 		NONE
 	PROTO_OMP

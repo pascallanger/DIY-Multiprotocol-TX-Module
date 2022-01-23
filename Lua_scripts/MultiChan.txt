@@ -201,3 +201,4 @@
 90,0,MouldKg,Analog,0
 90,1,MouldKg,Digit,0
 91,0,Xerall,Tank,0,FlTa,TakLan,Rate,HLess,Photo,Video,TrimR,TrimE,TrimA
+92,0,MT99xx2,PA18,0,MODE,FLIP,RTH

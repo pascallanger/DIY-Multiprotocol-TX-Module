@@ -27,12 +27,15 @@
 #define MT99XX_PACKET_PERIOD_DRAGON	1038	// there is a pause of 2x1038 between two packets, no idea why and how since it is not even stable on a same dump...
 #define MT99XX_PACKET_PERIOD_DRAGON_TELEM	10265	// long pause to receive the telemetry packets, 3 are sent by the RX one after the other
 #define MT99XX_PACKET_PERIOD_F949G	3450
+#define MT99XX_PACKET_PERIOD_PA18	1160
+#define MT99XX_PA18_CRC				0x89	// Is it a constant???
 #define MT99XX_INITIAL_WAIT			500
 #define MT99XX_PACKET_SIZE			9
 
 //#define FORCE_A180_ID
 //#define FORCE_DRAGON_ID
 //#define FORCE_F949G_ID
+//#define FORCE_PA18_ID
 
 enum {
     MT99XX_DATA,
@@ -82,6 +85,11 @@ enum{
     FLAG_F949G_LIGHT	= 0x01,
     FLAG_F949G_3D6G		= 0x20,
 };
+enum{
+    // flags going to packet[6] (PA18)
+	FLAG_PA18_RTH		= 0x08,
+	FLAG_PA18_FLIP		= 0x80,
+};
 
 const uint8_t h7_mys_byte[] = {
 	0x01, 0x11, 0x02, 0x12, 0x03, 0x13, 0x04, 0x14, 
@@ -111,7 +119,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	else
 		if(sub_protocol==FY805)
 			XN297_RFChannel(0x4B); // FY805 always transmits on the same channel
-		else // MT99 & H7 & YZ & A180 & DRAGON & F949G
+		else // MT99 & H7 & YZ & A180 & DRAGON & F949G & PA18
 			XN297_Hopping(hopping_frequency_no);
 
 	if(IS_BIND_IN_PROGRESS)
@@ -121,7 +129,6 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		switch(sub_protocol)
 		{
 			case YZ:
-				packet_period = MT99XX_PACKET_PERIOD_YZ;
 				packet[1] = 0x15;
 				packet[2] = 0x05;
 				packet[3] = 0x06;
@@ -132,15 +139,11 @@ static void __attribute__((unused)) MT99XX_send_packet()
 				packet[3] = 0x11;
 				break;
 			case FY805:
-				packet_period = MT99XX_PACKET_PERIOD_FY805;
 				packet[1] = 0x15;
 				packet[2] = 0x12;
 				packet[3] = 0x17;
 				break;
-			case F949G:
-			case A180:
-				packet_period = MT99XX_PACKET_PERIOD_A180;
-			default:	// MT99 & H7 & A180 & DRAGON & F949G
+			default:	// MT99 & H7 & A180 & DRAGON & F949G & PA18
 				packet[1] = 0x14;
 				packet[2] = 0x03;
 				packet[3] = 0x25;
@@ -149,16 +152,24 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		packet[4] = rx_tx_addr[0];
 		packet[5] = rx_tx_addr[1];
 		packet[6] = rx_tx_addr[2];
-		packet[7] = crc8;												// checksum offset
-		if(sub_protocol != F949G)
-			packet[8] = 0xAA;											// fixed
+		if(sub_protocol == PA18+8)
+		{
+			packet[7] = MT99XX_PA18_CRC;								// checksum offset
+			packet[8] = 0x55;											// fixed
+		}
 		else
-			packet[8] = 0x00;
+		{ // all others
+			packet[7] = crc8;											// checksum offset
+			if(sub_protocol != F949G)
+				packet[8] = 0xAA;										// fixed
+			else
+				packet[8] = 0x00;
+		}
 	}
 	else
 	{
 		if(sub_protocol != YZ)
-		{ // MT99XX & H7 & LS & FY805 & A180 & DRAGON & F949G
+		{ // MT99XX & H7 & LS & FY805 & A180 & DRAGON & F949G & PA18
 			packet[0] = convert_channel_16b_limit(THROTTLE,0xE1,0x00);	// throttle
 			packet[1] = convert_channel_16b_limit(RUDDER  ,0x00,0xE1);	// rudder
 			packet[2] = convert_channel_16b_limit(AILERON ,0xE1,0x00);	// aileron
@@ -166,8 +177,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 			packet[4] = 0x20; 											// pitch trim (0x3f-0x20-0x00)
 			packet[5] = 0x20; 											// roll trim (0x00-0x20-0x3f)
 			packet[6] = GET_FLAG( CH5_SW, FLAG_MT_FLIP );
-			packet[7] = h7_mys_byte[hopping_frequency_no];				// next rf channel index ?
-
+			if(sub_protocol != PA18+8)
+				packet[7] = h7_mys_byte[hopping_frequency_no];				// next rf channel index ?
+			else
+				packet[7] = (packet[7]&0xBF)|0x20;
 			switch(sub_protocol)
 			{
 				case MT99:
@@ -198,16 +211,16 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					crc8=0;
 					break;
 				case A180:
-					packet[6] = GET_FLAG( !CH6_SW,FLAG_A180_RATE)	// 0x02, A180=RATE,  F949S=LED
-							   |GET_FLAG( CH5_SW, FLAG_A180_3D6G )	// 0x01, A180=3D_6G, F949S=RATE
-							   |GET_FLAG( CH7_SW, 0x20 );			// 0x20, F949S=3D_6G
+					packet[6] = GET_FLAG( !CH6_SW,FLAG_A180_RATE)		// 0x02, A180=RATE,  F949S=LED
+							   |GET_FLAG( CH5_SW, FLAG_A180_3D6G )		// 0x01, A180=3D_6G, F949S=RATE
+							   |GET_FLAG( CH7_SW, 0x20 );				// 0x20, F949S=3D_6G
 					packet[7] = 0x00;
 					break;
 				case DRAGON:
-					if(CH5_SW)										// Advanced mode
+					if(CH5_SW)											// Advanced mode
 						packet[5] |= 0x80;
 					else
-						if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)	// Beginner mode
+						if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)		// Beginner mode
 							packet[5] |= 0x40;
 					packet[6] = FLAG_DRAGON_RATE
 						| GET_FLAG( CH6_SW, FLAG_DRAGON_RTH );
@@ -222,12 +235,12 @@ static void __attribute__((unused)) MT99XX_send_packet()
 							if(packet_count > 11)
 								packet_count = 0;
 						}
-						if(packet_count > 10)						// Telemetry packet request every 10 or 11 packets
+						if(packet_count > 10)							// Telemetry packet request every 10 or 11 packets
 						{
-							packet[6] |= 0x04;						// Request telemetry flag
+							packet[6] |= 0x04;							// Request telemetry flag
 							phase = MT99XX_RX;
 						}
-						packet[7] = DRAGON_seq[seq_num];			// seq: 20 80 20 60 20 80 20 60... 80 changes to 80+batt from telem
+						packet[7] = DRAGON_seq[seq_num];				// seq: 20 80 20 60 20 80 20 60... 80 changes to 80+batt from telem
 						if(seq_num==3)
 							packet[7] |= v_lipo1;
 					#else
@@ -240,18 +253,31 @@ static void __attribute__((unused)) MT99XX_send_packet()
 							  | GET_FLAG( CH6_SW, FLAG_F949G_LIGHT );
 					packet[7] = 0x00;
 					break;
+				case PA18+8:
+					if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)			// Expert mode
+						packet[5] += 0xA0;
+					else
+						if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)		// Intermediate mode
+							packet[5] += 0x60;
+					packet[6] = GET_FLAG( CH6_SW, FLAG_PA18_FLIP )		// Flip
+							  | GET_FLAG( CH7_SW, FLAG_PA18_RTH );		// RTH
+					if(hopping_frequency_no == 0)
+						packet[7] ^= 0x40;
+					break;
 			}
 			uint8_t result=crc8;
 			for(uint8_t i=0; i<8; i++)
 				result += packet[i];
+			if(sub_protocol == PA18+8)
+				result += MT99XX_PA18_CRC;
 			packet[8] = result;
 		}
 		else
 		{ // YZ
-			packet[0] = convert_channel_16b_limit(THROTTLE,0x00,0x64);	// throttle
-			packet[1] = convert_channel_16b_limit(RUDDER  ,0x64,0x00);	// rudder
-			packet[2] = convert_channel_16b_limit(ELEVATOR,0x00,0x64);	// elevator
-			packet[3] = convert_channel_16b_limit(AILERON ,0x64,0x00);	// aileron
+			packet[0] = convert_channel_16b_limit(THROTTLE,0x00,0x64);		// throttle
+			packet[1] = convert_channel_16b_limit(RUDDER  ,0x64,0x00);		// rudder
+			packet[2] = convert_channel_16b_limit(ELEVATOR,0x00,0x64);		// elevator
+			packet[3] = convert_channel_16b_limit(AILERON ,0x64,0x00);		// aileron
 			if(packet_count++ >= 23)
 			{
 				seq_num ++;
@@ -261,11 +287,11 @@ static void __attribute__((unused)) MT99XX_send_packet()
 			}
 			packet[4] = yz_p4_seq[seq_num];
 			packet[5] = 0x02 // expert ? (0=unarmed, 1=normal)
-						| GET_FLAG(CH8_SW, 0x10)		//VIDEO
-						| GET_FLAG(CH5_SW, 0x80)		//FLIP
-						| GET_FLAG(CH9_SW, 0x04)		//HEADLESS
-						| GET_FLAG(CH7_SW, 0x20);		//SNAPSHOT
-			packet[6] =   GET_FLAG(CH6_SW, 0x80);		//LED
+						| GET_FLAG(CH8_SW, 0x10)							//VIDEO
+						| GET_FLAG(CH5_SW, 0x80)							//FLIP
+						| GET_FLAG(CH9_SW, 0x04)							//HEADLESS
+						| GET_FLAG(CH7_SW, 0x20);							//SNAPSHOT
+			packet[6] =   GET_FLAG(CH6_SW, 0x80);							//LED
 			packet[7] = packet[0];            
 			for(uint8_t idx = 1; idx < MT99XX_PACKET_SIZE-2; idx++)
 				packet[7] += packet[idx];
@@ -275,7 +301,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 
 	//Hopp
 	hopping_frequency_no++;
-	if(sub_protocol == YZ || sub_protocol == A180 || sub_protocol == DRAGON || sub_protocol == F949G)
+	if(sub_protocol == YZ || sub_protocol == A180 || sub_protocol == DRAGON || sub_protocol == F949G || sub_protocol == PA18+8)
 		hopping_frequency_no++; // skip every other channel
 	if(hopping_frequency_no > 15)
 		hopping_frequency_no = 0;
@@ -353,6 +379,17 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 			rx_tx_addr[2] = 0x29;
 			//crc8 = 0xD6
 			//channel_offset  = 0x03
+			break;
+	#endif
+	#ifdef FORCE_PA18_ID
+		case PA18:
+			rx_tx_addr[0] = 0xC9;	// zebble ID
+			rx_tx_addr[1] = 0x02;
+			rx_tx_addr[2] = 0x13;
+			//crc8 = 0xDE
+			//channel_offset  = 0x03
+			//1Mb C=5 S=Y A= C9 02 13 CC CC P(9)= E1 70 70 70 20 20 00 20 1A
+			//bind    S=Y A= CC CC CC CC CC P(9)= 20 14 03 25 C9 02 13 89 55
 			break;
 	#endif
 		default: //MT99 & H7 & A180 & DRAGON & F949G
@@ -446,14 +483,40 @@ uint16_t MT99XX_callback()
 
 void MT99XX_init(void)
 {
-	if(sub_protocol != A180 && sub_protocol != DRAGON && sub_protocol != F949G)
-		BIND_IN_PROGRESS;	// autobind protocol
+	if(protocol == PROTO_MT99XX2)
+		sub_protocol|=0x08;		// Increase the number of sub_protocols for MT99XX
+
     bind_counter = MT99XX_BIND_COUNT;
+	if(IS_BIND_DONE)
+	{		
+		if(sub_protocol != A180 && sub_protocol != DRAGON && sub_protocol != F949G && sub_protocol != PA18+8)
+			BIND_IN_PROGRESS;	// autobind protocol
+		else
+		    bind_counter = 1;
+	}
 
 	MT99XX_initialize_txid();
 	MT99XX_RF_init();
 
-	packet_period = MT99XX_PACKET_PERIOD_MT;
+	switch(sub_protocol)
+	{
+		case YZ:
+			packet_period = MT99XX_PACKET_PERIOD_YZ;
+			break;
+		case FY805:
+			packet_period = MT99XX_PACKET_PERIOD_FY805;
+			break;
+		case F949G:
+		case A180:
+			packet_period = MT99XX_PACKET_PERIOD_A180;
+			break;
+		case PA18+8:
+			packet_period = MT99XX_PACKET_PERIOD_PA18;
+			break;
+		default:
+			packet_period = MT99XX_PACKET_PERIOD_MT;
+			break;
+	}
 
 	packet_count=0;
 	phase=MT99XX_DATA;

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	3
-#define VERSION_PATCH_LEVEL	7
+#define VERSION_PATCH_LEVEL	8
 
 #define MODE_SERIAL 0
 
@@ -119,6 +119,7 @@ enum PROTOCOLS
 	PROTO_LOSI		= 89,	// =>CYRF6936
 	PROTO_MOULDKG	= 90,	// =>NRF24L01
 	PROTO_XERALL	= 91,	// =>NRF24L01
+	PROTO_MT99XX2	= 92,	// =>NRF24L01, extension of MT99XX protocol
 
 	PROTO_NANORF	= 126,	// =>NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -235,6 +236,10 @@ enum MT99XX
 	A180	= 5,
 	DRAGON	= 6,
 	F949G	= 7,
+};
+enum MT99XX2
+{
+	PA18	= 0,
 };
 enum MJXQ
 {

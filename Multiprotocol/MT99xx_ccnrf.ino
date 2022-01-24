@@ -339,7 +339,7 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 {
 	rx_tx_addr[1] = rx_tx_addr[3]; // RX_Num
 
-	switch(protocol)
+	switch(sub_protocol)
 	{
 		case YZ:
 			rx_tx_addr[0] = 0x53;	// test (SB id)

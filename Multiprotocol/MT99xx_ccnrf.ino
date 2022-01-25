@@ -382,11 +382,12 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 			break;
 	#endif
 	#ifdef FORCE_PA18_ID
-		case PA18:
+		case PA18+8:
 			rx_tx_addr[0] = 0xC9;	// zebble ID
 			rx_tx_addr[1] = 0x02;
 			rx_tx_addr[2] = 0x13;
 			//crc8 = 0xDE
+			// additional crc init of 0x89, how is this calculated???
 			//channel_offset  = 0x03
 			//1Mb C=5 S=Y A= C9 02 13 CC CC P(9)= E1 70 70 70 20 20 00 20 1A
 			//bind    S=Y A= CC CC CC CC CC P(9)= 20 14 03 25 C9 02 13 89 55

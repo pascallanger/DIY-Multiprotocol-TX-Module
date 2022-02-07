@@ -1628,7 +1628,7 @@ A|E|T|R|FLIP
 Autobind protocol
 
 ### Sub_protocol H8_3D - *0*
-Models: EAchine H8 mini 3D, JJRC H20/H22/H11D
+Models: Eachine H8 mini 3D,Eachine E10, JJRC H20/H22/H11D
 
 CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
 ---|---|---|---|---|---|---|---|---

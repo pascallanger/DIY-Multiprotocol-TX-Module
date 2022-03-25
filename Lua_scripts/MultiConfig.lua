@@ -48,6 +48,7 @@ local ModuleNumber = 0
 local ModuleType = ""
 local Module = {}
 local InitialProtocol = 0
+local InitialSubProtocol = 0
 
 function bitand(a, b)
     local result = 0
@@ -76,6 +77,7 @@ end
 local function Config_Release()
   --Set the protocol back to what it was
   Module.protocol = InitialProtocol
+  Module.subProtocol = InitialSubProtocol
   model.setModule(ModuleNumber, Module)
 
   --Stop requesting updates
@@ -422,7 +424,9 @@ local function Config_Init()
   --Get Module settings and set it to config protocol
   Module = model.getModule(ModuleNumber)
   InitialProtocol = Module.protocol
+  InitialSubProtocol = Module.subProtocol
   Module.protocol = 86
+  Module.subProtocol = 0
   model.setModule(ModuleNumber, Module)
   --pause while waiting for the module to switch to config
   for i = 0, 10, 1 do end

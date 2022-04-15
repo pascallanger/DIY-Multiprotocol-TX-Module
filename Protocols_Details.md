@@ -1025,15 +1025,19 @@ New generation of GD models
 
 ## KF606 - *49*
 
+### Sub_protocol KF606 - *0*
+Model: KF606
+
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A||T||TRIM
 
-### Sub_protocol KF606 - *0*
-Model: KF606
-
 ### Sub_protocol MIG320 - *1*
 Model: Zhiyang MIG-320
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A||T||TRIM|LED
 
 ## MJXQ - *18*
 Autobind protocol

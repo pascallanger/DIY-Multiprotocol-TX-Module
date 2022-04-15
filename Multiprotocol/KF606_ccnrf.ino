@@ -46,7 +46,7 @@ static void __attribute__((unused)) KF606_send_packet()
 		if(sub_protocol == KF606_KF606)
 		{
 			packet[2] = convert_channel_8b_limit_deadband(AILERON,0x20,0x80,0xE0,40);	// Aileron: Max values:20..80..E0, Low rates:50..80..AF, High rates:3E..80..C1
-			packet[3] = convert_channel_16b_limit(CH5,0xC1,0xDF);	// Aileron trim must be on a separated channel C1..D0..DF
+			packet[3] = convert_channel_16b_limit(CH5,0xC1,0xDF);						// Aileron trim must be on a separated channel C1..D0..DF
 		}
 		else
 		{
@@ -57,6 +57,7 @@ static void __attribute__((unused)) KF606_send_packet()
 				packet[3] = 0x01;
 			else if(packet[3] > 0x1F)
 				packet[3] = 0x1F;
+			packet[3] |= GET_FLAG(CH6_SW, 0xC0);										// 0xC0 and 0xE0 are both turning the LED off, not sure if there is another hidden feature
 		}
 	}
 

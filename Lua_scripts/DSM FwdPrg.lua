@@ -630,6 +630,7 @@ local function DSM_Init()
   Text[0x00AA]="Capture Gyro Gains"
   Text[0x00AD]="Gain Channel Select"
   Text[0x00B0]="Self-Level/Angle Dem"
+  Text[0x00B1]="Envelope"
   Text[0x00B5]="Inhibit"
   Text[0x00B6]="FM1"
   Text[0x00B7]="FM2"

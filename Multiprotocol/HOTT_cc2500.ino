@@ -169,66 +169,77 @@ static void __attribute__((unused)) HOTT_TXID_init()
 	}
 }
 
-static void __attribute__((unused)) HOTT_prep_data_packet()
-{
-	static uint8_t upper=0;
+static void __attribute__((unused)) HOTT_prep_data_packet() {
+	static uint8_t upper = 0;								// toggles between sending channels 1..8,9..12 and 1..8,13..16
 	
-	packet[2] = hopping_frequency_no;
-
-	packet[3] = upper;									// used for failsafe and upper channels (only supporting 16 channels)
+	packet[2] = hopping_frequency_no;						// send next frequency to be used
+	packet[3] = upper;										// indicate upper or lower channels (only supporting 16 channels)										
+	
 	#ifdef FAILSAFE_ENABLE
-		static uint8_t failsafe_count=0;
-		if(IS_FAILSAFE_VALUES_on && IS_BIND_DONE)
-		{
-			failsafe_count++;
-			if(failsafe_count>=3)
-			{
-				FAILSAFE_VALUES_off;
-				failsafe_count=0;
+		static uint8_t failsafe_count = 0;					// failsafe packet state machine (need to send two packets)
+
+		if(IS_FAILSAFE_VALUES_on && IS_BIND_DONE) {			// if TX wants to send failsafe data and RX is connected
+			failsafe_count++;								// prepare to send next packet
+
+			if(failsafe_count >= 3) {						// done sending two failsafe channel data packets
+				FAILSAFE_VALUES_off;					
+				failsafe_count = 0;
 			}
 		}
 		else
-			failsafe_count=0;
+			failsafe_count = 0;
 	#endif
 
 	// Channels value are PPM*2, -100%=1100µs, +100%=1900µs, order TAER
+	//
+	// Note: failsafe packets are differnt to normal operation packets
+	// normal operation toggles between sending channels 1..8,9..12 and 1..8,13..16 using bit0 as high/low indicator in packet[3]
+	// while failsafe packets send channels 1..12, 13..24 (and probably 25..32) using bit0 in packet[3] as packet type indicator
+	// packet[3] = 0x40 -> failsafe packet with data for channels 1..12
+	// packet[3] = 0x41 -> failsafe packet with data for channels 13..24
+	//
 	uint16_t val;
-	for(uint8_t i=4;i<28;i+=2)
-	{
-		uint8_t ch=(i-4)>>1;
-		if(upper && ch >= 8)
-			ch+=4;										// when upper swap CH9..CH12 by CH13..16
-		val=Channel_data[ch];
-		val=(((val<<2)+val)>>2)+860*2;					// value range 860<->2140 *2 <-> -125%<->+125%
+	for(uint8_t i = 0 ; i < 12*2 ; i += 2) {				// working 12 channels (using 2 bytes per channel)
+		uint8_t chIndex = i >> 1 ;							// normal operation channel number
+		uint8_t fschIndex = chIndex;						// linear channel number for failsafe
+		
+		if(upper && chIndex >= 8) chIndex += 4;				// for normal operation toggle between channels 1..8,9..12 and 1..8,13..16
+		val = Channel_data[chIndex];						// get normal operation channel data
+		val = (((val << 2) + val) >> 2)+ 860*2;				// convert channel data 0..2047 to 1720..4278 <-> -125%<->+125%
+															// val = (val*5/4+860*2)
+
 		#ifdef FAILSAFE_ENABLE
-			if(failsafe_count==1)
-			{ // first failsafe packet
-				packet[3] |= 0x40;
-				uint16_t fs=Failsafe_data[ch];
-				if( fs == FAILSAFE_CHANNEL_HOLD || fs == FAILSAFE_CHANNEL_NOPULSES)
-					val|=0x8000;						// channel hold flag
-				else
-				{
-					val=(((fs<<2)+fs)>>2)+860*2;		// value range 860<->2140 *2 <-> -125%<->+125%
-					val|=0x4000;						// channel specific position flag
+			if(failsafe_count == 1 || failsafe_count == 2) {// failsafe data needs to be sent to RX
+				uint16_t fs = 0x8000;						// default failsafe mode is hold
+
+				if(failsafe_count == 1) {					// send fail safe packet containing channels 1..12
+					packet[3] = 0x40;						// indicate packet has failsafe values for channels 1..12
+					fs = Failsafe_data[fschIndex];			// get failsafe channel data
+				} else {									// send fail safe packet containing channels 13..24
+					packet[3] = 0x41;						// indicate packet has failsafe values for channels 13..24
+					if(fschIndex < 4)						// we only work 16 channels so send channels 13..16, rest default
+						fs = Failsafe_data[fschIndex+12];	// get failsafe channel data 13..16
+				  } 
+
+				if( fs == FAILSAFE_CHANNEL_HOLD ||			// treat HOLD and NOPULSES as channel hold 
+					fs == FAILSAFE_CHANNEL_NOPULSES)
+					val = 0x8000;							// set channel failsafe mode hold flag
+				else {
+					val = (((fs << 2) + fs) >> 2) +860*2; 	// convert channel data 0..2047 to 1720..4278 <-> -125%<->+125%
+					val |= 0x4000;							// set channel failsafe mode position flag					
 				}
-			}
-			else if(failsafe_count==2)
-			{ // second failsafe packet=timing?
-				packet[3] |= 0x50;
-				if(i==4)
-					val=2;
-				else
-					val=0;
-			}
+			} 
 		#endif
-		packet[i] = val;
-		packet[i+1] = val>>8;
+
+		packet[i + 4]   = val;								// first channel data at packet[4] and packet[5]
+		packet[i + 4+1] = val >> 8;
 	}
-	upper ^= 0x01;										// toggle between CH9..CH12 and CH13..16
-	
-	packet[28] = 0x80;									// no sensor
-	packet[29] = 0x02;									// 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
+
+	upper ^= 0x01;											// toggle to upper and lower channels
+
+	packet[28] = 0x80;										// no sensor
+	packet[29] = 0x02;										// 0x02 when bind starts then when RX replies cycle in sequence 0x1A/22/2A/0A/12, 0x02 during normal packets, 0x01->text config menu, 0x0A->no more RX telemetry
+
 	#ifdef HOTT_FW_TELEMETRY
 		if(IS_BIND_DONE)
 		{

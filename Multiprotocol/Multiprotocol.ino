@@ -179,7 +179,7 @@ uint8_t option;
 uint8_t cur_protocol[3];
 uint8_t prev_option;
 uint8_t prev_power=0xFD; // unused power value
-uint8_t  RX_num;
+uint8_t RX_num;
 
 //Serial RX variables
 #define BAUD 100000

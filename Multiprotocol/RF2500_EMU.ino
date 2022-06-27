@@ -17,7 +17,7 @@
 
 #define RF2500_ADDR_LENGTH 4
 
-uint8_t RF2500_payload_length, RF2500_tx_addr[RF2500_ADDR_LENGTH], RF2500_buf[80];
+uint8_t RF2500_payload_length, RF2500_tx_addr[RF2500_ADDR_LENGTH], RF2500_buf[100];
 bool RF2500_scramble_enabled;
 
 static void __attribute__((unused)) RF2500_Init(uint8_t payload_length, bool scramble)
@@ -35,9 +35,17 @@ static void __attribute__((unused)) RF2500_SetTXAddr(const uint8_t* addr)
 
 static void __attribute__((unused)) RF2500_BuildPayload(uint8_t* buffer)
 {
-	const uint8_t RF2500_scramble[] = { 0xD0, 0x9E, 0x53, 0x33, 0xD8, 0xBA, 0x98, 0x08, 0x24, 0xCB, 0x3B, 0xFC, 0x71, 0xA3, 0xF4, 0x55 };
-	const uint16_t RF2500_crc_xorout_scramble = 0xAEE4;
+	const uint8_t RF2500_scramble[] = { 0xD0, 0x9E, 0x53, 0x33, 0xD8, 0xBA, 0x98, 0x08, 0x24, 0xCB, 0x3B, 0xFC, 0x71, 0xA3, 0xF4, 0x55, 0x68, 0x4F, 0xA9 }; //0x4F: unsure
+	uint16_t RF2500_crc_xorout_scramble;
+	if(RF2500_payload_length == 16)
+		RF2500_crc_xorout_scramble = 0xAEE4;
+	else //19
+		RF2500_crc_xorout_scramble = 0xE7C5;
 
+	#if 0
+		for(uint8_t i=0; i<RF2500_payload_length; i++)
+			debug("%02X ", buffer[i]);
+	#endif
 	//Scramble the incoming buffer
 	if(RF2500_scramble_enabled)
 		for(uint8_t i=0; i<RF2500_payload_length; i++)
@@ -49,6 +57,10 @@ static void __attribute__((unused)) RF2500_BuildPayload(uint8_t* buffer)
 		crc16_update(bit_reverse(buffer[i]),8);
 	buffer[RF2500_payload_length  ] = bit_reverse(crc>>8);
 	buffer[RF2500_payload_length+1] = bit_reverse(crc);
+
+	#if 0
+		debugln("C:%02X %02X",buffer[RF2500_payload_length  ], buffer[RF2500_payload_length+1]);
+	#endif
 
 	if(RF2500_scramble_enabled)
 	{

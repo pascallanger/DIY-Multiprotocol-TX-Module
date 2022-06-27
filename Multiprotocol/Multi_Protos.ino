@@ -163,6 +163,7 @@ const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
 const char STR_SUBTYPE_MOULKG[] =     "\x06""Analog""Digit\0";
 const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320";
+const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
 
 #define NO_SUBTYPE		nullptr
 
@@ -253,7 +254,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_E01X,       STR_E01X,      STR_SUBTYPE_E01X,      2, OPTION_NONE,    0, 0, SW_CYRF,   E01X_init,       E01X_callback       },
 	#endif
 	#if defined(E129_CYRF6936_INO)
-		{PROTO_E129,       STR_E129,      NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CYRF,   E129_init,       E129_callback       },
+		{PROTO_E129,       STR_E129,      STR_SUBTYPE_E129,      2, OPTION_NONE,    0, 0, SW_CYRF,   E129_init,       E129_callback       },
 	#endif
 	#if defined(ESKY_NRF24L01_INO)
 		{PROTO_ESKY,       STR_ESKY,      STR_SUBTYPE_ESKY,      2, OPTION_NONE,    0, 1, SW_NRF,    ESKY_init,       ESKY_callback       },

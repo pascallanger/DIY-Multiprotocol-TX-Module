@@ -609,12 +609,12 @@ static uint16_t XN297Dump_callback()
 		{
 			if(phase==0)
 			{
-				address_length=5;
-				memcpy(rx_tx_addr, (uint8_t *)"\x61\x94\x17\x27\xED", address_length); //"\xA3\x05\x22\xC1""\x5A\x20\x12\xAC"
+				address_length=3;
+				memcpy(rx_tx_addr, (uint8_t *)"\xBD\x54\x78", address_length); //"\x62\xE6\xBD\x54\x78"
 
-				bitrate=XN297DUMP_250K;
-				packet_length=32;
-				hopping_frequency_no=54; //bind ?, normal 60
+				bitrate=XN297DUMP_1M;
+				packet_length=7;
+				hopping_frequency_no=40; //bind ?, normal 40
 				
 				NRF24L01_Initialize();
 				NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -622,7 +622,7 @@ static uint16_t XN297Dump_callback()
 				NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, address_length-2);			// RX/TX address length
 				NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, address_length);	// set up RX address
 				NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, packet_length);				// Enable rx pipe 0
-				NRF24L01_WriteReg(NRF24L01_05_RF_CH, hopping_frequency_no);
+				NRF24L01_WriteReg(NRF24L01_05_RF_CH, option);	//hopping_frequency_no);
 
 				debug("NRF dump, len=%d, rf=%d, address length=%d, bitrate=",packet_length,hopping_frequency_no,address_length);
 				switch(bitrate)
@@ -718,6 +718,7 @@ static uint16_t XN297Dump_callback()
 					NRF24L01_FlushRx();
 					NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX)); //  _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) |
 				}
+				NRF24L01_WriteReg(NRF24L01_05_RF_CH, option);	//hopping_frequency_no);
 			}
 		}
 		else if(sub_protocol == XN297DUMP_CC2500)

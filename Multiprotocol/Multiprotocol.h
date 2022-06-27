@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	3
-#define VERSION_PATCH_LEVEL	12
+#define VERSION_PATCH_LEVEL	13
 
 #define MODE_SERIAL 0
 
@@ -459,6 +459,12 @@ enum KF606
 {
 	KF606_KF606		= 0,
 	KF606_MIG320	= 1,
+};
+
+enum E129
+{
+	E129_E129		= 0,
+	E129_C186		= 1,
 };
 
 #define NONE 		0

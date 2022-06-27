@@ -76,11 +76,11 @@ CFlie|38|CFlie||||||||NRF24L01|
 [DM002](Protocols_Details.md#DM002---33)|33|||||||||NRF24L01|XN297
 [DSM](Protocols_Details.md#DSM---6)|6|DSM2_1F|DSM2_2F|DSMX_1F|DSMX_2F|AUTO|DSMR_1F|||CYRF6936|
 [DSM_RX](Protocols_Details.md#DSM_RX---70)|70|Multi|CPPM|||||||CYRF6936|
-[E010R5](Protocols_Details.md#E010R5---81)|81|||||||||CYRF6936/NRF24L01|RF2500
+[E010R5](Protocols_Details.md#E010R5---81)|81|||||||||CYRF6936|RF2500
 [E016H](Protocols_Details.md#E016H---85)|85|||||||||NRF24L01|XN297
 [E016HV2](Protocols_Details.md#E016HV2---80)|80|||||||||CC2500/NRF24L01|unknown
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|||||||CYRF6936|HS6200
-[E129](Protocols_Details.md#E129---83)|83|||||||||CYRF6936/NRF24L01|RF2500
+[E129](Protocols_Details.md#E129---83)|83|E129|C186|||||||CYRF6936|RF2500
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|||||||||NRF24L01|
 [ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|||||||||CC2500|NRF51822
@@ -597,9 +597,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 A|E|T|R|ARM|FLIP|LED|HEADLESS|RTH
 
 ## E129 - *83*
-Models: Eachine E129/E130 and Twister Ninja 250
 
-Not supported by Atmega328p modules.
+**Not supported by Atmega328p modules.**
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
@@ -610,6 +609,14 @@ Trims can be done to some extent on the AETR channels directly but if you push t
 Take off with a none spring throttle is easier by putting both sticks down outwards (like on the original radio) in Mode 1/2, not sure about other modes.
 
 Calib is the same as the original radio with both sticks down and to the left in Mode 1/2, not sure about other modes.
+
+### Sub_protocol E129 - *0*
+Models: Eachine E129/E130 and Twister Ninja 250
+
+### Sub_protocol C186 - *1*
+Models: C186, E120
+
+The FC of the heli seems to store the trims Trim A/E/R=CH7..9. If you use these trims, make sure to center them after powering off the heli or they will be added to the previous trims.
 
 ## J6Pro - *22*
 

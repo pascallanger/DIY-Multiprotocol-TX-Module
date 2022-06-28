@@ -614,7 +614,7 @@ Calib is the same as the original radio with both sticks down and to the left in
 Models: Eachine E129/E130 and Twister Ninja 250
 
 ### Sub_protocol C186 - *1*
-Models: C186, E110, E120, K127
+Models: C186/E120, C127/E110, K127
 
 The FC of the heli seems to store the trims Trim A/E/R=CH7..9. If you use these trims, make sure to center them after powering off the heli or they will be added to the previous trims.
 

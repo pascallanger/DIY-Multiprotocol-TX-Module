@@ -96,7 +96,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|Multi|CloneTX|EraseTX|CPPM|||||CC2500|
 [Futaba/SFHSS](Protocols_Details.md#Futaba---21)|21|SFHSS||||||||CC2500|
-[FX816](Protocols_Details.md#FX816---58)|28|FX816|P38|||||||NRF24L01|
+[FX816](Protocols_Details.md#FX816---58)|28|FX816||||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
 [GW008](Protocols_Details.md#GW008---32)|32|||||||||NRF24L01|XN297
@@ -616,7 +616,7 @@ Models: Eachine E129/E130 and Twister Ninja 250
 ### Sub_protocol C186 - *1*
 Models: C186/E120, C127/E110, K127
 
-The FC of the heli seems to store the trims Trim A/E/R=CH7..9. If you use these trims, make sure to center them after powering off the heli or they will be added to the previous trims.
+The FC of the heli seems to store the trims Trim A/E/R=CH7..9. If you use these trims, make sure to center them after powering off the heli or they will be added to the previous trims and over correct.
 
 ## J6Pro - *22*
 
@@ -1599,7 +1599,7 @@ A|E|T|R|FMODE|AUX6|AUX7
 FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..100%=>3
 
 ## FX816 - *58*
-Model: FEI XIONG FX816 P38
+Model: FEI XIONG FX816 P38, B17
 
 Only 8 TX IDs available
 

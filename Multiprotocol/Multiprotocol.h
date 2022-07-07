@@ -1287,12 +1287,12 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[4-]= packed channels data, 11 bit per channel
 
   Type 0x0E HoTT telemetry
-   length: 14
+   length: 15
    data[0] = TX_RSSI
    data[1] = TX_LQI
    data[2] = type
    data[3] = page
-   data[4-13] = data
+   data[4-14] = data
 
   Type 0x0F M-Link telemetry
    length: 10

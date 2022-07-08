@@ -984,14 +984,16 @@ Compatible RXs: X6/X6F/X6FG
 Also called SFHSS depending on radio version.
 
 ### Sub_protocol SFHSS - *0*
-Models: Futaba SFHSS RXs and XK models.
+Models: Futaba SFHSS RXs and some XK models.
 
-Extended limits and failsafe supported
+Extended limits and failsafe supported.
 
 RX output will match the Futaba standard servo throw, mid point and the channel order AETR independently of the input configuration AETR, RETA... unless if on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
 
 Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
 Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+This protocol does not use bind on the TX side. The RX attaches to the first S-FHHSS TX around it when the bind button is pressed.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
@@ -1127,7 +1129,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 A|E|T|R|FLIP||||HEADLESS
 
 ### Sub_protocol A180 - *5*
-Model: XK A180, F949S
+Model: XK A180, F949S, F959
 
 A180:
 CH1|CH2|CH3|CH4|CH5|CH6
@@ -1335,7 +1337,7 @@ Rate: -100% High, +100% Low
 Models: WLtoys V911S, XK A110
 
 ### Sub_protocol E119 - *1*
-Models: Eachine E119, JJRC W01-J3, XK A220 P-40, newer XK A800
+Models: Eachine E119, JJRC W01-J3, XK A220 P-40, XK A800 R2, F959S R2, A160 R2, A280
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---

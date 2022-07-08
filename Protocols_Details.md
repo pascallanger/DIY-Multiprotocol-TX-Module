@@ -1601,7 +1601,7 @@ A|E|T|R|FMODE|AUX6|AUX7
 FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..100%=>3
 
 ## FX816 - *58*
-Model: FEI XIONG FX816 P38, B17
+Model: FEI XIONG FX P38, B17
 
 Only 8 TX IDs available
 

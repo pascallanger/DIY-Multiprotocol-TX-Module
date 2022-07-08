@@ -56,7 +56,6 @@ static void __attribute__((unused)) E129_build_data_packet()
 		//packet[ 3] = 0x00;							// E129 Mode: short press=0x20->0x00->0x20->..., long press=0x10->0x30->0x10->... => C186 throttle trim is doing the same:up=short press and down=long press
 		packet[ 4] = GET_FLAG(CH5_SW, 0x20)				// Take off/Land 0x20
 				   | GET_FLAG(CH6_SW, 0x04);			// Emergency stop 0x04
-		
 		//Channels and trims
 		uint16_t val = convert_channel_10b(AILERON,false);
 		uint8_t trim = convert_channel_8b(CH7) & 0xFC;

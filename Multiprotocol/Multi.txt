@@ -55,7 +55,7 @@
 55,Frsky_RX,Multi,CloneTX,EraseTX,CPPM
 56,AFHDS2A_RX,Multi,CPPM
 57,HoTT,Sync,No_Sync
-58,FX816,P38
+58,FX816
 59,Bayang_RX,Multi,CPPM
 60,Pelikan,Pro,Lite,SCX24
 61,Tiger

@@ -27,15 +27,15 @@
 #define MT99XX_PACKET_PERIOD_DRAGON	1038	// there is a pause of 2x1038 between two packets, no idea why and how since it is not even stable on a same dump...
 #define MT99XX_PACKET_PERIOD_DRAGON_TELEM	10265	// long pause to receive the telemetry packets, 3 are sent by the RX one after the other
 #define MT99XX_PACKET_PERIOD_F949G	3450
-#define MT99XX_PACKET_PERIOD_PA18	1160
-#define MT99XX_PA18_CRC				0x89	// Is it a constant???
+#define MT99XX_PACKET_PERIOD_PA18	1338
 #define MT99XX_INITIAL_WAIT			500
 #define MT99XX_PACKET_SIZE			9
 
 //#define FORCE_A180_ID
 //#define FORCE_DRAGON_ID
 //#define FORCE_F949G_ID
-#define FORCE_PA18_ID
+#define FORCE_PA18_ID1
+//#define FORCE_PA18_ID2
 
 enum {
     MT99XX_DATA,
@@ -115,10 +115,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 
 	//Set RF freq
 	if(sub_protocol == LS)
-		XN297_RFChannel(0x2D); // LS always transmits on the same channel
+		XN297_RFChannel(0x2D); 			// LS always transmits on the same channel
 	else
 		if(sub_protocol==FY805)
-			XN297_RFChannel(0x4B); // FY805 always transmits on the same channel
+			XN297_RFChannel(0x4B);		// FY805 always transmits on the same channel
 		else // MT99 & H7 & YZ & A180 & DRAGON & F949G & PA18
 			XN297_Hopping(hopping_frequency_no);
 
@@ -154,7 +154,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 		packet[6] = rx_tx_addr[2];
 		if(sub_protocol == PA18+8)
 		{
-			packet[7] = MT99XX_PA18_CRC;								// checksum offset
+			packet[7] = num_ch;											// checksum offset
 			packet[8] = 0x55;											// fixed
 		}
 		else
@@ -255,10 +255,10 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					break;
 				case PA18+8:
 					if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)			// Expert mode
-						packet[5] += 0xA0;
+						packet[5] = 0xA0;
 					else
 						if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)		// Intermediate mode
-							packet[5] += 0x60;
+							packet[5] = 0x60;
 					packet[6] = GET_FLAG( CH6_SW, FLAG_PA18_FLIP )		// Flip
 							  | GET_FLAG( CH7_SW, FLAG_PA18_RTH );		// RTH
 					if(hopping_frequency_no == 0)
@@ -269,7 +269,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 			for(uint8_t i=0; i<8; i++)
 				result += packet[i];
 			if(sub_protocol == PA18+8)
-				result += MT99XX_PA18_CRC;
+				result += num_ch;
 			packet[8] = result;
 		}
 		else
@@ -337,8 +337,8 @@ static void __attribute__((unused)) MT99XX_RF_init()
 
 static void __attribute__((unused)) MT99XX_initialize_txid()
 {
-	rx_tx_addr[1] = rx_tx_addr[3]; // RX_Num
-
+	num_ch = rx_tx_addr[1];			// PA18
+	rx_tx_addr[1] = rx_tx_addr[3];	// RX_Num
 	switch(sub_protocol)
 	{
 		case YZ:
@@ -381,20 +381,35 @@ static void __attribute__((unused)) MT99XX_initialize_txid()
 			//channel_offset  = 0x03
 			break;
 	#endif
-	#ifdef FORCE_PA18_ID
+	#ifdef FORCE_PA18_ID1
 		case PA18+8:
 			rx_tx_addr[0] = 0xC9;	// zebble ID
 			rx_tx_addr[1] = 0x02;
 			rx_tx_addr[2] = 0x13;
+			num_ch = 0x89;			// additional crc init. How is this calculated? or could it be random?
 			//crc8 = 0xDE
-			// additional crc init of 0x89, how is this calculated???
 			//channel_offset  = 0x03
-			//1Mb C=5 S=Y A= C9 02 13 CC CC P(9)= E1 70 70 70 20 20 00 20 1A
+			//1Mb C=5 S=Y A= C9 02 13 CC CC P(9)= E1 70 70 70 20 20 00 20 1A -> 0x91 + 0x89 => 0x1A
+			//        S=Y A= C9 02 13 CC CC P(9)= E1 70 70 70 20 A0 00 20 9A -> 0x11 + 0x89 => 0x9A
 			//bind    S=Y A= CC CC CC CC CC P(9)= 20 14 03 25 C9 02 13 89 55
 			break;
 	#endif
-		default: //MT99 & H7 & A180 & DRAGON & F949G
+	#ifdef FORCE_PA18_ID2
+		case PA18+8:
+			rx_tx_addr[0] = 0x0E;
+			rx_tx_addr[1] = 0x05;
+			rx_tx_addr[2] = 0x13;
+			num_ch = 0xD1;			// additional crc init. How is this calculated? or could it be random?
+			//crc8 = 0x28
+			//channel_offset  = 0x00
+			//1Mb C=2 S=Y A= 0E 05 13 CC CC P(9)= E1 70 70 70 20 60 00 60 E2 -> 0x11 + 0xD1 => 0xE2
+			//bind    S=Y A= CC CC CC CC CC P(9)= 20 14 03 25 0E 05 13 D1 55
+			break;
+	#endif
+		default: //MT99 & H7 & A180 & DRAGON & F949G & PA18
 			rx_tx_addr[2] = 0x00;
+			if(sub_protocol == PA18+8)
+				rx_tx_addr[2] = 0x13;
 			break;
 	}
 	

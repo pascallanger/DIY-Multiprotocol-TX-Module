@@ -52,6 +52,12 @@ Notes:
 
 [![Text mode video](https://img.youtube.com/vi/81wd8NlF3Qw/0.jpg)](https://www.youtube.com/watch?v=81wd8NlF3Qw)
 
+## Graupner HoTT Model Locator
+
+This is the Graupner HoTT adapted version of the Model Locator script using RSSI.
+
+The OpenTX sensor "RSSI" is populated by the individual OpenTX telemetry protocol implementations and returns a value from 0..100 (percent) originating from the early FrSky implementation. It turns out that FrSky did not really provide a genuine signal strength indicator in units of dbm but a link quality indicator in 0..100%. With Graupner HoTT the link quality indicator is not a good basis for the model locator as it is very non-linear and doesn't change much with distance. Using the Graupner HoTT telemetry sensor "Rssi" which is a true signal strength indicator serves the purpose of locating a model much better as it varies much more with distance.
+
 ## DSM Forward Programming
 
 Navigation is mainly done using the scroll wheel and ENT. Short press on ENT will edit a value. When editing a value a long ENT press will restore the value to its default. To exit the script and terminate all current operations correctly short press RTN (if you don't do this the RX might not store the changes).

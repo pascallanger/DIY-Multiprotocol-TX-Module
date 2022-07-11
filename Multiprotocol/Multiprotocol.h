@@ -86,7 +86,7 @@ enum PROTOCOLS
 	PROTO_FRSKY_RX	= 55,	// =>CC2500
 	PROTO_AFHDS2A_RX= 56,	// =>A7105
 	PROTO_HOTT		= 57,	// =>CC2500
-	PROTO_FX816		= 58,	// =>NRF24L01
+	PROTO_FX		= 58,	// =>NRF24L01
 	PROTO_BAYANG_RX	= 59,	// =>NRF24L01
 	PROTO_PELIKAN	= 60,	// =>A7105
 	PROTO_TIGER		= 61,	// =>NRF24L01
@@ -390,7 +390,6 @@ enum ESKY
 	ESKY_STD	= 0,
 	ESKY_ET4	= 1,
 };
-
 enum FRSKY_RX
 {
 	FRSKY_RX	= 0,
@@ -398,73 +397,67 @@ enum FRSKY_RX
 	FRSKY_ERASE	= 2,
 	FRSKY_CPPM  = 3,
 };
-
 enum FRSKYL
 {
 	LR12		= 0,
 	LR12_6CH	= 1,
 };
-
 enum HOTT
 {
 	HOTT_SYNC	= 0,
 	HOTT_NO_SYNC= 1,
 };
-
 enum PELIKAN
 {
 	PELIKAN_PRO	= 0,
 	PELIKAN_LITE= 1,
 	PELIKAN_SCX24=2,
 };
-
 enum V761
 {
 	V761_3CH	= 0,
 	V761_4CH	= 1,
 };
-
 enum HEIGHT
 {
 	HEIGHT_5CH	= 0,
 	HEIGHT_8CH	= 1,
 };
-
 enum KYOSHO
 {
 	KYOSHO_FHSS	= 0,
 	KYOSHO_HYPE	= 1,
 };
-
 enum JJRC345
 {
 	JJRC345		= 0,
 	SKYTMBLR	= 1,
 };
-
 enum RLINK
 {
 	RLINK_SURFACE	= 0,
 	RLINK_AIR		= 1,
 	RLINK_DUMBORC	= 2,
 };
-
 enum MOULDKG
 {
 	MOULDKG_ANALOG	= 0,
 	MOULDKG_DIGIT	= 1,
 };
-
 enum KF606
 {
 	KF606_KF606		= 0,
 	KF606_MIG320	= 1,
 };
-
 enum E129
 {
 	E129_E129		= 0,
 	E129_C186		= 1,
+};
+enum FX
+{
+	FX816			= 0,
+	FX620			= 1,
 };
 
 #define NONE 		0
@@ -911,7 +904,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 				FRSKY_RX	55
 				AFHDS2A_RX	56
 				HOTT		57
-				FX816		58
+				FX		58
 				BAYANG_RX	59
 				PELIKAN		60
 				TIGER		61

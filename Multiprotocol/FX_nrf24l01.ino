@@ -21,16 +21,15 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FX_INITIAL_WAIT     500
 #define FX_BIND_COUNT	    300		//3sec
 #define FX_SWITCH			20
+#define FX_NUM_CHANNELS     4
 
 #define FX816_PACKET_PERIOD 10000
 #define FX816_BIND_CHANNEL  40
-#define FX816_NUM_CHANNELS  4
 #define FX816_PAYLOAD_SIZE  6
 
 #define FX620_PACKET_PERIOD 3250
 #define FX620_BIND_CHANNEL  18
 #define FX620_PAYLOAD_SIZE  7
-#define FX620_NUM_CHANNELS  6
 
 #define FORCE_FX620_ID
 
@@ -40,7 +39,7 @@ static void __attribute__((unused)) FX_send_packet()
 	if(IS_BIND_DONE)
 	{
 		XN297_Hopping(hopping_frequency_no++);
-		hopping_frequency_no %= sub_protocol == FX816 ? FX816_NUM_CHANNELS:FX620_NUM_CHANNELS;
+		hopping_frequency_no &= 0x03;
 	}
 
 	memset(packet,0x00,packet_length);
@@ -122,7 +121,7 @@ static void __attribute__((unused)) FX_initialize_txid()
 		//I didn't open the plane to find out if I could connect there so this is the best I came up with with few trial and errors...
 		rx_tx_addr[0]=0x35+(rx_tx_addr[3]&0x07);							//Original dump=0x35
 		rx_tx_addr[1]=0x09;													//Original dump=0x09
-		memcpy(hopping_frequency,"\x09\x1B\x30\x42",FX816_NUM_CHANNELS); //Original dump=9=0x09,27=0x1B,48=0x30,66=0x42
+		memcpy(hopping_frequency,"\x09\x1B\x30\x42",FX816_NUM_CHANNELS);	//Original dump=9=0x09,27=0x1B,48=0x30,66=0x42
 		for(uint8_t i=0;i<FX816_NUM_CHANNELS;i++)
 			hopping_frequency[i]+=rx_tx_addr[3]&0x07;
 
@@ -135,14 +134,12 @@ static void __attribute__((unused)) FX_initialize_txid()
 		hopping_frequency[0] = 0x18 + rx_tx_addr[3]&0x07;	// just to try something
 		#ifdef FORCE_FX620_ID
 		memcpy(rx_tx_addr,(uint8_t*)"\x34\xA9\x32",3);
-		hopping_frequency[0] = 0x18;	//on dump: 24 34 40 44 50 54
+		hopping_frequency[0] = 0x18;	//on dump: 24 34 44 54
 		#endif
 		//no idea if this is true...
 		hopping_frequency[1] = 10 + hopping_frequency[0];
-		hopping_frequency[2] = 16 + hopping_frequency[0];
-		hopping_frequency[3] = 20 + hopping_frequency[0];
-		hopping_frequency[4] = 26 + hopping_frequency[0];
-		hopping_frequency[5] = 30 + hopping_frequency[0];
+		hopping_frequency[2] = 20 + hopping_frequency[0];
+		hopping_frequency[3] = 30 + hopping_frequency[0];
 
 		packet_length = FX620_PAYLOAD_SIZE;
 		packet_period = FX620_PACKET_PERIOD;

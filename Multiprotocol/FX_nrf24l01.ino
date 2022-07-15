@@ -90,7 +90,7 @@ static void __attribute__((unused)) FX_send_packet()
 	packet[packet_length-1]=val;
 
 	//Debug
-	#if 1
+	#if 0
 		for(uint8_t i=0;i<packet_length;i++)
 			debug("%02X ",packet[i]);
 		debugln("");

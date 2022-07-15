@@ -96,7 +96,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|Multi|CloneTX|EraseTX|CPPM|||||CC2500|
 [Futaba/SFHSS](Protocols_Details.md#Futaba---21)|21|SFHSS||||||||CC2500|
-[FX816](Protocols_Details.md#FX816---58)|28|FX816||||||||NRF24L01|
+[FX](Protocols_Details.md#FX---58)|28|816|620|||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
 [GW008](Protocols_Details.md#GW008---32)|32|||||||||NRF24L01|XN297
@@ -1600,14 +1600,22 @@ A|E|T|R|FMODE|AUX6|AUX7
 
 FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..100%=>3
 
-## FX816 - *58*
-Model: FEI XIONG FX P38, B17
-
-Only 8 TX IDs available
+## FX - *58*
+FEI XIONG
 
 CH1|CH2|CH3|CH4
 ---|---|---|---
 A|-|T|-
+
+### Sub_protocol 816 - *0*
+Model: FX816 P38, B17
+
+Only 8 TX IDs available
+
+### Sub_protocol 620 - *1*
+Model: FX620 SU35
+
+Only 1 TX ID available
 
 ## FY326 - *20*
 

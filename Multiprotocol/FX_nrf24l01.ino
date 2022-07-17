@@ -33,7 +33,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FX620_PAYLOAD_SIZE			7
 #define FX620_CH_OFFSET				1
 
-#define FORCE_FX620_ID
+//#define FORCE_FX620_ID
 
 static void __attribute__((unused)) FX_send_packet()
 {
@@ -138,8 +138,8 @@ static void __attribute__((unused)) FX_initialize_txid()
 		rx_tx_addr[0] = rx_tx_addr[3];
 		hopping_frequency[0] = 0x18 + rx_tx_addr[3]&0x07;	// just to try something
 		#ifdef FORCE_FX620_ID
-		memcpy(rx_tx_addr,(uint8_t*)"\x34\xA9\x32",3);
-		hopping_frequency[0] = 0x18;	//on dump: 24 34 44 54
+			memcpy(rx_tx_addr,(uint8_t*)"\x34\xA9\x32",3);
+			hopping_frequency[0] = 0x18;	//on dump: 24 34 44 54
 		#endif
 		for(uint8_t i=1;i<FX_NUM_CHANNELS;i++)
 			hopping_frequency[i] = i*10 + hopping_frequency[0];

@@ -1615,8 +1615,6 @@ Only 8 TX IDs available
 ### Sub_protocol 620 - *1*
 Model: FX620 SU35
 
-Only 1 TX ID available
-
 ## FY326 - *20*
 
 ### Sub_protocol FY326 - *0*

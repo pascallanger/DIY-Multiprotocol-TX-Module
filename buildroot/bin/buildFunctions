@@ -9,11 +9,11 @@ getMultiVersion() {
 }
 
 getAllRFModules() {
-    if [[ "$BOARD" =~ "multi4in1:avr:multixmega32d4" ]]; then
+    if [[ "$BOARD" =~ ":avr:multixmega32d4" ]]; then
         ALL_RFMODULES=$(echo CYRF6936_INSTALLED);
-    elif [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:" ]]; then
+    elif [[ "$BOARD" =~ ":avr:multiatmega328p:" ]]; then
         ALL_RFMODULES=$(echo A7105_INSTALLED CYRF6936_INSTALLED CC2500_INSTALLED NRF24L01_INSTALLED);
-    elif [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+    elif [[ "$BOARD" =~ ":STM32F1:" ]]; then
         ALL_RFMODULES=$(echo A7105_INSTALLED CYRF6936_INSTALLED CC2500_INSTALLED NRF24L01_INSTALLED SX1276_INSTALLED);
     fi
 }
@@ -26,11 +26,11 @@ getAllProtocols() {
     CCNRF_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]_]*_CCNRF_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
     SX1276_PROTOCOLS=$(sed -n 's/[\/\/]*[[:blank:]]*#define[[:blank:]]*\([[:alnum:]_]*_SX1276_INO\)\(.*\)/\1/p' Multiprotocol/_Config.h)
 
-    if [[ "$BOARD" =~ "multi4in1:avr:multixmega32d4" ]]; then
+    if [[ "$BOARD" =~ ":avr:multixmega32d4" ]]; then
         ALL_PROTOCOLS=$(echo $CYRF6936_PROTOCOLS);
-    elif [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:" ]]; then
+    elif [[ "$BOARD" =~ ":avr:multiatmega328p:" ]]; then
         ALL_PROTOCOLS=$(echo $A7105_PROTOCOLS $CC2500_PROTOCOLS $CYRF6936_PROTOCOLS $NRF24L01_PROTOCOLS $CCNRF_PROTOCOLS);
-    elif [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+    elif [[ "$BOARD" =~ ":STM32F1:" ]]; then
         ALL_PROTOCOLS=$(echo $A7105_PROTOCOLS $CC2500_PROTOCOLS $CYRF6936_PROTOCOLS $NRF24L01_PROTOCOLS $CCNRF_PROTOCOLS $SX1276_PROTOCOLS);
     fi
 }
@@ -84,21 +84,21 @@ buildEachRFModule() {
 }
 
 buildReleaseFiles(){
-    if [[ "$BOARD" == "multi4in1:avr:multixmega32d4" ]]; then
+    if [[ "$BOARD" =~ ":avr:multixmega32d4" ]]; then
         build_release_orx;
-    elif [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
+    elif [[ "$BOARD" =~ ":avr:multiatmega328p:bootloader=none" ]]; then
         build_release_avr_noboot;
-    elif [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=optiboot" ]]; then
+    elif [[ "$BOARD" =~ ":avr:multiatmega328p:bootloader=optiboot" ]]; then
         build_release_avr_optiboot;
-    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=none" ]]; then
+    elif [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=none" ]]; then
         build_release_stm32f1_no_debug;
-    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=native" ]]; then
+    elif [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=native" ]]; then
         build_release_stm32f1_native_debug;
-    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi" ]]; then
+    elif [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=ftdi" ]]; then
         build_release_stm32f1_serial_debug;
-    elif [[ "$BOARD" == "multi4in1:STM32F1:multi5in1t18int" ]]; then
+    elif [[ "$BOARD" =~ ":STM32F1:multi5in1t18int" ]]; then
         build_release_stm32f1_t18int;
-    elif [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103c8:debug_option=none" ]]; then
+    elif [[ "$BOARD" =~ ":STM32F1:multistm32f103c8:debug_option=none" ]]; then
         build_release_stm32f1_64k;
     else
       printf "No release files for this board.";

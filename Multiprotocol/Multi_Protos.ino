@@ -88,6 +88,7 @@ const char STR_FRSKYR9[]	="FrSkyR9";
 const char STR_PROPEL[]		="Propel";
 const char STR_SKYARTEC[]	="Skyartc";
 const char STR_KYOSHO[]		="Kyosho";
+const char STR_KYOSHO2[]	="Kyosho2";
 const char STR_RLINK[]		="RadLink";
 const char STR_REALACC[]	="Realacc";
 const char STR_OMP[]		="OMP";
@@ -158,6 +159,7 @@ const char STR_SUBTYPE_V761[] =       "\x03""3ch""4ch";
 const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ""DumboRC";
 const char STR_SUBTYPE_REALACC[] =    "\x03""R11";
 const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
+const char STR_SUBTYPE_KYOSHO2[] =    "\x05""KT-17";
 const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
 const char STR_SUBTYPE_MOULKG[] =     "\x06""Analog""Digit\0";
@@ -357,6 +359,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(KYOSHO_A7105_INO)
 		{PROTO_KYOSHO,     STR_KYOSHO,    STR_SUBTYPE_KYOSHO,    2, OPTION_NONE,    0, 1, SW_A7105,  KYOSHO_init,     KYOSHO_callback     },
+	#endif
+	#if defined(KYOSHO2_NRF24L01_INO)
+		{PROTO_KYOSHO2,    STR_KYOSHO2,   STR_SUBTYPE_KYOSHO2,   1, OPTION_NONE,    0, 0, SW_NRF,    KYOSHO2_init,    KYOSHO2_callback    },
 	#endif
 	#if defined(LOLI_NRF24L01_INO)
 		{PROTO_LOLI,       STR_LOLI,      NO_SUBTYPE,            0, OPTION_NONE,    1, 0, SW_NRF,    LOLI_init,       LOLI_callback       },

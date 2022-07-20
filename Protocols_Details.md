@@ -113,6 +113,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [KF606](Protocols_Details.md#KF606---49)|49|KF606|MIG320|||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
+[Kyosho2](Protocols_Details.md#Kyosho2---93)|93|KT-17||||||||NRF24L01|
 [LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
 [Losi](Protocols_Details.md#Losi---89)|89|||||||||CYRF6936|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
@@ -1730,6 +1731,13 @@ Model: JJRC345
 Model: DF-Models SkyTumbler
 
 RTH not supported
+
+## KYOSHO2 - *93*
+Model: TX KT-17, Minium Edge 540, Minium Citabria
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 
 ## LOLI - *82*
 LOLI3 receivers: https://github.com/wooddoor/Loli3

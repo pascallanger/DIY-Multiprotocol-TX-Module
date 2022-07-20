@@ -89,3 +89,4 @@
 90,MouldKg,Analog,Digit
 91,Xerall
 92,MT99xx,PA18
+93,Kyosho2,KT-17

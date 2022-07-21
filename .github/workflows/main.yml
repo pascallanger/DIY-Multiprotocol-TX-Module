@@ -40,14 +40,14 @@ jobs:
       fail-fast: false
       matrix:
         board: [
-          "multi4in1:avr:multiatmega328p:bootloader=none", 
-          "multi4in1:avr:multiatmega328p:bootloader=optiboot", 
-          "multi4in1:avr:multixmega32d4", 
-          "multi4in1:STM32F1:multi5in1t18int", 
-          "multi4in1:STM32F1:multistm32f103cb:debug_option=none", 
-          "multi4in1:STM32F1:multistm32f103cb:debug_option=native", 
-          "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi", 
-          "multi4in1:STM32F1:multistm32f103c8:debug_option=none"
+          "multi4in1-devel:avr:multiatmega328p:bootloader=none", 
+          "multi4in1-devel:avr:multiatmega328p:bootloader=optiboot", 
+          "multi4in1-devel:avr:multixmega32d4", 
+          "multi4in1-devel:STM32F1:multi5in1t18int", 
+          "multi4in1-devel:STM32F1:multistm32f103cb:debug_option=none", 
+          "multi4in1-devel:STM32F1:multistm32f103cb:debug_option=native", 
+          "multi4in1-devel:STM32F1:multistm32f103cb:debug_option=ftdi", 
+          "multi4in1-devel:STM32F1:multistm32f103c8:debug_option=none"
         ]
 
     # Set the environment variables
@@ -67,15 +67,22 @@ jobs:
           echo "Event action: ${{ github.event.action }}"
           echo "Tag name: ${{ github.event.release.tag_name }}"
 
-          arduino-cli config init --additional-urls https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json
+          arduino-cli config init --additional-urls https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json,https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/devel/source/package_multi_4in1_board_devel_index.json
           arduino-cli core update-index
           
-          if [[ "$BOARD" =~ "multi4in1:avr:" ]]; then
+          if [[ "$BOARD" =~ ":avr:" ]]; then
             arduino-cli core install arduino:avr;
+          fi
+
+          if [[ "$BOARD" =~ "multi4in1-devel:avr" ]]; then
+            arduino-cli core install multi4in1-devel:avr
+          elif [[ "$BOARD" =~ "multi4in1:avr" ]]; then
             arduino-cli core install multi4in1:avr
           fi
 
-          if [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+          if [[ "$BOARD" =~ "multi4in1-devel:STM32F1:" ]]; then
+            arduino-cli core install multi4in1-devel:STM32F1
+          elif [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
             arduino-cli core install multi4in1:STM32F1
           fi
 
@@ -109,18 +116,18 @@ jobs:
           echo "ALL_RFMODULES=$(echo $ALL_RFMODULES)" >> $GITHUB_ENV
 
           # Disable CHECK_FOR_BOOTLOADER when not needed
-          if [[ "$BOARD" == "multi4in1:avr:multiatmega328p:bootloader=none" ]]; then
+          if [[ "$BOARD" =~ ":avr:multiatmega328p:bootloader=none" ]]; then
             opt_disable CHECK_FOR_BOOTLOADER;
           fi
 
           # Trim the build down for the Atmega328p board
-          if [[ "$BOARD" =~ "multi4in1:avr:multiatmega328p:" ]]; then
+          if [[ "$BOARD" =~ ":avr:multiatmega328p:" ]]; then
             opt_disable $ALL_PROTOCOLS
             opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
           fi
 
           # Trim the enabled protocols down for the STM32F103CB board with debugging or the STM32F103C8 board in general
-          if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi" ]] || [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=native" ]] || [[ "$BOARD" =~ "multi4in1:STM32F1:multistm32f103c8" ]]; then
+          if [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=ftdi" ]] || [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=native" ]] || [[ "$BOARD" =~ ":STM32F1:multistm32f103c8" ]]; then
             opt_disable $ALL_PROTOCOLS;
             opt_enable FRSKYX_CC2500_INO AFHDS2A_A7105_INO MJXQ_NRF24L01_INO DSM_CYRF6936_INO;
           fi
@@ -133,7 +140,7 @@ jobs:
       - name: Build default configuration
         run: |
           # Skip the default build for boards where it's too large now
-          if [[ "$BOARD" == "multi4in1:STM32F1:multistm32f103cb:debug_option=none" ]] || [[ "$BOARD" == "multi4in1:STM32F1:multi5in1t18int" ]]; then
+          if [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=none" ]] || [[ "$BOARD" =~ ":STM32F1:multi5in1t18int" ]]; then
             printf "Not testing default build for $BOARD.";
           else
             source ./buildroot/bin/buildFunctions;

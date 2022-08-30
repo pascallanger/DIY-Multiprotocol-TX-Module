@@ -20,6 +20,7 @@ Multiprotocol modules can be flashed with a precompiled firmware file (Option 1 
    1. [USB Port](#usb-port)
    1. [USB-to-Serial adapter](#usb-to-serial-adapter)
    1. [Upload the firmware](#upload-the-firmware)
+1. [Option 4 - Flash via USB, using dfu-util (on Linux)](#option-4---flash-via-usb-using-dfu-util-on-linux)
 1. [Troubleshooting](#troubleshooting)
 
 ## Tools required
@@ -171,6 +172,98 @@ In order to flash the bootloader the **BOOT0** jumper must be installed connecti
 
 ### Upload the firmware
 1. In the Arduino IDE click **Sketch -> Upload**, or press **Ctrl+U**
+
+## Option 4 - Flash via USB, using dfu-util (on Linux)
+
+This upgrade method is only for modules that have USB connectors and
+that have the ability to enter DFU mode when plugged into a Linux
+machine.
+
+[dfu-util](http://dfu-util.sourceforge.net/) is a command line tool that
+can be used to write firmware to a processor that is in the DFU
+state. Pre-built dfu-util packages are available for almost any Linux
+distribution, so simply install the dfu-util package via your system's
+package manager.
+
+You now need to get your multimodule connected to your Linux machine
+and make sure that it is in DFU mode. Usually the multimodule should
+enter the DFU mode if you remove it from your radio and simply connect
+it to your Linux machine via a _proper_ USB cable. Note: Some cheap,
+loading USB cables sometimes have no data lines connected, and these
+will no work.
+
+Once your multimodule is connected, run the following command in order
+to see if the DFU interface had been discovered:
+
+```shell
+
+# dfu-util -l -v
+dfu-util 0.11
+
+Copyright 2005-2009 Weston Schmidt, Harald Welte and OpenMoko Inc.
+Copyright 2010-2021 Tormod Volden and Stefan Schmidt
+This program is Free Software and has ABSOLUTELY NO WARRANTY
+Please report bugs to http://sourceforge.net/p/dfu-util/tickets/
+
+libusb version 1.0.26 (11724)
+Found DFU: [1eaf:0003] ver=0201, devnum=69, cfg=1, intf=0, path="1-4", alt=2, name="STM32duino bootloader v1.0  Upload to Flash 0x8002000", serial="LLM 003"
+Found DFU: [1eaf:0003] ver=0201, devnum=69, cfg=1, intf=0, path="1-4", alt=1, name="STM32duino bootloader v1.0  Upload to Flash 0x8005000", serial="LLM 003"
+Found DFU: [1eaf:0003] ver=0201, devnum=69, cfg=1, intf=0, path="1-4", alt=0, name="STM32duino bootloader v1.0  ERROR. Upload to RAM not supported.", serial="LLM 003"
+```
+
+If you the above didn't succeed, your module is not in DFU mode and it
+would not make any sense to continue.
+
+Now that your Linux machine discovered the device with id, 1eaf:0003,
+you can can start the update process, which will take around 8 to 10
+seconds. Once done, your multimodule will be updated and you can
+simply unplug it and start using it.
+
+The example below, uses a pre-compiled binary available from
+[here](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/releases).
+
+```shell
+
+# dfu-util -v -R -a 2 -d 1EAF:0003 -D mm-stm-serial-aetr-v1.3.3.14.bin
+dfu-util 0.11
+
+Copyright 2005-2009 Weston Schmidt, Harald Welte and OpenMoko Inc.
+Copyright 2010-2021 Tormod Volden and Stefan Schmidt
+This program is Free Software and has ABSOLUTELY NO WARRANTY
+Please report bugs to http://sourceforge.net/p/dfu-util/tickets/
+
+libusb version 1.0.26 (11724)
+dfu-util: Warning: Invalid DFU suffix signature
+dfu-util: A valid DFU suffix will be required in a future dfu-util release
+Opening DFU capable USB device...
+Device ID 1eaf:0003
+Device DFU version 0110
+DFU attributes: (0x03) bitCanDnload bitCanUpload
+Detach timeout 255 ms
+Claiming USB DFU Interface...
+Setting Alternate Interface #2 ...
+Determining device status...
+DFU state(2) = dfuIDLE, status(0) = No error condition is present
+DFU mode device DFU version 0110
+Device returned transfer size 1024
+Copying data from PC to DFU device
+Download        [=========================] 100%       118668 bytes
+Download done.
+Sent a total of 118668 bytes
+DFU state(8) = dfuMANIFEST-WAIT-RESET, status(0) = No error condition is present
+Resetting USB to switch back to runtime mode
+Done!
+```
+
+NOTE: The above command was taken and adapted from
+[here](https://github.com/benlye/flash-multi/blob/master/doc/Troubleshooting.md).
+
+As you can see, the above process is really extremely straight
+forward. You basically only need to have dfu-util installed and you need to
+run one single command for updating your multimodule.
+
+As a bonus, the dfu-util method could also be used under Mac or
+Windows, as dfu-util binaries also exist for those operating systems.
 
 # Troubleshooting
 You can report your problem using the [GitHub issue](https://github.com/midelic/DIY-Multiprotocol-TX-Module/issues) system or go to the [Main thread on RCGROUPS](http://www.rcgroups.com/forums/showthread.php?t=2165676) to ask your question.

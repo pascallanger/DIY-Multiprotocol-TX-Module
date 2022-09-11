@@ -552,8 +552,8 @@ local function DSM_Init()
   RxName[0x001E]="AR631"
 
   --Text to be displayed -> need to use a file instead?
-  Text[0x0001]="On"
-  Text[0x0002]="Off"
+  Text[0x0001]="Off"
+  Text[0x0002]="On"
   Text[0x0003]="Inh"
   Text[0x0004]="Act"
   Text[0x000C]="Inhibit?" --?

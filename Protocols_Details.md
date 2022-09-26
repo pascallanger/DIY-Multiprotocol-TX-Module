@@ -141,7 +141,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Tiger](Protocols_Details.md#Tiger---61)|61|||||||||NRF24L01|XN297
 [Traxxas](Protocols_Details.md#Traxxas---43)|43|6519 RX||||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
-[V761](Protocols_Details.md#V761---48)|48|3CH|4CH|||||||NRF24L01|XN297
+[V761](Protocols_Details.md#V761---48)|48|3CH|4CH|TOPRC||||||NRF24L01|XN297
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*|E119*|||||||NRF24L01|XN297
 [WFLY](Protocols_Details.md#WFLY---40)|40|WFR0x||||||||CYRF6936|
 [WFLY2](Protocols_Details.md#WFLY2---79)|79|RF20x||||||||A7105|
@@ -1951,14 +1951,21 @@ Flip: momentary switch: hold flip(+100%), indicate flip direction with Ele or Ai
 RTN_ACT and RTN: -100% disable, +100% enable
 
 ### Sub_protocol 3CH - *0*
-Model: Volantex V761-1, V761-3 and may be others
+Models: Volantex V761-1, V761-3 and may be others
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 -|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
 
 ### Sub_protocol 4CH - *1*
-Model: Volantex V761-4+ and Eachine P51-D, F4U, F22 and may be others
+Models: Volantex V761-4+ and Eachine P51-D, F4U, F22 and may be others
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
+
+### Sub_protocol TOPRC - *2*
+Models: Top RC Hobby Spitfire, P51D, BF-109
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---

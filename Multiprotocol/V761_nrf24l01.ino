@@ -25,13 +25,15 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define V761_BIND_COUNT			200
 #define V761_BIND_FREQ			0x28
 #define V761_RF_NUM_CHANNELS	3
+#define TOPRC_BIND_FREQ			0x2A
+#define TOPRC_PACKET_PERIOD		14120 // Timeout for callback in uSec
 
 enum 
-   {
+{
     V761_BIND1 = 0,
     V761_BIND2,
     V761_DATA
-   };
+};
 
 static void __attribute__((unused)) V761_set_checksum()
 {
@@ -56,14 +58,11 @@ static void __attribute__((unused)) V761_send_packet()
 
 	if(phase != V761_DATA)
 	{
-		packet[0] = rx_tx_addr[0];
-		packet[1] = rx_tx_addr[1];
-		packet[2] = rx_tx_addr[2];
-		packet[3] = rx_tx_addr[3];
+		memcpy(packet, rx_tx_addr, 4);
 		packet[4] = hopping_frequency[1];
 		packet[5] = hopping_frequency[2];
 		if(phase == V761_BIND2)
-			packet[6] = 0xf0; // ?
+			packet[6] = 0xF0;							// ?
 	}
 	else
 	{ 
@@ -72,22 +71,21 @@ static void __attribute__((unused)) V761_send_packet()
 		{
 			hopping_frequency_no = 0;
 			packet_count++;
-			if(packet_count >= 4)
-				packet_count = 0;
+			packet_count &= 0x03;
 		}
 
 		packet[0] = convert_channel_8b(THROTTLE);		// Throttle
 		packet[2] = convert_channel_8b(ELEVATOR)>>1;	// Elevator
 
-		if(sub_protocol==V761_3CH)
-		{
-			packet[1] = convert_channel_8b(RUDDER)>>1;	// Rudder
-			packet[3] = convert_channel_8b(AILERON)>>1;	// Aileron
-		}
-		else
+		if(sub_protocol == V761_4CH || sub_protocol == V761_TOPRC)
 		{
 			packet[1] = convert_channel_8b(AILERON)>>1;	// Aileron
 			packet[3] = convert_channel_8b(RUDDER)>>1;	// Rudder
+		}
+		else
+		{
+			packet[1] = convert_channel_8b(RUDDER)>>1;	// Rudder
+			packet[3] = convert_channel_8b(AILERON)>>1;	// Aileron
 		}
 
 		packet[5] = packet_count<<6;					// 0X, 4X, 8X, CX
@@ -112,7 +110,7 @@ static void __attribute__((unused)) V761_send_packet()
 		packet[6] =  GET_FLAG(CH7_SW, 0x20) 			// Flip
 					|GET_FLAG(CH8_SW, 0x08)				// RTH activation
 					|GET_FLAG(CH9_SW, 0x10);			// RTH on/off
-		if(sub_protocol==V761_3CH)
+		if(sub_protocol == V761_3CH)
 			packet[6] |= 0x80;							// Unknown, set on original V761-1 dump but not on eachine dumps, keeping for compatibility
 	}
 	V761_set_checksum();
@@ -137,28 +135,36 @@ static void __attribute__((unused)) V761_RF_init()
 static void __attribute__((unused)) V761_initialize_txid()
 {
 	#ifdef V761_FORCE_ID
-		switch(RX_num%5)
+		if(sub_protocol == V761_TOPRC)
+		{ //Dump from air on TopRCHobby TX
+			memcpy(rx_tx_addr,(uint8_t *)"\xD5\x01\x00\x00",4);
+			memcpy(hopping_frequency,(uint8_t *)"\x2E\x41",2);
+		}
+		else
 		{
-			case 1:	//Dump from air on Protonus TX
-				memcpy(rx_tx_addr,(uint8_t *)"\xE8\xE4\x45\x09",4);
-				memcpy(hopping_frequency,(uint8_t *)"\x0D\x21",2);
-				break;
-			case 2:	//Dump from air on mshagg2 TX
-				memcpy(rx_tx_addr,(uint8_t *)"\xAE\xD1\x45\x09",4);
-				memcpy(hopping_frequency,(uint8_t *)"\x13\x1D",2);
-				break;
-			case 3:	//Dump from air on MikeHRC Eachine TX
-				memcpy(rx_tx_addr,(uint8_t *)"\x08\x03\x00\xA0",4);
-				memcpy(hopping_frequency,(uint8_t *)"\x0D\x21",2);
-				break;
-			case 4:	//Dump from air on Crashanium Eachine TX
-				memcpy(rx_tx_addr,(uint8_t *)"\x58\x08\x00\xA0",4);
-				memcpy(hopping_frequency,(uint8_t *)"\x0D\x31",2);
-				break;
-			default: //Dump from SPI
-				memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
-				memcpy(hopping_frequency,(uint8_t *)"\x14\x1e",2);
-				break;
+			switch(RX_num%5)
+			{
+				case 1:	//Dump from air on Protonus TX
+					memcpy(rx_tx_addr,(uint8_t *)"\xE8\xE4\x45\x09",4);
+					memcpy(hopping_frequency,(uint8_t *)"\x0D\x21",2);
+					break;
+				case 2:	//Dump from air on mshagg2 TX
+					memcpy(rx_tx_addr,(uint8_t *)"\xAE\xD1\x45\x09",4);
+					memcpy(hopping_frequency,(uint8_t *)"\x13\x1D",2);
+					break;
+				case 3:	//Dump from air on MikeHRC Eachine TX
+					memcpy(rx_tx_addr,(uint8_t *)"\x08\x03\x00\xA0",4);
+					memcpy(hopping_frequency,(uint8_t *)"\x0D\x21",2);
+					break;
+				case 4:	//Dump from air on Crashanium Eachine TX
+					memcpy(rx_tx_addr,(uint8_t *)"\x58\x08\x00\xA0",4);
+					memcpy(hopping_frequency,(uint8_t *)"\x0D\x31",2);
+					break;
+				default: //Dump from SPI
+					memcpy(rx_tx_addr,(uint8_t *)"\x6f\x2c\xb1\x93",4);
+					memcpy(hopping_frequency,(uint8_t *)"\x14\x1e",2);
+					break;
+			}
 		}
 	#else
 		//Tested with Eachine RX
@@ -180,8 +186,8 @@ uint16_t V761_callback()
 			if(bind_counter) 
 				bind_counter--;
 			packet_count ++;
-			XN297_RFChannel(V761_BIND_FREQ);
-			XN297_SetTXAddr((uint8_t*)"\x34\x43\x10\x10", 4);
+			XN297_RFChannel(sub_protocol == V761_TOPRC ? TOPRC_BIND_FREQ : V761_BIND_FREQ);
+			XN297_SetTXAddr(rx_id, 4);
 			V761_send_packet();
 			if(packet_count >= 20) 
 			{
@@ -210,17 +216,28 @@ uint16_t V761_callback()
 			return 15730;
 		case V761_DATA:
 			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(V761_PACKET_PERIOD);
+				telemetry_set_input_sync(packet_period);
 			#endif
 			V761_send_packet();
 			break;
 	}
-	return V761_PACKET_PERIOD;
+	return packet_period;
 }
 
 void V761_init(void)
 {
 	V761_initialize_txid();
+	if(sub_protocol == V761_TOPRC)
+	{
+		memcpy(rx_id,(uint8_t*)"\x20\x21\x05\x0A",4);
+		packet_period = TOPRC_PACKET_PERIOD;
+	}
+	else
+	{
+		memcpy(rx_id,(uint8_t*)"\x34\x43\x10\x10",4);
+		packet_period = V761_PACKET_PERIOD;
+	}
+
 	if(IS_BIND_IN_PROGRESS)
 	{
 		bind_counter = V761_BIND_COUNT;
@@ -231,7 +248,7 @@ void V761_init(void)
 		XN297_SetTXAddr(rx_tx_addr, 4);
 		phase = V761_DATA;
 	}
-		
+
 	V761_RF_init();
 	hopping_frequency_no = 0;
 	packet_count = 0;

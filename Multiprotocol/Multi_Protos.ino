@@ -155,7 +155,7 @@ const char STR_SUBTYPE_WFLY[] =       "\x05""WFR0x";
 const char STR_SUBTYPE_WFLY2[] =      "\x05""RF20x";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 const char STR_SUBTYPE_PELIKAN[] =    "\x05""Pro\0 ""Lite\0""SCX24";
-const char STR_SUBTYPE_V761[] =       "\x03""3ch""4ch";
+const char STR_SUBTYPE_V761[] =       "\x05""3ch\0 ""4ch\0 ""TOPRC";
 const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ""DumboRC";
 const char STR_SUBTYPE_REALACC[] =    "\x03""R11";
 const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
@@ -442,7 +442,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_V2X2,       STR_V2X2,      STR_SUBTYPE_V2X2,      3, OPTION_NONE,    0, 0, SW_NRF,    V2X2_init,       V2X2_callback       },
 	#endif
 	#if defined(V761_NRF24L01_INO)
-		{PROTO_V761,       STR_V761,      STR_SUBTYPE_V761,      2, OPTION_NONE,    0, 0, SW_NRF,    V761_init,       V761_callback       },
+		{PROTO_V761,       STR_V761,      STR_SUBTYPE_V761,      3, OPTION_NONE,    0, 0, SW_NRF,    V761_init,       V761_callback       },
 	#endif
 	#if defined(V911S_CCNRF_INO)
 		{PROTO_V911S,      STR_V911S,     STR_SUBTYPE_V911S,     2, OPTION_RFTUNE,  0, 0, SW_NRF,    V911S_init,      V911S_callback      },

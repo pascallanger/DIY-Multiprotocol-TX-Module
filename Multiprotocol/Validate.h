@@ -241,9 +241,11 @@
 #endif
 
 //Make sure protocols are selected correctly
-#ifndef A7105_INSTALLED
+#if not defined(A7105_INSTALLED) || defined MULTI_EU
 	#undef	AFHDS2A_A7105_INO
-	#undef	AFHDS2A_RX_A7105_INO
+	#if not defined(A7105_INSTALLED)
+		#undef	AFHDS2A_RX_A7105_INO
+	#endif
 	#undef	BUGS_A7105_INO
 	#undef	FLYSKY_A7105_INO
 	#undef	HEIGHT_A7105_INO
@@ -253,10 +255,13 @@
 	#undef	PELIKAN_A7105_INO
 	#undef	WFLY2_A7105_INO
 #endif
-#ifndef CYRF6936_INSTALLED
+
+#if not defined(CYRF6936_INSTALLED) || defined MULTI_EU
 	#undef	DEVO_CYRF6936_INO
-	#undef	DSM_CYRF6936_INO
-	#undef	DSM_RX_CYRF6936_INO
+	#if not defined(CYRF6936_INSTALLED)
+		#undef	DSM_CYRF6936_INO
+		#undef	DSM_RX_CYRF6936_INO
+	#endif
 	#undef	E010R5_CYRF6936_INO
 	#undef	E01X_CYRF6936_INO
 	#undef	E129_CYRF6936_INO
@@ -267,28 +272,38 @@
 	#undef	WFLY_CYRF6936_INO
 	#undef	WK2x01_CYRF6936_INO
 #endif
-#ifndef CC2500_INSTALLED
+
+#if not defined(CC2500_INSTALLED) || defined MULTI_EU
 	#undef	CORONA_CC2500_INO
 	#undef	E016HV2_CC2500_INO
 	#undef	ESKY150V2_CC2500_INO
 	#undef	FRSKYD_CC2500_INO
 	#undef	FRSKYL_CC2500_INO
 	#undef	FRSKYV_CC2500_INO
-	#undef	FRSKYX_CC2500_INO
-	#undef	FRSKY_RX_CC2500_INO
+	#if not defined(CC2500_INSTALLED)
+		#undef	FRSKYX_CC2500_INO
+		#undef	FRSKY_RX_CC2500_INO
+	#endif
 	#undef	HITEC_CC2500_INO
-	#undef	HOTT_CC2500_INO
+	#if not defined(CC2500_INSTALLED)
+		#undef	HOTT_CC2500_INO
+	#endif
 	#undef	IKEAANSLUTA_CC2500_INO
 	#undef	REDPINE_CC2500_INO
 	#undef	RLINK_CC2500_INO
-	#undef	SCANNER_CC2500_INO
+	#if not defined(CC2500_INSTALLED)
+		#undef	SCANNER_CC2500_INO
+	#endif
 	#undef	FUTABA_CC2500_INO
 	#undef	SKYARTEC_CC2500_INO
 #endif
-#ifndef NRF24L01_INSTALLED
+
+#if not defined(NRF24L01_INSTALLED) || defined MULTI_EU
 	#undef	ASSAN_NRF24L01_INO
 	#undef	BAYANG_NRF24L01_INO
-	#undef	BAYANG_RX_NRF24L01_INO
+	#if not defined(NRF24L01_INSTALLED)
+		#undef	BAYANG_RX_NRF24L01_INO
+	#endif
 	#undef	BUGSMINI_NRF24L01_INO
 	#undef	CABELL_NRF24L01_INO
 	#undef	CFLIE_NRF24L01_INO
@@ -323,7 +338,7 @@
 	#undef	YD717_NRF24L01_INO
 	#undef	ZSX_NRF24L01_INO
 #endif
-#if not defined(CC2500_INSTALLED) && not defined(NRF24L01_INSTALLED)
+#if ( not defined(CC2500_INSTALLED) && not defined(NRF24L01_INSTALLED) ) || defined MULTI_EU
 	#undef	GD00X_CCNRF_INO
 	#undef	KF606_CCNRF_INO
 	#undef	MJXQ_CCNRF_INO
@@ -343,7 +358,7 @@
 #if not defined(STM32_BOARD)
 	#undef SX1276_INSTALLED
 #endif
-#ifndef SX1276_INSTALLED
+#ifndef SX1276_INSTALLED || defined MULTI_EU
 	#undef FRSKYR9_SX1276_INO
 #endif
 

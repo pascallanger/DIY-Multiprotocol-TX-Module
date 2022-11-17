@@ -292,10 +292,17 @@ uint16_t AFHDS2A_callback()
 		case AFHDS2A_BIND2:
 		case AFHDS2A_BIND3:
 			AFHDS2A_build_bind_packet();
+			data_rx=A7105_ReadReg(A7105_00_MODE);			// Check if something has been received...
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, packet_count%2 ? 0x0d : 0x8c);
-			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5)))	//  removed FECF check due to issues with fs-x6b -> & (1<<5 | 1<<6)
-			{ // CRCF Ok
+			if(!(A7105_ReadReg(A7105_00_MODE) & (1<<5)) && !(data_rx & 1))	// removed FECF check due to issues with fs-x6b ->  & (1<<5 | 1<<6)
+			{ // RX+CRCF Ok
 				A7105_ReadData(AFHDS2A_RXPACKET_SIZE);
+				#if 0
+					debug("RX");
+					for(uint8_t i=0; i<AFHDS2A_RXPACKET_SIZE ; i++)
+						debug(" %02X", packet[i]);
+					debugln("");
+				#endif
 				if(packet[0] == 0xbc && packet[9] == 0x01)
 				{
 					uint16_t addr;
@@ -330,7 +337,7 @@ uint16_t AFHDS2A_callback()
 				if(!(A7105_ReadReg(A7105_00_MODE) & 0x01))
 					break;
 			A7105_SetPower();
-			A7105_SetTxRxMode(TXRX_OFF);					// Turn LNA off since we are in near range and we want to prevent swamping
+			A7105_SetTxRxMode((packet_count & 0x40) ? TXRX_OFF : RX_EN);	// Turn LNA off time to time since we are in near range and we want to prevent swamping
 			A7105_Strobe(A7105_RX);
 			phase &= ~AFHDS2A_WAIT_WRITE;
 			phase++;

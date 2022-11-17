@@ -62,7 +62,7 @@ The OpenTX sensor "RSSI" is populated by the individual OpenTX telemetry protoco
 
 This is a work in progress. It's available for color(+touch) and B&W screens.
 
-Work on OpenTX and EdgeTX. Located on the radio SD card under \SCRIPTS\TOOLS.
+Work on OpenTX and EdgeTX. Located on the radio SD card under \SCRIPTS\TOOLS, make sure to copy the DSMLIB folder along with DSM FwdPrg_05_Color.lua or DSM FwdPrg_05_BW.lua.
 
 [![DSM Forward Programming](https://img.youtube.com/vi/sjIaDw5j9nE/0.jpg)](https://www.youtube.com/watch?v=sjIaDw5j9nE)
 

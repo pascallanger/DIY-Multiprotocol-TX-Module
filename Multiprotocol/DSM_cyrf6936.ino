@@ -249,6 +249,10 @@ static uint8_t __attribute__((unused)) DSM_Check_RX_packet()
 
 uint16_t DSM_callback()
 {
+	#if defined MULTI_EU
+		if(sub_protocol == DSM2_1F || sub_protocol == DSM2_2F)
+			return 11000;
+	#endif
 	#define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
 	#ifdef STM32_BOARD
 		#define DSM_WRITE_DELAY		1600		// Time after write to verify write complete

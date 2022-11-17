@@ -17,7 +17,7 @@ local toolName = "TNS|DSM Forward Prog v0.5 (Text B&W) |TNE"
 ---- #                                                                       #
 ---- #########################################################################
 
-local SIMULATION_ON = true  -- FALSE: use real communication to DSM RX (DEFAULT), TRUE: use a simulated version of RX 
+local SIMULATION_ON = false  -- FALSE: use real communication to DSM RX (DEFAULT), TRUE: use a simulated version of RX 
 local DEBUG_ON = 1           -- 0=NO DEBUG, 1=HIGH LEVEL 2=LOW LEVEL   (Debug logged into the /LOGS/dsm.log)
 local DEBUG_ON_LCD = false   -- Interactive Information on LCD of Menu data from RX 
 

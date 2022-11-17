@@ -18,7 +18,7 @@ local VERSION  = "v0.5"
 ---- #                                                                       #
 ---- #########################################################################
 
-local SIMULATION_ON = true   -- FALSE: use real communication to DSM RX (DEFAULT), TRUE: use a simulated version of RX 
+local SIMULATION_ON = false   -- FALSE: use real communication to DSM RX (DEFAULT), TRUE: use a simulated version of RX 
 local DEBUG_ON = 1           -- 0=NO DEBUG, 1=HIGH LEVEL 2=LOW LEVEL   (Debug logged into the /LOGS/dsm.log)
 local DEBUG_ON_LCD = false   -- Interactive Information on LCD of Menu data from RX 
 local USE_SPECKTRUM_COLORS = true -- true: Use spectrum colors, false: use theme colors (default on OpenTX) 
@@ -567,7 +567,7 @@ local function init_colors()
       -- LINE SELECTED 
       LCD_SELECTED_COLOR      = WHITE
       LCD_SELECTED_BGCOLOR    = ORANGE
-      LCD_EDIT_BGCOLOR        = WARNING_COLOR 
+      LCD_EDIT_BGCOLOR        = RED  
       -- NORMAL TEXT  
       LCD_NORMAL_COLOR        = BLACK
       LCD_DISABLE_COLOR       = LIGHTGREY

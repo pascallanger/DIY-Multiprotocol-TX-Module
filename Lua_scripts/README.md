@@ -60,15 +60,13 @@ The OpenTX sensor "RSSI" is populated by the individual OpenTX telemetry protoco
 
 ## DSM Forward Programming
 
-Navigation is mainly done using the scroll wheel and ENT. Short press on ENT will edit a value. When editing a value a long ENT press will restore the value to its default. To exit the script and terminate all current operations correctly short press RTN (if you don't do this the RX might not store the changes).
+This is a work in progress. It's available for color(+touch) and B&W screens.
 
-This is a work in progress. It's only available for color screens (Horus, TX16S, T16, T18...).
-
-If some text appears as Unknown_xxx, please report xxx and what the exact text display should be.
-
-Need OpenTX 2.3.10 nightly or above. Located on the radio SD card under \SCRIPTS\TOOLS.
+Work on OpenTX and EdgeTX. Located on the radio SD card under \SCRIPTS\TOOLS.
 
 [![DSM Forward Programming](https://img.youtube.com/vi/sjIaDw5j9nE/0.jpg)](https://www.youtube.com/watch?v=sjIaDw5j9nE)
+
+If some text appears as Unknown_xxx, please report xxx and what the exact text display should be.
 
 ## DSM PID Flight log gain parameters for Blade micros
 

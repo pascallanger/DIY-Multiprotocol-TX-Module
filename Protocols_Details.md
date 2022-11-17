@@ -528,7 +528,7 @@ DSMX, Resolution 2048, servo refresh rate can only be 22ms
 ### Sub_protocol DSMX_2F - *3*
 DSMX, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
 ### Sub_protocol AUTO - *4*
-"AUTO" is recommended to automatically select the best settings for your DSM RX.
+"AUTO" is recommended to automatically select the best settings for your DSM2 and DSMX RXs.
 
 ### Sub_protocol DSMR_1F - *5*
 DSMR receivers

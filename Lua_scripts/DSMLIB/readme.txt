@@ -9,8 +9,8 @@ Rewrite/Enhancements By: Francisco Arzu
 
 
 Deployment:
-/SCRIPTS/TOOLS/Dsm FwdPrg_OTX_05.lua		-- OpenTX version, no touch (black/white radios)
-/SCRIPTS/TOOLS/Dsm FwdPrg_ETX_05.lua		-- EdgeTX version, touch
+/SCRIPTS/TOOLS/DsmFwdPrg_05_BaW.lua		-- OpenTX/EdgeTx version, no touch (black/white radios)
+/SCRIPTS/TOOLS/DsmFwdPrg_05_Color.lua		-- EdgeTX/OpenTx Color version, +touch
 /SCRIPTS/TOOLS/DSMLIB/				-- Libraries (ALL CAPITALS) to hide them from the Tools menu
 /SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lub		-- DSM Protocol Message and Menu engine
 /SCRIPTS/TOOLS/DSMLIB/DsmFwPrgSIMLib.lub	-- Simulation of AR631 for GUI Development in Companion
@@ -18,7 +18,7 @@ Deployment:
 /LOGS/dsm_log.txt				-- Readable log of the last RX session, usefull for debuging new RX
 
 
-Version 0.05
+Version 0.5
 - Make the code more readable and understadable
 - Separate the DSM Forwards Programing logic from the GUI
 - Log the comunnication with the RX on a /LOGS/dsm_log.txt to allow to debug it easier 
@@ -33,13 +33,12 @@ Known Problems:
 	special Save/Restart type of menu.. but it does not reset the RX. maybe another meesage needs to be send
 3. Some Menu List line types (LINE_TYPE.LIST_MENU1), the range (min/max) seems to be incorrect, but cannot see in the data how to fix it
 	Some of the valid values are not even sequential, very spread apart. There has to be a list of valid options somewhere (in RX or config for each field).
-	Currenly adding valid values inside the scrip to override the RX 
 4. The RX return unknow lines when requesting the Lines for a menu. Realy don't understand what they are for.
 	in some menus, seems to stay stuck in the same return line or no response to the request, making the RX reset/close the connection.
 	Did a fix to stop requesting the same menu line if the response is the same. This gives an empty menu, but does not reset the connection.
 
 
-Version 0.02
+Version 0.2
 Original Version from Pascal Langer
  
 

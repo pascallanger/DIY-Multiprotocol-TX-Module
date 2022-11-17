@@ -1133,7 +1133,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00AD] = "Gain Channel Select"
 
     -- Safe mode options, Ihnibit + thi values 
-    local safeMode = {0x0003,0x00B0,0x00B1}  -- inh (gap), "Self-Level/Angle Dem, Envelope
+    local safeModeOptions = {0x0003,0x00B0,0x00B1}  -- inh (gap), "Self-Level/Angle Dem, Envelope
     Text[0x00B0] = "Self-Level/Angle Dem"
     Text[0x00B1] = "Envelope"
 

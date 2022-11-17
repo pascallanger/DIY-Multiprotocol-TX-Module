@@ -1,4 +1,4 @@
-local toolName = "TNS|DSM Forward Prog v0.5 (OTX B&W) |TNE"
+local toolName = "TNS|DSM Forward Prog v0.5 (Text B&W) |TNE"
 
 ---- #########################################################################
 ---- #                                                                       #
@@ -36,16 +36,27 @@ local DISP_ATTR = dsmLib.DISP_ATTR
 
 local DSM_Context = dsmLib.DSM_Context
 
-local LCD_X_LINE_MENU       = 10
+local LCD_W_USABLE          = LCD_W-10
+-- X for Menu Lines
+local LCD_X_LINE_MENU       = 10  
+-- X offsets for (Title: [Value] debugInfo) lines
 local LCD_X_LINE_TITLE      = 10
 local LCD_X_LINE_VALUE      = 230
 local LCD_X_LINE_DEBUG      = 390
 
+-- Line Height: make it smaller debugging info tp LCD (some space buttom) 
+local LCD_Y_LINE_HEIGHT      = (DEBUG_ON_LCD and 23)  or 27   -- if DEBUG 23 else 27
+-- Y offsets
 local LCD_Y_MENU_TITLE       = 20
-local LCD_Y_LINE_START       = LCD_Y_MENU_TITLE + 30
-local LCD_Y_LINE_HEIGHT      = (DEBUG_ON_LCD and 23)  or 27   -- if DEBUG 23 else 27 
+-- Y offet
+local LCD_Y_LINE_FIRST       = LCD_Y_MENU_TITLE + 30
+local LCD_Y_LOWER_BUTTONS    = LCD_Y_LINE_FIRST + 7 * LCD_Y_LINE_HEIGHT
 
-local LCD_Y_LOWER_BUTTONS    = LCD_Y_LINE_START + 7 * LCD_Y_LINE_HEIGHT
+local LCD_W_BUTTONS          = 47
+local LCD_H_BUTTONS          = 25
+local LCD_X_RIGHT_BUTTONS    = LCD_W - LCD_W_BUTTONS - 5
+
+local TEXT_SIZE             = 0 -- NORMAL
 
 local lastRefresh=0         -- Last time the screen was refreshed
 local REFRESH_GUI_MS = 500/10   -- 500ms.. Screen Refresh Rate.. to not use unneded CPU time  (in 10ms units to be compatible with getTime())
@@ -71,47 +82,55 @@ end
 
 local function GUI_Diplay_Button(x,y,w,h,text,selected)
   local attr = (selected) and INVERS or 0    -- INVERS if line Selected
-  lcd.drawText(x+5,y+2, text, attr)
-  lcd.drawRectangle(x, y, w, h, LIGHTGREY)
+  lcd.drawText(x+5,y+2, text, attr + TEXT_SIZE)
+  lcd.drawRectangle(x, y, w, h, LINE_COLOR)
 end
 
 local function GUI_Display_Menu(menu)
   local ctx = DSM_Context
-  local w=  LCD_W-100  -- usable Width for the Menu/Lines
+  local w=  LCD_W_USABLE - LCD_W_BUTTONS - 10  -- usable Width for the Menu/Lines
 
   -- Center Header
   local tw = openTx_lcd_sizeText(menu.Text) 
   local x = w/2 - tw/2  -- Center of Screen - Center of Text
-  lcd.drawText(x,LCD_Y_MENU_TITLE,menu.Text,BOLD)  -- orig MIDSIZE
+
+  local bold = 0
+  if (TEXT_SIZE~=SMLSIZE) then  -- Ignore Bold on small size screens
+      bold = BOLD
+  end
+  lcd.drawText(x,LCD_Y_MENU_TITLE,menu.Text,bold + TEXT_SIZE)
 
   -- Back
   if menu.BackId ~= 0 then
-    GUI_Diplay_Button(437-5,LCD_Y_MENU_TITLE,47,25,"Back",ctx.SelLine == dsmLib.BACK_BUTTON)
+    GUI_Diplay_Button(LCD_X_RIGHT_BUTTONS,LCD_Y_MENU_TITLE,LCD_W_BUTTONS,LCD_H_BUTTONS,"Back",ctx.SelLine == dsmLib.BACK_BUTTON)
   end
   -- Next ?
   if menu.NextId ~= 0 then
-    GUI_Diplay_Button(437-5,LCD_Y_LOWER_BUTTONS,47,25,"Next",ctx.SelLine == dsmLib.NEXT_BUTTON)
+    GUI_Diplay_Button(LCD_X_RIGHT_BUTTONS,LCD_Y_LOWER_BUTTONS,LCD_W_BUTTONS,LCD_H_BUTTONS,"Next",ctx.SelLine == dsmLib.NEXT_BUTTON)
   end
   -- Prev?
   if menu.PrevId ~= 0 then
-    GUI_Diplay_Button(0,LCD_Y_LOWER_BUTTONS,47,25,"Prev",ctx.SelLine == dsmLib.PREV_BUTTON)
+    GUI_Diplay_Button(0,LCD_Y_LOWER_BUTTONS,LCD_W_BUTTONS,LCD_H_BUTTONS,"Prev",ctx.SelLine == dsmLib.PREV_BUTTON)
   end
 
   -- Debug into LCD 
-  if (DEBUG_ON_LCD) then lcd.drawText(0,LCD_Y_MENU_TITLE,dsmLib.phase2String(ctx.Phase),SMLSIZE + BLUE) end  -- Phase we are in 
-  if (DEBUG_ON_LCD) then lcd.drawText(LCD_X_LINE_MENU,240,dsmLib.menu2String(menu),SMLSIZE + BLUE) end  -- Menu Info
+  if (DEBUG_ON_LCD) then lcd.drawText(0,LCD_Y_MENU_TITLE,dsmLib.phase2String(ctx.Phase),TEXT_SIZE + WARNING_COLOR) end  -- Phase we are in 
+  if (DEBUG_ON_LCD) then lcd.drawText(LCD_X_LINE_MENU,240,dsmLib.menu2String(menu),TEXT_SIZE + WARNING_COLOR) end  -- Menu Info
 end
 
 local function GUI_Display_Line_Menu(x,y,w,h,line,selected)
-  local attr = (selected) and INVERS or 0    -- INVERS if line Selected
+  local attr = (selected and INVERS) or 0    -- INVERS if line Selected
   local bold = 0
   local text = line.Text
 
   if dsmLib.isSelectableLine(line) then  
       -- Menu Line
-      text = text .. "  -->"  --OPENTX
+      text = text .. "  |>"  --OPENTX
   else  -- SubHeaders and plain text lines
-      bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0  
+      if (TEXT_SIZE~=SMLSIZE) then -- ignore bold on small size screens
+        bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0  
+      end
+    
       if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.RIGHT) then -- Right Align???
           local tw = openTx_lcd_sizeText(line.Text)+4
           x =  LCD_X_LINE_VALUE - tw     -- Right 
@@ -121,14 +140,14 @@ local function GUI_Display_Line_Menu(x,y,w,h,line,selected)
       end
   end
 
-  lcd.drawText(x,y, text, attr + bold)
+  lcd.drawText(x,y, text, attr + bold + TEXT_SIZE)
 
 end
 ------------------------------------------------------------------------------------------------------------
 local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   local bold      = 0
 
-  local y = LCD_Y_LINE_START+(LCD_Y_LINE_HEIGHT*lineNum)
+  local y = LCD_Y_LINE_FIRST+(LCD_Y_LINE_HEIGHT*lineNum)
   local x = LCD_X_LINE_TITLE
 
   ---------- NAME Part 
@@ -139,7 +158,9 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
       header = header .. " " .. value
 
       -- Flight mode display attributes
-      bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0
+      if (TEXT_SIZE~=SMLSIZE) then -- ignore bold on small size screens
+          bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0
+      end
 
       if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.RIGHT) then -- Right Align
           local tw = openTx_lcd_sizeText(header)+4
@@ -153,7 +174,7 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
     header = header .. ":"
   end
 
-  lcd.drawText(x, y, header, bold) -- display Line Header
+  lcd.drawText(x, y, header, bold + TEXT_SIZE) -- display Line Header
 
   --------- VALUE PART,  Skip for Flight Mode since already show the value 
   if not dsmLib.isFlightModeText(line.TextId) then 
@@ -168,28 +189,29 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
       end
     end
     
-    lcd.drawText(LCD_X_LINE_VALUE,y, value, attrib) -- display value
+    lcd.drawText(LCD_X_LINE_VALUE,y, value, attrib + TEXT_SIZE) -- display value
   end
 
-  if (DEBUG_ON_LCD) then  lcd.drawText(LCD_X_LINE_DEBUG,y, line.MinMaxDebug or "", SMLSIZE) end -- display debug
+  if (DEBUG_ON_LCD) then  lcd.drawText(LCD_X_LINE_DEBUG,y, line.MinMaxDebug or "", TEXT_SIZE + WARNING_COLOR) end -- display debug
 end
 ------------------------------------------------------------------------------------------------------------
 local function GUI_Display()
   local ctx = DSM_Context
   lcd.clear()
  
-  if LCD_W == 480 then
     local header = "DSM Fwrd Programming      "
     if ctx.Phase ~= PHASE.RX_VERSION then
       header = header .. "RX "..ctx.RX.Name.." v"..ctx.RX.Version
     end
 
     --Draw title
-    lcd.drawFilledRectangle(0, 0, LCD_W, 20, TITLE_BGCOLOR)
-    lcd.drawText(5, 0, header, MENU_TITLE_COLOR)
+    if (TEXT_SIZE~=SMLSIZE) then -- ignore tool title small size screens
+        lcd.drawFilledRectangle(0, 0, LCD_W, 20, TITLE_BGCOLOR)
+        lcd.drawText(5, 0, header, MENU_TITLE_COLOR  + TEXT_SIZE)
+    end
     --Draw RX Menu
     if ctx.Phase == PHASE.RX_VERSION then
-      lcd.drawText(LCD_X_LINE_TITLE,100,"No compatible DSM RX...", BLINK)
+      lcd.drawText(LCD_X_LINE_TITLE,50,"No compatible DSM RX...", BLINK + TEXT_SIZE)
     else
       local menu = ctx.Menu
       if menu.Text ~=  nil then
@@ -201,13 +223,13 @@ local function GUI_Display()
 
           if i == ctx.SelLine then
             -- DEBUG: Display Selected Line info for ON SCREEN Debugging
-            if (DEBUG_ON_LCD) then lcd.drawText(LCD_X_LINE_TITLE,255,dsmLib.menuLine2String(line),SMLSIZE+BLUE) end
+            if (DEBUG_ON_LCD) then lcd.drawText(LCD_X_LINE_TITLE,255,dsmLib.menuLine2String(line),TEXT_SIZE + WARNING_COLOR) end
           end
 
           if line ~= nil and line.Type ~= 0 then
             if line.Type == LINE_TYPE.MENU then 
               -- Menu Line 
-              GUI_Display_Line_Menu(LCD_X_LINE_MENU,LCD_Y_LINE_START+(LCD_Y_LINE_HEIGHT*i), 350, LCD_Y_LINE_HEIGHT, line, i == ctx.SelLine)
+              GUI_Display_Line_Menu(LCD_X_LINE_MENU,LCD_Y_LINE_FIRST+(LCD_Y_LINE_HEIGHT*i), 350, LCD_Y_LINE_HEIGHT, line, i == ctx.SelLine)
             else  
               -- list/value line 
               local value = line.Val
@@ -219,7 +241,7 @@ local function GUI_Display()
                   if (imgValue) then  -- Optional Image for a Value
                     --TODO: Pending feature.. create images and put bitmap instead of a message
                     --Display the image/Alternate Text 
-                    lcd.drawText(LCD_X_LINE_TITLE, LCD_Y_LINE_START+LCD_Y_LINE_HEIGHT, "Img:"..imgValue)
+                    lcd.drawText(LCD_X_LINE_TITLE, LCD_Y_LINE_FIRST+LCD_Y_LINE_HEIGHT, "Img:"..imgValue)
                   end
                 end
 
@@ -230,9 +252,7 @@ local function GUI_Display()
         end  -- for
       end 
     end
-  else
-    -- Different Resolution
-  end
+  
 end
 
 -------------------------------------------------------------------------------------------------------------
@@ -342,9 +362,35 @@ local function GUI_HandleEvent(event, touchState)
   end
 end
 
+local function init_screen_pos()
+    if LCD_W == 480 then -- TX16
+        -- use defaults in the script header
+    elseif LCD_W == 128 then --TX12  (128x64) -- Still needs some work on the vertical
+      DEBUG_ON_LCD = false -- no space for this
+      TEXT_SIZE             = SMLSIZE
+      LCD_W_USABLE          = 128
+
+      LCD_W_BUTTONS          = 30
+      LCD_H_BUTTONS          = 17
+      LCD_X_RIGHT_BUTTONS    = 128 - LCD_W_BUTTONS - 5
+
+      LCD_X_LINE_MENU       = 0  
+      -- X offsets for (Title: [Value] debugInfo) lines
+      LCD_X_LINE_TITLE      = 0
+      LCD_X_LINE_VALUE      = 90
+      LCD_X_LINE_DEBUG      = 110
+
+      LCD_Y_LINE_HEIGHT      = 17
+      LCD_Y_MENU_TITLE       = 0
+      LCD_Y_LINE_FIRST       = LCD_Y_MENU_TITLE + 17
+      LCD_Y_LOWER_BUTTONS    = LCD_Y_LINE_FIRST + 7 * LCD_Y_LINE_HEIGHT
+    end
+end
+
 ------------------------------------------------------------------------------------------------------------
 -- Init
 local function DSM_Init()
+  init_screen_pos()
   dsmLib.Init(toolName)  -- Initialize Library 
   return dsmLib.StartConnection()
 end

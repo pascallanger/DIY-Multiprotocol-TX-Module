@@ -1,4 +1,4 @@
-local toolName = "TNS|DSM Forward Prog v0.5 (EdgeTx) |TNE"
+local toolName = "TNS|DSM Forward Prog v0.5 (Color+Touch) |TNE"
 local VERSION  = "v0.5"
 
 ---- #########################################################################
@@ -18,12 +18,10 @@ local VERSION  = "v0.5"
 ---- #                                                                       #
 ---- #########################################################################
 
--- Code is based on the code/work by: Pascal Langer (Author of the Multi-Module)  
--- Rewrite/Enhancements By: Francisco Arzu 
-
-local SIMULATION_ON = false  -- FALSE: use real communication to DSM RX (DEFAULT), TRUE: use a simulated version of RX 
+local SIMULATION_ON = true   -- FALSE: use real communication to DSM RX (DEFAULT), TRUE: use a simulated version of RX 
 local DEBUG_ON = 1           -- 0=NO DEBUG, 1=HIGH LEVEL 2=LOW LEVEL   (Debug logged into the /LOGS/dsm.log)
 local DEBUG_ON_LCD = false   -- Interactive Information on LCD of Menu data from RX 
+local USE_SPECKTRUM_COLORS = true -- true: Use spectrum colors, false: use theme colors (default on OpenTX) 
 
 local dsmLib
 if (SIMULATION_ON) then
@@ -39,23 +37,58 @@ local DISP_ATTR   = dsmLib.DISP_ATTR
 local DSM_Context = dsmLib.DSM_Context
 
 
-local LCD_X_LINE_MENU       = 30
-local LCD_X_LINE_TITLE      = 30
-local LCD_X_LINE_VALUE      = 230
-local LCD_X_LINE_DEBUG      = 390
-
-local LCD_Y_MENU_TITLE       = 20
-local LCD_Y_LINE_START       = LCD_Y_MENU_TITLE + 30
-local LCD_Y_LINE_HEIGHT      = (DEBUG_ON_LCD and 23)  or 27   -- if DEBUG 23 else 27 
-
-local LCD_Y_LOWER_BUTTONS    = LCD_Y_LINE_START + 3 + (7 * LCD_Y_LINE_HEIGHT)
-
 local lastRefresh=0         -- Last time the screen was refreshed
 local REFRESH_GUI_MS = 300/10   -- 300ms.. Screen Refresh Rate.. to not waste CPU time  (in 10ms units to be compatible with getTime())
 local originalValue = nil
 
 local touchButtonArea           = {}
 local EDIT_BUTTON = {  DEFAULT=1001, DEC_10=1002, DEC_1=1003, INC_1=1004, INC_10=5, OK=1006, ESC=1007 }
+
+local IS_EDGETX   = false     -- DEFAULT until Init changed it
+
+local LCD_Y_MENU_TITLE      = 20
+local LCD_W_MENU_TITLE      = LCD_W-100
+
+local LCD_X_LINE_MENU       = 30
+local LCD_W_LINE_MENU       = 350
+
+local LCD_X_LINE_TITLE      = 30
+local LCD_X_LINE_VALUE      = 230
+local LCD_X_LINE_DEBUG      = 390
+
+
+local LCD_Y_LINE_START       = LCD_Y_MENU_TITLE + 30
+local LCD_Y_LINE_HEIGHT      = (DEBUG_ON_LCD and 23)  or 27   -- if DEBUG 23 else 27 
+
+local LCD_Y_LOWER_BUTTONS    = LCD_Y_LINE_START + 3 + (7 * LCD_Y_LINE_HEIGHT)
+
+
+-- TOOL HEADER 
+local LCD_TOOL_HDR_COLOR      = MENU_TITLE_COLOR
+local LCD_TOOL_HDR_BGCOLOR    = TITLE_BGCOLOR
+-- MENU HEADER
+local LCD_MENU_COLOR          = MENU_TITLE_COLOR 
+local LCD_MENU_BGCOLOR        = MENU_TITLE_BGCOLOR
+-- LINE SELECTED 
+local LCD_SELECTED_COLOR      = TEXT_INVERTED_COLOR
+local LCD_SELECTED_BGCOLOR    = TEXT_INVERTED_BGCOLOR
+local LCD_EDIT_BGCOLOR        = WARNING_COLOR 
+-- NORMAL TEXT  
+local LCD_NORMAL_COLOR        = TEXT_COLOR
+local LCD_DISABLE_COLOR       = TEXT_DISABLE_COLOR
+local LCD_DEBUG_COLOR         = LINE_COLOR
+-- NORMAL BOX FRAME COLOR 
+local LCD_BOX_COLOR           = TEXT_DISABLE_COLOR  
+
+
+
+--------------------- lcd.sizeText replacement -------------------------------------------------
+-- EdgeTx dont have lcd.sizeText, so we do an equivalent one using the string length and 5px per character
+local function my_lcd_sizeText(s)
+  print(string.format("EdgeTX=%s",IS_EDGETX))
+  -- return: If IS_EDGETX then lcd.sizeText() else string.len()
+  return (IS_EDGETX and lcd.sizeText(s)) or (string.len(s)*10)  
+end
 
 
 local function GUI_SwitchSimulationOFF()
@@ -96,29 +129,32 @@ end
 ---------- Return Color to display Menu Lines ----------------------------------------------------------------
 local function GUI_GetTextColor(lineNum)
   local ctx = DSM_Context
-  local txtColor  = BLACK
+  local txtColor  = LCD_NORMAL_COLOR
   -- Gray Out any other line except the one been edited
-  if (ctx.isEditing() and ctx.EditLine~=lineNum) then txtColor=LIGHTGREY end
+  if (ctx.isEditing() and ctx.EditLine~=lineNum) then txtColor=LCD_DISABLE_COLOR end
   return txtColor
 end
 
 local function GUI_GetFrameColor(lineNum)  -- Frame Color for Value/Menu Boxes
   local ctx = DSM_Context
-  local txtColor  = LIGHTGREY --ORANGE
+  local txtColor  = LCD_BOX_COLOR
   -- Gray Out any other line except the one been edited
-  if (ctx.isEditing() and ctx.EditLine~=lineNum) then txtColor=LIGHTGREY end  
+  if (ctx.EditLine~=lineNum) then txtColor=LCD_DISABLE_COLOR end 
   return txtColor
 end
 
 --------------------------------------------------------------------------------------------------------
 -- Display Text inside a Rectangle.  Inv: true means solid rectangle, false=only perimeter
 local function GUI_Display_Boxed_Text(lineNum,x,y,w,h,text,inv)
+  local ctx = DSM_Context
   local txtColor  = GUI_GetTextColor(lineNum)
   local frameColor = GUI_GetFrameColor(lineNum)
-
+  -- If editing this lineNum, chose EDIT Color, else SELECTED Color
+  local selectedBGColor = (ctx.EditLine==lineNum and LCD_EDIT_BGCOLOR) or LCD_SELECTED_BGCOLOR 
+  
   if (inv) then
-    txtColor  = WHITE
-    lcd.drawFilledRectangle(x-5, y-2, w, h, ORANGE)
+    txtColor  = LCD_SELECTED_COLOR 
+    lcd.drawFilledRectangle(x-5, y-2, w, h, selectedBGColor)
   else
     lcd.drawRectangle(x-5, y-2, w, h, frameColor)
   end
@@ -141,8 +177,8 @@ local function GUI_Display_Line_Menu(lineNum,line,selected)
   local x = LCD_X_LINE_MENU
  
   if dsmLib.isSelectableLine(line) then -- Draw Selectable Menus in Boxes
-    GUI_Display_Boxed_Text(lineNum,x, y, 350, LCD_Y_LINE_HEIGHT, line.Text,selected)
-    GUI_addTouchButton(x, y, 350, LCD_Y_LINE_HEIGHT,lineNum)
+    GUI_Display_Boxed_Text(lineNum,x, y, LCD_W_LINE_MENU, LCD_Y_LINE_HEIGHT, line.Text,selected)
+    GUI_addTouchButton(x, y, LCD_W_LINE_MENU, LCD_Y_LINE_HEIGHT,lineNum)
   else
     -- Non Selectable Menu Lines, plain text
     -- Can be use for sub headers or just regular text lines (like warnings)
@@ -150,10 +186,10 @@ local function GUI_Display_Line_Menu(lineNum,line,selected)
     local bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0  
 
     if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.RIGHT) then -- Right Align???
-        local tw = lcd.sizeText(line.Text)+4
+        local tw = my_lcd_sizeText(line.Text)+4
         x =  LCD_X_LINE_VALUE - tw     -- Right 
     elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.CENTER) then -- Center??
-        local tw = lcd.sizeText(line.Text) 
+        local tw = my_lcd_sizeText(line.Text) 
         x =  x + (LCD_X_LINE_VALUE - LCD_X_LINE_MENU)/2 - tw/2  -- Center - 1/2 Text
     end
 
@@ -184,10 +220,10 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
       bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0
 
       if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.RIGHT) then -- Right Align
-          local tw = lcd.sizeText(header)+4
+          local tw = my_lcd_sizeText(header)+4
           x =  LCD_X_LINE_VALUE - tw     -- Right 
       elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.CENTER) then -- Centered
-          local tw = (lcd.sizeText(header)) 
+          local tw = my_lcd_sizeText(header)
           x =  x + (LCD_X_LINE_VALUE - LCD_X_LINE_TITLE)/2 - tw/2  -- Center - 1/2 Text
       end
   else
@@ -203,7 +239,7 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
     
     if dsmLib.isSelectableLine(line) then 
       -- Can select/edit value, Box it 
-      local tw = lcd.sizeText(value)+10 -- Width of the Text in the lcd
+      local tw = my_lcd_sizeText(value)+10 -- Width of the Text in the lcd
       GUI_Display_Boxed_Text(lineNum,LCD_X_LINE_VALUE,y,tw,LCD_Y_LINE_HEIGHT,value,selected)
       GUI_addTouchButton(LCD_X_LINE_VALUE,y,tw,LCD_Y_LINE_HEIGHT,lineNum)
     else -- Not Editable, Plain Text 
@@ -212,18 +248,19 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   end
   
   -- Debug info for line Value RANGE when Debug on LCD
-  if (DEBUG_ON_LCD) then  lcd.drawText(LCD_X_LINE_DEBUG, y, line.MinMaxDebug or "", SMLSIZE + BLUE) end -- display debug Min/Max
+  if (DEBUG_ON_LCD) then  lcd.drawText(LCD_X_LINE_DEBUG, y, line.MinMaxDebug or "", SMLSIZE + LCD_DEBUG_COLOR) end -- display debug Min/Max
 end
 
 local function GUI_Display_Menu(menu)
   local ctx = DSM_Context
-  local w=  LCD_W-100  -- usable Width for the Menu/Lines
+  local w=  LCD_W_MENU_TITLE
 
   -- Center Header
-  local tw = lcd.sizeText(menu.Text) 
+  local tw = my_lcd_sizeText(menu.Text) 
   local x = w/2 - tw/2  -- Center of Screen - Center of Text
-  lcd.drawFilledRectangle(0, LCD_Y_MENU_TITLE-2, w, LCD_Y_LINE_HEIGHT-2, DARKGREY)
-  lcd.drawText(x,LCD_Y_MENU_TITLE,menu.Text, WHITE + BOLD)  -- orig MIDSIZE
+
+  lcd.drawFilledRectangle(0, LCD_Y_MENU_TITLE-2, w, LCD_Y_LINE_HEIGHT-2, LCD_MENU_BGCOLOR)
+  lcd.drawText(x,LCD_Y_MENU_TITLE,menu.Text,  LCD_MENU_COLOR + BOLD) 
 
   -- Back Button
   if menu.BackId ~= 0 then
@@ -242,8 +279,8 @@ local function GUI_Display_Menu(menu)
   end
 
   -- Debug on LCD, Show the menu Indo and Phase we are on 
-  if (DEBUG_ON_LCD) then lcd.drawText(0,LCD_Y_MENU_TITLE,dsmLib.phase2String(ctx.Phase),SMLSIZE+BLUE) end  -- Phase we are in 
-  if (DEBUG_ON_LCD) then lcd.drawText(0,240,dsmLib.menu2String(menu),SMLSIZE+BLUE) end  -- Menu Info
+  if (DEBUG_ON_LCD) then lcd.drawText(0,LCD_Y_MENU_TITLE,dsmLib.phase2String(ctx.Phase),SMLSIZE+LCD_DEBUG_COLOR) end  -- Phase we are in 
+  if (DEBUG_ON_LCD) then lcd.drawText(0,240,dsmLib.menu2String(menu),SMLSIZE+LCD_DEBUG_COLOR) end  -- Menu Info
 end
 
 ------------------------------------------------------------------------------------------------------------
@@ -303,13 +340,14 @@ local function GUI_Display()
     end
 
     --Draw title
-    lcd.drawFilledRectangle(0, 0, LCD_W, 17, TITLE_BGCOLOR)
-    lcd.drawText(5, 0, header, MENU_TITLE_COLOR + SMLSIZE)
+    lcd.drawFilledRectangle(0, 0, LCD_W, 17, LCD_TOOL_HDR_BGCOLOR)
+    lcd.drawText(5, 0, header,  LCD_TOOL_HDR_COLOR + SMLSIZE)
     --Draw RX Menu
     if ctx.Phase == PHASE.RX_VERSION then
       lcd.drawText(LCD_X_LINE_TITLE,100,"No compatible DSM RX...", BLINK)
     else
       local menu = ctx.Menu
+      
 
       if menu.Text ~=  nil then
         GUI_Display_Menu(menu)
@@ -319,7 +357,7 @@ local function GUI_Display()
 
           if i == ctx.SelLine then
             -- DEBUG: Display Selected Line info for ON SCREEN Debugging
-            if (DEBUG_ON_LCD) then lcd.drawText(0,255,dsmLib.menuLine2String(line),SMLSIZE+BLUE) end
+            if (DEBUG_ON_LCD) then lcd.drawText(0,255,dsmLib.menuLine2String(line),SMLSIZE + LCD_DEBUG_COLOR) end
           end
 
           if line ~= nil and line.Type ~= 0 then
@@ -347,7 +385,7 @@ local function GUI_Display()
           end -- if Line[i]~=nil
         end  -- for
 
-        if ctx.isEditing() then
+        if IS_EDGETX and ctx.isEditing()  then
           GUI_Display_Edit_Buttons(ctx.MenuLines[ctx.EditLine])
         end
       end 
@@ -409,24 +447,26 @@ local function GUI_HandleEvent(event, touchState)
   local menuLines = ctx.MenuLines
   local editInc   = nil 
 
-  if (event == EVT_TOUCH_TAP and ctx.isEditing()) then -- Touch and Editing 
-    local button = GUI_getTouchButton(touchState.x, touchState.y)
-    if (button) then
-      event, editInc = GUI_Translate_Edit_Buttons(button)
-    end
-  end
-
-  if (event == EVT_TOUCH_TAP or event == EVT_TOUCH_FIRST) and not ctx.isEditing() then  -- Touch and NOT editing
-    if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_TOUCH_TAP %d,%d\n",dsmLib.phase2String(ctx.Phase),touchState.x, touchState.y) end
+  if (IS_EDGETX) then
+    if (event == EVT_TOUCH_TAP and ctx.isEditing()) then -- Touch and Editing 
       local button = GUI_getTouchButton(touchState.x, touchState.y)
-      if button then
-        -- Found a valid line
-        ctx.SelLine = button
-        ctx.Refresh_Display=true
-        if event == EVT_TOUCH_TAP then  -- EVT_TOUCH_FIRST only move focus
-          event = EVT_VIRTUAL_ENTER
-        end
+      if (button) then
+        event, editInc = GUI_Translate_Edit_Buttons(button)
       end
+    end
+
+    if (event == EVT_TOUCH_TAP or event == EVT_TOUCH_FIRST) and not ctx.isEditing() then  -- Touch and NOT editing
+      if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_TOUCH_TAP %d,%d\n",dsmLib.phase2String(ctx.Phase),touchState.x, touchState.y) end
+        local button = GUI_getTouchButton(touchState.x, touchState.y)
+        if button then
+          -- Found a valid line
+          ctx.SelLine = button
+          ctx.Refresh_Display=true
+          if event == EVT_TOUCH_TAP then  -- EVT_TOUCH_FIRST only move focus
+            event = EVT_VIRTUAL_ENTER
+          end
+        end
+    end
   end
 
   if event == EVT_VIRTUAL_EXIT then
@@ -511,9 +551,36 @@ local function GUI_HandleEvent(event, touchState)
   end
 end
 
+local function init_colors()
+  -- osName in OpenTX is nil, otherwise is EDGETX 
+  local ver, radio, maj, minor, rev, osname = getVersion()
+  IS_EDGETX = osname~=nil
+
+  if (IS_EDGETX and USE_SPECKTRUM_COLORS) then
+      -- SPECKTRUM COLORS (only works on EDGETX)
+      -- TOOL HEADER 
+      LCD_TOOL_HDR_COLOR      = MENU_TITLE_COLOR
+      LCD_TOOL_HDR_BGCOLOR    = TITLE_BGCOLOR
+      -- MENU HEADER
+      LCD_MENU_COLOR          = WHITE
+      LCD_MENU_BGCOLOR        = DARKGREY
+      -- LINE SELECTED 
+      LCD_SELECTED_COLOR      = WHITE
+      LCD_SELECTED_BGCOLOR    = ORANGE
+      LCD_EDIT_BGCOLOR        = WARNING_COLOR 
+      -- NORMAL TEXT  
+      LCD_NORMAL_COLOR        = BLACK
+      LCD_DISABLE_COLOR       = LIGHTGREY
+      LCD_DEBUG_COLOR         = BLUE
+      -- NORMAL BOX FRAME COLOR 
+      LCD_BOX_COLOR           = LIGHTGREY  
+  end
+end
+
 ------------------------------------------------------------------------------------------------------------
 -- Init
 local function DSM_Init()
+  init_colors()
   dsmLib.Init(toolName)  -- Initialize Library 
   return dsmLib.StartConnection()
 end

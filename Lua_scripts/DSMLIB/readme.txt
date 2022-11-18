@@ -36,15 +36,11 @@ Some settings that can change (top of Lua file):
 
 
 Known Problems:
-1. When trying to Factory Reset an RX, even that navigation to menus seems OK, it did not reset. 
-	Maybe another message needs to be sent to RX when reaching that page
-2. When initially setting a new RX, there is a point where a menu navigates to MenuID=0x0001, this seems like a 
-	special Save/Restart type of menu.. but it does not reset the RX. maybe another meesage needs to be send
-3. Some Menu List line types (LINE_TYPE.LIST_MENU1 or "L_m1" in logs), the range (min/max) seems to be incorrect, but cannot see in the data how to fix it
+1. Some Menu List line types (LINE_TYPE.LIST_MENU1 or "L_m1" in logs), the range (min/max) seems to be incorrect, but cannot see in the data how to fix it
 	Some of the valid values are not even sequential, very spread apart. There has to be a list of valid options somewhere (in RX or config for each field).
-4. The RX return unknow lines when requesting the Lines for a menu. Realy don't understand what they are for.
+2. The RX return unknow lines when requesting the Lines for a menu. Realy don't understand what they are for.
 	in some menus, seems to stay stuck in the same return line or no response to the request, making the RX reset/close the connection.
-	Did a fix to stop requesting the same menu line if the response is the same. This gives an empty menu, but does not reset the connection.
+	Was able to hack it for AR631 "First Time Setup" and "First Time SAFE Setup", but still happen on "Servo Realm" and others in that menu.
 
 
 Version 0.2

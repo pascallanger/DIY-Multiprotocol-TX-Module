@@ -507,10 +507,10 @@ local function DSM_Value_Default(line)
     end
 end
 
-local function DSM_GotoMenu(menuId)
-    if (DEBUG_ON) then LOG_write("%3.3f %s: DSM_GotoMenu(0x%X)\n", getElapsedTime(), phase2String(DSM_Context.Phase), menuId) end
+local function DSM_GotoMenu(menuId, lastSelectedLine)
+    if (DEBUG_ON) then LOG_write("%3.3f %s: DSM_GotoMenu(0x%X,LastSelectedLine=%d)\n", getElapsedTime(), phase2String(DSM_Context.Phase), menuId, lastSelectedLine) end
     DSM_Context.Menu.MenuId = menuId
-    DSM_Context.SelLine = 0
+    DSM_Context.SelLine = lastSelectedLine
     -- Request to load the menu Again
     DSM_ChangePhase(PHASE.MENU_TITLE)
 end
@@ -584,9 +584,9 @@ local function DSM_getMainMenu()
     DSM_send(0x12, 0x06, 0x00, 0x14, 0x00, 0x00) -- first menu only
 end
 
-local function DSM_getMenu(menuId, startLine)
-    if (DEBUG_ON) then LOG_write("SEND DSM_getMenu(MenuId=0x%X StartLine=%s)\n", menuId, startLine) end
-    DSM_send(0x16, 0x06, int16_MSB(menuId), int16_LSB(menuId), 0x00, startLine)
+local function DSM_getMenu(menuId, latSelLine)
+    if (DEBUG_ON) then LOG_write("SEND DSM_getMenu(MenuId=0x%X LastSelectedLine=%s)\n", menuId, latSelLine) end
+    DSM_send(0x16, 0x06, int16_MSB(menuId), int16_LSB(menuId), 0x00, latSelLine)
 end
 
 local function DSM_getFirstMenuLine(menuId)
@@ -640,9 +640,22 @@ local function DSM_sendRequest()
         if ctx.Menu.MenuId == 0 then  -- First time loading a menu ?
             DSM_getMainMenu()
         else
-            -- Start with Line 0 always, otherwise it will be returning weird 0x05 lines if we start in (Menu.SelLine=-1) 
-            -- for internal menu navigation
-            DSM_getMenu(ctx.Menu.MenuId, 0) 
+            -- AR631/AR637 Hack for "First time Setup" or "First Time AS3X Setup", use 0 instead of the ctx.SelLine
+            -- otherwise it will get into a werid loop of Unknown_0x05 lines!!
+            if (ctx.Menu.MenuId == 0x104F  or ctx.Menu.MenuId==0x1055) then
+                if (DEBUG_ON) then LOG_write("First time Setup Menu HACK: Overrideing LastSelectedLine to ZERO\n") end
+                if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
+                ctx.SelLine = 0
+            end
+
+            DSM_getMenu(ctx.Menu.MenuId, ctx.SelLine) 
+
+            if (ctx.Menu.MenuId == 0x0001) then  -- Executed the Reset Menu??
+                if (DEBUG_ON) then LOG_write("RX Reset!!!\n") end
+                -- Start again retriving RX info 
+                ctx.Menu.MenuId = 0                
+                ctx.Phase = PHASE.RX_VERSION
+            end
         end
 
     elseif ctx.Phase == PHASE.MENU_UNKNOWN_LINES then -- Still trying to figure out what are this menu lines are for 
@@ -815,7 +828,8 @@ local function DSM_Add_Error_Menu_Line(i, text)
 
     line.MinMaxOrig = ""
     line.Val = nil
-    line.Format = ""
+
+    DSM_MenuLinePostProcessing(line)
 end
 
 ------------------------------------------------------------------------------------------------------------
@@ -841,7 +855,15 @@ local function DSM_processResponse()
             ctx.SelLine = BACK_BUTTON -- highlight Back
         end
 
-        ctx.Phase = PHASE.MENU_LINES
+        if (ctx.Menu.MenuId == 0x0001) then  -- Still in RESETTING MENU???
+            -- Star from Start
+            if (DEBUG_ON) then LOG_write("RX Reset:  Still not done, restart again!!!\n") end
+            ctx.Menu.MenuId = 0
+            ctx.Phase = PHASE.RX_VERSION
+        else
+            ctx.Phase = PHASE.MENU_LINES
+        end
+        
 
     elseif cmd == 0x03 then --  menu lines
         local line = DSM_parseMenuLine()
@@ -866,15 +888,14 @@ local function DSM_processResponse()
 
         if (curLine==ctx.CurLine) then
             -- WEIRD BEHAVIOR
-            -- We got the same line we already got.. Stop requesting the same again and again
-            -- otherwise we end up in a deadlock loop, and RX will reset the connection
+            -- We got the same line we already got. thi will continue
+            -- on a loop and disconnect RX 
             DSM_Add_Error_Menu_Line(0,"\bError: Cannot Load Menu Lines from RX")
-            ctx.Phase = PHASE.WAIT_CMD
-            if (DEBUG_ON) then LOG_write("ERROR: Received Same menu line, exiting the loop to prevent disconnect\n") end
-        else -- Got the next line.. keep requesting more
-            ctx.CurLine = curLine
-            ctx.Phase = PHASE.MENU_UNKNOWN_LINES
-        end
+            if (DEBUG_ON) then LOG_write("ERROR: Received Same menu line\n") end
+        end -- Got the next line.. keep requesting more
+            
+        ctx.CurLine = curLine
+        ctx.Phase = PHASE.MENU_UNKNOWN_LINES
 
     elseif cmd == 0xA7 then -- answer to EXIT command
         if (DEBUG_ON) then LOG_write("RESPONSE Exit Confirm\n") end
@@ -941,6 +962,8 @@ local function DSM_Send_Receive()
                 -- Refresh screen again
                 context.Refresh_Display = true
             end
+
+            
         end
     end
 end
@@ -973,6 +996,7 @@ local function DSM_Init(toolName)
     PhaseText[PHASE.VALUE_CHANGE_END]    = "VALUE_CHANGE_END"
     PhaseText[PHASE.EXIT]                = "EXIT"
     PhaseText[PHASE.EXIT_DONE]           = "EXIT_DONE"
+
 
     -- Line Types
     LineTypeText[LINE_TYPE.MENU]             = "M"
@@ -1178,6 +1202,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00E0] = "RX Pos 22"; Text_Img[0x00E0]  = "Pilot View: RX Label Left, Pins Up" 
     Text[0x00E1] = "RX Pos 23"; Text_Img[0x00E1]  = "Pilot View: RX Label Front, Pins Up" 
     Text[0x00E2] = "RX Pos 24"; Text_Img[0x00E2]  = "Pilot View: RX Label Right, Pins Up" 
+    Text[0x00E3] = "RX Pos Invalid";   -- Just Guesing, check on real RX 
 
     -- But for FC6250HX, Override this previous values
     if (rxId == RX.FC6250HX) then
@@ -1253,6 +1278,14 @@ local function DSM_Init_Text(rxId)
     Text[0x020A] = "Restore from Backup"
     Text[0x020D] = "First Time SAFE Setup"
 
+    -- TODO: First time safe setup Page 3 : 
+    --Text[0x020E] = ""
+    --Text[0x020F] = ""
+    --Text[0x0210] = ""
+    --Text[0x0211] = ""
+    --Text[0x0212] = ""
+    --Text[0x0213] = ""
+
     Text[0x021A] = "Set the model level,"
     Text[0x021B] = "and press Continue."
     Text[0x021C] = "" -- empty??
@@ -1302,6 +1335,19 @@ local function DSM_Init_Text(rxId)
     Text[0x0250] = "from Adjustable to Fixed"
 
     Text[0x0254] = "Postive = Up, Negative = Down"
+
+    -- TODO: First time safe setup Page 1  (maybe ask to select Flight Mode cannel)
+    --Text[0x0255] = ""
+    --Text[0x0256] = ""
+    --Text[0x0257] = ""
+
+    --TODO: First time safe setup Page 2  (something related for flight mode)
+    --Text[0x025A] = ""
+    --Text[0x025B] = ""
+    --Text[0x025C] = ""
+    --Text[0x025D] = ""
+    --Text[0x025E] = ""
+
     Text[0x0263] = "Fixed/Adjustable Gains /c/b"
     Text[0x0266] = "Heading Gain/c/b"
     Text[0x0267] = "Positive = Nose Up/Roll Right"

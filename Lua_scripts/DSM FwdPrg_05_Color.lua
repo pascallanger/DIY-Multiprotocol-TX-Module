@@ -524,11 +524,11 @@ local function GUI_HandleEvent(event, touchState)
     ctx.Refresh_Display=true
     if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_VIRTUAL_ENTER,  SelLine=%d\n",dsmLib.phase2String(ctx.Phase), ctx.SelLine) end
     if ctx.SelLine == dsmLib.BACK_BUTTON then -- Back
-      dsmLib.GotoMenu(menu.BackId)
+      dsmLib.GotoMenu(menu.BackId,0)
     elseif ctx.SelLine == dsmLib.NEXT_BUTTON then -- Next
-      dsmLib.GotoMenu(menu.NextId)
+      dsmLib.GotoMenu(menu.NextId,0)
     elseif ctx.SelLine == dsmLib.PREV_BUTTON then -- Prev
-      dsmLib.GotoMenu(menu.PrevId)
+      dsmLib.GotoMenu(menu.PrevId,0)
     elseif menuLines[ctx.SelLine].ValId ~= 0 then  -- Menu or Value
 
       if menuLines[ctx.SelLine].Type == LINE_TYPE.MENU then -- Navigate to Menu
@@ -536,7 +536,7 @@ local function GUI_HandleEvent(event, touchState)
           -- SPECIAL Simulation menu to Exit Simulation
           GUI_SwitchSimulationOFF()
         else
-          dsmLib.GotoMenu(menuLines[ctx.SelLine].ValId)  -- ValId is the MenuId to navigate to
+          dsmLib.GotoMenu(menuLines[ctx.SelLine].ValId, ctx.SelLine)  -- ValId is the MenuId to navigate to
         end
       else -- Enter on a Value
         if ctx.isEditing() then   -- already editing a Line???? 

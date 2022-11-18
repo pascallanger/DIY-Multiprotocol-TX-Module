@@ -332,11 +332,11 @@ local function GUI_HandleEvent(event, touchState)
     ctx.Refresh_Display=true
     if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_VIRTUAL_ENTER\n",dsmLib.phase2String(ctx.Phase)) end
     if ctx.SelLine == dsmLib.BACK_BUTTON then -- Back
-      dsmLib.GotoMenu(menu.BackId)
+      dsmLib.GotoMenu(menu.BackId,0)
     elseif ctx.SelLine == dsmLib.NEXT_BUTTON then -- Next
-      dsmLib.GotoMenu(menu.NextId)
+      dsmLib.GotoMenu(menu.NextId,0)
     elseif ctx.SelLine == dsmLib.PREV_BUTTON then -- Prev
-      dsmLib.GotoMenu(menu.PrevId)
+      dsmLib.GotoMenu(menu.PrevId,0)
     elseif menuLines[ctx.SelLine].ValId ~= 0 then  
       if menuLines[ctx.SelLine].Type == LINE_TYPE.MENU then -- Next menu exist
         if (SIMULATION_ON and menuLines[ctx.SelLine].ValId==0xFFFF) then 
@@ -344,7 +344,7 @@ local function GUI_HandleEvent(event, touchState)
           -- comunicate with Real RX 
           GUI_SwitchSimulationOFF()
         else
-          dsmLib.GotoMenu(menuLines[ctx.SelLine].ValId)  -- ValId is the MenuId to navigate to
+          dsmLib.GotoMenu(menuLines[ctx.SelLine].ValId,ctx.SelLine)  -- ValId is the MenuId to navigate to
         end
       else
         -- Editing a Line???? 

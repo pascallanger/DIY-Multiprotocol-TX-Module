@@ -31,6 +31,8 @@ else
   dsmLib = loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
 end
 
+local IMAGE_PATH = "/SCRIPTS/TOOLS/DSMLIB/img/"
+
 local PHASE = dsmLib.PHASE
 local LINE_TYPE = dsmLib.LINE_TYPE
 local DISP_ATTR   = dsmLib.DISP_ATTR
@@ -85,7 +87,6 @@ local LCD_BOX_COLOR           = TEXT_DISABLE_COLOR
 --------------------- lcd.sizeText replacement -------------------------------------------------
 -- EdgeTx dont have lcd.sizeText, so we do an equivalent one using the string length and 5px per character
 local function my_lcd_sizeText(s)
-  print(string.format("EdgeTX=%s",IS_EDGETX))
   -- return: If IS_EDGETX then lcd.sizeText() else string.len()
   return (IS_EDGETX and lcd.sizeText(s)) or (string.len(s)*10)  
 end
@@ -214,7 +215,7 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   -- ONLY do this for Flight Mode (Right Align or Centered)
   if (dsmLib.isFlightModeText(line.TextId)) then
       -- Display Header + Value together
-      header = header .. " " .. value
+      header = dsmLib.GetFlightModeValue(line.TextId,header,value)
 
       -- Bold Text???
       bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0
@@ -327,6 +328,20 @@ local function GUI_Display_Edit_Buttons(line)
 
 end
 
+local function GUI_ShowBitmap(x,y,imgData)
+    -- imgData format "bitmap.png|alt message"
+    local f = string.gmatch(imgData, '([^%|]+)') -- Iterator over values split by '|'
+    local imgName, imgMsg = f(), f()
+
+    lcd.drawText(x, y, imgMsg or "")  -- Alternate Image MSG 
+
+    local imgPath = IMAGE_PATH .. (imgName or "")
+    local bitmap  = Bitmap.open(imgPath)
+    if (bitmap~=nil) then
+       lcd.drawBitmap(bitmap, x,y+20)
+    end
+end
+
 ------------------------------------------------------------------------------------------------------------
 local function GUI_Display()
   local ctx = DSM_Context
@@ -344,7 +359,11 @@ local function GUI_Display()
     lcd.drawText(5, 0, header,  LCD_TOOL_HDR_COLOR + SMLSIZE)
     --Draw RX Menu
     if ctx.Phase == PHASE.RX_VERSION then
-      lcd.drawText(LCD_X_LINE_TITLE,100,"No compatible DSM RX...", BLINK)
+      if (ctx.isReset) then
+        lcd.drawText(LCD_X_LINE_TITLE,100,"Waiting for RX to Restart", BLINK)
+      else
+        lcd.drawText(LCD_X_LINE_TITLE,100,"No compatible DSM RX...", BLINK)
+      end
     else
       local menu = ctx.Menu
       
@@ -364,18 +383,15 @@ local function GUI_Display()
             if line.Type == LINE_TYPE.MENU then 
               GUI_Display_Line_Menu(i, line, i == ctx.SelLine)
             else  
-              -- list/value line 
-              local value, imgValue   = line.Val, nil
-
               if line.Val ~= nil then
+                local value = line.Val
+
                 if dsmLib.isListLine(line) then    -- for Lists of Strings, get the text
-                  value = dsmLib.Get_Text(line.Val + line.TextStart) -- TextStart is the initial offset for text
-                  imgValue = dsmLib.Get_Text_Img(line.Val + line.TextStart)   -- Complentary IMAGE for this value to Display??
+                  value = dsmLib.Get_List_Text(line.Val + line.TextStart) -- TextStart is the initial offset for text
+                  local imgData = dsmLib.Get_List_Text_Img(line.Val + line.TextStart)   -- Complentary IMAGE for this value to Display??
                     
-                  if (imgValue) then  -- Optional Image for a Value
-                    --TODO: Pending feature.. create images and put bitmap instead of a message
-                    --Display the image/Alternate Text 
-                    lcd.drawText(LCD_X_LINE_TITLE, LCD_Y_LINE_START+LCD_Y_LINE_HEIGHT, "Img:"..imgValue)
+                  if (imgData) then  -- Optional Image and Msg for value
+                    GUI_ShowBitmap(LCD_X_LINE_TITLE,LCD_Y_LINE_START, imgData)
                   end
                 end
 
@@ -386,6 +402,7 @@ local function GUI_Display()
         end  -- for
 
         if IS_EDGETX and ctx.isEditing()  then
+          -- Display Touch button for Editing values
           GUI_Display_Edit_Buttons(ctx.MenuLines[ctx.EditLine])
         end
       end 
@@ -393,6 +410,7 @@ local function GUI_Display()
   else
     -- Different Resolution.. Maybe just adjusting some of the constants will work, adjust it in DSM_Init??
     -- LCD_X_LINE_TITLE,  LCD_Y_LINE_START, etc
+    lcd.drawText(LCD_X_LINE_TITLE,100,"Only supported in Color Radios of 480 resolution", BLINK)
   end
 end
 
@@ -467,7 +485,7 @@ local function GUI_HandleEvent(event, touchState)
           end
         end
     end
-  end
+  end -- IS_EDGETX
 
   if event == EVT_VIRTUAL_EXIT then
     ctx.Refresh_Display=true

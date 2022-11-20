@@ -23,7 +23,7 @@ Version 0.5
 - Separate the DSM Forwards Programing logic from the GUI
 - Log the comunnication with the RX on a /LOGS/dsm_log.txt to allow to debug it easier 
 	and see the exchange of data between the RX/TX
-- Created a black/white version with only Key/Roller Inputs (OTX)
+- Created a black/white Text only version with only Key/Roller Inputs
 - Created a nicer GUI for EdgeTX touchscreen color Radios
 - RX simulation for GUI development:  turn on SIMULATION_ON=true in the beginning of the lua file
 
@@ -32,7 +32,7 @@ Some settings that can change (top of Lua file):
 	SIMULATION_ON = false   -- FALSE: use real communication to DSM RX (DEFAULT), TRUE: use a simulated version of RX 
 	DEBUG_ON = 1           -- 0=NO DEBUG, 1=HIGH LEVEL 2=LOW LEVEL   (Debug logged into the /LOGS/dsm_log.txt)
 	DEBUG_ON_LCD = false   -- Interactive Information on LCD of Menu data from RX 
-	USE_SPECKTRUM_COLORS = true -- true: Use spectrum colors, false: use theme colors (default on OpenTX) 
+	USE_SPECKTRUM_COLORS = true -- true: Use spectrum colors, false: use theme colors (default on OpenTX, OpenTX handle colors different) 
 
 
 Known Problems:
@@ -40,7 +40,7 @@ Known Problems:
 	Some of the valid values are not even sequential, very spread apart. There has to be a list of valid options somewhere (in RX or config for each field).
 2. The RX return unknow lines when requesting the Lines for a menu. Realy don't understand what they are for.
 	in some menus, seems to stay stuck in the same return line or no response to the request, making the RX reset/close the connection.
-	Was able to hack it for AR631 "First Time Setup" and "First Time SAFE Setup", but still happen on "Servo Realm" and others in that menu.
+	Was able to hack it for AR631 "First Time Setup" and "First Time SAFE Setup", and "Servo Realm" (don't know if it works here)
 
 
 Version 0.2

@@ -67,6 +67,8 @@ local function PostProcessMenu()
     for i = 0, dsmLib.MAX_MENU_LINES do -- clear menu
         local line = ctx.MenuLines[i]
         if (line.Type~=0) then
+            line.MenuId = ctx.Menu.MenuId
+            line.lineNum = i
             dsmLib.MenuLinePostProcessing(line) -- Do the same post processing as if they come from the RX
             if (DEBUG_ON) then dsmLib.LOG_write("SIM RESPONSE MenuLine: %s\n", dsmLib.menuLine2String(line))  end
         end
@@ -84,8 +86,8 @@ local function AR631_loadMenu(menuId)
         --L[#1 T=M VId=0x105E Text="Other settings" MId=0x1000 ]
 
         ctx.Menu = { MenuId = 0x1000, TextId = 0x004B, PrevId = 0, NextId = 0, BackId = 0 }
-        ctx.MenuLines[0] = { MenuId = 0x1000, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x00F9, ValId = 0x1010 }
-        ctx.MenuLines[1] = { MenuId = 0x1000, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x0227, ValId = 0x105E }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x00F9, ValId = 0x1010 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x0227, ValId = 0x105E }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1010) then
@@ -93,6 +95,7 @@ local function AR631_loadMenu(menuId)
 
         -- NEW
         -- L[#5 T=M VId=0x104F val=nil [0->0,3] Text="First Time Setup" MId=0x1010 ]      -- NEW ONLY
+        -- L[#6 T=M VId=0x1055 Text="First Time SAFE Setup"[0x20D]   MId=0x1010 ]
 
         -- Initialize AR637T
         -- L[#0 T=M VId=0x1011 Text="AS3X Settings"[0x1DD]  MId=0x1010 ]  
@@ -103,13 +106,14 @@ local function AR631_loadMenu(menuId)
 
         ctx.Menu = { MenuId = 0x1010, TextId = 0x00F9, PrevId = 0, NextId = 0, BackId = 0x1000 }
         if not RX_Initialized then 
-            ctx.MenuLines[5] = { MenuId = 0x1010, lineNum = 5, Type = LINE_TYPE.MENU, TextId = 0x00A5, ValId = 0x104F}
+            ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x00A5, ValId = 0x104F}
+            ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x020D, ValId = 0x1055}
             ctx.SelLine = 5
         else
-            ctx.MenuLines[0] = { MenuId = 0x1010, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x1DD, ValId = 0x1011 }
-            ctx.MenuLines[1] = { MenuId = 0x1010, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x1E2, ValId = 0x1019 }
-            ctx.MenuLines[2] = { MenuId = 0x1010, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x87, ValId = 0x1021 }
-            ctx.MenuLines[3] = { MenuId = 0x1010, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0x86, ValId = 0x1022 }
+            ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x01DD, ValId = 0x1011 }
+            ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x01E2, ValId = 0x1019 }
+            ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x0087, ValId = 0x1021 }
+            ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x0086, ValId = 0x1022 }
             ctx.SelLine = 0
         end
         lastGoodMenu = menuId
@@ -124,12 +128,12 @@ local function AR631_loadMenu(menuId)
         -- L[#6 T=M VId=0x1017  Text="Capture Gyro Gains"[0xAA] MId=0x1011 ]     
 
         ctx.Menu = { MenuId = 0x1011, TextId = 0x1DD, PrevId = 0, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[0] = { MenuId = 0x1011, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x1DE, ValId = 0x1012}
-        ctx.MenuLines[1] = { MenuId = 0x1011, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x46, ValId = 0x1013}
-        ctx.MenuLines[2] = { MenuId = 0x1011, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x82, ValId = 0x1015}
-        ctx.MenuLines[4] = { MenuId = 0x1011, lineNum = 4, Type = LINE_TYPE.LIST_MENU1, TextId = 0x8A, ValId = 0x1004, Min=0, Max=244, Def=50, Val=50 }
-        ctx.MenuLines[5] = { MenuId = 0x1011, lineNum = 5, Type = LINE_TYPE.MENU, TextId = 0x263, ValId = 0x1016}
-        ctx.MenuLines[6] = { MenuId = 0x1011, lineNum = 6, Type = LINE_TYPE.MENU, TextId = 0xAA, ValId = 0x1017 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x1DE, ValId = 0x1012}
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x46, ValId = 0x1013}
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x82, ValId = 0x1015}
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x8A, ValId = 0x1004, Min=0, Max=244, Def=50, Val=50 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x263, ValId = 0x1016}
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0xAA, ValId = 0x1017 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1012) then
@@ -141,11 +145,11 @@ local function AR631_loadMenu(menuId)
         --L[#5 T=V_NC VId=0x1006 Text="Yaw"[0x42]  val=48 [0->100,60] MId=0x1012 ]
     
         ctx.Menu = { MenuId = 0x1012, TextId = 0x1DE, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { MenuId = 0x1012, lineNum = 0, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[2] = { MenuId = 0x1012, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x1E0, ValId = 0x1012 }
-        ctx.MenuLines[3] = { MenuId = 0x1012, lineNum = 3, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1004, Min=0, Max=100, Def=40, Val=40 }
-        ctx.MenuLines[4] = { MenuId = 0x1012, lineNum = 4, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x41, ValId = 0x1005, Min=0, Max=100, Def=50, Val=50 }
-        ctx.MenuLines[5] = { MenuId = 0x1012, lineNum = 5, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x42, ValId = 0x1006, Min=0, Max=100, Def=60, Val=60 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x1E0, ValId = 0x1012 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1004, Min=0, Max=100, Def=40, Val=40 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x41, ValId = 0x1005, Min=0, Max=100, Def=50, Val=50 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x42, ValId = 0x1006, Min=0, Max=100, Def=60, Val=60 }
 
         ctx.SelLine = 3
         lastGoodMenu = menuId
@@ -158,11 +162,11 @@ local function AR631_loadMenu(menuId)
         --L[#5 T=V_NC VId=0x1006  Text="Yaw"[0x42] val=48 [0->160,160] MId=0x1012 ]
     
         ctx.Menu = { MenuId = 0x1013, TextId = 0x46, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { MenuId = 0x1013, lineNum = 0, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[2] = { MenuId = 0x1013, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0xFE, ValId = 0x1013 }
-        ctx.MenuLines[3] = { MenuId = 0x1013, lineNum = 3, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1004, Min=0, Max=160, Def=100, Val=160 }
-        ctx.MenuLines[4] = { MenuId = 0x1013, lineNum = 4, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=160, Def=100, Val=160 }
-        ctx.MenuLines[5] = { MenuId = 0x1013, lineNum = 5, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x42, ValId = 0x1006, Min=0, Max=160, Def=100, Val=160 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0xFE, ValId = 0x1013 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1004, Min=0, Max=160, Def=100, Val=160 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=160, Def=100, Val=160 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x42, ValId = 0x1006, Min=0, Max=160, Def=100, Val=160 }
 
         ctx.SelLine = 3
         lastGoodMenu = menuId
@@ -176,12 +180,12 @@ local function AR631_loadMenu(menuId)
         -- L[#6 T=V_NC VId=0x1006 Text="Yaw"[0x42] val=0 [0->100,0] MId=0x1015 ]
 
         ctx.Menu = { MenuId = 0x1015, TextId = 0x266, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { MenuId = 0x1015, lineNum = 0, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[1] = { MenuId = 0x1015, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x1F9, ValId = 0x1015 }
-        ctx.MenuLines[2] = { MenuId = 0x1015, lineNum = 2, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1004, Min=0, Max=100, Def=0, Val=0 }
-        ctx.MenuLines[3] = { MenuId = 0x1015, lineNum = 3, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x41, ValId = 0x1005, Min=0, Max=100, Def=0, Val=0 }
-        ctx.MenuLines[5] = { MenuId = 0x1015, lineNum = 5, Type = LINE_TYPE.MENU, TextId = 0x26A, ValId = 0x1015 }
-        ctx.MenuLines[6] = { MenuId = 0x1015, lineNum = 6, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x42, ValId = 0x1006, Min=0, Max=100, Def=0, Val=0 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x1F9, ValId = 0x1015 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1004, Min=0, Max=100, Def=0, Val=0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x41, ValId = 0x1005, Min=0, Max=100, Def=0, Val=0 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x26A, ValId = 0x1015 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x42, ValId = 0x1006, Min=0, Max=100, Def=0, Val=0 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1016) then
@@ -193,11 +197,11 @@ local function AR631_loadMenu(menuId)
         -- L[#4 T=L_m0 VId=0x1004  Text="Yaw"[0x42] MId=0x1016 val=1 NL=(0->1,1,S=242) [242->243,243] ]
 
         ctx.Menu = { MenuId = 0x1016, TextId = 0x263, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { MenuId = 0x1016, lineNum = 0, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[1] = { MenuId = 0x1016, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x1F9, ValId = 0x1016 }
-        ctx.MenuLines[2] = { MenuId = 0x1016, lineNum = 2, Type = LINE_TYPE.LIST_MENU0, TextId = 0x40, ValId = 0x1002, Min=242, Max=243, Def=243, Val=1 }
-        ctx.MenuLines[3] = { MenuId = 0x1016, lineNum = 3, Type = LINE_TYPE.LIST_MENU0, TextId = 0x41, ValId = 0x1003, Min=242, Max=243, Def=243, Val=1 }
-        ctx.MenuLines[4] = { MenuId = 0x1016, lineNum = 4, Type = LINE_TYPE.LIST_MENU0, TextId = 0x42, ValId = 0x1004, Min=242, Max=243, Def=243, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x1F9, ValId = 0x1016 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x40, ValId = 0x1002, Min=242, Max=243, Def=243, Val=1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x41, ValId = 0x1003, Min=242, Max=243, Def=243, Val=1 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x42, ValId = 0x1004, Min=242, Max=243, Def=243, Val=1 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1017) then
@@ -211,13 +215,13 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x1018 Text="Capture Gyro Gains"[0xAA]   MId=0x1017 ]
 
         ctx.Menu = { MenuId = 0x1017, TextId = 0xAA, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { MenuId = 0x1017, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x24C, ValId = 0x1017 }
-        ctx.MenuLines[1] = { MenuId = 0x1017, lineNum = 1, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[2] = { MenuId = 0x1017, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x24D, ValId = 0x1017 }
-        ctx.MenuLines[3] = { MenuId = 0x1017, lineNum = 3, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=40 }
-        ctx.MenuLines[4] = { MenuId = 0x1017, lineNum = 4, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=50 }
-        ctx.MenuLines[5] = { MenuId = 0x1017, lineNum = 5, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x42, ValId = 0x1006, Min=0, Max=0, Def=0, Val=60 }
-        ctx.MenuLines[6] = { MenuId = 0x1017, lineNum = 6, Type = LINE_TYPE.MENU, TextId = 0xAA, ValId = 0x1018 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x24C, ValId = 0x1017 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x24D, ValId = 0x1017 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=40 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=50 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x42, ValId = 0x1006, Min=0, Max=0, Def=0, Val=60 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0xAA, ValId = 0x1018 }
 
         ctx.SelLine = 6
         lastGoodMenu = menuId
@@ -232,13 +236,13 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=V_i8 VId=0x1006 Text="Yaw"[0x42] Val=60 [0->0,0] MId=0x1018 ]
 
         ctx.Menu = { MenuId = 0x1018, TextId = 0xAA, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { MenuId = 0x1018, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x24E, ValId = 0x1018 }
-        ctx.MenuLines[1] = { MenuId = 0x1018, lineNum = 1, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[2] = { MenuId = 0x1018, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x24F, ValId = 0x1018 }
-        ctx.MenuLines[3] = { MenuId = 0x1018, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0x250, ValId = 0x1018 }
-        ctx.MenuLines[4] = { MenuId = 0x1018, lineNum = 4, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=40 }
-        ctx.MenuLines[5] = { MenuId = 0x1018, lineNum = 5, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=50 }
-        ctx.MenuLines[6] = { MenuId = 0x1018, lineNum = 6, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x42, ValId = 0x1006, Min=0, Max=0, Def=0, Val=60 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x24E, ValId = 0x1018 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x24F, ValId = 0x1018 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x250, ValId = 0x1018 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=40 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=50 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x42, ValId = 0x1006, Min=0, Max=0, Def=0, Val=60 }
 
         ctx.SelLine = -1
         lastGoodMenu = menuId
@@ -250,10 +254,10 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x101F Text="Capture Gyro Gains"[0xAA] MId=0x1019 ]
 
         ctx.Menu = { MenuId = 0x1019, TextId = 0x1E2, PrevId = 0, NextId = 0, BackId = 0x1010  }
-        ctx.MenuLines[0] = { MenuId = 0x1019, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x1E3, ValId = 0x101A }
-        ctx.MenuLines[1] = { MenuId = 0x1019, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x226, ValId = 0x101B }
-        ctx.MenuLines[5] = { MenuId = 0x1019, lineNum = 5, Type = LINE_TYPE.MENU, TextId = 0x263, ValId = 0x101E }
-        ctx.MenuLines[6] = { MenuId = 0x1019, lineNum = 6, Type = LINE_TYPE.MENU, TextId = 0xAA, ValId = 0x101F }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x1E3, ValId = 0x101A }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x226, ValId = 0x101B }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x263, ValId = 0x101E }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0xAA, ValId = 0x101F }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x101A) then
@@ -264,10 +268,10 @@ local function AR631_loadMenu(menuId)
         --L[#3 T=V_NC VId=0x1003 Text="Pitch"[0x41] Val=35 [5->100,35] MId=0x101A ]
 
         ctx.Menu = { MenuId = 0x101A, TextId = 0x1E3, PrevId = 0, NextId = 0, BackId = 0x1019 }
-        ctx.MenuLines[0] = { MenuId = 0x101A, lineNum = 0, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[1] = { MenuId = 0x101A, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x43, ValId = 0x101A }
-        ctx.MenuLines[2] = { MenuId = 0x101A, lineNum = 2, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1002, Min=5, Max=100, Def=35, Val=35 }
-        ctx.MenuLines[3] = { MenuId = 0x101A, lineNum = 3, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x41, ValId = 0x1003, Min=5, Max=100, Def=60, Val=35 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x43, ValId = 0x101A }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1002, Min=5, Max=100, Def=35, Val=35 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x41, ValId = 0x1003, Min=5, Max=100, Def=60, Val=35 }
     
         ctx.SelLine = -1
         lastGoodMenu = menuId
@@ -281,12 +285,12 @@ local function AR631_loadMenu(menuId)
         --L[#5 T=V_NC VId=0x1005 Text="Pitch Up"[0x1EC] Val=50 [10->75,50] MId=0x101B ]
 
         ctx.Menu = { MenuId = 0x101B, TextId = 0x226, PrevId = 0, NextId = 0, BackId = 0x1019 }
-        ctx.MenuLines[0] = { MenuId = 0x101B, lineNum = 0, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[1] = { MenuId = 0x101B, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x226, ValId = 0x101B }
-        ctx.MenuLines[2] = { MenuId = 0x101B, lineNum = 2, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1E9, ValId = 0x1002, Min=10, Max=90, Def=60, Val=60 }
-        ctx.MenuLines[3] = { MenuId = 0x101B, lineNum = 3, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EA, ValId = 0x1003, Min=10, Max=90, Def=60, Val=60 }
-        ctx.MenuLines[4] = { MenuId = 0x101B, lineNum = 4, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EB, ValId = 0x1004, Min=10, Max=90, Def=40, Val=40 }
-        ctx.MenuLines[5] = { MenuId = 0x101B, lineNum = 5, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EC, ValId = 0x1005, Min=10, Max=90, Def=50, Val=50 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x226, ValId = 0x101B }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1E9, ValId = 0x1002, Min=10, Max=90, Def=60, Val=60 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EA, ValId = 0x1003, Min=10, Max=90, Def=60, Val=60 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EB, ValId = 0x1004, Min=10, Max=90, Def=40, Val=40 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EC, ValId = 0x1005, Min=10, Max=90, Def=50, Val=50 }
     
         ctx.SelLine = -1
         lastGoodMenu = menuId
@@ -299,10 +303,10 @@ local function AR631_loadMenu(menuId)
         --L[#3 T=L_m0 VId=0x1003 Text="Pitch"[0x41] Val=0 N=(0->1,1,S=242) [242->243,243] MId=0x101E ]
 
         ctx.Menu = { MenuId = 0x101E, TextId = 0x263, PrevId = 0, NextId = 0, BackId = 0x1019 }
-        ctx.MenuLines[0] = { MenuId = 0x101E, lineNum = 0, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[1] = { MenuId = 0x101E, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x263, ValId = 0x101E }
-        ctx.MenuLines[2] = { MenuId = 0x101E, lineNum = 2, Type = LINE_TYPE.LIST_MENU0, TextId = 0x40, ValId = 0x1002, Min=242, Max=243, Def=243, Val=0 }
-        ctx.MenuLines[3] = { MenuId = 0x101E, lineNum = 3, Type = LINE_TYPE.LIST_MENU0, TextId = 0x41, ValId = 0x1003, Min=242, Max=243, Def=243, Val=0 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x263, ValId = 0x101E }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x40, ValId = 0x1002, Min=242, Max=243, Def=243, Val=0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x41, ValId = 0x1003, Min=242, Max=243, Def=243, Val=0 }
 
         ctx.SelLine = -1
         lastGoodMenu = menuId
@@ -316,12 +320,12 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x1020 Text="Capture Gyro Gains"[0xAA]   MId=0x101F ]
 
         ctx.Menu = { MenuId = 0x101F, TextId = 0xAA, PrevId = 0, NextId = 0, BackId = 0x1019  }
-        ctx.MenuLines[0] = { MenuId = 0x101F, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x24C, ValId = 0x101F }
-        ctx.MenuLines[1] = { MenuId = 0x101F, lineNum = 1, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[2] = { MenuId = 0x101F, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x24D, ValId = 0x101F }
-        ctx.MenuLines[3] = { MenuId = 0x101F, lineNum = 3, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=35 }
-        ctx.MenuLines[4] = { MenuId = 0x101F, lineNum = 4, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=35 }
-        ctx.MenuLines[6] = { MenuId = 0x101F, lineNum = 6, Type = LINE_TYPE.MENU, TextId = 0xAA, ValId = 0x1020 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x24C, ValId = 0x101F }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x24D, ValId = 0x101F }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=35 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=35 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0xAA, ValId = 0x1020 }
 
         ctx.SelLine = 6
         lastGoodMenu = menuId
@@ -335,12 +339,12 @@ local function AR631_loadMenu(menuId)
         --L[#5 T=V_i8 VId=0x1005 Text="Pitch"[0x41] Val=50 [0->0,0] MId=0x1020 ]
 
         ctx.Menu = { MenuId = 0x1020, TextId = 0xAA, PrevId = 0, NextId = 0, BackId = 0x1019 }
-        ctx.MenuLines[0] = { MenuId = 0x1020, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x24E, ValId = 0x1020 }
-        ctx.MenuLines[1] = { MenuId = 0x1020, lineNum = 1, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[2] = { MenuId = 0x1020, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x24F, ValId = 0x1020 }
-        ctx.MenuLines[3] = { MenuId = 0x1020, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0x250, ValId = 0x1020 }
-        ctx.MenuLines[4] = { MenuId = 0x1020, lineNum = 4, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=35 }
-        ctx.MenuLines[5] = { MenuId = 0x1020, lineNum = 5, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=35 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x24E, ValId = 0x1020 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x24F, ValId = 0x1020 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x250, ValId = 0x1020 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=35 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=35 }
 
         ctx.SelLine = -1
         lastGoodMenu = menuId
@@ -359,30 +363,305 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=L_m1 VId=0x1006 Text="Low Thr to Pitch"[0x1EF] val=0 NL=(0->1,3,S=3) [3->4,3] MId=0x1021 ]
 
          ctx.Menu = { MenuId = 0x1021, TextId = 0x87, PrevId = 0, NextId = 0, BackId = 0x1010 }
-         ctx.MenuLines[0] = { MenuId = 0x1021, lineNum = 0, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-         ctx.MenuLines[1] = { MenuId = 0x1021, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x78, ValId = 0x7CA6 }
-         ctx.MenuLines[2] = { MenuId = 0x1021, lineNum = 2, Type = LINE_TYPE.LIST_MENU1, TextId = 0x1DC, ValId = 0x1002, Min=3, Max=4, Def=3, Val=1 }
-         ctx.MenuLines[3] = { MenuId = 0x1021, lineNum = 3, Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F8, ValId = 0x1003, Min=0, Max=244, Def=3, Val=176 }
-         ctx.MenuLines[4] = { MenuId = 0x1021, lineNum = 4, Type = LINE_TYPE.LIST_MENU1, TextId = 0x8B, ValId = 0x1004, Min=3, Max=4, Def=3, Val=0 }
-         ctx.MenuLines[5] = { MenuId = 0x1021, lineNum = 5, Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F0, ValId = 0x1005, Min=3, Max=4, Def=3, Val=0 }
-         ctx.MenuLines[6] = { MenuId = 0x1021, lineNum = 6, Type = LINE_TYPE.LIST_MENU1, TextId = 0x1EF, ValId = 0x1006, Min=3, Max=4, Def=3, Val=0 }
+         ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x78, ValId = 0x7CA6 }
+         ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1DC, ValId = 0x1002, Min=3, Max=4, Def=3, Val=1 }
+         ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F8, ValId = 0x1003, Min=0, Max=244, Def=3, Val=176 }
+         ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x8B, ValId = 0x1004, Min=3, Max=4, Def=3, Val=0 }
+         ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F0, ValId = 0x1005, Min=3, Max=4, Def=3, Val=0 }
+         ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1EF, ValId = 0x1006, Min=3, Max=4, Def=3, Val=0 }
          ctx.SelLine = 1
          lastGoodMenu = menuId
     elseif (menuId==0x1022) then  
         --M[Id=0x1022 P=0x0 N=0x0 B=0x1010 Text="System Setup"[0x86]]
         --L[#0 T=M VId=0x1023 Text="Relearn Servo Settings"[0x190] MId=0x1022 ]
         --L[#1 T=M VId=0x1025 Text="Orientation"[0x80] MId=0x1022 ]
-        --L[#2 T=M VId=0x1029 [0->0,2] Text="Gain Channel Select"[0xAD] MId=0x1022 ]
-        --L[#3 T=M VId=0x102A [0->0,2] Text="SAFE/Panic Mode Setup"[0xCA] MId=0x1022 ]
-        --L[#4 T=M VId=0x1032 [0->0,2] Text="Utilities"[0x240] MId=0x1022 ]
+        --L[#2 T=M VId=0x1029 Text="Gain Channel Select"[0xAD] MId=0x1022 ]
+        --L[#3 T=M VId=0x102A Text="SAFE/Panic Mode Setup"[0xCA] MId=0x1022 ]
+        --L[#4 T=M VId=0x1032 Text="Utilities"[0x240] MId=0x1022 ]
 
         ctx.Menu = { MenuId = 0x1022, TextId = 0x86, PrevId = 0, NextId = 0, BackId = 0x1010  }
-        ctx.MenuLines[0] = { MenuId = 0x1022, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x190, ValId = 0x1023  }
-        ctx.MenuLines[1] = { MenuId = 0x1022, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x80, ValId = 0x1025  }
-        ctx.MenuLines[2] = { MenuId = 0x1022, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0xAD, ValId = 0x1029 }
-        ctx.MenuLines[3] = { MenuId = 0x1022, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0xCA, ValId = 0x102A }
-        ctx.MenuLines[4] = { MenuId = 0x1022, lineNum = 4, Type = LINE_TYPE.MENU, TextId = 0x240, ValId = 0x1032 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x190, ValId = 0x1023  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x80, ValId = 0x1025  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0xAD, ValId = 0x1029 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0xCA, ValId = 0x102A }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x240, ValId = 0x1032 }
         ctx.SelLine = 0
+        lastGoodMenu = menuId
+    elseif (menuId==0x1023) then  
+        --M[Id=0x1023 P=0x0 N=0x0 B=0x1022 Text="Relearn Servo Settings"[0x190]]
+        --L[#3 T=M VId=0x1024 Text="Apply"[0x90]   MId=0x1023 ]
+    
+        ctx.Menu = { MenuId = 0x1023, TextId = 0x190, PrevId = 0, NextId = 0, BackId = 0x1022  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x90, ValId = 0x1024  }
+        
+        ctx.SelLine = 3
+        lastGoodMenu = menuId
+    elseif (menuId==0x1024) then  
+        --M[Id=0x1024 P=0x0 N=0x0 B=0x0 Text="Relearn Servo Settings"[0x190]]
+        --L[#3 T=M VId=0x1000 Text="Complete"[0x93]   MId=0x1024 ]
+
+        ctx.Menu = { MenuId = 0x1024, TextId = 0x190, PrevId = 0, NextId = 0, BackId = 0  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x93, ValId = 0x1000  }
+        
+        ctx.SelLine = 3
+        lastGoodMenu = menuId
+
+    elseif (menuId==0x1025) then 
+        --M[Id=0x1025 P=0x0 N=0x0 B=0x1022 Text="Orientation"[0x80]]
+        --L[#0 T=M VId=0x1025 Text="Set the model level,"[0x21A]   MId=0x1025 ]
+        --L[#1 T=M VId=0x1025 Text="and press Continue."[0x21B]   MId=0x1025 ]
+        --L[#2 T=M VId=0x1025 Text=""[0x21C]   MId=0x1025 ]
+        --L[#3 T=M VId=0x1025 Text=""[0x21D]   MId=0x1025 ]
+        --L[#5 T=M VId=0x1026 Text="Continue"[0x224]   MId=0x1025 ]
+        --LL[#6 T=M VId=0x1027 Text="Set Orientation Manually"[0x229]   MId=0x1025 ]
+
+        ctx.Menu = { MenuId = 0x1025, TextId = 0x80, PrevId = 0, NextId = 0, BackId = 0x1022 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x21A, ValId = 0x1025 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x21B, ValId = 0x1025 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x21C, ValId = 0x1025 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x21D, ValId = 0x1025 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1026 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x229, ValId = 0x1027 }
+        ctx.SelLine = 5
+        lastGoodMenu = menuId
+    elseif (menuId==0x1026) then 
+        --M[Id=0x1026 P=0x1025 N=0x0 B=0x1025 Text="Orientation"[0x80]]
+        --L[#0 T=M VId=0x1026 Text="Set the model on its nose,"[0x21F]   MId=0x1026 ]
+        --L[#1 T=M VId=0x1026 Text="and press Continue. If the"[0x220]   MId=0x1026 ]
+        --L[#2 T=M VId=0x1026 Text="orientation on the next"[0x221]   MId=0x1026 ]
+        --L[#3 T=M VId=0x1026 Text="screen is wrong go back"[0x222]   MId=0x1026 ]
+        --L[#4 T=M VId=0x1026 Text="and try again."[0x223]   MId=0x1026 ]
+        --L[#6 T=M VId=0x1027 Text="Continue"[0x224]   MId=0x1026 ]
+
+        ctx.Menu = { MenuId = 0x1026, TextId = 0x80, PrevId = 0x1025, NextId = 0, BackId = 0x1025 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x21F, ValId = 0x1026 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x220, ValId = 0x1026 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x221, ValId = 0x1026 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x222, ValId = 0x1026 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x223, ValId = 0x1026 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1027 }
+
+        ctx.SelLine = 6
+        lastGoodMenu = menuId
+    elseif (menuId==0x1027) then 
+        --M[Id=0x1028 P=0x0 N=0x0 B=0x1028 Text="Orientation"[0x80]]
+        --L[#5 T=L_m0 VId=0x1000 Text="Orientation"[0x80] Val=4|"RX Pos 5" NL=(0->23,0,S=203) [203->226,203] MId=0x1027 ]
+        --L[#6 T=M VId=0x1028 Text="Continue"[0x224]   MId=0x1027 ]
+
+        ctx.Menu = { MenuId = 0x1027, TextId = 0x80, PrevId = 0x1025, NextId = 0, BackId = 0x1025 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x80, ValId = 0x1000, Min=203, Max=226, Def=203, Val=5 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1028 }
+        ctx.SelLine = 5
+        lastGoodMenu = menuId
+    elseif (menuId==0x1028) then 
+        --M[Id=0x1027 P=0x1025 N=0x0 B=0x1025 Text="Orientation"[0x80]]
+        --L[#2 T=M VId=0x1 Text="Resetting RX... "[0x9F]   MId=0x1028 ]
+        --L[#3 T=M VId=0x1028 Text="RX Pos 7"[0xD1]   MId=0x1028 ]
+
+        ctx.Menu = { MenuId = 0x1028, TextId = 0x80, PrevId = 0x1025, NextId = 0, BackId = 0x1025 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x9F, ValId = 0x1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0xD1, ValId = 0x1028 }
+        ctx.SelLine = 2
+        lastGoodMenu = menuId
+
+    elseif (menuId==0x1029) then  
+        --M[Id=0x1029 P=0x0 N=0x0 B=0x1022 Text="Gain Channel Select"[0xAD]]
+        --L[#0 T=M VId=0x1029 Text="AS3X"[0x1DC]   MId=0x1029 ]
+        --L[#1 T=L_m1 VId=0x1000 Text="Roll"[0x40] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+        --L[#2 T=L_m1 VId=0x1001 Text="Pitch"[0x41] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+        --L[#3 T=L_m1 VId=0x1002 Text="Yaw"[0x42] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+        --L[#4 T=M VId=0x1029 Text="SAFE"[0xDA]   MId=0x1029 ]
+        --L[#5 T=L_m1 VId=0x1004 Text="Roll"[0x40] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+        --L[#6 T=L_m1 VId=0x1005 Text="Pitch"[0x41] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+
+        ctx.Menu = { MenuId = 0x1029, TextId = 0xAD, PrevId = 0, NextId = 0, BackId = 0x1022  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x1DC, ValId = 0x1029  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x40, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x41, ValId = 0x1001, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x42, ValId = 0x1002, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x267, ValId = 0x1029  }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x40, ValId = 0x1004, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x41, ValId = 0x1005, Min=53, Max=85, Def=53, Val=0 }
+   
+        ctx.SelLine = 2
+        lastGoodMenu = menuId
+    elseif (menuId==0x1030) then  
+        --M[Id=0x1030 P=0x0 N=0x0 B=0x102A Text="Attitude Trim"[0x1E6]]
+        --L[#0 T=M VId=0x1030 Text="Level model and capture attiude"[0xCD]   MId=0x1030 ]
+        --L[#1 T=M VId=0x1030 Text="Attitude Trim"[0x1E6]   MId=0x1030 ]
+        --L[#2 T=V_de VId=0x1002 Text="Roll"[0x40] Val=-1 [-45->45,0] MId=0x1030 ]
+        --L[#3 T=V_de VId=0x1003 Text="Pitch"[0x41] Val=7 [-45->45,0] MId=0x1030 ]
+        --L[#5 T=M VId=0x1030 Text="Positive = Nose Up/Roll Right"[0x267]   MId=0x1030 ]
+        --L[#6 T=M VId=0x1030 Text="Negative = Nose Down/Roll Left"[0x268]   MId=0x1030 ]
+
+        ctx.Menu = { MenuId = 0x1030, TextId = 0x1E6, PrevId = 0, NextId = 0, BackId = 0x102A  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xCD, ValId = 0x1030  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x1E6, ValId = 0x1030  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_DEGRES, TextId = 0x40, ValId = 0x1002, Min=-45, Max=45, Def=0, Val=-1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_DEGRES, TextId = 0x41, ValId = 0x1003, Min=-45, Max=45, Def=0, Val=7 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x267, ValId = 0x1030  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x268, ValId = 0x1030  }
+   
+        ctx.SelLine = 2
+        lastGoodMenu = menuId
+    elseif (menuId==0x1031) then  
+        --M[Id=0x1031 P=0x0 N=0x0 B=0x102A Text="Failsafe Angles"[0x1F6]]
+        --L[#0 T=M VId=0x1031 Text="Failsafe Angles"[0x1F6]   MId=0x1031 ]
+        --L[#1 T=V_de VId=0x1001 Text="Roll"[0x40] Val=0 [-90->90,0] MId=0x1031 ]
+        --L[#2 T=V_de VId=0x1002 Text="Pitch"[0x41] Val=0 [-90->90,0] MId=0x1031 ]
+        --L[#5 T=M VId=0x1031 Text="Positive = Nose Up/Roll Right"[0x267]   MId=0x1031 ]
+        --L[#6 T=M VId=0x1031 Text="Negative = Nose Down/Roll Left"[0x268]   MId=0x1031 ]
+
+        ctx.Menu = { MenuId = 0x1031, TextId = 0x1F6, PrevId = 0, NextId = 0, BackId = 0x102A  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x1F6, ValId = 0x1031  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_DEGRES, TextId = 0x40, ValId = 0x1001, Min=-90, Max=90, Def=0, Val=0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_DEGRES, TextId = 0x41, ValId = 0x1002, Min=-90, Max=90, Def=0, Val=0 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x267, ValId = 0x1031  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x268, ValId = 0x1031  }
+   
+        ctx.SelLine = 1
+        lastGoodMenu = menuId
+    elseif (menuId==0x1032) then  
+        --M[Id=0x1032 P=0x0 N=0x0 B=0x1022 Text="Utilities"[0x240]]
+        --L[#0 T=M VId=0x1033 Text="Copy Flight Mode Settings"[0x23D]   MId=0x1032 ]
+        --L[#1 T=L_m0 VId=0x1001 Text="Enabled F-Modes"[0x88] Val=2 NL=(0->9,2,S=182) [182->191,184] MId=0x1032 ]
+
+        ctx.Menu = { MenuId = 0x1032, TextId = 0x240, PrevId = 0, NextId = 0, BackId = 0x1022  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x23D, ValId = 0x1033  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x88, ValId = 0x1001, Min=182, Max=191, Def=184, Val=2 }
+       
+        ctx.SelLine = 0
+        lastGoodMenu = menuId
+
+    elseif (menuId==0x1033) then  
+        --M[Id=0x1033 P=0x0 N=0x0 B=0x1032 Text="Copy Flight Mode Settings"[0x23D]]
+        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode"[0x8001] Val=0 [0->10,0] MId=0x1033 ]
+        --L[#1 T=M VId=0x1033 Text="WARNING: "Target""[0x260]   MId=0x1033 ]
+        --L[#2 T=M VId=0x1033 Text="flight mode will be overwritten"[0x261]   MId=0x1033 ]
+        --L[#3 T=M VId=0x1033 Text="by "Source""[0x262]   MId=0x1033 ]
+        --L[#4 T=L_m0 VId=0x1004 Text="Source Flight Mode"[0x23E] Val=0|"FM1" NL=(0->9,0,S=182) [182->191,182] MId=0x1033 ]
+        --L[#5 T=L_m0 VId=0x1005 Text="Target Flight Mode"[0x23F] Val=0|"FM1" NL=(0->9,0,S=182) [182->191,182] MId=0x1033 ]
+        --L[#6 T=M VId=0x1035 Text="Copy"[0x259]   MId=0x1034 ]
+
+
+        ctx.Menu = { MenuId = 0x1033, TextId = 0x23D, PrevId = 0, NextId = 0, BackId = 0x1032  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x260, ValId = 0x1033  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x261, ValId = 0x1033  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x262, ValId = 0x1033  }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x23E, ValId = 0x1004, Min=182, Max=191, Def=182, Val=0 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x23F, ValId = 0x1005, Min=182, Max=191, Def=182, Val=0 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x259, ValId = 0x1034  }
+       
+        ctx.SelLine = 4
+        lastGoodMenu = menuId
+    elseif (menuId==0x1034) then  
+        --M[Id=0x1033 P=0x0 N=0x0 B=0x1032 Text="Copy Flight Mode Settings"[0x23D]]
+
+        --L[#1 T=M VId=0x1033 Text="WARNING: "Target" IN USE"[0x251]   MId=0x1033 ]
+        --L[#2 T=M VId=0x1033 Text="flight mode will be overwritten"[0x252]   MId=0x1033 ]
+        --L[#3 T=M VId=0x1033 Text="by "Source""[0x253]   MId=0x1033 ]
+        --L[#4 T=L_m0 VId=0x1004 Text="Source Flight Mode"[0x23E] Val=0|"FM1" NL=(0->0,0,S=182) [182->182,182] MId=0x1033 ]
+        --L[#5 T=L_m0 VId=0x1005 Text="Target Flight Mode"[0x23F] Val=1|"FM2" NL=(0->0,0,S=182) [182->182,182] MId=0x1033 ]
+        --L[#6 T=M VId=0x1035 Text="Copy"[0x259]   MId=0x1034 ]
+
+
+        ctx.Menu = { MenuId = 0x1034, TextId = 0x23D, PrevId = 0x1033, NextId = 0, BackId = 0x1033  }
+
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x251, ValId = 0x1034  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x252, ValId = 0x1034  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x253, ValId = 0x1034  }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x23E, ValId = 0x1004, Min=182, Max=182, Def=182, Val=0 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x23F, ValId = 0x1005, Min=182, Max=182, Def=182, Val=1 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x259, ValId = 0x1035  }
+       
+        ctx.SelLine = 6
+        lastGoodMenu = menuId
+    elseif (menuId==0x1035) then 
+        --M[Id=0x1035 P=0x0 N=0x0 B=0x1032 Text="Copy Flight Mode Settings"[0x23D]]
+        --L[#3 T=M VId=0x1032 Text="Complete"[0x93]   MId=0x1035 ]
+
+        ctx.Menu = { MenuId = 0x1035,  TextId = 0x23D, PrevId = 0, NextId = 0, BackId = 0x1032 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU,  TextId = 0x93,  ValId = 0x1032  }
+
+        ctx.SelLine = 3
+        lastGoodMenu = menuId
+    elseif (menuId==0x102A) then  
+        --M[Id=0x102A P=0x0 N=0x0 B=0x1022 Text="SAFE/Panic Mode Setup"[0xCA]]
+        --L[#2 T=M VId=0x102B Text="Panic"[0x8B]   MId=0x102A ]
+        --L[#3 T=M VId=0x102D Text="Throttle to Pitch"[0x1EE]   MId=0x102A ]
+        --L[#4 T=M VId=0x1030 Text="Attitude Trim"[0x1E6]   MId=0x102A ]
+        --L[#5 T=L_m0 VId=0x1006 Text="SAFE Failsafe FMode"[0x1FD] Val=0|"FM1" NL=(0->10,0,S=181) [181->191,181] MId=0x102A ]
+        --L[#6 T=M VId=0x1031 Text="Failsafe Angles"[0x1F6]   MId=0x102A ]
+
+        ctx.Menu = { MenuId = 0x102A, TextId = 0xCA, PrevId = 0, NextId = 0, BackId = 0x1022  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x8B, ValId = 0x102B  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x1EE, ValId = 0x102D  }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x1E6, ValId = 0x1030  }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x1FD, ValId = 0x1006, Min=182, Max=191, Def=182, Val=0 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x1F6, ValId = 0x1031  }
+       
+        ctx.SelLine = 5
+        lastGoodMenu = menuId
+    elseif (menuId==0x102B) then  
+        --M[Id=0x102B P=0x0 N=0x0 B=0x102A Text="Panic"[0x8B]]
+        --L[#0 T=L_m1 VId=0x1000 Text="Panic Channel"[0xD2] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x102B ]
+        --L[#1 T=L_m1 VId=0x1001 Text="Panic Delay"[0x8E] Val=0|"Inh" NL=(0->1,0,S=3) [3->4,3] MId=0x102B ]
+        --L[#2 T=L_m1 VId=0x1002 Text="Panic Flight Mode"[0x1FC] Val=0|"FM1" NL=(0->10,0,S=181) [181->191,181] MId=0x102B ]
+        --L[#3 T=V_NC VId=0x1003 Text="Roll Right"[0x1E9] Val=30 [0->90,30] MId=0x102B ]
+        --L[#4 T=V_NC VId=0x1004 Text="Roll Left"[0x1EA] Val=30 [0->90,30] MId=0x102B ]
+        --L[#5 T=V_NC VId=0x1005 Text="Pitch Down"[0x1EB] Val=30 [0->75,30] MId=0x102B ]
+        --L[#6 T=V_NC VId=0x1006 Text="Pitch Up"[0x1EC] Val=30 [0->75,30] MId=0x102B ]
+
+        ctx.Menu = { MenuId = 0x102B, TextId = 0x8B, PrevId = 0, NextId = 0, BackId = 0x102A  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0xD2, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x8E, ValId = 0x1001, Min=3, Max=4, Def=3, Val=0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1FC, ValId = 0x1002, Min=181, Max=191, Def=181, Val=0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1E9, ValId = 0x1003, Min=0, Max=90, Def=30, Val=30 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EA, ValId = 0x1004, Min=0, Max=90, Def=30, Val=30 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1E9, ValId = 0x1005, Min=0, Max=75, Def=30, Val=30 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EC, ValId = 0x1006, Min=0, Max=75, Def=30, Val=30 }
+
+        ctx.SelLine = 0
+        lastGoodMenu = menuId
+    elseif (menuId==0x102D) then  
+        --M[Id=0x102D P=0x0 N=0x0 B=0x102A Text="SAFE - Throttle to Pitch"[0x269]]
+        --L[#0 T=M VId=0x102D Text="Postive = Up, Negative = Down"[0x254]   MId=0x102D ]
+        --L[#1 T=M VId=0x102D Text="Low Thr to Pitch"[0x1EF]   MId=0x102D ]
+        --L[#2 T=V_NC VId=0x1001 Text="Threshold"[0x1F3] Val=30 [0->50,30] MId=0x102D ]
+        --L[#3 T=V_de VId=0x1002 Text="Angle"[0x1F4] Val=0 [-45->45,0] MId=0x102D ]
+        --L[#4 T=M VId=0x102D Text="High Thr to Pitch"[0x1F0]   MId=0x102D ]
+        --L[#5 T=V_NC VId=0x1005 Text="Threshold"[0x1F3] Val=70 [51->100,70] MId=0x102D ]
+        --L[#6 T=V_de VId=0x1006 Text="Angle"[0x1F4] Val=0 [-45->45,0] MId=0x102D ]
+
+        ctx.Menu = { MenuId = 0x102D, TextId = 0x269, PrevId = 0, NextId = 0, BackId = 0x102A  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x254, ValId = 0x102D  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x1EF, ValId = 0x102D  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1F3, ValId = 0x1001, Min=0, Max=50, Def=30, Val=30 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_DEGRES, TextId = 0x1F4, ValId = 0x1002, Min=-45, Max=45, Def=0, Val=0 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x1F0, ValId = 0x102D  }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1F3, ValId = 0x1005, Min=51, Max=100, Def=70, Val=70 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_DEGRES, TextId = 0x1F4, ValId = 0x1006, Min=-45, Max=45, Def=0, Val=0 }
+
+        ctx.SelLine = 2
+        lastGoodMenu = menuId
+    elseif (menuId==0x1051) then 
+        --M[Id=0x1051 P=0x0 N=0x0 B=0x1010 Text="First Time Setup"]
+        --L[#0 T=M VId=0x1051 Text="Set the model level," MId=0x1051 ]
+        --L[#1 T=M VId=0x1051 Text="and press Continue." MId=0x1051 ]
+        --L[#2 T=M VId=0x1051 Text="" MId=0x1051 ]
+        --L[#5 T=M VId=0x1052 Text="Continue" MId=0x1051 ]
+        --L[#6 T=M VId=0x1053 Text="Set Orientation Manually" MId=0x1051 ]
+
+        ctx.Menu = { MenuId = 0x1051, TextId = 0x00F9, PrevId = 0, NextId = 0, BackId = 0x1010 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x021A, ValId = 0x1051 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x021B, ValId = 0x1051 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x021C, ValId = 0x1051 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x0224, ValId = 0x1052 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x0229, ValId = 0x1053 }
+
+        ctx.SelLine = 5
         lastGoodMenu = menuId
     elseif (menuId==0x104F) then
         --M[Id=0x104F P=0x0 N=0x1050 B=0x1010 Text="First Time Setup"]
@@ -394,10 +673,10 @@ local function AR631_loadMenu(menuId)
         --L[#5 T=M VId=0x104F [0->0,2] Text="" MId=0x104F ]
 
         ctx.Menu = { MenuId = 0x104F, TextId = 0x00F9, PrevId = 0, NextId = 0x1050, BackId = 0x1010 }
-        ctx.MenuLines[0] = { MenuId = 0x104F, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x0100, ValId = 0x104F }
-        ctx.MenuLines[1] = { MenuId = 0x104F, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x0101, ValId = 0x104F }
-        ctx.MenuLines[2] = { MenuId = 0x104F, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x0102, ValId = 0x104F }
-        ctx.MenuLines[3] = { MenuId = 0x104F, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0x0103, ValId = 0x104F }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x0100, ValId = 0x104F }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x0101, ValId = 0x104F }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x0102, ValId = 0x104F }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x0103, ValId = 0x104F }
         ctx.SelLine = dsmLib.NEXT_BUTTON
         lastGoodMenu = menuId
     elseif (menuId==0x1050) then  
@@ -409,10 +688,10 @@ local function AR631_loadMenu(menuId)
         --L[#3 T=M VId=0x1050 Text="setup again." MId=0x1050 ]
     
         ctx.Menu = { MenuId = 0x1050, TextId = 0x00F9, PrevId = 0x104F, NextId = 0x1051, BackId = 0x1010 }
-        ctx.MenuLines[0] = { MenuId = 0x1050, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x0106, ValId = 0x1050 }
-        ctx.MenuLines[1] = { MenuId = 0x1050, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x0107, ValId = 0x1050 }
-        ctx.MenuLines[2] = { MenuId = 0x1050, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x0108, ValId = 0x1050 }
-        ctx.MenuLines[3] = { MenuId = 0x1050, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0x0109, ValId = 0x1050 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x0106, ValId = 0x1050 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x0107, ValId = 0x1050 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x0108, ValId = 0x1050 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x0109, ValId = 0x1050 }
         ctx.SelLine = dsmLib.NEXT_BUTTON
         lastGoodMenu = menuId
     elseif (menuId==0x1051) then 
@@ -424,11 +703,11 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x1053 Text="Set Orientation Manually" MId=0x1051 ]
 
         ctx.Menu = { MenuId = 0x1051, TextId = 0x00F9, PrevId = 0, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[0] = { MenuId = 0x1051, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x021A, ValId = 0x1051 }
-        ctx.MenuLines[1] = { MenuId = 0x1051, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x021B, ValId = 0x1051 }
-        ctx.MenuLines[2] = { MenuId = 0x1051, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x021C, ValId = 0x1051 }
-        ctx.MenuLines[5] = { MenuId = 0x1051, lineNum = 5, Type = LINE_TYPE.MENU, TextId = 0x0224, ValId = 0x1052 }
-        ctx.MenuLines[6] = { MenuId = 0x1051, lineNum = 6, Type = LINE_TYPE.MENU, TextId = 0x0229, ValId = 0x1053 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x021A, ValId = 0x1051 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x021B, ValId = 0x1051 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x021C, ValId = 0x1051 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x0224, ValId = 0x1052 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x0229, ValId = 0x1053 }
 
         ctx.SelLine = 5
         lastGoodMenu = menuId
@@ -442,12 +721,12 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x1053 Text="Continue"[0x224] MId=0x1052 ]
 
         ctx.Menu = { MenuId = 0x1052, TextId = 0x00A5, PrevId = 0x1051, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[0] = { MenuId = 0x1052, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x21F, ValId = 0x1052 }
-        ctx.MenuLines[1] = { MenuId = 0x1052, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x220, ValId = 0x1052 }
-        ctx.MenuLines[2] = { MenuId = 0x1052, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x221, ValId = 0x1052 }
-        ctx.MenuLines[3] = { MenuId = 0x1052, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0x222, ValId = 0x1052 }
-        ctx.MenuLines[4] = { MenuId = 0x1052, lineNum = 4, Type = LINE_TYPE.MENU, TextId = 0x223, ValId = 0x1052 }
-        ctx.MenuLines[6] = { MenuId = 0x1052, lineNum = 6, Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1053 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x21F, ValId = 0x1052 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x220, ValId = 0x1052 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x221, ValId = 0x1052 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x222, ValId = 0x1052 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x223, ValId = 0x1052 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1053 }
         ctx.SelLine = 6
         lastGoodMenu = menuId
     elseif (menuId==0x1053) then 
@@ -456,8 +735,8 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x1054 Text="Continue"[0x224] MId=0x1053 ]
         
         ctx.Menu = { MenuId = 0x1053, TextId = 0x00A5, PrevId = 0x1051, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[5] = { MenuId = 0x1053, lineNum = 0, Type = LINE_TYPE.LIST_MENU0, TextId = 0x80, ValId = 0x1000, Min=203, Max=226, Def=203, Val=0 }
-        ctx.MenuLines[6] = { MenuId = 0x1053, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1054 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x80, ValId = 0x1000, Min=203, Max=226, Def=203, Val=0 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1054 }
         ctx.SelLine = 5
         lastGoodMenu = menuId
     elseif (menuId==0x1054) then 
@@ -466,9 +745,113 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x1 Text="Apply"[0x90] MId=0x1054 ]
 
         ctx.Menu = { MenuId = 0x1054, TextId = 0x00A5, PrevId = 0x1053, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[5] = { MenuId = 0x1054, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0xAD, ValId = 0x7CA5  }
-        ctx.MenuLines[6] = { MenuId = 0x1054, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x90, ValId = 0x01 } -- Special save&reboot??
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0xAD, ValId = 0x7CA5  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x90, ValId = 0x01 } -- Special save&reboot??
+        ctx.SelLine = 1
+        lastGoodMenu = menuId
+    elseif (menuId==0x1055) then 
+        --M[Id=0x1055 P=0x0 N=0x0 B=0x1010 Text="First Time SAFE Setup"[0x20D]]
+        --L[#0 T=M VId=0x1055 Text="Before setting up SAFE"[0x255]   MId=0x1055 ]
+        --L[#1 T=M VId=0x1055 Text="a Fligt Mode channel"[0x256]   MId=0x1055 ]
+        --L[#2 T=M VId=0x1055 Text="most be configured."[0x257]   MId=0x1055 ]
+        --L[#5 T=M VId=0x7CA7 Text="FM Channel"[0x78]   MId=0x1055 ]
+        --L[#6 T=M VId=0x1056 Text="Continue"[0x224]   MId=0x1055 ]
+
+        ctx.Menu = { MenuId = 0x1055, TextId = 0x20D, PrevId = 0x1053, NextId = 0, BackId = 0x1010 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x255, ValId = 0x1055  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x256, ValId = 0x1055 } 
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x257, ValId = 0x1055 } 
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x78, ValId = 0x7CA7 } 
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1056 } 
         ctx.SelLine = 5
+        lastGoodMenu = menuId
+    elseif (menuId==0x1056) then 
+        --M[Id=0x1056 P=0x1055 N=0x1057 B=0x1010 Text="First Time SAFE Setup"[0x20D]]
+        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode"[0x8001] Val=1 [0->10,0] MId=0x1056 ]
+        --L[#1 T=M VId=0x1056 Text="Select the desired flight mode"[0x25A]   MId=0x1056 ]
+        --L[#2 T=M VId=0x1056 Text="switch position to adjust settings"[0x25B]   MId=0x1056 ]
+        --L[#3 T=M VId=0x1056 Text="for each flight mode"[0x25C]   MId=0x1056 ]
+        --L[#4 T=M VId=0x1056 Text=""[0x25D]   MId=0x1056 ]
+        --L[#5 T=M VId=0x1056 Text=""[0x25E]   MId=0x1056 ]
+
+        ctx.Menu = { MenuId = 0x1056, TextId = 0x20D, PrevId = 0x1053, NextId = 0x1057, BackId = 0x1010 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x25A, ValId = 0x1056 } 
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x25B, ValId = 0x1056 } 
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x25C, ValId = 0x1056 } 
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x25D, ValId = 0x1056 } 
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x25E, ValId = 0x1056 } 
+
+        ctx.SelLine = 7
+        lastGoodMenu = menuId
+    elseif (menuId==0x1057) then 
+        --M[Id=0x1057 P=0x1056 N=0x1059 B=0x1010 Text="First Time SAFE Setup"[0x20D]]
+        --L[#0 T=M VId=0x1057 Text="AS3X gains must be tuned"[0x20E]   MId=0x1057 ]
+        --L[#1 T=M VId=0x1057 Text="and active i SAFE Flight Modes"[0x20F]   MId=0x1057 ]
+        --L[#2 T=M VId=0x1057 Text="to help reduce wobble."[0x210]   MId=0x1057 ]
+        --L[#3 T=M VId=0x1057 Text=""[0x211]   MId=0x1057 ]
+        --L[#4 T=M VId=0x1057 Text=""[0x212]   MId=0x1057 ]
+        --L[#5 T=M VId=0x1057 Text=""[0x213]   MId=0x1057 ]
+
+        ctx.Menu = { MenuId = 0x1057, TextId = 0x20D, PrevId = 0x1056, NextId = 0x1059, BackId = 0x1010 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x20E, ValId = 0x1057 } 
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x20F, ValId = 0x1057 } 
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x210, ValId = 0x1057 } 
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x211, ValId = 0x1057 } 
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x212, ValId = 0x1057 } 
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x213, ValId = 0x1057 } 
+        
+        ctx.SelLine = 7
+        lastGoodMenu = menuId
+
+    elseif (menuId==0x1059) then 
+        --M[Id=0x1059 P=0x1057 N=0x105A B=0x1010 Text="First Time SAFE Setup"[0x20D]]
+        --L[#0 T=M VId=0x1059 Text="Leven model and capture attiude"[0xCD]   MId=0x1059 ]
+        --L[#1 T=M VId=0x1059 Text="Attitude Trim"[0x1E6]   MId=0x1059 ]
+        --L[#2 T=V_de VId=0x1002 Text="Roll"[0x40] Val=13 [-45->45,0] MId=0x1059 ]
+        --L[#3 T=V_de VId=0x1003 Text="Pitch"[0x41] Val=5 [-45->45,0] MId=0x1059 ]
+        --L[#5 T=M VId=0x1059 Text="Positive = Nose Up/Roll Right"[0x267]   MId=0x1059 ]
+        --L[#6 T=M VId=0x1059 Text="Negative = Nose Down/Roll Left"[0x268]   MId=0x1059 ]
+
+        ctx.Menu = { MenuId = 0x1059, TextId = 0x20D, PrevId = 0x1057, NextId = 0x105A, BackId = 0x1010 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xCD, ValId = 0x1059 } 
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x1E6, ValId = 0x1059 } 
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_DEGRES, TextId = 0x40, ValId = 0x1002, Min=-45, Max=45, Def=0, Val=13 } 
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_DEGRES, TextId = 0x41, ValId = 0x1003, Min=-45, Max=45, Def=0, Val=5 } 
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x267, ValId = 0x1059 } 
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x268, ValId = 0x1059 } 
+        
+        ctx.SelLine = 7
+        lastGoodMenu = menuId
+    elseif (menuId==0x105A) then
+        --M[Id=0x105A P=0x1059 N=0x105B B=0x1010 Text="First Time SAFE Setup"[0x20D]]
+        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode"[0x8001] Val=0 [0->10,0] MId=0x105A ]
+        --L[#1 T=L_m1 VId=0x1001 Text="Safe Mode"[0x1F8] Val=3|"Inh" NL=(0->244,3,S=0) [0->244,3] MId=0x105A ]
+        --L[#2 T=M VId=0x105A Text="Angle Limits "[0x226]   MId=0x105A ]
+        --L[#3 T=V_NC VId=0x1003 Text="Roll Right"[0x1E9] Val=60 [10->90,60] MId=0x105A ]
+        --L[#4 T=V_NC VId=0x1004 Text="Roll Left"[0x1EA] Val=60 [10->90,60] MId=0x105A ]
+        --L[#5 T=V_NC VId=0x1005 Text="Pitch Down"[0x1EB] Val=40 [10->75,40] MId=0x105A ]
+        --L[#6 T=V_NC VId=0x1006 Text="Pitch Up"[0x1EC] Val=50 [10->75,50] MId=0x105A ]
+        
+        ctx.Menu = { MenuId = 0x105A, TextId = 0x1DE, PrevId = 0x1059, NextId = 0x105B, BackId = 0x1010 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F8, ValId = 0x1001, Min=0, Max=244, Def=3, Val=3 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x226, ValId = 0x105A }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1E9, ValId = 0x1003, Min=10, Max=90, Def=60, Val=60  }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EA, ValId = 0x1004, Min=10, Max=90, Def=60, Val=60  }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EB, ValId = 0x1004, Min=10, Max=75, Def=40, Val=40  }
+        ctx.MenuLines[6] = { lineNum = 7, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EC, ValId = 0x1004, Min=10, Max=75, Def=50, Val=50  }
+
+        ctx.SelLine = 1
+        lastGoodMenu = menuId
+    elseif (menuId==0x105B) then 
+        --M[Id=0x105B P=0x105A N=0x0 B=0x1000 Text="First Time SAFE Setup"[0x20D]]
+        --L[#3 T=M VId=0x1 Text="Apply"[0x90]   MId=0x1064 ]
+
+        ctx.Menu = { MenuId = 0x105B,  TextId = 0x20D, PrevId = 0x105A, NextId = 0, BackId = 0x1000 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU,  TextId = 0x90,  ValId = 0x1  } -- reset RX 
+
+        ctx.SelLine = 3
         lastGoodMenu = menuId
     elseif (menuId==0x105C) then
         -- M[Id=0x105C P=0x0 N=0x0 B=0x1010 Text="SAFE Select"[0x1F9]]
@@ -479,11 +862,11 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=L_m1 VId=0x1006 Text="SAFE Select"[0x1F9] val=0 NL=(0->1,1,S=1) [1->2,1]  MId=0x105C ]
 
         ctx.Menu = { MenuId = 0x105C, TextId = 0x1DE, PrevId = 0, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[0] = { MenuId = 0x105C, lineNum = 0, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[1] = { MenuId = 0x105C, lineNum = 1, Type = LINE_TYPE.LIST_MENU1, TextId = 0x1D7, ValId = 0x1001, Min=53, Max=85, Def=53, Val=5 }
-        ctx.MenuLines[2] = { MenuId = 0x105C, lineNum = 2, Type = LINE_TYPE.LIST_MENU1, TextId = 0x1DC, ValId = 0x1002, Min=1, Max=2, Def=1, Val=1  }
-        ctx.MenuLines[3] = { MenuId = 0x105C, lineNum = 3, Type = LINE_TYPE.LIST_MENU1, TextId = 0xDA, ValId = 0x1003, Min=1, Max=1, Def=1, Val=0  }
-        ctx.MenuLines[6] = { MenuId = 0x105C, lineNum = 6, Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F9, ValId = 0x1004, Min=1, Max=2, Def=1, Val=0  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1D7, ValId = 0x1001, Min=53, Max=85, Def=53, Val=5 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1DC, ValId = 0x1002, Min=1, Max=2, Def=1, Val=1  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0xDA, ValId = 0x1003, Min=1, Max=1, Def=1, Val=0  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F9, ValId = 0x1004, Min=1, Max=2, Def=1, Val=0  }
 
         ctx.SelLine = 1
         lastGoodMenu = menuId
@@ -497,12 +880,12 @@ local function AR631_loadMenu(menuId)
         -- L[#6 T=M VId=0x106A Text="Save to Backup" MId=0x105E ]
 
         ctx.Menu = { MenuId = 0x105E, TextId = 0x0227, PrevId = 0, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[1] = { MenuId = 0x105E, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x004A, ValId = 0x1060 }
-        ctx.MenuLines[2] = { MenuId = 0x105E, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x019C, ValId = 0x1064 }
-        ctx.MenuLines[3] = { MenuId = 0x105E, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0x0085, ValId = 0x1065 }
-        ctx.MenuLines[4] = { MenuId = 0x105E, lineNum = 4, Type = LINE_TYPE.MENU, TextId = 0x0097, ValId = 0x1067 }
-        ctx.MenuLines[5] = { MenuId = 0x105E, lineNum = 5, Type = LINE_TYPE.MENU, TextId = 0x020A, ValId = 0x1069 }
-        ctx.MenuLines[6] = { MenuId = 0x105E, lineNum = 6, Type = LINE_TYPE.MENU, TextId = 0x0209, ValId = 0x106A }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x004A, ValId = 0x1060 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x019C, ValId = 0x1064 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x0085, ValId = 0x1065 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x0097, ValId = 0x1067 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x020A, ValId = 0x1069 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x0209, ValId = 0x106A }
  
         ctx.SelLine = 1
         lastGoodMenu = menuId
@@ -512,8 +895,8 @@ local function AR631_loadMenu(menuId)
         --L[#1 T=M VId=0x1062 Text="Capture Failsafe Positions" MId=0x1060 ]
 
         ctx.Menu = { MenuId = 0x1060, TextId = 0x004A, PrevId = 0, NextId = 0, BackId = 0x105E }
-        ctx.MenuLines[0] = { MenuId = 0x1060, lineNum = 0, Type = LINE_TYPE.MENU,  TextId = 0x004A, ValId = 0x1061 }
-        ctx.MenuLines[1] = { MenuId = 0x1060, lineNum = 1, Type = LINE_TYPE.MENU,  TextId = 0x009A, ValId = 0x1062 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU,  TextId = 0x004A, ValId = 0x1061 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU,  TextId = 0x009A, ValId = 0x1062 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1061) then 
@@ -523,9 +906,9 @@ local function AR631_loadMenu(menuId)
         --L[#3 T=V_% VId=0x1003  Text="Position:" val=-100 [-150->150,0] MId=0x1061 ]
 
         ctx.Menu = { MenuId = 0x1061,  TextId = 0x004A, PrevId = 0, NextId = 0, BackId = 0x1060 }
-        ctx.MenuLines[0] = { MenuId = 0x1061, lineNum = 0, Type = LINE_TYPE.LIST_MENU0,  TextId = 0x0050, ValId = 0x1000, Min=54, Max=73, Def=54, Val=0 }
-        ctx.MenuLines[1] = { MenuId = 0x1061, lineNum = 1, Type = LINE_TYPE.LIST_MENU2,    TextId = 0x009C, ValId = 0x1002, Min=95, Max=96, Def=95, Val=0 }
-        ctx.MenuLines[2] = { MenuId = 0x1061, lineNum = 2, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x004E, ValId = 0x1002, Min=-150, Max=150, Def=0, Val=-100 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU0,  TextId = 0x0050, ValId = 0x1000, Min=54, Max=73, Def=54, Val=0 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU2,    TextId = 0x009C, ValId = 0x1002, Min=95, Max=96, Def=95, Val=0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x004E, ValId = 0x1002, Min=-150, Max=150, Def=0, Val=-100 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1064) then 
@@ -533,7 +916,7 @@ local function AR631_loadMenu(menuId)
         --L[#3 T=M VId=0x1 Text="Apply"[0x90]   MId=0x1064 ]
 
         ctx.Menu = { MenuId = 0x1064,  TextId = 0x19C, PrevId = 0, NextId = 0, BackId = 0x105E }
-        ctx.MenuLines[3] = { MenuId = 0x1064, lineNum = 3, Type = LINE_TYPE.MENU,  TextId = 0x90,  ValId = 0x1  } -- reset RX 
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU,  TextId = 0x90,  ValId = 0x1  } -- reset RX 
 
         ctx.SelLine = 3
         lastGoodMenu = menuId
@@ -547,12 +930,12 @@ local function AR631_loadMenu(menuId)
         --L[#5 T=L_m1 VId=0x1005 Text="Output Channel 6:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
 
         ctx.Menu = { MenuId = 0x1065, TextId = 0x0085, PrevId = 0, NextId = 0, BackId = 0x105E }
-        ctx.MenuLines[0] = { MenuId = 0x1065, lineNum = 0, Type = LINE_TYPE.LIST_MENU1, TextId = 0x0051, ValId = 0x1000, Min=0, Max=244, Def=46, Val=46 }
-        ctx.MenuLines[1] = { MenuId = 0x1065, lineNum = 1, Type = LINE_TYPE.LIST_MENU1, TextId = 0x0052, ValId = 0x1001, Min=0, Max=244, Def=46, Val=47 }
-        ctx.MenuLines[2] = { MenuId = 0x1065, lineNum = 2, Type = LINE_TYPE.LIST_MENU1, TextId = 0x0053, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
-        ctx.MenuLines[3] = { MenuId = 0x1065, lineNum = 3, Type = LINE_TYPE.LIST_MENU1, TextId = 0x0054, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
-        ctx.MenuLines[4] = { MenuId = 0x1065, lineNum = 4, Type = LINE_TYPE.LIST_MENU1, TextId = 0x0055, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
-        ctx.MenuLines[5] = { MenuId = 0x1065, lineNum = 5, Type = LINE_TYPE.LIST_MENU1, TextId = 0x0056, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0051, ValId = 0x1000, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0052, ValId = 0x1001, Min=0, Max=244, Def=46, Val=47 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0053, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0054, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0055, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0056, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -566,12 +949,12 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x1068 Text="Apply"[0x90]   MId=0x1067 ]
 
         ctx.Menu = { MenuId = 0x1067,  TextId = 0x22B, PrevId = 0, NextId = 0, BackId = 0x105E }
-        ctx.MenuLines[0] = { MenuId = 0x1067, lineNum = 0, Type = LINE_TYPE.MENU,  TextId = 0x22C,  ValId = 0x1067  }
-        ctx.MenuLines[1] = { MenuId = 0x1067, lineNum = 1, Type = LINE_TYPE.MENU,  TextId = 0x22D,  ValId = 0x1067  }
-        ctx.MenuLines[2] = { MenuId = 0x1067, lineNum = 2, Type = LINE_TYPE.MENU,  TextId = 0x22E,  ValId = 0x1067  }
-        ctx.MenuLines[3] = { MenuId = 0x1067, lineNum = 3, Type = LINE_TYPE.MENU,  TextId = 0x22F,  ValId = 0x1067  }
-        ctx.MenuLines[4] = { MenuId = 0x1067, lineNum = 4, Type = LINE_TYPE.MENU,  TextId = 0x230,  ValId = 0x1067  }
-        ctx.MenuLines[6] = { MenuId = 0x1067, lineNum = 6, Type = LINE_TYPE.MENU,  TextId = 0x90,  ValId = 0x1068  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU,  TextId = 0x22C,  ValId = 0x1067  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU,  TextId = 0x22D,  ValId = 0x1067  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU,  TextId = 0x22E,  ValId = 0x1067  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU,  TextId = 0x22F,  ValId = 0x1067  }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU,  TextId = 0x230,  ValId = 0x1067  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU,  TextId = 0x90,  ValId = 0x1068  }
 
         ctx.SelLine = 6
         lastGoodMenu = menuId
@@ -580,7 +963,7 @@ local function AR631_loadMenu(menuId)
         --L[#3 T=M VId=0x1000 Text="Complete"[0x93]   MId=0x1068 ]
 
         ctx.Menu = { MenuId = 0x1068,  TextId = 0x94, PrevId = 0, NextId = 0, BackId = 0x1000 }
-        ctx.MenuLines[3] = { MenuId = 0x1068, lineNum = 3, Type = LINE_TYPE.MENU,  TextId = 0x93,  ValId = 0x1000  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU,  TextId = 0x93,  ValId = 0x1000  }
 
         ctx.SelLine = 3
         lastGoodMenu = menuId
@@ -594,12 +977,12 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x1068 Text="Apply"[0x90]   MId=0x1069 ]
 
         ctx.Menu = { MenuId = 0x1069,  TextId = 0x22B, PrevId = 0, NextId = 0, BackId = 0x105E }
-        ctx.MenuLines[0] = { MenuId = 0x1069, lineNum = 0, Type = LINE_TYPE.MENU,  TextId = 0x236,  ValId = 0x1069  }
-        ctx.MenuLines[1] = { MenuId = 0x1069, lineNum = 1, Type = LINE_TYPE.MENU,  TextId = 0x237,  ValId = 0x1069  }
-        ctx.MenuLines[2] = { MenuId = 0x1069, lineNum = 2, Type = LINE_TYPE.MENU,  TextId = 0x238,  ValId = 0x1069  }
-        ctx.MenuLines[3] = { MenuId = 0x1069, lineNum = 3, Type = LINE_TYPE.MENU,  TextId = 0x239,  ValId = 0x1069  }
-        ctx.MenuLines[4] = { MenuId = 0x1069, lineNum = 4, Type = LINE_TYPE.MENU,  TextId = 0x23A,  ValId = 0x1069  }
-        ctx.MenuLines[6] = { MenuId = 0x1069, lineNum = 6, Type = LINE_TYPE.MENU,  TextId = 0x90,  ValId = 0x1068  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU,  TextId = 0x236,  ValId = 0x1069  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU,  TextId = 0x237,  ValId = 0x1069  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU,  TextId = 0x238,  ValId = 0x1069  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU,  TextId = 0x239,  ValId = 0x1069  }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU,  TextId = 0x23A,  ValId = 0x1069  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU,  TextId = 0x90,  ValId = 0x1068  }
 
         ctx.SelLine = 6
         lastGoodMenu = menuId
@@ -613,12 +996,12 @@ local function AR631_loadMenu(menuId)
         --L[#6 T=M VId=0x1068 Text="Apply"[0x90]   MId=0x106A ]
 
         ctx.Menu = { MenuId = 0x106A,  TextId = 0x22B, PrevId = 0, NextId = 0, BackId = 0x105E }
-        ctx.MenuLines[0] = { MenuId = 0x106A, lineNum = 0, Type = LINE_TYPE.MENU,  TextId = 0x231,  ValId = 0x106A  }
-        ctx.MenuLines[1] = { MenuId = 0x106A, lineNum = 1, Type = LINE_TYPE.MENU,  TextId = 0x232,  ValId = 0x106A  }
-        ctx.MenuLines[2] = { MenuId = 0x106A, lineNum = 2, Type = LINE_TYPE.MENU,  TextId = 0x233,  ValId = 0x106A  }
-        ctx.MenuLines[3] = { MenuId = 0x106A, lineNum = 3, Type = LINE_TYPE.MENU,  TextId = 0x234,  ValId = 0x106A  }
-        ctx.MenuLines[4] = { MenuId = 0x106A, lineNum = 4, Type = LINE_TYPE.MENU,  TextId = 0x235,  ValId = 0x106A  }
-        ctx.MenuLines[6] = { MenuId = 0x106A, lineNum = 6, Type = LINE_TYPE.MENU,  TextId = 0x90,  ValId = 0x1068  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU,  TextId = 0x231,  ValId = 0x106A  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU,  TextId = 0x232,  ValId = 0x106A  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU,  TextId = 0x233,  ValId = 0x106A  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU,  TextId = 0x234,  ValId = 0x106A  }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU,  TextId = 0x235,  ValId = 0x106A  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU,  TextId = 0x90,  ValId = 0x1068  }
 
         ctx.SelLine = 6
         lastGoodMenu = menuId
@@ -627,7 +1010,7 @@ local function AR631_loadMenu(menuId)
         --L[#0 T=L_m1 VId=0x1000 Text="Gain Channel"[0x89] val=7 N=(0->32,53,S=53) [53->85,53] MId=0x7CA5 ]
 
         ctx.Menu = { MenuId = 0x7CA5, TextId = 0xAD, PrevId = 0, NextId = 0x1054, BackId = 0x1054 }
-        ctx.MenuLines[0] = { MenuId = 0x7CA5, lineNum = 0, Type = LINE_TYPE.LIST_MENU1, TextId = 0x89, ValId = 0x1000, Min=53, Max=85, Def=53, Val=7 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x89, ValId = 0x1000, Min=53, Max=85, Def=53, Val=7 }
         
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -636,18 +1019,27 @@ local function AR631_loadMenu(menuId)
         --L[#0 T=L_m1 VId=0x1000 Text="FM Channel"[0x78] val=7 N=(0->32,53,S=53) [53->85,53] MId=0x7CA6 ]
 
         ctx.Menu = { MenuId = 0x7CA6, TextId = 0x78, PrevId = 0, NextId = 0x1021, BackId = 0x1021 }
-        ctx.MenuLines[0] = { MenuId = 0x7CA6, lineNum = 0, Type = LINE_TYPE.LIST_MENU1, TextId = 0x78, ValId = 0x1000, Min=53, Max=85, Def=53, Val=7 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x78, ValId = 0x1000, Min=53, Max=85, Def=53, Val=7 }
         
         ctx.SelLine = 0
         lastGoodMenu = menuId
-    elseif (menuId==0x1) then 
+    elseif (menuId==0x7CA7) then
+        --M[Id=0x7CA7 P=0x0 N=0x1055 B=0x1055 Text="FM Channel"[0x78]]
+        --L[#0 T=L_m1 VId=0x1000 Text="FM Channel"[0x78] val=7 N=(0->32,53,S=53) [53->85,53] MId=0x7CA6 ]
+
+        ctx.Menu = { MenuId = 0x7CA7, TextId = 0x78, PrevId = 0, NextId = 0x1055, BackId = 0x1055 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x78, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
+        
+        ctx.SelLine = 0
+        lastGoodMenu = menuId
+    elseif (menuId==0x0001) then 
         -- Save Settings and Reboot
         ctx.Menu = { MenuId = 0x0001, TextId = 0x009F, PrevId = 0, NextId = 0, BackId = 0x1000 }
         ctx.SelLine = dsmLib.BACK_BUTTON
 
     else
         print("NOT IMPLEMENTED")
-        ctx.Menu = { MenuId = 0x0001, Text = "NOT IMPLEMENTED", TextId = 0, PrevId = 0, NextId = 0, BackId = lastGoodMenu }
+        ctx.Menu = { MenuId = 0x0002, Text = "NOT IMPLEMENTED", TextId = 0, PrevId = 0, NextId = 0, BackId = lastGoodMenu }
         ctx.SelLine = dsmLib.BACK_BUTTON
     end
 
@@ -667,11 +1059,11 @@ local function FC6250HX_loadMenu(menuId)
         --L[#6 T=M VId=0x1700 [0->0,2] Text="System Setup"[0x86] MId=0x1000 ]
 
         ctx.Menu = { MenuId = 0x1000, TextId = 0x004B, PrevId = 0, NextId = 0, BackId = 0 }
-        ctx.MenuLines[0] = { MenuId = 0x1000, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0xD3, ValId = 0x1100 }
-        ctx.MenuLines[1] = { MenuId = 0x1000, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0xDD, ValId = 0x1200 }
-        ctx.MenuLines[2] = { MenuId = 0x1000, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0xDA, ValId = 0x1400 }
-        ctx.MenuLines[4] = { MenuId = 0x1000, lineNum = 4, Type = LINE_TYPE.MENU, TextId = 0xDE, ValId = 0x1300 }
-        ctx.MenuLines[6] = { MenuId = 0x1000, lineNum = 5, Type = LINE_TYPE.MENU, TextId = 0x86, ValId = 0x1700 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xD3, ValId = 0x1100 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0xDD, ValId = 0x1200 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0xDA, ValId = 0x1400 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0xDE, ValId = 0x1300 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x86, ValId = 0x1700 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1100) then
@@ -681,9 +1073,9 @@ local function FC6250HX_loadMenu(menuId)
         --L[#2 T=V_i8 VId=0x1103 Text="Agility"[0xD5] val=100 [0->200,100] MId=0x1100 ]
 
         ctx.Menu = { MenuId = 0x1100, TextId = 0xD3, PrevId = 0, NextId = 0, BackId = 0x1000 }
-        ctx.MenuLines[0] = { MenuId = 0x1100, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x40, ValId = 0x1110, Min=0, Max=0, Def=3, Val=nil }
-        ctx.MenuLines[1] = { MenuId = 0x1100, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x41, ValId = 0x1120, Min=0, Max=0, Def=2, Val=nil }
-        ctx.MenuLines[2] = { MenuId = 0x1100, lineNum = 2, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xD5, ValId = 0x1103, Min=0, Max=200, Def=100, Val=100 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x40, ValId = 0x1110, Min=0, Max=0, Def=3, Val=nil }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x41, ValId = 0x1120, Min=0, Max=0, Def=2, Val=nil }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xD5, ValId = 0x1103, Min=0, Max=200, Def=100, Val=100 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -696,11 +1088,11 @@ local function FC6250HX_loadMenu(menuId)
         --L[#4 T=V_i8 VId=0x1115  Text="Derivate"[0x73] val=7 [0->255,7] MId=0x1110 ]
 
         ctx.Menu = { MenuId = 0x1110, TextId = 0x40, PrevId = 0, NextId = 0, BackId = 0x1100 }
-        ctx.MenuLines[0] = { MenuId = 0x1110, lineNum = 0, Type = LINE_TYPE.VALUE_NUM_I16, TextId = 0xDC, ValId = 0x1111, Min=0, Max=900, Def=270, Val=270 }
-        ctx.MenuLines[1] = { MenuId = 0x1110, lineNum = 1, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1112, Min=0, Max=5, Def=0, Val=1 }
-        ctx.MenuLines[2] = { MenuId = 0x1110, lineNum = 2, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1113, Min=0, Max=255, Def=100, Val=100 }
-        ctx.MenuLines[3] = { MenuId = 0x1110, lineNum = 3, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x72, ValId = 0x1114, Min=0, Max=255, Def=100, Val=100 }
-        ctx.MenuLines[4] = { MenuId = 0x1110, lineNum = 4, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x73, ValId = 0x1115, Min=0, Max=255, Def=7, Val=7 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I16, TextId = 0xDC, ValId = 0x1111, Min=0, Max=900, Def=270, Val=270 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1112, Min=0, Max=5, Def=0, Val=1 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1113, Min=0, Max=255, Def=100, Val=100 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x72, ValId = 0x1114, Min=0, Max=255, Def=100, Val=100 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x73, ValId = 0x1115, Min=0, Max=255, Def=7, Val=7 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -715,15 +1107,15 @@ local function FC6250HX_loadMenu(menuId)
         --L[#6 T=V_i8 VId=0x1125 Text="Derivate"[0x73] Val=14 [0->255,14] MId=0x1120 ]
 
         ctx.Menu = { MenuId = 0x1120, TextId = 0x41, PrevId = 0, NextId = 0, BackId = 0x1100 }
-        ctx.MenuLines[0] = { MenuId = 0x1120, lineNum = 0, Type = LINE_TYPE.VALUE_NUM_I16, TextId = 0xDC, ValId = 0x1121, Min=0, Max=900, Def=270, Val=270 }
-        ctx.MenuLines[1] = { MenuId = 0x1120, lineNum = 1, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x92, ValId = 0x1123, Min=5, Max=200, Def=25, Val=25 }
-        ctx.MenuLines[2] = { MenuId = 0x1120, lineNum = 2, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xD8, ValId = 0x1123, Min=5, Max=200, Def=26, Val=100 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I16, TextId = 0xDC, ValId = 0x1121, Min=0, Max=900, Def=270, Val=270 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x92, ValId = 0x1123, Min=5, Max=200, Def=25, Val=25 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xD8, ValId = 0x1123, Min=5, Max=200, Def=26, Val=100 }
 
-        ctx.MenuLines[3] = { MenuId = 0x1120, lineNum = 3, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1122, Min=0, Max=5, Def=0, Val=1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1122, Min=0, Max=5, Def=0, Val=1 }
 
-        ctx.MenuLines[4] = { MenuId = 0x1120, lineNum = 4, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1123, Min=0, Max=255, Def=100, Val=100 }
-        ctx.MenuLines[5] = { MenuId = 0x1120, lineNum = 5, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x72, ValId = 0x1124, Min=0, Max=255, Def=95, Val=95 }
-        ctx.MenuLines[6] = { MenuId = 0x1120, lineNum = 6, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x73, ValId = 0x1125, Min=0, Max=255, Def=45, Val=45 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1123, Min=0, Max=255, Def=100, Val=100 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x72, ValId = 0x1124, Min=0, Max=255, Def=95, Val=95 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x73, ValId = 0x1125, Min=0, Max=255, Def=45, Val=45 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -738,15 +1130,15 @@ local function FC6250HX_loadMenu(menuId)
         --L[#6 T=V_i8 VId=0x1217 Text="Derivate"[0x73] Val=45 [0->255,45] MId=0x1200 ]
 
         ctx.Menu = { MenuId = 0x1200, TextId = 0xDD, PrevId = 0, NextId = 0, BackId = 0x1000 }
-        ctx.MenuLines[0] = { MenuId = 0x1200, lineNum = 0, Type = LINE_TYPE.VALUE_NUM_I16, TextId = 0xDC, ValId = 0x1211, Min=0, Max=1280, Def=550, Val=550 }
-        ctx.MenuLines[1] = { MenuId = 0x1200, lineNum = 1, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x92, ValId = 0x1212, Min=5, Max=200, Def=25, Val=25 }
-        ctx.MenuLines[2] = { MenuId = 0x1200, lineNum = 2, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xD8, ValId = 0x1213, Min=5, Max=200, Def=26, Val=100 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I16, TextId = 0xDC, ValId = 0x1211, Min=0, Max=1280, Def=550, Val=550 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x92, ValId = 0x1212, Min=5, Max=200, Def=25, Val=25 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xD8, ValId = 0x1213, Min=5, Max=200, Def=26, Val=100 }
 
-        ctx.MenuLines[3] = { MenuId = 0x1200, lineNum = 3, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1214, Min=0, Max=5, Def=0, Val=1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1214, Min=0, Max=5, Def=0, Val=1 }
 
-        ctx.MenuLines[4] = { MenuId = 0x1200, lineNum = 4, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1215, Min=0, Max=255, Def=100, Val=100 }
-        ctx.MenuLines[5] = { MenuId = 0x1200, lineNum = 5, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x72, ValId = 0x1216, Min=0, Max=255, Def=95, Val=95 }
-        ctx.MenuLines[6] = { MenuId = 0x1200, lineNum = 6, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x73, ValId = 0x1217, Min=0, Max=255, Def=45, Val=45 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1215, Min=0, Max=255, Def=100, Val=100 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x72, ValId = 0x1216, Min=0, Max=255, Def=95, Val=95 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x73, ValId = 0x1217, Min=0, Max=255, Def=45, Val=45 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -759,11 +1151,11 @@ local function FC6250HX_loadMenu(menuId)
         --L[#6 T=L_m0 VId=0x1703 Text="Output Channel 6"[0x56] val=1 NL=(0->12,0,S=53) [53->65,53] MId=0x1300 ]
       
         ctx.Menu = { MenuId = 0x1300, TextId = 0xDE, PrevId = 0, NextId = 0, BackId = 0x1000 }
-        ctx.MenuLines[0] = { MenuId = 0x1300, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0xD3, ValId = 0x1310 }
-        ctx.MenuLines[1] = { MenuId = 0x1300, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0xDD, ValId = 0x1360 }
-        ctx.MenuLines[4] = { MenuId = 0x1300, lineNum = 4, Type = LINE_TYPE.LIST_MENU0, TextId = 0x78, ValId = 0x1701, Min=12, Max=20, Def=13, Val=1 }
-        ctx.MenuLines[5] = { MenuId = 0x1300, lineNum = 5, Type = LINE_TYPE.LIST_MENU0, TextId = 0x89, ValId = 0x1702, Min=12, Max=20, Def=13, Val=0  }
-        ctx.MenuLines[6] = { MenuId = 0x1300, lineNum = 6, Type = LINE_TYPE.LIST_MENU0, TextId = 0x56, ValId = 0x1702, Min=53, Max=65, Def=53, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xD3, ValId = 0x1310 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0xDD, ValId = 0x1360 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x78, ValId = 0x1701, Min=12, Max=20, Def=13, Val=1 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x89, ValId = 0x1702, Min=12, Max=20, Def=13, Val=0  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x56, ValId = 0x1702, Min=53, Max=65, Def=53, Val=1 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -776,11 +1168,11 @@ local function FC6250HX_loadMenu(menuId)
         --L[#4 T=V_% VId=0x1313 Text="Decay"[0x208] Val=50 [0->100,50] MId=0x1310 ]
 
         ctx.Menu = { MenuId = 0x1310, TextId = 0xD3, PrevId = 0, NextId = 0, BackId = 0x1300 }
-        ctx.MenuLines[0] = { MenuId = 0x1310, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x49, ValId = 0x1330 }
-        ctx.MenuLines[1] = { MenuId = 0x1310, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0xDF, ValId = 0x1320 }
-        ctx.MenuLines[4] = { MenuId = 0x1310, lineNum = 4, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE4, ValId = 0x1311, Min=50, Max=150, Def=100, Val=100 }
-        ctx.MenuLines[5] = { MenuId = 0x1310, lineNum = 5, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE2, ValId = 0x1312, Min=-45, Max=45, Def=0, Val=0  }
-        ctx.MenuLines[6] = { MenuId = 0x1310, lineNum = 6, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x208, ValId = 0x1313, Min=0, Max=100, Def=50, Val=50 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x49, ValId = 0x1330 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0xDF, ValId = 0x1320 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE4, ValId = 0x1311, Min=50, Max=150, Def=100, Val=100 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE2, ValId = 0x1312, Min=-45, Max=45, Def=0, Val=0  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x208, ValId = 0x1313, Min=0, Max=100, Def=50, Val=50 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -792,10 +1184,10 @@ local function FC6250HX_loadMenu(menuId)
         --L[#3 T=V_% VId=0x1324 Text="Differential"[0x45] Val=0 % [-25->25,0] MId=0x1320 ]
 
         ctx.Menu = { MenuId = 0x1320, TextId = 0xDF, PrevId = 0, NextId = 0, BackId = 0x1310 }
-        ctx.MenuLines[0] = { MenuId = 0x1320, lineNum = 0, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x40, ValId = 0x1321, Min=-127, Max=127, Def=-75, Val=-75 }
-        ctx.MenuLines[1] = { MenuId = 0x1320, lineNum = 1, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x41, ValId = 0x1322, Min=-127, Max=127, Def=-75, Val=-75  }
-        ctx.MenuLines[2] = { MenuId = 0x1320, lineNum = 2, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE0, ValId = 0x1323, Min=5, Max=127, Def=45, Val=45  }
-        ctx.MenuLines[3] = { MenuId = 0x1320, lineNum = 3, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x45, ValId = 0x1324, Min=-25, Max=25, Def=0, Val=0 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x40, ValId = 0x1321, Min=-127, Max=127, Def=-75, Val=-75 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x41, ValId = 0x1322, Min=-127, Max=127, Def=-75, Val=-75  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE0, ValId = 0x1323, Min=5, Max=127, Def=45, Val=45  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x45, ValId = 0x1324, Min=-25, Max=25, Def=0, Val=0 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -804,7 +1196,7 @@ local function FC6250HX_loadMenu(menuId)
         --L[#0 T=M VId=0x1331 Text="Subtrim"[0xE1]   MId=0x1330 ]
 
         ctx.Menu = { MenuId = 0x1330, TextId = 0x49, PrevId = 0, NextId = 0, BackId = 0x1310 }
-        ctx.MenuLines[0] = { MenuId = 0x1330, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0xE1, ValId = 0x1331 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xE1, ValId = 0x1331 }
         
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -815,9 +1207,9 @@ local function FC6250HX_loadMenu(menuId)
         --L[#2 T=V_s16 VId=0x1334 Text="Output Channel 3"[0x53] Val=-53 [-82->82,0] MId=0x1331 ]
 
         ctx.Menu = { MenuId = 0x1331, TextId = 0xE1, PrevId = 0, NextId = 0, BackId = 0x1330 }
-        ctx.MenuLines[0] = { MenuId = 0x1331, lineNum = 0, Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x51, ValId = 0x1332, Min=-82, Max=82, Def=0, Val=57 }
-        ctx.MenuLines[1] = { MenuId = 0x1331, lineNum = 1, Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x52, ValId = 0x1333, Min=-82, Max=82, Def=0, Val=-17 }
-        ctx.MenuLines[2] = { MenuId = 0x1331, lineNum = 2, Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x53, ValId = 0x1334, Min=-82, Max=82, Def=0, Val=-53 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x51, ValId = 0x1332, Min=-82, Max=82, Def=0, Val=57 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x52, ValId = 0x1333, Min=-82, Max=82, Def=0, Val=-17 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x53, ValId = 0x1334, Min=-82, Max=82, Def=0, Val=-53 }
      
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -826,7 +1218,7 @@ local function FC6250HX_loadMenu(menuId)
         --L[#0 T=M VId=0x1390 Text="Advanced Setup"[0x99]   MId=0x1360 ]
 
         ctx.Menu = { MenuId = 0x1360, TextId = 0xDD, PrevId = 0, NextId = 0, BackId = 0x1000 }
-        ctx.MenuLines[0] = { MenuId = 0x1360, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0x99, ValId = 0x1390 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x99, ValId = 0x1390 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -836,8 +1228,8 @@ local function FC6250HX_loadMenu(menuId)
         --L[#1 T=V_% VId=0x1312 Text="Right"[0xE8] Val=0 % [-45->45,0] MId=0x1390 ]
 
         ctx.Menu = { MenuId = 0x1390, TextId = 0xE2, PrevId = 0, NextId = 0, BackId = 0x1360 }
-        ctx.MenuLines[0] = { MenuId = 0x1390, lineNum = 0, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE2, ValId = 0x1311, Min=-45, Max=45, Def=0, Val=0 }
-        ctx.MenuLines[1] = { MenuId = 0x1390, lineNum = 1, Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE8, ValId = 0x1312,Min=-45, Max=45, Def=0, Val=0  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE2, ValId = 0x1311, Min=-45, Max=45, Def=0, Val=0 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0xE8, ValId = 0x1312,Min=-45, Max=45, Def=0, Val=0  }
 
 
         ctx.SelLine = 0
@@ -850,9 +1242,9 @@ local function FC6250HX_loadMenu(menuId)
         --L[#2 T=M VId=0x1420 Text="Attitude Trim"[0x1E6] MId=0x1400 ]
 
         ctx.Menu = { MenuId = 0x1400, TextId = 0xDA, PrevId = 0, NextId = 0, BackId = 0x1000 }
-        ctx.MenuLines[0] = { MenuId = 0x1400, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0xDB, ValId = 0x1410 }
-        ctx.MenuLines[1] = { MenuId = 0x1400, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x8B, ValId = 0x140 }
-        ctx.MenuLines[2] = { MenuId = 0x1400, lineNum = 2, Type = LINE_TYPE.MENU, TextId = 0x1E6, ValId = 0x1420 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xDB, ValId = 0x1410 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x8B, ValId = 0x140 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x1E6, ValId = 0x1420 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -864,10 +1256,10 @@ local function FC6250HX_loadMenu(menuId)
         --L[#4 T=L_m2 VId=0x1414 Text="Stability"[0xDB] val=1 NL=(0->1,1,S=1) [1->2,1]  MId=0x1410 ]
     
         ctx.Menu = { MenuId = 0x1410, TextId = 0xDB, PrevId = 0, NextId = 0, BackId = 0x1400 }
-        ctx.MenuLines[0] = { MenuId = 0x1410, lineNum = 0, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x43, ValId = 0x1411,    Min=0, Max=200, Def=50, Val=50 }
-        ctx.MenuLines[1] = { MenuId = 0x1410, lineNum = 1, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x1E7, ValId = 0x1412,   Min=0, Max=90, Def=45, Val=45 }
-        ctx.MenuLines[3] = { MenuId = 0x1410, lineNum = 3, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1413, Min=0, Max=5, Def=0, Val=1 }
-        ctx.MenuLines[4] = { MenuId = 0x1410, lineNum = 4, Type = LINE_TYPE.LIST_MENU2, TextId = 0xDB, ValId = 0x1414,      Min=1, Max=2, Def=1, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x43, ValId = 0x1411,    Min=0, Max=200, Def=50, Val=50 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x1E7, ValId = 0x1412,   Min=0, Max=90, Def=45, Val=45 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1413, Min=0, Max=5, Def=0, Val=1 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU2, TextId = 0xDB, ValId = 0x1414,      Min=1, Max=2, Def=1, Val=1 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -878,8 +1270,8 @@ local function FC6250HX_loadMenu(menuId)
         --L[#1 T=V_i8 VId=0x142 Text="Yaw"[0x42] val=30 [25->100,50] MId=0x140 ]
      
          ctx.Menu = { MenuId = 0x140, TextId = 0x8B, PrevId = 0, NextId = 0, BackId = 0x1400 }
-         ctx.MenuLines[0] = { MenuId = 0x140, lineNum = 0, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x1E7, ValId = 0x141, Min=5, Max=90, Def=45, Val=30 }
-         ctx.MenuLines[1] = { MenuId = 0x140, lineNum = 1, Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x1E7, ValId = 0x42, Min=25, Max=100, Def=50, Val=30 }
+         ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x1E7, ValId = 0x141, Min=5, Max=90, Def=45, Val=30 }
+         ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x1E7, ValId = 0x42, Min=25, Max=100, Def=50, Val=30 }
          
          ctx.SelLine = 0
          lastGoodMenu = menuId
@@ -889,8 +1281,8 @@ local function FC6250HX_loadMenu(menuId)
         --L[#1 T=V_s16 VId=0x1422 Text="Pitch"[0x41] val=58 [-850->850,0] MId=0x1420 ]
 
         ctx.Menu = { MenuId = 0x1420, TextId = 0x1E6, PrevId = 0, NextId = 0, BackId = 0x1400 }
-        ctx.MenuLines[0] = { MenuId = 0x1420, lineNum = 0, Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x1E7, ValId = 0x40, Min=-850, Max=850, Def=450, Val=274 }
-        ctx.MenuLines[1] = { MenuId = 0x1420, lineNum = 1, Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x1E7, ValId = 0x41, Min=-850, Max=850, Def=0, Val=58 }
+        ctx.MenuLines[0] = {  Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x1E7, ValId = 0x40, Min=-850, Max=850, Def=450, Val=274 }
+        ctx.MenuLines[1] = {  Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x1E7, ValId = 0x41, Min=-850, Max=850, Def=0, Val=58 }
         
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -900,8 +1292,8 @@ local function FC6250HX_loadMenu(menuId)
         --L[#1 T=M VId=0x17E0 Text="Factory Reset"[0x97]   MId=0x1700 ]
 
         ctx.Menu = { MenuId = 0x1700, TextId = 0x86, PrevId = 0, NextId = 0, BackId = 0x1000 }
-        ctx.MenuLines[0] = { MenuId = 0x1700, lineNum = 0, Type = LINE_TYPE.MENU, TextId = 0xC7, ValId = 0x17F0 }
-        ctx.MenuLines[1] = { MenuId = 0x1700, lineNum = 1, Type = LINE_TYPE.MENU, TextId = 0x97, ValId = 0x17E0 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xC7, ValId = 0x17F0 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x97, ValId = 0x17E0 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -910,7 +1302,7 @@ local function FC6250HX_loadMenu(menuId)
         --[#3 T=M VId=0x17E1 Text="Apply"[0x90]   MId=0x17E0 ]
 
         ctx.Menu = { MenuId = 0x17E0, TextId = 0x98, PrevId = 0, NextId = 0, BackId = 0x1700 }
-        ctx.MenuLines[3] = { MenuId = 0x17E0, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0x90, ValId = 0x17E1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x90, ValId = 0x17E1 }
 
         ctx.SelLine = 3
         lastGoodMenu = menuId
@@ -919,12 +1311,25 @@ local function FC6250HX_loadMenu(menuId)
         --L[#3 T=M VId=0x17F1 Text="Begin"[0x91]   MId=0x17F0 ]
 
         ctx.Menu = { MenuId = 0x17F0, TextId = 0xC7, PrevId = 0, NextId = 0, BackId = 0x1700 }
-        ctx.MenuLines[3] = { MenuId = 0x17F0, lineNum = 3, Type = LINE_TYPE.MENU, TextId = 0x91, ValId = 0x17F1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x91, ValId = 0x17F1 }
 
         ctx.SelLine = 3
         lastGoodMenu = menuId
+    elseif (menuId==0x17F1) then
+        --M[Id=0x17F1 P=0x0 N=0x0 B=0x1700 Text="Calibrate Sensor"[0xC7]]
+        --L[#3 T=M VId=0x17F1 Text="Complete"[0xC8]   MId=0x17F0 ]
+
+        ctx.Menu = { MenuId = 0x17F1, TextId = 0xC7, PrevId = 0, NextId = 0, BackId = 0x1700 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0xC8, ValId = 0x1700 }
+
+        ctx.SelLine = 3
+        lastGoodMenu = menuId
+    elseif (menuId==0x0001) then 
+        -- Save Settings and Reboot
+        ctx.Menu = { MenuId = 0x0001, TextId = 0x009F, PrevId = 0, NextId = 0, BackId = 0x1000 }
+        ctx.SelLine = dsmLib.BACK_BUTTON
     else
-        ctx.Menu = { MenuId = 0x0001, Text = "NOT IMPLEMENTED", TextId = 0, PrevId = 0, NextId = 0, BackId = lastGoodMenu }
+        ctx.Menu = { MenuId = 0x0002, Text = "NOT IMPLEMENTED", TextId = 0, PrevId = 0, NextId = 0, BackId = lastGoodMenu }
         ctx.SelLine = dsmLib.BACK_BUTTON
     end
 
@@ -943,10 +1348,10 @@ local function loadMenu(menuId)
         --L[#1 T=M VId=0x105E val=nil [0->0,2] Text="Other settings" MId=0x1000 ]
 
         ctx.Menu = { MenuId = 0x1000, Text = "RX SIMULATION", PrevId = 0, NextId = 0, BackId = 0, TextId=0 }
-        ctx.MenuLines[0] = { MenuId = 0x1000, lineNum = 0, Type = LINE_TYPE.MENU, Text = "AR631/AR637 (NEW)", ValId = 0x1001,TextId=0 }
-        ctx.MenuLines[1] = { MenuId = 0x1000, lineNum = 1, Type = LINE_TYPE.MENU, Text = "AR631/AR637 (INITIALIZED)", ValId = 0x1002,  TextId=0 }
-        ctx.MenuLines[4] = { MenuId = 0x1000, lineNum = 4, Type = LINE_TYPE.MENU, Text = "FC6250HX", ValId = 0x1005, TextId=0 }
-        ctx.MenuLines[6] = { MenuId = 0x1000, lineNum = 6, Type = LINE_TYPE.MENU, Text = "EXIT Sim to Real RX", ValId = 0xFFFF, TextId=0 }  -- Menu 0xFFFF to Exit Simulator 
+        ctx.MenuLines[0] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR631/AR637 (NEW)", ValId = 0x1001,TextId=0 }
+        ctx.MenuLines[1] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR631/AR637 (INITIALIZED)", ValId = 0x1002,  TextId=0 }
+        ctx.MenuLines[4] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "FC6250HX", ValId = 0x1005, TextId=0 }
+        ctx.MenuLines[6] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "EXIT Sim to Real RX", ValId = 0xFFFF, TextId=0 }  -- Menu 0xFFFF to Exit Simulator 
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -1047,8 +1452,11 @@ SimLib.DSM_Context = dsmLib.DSM_Context
 SimLib.LOG_write = dsmLib.LOG_write
 SimLib.LOG_close = dsmLib.LOG_close
 SimLib.getElapsedTime = dsmLib.getElapsedTime
+
 SimLib.Get_Text = dsmLib.Get_Text
-SimLib.Get_Text_Img = dsmLib.Get_Text_Img
+SimLib.Get_List_Text = dsmLib.Get_List_Text
+SimLib.Get_List_Text_Img = dsmLib.Get_List_Text_Img
+
 SimLib.phase2String = dsmLib.phase2String
 SimLib.menu2String = dsmLib.menu2String
 SimLib.menuLine2String = dsmLib.menuLine2String
@@ -1060,6 +1468,7 @@ SimLib.isPercentValueLine = dsmLib.isPercentValueLine
 SimLib.isNumberValueLine = dsmLib.isNumberValueLine
 SimLib.isDisplayAttr = dsmLib.isDisplayAttr
 SimLib.isFlightModeText = dsmLib.isFlightModeText
+SimLib.GetFlightModeValue = dsmLib.GetFlightModeValue
 
 SimLib.StartConnection = SIM_StartConnection   -- Override Function 
 SimLib.ReleaseConnection = SIM_ReleaseConnection  -- Override Function

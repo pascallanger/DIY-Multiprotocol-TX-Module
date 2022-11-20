@@ -125,7 +125,7 @@ local function GUI_Display_Line_Menu(x,y,w,h,line,selected)
 
   if dsmLib.isSelectableLine(line) then  
       -- Menu Line
-      text = text .. "  |>"  --OPENTX
+      text = text .. "  >"  
   else  -- SubHeaders and plain text lines
       if (TEXT_SIZE~=SMLSIZE) then -- ignore bold on small size screens
         bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0  
@@ -154,8 +154,8 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   local header = line.Text
   -- ONLY do this for Flight Mode (Right Align or Centered)
   if (dsmLib.isFlightModeText(line.TextId)) then
-      -- Display Header + Value together
-      header = header .. " " .. value
+       -- Display Header + Value together
+       header = dsmLib.GetFlightModeValue(line.TextId,header,value)
 
       -- Flight mode display attributes
       if (TEXT_SIZE~=SMLSIZE) then -- ignore bold on small size screens
@@ -194,6 +194,23 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
 
   if (DEBUG_ON_LCD) then  lcd.drawText(LCD_X_LINE_DEBUG,y, line.MinMaxDebug or "", TEXT_SIZE + WARNING_COLOR) end -- display debug
 end
+
+------------------------------------------------------------------------------------------------------------
+local function GUI_ShowBitmap(x,y,imgData)
+  -- imgData format "bitmap.png|alt message"
+  local f = string.gmatch(imgData, '([^%|]+)') -- Iterator over values split by '|'
+  local imgName, imgMsg = f(), f()
+
+  lcd.drawText(x, y, imgMsg or "")  -- Alternate Image MSG 
+
+  -- NO IMAGES in Text B&W 
+  --local imgPath = IMAGE_PATH .. (imgName or "")
+  --local bitmap  = Bitmap.open(imgPath)
+  --if (bitmap~=nil) then
+  --   lcd.drawBitmap(bitmap, x,y+20)
+  --end
+end
+
 ------------------------------------------------------------------------------------------------------------
 local function GUI_Display()
   local ctx = DSM_Context
@@ -211,7 +228,11 @@ local function GUI_Display()
     end
     --Draw RX Menu
     if ctx.Phase == PHASE.RX_VERSION then
-      lcd.drawText(LCD_X_LINE_TITLE,50,"No compatible DSM RX...", BLINK + TEXT_SIZE)
+      if (ctx.isReset) then
+        lcd.drawText(LCD_X_LINE_TITLE,50,"Waiting for RX to Restart", BLINK + TEXT_SIZE)
+      else
+        lcd.drawText(LCD_X_LINE_TITLE,50,"No compatible DSM RX...", BLINK + TEXT_SIZE)
+      end
     else
       local menu = ctx.Menu
       if menu.Text ~=  nil then
@@ -235,13 +256,11 @@ local function GUI_Display()
               local value = line.Val
               if line.Val ~= nil then
                 if dsmLib.isListLine(line) then    -- for Lists of Strings, get the text
-                  value = dsmLib.Get_Text(line.Val + line.TextStart) -- TextStart is the initial offset for text
-                  local imgValue = dsmLib.Get_Text_Img(line.Val + line.TextStart)   -- Complentary IMAGE for this value to Display??
+                  value = dsmLib.Get_List_Text(line.Val + line.TextStart) -- TextStart is the initial offset for text
+                  local imgData = dsmLib.Get_List_Text_Img(line.Val + line.TextStart)   -- Complentary IMAGE for this value to Display??
                     
-                  if (imgValue) then  -- Optional Image for a Value
-                    --TODO: Pending feature.. create images and put bitmap instead of a message
-                    --Display the image/Alternate Text 
-                    lcd.drawText(LCD_X_LINE_TITLE, LCD_Y_LINE_FIRST+LCD_Y_LINE_HEIGHT, "Img:"..imgValue)
+                  if (imgData) then  -- Optional Image and Msg for value
+                    GUI_ShowBitmap(LCD_X_LINE_TITLE,LCD_Y_LINE_FIRST+LCD_Y_LINE_HEIGHT, imgData)
                   end
                 end
 

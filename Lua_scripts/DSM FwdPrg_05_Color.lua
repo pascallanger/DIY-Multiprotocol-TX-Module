@@ -39,7 +39,6 @@ else
 end
 
 
-
 local PHASE = dsmLib.PHASE
 local LINE_TYPE = dsmLib.LINE_TYPE
 local DISP_ATTR   = dsmLib.DISP_ATTR

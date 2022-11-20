@@ -21,13 +21,19 @@ local SIMULATION_ON = false  -- FALSE: use real communication to DSM RX (DEFAULT
 local DEBUG_ON = 1           -- 0=NO DEBUG, 1=HIGH LEVEL 2=LOW LEVEL   (Debug logged into the /LOGS/dsm.log)
 local DEBUG_ON_LCD = false   -- Interactive Information on LCD of Menu data from RX 
 
+local DSMLIB_PATH = "/SCRIPTS/TOOLS/DSMLIB/"
+
+local dirExist = fstat(DSMLIB_PATH.."DsmFwPrgLib.lua")
+if (dirExist==nil) then error("Make sure "..DSMLIB_PATH.." contains DsmFwPrgLib.lua") end
+dirExist = fstat(DSMLIB_PATH.."DsmFwPrgSIMLib.lua")
+if (dirExist==nil) then error("Make sure "..DSMLIB_PATH.." contains DsmFwPrgSIMLib.lua") end
 
 local dsmLib
 if (SIMULATION_ON) then
   -- library with SIMILATION VERSION.  Works really well in Companion for GUI development
-  dsmLib = loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgSIMLib.lua")(DEBUG_ON)
+  dsmLib = loadScript(DSMLIB_PATH .. "DsmFwPrgSIMLib.lua")(DEBUG_ON)
 else
-  dsmLib = loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
+  dsmLib = loadScript(DSMLIB_PATH .. "DsmFwPrgLib.lua")(DEBUG_ON)
 end
 
 local PHASE = dsmLib.PHASE
@@ -68,7 +74,7 @@ local function GUI_SwitchSimulationOFF()
   dsmLib.LOG_close()
 
   SIMULATION_ON = false
-  dsmLib = loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
+  dsmLib = loadScript(DSMLIB_PATH .. "DsmFwPrgLib.lua")(DEBUG_ON)
   DSM_Context = dsmLib.DSM_Context
 
   dsmLib.Init(toolName)  -- Initialize Library 

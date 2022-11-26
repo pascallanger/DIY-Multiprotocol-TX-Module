@@ -76,7 +76,7 @@ local LCD_MENU_BGCOLOR        = MENU_TITLE_BGCOLOR
 -- LINE SELECTED 
 local LCD_SELECTED_COLOR      = TEXT_INVERTED_COLOR
 local LCD_SELECTED_BGCOLOR    = TEXT_INVERTED_BGCOLOR
-local LCD_EDIT_BGCOLOR        = WARNING_COLOR 
+local LCD_EDIT_BGCOLOR        = MENU_TITLE_BGCOLOR -- WARNING_COLOR 
 -- NORMAL TEXT  
 local LCD_NORMAL_COLOR        = TEXT_COLOR
 local LCD_DISABLE_COLOR       = TEXT_DISABLE_COLOR
@@ -628,8 +628,10 @@ local function DSM_Run(event,touchState)
     refreshInterval = 20 -- 200ms
   end
 
+  if (not IS_EDGETX) then -- OPENTX NEEDS REFRESH ON EVERY CYCLE
+    GUI_Display()
   -- Refresh display only if needed and no faster than 300ms, utilize more CPU to speedup DSM communications
-  if (ctx.Refresh_Display and (getTime()-lastRefresh) > refreshInterval) then --300ms from last refresh 
+  elseif (ctx.Refresh_Display and (getTime()-lastRefresh) > refreshInterval) then --300ms from last refresh 
     GUI_Display()
     ctx.Refresh_Display=false
     lastRefresh=getTime()

@@ -37,6 +37,8 @@ local DISP_ATTR = dsmLib.DISP_ATTR
 
 local DSM_Context = dsmLib.DSM_Context
 
+local IS_EDGETX   = false     -- DEFAULT until Init changed it
+
 local LCD_W_USABLE          = LCD_W-10
 -- X for Menu Lines
 local LCD_X_LINE_MENU       = 10  
@@ -383,6 +385,10 @@ local function GUI_HandleEvent(event, touchState)
 end
 
 local function init_screen_pos()
+    -- osName in OpenTX is nil, otherwise is EDGETX 
+    local ver, radio, maj, minor, rev, osname = getVersion()
+    IS_EDGETX = osname~=nil
+
     if LCD_W == 480 then -- TX16
         -- use defaults in the script header
     elseif LCD_W == 128 then --TX12  (128x64) -- Still needs some work on the vertical
@@ -440,8 +446,10 @@ local function DSM_Run(event)
     refreshInterval = 20 -- 200ms
   end
 
+  if (not IS_EDGETX) then -- OPENTX NEEDS REFRESH ON EVERY CYCLE
+    GUI_Display()
   -- Refresh display only if needed and no faster than 500ms, utilize more CPU to speedup DSM communications
-  if (ctx.Refresh_Display and (getTime()-lastRefresh) > refreshInterval) then --300ms from last refresh 
+  elseif (ctx.Refresh_Display and (getTime()-lastRefresh) > refreshInterval) then --300ms from last refresh 
     GUI_Display()
     ctx.Refresh_Display=false
     lastRefresh=getTime()

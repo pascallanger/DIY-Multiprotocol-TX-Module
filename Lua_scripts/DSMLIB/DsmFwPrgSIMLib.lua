@@ -27,7 +27,7 @@
 
 local DEBUG_ON = ... -- Get DebugON from parameters
 
-local dsmLib = loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
+local dsmLib = assert(loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua"))(DEBUG_ON)
 
 local PHASE = dsmLib.PHASE
 local LINE_TYPE = dsmLib.LINE_TYPE

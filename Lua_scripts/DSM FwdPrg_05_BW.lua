@@ -23,17 +23,12 @@ local DEBUG_ON_LCD = false   -- Interactive Information on LCD of Menu data from
 
 local DSMLIB_PATH = "/SCRIPTS/TOOLS/DSMLIB/"
 
-local dirExist = fstat(DSMLIB_PATH.."DsmFwPrgLib.lua")
-if (dirExist==nil) then error("Make sure "..DSMLIB_PATH.." contains DsmFwPrgLib.lua") end
-dirExist = fstat(DSMLIB_PATH.."DsmFwPrgSIMLib.lua")
-if (dirExist==nil) then error("Make sure "..DSMLIB_PATH.." contains DsmFwPrgSIMLib.lua") end
-
 local dsmLib
 if (SIMULATION_ON) then
   -- library with SIMILATION VERSION.  Works really well in Companion for GUI development
-  dsmLib = loadScript(DSMLIB_PATH .. "DsmFwPrgSIMLib.lua")(DEBUG_ON)
+  dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgSIMLib.lua"), "Not-Found: DSMLIB/DsmFwPrgSIMLib.lua")(DEBUG_ON)
 else
-  dsmLib = loadScript(DSMLIB_PATH .. "DsmFwPrgLib.lua")(DEBUG_ON)
+  dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgLib.lua"),"Not-Found: DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
 end
 
 local PHASE = dsmLib.PHASE

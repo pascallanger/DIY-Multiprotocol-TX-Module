@@ -387,7 +387,9 @@ end
 local function init_screen_pos()
     -- osName in OpenTX is nil, otherwise is EDGETX 
     local ver, radio, maj, minor, rev, osname = getVersion()
-    IS_EDGETX = osname~=nil
+    if (osname==nil) then osname = "OpenTX" end -- OTX 2.3.14 and below returns nil
+
+    IS_EDGETX = string.sub(osname,1,1) =='E'
 
     if LCD_W == 480 then -- TX16
         -- use defaults in the script header

@@ -574,7 +574,9 @@ end
 local function init_colors()
   -- osName in OpenTX is nil, otherwise is EDGETX 
   local ver, radio, maj, minor, rev, osname = getVersion()
-  IS_EDGETX = osname~=nil
+  if (osname==nil) then osname = "OpenTX" end -- OTX 2.3.14 and below returns nil
+
+  IS_EDGETX = string.sub(osname,1,1) == 'E'
 
   if (IS_EDGETX and USE_SPECKTRUM_COLORS) then
       -- SPECKTRUM COLORS (only works on EDGETX)

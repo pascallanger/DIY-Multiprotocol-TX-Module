@@ -25,19 +25,13 @@ local USE_SPECKTRUM_COLORS = true -- true: Use spectrum colors, false: use theme
 local DSMLIB_PATH = "/SCRIPTS/TOOLS/DSMLIB/"
 local IMAGE_PATH = DSMLIB_PATH .. "img/"
 
-local dirExist = fstat(DSMLIB_PATH.."DsmFwPrgLib.lua")
-if (dirExist==nil) then error("Make sure "..DSMLIB_PATH.." contains DsmFwPrgLib.lua") end
-dirExist = fstat(DSMLIB_PATH.."DsmFwPrgSIMLib.lua")
-if (dirExist==nil) then error("Make sure "..DSMLIB_PATH.." contains DsmFwPrgSIMLib.lua") end
-
 local dsmLib
 if (SIMULATION_ON) then
   -- library with SIMILATION VERSION.  Works really well in Companion for GUI development
-  dsmLib = loadScript(DSMLIB_PATH.."DsmFwPrgSIMLib.lua")(DEBUG_ON)
+  dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgSIMLib.lua"), "Not-Found: DSMLIB/DsmFwPrgSIMLib.lua")(DEBUG_ON)
 else
-  dsmLib = loadScript(DSMLIB_PATH.."DsmFwPrgLib.lua")(DEBUG_ON)
+  dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgLib.lua"),"Not-Found: DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
 end
-
 
 local PHASE = dsmLib.PHASE
 local LINE_TYPE = dsmLib.LINE_TYPE
@@ -80,7 +74,7 @@ local LCD_MENU_BGCOLOR        = MENU_TITLE_BGCOLOR
 -- LINE SELECTED 
 local LCD_SELECTED_COLOR      = TEXT_INVERTED_COLOR
 local LCD_SELECTED_BGCOLOR    = TEXT_INVERTED_BGCOLOR
-local LCD_EDIT_BGCOLOR        = WARNING_COLOR 
+local LCD_EDIT_BGCOLOR        = MENU_TITLE_BGCOLOR -- WARNING_COLOR 
 -- NORMAL TEXT  
 local LCD_NORMAL_COLOR        = TEXT_COLOR
 local LCD_DISABLE_COLOR       = TEXT_DISABLE_COLOR
@@ -578,7 +572,9 @@ end
 local function init_colors()
   -- osName in OpenTX is nil, otherwise is EDGETX 
   local ver, radio, maj, minor, rev, osname = getVersion()
-  IS_EDGETX = osname~=nil
+  if (osname==nil) then osname = "OpenTX" end -- OTX 2.3.14 and below returns nil
+
+  IS_EDGETX = string.sub(osname,1,1) == 'E'
 
   if (IS_EDGETX and USE_SPECKTRUM_COLORS) then
       -- SPECKTRUM COLORS (only works on EDGETX)
@@ -632,8 +628,10 @@ local function DSM_Run(event,touchState)
     refreshInterval = 20 -- 200ms
   end
 
+  if (not IS_EDGETX) then -- OPENTX NEEDS REFRESH ON EVERY CYCLE
+    GUI_Display()
   -- Refresh display only if needed and no faster than 300ms, utilize more CPU to speedup DSM communications
-  if (ctx.Refresh_Display and (getTime()-lastRefresh) > refreshInterval) then --300ms from last refresh 
+  elseif (ctx.Refresh_Display and (getTime()-lastRefresh) > refreshInterval) then --300ms from last refresh 
     GUI_Display()
     ctx.Refresh_Display=false
     lastRefresh=getTime()

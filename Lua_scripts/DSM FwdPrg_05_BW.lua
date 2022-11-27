@@ -23,17 +23,12 @@ local DEBUG_ON_LCD = false   -- Interactive Information on LCD of Menu data from
 
 local DSMLIB_PATH = "/SCRIPTS/TOOLS/DSMLIB/"
 
-local dirExist = fstat(DSMLIB_PATH.."DsmFwPrgLib.lua")
-if (dirExist==nil) then error("Make sure "..DSMLIB_PATH.." contains DsmFwPrgLib.lua") end
-dirExist = fstat(DSMLIB_PATH.."DsmFwPrgSIMLib.lua")
-if (dirExist==nil) then error("Make sure "..DSMLIB_PATH.." contains DsmFwPrgSIMLib.lua") end
-
 local dsmLib
 if (SIMULATION_ON) then
   -- library with SIMILATION VERSION.  Works really well in Companion for GUI development
-  dsmLib = loadScript(DSMLIB_PATH .. "DsmFwPrgSIMLib.lua")(DEBUG_ON)
+  dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgSIMLib.lua"), "Not-Found: DSMLIB/DsmFwPrgSIMLib.lua")(DEBUG_ON)
 else
-  dsmLib = loadScript(DSMLIB_PATH .. "DsmFwPrgLib.lua")(DEBUG_ON)
+  dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgLib.lua"),"Not-Found: DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
 end
 
 local PHASE = dsmLib.PHASE
@@ -41,6 +36,8 @@ local LINE_TYPE = dsmLib.LINE_TYPE
 local DISP_ATTR = dsmLib.DISP_ATTR
 
 local DSM_Context = dsmLib.DSM_Context
+
+local IS_EDGETX   = false     -- DEFAULT until Init changed it
 
 local LCD_W_USABLE          = LCD_W-10
 -- X for Menu Lines
@@ -388,6 +385,12 @@ local function GUI_HandleEvent(event, touchState)
 end
 
 local function init_screen_pos()
+    -- osName in OpenTX is nil, otherwise is EDGETX 
+    local ver, radio, maj, minor, rev, osname = getVersion()
+    if (osname==nil) then osname = "OpenTX" end -- OTX 2.3.14 and below returns nil
+
+    IS_EDGETX = string.sub(osname,1,1) =='E'
+
     if LCD_W == 480 then -- TX16
         -- use defaults in the script header
     elseif LCD_W == 128 then --TX12  (128x64) -- Still needs some work on the vertical
@@ -445,8 +448,10 @@ local function DSM_Run(event)
     refreshInterval = 20 -- 200ms
   end
 
+  if (not IS_EDGETX) then -- OPENTX NEEDS REFRESH ON EVERY CYCLE
+    GUI_Display()
   -- Refresh display only if needed and no faster than 500ms, utilize more CPU to speedup DSM communications
-  if (ctx.Refresh_Display and (getTime()-lastRefresh) > refreshInterval) then --300ms from last refresh 
+  elseif (ctx.Refresh_Display and (getTime()-lastRefresh) > refreshInterval) then --300ms from last refresh 
     GUI_Display()
     ctx.Refresh_Display=false
     lastRefresh=getTime()

@@ -27,6 +27,10 @@ Please report of you have test it with other receivers to update the documentati
 
 If you get `"Unable to Load menu lines"` when trying to navidate to a menu, could be that the code needs to be specially adapter to mandle that menu in a different way than others. We did that HACK for AR631/AR637 for the `Initial Setup` and `Initial Safe Setup` menus.  Before starting the script again, the problem shouls show at the log. Usually not been able to process some `Unknown_0x5` lines who has not been fully reversed engineered (you can share the logs with us to try to understand what is going on. 
 
+# Flight mode/Gain channels
+
+I ran into a case where trying to set Aux2 or Aux3 for flight mode, but the RX was correcting it to Aux1.. the RX only was allowing Gear or Aux1 (AR631/AR637).
+This is because the RX don't know that we are using more than 6 channels. To make the RX aware that there are other channels, while edditing the channel, you have to toggle the switch to excersist the channel, and now the RX will recognize it.
 
 # Deployment
 

@@ -81,7 +81,7 @@ local LINE_TYPE = {
 }
 
 local DISP_ATTR = {
-    BOLD = 0x01,  RIGHT=0x02, CENTER=0x04, PERCENT = 0x10 
+    BOLD = 0x01,  RIGHT=0x02, CENTER=0x04, PERCENT = 0x10, DEGREES=0x20, FORCED_MENU = 0x40 
 }
 
 local DSM_Context = {
@@ -160,18 +160,25 @@ end
 
 -------------  Line Type helper functions ------------------------------------------------------------------
 
+-- Check if the text are Flight modes, who will be treated different for Display
+local function isFlightModeLine(line)
+    return (line.TextId >= 0x8000 and line.TextId <= 0x8003)
+end
+
 local function isSelectableLine(line)   -- is the display line Selectable??
     -- values who are not selectable
-    if (line.Type == 0 or line.Type == LINE_TYPE.VALUE_NOCHANGING) then return false end -- No Changing Value
-    if (line.Type == LINE_TYPE.MENU and line.ValId == line.MenuId) then return false end -- Menu that navigates to Itself?
+    if (line.Type == 0) then return false end -- Empty Line
+    if (line.Type == LINE_TYPE.MENU and line.ValId == line.MenuId and bit32.band(line.TextAttr, DISP_ATTR.FORCED_MENU)==0) then return false end -- Menu that navigates to Itself?
     if (line.Min==0 and line.Max==0 and line.Def==0) then return false end -- Values with no Range are only for display 
+    if (line.Type == LINE_TYPE.VALUE_NOCHANGING and isFlightModeLine(line)) then return false end -- Flight mode is not Selectable
     return true
 end
 
 local function isEditableLine(line) -- is the display line editable??
     -- values who are not editable
-    if (line.Type == 0 or line.Type == LINE_TYPE.VALUE_NOCHANGING or line.Type == LINE_TYPE.MENU) then return false end
+    if (line.Type == 0 or line.Type == LINE_TYPE.MENU) then return false end -- Menus are not editable
     if (line.Min==0 and line.Max==0 and line.Def==0) then return false end -- Values with no Range are only for display 
+    if (line.Type == LINE_TYPE.VALUE_NOCHANGING and isFlightModeLine(line)) then return false end -- Flight mode is not Editable 
     -- any other is Editable
     return true
 end
@@ -194,7 +201,12 @@ end
 
 local function isNumberValueLine(line)     -- is it a number ??
     if (isListLine(line) or line.Type == LINE_TYPE.MENU or line.Type == 0) then return false
-    else return false end
+    else return true end
+end
+
+local function isIncrementalValueUpdate(line)
+    if (line.Type == LINE_TYPE.LIST_MENU0 or line.Type == LINE_TYPE.VALUE_NOCHANGING) then return false end
+    return true
 end
 
 ------------------------------------------------------------------------------------------------------------
@@ -245,7 +257,7 @@ end
 
 local function lineType2String(index)
     local out = LineTypeText[index]
-    return out or ("LT_" .. string.format("%X", index))
+    return out or ("LT_" .. string.format("%X", index or 0xFF))
 end
 
 local function lineValue2String(l)
@@ -369,6 +381,11 @@ local function ExtractDisplayAttr(text1, attr)
         attr = bit32.bor(attr, DISP_ATTR.BOLD)
     end
 
+    text, pos = string.gsub(text, "/M", "")
+    if (pos>0) then -- FORCED MENU Button 
+        attr = bit32.bor(attr, DISP_ATTR.FORCED_MENU)
+    end
+
     return text, attr 
 end
 
@@ -397,10 +414,13 @@ local function DSM_MenuLinePostProcessing(line)
         line.Max = line.Max - line.Min -- normalize max index
         line.Min = 0 -- min index
     else -- default to numerical value
-        if isPercentValueLine(line) then
+        if isPercentValueLine(line) or isPercentValueLineByMinMax(line) then
             -- either explicit Percent or NO-Change value, but range is %Percent
-            line.Format =" %"
+            line.Format ="%"
             line.TextAttr = bit32.bor(line.TextAttr,DISP_ATTR.PERCENT)
+        elseif (line.Type == LINE_TYPE.VALUE_DEGREES) then
+            line.Format ="o"
+            line.TextAttr = bit32.bor(line.TextAttr,DISP_ATTR.DEGREES)
         end
     end
 
@@ -502,11 +522,9 @@ local function DSM_Value_Add(line, inc)
         end
     end
 
-    if (origVal~=line.Val) then
-        if line.Type ~= LINE_TYPE.LIST_MENU0 then -- Listof channels only change on the Screen until is Done
-            -- Update RX value on every change 
-            DSM_ChangePhase(PHASE.VALUE_CHANGING)
-        end
+    if (origVal~=line.Val and isIncrementalValueUpdate(line)) then 
+        -- Update RX value on every change 
+        DSM_ChangePhase(PHASE.VALUE_CHANGING)
     end
 end
 
@@ -515,12 +533,16 @@ local function DSM_Value_Default(line)
     if (DEBUG_ON) then LOG_write("%3.3f %s: DSM_Value_Default(%s)\n", getElapsedTime(), phase2String(DSM_Context.Phase), menuLine2String(line)) end
 
     line.Val = line.Def
-    if (origVal~=line.Val) then
-        if line.Type ~= LINE_TYPE.LIST_MENU0 then -- Listof channels only change on the Screen until is Done
-            -- Update RX value on every change 
-            DSM_ChangePhase(PHASE.VALUE_CHANGING)
-        end
+    if (origVal~=line.Val and isIncrementalValueUpdate(line)) then 
+        -- Update RX value on every change 
+        DSM_ChangePhase(PHASE.VALUE_CHANGING)
     end
+end
+
+local function DSM_Value_Write_Validate(line)
+    if (DEBUG_ON) then LOG_write("%3.3f %s: DSM_Value_Write_Validate(%s)\n", getElapsedTime(), phase2String(DSM_Context.Phase), menuLine2String(line)) end
+    DSM_ChangePhase(PHASE.VALUE_CHANGE_END) -- Update + Validate value in RX 
+    DSM_Context.EditLine = nil   -- Exit Edit Mode (By clearing the line editing)
 end
 
 local function DSM_GotoMenu(menuId, lastSelectedLine)
@@ -1063,6 +1085,8 @@ local function DSM_Init_Text(rxId)
     -- Text allightment:  /c = CENTER, /r = RIGHT
     -- Text effects:  /b = BOLD
     -- Text formatting: /p = PERCENT numbers (forced if not in Line Type=PERCENT)
+    -- Navigaton: /M = Force to be a Menu button, when a menu navigates to itself, 
+    --      is usually a message line.. but sometimes, we want to navigate to the same page to refresh values
 
     -- array List_Values:
     -- For some Menu LIST VALUES, special Lines of type:LIST_MENU1, the valod options seems not
@@ -1072,9 +1096,14 @@ local function DSM_Init_Text(rxId)
     -- usually is Ihnibit + range of contiguos values, but cant seems to find in the RX data receive the values 
     -- to do it automatically
 
-    -- Om/Off List Options
-    List_Text[0x0001] = "On"
-    List_Text[0x0002] = "Off"
+    -- On/Off List Options  (TODO: i think they are reversed??   0x0001 is OFF )
+    List_Text[0x0001] = "On (might be reversed, check)"
+    List_Text[0x0002] = "Off (might be reversed, check)"
+
+    if (rxId == RX.FC6250HX) then -- For sure in the Blade FC6250HX they are reversed, override 
+        List_Text[0x0001] = "Off"
+        List_Text[0x0002] = "On"
+    end
 
     -- Ihn/Act List Options
     List_Text[0x0003] = "Inh"
@@ -1219,7 +1248,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00C7] = "Calibrate Sensor"
     Text[0x00C8] = "Complete" -- FC6250HX calibration complete 
     Text[0x00CA] = "SAFE/Panic Mode Setup"
-    Text[0x00CD] = "Level model and capture attiude/c"; -- Different from List_Text 
+    Text[0x00CD] = "Level model and capture attiude/M"; -- Different from List_Text , and force it to be a menu button
 
     -- RX Orientations for AR631/AR637  (on the Heli Receiver is different, see below)
     -- Optionally attach an Image to display
@@ -1249,7 +1278,7 @@ local function DSM_Init_Text(rxId)
     List_Text[0x00E2] = "RX Pos 24"; List_Text_Img[0x00E2]  = "rx_pos_24.png|Pilot View: RX Label Right, Pins Up" 
     List_Text[0x00E3] = "RX Pos Invalid";  List_Text_Img[0x00E3]  = "rx_pos_25.png|Cannot detect orientation of RX" 
 
-    Text[0x00D1] = "?? Unknown_D1"   -- TODO: Find the Spektrum Value  (Orientation Save&Reset final page  AR631) 
+    Text[0x00D1] = "Unknown_D1"   -- TODO: Find the Spektrum Value  (Orientation Save&Reset final page  AR631) 
     --FC6250HX
     Text[0x00D2] = "Panic Channel" 
     if (rxId ~= RX.FC6250HX) then List_Values[0x00D2]=channelValues end --FC6250HX uses other range
@@ -1259,7 +1288,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00D8] = "Stop"
     Text[0x00DA] = "SAFE"       
     Text[0x00DB] = "Stability"
-    Text[0x00DC] = "@ per sec"
+    Text[0x00DC] = "Deg. per sec"
     Text[0x00DD] = "Tail rotor"
     Text[0x00DE] = "Setup"
     Text[0x00DF] = "AFR"
@@ -1291,7 +1320,7 @@ local function DSM_Init_Text(rxId)
     Text[0x010A] = "" -- empty??
     Text[0x010B] = "" -- empty??
     
-    Text[0x0190] = "Relearn Servo Settings"
+    Text[0x0190] = "DONT USE! Relearn Servo Settings"
     Text[0x019C] = "Enter Receiver Bind Mode"
     Text[0x01D7] = "SAFE Select Channel"
     Text[0x01DC] = "AS3X/c/b"       -- Subtitle, Center+bold 
@@ -1384,10 +1413,10 @@ local function DSM_Init_Text(rxId)
 
     Text[0x0254] = "Postive = Up, Negative = Down"
 
-    --Utilities, Copy flight mode  (Copy Confirmation, oveerriding FM) TODO:Check with real Spektrum radio.
-    Text[0x0251] = "WARNING: \"Target\" IN USE"
-    Text[0x0252] = "flight mode will be overwritten"
-    Text[0x0253] = "by \"Source\""
+    --Utilities, Copy flight mode  (Copy Confirmation, oveerriding FM)
+    Text[0x0251] = "Are you sure you want to ovewrite the \"Target\""
+    Text[0x0252] = "with the \"Source\" ? "
+    Text[0x0253] = "" -- Blank
 
     -- First time safe setup Page 1  (maybe ask to select Flight Mode cannel)
     Text[0x0255] = "Before setting up SAFE"
@@ -1401,8 +1430,8 @@ local function DSM_Init_Text(rxId)
     Text[0x025D] = "" -- Blank
     Text[0x025E] = "" -- Blank
 
-    --Utilities, Copy flight mode 
-    Text[0x0259] = "Copy" --- TODO: Check Specktrum..Just guessing here..
+    --Utilities, Copy flight mode  (Confirm)
+    Text[0x0259] = "YES" 
     Text[0x0260] = "WARNING: \"Target\""
     Text[0x0261] = "flight mode will be overwritten"
     Text[0x0262] = "by \"Source\""
@@ -1420,25 +1449,25 @@ local function DSM_Init_Text(rxId)
     Text[0x8003] = "Flight Mode 3/c/b"
 end
 
--- Check if the text are Flight modes, who will be treated different for Display
-local function isFlightModeText(textId)
-    return (textId >= 0x8000 and textId <= 0x8003)
-end
-
 -- Adjust the displayed value for Flight mode as needed
 local function GetFlightModeValue(textId, header, value)
     local out = value
 
-    if (DSM_Context.RX.Id == RX.FC6250HX) then
-        -- Helicopter Flights modes 
-        if (value==1) then out = header .. "  Normal" 
-        elseif (value==2) then out = header .. "  Stunt 1" 
-        elseif (value==3) then out = header .. "  Stunt 2" 
-        elseif (value==4) then out = header .. "  Hold" 
+    if (textId == 0x8000) then
+        if (DSM_Context.RX.Id == RX.FC6250HX) then
+            -- Helicopter Flights modes 
+            if (value==1) then out = header .. "  1 / Normal" 
+            elseif (value==2) then out = header .. " 2 / Stunt 1" 
+            elseif (value==3) then out = header .. " 3 / Stunt 2" 
+            elseif (value==4) then out = header .. "  4 / Hold" 
+            else
+                out = header .. " " .. value
+            end
         else
+            -- No adjustment needed
             out = header .. " " .. value
         end
-    elseif (DSM_Context.RX.Id == RX.AR631 or DSM_Context.RX.Id == RX.AR637T or  DSM_Context.RX.Id == RX.AR637TA) then
+    elseif (textId == 0x8001) then -- AR632/637
         -- Seems that we really have to add +1 to the value, so Flight Mode 0 is Really Flight Mode 1
         out = header .. " " .. (value + 1)
     else
@@ -1485,7 +1514,7 @@ Lib.isPercentValueLine = isPercentValueLine
 Lib.isPercentValueLineByMinMax = isPercentValueLineByMinMax
 Lib.isNumberValueLine = isNumberValueLine
 Lib.isDisplayAttr = isDisplayAttr
-Lib.isFlightModeText = isFlightModeText
+Lib.isFlightModeLine = isFlightModeLine
 Lib.GetFlightModeValue = GetFlightModeValue
 
 Lib.StartConnection = DSM_StartConnection
@@ -1495,6 +1524,7 @@ Lib.MenuPostProcessing = DSM_MenuPostProcessing
 Lib.MenuLinePostProcessing = DSM_MenuLinePostProcessing
 Lib.Value_Add = DSM_Value_Add
 Lib.Value_Default = DSM_Value_Default
+Lib.Value_Write_Validate = DSM_Value_Write_Validate
 Lib.GotoMenu = DSM_GotoMenu
 Lib.MoveSelectionLine = DSM_MoveSelectionLine
 Lib.Send_Receive = DSM_Send_Receive

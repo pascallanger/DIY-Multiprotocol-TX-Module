@@ -156,7 +156,7 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   ---------- NAME Part 
   local header = line.Text
   -- ONLY do this for Flight Mode (Right Align or Centered)
-  if (dsmLib.isFlightModeText(line.TextId)) then
+  if (dsmLib.isFlightModeLine(line)) then
        -- Display Header + Value together
        header = dsmLib.GetFlightModeValue(line.TextId,header,value)
 
@@ -180,9 +180,8 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   lcd.drawText(x, y, header, bold + TEXT_SIZE) -- display Line Header
 
   --------- VALUE PART,  Skip for Flight Mode since already show the value 
-  if not dsmLib.isFlightModeText(line.TextId) then 
+  if not dsmLib.isFlightModeLine(line) then 
     local attrib    = 0
-    value = value .. (line.Format or "")  -- Append % if needed
 
     if selected then
       attrib = INVERS
@@ -192,6 +191,7 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
       end
     end
     
+    value = value .. "  " .. (line.Format or "")  -- Append % if needed
     lcd.drawText(LCD_X_LINE_VALUE,y, value, attrib + TEXT_SIZE) -- display value
   end
 
@@ -307,10 +307,9 @@ local function GUI_HandleEvent(event, touchState)
     else
       if ctx.isEditing() then  -- Editing a Line, need to  restore original value
         ctx.MenuLines[ctx.EditLine].Val = originalValue        
-        dsmLib.ChangePhase(PHASE.VALUE_CHANGE_END)  -- Update+Validate value in RX 
-        ctx.EditLine = nil   -- Exit Edit Mode (By clearing the line editing)
+        dsmLib.Value_Write_Validate(menuLines[ctx.EditLine])
       else
-        dsmLib.ChangePhase(PHASE.EXIT)
+        dsmLib.ChangePhase(PHASE.EXIT) -- Exit
       end
     end
     return
@@ -372,8 +371,7 @@ local function GUI_HandleEvent(event, touchState)
         -- Editing a Line???? 
         if ctx.isEditing() then
           -- Change the Value and exit edit 
-          ctx.EditLine = nil
-          dsmLib.ChangePhase(PHASE.VALUE_CHANGE_END)
+          dsmLib.Value_Write_Validate(menuLines[ctx.SelLine])
         else
           -- enter Edit the current line  
           ctx.EditLine = ctx.SelLine

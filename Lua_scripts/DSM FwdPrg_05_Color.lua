@@ -148,7 +148,7 @@ end
 
 --------------------------------------------------------------------------------------------------------
 -- Display Text inside a Rectangle.  Inv: true means solid rectangle, false=only perimeter
-local function GUI_Display_Boxed_Text(lineNum,x,y,w,h,text,inv)
+local function GUI_Display_Boxed_Text(lineNum,x,y,w,h,text,inv, isNumber)
   local ctx = DSM_Context
   local txtColor  = GUI_GetTextColor(lineNum)
   local frameColor = GUI_GetFrameColor(lineNum)
@@ -161,13 +161,17 @@ local function GUI_Display_Boxed_Text(lineNum,x,y,w,h,text,inv)
   else
     lcd.drawRectangle(x-5, y-2, w, h, frameColor)
   end
-  lcd.drawText(x , y, text, txtColor) 
-
+  if (isNumber) then
+    print("DRAW NUMBER")
+    lcd.drawNumber(x+w-10 , y, text, txtColor + RIGHT)
+  else
+    lcd.drawText(x , y, text, txtColor) 
+  end
 end
 
 ------ Display Pre/Next/Back buttons
 local function GUI_Diplay_Button(x,y,w,h,text,selected)
-  GUI_Display_Boxed_Text(-1,x,y,w,h,text,selected)
+  GUI_Display_Boxed_Text(-1,x,y,w,h,text,selected, false)
 end
 
 ------ Display MENU type of lines (Navigation, SubHeaders, and plain text comments)
@@ -180,7 +184,7 @@ local function GUI_Display_Line_Menu(lineNum,line,selected)
   local x = LCD_X_LINE_MENU
  
   if dsmLib.isSelectableLine(line) then -- Draw Selectable Menus in Boxes
-    GUI_Display_Boxed_Text(lineNum,x, y, LCD_W_LINE_MENU, LCD_Y_LINE_HEIGHT, line.Text,selected)
+    GUI_Display_Boxed_Text(lineNum,x, y, LCD_W_LINE_MENU, LCD_Y_LINE_HEIGHT, line.Text,selected, false)
     GUI_addTouchButton(x, y, LCD_W_LINE_MENU, LCD_Y_LINE_HEIGHT,lineNum)
   else
     -- Non Selectable Menu Lines, plain text
@@ -208,14 +212,10 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   local y = LCD_Y_LINE_START+(LCD_Y_LINE_HEIGHT*lineNum)
   local x = LCD_X_LINE_TITLE
 
-  --if (editing) then -- Any Special color/effect when editing??
-  --  value = "["..value .. "]"
-  --end
-
   ---------- NAME Part 
   local header = line.Text
   -- ONLY do this for Flight Mode (Right Align or Centered)
-  if (dsmLib.isFlightModeText(line.TextId)) then
+  if (dsmLib.isFlightModeLine(line)) then
       -- Display Header + Value together
       header = dsmLib.GetFlightModeValue(line.TextId,header,value)
 
@@ -237,14 +237,17 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   lcd.drawText(x, y, header, txtColor + bold) -- display Line Header
 
   --------- VALUE PART,  Skip for Flight Mode since already show the value 
-  if not dsmLib.isFlightModeText(line.TextId) then 
-    value = value .. (line.Format or "")  -- Append % if needed
-    
+  if not dsmLib.isFlightModeLine(line) then     
     if dsmLib.isSelectableLine(line) then 
+      --if (editing) then -- Any Special color/effect when editing??
+      --  value = "["..value .. "]"
+      --end
       -- Can select/edit value, Box it 
-      local tw = my_lcd_sizeText(value)+10 -- Width of the Text in the lcd
-      GUI_Display_Boxed_Text(lineNum,LCD_X_LINE_VALUE,y,tw,LCD_Y_LINE_HEIGHT,value,selected)
+      local tw = math.max(my_lcd_sizeText(value)+10,45) -- Width of the Text in the lcd
+      GUI_Display_Boxed_Text(lineNum,LCD_X_LINE_VALUE,y,tw,LCD_Y_LINE_HEIGHT,value,selected, not dsmLib.isListLine(line))
       GUI_addTouchButton(LCD_X_LINE_VALUE,y,tw,LCD_Y_LINE_HEIGHT,lineNum)
+
+      lcd.drawText(LCD_X_LINE_VALUE+tw+5, y,  (line.Format or ""), txtColor + bold)
     else -- Not Editable, Plain Text 
       lcd.drawText(LCD_X_LINE_VALUE, y, value, txtColor)
     end
@@ -496,9 +499,9 @@ local function GUI_HandleEvent(event, touchState)
       dsmLib.ReleaseConnection()  -- Just Exit the Script 
     else
       if ctx.isEditing() then  -- Editing a Line, need to  restore original value
-        ctx.MenuLines[ctx.EditLine].Val = originalValue
-        dsmLib.ChangePhase(PHASE.VALUE_CHANGE_END) -- Update + Validate value in RX 
-        ctx.EditLine = nil   -- Exit Edit Mode (By clearing the line editing)
+        local line = ctx.MenuLines[ctx.EditLine]
+        line.Val = originalValue
+        dsmLib.Value_Write_Validate(line)
       else
         dsmLib.ChangePhase(PHASE.EXIT)
       end
@@ -560,8 +563,7 @@ local function GUI_HandleEvent(event, touchState)
         end
       else -- Enter on a Value
         if ctx.isEditing() then   -- already editing a Line???? 
-          ctx.EditLine = nil   -- Exit Edit Mode (By clearing the line editing)
-          dsmLib.ChangePhase(PHASE.VALUE_CHANGE_END) -- Request change the value on RX 
+          dsmLib.Value_Write_Validate(menuLines[ctx.SelLine])
         else    -- Edit the current value  
           ctx.EditLine = ctx.SelLine
           originalValue = menuLines[ctx.SelLine].Val

@@ -33,8 +33,6 @@ else
   dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgLib.lua"),"Not-Found: DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
 end
 
-
-
 local PHASE = dsmLib.PHASE
 local LINE_TYPE = dsmLib.LINE_TYPE
 local DISP_ATTR   = dsmLib.DISP_ATTR

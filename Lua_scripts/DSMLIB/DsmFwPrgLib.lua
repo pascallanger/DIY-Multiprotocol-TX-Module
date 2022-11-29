@@ -1093,6 +1093,7 @@ local function DSM_Init(toolName)
     RxName[RX.AR8360T]  = "AR8360T"
     RxName[RX.AR10360T] = "AR10360T"
     RxName[RX.AR631]    = "AR631"
+
 end
 
 local function DSM_Init_Text(rxId)

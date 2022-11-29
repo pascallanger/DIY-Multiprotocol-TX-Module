@@ -7,7 +7,12 @@ This document descrives what we know so far.
 
 Thanks to **Pascal Langer** (Author of the Multi-Module) for the initial reverse engineering of the protocol and first version of the code that has been used for a while (Version 0.2)
 
-Thanks to **Francisco Arzu** for taking the time to continue the work on documenting and making the code more understandable, as well as having the capabilities to write log files. Improve the GUI, and reversed engineer a few other smaller things. (Version 0.5)
+Thanks to **Francisco Arzu** for taking the time to continue the work on reverse engineering, documenting and making the code more understandable.
+
+New Capabilities in Version 0.5
+- Log files of the conversation between RX/TX 
+- Improve the GUI  (EdgeTX touch screen)
+- Reversed engineer other things to make it work completly.
 
 # Menu Title and Lines
 
@@ -43,63 +48,80 @@ The menu has the following information:
 
 The menu lines has the following information:
 
-    L[#0 T=V_NC VId=0x1000 Text="Flight Mode"[0x8001] Val=1 [0->10,0] MId=0x1021 ]
+    L[#0 T=V_nc VId=0x1000 Text="Flight Mode"[0x8001] Val=1 [0->10,0] MId=0x1021 ]
     L[#1 T=M VId=0x7CA6 Text="FM Channel"[0x78]   MId=0x1021 ]
-    L[#2 T=L_m1 VId=0x1002 Text="AS3X"[0x1DC] Val=1|"Act" NL=(0->1,0,S=3) [3->4,3] MId=0x1021 ]
+    L[#2 T=LM VId=0x1002 Text="AS3X"[0x1DC] Val=1|"Act" NL=(0->1,0,S=3) [3->4,3] MId=0x1021 ]
 
 -  `MenuId`: of the menu they beling to. Log show as `"MId="` at the end.
 -  `LineNum`: Line number (0..5). The line number in the screen. Log show as # in the beginning
 -  `Type`: Type of Line, Log shows as `"T="`  (explanation later)
--  `TextId`: The message number to display (16 bits, Hex). Log shows as [`0xXX`] after the message.  
+-  `TextId`: The message number to display (16 bits, Hex). Log shows as [`0xXXXX`] after the message.  
 -  `Text`:  Retrived using the `TextId` from the script message `Text` array.
--  `ValueId`: The value or menu ID of the line. Log shows as `"VId="`.
+-  `ValueId`: The value or menu ID of the line. Log shows as `"VId="` (16 bits, Hex).
 -  `Value Range`: Shows as [`Min`->`Max`, `Default`]. This is the RAW data comming from the RX
--  `NL`: Computed Normalized (0 reference) for List Values. Source is the RAW range. For example, for lines of list of values.   `[3->4,3]` is tranlated to `NL=(0->1,0,S=3)` since the value is also normalize to 0. `"S="` means the initial entry in the `List_Text` array
+-  `NL`: Computed Normalized LIST (0 reference) for List Values. Source is the RAW range. For example, for lines of list of values.   `[3->4,3]` is tranlated to `NL=(0->1,0,S=3)` since the value is also normalize to 0. `"S="` means the initial entry in the `List_Text` array
 -  `Val`: Current value for line who hold data. Relative to 0 for List Values. For List Values, the log will show the translation of the value to display text. example: `Val=1|"Act"` that is coming from `List_Value[4]`
 
 ## Type of Menu Lines
 
--   `LINE_TYPE.MENU (Log: "T=M")`: This could be regular text or a navigation to another menu. if `ValueId` is the same as the current MenuId (`MId=`), is a plain text line.  If the `ValueId` is different, then `ValueId` is the MenuId to navigate to. 
+-   `LINE_TYPE.MENU (Log: "T=M")`: This could be regular text or a navigation to another menu. if `ValueId` is the same as the current MenuId (`MId=`), is a plain text line (navigation to itself).  If the `ValueId` is not the current menuId, then `ValueId` is the MenuId to navigate to.  
+
+    We have found only one exception to the plain text rule, a true navigation to itself, in that case, in the text of the menu, you can use the "/M" flag at the end of the text to force it to be a menu button. 
 
         Example, FM_Channel is a navigation to menuId=0x7CA6.
 
         L[#1 T=M VId=0x7CA6 Text="FM Channel"[0x78]   MId=0x1021 ]
 
-
--   `LINE_TYPE.VALUE_NOCHANGING (Log: "T=V_NC")`: This is a line with a value that is not editable in the screen. For example, "Flight modes" are usually this type, since the data comes from the RX just to be display and is changed by a TX switch. 
-
-        Example, Flight mode comes from Variable ValId=0x1000, with current value of 1. Range of the Value is 0..10.
-
-        L[#0 T=V_NC VId=0x1000 Text="Flight Mode"[0x8001] Val=1 [0->10,0] MId=0x1021 ]
-
--   `LINE_TYPE.LIST_MENU0 (Log T=L_m0)`:  This is a line that shows as text in the GUI. The numeric value is translated to the proper text. The range is important, since it descrives the range of posible values.
+-   `LINE_TYPE.LIST_MENU_NC (Log T=LM_nc)`:  This is a line that shows as text in the GUI. The numeric value is translated to the proper text. The range is important, since it descrives the range of posible values. No incremental RX changes, only at the end.
 
         Example: List of Values, List_Text[] starts at 53, ends at 85, with a default of 85. When normalized to 0, is a range from 0->32 for the numeric value. The Display value `Aux1` is retrive from `List_Text[6+53]`.
 
-        L[#0 T=L_m0 VId=0x1000 Text="FM Channel"[0x78] Val=6|"Aux1" NL=(0->32,0,S=53) [53->85,53] MId=0x7CA6 ]
+        L[#0 T=LM_nc VId=0x1000 Text="FM Channel"[0x78] Val=6|"Aux1" NL=(0->32,0,S=53) [53->85,53] MId=0x7CA6 ]
 
- -  `LINE_TYPE.LIST_MENU1 (Log T=L_m1)`: Mostly the same as MENU0, but some times, it comes with a strange range `[0->244,Default]`. Usually this means that the values are not contiguos. 
+ -  `LINE_TYPE.LIST_MENU_TOG (Log T=L_tog)`: Mostly the same as LIST_MENU_NC, but is just 2 values. (ON/OFF, Ihn/Act, etc). Should be a toggle in the GUI.
 
-        Example: Valid Values: 3,176->177 (Inh, Self-Level/Angle Dem, Envelope)
-        L[#3 T=L_m1 VId=0x1003 Text="Safe Mode"[0x1F8] Val=176|"Self-Level/Angle Dem" NL=(0->244,3,S=0) [0->244,3] MId=0x1021 ]
+        L[#2 T=LM_tog VId=0x1002 Text="AS3X"[0x1DC] Val=1|"Act" NL=(0->1,0,S=3) [3->4,3] MId=0x1021 ]
 
- -  `LINE_TYPE.LIST_MENU2 (Log T=L_m2)`: Mostly the same as MENU0, but is just 2 values. (ON/OFF, Ihn/Act, etc). Should be a toggle in the GUI.
+-  `LINE_TYPE.LIST_MENU (Log T=LM)`: Mostly the same as LIST_MENU_NC, but incremental changes to the RX. Some times, it comes with a strange range `[0->244,Default]`. Usually this means that the values are not contiguos range; usually Ihn + Range. Still haven't found where in the data the correct range comes from. 
 
-        L[#2 T=L_m2 VId=0x1002 Text="AS3X"[0x1DC] Val=1|"Act" NL=(0->1,0,S=3) [3->4,3] MId=0x1021 ]
+        Example: Valid Values: 3, 176->177 (Inh, Self-Level/Angle Dem, Envelope)
+        L[#3 T=LM VId=0x1003 Text="Safe Mode"[0x1F8] Val=176|"Self-Level/Angle Dem" NL=(0->244,3,S=0) [0->244,3] MId=0x1021 ]
+
+-   `LINE_TYPE.VALUE_NUM_I8_NC (Log: "T=V_nc")`: This line is editable, but is not updated to the RX incrementally, but only at the end. The Flight Mode line is of this type, so we have to check the TextId to differenciate between Flight mode and an Editable Value.  
+Fligh Mode TextId is between 0x8000 and 0x8003
+
+        Example, Flight mode comes from Variable ValId=0x1000, with current value of 1. Range of the Value is 0..10.
+
+        L[#0 T=V_nc VId=0x1000 Text="Flight Mode"[0x8001] Val=1 [0->10,0] MId=0x1021 ]
+
 
 -   `LINE_TYPE.VALUE_NUM_I8 (Log T=V_i8)`:  8 bit number (1 byte) 
-
 -   `LINE_TYPE.VALUE_NUM_I16' (Log T=V_i16)`: 16 Bit number (2 bytes)
 -   `LINE_TYPE.VALUE_NUM_SI16 (Log T=V_si16)`: Signed 16 bit number (2 bytes) 
 -   `LINE_TYPE.VALUE_PERCENT (Log T=L_%)`: Shows a Percent Value. 1 Byte value.
  -  `LINE_TYPE.VALUE_DEGREES (Log T=L_de)`: Shows a Degrees VAlue. 1 Byte value.
 
 
+## LIST_TYPE Bitmap
+TYPE|Sum|Hex|7 Signed|6 Valid Min/Max??|5 No-Inc-Changing|4 Menu|3 List-Menu|2 text / number|1|0 - 16 bits
+|-|-|-|-|-|-|-|-|-|-|-
+|MENU|Text|0x1C|0|0|0|1|1|1|0|0
+|LIST_MENU|Text|0x0C|0|0|0|0|1|1|0|0
+|LIST_MENU_TOG|Text|0x4C|0|1|0|0|1|1|0|0
+|LIST_MENU_NC|Text, NC|0x6C|0|1|1|0|1|1|0|0
+|VALUE_NUM_I8_NC|I8, NC|0x60|0|1|1|0|0|0|0|0
+|VALUE_PERCENT|S8|0xC0|1|1|0|0|0|0|0|0
+|VALUE_DEGREES|S8 NC|0xE0|1|1|1|0|0|0|0|0
+|VALUE_NUM_I8|I8|0x40|0|1|0|0|0|0|0|0
+|VALUE_NUM_I16|I16|0x41|0|1|0|0|0|0|0|1
+|VALUE_NUM_SI16|S16|0xC1|1|1|0|0|0|0|0|1
+
+
 ## Important Behavioral differences when updating values
 
-Values who are editable, are updated to RX as they change. For example, when changing trims, the servo is been moves as we change the value in real-time.
+Values who are editable, are updated to RX as they change. For example, when changing attitude trims, the servo moves as we change the value in real-time.
 
-LIST_MENU0 is an exception. It changes only in the GUI, and only update the RX at the end when confirmed the value.
+LIST_MENU_NC, VALUE_NUM_I8_NC don't update the RX as it changes. It changes only in the GUI, and only update the RX at the end when confirmed the value.  (NO-INC-CHANGES Bit)
 
 After finishing updating a value, a validation command is sent. RX can reject the current value, and will change it to the nearest valid value.
 
@@ -306,7 +328,7 @@ The Display text for the menu line is retrive from the `Text` array.
 |0x09|0x03|0x61|0x10|0x00|0x6C|0x50|0x00|0x00|0x10|0x36|0x00|0x49|0x00|0x36|0x00
 
     RESPONSE RX: 09 03 61 10 00 6C 50 00 00 10 36 00 49 00 36 00 
-    RESPONSE MenuLine: L[#0 T=L_m0 VId=0x1000 Text="Outputs"[0x50] Val=nil NL=(0->19,0,S=54) [54->73,54] MId=0x1061 ]
+    RESPONSE MenuLine: L[#0 T=LM_nc VId=0x1000 Text="Outputs"[0x50] Val=nil NL=(0->19,0,S=54) [54->73,54] MId=0x1061 ]
 
 ## Menu Line Value Response
 Returns the Value for a line. 
@@ -422,12 +444,12 @@ Function `DSM_SelLine_HACK()`
             LOG_write("First time Setup Menu HACK: Overrideing LastSelectedLine to ZERO\n")
             ctx.SelLine = 0
         end
-        -- AR631/AR637 Hack for "Relearn Servo Settings", use 1 instead 
+        -- DID NOT WORK: AR631/AR637 Hack for "Relearn Servo Settings", use 1 instead 
         -- of the ctx.SelLine=0
-        if (ctx.Menu.MenuId == 0x1023) then
-            LOG_write("Relearn Servo Settings HACK: Overrideing LastSelectedLine to 1\n")
-            ctx.SelLine = 1
-        end
+        --if (ctx.Menu.MenuId == 0x1023) then
+        --    LOG_write("Relearn Servo Settings HACK: Overrideing LastSelectedLine to 1\n")
+        --    ctx.SelLine = 1
+        --end
 
 Now it retrives properly the menu:
 

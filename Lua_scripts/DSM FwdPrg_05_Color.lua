@@ -160,7 +160,6 @@ local function GUI_Display_Boxed_Text(lineNum,x,y,w,h,text,inv, isNumber)
     lcd.drawRectangle(x-5, y-2, w, h, frameColor)
   end
   if (isNumber) then
-    print("DRAW NUMBER")
     lcd.drawNumber(x+w-10 , y, text, txtColor + RIGHT)
   else
     lcd.drawText(x , y, text, txtColor) 

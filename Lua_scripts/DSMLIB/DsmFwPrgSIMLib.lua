@@ -123,7 +123,7 @@ local function AR631_loadMenu(menuId)
         -- L[#1 T=M VId=0x1013  Text="Priority"[0x46] MId=0x1011 ]
 
         -- L[#2 T=M VId=0x1015  Text="Heading"[0x82] MId=0x1011 ]
-        -- L[#4 T=L_m1 VId=0x1004 val=50 [0->244,50,TS=0] Text="Gain Sensitivity"[0x8A] MId=0x1011]
+        -- L[#4 T=LM VId=0x1004 val=50 [0->244,50,TS=0] Text="Gain Sensitivity"[0x8A] MId=0x1011]
         -- L[#5 T=M VId=0x1016  Text="Fixed/Adjustable Gains"[0x263] MId=0x1011 ]   
         -- L[#6 T=M VId=0x1017  Text="Capture Gyro Gains"[0xAA] MId=0x1011 ]     
 
@@ -131,83 +131,83 @@ local function AR631_loadMenu(menuId)
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x1DE, ValId = 0x1012}
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x46, ValId = 0x1013}
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x82, ValId = 0x1015}
-        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x8A, ValId = 0x1004, Min=0, Max=244, Def=50, Val=50 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x8A, ValId = 0x1004, Min=0, Max=244, Def=50, Val=50 }
         ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x263, ValId = 0x1016}
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0xAA, ValId = 0x1017 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1012) then
         -- M[Id=0x1012 P=0x0 N=0x0 B=0x1011 Text="AS3X Gains"[0x1DE]]
-        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x1012 ]
+        --L[#0 T=V_nc VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x1012 ]
         --L[#2 T=M    VId=0x1012 Text="Rate Gains"[0x1E0] MId=0x1012 ]
-        --L[#3 T=V_NC VId=0x1004 Text="Roll"[0x40] val=14 [0->100,40] MId=0x1012 ]
-        --L[#4 T=V_NC VId=0x1005 Text="Pitch"[0x41] val=29 [0->100,50] MId=0x1012 ]
-        --L[#5 T=V_NC VId=0x1006 Text="Yaw"[0x42]  val=48 [0->100,60] MId=0x1012 ]
+        --L[#3 T=V_nc VId=0x1004 Text="Roll"[0x40] val=14 [0->100,40] MId=0x1012 ]
+        --L[#4 T=V_nc VId=0x1005 Text="Pitch"[0x41] val=29 [0->100,50] MId=0x1012 ]
+        --L[#5 T=V_nc VId=0x1006 Text="Yaw"[0x42]  val=48 [0->100,60] MId=0x1012 ]
     
         ctx.Menu = { MenuId = 0x1012, TextId = 0x1DE, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x1E0, ValId = 0x1012 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1004, Min=0, Max=100, Def=40, Val=40 }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x41, ValId = 0x1005, Min=0, Max=100, Def=50, Val=50 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x42, ValId = 0x1006, Min=0, Max=100, Def=60, Val=60 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x40, ValId = 0x1004, Min=0, Max=100, Def=40, Val=40 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x41, ValId = 0x1005, Min=0, Max=100, Def=50, Val=50 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x42, ValId = 0x1006, Min=0, Max=100, Def=60, Val=60 }
 
         ctx.SelLine = 3
         lastGoodMenu = menuId
     elseif (menuId==0x1013) then
-        -- M[Id=0x1013 P=0x0 N=0x0 B=0x1011 Text="Priority"[0x46]]
-        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x1012 ]
+        --M[Id=0x1013 P=0x0 N=0x0 B=0x1011 Text="Priority"[0x46]]
+        --L[#0 T=V_nc VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x1012 ]
         --L[#1 T=M VId=0x1013 Text="Stick Priority"[0xFE] MId=0x1013 ]
-        --L[#3 T=V_NC VId=0x1004  Text="Roll"[0x40] val=14 [0->160,160] MId=0x1012 ]
-        --L[#4 T=V_NC VId=0x1005  Text="Pitch"[0x41] val=29 [0->160,160] MId=0x1012 ]
-        --L[#5 T=V_NC VId=0x1006  Text="Yaw"[0x42] val=48 [0->160,160] MId=0x1012 ]
+        --L[#3 T=V_nc VId=0x1004  Text="Roll"[0x40] val=14 [0->160,160] MId=0x1012 ]
+        --L[#4 T=V_nc VId=0x1005  Text="Pitch"[0x41] val=29 [0->160,160] MId=0x1012 ]
+        --L[#5 T=V_nc VId=0x1006  Text="Yaw"[0x42] val=48 [0->160,160] MId=0x1012 ]
     
         ctx.Menu = { MenuId = 0x1013, TextId = 0x46, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0xFE, ValId = 0x1013 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1004, Min=0, Max=160, Def=100, Val=160 }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x41, ValId = 0x1005, Min=0, Max=160, Def=100, Val=160 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x42, ValId = 0x1006, Min=0, Max=160, Def=100, Val=160 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x40, ValId = 0x1004, Min=0, Max=160, Def=100, Val=160 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x41, ValId = 0x1005, Min=0, Max=160, Def=100, Val=160 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x42, ValId = 0x1006, Min=0, Max=160, Def=100, Val=160 }
 
         ctx.SelLine = 3
         lastGoodMenu = menuId
     elseif (menuId==0x1015) then
         -- M[Id=0x1015 P=0x0 N=0x0 B=0x1011 Text="Heading Gain"[0x266]]
-        -- L[#0 T=V_NC VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x1015 ]
+        -- L[#0T=V_nc VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x1015 ]
         -- L[#1 T=M VId=0x1015 Text="Heading Gain"[0x266] MId=0x1015 ]
-        -- L[#2 T=V_NC VId=0x1004 Text="Roll"[0x40] val=0 [0->100,0] MId=0x1015  ]
-        -- L[#3 T=V_NC VId=0x1005 Text="Pitch"[0x41] val=0 [0->100,0] MId=0x1015 ]
-        --  L[#5 T=M VId=0x1015 Text="Use CAUTION for Yaw gain!"[0x26A] MId=0x1015 ]
-        -- L[#6 T=V_NC VId=0x1006 Text="Yaw"[0x42] val=0 [0->100,0] MId=0x1015 ]
+        -- L[#2 T=V_nc VId=0x1004 Text="Roll"[0x40] val=0 [0->100,0] MId=0x1015  ]
+        -- L[#3 T=V_nc VId=0x1005 Text="Pitch"[0x41] val=0 [0->100,0] MId=0x1015 ]
+        -- L[#5 T=M VId=0x1015 Text="Use CAUTION for Yaw gain!"[0x26A] MId=0x1015 ]
+        -- L[#6T=V_nc VId=0x1006 Text="Yaw"[0x42] val=0 [0->100,0] MId=0x1015 ]
 
         ctx.Menu = { MenuId = 0x1015, TextId = 0x266, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x1F9, ValId = 0x1015 }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1004, Min=0, Max=100, Def=0, Val=0 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x41, ValId = 0x1005, Min=0, Max=100, Def=0, Val=0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x40, ValId = 0x1004, Min=0, Max=100, Def=0, Val=0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x41, ValId = 0x1005, Min=0, Max=100, Def=0, Val=0 }
         ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x26A, ValId = 0x1015 }
-        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x42, ValId = 0x1006, Min=0, Max=100, Def=0, Val=0 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x42, ValId = 0x1006, Min=0, Max=100, Def=0, Val=0 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1016) then
         -- M[Id=0x1016 P=0x0 N=0x0 B=0x1011 Text="Fixed/Adjustable Gains"[0x263]]
-        -- L[#0 T=V_NC VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0]  MId=0x1016 ]
+        -- L[#0T=V_nc VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0]  MId=0x1016 ]
         -- L[#1 T=M VId=0x1016 val=nil [0->0,2] Text="Fixed/Adjustable Gains"[0x263] MId=0x1016 ]
-        -- L[#2 T=L_m0 VId=0x1002 Text="Roll"[0x40] MId=0x1016 val=1 NL=(0->1,24,S=242) [242->243,243] ]
-        -- L[#3 T=L_m0 VId=0x1003 Text="Pitch"[0x41] MId=0x1016 val=1 NL=(0->1,1,S=242) [242->243,243] ]
-        -- L[#4 T=L_m0 VId=0x1004  Text="Yaw"[0x42] MId=0x1016 val=1 NL=(0->1,1,S=242) [242->243,243] ]
+        -- L[#2 T=LM_nc VId=0x1002 Text="Roll"[0x40] MId=0x1016 val=1 NL=(0->1,24,S=242) [242->243,243] ]
+        -- L[#3 T=LM_nc VId=0x1003 Text="Pitch"[0x41] MId=0x1016 val=1 NL=(0->1,1,S=242) [242->243,243] ]
+        -- L[#4 T=LM_nc VId=0x1004  Text="Yaw"[0x42] MId=0x1016 val=1 NL=(0->1,1,S=242) [242->243,243] ]
 
         ctx.Menu = { MenuId = 0x1016, TextId = 0x263, PrevId = 0, NextId = 0, BackId = 0x1011 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x1F9, ValId = 0x1016 }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x40, ValId = 0x1002, Min=242, Max=243, Def=243, Val=1 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x41, ValId = 0x1003, Min=242, Max=243, Def=243, Val=1 }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x42, ValId = 0x1004, Min=242, Max=243, Def=243, Val=1 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x40, ValId = 0x1002, Min=242, Max=243, Def=243, Val=1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x41, ValId = 0x1003, Min=242, Max=243, Def=243, Val=1 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x42, ValId = 0x1004, Min=242, Max=243, Def=243, Val=1 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1017) then
         --M[Id=0x1017 P=0x0 N=0x0 B=0x1011 Text="Capture Gyro Gains"[0xAA]]
         --L[#0 T=M VId=0x1017 Text="Gains will be captured on"[0x24C]   MId=0x1017 ]
-        --L[#1 T=V_NC VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=1 [0->10,0] MId=0x1017 ]
+        --L[#1 T=V_nc VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=1 [0->10,0] MId=0x1017 ]
         --L[#2 T=M VId=0x1017 Text="Captured gains will be"[0x24D]   MId=0x1017 ]
         --L[#3 T=V_i8 VId=0x1004 Text="Roll"[0x40] Val=40 [0->0,0] MId=0x1017 ]
         --L[#4 T=V_i8 VId=0x1005 Text="Pitch"[0x41] Val=50 [0->0,0] MId=0x1017 ]
@@ -216,7 +216,7 @@ local function AR631_loadMenu(menuId)
 
         ctx.Menu = { MenuId = 0x1017, TextId = 0xAA, PrevId = 0, NextId = 0, BackId = 0x1011 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x24C, ValId = 0x1017 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x24D, ValId = 0x1017 }
         ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=40 }
         ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=50 }
@@ -228,7 +228,7 @@ local function AR631_loadMenu(menuId)
     elseif (menuId==0x1018) then
         --M[Id=0x1018 P=0x0 N=0x0 B=0x1011 Text="Capture Gyro Gains"[0xAA]]
         --L[#0 T=M VId=0x1018 Text="Gains on"[0x24E]   MId=0x1018 ]
-        --L[#1 T=V_NC VId=0x1018 Text="                  Flight Mode 1"[0x8001] Val=1 [0->10,0] MId=0x1018 ]
+        --L[#1 T=V_nc VId=0x1018 Text="                  Flight Mode 1"[0x8001] Val=1 [0->10,0] MId=0x1018 ]
         --L[#2 T=M VId=0x1018 Text="were captured and changed"[0x24F]   MId=0x1018 
         --L[#3 T=M VId=0x1018 Text="from Adjustable to Fixed"[0x250]   MId=0x1018 ]
         --L[#4 T=V_i8 VId=0x1004 Text="Roll"[0x40] Val=40 [0->0,0] MId=0x1018 ]
@@ -237,7 +237,7 @@ local function AR631_loadMenu(menuId)
 
         ctx.Menu = { MenuId = 0x1018, TextId = 0xAA, PrevId = 0, NextId = 0, BackId = 0x1011 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x24E, ValId = 0x1018 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x24F, ValId = 0x1018 }
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x250, ValId = 0x1018 }
         ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=40 }
@@ -262,58 +262,58 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x101A) then
         --M[Id=0x101A P=0x0 N=0x0 B=0x1019 Text="SAFE Gains"[0x1E3]]
-        --L[#0 T=V_NC VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=nil [0->10,0] MId=0x101A ]
+        --L[#0 T=V_nc VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=nil [0->10,0] MId=0x101A ]
         --L[#1 T=M VId=0x101A Text="Gain"[0x43]   MId=0x101A ]
-        --L[#2 T=V_NC VId=0x1002 Text="Roll"[0x40] Val=35 [5->100,35] MId=0x101A ]
-        --L[#3 T=V_NC VId=0x1003 Text="Pitch"[0x41] Val=35 [5->100,35] MId=0x101A ]
+        --L[#2 T=V_nc VId=0x1002 Text="Roll"[0x40] Val=35 [5->100,35] MId=0x101A ]
+        --L[#3 T=V_nc VId=0x1003 Text="Pitch"[0x41] Val=35 [5->100,35] MId=0x101A ]
 
         ctx.Menu = { MenuId = 0x101A, TextId = 0x1E3, PrevId = 0, NextId = 0, BackId = 0x1019 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x43, ValId = 0x101A }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x40, ValId = 0x1002, Min=5, Max=100, Def=35, Val=35 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x41, ValId = 0x1003, Min=5, Max=100, Def=60, Val=35 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x40, ValId = 0x1002, Min=5, Max=100, Def=35, Val=35 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x41, ValId = 0x1003, Min=5, Max=100, Def=60, Val=35 }
     
         ctx.SelLine = -1
         lastGoodMenu = menuId
     elseif (menuId==0x101B) then
         --M[Id=0x101B P=0x0 N=0x0 B=0x1019 Text="Angle Limits"[0x226]]
-        --L[#0 T=V_NC VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=nil [0->10,0] MId=0x101B ]
+        --L[#0T=V_nc VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=nil [0->10,0] MId=0x101B ]
         --L[#1 T=M VId=0x101B Text="Angle Limits"[0x226]   MId=0x101B ]
-        --L[#2 T=V_NC VId=0x1002 Text="Roll Right"[0x1E9] Val=60 [10->90,60] MId=0x101B ]
-        --L[#3 T=V_NC VId=0x1003 Text="Roll Left"[0x1EA] Val=60 [10->90,60] MId=0x101B ]
-        --L[#4 T=V_NC VId=0x1004 Text="Pitch Down"[0x1EB] Val=40 [10->75,40] MId=0x101B ]
-        --L[#5 T=V_NC VId=0x1005 Text="Pitch Up"[0x1EC] Val=50 [10->75,50] MId=0x101B ]
+        --L[#2 T=V_nc VId=0x1002 Text="Roll Right"[0x1E9] Val=60 [10->90,60] MId=0x101B ]
+        --L[#3 T=V_nc VId=0x1003 Text="Roll Left"[0x1EA] Val=60 [10->90,60] MId=0x101B ]
+        --L[#4 T=V_nc VId=0x1004 Text="Pitch Down"[0x1EB] Val=40 [10->75,40] MId=0x101B ]
+        --L[#5 T=V_nc VId=0x1005 Text="Pitch Up"[0x1EC] Val=50 [10->75,50] MId=0x101B ]
 
         ctx.Menu = { MenuId = 0x101B, TextId = 0x226, PrevId = 0, NextId = 0, BackId = 0x1019 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x226, ValId = 0x101B }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1E9, ValId = 0x1002, Min=10, Max=90, Def=60, Val=60 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EA, ValId = 0x1003, Min=10, Max=90, Def=60, Val=60 }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EB, ValId = 0x1004, Min=10, Max=90, Def=40, Val=40 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EC, ValId = 0x1005, Min=10, Max=90, Def=50, Val=50 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1E9, ValId = 0x1002, Min=10, Max=90, Def=60, Val=60 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1EA, ValId = 0x1003, Min=10, Max=90, Def=60, Val=60 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1EB, ValId = 0x1004, Min=10, Max=90, Def=40, Val=40 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1EC, ValId = 0x1005, Min=10, Max=90, Def=50, Val=50 }
     
         ctx.SelLine = -1
         lastGoodMenu = menuId
 
     elseif (menuId==0x101E) then
         --M[Id=0x101E P=0x0 N=0x0 B=0x1019 Text="Fixed/Adjustable Gains"[0x263]]
-        --L[#0 T=V_NC VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=nil [0->10,0] MId=0x101E ]
+        --L[#0 T=V_nc VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=nil [0->10,0] MId=0x101E ]
         --L[#1 T=M VId=0x101E Text="Fixed/Adjustable Gains"[0x263]   MId=0x101E ]
-        --L[#2 T=L_m0 VId=0x1002 Text="Roll"[0x40] Val=0 N=(0->1,1,S=242) [242->243,243] MId=0x101E ]
-        --L[#3 T=L_m0 VId=0x1003 Text="Pitch"[0x41] Val=0 N=(0->1,1,S=242) [242->243,243] MId=0x101E ]
+        --L[#2 T=LM_nc VId=0x1002 Text="Roll"[0x40] Val=0 N=(0->1,1,S=242) [242->243,243] MId=0x101E ]
+        --L[#3 T=LM_nc VId=0x1003 Text="Pitch"[0x41] Val=0 N=(0->1,1,S=242) [242->243,243] MId=0x101E ]
 
         ctx.Menu = { MenuId = 0x101E, TextId = 0x263, PrevId = 0, NextId = 0, BackId = 0x1019 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x263, ValId = 0x101E }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x40, ValId = 0x1002, Min=242, Max=243, Def=243, Val=0 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x41, ValId = 0x1003, Min=242, Max=243, Def=243, Val=0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x40, ValId = 0x1002, Min=242, Max=243, Def=243, Val=0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x41, ValId = 0x1003, Min=242, Max=243, Def=243, Val=0 }
 
         ctx.SelLine = -1
         lastGoodMenu = menuId
     elseif (menuId==0x101F) then
         --M[Id=0x101F P=0x0 N=0x0 B=0x1019  Text="Capture Gyro Gains"[0xAA]]
         --L[#0 T=M VId=0x101F Text="Gains will be captured on"[0x24C]   MId=0x101F ]
-        --L[#1 T=V_NC VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=1 [0->10,0] MId=0x101F ]
+        --L[#1 T=V_nc VId=0x1000 Text="                  Flight Mode 1"[0x8001] Val=1 [0->10,0] MId=0x101F ]
         --L[#2 T=M VId=0x101F Text="Captured gains will be"[0x24D]   MId=0x101F ]
         --L[#3 T=V_i8 VId=0x1004 Text="Roll"[0x40] Val=40 [0->0,0] MId=0x101F ]
         --L[#4 T=V_i8 VId=0x1005 Text="Pitch"[0x41] Val=50 [0->0,0] MId=0x101F ]
@@ -321,7 +321,7 @@ local function AR631_loadMenu(menuId)
 
         ctx.Menu = { MenuId = 0x101F, TextId = 0xAA, PrevId = 0, NextId = 0, BackId = 0x1019  }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x24C, ValId = 0x101F }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x24D, ValId = 0x101F }
         ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=35 }
         ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x41, ValId = 0x1005, Min=0, Max=0, Def=0, Val=35 }
@@ -332,7 +332,7 @@ local function AR631_loadMenu(menuId)
     elseif (menuId==0x1020) then
         --M[Id=0x1020 P=0x0 N=0x0 B=0x101F Text="Capture Gyro Gains"[0xAA]]
         --L[#0 T=M VId=0x1020 Text="Gains on"[0x24E]   MId=0x1020 ]
-        --L[#1 T=V_NC VId=0x1018 Text="                  Flight Mode 1"[0x8001] Val=1 [0->10,0] MId=0x1020 ]
+        --L[#1 T=V_nc VId=0x1018 Text="                  Flight Mode 1"[0x8001] Val=1 [0->10,0] MId=0x1020 ]
         --L[#2 T=M VId=0x1018 Text="were captured and changed"[0x24F]   MId=0x1020 
         --L[#3 T=M VId=0x1018 Text="from Adjustable to Fixed"[0x250]   MId=0x1020 ]
         --L[#4 T=V_i8 VId=0x1004 Text="Roll"[0x40] Val=40 [0->0,0] MId=0x1020 ]
@@ -340,7 +340,7 @@ local function AR631_loadMenu(menuId)
 
         ctx.Menu = { MenuId = 0x1020, TextId = 0xAA, PrevId = 0, NextId = 0, BackId = 0x1019 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x24E, ValId = 0x1020 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x24F, ValId = 0x1020 }
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x250, ValId = 0x1020 }
         ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x40, ValId = 0x1004, Min=0, Max=0, Def=0, Val=35 }
@@ -350,26 +350,26 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x1021) then
         --M[Id=0x1021 P=0x0 N=0x0 B=0x1010 Text="F-Mode Setup"[0x87]]
-        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x1021 ]
+        --L[#0 T=V_nc VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x1021 ]
         --L[#1 T=M VId=0x7CA6 Text="FM Channel"[0x78] MId=0x1021 ]
-        --L[#2 T=L_m1 VId=0x1002 Text="AS3X"[0x1DC] val=1 (0->1,3,S=3) [3->4|3] MId=0x1021]
+        --L[#2 T=LM VId=0x1002 Text="AS3X"[0x1DC] val=1 (0->1,3,S=3) [3->4|3] MId=0x1021]
         
         -- Why Jump from Value 3 to 176??  where do we know valid values????
-        --L[#3 T=L_m1 VId=0x1003 Text="Safe Mode"[0x1F8] val=3|"Inh" NL=(0->244,0,S=0) [0->244,3]  MId=0x1021 ]
-        --L[#3 T=L_m1 VId=0x1003 Text="Safe Mode"[0x1F8] val=176|"Self-Level/Angle Dem" NL=(0->244,0,S=0) [0->244,3]  MId=0x1021 ]
+        --L[#3 T=LM VId=0x1003 Text="Safe Mode"[0x1F8] val=3|"Inh" NL=(0->244,0,S=0) [0->244,3]  MId=0x1021 ]
+        --L[#3 T=LM VId=0x1003 Text="Safe Mode"[0x1F8] val=176|"Self-Level/Angle Dem" NL=(0->244,0,S=0) [0->244,3]  MId=0x1021 ]
         
-        --L[#4 T=L_m1 VId=0x1004 Text="Panic"[0x8B] val=0 NL=(0->1,3,S=3) [3->4,3] MId=0x1021 ]
-        --L[#5 T=L_m1 VId=0x1005 Text="High Thr to Pitch"[0x1F0]  val=0 NL=(0->1,3,S=3) [3->4,3] MId=0x1021 ]
-        --L[#6 T=L_m1 VId=0x1006 Text="Low Thr to Pitch"[0x1EF] val=0 NL=(0->1,3,S=3) [3->4,3] MId=0x1021 ]
+        --L[#4 T=LM VId=0x1004 Text="Panic"[0x8B] val=0 NL=(0->1,3,S=3) [3->4,3] MId=0x1021 ]
+        --L[#5 T=LM VId=0x1005 Text="High Thr to Pitch"[0x1F0]  val=0 NL=(0->1,3,S=3) [3->4,3] MId=0x1021 ]
+        --L[#6 T=LM VId=0x1006 Text="Low Thr to Pitch"[0x1EF] val=0 NL=(0->1,3,S=3) [3->4,3] MId=0x1021 ]
 
          ctx.Menu = { MenuId = 0x1021, TextId = 0x87, PrevId = 0, NextId = 0, BackId = 0x1010 }
-         ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+         ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
          ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x78, ValId = 0x7CA6 }
-         ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1DC, ValId = 0x1002, Min=3, Max=4, Def=3, Val=1 }
-         ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F8, ValId = 0x1003, Min=0, Max=244, Def=3, Val=176 }
-         ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x8B, ValId = 0x1004, Min=3, Max=4, Def=3, Val=0 }
-         ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F0, ValId = 0x1005, Min=3, Max=4, Def=3, Val=0 }
-         ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1EF, ValId = 0x1006, Min=3, Max=4, Def=3, Val=0 }
+         ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x1DC, ValId = 0x1002, Min=3, Max=4, Def=3, Val=1 }
+         ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x1F8, ValId = 0x1003, Min=0, Max=244, Def=3, Val=176 }
+         ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x8B, ValId = 0x1004, Min=3, Max=4, Def=3, Val=0 }
+         ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x1F0, ValId = 0x1005, Min=3, Max=4, Def=3, Val=0 }
+         ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x1EF, ValId = 0x1006, Min=3, Max=4, Def=3, Val=0 }
          ctx.SelLine = 1
          lastGoodMenu = menuId
     elseif (menuId==0x1022) then  
@@ -414,7 +414,7 @@ local function AR631_loadMenu(menuId)
         --L[#2 T=M VId=0x1025 Text=""[0x21C]   MId=0x1025 ]
         --L[#3 T=M VId=0x1025 Text=""[0x21D]   MId=0x1025 ]
         --L[#5 T=M VId=0x1026 Text="Continue"[0x224]   MId=0x1025 ]
-        --LL[#6 T=M VId=0x1027 Text="Set Orientation Manually"[0x229]   MId=0x1025 ]
+        --L[#6 T=M VId=0x1027 Text="Set Orientation Manually"[0x229]   MId=0x1025 ]
 
         ctx.Menu = { MenuId = 0x1025, TextId = 0x80, PrevId = 0, NextId = 0, BackId = 0x1022 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x21A, ValId = 0x1025 }
@@ -446,11 +446,11 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x1027) then 
         --M[Id=0x1028 P=0x0 N=0x0 B=0x1028 Text="Orientation"[0x80]]
-        --L[#5 T=L_m0 VId=0x1000 Text="Orientation"[0x80] Val=4|"RX Pos 5" NL=(0->23,0,S=203) [203->226,203] MId=0x1027 ]
+        --L[#5 T=LM_nc VId=0x1000 Text="Orientation"[0x80] Val=4|"RX Pos 5" NL=(0->23,0,S=203) [203->226,203] MId=0x1027 ]
         --L[#6 T=M VId=0x1028 Text="Continue"[0x224]   MId=0x1027 ]
 
         ctx.Menu = { MenuId = 0x1027, TextId = 0x80, PrevId = 0x1025, NextId = 0, BackId = 0x1025 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x80, ValId = 0x1000, Min=203, Max=226, Def=203, Val=5 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x80, ValId = 0x1000, Min=203, Max=226, Def=203, Val=5 }
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1028 }
         ctx.SelLine = 5
         lastGoodMenu = menuId
@@ -468,21 +468,21 @@ local function AR631_loadMenu(menuId)
     elseif (menuId==0x1029) then  
         --M[Id=0x1029 P=0x0 N=0x0 B=0x1022 Text="Gain Channel Select"[0xAD]]
         --L[#0 T=M VId=0x1029 Text="AS3X"[0x1DC]   MId=0x1029 ]
-        --L[#1 T=L_m1 VId=0x1000 Text="Roll"[0x40] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
-        --L[#2 T=L_m1 VId=0x1001 Text="Pitch"[0x41] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
-        --L[#3 T=L_m1 VId=0x1002 Text="Yaw"[0x42] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+        --L[#1 T=LM VId=0x1000 Text="Roll"[0x40] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+        --L[#2 T=LM VId=0x1001 Text="Pitch"[0x41] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+        --L[#3 T=LM VId=0x1002 Text="Yaw"[0x42] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
         --L[#4 T=M VId=0x1029 Text="SAFE"[0xDA]   MId=0x1029 ]
-        --L[#5 T=L_m1 VId=0x1004 Text="Roll"[0x40] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
-        --L[#6 T=L_m1 VId=0x1005 Text="Pitch"[0x41] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+        --L[#5 T=LM VId=0x1004 Text="Roll"[0x40] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
+        --L[#6 T=LM VId=0x1005 Text="Pitch"[0x41] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x1029 ]
 
         ctx.Menu = { MenuId = 0x1029, TextId = 0xAD, PrevId = 0, NextId = 0, BackId = 0x1022  }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x1DC, ValId = 0x1029  }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x40, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x41, ValId = 0x1001, Min=53, Max=85, Def=53, Val=0 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x42, ValId = 0x1002, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x40, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x41, ValId = 0x1001, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x42, ValId = 0x1002, Min=53, Max=85, Def=53, Val=0 }
         ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0xDA, ValId = 0x1029  }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x40, ValId = 0x1004, Min=53, Max=85, Def=53, Val=0 }
-        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x41, ValId = 0x1005, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x40, ValId = 0x1004, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x41, ValId = 0x1005, Min=53, Max=85, Def=53, Val=0 }
    
         ctx.SelLine = 2
         lastGoodMenu = menuId
@@ -525,33 +525,33 @@ local function AR631_loadMenu(menuId)
     elseif (menuId==0x1032) then  
         --M[Id=0x1032 P=0x0 N=0x0 B=0x1022 Text="Utilities"[0x240]]
         --L[#0 T=M VId=0x1033 Text="Copy Flight Mode Settings"[0x23D]   MId=0x1032 ]
-        --L[#1 T=L_m0 VId=0x1001 Text="Enabled F-Modes"[0x88] Val=2 NL=(0->9,2,S=182) [182->191,184] MId=0x1032 ]
+        --L[#1 T=LM_nc VId=0x1001 Text="Enabled F-Modes"[0x88] Val=2 NL=(0->9,2,S=182) [182->191,184] MId=0x1032 ]
 
         ctx.Menu = { MenuId = 0x1032, TextId = 0x240, PrevId = 0, NextId = 0, BackId = 0x1022  }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x23D, ValId = 0x1033  }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x88, ValId = 0x1001, Min=182, Max=191, Def=184, Val=2 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x88, ValId = 0x1001, Min=182, Max=191, Def=184, Val=2 }
        
         ctx.SelLine = 0
         lastGoodMenu = menuId
 
     elseif (menuId==0x1033) then  
         --M[Id=0x1033 P=0x0 N=0x0 B=0x1032 Text="Copy Flight Mode Settings"[0x23D]]
-        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode"[0x8001] Val=0 [0->10,0] MId=0x1033 ]
+        --L[#0 T=V_nc VId=0x1000 Text="Flight Mode"[0x8001] Val=0 [0->10,0] MId=0x1033 ]
         --L[#1 T=M VId=0x1033 Text="WARNING: "Target""[0x260]   MId=0x1033 ]
         --L[#2 T=M VId=0x1033 Text="flight mode will be overwritten"[0x261]   MId=0x1033 ]
         --L[#3 T=M VId=0x1033 Text="by "Source""[0x262]   MId=0x1033 ]
-        --L[#4 T=L_m0 VId=0x1004 Text="Source Flight Mode"[0x23E] Val=0|"FM1" NL=(0->9,0,S=182) [182->191,182] MId=0x1033 ]
-        --L[#5 T=L_m0 VId=0x1005 Text="Target Flight Mode"[0x23F] Val=0|"FM1" NL=(0->9,0,S=182) [182->191,182] MId=0x1033 ]
+        --L[#4 T=LM_nc VId=0x1004 Text="Source Flight Mode"[0x23E] Val=0|"FM1" NL=(0->9,0,S=182) [182->191,182] MId=0x1033 ]
+        --L[#5 T=LM_nc VId=0x1005 Text="Target Flight Mode"[0x23F] Val=0|"FM1" NL=(0->9,0,S=182) [182->191,182] MId=0x1033 ]
         --L[#6 T=M VId=0x1035 Text="Apply"[0x90]   MId=0x1034 ]
 
 
         ctx.Menu = { MenuId = 0x1033, TextId = 0x23D, PrevId = 0, NextId = 0, BackId = 0x1032  }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x260, ValId = 0x1033  }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x261, ValId = 0x1033  }
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x262, ValId = 0x1033  }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x23E, ValId = 0x1004, Min=182, Max=191, Def=182, Val=0 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x23F, ValId = 0x1005, Min=182, Max=191, Def=182, Val=0 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x23E, ValId = 0x1004, Min=182, Max=191, Def=182, Val=0 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x23F, ValId = 0x1005, Min=182, Max=191, Def=182, Val=0 }
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x90, ValId = 0x1034  }
        
         ctx.SelLine = 4
@@ -562,8 +562,8 @@ local function AR631_loadMenu(menuId)
         --L[#1 T=M VId=0x1033 Text="Are you sure you want to ovewrite the \"Target\""[0x251]   MId=0x1033 ]
         --L[#2 T=M VId=0x1033 Text="with the \"Source\" ? "[0x252]   MId=0x1033 ]
         --L[#3 T=M VId=0x1033 Text=""[0x253]   MId=0x1033 ]
-        --L[#4 T=L_m0 VId=0x1004 Text="Source Flight Mode"[0x23E] Val=0|"FM1" NL=(0->0,0,S=182) [182->182,182] MId=0x1033 ]
-        --L[#5 T=L_m0 VId=0x1005 Text="Target Flight Mode"[0x23F] Val=1|"FM2" NL=(0->0,0,S=182) [182->182,182] MId=0x1033 ]
+        --L[#4 T=LM_nc VId=0x1004 Text="Source Flight Mode"[0x23E] Val=0|"FM1" NL=(0->0,0,S=182) [182->182,182] MId=0x1033 ]
+        --L[#5 T=LM_nc VId=0x1005 Text="Target Flight Mode"[0x23F] Val=1|"FM2" NL=(0->0,0,S=182) [182->182,182] MId=0x1033 ]
         --L[#6 T=M VId=0x1035 Text="YES"[0x259]   MId=0x1034 ]
 
 
@@ -572,8 +572,8 @@ local function AR631_loadMenu(menuId)
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x251, ValId = 0x1034  }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x252, ValId = 0x1034  }
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x253, ValId = 0x1034  }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x23E, ValId = 0x1004, Min=182, Max=182, Def=182, Val=0 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x23F, ValId = 0x1005, Min=182, Max=182, Def=182, Val=1 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x23E, ValId = 0x1004, Min=182, Max=182, Def=182, Val=0 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x23F, ValId = 0x1005, Min=182, Max=182, Def=182, Val=1 }
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x259, ValId = 0x1035  }
        
         ctx.SelLine = 6
@@ -592,36 +592,36 @@ local function AR631_loadMenu(menuId)
         --L[#2 T=M VId=0x102B Text="Panic"[0x8B]   MId=0x102A ]
         --L[#3 T=M VId=0x102D Text="Throttle to Pitch"[0x1EE]   MId=0x102A ]
         --L[#4 T=M VId=0x1030 Text="Attitude Trim"[0x1E6]   MId=0x102A ]
-        --L[#5 T=L_m0 VId=0x1006 Text="SAFE Failsafe FMode"[0x1FD] Val=0|"FM1" NL=(0->10,0,S=181) [181->191,181] MId=0x102A ]
+        --L[#5 T=LM_nc VId=0x1006 Text="SAFE Failsafe FMode"[0x1FD] Val=0|"FM1" NL=(0->10,0,S=181) [181->191,181] MId=0x102A ]
         --L[#6 T=M VId=0x1031 Text="Failsafe Angles"[0x1F6]   MId=0x102A ]
 
         ctx.Menu = { MenuId = 0x102A, TextId = 0xCA, PrevId = 0, NextId = 0, BackId = 0x1022  }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x8B, ValId = 0x102B  }
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x1EE, ValId = 0x102D  }
         ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x1E6, ValId = 0x1030  }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x1FD, ValId = 0x1006, Min=182, Max=191, Def=182, Val=0 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x1FD, ValId = 0x1006, Min=182, Max=191, Def=182, Val=0 }
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x1F6, ValId = 0x1031  }
        
         ctx.SelLine = 5
         lastGoodMenu = menuId
     elseif (menuId==0x102B) then  
         --M[Id=0x102B P=0x0 N=0x0 B=0x102A Text="Panic"[0x8B]]
-        --L[#0 T=L_m1 VId=0x1000 Text="Panic Channel"[0xD2] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x102B ]
-        --L[#1 T=L_m1 VId=0x1001 Text="Panic Delay"[0x8E] Val=0|"Inh" NL=(0->1,0,S=3) [3->4,3] MId=0x102B ]
-        --L[#2 T=L_m1 VId=0x1002 Text="Panic Flight Mode"[0x1FC] Val=0|"FM1" NL=(0->10,0,S=181) [181->191,181] MId=0x102B ]
-        --L[#3 T=V_NC VId=0x1003 Text="Roll Right"[0x1E9] Val=30 [0->90,30] MId=0x102B ]
-        --L[#4 T=V_NC VId=0x1004 Text="Roll Left"[0x1EA] Val=30 [0->90,30] MId=0x102B ]
-        --L[#5 T=V_NC VId=0x1005 Text="Pitch Down"[0x1EB] Val=30 [0->75,30] MId=0x102B ]
-        --L[#6 T=V_NC VId=0x1006 Text="Pitch Up"[0x1EC] Val=30 [0->75,30] MId=0x102B ]
+        --L[#0 T=LM VId=0x1000 Text="Panic Channel"[0xD2] Val=0|"Inhibit?" NL=(0->32,0,S=53) [53->85,53] MId=0x102B ]
+        --L[#1 T=LM VId=0x1001 Text="Panic Delay"[0x8E] Val=0|"Inh" NL=(0->1,0,S=3) [3->4,3] MId=0x102B ]
+        --L[#2 T=LM VId=0x1002 Text="Panic Flight Mode"[0x1FC] Val=0|"FM1" NL=(0->10,0,S=181) [181->191,181] MId=0x102B ]
+        --L[#3 T=V_nc VId=0x1003 Text="Roll Right"[0x1E9] Val=30 [0->90,30] MId=0x102B ]
+        --L[#4 T=V_nc VId=0x1004 Text="Roll Left"[0x1EA] Val=30 [0->90,30] MId=0x102B ]
+        --L[#5 T=V_nc VId=0x1005 Text="Pitch Down"[0x1EB] Val=30 [0->75,30] MId=0x102B ]
+        --L[#6 T=V_nc VId=0x1006 Text="Pitch Up"[0x1EC] Val=30 [0->75,30] MId=0x102B ]
 
         ctx.Menu = { MenuId = 0x102B, TextId = 0x8B, PrevId = 0, NextId = 0, BackId = 0x102A  }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0xD2, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x8E, ValId = 0x1001, Min=3, Max=4, Def=3, Val=0 }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1FC, ValId = 0x1002, Min=181, Max=191, Def=181, Val=0 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1E9, ValId = 0x1003, Min=0, Max=90, Def=30, Val=30 }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EA, ValId = 0x1004, Min=0, Max=90, Def=30, Val=30 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1E9, ValId = 0x1005, Min=0, Max=75, Def=30, Val=30 }
-        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EC, ValId = 0x1006, Min=0, Max=75, Def=30, Val=30 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU, TextId = 0xD2, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x8E, ValId = 0x1001, Min=3, Max=4, Def=3, Val=0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x1FC, ValId = 0x1002, Min=181, Max=191, Def=181, Val=0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1E9, ValId = 0x1003, Min=0, Max=90, Def=30, Val=30 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1EA, ValId = 0x1004, Min=0, Max=90, Def=30, Val=30 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1E9, ValId = 0x1005, Min=0, Max=75, Def=30, Val=30 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1EC, ValId = 0x1006, Min=0, Max=75, Def=30, Val=30 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -629,19 +629,19 @@ local function AR631_loadMenu(menuId)
         --M[Id=0x102D P=0x0 N=0x0 B=0x102A Text="SAFE - Throttle to Pitch"[0x269]]
         --L[#0 T=M VId=0x102D Text="Postive = Up, Negative = Down"[0x254]   MId=0x102D ]
         --L[#1 T=M VId=0x102D Text="Low Thr to Pitch"[0x1EF]   MId=0x102D ]
-        --L[#2 T=V_NC VId=0x1001 Text="Threshold"[0x1F3] Val=30 [0->50,30] MId=0x102D ]
+        --L[#2 T=V_nc VId=0x1001 Text="Threshold"[0x1F3] Val=30 [0->50,30] MId=0x102D ]
         --L[#3 T=V_de VId=0x1002 Text="Angle"[0x1F4] Val=0 [-45->45,0] MId=0x102D ]
         --L[#4 T=M VId=0x102D Text="High Thr to Pitch"[0x1F0]   MId=0x102D ]
-        --L[#5 T=V_NC VId=0x1005 Text="Threshold"[0x1F3] Val=70 [51->100,70] MId=0x102D ]
+        --L[#5 T=V_nc VId=0x1005 Text="Threshold"[0x1F3] Val=70 [51->100,70] MId=0x102D ]
         --L[#6 T=V_de VId=0x1006 Text="Angle"[0x1F4] Val=0 [-45->45,0] MId=0x102D ]
 
         ctx.Menu = { MenuId = 0x102D, TextId = 0x269, PrevId = 0, NextId = 0, BackId = 0x102A  }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x254, ValId = 0x102D  }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x1EF, ValId = 0x102D  }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1F3, ValId = 0x1001, Min=0, Max=50, Def=30, Val=30 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1F3, ValId = 0x1001, Min=0, Max=50, Def=30, Val=30 }
         ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_DEGREES, TextId = 0x1F4, ValId = 0x1002, Min=-45, Max=45, Def=0, Val=0 }
         ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x1F0, ValId = 0x102D  }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1F3, ValId = 0x1005, Min=51, Max=100, Def=70, Val=70 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1F3, ValId = 0x1005, Min=51, Max=100, Def=70, Val=70 }
         ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_DEGREES, TextId = 0x1F4, ValId = 0x1006, Min=-45, Max=45, Def=0, Val=0 }
 
         ctx.SelLine = 2
@@ -731,11 +731,11 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x1053) then 
         --M[Id=0x1053 P=0x1051 N=0x0 B=0x1010 Text="First Time Setup"[0xA5]]
-        --L[#5 T=L_m0 VId=0x1000 Text="Orientation"[0x80] MId=0x1053 val=0 (0->23,0,S=203) [203->226,203] ]
+        --L[#5 T=LM_nc VId=0x1000 Text="Orientation"[0x80] MId=0x1053 val=0 (0->23,0,S=203) [203->226,203] ]
         --L[#6 T=M VId=0x1054 Text="Continue"[0x224] MId=0x1053 ]
         
         ctx.Menu = { MenuId = 0x1053, TextId = 0x00A5, PrevId = 0x1051, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x80, ValId = 0x1000, Min=203, Max=226, Def=203, Val=0 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x80, ValId = 0x1000, Min=203, Max=226, Def=203, Val=0 }
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x224, ValId = 0x1054 }
         ctx.SelLine = 5
         lastGoodMenu = menuId
@@ -767,7 +767,7 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x1056) then 
         --M[Id=0x1056 P=0x1055 N=0x1057 B=0x1010 Text="First Time SAFE Setup"[0x20D]]
-        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode"[0x8001] Val=1 [0->10,0] MId=0x1056 ]
+        --L[#0 T=V_nc VId=0x1000 Text="Flight Mode"[0x8001] Val=1 [0->10,0] MId=0x1056 ]
         --L[#1 T=M VId=0x1056 Text="Select the desired flight mode"[0x25A]   MId=0x1056 ]
         --L[#2 T=M VId=0x1056 Text="switch position to adjust settings"[0x25B]   MId=0x1056 ]
         --L[#3 T=M VId=0x1056 Text="for each flight mode"[0x25C]   MId=0x1056 ]
@@ -775,7 +775,7 @@ local function AR631_loadMenu(menuId)
         --L[#5 T=M VId=0x1056 Text=""[0x25E]   MId=0x1056 ]
 
         ctx.Menu = { MenuId = 0x1056, TextId = 0x20D, PrevId = 0x1053, NextId = 0x1057, BackId = 0x1010 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x25A, ValId = 0x1056 } 
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x25B, ValId = 0x1056 } 
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x25C, ValId = 0x1056 } 
@@ -825,22 +825,22 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x105A) then
         --M[Id=0x105A P=0x1059 N=0x105B B=0x1010 Text="First Time SAFE Setup"[0x20D]]
-        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode"[0x8001] Val=0 [0->10,0] MId=0x105A ]
-        --L[#1 T=L_m1 VId=0x1001 Text="Safe Mode"[0x1F8] Val=3|"Inh" NL=(0->244,3,S=0) [0->244,3] MId=0x105A ]
+        --L[#0 T=V_nc VId=0x1000 Text="Flight Mode"[0x8001] Val=0 [0->10,0] MId=0x105A ]
+        --L[#1 T=LM VId=0x1001 Text="Safe Mode"[0x1F8] Val=3|"Inh" NL=(0->244,3,S=0) [0->244,3] MId=0x105A ]
         --L[#2 T=M VId=0x105A Text="Angle Limits "[0x226]   MId=0x105A ]
-        --L[#3 T=V_NC VId=0x1003 Text="Roll Right"[0x1E9] Val=60 [10->90,60] MId=0x105A ]
-        --L[#4 T=V_NC VId=0x1004 Text="Roll Left"[0x1EA] Val=60 [10->90,60] MId=0x105A ]
-        --L[#5 T=V_NC VId=0x1005 Text="Pitch Down"[0x1EB] Val=40 [10->75,40] MId=0x105A ]
-        --L[#6 T=V_NC VId=0x1006 Text="Pitch Up"[0x1EC] Val=50 [10->75,50] MId=0x105A ]
+        --L[#3 T=V_nc VId=0x1003 Text="Roll Right"[0x1E9] Val=60 [10->90,60] MId=0x105A ]
+        --L[#4 T=V_nc VId=0x1004 Text="Roll Left"[0x1EA] Val=60 [10->90,60] MId=0x105A ]
+        --L[#5 T=V_nc VId=0x1005 Text="Pitch Down"[0x1EB] Val=40 [10->75,40] MId=0x105A ]
+        --L[#6 T=V_nc VId=0x1006 Text="Pitch Up"[0x1EC] Val=50 [10->75,50] MId=0x105A ]
         
         ctx.Menu = { MenuId = 0x105A, TextId = 0x1DE, PrevId = 0x1059, NextId = 0x105B, BackId = 0x1010 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F8, ValId = 0x1001, Min=0, Max=244, Def=3, Val=3 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x1F8, ValId = 0x1001, Min=0, Max=244, Def=3, Val=3 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x226, ValId = 0x105A }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1E9, ValId = 0x1003, Min=10, Max=90, Def=60, Val=60  }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EA, ValId = 0x1004, Min=10, Max=90, Def=60, Val=60  }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EB, ValId = 0x1004, Min=10, Max=75, Def=40, Val=40  }
-        ctx.MenuLines[6] = { lineNum = 7, Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x1EC, ValId = 0x1004, Min=10, Max=75, Def=50, Val=50  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1E9, ValId = 0x1003, Min=10, Max=90, Def=60, Val=60  }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1EA, ValId = 0x1004, Min=10, Max=90, Def=60, Val=60  }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1EB, ValId = 0x1004, Min=10, Max=75, Def=40, Val=40  }
+        ctx.MenuLines[6] = { lineNum = 7, Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x1EC, ValId = 0x1004, Min=10, Max=75, Def=50, Val=50  }
 
         ctx.SelLine = 1
         lastGoodMenu = menuId
@@ -855,18 +855,18 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x105C) then
         -- M[Id=0x105C P=0x0 N=0x0 B=0x1010 Text="SAFE Select"[0x1F9]]
-        --L[#0 T=V_NC VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x105C ]
-        --L[#1 T=L_m1 VId=0x1001 Text="SAFE Select Channel"[0x1D7] val=5 NL=(0->32,53,S=53) [53->85,53] MId=0x105C]
-        --L[#2 T=L_m1 VId=0x1002 Text="AS3X"[0x1DC]  val=1 NL=(0->1,1,S=1) [1->2,1] MId=0x105C]
-        --L[#3 T=L_m1 VId=0x1003 Text="SAFE"[0xDA] val=0 NL=(0->0,0,S=1) [1->1,1] MId=0x105C ]
-        --L[#6 T=L_m1 VId=0x1006 Text="SAFE Select"[0x1F9] val=0 NL=(0->1,1,S=1) [1->2,1]  MId=0x105C ]
+        --L[#0 T=V_nc VId=0x1000 Text="Flight Mode 1"[0x8001] val=1 [0->10,0] MId=0x105C ]
+        --L[#1 T=LM VId=0x1001 Text="SAFE Select Channel"[0x1D7] val=5 NL=(0->32,53,S=53) [53->85,53] MId=0x105C]
+        --L[#2 T=LM VId=0x1002 Text="AS3X"[0x1DC]  val=1 NL=(0->1,1,S=1) [1->2,1] MId=0x105C]
+        --L[#3 T=LM VId=0x1003 Text="SAFE"[0xDA] val=0 NL=(0->0,0,S=1) [1->1,1] MId=0x105C ]
+        --L[#6 T=LM VId=0x1006 Text="SAFE Select"[0x1F9] val=0 NL=(0->1,1,S=1) [1->2,1]  MId=0x105C ]
 
         ctx.Menu = { MenuId = 0x105C, TextId = 0x1DE, PrevId = 0, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1D7, ValId = 0x1001, Min=53, Max=85, Def=53, Val=5 }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1DC, ValId = 0x1002, Min=1, Max=2, Def=1, Val=1  }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0xDA, ValId = 0x1003, Min=1, Max=1, Def=1, Val=0  }
-        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x1F9, ValId = 0x1004, Min=1, Max=2, Def=1, Val=0  }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8001, ValId = 0x1000, Min=0, Max=10, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x1D7, ValId = 0x1001, Min=53, Max=85, Def=53, Val=5 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x1DC, ValId = 0x1002, Min=1, Max=2, Def=1, Val=1  }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU, TextId = 0xDA, ValId = 0x1003, Min=1, Max=1, Def=1, Val=0  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x1F9, ValId = 0x1004, Min=1, Max=2, Def=1, Val=0  }
 
         ctx.SelLine = 1
         lastGoodMenu = menuId
@@ -901,13 +901,13 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x1061) then 
         --M[Id=0x1061 P=0x0 N=0x0 B=0x1060 Text="Failsafe"]
-        --L[#0 T=L_m0 VId=0x1000 Text="Outputs:" val=0 NL=(0->19,54,S=54) [54->73,54] MId=0x1061 ]
-        --L[#2 T=L_m2 VId=0x1002 Text="Custom Failsafe:" val=0 NL=(0->1,95,S=95) [95->96,95]  MId=0x1061 ]
+        --L[#0 T=LM_nc VId=0x1000 Text="Outputs:" val=0 NL=(0->19,54,S=54) [54->73,54] MId=0x1061 ]
+        --L[#2 T=LM_tog VId=0x1002 Text="Custom Failsafe:" val=0 NL=(0->1,95,S=95) [95->96,95]  MId=0x1061 ]
         --L[#3 T=V_% VId=0x1003  Text="Position:" val=-100 [-150->150,0] MId=0x1061 ]
 
         ctx.Menu = { MenuId = 0x1061,  TextId = 0x004A, PrevId = 0, NextId = 0, BackId = 0x1060 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU0,  TextId = 0x0050, ValId = 0x1000, Min=54, Max=73, Def=54, Val=0 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU2,    TextId = 0x009C, ValId = 0x1002, Min=95, Max=96, Def=95, Val=0 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_NC,  TextId = 0x0050, ValId = 0x1000, Min=54, Max=73, Def=54, Val=0 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU_TOG,    TextId = 0x009C, ValId = 0x1002, Min=95, Max=96, Def=95, Val=0 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x004E, ValId = 0x1002, Min=-150, Max=150, Def=0, Val=-100 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -922,20 +922,20 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x1065) then 
         --M[Id=0x1065 P=0x0 N=0x0 B=0x105E Text="Frame Rate"]
-        --L[#0 T=L_m1 VId=0x1000 Text="Output Channel 1:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
-        --L[#1 T=L_m1 VId=0x1001 Text="Output Channel 2:" val=47 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
-        --L[#2 T=L_m1 VId=0x1002 Text="Output Channel 3:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
-        --L[#3 T=L_m1 VId=0x1003 Text="Output Channel 4:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
-        --L[#4 T=L_m1 VId=0x1004 Text="Output Channel 5:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
-        --L[#5 T=L_m1 VId=0x1005 Text="Output Channel 6:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
+        --L[#0 T=LM VId=0x1000 Text="Output Channel 1:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
+        --L[#1 T=LM VId=0x1001 Text="Output Channel 2:" val=47 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
+        --L[#2 T=LM VId=0x1002 Text="Output Channel 3:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
+        --L[#3 T=LM VId=0x1003 Text="Output Channel 4:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
+        --L[#4 T=LM VId=0x1004 Text="Output Channel 5:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
+        --L[#5 T=LM VId=0x1005 Text="Output Channel 6:" val=46 NL=(0->244,46|S=0) [0->244,0]  MId=0x1065 ]
 
         ctx.Menu = { MenuId = 0x1065, TextId = 0x0085, PrevId = 0, NextId = 0, BackId = 0x105E }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0051, ValId = 0x1000, Min=0, Max=244, Def=46, Val=46 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0052, ValId = 0x1001, Min=0, Max=244, Def=46, Val=47 }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0053, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0054, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0055, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x0056, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x0051, ValId = 0x1000, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x0052, ValId = 0x1001, Min=0, Max=244, Def=46, Val=47 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x0053, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x0054, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x0055, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x0056, ValId = 0x1002, Min=0, Max=244, Def=46, Val=46 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -1007,28 +1007,28 @@ local function AR631_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x7CA5) then
         --M[Id=0x7CA5 P=0x0 N=0x1021 B=0x1021 Text="Gain Channel Select"[0xAD]]
-        --L[#0 T=L_m1 VId=0x1000 Text="Gain Channel"[0x89] val=7 N=(0->32,53,S=53) [53->85,53] MId=0x7CA5 ]
+        --L[#0 T=LM VId=0x1000 Text="Gain Channel"[0x89] val=7 N=(0->32,53,S=53) [53->85,53] MId=0x7CA5 ]
 
         ctx.Menu = { MenuId = 0x7CA5, TextId = 0xAD, PrevId = 0, NextId = 0x1054, BackId = 0x1054 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x89, ValId = 0x1000, Min=53, Max=85, Def=53, Val=7 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x89, ValId = 0x1000, Min=53, Max=85, Def=53, Val=7 }
         
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x7CA6) then
         --M[Id=0x7CA6 P=0x0 N=0x1021 B=0x1021 Text="FM Channel"[0x78]]
-        --L[#0 T=L_m1 VId=0x1000 Text="FM Channel"[0x78] val=7 N=(0->32,53,S=53) [53->85,53] MId=0x7CA6 ]
+        --L[#0 T=LM VId=0x1000 Text="FM Channel"[0x78] val=7 N=(0->32,53,S=53) [53->85,53] MId=0x7CA6 ]
 
         ctx.Menu = { MenuId = 0x7CA6, TextId = 0x78, PrevId = 0, NextId = 0x1021, BackId = 0x1021 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x78, ValId = 0x1000, Min=53, Max=85, Def=53, Val=7 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x78, ValId = 0x1000, Min=53, Max=85, Def=53, Val=7 }
         
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x7CA7) then
         --M[Id=0x7CA7 P=0x0 N=0x1055 B=0x1055 Text="FM Channel"[0x78]]
-        --L[#0 T=L_m1 VId=0x1000 Text="FM Channel"[0x78] val=7 N=(0->32,53,S=53) [53->85,53] MId=0x7CA6 ]
+        --L[#0 T=LM VId=0x1000 Text="FM Channel"[0x78] val=7 N=(0->32,53,S=53) [53->85,53] MId=0x7CA6 ]
 
         ctx.Menu = { MenuId = 0x7CA7, TextId = 0x78, PrevId = 0, NextId = 0x1055, BackId = 0x1055 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU1, TextId = 0x78, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x78, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
         
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -1081,15 +1081,15 @@ local function FC6250HX_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x1110) then
         --M[Id=0x1110 P=0x0 N=0x0 B=0x1100 Text="Roll"[0x40]]
-       --L[#0 T=V_i16 VId=0x1111 Text="@ per sec"[0xDC] val=270 [0->900,270] MId=0x1110 ]
-        --L[#1 T=V_NC VId=0x1112 Text="FLIGHT MODE"[0x8000] val=1 [0->5,0] MId=0x1110 ]
-       --L[#2 T=V_i8 VId=0x1113  Text="Proportional"[0x71] val=100 [0->255,100] MId=0x1110 ]
+        --L[#0 T=V_i16 VId=0x1111 Text="@ per sec"[0xDC] val=270 [0->900,270] MId=0x1110 ]
+        --L[#1 T=V_nc VId=0x1112 Text="FLIGHT MODE"[0x8000] val=1 [0->5,0] MId=0x1110 ]
+        --L[#2 T=V_i8 VId=0x1113  Text="Proportional"[0x71] val=100 [0->255,100] MId=0x1110 ]
         --L[#3 T=V_i8 VId=0x1114  Text="Integral"[0x72] val=100 [0->255,100] MId=0x1110 ]
         --L[#4 T=V_i8 VId=0x1115  Text="Derivate"[0x73] val=7 [0->255,7] MId=0x1110 ]
 
         ctx.Menu = { MenuId = 0x1110, TextId = 0x40, PrevId = 0, NextId = 0, BackId = 0x1100 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I16, TextId = 0xDC, ValId = 0x1111, Min=0, Max=900, Def=270, Val=270 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1112, Min=0, Max=5, Def=0, Val=1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8000, ValId = 0x1112, Min=0, Max=5, Def=0, Val=1 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1113, Min=0, Max=255, Def=100, Val=100 }
         ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x72, ValId = 0x1114, Min=0, Max=255, Def=100, Val=100 }
         ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x73, ValId = 0x1115, Min=0, Max=255, Def=7, Val=7 }
@@ -1101,7 +1101,7 @@ local function FC6250HX_loadMenu(menuId)
         --L[#0 T=V_i16 VId=0x1121 Text="@ per sec"[0xDC] Val=270 [0->900,270] MId=0x1120 ]
         --L[#1 T=V_i8 VId=0x1212 Text="Start"[0x92] Val=nil [5->200,25] MId=0x1200 ]
         --L[#2 T=V_i8 VId=0x1213 Text="Stop"[0xD8] Val=nil [5->200,25] MId=0x1200 ]
-        --L[#3 T=V_NC VId=0x1122 Text="                    FLIGHT MODE"[0x8000] Val=1 [0->5,0] MId=0x1120 ]
+        --L[#3 T=V_nc VId=0x1122 Text="                    FLIGHT MODE"[0x8000] Val=1 [0->5,0] MId=0x1120 ]
         --L[#4 T=V_i8 VId=0x1123 Text="Proportional"[0x71] Val=100 [0->255,100] MId=0x1120 ]
         --L[#5 T=V_i8 VId=0x1124 Text="Integral"[0x72] Val=100 [0->255,100] MId=0x1120 ]
         --L[#6 T=V_i8 VId=0x1125 Text="Derivate"[0x73] Val=14 [0->255,14] MId=0x1120 ]
@@ -1111,7 +1111,7 @@ local function FC6250HX_loadMenu(menuId)
         ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x92, ValId = 0x1123, Min=5, Max=200, Def=25, Val=25 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xD8, ValId = 0x1123, Min=5, Max=200, Def=26, Val=100 }
 
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1122, Min=0, Max=5, Def=0, Val=1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8000, ValId = 0x1122, Min=0, Max=5, Def=0, Val=1 }
 
         ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1123, Min=0, Max=255, Def=100, Val=100 }
         ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x72, ValId = 0x1124, Min=0, Max=255, Def=95, Val=95 }
@@ -1124,7 +1124,7 @@ local function FC6250HX_loadMenu(menuId)
         --L[#0 T=V_i16 VId=0x1211 Text="@ per sec"[0xDC] Val=550 [0->1280,550] MId=0x1200 ]
         --L[#1 T=V_i8 VId=0x1212 Text="Start"[0x92] Val=25 [5->200,25] MId=0x1200 ]
         --L[#2 T=V_i8 VId=0x1213 Text="Stop"[0xD8] Val=25 [5->200,25] MId=0x1200 ]
-        --L[#3 T=V_NC VId=0x1214 Text="                    FLIGHT MODE"[0x8000] Val=1 [0->5,0] MId=0x1200 ]
+        --L[#3 T=V_nc VId=0x1214 Text="                    FLIGHT MODE"[0x8000] Val=1 [0->5,0] MId=0x1200 ]
         --L[#4 T=V_i8 VId=0x1215 Text="Proportional"[0x71] Val=100 [0->255,100] MId=0x1200 ]
         --L[#5 T=V_i8 VId=0x1216 Text="Integral"[0x72] Val=95 [0->255,95] MId=0x1200 ]
         --L[#6 T=V_i8 VId=0x1217 Text="Derivate"[0x73] Val=45 [0->255,45] MId=0x1200 ]
@@ -1134,7 +1134,7 @@ local function FC6250HX_loadMenu(menuId)
         ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x92, ValId = 0x1212, Min=5, Max=200, Def=25, Val=25 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xD8, ValId = 0x1213, Min=5, Max=200, Def=26, Val=100 }
 
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1214, Min=0, Max=5, Def=0, Val=1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8000, ValId = 0x1214, Min=0, Max=5, Def=0, Val=1 }
 
         ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1215, Min=0, Max=255, Def=100, Val=100 }
         ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x72, ValId = 0x1216, Min=0, Max=255, Def=95, Val=95 }
@@ -1146,16 +1146,16 @@ local function FC6250HX_loadMenu(menuId)
         --M[Id=0x1300 P=0x0 N=0x0 B=0x1000 Text="Setup"[0xDE]]
         --L[#0 T=M VId=0x1310 Text="Swashplate"[0xD3] MId=0x1300 ]
         --L[#1 T=M VId=0x1360 Text="Tail rotor"[0xDD] MId=0x1300 ]
-        --L[#4 T=L_m0 VId=0x1701 Text="FM Channel"[0x78] val=1 NL=(0->8,1,S=12) [12->20,13] MId=0x1300 ]
-        --L[#5 T=L_m0 VId=0x1702 Text="Gain Channel"[0x89] val=0 NL=(0->8,1,S=12)] [12->20,13] MId=0x1300 ]
-        --L[#6 T=L_m0 VId=0x1703 Text="Output Channel 6"[0x56] val=1 NL=(0->12,0,S=53) [53->65,53] MId=0x1300 ]
+        --L[#4 T=LM_nc VId=0x1701 Text="FM Channel"[0x78] val=1 NL=(0->8,1,S=12) [12->20,13] MId=0x1300 ]
+        --L[#5 T=LM_nc VId=0x1702 Text="Gain Channel"[0x89] val=0 NL=(0->8,1,S=12)] [12->20,13] MId=0x1300 ]
+        --L[#6 T=LM_nc VId=0x1703 Text="Output Channel 6"[0x56] val=1 NL=(0->12,0,S=53) [53->65,53] MId=0x1300 ]
       
         ctx.Menu = { MenuId = 0x1300, TextId = 0xDE, PrevId = 0, NextId = 0, BackId = 0x1000 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xD3, ValId = 0x1310 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0xDD, ValId = 0x1360 }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x78, ValId = 0x1701, Min=12, Max=20, Def=13, Val=1 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x89, ValId = 0x1702, Min=12, Max=20, Def=13, Val=0  }
-        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU0, TextId = 0x56, ValId = 0x1702, Min=53, Max=65, Def=53, Val=1 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x78, ValId = 0x1701, Min=12, Max=20, Def=13, Val=1 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x89, ValId = 0x1702, Min=12, Max=20, Def=13, Val=0  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x56, ValId = 0x1702, Min=53, Max=65, Def=53, Val=1 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -1252,14 +1252,14 @@ local function FC6250HX_loadMenu(menuId)
        -- M[Id=0x1410 P=0x0 N=0x0 B=0x1400 Text="Stability"[0xDB]]
         --L[#0 T=V_i8 VId=0x1411 Text="Gain"[0x43] val=50 [5->200,50] MId=0x1410 ]
         --L[#1 T=V_i8 VId=0x1412 Text="Envelope"[0x1E7] val=45 [5->90,45] MId=0x1410 ]
-        --L[#3 T=V_NC VId=0x1413 Text="FLIGHT MODE"[0x8000] val=1 [0->5,0] MId=0x1410 ]
-        --L[#4 T=L_m2 VId=0x1414 Text="Stability"[0xDB] val=1 NL=(0->1,1,S=1) [1->2,1]  MId=0x1410 ]
+        --L[#3 T=V_nc VId=0x1413 Text="FLIGHT MODE"[0x8000] val=1 [0->5,0] MId=0x1410 ]
+        --L[#4 T=LM_tog VId=0x1414 Text="Stability"[0xDB] val=1 NL=(0->1,1,S=1) [1->2,1]  MId=0x1410 ]
     
         ctx.Menu = { MenuId = 0x1410, TextId = 0xDB, PrevId = 0, NextId = 0, BackId = 0x1400 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x43, ValId = 0x1411,    Min=0, Max=200, Def=50, Val=50 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x1E7, ValId = 0x1412,   Min=0, Max=90, Def=45, Val=45 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NOCHANGING, TextId = 0x8000, ValId = 0x1413, Min=0, Max=5, Def=0, Val=1 }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU2, TextId = 0xDB, ValId = 0x1414,      Min=1, Max=2, Def=1, Val=1 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8000, ValId = 0x1413, Min=0, Max=5, Def=0, Val=1 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_TOG, TextId = 0xDB, ValId = 0x1414,      Min=1, Max=2, Def=1, Val=1 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -1348,8 +1348,8 @@ local function loadMenu(menuId)
         --L[#1 T=M VId=0x105E val=nil [0->0,2] Text="Other settings" MId=0x1000 ]
 
         ctx.Menu = { MenuId = 0x1000, Text = "RX SIMULATION", PrevId = 0, NextId = 0, BackId = 0, TextId=0 }
-        ctx.MenuLines[0] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR631/AR637 (NEW)", ValId = 0x1001,TextId=0 }
-        ctx.MenuLines[1] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR631/AR637 (INITIALIZED)", ValId = 0x1002,  TextId=0 }
+        ctx.MenuLines[0] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR630/631/637 (NEW)", ValId = 0x1001,TextId=0 }
+        ctx.MenuLines[1] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR630/631/637 (INITIALIZED)", ValId = 0x1002,  TextId=0 }
         ctx.MenuLines[4] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "FC6250HX", ValId = 0x1005, TextId=0 }
         ctx.MenuLines[6] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "EXIT Sim to Real RX", ValId = 0xFFFF, TextId=0 }  -- Menu 0xFFFF to Exit Simulator 
 
@@ -1358,7 +1358,7 @@ local function loadMenu(menuId)
     elseif (menuId==0x1001) then
         RX_Initialized =  false
         ctx.RX.Id   =  dsmLib.RX.AR631
-        ctx.RX.Name = "AR631/AR637-SIM"
+        ctx.RX.Name = "AR630/631/637-SIM"
         ctx.RX.Version = "2.38.5"
         dsmLib.Init_Text(ctx.RX.Id)
         
@@ -1366,7 +1366,7 @@ local function loadMenu(menuId)
         RX_loadMenu(0x01000)
     elseif (menuId==0x1002) then
         ctx.RX.Id   =  dsmLib.RX.AR631
-        ctx.RX.Name = "AR631/637-SIM"
+        ctx.RX.Name = "AR630/631/637-SIM"
         ctx.RX.Version = "2.38.5"
         dsmLib.Init_Text(ctx.RX.Id)
 

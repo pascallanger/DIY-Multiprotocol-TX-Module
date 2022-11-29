@@ -33,6 +33,8 @@ else
   dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgLib.lua"),"Not-Found: DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
 end
 
+
+
 local PHASE = dsmLib.PHASE
 local LINE_TYPE = dsmLib.LINE_TYPE
 local DISP_ATTR   = dsmLib.DISP_ATTR
@@ -160,7 +162,6 @@ local function GUI_Display_Boxed_Text(lineNum,x,y,w,h,text,inv, isNumber)
     lcd.drawRectangle(x-5, y-2, w, h, frameColor)
   end
   if (isNumber) then
-    print("DRAW NUMBER")
     lcd.drawNumber(x+w-10 , y, text, txtColor + RIGHT)
   else
     lcd.drawText(x , y, text, txtColor) 

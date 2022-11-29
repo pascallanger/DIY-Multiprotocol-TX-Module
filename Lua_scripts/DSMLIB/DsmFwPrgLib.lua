@@ -41,19 +41,22 @@
 
 local DEBUG_ON = ... -- Get Debug_ON from parameters.  -- 0=NO DEBUG, 1=HIGH LEVEL 2=MORE DETAILS 
 local LIB_VERSION = "0.5"
+local FORCED_HACK = false
 
 
 local Lib = { Init_Text = function (rxId) end }
 
+--RX IDs--
 local RX = {
-    --RX names--
     AR636B = 0x0001,
     SPM4651T = 0x0014,
     AR637T = 0x0015,
     AR637TA = 0x0016,
     FC6250HX = 0x0018,
+    AR630   = 0x0019,
     AR8360T = 0x001A,
     AR631 = 0x001E
+    -- AR10360T
 }
 
 local PHASE = {
@@ -68,15 +71,16 @@ local PHASE = {
 
 local LINE_TYPE = {
     MENU = 0x1C,
-    LIST_MENU0 = 0x6C,  -- List:  For this, do not send changes as it happends in the screen, only at the END
-    LIST_MENU1 = 0x0C,  -- List:  TODO: Investigate why the Min/Max on some lines comes with a wide range (0..244) when non-contiguos values. example Valid (3,176,177)
-    LIST_MENU2 = 0x4C,  -- List:   Seems like a bolean menu, just 2 values 0->1  (off/on, ihn/Act)
-    VALUE_NOCHANGING = 0x60,  -- value not change in GUI, change internally at the receiver 
-    VALUE_PERCENT = 0xC0, -- 8 bit number, percent
-    VALUE_DEGREES  = 0xE0, -- Degress??
+    LIST_MENU = 0x0C,  -- List:  TODO: Investigate why the Min/Max on some lines comes with a wide range (0..244) when non-contiguos values. example Valid (3,176,177)
+    LIST_MENU_NC = 0x6C,  -- List:  No Incremental Change     
+    LIST_MENU_TOG = 0x4C,  -- List:   Seems like a bolean/Toggle menu, just 2 values 0->1  (off/on, ihn/Act)
+
+    VALUE_NUM_I8_NC = 0x60,  --  8 bit number, no incremental change
+    VALUE_PERCENT = 0xC0, -- 8 bit number, Signed, percent
+    VALUE_DEGREES  = 0xE0, -- 8 bit number, Signed, Degress
     VALUE_NUM_I8 = 0x40, -- 8 bit number
     VALUE_NUM_I16 = 0x41, -- 16 Bit number
-    VALUE_NUM_SI16 = 0xC1, -- Signed 16 bit number 
+    VALUE_NUM_SI16 = 0xC1, -- 16 bit number, Signed  
     LT_EMPTY = 0x00
 }
 
@@ -124,7 +128,6 @@ local logFile  = nil
 
 function DSM_Context.isEditing() return DSM_Context.EditLine~=nil end
 
-
 ------------------------------------------------------------------------------------------------------------
 local logCount=0
 local function LOG_open()  
@@ -170,7 +173,7 @@ local function isSelectableLine(line)   -- is the display line Selectable??
     if (line.Type == 0) then return false end -- Empty Line
     if (line.Type == LINE_TYPE.MENU and line.ValId == line.MenuId and bit32.band(line.TextAttr, DISP_ATTR.FORCED_MENU)==0) then return false end -- Menu that navigates to Itself?
     if (line.Min==0 and line.Max==0 and line.Def==0) then return false end -- Values with no Range are only for display 
-    if (line.Type == LINE_TYPE.VALUE_NOCHANGING and isFlightModeLine(line)) then return false end -- Flight mode is not Selectable
+    if (line.Type == LINE_TYPE.VALUE_NUM_I8_NC and isFlightModeLine(line)) then return false end -- Flight mode is not Selectable
     return true
 end
 
@@ -178,13 +181,13 @@ local function isEditableLine(line) -- is the display line editable??
     -- values who are not editable
     if (line.Type == 0 or line.Type == LINE_TYPE.MENU) then return false end -- Menus are not editable
     if (line.Min==0 and line.Max==0 and line.Def==0) then return false end -- Values with no Range are only for display 
-    if (line.Type == LINE_TYPE.VALUE_NOCHANGING and isFlightModeLine(line)) then return false end -- Flight mode is not Editable 
+    if (line.Type == LINE_TYPE.VALUE_NUM_I8_NC and isFlightModeLine(line)) then return false end -- Flight mode is not Editable 
     -- any other is Editable
     return true
 end
 
 local function isListLine(line)   -- is it a List of options??
-    if (line.Type == LINE_TYPE.LIST_MENU0 or line.Type == LINE_TYPE.LIST_MENU1 or line.Type == LINE_TYPE.LIST_MENU2) then return true end
+    if (line.Type == LINE_TYPE.LIST_MENU_NC or line.Type == LINE_TYPE.LIST_MENU or line.Type == LINE_TYPE.LIST_MENU_TOG) then return true end
     return false
 end
 
@@ -205,7 +208,7 @@ local function isNumberValueLine(line)     -- is it a number ??
 end
 
 local function isIncrementalValueUpdate(line)
-    if (line.Type == LINE_TYPE.LIST_MENU0 or line.Type == LINE_TYPE.VALUE_NOCHANGING) then return false end
+    if (line.Type == LINE_TYPE.LIST_MENU_NC or line.Type == LINE_TYPE.VALUE_NUM_I8_NC or line.Type == LINE_TYPE.VALUE_DEGREES) then return false end
     return true
 end
 
@@ -669,7 +672,7 @@ local function DSM_SelLine_HACK()
     -- Tested to work on the RX: AR631, AR637T, AR637TA
 
     local ctx = DSM_Context
-    if (ctx.RX.Id == RX.AR637T or ctx.RX.Id == RX.AR637TA or ctx.RX.Id == RX.AR631) then
+    if (FORCED_HACK or ctx.RX.Id == RX.AR637T or ctx.RX.Id == RX.AR637TA or ctx.RX.Id == RX.AR631 or ctx.RX.Id == RX.AR630) then
         -- AR631/AR637 Hack for "First time Setup" or "First Time AS3X Setup", use 0 instead of the ctx.SelLine
         if (ctx.Menu.MenuId == 0x104F  or ctx.Menu.MenuId==0x1055) then
             if (DEBUG_ON) then LOG_write("First time Setup Menu HACK: Overrideing LastSelectedLine to ZERO\n") end
@@ -677,11 +680,12 @@ local function DSM_SelLine_HACK()
             ctx.SelLine = 0
         end
         -- AR631/AR637 Hack for "Relearn Servo Settings", use 1 instead of the ctx.SelLine=0
-        if (ctx.Menu.MenuId == 0x1023) then
-            if (DEBUG_ON) then LOG_write("Relearn Servo Settings HACK: Overrideing LastSelectedLine to 1\n") end
-            if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
-            ctx.SelLine = 1
-        end
+        -- REMOVE THE FIX FOR NOW.. Locks the Servos
+        --if (false and ctx.Menu.MenuId == 0x1023) then  
+        --    if (DEBUG_ON) then LOG_write("Relearn Servo Settings HACK: Overrideing LastSelectedLine to 1\n") end
+        --    if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
+        --    ctx.SelLine = 1
+        --end
     end
 end
 
@@ -1055,17 +1059,17 @@ local function DSM_Init(toolName)
 
 
     -- Line Types
-    LineTypeText[LINE_TYPE.MENU]             = "M"
-    LineTypeText[LINE_TYPE.LIST_MENU0]       = "L_m0"
-    LineTypeText[LINE_TYPE.LIST_MENU1]       = "L_m1"
-    LineTypeText[LINE_TYPE.LIST_MENU2]       = "L_m2"
-    LineTypeText[LINE_TYPE.VALUE_NOCHANGING] = "V_NC"
-    LineTypeText[LINE_TYPE.VALUE_PERCENT]    = "V_%"
-    LineTypeText[LINE_TYPE.VALUE_DEGREES]     = "V_de"
-    LineTypeText[LINE_TYPE.VALUE_NUM_I8]     = "V_i8"
-    LineTypeText[LINE_TYPE.VALUE_NUM_I16]    = "V_i16"
-    LineTypeText[LINE_TYPE.VALUE_NUM_SI16]   = "V_s16"
-    LineTypeText[LINE_TYPE.LT_EMPTY]         = "Z"
+    LineTypeText[LINE_TYPE.MENU]            = "M"
+    LineTypeText[LINE_TYPE.LIST_MENU_NC]    = "LM_nc"
+    LineTypeText[LINE_TYPE.LIST_MENU]       = "LM"
+    LineTypeText[LINE_TYPE.LIST_MENU_TOG]   = "LM_tog"
+    LineTypeText[LINE_TYPE.VALUE_NUM_I8_NC] = "V_nc"
+    LineTypeText[LINE_TYPE.VALUE_PERCENT]   = "V_%"
+    LineTypeText[LINE_TYPE.VALUE_DEGREES]   = "V_de"
+    LineTypeText[LINE_TYPE.VALUE_NUM_I8]    = "V_i8"
+    LineTypeText[LINE_TYPE.VALUE_NUM_I16]   = "V_i16"
+    LineTypeText[LINE_TYPE.VALUE_NUM_SI16]  = "V_s16"
+    LineTypeText[LINE_TYPE.LT_EMPTY]        = "Z"
 
     --RX names--
     RxName[0x0001] = "AR636B"
@@ -1073,6 +1077,7 @@ local function DSM_Init(toolName)
     RxName[0x0015] = "AR637T"
     RxName[0x0016] = "AR637TA"
     RxName[0x0018] = "FC6250HX"
+    RxName[0x0019] = "AR630"
     RxName[0x001A] = "AR8360T"
     RxName[0x001E] = "AR631"
 end
@@ -1096,15 +1101,9 @@ local function DSM_Init_Text(rxId)
     -- usually is Ihnibit + range of contiguos values, but cant seems to find in the RX data receive the values 
     -- to do it automatically
 
-    -- On/Off List Options  (TODO: i think they are reversed??   0x0001 is OFF )
-    List_Text[0x0001] = "On (might be reversed, check)"
-    List_Text[0x0002] = "Off (might be reversed, check)"
-
-    if (rxId == RX.FC6250HX) then -- For sure in the Blade FC6250HX they are reversed, override 
-        List_Text[0x0001] = "Off"
-        List_Text[0x0002] = "On"
-    end
-
+    List_Text[0x0001] = "Off"
+    List_Text[0x0002] = "On"
+    
     -- Ihn/Act List Options
     List_Text[0x0003] = "Inh"
     List_Text[0x0004] = "Act"
@@ -1250,7 +1249,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00CA] = "SAFE/Panic Mode Setup"
     Text[0x00CD] = "Level model and capture attiude/M"; -- Different from List_Text , and force it to be a menu button
 
-    -- RX Orientations for AR631/AR637  (on the Heli Receiver is different, see below)
+    -- RX Orientations for AR631/AR637  
     -- Optionally attach an Image to display
     List_Text[0x00CB] = "RX Pos 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 
     List_Text[0x00CC] = "RX Pos 2";  List_Text_Img[0x00CC]  = "rx_pos_2.png|Pilot View: RX Label Left, Pins Back" 
@@ -1286,7 +1285,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00D3] = "Swashplate"
     Text[0x00D5] = "Agility"
     Text[0x00D8] = "Stop"
-    Text[0x00DA] = "SAFE"       
+    Text[0x00DA] = "SAFE/c/b"  --SubTitle
     Text[0x00DB] = "Stability"
     Text[0x00DC] = "Deg. per sec"
     Text[0x00DD] = "Tail rotor"

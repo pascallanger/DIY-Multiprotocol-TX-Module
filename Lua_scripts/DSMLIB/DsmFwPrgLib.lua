@@ -1103,7 +1103,7 @@ local function DSM_Init_Text(rxId)
 
     List_Text[0x0001] = "Off"
     List_Text[0x0002] = "On"
-    
+
     -- Ihn/Act List Options
     List_Text[0x0003] = "Inh"
     List_Text[0x0004] = "Act"

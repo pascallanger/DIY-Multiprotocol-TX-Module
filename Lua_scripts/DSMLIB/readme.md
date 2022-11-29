@@ -32,7 +32,6 @@ If you get `"Unable to Load menu lines"` when trying to navidate to a menu, coul
 I ran into a case where trying to set Aux2 or Aux3 for flight mode, but the RX was correcting it to Aux1.. the RX only was allowing Gear or Aux1 (AR631/AR637).
 This is because the RX don't know that we are using more than 6 channels. To make the RX aware that there are other channels, while edditing the channel, you have to toggle the switch to excersist the channel, and now the RX will recognize it.
 
-
 # Deployment
 
     /SCRIPTS/TOOLS/DsmFwdPrg_05_BW.lua      -- black/white text only radios

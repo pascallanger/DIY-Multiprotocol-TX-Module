@@ -477,6 +477,7 @@ local function AR631_loadMenu(menuId)
 
         ctx.Menu = { MenuId = 0x1029, TextId = 0xAD, PrevId = 0, NextId = 0, BackId = 0x1022  }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x1DC, ValId = 0x1029  }
+
         ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x40, ValId = 0x1000, Min=53, Max=85, Def=53, Val=0 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x41, ValId = 0x1001, Min=53, Max=85, Def=53, Val=0 }
         ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU, TextId = 0x42, ValId = 0x1002, Min=53, Max=85, Def=53, Val=0 }

@@ -158,7 +158,7 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   -- ONLY do this for Flight Mode (Right Align or Centered)
   if (dsmLib.isFlightModeLine(line)) then
        -- Display Header + Value together
-       header = dsmLib.GetFlightModeValue(line.TextId,header,value)
+       header = dsmLib.GetFlightModeValue(line)
 
       -- Flight mode display attributes
       if (TEXT_SIZE~=SMLSIZE) then -- ignore bold on small size screens

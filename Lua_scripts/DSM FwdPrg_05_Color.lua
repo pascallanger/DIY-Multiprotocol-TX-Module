@@ -64,7 +64,8 @@ local LCD_Y_LINE_HEIGHT      = (DEBUG_ON_LCD and 23)  or 27   -- if DEBUG 23 els
 
 local LCD_Y_LOWER_BUTTONS    = LCD_Y_LINE_START + 3 + (7 * LCD_Y_LINE_HEIGHT)
 
-
+-- TOOL BG COLOR
+local LCD_TOOL_BGCOLOR        = TEXT_BGCOLOR
 -- TOOL HEADER 
 local LCD_TOOL_HDR_COLOR      = MENU_TITLE_COLOR
 local LCD_TOOL_HDR_BGCOLOR    = TITLE_BGCOLOR
@@ -214,7 +215,7 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   -- ONLY do this for Flight Mode (Right Align or Centered)
   if (dsmLib.isFlightModeLine(line)) then
       -- Display Header + Value together
-      header = dsmLib.GetFlightModeValue(line.TextId,header,value)
+      header = dsmLib.GetFlightModeValue(line)
 
       -- Bold Text???
       bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0
@@ -347,7 +348,7 @@ end
 ------------------------------------------------------------------------------------------------------------
 local function GUI_Display()
   local ctx = DSM_Context
-  lcd.clear()
+  lcd.clear(LCD_TOOL_BGCOLOR)
   GUI_clearTouchButtons()
  
   if LCD_W == 480 then
@@ -579,9 +580,10 @@ local function init_colors()
 
   if (IS_EDGETX and USE_SPECKTRUM_COLORS) then
       -- SPECKTRUM COLORS (only works on EDGETX)
+      LCD_TOOL_BGCOLOR        = LIGHTWHITE
       -- TOOL HEADER 
-      LCD_TOOL_HDR_COLOR      = MENU_TITLE_COLOR
-      LCD_TOOL_HDR_BGCOLOR    = TITLE_BGCOLOR
+      LCD_TOOL_HDR_COLOR      = WHITE
+      LCD_TOOL_HDR_BGCOLOR    = DARKBLUE
       -- MENU HEADER
       LCD_MENU_COLOR          = WHITE
       LCD_MENU_BGCOLOR        = DARKGREY

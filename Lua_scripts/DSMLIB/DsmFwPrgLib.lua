@@ -48,16 +48,18 @@ local Lib = { Init_Text = function (rxId) end }
 
 --RX IDs--
 local RX = {
-    AR636B = 0x0001,
+    AR636B   = 0x0001,
     SPM4651T = 0x0014,
-    AR637T = 0x0015,
-    AR637TA = 0x0016,
+    AR637T   = 0x0015,
+    AR637TA  = 0x0016,
     FC6250HX = 0x0018,
-    AR630   = 0x0019,
-    AR8360T = 0x001A,
-    AR631 = 0x001E
-    -- AR10360T
+    AR630    = 0x0019,
+    AR8360T  = 0x001A,
+    AR10360T = 0x001C,
+    AR631    = 0x001E
 }
+
+local RX_HACK_TESTED   = { RX.AR630, RX.AR631, RX.AR637T, RX.AR637TA, RX.AR8360T, RX.AR10360T }
 
 local PHASE = {
     RX_VERSION = 0,
@@ -665,6 +667,14 @@ end
 
 -----------------------------------------------------------------------------------------------------------
 
+local function DSM_RX_Match(RxId, List)
+    for i = 1, #List do
+        if List[i] == RxId then return true end
+    end
+    return false
+end
+    
+
 local function DSM_SelLine_HACK()
     -- This hack was to be able to access some menus, that with using the default ctx.SelLine as it was,
     -- the menu start returning weird 0x05 Unknow lines, by overriding the ctx.SelLine to Zero or other value
@@ -672,21 +682,23 @@ local function DSM_SelLine_HACK()
     -- Tested to work on the RX: AR631, AR637T, AR637TA
 
     local ctx = DSM_Context
-    if (FORCED_HACK or ctx.RX.Id == RX.AR637T or ctx.RX.Id == RX.AR637TA or ctx.RX.Id == RX.AR631 or ctx.RX.Id == RX.AR630) then
-        -- AR631/AR637 Hack for "First time Setup" or "First Time AS3X Setup", use 0 instead of the ctx.SelLine
-        if (ctx.Menu.MenuId == 0x104F  or ctx.Menu.MenuId==0x1055) then
+        -- AR631/AR637 Family: Hack for "First time Setup" or "First Time AS3X Setup", use 0 instead of the ctx.SelLine
+        if (ctx.Menu.MenuId == 0x104F or ctx.Menu.MenuId==0x1055) and 
+           (FORCED_HACK or DSM_RX_Match(ctx.RX.Id,RX_HACK_TESTED)) then
             if (DEBUG_ON) then LOG_write("First time Setup Menu HACK: Overrideing LastSelectedLine to ZERO\n") end
             if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
             ctx.SelLine = 0
         end
+
+
         -- AR631/AR637 Hack for "Relearn Servo Settings", use 1 instead of the ctx.SelLine=0
         -- REMOVE THE FIX FOR NOW.. Locks the Servos
-        --if (false and ctx.Menu.MenuId == 0x1023) then  
+        --if (ctx.Menu.MenuId == 0x1023 and 
+        --   (FORCED_HACK or DSM_RX_Match(ctx.RX.Id,RX_HACK_TESTED))) then  
         --    if (DEBUG_ON) then LOG_write("Relearn Servo Settings HACK: Overrideing LastSelectedLine to 1\n") end
         --    if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
         --    ctx.SelLine = 1
         --end
-    end
 end
 
 local function DSM_sendRequest()  
@@ -1072,14 +1084,16 @@ local function DSM_Init(toolName)
     LineTypeText[LINE_TYPE.LT_EMPTY]        = "Z"
 
     --RX names--
-    RxName[0x0001] = "AR636B"
-    RxName[0x0014] = "SPM4651T"
-    RxName[0x0015] = "AR637T"
-    RxName[0x0016] = "AR637TA"
-    RxName[0x0018] = "FC6250HX"
-    RxName[0x0019] = "AR630"
-    RxName[0x001A] = "AR8360T"
-    RxName[0x001E] = "AR631"
+    RxName[RX.AR636B]   = "AR636B"
+    RxName[RX.SPM4651T] = "SPM4651T"
+    RxName[RX.AR637T]   = "AR637T"
+    RxName[RX.AR637TA]  = "AR637TA"
+    RxName[RX.FC6250HX] = "FC6250HX"
+    RxName[RX.AR630]    = "AR630"
+    RxName[RX.AR8360T]  = "AR8360T"
+    RxName[RX.AR10360T] = "AR10360T"
+    RxName[RX.AR631]    = "AR631"
+
 end
 
 local function DSM_Init_Text(rxId)
@@ -1219,7 +1233,7 @@ local function DSM_Init_Text(rxId)
     Text[0x009A] = "Capture Failsafe Positions"
     Text[0x009C] = "Custom Failsafe"
 
-    Text[0x009F] = "Save & Reset RX"  -- TODO: Find the Proper Spektrum Value ??
+    Text[0x009F] = "Save Settings"
 
     Text[0x00A5] = "First Time Setup"
     Text[0x00AA] = "Capture Gyro Gains"
@@ -1251,33 +1265,33 @@ local function DSM_Init_Text(rxId)
 
     -- RX Orientations for AR631/AR637  
     -- Optionally attach an Image to display
-    List_Text[0x00CB] = "RX Pos 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 
-    List_Text[0x00CC] = "RX Pos 2";  List_Text_Img[0x00CC]  = "rx_pos_2.png|Pilot View: RX Label Left, Pins Back" 
-    List_Text[0x00CD] = "RX Pos 3";  List_Text_Img[0x00CD]  = "rx_pos_3.png|Pilot View: RX Label Down, Pins Back" 
-    List_Text[0x00CE] = "RX Pos 4";  List_Text_Img[0x00CE]  = "rx_pos_4.png|Pilot View: RX Label Right, Pins Back" 
-    List_Text[0x00CF] = "RX Pos 5";  List_Text_Img[0x00CF]  = "rx_pos_5.png|Pilot View: RX Label UP, Pins to Front" 
-    List_Text[0x00D0] = "RX Pos 6";  List_Text_Img[0x00D0]  = "rx_pos_6.png|Pilot View: RX Label Left, Pins Front" 
-    List_Text[0x00D1] = "RX Pos 7";  List_Text_Img[0x00D1]  = "rx_pos_7.png|Pilot View: RX Label Down, Pins Front" 
-    List_Text[0x00D2] = "RX Pos 8";  List_Text_Img[0x00D2]  = "rx_pos_8.png|Pilot View: RX Label Right, Pins Front" 
-    List_Text[0x00D3] = "RX Pos 9";  List_Text_Img[0x00D3]  = "rx_pos_9.png|Pilot View: RX Label Up, Pins Left" 
-    List_Text[0x00D4] = "RX Pos 10"; List_Text_Img[0x00D4]  = "rx_pos_10.png|Pilot View: RX Label Back, Pins Left" 
-    List_Text[0x00D5] = "RX Pos 11"; List_Text_Img[0x00D5]  = "rx_pos_11.png|Pilot View: RX Label Down, Pins Left" 
-    List_Text[0x00D6] = "RX Pos 12"; List_Text_Img[0x00D6]  = "rx_pos_12.png|Pilot View: RX Label Front, Pins Left" 
-    List_Text[0x00D7] = "RX Pos 13"; List_Text_Img[0x00D7]  = "rx_pos_13.png|Pilot View: RX Label Up, Pins Right" 
-    List_Text[0x00D8] = "RX Pos 14"; List_Text_Img[0x00D8]  = "rx_pos_14.png|Pilot View: RX Label Back, Pins Right" 
-    List_Text[0x00D9] = "RX Pos 15"; List_Text_Img[0x00D9]  = "rx_pos_15.png|Pilot View: RX Label Down, Pins Right" 
-    List_Text[0x00DA] = "RX Pos 16"; List_Text_Img[0x00DA]  = "rx_pos_16.png|Pilot View: RX Label Front, Pins Right" 
-    List_Text[0x00DB] = "RX Pos 17"; List_Text_Img[0x00DB]  = "rx_pos_17.png|Pilot View: RX Label Back, Pins Down" 
-    List_Text[0x00DC] = "RX Pos 18"; List_Text_Img[0x00DC]  = "rx_pos_18.png|Pilot View: RX Label Left, Pins Down" 
-    List_Text[0x00DD] = "RX Pos 19"; List_Text_Img[0x00DD]  = "rx_pos_19.png|Pilot View: RX Label Front, Pins Down" 
-    List_Text[0x00DE] = "RX Pos 20"; List_Text_Img[0x00DE]  = "rx_pos_20.png|Pilot View: RX Label Right, Pins Down" 
-    List_Text[0x00DF] = "RX Pos 21"; List_Text_Img[0x00DF]  = "rx_pos_21.png|Pilot View: RX Label Back, Pins Up" 
-    List_Text[0x00E0] = "RX Pos 22"; List_Text_Img[0x00E0]  = "rx_pos_22.png|Pilot View: RX Label Left, Pins Up" 
-    List_Text[0x00E1] = "RX Pos 23"; List_Text_Img[0x00E1]  = "rx_pos_23.png|Pilot View: RX Label Front, Pins Up" 
-    List_Text[0x00E2] = "RX Pos 24"; List_Text_Img[0x00E2]  = "rx_pos_24.png|Pilot View: RX Label Right, Pins Up" 
-    List_Text[0x00E3] = "RX Pos Invalid";  List_Text_Img[0x00E3]  = "rx_pos_25.png|Cannot detect orientation of RX" 
+    List_Text[0x00CB] = "Position 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 
+    List_Text[0x00CC] = "Position 2";  List_Text_Img[0x00CC]  = "rx_pos_2.png|Pilot View: RX Label Left, Pins Back" 
+    List_Text[0x00CD] = "Position 3";  List_Text_Img[0x00CD]  = "rx_pos_3.png|Pilot View: RX Label Down, Pins Back" 
+    List_Text[0x00CE] = "Position 4";  List_Text_Img[0x00CE]  = "rx_pos_4.png|Pilot View: RX Label Right, Pins Back" 
+    List_Text[0x00CF] = "Position 5";  List_Text_Img[0x00CF]  = "rx_pos_5.png|Pilot View: RX Label UP, Pins to Front" 
+    List_Text[0x00D0] = "Position 6";  List_Text_Img[0x00D0]  = "rx_pos_6.png|Pilot View: RX Label Left, Pins Front" 
+    List_Text[0x00D1] = "Position 7";  List_Text_Img[0x00D1]  = "rx_pos_7.png|Pilot View: RX Label Down, Pins Front" 
+    List_Text[0x00D2] = "Position 8";  List_Text_Img[0x00D2]  = "rx_pos_8.png|Pilot View: RX Label Right, Pins Front" 
+    List_Text[0x00D3] = "Position 9";  List_Text_Img[0x00D3]  = "rx_pos_9.png|Pilot View: RX Label Up, Pins Left" 
+    List_Text[0x00D4] = "Position 10"; List_Text_Img[0x00D4]  = "rx_pos_10.png|Pilot View: RX Label Back, Pins Left" 
+    List_Text[0x00D5] = "Position 11"; List_Text_Img[0x00D5]  = "rx_pos_11.png|Pilot View: RX Label Down, Pins Left" 
+    List_Text[0x00D6] = "Position 12"; List_Text_Img[0x00D6]  = "rx_pos_12.png|Pilot View: RX Label Front, Pins Left" 
+    List_Text[0x00D7] = "Position 13"; List_Text_Img[0x00D7]  = "rx_pos_13.png|Pilot View: RX Label Up, Pins Right" 
+    List_Text[0x00D8] = "Position 14"; List_Text_Img[0x00D8]  = "rx_pos_14.png|Pilot View: RX Label Back, Pins Right" 
+    List_Text[0x00D9] = "Position 15"; List_Text_Img[0x00D9]  = "rx_pos_15.png|Pilot View: RX Label Down, Pins Right" 
+    List_Text[0x00DA] = "Position 16"; List_Text_Img[0x00DA]  = "rx_pos_16.png|Pilot View: RX Label Front, Pins Right" 
+    List_Text[0x00DB] = "Position 17"; List_Text_Img[0x00DB]  = "rx_pos_17.png|Pilot View: RX Label Back, Pins Down" 
+    List_Text[0x00DC] = "Position 18"; List_Text_Img[0x00DC]  = "rx_pos_18.png|Pilot View: RX Label Left, Pins Down" 
+    List_Text[0x00DD] = "Position 19"; List_Text_Img[0x00DD]  = "rx_pos_19.png|Pilot View: RX Label Front, Pins Down" 
+    List_Text[0x00DE] = "Position 20"; List_Text_Img[0x00DE]  = "rx_pos_20.png|Pilot View: RX Label Right, Pins Down" 
+    List_Text[0x00DF] = "Position 21"; List_Text_Img[0x00DF]  = "rx_pos_21.png|Pilot View: RX Label Back, Pins Up" 
+    List_Text[0x00E0] = "Position 22"; List_Text_Img[0x00E0]  = "rx_pos_22.png|Pilot View: RX Label Left, Pins Up" 
+    List_Text[0x00E1] = "Position 23"; List_Text_Img[0x00E1]  = "rx_pos_23.png|Pilot View: RX Label Front, Pins Up" 
+    List_Text[0x00E2] = "Position 24"; List_Text_Img[0x00E2]  = "rx_pos_24.png|Pilot View: RX Label Right, Pins Up" 
+    List_Text[0x00E3] = "Position Invalid";  List_Text_Img[0x00E3]  = "rx_pos_25.png|Cannot detect orientation of RX" 
 
-    Text[0x00D1] = "Unknown_D1"   -- TODO: Find the Spektrum Value  (Orientation Save&Reset final page  AR631) 
+    Text[0x00D1] = "Receiver will Reboot/b" 
     --FC6250HX
     Text[0x00D2] = "Panic Channel" 
     if (rxId ~= RX.FC6250HX) then List_Values[0x00D2]=channelValues end --FC6250HX uses other range
@@ -1449,10 +1463,13 @@ local function DSM_Init_Text(rxId)
 end
 
 -- Adjust the displayed value for Flight mode as needed
-local function GetFlightModeValue(textId, header, value)
+local function GetFlightModeValue(line)
+    local value = line.Val 
+    local textId = line.TextId
+    local header = line.Text 
     local out = value
 
-    if (textId == 0x8000) then
+    if (textId == 0x8000) then  -- FC6250HX
         if (DSM_Context.RX.Id == RX.FC6250HX) then
             -- Helicopter Flights modes 
             if (value==1) then out = header .. "  1 / Normal" 

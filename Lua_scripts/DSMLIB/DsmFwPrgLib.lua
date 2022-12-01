@@ -684,6 +684,7 @@ local function DSM_SelLine_HACK()
     -- Tested to work on the RX: AR631, AR637T, AR637TA
 
     local ctx = DSM_Context
+    
     -- AR631/AR637 Family: Hack for "First time Setup" or "First Time AS3X Setup", use 0 instead of the ctx.SelLine
     if (ctx.Menu.MenuId == 0x104F or ctx.Menu.MenuId==0x1055) and 
         (FORCED_HACK or DSM_RX_Match(ctx.RX.Id,RX_HACK_TESTED)) then
@@ -691,7 +692,6 @@ local function DSM_SelLine_HACK()
         if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
         ctx.SelLine = 0
     end
-
 
     -- AR631/AR637 Hack for "Relearn Servo Settings", use 1 instead of the ctx.SelLine=0
     -- REMOVE THE FIX FOR NOW.. Locks the Servos
@@ -1260,6 +1260,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00C8] = "Complete" -- FC6250HX calibration complete 
     Text[0x00CA] = "SAFE/Panic Mode Setup"
     Text[0x00CD] = "Level model and capture attiude/M"; -- Different from List_Text , and force it to be a menu button
+
 
     -- RX Orientations for AR631/AR637, Optionally attach an Image + Alt Text to display
     List_Text[0x00CB] = "Position 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 

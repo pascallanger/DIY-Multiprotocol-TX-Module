@@ -102,6 +102,8 @@ local function AR631_loadMenu(menuId)
         -- L[#1 T=M VId=0x1019 Text="SAFE Settings"[0x1E2]  MId=0x1010 ]
         -- L[#2 T=M VId=0x1021 Text="F-Mode Setup"[0x87]    MId=0x1010 ]
         -- L[#3 T=M VId=0x1022 Text="System Setup"[0x86]    MId=0x1010 ]
+        -- Only on BNF locked receivers 
+        -- L[#4 T=M VId=0x105C Text="SAFE Select "[0x1F9]   MId=0x1010 ]
 
 
         ctx.Menu = { MenuId = 0x1010, TextId = 0x00F9, PrevId = 0, NextId = 0, BackId = 0x1000 }
@@ -114,6 +116,7 @@ local function AR631_loadMenu(menuId)
             ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x01E2, ValId = 0x1019 }
             ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x0087, ValId = 0x1021 }
             ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x0086, ValId = 0x1022 }
+            ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x01F9, ValId = 0x105C }
             ctx.SelLine = 0
         end
         lastGoodMenu = menuId
@@ -646,23 +649,6 @@ local function AR631_loadMenu(menuId)
         ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_DEGREES, TextId = 0x1F4, ValId = 0x1006, Min=-45, Max=45, Def=0, Val=0 }
 
         ctx.SelLine = 2
-        lastGoodMenu = menuId
-    elseif (menuId==0x1051) then 
-        --M[Id=0x1051 P=0x0 N=0x0 B=0x1010 Text="First Time Setup"]
-        --L[#0 T=M VId=0x1051 Text="Set the model level," MId=0x1051 ]
-        --L[#1 T=M VId=0x1051 Text="and press Continue." MId=0x1051 ]
-        --L[#2 T=M VId=0x1051 Text="" MId=0x1051 ]
-        --L[#5 T=M VId=0x1052 Text="Continue" MId=0x1051 ]
-        --L[#6 T=M VId=0x1053 Text="Set Orientation Manually" MId=0x1051 ]
-
-        ctx.Menu = { MenuId = 0x1051, TextId = 0x00F9, PrevId = 0, NextId = 0, BackId = 0x1010 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x021A, ValId = 0x1051 }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x021B, ValId = 0x1051 }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x021C, ValId = 0x1051 }
-        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0x0224, ValId = 0x1052 }
-        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x0229, ValId = 0x1053 }
-
-        ctx.SelLine = 5
         lastGoodMenu = menuId
     elseif (menuId==0x104F) then
         --M[Id=0x104F P=0x0 N=0x1050 B=0x1010 Text="First Time Setup"]

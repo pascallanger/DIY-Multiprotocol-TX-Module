@@ -65,7 +65,7 @@ local PHASE = {
     RX_VERSION = 0,
     WAIT_CMD = 1,
     MENU_TITLE = 2,
-    MENU_UNKNOWN_LINES = 3,
+    MENU_REQ_TX_INFO = 3,
     MENU_LINES = 4, MENU_VALUES = 5,
     VALUE_CHANGING = 6, VALUE_CHANGING_WAIT = 7, VALUE_CHANGE_END = 8,
     EXIT = 9, EXIT_DONE = 10
@@ -657,12 +657,14 @@ end
 
 local function DSM_validateMenuValue(valId, text, line)
     if (DEBUG_ON) then LOG_write("SEND DSM_validateMenuValue(ValueId=0x%X) Extra: Text=\"%s\" Value=%s\n", valId, text, lineValue2String(line)) end
-    DSM_send(0x19, 0x06, int16_MSB(valId), int16_LSB(valId)) -- validate
+    DSM_send(0x19, 0x06, int16_MSB(valId), int16_LSB(valId)) 
+    -- Pascal: i think the 2nd byte is the leghts of the entire message in bytes, so instead of 0x06, should be 0x04 for here.. work both ways
 end
 
 local function DSM_menuValueChangingWait(valId, text, line)
     if (DEBUG_ON) then LOG_write("SEND DSM_menuValueChangingWait(ValueId=0x%X) Extra: Text=\"%s\"  Value=%s\n", valId, text, lineValue2String(line)) end
     DSM_send(0x1A, 0x06, int16_MSB(valId), int16_LSB(valId))
+     -- Pascal: i think the 2nd byte is the leghts of the entire message in bytes, so instead of 0x06, should be 0x04 for here.. work both ways
 end
 
 -----------------------------------------------------------------------------------------------------------
@@ -682,23 +684,23 @@ local function DSM_SelLine_HACK()
     -- Tested to work on the RX: AR631, AR637T, AR637TA
 
     local ctx = DSM_Context
-        -- AR631/AR637 Family: Hack for "First time Setup" or "First Time AS3X Setup", use 0 instead of the ctx.SelLine
-        if (ctx.Menu.MenuId == 0x104F or ctx.Menu.MenuId==0x1055) and 
-           (FORCED_HACK or DSM_RX_Match(ctx.RX.Id,RX_HACK_TESTED)) then
-            if (DEBUG_ON) then LOG_write("First time Setup Menu HACK: Overrideing LastSelectedLine to ZERO\n") end
-            if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
-            ctx.SelLine = 0
-        end
+    -- AR631/AR637 Family: Hack for "First time Setup" or "First Time AS3X Setup", use 0 instead of the ctx.SelLine
+    if (ctx.Menu.MenuId == 0x104F or ctx.Menu.MenuId==0x1055) and 
+        (FORCED_HACK or DSM_RX_Match(ctx.RX.Id,RX_HACK_TESTED)) then
+        if (DEBUG_ON) then LOG_write("First time Setup Menu HACK: Overrideing LastSelectedLine to ZERO\n") end
+        if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
+        ctx.SelLine = 0
+    end
 
 
-        -- AR631/AR637 Hack for "Relearn Servo Settings", use 1 instead of the ctx.SelLine=0
-        -- REMOVE THE FIX FOR NOW.. Locks the Servos
-        --if (ctx.Menu.MenuId == 0x1023 and 
-        --   (FORCED_HACK or DSM_RX_Match(ctx.RX.Id,RX_HACK_TESTED))) then  
-        --    if (DEBUG_ON) then LOG_write("Relearn Servo Settings HACK: Overrideing LastSelectedLine to 1\n") end
-        --    if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
-        --    ctx.SelLine = 1
-        --end
+    -- AR631/AR637 Hack for "Relearn Servo Settings", use 1 instead of the ctx.SelLine=0
+    -- REMOVE THE FIX FOR NOW.. Locks the Servos
+    --if (ctx.Menu.MenuId == 0x1023 and 
+    --   (FORCED_HACK or DSM_RX_Match(ctx.RX.Id,RX_HACK_TESTED))) then  
+    --    if (DEBUG_ON) then LOG_write("Relearn Servo Settings HACK: Overrideing LastSelectedLine to 1\n") end
+    --    if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
+    --    ctx.SelLine = 1
+    --end
 end
 
 local function DSM_sendRequest()  
@@ -729,11 +731,14 @@ local function DSM_sendRequest()
             end
         end
 
-    elseif ctx.Phase == PHASE.MENU_UNKNOWN_LINES then -- Still trying to figure out what are this menu lines are for 
+    elseif ctx.Phase == PHASE.MENU_REQ_TX_INFO then 
+        -- Guessing: Trying to Request TX info: Model Type, Wing Type, Tail (normal/V), Aileron Sevos (1/2), etc
         local curLine = ctx.CurLine
-        if (DEBUG_ON) then LOG_write("CALL DSM_getNextUknownLine_0x05(LastLine=%s)\n", curLine) end
-        local last_byte = { 0x40, 0x01, 0x02, 0x04, 0x00, 0x00 } -- unknown...
+        if (DEBUG_ON) then LOG_write("CALL DSM_getNextUknownLine_0x05: LastLine=%s ", curLine) end
+        local last_byte = { 0x40, 0x01, 0x02, 0x04, 0x00, 0x00 } -- unknown.
         DSM_send(0x20, 0x06, curLine, curLine, 0x00, last_byte[curLine + 1]) -- line X
+        if (DEBUG_ON) then LOG_write("DATA=TX: 20 06 %02X %02X %02X %02X\n", curLine, curLine, 0, last_byte[curLine + 1]) end
+
 
     elseif ctx.Phase == PHASE.MENU_LINES then -- request next menu lines
         if ctx.CurLine == -1 then -- No previous menu line loaded ?
@@ -952,7 +957,7 @@ local function DSM_processResponse()
         DSM_parseMenuValue()
         ctx.Phase = PHASE.MENU_VALUES
 
-    elseif cmd == 0x05 then -- unknown... need to get through the lines...
+    elseif cmd == 0x05 then -- unknown... I think is trying to request info about TX (Wing type, etc)
         -- 0x09 0x05 0x01   0x01 0x00   0x00 0x00 0x00 0x07
         --           Line   MenuId                   ????
         local curLine = multiBuffer(12)
@@ -967,7 +972,7 @@ local function DSM_processResponse()
         end -- Got the next line.. keep requesting more
             
         ctx.CurLine = curLine
-        ctx.Phase = PHASE.MENU_UNKNOWN_LINES
+        ctx.Phase = PHASE.MENU_REQ_TX_INFO
 
     elseif cmd == 0xA7 then -- answer to EXIT command
         if (DEBUG_ON) then LOG_write("RESPONSE Exit Confirm\n") end
@@ -1060,7 +1065,7 @@ local function DSM_Init(toolName)
     PhaseText[PHASE.RX_VERSION]          = "RX_VERSION"
     PhaseText[PHASE.WAIT_CMD]            = "WAIT_CMD"
     PhaseText[PHASE.MENU_TITLE]          = "MENU_TITLE"
-    PhaseText[PHASE.MENU_UNKNOWN_LINES]  = "MENU_UNKNOWN_LINES"
+    PhaseText[PHASE.MENU_REQ_TX_INFO]    = "MENU_REQ_TX_INFO"
     PhaseText[PHASE.MENU_LINES]          = "MENU_LINES"
     PhaseText[PHASE.MENU_VALUES]         = "MENU_VALUES"
     PhaseText[PHASE.VALUE_CHANGING]      = "VALUE_CHANGING"
@@ -1124,8 +1129,8 @@ local function DSM_Init_Text(rxId)
 
     -- Channel selection for SAFE MODE and GAINS on  FC6250HX
     List_Text[0x000C] = "Inhibit?" --?
-    List_Text[0x000D] = "Gear"
-    for i = 1, 7 do List_Text[0x000D + i] = "Aux" .. i end -- Aux channels
+    List_Text[0x000D] = "Ch5 (Gear)"
+    for i = 1, 7 do List_Text[0x000D + i] = "Ch"..(i+5) .. " (Aux" .. i .. ")" end -- Aux channels
 
     -- Servo Output values.. 
     local servoOutputValues =  {0x0003,0x002D,0x002E,0x002F}  --Inh (GAP), 5.5ms, 11ms, 22ms. Fixing L_m1 with 0..244 range!
@@ -1144,16 +1149,16 @@ local function DSM_Init_Text(rxId)
     -- Valid Values: Inhibit? (GAP), Gear,Aux1..Aux7,X-Plus-1..XPlus-8
     local channelValues = {0x0035,0x003A,0x003B,0x003C,0x003D,0x003E,0x003F,0x0040,0x0041,0x0042,0x0043,0x0044,0x0045,0x0046,0x0047,0x0048,0x0049} 
     
-    List_Text[0x0035] = "Inhibit?" --?
+    List_Text[0x0035] = "Inhibit?" 
     List_Text[0x0036] = "Throttle"
     List_Text[0x0037] = "Aileron"
     List_Text[0x0038] = "Elevator"
     List_Text[0x0039] = "Rudder"
-    List_Text[0x003A] = "Gear"
-    for i = 1, 7 do List_Text[0x003A + i] = "Aux" .. i end -- Aux channels on AR637T
+    List_Text[0x003A] = "Ch5 (Gear)"
+    for i = 1, 7 do List_Text[0x003A + i] = "Ch"..(i+5) .. " (Aux" .. i .. ")" end -- Aux channels on AR637T
 
-    for i = 1, 8 do -- 41..49  on AR637T  -- This don't seem OK
-        List_Text[0x0041 + i] = "XPlus-" .. i
+    for i = 1, 8 do -- 41..49
+        List_Text[0x0041 + i] = "Ch"..(i+13) .." (XPlus-" .. i .. ")"
     end
 
     -- ****No longer overrides of previous XPlus values, since using different array
@@ -1215,7 +1220,8 @@ local function DSM_Init_Text(rxId)
     -- Gain  channel selection
     Text[0x0089] = "Gain Channel"
     if (rxId ~= RX.FC6250HX) then List_Values[0x0089]=channelValues end --FC6250HX uses other range
-    -- Gain Sensitivity 
+
+    -- Gain Sensitivity selection
     Text[0x008A] = "Gain Sensitivity/r";  List_Values[0x008A]=gainValues  -- Right Alight, (L_M1 was wide open range 0->244)
 
     Text[0x008B] = "Panic"
@@ -1233,28 +1239,20 @@ local function DSM_Init_Text(rxId)
     Text[0x009A] = "Capture Failsafe Positions"
     Text[0x009C] = "Custom Failsafe"
 
-    Text[0x009F] = "Save Settings"
+    Text[0x009F] = "Save Settings " -- Save & Reboot RX 
 
     Text[0x00A5] = "First Time Setup"
     Text[0x00AA] = "Capture Gyro Gains"
     Text[0x00AD] = "Gain Channel Select"
 
-    -- Safe mode options, Ihnibit + thi values 
+    -- Safe mode options, Ihnibit + this values 
     local safeModeOptions = {0x0003,0x00B0,0x00B1}  -- inh (gap), "Self-Level/Angle Dem, Envelope
     List_Text[0x00B0] = "Self-Level/Angle Dem"
     List_Text[0x00B1] = "Envelope"
 
+    -- Flight Modes List Options 
     List_Text[0x00B5] = "Inhibit"
-    List_Text[0x00B6] = "FM1"
-    List_Text[0x00B7] = "FM2"
-    List_Text[0x00B8] = "FM3"
-    List_Text[0x00B9] = "FM4"
-    List_Text[0x00BA] = "FM5"
-    List_Text[0x00BB] = "FM6"
-    List_Text[0x00BC] = "FM7"
-    List_Text[0x00BD] = "FM8"
-    List_Text[0x00BE] = "FM9"
-    List_Text[0x00BF] = "FM10"
+    for i = 1, 10 do List_Text[0x00B5 + i] = "Flight Mode " .. i end
 
     Text[0x00BE] = "Unknown_BE" -- Used in Reset menu (0x0001) while the RX is rebooting
 
@@ -1263,8 +1261,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00CA] = "SAFE/Panic Mode Setup"
     Text[0x00CD] = "Level model and capture attiude/M"; -- Different from List_Text , and force it to be a menu button
 
-    -- RX Orientations for AR631/AR637  
-    -- Optionally attach an Image to display
+    -- RX Orientations for AR631/AR637, Optionally attach an Image + Alt Text to display
     List_Text[0x00CB] = "Position 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 
     List_Text[0x00CC] = "Position 2";  List_Text_Img[0x00CC]  = "rx_pos_2.png|Pilot View: RX Label Left, Pins Back" 
     List_Text[0x00CD] = "Position 3";  List_Text_Img[0x00CD]  = "rx_pos_3.png|Pilot View: RX Label Down, Pins Back" 
@@ -1313,6 +1310,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00E7] = "Left"
     Text[0x00E8] = "Right"
 
+    -- Gain Capture options 
     List_Text[0x00F2] = "Fixed"
     List_Text[0x00F3] = "Adjustable"
 
@@ -1355,7 +1353,7 @@ local function DSM_Init_Text(rxId)
     Text[0x01F4] = "Angle"
     Text[0x01F6] = "Failsafe Angles/c/b" -- SubTitle, Center+bold 
 
-    --Inh, Self-Level/Angle Dem, Envelope -- (L_M1 was wide open)
+    --Inh, Self-Level/Angle Dem, Envelope -- (L_M was wide open range 0->244)
     Text[0x01F8] = "Safe Mode";    List_Values[0x01F8]=safeModeOptions 
 
     Text[0x01F9] = "SAFE Select/c/b "  -- SubTitle
@@ -1374,11 +1372,13 @@ local function DSM_Init_Text(rxId)
     Text[0x0212] = "" -- empty
     Text[0x0213] = "" -- empty
 
+    -- AS3X orientation Setting menu (Level)
     Text[0x021A] = "Set the model level,"
     Text[0x021B] = "and press Continue."
     Text[0x021C] = "" -- empty??
     Text[0x021D] = "" -- empty??
 
+    -- AS3X orientation Setting menu (Nose down)
     Text[0x021F] = "Set the model on its nose,"
     Text[0x0220] = "and press Continue. If the"
     Text[0x0221] = "orientation on the next"
@@ -1412,15 +1412,16 @@ local function DSM_Init_Text(rxId)
     Text[0x0239] = "the backup memory."
     Text[0x023A] = "" -- blank line
 
+    -- Utilities Copy flight modes
     Text[0x023D] = "Copy Flight Mode Settings"
     Text[0x023E] = "Source Flight Mode"
     Text[0x023F] = "Target Flight Mode"
     Text[0x0240] = "Utilities"
 
+    -- Gain Capture Page
     Text[0x024C] = "Gains will be captured on"
     Text[0x024D] = "Captured gains will be"
     Text[0x024E] = "Gains on"
-
     Text[0x024F] = "were captured and changed"
     Text[0x0250] = "from Adjustable to Fixed"
 
@@ -1458,24 +1459,25 @@ local function DSM_Init_Text(rxId)
 
     Text[0x8000] = "Flight Mode/c/b"  --FC6250HX:   1=NORMAL 2= Stunt-1, 3=Stunt-2, 4=Hold
     Text[0x8001] = "Flight Mode/c/b"  -- WAS "Flight Mode 1".. This usually is a Flight Mode w value relative to 0 (AR631/AR637)
-    Text[0x8002] = "Flight Mode 2/c/b"
+    Text[0x8002] = "Flight Mode 2/c/b" -- what RX does this show up??
     Text[0x8003] = "Flight Mode 3/c/b"
 end
 
--- Adjust the displayed value for Flight mode as needed
+-- Adjust the displayed value for Flight mode line as needed
 local function GetFlightModeValue(line)
-    local value = line.Val 
+    local value =  line.Val or 0     -- protect when in the middle of changing FM can be nil
     local textId = line.TextId
     local header = line.Text 
-    local out = value
+    local out = value .. ""
 
     if (textId == 0x8000) then  -- FC6250HX
         if (DSM_Context.RX.Id == RX.FC6250HX) then
             -- Helicopter Flights modes 
-            if (value==1) then out = header .. "  1 / Normal" 
-            elseif (value==2) then out = header .. " 2 / Stunt 1" 
-            elseif (value==3) then out = header .. " 3 / Stunt 2" 
-            elseif (value==4) then out = header .. "  4 / Hold" 
+            if (value==0)     then out = header .. "  1 / Normal 1" 
+            elseif (value==1) then out = header .. "  2 / Normal 2" 
+            elseif (value==2) then out = header .. "  3 / Stunt 1" 
+            elseif (value==3) then out = header .. "  4 / Stunt 2" 
+            elseif (value==4) then out = header .. "  5 / Hold" 
             else
                 out = header .. " " .. value
             end
@@ -1483,7 +1485,7 @@ local function GetFlightModeValue(line)
             -- No adjustment needed
             out = header .. " " .. value
         end
-    elseif (textId == 0x8001) then -- AR632/637
+    elseif (textId == 0x8001) then -- AR630-637, AR8360T, AR10360T
         -- Seems that we really have to add +1 to the value, so Flight Mode 0 is Really Flight Mode 1
         out = header .. " " .. (value + 1)
     else

@@ -17,6 +17,15 @@ local VERSION  = "v0.5"
 ---- # GNU General Public License for more details.                          #
 ---- #                                                                       #
 ---- #########################################################################
+------------------------------------------------------------------------------
+-- This script library is a rewrite of the original DSM forward programming Lua 
+-- Script.  The goal is to make it easier to understand, mantain, and to  
+-- separate the GUI from the DSM Forward  programming engine/logic
+-- in this way, GUIs can evolve independent. OpenTX Gui, EdgeTx GUI, Small Radios, etc.
+
+-- Code is based on the code/work by: Pascal Langer (Author of the Multi-Module)  
+-- Rewrite/Enhancements By: Francisco Arzu 
+------------------------------------------------------------------------------
 
 local SIMULATION_ON = false   -- FALSE: use real communication to DSM RX (DEFAULT), TRUE: use a simulated version of RX 
 local DEBUG_ON = 1           -- 0=NO DEBUG, 1=HIGH LEVEL 2=LOW LEVEL   (Debug logged into the /LOGS/dsm.log)

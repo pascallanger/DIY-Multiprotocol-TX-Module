@@ -737,15 +737,7 @@ local function DSM_sentTxInfo(menuId,curLine)
 end
 
 -----------------------------------------------------------------------------------------------------------
-
-local function DSM_RX_Match(RxId, List)
-    for i = 1, #List do
-        if List[i] == RxId then return true end
-    end
-    return false
-end
     
-
 local function DSM_sendRequest()  
     -- Send the proper Request message depending on the Phase 
     
@@ -1007,7 +999,7 @@ local function DSM_processResponse()
     elseif cmd == 0x04 then -- read menu values
         DSM_parseMenuValue()
         ctx.Phase = PHASE.MENU_VALUES
-
+        
     elseif cmd == 0x05 then -- Request TX Info
         local lineNum = DSM_parseReqTxInfo() 
 

@@ -41,8 +41,6 @@
 
 local DEBUG_ON = ... -- Get Debug_ON from parameters.  -- 0=NO DEBUG, 1=HIGH LEVEL 2=MORE DETAILS 
 local LIB_VERSION = "0.5"
-local FORCED_HACK = false
-
 
 local Lib = { Init_Text = function (rxId) end }
 
@@ -58,8 +56,6 @@ local RX = {
     AR10360T = 0x001C,
     AR631    = 0x001E
 }
-
-local RX_HACK_TESTED   = { RX.AR630, RX.AR631, RX.AR637T, RX.AR637TA, RX.AR8360T, RX.AR10360T }
 
 local PHASE = {
     RX_VERSION = 0,
@@ -114,6 +110,9 @@ local StartTime = 0           -- Start time since the start of the script
 
 local Waiting_RX = 0 -- 1 if Waiting for an RX response, 0 if transmiting
 local Value_Change_Step = 0  -- 2 Steps to update. 0=Send update value, 1=Send Verificatin request
+
+local TxInfo_Type = 0
+local TxInfo_Step = 0
 
 -- Text Arrays for Display Text and Debuging 
 local PhaseText = {}
@@ -667,6 +666,76 @@ local function DSM_menuValueChangingWait(valId, text, line)
      -- Pascal: i think the 2nd byte is the leghts of the entire message in bytes, so instead of 0x06, should be 0x04 for here.. work both ways
 end
 
+local function DSM_sentTxInfo(menuId,curLine)
+        if (TxInfo_Step == 0 and TxInfo_Type==0x00) then  
+            -- AR636B.. but does not work
+            if (DEBUG_ON) then LOG_write("CALL DSM_SendTxInfo_22(#%d DATA=TX: 0x22 0x04 %02X %02X)\n", curLine,
+                0x00, 0x00) -- DATA part
+           end
+           DSM_send(0x22, 0x04, 0x00, 0x00)
+
+        elseif (TxInfo_Step == 0 and (TxInfo_Type==0x01 or TxInfo_Type==0x1F)) then  
+            -- AR630 family: Both TxInfo_Type (ManinMenu=0x1,   Other First Time Configuration = 0x1F)
+
+            local last_byte = { 0x40, 0x01, 0x02, 0x04, 0x00, 0x00 } -- unknown.
+
+            if (DEBUG_ON) then LOG_write("CALL DSM_SendTxInfo_20(#%d DATA=TX: 0x20 0x06 %02X %02X %02X %02X)\n", curLine,
+                 curLine, curLine, 0, last_byte[curLine + 1]) -- DATA part
+            end
+            DSM_send(0x20, 0x06, curLine, curLine, 0x00, last_byte[curLine + 1]) -- line X
+            TxInfo_Step = TxInfo_Step + 1
+
+            if (TxInfo_Type == 0x1F) then
+                Waiting_RX = 0 -- keep Transmitig
+            end 
+        elseif (TxInfo_Step == 1 and TxInfo_Type==0x1F) then
+            -- 23,6: 0 64 0 64
+            if (DEBUG_ON) then LOG_write("CALL DSM_SendTxInfo_23(#%d DATA=TX: 0x23 0x06 %02X %02X %02X %02X)\n", curLine,
+                0x00, 0x64, 0x00, 0x64) -- DATA part
+           end
+           DSM_send(0x23, 0x06, 0x00, 0x64, 0x00, 0x64)
+           TxInfo_Step = TxInfo_Step + 1
+           Waiting_RX = 0 -- keep Transmitig
+        elseif (TxInfo_Step == 2 and TxInfo_Type==0x1F) then
+            local data = { 
+                { 0x0, 0x00, 0x07, 0xFF }, -- #0: 0 00 07 FF
+                { 0x0, 0x8E, 0x07, 0x72 }, -- #1: 0 8E 07 72 
+                { 0x0, 0x8E, 0x07, 0x72 }, -- #2: 0 8E 07 72 
+                { 0x0, 0x8E, 0x07, 0x72 } -- #3: 0 8E 07 72 
+            }
+
+            if (DEBUG_ON) then LOG_write("CALL DSM_SendTxInfo_21(#%d DATA=TX: 0x21 0x06 %02X %02X %02X %02X)\n", curLine,
+                data[curLine+1][1], data[curLine+1][2], data[curLine+1][3], data[curLine+1][4]) -- DATA part
+           end
+           DSM_send(0x21, 0x06, data[curLine+1][1], data[curLine+1][2], data[curLine+1][3], data[curLine+1][4])
+           TxInfo_Step = TxInfo_Step + 1
+           Waiting_RX = 0 -- keep Transmitig
+        elseif (TxInfo_Step == 3 and TxInfo_Type==0x1F) then
+            -- 24,6: 0 83 5A B5 
+            if (DEBUG_ON) then LOG_write("CALL DSM_SendTxInfo_24(#%d DATA=TX: 0x24 0x06 %02X %02X %02X %02X)\n", curLine,
+                0x00, 0x83, 0x5A, 0xB5) -- DATA part
+           end
+           DSM_send(0x24, 0x06, 0x00, 0x83, 0x5A, 0xB5)
+           TxInfo_Step = TxInfo_Step + 1
+           Waiting_RX = 0 -- keep Transmitig
+        elseif (TxInfo_Step == 4 and TxInfo_Type==0x1F) then
+            -- 24,6: 6 80 25 4B 
+            if (DEBUG_ON) then LOG_write("CALL DSM_SendTxInfo_24(#%d DATA=TX: 0x24 0x06 %02X %02X %02X %02X)\n", curLine,
+                0x06, 0x80, 0x25, 0x4B) -- DATA part
+           end
+           DSM_send(0x24, 0x06, 0x06, 0x80, 0x25, 0x4B)
+           TxInfo_Step = TxInfo_Step + 1
+           Waiting_RX = 0 -- keep Transmitig
+        elseif (TxInfo_Step == 5 and TxInfo_Type==0x1F) then
+            -- 22,4: 0 0 
+            if (DEBUG_ON) then LOG_write("CALL DSM_SendTxInfo_22(#%d DATA=TX: 0x22 0x04 %02X %02X)\n", curLine,
+                0x00, 0x00) -- DATA part
+           end
+           DSM_send(0x22, 0x04, 0x00, 0x00)
+           TxInfo_Step = TxInfo_Step + 1
+        end
+end
+
 -----------------------------------------------------------------------------------------------------------
 
 local function DSM_RX_Match(RxId, List)
@@ -676,32 +745,6 @@ local function DSM_RX_Match(RxId, List)
     return false
 end
     
-
-local function DSM_SelLine_HACK()
-    -- This hack was to be able to access some menus, that with using the default ctx.SelLine as it was,
-    -- the menu start returning weird 0x05 Unknow lines, by overriding the ctx.SelLine to Zero or other value
-    -- they started to work.
-    -- Tested to work on the RX: AR631, AR637T, AR637TA
-
-    local ctx = DSM_Context
-    -- AR631/AR637 Family: Hack for "First time Setup" or "First Time AS3X Setup", use 0 instead of the ctx.SelLine
-    if (ctx.Menu.MenuId == 0x104F or ctx.Menu.MenuId==0x1055) and 
-        (FORCED_HACK or DSM_RX_Match(ctx.RX.Id,RX_HACK_TESTED)) then
-        if (DEBUG_ON) then LOG_write("First time Setup Menu HACK: Overrideing LastSelectedLine to ZERO\n") end
-        if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
-        ctx.SelLine = 0
-    end
-
-
-    -- AR631/AR637 Hack for "Relearn Servo Settings", use 1 instead of the ctx.SelLine=0
-    -- REMOVE THE FIX FOR NOW.. Locks the Servos
-    --if (ctx.Menu.MenuId == 0x1023 and 
-    --   (FORCED_HACK or DSM_RX_Match(ctx.RX.Id,RX_HACK_TESTED))) then  
-    --    if (DEBUG_ON) then LOG_write("Relearn Servo Settings HACK: Overrideing LastSelectedLine to 1\n") end
-    --    if (DEBUG_ON) then LOG_write("%3.3f %s: ", getElapsedTime(), phase2String(ctx.Phase)) end
-    --    ctx.SelLine = 1
-    --end
-end
 
 local function DSM_sendRequest()  
     -- Send the proper Request message depending on the Phase 
@@ -719,7 +762,6 @@ local function DSM_sendRequest()
         if ctx.Menu.MenuId == 0 then  -- First time loading a menu ?
             DSM_getMainMenu()
         else
-            DSM_SelLine_HACK()
             DSM_getMenu(ctx.Menu.MenuId, ctx.SelLine) 
 
             if (ctx.Menu.MenuId == 0x0001) then  -- Executed the Reset Menu??
@@ -732,13 +774,7 @@ local function DSM_sendRequest()
         end
 
     elseif ctx.Phase == PHASE.MENU_REQ_TX_INFO then 
-        -- Guessing: Trying to Request TX info: Model Type, Wing Type, Tail (normal/V), Aileron Sevos (1/2), etc
-        local curLine = ctx.CurLine
-        if (DEBUG_ON) then LOG_write("CALL DSM_getNextUknownLine_0x05: LastLine=%s ", curLine) end
-        local last_byte = { 0x40, 0x01, 0x02, 0x04, 0x00, 0x00 } -- unknown.
-        DSM_send(0x20, 0x06, curLine, curLine, 0x00, last_byte[curLine + 1]) -- line X
-        if (DEBUG_ON) then LOG_write("DATA=TX: 20 06 %02X %02X %02X %02X\n", curLine, curLine, 0, last_byte[curLine + 1]) end
-
+        DSM_sentTxInfo(ctx.Menu.MenuId, ctx.CurLine)
 
     elseif ctx.Phase == PHASE.MENU_LINES then -- request next menu lines
         if ctx.CurLine == -1 then -- No previous menu line loaded ?
@@ -884,6 +920,21 @@ local function DSM_parseMenuValue()
     end
 end
 
+local function DSM_parseReqTxInfo() 
+    -- unknown... I think is trying to request info about TX (Wing type, etc)
+    -- 0x09 0x05 0x01   0x01 0x00   0x00 0x00 0x00 0x07   Menu: MAIN MENU
+    -- 0x09 0x05 0x01   0x1F 0x00   0x00 0x00 0x00 0x07   Menu: First Time Setup
+    --           Line   ??                   ????
+    local curLine = multiBuffer(12)
+    TxInfo_Type   = multiBuffer(13)
+    if (DEBUG_ON) then LOG_write("RESPONSE ReqTXInfo(LineNum=%d DataType=0x%0X  DATA=%s)\n", curLine, TxInfo_Type, multiBuffer2String()) end
+
+    TxInfo_Step = 0
+
+    return curLine
+end
+
+
 -- Creates a fake line do display an error in the GUI
 local function DSM_Add_Error_Menu_Line(i, text)
     local ctx = DSM_Context
@@ -957,13 +1008,10 @@ local function DSM_processResponse()
         DSM_parseMenuValue()
         ctx.Phase = PHASE.MENU_VALUES
 
-    elseif cmd == 0x05 then -- unknown... I think is trying to request info about TX (Wing type, etc)
-        -- 0x09 0x05 0x01   0x01 0x00   0x00 0x00 0x00 0x07
-        --           Line   MenuId                   ????
-        local curLine = multiBuffer(12)
-        if (DEBUG_ON) then LOG_write("RESPONSE MenuUknownLine_0x05: LineNum=%s  DATA=%s\n", curLine, multiBuffer2String()) end
+    elseif cmd == 0x05 then -- Request TX Info
+        local lineNum = DSM_parseReqTxInfo() 
 
-        if (curLine==ctx.CurLine) then
+        if (lineNum==ctx.CurLine) then
             -- WEIRD BEHAVIOR
             -- We got the same line we already got. thi will continue
             -- on a loop and disconnect RX 
@@ -971,7 +1019,7 @@ local function DSM_processResponse()
             if (DEBUG_ON) then LOG_write("ERROR: Received Same menu line\n") end
         end -- Got the next line.. keep requesting more
             
-        ctx.CurLine = curLine
+        ctx.CurLine = lineNum
         ctx.Phase = PHASE.MENU_REQ_TX_INFO
 
     elseif cmd == 0xA7 then -- answer to EXIT command
@@ -1331,7 +1379,7 @@ local function DSM_Init_Text(rxId)
     Text[0x010A] = "" -- empty??
     Text[0x010B] = "" -- empty??
     
-    Text[0x0190] = "DONT USE! Relearn Servo Settings"
+    Text[0x0190] = "Warning! Relearn Servo Settings"
     Text[0x019C] = "Enter Receiver Bind Mode"
     Text[0x01D7] = "SAFE Select Channel"
     Text[0x01DC] = "AS3X/c/b"       -- Subtitle, Center+bold 

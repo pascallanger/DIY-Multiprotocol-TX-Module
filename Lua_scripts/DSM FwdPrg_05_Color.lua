@@ -93,6 +93,8 @@ local LCD_DEBUG_COLOR         = LINE_COLOR
 local LCD_BOX_COLOR           = TEXT_DISABLE_COLOR  
 
 
+local warningScreenON = true
+
 
 --------------------- lcd.sizeText replacement -------------------------------------------------
 -- EdgeTx dont have lcd.sizeText, so we do an equivalent one using the string length and 5px per character
@@ -609,6 +611,33 @@ local function init_colors()
   end
 end
 
+local function GUI_Warning(event,touchState)
+  lcd.clear(LCD_TOOL_BGCOLOR)
+  local header = "DSM Forward Programming "..VERSION.."                   "
+  --Draw title
+  lcd.drawFilledRectangle(0, 0, LCD_W, 17, LCD_TOOL_HDR_BGCOLOR)
+  lcd.drawText(5, 0, header,  LCD_TOOL_HDR_COLOR + SMLSIZE)
+
+
+  lcd.drawText(100,20,"WARNING", BLINK+BOLD)
+  lcd.drawText(5,40,"Gyro settings-> Initial Setup and Initial SAFE Setup", BOLD)
+  lcd.drawText(5,70,"Has only been tested with normal wing type and normal tail.", 0)
+  lcd.drawText(5,90,"Make sure that your Gyro/Safe reacts correctly after setup", 0)
+  lcd.drawText(5,110,"with this tool.  If not, set it up with a Spektrum TX.", 0)
+
+  lcd.drawText(5,150,"Gyro settings-> System Setup -> Relearn Servo Setting", BOLD)
+  lcd.drawText(5,180,"Will override Wing type, tail type, servo reverse, etc.", 0)
+  lcd.drawText(5,200,"If this RX was initally setup with a Spektrum Transmiter.", 0)
+
+  lcd.drawText(100,250,"    OK     ", INVERS + BOLD)
+
+  if event == EVT_VIRTUAL_EXIT or event == EVT_VIRTUAL_ENTER or event == EVT_TOUCH_TAP then
+    warningScreenON = false
+  end
+
+  return 0
+end
+
 ------------------------------------------------------------------------------------------------------------
 -- Init
 local function DSM_Init()
@@ -626,6 +655,10 @@ local function DSM_Run(event,touchState)
     error("Cannot be run as a model script!")
     dsmLib.LOG_close()
     return 2
+  end
+
+  if (warningScreenON) then
+    return GUI_Warning(event,touchState)
   end
 
   GUI_HandleEvent(event,touchState)

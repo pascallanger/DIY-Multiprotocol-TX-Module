@@ -632,7 +632,6 @@ local function GUI_Warning(event,touchState)
   lcd.drawFilledRectangle(0, 0, LCD_W, 17, LCD_TOOL_HDR_BGCOLOR)
   lcd.drawText(5, 0, header,  LCD_TOOL_HDR_COLOR + SMLSIZE)
 
-
   lcd.drawText(100,20,"INFO", BOLD)
   lcd.drawText(5,40,"DSM Forward programing shares TX Servo/Output settings", 0)
   lcd.drawText(5,60,"with the RX. Make sure you setup your plane first in ", 0)

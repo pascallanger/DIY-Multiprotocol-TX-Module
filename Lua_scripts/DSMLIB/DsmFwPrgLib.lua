@@ -42,7 +42,6 @@
 local DEBUG_ON = ... -- Get Debug_ON from parameters.  -- 0=NO DEBUG, 1=HIGH LEVEL 2=MORE DETAILS 
 local LIB_VERSION = "0.51"
 local TRANSLATE_AETR_TO_TAER = true -- TRANSLATE TX channel info from AETR to TAER
-
 local Lib = { Init_Text = function (rxId) end }
 
 --RX IDs--

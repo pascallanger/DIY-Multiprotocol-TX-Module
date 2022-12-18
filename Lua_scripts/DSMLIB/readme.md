@@ -10,8 +10,9 @@ Script.  The goal was to make it easier to understand, mantain, and to
 separate the GUI from the DSM Forward programming engine/logic.
 In this way, GUIs can evolve independent. Color/Touch Gui, Text only GUI, etc.
 
-Most of the changes has been cometic, but fixed a few operational ones
-1. Make "Gyro Settings"->"Initial Setup" works (Tested on AR631,AR637xx)
+Changes and fixes
+1. Menus to be able to configure Plane in a similar way as Spektrum Radio
+1. Make "Gyro Settings"->"Initial Setup" works (Tested on AR631,AR637xx with PLANE type of arcraft)
 2. Properly reset and restart after initial configuration and SAFE changes.
 3. Write Log of the conversation between RX/TX. To be use for debugging when some reports a problem.
 4. Provide a simulation of RX to do GUI development in Companion, and undestand patterns of how the data is organized.
@@ -25,12 +26,10 @@ Since is RX and Menu specific, we cannot create a general hack.
 
 Please report of you have test it with other receivers to update the documentation.   
 
-If you get `"Unable to Load menu lines"` when trying to navidate to a menu, could be that the code needs to be specially adapter to mandle that menu in a different way than others. We did that HACK for AR631/AR637 for the `Initial Setup` and `Initial Safe Setup` menus.  Before starting the script again, the problem shouls show at the log. Usually not been able to process some `Unknown_0x5` lines who has not been fully reversed engineered (you can share the logs with us to try to understand what is going on. 
-
 # Flight mode/Gain channels
 
 I ran into a case where trying to set Aux2 or Aux3 for flight mode, but the RX was correcting it to Aux1.. the RX only was allowing Gear or Aux1 (AR631/AR637).
-This is because the RX don't know that we are using more than 6 channels. To make the RX aware that there are other channels, while edditing the channel, you have to toggle the switch to excersist the channel, and now the RX will recognize it.
+This is because the RX don't know that we are using more than 6 channels. To make the RX aware that there are other channels, while edditing the channel, you have to toggle the switch to excersist the channel (3 times), and now the RX will recognize it.
 
 # Deployment
 
@@ -38,9 +37,11 @@ This is because the RX don't know that we are using more than 6 channels. To mak
     /SCRIPTS/TOOLS/DsmFwdPrg_05_Color.lua   -- Color+touch radios
     /SCRIPTS/TOOLS/DSMLIB/      -- (ALL CAPITALS) Libraries ane extra files
     /SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua   -- DSM Protocol Message and Menu engine
-    SCRIPTS/TOOLS/DSMLIB/DsmFwPrgSIMLib.lua -- Simulation of AR631, FC6250HX
-    SCRIPTS/TOOLS/DSMLIB/img        --Images for RX orientations
-    LOGS/dsm_log.txt				--Readable log of the last RX/TX session, usefull for debuging new RX
+    /SCRIPTS/TOOLS/DSMLIB/DsmFwPrgSIMLib.lua -- Simulation of AR631, FC6250HX
+    /SCRIPTS/TOOLS/DSMLIB/SetupLib.lua -- Model Setup Screns
+    /SCRIPTS/TOOLS/DSMLIB/img        --Images for RX orientations
+    /SCRIPTS/TOOLS/DSMLIB/data       --Data of model config (Wing Type, Servo Assigments)
+    /LOGS/dsm_log.txt				--Readable log of the last RX/TX session, usefull for debuging new RX
 
 # Messages Displayed in the GUI
 
@@ -111,22 +112,11 @@ Exmple of the Unknown_0x05 Lines correctly processed (receiving lines 0..5):
     0.700 MENU_UNKNOWN_LINES: RESPONSE MenuUknownLine_0x05: LineNum=2  DATA=RX: 09 05 02 01 00 00 00 07 00 00 00 00 00 00 00 00
     0.760 MENU_UNKNOWN_LINES: CALL DSM_getNextUknownLine_0x05(LastLine=2)
 
-Example when it will not be able to load the menu (gets stuck in line 0).
-After nor advancing on the lines, it will show in the UI as `"Unable to load menu lines"`
-
-    0.280 MENU_LINES: SEND DSM_getFirstMenuLine(MenuId=0x1022)
-    0.400 MENU_LINES: RESPONSE MenuUknownLine_0x05: LineNum=0  DATA=RX: 09 05 00 01 00 00 00 07 00 00 00 00 00 00 00 00
-    0.460 MENU_UNKNOWN_LINES: CALL DSM_getNextUknownLine_0x05(LastLine=0)
-    0.550 MENU_UNKNOWN_LINES: RESPONSE MenuUknownLine_0x05: LineNum=0  DATA=RX: 09 05 00 01 00 00 00 07 00 00 00 00 00 00 00 00
-    0.600 MENU_UNKNOWN_LINES: CALL DSM_getNextUknownLine_0x05(LastLine=0)
-    0.700 MENU_UNKNOWN_LINES: RESPONSE MenuUknownLine_0x05: LineNum=0  DATA=RX: 09 05 02 00 00 00 00 07 00 00 00 00 00 00 00 00
-    0.760 MENU_UNKNOWN_LINES: CALL DSM_getNextUknownLine_0x05(LastLine=0)
-
 
 # Validation of data by the RX
 
 When you change a value in the GUI, the RX validates that the value is valid.
-For example, I ran into a case where trying to set Aux2 or Aux3 for flight mode, but the RX was correcting it to Aux1.. the RX only was allowing Gear or Aux1 (AR631/AR637).
+For example, I ran into a case where trying to set Aux2 or Aux3 for flight mode, but the RX was correcting it back to Aux1.. the RX only was allowing Gear or Aux1 (AR631/AR637).. in this case, toggle the Switch while editing it on the screen.
 
 If you go to the logs, you can see that the RX was correcting the value:
 
@@ -137,6 +127,16 @@ If you go to the logs, you can see that the RX was correcting the value:
 
 
 ---
+# Version 0.51
+- New Screens to Configure Model (Wing Type/Tail Tail, etc)
+- Finally got understanding that the previous unknown 0x05 lines are to send Model/Servo data to RX.
+- Fix use of AR636B (Firmare version 4.40.0 for Blade 230 heli, is the only one with Forward Programing)
+- Aircraft types:  Tested With Plane type only.. Glider and other in progress
+
+### Know Problems:
+- 4-Servo Wing type (Dual Ail/Tail) in planes give conflicting servo assignments by defaults.. Solution choose your own Ch.
+- Glider, Heli, Drong: Still in development. In glider, only a few wing type works.. needs to restrict menu options for the only valid one.
+
 
 # Version 0.5
 

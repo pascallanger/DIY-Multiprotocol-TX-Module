@@ -25,8 +25,8 @@
 
 
 local DEBUG_ON, SIMULATION_ON = ... -- Get DebugON from parameters
-
 local SETUP_LIB_VERSION = "0.52"
+
 local DATA_PATH = "/SCRIPTS/TOOLS/DSMLIB/data/" -- Path to store model settings files
 local dsmLib = assert(loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua"))(DEBUG_ON)
 
@@ -158,7 +158,6 @@ local function printServoReverseInfo()
         print(string.format("Port%d:  %s", i+1, s))
     end
 end
-
 
 local function ST_PlaneWingInit(wingType) 
     print("Change Plane WingType:"..wing_type_text[wingType])
@@ -373,6 +372,7 @@ local function ST_Default_Data()
     ST_AircraftInit(AIRCRAFT_TYPE.PLANE)
 
     print("Initializing Servo Reverse from TX output settings")
+
     MENU_DATA[MEMU_VAR.PORT1_MODE] = CH_MODE_TYPE.NORMAL + MODEL.modelOutputChannel[PORT.PORT1].revert
     MENU_DATA[MEMU_VAR.PORT2_MODE] = CH_MODE_TYPE.NORMAL + MODEL.modelOutputChannel[PORT.PORT2].revert
     MENU_DATA[MEMU_VAR.PORT3_MODE] = CH_MODE_TYPE.NORMAL + MODEL.modelOutputChannel[PORT.PORT3].revert
@@ -385,6 +385,7 @@ local function ST_Default_Data()
     MENU_DATA[MEMU_VAR.PORT10_MODE] = CH_MODE_TYPE.NORMAL + MODEL.modelOutputChannel[PORT.PORT10].revert
 
     printServoReverseInfo()
+
 end
 
 -----------------------  FILE MANAGEMENT ---------------------------------------------
@@ -445,6 +446,7 @@ function ST_LoadFileData()
     printChannelSummary()
     printServoReverseInfo()
 
+
     -- No need to save right now
     menuDataChanged = false
 
@@ -477,8 +479,8 @@ local function CreateDSMPortChannelInfo()
         -- ELEVON
         if (b2==CH_TYPE.AIL+CH_TYPE.ELE) then return 0x20 end; -- 0x03
         if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.REVERSE) then return 0x50 end; -- 0x23
-
-        -- Default normal/reverse behaviour 
+       
+       -- Default normal/reverse behaviour 
         if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE) then return 0x00 end; -- 0x83
         if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE+CH_TYPE.REVERSE) then return 0x70 end; -- 0xA3
     end
@@ -832,13 +834,14 @@ local function ST_LoadMenu(menuId)
    
     elseif (menuId==0x1030) then
         printChannelSummary()
+        
         ctx.Menu = { MenuId = 0x1030, Text = "Gyro Channel Reverse (Port 1-5)", PrevId = 0, NextId = 0x1031, BackId = 0x1001, TextId=0 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT1], TextId = 0, ValId = MEMU_VAR.PORT1_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT1_MODE], Format = formatTXRevert(PORT.PORT1) }
         ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT2], TextId = 0, ValId = MEMU_VAR.PORT2_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT2_MODE], Format = formatTXRevert(PORT.PORT2) }
         ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT3], TextId = 0, ValId = MEMU_VAR.PORT3_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT3_MODE], Format = formatTXRevert(PORT.PORT3) }
         ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT4], TextId = 0, ValId = MEMU_VAR.PORT4_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT4_MODE], Format = formatTXRevert(PORT.PORT4) }
         ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT5], TextId = 0, ValId = MEMU_VAR.PORT5_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT5_MODE], Format = formatTXRevert(PORT.PORT5) }
-     
+
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, Text="      Usually Rud/Ail needs to be the oposite of the TX", TextId = 0, ValId = 0x1030 }
 
         ctx.SelLine = 0

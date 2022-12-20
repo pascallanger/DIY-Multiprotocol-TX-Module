@@ -1,6 +1,7 @@
 local toolName = "TNS|DSM Forward Prog v0.52 (Text B&W) |TNE"
 local VERSION  = "v0.52"
 
+
 ---- #########################################################################
 ---- #                                                                       #
 ---- # Copyright (C) OpenTX                                                  #

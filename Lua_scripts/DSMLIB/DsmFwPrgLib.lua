@@ -395,7 +395,6 @@ local function channelType2String(byte1, byte2)
     if (bit32.band(byte2,CH_TYPE.SLAVE)>0) then s=s.."SLAVE " end
     if (bit32.band(byte2,CH_TYPE.REVERSE)>0) then s=s.."REVERSE " end
 
-    
     if (byte1==CH_MIX_TYPE.NORMAL) then s=s.." MIX_NOR" 
     elseif (byte1==CH_MIX_TYPE.MIX_AIL_B) then s=s.." MIX_AIL_B" 
     elseif (byte1==CH_MIX_TYPE.MIX_ELE_A) then s=s.." MIX_ELE_A" 

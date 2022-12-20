@@ -480,7 +480,7 @@ local function ExtractDisplayAttr(text1, attr)
         attr = bit32.bor(attr, DISP_ATTR.BOLD)
     end
 
-    text, pos = string.gsub(text, "/M", "")
+    text, pos = string.gsub(text, "/m", "")
     if (pos>0) then -- FORCED MENU Button 
         attr = bit32.bor(attr, DISP_ATTR.FORCED_MENU)
     end
@@ -1378,7 +1378,7 @@ local function DSM_Init_Text(rxId)
     -- Text allightment:  /c = CENTER, /r = RIGHT
     -- Text effects:  /b = BOLD
     -- Text formatting: /p = PERCENT numbers (forced if not in Line Type=PERCENT)
-    -- Navigaton: /M = Force to be a Menu button, when a menu navigates to itself, 
+    -- Navigaton: /m = Force to be a Menu button, when a menu navigates to itself, 
     --      is usually a message line.. but sometimes, we want to navigate to the same page to refresh values
 
     -- array List_Values:
@@ -1528,7 +1528,8 @@ local function DSM_Init_Text(rxId)
     Text[0x00C7] = "Calibrate Sensor"
     Text[0x00C8] = "Complete" -- FC6250HX calibration complete 
     Text[0x00CA] = "SAFE/Panic Mode Setup"
-    Text[0x00CD] = "Level model and capture attitude/M"; -- Different from List_Text , and force it to be a menu button
+    Text[0x00CD] = "Level model and capture attitude/m"; -- Different from List_Text , and force it to be a menu button
+
 
     -- RX Orientations for AR631/AR637, Optionally attach an Image + Alt Text to display
     List_Text[0x00CB] = "Position 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 

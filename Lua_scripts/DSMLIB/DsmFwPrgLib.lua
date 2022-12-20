@@ -1530,6 +1530,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00CA] = "SAFE/Panic Mode Setup"
     Text[0x00CD] = "Level model and capture attitude/m"; -- Different from List_Text , and force it to be a menu button
 
+
     -- RX Orientations for AR631/AR637, Optionally attach an Image + Alt Text to display
     List_Text[0x00CB] = "Position 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 
     List_Text[0x00CC] = "Position 2";  List_Text_Img[0x00CC]  = "rx_pos_2.png|Pilot View: RX Label Left, Pins Back" 

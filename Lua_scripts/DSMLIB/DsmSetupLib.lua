@@ -23,11 +23,10 @@
 -- Author: Francisco Arzu 
 ------------------------------------------------------------------------------
 
-
 local DEBUG_ON, SIMULATION_ON = ... -- Get DebugON from parameters
 local SETUP_LIB_VERSION = "0.52"
 
-local DATA_PATH = "/SCRIPTS/TOOLS/DSMLIB/data/" -- Path to store model settings files
+local DATA_PATH = "/MODELS/DSMDATA" -- Path to store model settings files
 local dsmLib = assert(loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua"))(DEBUG_ON)
 
 local PHASE = dsmLib.PHASE
@@ -151,10 +150,10 @@ local function printChannelSummary()
 end
 
 local function printServoReverseInfo()
-    print("SERVO Normal/Reversed INFORMATION")
+    print("SERVO Normal/Reverse INFORMATION")
     for i=0,10 do
         local s="--"
-        if (MENU_DATA[MEMU_VAR.PORT1_MODE+i] or 0) == 0 then s="NORMAL" else s="REVERT" end
+        if (MENU_DATA[MEMU_VAR.PORT1_MODE+i] or 0) == 0 then s="NORMAL" else s="REVERSE" end
         print(string.format("Port%d:  %s", i+1, s))
     end
 end
@@ -415,7 +414,7 @@ function ST_LoadFileData()
 
     print("Loading File:"..fname)
 
-    local dataFile = io.open(DATA_PATH .. fname, "r")  -- read File 
+    local dataFile = io.open(DATA_PATH .. "/".. fname, "r")  -- read File 
     -- cannot read file???
     if (dataFile==nil) then return 0 end
 
@@ -459,7 +458,7 @@ function ST_SaveFileData()
     local fname = hashName(MODEL.modelName)..".txt"
 
     print("Saving File:"..fname)
-    local dataFile = io.open(DATA_PATH .. fname, "w")  -- write File 
+    local dataFile = assert(io.open(DATA_PATH .. "/" .. fname, "w"),"Please create "..DATA_PATH.." folder")  -- write File 
     
     -- Foreach MENU_DATA with a value write Var_Id:Value into file
     for i = 0, MEMU_VAR.DATA_END do
@@ -688,7 +687,7 @@ local function ST_LoadMenu(menuId)
     local ctx = dsmLib.DSM_Context
 
     local function formatTXRevert(port)
-        return ((MODEL.modelOutputChannel[port].revert==0 and "  (Tx:Normal)") or "  (Tx:Reverted)")
+        return ((MODEL.modelOutputChannel[port].revert==0 and "  (Tx:Normal)") or "  (Tx:Reverse)")
     end
 
     clearMenuLines()
@@ -1030,8 +1029,8 @@ local function ST_Init_Text(rxId)
     List_Text[200+TAIL_TYPE.TRAILERON_B] = "Traileron B";  List_Text_Img[200+TAIL_TYPE.TRAILERON_B]  = "tt_traileron.png|Traileron B" 
 
     -- Servo Reverse
-    List_Text[300+CH_MODE_TYPE.NORMAL]  = "Normal   "
-    List_Text[300+CH_MODE_TYPE.REVERSE] = "Reverted"
+    List_Text[300+CH_MODE_TYPE.NORMAL]  = "Normal "
+    List_Text[300+CH_MODE_TYPE.REVERSE] = "Reverse"
 
 end
 

@@ -126,6 +126,8 @@ local DSM_Context = {
 local MODEL = {
     modelName = "",            -- The name of the model comming from OTX/ETX
     modelOutputChannel = {},   -- Output information from OTX/ETX
+    
+    TX_CH_TEXT = {},
     PORT_TEXT = {},
     DSM_ChannelInfo = {}       -- Data Created by DSM Configuration Script
 }
@@ -596,14 +598,14 @@ local function DSM_ReadTxModelData()
 
     -- Read Ch1 to Ch10
     local i= 0
-    for i = 0, 9 do 
+    for i = 0, 12 do 
         local ch = model.getOutput(i) -- Zero base 
         if (ch~=nil) then
             MODEL.modelOutputChannel[i] = ch
             if (string.len(ch.name)==0) then 
-                ch.formatName = string.format("TX:Ch%i",i+1)
+                ch.formatCh = string.format("TX:Ch%i",i+1)
             else
-                ch.formatName = string.format("TX:Ch%i/%s",i+1,ch.name or "--")
+                ch.formatCh = string.format("TX:Ch%i/%s",i+1,ch.name or "--")
             end
         end
     end
@@ -628,8 +630,9 @@ local function DSM_ReadTxModelData()
     for i = 0, 9 do 
         local ch =  MODEL.modelOutputChannel[i]
         if (ch~=nil) then
-            MODEL.PORT_TEXT[i] = string.format("Port%i (%s) ",i+1,ch.formatName)
-            LOG_write("Port%d %s [%d,%d] Rev=%d, Off=%d, ppmC=%d, syn=%d\n",i+1,ch.formatName,math.floor(ch.min/10),math.floor(ch.max/10), ch.revert, ch.offset, ch.ppmCenter, ch.symetrical)
+            MODEL.TX_CH_TEXT[i] = ch.formatCh
+            MODEL.PORT_TEXT[i] = string.format("Port%i (%s) ",i+1,MODEL.TX_CH_TEXT[i])
+            LOG_write("Port%d %s [%d,%d] Rev=%d, Off=%d, ppmC=%d, syn=%d\n",i+1,MODEL.TX_CH_TEXT[i],math.floor(ch.min/10),math.floor(ch.max/10), ch.revert, ch.offset, ch.ppmCenter, ch.symetrical)
         end
     end
 end
@@ -1386,6 +1389,11 @@ local function DSM_Init_Text(rxId)
     -- usually is Ihnibit + range of contiguos values, but cant seems to find in the RX data receive the values 
     -- to do it automatically
 
+    local function getTxChText(ch)
+        return " ("..(MODEL.TX_CH_TEXT[ch] or "--")..")"
+    end
+
+
     List_Text[0x0001] = "Off"
     List_Text[0x0002] = "On"
 
@@ -1395,8 +1403,7 @@ local function DSM_Init_Text(rxId)
 
     -- Channel selection for SAFE MODE and GAINS on  FC6250HX
     List_Text[0x000C] = "Inhibit?" --?
-    List_Text[0x000D] = "Ch5 (Gear)"
-    for i = 1, 7 do List_Text[0x000D + i] = "Ch"..(i+5) .. " (Aux" .. i .. ")" end -- Aux channels
+    for i = 0, 7 do List_Text[0x000D + i] = "Ch"..(i+5) ..getTxChText(i+4) end -- Aux channels (Ch5 and Greater)
 
     -- Servo Output values.. 
     local servoOutputValues =  {0x0003,0x002D,0x002E,0x002F}  --Inh (GAP), 5.5ms, 11ms, 22ms. Fixing L_m1 with 0..244 range!
@@ -1416,15 +1423,10 @@ local function DSM_Init_Text(rxId)
     local channelValues = {0x0035,0x003A,0x003B,0x003C,0x003D,0x003E,0x003F,0x0040,0x0041,0x0042,0x0043,0x0044,0x0045,0x0046,0x0047,0x0048,0x0049} 
     
     List_Text[0x0035] = "Inhibit?" 
-    List_Text[0x0036] = "Throttle"
-    List_Text[0x0037] = "Aileron"
-    List_Text[0x0038] = "Elevator"
-    List_Text[0x0039] = "Rudder"
-    List_Text[0x003A] = "Ch5 (Gear)"
-    for i = 1, 7 do List_Text[0x003A + i] = "Ch"..(i+5) .. " (Aux" .. i .. ")" end -- Aux channels on AR637T
+    for i = 0, 11 do List_Text[0x0036 + i] = "Ch"..(i+1) .. getTxChText(i) end -- Channels on  AR637T
 
     for i = 1, 8 do -- 41..49
-        List_Text[0x0041 + i] = "Ch"..(i+13) .." (XPlus-" .. i .. ")"
+        List_Text[0x0041 + i] = "Ch"..(i+13)
     end
 
     -- ****No longer overrides of previous XPlus values, since using different array
@@ -1526,7 +1528,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00C7] = "Calibrate Sensor"
     Text[0x00C8] = "Complete" -- FC6250HX calibration complete 
     Text[0x00CA] = "SAFE/Panic Mode Setup"
-    Text[0x00CD] = "Level model and capture attiude/M"; -- Different from List_Text , and force it to be a menu button
+    Text[0x00CD] = "Level model and capture attitude/M"; -- Different from List_Text , and force it to be a menu button
 
     -- RX Orientations for AR631/AR637, Optionally attach an Image + Alt Text to display
     List_Text[0x00CB] = "Position 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 
@@ -1725,9 +1727,9 @@ local function DSM_Init_Text(rxId)
     Text[0x026A] = "Use CAUTION for Yaw gain!/b" -- SubTitle
 
     Text[0x8000] = "Flight Mode/c/b"  --FC6250HX:   1=NORMAL 2= Stunt-1, 3=Stunt-2, 4=Hold
-    Text[0x8001] = "Flight Mode/c/b"  -- WAS "Flight Mode 1".. This usually is a Flight Mode w value relative to 0 (AR631/AR637)
-    Text[0x8002] = "Flight Mode 2/c/b" -- what RX does this show up??
-    Text[0x8003] = "Flight Mode 3/c/b"
+    Text[0x8001] = "Flight Mode/c/b"  --AR63X family:  WAS "Flight Mode 1".. This usually is a Flight Mode w value relative to 0 (AR631/AR637)
+    Text[0x8002] = "Flight Mode/c/b" -- what RX does this show up??
+    Text[0x8003] = "Flight Mode/c/b"
 end
 
 -- Adjust the displayed value for Flight mode line as needed
@@ -1750,14 +1752,14 @@ local function GetFlightModeValue(line)
             end
         else
             -- No adjustment needed
-            out = header .. " " .. value
+            out = header .. " " .. (value + 1)
         end
     elseif (textId == 0x8001) then -- AR630-637, AR8360T, AR10360T
         -- Seems that we really have to add +1 to the value, so Flight Mode 0 is Really Flight Mode 1
         out = header .. " " .. (value + 1)
     else
         -- Default, return the value as we Have it 
-        out = header .. " " .. value
+        out = header .. " " .. (value + 1)
     end
     return out
 end

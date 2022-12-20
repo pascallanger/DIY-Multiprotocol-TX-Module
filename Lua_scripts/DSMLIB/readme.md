@@ -151,7 +151,6 @@ If you go to the logs, you can see that the RX was correcting the value:
 ---
 
 # Version 0.51  (voluteer testing version, not for production)
-
 - New Screens to Configure Model (Wing Type/Tail Tail, etc)
 - Finally got understanding that the previous unknown 0x05 lines are to send Model/Servo data to RX.
 - Fix use of AR636B (Firmare version 4.40.0 for Blade 230 heli, is the only one with Forward Programing)

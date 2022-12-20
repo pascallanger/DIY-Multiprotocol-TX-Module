@@ -40,8 +40,8 @@
 
 
 local DEBUG_ON = ... -- Get Debug_ON from parameters.  -- 0=NO DEBUG, 1=HIGH LEVEL 2=MORE DETAILS 
-local LIB_VERSION = "0.51"
-local TRANSLATE_AETR_TO_TAER = true -- TRANSLATE TX channel info from AETR to TAER
+local LIB_VERSION = "0.52"
+
 local Lib = { Init_Text = function (rxId) end }
 
 --RX IDs--
@@ -95,8 +95,14 @@ local CH_TYPE = {
 }
 
 local CH_MIX_TYPE = {
-    NONE     = 0x00,
-    MIX_ELE  = 0x20,   -- For VTIAL and Delta-ELEVON 
+    NORMAL       = 0x00,
+    MIX_AIL_B    = 0x10,   -- Traileron B
+    MIX_ELE_A    = 0x20,   -- For VTIAL and Delta-ELEVON A
+    MIX_ELE_B_REV= 0x30,   -- For VTIAL and Delta-ELEVON B
+    MIX_ELE_B    = 0x40,   -- For VTIAL and Delta-ELEVON B
+    MIX_ELE_A_REV= 0x50,   -- For VTIAL and Delta-ELEVON A
+    MIX_AIL_B_REV= 0x60,   -- Traileron B Rev
+    NORM_REV     = 0x70
 }
 
 local DISP_ATTR = {
@@ -381,6 +387,7 @@ end
 local function channelType2String(byte1, byte2) 
     local s = ""
 
+    if (byte2==0) then return s end;
     if (bit32.band(byte2,CH_TYPE.AIL)>0) then s=s.."AIL " end
     if (bit32.band(byte2,CH_TYPE.ELE)>0) then s=s.."ELE " end
     if (bit32.band(byte2,CH_TYPE.RUD)>0) then s=s.."RUD " end
@@ -388,7 +395,15 @@ local function channelType2String(byte1, byte2)
     if (bit32.band(byte2,CH_TYPE.SLAVE)>0) then s=s.."SLAVE " end
     if (bit32.band(byte2,CH_TYPE.REVERSE)>0) then s=s.."REVERSE " end
 
-    if (bit32.band(byte1,CH_MIX_TYPE.MIX_ELE)>0) then s=s.."*MIX_ELE_0x20?  " end
+    if (byte1==CH_MIX_TYPE.NORMAL) then s=s.." MIX_NOR" 
+    elseif (byte1==CH_MIX_TYPE.MIX_AIL_B) then s=s.." MIX_AIL_B" 
+    elseif (byte1==CH_MIX_TYPE.MIX_ELE_A) then s=s.." MIX_ELE_A" 
+    elseif (byte1==CH_MIX_TYPE.MIX_ELE_B_REV) then s=s.." MIX_ELE_B_Rev" 
+    elseif (byte1==CH_MIX_TYPE.MIX_ELE_B) then s=s.." MIX_ELE_B" 
+    elseif (byte1==CH_MIX_TYPE.MIX_ELE_A_REV) then s=s.." MIX_ELE_A_Rev" 
+    elseif (byte1==CH_MIX_TYPE.MIX_AIL_B_REV) then s=s.." MIX_AIL_B_Rev" 
+    elseif (byte1==CH_MIX_TYPE.NORM_REV) then s=s.." MIX_NOR_Rev" 
+    end
 
     return s;
 end
@@ -530,7 +545,36 @@ end
 
 -------------------------------------------------------------------------------------------------
 -- Read the model information from OTX/ETX
+
+local function getModuleChannelOrder(num) 
+      --Determine fist 4 channels order
+  local channel_names={}
+  local stick_names = {[0]= "R", "E", "T", "A" }
+  local ch_order=num
+  if (ch_order == -1) then
+    channel_names[0] = stick_names[3]
+    channel_names[1] = stick_names[1]
+    channel_names[2] = stick_names[2]
+    channel_names[3] = stick_names[0]
+  else
+    channel_names[bit32.band(ch_order,3)] = stick_names[3]
+    ch_order = math.floor(ch_order/4)
+    channel_names[bit32.band(ch_order,3)] = stick_names[1]
+    ch_order = math.floor(ch_order/4)
+    channel_names[bit32.band(ch_order,3)] = stick_names[2]
+    ch_order = math.floor(ch_order/4)
+    channel_names[bit32.band(ch_order,3)] = stick_names[0]
+  end
+
+  local s = ""
+  for i=0,3 do
+    s=s..channel_names[i]
+  end
+  return s
+end
+
 local function DSM_ReadTxModelData()
+    local TRANSLATE_AETR_TO_TAER=false
     local table = model.getInfo()   -- Get the model name 
     MODEL.modelName = table.name
 
@@ -539,7 +583,12 @@ local function DSM_ReadTxModelData()
     if (module~=nil) then
         if (module.Type==6 ) then -- MULTI-MODULE
             local chOrder = module.channelsOrder
-            LOG_write("MultiChannel Ch Order: [%s]\n",chOrder) 
+            local s = getModuleChannelOrder(chOrder)
+            LOG_write("MultiChannel Ch Order: [%s]  %s\n",chOrder,s) 
+
+            if (s=="AETR") then TRANSLATE_AETR_TO_TAER=true 
+            else TRANSLATE_AETR_TO_TAER=false 
+            end
         end
     end
 

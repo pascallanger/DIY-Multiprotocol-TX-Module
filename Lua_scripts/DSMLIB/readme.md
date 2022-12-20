@@ -1,37 +1,21 @@
 # Credits
 Code is based on the code/work by: Pascal Langer (Author of the Multi-Module) 
+Rewrite/Enhancements by: Francisco Arzu
 
-Rewrite/Enhancements By: Francisco Arzu 
+Thanks to many other people who volunteer to test it.
 
-# Introduction
+# Introduction  (v0.52)
 
-This script library is a rewrite of the original DSM forward programming Lua 
-Script.  The goal was to make it easier to understand, mantain, and to  
-separate the GUI from the DSM Forward programming engine/logic.
-In this way, GUIs can evolve independent. Color/Touch Gui, Text only GUI, etc.
+This script library enhace the original DSM Forward Programming tool. DSM Forward Programming is needed to setup many of
+the new Spektrum Receivers with Gyro AS3X/SAFE features. For the Gyro (/Safe) to correct the plane in flight,  it needs to move the right surfaces, the RX needs to know the
+configuration of the plane (Wing Type, Tail Type, Mixers, Servo Assigments, Servo Reverse). That info tells the RX where the aileron(s) are (one of two), where the elevator(s) are (one or two),  V-Tail, Delta Wing, etc. 
 
-Changes and fixes
-1. Menus to be able to configure Plane in a similar way as Spektrum Radio
-1. Make "Gyro Settings"->"Initial Setup" works (Tested on AR631,AR637xx with PLANE type of arcraft)
-2. Properly reset and restart after initial configuration and SAFE changes.
-3. Write Log of the conversation between RX/TX. To be use for debugging when some reports a problem.
-4. Provide a simulation of RX to do GUI development in Companion, and undestand patterns of how the data is organized.
+Since EdgeTx/OpenTx don't have equivalent setup that is persisted/stored in the radio, we had to create our own version. This info is stored inside the `/MODELS/DSMDATA` directory/folder (needs to be created by hand).
 
-# Tested RXs
-- AR631/AR637xx     Coded a hack to be able to make `Initial Setup` to work
-- FC6250HX (Helicopter)
-
-Most RX will run without problems, it could be that some others receivers will need to apply the same hack as the AR631 for some specific menus to work.
-Since is RX and Menu specific, we cannot create a general hack.
-
-Please report of you have test it with other receivers to update the documentation.   
-
-# Flight mode/Gain channels
-
-I ran into a case where trying to set Aux2 or Aux3 for flight mode, but the RX was correcting it to Aux1.. the RX only was allowing Gear or Aux1 (AR631/AR637).
-This is because the RX don't know that we are using more than 6 channels. To make the RX aware that there are other channels, while edditing the channel, you have to toggle the switch to excersist the channel (3 times), and now the RX will recognize it.
+During `"Gyro Settings->initial setup"`, the RX asks the TX for model information behind the scenes.  After setup, `"Gyro Settings->System Tools-> Relearn Servo Settings"` request the TX configuration and store it in the RX. 
 
 # Deployment
+Make sure to manually create `/MODELS/DSMDATA`  . The script will complain at startup.
 
     /SCRIPTS/TOOLS/DsmFwdPrg_05_BW.lua      -- black/white text only radios
     /SCRIPTS/TOOLS/DsmFwdPrg_05_Color.lua   -- Color+touch radios
@@ -40,8 +24,43 @@ This is because the RX don't know that we are using more than 6 channels. To mak
     /SCRIPTS/TOOLS/DSMLIB/DsmFwPrgSIMLib.lua -- Simulation of AR631, FC6250HX
     /SCRIPTS/TOOLS/DSMLIB/SetupLib.lua -- Model Setup Screns
     /SCRIPTS/TOOLS/DSMLIB/img        --Images for RX orientations
-    /SCRIPTS/TOOLS/DSMLIB/data       --Data of model config (Wing Type, Servo Assigments)
-    /LOGS/dsm_log.txt				--Readable log of the last RX/TX session, usefull for debuging new RX
+
+Other Directories
+
+    /MODELS/DSMDATA                 --(ALL CAPITALS) Data of model config (Wing Type, Servo Assigments)
+    /LOGS/dsm_log.txt				--Readable log of the last RX/TX session, usefull for debuging problems
+
+When upgrading from a previous version of this tool, delete your /SCRIPTS/TOOLS/DSMLIB before copying the new one  (if you customized your images, inside "DSMLIB/img" do a backup first)
+
+# Common Questions
+1. `RX not accepting channels greater Ch6 for Flight-mode o Gains:`  The RX corrects your channel to ch5 or ch6. This means that the RX is not detecting the upper channles from the TX. You need to exersise (move the switch) so that the RX detects it.   Put the Channel Field on edit (changing) mode, change it to Ch7 (or any other), flip the switch for Ch7 3 times, now confim the edit. The RX now will not reject it.   All Spektrum RX are 20 channels internally, even if it only have 6 external Ch/Ports to connect servos.
+
+2. `Why Ch1 says Ch1 (TX:Ch3/Thr)?`:
+ Radios with Multi-Module are usually configured to work the standard AETR convention. Spektrum uses TAER. The multi-module does the conversion when transmiting the signals. So `Spektrum Ch1 (Throttle)` really comes from the `TX Ch3`.  We show both information (+name from the TX output).  If your multi-module/radio is setup as TAER, the script will not do the re-arrangement.  
+
+---
+---
+
+# Changes and fixes 
+1. Menus to be able to configure Plane in a similar way as Spektrum Radio (v0.52)
+1. Make "Gyro Settings"->"Initial Setup" works (Tested on AR631,AR637xx with PLANE type of arcraft)
+2. Properly reset and restart after initial configuration and SAFE changes.
+3. Write Log of the conversation between RX/TX. To be use for debugging when some reports a problem.
+4. Provide a simulation of RX to do GUI development in Companion, and undestand patterns of how the data is organized.
+
+# Tested RXs
+- AR631/AR637xx
+- FC6250HX (Blade 230S V2 Helicopter)
+- AR636 (Blade 230S V1 Heli firmaware 4.40)
+
+Please report of you have test it with other receivers to update the documentation. Code should work up to 10 channels for the main surfaces (Ail/Ele/etc).  All Spektrum RX are internally 20 channels, so you can use Ch7 for Flight Mode even if your RX is only 6 channels (See common Questions)
+
+# Flight mode/Gain channels
+
+I ran into a case where trying to set Aux2 or Aux3 for flight mode, but the RX was correcting it to Aux1.. the RX only was allowing Gear or Aux1 (AR631/AR637).
+This is because the RX don't know that we are using more than 6 channels. To make the RX aware that there are other channels, while edditing the channel, you have to toggle the switch to excersist the channel (3 times), and now the RX will recognize it.
+
+
 
 # Messages Displayed in the GUI
 
@@ -131,7 +150,8 @@ If you go to the logs, you can see that the RX was correcting the value:
 - Properly detect Moltimodule Ch settings AETR 
 ---
 
-# Version 0.51
+# Version 0.51  (voluteer testing version, not for production)
+
 - New Screens to Configure Model (Wing Type/Tail Tail, etc)
 - Finally got understanding that the previous unknown 0x05 lines are to send Model/Servo data to RX.
 - Fix use of AR636B (Firmare version 4.40.0 for Blade 230 heli, is the only one with Forward Programing)
@@ -165,10 +185,9 @@ If you go to the logs, you can see that the RX was correcting the value:
 1. **Incorrect List Value Options:** Some Menu List line (`LINE_TYPE.LIST_MENU1` or `L_m1` in logs), the range (min/max) of valid values seems to be incorrect, but cannot see in the data how to fix it.
 Some of the valid values are not even sequential, very spread apart. There has to be a list of valid options somewhere. Currently fixed some by overriding the valid values in the script code (config for each field).
 
-2. **Unable to Load menu lines**: The RX return unknow lines when requesting menu lines. **Realy don't understand what they are for**. Some menus
-seems to stay stuck in the same return line or no response to the request, making the RX reset/close the connection and terminate.
-Was able to hack it for AR631/AR637 `"First Time Setup"`, `"First Time SAFE Setup"`, and `"Servo Realm"`.  Maybe this hack will work in other RX, so let us know if you get this problem.
+2. Glider/Heli/Drone wing types not ready.
 
+For Helicopter, use airplane normal wing and normal tail
 
 
 # Version 0.2

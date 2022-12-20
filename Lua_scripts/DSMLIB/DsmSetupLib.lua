@@ -724,7 +724,7 @@ local function ST_LoadMenu(menuId)
 
 
         local msg1 = "Data saved to: " 
-        local msg2 = DATA_PATH..hashName(MODEL.modelName)..".txt" 
+        local msg2 = "  "..DATA_PATH.."/"..hashName(MODEL.modelName)..".txt" 
 
         ctx.Menu = { MenuId = 0x1005, Text = "Config Saved", PrevId = 0, NextId = 0, BackId = 0, TextId=0 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, Text=msg1, TextId = 0, ValId = 0x1005 }
@@ -735,7 +735,7 @@ local function ST_LoadMenu(menuId)
     elseif (menuId==0x1006) then
         ST_LoadFileData()
         local msg1 = "Data restored from: " 
-        local msg2 = DATA_PATH..hashName(MODEL.modelName)..".txt" 
+        local msg2 = "  "..DATA_PATH.."/"..hashName(MODEL.modelName)..".txt" 
         
         ctx.Menu = { MenuId = 0x1006, Text = "Discart Changes", PrevId = 0, NextId = 0, BackId = 0, TextId=0 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, Text=msg1, TextId = 0, ValId = 0x1006 }

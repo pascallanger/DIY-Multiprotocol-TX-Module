@@ -125,7 +125,10 @@ If you go to the logs, you can see that the RX was correcting the value:
     20.680 VALUE_CHANGE_END: RESPONSE MenuValue: UPDATED: L[#0 T=L_m1 VId=0x1000 Text="FM Channel"[0x78] Val=6|"Aux1" NL=(0->32,0,S=53) [53->85,53] MId=0x7CA6 ]
 
 
-
+---
+# Version 0.52
+- Fix Reversing of Servos
+- Properly detect Moltimodule Ch settings AETR 
 ---
 # Version 0.51
 - New Screens to Configure Model (Wing Type/Tail Tail, etc)

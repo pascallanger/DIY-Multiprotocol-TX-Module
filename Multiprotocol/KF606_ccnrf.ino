@@ -20,6 +20,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 //#define FORCE_KF606_ORIGINAL_ID
 //#define FORCE_MIG320_ORIGINAL_ID
+//#define FORCE_ZCZ50_ORIGINAL_ID
 
 #define KF606_INITIAL_WAIT    500
 #define KF606_PACKET_PERIOD   3000
@@ -30,10 +31,16 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static void __attribute__((unused)) KF606_send_packet()
 {
+	uint8_t len = KF606_PAYLOAD_SIZE;
 	if(IS_BIND_IN_PROGRESS)
 	{
-		packet[0] = 0xAA;
-		memcpy(&packet[1],rx_tx_addr,3);
+		if(sub_protocol != KF606_ZCZ50)
+		{
+			packet[0] = 0xAA;
+			memcpy(&packet[1],rx_tx_addr,3);
+		}
+		else
+			memcpy(packet,rx_tx_addr,4);
 	}
 	else
 	{
@@ -43,25 +50,32 @@ static void __attribute__((unused)) KF606_send_packet()
 		packet[0] = 0x55;
 		packet[1] = convert_channel_8b(THROTTLE);					// 0..255
 		// Deadband is needed on aileron, 40 gives +-6%
-		if(sub_protocol == KF606_KF606)
+		switch(sub_protocol)
 		{
-			packet[2] = convert_channel_8b_limit_deadband(AILERON,0x20,0x80,0xE0,40);	// Aileron: Max values:20..80..E0, Low rates:50..80..AF, High rates:3E..80..C1
-			packet[3] = convert_channel_16b_limit(CH5,0xC1,0xDF);						// Aileron trim must be on a separated channel C1..D0..DF
-		}
-		else
-		{
-			packet[2] = convert_channel_8b_limit_deadband(AILERON,0x00,0x80,0xFF,40);	// Aileron: High rate:2B..80..DA
-			packet[3] = convert_channel_16b_limit(CH5,0x01,0x1F);						// Aileron trim must be on a separated channel 01..10..1F
-			packet[3] += (packet[2]-0x80)>>3;											// Drive trims for more aileron authority
-			if(packet[3] > 0x80)
-				packet[3] = 0x01;
-			else if(packet[3] > 0x1F)
-				packet[3] = 0x1F;
-			packet[3] |= GET_FLAG(CH6_SW, 0xC0);										// 0xC0 and 0xE0 are both turning the LED off, not sure if there is another hidden feature
+			case KF606_KF606:
+				packet[2] = convert_channel_8b_limit_deadband(AILERON,0x20,0x80,0xE0,40);	// Aileron: Max values:20..80..E0, Low rates:50..80..AF, High rates:3E..80..C1
+				packet[3] = convert_channel_16b_limit(CH5,0xC1,0xDF);						// Aileron trim must be on a separated channel C1..D0..DF
+				break;
+			case KF606_MIG320:
+				packet[2] = convert_channel_8b_limit_deadband(AILERON,0x00,0x80,0xFF,40);	// Aileron: High rate:2B..80..DA
+				packet[3] = convert_channel_16b_limit(CH5,0x01,0x1F);						// Aileron trim must be on a separated channel 01..10..1F
+				packet[3] += (packet[2]-0x80)>>3;											// Drive trims for more aileron authority
+				if(packet[3] > 0x80)
+					packet[3] = 0x01;
+				else if(packet[3] > 0x1F)
+					packet[3] = 0x1F;
+				packet[3] |= GET_FLAG(CH6_SW, 0xC0);										// 0xC0 and 0xE0 are both turning the LED off, not sure if there is another hidden feature
+				break;
+			case KF606_ZCZ50:
+				len--;																		// uses only 3 bytes of payload
+				packet[0] = packet[1];														// Throttle: 0x00..0xFF
+				packet[1] = convert_channel_8b_limit_deadband(AILERON,0x20,0x80,0xE0,40);	// Aileron: Max values:20..80..E0, low rate 0x52..0x80..0xB1, high rate: 0x41..0x80..0xC3.
+				packet[2] = convert_channel_16b_limit(CH5,0x01,0x1F);						// Trim: 0x01..0x10..0x1F
+				packet[2] |= GET_FLAG(CH6_SW, 0xC0);										// Unknown: 0x00 or 0xC0. Left top switch on original TX changes nothing on my plane. Maybe ON/OFF for main motor?
+				break;
 		}
 	}
 
-	uint8_t len = KF606_PAYLOAD_SIZE;
 	if(sub_protocol == KF606_MIG320)
 	{
 		len++;
@@ -107,6 +121,19 @@ static void __attribute__((unused)) KF606_initialize_txid()
 		hopping_frequency[0]=68;
 		hopping_frequency[1]=71;
 	#endif
+	if(sub_protocol == KF606_ZCZ50)
+	{
+		rx_tx_addr[1] = rx_tx_addr[0];
+		rx_tx_addr[0]=0xAA;
+	}
+	#ifdef FORCE_ZCZ50_ORIGINAL_ID
+		rx_tx_addr[0]=0xAA;
+		rx_tx_addr[1]=0x67;
+		rx_tx_addr[2]=0x64;
+		rx_tx_addr[3]=0x01;
+		hopping_frequency[0]=48;
+		hopping_frequency[1]=51;
+	#endif
 }
 
 static void __attribute__((unused)) KF606_RF_init()
@@ -126,7 +153,7 @@ uint16_t KF606_callback()
 		if(--bind_counter==0)
 		{
 			BIND_DONE;
-			XN297_SetTXAddr(rx_tx_addr, 3);
+			XN297_SetTXAddr(rx_tx_addr, sub_protocol != KF606_ZCZ50 ? 3 : 4);
 		}
 	KF606_send_packet();
 	return KF606_PACKET_PERIOD;
@@ -153,3 +180,14 @@ void KF606_init()
 // P[2] = AIL 2B..80..DA
 // P[3] = TRIM 01..10..1F
 // channels 68=BB&3F+9 and 71
+
+
+// ZCZ50v2 protocol (with fake front propeller)
+// Bind
+// 250K C=7 S=Y A= E7 E7 E7 E7 E7 P(4)= AA 67 64 01
+// 3ms on ch7
+// Normal
+// 250K C=48 S=Y A= AA 67 64 01 P(3)= 00 80 10
+// P[0] = THR 0x00..0xFF
+// P[1] = AIL low rate 0x52..0x80..0xB1, high rate: 0x41..0x80..0xC3
+// P[2] = TRIM 0x01..0x10..0x1F + UNKNOWN 0x00 or 0xC0

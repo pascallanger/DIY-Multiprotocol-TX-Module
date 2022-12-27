@@ -110,7 +110,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|||||||||CYRF6936|
 [JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345|SkyTmblr|||||||NRF24L01|XN297
 [JOYSWAY](Protocols_Details.md#JOYSWAY---84)|84|||||||||NRF24L01|XN297
-[KF606](Protocols_Details.md#KF606---49)|49|KF606|MIG320|||||||NRF24L01|XN297
+[KF606](Protocols_Details.md#KF606---49)|49|KF606|MIG320|ZCZ50||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
 [Kyosho2](Protocols_Details.md#Kyosho2---93)|93|KT-17||||||||NRF24L01|
@@ -1048,6 +1048,15 @@ Model: Zhiyang MIG-320
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A||T||TRIM|LED
+
+### Sub_protocol ZCZ50v2 - *2*
+Model: ZC-Z50 Cessna
+
+This might be newer version of the model. My plane does not have front propeller, but its just fake anyway (no motor in the front).
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A||T||TRIM|UNKNOWN
 
 ## MJXQ - *18*
 Autobind protocol

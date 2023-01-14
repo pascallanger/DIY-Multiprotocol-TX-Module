@@ -460,6 +460,7 @@ enum FX
 {
 	FX816			= 0,
 	FX620			= 1,
+    FX9630          = 2,
 };
 
 #define NONE 		0

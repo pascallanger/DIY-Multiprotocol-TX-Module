@@ -171,7 +171,7 @@ const char STR_SUBTYPE_KYOSHO2[] =    "\x05""KT-17";
 const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
 const char STR_SUBTYPE_MOULKG[] =     "\x06""Analog""Digit\0";
-const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320";
+const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320""ZCZ50\0";
 const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
 const char STR_SUBTYPE_FX[] =         "\x03""816""620";
 #define NO_SUBTYPE		nullptr
@@ -360,7 +360,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_JOYSWAY,    STR_JOYSWAY,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_A7105,  JOYSWAY_init,    JOYSWAY_callback    },
 	#endif
 	#if defined(KF606_CCNRF_INO)
-		{PROTO_KF606,      STR_KF606,     STR_SUBTYPE_KF606,     2, OPTION_RFTUNE,  0, 0, SW_NRF,    KF606_init,      KF606_callback      },
+		{PROTO_KF606,      STR_KF606,     STR_SUBTYPE_KF606,     3, OPTION_RFTUNE,  0, 0, SW_NRF,    KF606_init,      KF606_callback      },
 	#endif
 	#if defined(KN_NRF24L01_INO)
 		{PROTO_KN,         STR_KN,        STR_SUBTYPE_KN,        2, OPTION_NONE,    0, 0, SW_NRF,    KN_init,         KN_callback         },

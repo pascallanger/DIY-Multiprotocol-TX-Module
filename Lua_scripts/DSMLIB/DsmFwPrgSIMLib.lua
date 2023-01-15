@@ -664,6 +664,7 @@ local function AR631_loadMenu(menuId)
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x0101, ValId = 0x104F }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x0102, ValId = 0x104F }
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x0103, ValId = 0x104F }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x0104, ValId = 0x104F }
         ctx.SelLine = dsmLib.NEXT_BUTTON
         lastGoodMenu = menuId
     elseif (menuId==0x1050) then  
@@ -679,6 +680,7 @@ local function AR631_loadMenu(menuId)
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0x0107, ValId = 0x1050 }
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x0108, ValId = 0x1050 }
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x0109, ValId = 0x1050 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x010A, ValId = 0x1050 }
         ctx.SelLine = dsmLib.NEXT_BUTTON
         lastGoodMenu = menuId
     elseif (menuId==0x1051) then 

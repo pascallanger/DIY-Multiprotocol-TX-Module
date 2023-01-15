@@ -1,5 +1,5 @@
-local toolName = "TNS|DSM Forward Prog v0.52 (Text B&W) |TNE"
-local VERSION  = "v0.52"
+local toolName = "TNS|DSM Forward Prog v0.53 (Text B&W) |TNE"
+local VERSION  = "v0.53"
 
 
 ---- #########################################################################
@@ -109,8 +109,12 @@ end
 
 local function GUI_Diplay_Button(x,y,w,h,text,selected)
   local attr = (selected) and INVERS or 0    -- INVERS if line Selected
-  lcd.drawText(x+5,y+2, text, attr + TEXT_SIZE)
-  lcd.drawRectangle(x, y, w, h, LINE_COLOR)
+  if (TEXT_SIZE~=SMLSIZE) then
+    lcd.drawText(x+5,y+2, text, attr + TEXT_SIZE)
+    lcd.drawRectangle(x, y, w, h, LINE_COLOR)
+  else -- SMALL Screen
+    lcd.drawText(x,y, text, attr + TEXT_SIZE)
+  end
 end
 
 local function GUI_Display_Menu(menu)
@@ -120,11 +124,9 @@ local function GUI_Display_Menu(menu)
   -- Center Header
   local tw = openTx_lcd_sizeText(menu.Text) 
   local x = w/2 - tw/2  -- Center of Screen - Center of Text
+  if (x < 0) then x=0 end -- in case text is too wide
 
-  local bold = 0
-  if (TEXT_SIZE~=SMLSIZE) then  -- Ignore Bold on small size screens
-      bold = BOLD
-  end
+  local bold = BOLD
   lcd.drawText(x,LCD_Y_MENU_TITLE,menu.Text,bold + TEXT_SIZE)
 
   -- Back
@@ -154,17 +156,16 @@ local function GUI_Display_Line_Menu(x,y,w,h,line,selected)
       -- Menu Line
       text = text .. "  >"  
   else  -- SubHeaders and plain text lines
-      if (TEXT_SIZE~=SMLSIZE) then -- ignore bold on small size screens
-        bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0  
-      end
+      bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._BOLD) and BOLD) or 0  
     
-      if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.RIGHT) then -- Right Align???
+      if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._RIGHT) then -- Right Align???
           local tw = openTx_lcd_sizeText(line.Text)+4
           x =  LCD_X_LINE_VALUE - tw     -- Right 
-      elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.CENTER) then -- Center??
+      elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._CENTER) then -- Center??
           local tw = openTx_lcd_sizeText(line.Text) 
           x =  x + (LCD_X_LINE_VALUE - LCD_X_LINE_MENU)/2 - tw/2  -- Center - 1/2 Text
       end
+      if (x < 0) then x=0 end -- in case text is too wide
   end
 
   lcd.drawText(x,y, text, attr + bold + TEXT_SIZE)
@@ -185,17 +186,16 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
        header = dsmLib.GetFlightModeValue(line)
 
       -- Flight mode display attributes
-      if (TEXT_SIZE~=SMLSIZE) then -- ignore bold on small size screens
-          bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0
-      end
+      bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._BOLD) and BOLD) or 0
 
-      if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.RIGHT) then -- Right Align
+      if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._RIGHT) then -- Right Align
           local tw = openTx_lcd_sizeText(header)+4
           x =  LCD_X_LINE_VALUE - tw     -- Right 
-      elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.CENTER) then -- Centered
+      elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._CENTER) then -- Centered
           local tw = openTx_lcd_sizeText(header)
           x =  x + (LCD_X_LINE_VALUE - LCD_X_LINE_TITLE)/2 - tw/2  -- Center - 1/2 Text
       end
+      if (x < 0) then x=0 end -- in case text is too wide
   else
     -- No Flight Mode, no effects here
     header = header .. ":"
@@ -211,7 +211,7 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
       attrib = INVERS
       if editing then -- blink editing entry
         attrib = attrib + BLINK
-        value = "[ " .. value .. " ]"
+        value = "[" .. value .. "]"
       end
     end
     
@@ -228,7 +228,14 @@ local function GUI_ShowBitmap(x,y,imgData)
   local f = string.gmatch(imgData, '([^%|]+)') -- Iterator over values split by '|'
   local imgName, imgMsg = f(), f()
 
-  lcd.drawText(x, y, imgMsg or "")  -- Alternate Image MSG 
+  if (LCD_W > 128) then
+    lcd.drawText(x, y, imgMsg or "", TEXT_SIZE)  -- Alternate Image MSG 
+  else
+    local f = string.gmatch(imgMsg, '([^%:]+)') -- Iterator over values split by ':'
+    local msg1,msg2 = f(), f()
+    lcd.drawText(x, y, (msg1 or "")..":", TEXT_SIZE)  -- Alternate Image MSG 
+    lcd.drawText(x, y+10, msg2 or "", TEXT_SIZE)  -- Alternate Image MSG 
+  end
 
   -- NO IMAGES in Text B&W 
   --local imgPath = IMAGE_PATH .. (imgName or "")
@@ -242,16 +249,22 @@ end
 local function GUI_Display()
   local ctx = DSM_Context
   lcd.clear()
+  local header = "DSM Fwrd Programming      "
+
+  if (TEXT_SIZE==SMLSIZE) then -- Small Screen no title
+    header = ""
+  end
  
-    local header = "DSM Fwrd Programming      "
     if ctx.Phase ~= PHASE.RX_VERSION then
-      header = header .. "RX "..ctx.RX.Name.." v"..ctx.RX.Version
+      header = header .. ctx.RX.Name.." v"..ctx.RX.Version
     end
 
     --Draw title
     if (TEXT_SIZE~=SMLSIZE) then -- ignore tool title small size screens
         lcd.drawFilledRectangle(0, 0, LCD_W, 20, TITLE_BGCOLOR)
         lcd.drawText(5, 0, header, MENU_TITLE_COLOR  + TEXT_SIZE)
+    else -- Small Screen
+        lcd.drawText(20, LCD_Y_LOWER_BUTTONS+1, header, TEXT_SIZE)
     end
     --Draw RX Menu
     if ctx.Phase == PHASE.RX_VERSION then
@@ -402,6 +415,7 @@ local function GUI_HandleEvent(event, touchState)
           -- enter Edit the current line  
           ctx.EditLine = ctx.SelLine
           originalValue = menuLines[ctx.SelLine].Val
+          dsmLib.ChangePhase(PHASE.VALUE_CHANGING_WAIT)
         end
       end
     end
@@ -422,20 +436,20 @@ local function init_screen_pos()
       TEXT_SIZE             = SMLSIZE
       LCD_W_USABLE          = 128
 
-      LCD_W_BUTTONS          = 30
-      LCD_H_BUTTONS          = 17
-      LCD_X_RIGHT_BUTTONS    = 128 - LCD_W_BUTTONS - 5
+      LCD_W_BUTTONS          = 16
+      LCD_H_BUTTONS          = 10
+      LCD_X_RIGHT_BUTTONS    = 128 - LCD_W_BUTTONS - 3
 
       LCD_X_LINE_MENU       = 0  
       -- X offsets for (Title: [Value] debugInfo) lines
       LCD_X_LINE_TITLE      = 0
-      LCD_X_LINE_VALUE      = 90
+      LCD_X_LINE_VALUE      = 75
       LCD_X_LINE_DEBUG      = 110
 
-      LCD_Y_LINE_HEIGHT      = 17
+      LCD_Y_LINE_HEIGHT      = 7
       LCD_Y_MENU_TITLE       = 0
-      LCD_Y_LINE_FIRST       = LCD_Y_MENU_TITLE + 17
-      LCD_Y_LOWER_BUTTONS    = LCD_Y_LINE_FIRST + 7 * LCD_Y_LINE_HEIGHT
+      LCD_Y_LINE_FIRST       = LCD_Y_MENU_TITLE + 8
+      LCD_Y_LOWER_BUTTONS    = LCD_Y_LINE_FIRST + (7 * LCD_Y_LINE_HEIGHT)
     end
 end
 
@@ -443,20 +457,32 @@ local function GUI_Warning(event)
   lcd.clear()
   local header = "DSM Forward Programming "..VERSION.."                   "
   --Draw title
-  lcd.drawFilledRectangle(0, 0, LCD_W, 17, TITLE_BGCOLOR)
-  lcd.drawText(5, 0, header,  MENU_TITLE_COLOR  + TEXT_SIZE)
+  if (LCD_W > 128) then
+    lcd.drawFilledRectangle(0, 0, LCD_W, 17, TITLE_BGCOLOR)
+    lcd.drawText(5, 0, header,  MENU_TITLE_COLOR  + TEXT_SIZE)
 
-  lcd.drawText(100,20,"INFO", BOLD)
-  lcd.drawText(5,40,"DSM Forward programing shares TX Servo/Output settings", 0)
-  lcd.drawText(5,60,"with the RX. Make sure you setup your plane first in ", 0)
-  lcd.drawText(5,80,"the TX before your start programming your RX.", 0)
-  lcd.drawText(5,100,"Wing & Tail type can be configured using this tool.", 0)
+    lcd.drawText(100,20,"INFO", BOLD)
+    lcd.drawText(5,40,"DSM Forward programing shares TX Servo/Output settings", TEXT_SIZE)
+    lcd.drawText(5,60,"with the RX. Make sure you setup your plane first in ", TEXT_SIZE)
+    lcd.drawText(5,80,"the TX before your start programming your RX.", TEXT_SIZE)
+    lcd.drawText(5,100,"Wing & Tail type can be configured using this tool.", TEXT_SIZE)
 
-  lcd.drawText(5,150,"TX Servo settings are sent to the RX during 'Initial Setup'", 0)
-  lcd.drawText(5,170,"as well as when using RX menu 'Relearn Servo Settings'", 0)
-  lcd.drawText(5,200,"ALWAYS TEST Gyro reactions after this conditions before flying.", BOLD)
+    lcd.drawText(5,150,"TX Servo settings are sent to the RX during 'Initial Setup'", TEXT_SIZE)
+    lcd.drawText(5,170,"as well as when using RX menu 'Relearn Servo Settings'", TEXT_SIZE)
+    lcd.drawText(5,200,"ALWAYS TEST Gyro reactions after this conditions before flying.", BOLD+TEXT_SIZE)
 
-  lcd.drawText(100,250,"    OK     ", INVERS + BOLD)
+    lcd.drawText(100,250,"    OK     ", INVERS + BOLD + TEXT_SIZE)
+  else
+    lcd.drawText(0,15,"Make sure you setup your plane", TEXT_SIZE)
+    lcd.drawText(0,22,"first. Wing and Tail type.", TEXT_SIZE)
+
+    lcd.drawText(0,30,"TX Servo settings are sent to ", TEXT_SIZE)
+    lcd.drawText(0,37,"the RX during 'Initial Setup' and ", TEXT_SIZE)
+    lcd.drawText(0,45,"ALWAYS TEST Gyro reactions", TEXT_SIZE)
+    lcd.drawText(0,52,"before flying!!!", TEXT_SIZE)
+
+    lcd.drawText(10,0,"    OK     ", INVERS + BOLD + TEXT_SIZE)
+  end
 
   if event == EVT_VIRTUAL_EXIT or event == EVT_VIRTUAL_ENTER then
     warningScreenON = false

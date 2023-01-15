@@ -24,7 +24,7 @@
 ------------------------------------------------------------------------------
 
 local DEBUG_ON, SIMULATION_ON = ... -- Get DebugON from parameters
-local SETUP_LIB_VERSION = "0.52"
+local SETUP_LIB_VERSION = "0.53"
 
 local DATA_PATH = "/MODELS/DSMDATA" -- Path to store model settings files
 local dsmLib = assert(loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua"))(DEBUG_ON)
@@ -698,7 +698,7 @@ local function ST_LoadMenu(menuId)
        
         if (menuDataChanged) then
             ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, Text="Save Changes", TextId = 0, ValId = 0x1005 }
-            ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, Text="Discart Changes", TextId = 0, ValId = 0x1006 }
+            ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, Text="Discard Changes", TextId = 0, ValId = 0x1006 }
             ctx.SelLine = 4 
         else
             if (SIMULATION_ON) then
@@ -841,7 +841,8 @@ local function ST_LoadMenu(menuId)
         ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT4], TextId = 0, ValId = MEMU_VAR.PORT4_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT4_MODE], Format = formatTXRevert(PORT.PORT4) }
         ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT5], TextId = 0, ValId = MEMU_VAR.PORT5_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT5_MODE], Format = formatTXRevert(PORT.PORT5) }
 
-        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, Text="      Usually Rud/Ail needs to be the oposite of the TX", TextId = 0, ValId = 0x1030 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, Text="Only Thr/Ail/Rud/Ele. This affects AS3X/SAFE reaction dir./b", TextId = 0, ValId = 0x1030 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, Text="Any changes, use RX 'Relearn Servo Settings'/b", TextId = 0, ValId = 0x1030 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -854,7 +855,8 @@ local function ST_LoadMenu(menuId)
         ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT9], TextId = 0, ValId = MEMU_VAR.PORT9_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT9_MODE], Format = formatTXRevert(PORT.PORT9) }
         ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT10], TextId = 0, ValId = MEMU_VAR.PORT10_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT10_MODE], Format = formatTXRevert(PORT.PORT10) }
      
-        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, Text="      Usually Rud/Ail needs to be the oposite of the TX", TextId = 0, ValId = 0x1031 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, Text="Only Thr/Ail/Rud/Ele. This affects AS3X/SAFE reaction dir./b", TextId = 0, ValId = 0x1031 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, Text="Any changes, use RX 'Relearn Servo Settings'/b", TextId = 0, ValId = 0x1031 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId

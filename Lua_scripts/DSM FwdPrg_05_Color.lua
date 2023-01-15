@@ -1,5 +1,5 @@
-local toolName = "TNS|DSM Forward Prog v0.52 (Color+Touch) |TNE"
-local VERSION  = "v0.52"
+local toolName = "TNS|DSM Forward Prog v0.53 (Color+Touch) |TNE"
+local VERSION  = "v0.53"
 
 ---- #########################################################################
 ---- #                                                                       #
@@ -210,12 +210,12 @@ local function GUI_Display_Line_Menu(lineNum,line,selected)
     -- Non Selectable Menu Lines, plain text
     -- Can be use for sub headers or just regular text lines (like warnings)
 
-    local bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0  
+    local bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._BOLD) and BOLD) or 0  
 
-    if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.RIGHT) then -- Right Align???
+    if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._RIGHT) then -- Right Align???
         local tw = my_lcd_sizeText(line.Text)+4
         x =  LCD_X_LINE_VALUE - tw     -- Right 
-    elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.CENTER) then -- Center??
+    elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._CENTER) then -- Center??
         local tw = my_lcd_sizeText(line.Text) 
         x =  x + (LCD_X_LINE_VALUE - LCD_X_LINE_MENU)/2 - tw/2  -- Center - 1/2 Text
     end
@@ -240,12 +240,12 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
       header = dsmLib.GetFlightModeValue(line)
 
       -- Bold Text???
-      bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.BOLD) and BOLD) or 0
+      bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._BOLD) and BOLD) or 0
 
-      if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.RIGHT) then -- Right Align
+      if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._RIGHT) then -- Right Align
           local tw = my_lcd_sizeText(header)+4
           x =  LCD_X_LINE_VALUE - tw     -- Right 
-      elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR.CENTER) then -- Centered
+      elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._CENTER) then -- Centered
           local tw = my_lcd_sizeText(header)
           x =  x + (LCD_X_LINE_VALUE - LCD_X_LINE_TITLE)/2 - tw/2  -- Center - 1/2 Text
       end
@@ -590,6 +590,7 @@ local function GUI_HandleEvent(event, touchState)
         else    -- Edit the current value  
           ctx.EditLine = ctx.SelLine
           originalValue = menuLines[ctx.SelLine].Val
+          dsmLib.ChangePhase(PHASE.VALUE_CHANGING_WAIT)
         end
       end
     end
@@ -635,11 +636,11 @@ local function GUI_Warning(event,touchState)
   lcd.drawText(100,20,"INFO", BOLD)
   lcd.drawText(5,40,"DSM Forward programing shares TX Servo/Output settings", 0)
   lcd.drawText(5,60,"with the RX. Make sure you setup your plane first in ", 0)
-  lcd.drawText(5,80,"the TX before your start programming your RX.", 0)
+  lcd.drawText(5,80,"the TX before your start Fwrd programming your RX.", 0)
   lcd.drawText(5,100,"Wing & Tail type can be configured using this tool.", 0)
 
-  lcd.drawText(5,150,"TX Servo settings are sent to the RX during 'Initial Setup'", 0)
-  lcd.drawText(5,170,"as well as when using RX menu 'Relearn Servo Settings'", 0)
+  lcd.drawText(5,150,"TX Gyro Servo settings are sent to the RX during 'Initial Setup'", 0)
+  lcd.drawText(5,170,"as well as when using RX 'Relearn Servo Settings'", 0)
   lcd.drawText(5,200,"ALWAYS TEST Gyro reactions after this conditions before flying.", BOLD)
 
   lcd.drawText(100,250,"    OK     ", INVERS + BOLD)

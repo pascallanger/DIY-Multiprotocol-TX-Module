@@ -40,7 +40,7 @@
 
 
 local DEBUG_ON = ... -- Get Debug_ON from parameters.  -- 0=NO DEBUG, 1=HIGH LEVEL 2=MORE DETAILS 
-local LIB_VERSION = "0.52"
+local LIB_VERSION = "0.53"
 
 local Lib = { Init_Text = function (rxId) end }
 
@@ -105,8 +105,9 @@ local CH_MIX_TYPE = {
     NORM_REV     = 0x70
 }
 
+-- Bug in Lua compiler, confusing with global BOLD and RIGHT
 local DISP_ATTR = {
-    BOLD = 0x01,  RIGHT=0x02, CENTER=0x04, PERCENT = 0x10, DEGREES=0x20, FORCED_MENU = 0x40 
+    _BOLD = 0x01,  _RIGHT=0x02, _CENTER=0x04, PERCENT = 0x10, DEGREES=0x20, FORCED_MENU = 0x40 
 }
 
 local DSM_Context = {
@@ -375,12 +376,13 @@ local function menuLine2String(l)
             end    
         end
 
-        txt = string.format("L[#%s T=%s VId=0x%X Text=\"%s\"[0x%X] %s %s MId=0x%X ]",
+        txt = string.format("L[#%s T=%s VId=0x%X Text=\"%s\"[0x%X] %s %s MId=0x%X A=0x%X]",
             l.lineNum, lineType2String(l.Type), l.ValId,
             l.Text, l.TextId,
             value,
             range,
-            l.MenuId
+            l.MenuId,
+            l.TextAttr
         )
     end
     return txt
@@ -460,29 +462,33 @@ local function isDisplayAttr(attr, bit)
 end
 
 local function ExtractDisplayAttr(text1, attr)
-    local text, pos = string.gsub(text1, "/c", "")
-    if (pos>0) then -- CENTER
-        attr = bit32.bor(attr, DISP_ATTR.CENTER)
-    end
+    local text = text1, pos;
 
-    text, pos = string.gsub(text, "/r", "")
-    if (pos>0) then -- RIGHT
-        attr = bit32.bor(attr, DISP_ATTR.RIGHT)
-    end
+    for i=1,2 do
+        text, pos = string.gsub(text, "/c$", "")
+        if (pos>0) then -- CENTER
+            attr = bit32.bor(attr, DISP_ATTR._CENTER)
+        end
 
-    text, pos = string.gsub(text, "/p", "")
-    if (pos>0) then -- Percent TEXT
-        attr = bit32.bor(attr, DISP_ATTR.PERCENT)
-    end
+        text, pos = string.gsub(text, "/r$", "")
+        if (pos>0) then -- RIGHT
+            attr = bit32.bor(attr, DISP_ATTR._RIGHT)
+        end
 
-    text, pos = string.gsub(text, "/b", "")
-    if (pos>0) then -- BOLD TEXT
-        attr = bit32.bor(attr, DISP_ATTR.BOLD)
-    end
+        text, pos = string.gsub(text, "/p$", "")
+        if (pos>0) then -- Percent TEXT
+            attr = bit32.bor(attr, DISP_ATTR.PERCENT)
+        end
 
-    text, pos = string.gsub(text, "/m", "")
-    if (pos>0) then -- FORCED MENU Button 
-        attr = bit32.bor(attr, DISP_ATTR.FORCED_MENU)
+        text, pos = string.gsub(text, "/b$", "")
+        if (pos>0) then -- BOLD TEXT
+            attr = bit32.bor(attr, DISP_ATTR._BOLD)
+        end
+
+        text, pos = string.gsub(text, "/m$", "")
+        if (pos>0) then -- FORCED MENU Button 
+            attr = bit32.bor(attr, DISP_ATTR.FORCED_MENU)
+        end
     end
 
     return text, attr 
@@ -631,7 +637,12 @@ local function DSM_ReadTxModelData()
         local ch =  MODEL.modelOutputChannel[i]
         if (ch~=nil) then
             MODEL.TX_CH_TEXT[i] = ch.formatCh
-            MODEL.PORT_TEXT[i] = string.format("Port%i (%s) ",i+1,MODEL.TX_CH_TEXT[i])
+            if LCD_W <= 128 then -- SMALLER SCREENS
+                MODEL.PORT_TEXT[i] = string.format("P%i (%s) ",i+1,MODEL.TX_CH_TEXT[i])
+            else
+                MODEL.PORT_TEXT[i] = string.format("Port%i (%s) ",i+1,MODEL.TX_CH_TEXT[i])
+            end
+            
             LOG_write("Port%d %s [%d,%d] Rev=%d, Off=%d, ppmC=%d, syn=%d\n",i+1,MODEL.TX_CH_TEXT[i],math.floor(ch.min/10),math.floor(ch.max/10), ch.revert, ch.offset, ch.ppmCenter, ch.symetrical)
         end
     end
@@ -853,14 +864,17 @@ end
 
 local function DSM_validateMenuValue(valId, text, line)
     if (DEBUG_ON) then LOG_write("SEND DSM_validateMenuValue(ValueId=0x%X) Extra: Text=\"%s\" Value=%s\n", valId, text, lineValue2String(line)) end
-    DSM_send(0x19, 0x06, int16_MSB(valId), int16_LSB(valId)) 
-    -- Pascal: i think the 2nd byte is the leghts of the entire message in bytes, so instead of 0x06, should be 0x04 for here.. work both ways
+    DSM_send(0x19, 0x04, int16_MSB(valId), int16_LSB(valId)) 
 end
 
-local function DSM_menuValueChangingWait(valId, text, line)
-    if (DEBUG_ON) then LOG_write("SEND DSM_menuValueChangingWait(ValueId=0x%X) Extra: Text=\"%s\"  Value=%s\n", valId, text, lineValue2String(line)) end
-    DSM_send(0x1A, 0x06, int16_MSB(valId), int16_LSB(valId))
-     -- Pascal: i think the 2nd byte is the leghts of the entire message in bytes, so instead of 0x06, should be 0x04 for here.. work both ways
+local function DSM_menuValueChangingWait(lineNum, text, line)
+    if (DEBUG_ON) then LOG_write("SEND DSM_menuValueChangingWait(lineNo=0x%X) Extra: Text=\"%s\"  Val=%s\n", lineNum, text, lineValue2String(line)) end
+    DSM_send(0x1A, 0x04, int16_MSB(lineNum), int16_LSB(lineNum))
+end
+
+local function DSM_menuValueChangingWaitEnd(lineNum, text, line)
+    if (DEBUG_ON) then LOG_write("SEND DSM_menuValueChangingEnd(lineNo=0x%X) Extra: Text=\"%s\"  Value=%s\n", lineNum, text, lineValue2String(line)) end
+    DSM_send(0x1B, 0x04, int16_MSB(lineNum), int16_LSB(lineNum))
 end
 
 -- Send the functionality of the RX channel Port (channel)
@@ -1008,25 +1022,29 @@ local function DSM_sendRequest()
         DSM_getNextMenuValue(ctx.Menu.MenuId, line.ValId, line.Text)
 
     elseif ctx.Phase == PHASE.VALUE_CHANGING then -- send value
-        local line = ctx.MenuLines[ctx.SelLine] -- Updated Value of SELECTED line
+        local line = ctx.MenuLines[ctx.SelLine] -- Updated Value of SELECTED line       
         DSM_updateMenuValue(line.ValId, line.Val, line.Text, line)
         ctx.Phase = PHASE.VALUE_CHANGING_WAIT
 
     elseif ctx.Phase == PHASE.VALUE_CHANGING_WAIT then
         local line = ctx.MenuLines[ctx.SelLine]
-        DSM_menuValueChangingWait(line.ValId, line.Text, line)
+        DSM_menuValueChangingWait(line.lineNum, line.Text, line)
 
     elseif ctx.Phase == PHASE.VALUE_CHANGE_END then -- send value
         -- This is a 2 step operation.. Send the value first, then send the Verification.. Value_Changed_Step used for that
         -- on the validation, the RX will set a valid value if the value is invalid. A Menu_Value Message will come from the RX 
 
-        local line = ctx.MenuLines[ctx.SelLine] -- Updat Value of SELECTED line
+        local line = ctx.MenuLines[ctx.SelLine] -- Update Value of SELECTED line
         if Value_Change_Step == 0 then  
             DSM_updateMenuValue(line.ValId, line.Val, line.Text, line)
             Value_Change_Step = 1
             Waiting_RX = 0 -- Keep on Transmitin State, since we want to send a ValidateMenuValue inmediatly after
-        else  -- Validate the value
+        elseif Value_Change_Step == 1 then -- Validate the value
             DSM_validateMenuValue(line.ValId, line.Text, line)
+            Value_Change_Step = 2
+            Waiting_RX = 0 -- Keep on Transmitin State, since we want to send a ValidateMenuValue inmediatly after
+        else  -- No more waiting for changes
+            DSM_menuValueChangingWaitEnd(line.lineNum, line.Text, line)
             Value_Change_Step = 0
         end
 
@@ -1373,7 +1391,7 @@ end
 local function DSM_Init_Text(rxId)
     --Text to be displayed
     -- For menu lines who are not navigation to other menus (SubHeders or Plain text)
-    -- you can use some formatting options:
+    -- you can use some formatting options AT THE END OF THE STRING :
 
     -- Text allightment:  /c = CENTER, /r = RIGHT
     -- Text effects:  /b = BOLD
@@ -1382,7 +1400,7 @@ local function DSM_Init_Text(rxId)
     --      is usually a message line.. but sometimes, we want to navigate to the same page to refresh values
 
     -- array List_Values:
-    -- For some Menu LIST VALUES, special Lines of type:LIST_MENU1, the valod options seems not
+    -- For some Menu LIST VALUES, special Lines of type:LIST_MENU1, the valur options seems not
     -- to be contiguos,  the array "Menu_List_Values" can help narrow down the 
     -- valid menu options. I think this should come from the RX, but cant find where.
     -- Most of the times, Limes of type LIST_MENU1 comes with a 0->244 value range that is not correct
@@ -1435,7 +1453,7 @@ local function DSM_Init_Text(rxId)
     Text[0x0040] = "Roll" 
     Text[0x0041] = "Pitch"
     Text[0x0042] = "Yaw"
-    Text[0x0043] = "Gain /c/b" -- FC6250HX, AR631
+    Text[0x0043] = "Gain/c/b" -- FC6250HX, AR631
     Text[0x0045] = "Differential"
     Text[0x0046] = "Priority"
     Text[0x0049] = "Output Setup" -- FC6250HX, AR631
@@ -1453,6 +1471,16 @@ local function DSM_Init_Text(rxId)
     Text[0x0054] = "Output Channel 4"
     Text[0x0055] = "Output Channel 5"
     Text[0x0056] = "Output Channel 6"
+
+    if LCD_W <= 128 then -- Override for smaller screens 
+        Text[0x0051] = "Output Ch 1"
+        Text[0x0052] = "Output Ch 2"
+        Text[0x0053] = "Output Ch 3"
+        Text[0x0054] = "Output Ch 4"
+        Text[0x0055] = "Output Ch 5"
+        Text[0x0056] = "Output Ch 6"
+    end
+    
 
     if (rxId ~= RX.FC6250HX) then  -- Restrictions for non FC6250HX
         List_Values[0x0051]=servoOutputValues
@@ -1508,7 +1536,7 @@ local function DSM_Init_Text(rxId)
     Text[0x009A] = "Capture Failsafe Positions"
     Text[0x009C] = "Custom Failsafe"
 
-    Text[0x009F] = "Save Settings " -- Save & Reboot RX 
+    Text[0x009F] = "Save Settings" -- Save & Reboot RX 
 
     Text[0x00A5] = "First Time Setup"
     Text[0x00AA] = "Capture Gyro Gains"
@@ -1521,7 +1549,7 @@ local function DSM_Init_Text(rxId)
 
     -- Flight Modes List Options 
     List_Text[0x00B5] = "Inhibit"
-    for i = 1, 10 do List_Text[0x00B5 + i] = "Flight Mode " .. i end
+    for i = 1, 10 do List_Text[0x00B5 + i] = "F Mode " .. i end
 
     Text[0x00BE] = "Unknown_BE" -- Used in Reset menu (0x0001) while the RX is rebooting
 
@@ -1529,34 +1557,36 @@ local function DSM_Init_Text(rxId)
     Text[0x00C8] = "Complete" -- FC6250HX calibration complete 
     Text[0x00CA] = "SAFE/Panic Mode Setup"
     Text[0x00CD] = "Level model and capture attitude/m"; -- Different from List_Text , and force it to be a menu button
-
+    if LCD_W <= 128 then -- Override for small screens
+        Text[0x00CD] = "Level model, cap attitude/m"; -- Different from List_Text , and force it to be a menu button
+    end
 
     -- RX Orientations for AR631/AR637, Optionally attach an Image + Alt Text to display
-    List_Text[0x00CB] = "Position 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 
-    List_Text[0x00CC] = "Position 2";  List_Text_Img[0x00CC]  = "rx_pos_2.png|Pilot View: RX Label Left, Pins Back" 
-    List_Text[0x00CD] = "Position 3";  List_Text_Img[0x00CD]  = "rx_pos_3.png|Pilot View: RX Label Down, Pins Back" 
-    List_Text[0x00CE] = "Position 4";  List_Text_Img[0x00CE]  = "rx_pos_4.png|Pilot View: RX Label Right, Pins Back" 
-    List_Text[0x00CF] = "Position 5";  List_Text_Img[0x00CF]  = "rx_pos_5.png|Pilot View: RX Label UP, Pins to Front" 
-    List_Text[0x00D0] = "Position 6";  List_Text_Img[0x00D0]  = "rx_pos_6.png|Pilot View: RX Label Left, Pins Front" 
-    List_Text[0x00D1] = "Position 7";  List_Text_Img[0x00D1]  = "rx_pos_7.png|Pilot View: RX Label Down, Pins Front" 
-    List_Text[0x00D2] = "Position 8";  List_Text_Img[0x00D2]  = "rx_pos_8.png|Pilot View: RX Label Right, Pins Front" 
-    List_Text[0x00D3] = "Position 9";  List_Text_Img[0x00D3]  = "rx_pos_9.png|Pilot View: RX Label Up, Pins Left" 
-    List_Text[0x00D4] = "Position 10"; List_Text_Img[0x00D4]  = "rx_pos_10.png|Pilot View: RX Label Back, Pins Left" 
-    List_Text[0x00D5] = "Position 11"; List_Text_Img[0x00D5]  = "rx_pos_11.png|Pilot View: RX Label Down, Pins Left" 
-    List_Text[0x00D6] = "Position 12"; List_Text_Img[0x00D6]  = "rx_pos_12.png|Pilot View: RX Label Front, Pins Left" 
-    List_Text[0x00D7] = "Position 13"; List_Text_Img[0x00D7]  = "rx_pos_13.png|Pilot View: RX Label Up, Pins Right" 
-    List_Text[0x00D8] = "Position 14"; List_Text_Img[0x00D8]  = "rx_pos_14.png|Pilot View: RX Label Back, Pins Right" 
-    List_Text[0x00D9] = "Position 15"; List_Text_Img[0x00D9]  = "rx_pos_15.png|Pilot View: RX Label Down, Pins Right" 
-    List_Text[0x00DA] = "Position 16"; List_Text_Img[0x00DA]  = "rx_pos_16.png|Pilot View: RX Label Front, Pins Right" 
-    List_Text[0x00DB] = "Position 17"; List_Text_Img[0x00DB]  = "rx_pos_17.png|Pilot View: RX Label Back, Pins Down" 
-    List_Text[0x00DC] = "Position 18"; List_Text_Img[0x00DC]  = "rx_pos_18.png|Pilot View: RX Label Left, Pins Down" 
-    List_Text[0x00DD] = "Position 19"; List_Text_Img[0x00DD]  = "rx_pos_19.png|Pilot View: RX Label Front, Pins Down" 
-    List_Text[0x00DE] = "Position 20"; List_Text_Img[0x00DE]  = "rx_pos_20.png|Pilot View: RX Label Right, Pins Down" 
-    List_Text[0x00DF] = "Position 21"; List_Text_Img[0x00DF]  = "rx_pos_21.png|Pilot View: RX Label Back, Pins Up" 
-    List_Text[0x00E0] = "Position 22"; List_Text_Img[0x00E0]  = "rx_pos_22.png|Pilot View: RX Label Left, Pins Up" 
-    List_Text[0x00E1] = "Position 23"; List_Text_Img[0x00E1]  = "rx_pos_23.png|Pilot View: RX Label Front, Pins Up" 
-    List_Text[0x00E2] = "Position 24"; List_Text_Img[0x00E2]  = "rx_pos_24.png|Pilot View: RX Label Right, Pins Up" 
-    List_Text[0x00E3] = "Position Invalid";  List_Text_Img[0x00E3]  = "rx_pos_25.png|Cannot detect orientation of RX" 
+    List_Text[0x00CB] = "Pos 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 
+    List_Text[0x00CC] = "Pos 2";  List_Text_Img[0x00CC]  = "rx_pos_2.png|Pilot View: RX Label Left, Pins Back" 
+    List_Text[0x00CD] = "Pos 3";  List_Text_Img[0x00CD]  = "rx_pos_3.png|Pilot View: RX Label Down, Pins Back" 
+    List_Text[0x00CE] = "Pos 4";  List_Text_Img[0x00CE]  = "rx_pos_4.png|Pilot View: RX Label Right, Pins Back" 
+    List_Text[0x00CF] = "Pos 5";  List_Text_Img[0x00CF]  = "rx_pos_5.png|Pilot View: RX Label UP, Pins to Front" 
+    List_Text[0x00D0] = "Pos 6";  List_Text_Img[0x00D0]  = "rx_pos_6.png|Pilot View: RX Label Left, Pins Front" 
+    List_Text[0x00D1] = "Pos 7";  List_Text_Img[0x00D1]  = "rx_pos_7.png|Pilot View: RX Label Down, Pins Front" 
+    List_Text[0x00D2] = "Pos 8";  List_Text_Img[0x00D2]  = "rx_pos_8.png|Pilot View: RX Label Right, Pins Front" 
+    List_Text[0x00D3] = "Pos 9";  List_Text_Img[0x00D3]  = "rx_pos_9.png|Pilot View: RX Label Up, Pins Left" 
+    List_Text[0x00D4] = "Pos 10"; List_Text_Img[0x00D4]  = "rx_pos_10.png|Pilot View: RX Label Back, Pins Left" 
+    List_Text[0x00D5] = "Pos 11"; List_Text_Img[0x00D5]  = "rx_pos_11.png|Pilot View: RX Label Down, Pins Left" 
+    List_Text[0x00D6] = "Pos 12"; List_Text_Img[0x00D6]  = "rx_pos_12.png|Pilot View: RX Label Front, Pins Left" 
+    List_Text[0x00D7] = "Pos 13"; List_Text_Img[0x00D7]  = "rx_pos_13.png|Pilot View: RX Label Up, Pins Right" 
+    List_Text[0x00D8] = "Pos 14"; List_Text_Img[0x00D8]  = "rx_pos_14.png|Pilot View: RX Label Back, Pins Right" 
+    List_Text[0x00D9] = "Pos 15"; List_Text_Img[0x00D9]  = "rx_pos_15.png|Pilot View: RX Label Down, Pins Right" 
+    List_Text[0x00DA] = "Pos 16"; List_Text_Img[0x00DA]  = "rx_pos_16.png|Pilot View: RX Label Front, Pins Right" 
+    List_Text[0x00DB] = "Pos 17"; List_Text_Img[0x00DB]  = "rx_pos_17.png|Pilot View: RX Label Back, Pins Down" 
+    List_Text[0x00DC] = "Pos 18"; List_Text_Img[0x00DC]  = "rx_pos_18.png|Pilot View: RX Label Left, Pins Down" 
+    List_Text[0x00DD] = "Pos 19"; List_Text_Img[0x00DD]  = "rx_pos_19.png|Pilot View: RX Label Front, Pins Down" 
+    List_Text[0x00DE] = "Pos 20"; List_Text_Img[0x00DE]  = "rx_pos_20.png|Pilot View: RX Label Right, Pins Down" 
+    List_Text[0x00DF] = "Pos 21"; List_Text_Img[0x00DF]  = "rx_pos_21.png|Pilot View: RX Label Back, Pins Up" 
+    List_Text[0x00E0] = "Pos 22"; List_Text_Img[0x00E0]  = "rx_pos_22.png|Pilot View: RX Label Left, Pins Up" 
+    List_Text[0x00E1] = "Pos 23"; List_Text_Img[0x00E1]  = "rx_pos_23.png|Pilot View: RX Label Front, Pins Up" 
+    List_Text[0x00E2] = "Pos 24"; List_Text_Img[0x00E2]  = "rx_pos_24.png|Pilot View: RX Label Right, Pins Up" 
+    List_Text[0x00E3] = "Pos Invalid";  List_Text_Img[0x00E3]  = "rx_pos_25.png|Cannot detect orientation of RX" 
 
     Text[0x00D1] = "Receiver will Reboot/b" 
     --FC6250HX
@@ -1585,13 +1615,13 @@ local function DSM_Init_Text(rxId)
     List_Text[0x00F3] = "Adjustable"
 
     Text[0x00F9] = "Gyro settings"
-    Text[0x00FE] = "Stick Priority/c/b " --SubTitle
+    Text[0x00FE] = "Stick Priority/c/b" --SubTitle
 
     Text[0x0100] = "Make sure the model has been"
-    Text[0x0101] = "configured, including wing type,"
-    Text[0x0102] = "reversing, travel, trimmed, etc."
-    Text[0x0103] = "before continuing setup."
-    Text[0x0104] = "" -- empty??
+    Text[0x0101] = "configured, including wing"
+    Text[0x0102] = "type, reversing, travel,"
+    Text[0x0103] = "trimmed, etc. before "
+    Text[0x0104] = "continuing setup."
     Text[0x0105] = "" -- empty??
 
     Text[0x0106] = "Any wing type, channel assignment,"
@@ -1626,7 +1656,7 @@ local function DSM_Init_Text(rxId)
     --Inh, Self-Level/Angle Dem, Envelope -- (L_M was wide open range 0->244)
     Text[0x01F8] = "Safe Mode";    List_Values[0x01F8]=safeModeOptions 
 
-    Text[0x01F9] = "SAFE Select/c/b "  -- SubTitle
+    Text[0x01F9] = "SAFE Select/c/b"  -- SubTitle
     Text[0x01FC] = "Panic Flight Mode"
     Text[0x01FD] = "SAFE Failsafe FMode"
     Text[0x0208] = "Decay"
@@ -1656,7 +1686,7 @@ local function DSM_Init_Text(rxId)
     Text[0x0223] = "and try again."
     
     Text[0x0224] = "Continue"
-    Text[0x0226] = "Angle Limits/c/b "
+    Text[0x0226] = "Angle Limits/c/b"
     Text[0x0227] = "Other settings"
     Text[0x0229] = "Set Orientation Manually"
 
@@ -1686,6 +1716,7 @@ local function DSM_Init_Text(rxId)
     Text[0x023D] = "Copy Flight Mode Settings"
     Text[0x023E] = "Source Flight Mode"
     Text[0x023F] = "Target Flight Mode"
+
     Text[0x0240] = "Utilities"
 
     -- Gain Capture Page

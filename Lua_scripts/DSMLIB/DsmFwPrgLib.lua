@@ -1557,6 +1557,7 @@ local function DSM_Init_Text(rxId)
     Text[0x00C8] = "Complete" -- FC6250HX calibration complete 
     Text[0x00CA] = "SAFE/Panic Mode Setup"
     Text[0x00CD] = "Level model and capture attitude/m"; -- Different from List_Text , and force it to be a menu button
+
     if LCD_W <= 128 then -- Override for small screens
         Text[0x00CD] = "Level model, cap attitude/m"; -- Different from List_Text , and force it to be a menu button
     end

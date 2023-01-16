@@ -72,7 +72,7 @@ static void __attribute__((unused)) FX_send_packet()
 		packet[3] = convert_channel_8b(RUDDER);
 		packet[4] = 0x20;
 		packet[5] = GET_FLAG(CH5_SW, 0x01);  // DR toggle swich: 0 small throw, 1 large throw
-		packet[5] |= (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x02 : 0x01) : 0x00) << 1; // Mode A(0) : 6D small throw, B(1) : 6D large throw, C(2) : 3D
+		packet[5] |= (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x02 : 0x01)) << 1; // Mode A(0) : 6D small throw, B(1) : 6D large throw, C(2) : 3D
 	}
 	else // FX816 and FX620
 	{

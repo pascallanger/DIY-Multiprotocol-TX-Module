@@ -116,6 +116,10 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 
 uint16_t FRSKYX_callback()
 {
+	#if defined MULTI_EU
+		if(sub_protocol == CH_16 || sub_protocol == CH_8)
+			return 9000;
+	#endif
 	switch(state)
 	{	
 		default: 

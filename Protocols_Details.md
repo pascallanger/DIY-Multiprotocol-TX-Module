@@ -110,7 +110,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|||||||||CYRF6936|
 [JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345|SkyTmblr|||||||NRF24L01|XN297
 [JOYSWAY](Protocols_Details.md#JOYSWAY---84)|84|||||||||NRF24L01|XN297
-[KF606](Protocols_Details.md#KF606---49)|49|KF606|MIG320|||||||NRF24L01|XN297
+[KF606](Protocols_Details.md#KF606---49)|49|KF606|MIG320|ZCZ50||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
 [Kyosho2](Protocols_Details.md#Kyosho2---93)|93|KT-17||||||||NRF24L01|
@@ -141,7 +141,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Tiger](Protocols_Details.md#Tiger---61)|61|||||||||NRF24L01|XN297
 [Traxxas](Protocols_Details.md#Traxxas---43)|43|6519 RX||||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
-[V761](Protocols_Details.md#V761---48)|48|3CH|4CH|||||||NRF24L01|XN297
+[V761](Protocols_Details.md#V761---48)|48|3CH|4CH|TOPRC||||||NRF24L01|XN297
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*|E119*|||||||NRF24L01|XN297
 [WFLY](Protocols_Details.md#WFLY---40)|40|WFR0x||||||||CYRF6936|
 [WFLY2](Protocols_Details.md#WFLY2---79)|79|RF20x||||||||A7105|
@@ -528,7 +528,7 @@ DSMX, Resolution 2048, servo refresh rate can only be 22ms
 ### Sub_protocol DSMX_2F - *3*
 DSMX, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
 ### Sub_protocol AUTO - *4*
-"AUTO" is recommended to automatically select the best settings for your DSM RX.
+"AUTO" is recommended to automatically select the best settings for your DSM2 and DSMX RXs.
 
 ### Sub_protocol DSMR_1F - *5*
 DSMR receivers
@@ -1049,6 +1049,15 @@ CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A||T||TRIM|LED
 
+### Sub_protocol ZCZ50v2 - *2*
+Model: ZC-Z50 Cessna
+
+This might be newer version of the model. My plane does not have front propeller, but its just fake anyway (no motor in the front).
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A||T||TRIM|UNKNOWN
+
 ## MJXQ - *18*
 Autobind protocol
 
@@ -1130,12 +1139,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 A|E|T|R|FLIP||||HEADLESS
 
 ### Sub_protocol A180 - *5*
-Model: XK A180, F949S, F959
+Model: XK A180, A120, F949S, F959
 
 A180:
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|3D6G|RATE
+
+A120:
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|RATE|LED
 
 F949S:
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
@@ -1778,7 +1792,7 @@ Option field | Value
 3|The module will control the brick number RX_num, RX_num+1 and RX_num+2
 4|The module will control the brick number RX_num, RX_num+1, RX_num+2 and RX_num+3
 
-To associate a brick to a RX number (RX_num above), set this RX number under the protocol, set option to 1, launch a bind and power on the brick you want to control. Repeat this for every brick using a different RX number each time and then indicate the number of bricks to be comtrolled using the Option field.
+To associate a brick to a RX number (RX_num above), set this RX number under the protocol, set option to 1, launch a bind and power on the brick you want to control. Repeat this for every brick using a different RX number each time and then indicate the number of bricks to be controlled using the Option field.
 
 Example: I want to control 2 bricks. I select RX number 1, set option to 1 and launch a bind on the first brick. I select RX number 2, set option to 1 and launch a bind on the second brick. Now to control both bricks I set RX number to 1 and option to 2. Therefore brick1 will react to channels CH1 to CH4 and brick2 to channel CH5 to CH8.
 On another model I can control 4 other bricks, bind each brick to RX number 3 to 6 and then finaly set RX number to 3 and option to 4 to contol the 4 bricks with CH1 to CH16.
@@ -1951,14 +1965,21 @@ Flip: momentary switch: hold flip(+100%), indicate flip direction with Ele or Ai
 RTN_ACT and RTN: -100% disable, +100% enable
 
 ### Sub_protocol 3CH - *0*
-Model: Volantex V761-1, V761-3 and may be others
+Models: Volantex V761-1, V761-3 and may be others
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 -|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
 
 ### Sub_protocol 4CH - *1*
-Model: Volantex V761-4+ and Eachine P51-D, F4U, F22 and may be others
+Models: Volantex V761-4+ and Eachine P51-D, F4U, F22 and may be others
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
+
+### Sub_protocol TOPRC - *2*
+Models: Top RC Hobby Spitfire, P51D, BF-109
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---

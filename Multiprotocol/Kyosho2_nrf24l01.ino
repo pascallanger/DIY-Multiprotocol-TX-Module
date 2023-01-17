@@ -17,8 +17,9 @@
 
 #include "iface_nrf24l01.h"
 
-#define KYOSHO2_PACKET_PERIOD			1120	// 1600 for bind, let's see
-#define KYOSHO2_BIND_COUNT				2000	// about 3sec
+#define KYOSHO2_PACKET_PERIOD			1120
+#define KYOSHO2_BIND_PACKET_PERIOD		1600
+#define KYOSHO2_BIND_COUNT				6000	// about 9sec
 #define KYOSHO2_BIND_CHANNEL			0x50
 #define KYOSHO2_PAYLOAD_SIZE			28
 #define KYOSHO2_RF_CHANNELS				15
@@ -111,13 +112,16 @@ uint16_t KYOSHO2_callback()
 	#ifdef MULTI_SYNC
 		telemetry_set_input_sync(KYOSHO2_PACKET_PERIOD);
 	#endif
+	KYOSHO2_send_packet();
 	if(bind_counter)
+	{
 		if(--bind_counter==0)
 		{
 			BIND_DONE;
 			KYOSHO2_resend = false;
 		}
-	KYOSHO2_send_packet();
+		return KYOSHO2_BIND_PACKET_PERIOD;
+	}
 	return KYOSHO2_PACKET_PERIOD;
 }
 

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	3
-#define VERSION_PATCH_LEVEL	19
+#define VERSION_PATCH_LEVEL	25
 
 #define MODE_SERIAL 0
 
@@ -418,6 +418,7 @@ enum V761
 {
 	V761_3CH	= 0,
 	V761_4CH	= 1,
+	V761_TOPRC	= 2,
 };
 enum HEIGHT
 {
@@ -449,6 +450,7 @@ enum KF606
 {
 	KF606_KF606		= 0,
 	KF606_MIG320	= 1,
+	KF606_ZCZ50		= 2,
 };
 enum E129
 {
@@ -459,6 +461,7 @@ enum FX
 {
 	FX816			= 0,
 	FX620			= 1,
+    FX9630          = 2,
 };
 enum CFLIE
 {

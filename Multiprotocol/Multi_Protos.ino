@@ -109,10 +109,18 @@ const char STR_XERALL[]     ="Xerall";
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
 const char STR_SUBTYPE_FRSKYD[] =     "\x06""D8\0   ""Cloned";
-const char STR_SUBTYPE_FRSKYX[] =     "\x07""D16\0   ""D16 8ch""LBT(EU)""LBT 8ch""Cloned\0""Clo 8ch";
+#ifndef MULTI_EU
+	const char STR_SUBTYPE_FRSKYX[] =     "\x07""D16\0   ""D16 8ch""LBT(EU)""LBT 8ch""Cloned\0""Clo 8ch";
+#else
+	const char STR_SUBTYPE_FRSKYX[] =     "\x07""--->\0  ""--->\0  ""LBT(EU)""LBT 8ch""Cloned\0""Clo 8ch";
+#endif
 const char STR_SUBTYPE_HISKY[] =      "\x05""Std\0 ""HK310";
 const char STR_SUBTYPE_V2X2[] =       "\x06""Std\0  ""JXD506""MR101\0";
-const char STR_SUBTYPE_DSM[] =        "\x04""2 1F""2 2F""X 1F""X 2F""Auto""R 1F";
+#ifndef MULTI_EU
+	const char STR_SUBTYPE_DSM[] =        "\x04""2 1F""2 2F""X 1F""X 2F""Auto""R 1F";
+#else
+	const char STR_SUBTYPE_DSM[] =        "\x04""--->""--->""X 1F""X 2F""Auto""R 1F";
+#endif
 const char STR_SUBTYPE_DEVO[] =       "\x04""8ch\0""10ch""12ch""6ch\0""7ch\0";
 const char STR_SUBTYPE_YD717[] =      "\x07""Std\0   ""SkyWlkr""Syma X4""XINXUN\0""NIHUI\0 ";
 const char STR_SUBTYPE_KN[] =         "\x06""WLtoys""FeiLun";
@@ -155,7 +163,7 @@ const char STR_SUBTYPE_WFLY[] =       "\x05""WFR0x";
 const char STR_SUBTYPE_WFLY2[] =      "\x05""RF20x";
 const char STR_SUBTYPE_HOTT[] =       "\x07""Sync\0  ""No_Sync";
 const char STR_SUBTYPE_PELIKAN[] =    "\x05""Pro\0 ""Lite\0""SCX24";
-const char STR_SUBTYPE_V761[] =       "\x03""3ch""4ch";
+const char STR_SUBTYPE_V761[] =       "\x05""3ch\0 ""4ch\0 ""TOPRC";
 const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ""DumboRC";
 const char STR_SUBTYPE_REALACC[] =    "\x03""R11";
 const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
@@ -163,9 +171,9 @@ const char STR_SUBTYPE_KYOSHO2[] =    "\x05""KT-17";
 const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
 const char STR_SUBTYPE_MOULKG[] =     "\x06""Analog""Digit\0";
-const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320";
+const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320""ZCZ50\0";
 const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
-const char STR_SUBTYPE_FX[] =         "\x03""816""620";
+const char STR_SUBTYPE_FX[] =         "\x04""816\0""620\0""9630";
 const char STR_SUBTYPE_CFLIE[] =      "\x07""Auto\0  ""2Mbps\0 ""1Mbps\0 ""250kbps";
 #define NO_SUBTYPE		nullptr
 
@@ -308,7 +316,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_FUTABA,     STR_FUTABA,    STR_SUBTYPE_FUTABA,    1, OPTION_RFTUNE,  1, 1, SW_CC2500, SFHSS_init,      SFHSS_callback      },
 	#endif
 	#if defined(FX_NRF24L01_INO)
-		{PROTO_FX,         STR_FX,        STR_SUBTYPE_FX,        2, OPTION_NONE,    0, 0, SW_NRF,    FX_init,         FX_callback         },
+		{PROTO_FX,         STR_FX,        STR_SUBTYPE_FX,        3, OPTION_NONE,    0, 0, SW_NRF,    FX_init,         FX_callback         },
 	#endif
 	#if defined(FY326_NRF24L01_INO)
 		{PROTO_FY326,      STR_FY326,     STR_SUBTYPE_FY326,     2, OPTION_NONE,    0, 0, SW_NRF,    FY326_init,      FY326_callback      },
@@ -353,7 +361,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_JOYSWAY,    STR_JOYSWAY,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_A7105,  JOYSWAY_init,    JOYSWAY_callback    },
 	#endif
 	#if defined(KF606_CCNRF_INO)
-		{PROTO_KF606,      STR_KF606,     STR_SUBTYPE_KF606,     2, OPTION_RFTUNE,  0, 0, SW_NRF,    KF606_init,      KF606_callback      },
+		{PROTO_KF606,      STR_KF606,     STR_SUBTYPE_KF606,     3, OPTION_RFTUNE,  0, 0, SW_NRF,    KF606_init,      KF606_callback      },
 	#endif
 	#if defined(KN_NRF24L01_INO)
 		{PROTO_KN,         STR_KN,        STR_SUBTYPE_KN,        2, OPTION_NONE,    0, 0, SW_NRF,    KN_init,         KN_callback         },
@@ -443,7 +451,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_V2X2,       STR_V2X2,      STR_SUBTYPE_V2X2,      3, OPTION_NONE,    0, 0, SW_NRF,    V2X2_init,       V2X2_callback       },
 	#endif
 	#if defined(V761_NRF24L01_INO)
-		{PROTO_V761,       STR_V761,      STR_SUBTYPE_V761,      2, OPTION_NONE,    0, 0, SW_NRF,    V761_init,       V761_callback       },
+		{PROTO_V761,       STR_V761,      STR_SUBTYPE_V761,      3, OPTION_NONE,    0, 0, SW_NRF,    V761_init,       V761_callback       },
 	#endif
 	#if defined(V911S_CCNRF_INO)
 		{PROTO_V911S,      STR_V911S,     STR_SUBTYPE_V911S,     2, OPTION_RFTUNE,  0, 0, SW_NRF,    V911S_init,      V911S_callback      },

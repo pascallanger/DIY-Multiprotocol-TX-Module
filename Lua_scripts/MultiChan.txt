@@ -117,6 +117,7 @@
 71,1,JJRC345,SkyTmblr,1,Flip,HLess,RTH,LED,UNK1,UNK2,UNK3
 49,0,KF606,KF606,1,Trim
 49,1,KF606,MIG320,1,Trim,LED
+49,2,KF606,ZCZ50,1,Trim,UNK
 9,0,KN,WLToys,0,DRate,THold,IdleUp,Gyro,Ttrim,Atrim,Etrim
 9,1,KN,Feilun,0,DRate,THold,IdleUp,Gyro,Ttrim,Atrim,Etrim
 73,0,Kyosho,Std,0,CH5,CH6,CH7,CH8,CH9,CH10,CH11,CH12,CH13,CH14
@@ -172,6 +173,7 @@
 5,1,V2x2,JXD506,1,Flip,Light,Pict,Video,HLess,StaSto,Emerg,Cam_UD
 48,0,V761,3CH,0,Gyro,Calib,Flip,RtnAct,Rtn
 48,1,V761,4CH,0,Gyro,Calib,Flip,RtnAct,Rtn
+48,2,V761,TOPRC,0,Gyro,Calib,Flip,RtnAct,Rtn
 46,0,V911s,V911s,1,Calib,Rate
 46,1,V911s,E119,1,Calib,Rate,6G_3D
 22,0,WFLY,WFR0xS,0,CH5,CH6,CH7,CH8,CH9

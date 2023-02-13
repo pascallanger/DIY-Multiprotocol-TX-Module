@@ -40,14 +40,14 @@ jobs:
       fail-fast: false
       matrix:
         board: [
-          "multi4in1-devel:avr:multiatmega328p:bootloader=none", 
-          "multi4in1-devel:avr:multiatmega328p:bootloader=optiboot", 
-          "multi4in1-devel:avr:multixmega32d4", 
-          "multi4in1-devel:STM32F1:multi5in1t18int", 
-          "multi4in1-devel:STM32F1:multistm32f103cb:debug_option=none", 
-          "multi4in1-devel:STM32F1:multistm32f103cb:debug_option=native", 
-          "multi4in1-devel:STM32F1:multistm32f103cb:debug_option=ftdi", 
-          "multi4in1-devel:STM32F1:multistm32f103c8:debug_option=none"
+          "multi4in1:avr:multiatmega328p:bootloader=none", 
+          "multi4in1:avr:multiatmega328p:bootloader=optiboot", 
+          "multi4in1:avr:multixmega32d4", 
+          "multi4in1:STM32F1:multi5in1t18int", 
+          "multi4in1:STM32F1:multistm32f103cb:debug_option=none", 
+          "multi4in1:STM32F1:multistm32f103cb:debug_option=native", 
+          "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi", 
+          "multi4in1:STM32F1:multistm32f103c8:debug_option=none"
         ]
 
     # Set the environment variables

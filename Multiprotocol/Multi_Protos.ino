@@ -105,6 +105,7 @@ const char STR_CONFIG[]     ="Config";
 const char STR_LOSI[]       ="Losi";
 const char STR_MOULDKG[]    ="MouldKg";
 const char STR_XERALL[]     ="Xerall";
+const char STR_MICROZONE[]		="Microzone";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -174,6 +175,7 @@ const char STR_SUBTYPE_MOULKG[] =     "\x06""Analog""Digit\0";
 const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320""ZCZ50\0";
 const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
 const char STR_SUBTYPE_FX[] =         "\x04""816\0""620\0""9630";
+const char STR_SUBTYPE_MICROZONE[] =  "\x02""M1""M2";
 #define NO_SUBTYPE		nullptr
 
 #ifdef SEND_CPPM
@@ -376,6 +378,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(LOSI_CYRF6936_INO)
 		{PROTO_LOSI,       STR_LOSI,      NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CYRF,   LOSI_init,       LOSI_callback       },
+	#endif
+	#if defined(MICROZONE_A7105_INO)
+		{PROTO_MICROZONE,  STR_MICROZONE, STR_SUBTYPE_MICROZONE, 2, OPTION_NONE,    0, 1, SW_A7105,  MICROZONE_init,  MICROZONE_callback  },
 	#endif
 	#if defined(MJXQ_CCNRF_INO)
 		{PROTO_MJXQ,       STR_MJXQ,      STR_SUBTYPE_MJXQ,      7, OPTION_NONE,    0, 0, SW_NRF,    MJXQ_init,       MJXQ_callback       },

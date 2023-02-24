@@ -135,7 +135,7 @@ uint16_t MICROZONE_callback()
 		if (bind_counter==0)
 		{
 			BIND_DONE;
-			if(sub_protocol==MICROZONE_HYPE)
+			if(sub_protocol==MICROZONE_M1)
 			{
 				A7105_WriteID(MProtocol_id);
 				A7105_WriteReg(A7105_03_FIFOI,0x05);
@@ -150,9 +150,9 @@ uint16_t MICROZONE_callback()
 			telemetry_set_input_sync(packet_period);
 		#endif
 	}
-	if(sub_protocol==MICROZONE_FHSS)
-		MICROZONE_send_packet();
-	else//HYPE
+//	if(sub_protocol==MICROZONE_FHSS)
+//		MICROZONE_send_packet();
+//	else//HYPE
 		MICROZONE_hype_send_packet();
 	return packet_period;
 }
@@ -162,23 +162,16 @@ void MICROZONE_init()
 	A7105_Init();
 
 	// compute channels from ID
-	calc_fh_channels(sub_protocol==MICROZONE_FHSS?32:15);
+	calc_fh_channels(15);
 	hopping_frequency_no=0;
 
-	#ifdef MICROZONE_FORCE_ID_FHSS
-		if(sub_protocol==MICROZONE_FHSS)
-		{
-			memcpy(rx_tx_addr,"\x3A\x39\x37\x00",4);
-			memcpy(hopping_frequency,"\x29\x4C\x67\x92\x31\x1C\x77\x18\x23\x6E\x81\x5C\x8F\x5A\x51\x94\x7A\x12\x45\x6C\x7F\x1E\x0D\x88\x63\x8C\x4F\x37\x26\x61\x2C\x8A",32);
-		}
-	#endif
-	if(sub_protocol==MICROZONE_HYPE)
+	if(sub_protocol==MICROZONE_M1)
 	{
 		MProtocol_id &= 0x00FF00FF;
 		rx_tx_addr[0] = 0xAF - (rx_tx_addr[1]&0x0F);
 		rx_tx_addr[2] = 0xFF -  rx_tx_addr[3];
 		MProtocol_id |= (rx_tx_addr[0]<<24) + (rx_tx_addr[2]<<8);
-		#ifdef MICROZONE_FORCE_ID_HYPE
+		#ifdef MICROZONE_FORCE_ID
 			MProtocol_id=0xAF90738C;
 			set_rx_tx_addr(MProtocol_id);
 			memcpy(hopping_frequency,"\x27\x1B\x63\x75\x03\x39\x57\x69\x87\x0F\x7B\x3F\x33\x51\x6F",15);

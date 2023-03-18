@@ -1,4 +1,4 @@
-local toolName = "TNS|DSM AR636 Telemetry TextGen|TNE"
+local toolName = "TNS|DSM AR636 Telemetry|TNE"
 ---- #########################################################################                                                                  #
 ---- # License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html               #
 ---- #                                                                       #
@@ -23,14 +23,14 @@ local DEBUG_ON = false
 
 local TEXT_SIZE             = 0 -- NORMAL
 local X_COL1_HEADER         = 6
-local X_COL1_DATA           = 80
-local X_COL2_HEADER         = 120
-local X_COL2_DATA           = 190
+local X_COL1_DATA           = 60
+local X_COL2_HEADER         = 170
+local X_COL2_DATA           = 220
 local Y_LINE_HEIGHT         = 20
 local Y_HEADER              = 0
-local Y_DATA                = Y_HEADER + Y_LINE_HEIGHT 
-
-
+local Y_DATA                = Y_HEADER + Y_LINE_HEIGHT*2 
+local X_DATA_LEN            = 80 
+local X_DATA_SPACE          = 5
 
 
 local function getPage(iParam)
@@ -67,9 +67,9 @@ end
 local function readBatValue(sensor)
   -- read from sensor, round and return
   local v = getValue(sensor)
-  if (v==nil) then return "-- V" end
+  if (v==nil) then return "--" end
 
-  return string.format("%2.2f V",v)
+  return string.format("%2.2f",v)
 end
  
 local function readActiveParamValue(sensor)
@@ -92,10 +92,10 @@ local function drawPIDScreen()
   -- Gain Adjustment Mode is disabled
   if not (pageId==4401 or pageId==4402) then
     lcd.drawText(0,0,"BLADE Gain Adjustment", TEXT_SIZE +INVERS)
-    lcd.drawText(20,Y_LINE_HEIGHT*1,"Please enter Gain Adjustment Mode",TEXT_SIZE)
-    lcd.drawText(20,Y_LINE_HEIGHT*2,"Stk: Low/Righ + Low/Right + Panic (3 sec)",TEXT_SIZE)
-    lcd.drawText(20,Y_LINE_HEIGHT*4,"Op: Right Stk:  Up/Down to select, Left/Right change value",TEXT_SIZE)
-    lcd.drawText(20,Y_LINE_HEIGHT*5,"Panic to exit",TEXT_SIZE)
+    lcd.drawText(X_COL1_HEADER,Y_LINE_HEIGHT*1,"Enter Gain Adjustment Mode",TEXT_SIZE)
+    lcd.drawText(X_COL1_HEADER,Y_LINE_HEIGHT*2,"Stk: Low/R + Low/R + Panic (3 sec)",TEXT_SIZE)
+    lcd.drawText(X_COL1_HEADER,Y_LINE_HEIGHT*4,"Op: Right Stk:  Up/Down to select, Left/Right change value",TEXT_SIZE)
+    lcd.drawText(X_COL1_HEADER,Y_LINE_HEIGHT*5,"Panic to exit",TEXT_SIZE)
     return
   end
 
@@ -111,7 +111,7 @@ local function drawPIDScreen()
   local d = readValue("FdeL")
   local r = readValue("FdeR")
 
-  local titles = {[0]="P:", "I:", "D:", "Response:", "P:","I:","D:", "Filtering:"}
+  local titles = {[0]="P:", "I:", "D:", "Resp:", "P:","I:","D:", "Filt:"}
   local values = {[0]=p,i,d,r,p,i,d,r}
 
   local activeParam =  readActiveParamValue("Hold")-1
@@ -164,53 +164,49 @@ local function drawFlightLogScreen()
    local titles  = {[0]="A:", "B:", "L:", "R:", "F:", "H:"}
    local values  = {[0]=a,b,l,r,f,h}
 
-  for iParam=0,3 do   -- A,B,L,R 
+   local y = Y_LINE_HEIGHT+Y_DATA
+   
+   for iParam=0,3 do   -- A,B,L,R 
     -- highlight selected parameter  (rund)
     local attr = ((activeParam%4)==iParam) and INVERS or 0
-
-    -- set y draw coord
-    local y = iParam*Y_LINE_HEIGHT+Y_DATA
-    
     -- labels
     local x = X_COL1_HEADER
     local val = titles[iParam]
     lcd.drawText (x, y, val, TEXT_SIZE)
     
+    -- Values
     val = values[iParam] 
-    x = X_COL1_HEADER + 30
+    x = X_COL1_DATA + X_DATA_LEN
     if (val~=16384) then  -- Active value
-        lcd.drawText (x, y, val, attr + TEXT_SIZE)
+        lcd.drawText (x, y, val, attr + TEXT_SIZE + RIGHT)
     end
+
+    y = y + Y_LINE_HEIGHT
   end
 
+  y = Y_LINE_HEIGHT+Y_DATA
   for iParam=4,5 do  -- F, H
-    -- highlight selected parameter
-    local attr =  0
-    -- set y draw coord
-    local perPageIndx = iParam % 4
-    local y = perPageIndx*Y_LINE_HEIGHT+Y_DATA
-    
     -- labels
     local x = X_COL2_HEADER
     local val = titles[iParam]
     lcd.drawText (x, y, val, TEXT_SIZE + BOLD)
     
+    -- Values
     val = values[iParam] 
-    x = X_COL2_HEADER + 30
-    lcd.drawText (x, y, val, attr + TEXT_SIZE + BOLD)
+    x = X_COL2_DATA + X_DATA_LEN
+    lcd.drawText (x, y, val, TEXT_SIZE + RIGHT + BOLD)
+
+    y = y + Y_LINE_HEIGHT
   end
 
   -- Bat 
-  local bat = readBatValue("A2")
-  local y = (4)*Y_LINE_HEIGHT+Y_HEADER
+  y = y + Y_LINE_HEIGHT
+  local bat = readBatValue("A2") or "--"
   lcd.drawText (X_COL2_HEADER, y, "Bat:", TEXT_SIZE)
-  lcd.drawText (X_COL2_HEADER+30, y, bat, TEXT_SIZE)
-  
+  lcd.drawText (X_COL2_DATA + X_DATA_LEN, y, bat, TEXT_SIZE + RIGHT)
+  lcd.drawText (X_COL2_DATA + X_DATA_LEN + X_DATA_SPACE, y, "v", TEXT_SIZE)
 
 end
-
-
-
 
 local function servoAdjustScreen()
   -- draw labels and params on screen
@@ -218,13 +214,13 @@ local function servoAdjustScreen()
   local activeParam = getValue("Hold")-1 -- Hold 
   
   lcd.clear()
-  lcd.drawText (X_COL1_HEADER, Y_HEADER, "BLADE Servo SubTrim", TEXT_SIZE + INVERS)
+  lcd.drawText (0, Y_HEADER, "BLADE Servo SubTrim", TEXT_SIZE + INVERS)
 
   if pageId~=1234 then
-    lcd.drawText(20,Y_LINE_HEIGHT*1,"Please enter Servo Adjustment Mode",TEXT_SIZE)
-    lcd.drawText(20,Y_LINE_HEIGHT*2,"Stk: Low/Left + Low/Right + Panic (3 sec)",TEXT_SIZE)
-    lcd.drawText(20,Y_LINE_HEIGHT*4,"Op: R Stk:  Up/Down to select, Left/Right change value",TEXT_SIZE)
-    lcd.drawText(20,Y_LINE_HEIGHT*5,"Panic to exit",TEXT_SIZE)
+    lcd.drawText(X_COL1_HEADER,Y_LINE_HEIGHT*1,"Enter Servo Adjustment Mode",TEXT_SIZE)
+    lcd.drawText(X_COL1_HEADER,Y_LINE_HEIGHT*2,"Stk: Low/L + Low/R + Panic (3 sec)",TEXT_SIZE)
+    lcd.drawText(X_COL1_HEADER,Y_LINE_HEIGHT*4,"Op: R Stk:  Up/Down to select, Left/Right change value",TEXT_SIZE)
+    lcd.drawText(X_COL1_HEADER,Y_LINE_HEIGHT*5,"Panic to exit",TEXT_SIZE)
     return
   end
 
@@ -297,11 +293,7 @@ local function drawVersionScreen()
   local bat     =  readBatValue("A2")
   
   lcd.clear()
-  lcd.drawText (X_COL1_HEADER, Y_HEADER, "BLADE Version", TEXT_SIZE + INVERS)
-
-  lcd.drawText(20,Y_LINE_HEIGHT*7,"Please Press Panic for 3s",TEXT_SIZE)
-  lcd.drawText(20,Y_LINE_HEIGHT*8,"Usually Panic is Ch7 on a switch and Revesed",TEXT_SIZE)
-
+  lcd.drawText (0, Y_HEADER, "BLADE Version", TEXT_SIZE + INVERS)
 
   --Product ID
   local val = "ID_".. prodId
@@ -311,34 +303,42 @@ local function drawVersionScreen()
   elseif (prodId==149) then val = "Blade 250 CFX" 
   end
 
-  local y = Y_LINE_HEIGHT*1+Y_HEADER
+  local y = Y_DATA
+  local x_data1 = X_COL1_DATA+X_DATA_LEN
   lcd.drawText (X_COL1_HEADER, y, "Prod:", TEXT_SIZE)
-  lcd.drawText (X_COL1_DATA, y, val,  TEXT_SIZE)
+  lcd.drawText (x_data1, y, val,  TEXT_SIZE)
 
   -- RX
   val = "ID_"..rxId
   if (rxId==1) then val = "AR636"
   end
 
-  local y = y + Y_LINE_HEIGHT
+  y = y + Y_LINE_HEIGHT
   lcd.drawText (X_COL1_HEADER, y, "RX:", TEXT_SIZE)
-  lcd.drawText (X_COL1_DATA, y, val,  TEXT_SIZE)
+  lcd.drawText (x_data1, y, val,  TEXT_SIZE)
 
   -- Firmware
   val = string.format("%0.2f",firmware/100)
-  local y = y + Y_LINE_HEIGHT
+  y = y + Y_LINE_HEIGHT
   lcd.drawText (X_COL1_HEADER, y, "Firmware:", TEXT_SIZE)
-  lcd.drawText (X_COL1_DATA, y, val,  TEXT_SIZE)
+  lcd.drawText (x_data1, y, val,  TEXT_SIZE)
 
   -- ParamV
-  local y = y + Y_LINE_HEIGHT
+  y = y + Y_LINE_HEIGHT
   lcd.drawText (X_COL1_HEADER, y, "Params:", TEXT_SIZE)
-  lcd.drawText (X_COL1_DATA, y, paramV,  TEXT_SIZE)
+  lcd.drawText (x_data1, y, paramV,  TEXT_SIZE)
 
-  -- Vat
-  local y = y + Y_LINE_HEIGHT
+  -- Bat
+  y = y + Y_LINE_HEIGHT
   lcd.drawText (X_COL1_HEADER, y, "Bat:", TEXT_SIZE)
-  lcd.drawText (X_COL1_DATA, y, bat,  TEXT_SIZE)
+  lcd.drawText (x_data1, y, bat,  TEXT_SIZE)
+
+  y = y + Y_LINE_HEIGHT
+  lcd.drawText(X_COL1_HEADER,y,"Press Panic for 3s",TEXT_SIZE)
+
+  y = y + Y_LINE_HEIGHT
+  lcd.drawText(X_COL1_HEADER,y,"Usually Panic is Ch7 on a switch and Revesed",TEXT_SIZE)
+
 end
 
 local function parseFlightMode(v)
@@ -375,37 +375,41 @@ local function drawAlpha6Monitor()
   local AYaw    = getDegreesValue("240B") --Att Yaw
 
 
-  lcd.drawText (0,0, "BLADE AS3X/SAFE Monitor", TEXT_SIZE+INVERS)
+  lcd.drawText (0,0, "BLADE Alpha6 Monitor", TEXT_SIZE+INVERS)
 
-  local y = Y_LINE_HEIGHT+Y_HEADER
+  local y = Y_DATA
+  local x_data1 = X_COL1_DATA+X_DATA_LEN
+  local x_data2 = X_COL1_DATA+X_DATA_LEN*2
+  local x_data3 = X_COL1_DATA+X_DATA_LEN*3
+
   -- Flight Mode
   lcd.drawText (0,y, "F-Mode:"..parseFlightMode(RxStatus), TEXT_SIZE)
 
   y = y + Y_LINE_HEIGHT
-  lcd.drawText (100+5,y, "Attitude", TEXT_SIZE+BOLD + RIGHT)
-  lcd.drawText (150,y, "Gyro", TEXT_SIZE+BOLD + RIGHT)
-  lcd.drawText (200,y, "Gain", TEXT_SIZE+BOLD + RIGHT)
+  lcd.drawText (x_data1,y, "Attitude", TEXT_SIZE+BOLD + RIGHT)
+  lcd.drawText (x_data2,y, "Gyro", TEXT_SIZE+BOLD + RIGHT)
+  lcd.drawText (x_data3,y, "Gain", TEXT_SIZE+BOLD + RIGHT)
 
   y = y + Y_LINE_HEIGHT
-  lcd.drawText (5,y, "Rol:", TEXT_SIZE)
-  lcd.drawText (100-5,y, ARoll, TEXT_SIZE + RIGHT)
-  lcd.drawText (150-5,y, "-", TEXT_SIZE  + RIGHT)
-  lcd.drawText (200-5,y, "-", TEXT_SIZE + RIGHT)
+  lcd.drawText (X_COL1_HEADER,y, "Rol:", TEXT_SIZE)
+  lcd.drawText (x_data1,y, ARoll, TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data2,y, "-", TEXT_SIZE  + RIGHT)
+  lcd.drawText (x_data3,y, "-", TEXT_SIZE + RIGHT)
 
   y = y + Y_LINE_HEIGHT
-  lcd.drawText (5,y, "Pitch:", TEXT_SIZE)
-  lcd.drawText (100-5,y, APitch, TEXT_SIZE + RIGHT)
-  lcd.drawText (150-5,y, "-", TEXT_SIZE + RIGHT)
-  lcd.drawText (200-5,y, "-", TEXT_SIZE + RIGHT)
+  lcd.drawText (X_COL1_HEADER,y, "Pitch:", TEXT_SIZE)
+  lcd.drawText (x_data1,y, APitch, TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data2,y, "-", TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data3,y, "-", TEXT_SIZE + RIGHT)
 
   y = y + Y_LINE_HEIGHT
-  lcd.drawText (5,y, "Yaw:", TEXT_SIZE)
-  lcd.drawText (100-5,y, AYaw, TEXT_SIZE + RIGHT)
-  lcd.drawText (150-5,y, "-", TEXT_SIZE + RIGHT)
-  lcd.drawText (200-5,y, "-", TEXT_SIZE + RIGHT)
+  lcd.drawText (X_COL1_HEADER,y, "Yaw:", TEXT_SIZE)
+  lcd.drawText (x_data1,y, AYaw, TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data2,y, "-", TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data3,y, "-", TEXT_SIZE + RIGHT)
 
   y = y + Y_LINE_HEIGHT + Y_LINE_HEIGHT
-  lcd.drawText (0,y, "Bat: "..readBatValue("A2"), TEXT_SIZE)
+  lcd.drawText (0,y, "Bat: "..readBatValue("A2").." v", TEXT_SIZE)
 
 
   -- Debug Values 
@@ -492,32 +496,36 @@ local function drawAS3XMonitor()
 
   lcd.drawText (0,0, "Plane AR636 AS3X Gains", TEXT_SIZE+INVERS)
 
-  local y = Y_LINE_HEIGHT+Y_HEADER
+  local y = Y_DATA
+  local x_data1 = X_COL1_DATA+X_DATA_LEN
+  local x_data2 = X_COL1_DATA+X_DATA_LEN*2
+  local x_data3 = X_COL1_DATA+X_DATA_LEN*3.1
+
   -- Flight Mode
   --lcd.drawText (0,y, "F-Mode:   "..(nil or "--"), TEXT_SIZE)
 
   y = y + Y_LINE_HEIGHT
-  lcd.drawText (100-15,y, "Rate", TEXT_SIZE+BOLD + RIGHT)
-  lcd.drawText (150,y, "Heading", TEXT_SIZE+BOLD + RIGHT)
-  lcd.drawText (200,y, "Actual", TEXT_SIZE+BOLD + RIGHT)
+  lcd.drawText (x_data1,y, "Rate", TEXT_SIZE+BOLD + RIGHT)
+  lcd.drawText (x_data2,y, "Head", TEXT_SIZE+BOLD + RIGHT)
+  lcd.drawText (x_data3+X_DATA_SPACE*3,y, "Actual", TEXT_SIZE+BOLD + RIGHT)
 
   y = y + Y_LINE_HEIGHT
-  lcd.drawText (5,y, "Roll:", TEXT_SIZE)
-  lcd.drawText (100-5,y, RRoll.."%", TEXT_SIZE + RIGHT)
-  lcd.drawText (150-5,y, HRoll.."%", TEXT_SIZE  + RIGHT)
-  lcd.drawText (200-5,y, ARoll.."%", TEXT_SIZE + RIGHT)
+  lcd.drawText (X_COL1_HEADER,y, "Roll %:", TEXT_SIZE)
+  lcd.drawText (x_data1,y, RRoll, TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data2,y, HRoll, TEXT_SIZE  + RIGHT)
+  lcd.drawText (x_data3,y, ARoll, TEXT_SIZE + RIGHT)
 
   y = y + Y_LINE_HEIGHT
-  lcd.drawText (5,y, "Pitch:", TEXT_SIZE)
-  lcd.drawText (100-5,y, RPitch.."%", TEXT_SIZE + RIGHT)
-  lcd.drawText (150-5,y, HPitch.."%", TEXT_SIZE + RIGHT)
-  lcd.drawText (200-5,y, APitch.."%", TEXT_SIZE + RIGHT)
+  lcd.drawText (X_COL1_HEADER,y, "Pitch %:", TEXT_SIZE)
+  lcd.drawText (x_data1,y, RPitch, TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data2,y, HPitch, TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data3,y, APitch, TEXT_SIZE + RIGHT)
 
   y = y + Y_LINE_HEIGHT
-  lcd.drawText (5,y, "Yaw:", TEXT_SIZE)
-  lcd.drawText (100-5,y, RYaw.."%", TEXT_SIZE + RIGHT)
-  lcd.drawText (150-5,y, HYaw.."%", TEXT_SIZE + RIGHT)
-  lcd.drawText (200-5,y, AYaw.."%", TEXT_SIZE + RIGHT)
+  lcd.drawText (X_COL1_HEADER,y, "Yaw %:", TEXT_SIZE)
+  lcd.drawText (x_data1,y, RYaw, TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data2,y, HYaw, TEXT_SIZE + RIGHT)
+  lcd.drawText (x_data3,y, AYaw, TEXT_SIZE + RIGHT)
 
 
   -- Debug Values 
@@ -544,21 +552,78 @@ local function drawAS3XMonitor()
   end 
 end
 
+local function openTelemetryRaw(i2cId)
+  --Init telemetry  (Spectrun Telemetry Raw STR)
+  multiBuffer( 0, string.byte('S') )
+  multiBuffer( 1, string.byte('T') )
+  multiBuffer( 2, string.byte('R') ) 
+  multiBuffer( 3, i2cId ) -- Monitor this teemetry data
+  multiBuffer( 4, 0 ) -- Allow to get Data
+end
+
+local function closeTelemetryRaw()
+  multiBuffer(0, 0) -- Destroy the STR header 
+  multiBuffer(3, 0) -- Not requesting any Telementry ID
+end
+
+local lineText = {nil}
+local I2C_TEXT_GEN = 0x0C
+
+local function drawTextGen(event)
+  if (multiBuffer(0)~=string.byte('S')) then -- First time run???
+    openTelemetryRaw(I2C_TEXT_GEN) -- I2C_ID for TEXT_GEN
+    lineText = {nil}
+  end
+
+  -- Proces TEXT GEN Telementry message
+  if multiBuffer( 4 ) == I2C_TEXT_GEN then -- Specktrum Telemetry ID of data received
+    local instanceNo = multiBuffer( 5 )
+    local lineNo = multiBuffer( 6 )
+    local ch_array = {}
+    for i=0,13 do
+      ch_array[i] = string.char(multiBuffer( 7 + i ))
+    end
+
+    multiBuffer( 4, 0 ) -- Clear Semaphore, to notify that we fully process the current message
+    lineText[lineNo]=table.concat(ch_array,nil,0) -- Concatenate all characters to create message
+  end
+
+  lcd.clear()
+  -- Header
+  if (lineText[0]) then
+    lcd.drawText (X_COL1_HEADER,0,  "   "..lineText[0].."   ", TEXT_SIZE + BOLD + INVERS)
+  else
+    lcd.drawText (X_COL1_HEADER,0, "TextGen", TEXT_SIZE+INVERS)
+  end
+
+  -- Menu lines
+  local y = Y_DATA
+  for i=1,8 do
+    if (lineText[i]) then
+      lcd.drawText (X_COL1_HEADER,y,  lineText[i], TEXT_SIZE)
+    end
+    y = y + Y_LINE_HEIGHT
+  end
+
+  if event == EVT_VIRTUAL_EXIT then -- Exit?? Clear menu data
+    closeTelemetryRaw()
+  end
+end
 
 local telPage = 1
 local telPageSelected = 0
-local pageTitle = {[0]="Main", "Blade Version", "Blade Servo Adjust","Blade Gyro Adjust", "Blade AS3X Monitor", "Plane AS3X Monitor", "Flight Log"}
+local pageTitle = {[0]="Main", "Blade Version", "Blade Servo Adjust","Blade Gyro Adjust", "Blade Alpha6 Monitor", "Plane AS3X Monitor", "TextGen", "Flight Log"}
 
 local function drawMainScreen(event) 
   lcd.clear()
-  lcd.drawText (X_COL1_HEADER, Y_HEADER, "Main Telemetry TextGen (AR636)", TEXT_SIZE + INVERS)
+  lcd.drawText (X_COL1_HEADER, Y_HEADER, "Main Telemetry (AR636)", TEXT_SIZE + INVERS)
 
   for iParam=1,#pageTitle do    
     -- highlight selected parameter
     local attr = (telPage==iParam) and INVERS or 0
 
     -- set y draw coord
-    local y = (iParam)*Y_LINE_HEIGHT+Y_DATA 
+    local y = (iParam-1)*Y_LINE_HEIGHT+Y_DATA 
     
     -- labels
     local x = X_COL1_HEADER
@@ -576,7 +641,7 @@ local function drawMainScreen(event)
 end
 
 
-local pageDraw  = {[0]=drawMainScreen, drawVersionScreen, servoAdjustScreen,drawPIDScreen, drawAlpha6Monitor,  drawAS3XMonitor, drawFlightLogScreen}
+local pageDraw  = {[0]=drawMainScreen, drawVersionScreen, servoAdjustScreen,drawPIDScreen, drawAlpha6Monitor,  drawAS3XMonitor, drawTextGen, drawFlightLogScreen}
 
 local function run_func(event)
   if event == nil then
@@ -584,27 +649,35 @@ local function run_func(event)
     return 2
   end
 
+  -- draw specific page 
+  pageDraw[telPageSelected](event)
+
   if event == EVT_VIRTUAL_EXIT then
     if (telPageSelected==0) then return 1 end  -- on Main?? Exit Script 
     telPageSelected = 0  -- any page, return to Main 
   end
-
-  -- draw specific page 
-  pageDraw[telPageSelected](event)
 
   return 0
 end
 
 local function init_func()
   
-  --if (LCD_W <= 128 or LCD_H <=64) then
-  --  TEXT_SIZE = SMLSIZE 
-  --  X_COL1_HEADER         = 6
-  --  X_COL1_DATA           = 70
-  --  X_COL2_HEADER         = 120
-  --  X_COL2_DATA           = 180
-  --  Y_LINE_HEIGHT         = 10
-  --end
+  if (LCD_W <= 128 or LCD_H <=64) then -- Smaller Screens 
+    TEXT_SIZE = SMLSIZE 
+    X_COL1_HEADER         = 0
+    X_COL1_DATA           = 20
+
+    X_COL2_HEADER         = 60
+    X_COL2_DATA           = 90
+
+    X_DATA_LEN            = 28 
+    X_DATA_SPACE          = 1
+
+
+    Y_LINE_HEIGHT         = 8
+    Y_DATA                = Y_HEADER + Y_LINE_HEIGHT
+
+  end
 end
 
 return { run=run_func,  init=init_func  }

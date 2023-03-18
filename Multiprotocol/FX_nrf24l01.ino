@@ -33,7 +33,14 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FX620_PAYLOAD_SIZE			7
 #define FX620_CH_OFFSET				1
 
+#define FX9630_PACKET_PERIOD		8124
+#define FX9630_BIND_PACKET_PERIOD	8124
+#define FX9630_BIND_CHANNEL			51
+#define FX9630_PAYLOAD_SIZE			8
+#define FX9630_NUM_CHANNELS			3
+
 //#define FORCE_FX620_ID
+//#define FORCE_FX9630_ID
 
 static void __attribute__((unused)) FX_send_packet()
 {
@@ -41,21 +48,44 @@ static void __attribute__((unused)) FX_send_packet()
 	if(IS_BIND_DONE)
 	{
 		XN297_Hopping(hopping_frequency_no++);
-		hopping_frequency_no &= 0x03;
+		if(sub_protocol == FX9630)
+		{
+			XN297_SetTXAddr(rx_tx_addr, 4);
+			if (hopping_frequency_no > FX9630_NUM_CHANNELS)
+				hopping_frequency_no = 0;
+		}
+		else // FX816 and FX620
+		{
+			hopping_frequency_no &= 0x03;
+		}
 	}
 
 	memset(packet,0x00,packet_length);
 
 	//Channels
-	uint8_t offset=sub_protocol == FX816 ? FX816_CH_OFFSET:FX620_CH_OFFSET;
-	uint8_t val=convert_channel_8b(AILERON);
-	if(val>127+FX_SWITCH)
-		packet[offset] = sub_protocol == FX816 ? 1:0xFF;
-	else if(val<127-FX_SWITCH)
-		packet[offset] = sub_protocol == FX816 ? 2:0x00;
-	else
-		packet[offset] = sub_protocol == FX816 ? 0:0x7F;
-	packet[offset+1] = convert_channel_16b_limit(THROTTLE,0,100);	//FX816:0x00..0x63, FX620:0x00..0x5E but that should work
+	uint8_t val;
+	if (sub_protocol == FX9630)
+	{
+		packet[0] = convert_channel_8b(THROTTLE);
+		packet[1] = convert_channel_8b(AILERON);
+		packet[2] = 0xFF - convert_channel_8b(ELEVATOR);
+		packet[3] = convert_channel_8b(RUDDER);
+		packet[4] = 0x20;
+		packet[5] = GET_FLAG(CH5_SW, 0x01);  // DR toggle swich: 0 small throw, 1 large throw
+		packet[5] |= (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x02 : 0x01)) << 1; // Mode A(0) : 6D small throw, B(1) : 6D large throw, C(2) : 3D
+	}
+	else // FX816 and FX620
+	{
+		uint8_t offset=sub_protocol == FX816 ? FX816_CH_OFFSET:FX620_CH_OFFSET;
+		val=convert_channel_8b(AILERON);
+		if(val>127+FX_SWITCH)
+			packet[offset] = sub_protocol == FX816 ? 1:0xFF;
+		else if(val<127-FX_SWITCH)
+			packet[offset] = sub_protocol == FX816 ? 2:0x00;
+		else
+			packet[offset] = sub_protocol == FX816 ? 0:0x7F;
+		packet[offset+1] = convert_channel_16b_limit(THROTTLE,0,100);	//FX816:0x00..0x63, FX620:0x00..0x5E but that should work
+	}
 
 	//Bind and specifics
 	if(sub_protocol == FX816)
@@ -67,7 +97,7 @@ static void __attribute__((unused)) FX_send_packet()
 		packet[1] = rx_tx_addr[0];
 		packet[2] = rx_tx_addr[1];
 	}
-	else //FX620
+	else if(sub_protocol == FX620)
 	{
 		if(IS_BIND_IN_PROGRESS)
 		{
@@ -82,12 +112,27 @@ static void __attribute__((unused)) FX_send_packet()
 			packet[5] = 0xAB;	// Is it based on ID??
 		}
 	}
+	else // FX9630
+	{
+		if(IS_BIND_IN_PROGRESS)
+		{
+			memcpy(packet,rx_tx_addr, 4);
+			packet[4] = hopping_frequency[1];
+			packet[5] = hopping_frequency[2];
+			packet[7] = 0x55;
+		}
+	}
 
 	//Check
+	uint8_t last_packet_idx = packet_length-1;
+	if (sub_protocol == FX9630 && IS_BIND_IN_PROGRESS)
+		last_packet_idx--;
 	val=0;
-	for(uint8_t i=0;i<packet_length-1;i++)
+	for(uint8_t i=0;i<last_packet_idx;i++)
 		val+=packet[i];
-	packet[packet_length-1]=val;
+	if (sub_protocol == FX9630)
+		val = val ^ 0xFF;
+	packet[last_packet_idx]=val;
 
 	//Debug
 	#if 0
@@ -112,12 +157,19 @@ static void __attribute__((unused)) FX_RF_init()
 		packet_period = FX816_PACKET_PERIOD;
 		packet_length = FX816_PAYLOAD_SIZE;
 	}
-	else //FX620
+	else if(sub_protocol == FX620)
 	{
 		XN297_SetTXAddr((uint8_t *)"\xaa\xbb\xcc", 3);
 		XN297_RFChannel(FX620_BIND_CHANNEL);
 		packet_period = FX620_BIND_PACKET_PERIOD;
 		packet_length = FX620_PAYLOAD_SIZE;
+	}
+	else // FX9630
+	{
+		XN297_SetTXAddr((uint8_t *)"\x56\x78\x90\x12", 4);
+		XN297_RFChannel(FX9630_BIND_CHANNEL);
+		packet_period = FX9630_BIND_PACKET_PERIOD;
+		packet_length = FX9630_PAYLOAD_SIZE;
 	}
 }
 
@@ -133,7 +185,7 @@ static void __attribute__((unused)) FX_initialize_txid()
 		for(uint8_t i=0;i<FX_NUM_CHANNELS;i++)
 			hopping_frequency[i]+=rx_tx_addr[3]&0x07;
 	}
-	else//FX620
+	else if(sub_protocol == FX620)
 	{
 		rx_tx_addr[0] = rx_tx_addr[3];
 		hopping_frequency[0] = 0x18 + rx_tx_addr[3]&0x07;	// just to try something
@@ -143,6 +195,17 @@ static void __attribute__((unused)) FX_initialize_txid()
 		#endif
 		for(uint8_t i=1;i<FX_NUM_CHANNELS;i++)
 			hopping_frequency[i] = i*10 + hopping_frequency[0];
+	}
+	else // FX9630
+	{
+		#ifdef FORCE_FX9630_ID
+			memcpy(rx_tx_addr,(uint8_t*)"\xCE\x31\x9B\x73", 4);
+			memcpy(hopping_frequency,"\x13\x1A\x38", FX9630_NUM_CHANNELS);		//Original dump=19=0x13,26=0x1A,56=0x38
+		#else
+			hopping_frequency[0] = 0x13; // constant
+			hopping_frequency[1] = RX_num & 0x0F + 0x1A;
+			hopping_frequency[2] = rx_tx_addr[3] & 0x0F + 0x38;
+		#endif
 	}
 }
 

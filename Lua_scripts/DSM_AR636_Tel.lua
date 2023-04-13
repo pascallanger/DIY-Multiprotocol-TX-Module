@@ -579,13 +579,13 @@ local function drawTextGen(event)
   if multiBuffer( 4 ) == I2C_TEXT_GEN then -- Specktrum Telemetry ID of data received
     local instanceNo = multiBuffer( 5 )
     local lineNo = multiBuffer( 6 )
-    local ch_array = {}
+    local line = ""
     for i=0,13 do
-      ch_array[i] = string.char(multiBuffer( 7 + i ))
+      line = line .. string.char(multiBuffer( 7 + i ))
     end
 
     multiBuffer( 4, 0 ) -- Clear Semaphore, to notify that we fully process the current message
-    lineText[lineNo]=table.concat(ch_array,nil,0) -- Concatenate all characters to create message
+    lineText[lineNo]=line
   end
 
   lcd.clear()

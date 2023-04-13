@@ -1337,8 +1337,8 @@ local function loadMenu(menuId)
         --L[#1 T=M VId=0x105E val=nil [0->0,2] Text="Other settings" MId=0x1000 ]
 
         ctx.Menu = { MenuId = 0x1000, Text = "RX SIMULATION", PrevId = 0, NextId = 0, BackId = 0, TextId=0 }
-        ctx.MenuLines[0] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR630/631/637 (NEW)", ValId = 0x1001,TextId=0 }
-        ctx.MenuLines[1] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR630/631/637 (INITIALIZED)", ValId = 0x1002,  TextId=0 }
+        ctx.MenuLines[0] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR631 (NEW)", ValId = 0x1001,TextId=0 }
+        ctx.MenuLines[1] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR631 (INITIALIZED)", ValId = 0x1002,  TextId=0 }
         ctx.MenuLines[4] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "FC6250HX", ValId = 0x1005, TextId=0 }
 
         ctx.SelLine = 0
@@ -1346,25 +1346,25 @@ local function loadMenu(menuId)
     elseif (menuId==0x1001) then
         RX_Initialized =  false
         ctx.RX.Id   =  dsmLib.RX.AR631
-        ctx.RX.Name = "AR630/631/637-SIM"
-        ctx.RX.Version = "2.38.5"
         dsmLib.Init_Text(ctx.RX.Id)
+        ctx.RX.Name = dsmLib.Get_RxName(ctx.RX.Id)..' SIM'
+        ctx.RX.Version = "2.38.5"
         
         RX_loadMenu = AR631_loadMenu
         RX_loadMenu(0x01000)
     elseif (menuId==0x1002) then
         ctx.RX.Id   =  dsmLib.RX.AR631
-        ctx.RX.Name = "AR630/631/637-SIM"
-        ctx.RX.Version = "2.38.5"
         dsmLib.Init_Text(ctx.RX.Id)
+        ctx.RX.Name = dsmLib.Get_RxName(ctx.RX.Id)..' SIM'
+        ctx.RX.Version = "2.38.5"
 
         RX_loadMenu = AR631_loadMenu
         RX_loadMenu(0x01000)
     elseif (menuId==0x1005) then
         ctx.RX.Id   =  dsmLib.RX.FC6250HX
-        ctx.RX.Name = "FC6250HX-SIM"
-        ctx.RX.Version = "5.6.255"
         dsmLib.Init_Text(ctx.RX.Id)
+        ctx.RX.Name = dsmLib.Get_RxName(ctx.RX.Id)..' SIM'
+        ctx.RX.Version = "5.6.255"
 
         RX_loadMenu = FC6250HX_loadMenu
         RX_loadMenu(0x01000)
@@ -1380,7 +1380,7 @@ local function SIM_Send_Receive()
 
     if ctx.Phase == PHASE.RX_VERSION then -- request RX version
         ctx.RX.Name = "SIMULATOR"
-        ctx.RX.Version = "1.0.0"
+        ctx.RX.Version = "0.54"
         ctx.Phase = PHASE.MENU_TITLE
 
         ctx.Refresh_Display = true

@@ -1,0 +1,375 @@
+-- FORMAT  <LineType>|<Msg#>|<Text>  
+-- Line Type: Text for Menus (T), List_Text Options (LT), List_Text_Image (LI), Flight Mode (FM), RX Name (RX)
+-- NO EMPTY LINES
+-- Formmatting at end of line: /c=Center, /r=Right, /b=Bold, /m=menu
+LT|0x0001|Off
+LT|0x0002|On
+-- Ihn/Act List Options
+LT|0x0003|Inh
+LT|0x0004|Act
+--
+-- Channel selection for SAFE MODE and GAINS on  FC6250HX
+LT|0x000C|Inhibit?
+LT|0x000D|Ch5
+LT|0x000E|Ch6
+LT|0x000F|Ch7
+LT|0x0010|Ch8
+LT|0x0011|Ch9
+LT|0x0012|Ch10
+LT|0x0013|Ch11
+LT|0x0014|Ch12
+--
+-- Servo Output values
+LT|0x002D|5.5ms
+LT|0x002E|11ms
+LT|0x002F|22ms
+--
+-- Gain Multiplier Values
+LT|0x0032|1 X
+LT|0x0033|2 X
+LT|0x0034|4 X
+--
+LT|0x0035|Inh?
+LT|0x0036|Thr
+LT|0x0037|Ail
+LT|0x0038|Ele
+LT|0x0039|Rud
+LT|0x003A|Ch5
+LT|0x003B|Ch6
+LT|0x003C|Ch7
+LT|0x003D|Ch8
+LT|0x003E|Ch9
+LT|0x003F|Ch10
+LT|0x0040|Ch11
+LT|0x0041|Ch12
+LT|0x0042|Ch13
+LT|0x0043|Ch14
+LT|0x0044|Ch15
+LT|0x0045|Ch16
+LT|0x0046|Ch17
+LT|0x0047|Ch18
+LT|0x0048|Ch19
+LT|0x0049|Ch20
+--
+T |0x0040|Roll
+T |0x0041|Pitch
+T |0x0042|Yaw
+T |0x0043|Gain/c/b
+T |0x0045|Differential
+T |0x0046|Priority
+T |0x0049|Output Setup 
+T |0x004A|Failsafe
+T |0x004B|Main Menu
+T |0x004E|Position
+--
+T |0x0050|Outputs
+T |0x0051|Output Channel 1
+T |0x0052|Output Channel 2
+T |0x0053|Output Channel 3
+T |0x0054|Output Channel 4
+T |0x0055|Output Channel 5
+T |0x0056|Output Channel 6
+--
+-- FailSafe Options
+--LT|0x005E|Inhibit
+LT|0x005F|Hold Last
+LT|0x0060|Preset
+--LT|0x0061|Custom
+--
+T |0x0071|Proportional
+T |0x0072|Integral
+T |0x0073|Derivate
+--
+T |0x0078|FM Channel
+--
+T |0x0080|Orientation
+T |0x0082|Heading
+T |0x0085|Frame Rate
+T |0x0086|System Setup
+T |0x0087|F-Mode Setup
+T |0x0088|Enabled F-Modes
+T |0x0089|Gain Channel
+T |0x008A|Gain Sensitivity/r  -- Right Align
+T |0x008B|Panic
+T |0x008E|Panic Delay
+--
+LT|0x008D|560hz
+--
+-- FC6250HX: Callibration Menu -> Begin..Start, Complete, Done
+T |0x0091|Begin 
+T |0x0090|Apply
+T |0x0092|Start
+T |0x0093|Complete
+T |0x0094|Done
+--
+T |0x0097|Factory Reset
+T |0x0098|Factory Reset
+--
+T |0x0099|Advanced Setup
+T |0x009A|Capture Failsafe Positions
+T |0x009C|Custom Failsafe
+--
+T |0x009F|Save Settings -- Save & Reboot RX 
+--
+T |0x00A5|First Time Setup
+T |0x00AA|Capture Gyro Gains
+T |0x00AD|Gain Channel Select
+T |0x00AF|Dynamic
+T |0x00B0|Self-Level/Angle Dem
+T |0x00B1|Envelope
+--
+-- Flight Modes List Options 
+LT|0x00B5|Inhibit
+LT|0x00B6|FM1
+LT|0x00B7|FM2
+LT|0x00B8|FM3
+LT|0x00B9|FM4
+LT|0x00BA|FM5
+LT|0x00BB|FM6
+LT|0x00BC|FM7
+LT|0x00BD|FM8
+LT|0x00BE|FM9
+LT|0x00BF|FM10
+--
+T |0x00BE|Unknown_BE -- Used in Reset menu (0x0001) while the RX is rebooting
+--
+T |0x00C7|Calibrate Sensor
+T |0x00CA|SAFE/Panic Mode Setup
+--
+T |0x00CD|Level model and capture attitude/m -- SPECIAL MENU to itself who is not a comment
+--
+-- RX Orientations for AR631/AR637, Optionally attach an Image + Alt Text to display
+LT|0x00CB|Pos 1
+LI|0x00CB|rx_pos_1.png|Pilot View: RX Label Up, Pins Back 
+LT|0x00CC|Pos 2
+LI|0x00CC|rx_pos_2.png|Pilot View: RX Label Left, Pins Back 
+LT|0x00CD|Pos 3  
+LI|0x00CD|rx_pos_3.png|Pilot View: RX Label Down, Pins Back
+LT|0x00CE|Pos 4  
+LI|0x00CE|rx_pos_4.png|Pilot View: RX Label Right, Pins Back
+LT|0x00CF|Pos 5  
+LI|0x00CF|rx_pos_5.png|Pilot View: RX Label UP, Pins to Front
+LT|0x00D0|Pos 6  
+LI|0x00D0|rx_pos_6.png|Pilot View: RX Label Left, Pins Front 
+LT|0x00D1|Pos 7  
+LI|0x00D1|rx_pos_7.png|Pilot View: RX Label Down, Pins Front 
+LT|0x00D2|Pos 8  
+LI|0x00D2|rx_pos_8.png|Pilot View: RX Label Right, Pins Front 
+LT|0x00D3|Pos 9  
+LI|0x00D3|rx_pos_9.png|Pilot View: RX Label Up, Pins Left
+LT|0x00D4|Pos 10 
+LI|0x00D4|rx_pos_10.png|Pilot View: RX Label Back, Pins Left 
+LT|0x00D5|Pos 11 
+LI|0x00D5|rx_pos_11.png|Pilot View: RX Label Down, Pins Left
+LT|0x00D6|Pos 12
+LI|0x00D6|rx_pos_12.png|Pilot View: RX Label Front, Pins Left 
+LT|0x00D7|Pos 13
+LI|0x00D7|rx_pos_13.png|Pilot View: RX Label Up, Pins Right 
+LT|0x00D8|Pos 14
+LI|0x00D8|rx_pos_14.png|Pilot View: RX Label Back, Pins Right 
+LT|0x00D9|Pos 15
+LI|0x00D9|rx_pos_15.png|Pilot View: RX Label Down, Pins Right 
+LT|0x00DA|Pos 16
+LI|0x00DA|rx_pos_16.png|Pilot View: RX Label Front, Pins Right 
+LT|0x00DB|Pos 17
+LI|0x00DB|rx_pos_17.png|Pilot View: RX Label Back, Pins Down 
+LT|0x00DC|Pos 18
+LI|0x00DC|rx_pos_18.png|Pilot View: RX Label Left, Pins Down 
+LT|0x00DD|Pos 19
+LI|0x00DD|rx_pos_19.png|Pilot View: RX Label Front, Pins Down 
+LT|0x00DE|Pos 20
+LI|0x00DE|rx_pos_20.png|Pilot View: RX Label Right, Pins Down 
+LT|0x00DF|Pos 21
+LI|0x00DF|rx_pos_21.png|Pilot View: RX Label Back, Pins Up 
+LT|0x00E0|Pos 22
+LI|0x00E0|rx_pos_22.png|Pilot View: RX Label Left, Pins Up 
+LT|0x00E1|Pos 23
+LI|0x00E1|rx_pos_23.png|Pilot View: RX Label Front, Pins Up 
+LT|0x00E2|Pos 24
+LI|0x00E2|rx_pos_24.png|Pilot View: RX Label Right, Pins Up 
+LT|0x00E3|Pos Invalid
+LI|0x00E3|rx_pos_25.png|Cannot detect orientation of RX 
+--
+T |0x00D1|Receiver will Reboot/b
+T |0x00D2|Panic Channel
+T |0x00D3|Swashplate
+T |0x00D5|Agility
+T |0x00D8|Stop
+T |0x00DA|SAFE/c/b  -- Center + Bold
+T |0x00DB|Stability
+T |0x00DC|@ per sec
+T |0x00DD|Tail rotor
+T |0x00DE|Setup
+T |0x00DF|AFR
+T |0x00E0|Collective
+T |0x00E1|Subtrim
+T |0x00E2|Phasing
+T |0x00E4|E-Ring
+T |0x00E5|Swash Type
+T |0x00E6|Travel 
+T |0x00E7|Left
+T |0x00E8|Right
+--
+LT|0x00F2|Fixed
+LT|0x00F3|Adjustable
+--
+T |0x00F6|Direction
+T |0x00F8|Settings -- ?? validate on a Spektrum radio
+T |0x00F9|Gyro settings
+T |0x00FE|Stick Priority/c/b
+--
+T |0x0100|Make sure the model has been
+T |0x0101|configured, including wing type,
+T |0x0102|reversing, travel, trimmed, etc.
+T |0x0103|before continuing setup.
+T |0x0104| -- Blank
+--
+T |0x0106|Any wing type, channel assignment,
+T |0x0107|subtrim, or servo reversing changes
+T |0x0108|require running through initial
+T |0x0109|setup again.
+T |0x010A| -- Blank
+--
+T |0x0190|Relearn Servo Settings
+T |0x019C|Enter Receiver Bind Mode
+T |0x01AA|Offset
+T |0x01D7|SAFE Select Channel
+T |0x01DC|AS3X/c/b    -- Center + Bold
+T |0x01DD|AS3X Settings
+T |0x01DE|AS3X Gains
+T |0x01E0|Rate Gains/c/b
+T |0x01E2|SAFE Settings
+T |0x01E3|SAFE Gains
+T |0x01E6|Attitude Trim/c/b
+T |0x01E7|Envelope
+T |0x01E9|Roll Right
+T |0x01EA|Roll Left
+T |0x01EB|Pitch Down
+T |0x01EC|Pitch Up
+T |0x01EE|Thr to Pitch
+T |0x01EF|Low Thr to Pitch/c/b
+T |0x01F0|High Thr to Pitch/c/b
+T |0x01F3|Threshold
+T |0x01F4|Angle
+T |0x01F6|Failsafe Angles/c/b
+T |0x01F8|Safe Mode
+T |0x01F9|SAFE Select
+T |0x01FC|Panic F-Mode
+T |0x01FD|FailSafe Flight Mode  -- Safe Flight Mode
+T |0x0201|Throttle
+T |0x0204|Hover
+T |0x0208|Decay
+T |0x0209|Save to Backup
+T |0x020A|Restore from Backup
+T |0x020D|First Time SAFE Setup
+--
+-- First time safe setup Page 3 : 
+T |0x020E|AS3X gains must be tuned
+T |0x020F|and active in SAFE Flight Modes
+T |0x0210|to help reduce wobble.
+T |0x0211| -- Blank
+T |0x0212| -- Blank
+T |0x0213| -- Blank
+--
+-- AS3X orientation Setting menu (Level)
+T |0x021A|Set the model level,
+T |0x021B|and press Continue.
+T |0x021C| -- Blank
+T |0x021D| -- Blank
+--
+-- AS3X orientation Setting menu (Nose down)
+T |0x021F|Set the model on its nose,
+T |0x0220|and press Continue. If the
+T |0x0221|orientation on the next
+T |0x0222|screen is wrong go back
+T |0x0223|and try again.
+--
+T |0x0224|Continue
+T |0x0226|Angle Limits/c/b
+T |0x0227|Other settings
+T |0x0229|Set Orientation Manually
+--
+-- Factory Default Warning 
+T |0x022B|WARNING!
+T |0x022C|This will reset the
+T |0x022D|configuration to factory
+T |0x022E|defaults. This does not
+T |0x022F|affect the backup config.
+T |0x0230| -- Blank
+--
+-- Backup Warning
+T |0x0231|This will overwrite the
+T |0x0232|backup memory with your
+T |0x0233|current configuartion.
+T |0x0234| -- Blank
+T |0x0235| -- Blank
+--
+-- Restore from Backup Warning
+T |0x0236|This will overwrite the
+T |0x0237|current config with
+T |0x0238|that which is in
+T |0x0239|the backup memory.
+T |0x023A| -- blank line
+--
+-- Utilities Copy flight modes
+T |0x023D|Copy F-Mode Settings
+T |0x023E|Source F-Mode
+T |0x023F|Target F-Mode
+--
+T |0x0240|Utilities
+--
+-- Gain Capture Page
+T |0x024C|Gains will be captured on
+T |0x024D|Captured gains will be
+T |0x024E|Gains on
+T |0x024F|were captured and changed
+T |0x0250|from Adjustable to Fixed
+--
+--  Utilities, Copy flight mode  (Copy Confirmation, oveerriding FM)
+T |0x0251|Are you sure you want to ovewrite the "Target"
+T |0x0252|with the "Source" ? 
+T |0x0253| -- Blank
+--
+T |0x0254|Postive = Up, Negative = Down
+--
+-- First time safe setup Page 1  (maybe ask to select Flight Mode cannel)
+T |0x0255|Before setting up SAFE
+T |0x0256|a Flight Mode channel
+T |0x0257|most be configured.
+--
+--  First time safe setup Page 2  (something related for flight mode)
+T |0x025A|Select the desired flight mode
+T |0x025B|switch position to adjust settings
+T |0x025C|for each flight mode
+T |0x025D| -- Blank
+T |0x025E| -- Blank
+--
+--  Utilities, Copy flight mode  (Confirm)
+T |0x0259|YES 
+T |0x0260|WARNING: "Target"
+T |0x0261|F-Mode will be overwritten
+T |0x0262|by "Source"
+--
+T |0x0263|Fixed/Adjustable Gains/c/b
+T |0x0266|Heading Gain/c/b
+T |0x0267|Positive = Nose Up/Roll Right
+T |0x0268|Negative = Nose Down/Roll Left
+T |0x0269|SAFE - Thr to Pitch
+T |0x026A|Use CAUTION for Yaw gain!/b
+--
+T |0x0300|No compatible DSM RX...
+T |0x0301|Waiting for RX to Restart
+--
+FM|0x8000|Flight Mode/c/b
+--
+RX|0x0001|AR636
+RX|0x0014|SPM4651T
+RX|0x0015|AR637T
+RX|0x0016|AR637TA
+RX|0x0018|FC6250HX
+RX|0x0019|AR630
+RX|0x001A|AR8360T
+RX|0x001B|AR8020T
+RX|0x001C|AR10360T
+RX|0x001E|AR631
+

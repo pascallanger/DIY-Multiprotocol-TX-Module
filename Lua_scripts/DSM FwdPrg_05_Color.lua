@@ -1,5 +1,5 @@
-local toolName = "TNS|DSM Forward Prog v0.53 (Color+Touch) |TNE"
-local VERSION  = "v0.53"
+local toolName = "TNS|DSM Forward Prog v0.54 (Color+Touch) |TNE"
+local VERSION  = "v0.54"
 
 ---- #########################################################################
 ---- #                                                                       #
@@ -27,7 +27,7 @@ local VERSION  = "v0.53"
 -- Rewrite/Enhancements By: Francisco Arzu 
 ------------------------------------------------------------------------------
 
-local SIMULATION_ON = false   -- FALSE: use real communication to DSM RX (DEFAULT), TRUE: use a simulated version of RX 
+local SIMULATION_ON = false  -- FALSE:don't show simulation memu (DEFAULT), TRUE: show simulation menu 
 local DEBUG_ON = 1           -- 0=NO DEBUG, 1=HIGH LEVEL 2=LOW LEVEL   (Debug logged into the /LOGS/dsm.log)
 local DEBUG_ON_LCD = false   -- Interactive Information on LCD of Menu data from RX 
 local USE_SPECKTRUM_COLORS = true -- true: Use spectrum colors, false: use theme colors (default on OpenTX) 
@@ -385,9 +385,9 @@ local function GUI_Display()
     --Draw RX Menu
     if ctx.Phase == PHASE.RX_VERSION then
       if (ctx.isReset) then
-        lcd.drawText(LCD_X_LINE_TITLE,100,"Waiting for RX to Restart", BLINK)
+        lcd.drawText(LCD_X_LINE_TITLE,100,dsmLib.Get_Text(0x301), BLINK) -- Waiting for Restart
       else
-        lcd.drawText(LCD_X_LINE_TITLE,100,"No compatible DSM RX...", BLINK)
+        lcd.drawText(LCD_X_LINE_TITLE,100,dsmLib.Get_Text(0x300), BLINK) -- Waiting for RX 
       end
     else
       local menu = ctx.Menu
@@ -567,11 +567,11 @@ local function GUI_HandleEvent(event, touchState)
     ctx.Refresh_Display=true
     if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_VIRTUAL_ENTER,  SelLine=%d\n",dsmLib.phase2String(ctx.Phase), ctx.SelLine) end
     if ctx.SelLine == dsmLib.BACK_BUTTON then -- Back
-      dsmLib.GotoMenu(menu.BackId,0)
+      dsmLib.GotoMenu(menu.BackId,0x80)
     elseif ctx.SelLine == dsmLib.NEXT_BUTTON then -- Next
-      dsmLib.GotoMenu(menu.NextId,0)
+      dsmLib.GotoMenu(menu.NextId,0x82)
     elseif ctx.SelLine == dsmLib.PREV_BUTTON then -- Prev
-      dsmLib.GotoMenu(menu.PrevId,0)
+      dsmLib.GotoMenu(menu.PrevId,0x81)
     elseif menuLines[ctx.SelLine].ValId ~= 0 then  -- Menu or Value
 
       if menuLines[ctx.SelLine].Type == LINE_TYPE.MENU then -- Navigate to Menu

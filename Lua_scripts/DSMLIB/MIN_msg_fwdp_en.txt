@@ -1,0 +1,15 @@
+-- OVERRIDES Messges for MIN 128x64 screns
+-- FORMAT  <LineType>|<Msg#>|<Text>  
+-- Line Type: Text for Menus (T), List_Text Options (LT), List_Text_Image (LI), Flight Mode (FM), RX Name (RX)
+-- IMPORTANT: NO EMPTY LINES
+--
+T |0x0097|DONT USE: Factory Reset
+T |0x0098|DONT USE: Factory Reset
+T |0x00A5|DONT USE: First Time Setup
+T |0x00B0|Self-Lev/Ang Dem
+T |0x00CD|Level model & capt attitude
+T |0x0190|DONT USE: Relearn Servo Settings
+T |0x020D|DONT USE: First Time SAFE Setup
+T |0x0254|Pos = Up, Neg = Down
+T |0x0267|Pos = Nose Up/Roll Right
+T |0x0268|Neg = Nose Down/Roll Left

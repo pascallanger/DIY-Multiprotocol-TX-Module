@@ -497,6 +497,7 @@ local function drawTextGen(event)
   if multiBuffer( 4 ) == I2C_TEXT_GEN then -- Specktrum Telemetry ID of data received
     local instanceNo = multiBuffer( 5 )
     local lineNo = multiBuffer( 6 )
+
     local line = ""
     for i=0,13 do
       line = line .. string.char(multiBuffer( 7 + i ))

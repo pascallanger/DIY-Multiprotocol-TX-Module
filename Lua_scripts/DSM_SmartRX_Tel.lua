@@ -355,8 +355,8 @@ local function drawESCStatus(event)
   ESC_Status[1] = getValue("Erpm") -- RPM
   ESC_Status[2] = doFloat(getValue("EVIN")) -- Volts
   ESC_Status[3] = doFloat(getValue("ECUR")) -- Current
-  ESC_Status[4] = doFloat(getValue("EOUT"))*10  -- % Output
-  ESC_Status[5] = doFloat(getValue("ETHR"))*10  -- Throttle % (EOUT)
+  ESC_Status[4] = doFloat(getValue("EOUT"))  -- % Output
+  ESC_Status[5] = doFloat(getValue("ETHR")) -- Throttle % (EOUT)
   ESC_Status[6] = getValue("TFET")  -- Temp FET
   
   ESC_Status[7] = doFloat(getValue("VBEC")) -- Volts BEC
@@ -497,13 +497,14 @@ local function drawTextGen(event)
   if multiBuffer( 4 ) == I2C_TEXT_GEN then -- Specktrum Telemetry ID of data received
     local instanceNo = multiBuffer( 5 )
     local lineNo = multiBuffer( 6 )
-    local ch_array = {}
+
+    local line = ""
     for i=0,13 do
-      ch_array[i] = string.char(multiBuffer( 7 + i ))
+      line = line .. string.char(multiBuffer( 7 + i ))
     end
 
     multiBuffer( 4, 0 ) -- Clear Semaphore, to notify that we fully process the current message
-    lineText[lineNo]=table.concat(ch_array,nil,0) -- Concatenate all characters to create message
+    lineText[lineNo]=line
   end
 
   lcd.clear()

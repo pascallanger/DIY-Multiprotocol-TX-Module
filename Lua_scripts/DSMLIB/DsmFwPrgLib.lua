@@ -40,7 +40,13 @@
 
 
 local DEBUG_ON = ... -- Get Debug_ON from parameters.  -- 0=NO DEBUG, 1=HIGH LEVEL 2=MORE DETAILS 
-local LIB_VERSION = "0.53"
+
+local LIB_VERSION = "0.54"
+local LANGUAGE    = "en"
+
+local LOG_FILE = "/LOGS/dsm_log.txt"
+local MSG_FILE = "/SCRIPTS/TOOLS/DSMLIB/msg_fwdp_"..LANGUAGE..".txt"
+
 
 local Lib = { Init_Text = function (rxId) end }
 
@@ -152,15 +158,14 @@ local TxInfo_Step = 0
 -- Text Arrays for Display Text and Debuging 
 local PhaseText = {}
 local LineTypeText = {}
-local RxName = {}
-
 
 local Text = {}             -- Text for Menu and Menu Lines   (Headers only)
 local List_Text = {}        -- Messages for List Options (values only)
 local List_Text_Img = {}    -- If the Text has Attached Images
 local List_Values = {}      -- Additiona restrictions on List Values when non contiguos  (L_M1 lines has this problem) 
+local RxName = {}
+local Flight_Mode = {[0]="Flight Mode"}
 
-local LOG_FILE = "/LOGS/dsm_log.txt"
 local logFile  = nil
 
 
@@ -288,6 +293,9 @@ end
 ------------------------------------------------------------------------------------------------------------
 local function Get_Text(index)
     local out = Text[index]   -- Find in regular header first
+    if (index >= 0x8000) then
+        out = Flight_Mode[0]
+    end
     if out== nil then
         out = List_Text[index]  -- Try list values, don't think is necesary, but just playing Safe
     end
@@ -1331,6 +1339,69 @@ local function DSM_Send_Receive()
     end
 end
 
+local function load_msg_from_file(fileName, mem, Text, List_Text, List_Text_Img, RxName, Flight_Mode)
+    local function rtrim(s)
+      local n = string.len(s)
+      while n > 0 and string.find(s, "^%s", n) do n = n - 1 end
+      return string.sub(s, 1, n)
+    end
+  
+    --print(string.format("Loading messages from [%s]",fileName))
+    local dataFile = io.open(fileName, "r")   -- read File
+    -- cannot read file???
+    assert(dataFile, "Cannot load Message file:" .. fileName)
+  
+    local data = io.read(dataFile, mem * 1024) -- read up to 10k characters (newline char also counts!)
+    io.close(dataFile)
+  
+    collectgarbage("collect")
+  
+    local lineNo = 0
+    for line in string.gmatch(data, "[^\r\n]+") do
+      lineNo = lineNo + 1
+      --print(string.format("Line [%d]: %s",lineNo,line))
+  
+      -- Remove Comments
+      local s = string.find(line, "--", 1, true)
+      if (s ~= nil) then
+        line = string.sub(line, 1, s - 1)
+      end
+  
+      line = rtrim(line)
+  
+      if (string.len(line) > 0) then
+        local a, b, c = string.match(line, "%s*(%a*)%s*|%s*(%w*)%s*|(.*)%s*")
+        --print(string.format("[%s] [%s] [%s]",a,b,c))
+        if (a ~= nil) then
+          local index = tonumber(b)
+  
+          if (index == nil) then
+            assert(false, string.format("%s:%d: Invalid Hex num [%s]", fileName, lineNo, b))
+          elseif (a == "T") then
+            Text[index] = c
+          elseif (a == "LT") then
+            List_Text[index] = c
+          elseif (a == "LI") then
+            List_Text_Img[index] = c
+          elseif (a == "FM") then
+            Flight_Mode[0] = c
+          elseif (a == "RX") then
+            RxName[index] = c
+          else
+            assert(false, string.format("%s:%d: Invalid Line Type [%s]", fileName, lineNo, a))
+          end
+        end
+      end
+      if (lineNo % 50 == 0) then
+        collectgarbage("collect")
+      end
+    end -- For
+  
+    --print(string.format("Loaded [%d] messages",lineNo))
+    data = nil
+  end
+
+
 -- Init
 local function DSM_Init(toolName)
     local dateTime = getDateTime()
@@ -1374,19 +1445,12 @@ local function DSM_Init(toolName)
     LineTypeText[LINE_TYPE.VALUE_NUM_SI16]  = "V_s16"
     LineTypeText[LINE_TYPE.LT_EMPTY]        = "Z"
 
-    --RX names--
-    RxName[RX.AR636B]   = "AR636B"
-    RxName[RX.SPM4651T] = "SPM4651T"
-    RxName[RX.AR637T]   = "AR637T"
-    RxName[RX.AR637TA]  = "AR637TA"
-    RxName[RX.FC6250HX] = "FC6250HX"
-    RxName[RX.AR630]    = "AR630"
-    RxName[RX.AR8360T]  = "AR8360T"
-    RxName[RX.AR10360T] = "AR10360T"
-    RxName[RX.AR631]    = "AR631"
-
     DSM_ReadTxModelData()
+
+    -- Load  messages from external file (/DSMLIB/msg_en.txt)
+    load_msg_from_file(MSG_FILE,10,Text,List_Text,List_Text_Img,RxName,Flight_Mode)
 end
+
 
 local function DSM_Init_Text(rxId)
     --Text to be displayed
@@ -1411,36 +1475,30 @@ local function DSM_Init_Text(rxId)
         return " ("..(MODEL.TX_CH_TEXT[ch] or "--")..")"
     end
 
-
-    List_Text[0x0001] = "Off"
-    List_Text[0x0002] = "On"
-
-    -- Ihn/Act List Options
-    List_Text[0x0003] = "Inh"
-    List_Text[0x0004] = "Act"
+    -- OVERRIDES for list of valid VALUES and channel names 
 
     -- Channel selection for SAFE MODE and GAINS on  FC6250HX
-    List_Text[0x000C] = "Inhibit?" --?
+    -- List_Text[0x000C] = "Inhibit?" --?
     for i = 0, 7 do List_Text[0x000D + i] = "Ch"..(i+5) ..getTxChText(i+4) end -- Aux channels (Ch5 and Greater)
 
     -- Servo Output values.. 
     local servoOutputValues =  {0x0003,0x002D,0x002E,0x002F}  --Inh (GAP), 5.5ms, 11ms, 22ms. Fixing L_m1 with 0..244 range!
-    List_Text[0x002D] = "5.5ms"
-    List_Text[0x002E] = "11ms"
-    List_Text[0x002F] = "22ms"
+    --List_Text[0x002D] = "5.5ms"
+    --List_Text[0x002E] = "11ms"
+    --List_Text[0x002F] = "22ms"
 
     -- Gain Values
     local gainValues = {0x0032,0x0033,0x0034}  -- 1X, 2X, 4X   -- Fixing L_m1 with 0..244 range!
-    List_Text[0x0032] = "1 X"
-    List_Text[0x0033] = "2 X"
-    List_Text[0x0034] = "4 X"
+    --List_Text[0x0032] = "1 X"
+    --List_Text[0x0033] = "2 X"
+    --List_Text[0x0034] = "4 X"
 
     -- List of Channels for Safe, Gains, Panic, except FC6250HX that uses other range (0x00C..0x015)
     -- the valid range Starts with GEAR if enabled  (Thr,Ail,Ele,Rud are not valid, the RX reject them ) 
     -- Valid Values: Inhibit? (GAP), Gear,Aux1..Aux7,X-Plus-1..XPlus-8
     local channelValues = {0x0035,0x003A,0x003B,0x003C,0x003D,0x003E,0x003F,0x0040,0x0041,0x0042,0x0043,0x0044,0x0045,0x0046,0x0047,0x0048,0x0049} 
     
-    List_Text[0x0035] = "Inhibit?" 
+    --List_Text[0x0035] = "Inhibit?" 
     for i = 0, 11 do List_Text[0x0036 + i] = "Ch"..(i+1) .. getTxChText(i) end -- Channels on  AR637T
 
     for i = 1, 8 do -- 41..49
@@ -1449,38 +1507,6 @@ local function DSM_Init_Text(rxId)
 
     -- ****No longer overrides of previous XPlus values, since using different array
     -- for List_Text values
-
-    Text[0x0040] = "Roll" 
-    Text[0x0041] = "Pitch"
-    Text[0x0042] = "Yaw"
-    Text[0x0043] = "Gain/c/b" -- FC6250HX, AR631
-    Text[0x0045] = "Differential"
-    Text[0x0046] = "Priority"
-    Text[0x0049] = "Output Setup" -- FC6250HX, AR631
-    --******
-
-    Text[0x004A] = "Failsafe"
-    Text[0x004B] = "Main Menu"
-    Text[0x004E] = "Position"
-
-    Text[0x0050] = "Outputs";
-
-    Text[0x0051] = "Output Channel 1"
-    Text[0x0052] = "Output Channel 2"
-    Text[0x0053] = "Output Channel 3"
-    Text[0x0054] = "Output Channel 4"
-    Text[0x0055] = "Output Channel 5"
-    Text[0x0056] = "Output Channel 6"
-
-    if LCD_W <= 128 then -- Override for smaller screens 
-        Text[0x0051] = "Output Ch 1"
-        Text[0x0052] = "Output Ch 2"
-        Text[0x0053] = "Output Ch 3"
-        Text[0x0054] = "Output Ch 4"
-        Text[0x0055] = "Output Ch 5"
-        Text[0x0056] = "Output Ch 6"
-    end
-    
 
     if (rxId ~= RX.FC6250HX) then  -- Restrictions for non FC6250HX
         List_Values[0x0051]=servoOutputValues
@@ -1491,278 +1517,30 @@ local function DSM_Init_Text(rxId)
         List_Values[0x0056]=servoOutputValues
     end
 
-    -- FailSafe Options 
-    --Text[0x005E]="Inhibit"
-    List_Text[0x005F] = "Hold Last"
-    List_Text[0x0060] = "Preset"
-    --Text[0x0061]="Custom"
-
-    --FC6250HX 
-    Text[0x0071] = "Proportional"
-    Text[0x0072] = "Integral"
-    Text[0x0073] = "Derivate"
-
     -- Flight mode channel selection
-    Text[0x0078] = "FM Channel"
+    --Text[0x0078] = "FM Channel"
     if (rxId ~= RX.FC6250HX) then List_Values[0x0078]=channelValues end --FC6250HX uses other range
 
-    Text[0x007F] = "Attitude Gain" -- AR636B 
-    Text[0x0080] = "Orientation"
-    Text[0x0082] = "Heading"
-    Text[0x0085] = "Frame Rate"
-    Text[0x0086] = "System Setup"
-    Text[0x0087] = "F-Mode Setup"
-    Text[0x0088] = "Enabled F-Modes"
-
     -- Gain  channel selection
-    Text[0x0089] = "Gain Channel"
+    --Text[0x0089] = "Gain Channel"
     if (rxId ~= RX.FC6250HX) then List_Values[0x0089]=channelValues end --FC6250HX uses other range
 
     -- Gain Sensitivity selection
-    Text[0x008A] = "Gain Sensitivity/r";  List_Values[0x008A]=gainValues  -- Right Alight, (L_M1 was wide open range 0->244)
-
-    Text[0x008B] = "Panic"
-    Text[0x008E] = "Panic Delay"
-    Text[0x0090] = "Apply"
-
-    Text[0x0091] = "Begin" -- FC6250HX: Callibration Menu -> Begin..Start, Complete, Done
-    Text[0x0092] = "Start"
-    Text[0x0093] = "Complete"
-    Text[0x0094] = "Done"
-
-    Text[0x0097] = "Factory Reset"
-    Text[0x0098] = "Factory Reset" -- FC6250HX: Title
-    Text[0x0099] = "Advanced Setup"
-    Text[0x009A] = "Capture Failsafe Positions"
-    Text[0x009C] = "Custom Failsafe"
-
-    Text[0x009F] = "Save Settings" -- Save & Reboot RX 
-
-    Text[0x00A5] = "First Time Setup"
-    Text[0x00AA] = "Capture Gyro Gains"
-    Text[0x00AD] = "Gain Channel Select"
+    --Text[0x008A] = "Gain Sensitivity/r";  
+    List_Values[0x008A]=gainValues  -- Right Alight, (L_M1 was wide open range 0->244)
 
     -- Safe mode options, Ihnibit + this values 
     local safeModeOptions = {0x0003,0x00B0,0x00B1}  -- inh (gap), "Self-Level/Angle Dem, Envelope
-    List_Text[0x00B0] = "Self-Level/Angle Dem"
-    List_Text[0x00B1] = "Envelope"
+    --List_Text[0x00B0] = "Self-Level/Angle Dem"
+    --List_Text[0x00B1] = "Envelope"
 
-    -- Flight Modes List Options 
-    List_Text[0x00B5] = "Inhibit"
-    for i = 1, 10 do List_Text[0x00B5 + i] = "F Mode " .. i end
-
-    Text[0x00BE] = "Unknown_BE" -- Used in Reset menu (0x0001) while the RX is rebooting
-
-    Text[0x00C7] = "Calibrate Sensor"
-    Text[0x00C8] = "Complete" -- FC6250HX calibration complete 
-    Text[0x00CA] = "SAFE/Panic Mode Setup"
-    Text[0x00CD] = "Level model and capture attitude/m"; -- Different from List_Text , and force it to be a menu button
-
-    if LCD_W <= 128 then -- Override for small screens
-        Text[0x00CD] = "Level model, cap attitude/m"; -- Different from List_Text , and force it to be a menu button
-    end
-
-    -- RX Orientations for AR631/AR637, Optionally attach an Image + Alt Text to display
-    List_Text[0x00CB] = "Pos 1";  List_Text_Img[0x00CB]  = "rx_pos_1.png|Pilot View: RX Label Up, Pins Back" 
-    List_Text[0x00CC] = "Pos 2";  List_Text_Img[0x00CC]  = "rx_pos_2.png|Pilot View: RX Label Left, Pins Back" 
-    List_Text[0x00CD] = "Pos 3";  List_Text_Img[0x00CD]  = "rx_pos_3.png|Pilot View: RX Label Down, Pins Back" 
-    List_Text[0x00CE] = "Pos 4";  List_Text_Img[0x00CE]  = "rx_pos_4.png|Pilot View: RX Label Right, Pins Back" 
-    List_Text[0x00CF] = "Pos 5";  List_Text_Img[0x00CF]  = "rx_pos_5.png|Pilot View: RX Label UP, Pins to Front" 
-    List_Text[0x00D0] = "Pos 6";  List_Text_Img[0x00D0]  = "rx_pos_6.png|Pilot View: RX Label Left, Pins Front" 
-    List_Text[0x00D1] = "Pos 7";  List_Text_Img[0x00D1]  = "rx_pos_7.png|Pilot View: RX Label Down, Pins Front" 
-    List_Text[0x00D2] = "Pos 8";  List_Text_Img[0x00D2]  = "rx_pos_8.png|Pilot View: RX Label Right, Pins Front" 
-    List_Text[0x00D3] = "Pos 9";  List_Text_Img[0x00D3]  = "rx_pos_9.png|Pilot View: RX Label Up, Pins Left" 
-    List_Text[0x00D4] = "Pos 10"; List_Text_Img[0x00D4]  = "rx_pos_10.png|Pilot View: RX Label Back, Pins Left" 
-    List_Text[0x00D5] = "Pos 11"; List_Text_Img[0x00D5]  = "rx_pos_11.png|Pilot View: RX Label Down, Pins Left" 
-    List_Text[0x00D6] = "Pos 12"; List_Text_Img[0x00D6]  = "rx_pos_12.png|Pilot View: RX Label Front, Pins Left" 
-    List_Text[0x00D7] = "Pos 13"; List_Text_Img[0x00D7]  = "rx_pos_13.png|Pilot View: RX Label Up, Pins Right" 
-    List_Text[0x00D8] = "Pos 14"; List_Text_Img[0x00D8]  = "rx_pos_14.png|Pilot View: RX Label Back, Pins Right" 
-    List_Text[0x00D9] = "Pos 15"; List_Text_Img[0x00D9]  = "rx_pos_15.png|Pilot View: RX Label Down, Pins Right" 
-    List_Text[0x00DA] = "Pos 16"; List_Text_Img[0x00DA]  = "rx_pos_16.png|Pilot View: RX Label Front, Pins Right" 
-    List_Text[0x00DB] = "Pos 17"; List_Text_Img[0x00DB]  = "rx_pos_17.png|Pilot View: RX Label Back, Pins Down" 
-    List_Text[0x00DC] = "Pos 18"; List_Text_Img[0x00DC]  = "rx_pos_18.png|Pilot View: RX Label Left, Pins Down" 
-    List_Text[0x00DD] = "Pos 19"; List_Text_Img[0x00DD]  = "rx_pos_19.png|Pilot View: RX Label Front, Pins Down" 
-    List_Text[0x00DE] = "Pos 20"; List_Text_Img[0x00DE]  = "rx_pos_20.png|Pilot View: RX Label Right, Pins Down" 
-    List_Text[0x00DF] = "Pos 21"; List_Text_Img[0x00DF]  = "rx_pos_21.png|Pilot View: RX Label Back, Pins Up" 
-    List_Text[0x00E0] = "Pos 22"; List_Text_Img[0x00E0]  = "rx_pos_22.png|Pilot View: RX Label Left, Pins Up" 
-    List_Text[0x00E1] = "Pos 23"; List_Text_Img[0x00E1]  = "rx_pos_23.png|Pilot View: RX Label Front, Pins Up" 
-    List_Text[0x00E2] = "Pos 24"; List_Text_Img[0x00E2]  = "rx_pos_24.png|Pilot View: RX Label Right, Pins Up" 
-    List_Text[0x00E3] = "Pos Invalid";  List_Text_Img[0x00E3]  = "rx_pos_25.png|Cannot detect orientation of RX" 
-
-    Text[0x00D1] = "Receiver will Reboot/b" 
     --FC6250HX
-    Text[0x00D2] = "Panic Channel" 
+    --Text[0x00D2] = "Panic Channel" 
     if (rxId ~= RX.FC6250HX) then List_Values[0x00D2]=channelValues end --FC6250HX uses other range
 
-    Text[0x00D3] = "Swashplate"
-    Text[0x00D5] = "Agility"
-    Text[0x00D8] = "Stop"
-    Text[0x00DA] = "SAFE/c/b"  --SubTitle
-    Text[0x00DB] = "Stability"
-    Text[0x00DC] = "Deg. per sec"
-    Text[0x00DD] = "Tail rotor"
-    Text[0x00DE] = "Setup"
-    Text[0x00DF] = "AFR"
-    Text[0x00E0] = "Collective"
-    Text[0x00E1] = "Subtrim"
-    Text[0x00E2] = "Phasing"
-    Text[0x00E4] = "E-Ring"
-    
-    Text[0x00E7] = "Left"
-    Text[0x00E8] = "Right"
-
-    -- Gain Capture options 
-    List_Text[0x00F2] = "Fixed"
-    List_Text[0x00F3] = "Adjustable"
-
-    Text[0x00F9] = "Gyro settings"
-    Text[0x00FE] = "Stick Priority/c/b" --SubTitle
-
-    Text[0x0100] = "Make sure the model has been"
-    Text[0x0101] = "configured, including wing"
-    Text[0x0102] = "type, reversing, travel,"
-    Text[0x0103] = "trimmed, etc. before "
-    Text[0x0104] = "continuing setup."
-    Text[0x0105] = "" -- empty??
-
-    Text[0x0106] = "Any wing type, channel assignment,"
-    Text[0x0107] = "subtrim, or servo reversing changes"
-    Text[0x0108] = "require running through initial"
-    Text[0x0109] = "setup again."
-    Text[0x010A] = "" -- empty??
-    Text[0x010B] = "" -- empty??
-    
-    Text[0x0190] = "Relearn Model/Servo Settings (TX->RX)"
-    Text[0x019C] = "Enter Receiver Bind Mode"
-    Text[0x01D7] = "SAFE Select Channel"
-    Text[0x01DC] = "AS3X/c/b"       -- Subtitle, Center+bold 
-    Text[0x01DD] = "AS3X Settings"
-    Text[0x01DE] = "AS3X Gains"
-    Text[0x01E0] = "Rate Gains/c/b" -- SubTitle, Center+bold 
-    Text[0x01E2] = "SAFE Settings"
-    Text[0x01E3] = "SAFE Gains"
-    Text[0x01E6] = "Attitude Trim/c/b" -- SubTitle, Center+bold 
-    Text[0x01E7] = "Envelope"
-    Text[0x01E9] = "Roll Right"
-    Text[0x01EA] = "Roll Left"
-    Text[0x01EB] = "Pitch Down"
-    Text[0x01EC] = "Pitch Up"
-    Text[0x01EE] = "Throttle to Pitch"
-    Text[0x01EF] = "Low Thr to Pitch/c/b" -- SubTitle, Center+bold 
-    Text[0x01F0] = "High Thr to Pitch/c/b" -- SubTitle, Center+bold 
-    Text[0x01F3] = "Threshold"
-    Text[0x01F4] = "Angle"
-    Text[0x01F6] = "Failsafe Angles/c/b" -- SubTitle, Center+bold 
-
     --Inh, Self-Level/Angle Dem, Envelope -- (L_M was wide open range 0->244)
-    Text[0x01F8] = "Safe Mode";    List_Values[0x01F8]=safeModeOptions 
-
-    Text[0x01F9] = "SAFE Select/c/b"  -- SubTitle
-    Text[0x01FC] = "Panic Flight Mode"
-    Text[0x01FD] = "SAFE Failsafe FMode"
-    Text[0x0208] = "Decay"
-    Text[0x0209] = "Save to Backup"
-    Text[0x020A] = "Restore from Backup"
-    Text[0x020D] = "First Time SAFE Setup"
-
-    -- First time safe setup Page 3 : 
-    Text[0x020E] = "AS3X gains must be tuned"
-    Text[0x020F] = "and active in SAFE Flight Modes"
-    Text[0x0210] = "to help reduce wobble."
-    Text[0x0211] = "" -- empty
-    Text[0x0212] = "" -- empty
-    Text[0x0213] = "" -- empty
-
-    -- AS3X orientation Setting menu (Level)
-    Text[0x021A] = "Set the model level,"
-    Text[0x021B] = "and press Continue."
-    Text[0x021C] = "" -- empty??
-    Text[0x021D] = "" -- empty??
-
-    -- AS3X orientation Setting menu (Nose down)
-    Text[0x021F] = "Set the model on its nose,"
-    Text[0x0220] = "and press Continue. If the"
-    Text[0x0221] = "orientation on the next"
-    Text[0x0222] = "screen is wrong go back"
-    Text[0x0223] = "and try again."
-    
-    Text[0x0224] = "Continue"
-    Text[0x0226] = "Angle Limits/c/b"
-    Text[0x0227] = "Other settings"
-    Text[0x0229] = "Set Orientation Manually"
-
-    -- Factory Default Warning 
-    Text[0x022B] = "WARNING!"
-    Text[0x022C] = "This will reset the"
-    Text[0x022D] = "configuration to factory"
-    Text[0x022E] = "defaults. This does not"
-    Text[0x022F] = "affect the backup config."
-    Text[0x0230] = "" -- empty??
-
-    -- Backup Warning
-    Text[0x0231] = "This will overwrite the"
-    Text[0x0232] = "backup memory with your"
-    Text[0x0233] = "current configuartion."
-    Text[0x0234] = "" -- blank line
-    Text[0x0235] = "" -- blank line
-
-    -- Restore from Backup Warning
-    Text[0x0236] = "This will overwrite the"
-    Text[0x0237] = "current config with"
-    Text[0x0238] = "that which is in"
-    Text[0x0239] = "the backup memory."
-    Text[0x023A] = "" -- blank line
-
-    -- Utilities Copy flight modes
-    Text[0x023D] = "Copy Flight Mode Settings"
-    Text[0x023E] = "Source Flight Mode"
-    Text[0x023F] = "Target Flight Mode"
-
-    Text[0x0240] = "Utilities"
-
-    -- Gain Capture Page
-    Text[0x024C] = "Gains will be captured on"
-    Text[0x024D] = "Captured gains will be"
-    Text[0x024E] = "Gains on"
-    Text[0x024F] = "were captured and changed"
-    Text[0x0250] = "from Adjustable to Fixed"
-
-    Text[0x0254] = "Postive = Up, Negative = Down"
-
-    --Utilities, Copy flight mode  (Copy Confirmation, oveerriding FM)
-    Text[0x0251] = "Are you sure you want to ovewrite the \"Target\""
-    Text[0x0252] = "with the \"Source\" ? "
-    Text[0x0253] = "" -- Blank
-
-    -- First time safe setup Page 1  (maybe ask to select Flight Mode cannel)
-    Text[0x0255] = "Before setting up SAFE"
-    Text[0x0256] = "a Flight Mode channel"
-    Text[0x0257] = "most be configured."
-
-    --First time safe setup Page 2  (something related for flight mode)
-    Text[0x025A] = "Select the desired flight mode"
-    Text[0x025B] = "switch position to adjust settings"
-    Text[0x025C] = "for each flight mode"
-    Text[0x025D] = "" -- Blank
-    Text[0x025E] = "" -- Blank
-
-    --Utilities, Copy flight mode  (Confirm)
-    Text[0x0259] = "YES" 
-    Text[0x0260] = "WARNING: \"Target\""
-    Text[0x0261] = "flight mode will be overwritten"
-    Text[0x0262] = "by \"Source\""
-
-    Text[0x0263] = "Fixed/Adjustable Gains /c/b"
-    Text[0x0266] = "Heading Gain/c/b"
-    Text[0x0267] = "Positive = Nose Up/Roll Right"
-    Text[0x0268] = "Negative = Nose Down/Roll Left"
-    Text[0x0269] = "SAFE - Throttle to Pitch"
-    Text[0x026A] = "Use CAUTION for Yaw gain!/b" -- SubTitle
-
-    Text[0x8000] = "Flight Mode/c/b"  --FC6250HX:   1=NORMAL 2= Stunt-1, 3=Stunt-2, 4=Hold
-    Text[0x8001] = "Flight Mode/c/b"  --AR63X family:  WAS "Flight Mode 1".. This usually is a Flight Mode w value relative to 0 (AR631/AR637)
-    Text[0x8002] = "Flight Mode/c/b" -- what RX does this show up??
-    Text[0x8003] = "Flight Mode/c/b"
+    --Text[0x01F8] = "Safe Mode";    
+    List_Values[0x01F8]=safeModeOptions 
 end
 
 -- Adjust the displayed value for Flight mode line as needed
@@ -1855,5 +1633,6 @@ Lib.Init = DSM_Init
 Lib.Init_Text = DSM_Init_Text
 
 Lib.SetDSMChannelInfo = DSM_SetDSMChannelInfo
+Lib.Get_RxName = Get_RxName
 
 return Lib

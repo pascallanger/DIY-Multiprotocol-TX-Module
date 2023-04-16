@@ -24,7 +24,7 @@
 ------------------------------------------------------------------------------
 
 local DEBUG_ON, SIMULATION_ON = ... -- Get DebugON from parameters
-local SETUP_LIB_VERSION = "0.53"
+local SETUP_LIB_VERSION = "0.54"
 
 local DATA_PATH = "/MODELS/DSMDATA" -- Path to store model settings files
 local dsmLib = assert(loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua"))(DEBUG_ON)
@@ -193,7 +193,7 @@ local function ST_PlaneWingInit(wingType)
     elseif (wingType==WING_TYPE.AIL_2_FLP_2) then
         MENU_DATA[MEMU_VAR.CH_L_AIL] = PORT.PORT6
         MENU_DATA[MEMU_VAR.CH_R_AIL] = PORT.PORT2
-        MENU_DATA[MEMU_VAR.CH_L_FLP] = PORT.PORT5
+        MENU_DATA[MEMU_VAR.CH_R_FLP] = PORT.PORT5
         MENU_DATA[MEMU_VAR.CH_L_FLP] = PORT.PORT7
     elseif (wingType==WING_TYPE.ELEVON_A) then
         MENU_DATA[MEMU_VAR.CH_L_AIL] = PORT.PORT2
@@ -787,7 +787,7 @@ local function ST_LoadMenu(menuId)
             ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, Text=leftFlapText, TextId = 0, ValId = MEMU_VAR.CH_L_FLP, Min=0, Max=9, Def=0, Val= leftFlap }
         end
         if (rightFlap~=nil) then
-            ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, Text=rightFlapText, TextId = 0, ValId = MEMU_VAR.CH_L_FLP, Min=0, Max=9, Def=0, Val= leftFlap }
+            ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, Text=rightFlapText, TextId = 0, ValId = MEMU_VAR.CH_R_FLP, Min=0, Max=9, Def=0, Val= rightFlap }
         end
 
         ctx.SelLine = 1

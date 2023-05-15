@@ -520,18 +520,18 @@ Here is a table detailling the different RX output ranges based on the radio set
 ![Image](/docs/images/DSM_RX_Output.JPG)
 
 ### Sub_protocol DSM2_1F - *0*
-DSM2, Resolution 1024, servo refresh rate can only be 22ms
+Air DSM2, Resolution 1024, servo refresh rate can only be 22ms
 ### Sub_protocol DSM2_2F - *1*
-DSM2, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
+Air DSM2, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
 ### Sub_protocol DSMX_1F - *2*
-DSMX, Resolution 2048, servo refresh rate can only be 22ms
+Air DSMX, Resolution 2048, servo refresh rate can only be 22ms
 ### Sub_protocol DSMX_2F - *3*
-DSMX, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
+Air DSMX, Resolution 2048, servo refresh rate can be 22 or 11ms. 11ms won't be available on all servo outputs when more than 7 channels are used.
 ### Sub_protocol AUTO - *4*
-"AUTO" is recommended to automatically select the best settings for your DSM2 and DSMX RXs.
+"AUTO" is recommended to automatically select the best settings for your air DSM2 and DSMX RXs.
 
 ### Sub_protocol DSMR_1F - *5*
-DSMR receivers
+Surface DSMR receivers
 
 **Only 22 IDs available**, use RX num to cycle through them.
 

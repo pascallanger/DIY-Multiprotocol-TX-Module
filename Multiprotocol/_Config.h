@@ -182,6 +182,7 @@
 #define	KYOSHO_A7105_INO
 #define	PELIKAN_A7105_INO
 #define	WFLY2_A7105_INO
+#define MICROZONE_A7105_INO
 
 //The protocols below need a CYRF6936 to be installed
 #define	DEVO_CYRF6936_INO

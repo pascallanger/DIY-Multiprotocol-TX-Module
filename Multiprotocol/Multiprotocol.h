@@ -121,6 +121,7 @@ enum PROTOCOLS
 	PROTO_XERALL	= 91,	// =>NRF24L01
 	PROTO_MT99XX2	= 92,	// =>NRF24L01, extension of MT99XX protocol
 	PROTO_KYOSHO2	= 93,	// =>NRF24L01
+	PROTO_MICROZONE	= 94,	// =>A7105
 
 	PROTO_NANORF	= 126,	// =>NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -462,6 +463,11 @@ enum FX
 	FX816			= 0,
 	FX620			= 1,
     FX9630          = 2,
+};
+enum MICROZONE
+{
+	MICROZONE_M1	= 0,
+	MICROZONE_M2	= 1,
 };
 
 #define NONE 		0

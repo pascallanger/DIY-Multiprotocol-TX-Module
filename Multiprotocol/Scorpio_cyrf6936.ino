@@ -44,7 +44,7 @@ static uint16_t __attribute__((unused)) SCORPIO_send_packet()
 	}
 	CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
 	CYRF_SetPower(0x28);					//Update power
-	delayMicroseconds(100);					//Max frequency settle time
+	delayMicroseconds(180);					//Frequency settle time
 	packet[0] = hopping_frequency[0];
 	packet[1] = hopping_frequency[1];
 	packet[2] = hopping_frequency[2];
@@ -116,10 +116,7 @@ void SCORPIO_init()
 		CYRF_ConfigCRCSeed(0x0001);
 	}
 	else
-	{
-		bind_counter = 0;
-		CYRF_ConfigCRCSeed(crc);
-	}
+		bind_counter = 1;
 	hopping_frequency_no = 0;
 }
 

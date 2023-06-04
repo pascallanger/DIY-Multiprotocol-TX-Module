@@ -134,6 +134,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Realacc](Protocols_Details.md#Realacc---76)|76|R11||||||||NRF24L01|
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
+[Scorpio](Protocols_Details.md#Scorpio---94)|94|||||||||CYRF6936|
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|CC2500

@@ -651,6 +651,13 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
+## Scorpio - *94*
+Model Scorpio Falco 300, TX:Nine Eagles 4CH-TX, RX:Nine Eagles 4CH-RX
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|E|T|R
+
 ## Traxxas - *43*
 Receiver 6519
 

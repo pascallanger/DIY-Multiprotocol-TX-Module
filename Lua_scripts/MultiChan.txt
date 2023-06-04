@@ -207,3 +207,4 @@
 91,0,Xerall,Tank,0,FlTa,TakLan,Rate,HLess,Photo,Video,TrimR,TrimE,TrimA
 92,0,MT99xx2,PA18,0,MODE,FLIP,RTH
 93,0,Kyosho2,KT-17,0
+94,0,Scorpio

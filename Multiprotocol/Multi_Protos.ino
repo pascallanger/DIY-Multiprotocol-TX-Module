@@ -105,6 +105,7 @@ const char STR_CONFIG[]     ="Config";
 const char STR_LOSI[]       ="Losi";
 const char STR_MOULDKG[]    ="MouldKg";
 const char STR_XERALL[]     ="Xerall";
+const char STR_SCORPIO[]    ="Scorpio";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -427,6 +428,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(SCANNER_CC2500_INO)
 		{PROTO_SCANNER,    STR_SCANNER,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CC2500, SCANNER_init,    SCANNER_callback    },
+	#endif
+	#if defined(SCORPIO_CYRF6936_INO)
+		{PROTO_SCORPIO,    STR_SCORPIO,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CYRF,   SCORPIO_init,    SCORPIO_callback    },
 	#endif
 	#if defined(SHENQI_NRF24L01_INO)
 		{PROTO_SHENQI,     STR_SHENQI,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    SHENQI_init,     SHENQI_callback     },

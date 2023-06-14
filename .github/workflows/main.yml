@@ -55,10 +55,12 @@ jobs:
       BOARD: ${{ matrix.board }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
       - name: Install Arduino CLI
-        uses: arduino/setup-arduino-cli@v1.1.1
+        uses: arduino/setup-arduino-cli@v1.1.2
+        with:
+          version: "0.32.2"
       
       - name: Prepare build environment
         run: |
@@ -196,7 +198,7 @@ jobs:
 
       - name: 'Upload Artifacts'
         if: env.HAVE_FILES == 'true'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: multi-test-build
           path: ./binaries/

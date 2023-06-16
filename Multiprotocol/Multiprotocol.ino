@@ -1199,9 +1199,9 @@ static void protocol_init()
 			modules_reset();				
 
 			uint8_t index=0;
-			//#if defined(FRSKYX_CC2500_INO) && defined(MULTI_EU)
-			//	if( ! ( (protocol == PROTO_FRSKYX || protocol == PROTO_FRSKYX2) && sub_protocol < 2 ) )
-			//#endif
+			#if defined(FRSKYX_CC2500_INO) && defined(MULTI_EU)
+				if( ! ( (protocol == PROTO_FRSKYX || protocol == PROTO_FRSKYX2) && sub_protocol < 2 ) )
+			#endif
 			while(multi_protocols[index].protocol != 0xFF)
 			{
 				if(multi_protocols[index].protocol==protocol)

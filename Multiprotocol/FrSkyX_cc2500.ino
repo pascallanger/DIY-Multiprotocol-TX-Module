@@ -100,7 +100,7 @@ static void __attribute__((unused)) FrSkyX_build_packet()
 	FrSkyX_channels(7);					// Set packet[7]=failsafe, packet[8]=0?? and packet[9..20]=channels data
 	
 	//Sequence and send SPort
-	FrSkyX_seq_sport(21,packet_length-(protocol==PROTO_FRSKYX && (FrSkyFormat & 2 )) ? 4 : 2); //21=RX|TXseq, 22=bytes count, 23..packet_length-2=data
+	FrSkyX_seq_sport(21,packet_length-((protocol==PROTO_FRSKYX && (FrSkyFormat & 2 )) ? 4 : 2)); //21=RX|TXseq, 22=bytes count, 23..packet_length-2=data
 
 	//CRC
 	uint16_t lcrc = FrSkyX_crc(&packet[3], packet_length-4);

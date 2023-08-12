@@ -83,7 +83,12 @@ enum{
 enum{
     // flags going to packet[6] (F949G)
     FLAG_F949G_LIGHT	= 0x01,
+	FLAG_F949G_RATES	= 0x02,
     FLAG_F949G_3D6G		= 0x20,
+    FLAG_BF109_RATES	= 0x01,	// short press right
+    FLAG_BF109_LIGHT	= 0x02,	// short press left
+    FLAG_BF109_UNK1		= 0x08,	// long press right
+    FLAG_BF109_UNK2		= 0x10,	// long press left
 };
 enum{
     // flags going to packet[6] (PA18)
@@ -248,9 +253,11 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					#endif
 					break;
 				case F949G:
-					packet[6] = 0x02
-							  | GET_FLAG( CH5_SW, FLAG_F949G_3D6G )
-							  | GET_FLAG( CH6_SW, FLAG_F949G_LIGHT );
+					packet[6] = GET_FLAG( CH5_SW, FLAG_F949G_3D6G )
+							  | GET_FLAG( CH6_SW, FLAG_F949G_LIGHT )	//FLAG_BF109_RATES
+							  | GET_FLAG(!CH7_SW, FLAG_F949G_RATES )	//FLAG_BF109_LIGHT
+							  | GET_FLAG( CH8_SW, FLAG_BF109_UNK1 )		//BF109 long press right, temporary flag
+							  | GET_FLAG( CH9_SW, FLAG_BF109_UNK2 );	//BF109 long press left, temporary flag
 					packet[7] = 0x00;
 					break;
 				case PA18+8:

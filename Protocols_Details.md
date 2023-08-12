@@ -1182,6 +1182,14 @@ CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|6G3D|Light
 
+Model: KFPLAN Z61 BF109
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|-|Rate|Light|Unk1|Unk2
+
+Unk1&2: long press right/left
+
 ## MT99XX2 - *92*
 
 ### Sub_protocol PA18 - *92*

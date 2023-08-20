@@ -529,11 +529,11 @@ void DSM_init()
 	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
 
 	//Fix for OrangeRX using wrong DSM_pncodes by preventing access to "Col 8"
-	if(sop_col==0 && sub_protocol != DSMR)
-	{
-	   cyrfmfg_id[rx_tx_addr[0]%3]^=0x01;					//Change a bit so sop_col will be different from 0
-	   sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
-	}
+	//if(sop_col==0 && sub_protocol != DSMR)
+	//{
+	//   cyrfmfg_id[rx_tx_addr[0]%3]^=0x01;					//Change a bit so sop_col will be different from 0
+	//   sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
+	//}
 
 	//Calc CRC seed
 	seed = (cyrfmfg_id[0] << 8) + cyrfmfg_id[1];

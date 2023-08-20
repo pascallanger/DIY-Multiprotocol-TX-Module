@@ -41,7 +41,7 @@
 //Modify the channel order based on your TX: AETR, TAER, RETA...
 //Examples: Flysky & DEVO is AETR, JR/Spektrum radio is TAER, Multiplex is AERT...
 //Default is AETR.
-#define AETR
+#define TAER
 
 //Uncomment to reverse the direction of the specified channel for all protocols
 //#define REVERSE_AILERON
@@ -74,10 +74,10 @@
 //4-in-1 modules have the A7105, CYRF6936, CC2500 and NRF24L01 RF chips installed
 //5-in-1 modules have all RF chips installed
 //!!!If a RF chip is present it MUST be marked as installed!!! or weird things will happen you have been warned.
-#define A7105_INSTALLED
+//#define A7105_INSTALLED
 #define CYRF6936_INSTALLED
 #define CC2500_INSTALLED
-#define NRF24L01_INSTALLED
+//#define NRF24L01_INSTALLED
 //#define SX1276_INSTALLED		// only supported on STM32 modules
 
 //Uncomment (remove //) if you have an internal 5-in-1 Multi module in a Jumper T18 or T-Lite.
@@ -158,7 +158,7 @@
 //If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
 // then you can force the ID to a certain known value using the lines below.
 //Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
-//#define FORCE_CYRF_ID	"\x12\x34\x56\x78\x9A\xBC"
+//#define FORCE_CYRF_ID	"\x7b\xe8\x8b\x40\x9A\xBC"
 
 
 /****************************/
@@ -317,7 +317,7 @@
 //For er9x it depends if you have an inveter mod or not on the telemetry pin. If you don't have an inverter comment this line.
 #define INVERT_TELEMETRY
 //For STM32 and OrangeRX modules, comment to prevent the TX from forcing the serial telemetry polarity normal/invert.
-#define INVERT_TELEMETRY_TX
+#define INVERT_TELEMETRY_TXs
 
 //Sends Multi status and allow OpenTX and erskyTX to autodetect the telemetry format. Comment to disable.
 #define MULTI_TELEMETRY
@@ -603,7 +603,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		DSMX_2F
 		DSMR
 	PROTO_DSM_RX
-		NONE
+		DSM_RX
+		DSM_CLONE
 	PROTO_E010R5
 		NONE
 	PROTO_E016H

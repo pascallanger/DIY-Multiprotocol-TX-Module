@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	3
-#define VERSION_PATCH_LEVEL	28
+#define VERSION_PATCH_LEVEL	29
 
 #define MODE_SERIAL 0
 
@@ -169,6 +169,12 @@ enum DSM
 	DSMX_2F		= 3,
 	DSM_AUTO	= 4,
 	DSMR		= 5,
+};
+enum DSM_RX
+{
+	DSM_RX		= 0,
+	DSM_CLONE	= 1,
+	DSM_ERASE	= 2,
 };
 enum YD717
 {       			
@@ -962,6 +968,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			DSMX_1F 	2
 			DSMX_2F 	3
 			DSM_AUTO	4
+		sub_protocol==DSM_RX
+			DSM_RX		0
+			DSM_CLONE	1
+			DSM_ERASE	2
 		sub_protocol==YD717
 			YD717		0
 			SKYWLKR		1

@@ -261,6 +261,10 @@ uint16_t DSM_RX_callback()
 							&0xF0 => false=1024, true=2048 */
 						DSM_rx_type=packet_in[12];
 						debugln(", num_ch=%d, type=%02X",num_ch, DSM_rx_type);
+						if(sub_protocol==DSM_CLONE)
+						{
+							debugln("Collecting TX MfgId");
+						}
 						eeprom_write_byte((EE_ADDR)temp, DSM_rx_type);
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);	// Abort RX operation
 						CYRF_SetTxRxMode(TX_EN);					// Force end state TX

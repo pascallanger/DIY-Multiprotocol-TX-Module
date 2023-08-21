@@ -214,6 +214,15 @@ uint16_t DSM_RX_callback()
 	uint8_t rx_status;
 	static uint8_t read_retry=0;
 
+	if(sub_protocol == DSM_ERASE)
+	{
+		if(packet_count)
+			packet_count--;
+		else
+			BIND_DONE;
+		return 10000;	//  Nothing to do...
+	}
+
 	switch (phase)
 	{
 		case DSM_RX_BIND1:
@@ -240,6 +249,10 @@ uint16_t DSM_RX_callback()
 					{
 						// store tx info into eeprom
 						uint16_t temp = DSM_RX_EEPROM_OFFSET;
+						if (sub_protocol==DSM_CLONE)
+						{
+							temp = DSM_CLONE_EEPROM_OFFSET;
+						}
 						debug("ID=");
 						for(uint8_t i=0;i<4;i++)
 						{
@@ -261,11 +274,11 @@ uint16_t DSM_RX_callback()
 							&0xF0 => false=1024, true=2048 */
 						DSM_rx_type=packet_in[12];
 						debugln(", num_ch=%d, type=%02X",num_ch, DSM_rx_type);
-						if(sub_protocol==DSM_CLONE)
-						{
-							debugln("Collecting TX MfgId");
-						}
 						eeprom_write_byte((EE_ADDR)temp, DSM_rx_type);
+						if (sub_protocol==DSM_CLONE)
+						{
+							eeprom_write_byte((EE_ADDR)++temp, num_ch);
+						}
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);	// Abort RX operation
 						CYRF_SetTxRxMode(TX_EN);					// Force end state TX
 						CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84", 16);
@@ -474,12 +487,31 @@ void DSM_RX_init()
 	
 	if (IS_BIND_IN_PROGRESS)
 	{
-		packet_count=0;
-		phase = DSM_RX_BIND1;
+		if(sub_protocol == DSM_ERASE)
+		{
+			// Clear all cloned addresses
+			uint16_t addr = DSM_CLONE_EEPROM_OFFSET;
+			for(uint8_t i=0; i<7; i++)
+			{
+				eeprom_write_byte((EE_ADDR)(addr++), 0xFF);
+			}
+			packet_count = 100;	
+		}
+		else
+		{
+			packet_count=0;
+			phase = DSM_RX_BIND1;
+		}
 	}
 	else
 	{
+		
 		uint16_t temp = DSM_RX_EEPROM_OFFSET;
+		if (sub_protocol==DSM_CLONE)
+		{
+			temp = DSM_CLONE_EEPROM_OFFSET;
+		}
+		
 		debug("ID=");
 		for(uint8_t i=0;i<4;i++)
 		{
@@ -488,6 +520,12 @@ void DSM_RX_init()
 		}
 		DSM_rx_type=eeprom_read_byte((EE_ADDR)temp);
 		debugln(", type=%02X", DSM_rx_type);
+		if (sub_protocol==DSM_CLONE)
+		{
+			num_ch=eeprom_read_byte((EE_ADDR)++temp);
+			debugln(", channels=%02", num_ch);
+		}
+
 		phase = DSM_RX_DATA_PREP;
 	}
 }

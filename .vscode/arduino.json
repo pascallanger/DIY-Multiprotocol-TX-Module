@@ -1,0 +1,8 @@
+{
+    "configuration": "usb_support=disabled,debug_option=native",
+    "board": "multi4in1:STM32F1:multistm32f103cb",
+    "sketch": "Multiprotocol\\Multiprotocol.ino",
+    "output": "vscode_build",
+    "intelliSenseGen": "disable",
+    "port": "COM9"
+}

@@ -829,7 +829,8 @@ enum {
 #define FRSKYX2_CLONE_EEPROM_OFFSET	873	// (1) format + (3) TX ID, 4 bytes, end is 877
 #define DSM_RX_EEPROM_OFFSET	877		// (4) TX ID + format, 5 bytes, end is 882
 #define MOULDKG_EEPROM_OFFSET	882		// RX ID, 3 bytes per model, end is 882+64*3=1074
-//#define CONFIG_EEPROM_OFFSET 	1074	// Current configuration of the multimodule
+#define DSM_CLONE_EEPROM_OFFSET 1074	// (4) TX ID, (1) RX type, (1) No of channels, end is 1090
+//#define CONFIG_EEPROM_OFFSET 	1090	// Current configuration of the multimodule
 
 /* STM32 Flash Size */
 #ifndef DISABLE_FLASH_SIZE_CHECK

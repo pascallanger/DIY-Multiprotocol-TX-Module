@@ -158,7 +158,7 @@
 //If you have 2 Multi modules which you want to share the same ID so you can use either to control the same RC model
 // then you can force the ID to a certain known value using the lines below.
 //Default is commented, you should uncoment only for test purpose or if you know exactly what you are doing!!!
-//#define FORCE_CYRF_ID	"\x7b\xe8\x8b\x40\x9A\xBC"
+#define FORCE_CYRF_ID	"\x54\x51\x67\x8e\x9A\xBC"
 
 
 /****************************/

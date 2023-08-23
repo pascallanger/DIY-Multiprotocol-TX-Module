@@ -249,14 +249,15 @@ uint16_t DSM_RX_callback()
 					{
 						// store tx info into eeprom
 						uint16_t temp = DSM_RX_EEPROM_OFFSET;
-						if (sub_protocol==DSM_CLONE)
-						{
+						if (sub_protocol == DSM_CLONE)
 							temp = DSM_CLONE_EEPROM_OFFSET;
-						}
 						debug("ID=");
 						for(uint8_t i=0;i<4;i++)
 						{
-							cyrfmfg_id[i]=packet_in[i]^0xFF;
+							if (sub_protocol == DSM_CLONE && i == 3)
+								cyrfmfg_id[i]=(packet_in[i]^RX_num)^0xFF;
+							else
+								cyrfmfg_id[i]=packet_in[i]^0xFF;
 							eeprom_write_byte((EE_ADDR)temp++, cyrfmfg_id[i]);
 							debug(" %02X", cyrfmfg_id[i]);
 						}
@@ -275,10 +276,8 @@ uint16_t DSM_RX_callback()
 						DSM_rx_type=packet_in[12];
 						debugln(", num_ch=%d, type=%02X",num_ch, DSM_rx_type);
 						eeprom_write_byte((EE_ADDR)temp, DSM_rx_type);
-						if (sub_protocol==DSM_CLONE)
-						{
+						if (sub_protocol == DSM_CLONE)
 							eeprom_write_byte((EE_ADDR)++temp, num_ch);
-						}
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);	// Abort RX operation
 						CYRF_SetTxRxMode(TX_EN);					// Force end state TX
 						CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84", 16);
@@ -492,9 +491,7 @@ void DSM_RX_init()
 			// Clear all cloned addresses
 			uint16_t addr = DSM_CLONE_EEPROM_OFFSET;
 			for(uint8_t i=0; i<7; i++)
-			{
 				eeprom_write_byte((EE_ADDR)(addr++), 0xFF);
-			}
 			packet_count = 100;	
 		}
 		else
@@ -505,12 +502,9 @@ void DSM_RX_init()
 	}
 	else
 	{
-		
 		uint16_t temp = DSM_RX_EEPROM_OFFSET;
-		if (sub_protocol==DSM_CLONE)
-		{
+		if (sub_protocol == DSM_CLONE  || sub_protocol == DSM_ERASE )
 			temp = DSM_CLONE_EEPROM_OFFSET;
-		}
 		
 		debug("ID=");
 		for(uint8_t i=0;i<4;i++)
@@ -520,10 +514,10 @@ void DSM_RX_init()
 		}
 		DSM_rx_type=eeprom_read_byte((EE_ADDR)temp);
 		debugln(", type=%02X", DSM_rx_type);
-		if (sub_protocol==DSM_CLONE)
+		if (sub_protocol == DSM_CLONE  || sub_protocol == DSM_ERASE )
 		{
 			num_ch=eeprom_read_byte((EE_ADDR)++temp);
-			debugln(", channels=%02", num_ch);
+			debugln("channels=%d", num_ch);
 		}
 
 		phase = DSM_RX_DATA_PREP;

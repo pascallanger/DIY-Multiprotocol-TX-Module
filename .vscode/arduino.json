@@ -4,5 +4,5 @@
     "sketch": "Multiprotocol\\Multiprotocol.ino",
     "output": "vscode_build",
     "intelliSenseGen": "disable",
-    "port": "COM9"
+    "port": "COM15"
 }

@@ -21,6 +21,8 @@
 
 //#define DSM_GR300
 
+#define CLONE_BIT_MASK 0x20 // TODO: Fix me
+
 #define DSM_BIND_CHANNEL 0x0d //13 This can be any odd channel
 
 //During binding we will send BIND_COUNT/2 packets
@@ -140,10 +142,86 @@ static void __attribute__((unused)) DSM_update_channels()
 		ch_map[i]=pgm_read_byte_near(&DSM_ch_map_progmem[idx][i]);
 }
 
+static void __attribute__((unused)) DSM_getClonedMfgData()
+{
+	if(option&CLONE_BIT_MASK)
+	{ 
+		if(eeprom_read_byte((EE_ADDR)DSM_CLONE_EEPROM_OFFSET+4)==0xF0)
+		{
+			//read cloned ID from EEPROM
+			debugln("Using cloned ID");
+			uint16_t temp = DSM_CLONE_EEPROM_OFFSET;
+			for(uint8_t i=0;i<4;i++)
+				cyrfmfg_id[i] = eeprom_read_byte((EE_ADDR)temp++);
+		}
+		else
+		{
+			SUB_PROTO_INVALID;
+			debugln("No valid cloned ID");
+		}
+	}
+	else
+	{
+		SUB_PROTO_VALID;
+		CYRF_GetMfgData(cyrfmfg_id);
+	}
+	//Model match
+	cyrfmfg_id[3]^=RX_num;
+
+	//Calc sop_col
+	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
+
+	//We cannot manipulate the ID if we are cloning
+	if(!(option&CLONE_BIT_MASK))
+	{	
+		//Fix for OrangeRX using wrong DSM_pncodes by preventing access to "Col 8"
+		if(sop_col==0 && sub_protocol != DSMR)
+		{
+		cyrfmfg_id[rx_tx_addr[0]%3]^=0x01;					//Change a bit so sop_col will be different from 0
+		sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
+		}
+	}
+
+	//Calc CRC seed
+	seed = (cyrfmfg_id[0] << 8) + cyrfmfg_id[1];
+
+	if(IS_SUB_PROTO_VALID)
+	{
+		debug("ID=")
+		for(uint8_t i=0;i<4;i++)
+			debug("%02x ", cyrfmfg_id[i]);
+		debugln("");
+	}
+
+	//Hopping frequencies
+	if (sub_protocol == DSMX_2F || sub_protocol == DSMX_1F)
+		DSM_calc_dsmx_channel();
+	else if(sub_protocol != DSMR)
+	{ 
+		uint8_t tmpch[10];
+		CYRF_FindBestChannels(tmpch, 10, 5, 3, 75);
+		//
+		uint8_t idx = random(0xfefefefe) % 10;
+		hopping_frequency[0] = tmpch[idx];
+		while(1)
+		{
+			idx = random(0xfefefefe) % 10;
+			if (tmpch[idx] != hopping_frequency[0])
+				break;
+		}
+		hopping_frequency[1] = tmpch[idx];
+	}
+
+	prev_option^=CLONE_BIT_MASK;				// reset the clone flag
+}
+
 static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 {
+	debugln("Opt = %02x", option);
 	uint8_t bits = 11;
-
+	// Check if clone flag has changed
+	if((prev_option&CLONE_BIT_MASK) != (option&CLONE_BIT_MASK))
+		DSM_getClonedMfgData();
 	if(prev_option!=option)
 		DSM_update_channels();
 
@@ -519,43 +597,7 @@ void DSM_init()
 			hopping_frequency[i] = pgm_read_byte_near(&DSMR_ID_FREQ[row][i+4]);
 	}
 	else
-	{
-		CYRF_GetMfgData(cyrfmfg_id);
-		//Model match
-		cyrfmfg_id[3]^=RX_num;
-	}
-
-	//Calc sop_col
-	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
-
-	//Fix for OrangeRX using wrong DSM_pncodes by preventing access to "Col 8"
-	//if(sop_col==0 && sub_protocol != DSMR)
-	//{
-	//   cyrfmfg_id[rx_tx_addr[0]%3]^=0x01;					//Change a bit so sop_col will be different from 0
-	//   sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
-	//}
-
-	//Calc CRC seed
-	seed = (cyrfmfg_id[0] << 8) + cyrfmfg_id[1];
-
-	//Hopping frequencies
-	if (sub_protocol == DSMX_2F || sub_protocol == DSMX_1F)
-		DSM_calc_dsmx_channel();
-	else if(sub_protocol != DSMR)
-	{ 
-		uint8_t tmpch[10];
-		CYRF_FindBestChannels(tmpch, 10, 5, 3, 75);
-		//
-		uint8_t idx = random(0xfefefefe) % 10;
-		hopping_frequency[0] = tmpch[idx];
-		while(1)
-		{
-			idx = random(0xfefefefe) % 10;
-			if (tmpch[idx] != hopping_frequency[0])
-				break;
-		}
-		hopping_frequency[1] = tmpch[idx];
-	}
+		DSM_getClonedMfgData();
 
 	//
 	DSM_cyrf_config();

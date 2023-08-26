@@ -51,9 +51,9 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 		//packet 1D 03 01 0E 1C 02 00 00 32 0B 00 00 A8 26 28 01 A1 00 00 00 3E F6 87 C7 00 00 00 00 C9 C9
 		//Unknown bytes
 		if(state & 0x01)
-			memcpy(&packet[7],"\x00\x18\x0A\x00\x00\xE0\x02\x0B\x01\xD3\x08\x00\x00\x4C\xFE\x87\xC7",17);
+			memcpy(&packet[7],"\x00\xCC\x00\x00\x00\x70\x14\x15\x00\xD3\x08\x00\x00\xCE\xE2\x85\xC7\x00\x00\x00\x00",21);
 		else
-			memcpy(&packet[7],"\x27\xAD\x02\x00\x00\x64\xC8\x46\x00\x64\x00\x00\x00\xFB\xF6\x87\xC7",17);
+			memcpy(&packet[7],"\x27\xFB\x00\x00\x00\xBC\xEF\x19\x00\x26\x07\x00\x00\xB7\xED\x85\xC7\xA7\xA7\xA7\xA7",21);
 		//ID
 		packet[5] = rx_tx_addr[1];			// ID
 		packet[6] = RX_num;
@@ -63,8 +63,9 @@ static void __attribute__((unused)) FrSkyX_build_bind_packet()
 		if(binding_idx&0x02)
 			packet[7] |= 0x80;				// CH9-16
 		//Replace the ID
-		packet[20] ^= 0x0E ^ rx_tx_addr[3];	// Update the ID
-		packet[21] ^= 0x1C ^ rx_tx_addr[2];	// Update the ID
+		packet[20] ^= rx_tx_addr[3]; 		// Update the ID
+		packet[21] ^= rx_tx_addr[2]; 		// Update the ID
+		packet[22] ^= rx_tx_addr[1] & 0x3F;	// Update the ID
 		//Xor
 		for(uint8_t i=3; i<packet_length-1; i++)
 			packet[i] ^= 0xA7;

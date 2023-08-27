@@ -145,6 +145,7 @@ static void __attribute__((unused)) DSM_update_channels()
 static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 {
 	uint8_t bits = 11;
+	
 	// Check if clone flag has changed
 	if((prev_option&CLONE_BIT_MASK) != (option&CLONE_BIT_MASK))
 	{
@@ -517,7 +518,7 @@ const uint8_t PROGMEM DSMR_ID_FREQ[][4 + 23] = {
 
 void DSM_init()
 { 
-	if((sub_protocol == DSMR))
+	if(sub_protocol == DSMR)
 	{
 		if(option&CLONE_BIT_MASK)
 			SUB_PROTO_INVALID;

@@ -214,6 +214,15 @@ uint16_t DSM_RX_callback()
 	uint8_t rx_status;
 	static uint8_t read_retry=0;
 
+	if(sub_protocol == DSM_ERASE)
+	{
+		if(packet_count)
+			packet_count--;
+		else
+			BIND_DONE;
+		return 10000;	//  Nothing to do...
+	}
+
 	switch (phase)
 	{
 		case DSM_RX_BIND1:
@@ -240,10 +249,14 @@ uint16_t DSM_RX_callback()
 					{
 						// store tx info into eeprom
 						uint16_t temp = DSM_RX_EEPROM_OFFSET;
+
 						debug("ID=");
 						for(uint8_t i=0;i<4;i++)
 						{
-							cyrfmfg_id[i]=packet_in[i]^0xFF;
+							if (sub_protocol == DSM_CLONE && i == 3)
+								cyrfmfg_id[i]=(packet_in[i]^RX_num)^0xFF;
+							else
+								cyrfmfg_id[i]=packet_in[i]^0xFF;
 							eeprom_write_byte((EE_ADDR)temp++, cyrfmfg_id[i]);
 							debug(" %02X", cyrfmfg_id[i]);
 						}
@@ -303,6 +316,14 @@ uint16_t DSM_RX_callback()
 			{
 				BIND_DONE;
 				phase++;											// DSM_RX_DATA_PREP
+				//Copy clone values to EEPROM
+				if (sub_protocol == DSM_CLONE)
+					{
+					uint16_t temp = DSM_CLONE_EEPROM_OFFSET;	
+					for(uint8_t i=0; i<4; i++)
+						eeprom_write_byte((EE_ADDR)temp++, cyrfmfg_id[i]);
+					eeprom_write_byte((EE_ADDR)temp, 0xF0);						
+				}
 			}
 			break;
 		case DSM_RX_DATA_PREP:
@@ -470,20 +491,34 @@ void DSM_RX_init()
 	
 	if (IS_BIND_IN_PROGRESS)
 	{
-		packet_count=0;
-		phase = DSM_RX_BIND1;
+		if(sub_protocol == DSM_ERASE)
+		{
+			// Clear all cloned addresses
+			uint16_t addr = DSM_CLONE_EEPROM_OFFSET;
+			for(uint8_t i=0; i<6; i++)
+				eeprom_write_byte((EE_ADDR)(addr++), 0xFF);
+			packet_count = 100;	
+		}
+		else
+		{
+			packet_count=0;
+			phase = DSM_RX_BIND1;
+		}
 	}
 	else
 	{
 		uint16_t temp = DSM_RX_EEPROM_OFFSET;
+		if (sub_protocol == DSM_CLONE  || sub_protocol == DSM_ERASE )
+			temp = DSM_CLONE_EEPROM_OFFSET;
 		debug("ID=");
 		for(uint8_t i=0;i<4;i++)
 		{
 			cyrfmfg_id[i]=eeprom_read_byte((EE_ADDR)temp++);
 			debug(" %02X", cyrfmfg_id[i]);
 		}
-		DSM_rx_type=eeprom_read_byte((EE_ADDR)temp);
+		DSM_rx_type=eeprom_read_byte((EE_ADDR)DSM_RX_EEPROM_OFFSET+4);
 		debugln(", type=%02X", DSM_rx_type);
+
 		phase = DSM_RX_DATA_PREP;
 	}
 }

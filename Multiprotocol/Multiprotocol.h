@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	3
-#define VERSION_PATCH_LEVEL	29
+#define VERSION_PATCH_LEVEL	30
 
 #define MODE_SERIAL 0
 
@@ -169,6 +169,12 @@ enum DSM
 	DSMX_2F		= 3,
 	DSM_AUTO	= 4,
 	DSMR		= 5,
+};
+enum DSM_RX
+{
+	DSM_RX		= 0,
+	DSM_CLONE	= 1,
+	DSM_ERASE	= 2,
 };
 enum YD717
 {       			
@@ -823,7 +829,8 @@ enum {
 #define FRSKYX2_CLONE_EEPROM_OFFSET	873	// (1) format + (3) TX ID, 4 bytes, end is 877
 #define DSM_RX_EEPROM_OFFSET	877		// (4) TX ID + format, 5 bytes, end is 882
 #define MOULDKG_EEPROM_OFFSET	882		// RX ID, 3 bytes per model, end is 882+64*3=1074
-//#define CONFIG_EEPROM_OFFSET 	1074	// Current configuration of the multimodule
+#define DSM_CLONE_EEPROM_OFFSET 1074	// (4) TX ID, (1) Initialized, end is 1079
+//#define CONFIG_EEPROM_OFFSET 	1079	// Current configuration of the multimodule
 
 /* STM32 Flash Size */
 #ifndef DISABLE_FLASH_SIZE_CHECK
@@ -962,6 +969,10 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			DSMX_1F 	2
 			DSMX_2F 	3
 			DSM_AUTO	4
+		sub_protocol==DSM_RX
+			DSM_RX		0
+			DSM_CLONE	1
+			DSM_ERASE	2
 		sub_protocol==YD717
 			YD717		0
 			SKYWLKR		1

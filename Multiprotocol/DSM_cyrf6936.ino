@@ -21,6 +21,8 @@
 
 //#define DSM_GR300
 
+#define CLONE_BIT_MASK 0x20 
+
 #define DSM_BIND_CHANNEL 0x0d //13 This can be any odd channel
 
 //During binding we will send BIND_COUNT/2 packets
@@ -143,7 +145,13 @@ static void __attribute__((unused)) DSM_update_channels()
 static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 {
 	uint8_t bits = 11;
-
+	
+	// Check if clone flag has changed
+	if((prev_option&CLONE_BIT_MASK) != (option&CLONE_BIT_MASK))
+	{
+		DSM_init();
+		prev_option^=CLONE_BIT_MASK;
+	}
 	if(prev_option!=option)
 		DSM_update_channels();
 
@@ -512,27 +520,61 @@ void DSM_init()
 { 
 	if(sub_protocol == DSMR)
 	{
-		uint8_t row = rx_tx_addr[3]%22;
-		for(uint8_t i=0; i< 4; i++)
-			cyrfmfg_id[i] = pgm_read_byte_near(&DSMR_ID_FREQ[row][i]);
-		for(uint8_t i=0; i< 23; i++)
-			hopping_frequency[i] = pgm_read_byte_near(&DSMR_ID_FREQ[row][i+4]);
+		if(option&CLONE_BIT_MASK)
+			SUB_PROTO_INVALID;
+		else
+		{
+			SUB_PROTO_VALID;
+			uint8_t row = rx_tx_addr[3]%22;
+			for(uint8_t i=0; i< 4; i++)
+				cyrfmfg_id[i] = pgm_read_byte_near(&DSMR_ID_FREQ[row][i]);
+			for(uint8_t i=0; i< 23; i++)
+				hopping_frequency[i] = pgm_read_byte_near(&DSMR_ID_FREQ[row][i+4]);
+		}
 	}
 	else
 	{
-		CYRF_GetMfgData(cyrfmfg_id);
-		//Model match
-		cyrfmfg_id[3]^=RX_num;
+		if(option&CLONE_BIT_MASK)
+		{ 
+			if(eeprom_read_byte((EE_ADDR)DSM_CLONE_EEPROM_OFFSET+4)==0xF0)
+			{
+				//read cloned ID from EEPROM
+				debugln("Using cloned ID");
+				uint16_t temp = DSM_CLONE_EEPROM_OFFSET;
+				for(uint8_t i=0;i<4;i++)
+					cyrfmfg_id[i] = eeprom_read_byte((EE_ADDR)temp++);
+				debug("Clone ID=")
+				for(uint8_t i=0;i<4;i++)
+					debug("%02x ", cyrfmfg_id[i]);
+				debugln("");
+			}
+			else
+			{
+				SUB_PROTO_INVALID;
+				debugln("No valid cloned ID");
+			}
+		}
+		else
+		{
+			SUB_PROTO_VALID;
+			CYRF_GetMfgData(cyrfmfg_id);
+		}
 	}
+	//Model match
+	cyrfmfg_id[3]^=RX_num;
 
 	//Calc sop_col
 	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
 
-	//Fix for OrangeRX using wrong DSM_pncodes by preventing access to "Col 8"
-	if(sop_col==0 && sub_protocol != DSMR)
-	{
-	   cyrfmfg_id[rx_tx_addr[0]%3]^=0x01;					//Change a bit so sop_col will be different from 0
-	   sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
+	//We cannot manipulate the ID if we are cloning
+	if(!(option&CLONE_BIT_MASK))
+	{	
+		//Fix for OrangeRX using wrong DSM_pncodes by preventing access to "Col 8"
+		if(sop_col==0 && sub_protocol != DSMR)
+		{
+		cyrfmfg_id[rx_tx_addr[0]%3]^=0x01;					//Change a bit so sop_col will be different from 0
+		sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;
+		}
 	}
 
 	//Calc CRC seed

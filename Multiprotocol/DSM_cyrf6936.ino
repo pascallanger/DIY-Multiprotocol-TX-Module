@@ -21,7 +21,7 @@
 
 //#define DSM_GR300
 
-#define CLONE_BIT_MASK 0x20 // TODO: Fix me
+#define CLONE_BIT_MASK 0x20 
 
 #define DSM_BIND_CHANNEL 0x0d //13 This can be any odd channel
 

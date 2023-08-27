@@ -719,7 +719,7 @@ void loop()
 				if(++count>10)
 				{ //The protocol does not leave enough time for an update so forcing it
 					count=0;
-					//debugln("Force update");
+					debugln("Force update");
 					Update_All();
 				}
 			}

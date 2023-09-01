@@ -257,7 +257,7 @@ local function Multi_Init()
     stick_names[4] = "Aux3"
   elseif ( protocol == 48 and sub_protocol == 0 ) then -- V761 3CH
     stick_names[4] = "n-a"
-  elseif protocol == 47 or  protocol == 49 or  protocol == 58 then -- GD00x, KF606, FX816
+  elseif protocol == 47 or  protocol == 49 or  ( protocol == 58 and sub_protocol < 2 ) then -- GD00x, KF606, FX816
     stick_names[1] = "n-a"
     stick_names[2] = "n-a"
   end

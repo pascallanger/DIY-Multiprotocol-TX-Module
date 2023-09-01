@@ -41,9 +41,12 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 //#define FORCE_FX620_ID
 //#define FORCE_FX9630_ID
+//#define FORCE_QIDI_ID
 
 static void __attribute__((unused)) FX_send_packet()
 {
+	static uint8_t trim_ch = 0;
+
 	//Hopp
 	if(IS_BIND_DONE)
 	{
@@ -51,8 +54,12 @@ static void __attribute__((unused)) FX_send_packet()
 		if(sub_protocol == FX9630)
 		{
 			XN297_SetTXAddr(rx_tx_addr, 4);
-			if (hopping_frequency_no > FX9630_NUM_CHANNELS)
+			if (hopping_frequency_no >= FX9630_NUM_CHANNELS)
+			{
 				hopping_frequency_no = 0;
+				trim_ch++;
+				if(trim_ch > 3) trim_ch = 0;
+			}
 		}
 		else // FX816 and FX620
 		{
@@ -70,9 +77,13 @@ static void __attribute__((unused)) FX_send_packet()
 		packet[1] = convert_channel_8b(AILERON);
 		packet[2] = 0xFF - convert_channel_8b(ELEVATOR);
 		packet[3] = convert_channel_8b(RUDDER);
-		packet[4] = 0x20;
-		packet[5] = GET_FLAG(CH5_SW, 0x01);  // DR toggle swich: 0 small throw, 1 large throw
-		packet[5] |= (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x02 : 0x01)) << 1; // Mode A(0) : 6D small throw, B(1) : 6D large throw, C(2) : 3D
+		val = trim_ch==0 ? 0x20 : (convert_channel_8b(trim_ch + CH6) >> 2);	// no trim on Throttle
+		packet[4] = val;			// Trim for channel x 0C..20..34
+		packet[5] = (trim_ch << 4)	// channel x << 4
+					| GET_FLAG(CH5_SW, 0x01)  // DR toggle swich: 0 small throw, 1 large throw
+					// FX9630  =>0:6G small throw, 1:6G large throw, 2:3D
+					// QIDI-550=>0:3D, 1:6G, 2:Torque
+					| ((Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x02 : 0x01)) << 1);
 	}
 	else // FX816 and FX620
 	{
@@ -200,12 +211,17 @@ static void __attribute__((unused)) FX_initialize_txid()
 	{
 		#ifdef FORCE_FX9630_ID
 			memcpy(rx_tx_addr,(uint8_t*)"\xCE\x31\x9B\x73", 4);
-			memcpy(hopping_frequency,"\x13\x1A\x38", FX9630_NUM_CHANNELS);		//Original dump=19=0x13,26=0x1A,56=0x38
+			memcpy(hopping_frequency,"\x13\x1A\x38", FX9630_NUM_CHANNELS);		//Original dump=>19=0x13,26=0x1A,56=0x38
 		#else
-			hopping_frequency[0] = 0x13; // constant
+			hopping_frequency[0] = 0x13; // constant???
 			hopping_frequency[1] = RX_num & 0x0F + 0x1A;
 			hopping_frequency[2] = rx_tx_addr[3] & 0x0F + 0x38;
 		#endif
+		#ifdef FORCE_QIDI_ID
+			memcpy(rx_tx_addr,(uint8_t*)"\x23\xDC\x76\xA2", 4);
+			memcpy(hopping_frequency,"\x08\x25\x33", FX9630_NUM_CHANNELS);		//Original dump=>08=0x08,37=0x25,51=0x33
+		#endif
+		//??? Need to find out how the first RF channel is calculated ???
 	}
 }
 

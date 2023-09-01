@@ -96,7 +96,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)|64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)|55|Multi|CloneTX|EraseTX|CPPM|||||CC2500|
 [Futaba/SFHSS](Protocols_Details.md#Futaba---21)|21|SFHSS||||||||CC2500|
-[FX](Protocols_Details.md#FX---58)|28|816|620|||||||NRF24L01|
+[FX](Protocols_Details.md#FX---58)|28|816|620|9630||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
 [GW008](Protocols_Details.md#GW008---32)|32|||||||||NRF24L01|XN297
@@ -1645,6 +1645,17 @@ Only 8 TX IDs available
 
 ### Sub_protocol 620 - *1*
 Model: FX620 SU35
+
+### Sub_protocol 9630 - *2*
+Model: FX9630 and QIDI-550
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|RATE|GYRO|TrimR|TrimA|TrimE
+
+FX9630 Gyro: -100%=6G small throw, 0%=6G large throw, +100%=3D
+
+QIDI-550 Gyro: -100%=3D, 0%=6G, +100%=Torque
 
 ## FY326 - *20*
 

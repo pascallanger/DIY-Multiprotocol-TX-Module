@@ -25,13 +25,12 @@
 ------------------------------------------------------------------------------
 
 
-local DEBUG_ON = ... -- Get DebugON from parameters
+local Log, menuLib, modelLib, DEBUG_ON = ... -- Get DebugON from parameters
+local SIM_LIB_VERSION = "0.55"
+local MSG_FILE = "/SCRIPTS/TOOLS/DSMLIB/msg_fwdp_en.txt"
 
-local dsmLib = assert(loadScript("/SCRIPTS/TOOLS/DSMLIB/DsmFwPrgLib.lua"))(DEBUG_ON)
-
-local PHASE = dsmLib.PHASE
-local LINE_TYPE = dsmLib.LINE_TYPE
-local Get_Text = dsmLib.Get_Text
+local PHASE = menuLib.PHASE
+local LINE_TYPE = menuLib.LINE_TYPE
 
 local SimLib = {}
 
@@ -39,46 +38,12 @@ local lastGoodMenu=0
 local RX_loadMenu = nil
 local RX_Initialized =  true
 
+local IS_EDGETX = false
 
-local function SIM_StartConnection()
-    return 0
-end
-
-local function SIM_ReleaseConnection()
-end
-
-local function clearMenuLines() 
-    local ctx = dsmLib.DSM_Context
-    for i = 0, dsmLib.MAX_MENU_LINES do -- clear menu
-        ctx.MenuLines[i] = { MenuId = 0, lineNum = 0, Type = 0, Text = "", TextId = 0, ValId = 0, Min=0, Max=0, Def=0, TextStart=0, Val=nil }
-    end
-end
-
-local function PostProcessMenu()
-    local ctx = dsmLib.DSM_Context
-
-    if (ctx.Menu.Text==nil) then
-        ctx.Menu.Text = dsmLib.Get_Text(ctx.Menu.TextId)
-        dsmLib.MenuPostProcessing (ctx.Menu)
-    end
-
-    if (DEBUG_ON) then dsmLib.LOG_write("SIM RESPONSE Menu: %s\n", dsmLib.menu2String(ctx.Menu)) end
-
-    for i = 0, dsmLib.MAX_MENU_LINES do -- clear menu
-        local line = ctx.MenuLines[i]
-        if (line.Type~=0) then
-            line.MenuId = ctx.Menu.MenuId
-            line.lineNum = i
-            dsmLib.MenuLinePostProcessing(line) -- Do the same post processing as if they come from the RX
-            if (DEBUG_ON) then dsmLib.LOG_write("SIM RESPONSE MenuLine: %s\n", dsmLib.menuLine2String(line))  end
-        end
-
-    end
-end
 
 local function AR631_loadMenu(menuId)
-    clearMenuLines()
-    local ctx = dsmLib.DSM_Context
+    menuLib.clearMenuLines()
+    local ctx = menuLib.DSM_Context
 
     if (menuId==0x1000) then
         --M[Id=0x1000 P=0x0 N=0x0 B=0x0 Text="Main Menu"]
@@ -665,7 +630,7 @@ local function AR631_loadMenu(menuId)
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x0102, ValId = 0x104F }
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x0103, ValId = 0x104F }
         ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x0104, ValId = 0x104F }
-        ctx.SelLine = dsmLib.NEXT_BUTTON
+        ctx.SelLine = menuLib.NEXT_BUTTON
         lastGoodMenu = menuId
     elseif (menuId==0x1050) then  
 
@@ -681,7 +646,7 @@ local function AR631_loadMenu(menuId)
         ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x0108, ValId = 0x1050 }
         ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x0109, ValId = 0x1050 }
         ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0x010A, ValId = 0x1050 }
-        ctx.SelLine = dsmLib.NEXT_BUTTON
+        ctx.SelLine = menuLib.NEXT_BUTTON
         lastGoodMenu = menuId
     elseif (menuId==0x1051) then 
         --M[Id=0x1051 P=0x0 N=0x0 B=0x1010 Text="First Time Setup"]
@@ -1024,34 +989,43 @@ local function AR631_loadMenu(menuId)
     elseif (menuId==0x0001) then 
         -- Save Settings and Reboot
         ctx.Menu = { MenuId = 0x0001, TextId = 0x009F, PrevId = 0, NextId = 0, BackId = 0x1000 }
-        ctx.SelLine = dsmLib.BACK_BUTTON
+        ctx.SelLine = menuLib.BACK_BUTTON
 
     else
         print("NOT IMPLEMENTED")
         ctx.Menu = { MenuId = 0x0002, Text = "NOT IMPLEMENTED", TextId = 0, PrevId = 0, NextId = 0, BackId = lastGoodMenu }
-        ctx.SelLine = dsmLib.BACK_BUTTON
+        ctx.SelLine = menuLib.BACK_BUTTON
     end
 
-    PostProcessMenu()
+    menuLib.PostProcessMenu()
 end
 
 local function FC6250HX_loadMenu(menuId)
-    clearMenuLines()
-    local ctx = dsmLib.DSM_Context
+    menuLib.clearMenuLines()
+    local ctx = menuLib.DSM_Context
 
     if (menuId==0x1000) then
         --M[Id=0x1000 P=0x0 N=0x0 B=0x0 Text="Main Menu"[0x4B]]
         --L[#0 T=M VId=0x1100 Text="Swashplate"[0xD3] MId=0x1000 ]
         --L[#1 T=M VId=0x1200 [0->0,2] Text="Tail rotor"[0xDD] MId=0x1000 ]
-        --L[#2 T=M VId=0x1400 [0->0,2] Text="SAFE"[0xDA] MId=0x1000 ]
-        --L[#4 T=M VId=0x1300 [0->0,2] Text="Setup"[0xDE] MId=0x1000 ]
+
+        --L[#2 T=M VId=0x1280 Text="Governor"[0xF2]
+
+        --L[#3 T=M VId=0x1400 [0->0,2] Text="SAFE"[0xDA] MId=0x1000 ]
+        --L[#5 T=M VId=0x1300 [0->0,2] Text="Setup"[0xDE] MId=0x1000 ]
         --L[#6 T=M VId=0x1700 [0->0,2] Text="System Setup"[0x86] MId=0x1000 ]
 
         ctx.Menu = { MenuId = 0x1000, TextId = 0x004B, PrevId = 0, NextId = 0, BackId = 0 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xD3, ValId = 0x1100 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0xDD, ValId = 0x1200 }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0xDA, ValId = 0x1400 }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, TextId = 0xDE, ValId = 0x1300 }
+
+        if (not RX_Initialized) then
+          ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0xF2, ValId = 0x1280 }
+        end
+
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0xDA, ValId = 0x1400 }
+
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, TextId = 0xDE, ValId = 0x1300 }
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, TextId = 0x86, ValId = 0x1700 }
         ctx.SelLine = 0
         lastGoodMenu = menuId
@@ -1131,10 +1105,32 @@ local function FC6250HX_loadMenu(menuId)
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
+    elseif (menuId==0x1280) then -- TODO
+        --M[Id=0x1200 P=0x0 N=0x0 B=0x1000 Text="Governor"[0xF0]]
+        --L[#4 T=V_i8 VId=0x1215 Text="Proportional"[0x71] Val=100 [0->255,100] MId=0x1200 ]
+        --L[#5 T=V_i8 VId=0x1216 Text="Integral"[0x72] Val=95 [0->255,95] MId=0x1200 ]
+        --L[#3 T=V_nc VId=0x1214 Text="                    FLIGHT MODE"[0x8000] Val=1 [0->5,0] MId=0x1200 ]
+        --L[#6 T=V_i8 VId=0x1217 Text="Head Speed"[0x26B] Val=45 [0->255,45] MId=0x1200 ]
+
+        ctx.Menu = { MenuId = 0x1280, TextId = 0xDD, PrevId = 0, NextId = 0, BackId = 0x1000 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x92, ValId = 0x1212, Min=5, Max=200, Def=25, Val=25 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xD8, ValId = 0x1213, Min=5, Max=200, Def=26, Val=100 }
+
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8000, ValId = 0x1214, Min=0, Max=5, Def=0, Val=1 }
+
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0x71, ValId = 0x1215, Min=0, Max=255, Def=100, Val=100 }
+
+
+        ctx.SelLine = 0
+        lastGoodMenu = menuId
     elseif (menuId==0x1300) then
         --M[Id=0x1300 P=0x0 N=0x0 B=0x1000 Text="Setup"[0xDE]]
         --L[#0 T=M VId=0x1310 Text="Swashplate"[0xD3] MId=0x1300 ]
         --L[#1 T=M VId=0x1360 Text="Tail rotor"[0xDD] MId=0x1300 ]
+
+        -- L[#2 T=M VId=0x13C0 Text="Throttle"[0x201]   MId=0x1300 A=0x0]
+        -- L[#3 T=M VId=0x13B0 Text="Gyro settings"[0xF9]   MId=0x1300 A=0x0]
+
         --L[#4 T=LM_nc VId=0x1701 Text="FM Channel"[0x78] val=1 NL=(0->8,1,S=12) [12->20,13] MId=0x1300 ]
         --L[#5 T=LM_nc VId=0x1702 Text="Gain Channel"[0x89] val=0 NL=(0->8,1,S=12)] [12->20,13] MId=0x1300 ]
         --L[#6 T=LM_nc VId=0x1703 Text="Output Channel 6"[0x56] val=1 NL=(0->12,0,S=53) [53->65,53] MId=0x1300 ]
@@ -1142,6 +1138,12 @@ local function FC6250HX_loadMenu(menuId)
         ctx.Menu = { MenuId = 0x1300, TextId = 0xDE, PrevId = 0, NextId = 0, BackId = 0x1000 }
         ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xD3, ValId = 0x1310 }
         ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0xDD, ValId = 0x1360 }
+
+        if (not RX_Initialized) then
+            ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x201, ValId = 0x13C0 }
+            ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0xF9, ValId = 0x13B0 }                
+        end
+
         ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x78, ValId = 0x1701, Min=12, Max=20, Def=13, Val=1 }
         ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x89, ValId = 0x1702, Min=12, Max=20, Def=13, Val=0  }
         ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x56, ValId = 0x1702, Min=53, Max=65, Def=53, Val=1 }
@@ -1182,12 +1184,27 @@ local function FC6250HX_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x1330) then
         --M[Id=0x1330 P=0x0 N=0x0 B=0x1310 Text="Output Setup"[0x49]]
-        --L[#0 T=M VId=0x1331 Text="Subtrim"[0xE1]   MId=0x1330 ]
+
+        ---- Full version 
+        --L[#0 T=LM_nc2 VId=0x1331 Text="Frame Rate"[0x85] Val=nil NL=(0->5,0,S=136) [136->141,136] MId=0x1330 A=0x0]
+        --L[#1 T=M VId=0x1334 Text="Swash Type"[0xE5]   MId=0x1330 A=0x0]
+        --L[#2 T=M VId=0x1332 Text="Direction"[0xF6]   MId=0x1330 A=0x0]
+
+        --L[#3 T=M VId=0x1331 Text="Subtrim"[0xE1]   MId=0x1330 ]
 
         ctx.Menu = { MenuId = 0x1330, TextId = 0x49, PrevId = 0, NextId = 0, BackId = 0x1310 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xE1, ValId = 0x1331 }
-        
-        ctx.SelLine = 0
+
+        if (not RX_Initialized) then
+            ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0x85, ValId = 0x1331, Min=136, Max=141, Def=136, Val=0 }
+            ctx.MenuLines[1] = { Type = LINE_TYPE.MENU, TextId = 0xE5, ValId = 0x1334 }
+            ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0xF6, ValId = 0x1332 }
+            ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0xE1, ValId = 0x1331 }
+            ctx.SelLine = 0
+        else
+            ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0xE1, ValId = 0x1331 }
+            ctx.SelLine = 0
+        end
+
         lastGoodMenu = menuId
     elseif (menuId==0x1331) then
         --M[Id=0x1331 P=0x0 N=0x0 B=0x1330 Text="Subtrim"[0xE1]]
@@ -1201,6 +1218,28 @@ local function FC6250HX_loadMenu(menuId)
         ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_SI16, TextId = 0x53, ValId = 0x1334, Min=-82, Max=82, Def=0, Val=-53 }
      
         ctx.SelLine = 0
+        lastGoodMenu = menuId
+    elseif (menuId==0x1332) then
+        --M[Id=0x1332 P=0x0 N=0x0 B=0x1330 Text="Direction"[0xF6]]
+        --L[#0 T=LM_tog VId=0x1333 Text="Output Channel 1"[0x51] Val=nil NL=(0->1,0,S=142) [142->143,142] MId=0x1332 A=0x0]
+        --L[#1 T=LM_tog VId=0x1334 Text="Output Channel 2"[0x52] Val=nil NL=(0->1,0,S=142) [142->143,142] MId=0x1332 A=0x0]
+        --L[#2 T=LM_tog VId=0x1335 Text="Output Channel 3"[0x53] Val=nil NL=(0->1,0,S=142) [142->143,142] MId=0x1332 A=0x0]
+
+        ctx.Menu = { MenuId = 0x1332, TextId = 0xF6, PrevId = 0, NextId = 0, BackId = 0x1330 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_TOG, TextId = 0x51, ValId = 0x1333, Min=142, Max=143, Def=142, Val=0 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU_TOG, TextId = 0x52, ValId = 0x1334, Min=142, Max=143, Def=142, Val=0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU_TOG, TextId = 0x53, ValId = 0x1335, Min=142, Max=143, Def=142, Val=0 }
+     
+        ctx.SelLine = 0
+        lastGoodMenu = menuId
+    elseif (menuId==0x1334) then
+        -- M[Id=0x1334 P=0x0 N=0x0 B=0x1330 Text="Swashplate"[0xD3]]
+        -- L[#6 T=LM_tog VId=0x1335 Text="Swash Type"[0xE5] Val=nil NL=(0->8,0,S=144) [144->152,144] MId=0x1334 A=0x0]
+
+        ctx.Menu = { MenuId = 0x1334, TextId = 0xD3, PrevId = 0, NextId = 0, BackId = 0x1330 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU_NC, TextId = 0xE5, ValId = 0x1335, Min=144, Max=152, Def=144, Val=0 }
+     
+        ctx.SelLine = 6
         lastGoodMenu = menuId
     elseif (menuId==0x1360) then
         --M[Id=0x1360 P=0x0 N=0x0 B=0x1300 Text="Tail rotor"[0xDD]]
@@ -1224,6 +1263,100 @@ local function FC6250HX_loadMenu(menuId)
         ctx.SelLine = 0
         lastGoodMenu = menuId
 
+    elseif (menuId==0x13B0) then
+        -- M[Id=0x13B0 P=0x0 N=0x0 B=0x1300 Text="Gyro settings"[0xF9]]
+        -- L[#0 T=M VId=0x13B1 Text="Orientation"[0x80]   MId=0x13B0 A=0x0]
+
+        ctx.Menu = { MenuId = 0x13B0, TextId = 0xF9, PrevId = 0, NextId = 0, BackId = 0x1300 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x80, ValId = 0x13B1 }
+
+        ctx.SelLine = 0
+        lastGoodMenu = menuId
+    elseif (menuId==0x13B1) then
+        -- M[Id=0x13B1 P=0x0 N=0x0 B=0x13B5 Text="Gyro settings"[0xF9]]
+        --L[#6 T=LM_ori VId=0x13B2 Text="Orientation"[0x80] Val=nil NL=(0->7,0,S=203) [203->210,203] MId=0x13B1 A=0x0]
+
+        ctx.Menu = { MenuId = 0x13B1, TextId = 0xF9, PrevId = 0, NextId = 0, BackId = 0x13B5 }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU_ORI, TextId = 0x80, ValId = 0x13B2, Min=203, Max=210, Def=203, Val=0 }
+     
+        ctx.SelLine = 6
+        lastGoodMenu = menuId
+    elseif (menuId==0x13B5) then
+        --M[Id=0x13B5 P=0x0 N=0x0 B=0x13B0 Text="Calibrate Sensor"[0xC7]]
+        --L[#3 T=M VId=0x13B6 Text="Begin"[0x91]   MId=0x13B5 A=0x0]
+
+        ctx.Menu = { MenuId = 0x13B5, TextId = 0xC7, PrevId = 0, NextId = 0, BackId = 0x13B0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x91, ValId = 0x13B6 }
+
+        ctx.SelLine = 3
+        lastGoodMenu = menuId
+    elseif (menuId==0x13B6) then
+        --M[Id=0x13B6 P=0x0 N=0x0 B=0x13B0 Text="Calibrate Sensor"[0xC7]]
+        --L[#3 T=M VId=0x13B0 Text="Sensor is Calibrating.. Wait"[0xC8]   MId=0x13B6 A=0x0]
+
+        ctx.Menu = { MenuId = 0x13B6, TextId = 0xC7, PrevId = 0, NextId = 0, BackId = 0x13B0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0xC8, ValId = 0x17F1 }
+
+        ctx.SelLine = 3
+        lastGoodMenu = menuId
+    elseif (menuId==0x13C0) then
+        --M[Id=0x13C0 P=0x0 N=0x0 B=0x1300 Text="Throttle"[0x201]]
+        --L[#0 T=M VId=0x13C1 Text="Failsafe"[0x4A]   MId=0x13C0 A=0x0]
+        --L[#1 T=V_% VId=0x13C2 Text="Hover"[0x204] Val=nil [0->100,65] MId=0x13C0 A=0x10]
+        --L[#2 T=M VId=0x13D0 Text="Governor"[0xF2]   MId=0x13C0 A=0x0]
+        --L[#4 T=V_nc VId=0x13C3 Text="Flight Mode"[0x8000] Val=nil [0->5,0] MId=0x13C0 A=0x5]
+        --L[#5 T=V_% VId=0x13C4 Text="Offset"[0x1AA] Val=nil [-25->25,0] MId=0x13C0 A=0x10]
+        --L[#6 T=V_i8 VId=0x13C5 Text="Soft Start"[0xF4] Val=nil [0->250,0] MId=0x13C0 A=0x0]
+
+        ctx.Menu = { MenuId = 0x13C0, TextId = 0x201, PrevId = 0, NextId = 0, BackId = 0x1300 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.MENU, TextId = 0x4A, ValId = 0x13C1 }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x204, ValId = 0x13C2, Min=0, Max=100, Def=65, Val=65  }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0xF2, ValId = 0x13D0 }
+
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8_NC, TextId = 0x8000, ValId = 0x13C3, Min=0, Max=5, Def=0, Val=1 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.VALUE_PERCENT, TextId = 0x1AA, ValId = 0x13C4, Min=-25, Max=25, Def=0, Val=0  }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.VALUE_NUM_I8, TextId = 0xF4, ValId = 0x13C5, Min=0, Max=250, Def=0, Val=1 }
+
+        ctx.SelLine = 0
+        lastGoodMenu = menuId
+    elseif (menuId==0x13C1) then
+        --M[Id=0x13C1 P=0x0 N=0x0 B=0x13C0 Text="Failsafe"[0x4A]]
+        --L[#2 T=M VId=0x13C3 Text="Capture Failsafe Positions"[0x9A]   MId=0x13C1 A=0x0]
+
+        ctx.Menu = { MenuId = 0x13C1, TextId = 0x4A, PrevId = 0, NextId = 0, BackId = 0x13C0 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.MENU, TextId = 0x9A, ValId = 0x13C3 }
+
+        ctx.SelLine = 2
+        lastGoodMenu = menuId
+    elseif (menuId==0x13D0) then
+        --M[Id=0x13D0 P=0x0 N=0x0 B=0x13C0 Text="Governor"[0xF2]]
+        --L[#0 T=LM_ori VId=0x13D1 Text="Governor"[0xF2] Val=nil NL=(0->1,0,S=244) [244->245,244] MId=0x13D0 A=0x0]
+        --L[#1 T=V_i8 VId=0x13D2 Text="Main Gear"[0x26D] Val=nil [1->255,170] MId=0x13D0 A=0x0]
+        --L[#2 T=V_i8 VId=0x13D3 Text="Pinion"[0x26C] Val=nil [1->255,20] MId=0x13D0 A=0x0]
+        --L[#3 T=V_i8 VId=0x13D5 Text="Low Throttle"[0xEA] Val=nil [1->100,75] MId=0x13D0 A=0x0]
+        --L[#4 T=V_i8 VId=0x13D6 Text="Filter"[0x1F1] Val=nil [1->65,35] MId=0x13D0 A=0x0]
+        --L[#5 T=M VId=0x13E0 Text="RPM Sensor"[0x26F]   MId=0x13D0 A=0x0]
+
+
+        ctx.Menu = { MenuId = 0x13D0, TextId = 0xF2, PrevId = 0, NextId = 0, BackId = 0x13C0 }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_ORI, TextId = 0x0F2, ValId = 0x13D1, Min=244, Max=245, Def=244, Val=0  }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.VALUE_NUM_I8,  TextId = 0x26D, ValId = 0x13D2, Min=1, Max=255, Def=170, Val=170 }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.VALUE_NUM_I8,  TextId = 0x26C, ValId = 0x13D3, Min=1, Max=255, Def=20, Val=20 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.VALUE_NUM_I8,  TextId = 0x0EA, ValId = 0x13D5, Min=1, Max=100, Def=75, Val=75 }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.VALUE_NUM_I8,  TextId = 0x1F1, ValId = 0x13D6, Min=1, Max=65, Def=35, Val=35 }
+        ctx.MenuLines[5] = { Type = LINE_TYPE.MENU,          TextId = 0x26F, ValId = 0x13E0 }
+        
+        ctx.SelLine = 0
+        lastGoodMenu = menuId
+    elseif (menuId==0x13E0) then
+        --M[Id=0x13E0 P=0x0 N=0x0 B=0x13D0 Text="Governor"[0xF2]]
+        --L[#0 T=LM_ori VId=0x13D1 Text="RPM Sensor"[0x26F] Val=nil NL=(0->1,0,S=244) [244->245,244] MId=0x13D0 A=0x0]
+
+        ctx.Menu = { MenuId = 0x13E0, TextId = 0xF2, PrevId = 0, NextId = 0, BackId = 0x13D0 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_TOG, TextId = 0x26F, ValId = 0x13E3, Min=142, Max=143, Def=142, Val=0  }
+        
+        ctx.SelLine = 3
+        lastGoodMenu = menuId
     elseif (menuId==0x1400) then
         --M[Id=0x1400 P=0x0 N=0x0 B=0x1000 Text="SAFE"[0xDA]]
         --L[#0 T=M VId=0x1410 Text="Stability"[0xDB] MId=0x1400 ]
@@ -1306,30 +1439,29 @@ local function FC6250HX_loadMenu(menuId)
         lastGoodMenu = menuId
     elseif (menuId==0x17F1) then
         --M[Id=0x17F1 P=0x0 N=0x0 B=0x1700 Text="Calibrate Sensor"[0xC7]]
-        --L[#3 T=M VId=0x17F1 Text="Complete"[0xC8]   MId=0x17F0 ]
+        --L[#3 T=M VId=0x17F1 Text="Complete"[0x93]   MId=0x17F0 ]
 
         ctx.Menu = { MenuId = 0x17F1, TextId = 0xC7, PrevId = 0, NextId = 0, BackId = 0x1700 }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0xC8, ValId = 0x1700 }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.MENU, TextId = 0x93, ValId = 0x1700 }
 
         ctx.SelLine = 3
         lastGoodMenu = menuId
     elseif (menuId==0x0001) then 
         -- Save Settings and Reboot
         ctx.Menu = { MenuId = 0x0001, TextId = 0x009F, PrevId = 0, NextId = 0, BackId = 0x1000 }
-        ctx.SelLine = dsmLib.BACK_BUTTON
+        ctx.SelLine = menuLib.BACK_BUTTON
     else
         ctx.Menu = { MenuId = 0x0002, Text = "NOT IMPLEMENTED", TextId = 0, PrevId = 0, NextId = 0, BackId = lastGoodMenu }
-        ctx.SelLine = dsmLib.BACK_BUTTON
+        ctx.SelLine = menuLib.BACK_BUTTON
     end
 
-    PostProcessMenu()
+    menuLib.PostProcessMenu()
 end
 
 
-
 local function loadMenu(menuId)
-    clearMenuLines()
-    local ctx = dsmLib.DSM_Context
+    menuLib.clearMenuLines()
+    local ctx = menuLib.DSM_Context
 
     if (menuId==0x1000) then
         --M[Id=0x1000 P=0x0 N=0x0 B=0x0 Text="Main Menu"]
@@ -1337,34 +1469,40 @@ local function loadMenu(menuId)
         --L[#1 T=M VId=0x105E val=nil [0->0,2] Text="Other settings" MId=0x1000 ]
 
         ctx.Menu = { MenuId = 0x1000, Text = "RX SIMULATION", PrevId = 0, NextId = 0, BackId = 0, TextId=0 }
-        ctx.MenuLines[0] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR631 (NEW)", ValId = 0x1001,TextId=0 }
-        ctx.MenuLines[1] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR631 (INITIALIZED)", ValId = 0x1002,  TextId=0 }
+        ctx.MenuLines[0] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR630/631/637 (NEW)", ValId = 0x1001,TextId=0 }
+        ctx.MenuLines[1] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "AR630/631/637 (INITIALIZED)", ValId = 0x1002,  TextId=0 }
         ctx.MenuLines[4] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "FC6250HX", ValId = 0x1005, TextId=0 }
+        ctx.MenuLines[5] = { MenuId = 0x1000, Type = LINE_TYPE.MENU, Text = "FC6250HX (UNLOCKED)", ValId = 0x1006, TextId=0 }
 
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1001) then
         RX_Initialized =  false
-        ctx.RX.Id   =  dsmLib.RX.AR631
-        dsmLib.Init_Text(ctx.RX.Id)
-        ctx.RX.Name = dsmLib.Get_RxName(ctx.RX.Id)..' SIM'
-        ctx.RX.Version = "2.38.5"
-        
+        ctx.RX.Id   =  menuLib.RX.AR631
+        ctx.RX.Name = "AR630/631/637-SIM"
+        ctx.RX.Version = "2.38.5"      
         RX_loadMenu = AR631_loadMenu
         RX_loadMenu(0x01000)
     elseif (menuId==0x1002) then
-        ctx.RX.Id   =  dsmLib.RX.AR631
-        dsmLib.Init_Text(ctx.RX.Id)
-        ctx.RX.Name = dsmLib.Get_RxName(ctx.RX.Id)..' SIM'
+        RX_Initialized =  true
+        ctx.RX.Id   =  menuLib.RX.AR631
+        ctx.RX.Name = "AR630/631/637-SIM"
         ctx.RX.Version = "2.38.5"
-
         RX_loadMenu = AR631_loadMenu
         RX_loadMenu(0x01000)
     elseif (menuId==0x1005) then
-        ctx.RX.Id   =  dsmLib.RX.FC6250HX
-        dsmLib.Init_Text(ctx.RX.Id)
-        ctx.RX.Name = dsmLib.Get_RxName(ctx.RX.Id)..' SIM'
+        RX_Initialized =  true
+        ctx.RX.Id   =  menuLib.RX.FC6250HX
+        ctx.RX.Name = "FC6250HX-SIM"
         ctx.RX.Version = "5.6.255"
+
+        RX_loadMenu = FC6250HX_loadMenu
+        RX_loadMenu(0x01000)
+    elseif (menuId==0x1006) then
+        RX_Initialized =  false
+        ctx.RX.Id   =  menuLib.RX.FC6250HX
+        ctx.RX.Name = "FC6250HX-SIM"
+        ctx.RX.Version = "5.6.52"
 
         RX_loadMenu = FC6250HX_loadMenu
         RX_loadMenu(0x01000)
@@ -1375,13 +1513,14 @@ end
 
 
 local function SIM_Send_Receive()
-    local ctx = dsmLib.DSM_Context
-    --if (DEBUG_ON) then dsmLib.LOG_write("%3.3f %s: ", dsmLib.getElapsedTime(), dsmLib.phase2String(ctx.Phase)) end
+    local ctx = menuLib.DSM_Context
+    --if (DEBUG_ON) then Log.LOG_write("%3.3f %s: ", menuLib.getElapsedTime(), menuLib.phase2String(ctx.Phase)) end
 
     if ctx.Phase == PHASE.RX_VERSION then -- request RX version
         ctx.RX.Name = "SIMULATOR"
-        ctx.RX.Version = "0.54"
+        ctx.RX.Version = SIM_LIB_VERSION
         ctx.Phase = PHASE.MENU_TITLE
+        ctx.Menu.MenuId=0
 
         ctx.Refresh_Display = true
         RX_loadMenu = loadMenu
@@ -1399,8 +1538,8 @@ local function SIM_Send_Receive()
 
     elseif ctx.Phase == PHASE.VALUE_CHANGING then -- send value
         local line = ctx.MenuLines[ctx.SelLine] -- Updated Value of SELECTED line
-        if (DEBUG_ON) then dsmLib.LOG_write("%3.3f %s: ", dsmLib.getElapsedTime(), dsmLib.phase2String(ctx.Phase)) end
-        if (DEBUG_ON) then dsmLib.LOG_write("SEND SIM_updateMenuValue(ValueId=0x%X Text=\"%s\" Value=%s)\n", line.ValId, line.Text, dsmLib.lineValue2String(line)) end
+        if (DEBUG_ON) then Log.LOG_write("%3.3f %s: ", menuLib.getElapsedTime(), menuLib.phase2String(ctx.Phase)) end
+        if (DEBUG_ON) then Log.LOG_write("SEND SIM_updateMenuValue(ValueId=0x%X Text=\"%s\" Value=%s)\n", line.ValId, line.Text, menuLib.lineValue2String(line)) end
         ctx.Phase = PHASE.VALUE_CHANGING_WAIT
 
     elseif ctx.Phase == PHASE.VALUE_CHANGING_WAIT then
@@ -1408,9 +1547,9 @@ local function SIM_Send_Receive()
 
     elseif ctx.Phase == PHASE.VALUE_CHANGE_END then -- send value
         local line = ctx.MenuLines[ctx.SelLine] -- Updated Value of SELECTED line
-        if (DEBUG_ON) then dsmLib.LOG_write("%3.3f %s: ", dsmLib.getElapsedTime(), dsmLib.phase2String(ctx.Phase)) end
-        if (DEBUG_ON) then dsmLib.LOG_write("SEND SIM_updateMenuValue(ValueId=0x%X Text=\"%s\" Value=%s)\n", line.ValId, line.Text, dsmLib.lineValue2String(line)) end
-        if (DEBUG_ON) then dsmLib.LOG_write("SEND SIM_validateMenuValue(ValueId=0x%X Text=\"%s\" Value=%s)\n", line.ValId, line.Text, dsmLib.lineValue2String(line)) end
+        if (DEBUG_ON) then Log.LOG_write("%3.3f %s: ", menuLib.getElapsedTime(), menuLib.phase2String(ctx.Phase)) end
+        if (DEBUG_ON) then Log.LOG_write("SEND SIM_updateMenuValue(ValueId=0x%X Text=\"%s\" Value=%s)\n", line.ValId, line.Text, menuLib.lineValue2String(line)) end
+        if (DEBUG_ON) then Log.LOG_write("SEND SIM_validateMenuValue(ValueId=0x%X Text=\"%s\" Value=%s)\n", line.ValId, line.Text, menuLib.lineValue2String(line)) end
         ctx.Phase = PHASE.WAIT_CMD
     
     elseif ctx.Phase == PHASE.EXIT then
@@ -1418,56 +1557,40 @@ local function SIM_Send_Receive()
     end
 end
 
-------------------------------------------------------------------------------------------------------------
--- Lib EXPORTS
+local FileState = {}
 
--- Export Constants
-SimLib.PHASE       = dsmLib.PHASE
-SimLib.LINE_TYPE   = dsmLib.LINE_TYPE
-SimLib.RX          = dsmLib.RX 
-SimLib.DISP_ATTR      = dsmLib.DISP_ATTR
+-- Initial Setup
+local function Sim_Init()
+    local ctx = menuLib.DSM_Context
+    ctx.Phase = PHASE.INIT
+
+    local ver, radio, maj, minor, rev, osname = getVersion()
+    if (osname==nil) then osname = "OpenTX" end -- OTX 2.3.14 and below returns nil
+    IS_EDGETX = string.sub(osname,1,1) == 'E'
+end
+
+local function SIM_Done()
+    local ctx = menuLib.DSM_Context
+    ctx.Phase = PHASE.EXIT_DONE
+end
 
 
-SimLib.BACK_BUTTON = dsmLib.BACK_BUTTON
-SimLib.NEXT_BUTTON = dsmLib.NEXT_BUTTON
-SimLib.PREV_BUTTON = dsmLib.PREV_BUTTON
-SimLib.MAX_MENU_LINES = dsmLib.MAX_MENU_LINES
+local function SIM_Run()
+    if (menuLib.DSM_Context.Phase == PHASE.INIT) then 
+        if (IS_EDGETX) then
+            menuLib.LoadTextFromFile(MSG_FILE,13)
+            menuLib.DSM_Context.Phase = PHASE.RX_VERSION
+        else  -- Incremental initialization
+            lcd.clear()       
+            lcd.drawText(30, 50, "Loading Msg file: "..(FileState.lineNo or 0))
+            if (menuLib.INC_LoadTextFromFile(MSG_FILE, FileState)==1) then
+                menuLib.DSM_Context.Phase = PHASE.RX_VERSION
+            end
+            return          
+        end
+    end
+    
+    return SIM_Send_Receive()
+end
 
--- Export Shared Context Variables
-SimLib.DSM_Context = dsmLib.DSM_Context
-
--- Export Functions
-SimLib.LOG_write = dsmLib.LOG_write
-SimLib.LOG_close = dsmLib.LOG_close
-SimLib.getElapsedTime = dsmLib.getElapsedTime
-
-SimLib.Get_Text = dsmLib.Get_Text
-SimLib.Get_List_Text = dsmLib.Get_List_Text
-SimLib.Get_List_Text_Img = dsmLib.Get_List_Text_Img
-
-SimLib.phase2String = dsmLib.phase2String
-SimLib.menu2String = dsmLib.menu2String
-SimLib.menuLine2String = dsmLib.menuLine2String
-
-SimLib.isSelectableLine = dsmLib.isSelectableLine
-SimLib.isEditableLine = dsmLib.isEditableLine
-SimLib.isListLine = dsmLib.isListLine
-SimLib.isPercentValueLine = dsmLib.isPercentValueLine
-SimLib.isNumberValueLine = dsmLib.isNumberValueLine
-SimLib.isDisplayAttr = dsmLib.isDisplayAttr
-SimLib.isFlightModeLine = dsmLib.isFlightModeLine
-SimLib.GetFlightModeValue = dsmLib.GetFlightModeValue
-
-SimLib.StartConnection = SIM_StartConnection   -- Override Function 
-SimLib.ReleaseConnection = SIM_ReleaseConnection  -- Override Function
-SimLib.ChangePhase = dsmLib.ChangePhase
-SimLib.Value_Add = dsmLib.Value_Add
-SimLib.Value_Default = dsmLib.Value_Default
-SimLib.Value_Write_Validate = dsmLib.Value_Write_Validate
-SimLib.GotoMenu = dsmLib.GotoMenu
-SimLib.MoveSelectionLine = dsmLib.MoveSelectionLine
-SimLib.Send_Receive = SIM_Send_Receive -- Override Function 
-SimLib.Init = dsmLib.Init
-SimLib.Init_Text = dsmLib.Init_Text
-
-return SimLib
+return { init=Sim_Init, run=SIM_Run, done=SIM_Done }

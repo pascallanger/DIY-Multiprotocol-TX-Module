@@ -4,80 +4,112 @@ Rewrite/Enhancements by: Francisco Arzu
 
 Thanks to all the people volunteered to test it.
 
-# Introduction  (v0.54)
+# NOTE for FC6250HX FC+RX version
+For the full size FC6250HX, Only use V0.55 or newer.
+
+DO NOT use previous versions to do the Swashplate -> RX Orientation. The problem was that it did not have the orientation messages.. and you are choosing blind. The calibration will never stop until you place the RX in the right orientation, even after restarting the RX (if flashing red, is not in the right orientation.. if flashshing white is in the right orientation).  If you run into this problem, and lights are blinking red, rotate the FC on the longer axis until you get white blinking.. keep it stable, will blink white faster andlet calibration finishes.. after that is back to normal.
+
+# Introduction  (v0.55)
 
 This script library enhances the original DSM Forward Programming tool. DSM Forward Programming is needed to setup many of the new Spektrum Receivers with Gyro AS3X/SAFE features. For the Gyro (/Safe) to correct the plane in flight, it needs to move the right surfaces therefore the RX needs to know the configuration of the plane (Wing Type, Tail Type, Mixers, Servo Assignments, Servo Reverse). That info tells the RX where the aileron(s) are (one or two), where the elevator(s) are (one or two),  V-Tail, Delta Wing, etc. 
 
 Since EdgeTx/OpenTx doesn’t have an equivalent setup that is stored in the radio, we have to create our own version. This info is stored inside the `/MODELS/DSMDATA` directory/folder (which needs to be created by manually).
 
-During `"Gyro Settings->initial setup"`, the RX asks the TX for model information behind the scenes.  After setup, `"Gyro Settings->System Tools-> Relearn Servo Settings"` requests the TX configuration and stores it in the RX. 
+During `"Gyro Settings->initial setup"`, the RX asks the TX for model information behind the scenes.  After setup, `"Gyro Settings->System Tools-> Relearn Servo Settings"` requests the TX servo configuration and stores it in the RX. 
 
 # Deployment
-Make sure to manually create `/MODELS/DSMDATA`  . The script will complain at startup if it does not exist. Here the script saves the Spektrun settings for each of your models.
-
-Uncompress the Zip file (ZIP version) into your local computer.
-In another window, open your TX SDCard and go to /SCRIPTS/TOOLS.
 
 When upgrading from a previous version of this tool, delete your /SCRIPTS/TOOLS/DSMLIB before copying the new one (if you customized your images, inside "DSMLIB/img" do a backup first)
 
-Copy the entire DSMLIB folder.
-Copy the main script you want to use (Color or B&W).
+Uncompress the Zip file (ZIP version) into your local computer.
+In another window, open your TX SDCard.
 
+1. The zip file has the same structure as your SDCard. If you want to copy all the content of the zip file into your SDCard top level folder, it will create all the directories and files in the right place.
+2. Make sure to check that  `/MODELS/DSMDATA` is there. The script will complain at startup if it does not exist. Here the script saves the Spektrun settings for each of your models.
 
 Your TX SDCard should looks like this:
 
-/SCRIPTS/TOOLS
+    /SCRIPTS/TOOLS/     -- you only need one of the 3 to save some space in your TOOLS screen
         DSM FwdPrg_05_BW.lua      -- black/white text only 
         DSM FwdPrg_05_Color.lua   -- Color and touch radios
         DSM FwdPrg_05_MIN.lua     -- `NEW!` Minimalistic version for radios with LOW memory (cannot setup new planes)
-
+        
     /SCRIPTS/TOOLS/DSMLIB/        -- (ALL CAPITALS) Libraries ane extra files
             DsmFwPrgLib.lua       -- DSM Protocol Message and Menu   engine
             DsmFwPrgSIMLib.lua    -- Simulation of AR631, FC6250HX  (For GUI development)
             SetupLib.lua          -- Model Setup Screens
-            msg_fwdp_en.txt       -- `NEW!` Messages for forward programing externalized. To support other langs
+            msg_fwdp_en.txt       -- `NEW!` Messages for forward programing externalized. To support other langs (english)
+	    ... a few other files
 
-    /SCRIPTS/TOOLS/DSMLIB/img     -- Images for RX orientations
+    /SCRIPTS/TOOLS/DSMLIB/img                -- Images for RX orientations
 
 Other Directories
 
-/MODELS/DSMDATA                 --(ALL CAPITALS) Data of model config (Wing Type, Servo Assignments)
-/LOGS/dsm_log.txt		       	--Readable log of the last RX/TX session, usefull for debugging problems
+    /MODELS/DSMDATA                 --(ALL CAPITALS) Data of model config (Wing Type, Servo Assignments)
+    /LOGS/dsm_log.txt		    --Readable log of the last RX/TX session, usefull for debugging problems
 
-When upgrading from a previous version of this tool, delete your /SCRIPTS/TOOLS/DSMLIB before copying the new one (if you customized your images, inside "DSMLIB/img" do a backup first)
+
 
 # Common Questions
 1. `RX not accepting channels higher than Ch6 for Flight-mode o Gains:`
-V0.53 and newer:  The RX is listening to channel changes for this options. Configure the Switch to the channel, togling once the switch will select the channel on the menu field.  
+- V0.55 and newer:  Problem solved.. Should allow you to select up to 12ch with the switch technique or with the scroller.
 
-2. `Why Ch1 says Ch1 (TX:Ch3/Thr)?`:
+- V0.53/0.54:  The RX is listening to channel changes for this options. Configure the Switch to the channel, togling once the switch will select the channel on the menu field.  
+
+2. `Only able to switch to Fligh-mode 2 and 3, but not 1:`
+Check that the module "Enable max throw" is OFF in you Multi-Module settings (where you do BIND), otherwise the TX signals will be out of range.
+The multi-module is already adjusting the TX/FrSky servo range internally to match Spektrum.
+
+3. `Why Ch1 says Ch1 (TX:Ch3/Thr)?`:
  Radios with Multi-Module are usually configured to work the standard AETR convention. Spektrum uses TAER. The multi-module does the conversion when transmitting the signals. So `Spektrum Ch1 (Throttle)` really comes from the `TX Ch3`.  We show both information (+name from the TX output).  If your multi-module/radio is setup as TAER, the script will not do the re-arrangement.  
 
- 3. `If i change the model name, the original model settings are lost.` This is correct, the model name is used to generate the file name (inside /MODEL/DSMDATA) who stores the model configuration. Currently EdgeTx and OpenTX has differt features where i could get either the Model Name or the YAML file where the EdgeTX model configuration is stored.. to keep the code compatible, the model name is used.
+4. `If i change the model name, the original model settings are lost.` This is correct, the model name is used to generate the file name (inside /MODEL/DSMDATA) who stores the model configuration. Currently EdgeTx and OpenTX has differt features where i could get either the Model Name or the YAML file where the EdgeTX model configuration is stored.. to keep the code compatible, the model name is used.
 
- 4. `Reversing a channel in my TX do not reverse the AS3X/SAFE reaction.` Correct, the channel stick direction and the Gyro direction are two separate things.
+5. `Reversing a channel in my TX do not reverse the AS3X/SAFE reaction.` Correct, the chanel stick direction and the Gyro direction are two separate things.
 
-    4.1: First, you have setup your model so that the sticks and switches moves the surfaces in the right direction.
+    5.1: First, you have setup your model so that the sticks and switches moves the surfaces in the right direction.
  
-    4.2: Go to the script, `Model Setup` and setup your wing type, tail type, and select the channel assigment for each surface. Leave the servo settings the same as the values in the TX to start.
+    5.2: Go to the script, `Model Setup` and setup your wing type, tail type, and select the channel assigment for each surface. Leave the servo settings the same as the values in the TX to start.
  
-    4.3: AR63X family: Go to `Forward programming->Gyro Setting->Initial Setup` (New/factory reset), or `Forward programming->Gyro Setting->System Setup->Relearn Servo Settings` (not new RX). This will load your current Gyro servo settings into the plane's RX.
+    5.3: Go to `Forward programming->Gyro Setting->Initial Setup` (New/factory reset), or `Forward programming->Gyro Setting->System Setup->Relearn Servo Settings` (not new). This will load your current Gyro servo settings into the plane's RX. This moves the current servo TX settings to the RX, so it is now in a known state.
  
-    4.4: Verify that the AS3X and SAFE reacts in the proper direction. You can use the Flight mode confugured as "Safe Mode: Auto-Level" to see if it moves the surfaces in the right direction.  
+    5.4: Verify that the AS3X and SAFE reacts in the proper direction. You can use the Flight mode configured as "Safe Mode: Auto-Level" to see if it moves the surfaces in the right direction.  
  
-    4.5: If a surface don't move in the right direction, go to the `Model Setup->Gyro Channel Reverse` to reverse the Gyro on the channels needed, and do again the `Forward programming->Gyro Setting->System Setup->Relearn Servo Settings` to tranfer the new settings to the RX.
+    5.5: If a surface don't move in the right direction, go to the `Model Setup->Gyro Channel Reverse` to reverse the Gyro on the channels needed, and do again the `Forward programming->Gyro Setting->System Setup->Relearn Servo Settings` to tranfer the new settings to the RX.
 
-    4.6: Specktrum TX always passes the TX servo reverse as the Gyro Reverse, but on many OpenTX/EdgeTX radios, the Rud/Ail are usually reversed by default compared to Specktrum. So far i don't think that i can use this as a rule, that is why the `Gyro Channel Reverse` page exist. 
+    5.6: Specktrum TX always passes the TX servo reverse as the Gyro Reverse, but on many OpenTX/EdgeTX radios, the Rud/Ail are usually reversed by default compared to Specktrum. So far i don't think that i can use this as a rule, that is why the `Gyro Channel Reverse` page exist. 
+    
+
 
 ---
 ---
 
 # Changes and fixes 
+V0.55:
+1. Finally found where the TX reports to the RX how many channels is transmiting. The TX now reports itself as a 12ch radio instead of 6h. (DSM Multi-Module limit).  This fixes a few things:
+    
+    
+    a. Many places where you have to select channels > CH6 for Flight-Mode, Gains, Panic now works properly with the scroller. The radio is still validating that you are not selecting an invalid channel. For example, if you have an additional AIL on CH6, it will not allow you to use CH6 for FM or Gains.. it just move to the next valid one.
+
+    b. When setting up AIL/ELE on channels greater than CH6, on previous versions SAFE/AS3X was not moving them.. now they work up correctly.  Set them up in the first in CH1-CH10.  Why CH10?? Thats what fits on the reverse screen, otherwise, have to add more screens.
+
+    c. Some individual Gain channels was not allowing to setup on CH greater than CH6. Now is fixed.
+
+2. User Interface:
+    a. `RTN` Key now works as `Back` when the screen has a `Back`. Makes it easy for navigation.. Presing `RTN` on the main screen exists the tool.
+    b. Much faster refresh of the menus. Optimize the process of send/recive menu data from the RX.
+
+3. The TX now comunicates the SubTrim positions to the RX during `Relearn Servo Setting`. This changes the center of movement to one side or another. Really not much difference with small amounts of subtrim, previous versions where asuming subtrim of 0. When you have an extreame subtrim to one side, it was not moving simetrically.
+
+4. Support for FC6250HX (the one with separate RX).. Setup Swashplate type, RX orientation works properly.. This are menu options that the smaller version that comes in the
+Blade 230S did not have.
+
+
 V0.54:
 1. Fix a problem in the Attitude Trim page (`Gyro Settings->System Setup->SAFE/Panic Setup->Attitude Trim`). It was not saving the values after exiting the menu. This is to change what SAFE considers "Level" flying.
 2. Wings 2-Ail 2-Flaps had a bug on the 2nd flap.
 3. New Minimalistic script (`DsmFwdPrg_05_MIN.lua`): For radios with very low memory (FrSky QX7, RM Zorro, others). It can only change existing settings, but does not have the Plane Setup menus to setup a completly new plane.  In some radios, the very first time it runs (compile + run), it might give you a `not enouth memory` error.. try to run it again.
-4. External menu message file (DSMLIB/msg_en.txt and msg_MIN_es.txt).  Intial work to do localization and different languages.
+4. External menu message file (DSMLIB/msg_fwdp_en.txt and MIN_msg_fwdp_en.txt).  Intial work to do localization and different languages.
 
 V0.53:
 1. Improved channel selection (Flight mode, Panic Channel, Gains Channel). Now during editing a channel, you can select any channel (>Ch4). Also, of you toggle the switch/channel it will populate the screen.
@@ -91,13 +123,14 @@ V0.52:
 4. Write Log of the conversation between RX/TX. To be used for debugging a problem is reported. 
 5. Provide a simulation of RX to do GUI development in Companion, and understand patterns of how the data is organized.
 
+
 # Tested Hardware
 - AR631/AR637xx
-- FC6250HX (Blade 230S V2 Helicopter)
+- FC6250HX (Blade 230S V2 Helicopter; FC+RX in one, mini version)
+- FC6250HX (Separate RX.. use only V55 or newer of this tool)
 - AR636 (Blade 230S V1 Heli firmware 4.40)
 
 - Radiomaster TX16S  (All versions)
-- FrSky QX7, Radimaster Boxter (Minimalistic version)
 
 Please report if you have tested it with other receivers to allow us to update the documentation. Code should work up to 10 channels for the main surfaces (Ail/Ele/etc).  All Spektrum RX are internally 20 channels, so you can use Ch7 for Flight Mode even if your RX is only 6 channels (See common Questions)
 
@@ -145,6 +178,7 @@ The menu messages are stored in DSMLIB/msg_fwdp_en.txt (For english). Just add t
     T |0x0097|Factory Reset
     LT|0x00B0|Self-Level/Angle Dem
     LT|0x00B1|Envelope
+
 
 # LOG File
 
@@ -203,7 +237,6 @@ The RX validates the data. if you change to an invalid channel or do a invalid n
 - RX simulation for GUI development:  turn on `SIMULATION_ON=true` in the beginning of the lua file
 - Test it on AR631, AR637xx, FC6250HX (Helicopter)
 
-
 ### Some settings that can change (top of Lua file):
     SIMULATION_ON = false   -- FALSE: hide similation menu (DEFAULT), TRUE: show RX simulation menu 
 	DEBUG_ON = 1           -- 0=NO DEBUG, 1=HIGH LEVEL 2=LOW LEVEL   (Debug logged into the /LOGS/dsm_log.txt)
@@ -214,8 +247,6 @@ The RX validates the data. if you change to an invalid channel or do a invalid n
 1. **Incorrect List Value Options:** Some Menu List line (`LINE_TYPE.LIST_MENU1` or `L_m1` in logs), the range (min/max) of valid values seems to be incorrect, but the RX corrects the values.
 in the MINimalistic version, the RX is doing all the range validation, and will show invalid options temporarilly. In an Spektrum radio, it happens so fast, that you don't notice it, but in LUA scripts who are slower, you can see it in the screen. 
 In the COLOR version, The code has hardcoded the valid ranges to avoid this problem.
-
-
 
 2. Glider/Heli/Drone wing types not ready.
 

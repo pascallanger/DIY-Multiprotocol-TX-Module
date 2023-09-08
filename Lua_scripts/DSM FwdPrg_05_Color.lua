@@ -1,5 +1,5 @@
-local toolName = "TNS|DSM Forward Prog v0.54 (Color+Touch) |TNE"
-local VERSION  = "v0.54"
+local toolName = "TNS|DSM Forward Prog v0.55a (Color) |TNE"
+local VERSION  = "v0.55a"
 
 ---- #########################################################################
 ---- #                                                                       #
@@ -27,19 +27,21 @@ local VERSION  = "v0.54"
 -- Rewrite/Enhancements By: Francisco Arzu 
 ------------------------------------------------------------------------------
 
-local SIMULATION_ON = false  -- FALSE:don't show simulation memu (DEFAULT), TRUE: show simulation menu 
+local SIMULATION_ON = true   -- false: dont show simulation menu, TRUE: show simulation menu 
 local DEBUG_ON = 1           -- 0=NO DEBUG, 1=HIGH LEVEL 2=LOW LEVEL   (Debug logged into the /LOGS/dsm.log)
-local DEBUG_ON_LCD = false   -- Interactive Information on LCD of Menu data from RX 
 local USE_SPECKTRUM_COLORS = true -- true: Use spectrum colors, false: use theme colors (default on OpenTX) 
 local DSMLIB_PATH = "/SCRIPTS/TOOLS/DSMLIB/"
 local IMAGE_PATH = DSMLIB_PATH .. "img/"
 
-local dsmLib = assert(loadScript(DSMLIB_PATH.."DsmSetupLib.lua"), "Not-Found: DSMLIB/DsmSetupLib.lua")(DEBUG_ON,SIMULATION_ON)
+local Log = assert(loadScript(DSMLIB_PATH.."DsmLogLib.lua"), "Not-Found: DSMLIB/DsmLogLib.lua")()
+local menuLib = assert(loadScript(DSMLIB_PATH.."DsmMenuLib.lua"), "Not-Found: DSMLIB/DsmMenuLib.lua")(Log, DEBUG_ON)
+local modelLib = assert(loadScript(DSMLIB_PATH.."DsmModelLib.lua"), "Not-Found: DSMLIB/DsmModelLib.lua")(Log, DEBUG_ON)
+local menuProcessor  = assert(loadScript(DSMLIB_PATH.."DsmMainMenuLib.lua"), "Not-Found: DSMLIB/DsmMainMenuLib.lua")(Log, menuLib, modelLib, DEBUG_ON, SIMULATION_ON)
 
-local PHASE = dsmLib.PHASE
-local LINE_TYPE = dsmLib.LINE_TYPE
-local DISP_ATTR   = dsmLib.DISP_ATTR
-local DSM_Context = dsmLib.DSM_Context
+local PHASE = menuLib.PHASE
+local LINE_TYPE = menuLib.LINE_TYPE
+local DISP_ATTR   = menuLib.DISP_ATTR
+local DSM_Context = menuLib.DSM_Context
 
 
 local lastRefresh=0         -- Last time the screen was refreshed
@@ -63,7 +65,7 @@ local LCD_X_LINE_DEBUG      = 390
 
 
 local LCD_Y_LINE_START       = LCD_Y_MENU_TITLE + 30
-local LCD_Y_LINE_HEIGHT      = (DEBUG_ON_LCD and 23)  or 27   -- if DEBUG 23 else 27 
+local LCD_Y_LINE_HEIGHT      = 27 
 
 local LCD_Y_LOWER_BUTTONS    = LCD_Y_LINE_START + 3 + (7 * LCD_Y_LINE_HEIGHT)
 
@@ -93,6 +95,7 @@ local warningScreenON = true
 --------------------- lcd.sizeText replacement -------------------------------------------------
 -- EdgeTx dont have lcd.sizeText, so we do an equivalent one using the string length and 5px per character
 local function my_lcd_sizeText(s)
+  if (s==nil) then return 20 end
   -- return: If IS_EDGETX then lcd.sizeText() else string.len()
   return (IS_EDGETX and lcd.sizeText(s)) or (string.len(s)*10)  
 end
@@ -100,31 +103,76 @@ end
 
 local function GUI_SwitchToRX()
   -- Force to refresh DSM Info in MODEL (dsmLib pointing to the setup Script)
-  local dsmChannelInfo, description = dsmLib.CreateDSMPortChannelInfo()
+  -- local dsmChannelInfo, description = modelLib.CreateDSMPortChannelInfo()
+
+  menuProcessor.done() 
+  Log.LOG_close()  -- Reset the log
+  Log.LOG_open()
+
+  menuProcessor = nil
+  collectgarbage("collect")
   
-  dsmLib.ReleaseConnection()  
-  dsmLib.LOG_close()
+  modelLib.ReadTxModelData()
+  modelLib.ST_LoadFileData()
+  modelLib.CreateDSMPortChannelInfo()
 
-  SIMULATION_ON = false
-  dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgLib.lua"),"Not-Found: DSMLIB/DsmFwPrgLib.lua")(DEBUG_ON)
-  DSM_Context = dsmLib.DSM_Context
+  local dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgLib.lua"),"Not-Found: DSMLIB/DsmFwPrgLib.lua")
+  menuProcessor = dsmLib(Log, menuLib, modelLib, DEBUG_ON)
 
-  dsmLib.Init(toolName)  -- Initialize Library 
-  dsmLib.SetDSMChannelInfo(dsmChannelInfo, description)  -- send the dsmChannelInfo to new instance library
-  dsmLib.StartConnection()
+  dsmLib = nil
+  collectgarbage("collect")
+
+  menuProcessor.init(toolName)  -- Initialize Library 
   DSM_Context.Refresh_Display = true
 end
 
 local function GUI_SwitchToSIM()
-  dsmLib.ReleaseConnection()  
-  dsmLib.LOG_close()
+  menuProcessor.done() 
+  Log.LOG_close()
 
-  SIMULATION_ON = true
-  dsmLib = assert(loadScript(DSMLIB_PATH.."DsmFwPrgSIMLib.lua"), "Not-Found: DSMLIB/DsmFwPrgSIMLib.lua")(DEBUG_ON)
-  DSM_Context = dsmLib.DSM_Context
+  menuProcessor = nil
+  collectgarbage("collect")
 
-  dsmLib.Init(toolName)  -- Initialize Library 
-  dsmLib.StartConnection()
+  local simLib = assert(loadScript(DSMLIB_PATH.."DsmSimMenuLib.lua"), "Not-Found: DSMLIB/DsmSimMenuLib.lua")
+  menuProcessor = simLib(Log, menuLib, modelLib, DEBUG_ON)
+
+  simLib = nil
+  collectgarbage("collect")
+
+  menuProcessor.init(toolName)  -- Initialize Library 
+  DSM_Context.Refresh_Display = true
+end
+
+local function GUI_SwitchToSetupMenu()
+  menuProcessor.done() 
+
+  menuProcessor = nil
+  collectgarbage("collect")
+
+  local setupLib = assert(loadScript(DSMLIB_PATH.."DsmSetupMenuLib.lua"), "Not-Found: DSMLIB/DsmSetupMenuLib.lua")
+  menuProcessor = setupLib(Log, menuLib, modelLib, DEBUG_ON, SIMULATION_ON)
+
+  setupLib = nil
+  collectgarbage("collect")
+
+  menuProcessor.init(toolName)  -- Initialize Library 
+  DSM_Context.Refresh_Display = true
+end
+
+local function GUI_SwitchToMainMenu()
+  print("SWITCHING TO MAIN MENU")
+  menuProcessor.done() 
+
+  menuProcessor = nil
+  collectgarbage("collect")
+
+  local mainMenuLib =  assert(loadScript(DSMLIB_PATH.."DsmMainMenuLib.lua"), "Not-Found: DSMLIB/DsmMainMenuLib.lua")
+  menuProcessor = mainMenuLib(Log, menuLib, modelLib, DEBUG_ON, SIMULATION_ON)
+
+  mainMenuLib = nil
+  collectgarbage("collect")
+
+  menuProcessor.init(toolName)  -- Initialize Library 
   DSM_Context.Refresh_Display = true
 end
 
@@ -203,19 +251,19 @@ local function GUI_Display_Line_Menu(lineNum,line,selected)
   local y = LCD_Y_LINE_START+(LCD_Y_LINE_HEIGHT*lineNum)
   local x = LCD_X_LINE_MENU
  
-  if dsmLib.isSelectableLine(line) then -- Draw Selectable Menus in Boxes
+  if menuLib.isSelectableLine(line) then -- Draw Selectable Menus in Boxes
     GUI_Display_Boxed_Text(lineNum,x, y, LCD_W_LINE_MENU, LCD_Y_LINE_HEIGHT, line.Text,selected, false)
     GUI_addTouchButton(x, y, LCD_W_LINE_MENU, LCD_Y_LINE_HEIGHT,lineNum)
   else
     -- Non Selectable Menu Lines, plain text
     -- Can be use for sub headers or just regular text lines (like warnings)
 
-    local bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._BOLD) and BOLD) or 0  
+    local bold = (menuLib.isDisplayAttr(line.TextAttr,DISP_ATTR._BOLD) and BOLD) or 0  
 
-    if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._RIGHT) then -- Right Align???
+    if menuLib.isDisplayAttr(line.TextAttr,DISP_ATTR._RIGHT) then -- Right Align???
         local tw = my_lcd_sizeText(line.Text)+4
         x =  LCD_X_LINE_VALUE - tw     -- Right 
-    elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._CENTER) then -- Center??
+    elseif menuLib.isDisplayAttr(line.TextAttr,DISP_ATTR._CENTER) then -- Center??
         local tw = my_lcd_sizeText(line.Text) 
         x =  x + (LCD_X_LINE_VALUE - LCD_X_LINE_MENU)/2 - tw/2  -- Center - 1/2 Text
     end
@@ -235,17 +283,17 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
   ---------- NAME Part 
   local header = line.Text
   -- ONLY do this for Flight Mode (Right Align or Centered)
-  if (dsmLib.isFlightModeLine(line)) then
+  if (menuLib.isFlightModeLine(line)) then
       -- Display Header + Value together
-      header = dsmLib.GetFlightModeValue(line)
+      header = menuLib.GetFlightModeValue(line)
 
       -- Bold Text???
-      bold = (dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._BOLD) and BOLD) or 0
+      bold = (menuLib.isDisplayAttr(line.TextAttr,DISP_ATTR._BOLD) and BOLD) or 0
 
-      if dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._RIGHT) then -- Right Align
+      if menuLib.isDisplayAttr(line.TextAttr,DISP_ATTR._RIGHT) then -- Right Align
           local tw = my_lcd_sizeText(header)+4
           x =  LCD_X_LINE_VALUE - tw     -- Right 
-      elseif dsmLib.isDisplayAttr(line.TextAttr,DISP_ATTR._CENTER) then -- Centered
+      elseif menuLib.isDisplayAttr(line.TextAttr,DISP_ATTR._CENTER) then -- Centered
           local tw = my_lcd_sizeText(header)
           x =  x + (LCD_X_LINE_VALUE - LCD_X_LINE_TITLE)/2 - tw/2  -- Center - 1/2 Text
       end
@@ -256,15 +304,18 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
 
   lcd.drawText(x, y, header, txtColor + bold) -- display Line Header
 
-  --------- VALUE PART,  Skip for Flight Mode since already show the value 
-  if not dsmLib.isFlightModeLine(line) then     
-    if dsmLib.isSelectableLine(line) then 
+
+  --------- VALUE PART,  Skip for Flight Mode since already show the value
+  if (value==nil) then return end 
+  
+  if not menuLib.isFlightModeLine(line) then
+    if menuLib.isSelectableLine(line) then 
       --if (editing) then -- Any Special color/effect when editing??
       --  value = "["..value .. "]"
       --end
       -- Can select/edit value, Box it 
       local tw = math.max(my_lcd_sizeText(value)+10,45) -- Width of the Text in the lcd
-      GUI_Display_Boxed_Text(lineNum,LCD_X_LINE_VALUE,y,tw,LCD_Y_LINE_HEIGHT,value,selected, not dsmLib.isListLine(line))
+      GUI_Display_Boxed_Text(lineNum,LCD_X_LINE_VALUE,y,tw,LCD_Y_LINE_HEIGHT,value,selected, not menuLib.isListLine(line))
       GUI_addTouchButton(LCD_X_LINE_VALUE,y,tw,LCD_Y_LINE_HEIGHT,lineNum)
 
       lcd.drawText(LCD_X_LINE_VALUE+tw+5, y,  (line.Format or ""), txtColor + bold)
@@ -273,8 +324,6 @@ local function GUI_Display_Line_Value(lineNum, line, value, selected, editing)
     end
   end
   
-  -- Debug info for line Value RANGE when Debug on LCD
-  if (DEBUG_ON_LCD) then  lcd.drawText(LCD_X_LINE_DEBUG, y, line.MinMaxDebug or "", SMLSIZE + LCD_DEBUG_COLOR) end -- display debug Min/Max
 end
 
 local function GUI_Display_Menu(menu)
@@ -290,23 +339,19 @@ local function GUI_Display_Menu(menu)
 
   -- Back Button
   if menu.BackId ~= 0 then
-    GUI_Diplay_Button(437-5,LCD_Y_MENU_TITLE+3,47,LCD_Y_LINE_HEIGHT,"Back",ctx.SelLine == dsmLib.BACK_BUTTON)
-    GUI_addTouchButton(437-5,LCD_Y_MENU_TITLE+3,47,LCD_Y_LINE_HEIGHT,dsmLib.BACK_BUTTON)
+    GUI_Diplay_Button(437-5,LCD_Y_MENU_TITLE+3,47,LCD_Y_LINE_HEIGHT,"Back",ctx.SelLine == menuLib.BACK_BUTTON)
+    GUI_addTouchButton(437-5,LCD_Y_MENU_TITLE+3,47,LCD_Y_LINE_HEIGHT,menuLib.BACK_BUTTON)
   end
   -- Next Button
   if menu.NextId ~= 0 then
-    GUI_Diplay_Button(437-5,LCD_Y_LOWER_BUTTONS,47,LCD_Y_LINE_HEIGHT,"Next",ctx.SelLine == dsmLib.NEXT_BUTTON)
-    GUI_addTouchButton(437-5,LCD_Y_LOWER_BUTTONS,47,LCD_Y_LINE_HEIGHT,dsmLib.NEXT_BUTTON)
+    GUI_Diplay_Button(437-5,LCD_Y_LOWER_BUTTONS,47,LCD_Y_LINE_HEIGHT,"Next",ctx.SelLine == menuLib.NEXT_BUTTON)
+    GUI_addTouchButton(437-5,LCD_Y_LOWER_BUTTONS,47,LCD_Y_LINE_HEIGHT,menuLib.NEXT_BUTTON)
   end
   -- Prev Button
   if menu.PrevId ~= 0 then
-    GUI_Diplay_Button(10,LCD_Y_LOWER_BUTTONS,47,LCD_Y_LINE_HEIGHT,"Prev",ctx.SelLine == dsmLib.PREV_BUTTON)
-    GUI_addTouchButton(10,LCD_Y_LOWER_BUTTONS,47,LCD_Y_LINE_HEIGHT,dsmLib.PREV_BUTTON)
+    GUI_Diplay_Button(10,LCD_Y_LOWER_BUTTONS,47,LCD_Y_LINE_HEIGHT,"Prev",ctx.SelLine == menuLib.PREV_BUTTON)
+    GUI_addTouchButton(10,LCD_Y_LOWER_BUTTONS,47,LCD_Y_LINE_HEIGHT,menuLib.PREV_BUTTON)
   end
-
-  -- Debug on LCD, Show the menu Indo and Phase we are on 
-  if (DEBUG_ON_LCD) then lcd.drawText(0,LCD_Y_MENU_TITLE,dsmLib.phase2String(ctx.Phase),SMLSIZE+LCD_DEBUG_COLOR) end  -- Phase we are in 
-  if (DEBUG_ON_LCD) then lcd.drawText(0,240,dsmLib.menu2String(menu),SMLSIZE+LCD_DEBUG_COLOR) end  -- Menu Info
 end
 
 ------------------------------------------------------------------------------------------------------------
@@ -328,7 +373,7 @@ local function GUI_Display_Edit_Buttons(line)
   GUI_addTouchButton(x,LCD_Y_LOWER_BUTTONS,w,LCD_Y_LINE_HEIGHT,EDIT_BUTTON.DEFAULT)
 
   x=x+w+10
-  if (not dsmLib.isListLine(line)) then
+  if (not menuLib.isListLine(line)) then
     GUI_Diplay_Button(x,LCD_Y_LOWER_BUTTONS,w,LCD_Y_LINE_HEIGHT,"  <<  ",showPrev)
     GUI_addTouchButton(x,LCD_Y_LOWER_BUTTONS,w,LCD_Y_LINE_HEIGHT,EDIT_BUTTON.DEC_10)
   end
@@ -342,7 +387,7 @@ local function GUI_Display_Edit_Buttons(line)
   GUI_addTouchButton(x,LCD_Y_LOWER_BUTTONS,w,LCD_Y_LINE_HEIGHT,EDIT_BUTTON.INC_1)
 
   x=x+w+10
-  if (not dsmLib.isListLine(line)) then
+  if (not menuLib.isListLine(line)) then
     GUI_Diplay_Button(x,LCD_Y_LOWER_BUTTONS,w,LCD_Y_LINE_HEIGHT,"   >>",showNext)
     GUI_addTouchButton(x,LCD_Y_LOWER_BUTTONS,w,LCD_Y_LINE_HEIGHT,EDIT_BUTTON.INC_10)
   end
@@ -373,74 +418,86 @@ local function GUI_Display()
   lcd.clear(LCD_TOOL_BGCOLOR)
   GUI_clearTouchButtons()
  
-  if LCD_W == 480 then
-    local header = "DSM Forward Programming "..VERSION.."                   "
-    if ctx.Phase ~= PHASE.RX_VERSION then
-      header = header .. "RX "..ctx.RX.Name.." v"..ctx.RX.Version
-    end
-
-    --Draw title
-    lcd.drawFilledRectangle(0, 0, LCD_W, 17, LCD_TOOL_HDR_BGCOLOR)
-    lcd.drawText(5, 0, header,  LCD_TOOL_HDR_COLOR + SMLSIZE)
-    --Draw RX Menu
-    if ctx.Phase == PHASE.RX_VERSION then
-      if (ctx.isReset) then
-        lcd.drawText(LCD_X_LINE_TITLE,100,dsmLib.Get_Text(0x301), BLINK) -- Waiting for Restart
-      else
-        lcd.drawText(LCD_X_LINE_TITLE,100,dsmLib.Get_Text(0x300), BLINK) -- Waiting for RX 
-      end
-    else
-      local menu = ctx.Menu
-      
-
-      if menu.Text ~=  nil then
-        GUI_Display_Menu(menu)
-
-        for i = 0, dsmLib.MAX_MENU_LINES do
-          local line = ctx.MenuLines[i]
-
-          if i == ctx.SelLine then
-            -- DEBUG: Display Selected Line info for ON SCREEN Debugging
-            if (DEBUG_ON_LCD) then lcd.drawText(0,255,dsmLib.menuLine2String(line),SMLSIZE + LCD_DEBUG_COLOR) end
-          end
-
-          if line ~= nil and line.Type ~= 0 then
-            if line.Type == LINE_TYPE.MENU then 
-              GUI_Display_Line_Menu(i, line, i == ctx.SelLine)
-            else  
-              if line.Val ~= nil then
-                local value = line.Val
-
-                if dsmLib.isListLine(line) then    -- for Lists of Strings, get the text
-                  value = dsmLib.Get_List_Text(line.Val + line.TextStart) -- TextStart is the initial offset for text
-                  local imgData = dsmLib.Get_List_Text_Img(line.Val + line.TextStart)   -- Complentary IMAGE for this value to Display??
-                    
-                  if (imgData and i == ctx.SelLine) then  -- Optional Image and Msg for selected value
-                    GUI_ShowBitmap(LCD_X_LINE_TITLE,LCD_Y_LINE_START, imgData)
-                  end
-                end
-
-                GUI_Display_Line_Value(i, line, value, i == ctx.SelLine, i == ctx.EditLine)
-              end
-            end -- if ~MENU
-          end -- if Line[i]~=nil
-        end  -- for
-
-        if IS_EDGETX and ctx.isEditing()  then
-          -- Display Touch button for Editing values
-          GUI_Display_Edit_Buttons(ctx.MenuLines[ctx.EditLine])
-        end
-      end 
-    end
-  else
+  if LCD_W ~= 480 then
     -- Different Resolution.. Maybe just adjusting some of the constants will work, adjust it in DSM_Init??
     -- LCD_X_LINE_TITLE,  LCD_Y_LINE_START, etc
     lcd.drawText(LCD_X_LINE_TITLE,100,"Only supported in Color Radios of 480 resolution", BLINK)
+    return
+  end
+
+  local header = "DSM Forward Programming "..VERSION.."                   "
+  if ctx.Phase ~= PHASE.RX_VERSION then
+    header = header .. ctx.RX.Name.." v"..ctx.RX.Version
+  end
+
+  --Draw title
+  lcd.drawFilledRectangle(0, 0, LCD_W, 17, LCD_TOOL_HDR_BGCOLOR)
+  lcd.drawText(5, 0, header,  LCD_TOOL_HDR_COLOR + SMLSIZE)
+
+  -- Getting RX Version
+  if ctx.Phase == PHASE.RX_VERSION then
+    if (ctx.isReset) then
+      lcd.drawText(LCD_X_LINE_TITLE,100, menuLib.Get_Text(0x301), BLINK) -- Resetting...
+    else
+      lcd.drawText(LCD_X_LINE_TITLE,100,menuLib.Get_Text(0x300), BLINK) -- Not valid RX
+    end
+    return
+  end
+
+
+  local menu = ctx.Menu  
+  if menu.Text ==  nil then return end
+
+  -----   Draw RX Menu  --------- 
+  GUI_Display_Menu(menu)
+
+  -- Sending TX Information???
+  if (ctx.Phase==PHASE.MENU_REQ_TX_INFO) then
+    --lcd.drawFilledRectangle(x-5, y-2, w, h, selectedBGColor)
+    --lcd.drawRectangle(x-5, y-2, w, h, frameColor)
+    lcd.drawText(LCD_X_LINE_TITLE,100, "Sending CH"..(ctx.CurLine+1)) -- Channel Info 
+    return
+  end
+
+  for i = 0, menuLib.MAX_MENU_LINES do
+    local line = ctx.MenuLines[i]
+
+    if line ~= nil and line.Type ~= 0 then
+      if line.Type == LINE_TYPE.MENU then 
+        GUI_Display_Line_Menu(i, line, i == ctx.SelLine)
+      else
+        local value = nil
+          if line.Val ~= nil then
+            value = line.Val
+            if menuLib.isListLine(line) then    -- for Lists of Strings, get the text
+              value = menuLib.Get_List_Text(line.Val + line.TextStart) -- TextStart is the initial offset for text
+              -- Complentary IMAGE for this value to Display??
+              local offset = 0
+              if (line.Type==LINE_TYPE.LIST_MENU_ORI) then offset = offset + 0x100 end --FH6250 hack
+
+              local imgData = menuLib.Get_List_Text_Img(line.Val + line.TextStart + offset)   
+                
+              if (imgData and i == ctx.SelLine) then  -- Optional Image and Msg for selected value
+                GUI_ShowBitmap(LCD_X_LINE_TITLE,LCD_Y_LINE_START, imgData)
+              end
+            end
+          end -- if Line[i]~=nil
+          GUI_Display_Line_Value(i, line, value, i == ctx.SelLine, i == ctx.EditLine)
+        end
+      end -- if ~MENU
+  end  -- for
+
+  if IS_EDGETX and ctx.isEditing()  then
+    -- Display Touch button for Editing values
+    GUI_Display_Edit_Buttons(ctx.MenuLines[ctx.EditLine])
   end
 end
 
 -------------------------------------------------------------------------------------------------------------
-local function GUI_RotEncVal(dir) -- return encoder speed to inc or dec values
+local function GUI_RotEncVal(line, dir) -- return encoder speed to inc or dec values
+
+  if menuLib.isListLine(line) then return dir end
+
   local inc = 0
   local Speed = getRotEncSpeed()
 
@@ -499,7 +556,7 @@ local function GUI_HandleEvent(event, touchState)
     end
 
     if (event == EVT_TOUCH_TAP or event == EVT_TOUCH_FIRST) and not ctx.isEditing() then  -- Touch and NOT editing
-      if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_TOUCH_TAP %d,%d\n",dsmLib.phase2String(ctx.Phase),touchState.x, touchState.y) end
+      if (DEBUG_ON) then Log.LOG_write("%s: EVT_TOUCH_TAP %d,%d\n",menuLib.phase2String(ctx.Phase),touchState.x, touchState.y) end
         local button = GUI_getTouchButton(touchState.x, touchState.y)
         if button then
           -- Found a valid line
@@ -514,64 +571,73 @@ local function GUI_HandleEvent(event, touchState)
 
   if event == EVT_VIRTUAL_EXIT then
     ctx.Refresh_Display=true
-    if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_VIRTUAL_EXIT\n",dsmLib.phase2String(ctx.Phase)) end
+    if (DEBUG_ON) then Log.LOG_write("%s: EVT_VIRTUAL_EXIT\n",menuLib.phase2String(ctx.Phase)) end
     if ctx.Phase == PHASE.RX_VERSION then
-      dsmLib.ReleaseConnection()  -- Just Exit the Script 
+      menuLib.ChangePhase(PHASE.EXIT_DONE) -- Just Exit the Script 
     else
       if ctx.isEditing() then  -- Editing a Line, need to  restore original value
         local line = ctx.MenuLines[ctx.EditLine]
         line.Val = originalValue
-        dsmLib.Value_Write_Validate(line)
+        menuLib.Value_Write_Validate(line)
+      elseif (menu.BackId > 0 ) then -- Back??
+          ctx.SelLine = menuLib.BACK_BUTTON 
+          event = EVT_VIRTUAL_ENTER
       else
-        dsmLib.ChangePhase(PHASE.EXIT)
+        menuLib.ChangePhase(PHASE.EXIT)
       end
     end
-    return
   end
+
+  if ctx.Phase == PHASE.RX_VERSION then return end
   
   if event == EVT_VIRTUAL_NEXT then
     ctx.Refresh_Display=true
-    if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_VIRTUAL_NEXT\n",dsmLib.phase2String(ctx.Phase)) end
+    if (DEBUG_ON) then Log.LOG_write("%s: EVT_VIRTUAL_NEXT\n",menuLib.phase2String(ctx.Phase)) end
     if ctx.isEditing() then  -- Editing a Line, need to inc the value
       local line=ctx.MenuLines[ctx.EditLine]
-      dsmLib.Value_Add(line, editInc or GUI_RotEncVal(1))
+      menuLib.Value_Add(line, editInc or GUI_RotEncVal(line, 1))
     else  -- not editing, move selected line to NEXT
-      dsmLib.MoveSelectionLine(1)
+      menuLib.MoveSelectionLine(1)
     end
     return
   end
 
   if event == EVT_VIRTUAL_PREV then
     ctx.Refresh_Display=true
-    if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_VIRTUAL_PREV\n",dsmLib.phase2String(ctx.Phase)) end
+    if (DEBUG_ON) then Log.LOG_write("%s: EVT_VIRTUAL_PREV\n",menuLib.phase2String(ctx.Phase)) end
     if ctx.isEditing() then  -- Editiing a line, need to dec the value
       local line=ctx.MenuLines[ctx.EditLine]
-      dsmLib.Value_Add(line, editInc or GUI_RotEncVal(-1))
+      menuLib.Value_Add(line, editInc or GUI_RotEncVal(line, -1))
     else  -- not editing, move selected line to PREV
-      dsmLib.MoveSelectionLine(-1)
+      menuLib.MoveSelectionLine(-1)
     end
     return
   end
 
   if event == EVT_VIRTUAL_ENTER_LONG then
     ctx.Refresh_Display=true
-    if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_VIRTUAL_ENTER_LONG\n",dsmLib.phase2String(ctx.Phase)) end
+    if (DEBUG_ON) then Log.LOG_write("%s: EVT_VIRTUAL_ENTER_LONG\n",menuLib.phase2String(ctx.Phase)) end
     if ctx.isEditing() then
       -- reset the value to default
-      dsmLib.Value_Default(menuLines[ctx.EditLine])  -- Update value in RX if needed
+      menuLib.Value_Default(menuLines[ctx.EditLine])  -- Update value in RX if needed
     end
     return
   end
 
   if event == EVT_VIRTUAL_ENTER then
     ctx.Refresh_Display=true
-    if (DEBUG_ON) then dsmLib.LOG_write("%s: EVT_VIRTUAL_ENTER,  SelLine=%d\n",dsmLib.phase2String(ctx.Phase), ctx.SelLine) end
-    if ctx.SelLine == dsmLib.BACK_BUTTON then -- Back
-      dsmLib.GotoMenu(menu.BackId,0x80)
-    elseif ctx.SelLine == dsmLib.NEXT_BUTTON then -- Next
-      dsmLib.GotoMenu(menu.NextId,0x82)
-    elseif ctx.SelLine == dsmLib.PREV_BUTTON then -- Prev
-      dsmLib.GotoMenu(menu.PrevId,0x81)
+    if (DEBUG_ON) then Log.LOG_write("%s: EVT_VIRTUAL_ENTER,  SelLine=%d\n",menuLib.phase2String(ctx.Phase), ctx.SelLine) end
+    if ctx.SelLine == menuLib.BACK_BUTTON then -- Back
+      if (menu.BackId==0xFFF9) then
+        -- SPECIAL Main Menu
+        GUI_SwitchToMainMenu()
+      else
+        menuLib.GotoMenu(menu.BackId,0x80)
+      end
+    elseif ctx.SelLine == menuLib.NEXT_BUTTON then -- Next
+      menuLib.GotoMenu(menu.NextId,0x82)
+    elseif ctx.SelLine == menuLib.PREV_BUTTON then -- Prev
+      menuLib.GotoMenu(menu.PrevId,0x81)
     elseif menuLines[ctx.SelLine].ValId ~= 0 then  -- Menu or Value
 
       if menuLines[ctx.SelLine].Type == LINE_TYPE.MENU then -- Navigate to Menu
@@ -581,16 +647,22 @@ local function GUI_HandleEvent(event, touchState)
         elseif (menuLines[ctx.SelLine].ValId==0xFFF2) then
             -- SPECIAL Simulation menu to go to RX 
             GUI_SwitchToRX()
+        elseif (menuLines[ctx.SelLine].ValId==0xFFF3) then
+          -- SPECIAL Settup Menu
+          GUI_SwitchToSetupMenu()
+        elseif (menuLines[ctx.SelLine].ValId==0xFFF9) then
+          -- SPECIAL Settup Menu
+          GUI_SwitchToMainMenu()
         else
-          dsmLib.GotoMenu(menuLines[ctx.SelLine].ValId, ctx.SelLine)  -- ValId is the MenuId to navigate to
+          menuLib.GotoMenu(menuLines[ctx.SelLine].ValId, ctx.SelLine)  -- ValId is the MenuId to navigate to
         end
       else -- Enter on a Value
         if ctx.isEditing() then   -- already editing a Line???? 
-          dsmLib.Value_Write_Validate(menuLines[ctx.SelLine])
+          menuLib.Value_Write_Validate(menuLines[ctx.SelLine])
         else    -- Edit the current value  
           ctx.EditLine = ctx.SelLine
           originalValue = menuLines[ctx.SelLine].Val
-          dsmLib.ChangePhase(PHASE.VALUE_CHANGING_WAIT)
+          menuLib.ChangePhase(PHASE.VALUE_CHANGING_WAIT)
         end
       end
     end
@@ -655,9 +727,16 @@ end
 ------------------------------------------------------------------------------------------------------------
 -- Init
 local function DSM_Init()
+  Log.LOG_open()
+
   init_colors()
-  dsmLib.Init(toolName)  -- Initialize Library 
-  return dsmLib.StartConnection()
+  modelLib.ReadTxModelData()
+  modelLib.ST_LoadFileData()
+  modelLib.CreateDSMPortChannelInfo()
+  
+  menuLib.Init() 
+  menuProcessor.init()
+  return 0
 end
 
 ------------------------------------------------------------------------------------------------------------
@@ -667,7 +746,7 @@ local function DSM_Run(event,touchState)
 
   if event == nil then
     error("Cannot be run as a model script!")
-    dsmLib.LOG_close()
+    Log.LOG_close()
     return 2
   end
 
@@ -677,12 +756,15 @@ local function DSM_Run(event,touchState)
 
   GUI_HandleEvent(event,touchState)
 
-  dsmLib.Send_Receive()  -- Handle Send and Receive DSM Forward Programming Messages
+  local ret = menuProcessor.run()  -- Handle Send and Receive DSM Forward Programming Messages
+
+  if ctx.Phase == PHASE.INIT then return 0 end
+  
 
   local refreshInterval =  REFRESH_GUI_MS
 
   -- When using LCD BLINK attribute, we need faster refresh for BLINK to SHOW on LCD 
-  if (ctx.Phase == PHASE.RX_VERSION) then  -- Requesting RX Message Version usea BLINK?
+  if (ctx.Phase == PHASE.RX_VERSION or ctx.Phase==PHASE.MENU_REQ_TX_INFO) then  -- Requesting RX Message Version usea BLINK?
     ctx.Refresh_Display=true  
     refreshInterval = 20 -- 200ms
   end
@@ -697,7 +779,7 @@ local function DSM_Run(event,touchState)
   end
   
   if ctx.Phase == PHASE.EXIT_DONE then
-    dsmLib.LOG_close()
+    Log.LOG_close()
     return 2
   else
     return 0

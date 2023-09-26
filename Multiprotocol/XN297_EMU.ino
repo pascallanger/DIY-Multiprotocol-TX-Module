@@ -133,10 +133,9 @@ static void __attribute__((unused)) XN297_SetRXAddr(const uint8_t* addr, uint8_t
 		if(xn297_rf == XN297_NRF)
 		{
 			NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, xn297_rx_addr, xn297_addr_len);
-			if(rx_packet_len >= 32)
-				NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, 32);
-			else
-				NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, rx_packet_len);
+			if(rx_packet_len > 32)
+				rx_packet_len = 32;
+			NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, rx_packet_len);
 		}
 	#endif
 	#ifdef CC2500_INSTALLED

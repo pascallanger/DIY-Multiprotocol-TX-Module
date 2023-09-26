@@ -1991,6 +1991,8 @@ Flip: momentary switch: hold flip(+100%), indicate flip direction with Ele or Ai
 
 RTN_ACT and RTN: -100% disable, +100% enable
 
+If the model (newest versions) sends telemetry then the battery status ok/empty is in A1 (4.4V -> 2.2V), RSSI equal to 100 means that all telem packets are received and TQLY indicates the number of lost telem packets.
+
 ### Sub_protocol 3CH - *0*
 Models: Volantex V761-1, V761-3 and may be others
 

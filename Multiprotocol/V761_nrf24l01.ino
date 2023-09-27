@@ -344,7 +344,6 @@ void V761_init(void)
 		packet_count = 0;
 		telemetry_lost = 1;
 	#endif
-
 }
 
 #endif

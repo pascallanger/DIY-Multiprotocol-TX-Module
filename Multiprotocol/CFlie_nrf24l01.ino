@@ -233,25 +233,25 @@ static void send_search_packet()
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)));
 	NRF24L01_FlushTx();
 
-	if (sub_protocol == CFLIE_AUTO)
-  {
-	  if (rf_ch_num++ > 125)
-	  {
-	    rf_ch_num = 0;
-	    switch(data_rate)
-		  {
-		    case NRF24L01_BR_250K:
-			    data_rate = NRF24L01_BR_1M;
-			    break;
-			  case NRF24L01_BR_1M:
-			    data_rate = NRF24L01_BR_2M;
-			    break;
-			  case NRF24L01_BR_2M:
-			    data_rate = NRF24L01_BR_250K;
-			    break;
-		  }
-	  }
-  }
+	// if (sub_protocol == CFLIE_AUTO)
+  // {
+	  // if (rf_ch_num++ > 125)
+	  // {
+	    // rf_ch_num = 0;
+	    // switch(data_rate)
+		  // {
+		    // case NRF24L01_BR_250K:
+			    // data_rate = NRF24L01_BR_1M;
+			    // break;
+			  // case NRF24L01_BR_1M:
+			    // data_rate = NRF24L01_BR_2M;
+			    // break;
+			  // case NRF24L01_BR_2M:
+			    // data_rate = NRF24L01_BR_250K;
+			    // break;
+		  // }
+	  // }
+  // }
   set_rate_channel(data_rate, rf_ch_num);
 
 	NRF24L01_WritePayload(buf, sizeof(buf));
@@ -789,25 +789,31 @@ static uint8_t CFLIE_initialize_rx_tx_addr()
     rx_tx_addr[0] = 
     rx_tx_addr[1] = 
     rx_tx_addr[2] = 
-    rx_tx_addr[3] = 
-    rx_tx_addr[4] = 0xE7; // CFlie uses fixed address
-
+    rx_tx_addr[3] = 0xE7;
+	
+	unsigned x10 = (RX_num / 10U) % 10;
+	unsigned x1 = RX_num - x10*10;
+    
     switch (sub_protocol) {
     case CFLIE_2Mbps:
       data_rate = NRF24L01_BR_2M;
-      rf_ch_num = option;
+      rf_ch_num = option; // "RF channel" in the transmitter <0, 125>
+	  rx_tx_addr[4] = x10*16 + x1; // "Receiver" in the transmitter <0, 63>
       break;
     case CFLIE_1Mbps:
       data_rate = NRF24L01_BR_1M;
-      rf_ch_num = option;
+      rf_ch_num = option; // "RF channel" in the transmitter <0, 125>
+	  rx_tx_addr[4] = x10*16 + x1; // "Receiver" in the transmitter <0, 63>
       break;  
     case CFLIE_250kbps:
       data_rate = NRF24L01_BR_250K;
-      rf_ch_num = option;
+      rf_ch_num = option; // "RF channel" in the transmitter <0, 125>
+	  rx_tx_addr[4] = x10*16 + x1; // "Receiver" in the transmitter <0, 63>
       break;
     default:  
       data_rate = NRF24L01_BR_2M;
       rf_ch_num = 80;
+	  rx_tx_addr[4] = 0xE7; // CFlie uses fixed address
     }
     
     return CFLIE_INIT_SEARCH;

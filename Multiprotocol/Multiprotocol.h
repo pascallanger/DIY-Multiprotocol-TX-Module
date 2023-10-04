@@ -465,7 +465,7 @@ enum FX
 };
 enum CFLIE
 {
-  CFLIE_AUTO = 0,
+  CFLIE_DEFAULT = 0,
   CFLIE_2Mbps = 1,
   CFLIE_1Mbps = 2,
   CFLIE_250kbps = 3,

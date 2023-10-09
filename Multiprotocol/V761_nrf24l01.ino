@@ -30,6 +30,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define TOPRC_PACKET_PERIOD		14120 // Timeout for callback in uSec
 
 #define V761_WRITE_TIME			450
+#define V761_TELEM_PACKET_PERIOD	14088 // Timeout for callback in uSec
 //#define V761_TELEM_DEBUG
 
 enum 
@@ -72,6 +73,10 @@ static void __attribute__((unused)) V761_send_packet()
 	}
 	else
 	{ 
+		#ifdef V761_TELEM_DEBUG
+			debug_time("");
+			debugln(" Ph:%d",hopping_frequency_no);
+		#endif
 		XN297_Hopping(hopping_frequency_no++);
 		if(hopping_frequency_no >= V761_RF_NUM_CHANNELS)
 		{
@@ -228,22 +233,24 @@ uint16_t V761_callback()
 			return 15730;
 	#ifdef V761_HUB_TELEMETRY
 		case V761_RX_CHECK:
-			rx = XN297_IsRX();				// Needed for the NRF24L01 since otherwise the bit gets cleared
-			packet_count++;
-			if(packet_count > 6*21)			// About 1 sec with no telemetry
-				telemetry_lost = 1;
-			if(packet_telem++ >= 100)
-				TX_LQI = packet_telem = 0;
-			if(!telemetry_lost && !rx && (packet_count%22) == 0)
-			{// Should have received a telem packet but... Send telem to the radio to keep it alive
-				TX_LQI++;
-				RX_RSSI = 100 - TX_LQI;
-				telemetry_link = 1;
-				#ifdef V761_TELEM_DEBUG
-					debugln("Miss");
-				#endif
-			}
+			rx = XN297_IsRX();					// Needed for the NRF24L01 since otherwise the bit gets cleared
 			XN297_SetTxRxMode(TXRX_OFF);
+			if(packet_count > 4*63)				// Around 3.5sec with no telemetry
+			{
+				telemetry_lost = 1;
+				packet_period = V761_PACKET_PERIOD;
+			}
+			else
+			{
+				packet_count++;
+				if(!telemetry_lost && !rx && (packet_count%64) == 0)
+				{// Should have received a telem packet but... Send telem to the radio to keep it alive
+					telemetry_link = 1;
+					#ifdef V761_TELEM_DEBUG
+						debugln("Miss");
+					#endif
+				}
+			}
 			phase++;
 	#endif
 		case V761_DATA:
@@ -252,11 +259,8 @@ uint16_t V761_callback()
 			#endif
 			V761_send_packet();
 	#ifdef V761_HUB_TELEMETRY
-			if(hopping_frequency_no == 1)
-			{ // Start RX on RF channel 0
-				phase++;
-				return V761_WRITE_TIME;
-			}
+			if(sub_protocol == V761_TOPRC)
+				break;
 			if(rx)
 			{ // Check if a packet has been received
 				#ifdef V761_TELEM_DEBUG
@@ -268,14 +272,25 @@ uint16_t V761_callback()
 						debug("OK:");
 						for(uint8_t i=0;i<V761_RXPAYLOAD_SIZE;i++)
 							debug(" %02X",packet_in[i]);
+						debug(" pps:%d", packet_count);
 					#endif
 					// packet_in[] = AA 00 55 -> battery ok
 					// packet_in[] = 55 00 AA -> low battery
-					v_lipo1=packet_in[0] >> 1;
-					RX_RSSI = 100 - TX_LQI;
-					telemetry_link = 1;
-					telemetry_lost = 0;
-					packet_count = 0;
+					crc8 = 0;
+					for(uint8_t i=0;i<V761_RXPAYLOAD_SIZE;i++)
+						crc8 ^= packet_in[i];
+					if(crc8 == 0xFF)
+					{
+						v_lipo1 = packet_in[0] >> 1;
+						telemetry_link = 1;
+						telemetry_lost = 0;
+						packet_count = 0;
+						packet_period = V761_TELEM_PACKET_PERIOD;
+					}
+					#ifdef V761_TELEM_DEBUG
+					else // Bad packet
+						debug(" NOK");
+					#endif
 				}
 				#ifdef V761_TELEM_DEBUG
 				else // Bad packet
@@ -284,23 +299,17 @@ uint16_t V761_callback()
 				#endif
 				rx = false;
 			}
-			break;
+			phase++;
+			return V761_WRITE_TIME;
 		case V761_RX:
 			{ // Wait for packet to be sent before switching to receive mode
 				uint16_t start=(uint16_t)micros();
 				while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 500)
-				{
 					if(XN297_IsPacketSent())
 						break;
-				}
 			}
 			XN297_SetTxRxMode(RX_EN);
 			phase = V761_RX_CHECK;
-			if(!telemetry_lost && packet_count%20==0)
-			{ // Telemetry packets are sent every 21 packets but with a huge jitter from 4ms to 10+ms
-				hopping_frequency_no++;			//don't send next packet to ensure we have enough time to receive the telemetry
-				return 2 * packet_period - V761_WRITE_TIME;
-			}
 			return packet_period - V761_WRITE_TIME;
 	#else
 			break;
@@ -343,6 +352,7 @@ void V761_init(void)
 	#ifdef V761_HUB_TELEMETRY
 		packet_count = 0;
 		telemetry_lost = 1;
+		RX_RSSI = 100;		// Dummy value
 	#endif
 }
 

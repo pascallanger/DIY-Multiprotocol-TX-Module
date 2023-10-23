@@ -135,10 +135,14 @@ local function Config_Draw_Edit( event )
         Edit = 0
       elseif event == EVT_VIRTUAL_PREV then
       -- Change value
-        Menu_value[Edit_pos] = Menu_value[Edit_pos] - 1
+        if Menu_value[Edit_pos] > 0 then
+          Menu_value[Edit_pos] = Menu_value[Edit_pos] - 1
+        end
       elseif event == EVT_VIRTUAL_NEXT then
       -- Change value
-        Menu_value[Edit_pos] = Menu_value[Edit_pos] + 1
+        if Menu_value[Edit_pos] < 255 then
+          Menu_value[Edit_pos] = Menu_value[Edit_pos] + 1
+        end
       end
       --Blink
       Blink = Blink + 1
@@ -319,9 +323,6 @@ local function Config_Draw_Menu()
       --Read line from buffer
       for i = 0, 20-1, 1 do
         value=multiBuffer( line*20+13+i )
-        if value == 0 then
-          break   -- end of line
-        end
         if value > 0x80 and Menu[line].field_type == 0 then
         -- Read field type
           Menu[line].field_type = bitand(value, 0xF0)
@@ -334,6 +335,9 @@ local function Config_Draw_Menu()
         else
           if Menu[line].field_type == 0 then
           -- Text
+          if value == 0 then
+            break   -- end of line
+          end
             Menu[line].text = Menu[line].text .. string.char(value)
           else
           -- Menu specific fields

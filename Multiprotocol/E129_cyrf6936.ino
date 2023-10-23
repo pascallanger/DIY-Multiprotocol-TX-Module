@@ -54,8 +54,9 @@ static void __attribute__((unused)) E129_build_data_packet()
 			packet[16] = bit_reverse(rx_tx_addr[1]);
 		}
 		//packet[ 3] = 0x00;							// E129 Mode: short press=0x20->0x00->0x20->..., long press=0x10->0x30->0x10->... => C186 throttle trim is doing the same:up=short press and down=long press
-		packet[ 4] = GET_FLAG(CH5_SW, 0x20)				// Take off/Land 0x20
-				   | GET_FLAG(CH6_SW, 0x04);			// Emergency stop 0x04
+		packet[ 3] = GET_FLAG(CH10_SW, 0x40);			// C159 loop flight 0x40, flag 0x04 is also set on this heli
+		packet[ 4] = GET_FLAG(CH5_SW,  0x20)			// Take off/Land 0x20
+				   | GET_FLAG(CH6_SW,  0x04);			// Emergency stop 0x04
 		//Channels and trims
 		uint16_t val = convert_channel_10b(AILERON,false);
 		uint8_t trim = convert_channel_8b(CH7) & 0xFC;
@@ -80,13 +81,11 @@ static void __attribute__((unused)) E129_build_data_packet()
 		packet[12] = val;								// channel (0x000...0x200...0x3FF)
 	}
 	//Check
-	if(sub_protocol == E129_E129)
-		packet[packet_length-2] = packet[0] + packet[1];
-	else
-		packet[packet_length-2] = 0x24 + packet[0] + (packet[1]&0x03);	// ??
-	for(uint8_t i=2;i<packet_length-2;i++)
+	for(uint8_t i=0;i<packet_length-2;i++)
 		packet[packet_length-2] += packet[i];
-		
+	if(sub_protocol == E129_C186)
+		packet[packet_length-2] -= 0x80;
+
 	RF2500_BuildPayload(packet);
 }
 

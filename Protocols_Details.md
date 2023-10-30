@@ -620,11 +620,13 @@ Models: C186/E120, C127/E110, K127, C159, C189
 
 The FC of the heli seems to store the trims Trim A/E/R=CH7..9. If you use these trims, make sure to center them after powering off the heli or they will be added to the previous trims and over correct.
 
-CH10|
----|
-Loop|
+CH10|CH11
+---|---
+Loop|Flip
 
 Loop: circular flight on the C159 (others?)
+
+Flip: flip/aerobatic on the C129v2 (others?)
 
 ## J6Pro - *22*
 

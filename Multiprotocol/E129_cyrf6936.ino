@@ -53,8 +53,9 @@ static void __attribute__((unused)) E129_build_data_packet()
 			packet[15] = bit_reverse(rx_tx_addr[0]);
 			packet[16] = bit_reverse(rx_tx_addr[1]);
 		}
-		//packet[ 3] = 0x00;							// E129 Mode: short press=0x20->0x00->0x20->..., long press=0x10->0x30->0x10->... => C186 throttle trim is doing the same:up=short press and down=long press
-		packet[ 3] = GET_FLAG(CH10_SW, 0x40);			// C159 loop flight 0x40, flag 0x04 is also set on this heli
+		packet[ 3] = GET_FLAG(CH10_SW, 0x40)			// C159 loop flight 0x40, flag 0x04 is also set on this heli
+				   | GET_FLAG(CH11_SW, 0x08);			// C129V2 flip
+														// Other flags in packet[3] => E129 Mode: short press=0x20->0x00->0x20->..., long press=0x10->0x30->0x10->... => C186 throttle trim is doing the same:up=short press and down=long press
 		packet[ 4] = GET_FLAG(CH5_SW,  0x20)			// Take off/Land 0x20
 				   | GET_FLAG(CH6_SW,  0x04);			// Emergency stop 0x04
 		//Channels and trims

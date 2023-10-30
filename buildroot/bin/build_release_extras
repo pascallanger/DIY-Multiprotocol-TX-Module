@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+source ./buildroot/bin/buildFunctions;
+exitcode=0;
+
+printf "\e[33;1mPackaging ancilliary files for v$MULTI_VERSION\e[0m\n";
+cp Multiprotocol/Multi.txt ./binaries/Multi.txt;
+
+mkdir -p SCRIPTS/TOOLS;
+cp -r Lua_scripts/* SCRIPTS/TOOLS/;
+find SCRIPTS/TOOLS -type f -name "*.md" -delete
+
+zip -q -r ./binaries/MultiLuaScripts.zip SCRIPTS/TOOLS/*;
+
+exit $exitcode;

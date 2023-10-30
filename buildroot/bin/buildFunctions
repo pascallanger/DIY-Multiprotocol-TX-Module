@@ -86,6 +86,7 @@ buildEachRFModule() {
 buildReleaseFiles(){
     if [[ "$BOARD" =~ ":avr:multixmega32d4" ]]; then
         build_release_orx;
+        build_release_extras;
     elif [[ "$BOARD" =~ ":avr:multiatmega328p:bootloader=none" ]]; then
         build_release_avr_noboot;
     elif [[ "$BOARD" =~ ":avr:multiatmega328p:bootloader=optiboot" ]]; then

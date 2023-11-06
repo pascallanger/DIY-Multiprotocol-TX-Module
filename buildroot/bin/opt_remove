@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+SED=$(which gsed || which sed)
+
+eval "${SED} -i '/#define \b${1}/d' Multiprotocol/_Config.h"

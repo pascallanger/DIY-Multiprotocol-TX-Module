@@ -325,7 +325,9 @@ CH1|CH2|CH3|CH4
 ## Kyosho - *73*
 
 ### Sub_protocol FHSS - *0*
-Surface protocol called FHSS introduced in 2017. Transmitters: KT-531P, KT-431PT...
+Surface protocol called FHSS introduced in 2017. Transmitter: KT-531P. Models: Mini-Z
+
+Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----

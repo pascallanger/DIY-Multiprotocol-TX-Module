@@ -255,6 +255,7 @@
 #define	ZSX_NRF24L01_INO
 
 //The protocols below need either a CC2500 or NRF24L01 to be installed
+#define	BLUEFLY_CCNRF_INO
 #define	GD00X_CCNRF_INO
 #define	KF606_CCNRF_INO
 #define	MJXQ_CCNRF_INO
@@ -566,6 +567,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		DHD_D4
 		QX100
 	PROTO_BAYANG_RX
+		NONE
+	PROTO_BLUEFLY
 		NONE
 	PROTO_BUGS
 		NONE

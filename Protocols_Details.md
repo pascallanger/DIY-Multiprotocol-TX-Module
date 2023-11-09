@@ -65,6 +65,7 @@ Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Su
 [Assan](Protocols_Details.md#ASSAN---24)|24|||||||||NRF24L01|
 [Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4|QX100|||NRF24L01|XN297
 [Bayang RX](Protocols_Details.md#BAYANG-RX---59)|59|Multi|CPPM|||||||NRF24L01|XN297
+[BlueFly](Protocols_Details.md#BLUEFLY---95)|95|||||||||NRF24L01|
 [Bugs](Protocols_Details.md#BUGS---41)|41|||||||||A7105|
 [BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI|BUGS3H|||||||NRF24L01|XN297
 [Cabell](Protocols_Details.md#Cabell---34)|34|Cabell_V3|C_TELEM|-|-|-|-|F_SAFE|UNBIND|NRF24L01|
@@ -1033,6 +1034,17 @@ A|E|T|R|CH5|CH6|CH7
 If a CC2500 is installed it will be used for all the below protocols. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
 If only a NRF24L01 is installed then these protocols might be problematic because they are using the XN297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+## BLUEFLY - *95*
+Model: HP100
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+TRIM: either use this channel for trim only or add a mixer with aileron to increase the roll rate.
+
+RATE: -100% high rate, +100% low rate
 
 ## GD00X - *47*
 Model: GD005 C-17 Transport, GD006 DA62 and ZC-Z50

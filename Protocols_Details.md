@@ -1402,7 +1402,7 @@ If a CC2500 is installed it will be used for this sub protocol. Option in this c
 If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
 ### Sub_protocol X420 - *1*
-Models: XK X420/X520 (TX=X4)
+Models: XK X420/X520 (TX=X4), WLtoys 284131/284161/284010 
 
 ***
 # NRF24L01 RF Module
@@ -1952,7 +1952,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
 
 ### Sub_protocol V2x2 - *0*
-Models: WLToys V202/252/272, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...
+Models: WLToys V202/252/272/A959/K969/K979/K989/K999, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...
 
 PICTURE: also automatic Missile Launcher and Hoist in one direction
 

@@ -60,7 +60,7 @@ The OpenTX sensor "RSSI" is populated by the individual OpenTX telemetry protoco
 
 ## DSM Tools for EdgeTX and OpenTx
 
-collection of EdgeTx/OpenTX Tools to use with Spektrum Receivers. Located on the radio SD card under \SCRIPTS\TOOLS, make sure to copy the DSMLIB folder!
+Collection of EdgeTx/OpenTX Tools to use with Spektrum Receivers including forward programming. Located on the radio SD card under \SCRIPTS\TOOLS, make sure to copy the DSMLIB folder!
 
 Frank is maintaining these awesome tools, check out his [repository](https://github.com/frankiearzu/DSMTools). Feel free to ask questions or open issues there.
 

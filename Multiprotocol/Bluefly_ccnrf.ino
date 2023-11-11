@@ -18,7 +18,7 @@
 
 #include "iface_nrf250k.h"
 
-#define BLUEFLY_PACKET_PERIOD		7000
+#define BLUEFLY_PACKET_PERIOD		6000
 #define BLUEFLY_PACKET_SIZE			12
 #define BLUEFLY_RF_BIND_CHANNEL		81
 #define BLUEFLY_NUM_RF_CHANNELS		15
@@ -49,6 +49,7 @@ static void __attribute__((unused)) BLUEFLY_send_packet()
 			ch >>= 2;
 			packet[8 + (i>3?0:1)] = (packet[8 + (i>3?0:1)] >> 2) | ch;
 		}
+		// Checksum
 		uint8_t l, h, t;
 		l = h = 0xff;
 		for (uint8_t i=0; i<10; ++i)
@@ -63,7 +64,6 @@ static void __attribute__((unused)) BLUEFLY_send_packet()
 			h ^= t & 0xf0;
 			l ^= ((t<<1) | (t>>7)) & 0xe0;
 		}
-		// Checksum
 		packet[10] = h; 
 		packet[11] = l;
 	}
@@ -76,9 +76,9 @@ static void __attribute__((unused)) BLUEFLY_send_packet()
 static void __attribute__((unused)) BLUEFLY_RF_init()
 {
 	NRF250K_Init();
-	NRF250K_SetTXAddr((uint8_t *)"\x32\xAA\x45\x45\x78", 5);	// BLUEFLY Bind address
-	NRF250K_HoppingCalib(BLUEFLY_NUM_RF_CHANNELS);				// Calibrate all channels
-	NRF250K_RFChannel(BLUEFLY_RF_BIND_CHANNEL);					// Set bind channel
+	NRF250K_SetTXAddr((uint8_t *)"\x32\xAA\x45\x45\x78", BLUEFLY_TXID_SIZE);	// BLUEFLY Bind address
+	NRF250K_HoppingCalib(BLUEFLY_NUM_RF_CHANNELS);								// Calibrate all channels
+	NRF250K_RFChannel(BLUEFLY_RF_BIND_CHANNEL);									// Set bind channel
 }
 
 static void __attribute__((unused)) BLUEFLY_initialize_txid()
@@ -100,7 +100,7 @@ uint16_t BLUEFLY_callback()
 		if (bind_counter == 0)
 		{
 			BIND_DONE;
-			NRF250K_SetTXAddr(rx_tx_addr, 5);
+			NRF250K_SetTXAddr(rx_tx_addr, BLUEFLY_TXID_SIZE);
 		}
 	}
 	BLUEFLY_send_packet();

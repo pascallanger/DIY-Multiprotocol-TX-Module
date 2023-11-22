@@ -34,12 +34,12 @@ const uint8_t LOSI_data_code[][16] = {
 
 static uint16_t __attribute__((unused)) LOSI_check(uint16_t val)
 {
-	uint8_t tab[] = { 0xF1, 0xDA, 0xB6, 0xC8 };
+	const uint8_t PROGMEM tab[] = { 0xF1, 0xDA, 0xB6, 0xC8 };
 	uint8_t res = 0x0B, tmp;
 	uint16_t calc = val>>2; 									// don't care about the 2 first bits
 	for(uint8_t i=0; i<5; i++)
 	{
-		tmp=tab[i&0x03];
+		tmp=pgm_read_byte_near(&tab[i&0x03]);
 		if(calc&0x0001)
 			res ^= tmp>>4;
 		calc >>= 1;

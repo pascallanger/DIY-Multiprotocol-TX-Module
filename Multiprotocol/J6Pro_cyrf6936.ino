@@ -36,7 +36,7 @@ enum PktState {
 };
 
 const uint8_t PROGMEM j6pro_bind_sop_code[] = {0x62, 0xdf, 0xc1, 0x49, 0xdf, 0xb1, 0xc0, 0x49};
-//const uint8_t j6pro_data_code[] = {0x02, 0xf9, 0x93, 0x97, 0x02, 0xfa, 0x5c, 0xe3, 0x01, 0x2b, 0xf1, 0xdb, 0x01, 0x32, 0xbe, 0x6f}; // unneeded since this is the default table after a reset
+const uint8_t j6pro_data_code[] = {0x02, 0xf9, 0x93, 0x97, 0x02, 0xfa, 0x5c, 0xe3, 0x01, 0x2b, 0xf1, 0xdb, 0x01, 0x32, 0xbe, 0x6f}; // unneeded since this is the default table after a reset
 
 static void __attribute__((unused)) j6pro_build_bind_packet()
 {
@@ -84,7 +84,9 @@ static void __attribute__((unused)) j6pro_cyrf_init()
     CYRF_WriteRegister(CYRF_10_FRAMING_CFG, 0xee);
     CYRF_WriteRegister(CYRF_1F_TX_OVERRIDE, 0x00);
     CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE, 0x00);
-    //CYRF_ConfigDataCode(j6pro_data_code, 16);
+    
+	//Same as default reset but issues if not configured...
+	CYRF_ConfigDataCode(j6pro_data_code, 16);
     CYRF_WritePreamble(0x333302);
 
     CYRF_GetMfgData(cyrfmfg_id);

@@ -3,7 +3,7 @@
 source ./buildroot/bin/buildFunctions;
 exitcode=0;
 
-# CC2500-only 64Kb builds
+# CC2500-only 64Kb FCC builds
 printf "\e[33;1mBuilding mm-stm-cc2500-64-aetr-v$MULTI_VERSION.bin\e[0m\n";
 opt_enable $ALL_PROTOCOLS;
 opt_disable IKEAANSLUTA_CC2500_INO;
@@ -27,5 +27,25 @@ opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
 mv build/Multiprotocol.ino.bin ./binaries/mm-stm-cc2500-64-reta-v$MULTI_VERSION.bin;
+
+# CC2500-only 64Kb LBT/EU builds
+printf "\e[33;1mBuilding mm-stm-cc2500-64-aetr-lbt-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace RETA AETR;
+opt_add MULTI_EU;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-cc2500-64-aetr-lbt-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-cc2500-64-taer-lbt-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-cc2500-64-taer-lbt-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-cc2500-64-reta-lbt-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-cc2500-64-reta-lbt-v$MULTI_VERSION.bin;
 
 exit $exitcode;

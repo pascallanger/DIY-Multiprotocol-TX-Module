@@ -58,15 +58,11 @@ This is the Graupner HoTT adapted version of the Model Locator script using RSSI
 
 The OpenTX sensor "RSSI" is populated by the individual OpenTX telemetry protocol implementations and returns a value from 0..100 (percent) originating from the early FrSky implementation. It turns out that FrSky did not really provide a genuine signal strength indicator in units of dbm but a link quality indicator in 0..100%. With Graupner HoTT the link quality indicator is not a good basis for the model locator as it is very non-linear and doesn't change much with distance. Using the Graupner HoTT telemetry sensor "Rssi" which is a true signal strength indicator serves the purpose of locating a model much better as it varies much more with distance.
 
-## DSM Forward Programming
+## DSM Tools for EdgeTX and OpenTx
 
-This is a work in progress. It's available for color(+touch) and B&W screens.
+Collection of EdgeTx/OpenTX Tools to use with Spektrum Receivers including forward programming. Located on the radio SD card under \SCRIPTS\TOOLS, make sure to copy the DSMLIB folder!
 
-Work on OpenTX and EdgeTX. Located on the radio SD card under \SCRIPTS\TOOLS, make sure to copy the DSMLIB folder along with DSM FwdPrg_05_Color.lua or DSM FwdPrg_05_BW.lua.
-
-[![DSM Forward Programming](https://img.youtube.com/vi/sjIaDw5j9nE/0.jpg)](https://www.youtube.com/watch?v=sjIaDw5j9nE)
-
-If some text appears as Unknown_xxx, please report xxx and what the exact text display should be.
+Frank is maintaining these awesome tools, check out his [repository](https://github.com/frankiearzu/DSMTools). Feel free to ask questions or open issues there.
 
 ## DSM PID Flight log gain parameters for Blade micros
 

@@ -106,6 +106,7 @@ const char STR_LOSI[]       ="Losi";
 const char STR_MOULDKG[]    ="MouldKg";
 const char STR_XERALL[]     ="Xerall";
 const char STR_SCORPIO[]    ="Scorpio";
+const char STR_BLUEFLY[]    ="BlueFly";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -221,6 +222,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(BAYANG_RX_NRF24L01_INO)
 		{PROTO_BAYANG_RX,  STR_BAYANG_RX, STR_CPPM,       NBR_CPPM, OPTION_NONE,    0, 0, SW_NRF,    BAYANG_RX_init,  BAYANG_RX_callback  },	
+	#endif
+	#if defined(BLUEFLY_CCNRF_INO)
+		{PROTO_BLUEFLY,    STR_BLUEFLY,   NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    BLUEFLY_init,    BLUEFLY_callback    },
 	#endif
 	#if defined(BUGS_A7105_INO)
 		{PROTO_BUGS,       STR_BUGS,      NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_A7105,  BUGS_init,       BUGS_callback       },

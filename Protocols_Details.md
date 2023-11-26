@@ -65,6 +65,7 @@ Protocol Name|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Su
 [Assan](Protocols_Details.md#ASSAN---24)|24|||||||||NRF24L01|
 [Bayang](Protocols_Details.md#BAYANG---14)|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4|QX100|||NRF24L01|XN297
 [Bayang RX](Protocols_Details.md#BAYANG-RX---59)|59|Multi|CPPM|||||||NRF24L01|XN297
+[BlueFly](Protocols_Details.md#BLUEFLY---95)|95|||||||||NRF24L01|
 [Bugs](Protocols_Details.md#BUGS---41)|41|||||||||A7105|
 [BugsMini](Protocols_Details.md#BUGSMINI---42)|42|BUGSMINI|BUGS3H|||||||NRF24L01|XN297
 [Cabell](Protocols_Details.md#Cabell---34)|34|Cabell_V3|C_TELEM|-|-|-|-|F_SAFE|UNBIND|NRF24L01|
@@ -325,7 +326,9 @@ CH1|CH2|CH3|CH4
 ## Kyosho - *73*
 
 ### Sub_protocol FHSS - *0*
-Surface protocol called FHSS introduced in 2017. Transmitters: KT-531P, KT-431PT...
+Surface protocol called FHSS introduced in 2017. Transmitter: KT-531P. Models: Mini-Z
+
+Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
 ---|---|---|---|---|---|---|---|---|----|----|----|----|----
@@ -616,15 +619,17 @@ Calib is the same as the original radio with both sticks down and to the left in
 Models: Eachine E129/E130 and Twister Ninja 250
 
 ### Sub_protocol C186 - *1*
-Models: C186/E120, C127/E110, K127, C159, C189
+Models: C186/E120, C127/E110, K127, C159, C189, C129v2
 
 The FC of the heli seems to store the trims Trim A/E/R=CH7..9. If you use these trims, make sure to center them after powering off the heli or they will be added to the previous trims and over correct.
 
-CH10|
----|
-Loop|
+CH10|CH11
+---|---
+Loop|Flip
 
 Loop: circular flight on the C159 (others?)
+
+Flip: flip/aerobatic on the C129v2 (others?)
 
 ## J6Pro - *22*
 
@@ -1030,6 +1035,17 @@ If a CC2500 is installed it will be used for all the below protocols. Option in 
 
 If only a NRF24L01 is installed then these protocols might be problematic because they are using the XN297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
+## BLUEFLY - *95*
+Model: HP100
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+TRIM: either use this channel for trim only or add a mixer with aileron to increase the roll rate.
+
+RATE: -100% high rate, +100% low rate
+
 ## GD00X - *47*
 Model: GD005 C-17 Transport, GD006 DA62 and ZC-Z50
 
@@ -1398,7 +1414,7 @@ If a CC2500 is installed it will be used for this sub protocol. Option in this c
 If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
 ### Sub_protocol X420 - *1*
-Models: XK X420/X520 (TX=X4)
+Models: XK X420/X520 (TX=X4), WLtoys 284131/284161/284010 
 
 ***
 # NRF24L01 RF Module
@@ -1948,7 +1964,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS|MAG_CAL_X|MAG_CAL_Y
 
 ### Sub_protocol V2x2 - *0*
-Models: WLToys V202/252/272, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...
+Models: WLToys V202/252/272/A959/K969/K979/K989/K999, JXD 385/388, JJRC H6C, Yizhan Tarantula X6 ...
 
 PICTURE: also automatic Missile Launcher and Hoist in one direction
 

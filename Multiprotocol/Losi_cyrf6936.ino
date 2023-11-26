@@ -19,7 +19,7 @@
 
 #define LOSI_FORCE_ID
 
-const uint8_t PROGMEM LOSI_bind_sop_code[] = {0x62, 0xdf, 0xc1, 0x49, 0xdf, 0xb1, 0xc0, 0x49};
+//const uint8_t PROGMEM LOSI_bind_sop_code[] = {0x62, 0xdf, 0xc1, 0x49, 0xdf, 0xb1, 0xc0, 0x49};
 const uint8_t LOSI_data_code[][16] = {
 	{ 0xD7, 0xA1, 0x54, 0xB1, 0x5E, 0x89, 0xAE, 0x86, 0xC9, 0x2C, 0x06, 0x93, 0x86, 0xB9, 0x9E, 0xD7 }, //bind
 /*	{ 0xE1, 0xD6, 0x31, 0x26, 0x5F, 0xBD, 0x40, 0x93, 0xDC, 0x68, 0x08, 0x99, 0x97, 0xAE, 0xAF, 0x8C },
@@ -94,17 +94,17 @@ static void __attribute__((unused)) LOSI_cyrf_init()
 	CYRF_WritePreamble(0x333304);
 	//CYRF_WriteRegister(CYRF_27_CLK_OVERRIDE, 0x00);
 	CYRF_WriteRegister(CYRF_10_FRAMING_CFG, 0x4A);
-	CYRF_WriteRegister(CYRF_1F_TX_OVERRIDE, 0x04);				// No CRC
+	CYRF_WriteRegister(CYRF_1F_TX_OVERRIDE, 0x04);			// No CRC
 	//CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE, 0x14);
 	//CYRF_WriteRegister(CYRF_14_EOP_CTRL, 0x02);
+	CYRF_ConfigDataCode(LOSI_data_code[0], 16);				// Load bind data code
 }
 
 uint16_t LOSI_callback()
 {
 	#ifdef MULTI_SYNC
-		telemetry_set_input_sync(19738);
+		telemetry_set_input_sync(packet_period);
 	#endif
-	LOSI_send_packet();
 	if(bind_counter)
 	{
 		bind_counter--;
@@ -112,17 +112,16 @@ uint16_t LOSI_callback()
 		{
 			BIND_DONE;
 			CYRF_ConfigDataCode(LOSI_data_code[1], 16);			// Load normal data code
+			packet_period = 19738;
 		}
-		return 8763;
 	}
-	return 19738;
+	LOSI_send_packet();
+	return packet_period;
 }
 
 void LOSI_init()
 {
 	LOSI_cyrf_init();
-	//CYRF_FindBestChannels(hopping_frequency, 1, 0, 0x13, 75);	// 75 is unknown since dump stops at 0x27, this routine resets the CRC Seed to 0
-	//CYRF_ConfigRFChannel(hopping_frequency[0] | 1);				// Only odd channels
 
 	#ifdef LOSI_FORCE_ID
 		rx_tx_addr[0] = 0x47;
@@ -132,16 +131,11 @@ void LOSI_init()
 		CYRF_ConfigRFChannel(0x27);
 	#endif
 
-	if(IS_BIND_IN_PROGRESS)
-	{
-		bind_counter = 300;
-		CYRF_ConfigDataCode(LOSI_data_code[0], 16);				// Load bind data code
-	}
-	else
-	{
-		CYRF_ConfigDataCode(LOSI_data_code[1], 16);				// Load normal data code
-		bind_counter = 0;
-	}
+	CYRF_FindBestChannels(hopping_frequency, 1, 0, 0x13, 75);	// 75 is unknown since dump stops at 0x27, this routine resets the CRC Seed to 0
+	CYRF_ConfigRFChannel(hopping_frequency[0]);					// Only odd channels integrated in CYRF code...
+
+	bind_counter = IS_BIND_IN_PROGRESS?300:1;
+	packet_period = 8763;
 }
 
 #endif

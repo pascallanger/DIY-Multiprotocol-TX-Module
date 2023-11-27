@@ -54,7 +54,7 @@ static void __attribute__((unused)) LOSI_send_packet()
 	if(IS_BIND_IN_PROGRESS)
 	{
 		memcpy(&packet[4], rx_tx_addr, 4);
-		crc = 0x170;
+		crc = 0x0170;
 		for(uint8_t i=0; i < 8; i++)
 			crc += packet[i];
 		packet[8] = crc >> 8;
@@ -98,7 +98,7 @@ static void __attribute__((unused)) LOSI_cyrf_init()
 	CYRF_WriteRegister(CYRF_1F_TX_OVERRIDE, 0x04);			// No CRC
 	//CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE, 0x14);
 	//CYRF_WriteRegister(CYRF_14_EOP_CTRL, 0x02);
-	CYRF_ConfigDataCode(LOSI_bind_data_code[0], 16);		// Load bind data code by default
+	CYRF_ConfigDataCode(LOSI_bind_data_code, 16);			// Load bind data code by default
 }
 
 uint16_t LOSI_callback()
@@ -124,7 +124,8 @@ void LOSI_init()
 {
 	LOSI_cyrf_init();
 
-	CYRF_FindBestChannels(hopping_frequency, 1, 0, 0x07, 0x4F);	// 75 is unknown since dump stops at 0x27, this routine resets the CRC Seed to 0
+	CYRF_FindBestChannels(hopping_frequency, 1, 0, 0x07, 0x4F);	// 0x07 and 0x4F are unknown limits, this routine resets the CRC Seed to 0
+	hopping_frequency[0] |= 1;									// Only odd channels are used, integrated in CYRF code...
 
 	#ifdef LOSI_FORCE_ID
 	/*	rx_tx_addr[0] = 0x47;
@@ -154,8 +155,7 @@ void LOSI_init()
 		*/
 	#endif
 
-	CYRF_ConfigRFChannel(hopping_frequency[0]);				// Only odd channels are used, integrated in CYRF code...
-
+	CYRF_ConfigRFChannel(hopping_frequency[0]);
 	bind_counter = IS_BIND_IN_PROGRESS?300:1;
 	packet_period = 8763;
 }

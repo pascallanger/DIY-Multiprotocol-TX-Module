@@ -17,7 +17,7 @@
 
 #include "iface_cyrf6936.h"
 
-#define LOSI_FORCE_ID
+//#define LOSI_FORCE_ID
 
 const uint8_t LOSI_data_code[][8] = {
 	//(Freq-1)%5=0
@@ -152,7 +152,7 @@ uint16_t LOSI_callback()
 		{
 			BIND_DONE;
 			// Load normal data code
-			CYRF_ConfigDataCode(LOSI_data_code[(((hopping_frequency[0] - 1) % 5) << 3) + num_ch], 16);
+			CYRF_ConfigDataCode(LOSI_data_code[(((hopping_frequency[0] - 1) % 5) << 3) + ((rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2]) % 8)], 16);
 			packet_period = 19738;
 		}
 	}
@@ -166,6 +166,14 @@ void LOSI_init()
 
 	CYRF_FindBestChannels(hopping_frequency, 1, 0, 0x07, 0x4F);	// 0x07 and 0x4F are unknown limits, this routine resets the CRC Seed to 0
 	hopping_frequency[0] |= 1;									// Only odd channels are used, integrated in CYRF code...
+
+	rx_tx_addr[0] = 0x56;
+	rx_tx_addr[1] = 0x52;
+	rx_tx_addr[2] = 0x23;
+	rx_tx_addr[3] = 0x8A;
+
+	crc8 = 0;
+	crc8 = (uint16_t)LOSI_check(((rx_tx_addr[2]&0x0F) << 8) + rx_tx_addr[3]) >> 12;
 
 	#ifdef LOSI_FORCE_ID
 		/*	
@@ -196,6 +204,8 @@ void LOSI_init()
 		//{ 0xC3, 0x0E, 0x01, 0x16, 0x0E, 0x32, 0x06, 0xBA, 0xE0, 0x83, 0x01, 0xFA, 0xAB, 0x3E, 0x8F, 0xAC }
 		
 		// Note: crc8=00..0F and num_ch=00..07
+		// num_ch = ((rx_tx_addr[0] + rx_tx_addr[1] + rx_tx_addr[2]) % 8);
+		// crc8 = (uint16_t)LOSI_check(((rx_tx_addr[2]&0x0F) << 8) + rx_tx_addr[3]) >> 12;
 	#endif
 
 	CYRF_ConfigRFChannel(hopping_frequency[0]);

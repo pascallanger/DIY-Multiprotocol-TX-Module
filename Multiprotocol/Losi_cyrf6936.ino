@@ -167,11 +167,6 @@ void LOSI_init()
 	CYRF_FindBestChannels(hopping_frequency, 1, 0, 0x07, 0x4F);	// 0x07 and 0x4F are unknown limits, this routine resets the CRC Seed to 0
 	hopping_frequency[0] |= 1;									// Only odd channels are used, integrated in CYRF code...
 
-	rx_tx_addr[0] = 0x56;
-	rx_tx_addr[1] = 0x52;
-	rx_tx_addr[2] = 0x23;
-	rx_tx_addr[3] = 0x8A;
-
 	crc8 = 0;
 	crc8 = (uint16_t)LOSI_check(((rx_tx_addr[2]&0x0F) << 8) + rx_tx_addr[3]) >> 12;
 

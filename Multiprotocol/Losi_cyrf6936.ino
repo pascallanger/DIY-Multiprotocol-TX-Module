@@ -137,7 +137,7 @@ static void __attribute__((unused)) LOSI_cyrf_init()
 	CYRF_WriteRegister(CYRF_1F_TX_OVERRIDE, 0x04);			// No CRC
 	//CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE, 0x14);
 	//CYRF_WriteRegister(CYRF_14_EOP_CTRL, 0x02);
-	CYRF_ConfigDataCode(&LOSI_data_code[40], 16);			// Load bind data code by default
+	CYRF_ConfigDataCode(LOSI_data_code[40], 16);			// Load bind data code by default
 }
 
 uint16_t LOSI_callback()

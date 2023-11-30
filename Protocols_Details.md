@@ -365,7 +365,7 @@ TX: Axial AX-4 2.4GHz transmitter, HPI TF-41 and Panda Hobby 3CH Smart Radio 2.4
 
 Models: Axial SCX24: Deadbolt, Jeep Wranger Rubicon, Chevrolet 1967 C10, B-17 Betty, HPI RF-50 and Panda Hobby: Tetra K1, X1, X2
 
-**Only 2 frequency hopping tables**
+**Only 4 frequency hopping tables**
 
 Extended limits supported
 

@@ -86,7 +86,7 @@ static void __attribute__((unused)) j6pro_cyrf_init()
     CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE, 0x00);
     
 	//Same as default reset but issues if not configured...
-	CYRF_ConfigDataCode(j6pro_data_code, 16);
+	CYRF_ConfigDataCode(j6pro_data_code);
     CYRF_WritePreamble(0x333302);
 
     CYRF_GetMfgData(cyrfmfg_id);

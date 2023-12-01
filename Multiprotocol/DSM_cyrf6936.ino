@@ -118,8 +118,8 @@ static void __attribute__((unused)) DSM_initialize_bind_phase()
 	CYRF_ConfigRFChannel(DSM_BIND_CHANNEL); //This seems to be random?
 	//64 SDR Mode is configured so only the 8 first values are needed but need to write 16 values...
 	uint8_t code[16];
-	DSM_read_code(code,0,8,8);
-	CYRF_ConfigDataCode(code, 16);
+	DSM_read_code(code,0,8);
+	CYRF_ConfigDataCode(code);
 	DSM_build_bind_packet();
 }
 
@@ -292,8 +292,8 @@ uint16_t DSM_callback()
 			return 10000;
 	#if defined DSM_TELEMETRY
 		case DSM_BIND_CHECK:
-			//64 SDR Mode is configured so only the 8 first values are needed but we need to write 16 values...
-			CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84", 16);
+			//64 SDR Mode is configured so only the 8 first values are needed
+			CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84");
 			CYRF_SetTxRxMode(RX_EN);							//Receive mode
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);			//Prepare to receive
 			bind_counter=2*DSM_BIND_COUNT;						//Timeout of 4.2s if no packet received

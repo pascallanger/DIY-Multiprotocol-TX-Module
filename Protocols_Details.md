@@ -640,8 +640,6 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ## Losi - *89*
 TX: LSR-3000
 
-**Only 1 ID available**. More IDs can be added if you dump your original TX.
-
 Extended limits supported
 
 CH1|CH2|CH3

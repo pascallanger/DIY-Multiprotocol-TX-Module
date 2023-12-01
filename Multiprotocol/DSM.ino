@@ -65,7 +65,7 @@ const uint8_t PROGMEM DSM_pncodes[5][9][8] = {
 	},
 };
 
-static void __attribute__((unused)) DSM_read_code(uint8_t *buf, uint8_t row, uint8_t col, uint8_t len)
+static void __attribute__((unused)) DSM_read_code(uint8_t *buf, uint8_t row, uint8_t col)
 {
 	for(uint8_t i=0;i<len;i++)
 		buf[i]=pgm_read_byte_near( &DSM_pncodes[row][col][i] );
@@ -137,11 +137,11 @@ static void __attribute__((unused)) DSM_set_sop_data_crc(bool ch2, bool dsmx)
 		debug_time();
 		debug(" crc:%04X,row:%d,col:%d,rf:%02X",(~seed)&0xffff,pn_row,sop_col,hopping_frequency[hopping_frequency_no]);
 	#endif
-	DSM_read_code(code,pn_row,sop_col,8);					// pn_row between 0 and 4, sop_col between 1 and 7
+	DSM_read_code(code,pn_row,sop_col);						// pn_row between 0 and 4, sop_col between 1 and 7
 	CYRF_ConfigSOPCode(code);
-	DSM_read_code(code,pn_row,7 - sop_col,8);				// 7-sop_col between 0 and 6
-	DSM_read_code(code+8,pn_row,7 - sop_col + 1,8);			// 7-sop_col+1 between 1 and 7
-	CYRF_ConfigDataCode(code, 16);
+	DSM_read_code(code,pn_row,7 - sop_col);					// 7-sop_col between 0 and 6
+	DSM_read_code(code+8,pn_row,7 - sop_col + 1);			// 7-sop_col+1 between 1 and 7
+	CYRF_ConfigDataCode(code);
 
 	CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
 	hopping_frequency_no++;

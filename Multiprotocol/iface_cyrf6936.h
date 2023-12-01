@@ -85,7 +85,7 @@ void CYRF_SetPower(u8 power);
 void CYRF_ConfigCRCSeed(u16 crc);
 static void CYRF_StartReceive();
 void CYRF_ConfigSOPCode(const u8 *sopcodes);
-void CYRF_ConfigDataCode(const u8 *datacodes, u8 len);
+void CYRF_ConfigDataCode(const u8 *datacodes);
 static u8 CYRF_ReadRSSI(u32 dodummyread);
 static void CYRF_ReadDataPacket(u8 dpbuffer[]); 
 void CYRF_WriteDataPacket(const u8 dpbuffer[]);

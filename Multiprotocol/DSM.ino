@@ -67,7 +67,7 @@ const uint8_t PROGMEM DSM_pncodes[5][9][8] = {
 
 static void __attribute__((unused)) DSM_read_code(uint8_t *buf, uint8_t row, uint8_t col)
 {
-	for(uint8_t i=0;i<len;i++)
+	for(uint8_t i=0;i<8;i++)
 		buf[i]=pgm_read_byte_near( &DSM_pncodes[row][col][i] );
 }
 

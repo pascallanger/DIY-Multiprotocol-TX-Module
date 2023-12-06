@@ -352,6 +352,9 @@
 	#undef	V911S_CCNRF_INO
 	#undef	XK_CCNRF_INO
 #endif
+#if not defined(DSM_CYRF6936_INO)
+	#undef	LOSI_CYRF6936_INO
+#endif
 #if not defined(STM32_BOARD)
 	//RF2500 emulation does not work on atmega...
 	#undef	E010R5_CYRF6936_INO

@@ -195,11 +195,11 @@ void CYRF_ConfigSOPCode(const uint8_t *sopcodes)
 	CYRF_WriteRegisterMulti(CYRF_22_SOP_CODE, sopcodes, 8);
 }
 
-void CYRF_ConfigDataCode(const uint8_t *datacodes, uint8_t len)
+void CYRF_ConfigDataCode(const uint8_t *datacodes)
 {
 	//NOTE: This can also be implemented as:
-	//for(i = 0; i < len; i++) WriteRegister)0x23, datacodes[i];
-	CYRF_WriteRegisterMulti(CYRF_23_DATA_CODE, datacodes, len);
+	//for(i = 0; i < 16; i++) WriteRegister)0x23, datacodes[i];
+	CYRF_WriteRegisterMulti(CYRF_23_DATA_CODE, datacodes, 16);
 }
 
 void CYRF_WritePreamble(uint32_t preamble)

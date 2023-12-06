@@ -421,7 +421,7 @@ uint16_t MLINK_callback()
 
 
 		case MLINK_PREP_DATA:
-			CYRF_ConfigDataCode(MLINK_Data_Code,16);
+			CYRF_ConfigDataCode(MLINK_Data_Code);
 			MLINK_CRC_Init += 0xED;
 			hopping_frequency_no = 0x00;
 			CYRF_ConfigRFChannel(hopping_frequency[hopping_frequency_no]);
@@ -597,7 +597,7 @@ void MLINK_init()
 	{
 		packet_count = 0;
 		bind_counter = MLINK_BIND_COUNT;
-		CYRF_ConfigDataCode((uint8_t*)"\x6F\xBE\x32\x01\xDB\xF1\x2B\x01\xE3\x5C\xFA\x02\x97\x93\xF9\x02",16); //Bind data code
+		CYRF_ConfigDataCode((uint8_t*)"\x6F\xBE\x32\x01\xDB\xF1\x2B\x01\xE3\x5C\xFA\x02\x97\x93\xF9\x02"); //Bind data code
 		CYRF_ConfigRFChannel(MLINK_BIND_CHANNEL);
 		phase = MLINK_BIND_TX;
 	}

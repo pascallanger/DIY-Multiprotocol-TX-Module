@@ -39,8 +39,8 @@ static void __attribute__((unused)) DSM_RX_RF_init()
 	{
 		//64 SDR Mode is configured so only the 8 first values are needed but need to write 16 values...
 		uint8_t code[16];
-		DSM_read_code(code,0,8,8);
-		CYRF_ConfigDataCode(code, 16);
+		DSM_read_code(code,0,8);
+		CYRF_ConfigDataCode(code);
 		CYRF_ConfigRFChannel(1);
 		CYRF_SetTxRxMode(RX_EN);									// Force end state read
 		CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);					// Prepare to receive
@@ -277,7 +277,7 @@ uint16_t DSM_RX_callback()
 						eeprom_write_byte((EE_ADDR)temp, DSM_rx_type);
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);	// Abort RX operation
 						CYRF_SetTxRxMode(TX_EN);					// Force end state TX
-						CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84", 16);
+						CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84");
 						CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);	// Clear abort RX
 						DSM_RX_build_bind_packet();
 						bind_counter=500;

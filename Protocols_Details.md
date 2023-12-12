@@ -1667,13 +1667,13 @@ Only 8 TX IDs available
 Model: FX620 SU35
 
 ### Sub_protocol 9630 - *2*
-Model: FX9630 and QIDI-550
+Model: FX9630, FX9603 and QIDI-550
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|RATE|GYRO|TrimR|TrimA|TrimE
 
-FX9630 Gyro: -100%=6G small throw, 0%=6G large throw, +100%=3D
+FX9630 and FX9603 Gyro: -100%=6G small throw, 0%=6G large throw, +100%=3D
 
 QIDI-550 Gyro: -100%=3D, 0%=6G, +100%=Torque
 

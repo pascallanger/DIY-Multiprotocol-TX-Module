@@ -22,7 +22,7 @@
 //#define PELIKAN_LITE_FORCE_ID
 #define PELIKAN_LITE_FORCE_HOP				// hop sequence creation is unknown
 //#define PELIKAN_SCX24_FORCE_ID
-#define PELIKAN_SCX24_FORCE_HOP				// hop sequence creation is unknown
+//#define PELIKAN_SCX24_FORCE_HOP				// hop sequence creation is unknown
 
 #define PELIKAN_BIND_COUNT		400			// 3sec
 #define PELIKAN_BIND_RF			0x3C
@@ -30,6 +30,7 @@
 #define PELIKAN_PACKET_PERIOD	7980
 #define PELIKAN_LITE_PACKET_PERIOD 18000
 #define PELIKAN_SCX24_PACKET_PERIOD 15069
+#define PELIKAN_SCX_HOP_LIMIT 90
 
 static void __attribute__((unused)) pelikan_build_packet()
 {
@@ -216,6 +217,84 @@ static uint8_t pelikan_firstCh(uint8_t u, uint8_t l)
 	return 0;
 }
 
+static uint8_t pelikan_firstCh_scx(uint8_t i, uint8_t j)
+{
+	uint8_t ch;
+	switch (j) {
+		case 0:
+			ch = 30;
+			break;
+		case 1:
+			ch = (i * 4) + 42;
+			break;
+		case 2:
+			ch = (i * 4) + 42;
+			break;
+		case 3:
+			ch = (i * 2) + 36;
+			break;
+		case 4:
+			ch = (i * 8) + 54;
+			break;
+		case 5:
+			ch = 30;
+			break;
+	}
+
+	if (ch > PELIKAN_SCX_HOP_LIMIT)
+	{
+		do
+		{
+			ch -= 62;
+		} while (ch > PELIKAN_SCX_HOP_LIMIT);
+	}
+
+	switch (ch) {
+		case 48:
+			if (j == 3)
+				ch += 18;
+			else if (j == 4)
+				ch += 20;
+			else
+				ch += 40;
+			break;
+		case 40:
+			if (j == 4)
+				ch += 18;
+			break;
+		case 52:
+			if (j < 3)
+				ch -= 20;
+			else if (j == 4)
+				ch -= 10;
+			break;
+		case 66:
+			if  (j < 3)
+				ch += 18;
+			else if (j == 4)
+				ch -= 22;
+			break;
+		case 72:
+			if (j < 3)
+				ch -= 10;
+			else if (j ==3)
+				ch -= 20;
+			else if (j == 4)
+				ch -= 36;
+			break;
+		case 74:
+			if (j == 4)
+				ch -= 20;
+			break;
+		case 86:
+			if (j == 4)
+				ch -= 48;
+			break;
+	}
+
+	return ch;
+}
+
 static uint8_t pelikan_adjust_value(uint8_t value, uint8_t addition, uint8_t limit)
 {
 	uint8_t i;
@@ -234,6 +313,10 @@ static uint8_t pelikan_adjust_value(uint8_t value, uint8_t addition, uint8_t lim
 			value += addition;
 			i++;
 		}
+		if (value == 72) {
+			value += addition;
+			i++;
+		}
 	}
 	while (i > 0);
 
@@ -248,6 +331,28 @@ static uint8_t pelikan_add(uint8_t pfrq,uint8_t a, uint8_t limit)
 	nfrq = pelikan_adjust_value(nfrq, a, limit);
 	
 	return nfrq;
+}
+
+static void pelikan_shuffle(uint8_t j)
+{
+	uint8_t map[4][PELIKAN_NUM_RF_CHAN] = 
+		{
+			{0,1,2,26,27,28,23,24,25,20,21,22,17,18,19,14,15,16,11,12,13,8,9,10,5,6,7,4,3},
+			{0,1,2,28,25,26,27,24,21,22,23,20,17,18,19,16,13,14,15,12,9,10,11,8,5,6,7,3,4},
+			{0,1,27,28,25,26,23,24,21,22,19,20,17,18,15,16,13,14,11,12,9,10,7,8,5,6,3,4,2},
+			{0,1,28,1,4,2,23,26,22,24,27,25,17,20,16,18,21,19,11,14,10,12,15,13,27,8,6,7,9}
+		};
+
+	uint8_t temp[PELIKAN_NUM_RF_CHAN];
+	for (uint8_t i = 0; i < PELIKAN_NUM_RF_CHAN; i++)
+	{
+		temp[i] = hopping_frequency[map[j-1][i]];
+	}
+
+	for (uint8_t i = 0; i < PELIKAN_NUM_RF_CHAN; i++)
+	{
+		hopping_frequency[i] = temp[i];
+	}
 }
 
 static void __attribute__((unused)) pelikan_init_hop()
@@ -274,6 +379,90 @@ static void __attribute__((unused)) pelikan_init_hop()
 	{
 		hopping_frequency[i] = pelikan_add(hopping_frequency[i-1], addition, PELIKAN_HOP_LIMIT);
 		debug(" %02X", hopping_frequency[i]);
+	}
+	debugln("");
+}
+
+static void __attribute__((unused)) pelikan_init_hop_scx()
+{
+	rx_tx_addr[0] = 0x10;
+	rx_tx_addr[1] = (rx_tx_addr[1] + RX_num) % 192;
+	debugln("TX[0]: %02X TX[1]: %02X", rx_tx_addr[0], rx_tx_addr[1]);
+	
+	uint8_t high = (rx_tx_addr[1]>>4);
+	uint8_t low = rx_tx_addr[1] & 0x0F;
+	int16_t i = (high * 10) + low - 23;
+	uint8_t j = 0;
+
+	if (i > 0)
+		j = 1;
+	
+	if (i > 24)
+	{
+		do
+		{
+			i -= 24;
+			j++;
+		} while (i > 24);
+	}
+
+	debugln("H: %02X L: %02X I: %02X J: %02X", high, low, i, j);
+
+	uint8_t first_channel;
+	uint8_t last_channel;
+	uint8_t addition;
+
+	first_channel = pelikan_firstCh_scx(i, j);
+
+	if (j == 0)
+		last_channel = 42 - (high * 10) - low;
+	else
+		last_channel = 42 - i + 1;
+
+	if (last_channel == 24)
+		last_channel += 9;
+	
+	if (last_channel == 36)
+		last_channel -= 10;
+
+	if (j == 0)
+		addition = (2 * i) + 54;
+	else if (j == 5)
+		addition = (2 * i) + 6;
+	else
+		addition = 56 - (2 * i);
+
+	hopping_frequency[0] = first_channel;
+	for (uint8_t i = 1; i < PELIKAN_NUM_RF_CHAN; i++)
+	{
+		hopping_frequency[i] = pelikan_add(hopping_frequency[i-1], addition, PELIKAN_SCX_HOP_LIMIT);
+	}
+
+	if (j > 0 && j < 5)
+		pelikan_shuffle(j);
+
+	if (j == 2)
+	{
+		hopping_frequency[PELIKAN_NUM_RF_CHAN - 2] = last_channel;
+	} else if (j == 4)
+	{
+		uint8_t t = (2 * i) + 36;
+		if (t == 48)
+			t += 18;
+		if (t == 72)
+			t -= 20;
+
+		hopping_frequency[1] = t;
+		hopping_frequency[PELIKAN_NUM_RF_CHAN - 5] = last_channel;
+	}	
+	else
+	{
+		hopping_frequency[PELIKAN_NUM_RF_CHAN - 1] = last_channel;
+	}
+
+	for (uint8_t i = 0; i < PELIKAN_NUM_RF_CHAN; i++)
+	{
+		debug("%02X ", hopping_frequency[i]);
 	}
 	debugln("");
 }
@@ -345,6 +534,7 @@ void PELIKAN_init()
 		}
 		else// if(sub_protocol==PELIKAN_SCX24)
 		{
+			pelikan_init_hop_scx();
 			#if defined(PELIKAN_SCX24_FORCE_HOP)
 				// Hop frequency table
 				uint8_t num=rx_tx_addr[3] & 0x03;

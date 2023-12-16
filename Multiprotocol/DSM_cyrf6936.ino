@@ -18,16 +18,23 @@
 #include "iface_cyrf6936.h"
 
 //#define DSM_DEBUG_FWD_PGM
-
+//#define DEBUG_BIND  1
 //#define DSM_GR300
 
 #define CLONE_BIT_MASK 0x20 
 
 #define DSM_BIND_CHANNEL 0x0d //13 This can be any odd channel
 
-//During binding we will send BIND_COUNT/2 packets
+//During binding we will send BIND_COUNT packets
 //One packet each 10msec
-#define DSM_BIND_COUNT 300
+//
+// Most RXs seems to work properly with Long BIND send counts: Spektrum, OrangeRX. 
+// Lemon-RX G2s seems to have a timeout waiting for the channel to get quiet after the 
+// first good BIND packet.. If using 3s (300), Lemon-RX will not transmit the BIND-Response packet. 
+
+#define DSM_BIND_COUNT             300  // About 3s
+#define DSM_BIND_COUNT_SHORT       180  // About 1.8s. This works for ALL brands
+#define DSM_BIND_COUNT_READ        2*DSM_BIND_COUNT   // About 4.2s of waiting for Response
 
 enum {
 	DSM_BIND_WRITE=0,
@@ -292,11 +299,14 @@ uint16_t DSM_callback()
 			return 10000;
 	#if defined DSM_TELEMETRY
 		case DSM_BIND_CHECK:
-			//64 SDR Mode is configured so only the 8 first values are needed
-			CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84");
+      #if DEBUG_BIND
+        debugln("Bind Check");
+      #endif
+      //64 SDR Mode is configured so only the 8 first values are needed
+      CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84");
 			CYRF_SetTxRxMode(RX_EN);							//Receive mode
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);			//Prepare to receive
-			bind_counter=2*DSM_BIND_COUNT;						//Timeout of 4.2s if no packet received
+			bind_counter=DSM_BIND_COUNT_READ; //Timeout of 4.2s if no packet received
 			phase++;											// change from BIND_CHECK to BIND_READ
 			return 2000;
 		case DSM_BIND_READ:
@@ -312,10 +322,12 @@ uint16_t DSM_callback()
 					CYRF_ReadDataPacketLen(packet_in+1, 10);
 					if(DSM_Check_RX_packet())
 					{
-						debug("Bind");
-						for(uint8_t i=0;i<10;i++)
-							debug(" %02X",packet_in[i+1]);
-						debugln("");
+            #if DEBUG_BIND
+  						debug("Bind");
+  						for(uint8_t i=0;i<10;i++)
+  							debug(" %02X",packet_in[i+1]);
+  						debugln("");
+            #endif
 						packet_in[0]=0x80;
 						packet_in[6]&=0x0F;						// It looks like there is a flag 0x40 being added by some receivers
 						if(packet_in[6]>12) packet_in[6]=12;
@@ -340,6 +352,9 @@ uint16_t DSM_callback()
 				}
 			if( --bind_counter == 0 )
 			{ // Exit if no answer has been received for some time
+        #if DEBUG_BIND
+          debugln("Bind Read TIMEOUT");
+        #endif
 				phase++;										// DSM_CHANSEL
 				return 7000 ;
 			}
@@ -539,19 +554,23 @@ void DSM_init()
 			if(eeprom_read_byte((EE_ADDR)DSM_CLONE_EEPROM_OFFSET+4)==0xF0)
 			{
 				//read cloned ID from EEPROM
-				debugln("Using cloned ID");
 				uint16_t temp = DSM_CLONE_EEPROM_OFFSET;
 				for(uint8_t i=0;i<4;i++)
 					cyrfmfg_id[i] = eeprom_read_byte((EE_ADDR)temp++);
-				debug("Clone ID=")
-				for(uint8_t i=0;i<4;i++)
-					debug("%02x ", cyrfmfg_id[i]);
-				debugln("");
+        #if DEBUG_BIND
+          debugln("Using cloned ID");  
+  				debug("Clone ID=")
+  				for(uint8_t i=0;i<4;i++)
+  					debug("%02x ", cyrfmfg_id[i]);
+  				debugln("");
+          #endif
 			}
 			else
 			{
 				SUB_PROTO_INVALID;
-				debugln("No valid cloned ID");
+        #if DEBUG_BIND
+				  debugln("No valid cloned ID");
+        #endif
 			}
 		}
 		else
@@ -609,10 +628,17 @@ void DSM_init()
 	{
 		DSM_initialize_bind_phase();		
 		phase = DSM_BIND_WRITE;
-		bind_counter=DSM_BIND_COUNT;
+    if (sub_protocol == DSM_AUTO) {
+		  bind_counter=DSM_BIND_COUNT_SHORT; // Lemon-RX fix
+    } else {
+      bind_counter=DSM_BIND_COUNT;
+    }
+    #if DEBUG_BIND
+      debugln("Bind Started: write count=%d",bind_counter);
+    #endif
 	}
 	else
-		phase = DSM_CHANSEL;//
+		phase = DSM_CHANSEL;
 }
 
 #endif

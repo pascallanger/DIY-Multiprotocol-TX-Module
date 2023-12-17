@@ -547,7 +547,12 @@ function MenuLib.GetFlightModeValue(line)
         end
     else
         -- No adjustment needed
-        ret=ret..(val + 1)
+        if (val==190) then
+            ret=ret.."Err:Out of Range"
+        else
+            ret=ret..(val + 1)
+        end
+        
     end    
     return ret
 end

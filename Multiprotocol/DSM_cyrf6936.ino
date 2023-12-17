@@ -28,13 +28,12 @@
 //During binding we will send BIND_COUNT packets
 //One packet each 10msec
 //
-// Most RXs seems to work properly with Long BIND send counts: Spektrum, OrangeRX. 
+// Most RXs seems to work properly with a long BIND send count (3s): Spektrum, OrangeRX. 
 // Lemon-RX G2s seems to have a timeout waiting for the channel to get quiet after the 
 // first good BIND packet.. If using 3s (300), Lemon-RX will not transmit the BIND-Response packet. 
 
-#define DSM_BIND_COUNT             300  // About 3s
-#define DSM_BIND_COUNT_SHORT       180  // About 1.8s. This works for ALL brands
-#define DSM_BIND_COUNT_READ        2*DSM_BIND_COUNT   // About 4.2s of waiting for Response
+#define DSM_BIND_COUNT             180  // About 1.8s
+#define DSM_BIND_COUNT_READ        600  // About 4.2s of waiting for Response
 
 enum {
 	DSM_BIND_WRITE=0,
@@ -322,12 +321,12 @@ uint16_t DSM_callback()
 					CYRF_ReadDataPacketLen(packet_in+1, 10);
 					if(DSM_Check_RX_packet())
 					{
-            #if DEBUG_BIND
-  						debug("Bind");
-  						for(uint8_t i=0;i<10;i++)
+						#if DEBUG_BIND
+  						  debug("Bind");
+  						  for(uint8_t i=0;i<10;i++)
   							debug(" %02X",packet_in[i+1]);
-  						debugln("");
-            #endif
+  						  debugln("");
+						#endif
 						packet_in[0]=0x80;
 						packet_in[6]&=0x0F;						// It looks like there is a flag 0x40 being added by some receivers
 						if(packet_in[6]>12) packet_in[6]=12;
@@ -628,11 +627,7 @@ void DSM_init()
 	{
 		DSM_initialize_bind_phase();		
 		phase = DSM_BIND_WRITE;
-    if (sub_protocol == DSM_AUTO) {
-		  bind_counter=DSM_BIND_COUNT_SHORT; // Lemon-RX fix
-    } else {
-      bind_counter=DSM_BIND_COUNT;
-    }
+    bind_counter=DSM_BIND_COUNT;
     #if DEBUG_BIND
       debugln("Bind Started: write count=%d",bind_counter);
     #endif

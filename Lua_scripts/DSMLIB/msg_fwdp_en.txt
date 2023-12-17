@@ -69,6 +69,10 @@ T |0x0053|Output Channel 3
 T |0x0054|Output Channel 4
 T |0x0055|Output Channel 5
 T |0x0056|Output Channel 6
+T |0x0057|Output Channel 7
+T |0x0058|Output Channel 8
+T |0x0059|Output Channel 9
+T |0x005A|Output Channel 10
 --
 -- FailSafe Options
 --LT|0x005E|Inh
@@ -143,7 +147,7 @@ T |0x00A5|First Time Setup
 T |0x00AA|Capture Gyro Gains
 T |0x00AD|Gain Channel Select
 T |0x00AF|Dynamic
-LT|0x00B0|Self-Level/Angle Dem
+LT|0x00B0|Self-Level
 LT|0x00B1|Envelope
 --
 -- Flight Modes List Options 
@@ -163,9 +167,9 @@ T |0x00BE|Unknown_BE -- Used in Reset menu (0x0001) while the RX is rebooting
 --
 T |0x00C7|Calibrate Sensor
 T |0x00C8|Sensor is Calibrating.. Wait 
-T |0x00CA|SAFE/Panic Mode Setup
+T |0x00CA|SAFE & Panic Mode Setup
 --
-T |0x00CD|Level model and capture attitude/m -- SPECIAL MENU to itself who is not a comment
+T |0x00CD|Level model & capt attitude/m -- SPECIAL MENU to itself who is not a comment
 T |0x00CE|Error TX Conf
 T |0x00CF|Invalid TX Ch Conf 1
 T |0x00D0|Invalid TX Ch Conf 2
@@ -382,7 +386,7 @@ T |0x0251|Are you sure you want to ovewrite the "Target"
 T |0x0252|with the "Source" ? 
 T |0x0253| -- Blank
 --
-T |0x0254|Postive = Up, Negative = Down
+T |0x0254|Pos = Up, Neg = Down
 --
 -- First time safe setup Page 1  (maybe ask to select Flight Mode cannel)
 T |0x0255|Before setting up SAFE
@@ -404,8 +408,8 @@ T |0x0262|by "Source"
 --
 T |0x0263|Fixed/Adjustable Gains/c/b
 T |0x0266|Heading Gain/c/b
-T |0x0267|Positive = Nose Up/Roll Right
-T |0x0268|Negative = Nose Down/Roll Left
+T |0x0267|Pos = Nose Up/Roll Right
+T |0x0268|Neg = Nose Down/Roll Left
 T |0x0269|SAFE - Thr to Pitch
 T |0x026A|Use CAUTION for Yaw gain!/b
 --

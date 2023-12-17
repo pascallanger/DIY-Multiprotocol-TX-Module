@@ -6,10 +6,5 @@
 T |0x0097|DONT USE: Factory Reset
 T |0x0098|DONT USE: Factory Reset
 T |0x00A5|DONT USE: First Time Setup
-T |0x00B0|Self-Lev/Ang Dem
-T |0x00CD|Level model & capt attitude
 T |0x0190|DONT USE: Relearn Servo Settings
 T |0x020D|DONT USE: First Time SAFE Setup
-T |0x0254|Pos = Up, Neg = Down
-T |0x0267|Pos = Nose Up/Roll Right
-T |0x0268|Neg = Nose Down/Roll Left

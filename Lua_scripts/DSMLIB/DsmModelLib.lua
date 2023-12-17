@@ -31,14 +31,15 @@ local CH_TYPE = {
 
 -- Seems like Reverse Mix is complement of the 3 bits
 local CH_MIX_TYPE = {
-    NORMAL       = 0x00,   -- 0000
-    MIX_AIL_B    = 0x10,   -- 0001 Taileron B
-    MIX_ELE_A    = 0x20,   -- 0010 For VTIAL and Delta-ELEVON A
-    MIX_ELE_B_REV= 0x30,   -- 0011 For VTIAL and Delta-ELEVON B
-    MIX_ELE_B    = 0x40,   -- 0100 For VTIAL and Delta-ELEVON B
-    MIX_ELE_A_REV= 0x50,   -- 0101 For VTIAL and Delta-ELEVON A
-    MIX_AIL_B_REV= 0x60,   -- 0110 Taileron B Rev
-    NORM_REV     = 0x70    -- 0111
+    MIX_NORM     = 0x00,   -- 0000
+    MIX_AIL      = 0x10,   -- 0001 Taileron
+    MIX_ELE      = 0x20,   -- 0010 For VTIAL and Delta-ELEVON
+    MIX_RUD      = 0x30,   -- 0011 For VTIAL
+
+    MIX_RUD_REV  = 0x40,   -- 0100 For VTIAL
+    MIX_ELE_REV  = 0x50,   -- 0101 For VTIAL and Delta-ELEVON A
+    MIX_AIL_REV  = 0x60,   -- 0110 Taileron 
+    MIX_NORM_REV = 0x70    -- 0111
 }
 
 local AIRCRAFT_TYPE = {
@@ -72,8 +73,11 @@ local TAIL_TYPE = {
     VTAIL_B      = 6,  -- 2
     TRAILERON_A  = 7,  -- 3
     TRAILERON_B  = 8,  -- 3
+    TRAILERON_A_R2  = 9,  -- 3
+    TRAILERON_B_R2  = 10  -- 3
 }
-local tail_type_text = {[0]="Rud Only","Normal","Rud + Dual Ele","Dual Rud + Elv","Dual Rud/Ele","VTail A","VTail B","Traileron A","Traileron B"}
+local tail_type_text = {[0]="Rud Only","Normal","Rud + Dual Ele","Dual Rud + Elv","Dual Rud/Ele",
+                        "VTail A","VTail B","Taileron A","Taileron B","Taileron A + 2x Rud","Taileron B + 2x Rud"}
 
 local CH_MODE_TYPE = {
     NORMAL      = 0,
@@ -156,18 +160,18 @@ local MENU_DATA = {}            -- Store the variables used in the Menus.
 
 -- DEFAULT Simple Plane Port configuration (The Configuration tool will overrride this)
 MODEL.DSM_ChannelInfo= {[0]= -- Start array at position 0
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.THR},    -- Ch1 Thr  (0x40)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.AIL},    -- Ch2 Ail  (0x01)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.ELE},    -- Ch2 ElE  (0x02)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.RUD},    -- Ch4 Rud  (0x04)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.NONE},   -- Ch5 Gear (0x00)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.NONE},   -- Ch6 Aux1 (0x00)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.NONE},   -- Ch7 Aux2 (0x00)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.NONE},   -- Ch8 Aux3 (0x00)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.NONE},   -- Ch9 Aux4 (0x00)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.NONE},   -- Ch10 Aux5 (0x00)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.NONE},   -- Ch11 Aux6 (0x00)
-                        {[0]=  CH_MIX_TYPE.NONE, CH_TYPE.NONE}    -- Ch12 Aux7 (0x00)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.THR},    -- Ch1 Thr  (0x40)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.AIL},    -- Ch2 Ail  (0x01)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.ELE},    -- Ch2 ElE  (0x02)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.RUD},    -- Ch4 Rud  (0x04)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.NONE},   -- Ch5 Gear (0x00)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.NONE},   -- Ch6 Aux1 (0x00)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.NONE},   -- Ch7 Aux2 (0x00)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.NONE},   -- Ch8 Aux3 (0x00)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.NONE},   -- Ch9 Aux4 (0x00)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.NONE},   -- Ch10 Aux5 (0x00)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.NONE},   -- Ch11 Aux6 (0x00)
+                        {[0]=  CH_MIX_TYPE.MIX_NORM, CH_TYPE.NONE}    -- Ch12 Aux7 (0x00)
                     }   
 
 function ModelLib.printChannelSummary(a,w,t)
@@ -200,21 +204,24 @@ function ModelLib.channelType2String(byte1, byte2)
     local s = ""
 
     if (byte2==0) then return s end;
-    if (bit32.band(byte2,CH_TYPE.AIL)>0) then s=s.."AIL " end
-    if (bit32.band(byte2,CH_TYPE.ELE)>0) then s=s.."ELE " end
-    if (bit32.band(byte2,CH_TYPE.RUD)>0) then s=s.."RUD " end
-    if (bit32.band(byte2,CH_TYPE.THR)>0) then s=s.."THR " end
-    if (bit32.band(byte2,CH_TYPE.SLAVE)>0) then s=s.."SLAVE " end
-    if (bit32.band(byte2,CH_TYPE.REVERSE)>0) then s=s.."REVERSE " end
+    
+    if (bit32.band(byte2,CH_TYPE.AIL)>0) then s=s.."Ail" end
+    if (bit32.band(byte2,CH_TYPE.ELE)>0) then s=s.."Ele" end
+    if (bit32.band(byte2,CH_TYPE.RUD)>0) then s=s.."Rud" end
+    if (bit32.band(byte2,CH_TYPE.THR)>0) then s=s.."Thr" end
 
-    if (byte1==CH_MIX_TYPE.NORMAL) then s=s.." MIX_NOR" 
-    elseif (byte1==CH_MIX_TYPE.MIX_AIL_B) then s=s.." MIX_AIL_B" 
-    elseif (byte1==CH_MIX_TYPE.MIX_ELE_A) then s=s.." MIX_ELE_A" 
-    elseif (byte1==CH_MIX_TYPE.MIX_ELE_B_REV) then s=s.." MIX_ELE_B_Rev" 
-    elseif (byte1==CH_MIX_TYPE.MIX_ELE_B) then s=s.." MIX_ELE_B" 
-    elseif (byte1==CH_MIX_TYPE.MIX_ELE_A_REV) then s=s.." MIX_ELE_A_Rev" 
-    elseif (byte1==CH_MIX_TYPE.MIX_AIL_B_REV) then s=s.." MIX_AIL_B_Rev" 
-    elseif (byte1==CH_MIX_TYPE.NORM_REV) then s=s.." MIX_NOR_Rev" 
+    if (bit32.band(byte2,CH_TYPE.REVERSE)>0) then s=s.."-" end
+
+    if (bit32.band(byte2,CH_TYPE.SLAVE)>0) then s=s.." Slv" end
+
+    if (byte1==CH_MIX_TYPE.MIX_NORM) then s=s.." " 
+    elseif (byte1==CH_MIX_TYPE.MIX_AIL) then s=s.." M_Ail" 
+    elseif (byte1==CH_MIX_TYPE.MIX_ELE) then s=s.." M_Ele" 
+    elseif (byte1==CH_MIX_TYPE.MIX_RUD) then s=s.." M_Rud" 
+    elseif (byte1==CH_MIX_TYPE.MIX_RUD_REV) then s=s.." M_Rud-" 
+    elseif (byte1==CH_MIX_TYPE.MIX_ELE_REV) then s=s.." M_Ele-" 
+    elseif (byte1==CH_MIX_TYPE.MIX_AIL_REV) then s=s.." M_Ail-" 
+    elseif (byte1==CH_MIX_TYPE.MIX_NORM_REV) then s=s.." M-" 
     end
 
     return s;
@@ -257,7 +264,7 @@ function ModelLib.ReadTxModelData()
   MODEL.modelName = table.name
 
   local module = model.getModule(0) -- Internal
-  if (module==nil) then module = model.getModule(1) end -- External
+  if (module==nil or module.Type~=6) then module = model.getModule(1) end -- External
   if (module~=nil) then
       if (module.Type==6 ) then -- MULTI-MODULE
           local chOrder = module.channelsOrder
@@ -307,11 +314,7 @@ function ModelLib.ReadTxModelData()
       local ch =  MODEL.modelOutputChannel[i]
       if (ch~=nil) then
           MODEL.TX_CH_TEXT[i] = ch.formatCh
-          if LCD_W <= 128 then -- SMALLER SCREENS
-              MODEL.PORT_TEXT[i] = string.format("P%i (%s) ",i+1,MODEL.TX_CH_TEXT[i])
-          else
-              MODEL.PORT_TEXT[i] = string.format("Port%i (%s) ",i+1,MODEL.TX_CH_TEXT[i])
-          end
+          MODEL.PORT_TEXT[i] = string.format("P%i (%s) ",i+1,MODEL.TX_CH_TEXT[i])
           
           Log.LOG_write("Port%d %s [%d,%d] Rev=%d, Off=%d, ppmC=%d, syn=%d\n",i+1,MODEL.TX_CH_TEXT[i],math.floor(ch.min/10),math.floor(ch.max/10), ch.revert, ch.offset, ch.ppmCenter, ch.symetrical)
       end
@@ -342,6 +345,11 @@ end
 -- Load Menu Data from a file 
 function ModelLib.ST_LoadFileData() 
     local fname = ModelLib.hashName(MODEL.modelName)..".txt"
+
+    -- Clear Menu Data
+    for i = 0, MEMU_VAR.DATA_END do
+        MENU_DATA[i]=nil
+    end
 
     print("Loading File:"..fname)
 
@@ -401,60 +409,45 @@ end
 function ModelLib.CreateDSMPortChannelInfo()
     local function ApplyWingMixA(b2)
         -- ELEVON
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE) then return CH_MIX_TYPE.MIX_ELE_A end; -- 0x03
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.MIX_ELE_A_REV end; -- 0x23
-       
-       -- Default normal/reverse behaviour 
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.NORMAL end; -- 0x83
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.NORM_REV end; -- 0xA3
+        if (b2==CH_TYPE.AIL+CH_TYPE.ELE) then return CH_MIX_TYPE.MIX_ELE end; -- 0x03
+        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_NORM end; -- 0x83
     end
 
     local function ApplyWingMixB(b2)
         -- ELEVON 
-        -- Default normal/reverse behaviour 
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE) then return CH_MIX_TYPE.NORMAL end; -- 0x03
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.NORM_REV end; -- 0x23
-
-        -- Difference with B 
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_ELE_A end; -- 0x83
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.MIX_ELE_A_REV  end; -- 0xA3
+        if (b2==CH_TYPE.AIL+CH_TYPE.ELE) then return CH_MIX_TYPE.MIX_NORM end; -- 0x03
+        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_ELE end; -- 0x83
    end
 
     local function ApplyTailMixA(b2)
         -- VTAIL
         -- Default normal/reverse behaviour 
-        if (b2==CH_TYPE.RUD+CH_TYPE.ELE) then return CH_MIX_TYPE.NORMAL end; -- 0x06
-        if (b2==CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.NORM_REV end; -- 0x26
-
-        if (b2==CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_ELE_A end; -- 0x86
-        if (b2==CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.SLAVE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.MIX_ELE_A_REV  end; -- 0xA6
+        if (b2==CH_TYPE.RUD+CH_TYPE.ELE) then return CH_MIX_TYPE.MIX_NORM end; -- 0x06
+        if (b2==CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_ELE end; -- 0x86
 
         --TAILERON
-         -- Default normal/reverse behaviour 
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE) then return CH_MIX_TYPE.NORMAL end; -- 0x03
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.NORM_REV end; -- 0x23
-
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_AIL_B end; -- 0x83
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.MIX_AIL_B_REV end; -- 0xA3
-
+        -- Default normal/reverse behaviour 
+        if (b2==CH_TYPE.AIL+CH_TYPE.ELE) then return CH_MIX_TYPE.MIX_NORM end; -- 0x03
+        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_AIL end; -- 0x83
     end
 
     local function ApplyTailMixB(b2)
         -- VTAIL 
         -- Default normal/reverse behaviour 
-        if (b2==CH_TYPE.RUD+CH_TYPE.ELE) then return CH_MIX_TYPE.NORMAL end; -- 0x06
-        if (b2==CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.NORM_REV end; -- 0x26
-
-        if (b2==CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_ELE_B end; -- 0x86
-        if (b2==CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.SLAVE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.MIX_ELE_B_REV end; -- 0xA6
+        if (b2==CH_TYPE.RUD+CH_TYPE.ELE) then return CH_MIX_TYPE.MIX_NORM end; -- 0x06
+        if (b2==CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_RUD end; -- 0x86
 
         --TAILERON
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE) then return CH_MIX_TYPE.MIX_AIL_B end; -- 0x03
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.MIX_AIL_B_REV end; -- 0x23
+        if (b2==CH_TYPE.AIL+CH_TYPE.ELE) then return CH_MIX_TYPE.MIX_AIL end; -- 0x03
+        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.MIX_NORM end; -- 0x83
+    end
 
-        -- Default normal/reverse behaviour 
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE) then return CH_MIX_TYPE.NORMAL end; -- 0x83
-        if (b2==CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE+CH_TYPE.REVERSE) then return CH_MIX_TYPE.NORM_REV end; -- 0xA3
+    local function reverseMix(b)
+        if (b==CH_MIX_TYPE.MIX_NORM) then return CH_MIX_TYPE.MIX_NORM_REV end;
+        if (b==CH_MIX_TYPE.MIX_AIL) then return CH_MIX_TYPE.MIX_AIL_REV end;
+        if (b==CH_MIX_TYPE.MIX_ELE) then return CH_MIX_TYPE.MIX_ELE_REV end;
+        if (b==CH_MIX_TYPE.MIX_RUD) then return CH_MIX_TYPE.MIX_RUD_REV end;
+        return b
     end
 
 
@@ -462,7 +455,7 @@ function ModelLib.CreateDSMPortChannelInfo()
     local DSM_ChannelInfo = MODEL.DSM_ChannelInfo 
 
     for i=0, TX_CHANNELS-1 do
-        DSM_ChannelInfo[i] = {[0]= 0x00, CH_TYPE.NONE} -- Initialize with no special function 
+        DSM_ChannelInfo[i] = {[0]= CH_MIX_TYPE.MIX_NORM, CH_TYPE.NONE} -- Initialize with no special function 
     end
 
     local aircraftType = MENU_DATA[MEMU_VAR.AIRCRAFT_TYPE]
@@ -484,7 +477,7 @@ function ModelLib.CreateDSMPortChannelInfo()
     -- Channels in menu vars are Zero base, Channel info is 1 based 
     
     -- THR 
-    if (thrCh~=nil) then DSM_ChannelInfo[thrCh][1]= CH_TYPE.THR end
+    if (thrCh~=nil and thrCh < 10) then DSM_ChannelInfo[thrCh][1]= CH_TYPE.THR end
 
     -- AIL (Left and Right)
     if (lAilCh~=nil) then DSM_ChannelInfo[lAilCh][1] = CH_TYPE.AIL  end
@@ -497,65 +490,50 @@ function ModelLib.CreateDSMPortChannelInfo()
     if (rRudCh~=nil) then DSM_ChannelInfo[rRudCh][1] = CH_TYPE.RUD+CH_TYPE.SLAVE end
 
     -- VTAIL: RUD + ELE
-    if (tailType==TAIL_TYPE.VTAIL_A) then 
+    if (tailType==TAIL_TYPE.VTAIL_A or tailType==TAIL_TYPE.VTAIL_B) then 
         DSM_ChannelInfo[lElevCh][1] = CH_TYPE.RUD+CH_TYPE.ELE
         DSM_ChannelInfo[rElevCh][1] = CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.SLAVE
-    elseif (tailType==TAIL_TYPE.VTAIL_B) then
-        DSM_ChannelInfo[lElevCh][1] = CH_TYPE.RUD+CH_TYPE.ELE+CH_TYPE.SLAVE
-        DSM_ChannelInfo[rElevCh][1] = CH_TYPE.RUD+CH_TYPE.ELE
     end
 
-    -- TRAILERRON: 2-ELE + AIL
-    if (tailType==TAIL_TYPE.TRAILERON_A) then 
+    -- TAILERRON: 2-ELE + AIL
+    if (tailType==TAIL_TYPE.TRAILERON_A or tailType==TAIL_TYPE.TRAILERON_A_R2 or
+        tailType==TAIL_TYPE.TRAILERON_B or tailType==TAIL_TYPE.TRAILERON_B_R2) then 
         DSM_ChannelInfo[lElevCh][1] = CH_TYPE.AIL+CH_TYPE.ELE
         DSM_ChannelInfo[rElevCh][1] = CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE
-    elseif (tailType==TAIL_TYPE.TRAILERON_B) then
-        DSM_ChannelInfo[lElevCh][1] = CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE
-        DSM_ChannelInfo[rElevCh][1] = CH_TYPE.AIL+CH_TYPE.ELE
     end
 
     ---- ELEVON :  AIL + ELE 
-    if (wingType==WING_TYPE.ELEVON_A) then 
-        DSM_ChannelInfo[lAilCh][1] = CH_TYPE.AIL+CH_TYPE.ELE
-        DSM_ChannelInfo[rAilCh][1] = CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE
-    elseif (wingType==WING_TYPE.ELEVON_B) then
+    if (wingType==WING_TYPE.ELEVON_A or wingType==WING_TYPE.ELEVON_B) then 
         DSM_ChannelInfo[lAilCh][1] = CH_TYPE.AIL+CH_TYPE.ELE
         DSM_ChannelInfo[rAilCh][1] = CH_TYPE.AIL+CH_TYPE.ELE+CH_TYPE.SLAVE
     end
 
-    -- Apply Gyro Reverse as needed for each channel as long as it is used 
-    for i=0, TX_CHANNELS-1 do
-        if (MENU_DATA[MEMU_VAR.PORT_BASE+i]==CH_MODE_TYPE.REVERSE and DSM_ChannelInfo[i][1]>0) then
-            DSM_ChannelInfo[i][0]=DSM_ChannelInfo[i][1]+CH_MIX_TYPE.NORM_REV -- ALL REVERSE is 0x70 for normal
-            DSM_ChannelInfo[i][1]=DSM_ChannelInfo[i][1]+CH_TYPE.REVERSE
-        end
-    end
+    ------MIXES ---------
 
-    -- VTAIL: RUD + ELE
-    if (tailType==TAIL_TYPE.VTAIL_A) then 
+    -- TAIL Mixes (Elevator and VTail)
+    if (tailType==TAIL_TYPE.VTAIL_A or tailType==TAIL_TYPE.TRAILERON_A or tailType==TAIL_TYPE.TRAILERON_A_R2) then 
         DSM_ChannelInfo[lElevCh][0] = ApplyTailMixA(DSM_ChannelInfo[lElevCh][1])
         DSM_ChannelInfo[rElevCh][0] = ApplyTailMixA(DSM_ChannelInfo[rElevCh][1])
-    elseif (tailType==TAIL_TYPE.VTAIL_B) then
-        DSM_ChannelInfo[lElevCh][0] = ApplyTailMixB(DSM_ChannelInfo[lElevCh][1])
-        DSM_ChannelInfo[rElevCh][0] = ApplyTailMixB(DSM_ChannelInfo[rElevCh][1])
+    elseif (tailType==TAIL_TYPE.VTAIL_B or tailType==TAIL_TYPE.TRAILERON_B or tailType==TAIL_TYPE.TRAILERON_B_R2) then 
+        DSM_ChannelInfo[lElevCh][0] = ApplyTailMixA(DSM_ChannelInfo[lElevCh][1])
+        DSM_ChannelInfo[rElevCh][0] = ApplyTailMixA(DSM_ChannelInfo[rElevCh][1])
     end
 
-    -- TRAILERRON: ELE + AIL
-    if (tailType==TAIL_TYPE.TRAILERON_A) then 
-        DSM_ChannelInfo[lElevCh][1] = ApplyTailMixA(DSM_ChannelInfo[lElevCh][1])
-        DSM_ChannelInfo[rElevCh][1] = ApplyTailMixA(DSM_ChannelInfo[rElevCh][1])
-    elseif (tailType==TAIL_TYPE.TRAILERON_B) then
-        DSM_ChannelInfo[lElevCh][1] = ApplyTailMixB(DSM_ChannelInfo[lElevCh][1])
-        DSM_ChannelInfo[rElevCh][1] = ApplyTailMixB(DSM_ChannelInfo[rElevCh][1])
-    end
-
-     ---- ELEVON :  AIL + ELE 
+     ---- Wing Mixes 
      if (wingType==WING_TYPE.ELEVON_A) then 
         DSM_ChannelInfo[lAilCh][0] = ApplyWingMixA(DSM_ChannelInfo[lAilCh][1])
         DSM_ChannelInfo[rAilCh][0] = ApplyWingMixA(DSM_ChannelInfo[rAilCh][1])
     elseif (wingType==WING_TYPE.ELEVON_B) then
         DSM_ChannelInfo[lAilCh][0] = ApplyWingMixB(DSM_ChannelInfo[lAilCh][1])
         DSM_ChannelInfo[rAilCh][0] = ApplyWingMixB(DSM_ChannelInfo[rAilCh][1])
+    end
+
+    -- Apply Gyro Reverse as needed for each channel as long as it is used 
+    for i=0, TX_CHANNELS-1 do
+        if (MENU_DATA[MEMU_VAR.PORT_BASE+i]==CH_MODE_TYPE.REVERSE and DSM_ChannelInfo[i][1]>0) then
+            DSM_ChannelInfo[i][0]=reverseMix(DSM_ChannelInfo[i][0])
+            DSM_ChannelInfo[i][1]=DSM_ChannelInfo[i][1]+CH_TYPE.REVERSE
+        end
     end
 
     -- Show how it looks
@@ -618,7 +596,8 @@ function ModelLib.ST_PlaneWingInit(wingType)
 end
 
 function ModelLib.ST_PlaneTailInit(tailType) 
-    if (MENU_DATA[MEMU_VAR.WING_TYPE]==WING_TYPE.ELEVON_A) then
+    if (MENU_DATA[MEMU_VAR.WING_TYPE]==WING_TYPE.ELEVON_A or
+        MENU_DATA[MEMU_VAR.WING_TYPE]==WING_TYPE.ELEVON_B) then
         tailType = TAIL_TYPE.RUD_1 -- Delta only have ruder  
     end
 
@@ -643,27 +622,27 @@ function ModelLib.ST_PlaneTailInit(tailType)
         MENU_DATA[MEMU_VAR.CH_L_RUD] = PORT.PORT4
     elseif (tailType == TAIL_TYPE.RUD_2_ELEV_1) then
         MENU_DATA[MEMU_VAR.CH_L_ELE] = PORT.PORT3
-        MENU_DATA[MEMU_VAR.CH_L_RUD] = PORT.PORT5
-        MENU_DATA[MEMU_VAR.CH_R_RUD] = PORT.PORT4
+        MENU_DATA[MEMU_VAR.CH_L_RUD] = PORT.PORT4
+        MENU_DATA[MEMU_VAR.CH_R_RUD] = PORT.PORT5
     elseif (tailType == TAIL_TYPE.RUD_2_ELEV_2) then
         MENU_DATA[MEMU_VAR.CH_L_ELE] = PORT.PORT5
         MENU_DATA[MEMU_VAR.CH_R_ELE] = PORT.PORT3
-        MENU_DATA[MEMU_VAR.CH_L_RUD] = PORT.PORT6
-        MENU_DATA[MEMU_VAR.CH_R_RUD] = PORT.PORT4
-    elseif (tailType == TAIL_TYPE.VTAIL_A) then
-        MENU_DATA[MEMU_VAR.CH_L_ELE]  = PORT.PORT4
+        MENU_DATA[MEMU_VAR.CH_L_RUD] = PORT.PORT4
+        MENU_DATA[MEMU_VAR.CH_R_RUD] = PORT.PORT6
+    elseif (tailType == TAIL_TYPE.VTAIL_A or tailType == TAIL_TYPE.VTAIL_B) then
+        MENU_DATA[MEMU_VAR.CH_L_ELE] = PORT.PORT4
         MENU_DATA[MEMU_VAR.CH_R_ELE] = PORT.PORT3
-    elseif (tailType == TAIL_TYPE.VTAIL_B) then
-        MENU_DATA[MEMU_VAR.CH_L_ELE]   = PORT.PORT3
-        MENU_DATA[MEMU_VAR.CH_R_ELE]  = PORT.PORT4
-    elseif (tailType == TAIL_TYPE.TRAILERON_A) then
-        MENU_DATA[MEMU_VAR.CH_L_ELE]  = PORT.PORT5
+    elseif (tailType == TAIL_TYPE.TRAILERON_A or tailType==TAIL_TYPE.TRAILERON_A_R2 or
+            tailType == TAIL_TYPE.TRAILERON_B or tailType==TAIL_TYPE.TRAILERON_B_R2) then
+        MENU_DATA[MEMU_VAR.CH_L_RUD] = PORT.PORT4
+        MENU_DATA[MEMU_VAR.CH_L_ELE] = PORT.PORT5
         MENU_DATA[MEMU_VAR.CH_R_ELE] = PORT.PORT3
-    elseif (tailType == TAIL_TYPE.TRAILERON_B) then
-        MENU_DATA[MEMU_VAR.CH_L_ELE]   = PORT.PORT5
-        MENU_DATA[MEMU_VAR.CH_R_ELE]  = PORT.PORT3
     else -- Assume Normal 
         print("ERROR:invalid Tail Type")
+    end
+
+    if (tailType == TAIL_TYPE.TRAILERON_A_R2 or tailType==TAIL_TYPE.TRAILERON_B_R2) then
+        MENU_DATA[MEMU_VAR.CH_R_RUD] = PORT.PORT7
     end
 
     ModelLib.printChannelSummary()
@@ -732,11 +711,11 @@ function ModelLib.ST_GliderTailInit(tailType)
         MENU_DATA[MEMU_VAR.CH_L_ELE] = PORT.PORT3
         MENU_DATA[MEMU_VAR.CH_L_RUD] = PORT.PORT4
     elseif (tailType == TAIL_TYPE.VTAIL_A) then
-        MENU_DATA[MEMU_VAR.CH_L_ELE]  = PORT.PORT4
+        MENU_DATA[MEMU_VAR.CH_L_ELE] = PORT.PORT4
         MENU_DATA[MEMU_VAR.CH_R_ELE] = PORT.PORT3
     elseif (tailType == TAIL_TYPE.VTAIL_B) then
-        MENU_DATA[MEMU_VAR.CH_L_ELE]   = PORT.PORT3
-        MENU_DATA[MEMU_VAR.CH_R_ELE]  = PORT.PORT4
+        MENU_DATA[MEMU_VAR.CH_L_ELE] = PORT.PORT3
+        MENU_DATA[MEMU_VAR.CH_R_ELE] = PORT.PORT4
     else -- Assume Normal 
         print("ERROR: Invalid Tail Type")
     end

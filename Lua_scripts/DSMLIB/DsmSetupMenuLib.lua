@@ -24,7 +24,7 @@
 ------------------------------------------------------------------------------
 
 local Log, menuLib, modelLib, DEBUG_ON, SIMULATION_ON = ... -- Get DebugON from parameters
-local SETUP_LIB_VERSION = "0.55"
+local SETUP_LIB_VERSION = "0.56"
 
 local DATA_PATH = modelLib.DATA_PATH
 
@@ -53,26 +53,61 @@ local currWingType = -1         -- Current TailType selected, and to detect chan
 local menuDataChanged = false   -- Flag to notify if any data has changed
 
 
+local function tailTypeCompatible(a,b)
 
+    local function normalize(tt)
+      if (tt==TAIL_TYPE.TRAILERON_A or tt==TAIL_TYPE.TRAILERON_B) then 
+        return TAIL_TYPE.TRAILERON_A
+    elseif (tt==TAIL_TYPE.TRAILERON_A_R2 or tt==TAIL_TYPE.TRAILERON_B_R2) then 
+        return TAIL_TYPE.TRAILERON_A_R2  
+      elseif (tt==TAIL_TYPE.VTAIL_A or tt==TAIL_TYPE.VTAIL_B) then
+        return TAIL_TYPE.VTAIL_A
+      else
+        return tt
+      end
+    end
+  
+    return (normalize(a)==normalize(b))
+  end
 
 
 -- Creates the menus to Render with the GUI
 local function ST_LoadMenu(menuId)
     local ctx = menuLib.DSM_Context
 
-    local function formatTXRevert(port)
-        if  (MODEL.modelOutputChannel[port].revert==0) then
-            return " (Tx:"..menuLib.Get_List_Text(300+CH_MODE_TYPE.NORMAL)..")"
-        else
-            return " (Tx:"..menuLib.Get_List_Text(300+CH_MODE_TYPE.REVERSE)..")"
+    local function portUse(p)
+        local out = "" 
+        if p==MENU_DATA[MEMU_VAR.CH_THR] then out = "Thr"
+        elseif p == MENU_DATA[MEMU_VAR.CH_L_AIL] then 
+            out=(MENU_DATA[MEMU_VAR.CH_R_AIL] and "Ail_L") or "Ail"
+        elseif p == MENU_DATA[MEMU_VAR.CH_R_AIL] then out="Ail_R"
+        elseif p == MENU_DATA[MEMU_VAR.CH_L_ELE] then 
+            out=(MENU_DATA[MEMU_VAR.CH_R_ELE] and "Ele_L") or "Ele"
+        elseif p == MENU_DATA[MEMU_VAR.CH_R_ELE] then out="Ele_R"
+        elseif p == MENU_DATA[MEMU_VAR.CH_L_RUD] then 
+            out=(MENU_DATA[MEMU_VAR.CH_R_RUD] and "Rud_L") or "Rud"
+        elseif p == MENU_DATA[MEMU_VAR.CH_R_RUD] then out="Rud_R"
+        elseif p == MENU_DATA[MEMU_VAR.CH_L_FLP] then 
+            out=(MENU_DATA[MEMU_VAR.CH_R_FLP] and "Flp_L") or "Flp"
+        elseif p == MENU_DATA[MEMU_VAR.CH_R_FLP] then out="Flp_R"
         end
+        return out
+    end
+
+    local function formatTXRevert(port)
+        local out = " " .. modelLib.channelType2String(MODEL.DSM_ChannelInfo[port][0], MODEL.DSM_ChannelInfo[port][1]);
+        return out
+    end
+
+    local function Header(p)
+        return MODEL.PORT_TEXT[p].." "..portUse(p)
     end
 
     menuLib.clearMenuLines()
 
     
     if (menuId==0x1000) then -- MAIN MENU
-        ctx.Menu = { MenuId = 0x1000, Text = "Save-Exit ("..MODEL.modelName..")", PrevId = 0, NextId = 0, BackId = 0xFFF9, TextId=0 }
+        ctx.Menu = { MenuId = 0x1000, Text = "Save-Exit ("..MODEL.modelName..")", PrevId = 0, NextId = 0, BackId = 0, TextId=0 }
        
         if (true) then
             ctx.MenuLines[4] = { Type = LINE_TYPE.MENU, Text="Save Changes", TextId = 0, ValId = 0x1005 }
@@ -128,6 +163,7 @@ local function ST_LoadMenu(menuId)
         ctx.SelLine = 6
         lastGoodMenu = menuId
     elseif (menuId==0x1010) then
+        modelLib.printChannelSummary()
         ctx.Menu = { MenuId = 0x1010, Text = "Aircraft Type", PrevId = 0, NextId = 0x1011, BackId = 0x1001, TextId=0 }
         ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, Text="Aircraft Type", TextId = 0, ValId = MEMU_VAR.AIRCRAFT_TYPE, Min=50, Max=53, Def=50, Val=MENU_DATA[MEMU_VAR.AIRCRAFT_TYPE] }
         ctx.SelLine = 5
@@ -135,7 +171,7 @@ local function ST_LoadMenu(menuId)
     elseif (menuId==0x1011) then
         ctx.Menu = { MenuId = 0x1011, Text = "Model Type:"..modelLib.aircraft_type_text[currAircraftType], PrevId = 0, NextId = 0x1020, BackId = 0x1010, TextId=0 }
         ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, Text="Wing Type", TextId = 0, ValId = MEMU_VAR.WING_TYPE, Min=100, Max=107, Def=100, Val=MENU_DATA[MEMU_VAR.WING_TYPE] }
-        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU_NC, Text="Tail Type", TextId = 0, ValId = MEMU_VAR.TAIL_TYPE, Min=200, Max=208, Def=200, Val=MENU_DATA[MEMU_VAR.TAIL_TYPE] }
+        ctx.MenuLines[6] = { Type = LINE_TYPE.LIST_MENU_NC, Text="Tail Type", TextId = 0, ValId = MEMU_VAR.TAIL_TYPE, Min=200, Max=210, Def=200, Val=MENU_DATA[MEMU_VAR.TAIL_TYPE] }
         ctx.SelLine = 5
         lastGoodMenu = menuId
     elseif (menuId==0x1020) then
@@ -159,7 +195,7 @@ local function ST_LoadMenu(menuId)
 
         ctx.Menu = { MenuId = 0x1020, Text = title, PrevId = 0, NextId = 0x1021, BackId = 0x1011, TextId=0 }
 
-        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_NC, Text=thrText, TextId = 0, ValId = MEMU_VAR.CH_THR, Min=0, Max=9, Def=0, Val= thr }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_NC, Text=thrText, TextId = 0, ValId = MEMU_VAR.CH_THR, Min=0, Max=10, Def=0, Val= thr }
 
         ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU_NC, Text=leftAilText, TextId = 0, ValId = MEMU_VAR.CH_L_AIL, Min=0, Max=9, Def=0, Val= leftAil }
 
@@ -174,7 +210,7 @@ local function ST_LoadMenu(menuId)
             ctx.MenuLines[5] = { Type = LINE_TYPE.LIST_MENU_NC, Text=rightFlapText, TextId = 0, ValId = MEMU_VAR.CH_R_FLP, Min=0, Max=9, Def=0, Val= rightFlap }
         end
 
-        ctx.SelLine = 1
+        ctx.SelLine = 0
         lastGoodMenu = menuId
 
     elseif (menuId==0x1021) then
@@ -216,14 +252,15 @@ local function ST_LoadMenu(menuId)
         lastGoodMenu = menuId
    
     elseif (menuId==0x1030) then
+        modelLib.CreateDSMPortChannelInfo()
         modelLib.printChannelSummary()
         
         ctx.Menu = { MenuId = 0x1030, Text = "Gyro Channel Reverse (Port 1-5)", PrevId = 0, NextId = 0x1031, BackId = 0x1001, TextId=0 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT1], TextId = 0, ValId = MEMU_VAR.PORT1_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT1_MODE], Format = formatTXRevert(PORT.PORT1) }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT2], TextId = 0, ValId = MEMU_VAR.PORT2_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT2_MODE], Format = formatTXRevert(PORT.PORT2) }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT3], TextId = 0, ValId = MEMU_VAR.PORT3_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT3_MODE], Format = formatTXRevert(PORT.PORT3) }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT4], TextId = 0, ValId = MEMU_VAR.PORT4_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT4_MODE], Format = formatTXRevert(PORT.PORT4) }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT5], TextId = 0, ValId = MEMU_VAR.PORT5_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT5_MODE], Format = formatTXRevert(PORT.PORT5) }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT1), TextId = 0, ValId = MEMU_VAR.PORT1_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT1_MODE], Format = formatTXRevert(PORT.PORT1) }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT2), TextId = 0, ValId = MEMU_VAR.PORT2_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT2_MODE], Format = formatTXRevert(PORT.PORT2) }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT3), TextId = 0, ValId = MEMU_VAR.PORT3_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT3_MODE], Format = formatTXRevert(PORT.PORT3) }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT4), TextId = 0, ValId = MEMU_VAR.PORT4_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT4_MODE], Format = formatTXRevert(PORT.PORT4) }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT5), TextId = 0, ValId = MEMU_VAR.PORT5_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT5_MODE], Format = formatTXRevert(PORT.PORT5) }
 
         ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, Text="Only Thr/Ail/Rud/Ele. This affects AS3X/SAFE reaction dir./b", TextId = 0, ValId = 0x1030 }
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, Text="Any changes, use RX 'Relearn Servo Settings'/b", TextId = 0, ValId = 0x1030 }
@@ -231,13 +268,14 @@ local function ST_LoadMenu(menuId)
         ctx.SelLine = 0
         lastGoodMenu = menuId
     elseif (menuId==0x1031) then
+        modelLib.CreateDSMPortChannelInfo()
         modelLib.printChannelSummary()
         ctx.Menu = { MenuId = 0x1031, Text = "Gyro Channel Reverse (Port 6-10)", PrevId = 0x1030, NextId = 0, BackId = 0x1001, TextId=0 }
-        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT6], TextId = 0, ValId = MEMU_VAR.PORT6_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT6_MODE], Format = formatTXRevert(PORT.PORT6) }
-        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT7], TextId = 0, ValId = MEMU_VAR.PORT7_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT7_MODE], Format = formatTXRevert(PORT.PORT7) }
-        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT8], TextId = 0, ValId = MEMU_VAR.PORT8_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT8_MODE], Format = formatTXRevert(PORT.PORT8) }
-        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT9], TextId = 0, ValId = MEMU_VAR.PORT9_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT9_MODE], Format = formatTXRevert(PORT.PORT9) }
-        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, Text=MODEL.PORT_TEXT[PORT.PORT10], TextId = 0, ValId = MEMU_VAR.PORT10_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT10_MODE], Format = formatTXRevert(PORT.PORT10) }
+        ctx.MenuLines[0] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT6), TextId = 0, ValId = MEMU_VAR.PORT6_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT6_MODE], Format = formatTXRevert(PORT.PORT6) }
+        ctx.MenuLines[1] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT7), TextId = 0, ValId = MEMU_VAR.PORT7_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT7_MODE], Format = formatTXRevert(PORT.PORT7) }
+        ctx.MenuLines[2] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT8), TextId = 0, ValId = MEMU_VAR.PORT8_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT8_MODE], Format = formatTXRevert(PORT.PORT8) }
+        ctx.MenuLines[3] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT9), TextId = 0, ValId = MEMU_VAR.PORT9_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT9_MODE], Format = formatTXRevert(PORT.PORT9) }
+        ctx.MenuLines[4] = { Type = LINE_TYPE.LIST_MENU_NC, Text=Header(PORT.PORT10), TextId = 0, ValId = MEMU_VAR.PORT10_MODE, Min=300, Max=301, Def=300, Val=MENU_DATA[MEMU_VAR.PORT10_MODE], Format = formatTXRevert(PORT.PORT10) }
      
         ctx.MenuLines[5] = { Type = LINE_TYPE.MENU, Text="Only Thr/Ail/Rud/Ele. This affects AS3X/SAFE reaction dir./b", TextId = 0, ValId = 0x1031 }
         ctx.MenuLines[6] = { Type = LINE_TYPE.MENU, Text="Any changes, use RX 'Relearn Servo Settings'/b", TextId = 0, ValId = 0x1031 }
@@ -321,18 +359,21 @@ local function ST_SendReceive()
 
             -- DELTA has only RUDER 
             if ((currWingType==WING_TYPE.ELEVON_A or currWingType==WING_TYPE.ELEVON_B) and TAIL_TYPE~=TAIL_TYPE.RUD_1) then
-                currTailType = TAIL_TYPE.RUD_1
+                MENU_DATA[MEMU_VAR.TAIL_TYPE] = TAIL_TYPE.RUD_1
             end
         end
 
         --- Did the tail changed?
-        if (currTailType ~= MENU_DATA[MEMU_VAR.TAIL_TYPE]) then
+        local ntt = MENU_DATA[MEMU_VAR.TAIL_TYPE]
+        if (currTailType ~= ntt) then
             if (currAircraftType==AIRCRAFT_TYPE.GLIDER) then
-                currTailType = MENU_DATA[MEMU_VAR.TAIL_TYPE]
+                currTailType = ntt
                 modelLib.ST_GliderTailInit(currTailType)
             else
-                currTailType = MENU_DATA[MEMU_VAR.TAIL_TYPE]
-                modelLib.ST_PlaneTailInit(currTailType)
+                if (not tailTypeCompatible(currTailType,ntt)) then
+                    modelLib.ST_PlaneTailInit(ntt)
+                end
+                currTailType = ntt
             end
         end
 
@@ -355,6 +396,7 @@ local function ST_Init_Text(rxId)
 
     -- Channel Names use the Port Text Retrived from OTX/ETX
     for i = 0, 9 do List_Text[i] = MODEL.PORT_TEXT[i]  end
+    List_Text[10]="--"
 
     -- Aircraft Type
     List_Text[50+AIRCRAFT_TYPE.PLANE]  = "Airplane";    --List_Text_Img[50+AIRCRAFT_TYPE.PLANE]   = "at_plane.png|Airplane" 
@@ -380,8 +422,11 @@ local function ST_Init_Text(rxId)
     List_Text[200+TAIL_TYPE.RUD_2_ELEV_2] = "Dual Rud + Dual Ele";  List_Text_Img[200+TAIL_TYPE.RUD_2_ELEV_2]  = "tt_2rud_2ele.png|Dual Rud + Dual Elev" 
     List_Text[200+TAIL_TYPE.VTAIL_A] = "V-Tail A";  List_Text_Img[200+TAIL_TYPE.VTAIL_A]  = "tt_vtail.png|V-Tail A" 
     List_Text[200+TAIL_TYPE.VTAIL_B] = "V-Tail B";  List_Text_Img[200+TAIL_TYPE.VTAIL_B]  = "tt_vtail.png|V-Tail B" 
-    List_Text[200+TAIL_TYPE.TRAILERON_A] = "Traileron A";  List_Text_Img[200+TAIL_TYPE.TRAILERON_A]  = "tt_traileron.png|Traileron A" 
-    List_Text[200+TAIL_TYPE.TRAILERON_B] = "Traileron B";  List_Text_Img[200+TAIL_TYPE.TRAILERON_B]  = "tt_traileron.png|Traileron B" 
+    List_Text[200+TAIL_TYPE.TRAILERON_A] = "Taileron A";  List_Text_Img[200+TAIL_TYPE.TRAILERON_A]  = "tt_taileron.png|Taileron A" 
+    List_Text[200+TAIL_TYPE.TRAILERON_B] = "Taileron B";  List_Text_Img[200+TAIL_TYPE.TRAILERON_B]  = "tt_taileron.png|Taileron B" 
+    List_Text[200+TAIL_TYPE.TRAILERON_A_R2] = "Taileron A + 2x Rud";  List_Text_Img[200+TAIL_TYPE.TRAILERON_A_R2]  = "tt_taileron2.png|Taileron A + Dual Rud" 
+    List_Text[200+TAIL_TYPE.TRAILERON_B_R2] = "Taileron B + 2x Rud";  List_Text_Img[200+TAIL_TYPE.TRAILERON_B_R2]  = "tt_taileron2.png|Taileron B + Dual Rud" 
+
 
     -- Servo Reverse
     if (LCD_W > 128) then
@@ -399,8 +444,9 @@ local function ST_Init()
     ST_Init_Text(0)
 
     -- Setup default Data, and load a file if exist
-    modelLib.ST_Default_Data()
+    --modelLib.ST_Default_Data()
     if (modelLib.ST_LoadFileData()==0) then -- Did not load a file
+        modelLib.ST_Default_Data()
         modelLib.ST_SaveFileData() -- Save Defaults
     end
     menuDataChanged = false

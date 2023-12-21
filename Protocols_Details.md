@@ -1993,7 +1993,7 @@ AUTO: Land=-100% Takeoff=+100%
 The model can work with a none centered throttle.
 
 ## Tiger - *61*
-Models: WLToys 124016, 124017, 144010 and Eachine EAT14
+Models: Tiger Drone 1400782, WLToys 124016 / 124017 / 144010 and Eachine EAT14
 
 Autobind protocol
 

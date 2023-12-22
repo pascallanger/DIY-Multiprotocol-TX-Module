@@ -341,6 +341,7 @@
 #endif
 #if ( not defined(CC2500_INSTALLED) && not defined(NRF24L01_INSTALLED) ) || defined MULTI_EU
 	#undef	BLUEFLY_CCNRF_INO
+	#undef	BUMBLEB_CCNRF_INO
 	#undef	GD00X_CCNRF_INO
 	#undef	KF606_CCNRF_INO
 	#undef	MJXQ_CCNRF_INO

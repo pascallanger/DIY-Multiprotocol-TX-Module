@@ -107,6 +107,7 @@ const char STR_MOULDKG[]    ="MouldKg";
 const char STR_XERALL[]     ="Xerall";
 const char STR_SCORPIO[]    ="Scorpio";
 const char STR_BLUEFLY[]    ="BlueFly";
+const char STR_BUMBLEB[]    ="BumbleB";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -225,6 +226,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(BLUEFLY_CCNRF_INO)
 		{PROTO_BLUEFLY,    STR_BLUEFLY,   NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    BLUEFLY_init,    BLUEFLY_callback    },
+	#endif
+	#if defined(BUMBLEB_CCNRF_INO)
+		{PROTO_BUMBLEB,    STR_BUMBLEB,   NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    BUMBLEB_init,    BUMBLEB_callback    },
 	#endif
 	#if defined(BUGS_A7105_INO)
 		{PROTO_BUGS,       STR_BUGS,      NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_A7105,  BUGS_init,       BUGS_callback       },

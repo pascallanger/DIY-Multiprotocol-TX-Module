@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	3
-#define VERSION_PATCH_LEVEL	41
+#define VERSION_PATCH_LEVEL	42
 
 #define MODE_SERIAL 0
 
@@ -123,6 +123,7 @@ enum PROTOCOLS
 	PROTO_KYOSHO2	= 93,	// =>NRF24L01
 	PROTO_SCORPIO	= 94,	// =>CYRF6936
 	PROTO_BLUEFLY	= 95,	// =>CC2500 & NRF24L01
+	PROTO_BUMBLEB	= 96,	// =>CC2500 & NRF24L01
 
 	
 	PROTO_NANORF	= 126,	// =>NRF24L01
@@ -831,8 +832,9 @@ enum {
 #define FRSKYX2_CLONE_EEPROM_OFFSET	873	// (1) format + (3) TX ID, 4 bytes, end is 877
 #define DSM_RX_EEPROM_OFFSET	877		// (4) TX ID + format, 5 bytes, end is 882
 #define MOULDKG_EEPROM_OFFSET	882		// RX ID, 3 bytes per model, end is 882+64*3=1074
-#define DSM_CLONE_EEPROM_OFFSET 1074	// (4) TX ID, (1) Initialized, end is 1079
-//#define CONFIG_EEPROM_OFFSET 	1079	// Current configuration of the multimodule
+#define DSM_CLONE_EEPROM_OFFSET	1074	// (4) TX ID, (1) Initialized, end is 1079
+#define TRAXXAS_EEPROM_OFFSET	1079	// RX ID, 2 bytes per model id, end is 1079+128=1207
+//#define CONFIG_EEPROM_OFFSET 	1207	// Current configuration of the multimodule
 
 /* STM32 Flash Size */
 #ifndef DISABLE_FLASH_SIZE_CHECK

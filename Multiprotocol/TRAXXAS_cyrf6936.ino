@@ -78,6 +78,8 @@ static void __attribute__((unused)) TRAXXAS_send_data_packet()
 {
 	packet[0] = 0x01;
 	memset(&packet[1],0x00,TRAXXAS_PACKET_SIZE-1);
+	//Next RF channel ? 0x00 -> keep current, 0x0E change to F=15
+	//packet[1]
 	//Steering
 	uint16_t ch = convert_channel_16b_nolimit(RUDDER,500,1000,false);
 	packet[2]=ch>>8;
@@ -143,7 +145,9 @@ uint16_t TRAXXAS_callback()
 					// Replace RX ID by TX ID
 					for(uint8_t i=0;i<6;i++)
 						packet[i+1]=cyrfmfg_id[i];
-					packet[10]=0x01;
+					packet[7 ] = 0xEE;								// Not needed ??
+					packet[10] = 0x01;								// Must change otherwise bind doesn't complete
+					packet[13] = 0x05;								// Not needed ??
 					packet_count=12;
 					CYRF_SetTxRxMode(TX_EN);
 					phase=TRAXXAS_BIND_TX1;
@@ -212,6 +216,13 @@ void TRAXXAS_init()
 	}
 	else
 		phase = TRAXXAS_PREP_DATA;
+	
+	//
+//	phase = TRAXXAS_BIND_TX1;
+//	TRAXXAS_cyrf_bind_config();
+//	CYRF_SetTxRxMode(TX_EN);
+//	memcpy(packet,(uint8_t *)"\x02\x4A\xA3\x2D\x1A\x49\xFE\x06\x00\x00\x02\x01\x06\x06\x00\x00",TRAXXAS_PACKET_SIZE);
+//	memcpy(packet,(uint8_t *)"\x02\xFF\xFF\xFF\xFF\xFF\xFF\x01\x01\x01\x02\x01\x06\x00\x00\x00",TRAXXAS_PACKET_SIZE);
 }
 
 /*
@@ -224,11 +235,12 @@ RX1:	0x02	0x4A	0xA3	0x2D	0x1A	0x49	0xFE	0x06	0x00	0x00	0x02	0x01	0x06	0x06	0x00	
 TX1:	0x02	0x65	0xE2	0x5E	0x55	0x4D	0xFE	0xEE	0x00	0x00	0x01	0x01	0x06	0x05	0x00	0x00
 Notes:
  - RX cyrfmfg_id is 0x4A,0xA3,0x2D,0x1A,0x49,0xFE and TX cyrfmfg_id is 0x65,0xE2,0x5E,0x55,0x4D,0xFE
- - P[7] changes from 0x06 to 0xEE but not needed to complete the bind
+ - P[7] changes from 0x06 to 0xEE but not needed to complete the bind -> doesn't care??
  - P[8..9]=0x00 unchanged??
  - P[10] needs to be set to 0x01 to complete the bind -> normal packet P[0]??
- - P[11..12] unchanged ??
- - P[13] changes from 0x06 to 0x05 but not needed to complete the bind
+ - P[11] unchanged ?? -> no bind if set to 0x00 or 0x81
+ - P[12] unchanged ?? -> no bind if set to 0x05 or 0x86
+ - P[13] changes from 0x06 to 0x05 but not needed to complete the bind -> doesn't care??
  - P[14..15]=0x00 unchanged??
 
 Bind phase 2 (looks like normal mode?)
@@ -259,5 +271,7 @@ TX ID: \x65\xE2\x5E\x55\x4D\xFE
 RX ID: \x4A\xA3\x2D\x1A\x49\xFE CRC 0x1B 0x3F => CRC: 65-4A=1B E2-A3=3F
 RX ID: \x4B\xA3\x2D\x1A\x49\xFE CRC 0x1A 0x3F => CRC: 65-4B=1A E2-A3=3F
 RX ID: \x00\x00\x2D\x1A\x49\xFE CRC 0x65 0xE2 => CRC: 65-00=65 E2-00=E2
+RX ID: \x00\xFF\x2D\x1A\x49\xFE CRC 0x65 0xE3 => CRC: 65-00=65 E2-FF=E3
+RX ID: \xFF\x00\x2D\x1A\x49\xFE CRC 0x66 0xE2 => CRC: 65-FF=66 E2-00=E2
 */
 #endif

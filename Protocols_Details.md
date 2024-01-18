@@ -1390,9 +1390,11 @@ Models: WLtoys V911S, XK A110
 ### Sub_protocol E119 - *1*
 Models: Eachine E119, JJRC W01-J3, XK A220 P-40, XK A800 R2, F959S R2, A160 R2, A280
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|CALIB|RATE|6G_3D
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|CALIB|RATE|6G_3D|6GSENIOR|LIGHT
+
+A280 -> 6GSENIOR: -100% - 6G, +100% - Senior mode (turn off gyro), LIGHT: cycle the light through on-flash-off when the CH9 value is changed from -100% to 100%
 
 ## XK - *62*
 

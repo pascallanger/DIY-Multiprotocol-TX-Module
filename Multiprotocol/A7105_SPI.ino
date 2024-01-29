@@ -418,7 +418,7 @@ void A7105_Init(void)
 			#ifdef KYOSHO_A7105_INO
 				if(protocol==PROTO_KYOSHO)
 				{
-					if(sub_protocol==KYOSHO_FHSS)
+					if(sub_protocol==KYOSHO_FHSS || sub_protocol==KYOSHO_SYNCRO)
 						A7105_Regs=(uint8_t*)KYOSHO_A7105_regs;
 					else
 						A7105_Regs=(uint8_t*)KYOSHO_HYPE_A7105_regs;
@@ -446,7 +446,7 @@ void A7105_Init(void)
 	}
 	A7105_Strobe(A7105_STANDBY);
 
-	if(protocol==PROTO_KYOSHO && sub_protocol==KYOSHO_FHSS)
+	if(protocol==PROTO_KYOSHO && (sub_protocol==KYOSHO_FHSS || sub_protocol==KYOSHO_SYNCRO))
 	{//strange calibration...
 		//IF Filter Bank Calibration
 		A7105_WriteReg(A7105_02_CALC,0x0F);

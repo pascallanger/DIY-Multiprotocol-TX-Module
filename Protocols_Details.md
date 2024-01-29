@@ -113,7 +113,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [JOYSWAY](Protocols_Details.md#JOYSWAY---84)|84|||||||||NRF24L01|XN297
 [KF606](Protocols_Details.md#KF606---49)|49|KF606|MIG320|ZCZ50||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
-[Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
+[Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|Syncro||||||A7105|
 [Kyosho2](Protocols_Details.md#Kyosho2---93)|93|KT-17||||||||NRF24L01|
 [LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
 [Losi](Protocols_Details.md#Losi---89)|89|||||||||CYRF6936|
@@ -342,6 +342,15 @@ CH1|CH2|CH3|CH4|CH5|CH6
 A|E|T|R|CH5|CH6
 
 RX output will match the Hype standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+
+### Sub_protocol Syncro - *2*
+Surface protocol called Syncro. TX: KT-331, RX: KR-331
+
+Extended limits supported
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+STEERING|THROTTLE|CH3|CH4|CH5|CH6
 
 ## Pelikan - *60*
 Extended limits supported

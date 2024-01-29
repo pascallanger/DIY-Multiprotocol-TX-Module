@@ -19,6 +19,7 @@
 
 //#define KYOSHO_FORCE_ID_FHSS
 //#define KYOSHO_FORCE_ID_HYPE
+//#define KYOSHO_FORCE_ID_SYNCRO
 
 //Kyosho constants & variables
 #define KYOSHO_BIND_COUNT 2500
@@ -32,6 +33,11 @@ static void __attribute__((unused)) KYOSHO_send_packet()
 	packet[4] = rx_tx_addr[3];
 	//unknown may be RX ID on some other remotes
 	memset(packet+5,0xFF,4);
+
+	//unknwon but for Syncro the same values are used for bind and normal
+	packet[27]  = sub_protocol==KYOSHO_FHSS?0x05:0x07;	// Syncro is 7
+	packet[28]  = 0x00;
+	memset(packet+29,0xFF,8);
 	
 	if(IS_BIND_IN_PROGRESS)
 	{
@@ -42,10 +48,6 @@ static void __attribute__((unused)) KYOSHO_send_packet()
 		//RF table
 		for(uint8_t i=0; i<16;i++)
 			packet[i+11]=hopping_frequency[i+(packet[9]<<4)];
-		//unknwon
-		packet[27]  = 0x05;
-		packet[28]  = 0x00;
-		memset(packet+29,0xFF,8);
 		//frequency hop during bind
 		if(packet[9])
 			rf_ch_num=0x8C;
@@ -55,12 +57,19 @@ static void __attribute__((unused)) KYOSHO_send_packet()
 	else
 	{
 		packet[ 0]  = 0x58;						// normal packet
-		//14 channels: steering, throttle, ...
-		for(uint8_t i = 0; i < 14; i++)
+		//FHSS  14 channels: steering, throttle, ...
+		//Syncro 6 channels: steering, throttle, ...
+		for(uint8_t i = 0; i < sub_protocol==KYOSHO_FHSS?14:6; i++)
 		{
 			uint16_t temp=convert_channel_ppm(i);
 			packet[9 + i*2]=temp&0xFF;			// low byte of servo timing(1000-2000us)
 			packet[10 + i*2]=(temp>>8)&0xFF;	// high byte of servo timing(1000-2000us)
+		}
+		if(sub_protocol==KYOSHO_SYNCRO)
+		{
+			memcpy(&packet[21],&hopping_frequency[11],6);
+			packet[34] = 0x0F;
+			packet[36] = 0x0F;
 		}
 		rf_ch_num=hopping_frequency[hopping_frequency_no];
 		hopping_frequency_no++;
@@ -150,7 +159,7 @@ uint16_t KYOSHO_callback()
 			telemetry_set_input_sync(packet_period);
 		#endif
 	}
-	if(sub_protocol==KYOSHO_FHSS)
+	if(sub_protocol==KYOSHO_FHSS || sub_protocol==KYOSHO_SYNCRO)
 		KYOSHO_send_packet();
 	else//HYPE
 		KYOSHO_hype_send_packet();
@@ -162,7 +171,7 @@ void KYOSHO_init()
 	A7105_Init();
 
 	// compute channels from ID
-	calc_fh_channels(sub_protocol==KYOSHO_FHSS?32:15);
+	calc_fh_channels(sub_protocol==KYOSHO_HYPE?15:32);
 	hopping_frequency_no=0;
 
 	#ifdef KYOSHO_FORCE_ID_FHSS
@@ -170,6 +179,13 @@ void KYOSHO_init()
 		{
 			memcpy(rx_tx_addr,"\x3A\x39\x37\x00",4);
 			memcpy(hopping_frequency,"\x29\x4C\x67\x92\x31\x1C\x77\x18\x23\x6E\x81\x5C\x8F\x5A\x51\x94\x7A\x12\x45\x6C\x7F\x1E\x0D\x88\x63\x8C\x4F\x37\x26\x61\x2C\x8A",32);
+		}
+	#endif
+	#ifdef KYOSHO_FORCE_ID_SYNCRO
+		if(sub_protocol==KYOSHO_SYNCRO)
+		{
+			memcpy(rx_tx_addr,"\x00\xC2\x24\x00",4);
+			memcpy(hopping_frequency,"\x73\x12\x7D\x88\x63\x4A\x8D\x60\x57\x16\x5D\x8B\x25\x53\x6E\x3C\x41\x70\x20\x83\x2A\x19\x94\x2F\x91\x4C\x47\x36\x78\x10\x5A\x31",32);
 		}
 	#endif
 	if(sub_protocol==KYOSHO_HYPE)

@@ -70,7 +70,7 @@
 70,DSM_RX,Multi,CloneTX,EraseTX,CPPM
 71,JJRC345,JJRC345,SkyTmblr
 72,Q90C
-73,Kyosho,FHSS,Hype
+73,Kyosho,FHSS,Hype,Syncro
 74,RadioLink,Surface,Air,DumboRC
 75,---
 76,Realacc,R11

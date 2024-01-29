@@ -298,7 +298,7 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 	CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);		// Clear abort RX
 }
 
-#if defined(DEVO_CYRF6936_INO) || defined(J6PRO_CYRF6936_INO)
+#if defined(DEVO_CYRF6936_INO) || defined(J6PRO_CYRF6936_INO) || defined(TRAXXAS_CYRF6936_INO)
 const uint8_t PROGMEM DEVO_j6pro_sopcodes[][8] = {
     /* Note these are in order transmitted (LSB 1st) */
     {0x3C, 0x37, 0xCC, 0x91, 0xE2, 0xF8, 0xCC, 0x91},
@@ -311,7 +311,7 @@ const uint8_t PROGMEM DEVO_j6pro_sopcodes[][8] = {
     {0xB9, 0x8E, 0x19, 0x74, 0x6F, 0x65, 0x18, 0x74},
     {0xDF, 0xB1, 0xC0, 0x49, 0x62, 0xDF, 0xC1, 0x49},
     {0x97, 0xE5, 0x14, 0x72, 0x7F, 0x1A, 0x14, 0x72},
-#if defined(J6PRO_CYRF6936_INO)
+#if defined(J6PRO_CYRF6936_INO) || defined(TRAXXAS_CYRF6936_INO)
     {0x82, 0xC7, 0x90, 0x36, 0x21, 0x03, 0xFF, 0x17},
     {0xE2, 0xF8, 0xCC, 0x91, 0x3C, 0x37, 0xCC, 0x91}, //Note: the '03' was '9E' in the Cypress recommended table
     {0xAD, 0x39, 0xA2, 0x0F, 0x9B, 0xC5, 0xA1, 0x0F}, //The following are the same as the 1st 8 above,
@@ -322,14 +322,22 @@ const uint8_t PROGMEM DEVO_j6pro_sopcodes[][8] = {
     {0x9E, 0x82, 0xDC, 0x3C, 0xA1, 0x78, 0xDC, 0x3C},
     {0x6F, 0x65, 0x18, 0x74, 0xB9, 0x8E, 0x19, 0x74},
 #endif
+#if defined(TRAXXAS_CYRF6936_INO)
+    {0x62, 0xDF, 0xC1, 0x49, 0xDF, 0xB1, 0xC0, 0x49},
+#endif
 };
 #endif
 
 static void __attribute__((unused)) CYRF_PROGMEM_ConfigSOPCode(const uint8_t *data)
 {
 	uint8_t code[8];
+	//debug("SOP:");
 	for(uint8_t i=0;i<8;i++)
+	{
 		code[i]=pgm_read_byte_near(&data[i]);
+		//debug(" %02X",code[i]);
+	}
+	//debugln("");
 	CYRF_ConfigSOPCode(code);
 }
 

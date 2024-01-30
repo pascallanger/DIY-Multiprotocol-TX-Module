@@ -14,7 +14,7 @@
  */
 // compatible with BLUEFLY HP100
 
-#if defined(BLUEFLY_CCNRF_INO)
+#if 0 //defined(BLUEFLY_CCNRF_INO)
 
 #include "iface_nrf250k.h"
 

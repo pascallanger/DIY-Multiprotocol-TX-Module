@@ -255,7 +255,6 @@
 #define	ZSX_NRF24L01_INO
 
 //The protocols below need either a CC2500 or NRF24L01 to be installed
-//#define	BLUEFLY_CCNRF_INO
 #define	GD00X_CCNRF_INO
 #define	KF606_CCNRF_INO
 #define	MJXQ_CCNRF_INO

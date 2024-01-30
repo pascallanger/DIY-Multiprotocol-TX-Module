@@ -59,7 +59,7 @@ static void __attribute__((unused)) KYOSHO_send_packet()
 		packet[ 0]  = 0x58;						// normal packet
 		//FHSS  14 channels: steering, throttle, ...
 		//Syncro 6 channels: steering, throttle, ...
-		for(uint8_t i = 0; i < sub_protocol==KYOSHO_FHSS?14:6; i++)
+		for(uint8_t i = 0; i < (sub_protocol==KYOSHO_FHSS?14:6); i++)
 		{
 			uint16_t temp=convert_channel_ppm(i);
 			packet[9 + i*2]=temp&0xFF;			// low byte of servo timing(1000-2000us)
@@ -159,10 +159,10 @@ uint16_t KYOSHO_callback()
 			telemetry_set_input_sync(packet_period);
 		#endif
 	}
-	if(sub_protocol==KYOSHO_FHSS || sub_protocol==KYOSHO_SYNCRO)
-		KYOSHO_send_packet();
-	else//HYPE
+	if(sub_protocol==KYOSHO_HYPE)
 		KYOSHO_hype_send_packet();
+	else //FHSS && SYNCRO
+		KYOSHO_send_packet();
 	return packet_period;
 }
 

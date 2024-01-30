@@ -34,11 +34,6 @@ static void __attribute__((unused)) KYOSHO_send_packet()
 	//unknown may be RX ID on some other remotes
 	memset(packet+5,0xFF,4);
 
-	//unknwon but for Syncro the same values are used for bind and normal
-	packet[27]  = sub_protocol==KYOSHO_FHSS?0x05:0x07;	// Syncro is 7
-	packet[28]  = 0x00;
-	memset(packet+29,0xFF,8);
-	
 	if(IS_BIND_IN_PROGRESS)
 	{
 		packet[ 0]  = 0xBC;						// bind indicator
@@ -48,6 +43,11 @@ static void __attribute__((unused)) KYOSHO_send_packet()
 		//RF table
 		for(uint8_t i=0; i<16;i++)
 			packet[i+11]=hopping_frequency[i+(packet[9]<<4)];
+		//TX type
+		packet[27]  = sub_protocol==KYOSHO_FHSS ? 0x05:0x07;	// FHSS is 5 and Syncro is 7
+		//Unknown
+		packet[28]  = 0x00;
+		memset(packet+29,0xFF,8);
 		//frequency hop during bind
 		if(packet[9])
 			rf_ch_num=0x8C;
@@ -59,18 +59,21 @@ static void __attribute__((unused)) KYOSHO_send_packet()
 		packet[ 0]  = 0x58;						// normal packet
 		//FHSS  14 channels: steering, throttle, ...
 		//Syncro 6 channels: steering, throttle, ...
-		for(uint8_t i = 0; i < 14; i++) //needed?: i < (sub_protocol==KYOSHO_FHSS?14:6); i++)
+		for(uint8_t i = 0; i < 14; i++) 		//needed? i < (sub_protocol==KYOSHO_FHSS?14:6); i++)
 		{
-			uint16_t temp=convert_channel_ppm(i);
-			packet[9 + i*2]=temp&0xFF;			// low byte of servo timing(1000-2000us)
-			packet[10 + i*2]=(temp>>8)&0xFF;	// high byte of servo timing(1000-2000us)
+			uint16_t temp = convert_channel_ppm(i);
+			packet[ 9 + i*2] = temp&0xFF;		// low byte of servo timing(1000-2000us)
+			packet[10 + i*2] = (temp>>8)&0xFF;	// high byte of servo timing(1000-2000us)
 		}
-		if(sub_protocol==KYOSHO_SYNCRO)
-		{
-			//memcpy(&packet[21],&hopping_frequency[11],6);	// needed?
-			packet[34] = 0x0F;
-			packet[36] = 0x0F;
-		}
+		// if(sub_protocol==KYOSHO_SYNCRO) 	// needed?
+		// {
+			// memcpy(&packet[21],&hopping_frequency[11],6);
+			// packet[27]  = 0x07;
+			// packet[28]  = 0x00;
+			// memset(packet+29,0xFF,8);
+			// packet[34] = 0x0F;
+			// packet[36] = 0x0F;
+		// }
 		rf_ch_num=hopping_frequency[hopping_frequency_no];
 		hopping_frequency_no++;
 		packet[34] |= (hopping_frequency_no&0x0F)<<4;

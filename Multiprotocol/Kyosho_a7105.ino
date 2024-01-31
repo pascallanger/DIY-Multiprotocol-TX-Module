@@ -44,7 +44,7 @@ static void __attribute__((unused)) KYOSHO_send_packet()
 		for(uint8_t i=0; i<16;i++)
 			packet[i+11]=hopping_frequency[i+(packet[9]<<4)];
 		//TX type
-		packet[27]  = sub_protocol==KYOSHO_FHSS ? 0x05:0x07;	// FHSS is 5 and Syncro is 7
+		packet[27]  = (bind_counter & 0x40) ? 0x05:0x07;	// FHSS is 5 and Syncro is 7
 		//Unknown
 		packet[28]  = 0x00;
 		memset(packet+29,0xFF,8);
@@ -185,7 +185,7 @@ void KYOSHO_init()
 		}
 	#endif
 	#ifdef KYOSHO_FORCE_ID_SYNCRO
-		if(sub_protocol==KYOSHO_SYNCRO)
+		if(sub_protocol==KYOSHO_FHSS)
 		{
 			memcpy(rx_tx_addr,"\x00\xC2\x24\x00",4);
 			memcpy(hopping_frequency,"\x73\x12\x7D\x88\x63\x4A\x8D\x60\x57\x16\x5D\x8B\x25\x53\x6E\x3C\x41\x70\x20\x83\x2A\x19\x94\x2F\x91\x4C\x47\x36\x78\x10\x5A\x31",32);

@@ -123,7 +123,6 @@
 9,1,KN,Feilun,0,DRate,THold,IdleUp,Gyro,Ttrim,Atrim,Etrim
 73,0,Kyosho,FHSS,0,CH5,CH6,CH7,CH8,CH9,CH10,CH11,CH12,CH13,CH14
 73,1,Kyosho,Hype,0,CH5,CH6
-73,2,Kyosho,Syncro,0,CH5,CH6
 18,0,MJXQ,WHL08,1,Flip,LED,Pict,Video,HLess,RTH,AuFlip,Pan,Tilt,Rate
 18,1,MJXQ,X600,1,Flip,LED,Pict,Video,HLess,RTH,AuFlip,Pan,Tilt,Rate
 18,2,MJXQ,X800,1,Flip,LED,Pict,Video,HLess,RTH,AuFlip,Pan,Tilt,Rate

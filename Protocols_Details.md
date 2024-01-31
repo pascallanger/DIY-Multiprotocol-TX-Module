@@ -113,7 +113,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [JOYSWAY](Protocols_Details.md#JOYSWAY---84)|84|||||||||NRF24L01|XN297
 [KF606](Protocols_Details.md#KF606---49)|49|KF606|MIG320|ZCZ50||||||NRF24L01|XN297
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
-[Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|Syncro||||||A7105|
+[Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
 [Kyosho2](Protocols_Details.md#Kyosho2---93)|93|KT-17||||||||NRF24L01|
 [LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
 [Losi](Protocols_Details.md#Losi---89)|89|||||||||CYRF6936|

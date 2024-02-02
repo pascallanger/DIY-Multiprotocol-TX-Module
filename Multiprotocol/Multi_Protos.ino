@@ -174,7 +174,7 @@ const char STR_SUBTYPE_MOULKG[] =     "\x06""Analog""Digit\0";
 const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320""ZCZ50\0";
 const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
 const char STR_SUBTYPE_FX[] =         "\x04""816\0""620\0""9630";
-const char STR_SUBTYPE_CFLIE[] =      "\x07""Default\0  ""2Mbps\0 ""1Mbps\0 ""250kbps";
+const char STR_SUBTYPE_CFLIE[] =      "\x07""Default""2Mbps\0 ""1Mbps\0 ""250kbps";
 #define NO_SUBTYPE		nullptr
 
 #ifdef SEND_CPPM

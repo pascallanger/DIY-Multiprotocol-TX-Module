@@ -1444,13 +1444,13 @@ Channels 14 and 15 (ANAAUX1 and ANAAUX2) only available with analog aux channel 
 ### Sub_protocol BAYANG - *0*
 Models: Eachine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850, Floureon H101 ...
 
-Option=0 -> normal Bayang protocol
+Option=0 or Telemetry = Off -> normal Bayang protocol
 
-Option=1 -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage (set the ratio to 5.0 and adjust with offset), A2=compensated battery voltage (set the ratio to 5.0 and adjust with offset) and if supported AccX=P, AccY=I, ACCZ=D (which you can rename after the sensors discovery)
+Option=1 or Telemetry = On -> enable telemetry with [Silverxxx firmware](https://github.com/silver13/H101-acro/tree/master). Value returned to the TX using FrSkyD Hub are RX RSSI, TX RSSI, A1=uncompensated battery voltage (set the ratio to 5.0 and adjust with offset), A2=compensated battery voltage (set the ratio to 5.0 and adjust with offset) and if supported AccX=P, AccY=I, ACCZ=D (which you can rename after the sensors discovery)
 
-Option=2 -> enable analog aux channels with [NFE Silverware firmware](https://github.com/NotFastEnuf/NFE_Silverware). Two otherwise static bytes in the protocol overridden to add two 'analog' (non-binary) auxiliary channels.
+Option=2 or Telemetry = Off+AUX -> enable analog aux channels with [NFE Silverware firmware](https://github.com/NotFastEnuf/NFE_Silverware). Two otherwise static bytes in the protocol overridden to add two 'analog' (non-binary) auxiliary channels.
 
-Option=3 -> both Silverware telemetry and analog aux channels enabled.
+Option=3 or Telemetry = On+AUX-> both Silverware telemetry and analog aux channels enabled.
 
 ### Sub_protocol H8S3D - *1*
 Model: H8S 3D

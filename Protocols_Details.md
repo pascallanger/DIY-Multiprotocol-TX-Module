@@ -1756,9 +1756,9 @@ CH1|CH2|CH3|CH4|CH5
 | | |T|R|AUX
 
 ## KN - *9*
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
----|---|---|---|---|---|---|---|---|----|----
-A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|----|----|----|----
+A|E|T|R|DR|THOLD|IDLEUP|GYRO|Ttrim|Atrim|Etrim|Rtrim|HoverDebugging
 
 Dual Rate: +100%=full range, Throttle Hold: +100%=hold, Idle Up: +100%=3D, GYRO: -100%=6G, +100%=3G
 

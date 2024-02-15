@@ -63,7 +63,7 @@ enum {
 	KN_FLAG_DR     = 0x01, // Dual Rate: 1 - full range
 	KN_FLAG_TH     = 0x02, // Throttle Hold: 1 - hold
 	KN_FLAG_IDLEUP = 0x04, // Idle up: 1 - 3D
-	KN_FLAG_RES1   = 0x08,
+	KN_FLAG_RES1   = 0x08, // HoverDebugging
 	KN_FLAG_RES2   = 0x10,
 	KN_FLAG_RES3   = 0x20,
 	KN_FLAG_GYRO3  = 0x40, // 0 - 6G mode, 1 - 3G mode
@@ -141,19 +141,13 @@ static void __attribute__((unused)) kn_update_packet_control_data()
 	packet[8]  = convert_channel_16b_limit(CH9,0,200); // 0x64; // T
 	packet[9]  = convert_channel_16b_limit(CH10,0,200); // 0x64; // A
 	packet[10] = convert_channel_16b_limit(CH11,0,200); // 0x64; // E
-	packet[11] = 0x64; // R
+	packet[11] = convert_channel_16b_limit(CH12,0,200); // 0x64; // R
 
-	flags=0;
-	if (CH5_SW)
-		flags = KN_FLAG_DR;
-	if (CH6_SW)
-		flags |= KN_FLAG_TH;
-	if (CH7_SW)
-		flags |= KN_FLAG_IDLEUP;
-	if (CH8_SW)
-		flags |= KN_FLAG_GYRO3;
-
-	packet[12] = flags;
+	packet[12] = GET_FLAG(CH5_SW,  KN_FLAG_DR)
+				|GET_FLAG(CH6_SW,  KN_FLAG_TH)
+				|GET_FLAG(CH7_SW,  KN_FLAG_IDLEUP)
+				|GET_FLAG(CH8_SW,  KN_FLAG_GYRO3)
+				|GET_FLAG(CH13_SW, KN_FLAG_RES1);	//Hover debugging
 
 	packet[13] = 0x00;
 	if(sub_protocol==WLTOYS)

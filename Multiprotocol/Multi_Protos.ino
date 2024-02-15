@@ -108,6 +108,7 @@ const char STR_XERALL[]     ="Xerall";
 const char STR_SCORPIO[]    ="Scorpio";
 const char STR_BLUEFLY[]    ="BlueFly";
 const char STR_BUMBLEB[]    ="BumbleB";
+const char STR_SGF22[]      ="SGF22";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -443,6 +444,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(SCORPIO_CYRF6936_INO)
 		{PROTO_SCORPIO,    STR_SCORPIO,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CYRF,   SCORPIO_init,    SCORPIO_callback    },
+	#endif
+	#if defined(SGF22_NRF24L01_INO)
+		{PROTO_SGF22,      STR_SGF22,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    SGF22_init,      SGF22_callback      },
 	#endif
 	#if defined(SHENQI_NRF24L01_INO)
 		{PROTO_SHENQI,     STR_SHENQI,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    SHENQI_init,     SHENQI_callback     },

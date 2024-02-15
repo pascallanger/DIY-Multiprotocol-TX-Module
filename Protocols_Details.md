@@ -1938,11 +1938,13 @@ A|E|T|R|FLIP|LIGHT|CALIB|HLESS|RTH|UNK
 ## SGF22 - *97*
 Autobind protocol
 
+Only 1 ID !!! Need more TX dumps.
+
 Model: SGF22
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|MODE|FLIP|LIGHT
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|MODE|FLIP|LIGHT|PHOTO
 
 ## Shenqi - *19*
 Autobind protocol

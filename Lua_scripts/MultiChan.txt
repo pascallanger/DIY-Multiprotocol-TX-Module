@@ -212,4 +212,4 @@
 94,0,Scorpio
 95,0,Bluefly,HP100,0,CH5,CH6,CH7,CH8
 96,0,BumbleB
-97,0,SGF22,Std,1,MODE,FLIP,LED
+97,0,SGF22,Std,1,Mode,Flip,LED,Pict

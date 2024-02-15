@@ -26,20 +26,27 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_BIND_COUNT		50
 #define SGF22_RF_NUM_CHANNELS	4
 
+#define SGF22_FLAG_LIGHT		0x04
+#define SGF22_FLAG_6G			0x40
+#define SGF22_FLAG_VERTICAL		0xC0
+#define SGF22_FLAG_3D			0x00
+#define SGF22_FLAG_ROLL			0x08
+#define SGF22_FLAG_PHOTO		0x40
+
 static void __attribute__((unused)) SGF22_send_packet()
 {
 	if(IS_BIND_IN_PROGRESS)
 	{
-		packet[0] = 0x5B;
-		packet[8] = 0x00;							// ??? do they have to be 0 for bind to succeed ?
-		packet[9] = 0x00;							// ??? do they have to be 0 for bind to succeed ?
+		packet[ 0] = 0x5B;
+		packet[ 8] = 0x00;								// ??? do they have to be 0 for bind to succeed ?
+		packet[ 9] = 0x00;								// ??? do they have to be 0 for bind to succeed ?
 		packet[10] = 0xAA;
 		packet[11] = 0x55;
 	}
 	else
 	{
 		//hop
-		XN297_Hopping(packet_sent & 0x03);			// ??? from the dumps I can't really say how hop and seq are sync, there could be an offset (0,1,2,3)...
+		XN297_Hopping(packet_sent & 0x03);				// ??? from the dumps I can't really say how hop and seq are sync, there could be an offset (0,1,2,3)...
 		if( (packet_sent & 0x03) == 0x02)
 			packet_count = packet_sent;
 		packet_sent++;
@@ -47,16 +54,18 @@ static void __attribute__((unused)) SGF22_send_packet()
 			packet_sent = 0;
 		//packet
 		packet[0] = 0x1B;
-		packet[8] = 0x04 | GET_FLAG(CH6_SW, 0x08);	// roll
+		packet[8] = SGF22_FLAG_3D						// default
+				| GET_FLAG(CH6_SW, SGF22_FLAG_ROLL)		// roll
+				| GET_FLAG(CH7_SW, SGF22_FLAG_LIGHT);	// press up throttle trim for light
 		if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)
-			packet[8] |= 0x40;						// mode 1 - 6g
+			packet[8] |= SGF22_FLAG_6G;					// mode 1 - 6g
 		if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
-			packet[8] |= 0x80;						// mode 0 - vertical
-		packet[9] = GET_FLAG(CH7_SW, 0x40);			// light
-		packet[10] = 0x42;							// no fine tune
-		packet[11] = 0x10;							// no fine tune
+			packet[8] |= SGF22_FLAG_VERTICAL;			// mode 0 - vertical
+		GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO);				// press down throttle trim for photo
+		packet[10] = 0x42;								// no fine tune
+		packet[11] = 0x10;								// no fine tune
 	}
-	packet[1] = packet_count;						// sequence
+	packet[1] = packet_count;							// sequence
 	packet[2] = rx_tx_addr[2];
 	packet[3] = rx_tx_addr[3];
 	packet[4] = convert_channel_8b(THROTTLE);

@@ -136,6 +136,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
 [Scorpio](Protocols_Details.md#Scorpio---94)|94|||||||||CYRF6936|
+[SGF22](Protocols_Details.md#SGF22---97)|97|SGF22||||||||NRF24L01|XN297
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|CC2500
@@ -1933,6 +1934,15 @@ A|E|T|R|FLIP|LIGHT|CALIB|HLESS|RTH|UNK
 
 ### Sub_protocol FAST - *0*
 ### Sub_protocol SLOW - *1*
+
+## SGF22 - *97*
+Autobind protocol
+
+Model: SGF22
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|MODE|FLIP|LIGHT
 
 ## Shenqi - *19*
 Autobind protocol

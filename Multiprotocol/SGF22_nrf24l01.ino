@@ -108,9 +108,7 @@ uint16_t SGF22_callback()
 	}
 	else
 	{//send 3 times in total the same packet
-		#ifdef NRF24L01_INSTALLED
-			NRF24L01_Strobe(REUSE_TX_PL);
-		#endif
+		NRF24L01_Strobe(REUSE_TX_PL);
 		phase++;
 		if(phase > 2)
 		{

@@ -26,11 +26,14 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_BIND_COUNT		50
 #define SGF22_RF_NUM_CHANNELS	4
 
-#define SGF22_FLAG_LIGHT		0x04
-#define SGF22_FLAG_6G			0x40
-#define SGF22_FLAG_VERTICAL		0xC0
+//packet[8]
 #define SGF22_FLAG_3D			0x00
 #define SGF22_FLAG_ROLL			0x08
+#define SGF22_FLAG_LIGHT		0x04
+#define SGF22_FLAG_VIDEO		0x10
+#define SGF22_FLAG_6G			0x40
+#define SGF22_FLAG_VERTICAL		0xC0
+//packet[9]
 #define SGF22_FLAG_PHOTO		0x40
 
 static void __attribute__((unused)) SGF22_send_packet()
@@ -56,12 +59,14 @@ static void __attribute__((unused)) SGF22_send_packet()
 		packet[0] = 0x1B;
 		packet[8] = SGF22_FLAG_3D						// default
 				| GET_FLAG(CH6_SW, SGF22_FLAG_ROLL)		// roll
-				| GET_FLAG(CH7_SW, SGF22_FLAG_LIGHT);	// press up throttle trim for light
+				| GET_FLAG(CH7_SW, SGF22_FLAG_LIGHT)	// push up throttle trim for light
+				| GET_FLAG(CH9_SW, SGF22_FLAG_VIDEO);   // push down throttle trim for video
 		if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)
 			packet[8] |= SGF22_FLAG_6G;					// mode 1 - 6g
 		if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
 			packet[8] |= SGF22_FLAG_VERTICAL;			// mode 0 - vertical
 		GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO);				// press down throttle trim for photo
+		packet[9] = GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO);	// press in throttle trim for photo
 		packet[10] = 0x42;								// no fine tune
 		packet[11] = 0x10;								// no fine tune
 	}

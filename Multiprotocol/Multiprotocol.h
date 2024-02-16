@@ -451,6 +451,7 @@ enum RLINK
 	RLINK_SURFACE	= 0,
 	RLINK_AIR		= 1,
 	RLINK_DUMBORC	= 2,
+	RLINK_RC4G		= 3,
 };
 enum MOULDKG
 {

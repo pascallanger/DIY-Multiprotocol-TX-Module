@@ -1001,6 +1001,17 @@ Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%)
 ### Sub_protocol DumboRC - *2*
 Compatible RXs: X6/X6F/X6FG
 
+### Sub_protocol RC4G - *3*
+Compatible RXs: R4EH-G(/R4EH-H)
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|FS_CH1|FS_CH2|FS_CH3|FS_CH4
+
+FS=FailSafe
+
+CH5 is driven by CH3 on the original TX, gyro sensibility?
+
 ## Futaba - *21*
 Also called SFHSS depending on radio version.
 
@@ -1942,9 +1953,9 @@ Only 1 ID !!! Need more TX dumps.
 
 Model: SGF22
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|MODE|FLIP|LIGHT|PHOTO
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|FLIP|LIGHT|PHOTO|VIDEO
 
 ## Shenqi - *19*
 Autobind protocol

@@ -24,13 +24,15 @@
 
 #define TRAXXAS_CHANNEL			0x0F
 #define TRAXXAS_BIND_CHANNEL	0x2B
-#define TRAXXAS_BIND_CHECK		0x22
+#define TRAXXAS_CHECK_CHANNEL	0x22
 #define TRAXXAS_PACKET_SIZE		16
 
 enum {
 	TRAXXAS_BIND_PREP_RX=0,
 	TRAXXAS_BIND_RX,
 	TRAXXAS_BIND_TX1,
+	TRAXXAS_PREP_RX,
+	TRAXXAS_RX,
 	TRAXXAS_PREP_DATA,
 	TRAXXAS_DATA,
 };
@@ -54,6 +56,14 @@ static void __attribute__((unused)) TRAXXAS_cyrf_bind_config()
 	CYRF_WriteRegister(CYRF_15_CRC_SEED_LSB, 0x5A);
 	CYRF_WriteRegister(CYRF_16_CRC_SEED_MSB, 0x5A);
 	CYRF_ConfigRFChannel(TRAXXAS_BIND_CHANNEL);
+}
+
+static void __attribute__((unused)) TRAXXAS_cyrf_check_config()
+{
+	CYRF_PROGMEM_ConfigSOPCode(DEVO_j6pro_sopcodes[9]);
+	CYRF_WriteRegister(CYRF_15_CRC_SEED_LSB, 0xA5);
+	CYRF_WriteRegister(CYRF_16_CRC_SEED_MSB, 0xA5);
+	CYRF_ConfigRFChannel(TRAXXAS_CHECK_CHANNEL);
 }
 
 static void __attribute__((unused)) TRAXXAS_cyrf_data_config()
@@ -106,15 +116,20 @@ uint16_t TRAXXAS_callback()
 	switch(phase)
 	{
 		case TRAXXAS_BIND_PREP_RX:
-			//debugln("BIND_PREP_RX");
-			TRAXXAS_cyrf_bind_config();
+		case TRAXXAS_PREP_RX:
+			//debugln("PREP_RX");
+			if(phase == TRAXXAS_BIND_PREP_RX)
+				TRAXXAS_cyrf_bind_config();
+			else
+				TRAXXAS_cyrf_check_config();
 			CYRF_SetTxRxMode(RX_EN);								//Receive mode
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x83);				//Prepare to receive
 			packet_count=100;										//Timeout for RX
-			phase=TRAXXAS_BIND_RX;
-			return 700;
+			phase++;	// TRAXXAS_BIND_RX or TRAXXAS_RX
+			return 7000;
 		case TRAXXAS_BIND_RX:
-			//debugln("BIND_RX");
+		case TRAXXAS_RX:
+			//debugln("RX");
 			//Read data from RX
 			status = CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
 			if((status & 0x03) == 0x02)  							// RXC=1, RXE=0 then 2nd check is required (debouncing)
@@ -138,12 +153,24 @@ uint16_t TRAXXAS_callback()
 							debug(" %02X",packet[i]);
 						debugln("");
 					#endif
-					// Store RX ID
 					uint16_t addr=TRAXXAS_EEPROM_OFFSET+RX_num*3;
-					for(uint8_t i=0;i<2;i++)
-						eeprom_write_byte((EE_ADDR)(addr+i),packet[i+1]);
-					//Store SOP index
-					eeprom_write_byte((EE_ADDR)(addr+2),packet[7]);
+					if(phase == TRAXXAS_BIND_RX)
+					{
+						// Store RX ID
+						for(uint8_t i=0;i<2;i++)
+							eeprom_write_byte((EE_ADDR)(addr+i),packet[i+1]);
+						//Store SOP index
+						eeprom_write_byte((EE_ADDR)(addr+2),packet[7]);
+					}
+					else
+					{
+						//check RX ID and SOP
+						if(eeprom_read_byte((EE_ADDR)(addr + 0)) != packet[1] || eeprom_read_byte((EE_ADDR)(addr + 1)) != packet[2] || eeprom_read_byte((EE_ADDR)(addr + 2)) != packet[7])
+						{ // Not our RX
+							phase++;	// TRAXXAS_PREP_DATA
+							return 10000-7000-1000;
+						}
+					}
 					// Replace RX ID by TX ID
 					for(uint8_t i=0;i<6;i++)
 						packet[i+1]=cyrfmfg_id[i];
@@ -157,17 +184,22 @@ uint16_t TRAXXAS_callback()
 					return 200;
 				}
 			}
-			if( --packet_count == 0 )
-			{ // Retry RX
-				CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);			// Enable RX abort
-				CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);			// Force end state
-				CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);			// Disable RX abort
-				if(--bind_counter != 0)
-					phase=TRAXXAS_BIND_PREP_RX;						// Retry receiving bind packet
-				else
-					phase=TRAXXAS_PREP_DATA;						// Abort binding
+			if(phase == TRAXXAS_BIND_RX)
+			{
+				if( --packet_count == 0 )
+				{ // Retry RX
+					CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);			// Enable RX abort
+					CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x24);			// Force end state
+					CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);			// Disable RX abort
+					if(--bind_counter != 0)
+						phase=TRAXXAS_BIND_PREP_RX;						// Retry receiving bind packet
+					else
+						phase=TRAXXAS_PREP_DATA;						// Abort binding
+				}
+				return 700;
 			}
-			return 700;
+			phase++;	// TRAXXAS_PREP_DATA
+			return 10000-7000-1000;
 		case TRAXXAS_BIND_TX1:
 			//debugln("BIND_TX1");
 			CYRF_WriteDataPacketLen(packet, TRAXXAS_PACKET_SIZE);
@@ -188,12 +220,13 @@ uint16_t TRAXXAS_callback()
 		case TRAXXAS_DATA:
 			//debugln("DATA");
 			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(13940);
+				telemetry_set_input_sync(10000);
 			#endif
 			TRAXXAS_send_data_packet();
-			break;
+			phase = TRAXXAS_PREP_RX;
+			return 1000;
 	}
-	return 13940;
+	return 10000;
 }
 
 void TRAXXAS_init()
@@ -242,7 +275,8 @@ TX1:	0x02	0x65	0xE2	0x5E	0x55	0x4D	0xFE	0xEE	0x00	0x00	0x01	0x01	0x06	0x05	0x00	
 Notes:
  - RX cyrfmfg_id is 0x4A,0xA3,0x2D,0x1A,0x49,0xFE and TX cyrfmfg_id is 0x65,0xE2,0x5E,0x55,0x4D,0xFE
  - P[7] changes from 0x06 to 0xEE but not needed to complete the bind -> doesn't care??
- - P[8..9]=0x00 unchanged??
+ - P[8] RF channel - 1 (on packets type 0x03)
+ - P[9] 0x00 unchanged??
  - P[10] needs to be set to 0x01 to complete the bind -> normal packet P[0]??
  - P[11] unchanged ?? -> no bind if set to 0x00 or 0x81
  - P[12] unchanged ?? -> no bind if set to 0x05 or 0x86

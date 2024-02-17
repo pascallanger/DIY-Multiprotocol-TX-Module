@@ -59,7 +59,7 @@
 59,Bayang_RX,Multi,CPPM
 60,Pelikan,Pro,Lite,SCX24
 61,Tiger
-62,XK,X450,X420
+62,XK,X450,X420,Cars
 63,XN_DUMP,250K,1M,2M,AUTO
 64,FrskyX2,CH_16,CH_8,EU_16,EU_8,Cloned
 65,FrSkyR9,915MHz,868MHz,915_8ch,868_8ch,FCC,--,FCC_8ch,--_8ch

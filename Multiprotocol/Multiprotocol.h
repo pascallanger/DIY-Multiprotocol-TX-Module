@@ -376,6 +376,7 @@ enum XK
 {
 	X450	= 0,
 	X420	= 1,
+	XK_CARS	= 2,
 };
 enum XN297DUMP
 {

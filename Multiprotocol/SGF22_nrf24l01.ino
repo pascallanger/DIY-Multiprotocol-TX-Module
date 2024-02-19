@@ -18,7 +18,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_xn297.h"
 
-#define FORCE_SGF22_ORIGINAL_ID
+//#define FORCE_SGF22_ORIGINAL_ID
 
 #define SGF22_PACKET_PERIOD		11950 //10240
 #define SGF22_BIND_RF_CHANNEL	78
@@ -90,10 +90,34 @@ static void __attribute__((unused)) SGF22_send_packet()
 
 static void __attribute__((unused)) SGF22_initialize_txid()
 {
+	uint8_t val = (( (uint16_t) rx_tx_addr[2] << 8 ) | rx_tx_addr[3])%5;
+
+	const uint8_t hop[5][4] =
+	{ { 0x0C, 0x2A, 0x1B, 0x39 },
+	  { 0x0F, 0x2D, 0x1E, 0x3D },
+	  { 0x12, 0x31, 0x21, 0x41 },
+	  { 0x15, 0x34, 0x24, 0x44 },
+	  { 0x18, 0x37, 0x27, 0x47 } };
+	memcpy(hopping_frequency, &hop[val], SGF22_RF_NUM_CHANNELS);
+	
+	/*//Same code sze...
+	hopping_frequency[0] = 0x0C + 3 * val;
+	hopping_frequency[1] = hopping_frequency[0] + 0x1E;
+	if(val > 1) hopping_frequency[1]++;
+	hopping_frequency[2] = hopping_frequency[0] + 0x0F;
+	hopping_frequency[3] = hopping_frequency[1] + 0x0F;
+	if(val    ) hopping_frequency[3]++;*/
+	
 	#ifdef FORCE_SGF22_ORIGINAL_ID
 		rx_tx_addr[2] = 0x1F;
 		rx_tx_addr[3] = 0x61;
 		memcpy(hopping_frequency,"\x15\x34\x24\x44", SGF22_RF_NUM_CHANNELS);    //Original dump=>21=0x15,52=0x34,36=0x24,68=0x44
+	#endif
+	#if 0
+		debug("ID: %02X %02X, C: ",rx_tx_addr[2],rx_tx_addr[3]);
+		for(uint8_t i=0; i<SGF22_RF_NUM_CHANNELS; i++)
+			debug(" %02X",hopping_frequency[i]);
+		debugln("");
 	#endif
 }
 

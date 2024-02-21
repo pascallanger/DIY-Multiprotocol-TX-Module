@@ -244,6 +244,6 @@ jobs:
         uses: actions/upload-artifact/merge@v4
         with:
           name: multi-test-build
-          pattern: build-artifact-*
+          pattern: multi-*
           delete-merged: true
           retention-days: 90

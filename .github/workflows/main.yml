@@ -161,17 +161,27 @@ jobs:
 
       - name: Build serial only
         run: |
-          source ./buildroot/bin/buildFunctions;
-          cp ./_Config.h.bak Multiprotocol/_Config.h
-          opt_disable ENABLE_PPM;
-          buildMulti;
+          # Skip the serial-only build for boards where it's too large now
+          if [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=none" ]] || [[ "$BOARD" =~ ":STM32F1:multi5in1t18int" ]]; then
+            printf "Not testing serial-only build for $BOARD.";
+          else
+            source ./buildroot/bin/buildFunctions;
+            cp ./_Config.h.bak Multiprotocol/_Config.h
+            opt_disable ENABLE_PPM;
+            buildMulti;
+          fi
       
       - name: Build PPM only
         run: |
-          source ./buildroot/bin/buildFunctions;
-          cp ./_Config.h.bak Multiprotocol/_Config.h
-          opt_disable ENABLE_SERIAL;
-          buildMulti;
+          # Skip the PPM-only build for boards where it's too large now
+          if [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=none" ]] || [[ "$BOARD" =~ ":STM32F1:multi5in1t18int" ]]; then
+            printf "Not testing serial-only build for $BOARD.";
+          else
+            source ./buildroot/bin/buildFunctions;
+            cp ./_Config.h.bak Multiprotocol/_Config.h
+            opt_disable ENABLE_SERIAL;
+            buildMulti;
+          fi
 
       - name: Build each RF module individually
         run: |

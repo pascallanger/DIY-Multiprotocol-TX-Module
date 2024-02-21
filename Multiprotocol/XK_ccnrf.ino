@@ -96,12 +96,14 @@ static void __attribute__((unused)) XK_send_packet()
 				packet[10] = 0x04; 				// 6G-Mode
 		//0x00 default M-Mode
 		
-		packet[10] |= GET_FLAG(CH7_SW,0x80);	// Emergency stop momentary switch
+		packet[10] |= GET_FLAG(CH7_SW ,0x80);	// Emergency stop momentary switch
 
-		packet[11]  = GET_FLAG(CH8_SW,0x03)		// 3D/6G momentary switch
-					 |GET_FLAG(CH6_SW,0x40);	// Take off momentary switch
-		packet[14]  = GET_FLAG(CH9_SW,0x01)		// Photo momentary switch
-					 |GET_FLAG(CH10_SW,0x2);	// Video momentary switch
+		packet[11]  = GET_FLAG(CH8_SW ,0x03)	// 3D/6G momentary switch
+					 |GET_FLAG(CH6_SW ,0x40);	// Take off momentary switch
+		packet[14]  = GET_FLAG(CH9_SW ,0x01)	// Photo momentary switch
+					 |GET_FLAG(CH10_SW,0x02)	// Video momentary switch
+					 |GET_FLAG(CH11_SW,0x04)	// Flip
+					 |GET_FLAG(CH12_SW,0x10);	// Light
 		//debugln("P1:%02X,P12:%02X",packet[1],packet[12]);
 	}
 

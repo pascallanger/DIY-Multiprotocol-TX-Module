@@ -141,7 +141,6 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|CC2500
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
-[Tiger](Protocols_Details.md#Tiger---61)|61|||||||||NRF24L01|XN297
 [Traxxas](Protocols_Details.md#Traxxas---43)|43|6519 RX||||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
 [V761](Protocols_Details.md#V761---48)|48|3CH|4CH|TOPRC||||||NRF24L01|XN297
@@ -1412,12 +1411,6 @@ A280 -> 6GSENIOR: -100% - 6G, +100% - Senior mode (turn off gyro), LIGHT: cycle 
 
 ## XK - *62*
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|----
-A|E|T|R|Flight_modes|Take_off|Emerg stop|3D/6G|Picture|Video
-
-Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary switches.
-
 CC2500: only X450 is supported.
 
 ### Sub_protocol X450 - *0*
@@ -1427,11 +1420,30 @@ If a CC2500 is installed it will be used for this sub protocol. Option in this c
 
 If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|Flight_modes|Take_off|Emerg stop|3D/6G|Picture|Video
+
+Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary switches.
+
 ### Sub_protocol X420 - *1*
-Models: XK X420/X520 (TX=X4), WLtoys 284131/284161/284010 
+Models: XK X420/X520 (TX=X4)
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|Flight_modes|Take_off|Emerg stop|3D/6G|Picture|Video
+
+Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary switches.
+
+Model: Tiger Drone 1400782
+
+CH1|CH2|CH3|CH4|CH11|CH12
+---|---|---|---|---|---
+A|E|T|R|FLIP|LIGHT
 
 ### Sub_protocol Cars - *2*
-Models: WLtoys cars 284131/284161/284010/...
+Models: WLtoys cars 284131/284161/284010/124016/124017/144010 and Eachine EAT14
+
 
 ***
 # NRF24L01 RF Module
@@ -2019,17 +2031,6 @@ MOT_ON_OFF: momentary switch (you need to maintaint it for at least 1.5sec for o
 AUTO: Land=-100% Takeoff=+100%
 
 The model can work with a none centered throttle.
-
-## Tiger - *61*
-Models: Tiger Drone 1400782, WLToys 124016 / 124017 / 144010 and Eachine EAT14
-
-Autobind protocol
-
-**Only 1 ID**
-
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|FLIP|LIGHT
 
 ## V761 - *48*
 

@@ -81,7 +81,6 @@ const char STR_HOTT[]		="HoTT";
 const char STR_FX[]		="FX";
 const char STR_BAYANG_RX[]	="BayanRX";
 const char STR_PELIKAN[]	="Pelikan";
-const char STR_TIGER[]		="Tiger";
 const char STR_XK[]			="XK";
 const char STR_XN297DUMP[]	="XN297DP";
 const char STR_FRSKYR9[]	="FrSkyR9";
@@ -459,9 +458,6 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(SYMAX_NRF24L01_INO)
 		{PROTO_SYMAX,      STR_SYMAX,     STR_SUBTYPE_SYMAX,     2, OPTION_NONE,    0, 0, SW_NRF,    SYMAX_init,      SYMAX_callback      },
-	#endif
-	#if defined(TIGER_NRF24L01_INO)
-		{PROTO_TIGER,      STR_TIGER,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    TIGER_init,      TIGER_callback      },	
 	#endif
 	#if defined(TRAXXAS_CYRF6936_INO)
 		{PROTO_TRAXXAS,    STR_TRAXXAS,   STR_SUBTYPE_TRAXXAS,   1, OPTION_NONE,    0, 0, SW_CYRF,   TRAXXAS_init,    TRAXXAS_callback    },

@@ -225,8 +225,6 @@ static uint8_t pelikan_firstCh_scx(uint8_t i, uint8_t j)
 			ch = 30;
 			break;
 		case 1:
-			ch = (i * 4) + 42;
-			break;
 		case 2:
 			ch = (i * 4) + 42;
 			break;

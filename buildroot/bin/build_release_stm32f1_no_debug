@@ -3,28 +3,51 @@
 source ./buildroot/bin/buildFunctions;
 exitcode=0;
 
-# Generic 4-in-1 FCC builds
-printf "\e[33;1mBuilding mm-stm-serial-aetr-v$MULTI_VERSION.bin\e[0m\n";
+# Generic 4-in-1 AIR builds
+printf "\e[33;1mBuilding mm-stm-serial-aetr-air-v$MULTI_VERSION.bin\e[0m\n";
+opt_add MULTI_AIR
 opt_disable ENABLE_PPM;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-aetr-air-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding mm-stm-serial-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-serial-taer-air-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-taer-air-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding mm-stm-serial-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-serial-reta-air-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-reta-air-v$MULTI_VERSION.bin;
+
+# Generic 4-in-1 SURFACE builds
+printf "\e[33;1mBuilding mm-stm-serial-aetr-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace RETA AETR;
+opt_remove MULTI_AIR;
+opt_add MULTI_SURFACE;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-aetr-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-serial-taer-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-taer-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-serial-reta-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-reta-sfc-v$MULTI_VERSION.bin;
 
 # Generic 4-in-1 LBT/EU builds
 printf "\e[33;1mBuilding mm-stm-serial-aetr-lbt-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace RETA AETR;
+opt_remove MULTI_SURFACE;
 opt_add MULTI_EU;
 buildMulti;
 exitcode=$((exitcode+$?));

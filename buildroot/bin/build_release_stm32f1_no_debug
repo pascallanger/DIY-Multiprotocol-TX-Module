@@ -65,51 +65,97 @@ buildMulti;
 exitcode=$((exitcode+$?));
 mv build/Multiprotocol.ino.bin ./binaries/mm-stm-serial-reta-lbt-v$MULTI_VERSION.bin;
 
-# DIY 5-in-1 builds
-printf "\e[33;1mBuilding mm-stm-5in1-aetr-v$MULTI_VERSION.bin\e[0m\n";
+# DIY 5-in-1 AIR builds
+printf "\e[33;1mBuilding mm-stm-5in1-aetr-air-v$MULTI_VERSION.bin\e[0m\n";
+opt_add MULTI_AIR;
 opt_remove MULTI_EU;
 opt_replace RETA AETR;
 opt_enable SX1276_INSTALLED;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-aetr-air-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding mm-stm-5in1-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-5in1-taer-air-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-taer-air-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding mm-stm-5in1-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-stm-5in1-reta-air-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-reta-air-v$MULTI_VERSION.bin;
 
-# T-Lite 5-in-1 builds
-printf "\e[33;1mBuilding mm-tlite5in1-aetr-v$MULTI_VERSION.bin\e[0m\n";
+# DIY 5-in-1 SURFACE builds
+printf "\e[33;1mBuilding mm-stm-5in1-aetr-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_add MULTI_SURFACE;
+opt_remove MULTI_AIR;
+opt_replace RETA AETR;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-aetr-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-5in1-taer-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-taer-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-5in1-reta-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-reta-sfc-v$MULTI_VERSION.bin;
+
+# T-Lite 5-in-1 AIR builds
+printf "\e[33;1mBuilding mm-tlite5in1-aetr-air-v$MULTI_VERSION.bin\e[0m\n";
+opt_add MULTI_AIR;
+opt_remove MULTI_SURFACE;
 opt_replace RETA AETR;
 opt_disable INVERT_TELEMETRY;
 opt_disable SX1276_INSTALLED;
 opt_enable "MULTI_5IN1_INTERNAL JP_TLite"
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-aetr-air-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding mm-tlite5in1-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-tlite5in1-taer-air-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-taer-air-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding mm-tlite5in1-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-tlite5in1-reta-air-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-reta-air-v$MULTI_VERSION.bin;
+
+# T-Lite 5-in-1 SURFACE builds
+printf "\e[33;1mBuilding mm-tlite5in1-aetr-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_add MULTI_SURFACE;
+opt_remove MULTI_AIR;
+opt_replace RETA AETR;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-aetr-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-tlite5in1-taer-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-taer-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-tlite5in1-reta-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-tlite5in1-reta-sfc-v$MULTI_VERSION.bin;
 
 # CC2500-only FCC builds
 printf "\e[33;1mBuilding mm-stm-cc2500-aetr-v$MULTI_VERSION.bin\e[0m\n";
+opt_remove MULTI_SURFACE;
 opt_replace RETA AETR;
 opt_disable "MULTI_5IN1_INTERNAL JP_TLite"
 opt_disable A7105_INSTALLED;
@@ -154,6 +200,7 @@ mv build/Multiprotocol.ino.bin ./binaries/mm-stm-cc2500-reta-lbt-v$MULTI_VERSION
 
 # 4-in-1 PPM builds
 printf "\e[33;1mBuilding mm-stm-ppm-aetr-v$MULTI_VERSION.bin\e[0m\n";
+opt_add MULTI_AIR;
 opt_enable A7105_INSTALLED;
 opt_enable CYRF6936_INSTALLED;
 opt_enable NRF24L01_INSTALLED;

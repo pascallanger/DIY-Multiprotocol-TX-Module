@@ -268,7 +268,7 @@ static void __attribute__((unused)) RLINK_RC4G_send_packet()
 	//address
 	memcpy(&packet[1], &rx_tx_addr[1], 3);
 	//channels
-	for(uint i=0;i<2;i++)
+	for(uint8_t i=0;i<2;i++)
 	{
 		val = Channel_data[2*i  ] +400 -24;
 		packet[4+i*2] = val;

@@ -50,6 +50,7 @@ static void __attribute__((unused)) SGF22_send_packet()
 	{
 		//hop
 		XN297_Hopping(packet_sent & 0x03);				// ??? from the dumps I can't really say how hop and seq are sync, there could be an offset (0,1,2,3)...
+		//sequence from 02 to 7A by increments of 4, sometimes with a flag 0x80 from 82 to FA, I can't tell from the dumps when the switch happens
 		if( (packet_sent & 0x03) == 0x02)
 			packet_count = packet_sent;
 		packet_sent++;

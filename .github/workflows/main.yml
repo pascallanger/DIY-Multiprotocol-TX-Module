@@ -42,20 +42,28 @@ jobs:
         include:
           - board: "multi4in1:avr:multiatmega328p:bootloader=none"
             name: "ATmega328p"
+            artifact_name: "atmega328p-no-boot"
           - board: "multi4in1:avr:multiatmega328p:bootloader=optiboot"
             name: "ATmega328p (Optiboot)"
+            artifact_name: "atmega328p-no-optiboot"
           - board: "multi4in1:avr:multixmega32d4"
             name: "OrangeRX"
+            artifact_name: "orangerx"
           - board: "multi4in1:STM32F1:multistm32f103c8:debug_option=none"
             name: "STM32F103 (64KB)"
+            artifact_name: "stm32-64k-no-debug"
           - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=none"
             name: "STM32F103 (128KB)"
+            artifact_name: "stm32-128k-no-debug"
           - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=native"
             name: "STM32F103 (128KB, USB Debugging)"
+            artifact_name: "stm32-128k-usb-debug"
           - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi"
             name: "STM32F103 (128KB, Serial Debugging)"
+            artifact_name: "stm32-128k-ftdi-debug"
           - board: "multi4in1:STM32F1:multi5in1t18int"
             name: "T18 5-in-1 (128KB)"
+            artifact_name: "stm32-128k-t18"
 
     # Set the build name using the friendly board name
     name: ${{ matrix.name }}
@@ -223,7 +231,17 @@ jobs:
 
       - name: 'Upload Artifacts'
         if: env.HAVE_FILES == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact/@v4
+        with:
+          name: build-artifact-${{ matrix.artifact_name }}
+          path: ./binaries/
+
+  merge:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@v4
         with:
           name: multi-test-build
-          path: ./binaries/
+          pattern: build-artifact-*

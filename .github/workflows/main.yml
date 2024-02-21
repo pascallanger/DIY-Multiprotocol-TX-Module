@@ -65,7 +65,7 @@ jobs:
       BOARD: ${{ matrix.board }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Install Arduino CLI
         uses: arduino/setup-arduino-cli@v1.1.2
@@ -216,14 +216,14 @@ jobs:
 
       - name: Deploy files to release
         if: github.event_name == 'release' && github.event.action == 'created' && env.HAVE_FILES == 'true'
-        uses: AButler/upload-release-assets@v2.0
+        uses: AButler/upload-release-assets@v3.0
         with:
           files: './binaries/*'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 'Upload Artifacts'
         if: env.HAVE_FILES == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: multi-test-build
           path: ./binaries/

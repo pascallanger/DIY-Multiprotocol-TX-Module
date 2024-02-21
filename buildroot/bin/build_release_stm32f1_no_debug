@@ -70,6 +70,7 @@ printf "\e[33;1mBuilding mm-stm-5in1-aetr-air-v$MULTI_VERSION.bin\e[0m\n";
 opt_add MULTI_AIR;
 opt_remove MULTI_EU;
 opt_replace RETA AETR;
+opt_disable CFLIE_NRF24L01_INO
 opt_enable SX1276_INSTALLED;
 buildMulti;
 exitcode=$((exitcode+$?));
@@ -91,6 +92,7 @@ mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-reta-air-v$MULTI_VERSION.b
 printf "\e[33;1mBuilding mm-stm-5in1-aetr-sfc-v$MULTI_VERSION.bin\e[0m\n";
 opt_add MULTI_SURFACE;
 opt_remove MULTI_AIR;
+opt_enable CFLIE_NRF24L01_INO
 opt_replace RETA AETR;
 buildMulti;
 exitcode=$((exitcode+$?));

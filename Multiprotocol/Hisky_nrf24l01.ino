@@ -66,8 +66,10 @@ static void __attribute__((unused)) HISKY_RF_init()
 	NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, 5);
 	NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, rx_tx_addr, 5);
 	NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, 10);		// payload size = 10
+	#ifndef MULTI_AIR
 	if(sub_protocol==HK310)
 		NRF24L01_SetBitrate(NRF24L01_BR_250K);			// 250Kbps
+	#endif
 }
 
 // HiSky channel sequence: AILE  ELEV  THRO  RUDD  GEAR  PITCH, channel data value is from 0 to 1000
@@ -92,6 +94,13 @@ static void __attribute__((unused)) HISKY_build_ch_data()
 uint16_t HISKY_callback()
 {
 	phase++;
+	#ifdef MULTI_AIR
+		if(sub_protocol==HK310)
+		{
+			SUB_PROTO_INVALID;
+			return 10000;
+		}
+	#else
 	if(sub_protocol==HK310)
 		switch(phase)
 		{
@@ -132,6 +141,7 @@ uint16_t HISKY_callback()
 				phase=8;
 				break;
 		}
+	#endif
 	switch(phase)
 	{
 		case 1:
@@ -195,6 +205,7 @@ uint16_t HISKY_callback()
 static void __attribute__((unused)) HISKY_initialize_tx_id()
 {
 	//Generate frequency hopping table	
+	#ifndef MULTI_AIR
 	if(sub_protocol==HK310)
 	{
 		// for HiSky surface protocol, the transmitter always generates hop channels in sequential order. 
@@ -204,10 +215,11 @@ static void __attribute__((unused)) HISKY_initialize_tx_id()
 			hopping_frequency[i]=hopping_frequency_no++;	// Sequential order hop channels...
 	}
 	else
-		calc_fh_channels(HISKY_FREQUENCE_NUM);
+	#endif
 		// HiSky air protocol uses TX id as an address for nRF24L01, and uses frequency hopping sequence
 		// which does not depend on this id and is passed explicitly in binding sequence. So we are free
 		// to generate this sequence as we wish. It should be in the range [02..77]
+		calc_fh_channels(HISKY_FREQUENCE_NUM);
 }
 
 void HISKY_init()

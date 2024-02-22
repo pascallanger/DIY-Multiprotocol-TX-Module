@@ -236,7 +236,8 @@ jobs:
           name: multi-${{ matrix.artifact_name }}
           path: ./binaries/
 
-  Merge:
+  merge:
+    name: Merge Artifacts
     runs-on: ubuntu-latest
     needs: build
     steps:

@@ -1,6 +1,6 @@
 # Workflow for testing MULTI-Module firmware builds
 
-name: CI
+name: MULTI Test, Build, Deploy, Release
 
 on:
   # Trigger the workflow on pushes, except those that are tagged (avoids double-testing releases)
@@ -32,7 +32,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     # Configure the board matrix
@@ -42,31 +42,23 @@ jobs:
         include:
           - board: "multi4in1:avr:multiatmega328p:bootloader=none"
             name: "ATmega328p"
-            artifact_name: "atmega328p"
           - board: "multi4in1:avr:multiatmega328p:bootloader=optiboot"
             name: "ATmega328p (Optiboot)"
-            artifact_name: "atmega328p-optiboot"
           - board: "multi4in1:avr:multixmega32d4"
             name: "OrangeRX"
-            artifact_name: "orangerx"
           - board: "multi4in1:STM32F1:multistm32f103c8:debug_option=none"
             name: "STM32F103 (64KB)"
-            artifact_name: "stm32f103-64k"
           - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=none"
             name: "STM32F103 (128KB)"
-            artifact_name: "stm32f103-128k"
           - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=native"
-            name: "STM32F103 (128KB, USB Debugging)"
-            artifact_name: "stm32f103-128k-usb-debug"
+            name: "STM32F103 (128KB, USB Debug)"
           - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi"
-            name: "STM32F103 (128KB, Serial Debugging)"
-            artifact_name: "stm32f103-128k-serial-debug"
+            name: "STM32F103 (128KB, Serial Debug)"
           - board: "multi4in1:STM32F1:multi5in1t18int"
             name: "T18 5-in-1 (128KB)"
-            artifact_name: "t18-5in1"
 
     # Set the build name using the friendly board name
-    name: ${{ matrix.name }}
+    name: "[Test] ${{ matrix.name }}"
 
     # Set the environment variables
     env:
@@ -208,6 +200,128 @@ jobs:
           cp ./_Config.h.bak Multiprotocol/_Config.h;
           buildEachProtocol;
 
+  build:
+    runs-on: ubuntu-latest
+
+    # Configure the board matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - board: "multi4in1:avr:multiatmega328p:bootloader=none"
+            name: "ATmega328p"
+            release: "atmega328p"
+          - board: "multi4in1:avr:multiatmega328p:bootloader=optiboot"
+            name: "ATmega328p (Optiboot)"
+            release: "atmega328p-optiboot"
+          - board: "multi4in1:avr:multixmega32d4"
+            name: "OrangeRX"
+            release: "orangerx"
+          - board: "multi4in1:STM32F1:multistm32f103c8:debug_option=none"
+            name: "STM32F103 CC2500 (64KB)"
+            release: "stm32f103-cc2500-64k"
+          - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=none"
+            name: "STM32F103 CC2500 (128KB)"
+            release: "stm32f103-cc2500-128k"
+          - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=none"
+            name: "STM32F103 (128KB)"
+            release: "stm32f103-128k-4in1"
+          - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=native"
+            name: "STM32F103 (128KB, USB Debug)"
+            release: "stm32f103-128k-usb-debug"
+          - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi"
+            name: "STM32F103 (128KB, Serial Debug)"
+            release: "stm32f103-128k-serial-debug"
+          - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=none"
+            name: "STM32F103 5-in-1 (128KB)"
+            release: "stm32f103-128k-5in1"
+          - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=none"
+            name: "T-Lite 5-in-1 (128KB)"
+            release: "tlite-5in1"
+          - board: "multi4in1:STM32F1:multi5in1t18int"
+            name: "T18 5-in-1 (128KB)"
+            release: "t18-5in1"
+          - board: "none"
+            name: "Scripts"
+            release: "scripts"
+
+    # Set the build name using the friendly board name
+    name: "[Build] ${{ matrix.name }}"
+
+    # Set the environment variables
+    env:
+      BOARD: ${{ matrix.board }}
+      RELEASE: ${{ matrix.release }}
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1.1.2
+        with:
+          version: "0.32.2"
+      
+      - name: Prepare build environment
+        run: |
+          echo "Github Ref: $GITHUB_REF"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Event action: ${{ github.event.action }}"
+          echo "Tag name: ${{ github.event.release.tag_name }}"
+
+          arduino-cli config init --additional-urls https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/master/package_multi_4in1_board_index.json,https://raw.githubusercontent.com/pascallanger/DIY-Multiprotocol-TX-Module-Boards/devel/source/package_multi_4in1_board_devel_index.json
+          arduino-cli core update-index
+          
+          if [[ "$BOARD" =~ ":avr:" ]]; then
+            arduino-cli core install arduino:avr;
+          fi
+
+          if [[ "$BOARD" =~ "multi4in1-devel:avr" ]]; then
+            arduino-cli core install multi4in1-devel:avr
+          elif [[ "$BOARD" =~ "multi4in1:avr" ]]; then
+            arduino-cli core install multi4in1:avr
+          fi
+
+          if [[ "$BOARD" =~ "multi4in1-devel:STM32F1:" ]]; then
+            arduino-cli core install multi4in1-devel:STM32F1
+          elif [[ "$BOARD" =~ "multi4in1:STM32F1:" ]]; then
+            arduino-cli core install multi4in1:STM32F1
+          fi
+
+          chmod +x ${GITHUB_WORKSPACE}/buildroot/bin/*
+          echo "${GITHUB_WORKSPACE}/buildroot/bin" >> $GITHUB_PATH
+
+          mkdir ./build
+          mkdir ./binaries
+
+      - name: Configure MULTI-Module firmware options
+        run: |
+          # Load the build functions
+          source ./buildroot/bin/buildFunctions;  
+          
+          # Get the version
+          getMultiVersion
+          echo "MULTI_VERSION=$(echo $MULTI_VERSION)" >> $GITHUB_ENV
+
+          # Get all the protocols for this board
+          getAllProtocols
+          echo "A7105_PROTOCOLS=$(echo $A7105_PROTOCOLS)" >> $GITHUB_ENV
+          echo "CC2500_PROTOCOLS=$(echo $CC2500_PROTOCOLS)" >> $GITHUB_ENV
+          echo "CYRF6936_PROTOCOLS=$(echo $CYRF6936_PROTOCOLS)" >> $GITHUB_ENV
+          echo "NRF24L01_PROTOCOLS=$(echo $NRF24L01_PROTOCOLS)" >> $GITHUB_ENV
+          echo "SX1276_PROTOCOLS=$(echo $SX1276_PROTOCOLS)" >> $GITHUB_ENV
+          echo "CCNRF_INO_PROTOCOLS=$(echo $CCNRF_INO_PROTOCOLS)" >> $GITHUB_ENV
+          echo "ALL_PROTOCOLS=$(echo $ALL_PROTOCOLS)" >> $GITHUB_ENV
+
+          # Disable CHECK_FOR_BOOTLOADER when not needed
+          if [[ "$BOARD" =~ ":avr:multiatmega328p:bootloader=none" ]]; then
+            opt_disable CHECK_FOR_BOOTLOADER;
+          fi
+
+      - name: Save default firmware configuration
+        run: |
+          cat Multiprotocol/_Config.h
+          cp Multiprotocol/_Config.h ./_Config.h.bak
+
       - name: Build release files
         run: |
           source ./buildroot/bin/buildFunctions;
@@ -222,29 +336,43 @@ jobs:
             echo "HAVE_FILES=false" >> $GITHUB_ENV
           fi
 
-      - name: Deploy files to release
-        if: github.event_name == 'release' && github.event.action == 'created' && env.HAVE_FILES == 'true'
-        uses: AButler/upload-release-assets@v3.0
-        with:
-          files: './binaries/*'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 'Upload Artifacts'
         if: env.HAVE_FILES == 'true'
         uses: actions/upload-artifact/@v4
         with:
-          name: multi-${{ matrix.artifact_name }}
+          name: multi-${{ matrix.release }}
           path: ./binaries/
 
-  merge:
-    name: Merge Artifacts
+  deploy:
+    name: "[Deploy] Attach Build Artifacts"
     runs-on: ubuntu-latest
-    needs: build
+    needs: [test, build]
     steps:
-      - name: Merge Artifacts
+      - name: Combine and upload build artifacts
         uses: actions/upload-artifact/merge@v4
         with:
           name: multi-test-build
           pattern: multi-*
           delete-merged: true
           retention-days: 90
+
+  release:
+    name: "[Release] Publish Files to Release"
+    if: github.event_name == 'release' && github.event.action == 'created'
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: multi-test-build
+          path: ./artifacts/
+      
+      - name: Display downloaded artifacts
+        run: ls -R ./artifacts/
+      
+      - name: Deploy artifacts to release
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          files: './artifacts/*'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

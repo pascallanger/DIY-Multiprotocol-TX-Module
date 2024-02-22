@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+source ./buildroot/bin/buildFunctions;
+exitcode=0;
+
+# DIY 5-in-1 AIR builds
+printf "\e[33;1mBuilding mm-stm-5in1-aetr-air-v$MULTI_VERSION.bin\e[0m\n";
+opt_add MULTI_AIR;
+opt_disable ENABLE_PPM;
+opt_disable CFLIE_NRF24L01_INO
+opt_enable SX1276_INSTALLED;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-aetr-air-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-5in1-taer-air-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-taer-air-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-5in1-reta-air-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-reta-air-v$MULTI_VERSION.bin;
+
+# DIY 5-in-1 SURFACE builds
+printf "\e[33;1mBuilding mm-stm-5in1-aetr-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_add MULTI_SURFACE;
+opt_remove MULTI_AIR;
+opt_enable CFLIE_NRF24L01_INO
+opt_replace RETA AETR;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-aetr-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-5in1-taer-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-taer-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-5in1-reta-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-reta-sfc-v$MULTI_VERSION.bin;
+
+# DIY 5-in-1 LBT builds
+printf "\e[33;1mBuilding mm-stm-5in1-aetr-lbt-v$MULTI_VERSION.bin\e[0m\n";
+opt_remove MULTI_SURFACE;
+opt_add MULTI_EU;
+opt_replace RETA AETR;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-aetr-lbt-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-5in1-taer-lbt-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-taer-lbt-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-5in1-reta-lbt-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-5in1-reta-lbt-v$MULTI_VERSION.bin;
+
+exit $exitcode;

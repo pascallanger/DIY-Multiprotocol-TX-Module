@@ -24,6 +24,7 @@
 //Kyosho constants & variables
 #define KYOSHO_BIND_COUNT 2500
 
+#ifndef MULTI_AIR
 static void __attribute__((unused)) KYOSHO_send_packet()
 {
 	//ID
@@ -88,6 +89,7 @@ static void __attribute__((unused)) KYOSHO_send_packet()
 	#endif
 	A7105_WriteData(37, rf_ch_num);
 }
+#endif //MULTI_AIR
 
 static void __attribute__((unused)) KYOSHO_hype_send_packet()
 {
@@ -165,7 +167,11 @@ uint16_t KYOSHO_callback()
 	if(sub_protocol==KYOSHO_HYPE)
 		KYOSHO_hype_send_packet();
 	else //FHSS && SYNCRO
+	#ifndef MULTI_AIR
 		KYOSHO_send_packet();
+	#else
+		SUB_PROTO_INVALID;
+	#endif
 	return packet_period;
 }
 

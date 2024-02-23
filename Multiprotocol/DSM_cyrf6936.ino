@@ -174,19 +174,21 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 			bits=10;								// Only DSM2_1F is using a resolution of 1024
 	}
 
-	if(sub_protocol == DSMR)
-	{
-		for (uint8_t i = 0; i < 7; i++)
+	#ifndef MULTI_AIR
+		if(sub_protocol == DSMR)
 		{
-			uint16_t value = 0x0000;
-			if(i < num_ch)
-				value=Channel_data[i]<<1;
-			packet[i*2+2] = (value >> 8) & 0xff;
-			packet[i*2+3] = (value >> 0) & 0xff;
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				uint16_t value = 0x0000;
+				if(i < num_ch)
+					value=Channel_data[i]<<1;
+				packet[i*2+2] = (value >> 8) & 0xff;
+				packet[i*2+3] = (value >> 0) & 0xff;
+			}
+			return;
 		}
-		return;
-	}
-
+	#endif
+	
 	#ifdef DSM_THROTTLE_KILL_CH
 		uint16_t kill_ch=Channel_data[DSM_THROTTLE_KILL_CH-1];
 	#endif
@@ -265,6 +267,10 @@ uint16_t DSM_callback()
 {
 	#if defined MULTI_EU
 		if(sub_protocol == DSM2_1F || sub_protocol == DSM2_2F)
+			return 11000;
+	#endif
+	#if defined MULTI_AIR
+		if(sub_protocol == DSMR)
 			return 11000;
 	#endif
 	#define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
@@ -506,6 +512,7 @@ uint16_t DSM_callback()
 }
 
 
+#ifndef MULTI_AIR
 const uint8_t PROGMEM DSMR_ID_FREQ[][4 + 23] = {
 	{ 0x71, 0x74, 0x1c, 0xe4, 0x11, 0x2f, 0x17, 0x3d, 0x23, 0x3b, 0x0f, 0x21, 0x25, 0x49, 0x1d, 0x13, 0x4d, 0x1f, 0x41, 0x4b, 0x47, 0x05, 0x27, 0x15, 0x19, 0x3f, 0x07 },
 	{ 0xfe, 0xfe, 0xfe, 0xfe, 0x45, 0x31, 0x33, 0x4b, 0x11, 0x29, 0x49, 0x3f, 0x09, 0x13, 0x47, 0x21, 0x1d, 0x43, 0x1f, 0x05, 0x41, 0x19, 0x1b, 0x2d, 0x15, 0x4d, 0x0f },
@@ -529,22 +536,27 @@ const uint8_t PROGMEM DSMR_ID_FREQ[][4 + 23] = {
 	{ 0xff, 0xff, 0x00, 0x00, 0x2b, 0x35, 0x1b, 0x1d, 0x0f, 0x47, 0x09, 0x0d, 0x45, 0x41, 0x21, 0x11, 0x2f, 0x43, 0x27, 0x33, 0x4b, 0x37, 0x13, 0x19, 0x4d, 0x23, 0x17 },
 	{ 0x00, 0xff, 0x00, 0x00, 0x1b, 0x1d, 0x33, 0x13, 0x2b, 0x27, 0x09, 0x41, 0x25, 0x17, 0x19, 0x2d, 0x4b, 0x37, 0x45, 0x11, 0x21, 0x0d, 0x3d, 0x4d, 0x07, 0x39, 0x43 },
 	{ 0xff, 0x00, 0x00, 0x00, 0x37, 0x27, 0x43, 0x4b, 0x39, 0x13, 0x07, 0x0d, 0x25, 0x17, 0x29, 0x1b, 0x1d, 0x45, 0x19, 0x2d, 0x0b, 0x3d, 0x15, 0x47, 0x1f, 0x21, 0x4d } };
+#endif
 
 void DSM_init()
 { 
 	if(sub_protocol == DSMR)
 	{
-		if(option&CLONE_BIT_MASK)
+		#ifndef MULTI_AIR
+			if(option&CLONE_BIT_MASK)
+				SUB_PROTO_INVALID;
+			else
+			{
+				SUB_PROTO_VALID;
+				uint8_t row = rx_tx_addr[3]%22;
+				for(uint8_t i=0; i< 4; i++)
+					cyrfmfg_id[i] = pgm_read_byte_near(&DSMR_ID_FREQ[row][i]);
+				for(uint8_t i=0; i< 23; i++)
+					hopping_frequency[i] = pgm_read_byte_near(&DSMR_ID_FREQ[row][i+4]);
+			}
+		#else
 			SUB_PROTO_INVALID;
-		else
-		{
-			SUB_PROTO_VALID;
-			uint8_t row = rx_tx_addr[3]%22;
-			for(uint8_t i=0; i< 4; i++)
-				cyrfmfg_id[i] = pgm_read_byte_near(&DSMR_ID_FREQ[row][i]);
-			for(uint8_t i=0; i< 23; i++)
-				hopping_frequency[i] = pgm_read_byte_near(&DSMR_ID_FREQ[row][i+4]);
-		}
+		#endif
 	}
 	else
 	{

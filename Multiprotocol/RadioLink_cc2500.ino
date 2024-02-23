@@ -255,6 +255,7 @@ static void __attribute__((unused)) RLINK_send_packet()
 	#endif
 }
 
+#ifndef MULTI_AIR
 static void __attribute__((unused)) RLINK_RC4G_send_packet()
 {
 	uint32_t val;
@@ -296,6 +297,7 @@ static void __attribute__((unused)) RLINK_RC4G_send_packet()
 		debugln("");
 	#endif
 }
+#endif
 
 #define RLINK_TIMING_PROTO	20000-100		// -100 for compatibility with R8EF
 #define RLINK_TIMING_RFSEND	10500
@@ -305,10 +307,14 @@ uint16_t RLINK_callback()
 {
 	if(sub_protocol == RLINK_RC4G)
 	{
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(RLINK_RC4G_TIMING_PROTO);
+		#ifndef MULTI_AIR
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(RLINK_RC4G_TIMING_PROTO);
+			#endif
+			RLINK_RC4G_send_packet();
+		#else
+			SUB_PROTO_INVALID;
 		#endif
-		RLINK_RC4G_send_packet();
 		return RLINK_RC4G_TIMING_PROTO;
 	}
 	switch(phase)

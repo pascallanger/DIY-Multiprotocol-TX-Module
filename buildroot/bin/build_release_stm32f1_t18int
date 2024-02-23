@@ -3,23 +3,65 @@
 source ./buildroot/bin/buildFunctions;
 exitcode=0;
 
-printf "\e[33;1mBuilding mm-t18int-aetr-v$MULTI_VERSION.bin\e[0m\n";
+# T18 5-in-1 AIR builds
+printf "\e[33;1mBuilding mm-t18int-aetr-air-v$MULTI_VERSION.bin\e[0m\n";
+opt_add MULTI_AIR
 opt_disable ENABLE_PPM;
 opt_disable INVERT_TELEMETRY;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-aetr-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-aetr-air-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding mm-t18int-taer-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-t18int-taer-air-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace AETR TAER;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-taer-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-taer-air-v$MULTI_VERSION.bin;
 
-printf "\e[33;1mBuilding mm-t18int-reta-v$MULTI_VERSION.bin\e[0m\n";
+printf "\e[33;1mBuilding mm-t18int-reta-air-v$MULTI_VERSION.bin\e[0m\n";
 opt_replace TAER RETA;
 buildMulti;
 exitcode=$((exitcode+$?));
-mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-reta-v$MULTI_VERSION.bin;
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-reta-air-v$MULTI_VERSION.bin;
+
+# T18 5-in-1 SURFACE builds
+printf "\e[33;1mBuilding mm-t18int-aetr-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_remove MULTI_AIR
+opt_add MULTI_SURFACE
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-aetr-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-t18int-taer-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-taer-sfc-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-t18int-reta-sfc-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-reta-sfc-v$MULTI_VERSION.bin;
+
+# T18 5-in-1 LBT/EU builds
+printf "\e[33;1mBuilding mm-t18int-aetr-lbt-v$MULTI_VERSION.bin\e[0m\n";
+opt_remove MULTI_SURFACE
+opt_add MULTI_EU
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-aetr-lbt-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-t18int-taer-lbt-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-taer-lbt-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-t18int-reta-lbt-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-t18int-reta-lbt-v$MULTI_VERSION.bin;
 
 exit $exitcode;

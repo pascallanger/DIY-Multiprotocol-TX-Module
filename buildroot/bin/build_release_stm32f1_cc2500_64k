@@ -5,8 +5,8 @@ exitcode=0;
 
 # CC2500-only 64Kb FCC builds
 printf "\e[33;1mBuilding mm-stm-cc2500-64-aetr-v$MULTI_VERSION.bin\e[0m\n";
-opt_enable $ALL_PROTOCOLS;
-opt_disable IKEAANSLUTA_CC2500_INO;
+#opt_enable $ALL_PROTOCOLS;
+#opt_disable IKEAANSLUTA_CC2500_INO;
 opt_disable ENABLE_PPM;
 opt_disable A7105_INSTALLED;
 opt_disable CYRF6936_INSTALLED;

@@ -84,23 +84,30 @@ buildEachRFModule() {
 }
 
 buildReleaseFiles(){
-    if [[ "$BOARD" =~ ":avr:multixmega32d4" ]]; then
+    if [[ "$RELEASE" == "scripts" ]]; then
+        build_release_scripts;
+    elif [[ "$RELEASE" == "orangerx" ]]; then
         build_release_orx;
-        build_release_extras;
-    elif [[ "$BOARD" =~ ":avr:multiatmega328p:bootloader=none" ]]; then
+    elif [[ "$RELEASE" == "atmega328p" ]]; then
         build_release_avr_noboot;
-    elif [[ "$BOARD" =~ ":avr:multiatmega328p:bootloader=optiboot" ]]; then
+    elif [[ "$RELEASE" == "atmega328p-optiboot" ]]; then
         build_release_avr_optiboot;
-    elif [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=none" ]]; then
-        build_release_stm32f1_no_debug;
-    elif [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=native" ]]; then
-        build_release_stm32f1_native_debug;
-    elif [[ "$BOARD" =~ ":STM32F1:multistm32f103cb:debug_option=ftdi" ]]; then
-        build_release_stm32f1_serial_debug;
-    elif [[ "$BOARD" =~ ":STM32F1:multi5in1t18int" ]]; then
+    elif [[ "$RELEASE" == "stm32f103-128k-4in1" ]]; then
+        build_release_stm32f1_4in1_no_debug;
+    elif [[ "$RELEASE" == "stm32f103-128k-usb-debug" ]]; then
+        build_release_stm32f1_4in1_native_debug;
+    elif [[ "$RELEASE" == "stm32f103-128k-serial-debug" ]]; then
+        build_release_stm32f1_4in1_serial_debug;
+    elif [[ "$RELEASE" == "stm32f103-cc2500-64k" ]]; then
+        build_release_stm32f1_cc2500_64k;
+    elif [[ "$RELEASE" == "stm32f103-cc2500-128k" ]]; then
+        build_release_stm32f1_cc2500_128k;
+    elif [[ "$RELEASE" == "stm32f103-128k-5in1" ]]; then
+        build_release_stm32f1_5in1;
+    elif [[ "$RELEASE" == "tlite-5in1" ]]; then
+        build_release_stm32f1_tlite;
+    elif [[ "$RELEASE" == "t18-5in1" ]]; then
         build_release_stm32f1_t18int;
-    elif [[ "$BOARD" =~ ":STM32F1:multistm32f103c8:debug_option=none" ]]; then
-        build_release_stm32f1_64k;
     else
       printf "No release files for this board.";
     fi

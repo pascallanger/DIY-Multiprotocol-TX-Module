@@ -46,7 +46,7 @@ static void __attribute__((unused)) EAZYRC_send_packet()
 	if(IS_BIND_IN_PROGRESS)
 	{
 		memcpy(&packet,rx_tx_addr,3);
-		memset(&packet[3], 0x00, 5);
+		memset(&packet[3], 0x00, 7);
 		packet[6] = hopping_frequency[0];
 		packet[8] = 0x78;						//??? packet type?
 	}
@@ -60,11 +60,12 @@ static void __attribute__((unused)) EAZYRC_send_packet()
 		packet[1] = convert_channel_8b(AILERON);
 		packet[2] = 0x1F;						//??? additional channel?
 		packet[3] = 0x19;						//??? additional channel?
-		memset(&packet[4], 0x00, 4);
+		memset(&packet[4], 0x00, 6);
 		packet[6] = hopping_frequency[0];
 		packet[8] = 0xAB;						//??? packet type?
 	}
-
+	for(uint8_t i=0;i<EAZYRC_PAYLOAD_SIZE-1;i++)
+		packet[9] += packet[i];
 	// Send
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);

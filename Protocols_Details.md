@@ -82,6 +82,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [E016HV2](Protocols_Details.md#E016HV2---80)|80|||||||||CC2500/NRF24L01|unknown
 [E01X](Protocols_Details.md#E01X---45)|45|E012|E015|||||||CYRF6936|HS6200
 [E129](Protocols_Details.md#E129---83)|83|E129|C186|||||||CYRF6936|RF2500
+[EazyRC](Protocols_Details.md#EazyRC---61)|61|||||||||NRF24L01|XN297L
 [ESky](Protocols_Details.md#ESKY---16)|16|ESky|ET4|||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|||||||||NRF24L01|
 [ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|||||||||CC2500|NRF51822
@@ -1652,6 +1653,13 @@ Model: Eachine E016H
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
 A|E|T|R|STOP|FLIP|-|HEADLESS|RTH
+
+## EazyRC - *61*
+Autobind protocol
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+STEERING||THROTTLE|
 
 ## ESKY - *16*
 

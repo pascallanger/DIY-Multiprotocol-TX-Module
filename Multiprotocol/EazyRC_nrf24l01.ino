@@ -26,8 +26,6 @@ Multiprotocol is distributed in the hope that it will be useful,
 enum {
 	EAZYRC_BINDTX=0,
 	EAZYRC_BINDRX,
-	EAZYRC_PREP_DATA,
-	EAZYRC_PREP_DATA1,
 	EAZYRC_DATA,
 };
 
@@ -58,8 +56,8 @@ static void __attribute__((unused)) EAZYRC_send_packet()
 		hopping_frequency_no++;
 		hopping_frequency_no &= 3;
 		
-		for(uint8_t i=0;i<2;i++)
-			packet[i] = convert_channel_8b(i);
+		packet[0] = convert_channel_8b(THROTTLE);
+		packet[1] = convert_channel_8b(AILERON);
 		packet[2] = 0x1F;						//??? additional channel?
 		packet[3] = 0x19;						//??? additional channel?
 		memset(&packet[4], 0x00, 4);

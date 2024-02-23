@@ -141,7 +141,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|CC2500
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
-[Traxxas](Protocols_Details.md#Traxxas---43)|43|6519 RX||||||||CYRF6936|
+[Traxxas](Protocols_Details.md#Traxxas---43)|43|TQ||||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
 [V761](Protocols_Details.md#V761---48)|48|3CH|4CH|TOPRC||||||NRF24L01|XN297
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*|E119*|||||||NRF24L01|XN297
@@ -671,7 +671,7 @@ CH1|CH2|CH3|CH4
 A|E|T|R
 
 ## Traxxas - *43*
-Receiver 6519
+Transmitter TQ, Receivers: 6519, ECM-2.5
 
 Extended limits supported
 

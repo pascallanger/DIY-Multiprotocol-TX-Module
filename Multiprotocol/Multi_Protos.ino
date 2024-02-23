@@ -108,6 +108,7 @@ const char STR_SCORPIO[]    ="Scorpio";
 const char STR_BLUEFLY[]    ="BlueFly";
 const char STR_BUMBLEB[]    ="BumbleB";
 const char STR_SGF22[]      ="SGF22";
+const char STR_EAZYRC[]     ="EazyRC";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -146,7 +147,7 @@ const char STR_SUBTYPE_H83D[] =       "\x07""Std\0   ""H20H\0  ""H20Mini""H30Min
 const char STR_SUBTYPE_CORONA[] =     "\x05""V1\0  ""V2\0  ""FD V3";
 const char STR_SUBTYPE_HITEC[] =      "\x07""Optima\0""Opt Hub""Minima\0";
 const char STR_SUBTYPE_BUGS_MINI[] =  "\x06""Std\0  ""Bugs3H";
-const char STR_SUBTYPE_TRAXXAS[] =    "\x04""6519";
+const char STR_SUBTYPE_TRAXXAS[] =    "\x02""TQ";
 const char STR_SUBTYPE_E01X[] =       "\x05""E012\0""E015\0";
 const char STR_SUBTYPE_GD00X[] =      "\x05""GD_V1""GD_V2";
 const char STR_SUBTYPE_REDPINE[] =    "\x04""Fast""Slow";
@@ -277,6 +278,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(E129_CYRF6936_INO)
 		{PROTO_E129,       STR_E129,      STR_SUBTYPE_E129,      2, OPTION_NONE,    0, 0, SW_CYRF,   E129_init,       E129_callback       },
+	#endif
+	#if defined(EAZYRC_NRF24L01_INO)
+		{PROTO_EAZYRC,     STR_EAZYRC,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    EAZYRC_init,     EAZYRC_callback     },
 	#endif
 	#if defined(ESKY_NRF24L01_INO)
 		{PROTO_ESKY,       STR_ESKY,      STR_SUBTYPE_ESKY,      2, OPTION_NONE,    0, 1, SW_NRF,    ESKY_init,       ESKY_callback       },

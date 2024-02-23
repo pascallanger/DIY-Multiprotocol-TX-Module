@@ -89,7 +89,7 @@ enum PROTOCOLS
 	PROTO_FX		= 58,	// =>NRF24L01
 	PROTO_BAYANG_RX	= 59,	// =>NRF24L01
 	PROTO_PELIKAN	= 60,	// =>A7105
-
+	PROTO_EAZYRC	= 61,	// =>NRF24L01
 	PROTO_XK		= 62,	// =>NRF24L01
 	PROTO_XN297DUMP	= 63,	// =>NRF24L01
 	PROTO_FRSKYX2	= 64,	// =>CC2500
@@ -360,7 +360,7 @@ enum REDPINE
 };
 enum TRAXXAS
 {
-	RX6519	= 0,
+	TRAXXAS_TQ	= 0,
 };
 enum ESKY150
 {
@@ -1106,7 +1106,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			RED_FAST	0
 			RED_SLOW	1
 		sub_protocol==TRAXXAS
-			RX6519		0
+			TQ			0
 		sub_protocol==ESKY150
 			ESKY150_4CH	0
 			ESKY150_7CH	1

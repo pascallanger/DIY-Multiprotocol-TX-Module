@@ -18,8 +18,8 @@
 //******************
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
-#define VERSION_REVISION	3
-#define VERSION_PATCH_LEVEL	49
+#define VERSION_REVISION	4
+#define VERSION_PATCH_LEVEL	00
 
 #define MODE_SERIAL 0
 

@@ -40,13 +40,13 @@ static void __attribute__((unused)) EAZYRC_send_packet()
 	//   packet[0]=THR, packet[1]=ST, packet[2]=unk, packet[3]=unk, packet[6]=first rf channel, packet[8]=unk, packet[9]=sum(packet[0..8])
 	//Bound : C=18 S=Y A= AA BB CC DD EE P(10)= 1A A0 01 41 AD 01 1E 00 79 41
 	//   packet[0..2]=tx_addr, packet[3..5]=rx_addr, packet[6]=first rf channel, packet[8]=unk, packet[9]=sum(packet[0..8])
-	//   sent every 12 packets in normal mode
+	//   sent every 12 packets in normal mode, but is it really needed if the car loose power then you need to rebind...
 	//Packet period around 5ms with a large jitter
 
+	memset(&packet[3], 0x00, 7);
 	if(IS_BIND_IN_PROGRESS)
 	{
 		memcpy(&packet,rx_tx_addr,3);
-		memset(&packet[3], 0x00, 7);
 		packet[6] = hopping_frequency[0];
 		packet[8] = 0x78;						//??? packet type?
 	}
@@ -60,7 +60,6 @@ static void __attribute__((unused)) EAZYRC_send_packet()
 		packet[1] = convert_channel_8b(AILERON);
 		packet[2] = 0x1F;						//??? additional channel?
 		packet[3] = 0x19;						//??? additional channel?
-		memset(&packet[4], 0x00, 6);
 		packet[6] = hopping_frequency[0];
 		packet[8] = 0xAB;						//??? packet type?
 	}
@@ -80,7 +79,7 @@ static void __attribute__((unused)) EAZYRC_send_packet()
 static void __attribute__((unused)) EAZYRC_initialize_txid()
 {
 	rx_tx_addr[1] = rx_tx_addr[3];
-	hopping_frequency[0] = (rx_tx_addr[3]%0x1F) + 0x1E;		// Wild guess...
+	hopping_frequency[0] = (rx_tx_addr[3]%20) + 0x1E;		// Wild guess... First channel between 30 and 49so a full range of 30 to 79
 	#ifdef FORCE_EAZYRC_ORIGINAL_ID
 		rx_tx_addr[0] = 0x1A;
 		rx_tx_addr[1] = 0xA0;

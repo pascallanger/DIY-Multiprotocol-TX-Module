@@ -22,7 +22,7 @@
 //#define RLINK_DEBUG_TELEM
 
 //#define RLINK_FORCE_ID
-#define RLINK_RC4G_FORCE_ID
+//#define RLINK_RC4G_FORCE_ID
 
 #define RLINK_TX_PACKET_LEN	33
 #define RLINK_RX_PACKET_LEN	15
@@ -120,11 +120,44 @@ static void __attribute__((unused)) RLINK_TXID_init()
 	if(sub_protocol!=RLINK_RC4G)
 		RLINK_hop();
 	else
-	{
+	{//RLINK_RC4G
 		// Find 2 unused channels
 		//  first  channel is a multiple of 3 between 00 and 5D
 		//  second channel is a multiple of 3 between 63 and BD
-		//TODO: find 2 unused channels
+		CC2500_Strobe(CC2500_SIDLE);
+		CC2500_WriteReg(CC2500_17_MCSM1,0x3C);
+		CC2500_Strobe(CC2500_SFRX);
+		CC2500_SetTxRxMode(RX_EN);
+		CC2500_Strobe(CC2500_SRX);
+		delayMilliseconds(1);						//wait for RX mode
+		uint16_t val;
+		uint8_t val_low = 0xFF;
+		hopping_frequency[0] = 0x00;
+		hopping_frequency[1] = 0x63;
+		for(uint8_t ch=0; ch<=0xBD; ch+=3)
+		{
+			if(ch==0x63)
+				val_low	= 0xFF;						//init for second block
+			if(ch==0x60)
+				continue;							//skip channel
+			CC2500_WriteReg(CC2500_0A_CHANNR, ch);	//switch channel
+			delayMicroseconds(370);					//wait to read
+			val = 0;
+			for(uint8_t i=0;i<16;i++)
+				val += CC2500_ReadReg(CC2500_34_RSSI | CC2500_READ_BURST);
+			val >>= 4;
+			debug("C:%02X RSSI:%02X",ch,val);
+			if(val_low > val)
+			{
+				debug(" OK");
+				val_low = val;
+				hopping_frequency[ch<0x63?0:1]=ch;	//save best channel
+			}
+			debugln("");
+		}
+		CC2500_WriteReg(CC2500_17_MCSM1,0x30);
+		CC2500_Strobe(CC2500_SIDLE);
+		CC2500_SetTxRxMode(TX_EN);
 		#ifdef RLINK_RC4G_FORCE_ID
 			hopping_frequency[0] = 0x03;
 			hopping_frequency[1] = 0x6F;
@@ -293,7 +326,7 @@ static void __attribute__((unused)) RLINK_RC4G_send_packet()
 	#ifdef RLINK_DEBUG
 		debug("P=");
 		for(uint8_t i=1;i<16;i++)
-		debug(" 0x%02X",packet[i]);
+			debug(" 0x%02X",packet[i]);
 		debugln("");
 	#endif
 }
@@ -311,6 +344,8 @@ uint16_t RLINK_callback()
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(RLINK_RC4G_TIMING_PROTO);
 			#endif
+			CC2500_SetPower();
+			CC2500_SetFreqOffset();
 			RLINK_RC4G_send_packet();
 		#else
 			SUB_PROTO_INVALID;

@@ -16,7 +16,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_xn297.h"
 
-#define FORCE_EAZYRC_ORIGINAL_ID
+//#define FORCE_EAZYRC_ORIGINAL_ID
 
 #define EAZYRC_PAYLOAD_SIZE			10
 #define EAZYRC_RF_NUM_CHANNELS		4

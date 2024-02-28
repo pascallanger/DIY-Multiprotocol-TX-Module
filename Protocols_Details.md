@@ -1010,7 +1010,7 @@ CH1|CH2|CH3|CH4|CH5|FS_CH1|FS_CH2|FS_CH3|FS_CH4
 
 FS=FailSafe
 
-CH5 is driven by CH3 on the original TX, gyro sensibility?
+CH5 is driven by CH3 on the original TX, gyro sensitivity?
 
 ## Futaba - *21*
 Also called SFHSS depending on radio version.

@@ -1951,13 +1951,9 @@ A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|RTH|XCAL|YCAL
 Model: JXD 509 is using Q282 with CH12=Start/Stop motors
 
 ## Realacc - *76*
-Model: Realacc R11
-
-Untested protocol, let me know if it works.
+Model: Realacc R11, Eachine E017
 
 Autobind protocol
-
-### Sub_protocol R11 - *0*
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----

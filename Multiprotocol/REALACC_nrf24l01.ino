@@ -18,7 +18,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_xn297.h"
 
-//#define FORCE_REALACC_ORIGINAL_ID
+#define FORCE_REALACC_ORIGINAL_ID
 
 #define REALACC_INITIAL_WAIT		500
 #define REALACC_PACKET_PERIOD		2268

@@ -606,6 +606,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		DSMX_1F
 		DSMX_2F
 		DSMR
+		DSM2_SFC
 	PROTO_DSM_RX
 		DSM_RX
 		DSM_CLONE

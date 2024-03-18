@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	4
-#define VERSION_PATCH_LEVEL	0
+#define VERSION_PATCH_LEVEL	1
 
 #define MODE_SERIAL 0
 
@@ -173,6 +173,7 @@ enum DSM
 	DSMX_2F		= 3,
 	DSM_AUTO	= 4,
 	DSMR		= 5,
+	DSM2_SFC	= 6,
 };
 enum DSM_RX
 {

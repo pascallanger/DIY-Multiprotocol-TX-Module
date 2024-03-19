@@ -139,8 +139,8 @@ static void __attribute__((unused)) DSM_update_channels()
 		if(sub_protocol==DSMR && num_ch>7)
 			num_ch=7;						// Max 7 channels in DSMR
 
-		if(sub_protocol==DSM2_SFC && num_ch>3)
-			num_ch=3;						// Max 3 channels in DSM2_SFC
+		if(sub_protocol==DSM2_SFC && num_ch>5)
+			num_ch=5;						// Max 5 channels in DSM2_SFC
 	#endif
 
 	// Create channel map based on number of channels and refresh rate

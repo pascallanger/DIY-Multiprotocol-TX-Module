@@ -432,7 +432,6 @@
 	#undef	OMP_CCNRF_INO
 	#undef	Q303_CCNRF_INO
 	#undef	Q90C_CCNRF_INO
-	#undef	SLT_CCNRF_INO
 	#undef	V911S_CCNRF_INO
 #endif
 

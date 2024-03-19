@@ -20,9 +20,9 @@
 //#define DSM_DEBUG_FWD_PGM
 //#define DEBUG_BIND  1
 
-#define CLONE_BIT_MASK 0x20 
-
-#define DSM_BIND_CHANNEL 0x0d //13 This can be any odd channel
+#define CLONE_BIT_MASK			0x20
+#define DSM_BIND_CHANNEL		0x0D	//13 This can be any odd channel
+#define DSM2_SFC_PERIOD			16500
 
 //During binding we will send BIND_COUNT packets
 //One packet each 10msec
@@ -31,8 +31,8 @@
 // Lemon-RX G2s seems to have a timeout waiting for the channel to get quiet after the 
 // first good BIND packet.. If using 3s (300), Lemon-RX will not transmit the BIND-Response packet. 
 
-#define DSM_BIND_COUNT             180  // About 1.8s
-#define DSM_BIND_COUNT_READ        600  // About 4.2s of waiting for Response
+#define DSM_BIND_COUNT			180  // About 1.8s
+#define DSM_BIND_COUNT_READ		600  // About 4.2s of waiting for Response
 
 enum {
 	DSM_BIND_WRITE=0,
@@ -387,7 +387,7 @@ uint16_t DSM_callback()
 				if(sub_protocol!=DSM2_SFC)
 					telemetry_set_input_sync(11000);			// Always request 11ms spacing even if we don't use half of it in 22ms mode
 				else
-					telemetry_set_input_sync(6500);
+					telemetry_set_input_sync(DSM2_SFC_PERIOD);
 			#endif
 			#ifndef MULTI_AIR
 			if(sub_protocol == DSMR)
@@ -444,7 +444,7 @@ uint16_t DSM_callback()
 					return 11000 - DSM_WRITE_DELAY - DSM_READ_DELAY;
 				}
 				if(sub_protocol==DSM2_SFC)
-					return 6500 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+					return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
 			#endif
 			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
 		case DSM_CH2_READ_A:
@@ -481,7 +481,7 @@ uint16_t DSM_callback()
 				phase = DSM_CH2_READ_B;
 				#ifndef MULTI_AIR
 					if(sub_protocol==DSM2_SFC)
-						return 6500;
+						return DSM2_SFC_PERIOD;
 				#endif
 				return 11000;
 			}
@@ -505,7 +505,7 @@ uint16_t DSM_callback()
 					phase = DSM_CH1_WRITE_A;				// change from CH2_CHECK_A to CH1_WRITE_A (ie no upper)
 					#ifndef MULTI_AIR
 						if(sub_protocol==DSM2_SFC)
-							return 6500 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
+							return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
 					#endif
 					return 22000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
 				}
@@ -514,7 +514,7 @@ uint16_t DSM_callback()
 				phase = DSM_CH1_WRITE_A;					// change from CH2_CHECK_B to CH1_WRITE_A (upper already transmitted so transmit lower)
 			#ifndef MULTI_AIR
 				if(sub_protocol==DSM2_SFC)
-					return 6500 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
+					return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
 			#endif
 			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
 #endif

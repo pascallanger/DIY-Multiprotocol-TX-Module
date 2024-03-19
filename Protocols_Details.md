@@ -540,7 +540,7 @@ Surface DSMR receivers
 
 **Only 22 IDs available**, use RX num to cycle through them.
 
-Telemetry enabled, extended limits available. Do not use DSM/AUTO to bind but DSM/R_1F instead.
+Telemetry enabled, extended limits available and no channel mapping. Do not use DSM/AUTO to bind but DSM/R_1F instead.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
@@ -549,7 +549,7 @@ STR|THR|AUX1|AUX2|AUX3|AUX4|AUX5
 ### Sub_protocol DSM2SFC - *6*
 Surface DSM2 receivers
 
-Extended limits available. Do not use DSM/AUTO to bind but DSM/2SFC instead.
+Extended limits available and no channel mapping. Do not use DSM/AUTO to bind but DSM/2SFC instead.
 
 CH1|CH2|CH3
 ---|---|---

@@ -294,7 +294,7 @@ uint16_t DSM_callback()
 		uint8_t len;
 	#endif
 	uint8_t start;
-
+	//debugln("P=%d",phase);
 	switch(phase)
 	{
 		case DSM_BIND_WRITE:
@@ -400,6 +400,7 @@ uint16_t DSM_callback()
 		case DSM_CH2_WRITE_A:
 		case DSM_CH2_WRITE_B:
 			CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS);			// clear IRQ flags
+			//debugln_time("");
 			CYRF_WriteDataPacket(packet);
 			#if 0
 				for(uint8_t i=0;i<16;i++)
@@ -438,13 +439,13 @@ uint16_t DSM_callback()
 			CYRF_SetTxRxMode(RX_EN);						//Receive mode
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);		//0x80??? //Prepare to receive
 			#ifndef MULTI_AIR
-				if(sub_protocol==DSMR)
+				if(sub_protocol==DSMR || sub_protocol == DSM2_SFC)
 				{
 					phase = DSM_CH2_READ_B;
+					if(sub_protocol == DSM2_SFC)
+						return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
 					return 11000 - DSM_WRITE_DELAY - DSM_READ_DELAY;
 				}
-				if(sub_protocol==DSM2_SFC)
-					return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
 			#endif
 			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
 		case DSM_CH2_READ_A:
@@ -473,16 +474,12 @@ uint16_t DSM_callback()
 				telemetry_link=1;
 			}
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation
-			if (phase == DSM_CH2_READ_A && (sub_protocol==DSM2_1F || sub_protocol==DSMX_1F || sub_protocol==DSM2_SFC) && num_ch < 8)	// 22ms mode
+			if (phase == DSM_CH2_READ_A && (sub_protocol==DSM2_1F || sub_protocol==DSMX_1F) && num_ch < 8)	// 22ms mode
 			{
 				CYRF_SetTxRxMode(RX_EN);					// Force end state read
 				CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x00);	// Clear abort RX operation
 				CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);	//0x80???	//Prepare to receive
 				phase = DSM_CH2_READ_B;
-				#ifndef MULTI_AIR
-					if(sub_protocol==DSM2_SFC)
-						return DSM2_SFC_PERIOD;
-				#endif
 				return 11000;
 			}
 			if (phase == DSM_CH2_READ_A)
@@ -512,10 +509,6 @@ uint16_t DSM_callback()
 			}
 			else
 				phase = DSM_CH1_WRITE_A;					// change from CH2_CHECK_B to CH1_WRITE_A (upper already transmitted so transmit lower)
-			#ifndef MULTI_AIR
-				if(sub_protocol==DSM2_SFC)
-					return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
-			#endif
 			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY;
 #endif
 	}

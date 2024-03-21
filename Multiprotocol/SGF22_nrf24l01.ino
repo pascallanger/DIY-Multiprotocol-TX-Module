@@ -91,6 +91,8 @@ static void __attribute__((unused)) SGF22_send_packet()
 
 static void __attribute__((unused)) SGF22_initialize_txid()
 {
+	rx_tx_addr[2] &=0x7F;
+	rx_tx_addr[3] &=0x7F;
 	uint8_t val = (( (uint16_t) rx_tx_addr[2] << 8 ) | rx_tx_addr[3])%5;
 
 	const uint8_t hop[5][4] =
@@ -100,7 +102,7 @@ static void __attribute__((unused)) SGF22_initialize_txid()
 	  { 0x15, 0x34, 0x24, 0x44 },
 	  { 0x18, 0x37, 0x27, 0x47 } };
 	memcpy(hopping_frequency, &hop[val], SGF22_RF_NUM_CHANNELS);
-	
+
 	/*//Same code sze...
 	hopping_frequency[0] = 0x0C + 3 * val;
 	hopping_frequency[1] = hopping_frequency[0] + 0x1E;
@@ -110,8 +112,8 @@ static void __attribute__((unused)) SGF22_initialize_txid()
 	if(val    ) hopping_frequency[3]++;*/
 	
 	#ifdef FORCE_SGF22_ORIGINAL_ID
-		rx_tx_addr[2] = 0x1F;
-		rx_tx_addr[3] = 0x61;
+		rx_tx_addr[2] = 0x1F;	// TX2: 27
+		rx_tx_addr[3] = 0x61;	// TX2: 51
 		memcpy(hopping_frequency,"\x15\x34\x24\x44", SGF22_RF_NUM_CHANNELS);    //Original dump=>21=0x15,52=0x34,36=0x24,68=0x44
 	#endif
 	#if 0
@@ -163,7 +165,7 @@ void SGF22_init()
 	SGF22_initialize_txid();
 	SGF22_RF_init();
 	bind_counter=SGF22_BIND_COUNT;
-	packet_sent = packet_count = 0x26;
+	packet_sent = packet_count = 0x26;	// TX2: 26
 	phase = 0;
 }
 

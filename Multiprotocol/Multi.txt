@@ -94,3 +94,4 @@
 95,BlueFly
 96,BumbleB
 97,SGF22
+98,Kyosho3

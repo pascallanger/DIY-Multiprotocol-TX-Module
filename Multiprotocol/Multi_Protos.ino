@@ -109,6 +109,7 @@ const char STR_BLUEFLY[]    ="BlueFly";
 const char STR_BUMBLEB[]    ="BumbleB";
 const char STR_SGF22[]      ="SGF22";
 const char STR_EAZYRC[]     ="EazyRC";
+const char STR_KYOSHO3[]    ="Kyosho3";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -171,6 +172,7 @@ const char STR_SUBTYPE_V761[] =       "\x05""3ch\0 ""4ch\0 ""TOPRC";
 const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ""DumboRC""RC4G\0  ";
 const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
 const char STR_SUBTYPE_KYOSHO2[] =    "\x05""KT-17";
+const char STR_SUBTYPE_KYOSHO3[] =    "\x03""ASF";
 const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
 const char STR_SUBTYPE_MOULDKG[] =    "\x06""Analog""Digit\0";
@@ -386,6 +388,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(KYOSHO2_NRF24L01_INO)
 		{PROTO_KYOSHO2,    STR_KYOSHO2,   STR_SUBTYPE_KYOSHO2,   1, OPTION_NONE,    0, 0, SW_NRF,    KYOSHO2_init,    KYOSHO2_callback    },
+	#endif
+	#if defined(KYOSHO3_CYRF6936_INO)
+		{PROTO_KYOSHO3,    STR_KYOSHO3,   STR_SUBTYPE_KYOSHO3,   1, OPTION_NONE,    0, 0, SW_CYRF,   KYOSHO3_init,    KYOSHO3_callback    },
 	#endif
 	#if defined(LOLI_NRF24L01_INO)
 		{PROTO_LOLI,       STR_LOLI,      NO_SUBTYPE,            0, OPTION_NONE,    1, 0, SW_NRF,    LOLI_init,       LOLI_callback       },

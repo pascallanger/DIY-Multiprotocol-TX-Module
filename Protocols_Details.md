@@ -116,6 +116,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [KN](Protocols_Details.md#KN---9)|9|WLTOYS|FEILUN|||||||NRF24L01|
 [Kyosho](Protocols_Details.md#Kyosho---73)|73|FHSS|Hype|||||||A7105|
 [Kyosho2](Protocols_Details.md#Kyosho2---93)|93|KT-17||||||||NRF24L01|
+[Kyosho3](Protocols_Details.md#Kyosho3---98)|98|ASF||||||||CYRF6936|
 [LOLI](Protocols_Details.md#LOLI---82)|82|||||||||NRF24L01|
 [Losi](Protocols_Details.md#Losi---89)|89|||||||||CYRF6936|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
@@ -646,6 +647,17 @@ Flip: flip/aerobatic on the C129v2 (others?)
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|----|----|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+
+## Kyosho3 - *98*
+
+### Sub_protocol ASF - *0*
+Surface protocol ASF. Models: Mini-Z.
+
+Extended limits supported
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+STEERING|THROTTLE|CH3|CH4
 
 ## Losi - *89*
 TX: LSR-3000

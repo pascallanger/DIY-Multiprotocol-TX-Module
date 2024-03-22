@@ -216,3 +216,4 @@
 96,0,BumbleB
 97,0,SGF22,Std,1,Mode,Flip,LED,Pict,Video
 61,1,EazyRC
+98,0,Kyosho3,ASF,0

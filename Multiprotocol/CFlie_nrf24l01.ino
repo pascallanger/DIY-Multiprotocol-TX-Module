@@ -20,6 +20,7 @@
 #include "iface_nrf24l01.h"
 
 #define CFLIE_BIND_COUNT 60
+//#define CFLIE_USE_CRTP_RPYT
 
 //=============================================================================
 // CRTP (Crazy RealTime Protocol) Implementation
@@ -220,8 +221,8 @@ static uint8_t packet_ack()
 
 static void set_rate_channel(uint8_t rate, uint8_t channel)
 {
-	NRF24L01_WriteReg(NRF24L01_05_RF_CH, channel);		// Defined by model id
-	NRF24L01_SetBitrate(rate);							// Defined by model id
+	NRF24L01_WriteReg(NRF24L01_05_RF_CH, channel);
+	NRF24L01_SetBitrate(rate);
 }
 
 static void send_search_packet()
@@ -232,23 +233,26 @@ static void send_search_packet()
 	NRF24L01_WriteReg(NRF24L01_07_STATUS, (BV(NRF24L01_07_TX_DS) | BV(NRF24L01_07_MAX_RT)));
 	NRF24L01_FlushTx();
 
-	if (rf_ch_num++ > 125)
-	{
-		rf_ch_num = 0;
-		switch(data_rate)
-		{
-			case NRF24L01_BR_250K:
-				data_rate = NRF24L01_BR_1M;
-				break;
-			case NRF24L01_BR_1M:
-				data_rate = NRF24L01_BR_2M;
-				break;
-			case NRF24L01_BR_2M:
-				data_rate = NRF24L01_BR_250K;
-				break;
-		}
-	}
-	set_rate_channel(data_rate, rf_ch_num);
+	// if (sub_protocol == CFLIE_AUTO)
+  // {
+	  // if (rf_ch_num++ > 125)
+	  // {
+	    // rf_ch_num = 0;
+	    // switch(data_rate)
+		  // {
+		    // case NRF24L01_BR_250K:
+			    // data_rate = NRF24L01_BR_1M;
+			    // break;
+			  // case NRF24L01_BR_1M:
+			    // data_rate = NRF24L01_BR_2M;
+			    // break;
+			  // case NRF24L01_BR_2M:
+			    // data_rate = NRF24L01_BR_250K;
+			    // break;
+		  // }
+	  // }
+  // }
+  set_rate_channel(data_rate, rf_ch_num);
 
 	NRF24L01_WritePayload(buf, sizeof(buf));
 
@@ -355,7 +359,7 @@ static void send_crtp_rpyt_packet()
 	send_packet();
 }
 
-/*static void send_crtp_cppm_emu_packet()
+static void send_crtp_cppm_emu_packet()
 {
     struct CommanderPacketCppmEmu {
         struct {
@@ -376,7 +380,7 @@ static void send_crtp_rpyt_packet()
 
     // Make sure the number of aux channels in use is capped to MAX_CPPM_AUX_CHANNELS
     // uint8_t numAuxChannels = Model.num_channels - 4;
-    uint8_t numAuxChannels = 2; // TODO: Figure this out correctly
+    uint8_t numAuxChannels = 4;
     if(numAuxChannels > MAX_CPPM_AUX_CHANNELS)
     {
         numAuxChannels = MAX_CPPM_AUX_CHANNELS;
@@ -385,16 +389,16 @@ static void send_crtp_rpyt_packet()
     cpkt.hdr.numAuxChannels = numAuxChannels;
 
     // Remap AETR to AERT (RPYT)
-    cpkt.channelRoll = convert_channel_16b_limit(AILERON,1000,2000);
+    cpkt.channelRoll = convert_channel_16b_limit(AILERON,2000,1000);
     cpkt.channelPitch = convert_channel_16b_limit(ELEVATOR,1000,2000);
     // Note: T & R Swapped:
     cpkt.channelYaw = convert_channel_16b_limit(RUDDER, 1000, 2000);
     cpkt.channelThrust = convert_channel_16b_limit(THROTTLE, 1000, 2000);
 
     // Rescale the rest of the aux channels - RC channel 4 and up
-    for (uint8_t i = 4; i < 14; i++)
+    for (uint8_t i = 0; i < 10; i++)
     {
-        cpkt.channelAux[i] = convert_channel_16b_limit(i, 1000, 2000);
+        cpkt.channelAux[i] = convert_channel_16b_limit(i+4, 2000, 1000);
     }
 
     // Total size of the commander packet is a 1-byte header, 4 2-byte channels and
@@ -409,25 +413,19 @@ static void send_crtp_rpyt_packet()
     memcpy(&packet[2], (char*)&cpkt, commanderPacketSize); // Why not use sizeof(cpkt) here??
     tx_payload_len = 2 + commanderPacketSize; // CRTP header, commander type, and packet
     send_packet();
-}*/
+}
 
 static void send_cmd_packet()
 {
-    // TODO: Fix this so we can actually configure the packet type
-    // switch(Model.proto_opts[PROTOOPTS_CRTP_MODE])
-    // {
-    // case CRTP_MODE_CPPM:
-    //     send_crtp_cppm_emu_packet();
-    //     break;
-    // case CRTP_MODE_RPYT:
-    //     send_crtp_rpyt_packet();
-    //     break;
-    // default:
-    //     send_crtp_rpyt_packet();
-    // }
-
-    // send_crtp_cppm_emu_packet(); // oh maAAAn
-    send_crtp_rpyt_packet();
+    #if defined(CFLIE_USE_CRTP_RPYT)
+    {
+      send_crtp_rpyt_packet();
+    }
+    #else
+    {
+      send_crtp_cppm_emu_packet();
+    }
+    #endif
 }
 
 // State machine for setting up CRTP logging
@@ -791,43 +789,33 @@ static uint8_t CFLIE_initialize_rx_tx_addr()
     rx_tx_addr[0] = 
     rx_tx_addr[1] = 
     rx_tx_addr[2] = 
-    rx_tx_addr[3] = 
-    rx_tx_addr[4] = 0xE7; // CFlie uses fixed address
-
-    // if (Model.fixed_id) {
-    //     rf_ch_num = Model.fixed_id % 100;
-    //     switch (Model.fixed_id / 100) {
-    //     case 0:
-    //         data_rate = NRF24L01_BR_250K;
-    //         break;
-    //     case 1:
-    //         data_rate = NRF24L01_BR_1M;
-    //         break;
-    //     case 2:
-    //         data_rate = NRF24L01_BR_2M;
-    //         break;
-    //     default:
-    //         break;
-    //     }
-
-    //     if (Model.proto_opts[PROTOOPTS_TELEMETRY] == TELEM_ON_CRTPLOG) {
-    //         return CFLIE_INIT_CRTP_LOG;
-    //     } else {
-    //         return CFLIE_INIT_DATA;
-    //     }
-    // } else {
-    //     data_rate = NRF24L01_BR_250K;
-    //     rf_ch_num = 10;
-    //     return CFLIE_INIT_SEARCH;
-    // }
-
-    // Default 1
-    data_rate = NRF24L01_BR_1M;
-    rf_ch_num = 10;
-
-    // Default 2
-    // data_rate = NRF24L01_BR_2M;
-    // rf_ch_num = 110;
+    rx_tx_addr[3] = 0xE7;
+	
+	unsigned x10 = (RX_num / 10U) % 10;
+	unsigned x1 = RX_num - x10*10;
+    
+    switch (sub_protocol) {
+    case CFLIE_2Mbps:
+      data_rate = NRF24L01_BR_2M;
+      rf_ch_num = option; // "RF channel" in the transmitter <0, 125>
+	  rx_tx_addr[4] = x10*16 + x1; // "Receiver" in the transmitter <0, 63>
+      break;
+    case CFLIE_1Mbps:
+      data_rate = NRF24L01_BR_1M;
+      rf_ch_num = option; // "RF channel" in the transmitter <0, 125>
+	  rx_tx_addr[4] = x10*16 + x1; // "Receiver" in the transmitter <0, 63>
+      break;  
+    case CFLIE_250kbps:
+      data_rate = NRF24L01_BR_250K;
+      rf_ch_num = option; // "RF channel" in the transmitter <0, 125>
+	  rx_tx_addr[4] = x10*16 + x1; // "Receiver" in the transmitter <0, 63>
+      break;
+    default:  
+      data_rate = NRF24L01_BR_2M;
+      rf_ch_num = 80;
+	  rx_tx_addr[4] = 0xE7; // CFlie uses fixed address
+    }
+    
     return CFLIE_INIT_SEARCH;
 }
 
@@ -835,11 +823,11 @@ void CFLIE_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 
-    phase = CFLIE_initialize_rx_tx_addr();
-    crtp_log_setup_state = CFLIE_CRTP_LOG_SETUP_STATE_INIT;
-    packet_count=0;
+  phase = CFLIE_initialize_rx_tx_addr();
+  crtp_log_setup_state = CFLIE_CRTP_LOG_SETUP_STATE_INIT;
+  packet_count=0;
 
-    CFLIE_RF_init();
+  CFLIE_RF_init();
 }
 
 #endif

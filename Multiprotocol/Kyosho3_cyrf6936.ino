@@ -115,7 +115,7 @@ void KYOSHO3_init()
 		debugln("RF CH: %02X",hopping_frequency[0]);
 	#endif
 	
-	bind_counter=100;
+	bind_counter=1000;
 	phase=0;
 }
 

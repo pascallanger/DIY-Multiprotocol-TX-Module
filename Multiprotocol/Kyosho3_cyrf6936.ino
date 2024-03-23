@@ -114,6 +114,7 @@ void KYOSHO3_init()
 		debugln("ID: %02X %02X %02X",rx_tx_addr[1],rx_tx_addr[2],rx_tx_addr[3]);
 		debugln("RF CH: %02X",hopping_frequency[0]);
 	#endif
+	CYRF_ConfigRFChannel(hopping_frequency[0]);
 	
 	bind_counter=1000;
 	phase=0;

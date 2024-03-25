@@ -106,9 +106,9 @@ void KYOSHO3_init()
 	hopping_frequency[0] = 0x04;
 
 	#ifdef KYOSHO3_FORCE_ID					// data taken from TX dump
-		rx_tx_addr[1]=0x01;
-		rx_tx_addr[2]=0xAB;
-		rx_tx_addr[3]=0x31;
+		rx_tx_addr[1] = 0x01;
+		rx_tx_addr[2] = 0xAB;
+		rx_tx_addr[3] = 0x31;
 		hopping_frequency[0] = 0x04;
 	#endif
 	#ifdef KYOSHO3_DEBUG
@@ -118,8 +118,8 @@ void KYOSHO3_init()
 
 	CYRF_ConfigRFChannel(hopping_frequency[0]);
 	
-	bind_counter=1000;
-	phase=0;
+	bind_counter = 8217;
+	phase = 0;
 }
 
 #endif

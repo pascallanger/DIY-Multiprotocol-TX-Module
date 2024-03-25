@@ -241,7 +241,7 @@ void TRAXXAS_init()
 	//Read CYRF ID
 	CYRF_GetMfgData(cyrfmfg_id);
 	//cyrfmfg_id[0]+=RX_num;				// Not needed since the TX and RX have to match
-	CYRF_FindBestChannels(hopping_frequency,1,1,0x02,0x21);
+	CYRF_FindBestChannels(hopping_frequency,1,1,0x02,0x21, FIND_CHANNEL_ANY);
 	#ifdef TRAXXAS_FORCE_ID					// data taken from TX dump
 		cyrfmfg_id[0]=0x65;					// CYRF MFG ID
 		cyrfmfg_id[1]=0xE2;

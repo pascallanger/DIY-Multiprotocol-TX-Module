@@ -71,7 +71,11 @@ enum CYRF_PWR {
     CYRF_PWR_DEFAULT,
 };
 
-
+enum FIND_CHANNEL {
+	FIND_CHANNEL_ANY  = 0,
+	FIND_CHANNEL_EVEN = 1,
+	FIND_CHANNEL_ODD  = 2,
+};
 
 /* SPI CYRF6936 */
 /*

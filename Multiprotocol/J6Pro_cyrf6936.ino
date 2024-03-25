@@ -124,7 +124,7 @@ static void __attribute__((unused)) j6pro_set_radio_channels()
 {
     //FIXME: Query free channels
     //lowest channel is 0x08, upper channel is 0x4d?
-    CYRF_FindBestChannels(hopping_frequency, 3, 5, 8, 77);
+    CYRF_FindBestChannels(hopping_frequency, 3, 5, 8, 77, FIND_CHANNEL_ANY);
     hopping_frequency[3] = hopping_frequency[0];
 }
 

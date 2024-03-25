@@ -17,7 +17,7 @@
 
 #include "iface_cyrf6936.h"
 
-#define KYOSHO3_FORCE_ID
+//#define KYOSHO3_FORCE_ID
 //#define KYOSHO3_DEBUG
 
 #define KYOSHO3_BIND_PACKET_SIZE	4
@@ -102,7 +102,8 @@ void KYOSHO3_init()
 	CYRF_WritePreamble(0x333304);
 
 	//Find a free even channel
-	CYRF_FindBestChannels(hopping_frequency,1,1,0x04,0x50);
+	CYRF_FindBestChannels(hopping_frequency,1,1,0x04,0x50, FIND_CHANNEL_EVEN);
+	hopping_frequency[0] = 0x04;
 
 	#ifdef KYOSHO3_FORCE_ID					// data taken from TX dump
 		rx_tx_addr[1]=0x01;
@@ -114,6 +115,7 @@ void KYOSHO3_init()
 		debugln("ID: %02X %02X %02X",rx_tx_addr[1],rx_tx_addr[2],rx_tx_addr[3]);
 		debugln("RF CH: %02X",hopping_frequency[0]);
 	#endif
+
 	CYRF_ConfigRFChannel(hopping_frequency[0]);
 	
 	bind_counter=1000;

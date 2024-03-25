@@ -487,7 +487,7 @@ void WK_init()
 	CYRF_SetTxRxMode(TX_EN);
 
 	hopping_frequency_no=0;
-	CYRF_FindBestChannels(hopping_frequency, 3, 4, 4, 80);
+	CYRF_FindBestChannels(hopping_frequency, 3, 4, 4, 80, FIND_CHANNEL_ANY);
 	CYRF_ConfigRFChannel(hopping_frequency[0]);
 
 	packet_count = 0;

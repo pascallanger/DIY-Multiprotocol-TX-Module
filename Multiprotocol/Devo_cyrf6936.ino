@@ -365,7 +365,7 @@ static void __attribute__((unused)) DEVO_cyrf_init()
 
 static void __attribute__((unused)) DEVO_set_radio_channels()
 {
-	CYRF_FindBestChannels(hopping_frequency, 3, 4, 4, 80);
+	CYRF_FindBestChannels(hopping_frequency, 3, 4, 4, 80, FIND_CHANNEL_ANY);
 	hopping_frequency[3] = hopping_frequency[0];
 	hopping_frequency[4] = hopping_frequency[1];
 }

@@ -618,7 +618,7 @@ void DSM_init()
 	else if(sub_protocol != DSMR)
 	{ 
 		uint8_t tmpch[10];
-		CYRF_FindBestChannels(tmpch, 10, 5, 3, 75);
+		CYRF_FindBestChannels(tmpch, 10, 5, 3, 75, FIND_CHANNEL_ANY);
 		//
 		uint8_t idx = random(0xfefefefe) % 10;
 		hopping_frequency[0] = tmpch[idx];

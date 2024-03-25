@@ -249,7 +249,7 @@ void CYRF_WriteDataPacket(const uint8_t dpbuffer[])
 }
 */
 //NOTE: This routine will reset the CRC Seed
-void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uint8_t min, uint8_t max)
+void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uint8_t min, uint8_t max, uint8_t forced)
 {
 	#define NUM_FREQ 80
 	#define FREQ_OFFSET 4
@@ -269,7 +269,12 @@ void CYRF_FindBestChannels(uint8_t *channels, uint8_t len, uint8_t minspace, uin
 	delayMilliseconds(1);
 	for(i = 0; i < NUM_FREQ; i++)
 	{
-		CYRF_ConfigRFChannel(protocol==PROTO_LOSI?i|1:i);
+		if(((i&1) && forced == FIND_CHANNEL_EVEN) || (!(i&1) && forced == FIND_CHANNEL_ODD))
+		{
+			rssi[i] = 0xFF;
+			continue;
+		}
+		CYRF_ConfigRFChannel(i);	//protocol==PROTO_LOSI?i|1:i);
 		delayMicroseconds(270);					//slow channel require 270usec for synthesizer to settle
         if( !(CYRF_ReadRegister(CYRF_05_RX_CTRL) & 0x80)) {
             CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x80); //Prepare to receive

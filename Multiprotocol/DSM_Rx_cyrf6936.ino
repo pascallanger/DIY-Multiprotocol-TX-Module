@@ -267,6 +267,7 @@ uint16_t DSM_RX_callback()
 							0x01 => 22ms 1024 DSM2 1 packet => number of channels is <8
 							0x02 => 22ms 1024 DSM2 2 packets => either a number of channel >7
 							0x12 => 11ms 2048 DSM2 2 packets => can be any number of channels
+							0x23 => DX3R DSM2 2 surface packets
 							0xA2 => 22ms 2048 DSMX 1 packet => number of channels is <8
 							0xB2 => 11ms 2048 DSMX => can be any number of channels
 							(0x01 or 0xA2) and num_ch < 7 => 22ms else 11ms

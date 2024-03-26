@@ -552,6 +552,8 @@ Surface DSM2 receivers, tested with a SR3100
 
 Extended limits available and no channel mapping. Do not use DSM/AUTO to bind but DSM/2SFC instead.
 
+Servo refresh rate 22/11ms is repurposed to the frame rates 16.5ms(22) and 11ms(11).
+
 CH1|CH2|CH3
 ---|---|---
 STR|THR|AUX1

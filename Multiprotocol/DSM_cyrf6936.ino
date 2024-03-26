@@ -22,6 +22,8 @@
 
 #define CLONE_BIT_MASK			0x20
 #define DSM_BIND_CHANNEL		0x0D	//13 This can be any odd channel
+#define DSM2_SFC_16500			16500
+#define DSM2_SFC_11000			11000
 #define DSM2_SFC_PERIOD			16500
 
 //During binding we will send BIND_COUNT packets
@@ -94,9 +96,12 @@ static void __attribute__((unused)) DSM_build_bind_packet()
 		packet[11] = 12;
 	else
 		packet[11] = num_ch;				// DX5 DSMR sends 0x48...
+	//packet[11] = 3;						// DX3R
 
 	if (sub_protocol==DSMR)
 		packet[12] = 0xa2;
+	else if (sub_protocol==DSM2_SFC)
+		packet[12] = 0x23;					// DX3R
 	else if (sub_protocol==DSM2_1F)
 		packet[12] = num_ch<8?0x01:0x02;	// DSM2/1024 1 or 2 packets depending on the number of channels
 	else if(sub_protocol==DSM2_2F)
@@ -308,11 +313,11 @@ uint16_t DSM_callback()
 			return 10000;
 	#if defined DSM_TELEMETRY
 		case DSM_BIND_CHECK:
-      #if DEBUG_BIND
-        debugln("Bind Check");
-      #endif
-      //64 SDR Mode is configured so only the 8 first values are needed
-      CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84");
+			#if DEBUG_BIND
+				debugln("Bind Check");
+			#endif
+			//64 SDR Mode is configured so only the 8 first values are needed
+			CYRF_ConfigDataCode((const uint8_t *)"\x98\x88\x1B\xE4\x30\x79\x03\x84");
 			CYRF_SetTxRxMode(RX_EN);							//Receive mode
 			CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x87);			//Prepare to receive
 			bind_counter=DSM_BIND_COUNT_READ; //Timeout of 4.2s if no packet received
@@ -389,6 +394,7 @@ uint16_t DSM_callback()
 				else
 					telemetry_set_input_sync(DSM2_SFC_PERIOD);
 			#endif
+			debugln("22/11 %02X", (option&0x40));
 			#ifndef MULTI_AIR
 			if(sub_protocol == DSMR)
 				CYRF_SetPower(0x08);							//Keep transmit power in sync
@@ -401,7 +407,12 @@ uint16_t DSM_callback()
 		case DSM_CH2_WRITE_B:
 			CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS);			// clear IRQ flags
 			//debugln_time("");
-			CYRF_WriteDataPacket(packet);
+			#ifndef MULTI_AIR
+			if(sub_protocol==DSM2_SFC)
+				CYRF_WriteDataPacketLen(packet,2*(num_ch+1));
+			else
+			#endif
+				CYRF_WriteDataPacket(packet);
 			#if 0
 				for(uint8_t i=0;i<16;i++)
 					debug(" %02X", packet[i]);

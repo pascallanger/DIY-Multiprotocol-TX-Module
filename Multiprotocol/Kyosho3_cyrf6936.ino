@@ -103,7 +103,7 @@ void KYOSHO3_init()
 
 	//Find a free even channel
 	CYRF_FindBestChannels(hopping_frequency,1,1,0x04,0x50, FIND_CHANNEL_EVEN);
-	hopping_frequency[0] = 0x04;
+	hopping_frequency[0] = 0x12;
 
 	#ifdef KYOSHO3_FORCE_ID					// data taken from TX dump
 		rx_tx_addr[1] = 0x01;

@@ -182,12 +182,16 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 
 	#ifndef MULTI_AIR
 		if(sub_protocol == DSMR || sub_protocol == DSM2_SFC)
-		{
+		{ // 12 bits, full range, no reassignment
 			for (uint8_t i = 0; i < 7; i++)
 			{
 				uint16_t value = 0x0000;
 				if(i < num_ch)
+				{
 					value=Channel_data[i]<<1;
+					if(sub_protocol == DSM2_SFC)
+						value |= i<<12;
+				}
 				packet[i*2+2] = (value >> 8) & 0xff;
 				packet[i*2+3] = (value >> 0) & 0xff;
 			}

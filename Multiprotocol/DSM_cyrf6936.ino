@@ -22,8 +22,6 @@
 
 #define CLONE_BIT_MASK			0x20
 #define DSM_BIND_CHANNEL		0x0D	//13 This can be any odd channel
-#define DSM2_SFC_16500			16500
-#define DSM2_SFC_11000			11000
 #define DSM2_SFC_PERIOD			16500
 
 //During binding we will send BIND_COUNT packets
@@ -389,12 +387,11 @@ uint16_t DSM_callback()
 			return 10000;
 		case DSM_CH1_WRITE_A:
 			#ifdef MULTI_SYNC
-				if(sub_protocol!=DSM2_SFC)
+				if(sub_protocol!=DSM2_SFC || option&0x40)		// option&40 in this case is 16.5ms/11ms frame rate for DSM2_SFC
 					telemetry_set_input_sync(11000);			// Always request 11ms spacing even if we don't use half of it in 22ms mode
 				else
 					telemetry_set_input_sync(DSM2_SFC_PERIOD);
 			#endif
-			debugln("22/11 %02X", (option&0x40));
 			#ifndef MULTI_AIR
 			if(sub_protocol == DSMR)
 				CYRF_SetPower(0x08);							//Keep transmit power in sync
@@ -454,7 +451,12 @@ uint16_t DSM_callback()
 				{
 					phase = DSM_CH2_READ_B;
 					if(sub_protocol == DSM2_SFC)
-						return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+					{
+						if(option&0x40)		// option&40 in this case is 16.5ms/11ms frame rate for DSM2_SFC
+							return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+						else
+							return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
+					}
 					return 11000 - DSM_WRITE_DELAY - DSM_READ_DELAY;
 				}
 			#endif
@@ -513,7 +515,12 @@ uint16_t DSM_callback()
 					phase = DSM_CH1_WRITE_A;				// change from CH2_CHECK_A to CH1_WRITE_A (ie no upper)
 					#ifndef MULTI_AIR
 						if(sub_protocol==DSM2_SFC)
-							return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
+						{
+							if(option&0x40)					// option&40 in this case is 16.5ms/11ms frame rate for DSM2_SFC
+								return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
+							else
+								return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
+						}
 					#endif
 					return 22000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY ;
 				}

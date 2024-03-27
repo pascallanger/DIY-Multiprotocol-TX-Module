@@ -165,8 +165,13 @@
 /*** PROTOCOLS TO INCLUDE ***/
 /****************************/
 //In this section select the protocols you want to be accessible when using the module.
-//All the protocols will not fit in the Atmega328p module so you need to pick and choose.
+//All the protocols will not fit in the STM32 or Atmega328p modules so you need to pick and choose.
 //Comment the protocols you are not using with "//" to save Flash space.
+
+//Already defined protocols selection
+//#define MULTI_AIR			//Only Air protocols will be available, all the others are disabled
+//#define MULTI_SURFACE		//Only Surface protocols will be available, all the others are disabled
+//#define MULTI_EU			//Only LBT/EU protocols will be available, all the others are disabled
 
 //Protocol for module configuration
 #define MULTI_CONFIG_INO

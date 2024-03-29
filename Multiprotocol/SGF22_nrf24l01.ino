@@ -67,7 +67,7 @@ static void __attribute__((unused)) SGF22_send_packet()
 			packet[8] |= SGF22_FLAG_6G;					// mode 1 - 6g
 		if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
 			packet[8] |= SGF22_FLAG_VERTICAL;			// mode 0 - vertical
-		packet[9] = GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO);	// press in throttle trim for photo
+		packet[9] = GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO)	// press in throttle trim for photo
 				| GET_FLAG(CH10_SW, SGF22_FLAG_TRIMRESET);   // Both sticks down inwards
 		packet[10] = 0x42;								// no fine tune
 		packet[11] = 0x10;								// no fine tune

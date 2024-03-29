@@ -42,6 +42,8 @@ static uint16_t __attribute__((unused)) KYOSHO3_send_packet()
 	CYRF_SetPower(0x28);
 	if(IS_BIND_IN_PROGRESS)
 	{
+		if(--bind_counter==0)
+			BIND_DONE;
 		packet[0] = 0xAA;
 		//ID
 		memcpy(&packet[1],&rx_tx_addr[1],3);
@@ -86,11 +88,6 @@ static uint16_t __attribute__((unused)) KYOSHO3_send_packet()
 
 uint16_t KYOSHO3_callback()
 {
-	if(IS_BIND_IN_PROGRESS)
-	{
-		if(--bind_counter==0)
-			BIND_DONE;
-	}
 	return KYOSHO3_send_packet();
 }
 
@@ -103,7 +100,6 @@ void KYOSHO3_init()
 
 	//Find a free even channel
 	CYRF_FindBestChannels(hopping_frequency,1,1,0x04,0x50, FIND_CHANNEL_EVEN);
-	hopping_frequency[0] = 0x12;
 
 	#ifdef KYOSHO3_FORCE_ID					// data taken from TX dump
 		rx_tx_addr[1] = 0x01;

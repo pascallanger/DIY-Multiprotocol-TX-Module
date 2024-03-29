@@ -35,6 +35,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_FLAG_VERTICAL		0xC0
 //packet[9]
 #define SGF22_FLAG_PHOTO		0x40
+#define SGF22_FLAG_TRIMRESET	0x04
 
 static void __attribute__((unused)) SGF22_send_packet()
 {
@@ -67,6 +68,7 @@ static void __attribute__((unused)) SGF22_send_packet()
 		if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
 			packet[8] |= SGF22_FLAG_VERTICAL;			// mode 0 - vertical
 		packet[9] = GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO);	// press in throttle trim for photo
+				| GET_FLAG(CH10_SW, SGF22_FLAG_TRIMRESET);   // Both sticks down inwards
 		packet[10] = 0x42;								// no fine tune
 		packet[11] = 0x10;								// no fine tune
 	}
@@ -112,8 +114,8 @@ static void __attribute__((unused)) SGF22_initialize_txid()
 	if(val    ) hopping_frequency[3]++;*/
 	
 	#ifdef FORCE_SGF22_ORIGINAL_ID
-		rx_tx_addr[2] = 0x1F;	// TX2: 27
-		rx_tx_addr[3] = 0x61;	// TX2: 51
+		rx_tx_addr[2] = 0x1F;	// TX2:27 TX3:2B
+		rx_tx_addr[3] = 0x61;	// TX2:51 TX3:0C
 		memcpy(hopping_frequency,"\x15\x34\x24\x44", SGF22_RF_NUM_CHANNELS);    //Original dump=>21=0x15,52=0x34,36=0x24,68=0x44
 	#endif
 	#if 0
@@ -165,7 +167,7 @@ void SGF22_init()
 	SGF22_initialize_txid();
 	SGF22_RF_init();
 	bind_counter=SGF22_BIND_COUNT;
-	packet_sent = packet_count = 0x26;	// TX2: 26
+	packet_sent = packet_count = 0x26;	// TX2:26 TX3:26
 	phase = 0;
 }
 

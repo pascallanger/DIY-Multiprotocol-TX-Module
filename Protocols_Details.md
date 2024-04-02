@@ -1978,7 +1978,7 @@ Autobind protocol
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
-A|E|T|R|FLIP|LIGHT|CALIB|HLESS|RTH|UNK|ROTATE
+A|E|T|R|FLIP|LIGHT|CALIB|HLESS|RTH|THR_CUT|ROTATE
 
 ## Redpine - *50*
 [Link to the forum](https://www.rcgroups.com/forums/showthread.php?3236043-Redpine-Lowest-latency-RC-protocol)

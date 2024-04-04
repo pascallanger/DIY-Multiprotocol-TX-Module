@@ -46,7 +46,7 @@ static void __attribute__((unused)) REALACC_send_packet()
 	packet[11]= 0x00 							// Flag2
 		| GET_FLAG(CH7_SW, 0x01)				//   Calib
 		| GET_FLAG(CH9_SW, 0x20)				//   Return
-		| GET_FLAG(CH10_SW,0x80);				//   Unknown
+		| GET_FLAG(CH10_SW,0x80);				//   Throttle cut
 	packet[12]= 0x00 							// Flag3
 		| GET_FLAG(CH5_SW, 0x01)				//   Flip
 		| GET_FLAG(CH11_SW,0x02)				//   Rotating

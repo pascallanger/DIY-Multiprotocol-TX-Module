@@ -87,22 +87,15 @@ static void __attribute__((unused)) TRAXXAS_send_data_packet()
 	memset(&packet[1],0x00,TRAXXAS_PACKET_SIZE-1);
 	//Next RF channel ? 0x00 -> keep current, 0x0E change to F=15
 	//packet[1] = hopping_frequency[0] - 1;
-	//Steering
-	uint16_t ch = convert_channel_16b_nolimit(RUDDER,500,1000,false);
-	packet[2]=ch>>8;
-	packet[3]=ch;
-	//Throttle
-	ch = convert_channel_16b_nolimit(THROTTLE,500,1000,false);
-	packet[4]=ch>>8;
-	packet[5]=ch;
-	//AUX3
-	ch = convert_channel_16b_nolimit(AILERON,500,1000,false);
-	packet[6]=ch>>8;
-	packet[7]=ch;
-	//AUX4???
-	ch = convert_channel_16b_nolimit(ELEVATOR,500,1000,false);
-	packet[12]=ch>>8;
-	packet[13]=ch;
+	
+	//6 channels
+	uint16_t ch;
+	for(uint8_t i=0; i<6; i++)
+	{
+		ch = convert_channel_16b_nolimit(i,500,1000,false);
+		packet[2+i*2]=ch>>8;
+		packet[3+i*2]=ch;
+	}
 
 	CYRF_SetPower(0x08);
 	CYRF_WriteDataPacketLen(packet, TRAXXAS_PACKET_SIZE);

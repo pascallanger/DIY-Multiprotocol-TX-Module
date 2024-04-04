@@ -693,13 +693,15 @@ CH1|CH2|CH3|CH4
 A|E|T|R
 
 ## Traxxas - *43*
-Transmitter TQ, Receivers: 6519, ECM-2.5, 2218
+Transmitter TQ, Receivers: 6519, 2218(X), ECM-2.5
 
 Extended limits supported
 
 CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 CH1|CH2|CH3|CH4|CH5|CH6
+
+Warning from v1.3.4.7 channels order have changed
 
 ## WFLY - *40*
 Receivers: WFR04S, WFR07S, WFR09S

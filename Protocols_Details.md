@@ -693,13 +693,13 @@ CH1|CH2|CH3|CH4
 A|E|T|R
 
 ## Traxxas - *43*
-Transmitter TQ, Receivers: 6519, ECM-2.5
+Transmitter TQ, Receivers: 6519, ECM-2.5, 2218
 
 Extended limits supported
 
-CH1|CH2|CH3|CH4
----|---|---|---
-AUX3|AUX4|THROTTLE|STEERING
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6
 
 ## WFLY - *40*
 Receivers: WFR04S, WFR07S, WFR09S

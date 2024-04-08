@@ -1729,7 +1729,7 @@ Only 8 TX IDs available
 Model: FX620 SU35
 
 ### Sub_protocol 9630 - *2*
-Model: FX9630, FX9603 and QIDI-550
+Model: FX9630, FX9603, QIDI-550 and QIDI-560
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---

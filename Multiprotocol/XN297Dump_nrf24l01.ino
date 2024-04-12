@@ -609,12 +609,12 @@ static uint16_t XN297Dump_callback()
 		{
 			if(phase==0)
 			{
-				address_length=3;
-				memcpy(rx_tx_addr, (uint8_t *)"\xBD\x54\x78", address_length); //"\x62\xE6\xBD\x54\x78"
+				address_length=4;
+				memcpy(rx_tx_addr, (uint8_t *)"\x7E\xB8\x63\xA9", address_length);
 
-				bitrate=XN297DUMP_1M;
-				packet_length=7;
-				hopping_frequency_no=40; //bind ?, normal 40
+				bitrate=XN297DUMP_250K;
+				packet_length=16;
+				hopping_frequency_no=0x50; //bind 0x50, normal ??
 				
 				NRF24L01_Initialize();
 				NRF24L01_SetTxRxMode(TXRX_OFF);
@@ -624,7 +624,7 @@ static uint16_t XN297Dump_callback()
 				NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, packet_length);				// Enable rx pipe 0
 				NRF24L01_WriteReg(NRF24L01_05_RF_CH, option);	//hopping_frequency_no);
 
-				debug("NRF dump, len=%d, rf=%d, address length=%d, bitrate=",packet_length,hopping_frequency_no,address_length);
+				debug("NRF dump, len=%d, rf=%d, address length=%d, bitrate=",packet_length,option,address_length);	//hopping_frequency_no,address_length);
 				switch(bitrate)
 				{
 					case XN297DUMP_250K:

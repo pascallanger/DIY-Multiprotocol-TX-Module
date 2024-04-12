@@ -656,7 +656,7 @@ static uint16_t XN297Dump_callback()
 						memcpy(buffer,packet,packet_length);
 						//if(memcmp(&packet_in[0],&packet[0],packet_length))
 						{
-							debug("P:");
+							debug("C: %02X P:", option);
 							for(uint8_t i=0;i<packet_length;i++)
 								debug(" %02X",packet[i]);
 							debugln("");

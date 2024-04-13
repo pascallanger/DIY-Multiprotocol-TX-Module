@@ -37,6 +37,7 @@ boolean enhanced;
 boolean ack;
 uint8_t pid;
 uint8_t bitrate;
+uint8_t old_option;
 
 static void __attribute__((unused)) XN297Dump_RF_init()
 {
@@ -610,8 +611,7 @@ static uint16_t XN297Dump_callback()
 			if(phase==0)
 			{
 				address_length=4;
-				memcpy(rx_tx_addr, (uint8_t *)"\x7E\xB8\x63\xA9", address_length);
-
+				memcpy(rx_tx_addr, (uint8_t *)"\xF4\x71\x8D\x01", address_length);	// bind \x7E\xB8\x63\xA9
 				bitrate=XN297DUMP_250K;
 				packet_length=16;
 				hopping_frequency_no=0x50; //bind 0x50, normal ??
@@ -623,7 +623,8 @@ static uint16_t XN297Dump_callback()
 				NRF24L01_WriteRegisterMulti(NRF24L01_0A_RX_ADDR_P0, rx_tx_addr, address_length);	// set up RX address
 				NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, packet_length);				// Enable rx pipe 0
 				NRF24L01_WriteReg(NRF24L01_05_RF_CH, option);	//hopping_frequency_no);
-
+				old_option = option;
+				
 				debug("NRF dump, len=%d, rf=%d, address length=%d, bitrate=",packet_length,option,address_length);	//hopping_frequency_no,address_length);
 				switch(bitrate)
 				{
@@ -718,7 +719,11 @@ static uint16_t XN297Dump_callback()
 					NRF24L01_FlushRx();
 					NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX)); //  _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) |
 				}
-				NRF24L01_WriteReg(NRF24L01_05_RF_CH, option);	//hopping_frequency_no);
+				if(old_option != option)
+				{
+					NRF24L01_WriteReg(NRF24L01_05_RF_CH, option);	//hopping_frequency_no);
+					old_option = option;
+				}
 			}
 		}
 		else if(sub_protocol == XN297DUMP_CC2500)

@@ -644,6 +644,7 @@ static uint16_t XN297Dump_callback()
 				}
 				NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX)); //_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | 
 				phase++;
+				time=0;
 			}
 			else
 			{
@@ -651,6 +652,16 @@ static uint16_t XN297Dump_callback()
 				{ // RX fifo data ready
 					if(NRF24L01_ReadReg(NRF24L01_09_CD))
 					{
+						XN297Dump_overflow();
+						uint16_t timeL=TCNT1;
+						if(TIMER2_BASE->SR & TIMER_SR_UIF)
+						{//timer just rolled over...
+							XN297Dump_overflow();
+							timeL=0;
+						}
+						time=(timeH<<16)+timeL-time;
+						debug("RX: %5luus ", time>>1);
+						time=(timeH<<16)+timeL;
 						NRF24L01_ReadPayload(packet, packet_length);
 						//bool ok=true;
 						uint8_t buffer[40];
@@ -719,6 +730,7 @@ static uint16_t XN297Dump_callback()
 					NRF24L01_FlushRx();
 					NRF24L01_WriteReg(NRF24L01_00_CONFIG, _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX)); //  _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) |
 				}
+				XN297Dump_overflow();
 				if(old_option != option)
 				{
 					NRF24L01_WriteReg(NRF24L01_05_RF_CH, option);	//hopping_frequency_no);

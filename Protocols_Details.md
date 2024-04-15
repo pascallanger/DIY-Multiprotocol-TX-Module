@@ -141,7 +141,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [SGF22](Protocols_Details.md#SGF22---97)|97|SGF22||||||||NRF24L01|XN297
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
-[SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100||||NRF24L01|CC2500
+[SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100|V1_4CH|||NRF24L01|CC2500
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
 [Traxxas](Protocols_Details.md#Traxxas---43)|43|TQ||||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
@@ -1412,6 +1412,12 @@ CH7 and CH8 have no visible effect
 FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (rear red LED goes out while active) -100%..+100% or +100%..-100%
 
 MODE: -100% level, +100% acro
+
+### Sub_protocol V1_4CH - *5*
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+CH1|CH2|CH3|CH4
 
 ## V911S - *46*
 

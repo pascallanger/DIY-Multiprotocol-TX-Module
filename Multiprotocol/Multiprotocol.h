@@ -202,11 +202,12 @@ enum SYMAX
 };
 enum SLT
 {
-	SLT_V1	= 0,
-	SLT_V2	= 1,
-	Q100	= 2,
-	Q200	= 3,
-	MR100	= 4,
+	SLT_V1		= 0,
+	SLT_V2		= 1,
+	Q100		= 2,
+	Q200		= 3,
+	MR100		= 4,
+	SLT_V1_4	= 5,
 };
 enum CX10
 {

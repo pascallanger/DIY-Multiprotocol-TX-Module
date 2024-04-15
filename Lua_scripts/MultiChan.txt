@@ -169,6 +169,7 @@
 11,2,SLT,Q100,0,Rates,n-a,CH7,CH8,Mode,Flip,n-a,n-a,Calib
 11,3,SLT,Q200,0,Rates,n-a,CH7,CH8,Mode,VidOn,VidOff,Calib
 11,4,SLT,MR100,0,Rates,n-a,CH7,CH8,Mode,Flip,Video,Pict
+11,5,SLT,V1_4CH,0
 10,0,Symax,Std,1,Flip,Rates,Pict,Video,HLess
 10,1,Symax,X5C,1,Flip,Rates,Pict,Video,HLess
 43,0,Traxxas,TQ,0

@@ -21,11 +21,12 @@
 //#define SLT_Q200_FORCE_ID
 
 // For code readability
-#define SLT_PAYLOADSIZE_V1 7
-#define SLT_PAYLOADSIZE_V2 11
-#define SLT_NFREQCHANNELS 15
-#define SLT_TXID_SIZE 4
-#define SLT_BIND_CHANNEL 0x50
+#define SLT_PAYLOADSIZE_V1		7
+#define SLT_PAYLOADSIZE_V1_4	5
+#define SLT_PAYLOADSIZE_V2		11
+#define SLT_NFREQCHANNELS		15
+#define SLT_TXID_SIZE			4
+#define SLT_BIND_CHANNEL		0x50
 
 enum{
 	// flags going to packet[6] (Q200)
@@ -93,6 +94,12 @@ static void __attribute__((unused)) SLT_set_freq(void)
 				}
 		}
 	}
+	#if 0
+		debug("CH:");
+		for (uint8_t i = 0; i < SLT_NFREQCHANNELS; ++i)
+			debug(" %02X", hopping_frequency[i]);
+		debugln();
+	#endif
 	
 	//Bind channel
 	hopping_frequency[SLT_NFREQCHANNELS]=SLT_BIND_CHANNEL;
@@ -129,44 +136,47 @@ static void __attribute__((unused)) SLT_build_packet()
 	uint8_t e = 0; // byte where extension 2 bits for every 10-bit channel are packed
 	for (uint8_t i = 0; i < 4; ++i)
 	{
-		uint16_t v = convert_channel_10b(CH_AETR[i], false);
-		if(sub_protocol>SLT_V2 && (i==CH2 || i==CH3) )
+		uint16_t v = convert_channel_10b(sub_protocol != SLT_V1_4 ? CH_AETR[i] : i, false);
+		if(sub_protocol>SLT_V2 && (i==CH2 || i==CH3) && sub_protocol != SLT_V1_4)
 			v=1023-v;	// reverse throttle and elevator channels for Q100/Q200/MR100 protocols
 		packet[i] = v;
 		e = (e >> 2) | (uint8_t) ((v >> 2) & 0xC0);
 	}
 	// Extra bits for AETR
 	packet[4] = e;
+
+	//->V1_4CH stops here
+
 	// 8-bit channels
 	packet[5] = convert_channel_8b(CH5);
 	packet[6] = convert_channel_8b(CH6);
-	if(sub_protocol!=SLT_V1)
-	{
-		if(sub_protocol==Q200)
-			packet[6] =  GET_FLAG(CH9_SW , FLAG_Q200_FMODE)
-						|GET_FLAG(CH10_SW, FLAG_Q200_FLIP)
-						|GET_FLAG(CH11_SW, FLAG_Q200_VIDON)
-						|GET_FLAG(CH12_SW, FLAG_Q200_VIDOFF);
-		else if(sub_protocol==MR100 || sub_protocol==Q100)
-			packet[6] =  GET_FLAG(CH9_SW , FLAG_MR100_FMODE)
-						|GET_FLAG(CH10_SW, FLAG_MR100_FLIP)
-						|GET_FLAG(CH11_SW, FLAG_MR100_VIDEO)	// Does not exist on the Q100 but...
-						|GET_FLAG(CH12_SW, FLAG_MR100_PICTURE);	// Does not exist on the Q100 but...
-		packet[7]=convert_channel_8b(CH7);
-		packet[8]=convert_channel_8b(CH8);
-		packet[9]=0xAA;				//normal mode for Q100/Q200, unknown for V2/MR100
-		packet[10]=0x00;			//normal mode for Q100/Q200, unknown for V2/MR100
-		if((sub_protocol==Q100 || sub_protocol==Q200) && CH13_SW)
-		{//Calibrate
-			packet[9]=0x77;			//enter calibration
-			if(calib_counter>=20 && calib_counter<=25)	// 7 packets for Q100 / 3 packets for Q200
-				packet[10]=0x20;	//launch calibration
-			calib_counter++;
-			if(calib_counter>250) calib_counter=250;
-		}
-		else
-			calib_counter=0;
+
+	//->V1 stops here
+
+	if(sub_protocol==Q200)
+		packet[6] =  GET_FLAG(CH9_SW , FLAG_Q200_FMODE)
+					|GET_FLAG(CH10_SW, FLAG_Q200_FLIP)
+					|GET_FLAG(CH11_SW, FLAG_Q200_VIDON)
+					|GET_FLAG(CH12_SW, FLAG_Q200_VIDOFF);
+	else if(sub_protocol==MR100 || sub_protocol==Q100)
+		packet[6] =  GET_FLAG(CH9_SW , FLAG_MR100_FMODE)
+					|GET_FLAG(CH10_SW, FLAG_MR100_FLIP)
+					|GET_FLAG(CH11_SW, FLAG_MR100_VIDEO)	// Does not exist on the Q100 but...
+					|GET_FLAG(CH12_SW, FLAG_MR100_PICTURE);	// Does not exist on the Q100 but...
+	packet[7]=convert_channel_8b(CH7);
+	packet[8]=convert_channel_8b(CH8);
+	packet[9]=0xAA;				//normal mode for Q100/Q200, unknown for V2/MR100
+	packet[10]=0x00;			//normal mode for Q100/Q200, unknown for V2/MR100
+	if((sub_protocol==Q100 || sub_protocol==Q200) && CH13_SW)
+	{//Calibrate
+		packet[9]=0x77;			//enter calibration
+		if(calib_counter>=20 && calib_counter<=25)	// 7 packets for Q100 / 3 packets for Q200
+			packet[10]=0x20;	//launch calibration
+		calib_counter++;
+		if(calib_counter>250) calib_counter=250;
 	}
+	else
+		calib_counter=0;
 }
 
 static void __attribute__((unused)) SLT_send_bind_packet()
@@ -186,6 +196,7 @@ static void __attribute__((unused)) SLT_send_bind_packet()
 
 #define SLT_TIMING_BUILD		1000
 #define SLT_V1_TIMING_PACKET	1000
+#define SLT_V1_4_TIMING_PACKET	1643
 #define SLT_V2_TIMING_PACKET	2042
 #define SLT_V1_TIMING_BIND2		1000
 #define SLT_V2_TIMING_BIND1		6507
@@ -195,8 +206,9 @@ uint16_t SLT_callback()
 	switch (phase)
 	{
 		case SLT_BUILD:
+			//debugln_time("b ");
 			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(sub_protocol==SLT_V1?20000:13730);
+				telemetry_set_input_sync(packet_period);
 			#endif
 			SLT_build_packet();
 			NRF250K_SetPower();					//Change power level
@@ -206,42 +218,39 @@ uint16_t SLT_callback()
 		case SLT_DATA1:
 		case SLT_DATA2:
 			phase++;
+			SLT_send_packet(packet_length);
 			if(sub_protocol==SLT_V1)
-			{
-				SLT_send_packet(SLT_PAYLOADSIZE_V1);
 				return SLT_V1_TIMING_PACKET;
-			}
-			else //V2
+			if(sub_protocol==SLT_V1_4)
 			{
-				SLT_send_packet(SLT_PAYLOADSIZE_V2);
-				return SLT_V2_TIMING_PACKET;
+				phase++;						//Packets are sent two times only
+				return SLT_V1_4_TIMING_PACKET;
 			}
+			//V2
+			return SLT_V2_TIMING_PACKET;
 		case SLT_DATA3:
-			if(sub_protocol==SLT_V1)
-				SLT_send_packet(SLT_PAYLOADSIZE_V1);
-			else //V2
-				SLT_send_packet(SLT_PAYLOADSIZE_V2);
+			SLT_send_packet(packet_length);
 			if (++packet_count >= 100)
 			{// Send bind packet
 				packet_count = 0;
-				if(sub_protocol==SLT_V1)
+				if(sub_protocol==SLT_V1||sub_protocol==SLT_V1_4)
 				{
 					phase=SLT_BIND2;
 					return SLT_V1_TIMING_BIND2;
 				}
-				else //V2
-				{
-					phase=SLT_BIND1;
-					return SLT_V2_TIMING_BIND1;
-				}
+				//V2
+				phase=SLT_BIND1;
+				return SLT_V2_TIMING_BIND1;
 			}
 			else
 			{// Continue to send normal packets
 				phase = SLT_BUILD;
 				if(sub_protocol==SLT_V1)
 					return 20000-SLT_TIMING_BUILD;
-				else //V2
-					return 13730-SLT_TIMING_BUILD;
+				if(sub_protocol==SLT_V1_4)
+					return 18000-SLT_TIMING_BUILD-SLT_V1_4_TIMING_PACKET;
+				//V2
+				return 13730-SLT_TIMING_BUILD;
 			}
 		case SLT_BIND1:
 			SLT_send_bind_packet();
@@ -252,8 +261,10 @@ uint16_t SLT_callback()
 			phase = SLT_BUILD;
 			if(sub_protocol==SLT_V1)
 				return 20000-SLT_TIMING_BUILD-SLT_V1_TIMING_BIND2;
-			else //V2
-				return 13730-SLT_TIMING_BUILD-SLT_V2_TIMING_BIND1-SLT_V2_TIMING_BIND2;
+			if(sub_protocol==SLT_V1_4)
+				return 18000-SLT_TIMING_BUILD-SLT_V1_TIMING_BIND2-SLT_V1_4_TIMING_PACKET;
+			//V2
+			return 13730-SLT_TIMING_BUILD-SLT_V2_TIMING_BIND1-SLT_V2_TIMING_BIND2;
 	}
 	return 19000;
 }
@@ -276,6 +287,29 @@ void SLT_init()
 	SLT_RF_init();
 	SLT_set_freq();
 	phase = SLT_BUILD;
+	if(sub_protocol==SLT_V1)
+	{
+		packet_length = SLT_PAYLOADSIZE_V1;
+		#ifdef MULTI_SYNC
+			packet_period = 20000+2000;
+		#endif
+	}
+	else if(sub_protocol==SLT_V1_4)
+	{
+		packet_length = SLT_PAYLOADSIZE_V1_4;
+		#ifdef MULTI_SYNC
+			packet_period = 18000;
+		#endif
+	}
+	else //V2
+	{
+		packet_length = SLT_PAYLOADSIZE_V2;
+		#ifdef MULTI_SYNC
+			packet_period = 13730+2000;
+		#endif
+	}
 }
 
 #endif
+//SLT v1_4ch timing
+//268363 + 1643 / 15 = 18000

@@ -291,21 +291,25 @@ void SLT_init()
 	{
 		packet_length = SLT_PAYLOADSIZE_V1;
 		#ifdef MULTI_SYNC
-			packet_period = 20000+2000;
+			packet_period = 20000+2*SLT_V1_TIMING_PACKET;		//22ms
 		#endif
 	}
 	else if(sub_protocol==SLT_V1_4)
 	{
 		packet_length = SLT_PAYLOADSIZE_V1_4;
 		#ifdef MULTI_SYNC
-			packet_period = 18000;
+			packet_period = 18000;								//18ms
 		#endif
+		//Test IDs
+		MProtocol_id = MProtocol_id_master ^ (1<<RX_num);
+		set_rx_tx_addr(MProtocol_id);
+		debugln("Try ID: %lx", MProtocol_id);
 	}
 	else //V2
 	{
 		packet_length = SLT_PAYLOADSIZE_V2;
 		#ifdef MULTI_SYNC
-			packet_period = 13730+2000;
+			packet_period = 13730+2*SLT_V2_TIMING_PACKET;		//~18ms
 		#endif
 	}
 }

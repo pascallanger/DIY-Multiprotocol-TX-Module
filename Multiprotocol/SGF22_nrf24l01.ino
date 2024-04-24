@@ -93,9 +93,10 @@ static void __attribute__((unused)) SGF22_send_packet()
 
 static void __attribute__((unused)) SGF22_initialize_txid()
 {
-	rx_tx_addr[2] &=0x7F;
-	rx_tx_addr[3] &=0x7F;
-	uint8_t val = (( (uint16_t) rx_tx_addr[2] << 8 ) | rx_tx_addr[3])%5;
+	uint16_t val = ( rx_tx_addr[2] << 8 ) | rx_tx_addr[3];
+	if ( rx_tx_addr[2] > ( 0xFF - rx_tx_addr[3]) )
+		val--;
+	val %= 5;
 
 	const uint8_t hop[5][4] =
 	{ { 0x0C, 0x2A, 0x1B, 0x39 },

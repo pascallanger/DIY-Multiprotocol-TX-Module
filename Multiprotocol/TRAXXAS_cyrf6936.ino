@@ -19,12 +19,16 @@
 
 #include "iface_cyrf6936.h"
 
-//#define TRAXXAS_FORCE_ID
+#define TRAXXAS_TQ1_FORCE_ID
+//#define TRAXXAS_TQ2_FORCE_ID
 //#define TRAXXAS_DEBUG
 
-#define TRAXXAS_BIND_CHANNEL	0x2B
-#define TRAXXAS_CHECK_CHANNEL	0x22
-#define TRAXXAS_PACKET_SIZE		16
+#define TRAXXAS_BIND_CHANNEL		0x2B
+#define TRAXXAS_CHECK_CHANNEL		0x22
+#define TRAXXAS_PACKET_SIZE			16
+
+#define TRAXXAS_TQ1_BIND_CHANNEL	0x04
+#define TRAXXAS_TQ1_CHECK_CHANNEL	0x34
 
 enum {
 	TRAXXAS_BIND_PREP_RX=0,
@@ -34,6 +38,9 @@ enum {
 	TRAXXAS_RX,
 	TRAXXAS_PREP_DATA,
 	TRAXXAS_DATA,
+	TRAXXAS_TQ1_BIND,
+	TRAXXAS_TQ1_DATA1,
+	TRAXXAS_TQ1_DATA2,
 };
 
 const uint8_t PROGMEM TRAXXAS_init_vals[][2] = {
@@ -98,7 +105,46 @@ static void __attribute__((unused)) TRAXXAS_send_data_packet()
 	}
 
 	CYRF_SetPower(0x08);
-	CYRF_WriteDataPacketLen(packet, TRAXXAS_PACKET_SIZE);
+	CYRF_WriteDataPacket(packet);
+}
+
+static void __attribute__((unused)) TRAXXAS_TQ1_send_data_packet()
+{
+	memcpy(&packet[1], cyrfmfg_id, 4);
+	if(IS_BIND_IN_PROGRESS)
+	{
+		packet_length = 8;
+		packet[0] = 0x2A;						// Bind packet
+		packet[5] = 0xA0;						// Bind phase 0
+		packet[6] = TRAXXAS_BIND_CHANNEL-1;		// Not sure...
+	}
+	else
+	{
+		packet[0] = 0x02;						// Normal packet
+		packet[5] = 0xA2;						// Bind phase 2 = completed?
+		//4 channels
+		uint16_t ch;
+		for(uint8_t i=0; i<4; i++)
+		{
+			ch = convert_channel_ppm(i);
+			packet[6+i*2]=ch;
+			packet[7+i*2]=ch>>8;
+		}
+		packet[14] = hopping_frequency[0]-1;	// Not sure...
+	}
+	uint8_t xor_value=0;
+	for(uint8_t i=0; i<packet_length-1; i++)
+		xor_value ^= packet[i];
+	packet[packet_length-1] = xor_value;
+
+	CYRF_SetPower(0x08);
+	CYRF_WriteDataPacketLen(packet, packet_length);
+	#ifdef TRAXXAS_DEBUG
+		debug("P:");
+		for(uint8_t i=0; i<packet_length; i++)
+			debug(" %02X",packet[i]);
+		debugln("");
+	#endif
 }
 
 uint16_t TRAXXAS_callback()
@@ -107,6 +153,7 @@ uint16_t TRAXXAS_callback()
 	
 	switch(phase)
 	{
+		//TQ2
 		case TRAXXAS_BIND_PREP_RX:
 		case TRAXXAS_PREP_RX:
 			//debugln("PREP_RX");
@@ -221,6 +268,35 @@ uint16_t TRAXXAS_callback()
 			TRAXXAS_send_data_packet();
 			phase = TRAXXAS_PREP_RX;
 			return 1000;
+		//TQ1
+		case TRAXXAS_TQ1_BIND:
+			if(bind_counter)
+			{
+				CYRF_ConfigRFChannel(TRAXXAS_TQ1_BIND_CHANNEL);
+				TRAXXAS_TQ1_send_data_packet();
+				bind_counter--;
+				if(bind_counter == 0)
+				{
+					BIND_DONE;
+					phase++;
+				}
+			}
+			return 10000;
+		case TRAXXAS_TQ1_DATA1:
+			//debugln_time("DATA1");
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(20000);
+			#endif
+			CYRF_ConfigRFChannel(TRAXXAS_TQ1_CHECK_CHANNEL);
+			TRAXXAS_TQ1_send_data_packet();
+			phase++;
+			return 7000;
+		case TRAXXAS_TQ1_DATA2:
+			//debugln_time("DATA2");
+			CYRF_ConfigRFChannel(hopping_frequency[0]);
+			TRAXXAS_TQ1_send_data_packet();
+			phase = TRAXXAS_TQ1_DATA1;
+			return 13000;
 	}
 	return 10000;
 }
@@ -233,30 +309,60 @@ void TRAXXAS_init()
 
 	//Read CYRF ID
 	CYRF_GetMfgData(cyrfmfg_id);
-	//cyrfmfg_id[0]+=RX_num;				// Not needed since the TX and RX have to match
-	CYRF_FindBestChannels(hopping_frequency,1,1,0x02,0x21, FIND_CHANNEL_ANY);
-	#ifdef TRAXXAS_FORCE_ID					// data taken from TX dump
-		cyrfmfg_id[0]=0x65;					// CYRF MFG ID
-		cyrfmfg_id[1]=0xE2;
-		cyrfmfg_id[2]=0x5E;
-		cyrfmfg_id[3]=0x55;
-		cyrfmfg_id[4]=0x4D;
-		cyrfmfg_id[5]=0xFE;
-		hopping_frequency[0] = 0x05;					// seen 05 and 0F
+	//Find a free channel
+	if(sub_protocol == TRAXXAS_TQ1)
+	{
+		cyrfmfg_id[3]+=RX_num;				// Not needed for TQ2 since the TX and RX have to match
+		CYRF_FindBestChannels(hopping_frequency,1,1,0x0B,0x30, FIND_CHANNEL_ANY);	// Complete guess
+	}
+	else //TRAXXAS_TQ2
+		CYRF_FindBestChannels(hopping_frequency,1,1,0x02,0x21, FIND_CHANNEL_ANY);
+
+	#ifdef TRAXXAS_TQ1_FORCE_ID				// data taken from TX dump
+		if(sub_protocol == TRAXXAS_TQ1)
+		{
+			cyrfmfg_id[0]=0xD8;				// CYRF MFG ID
+			cyrfmfg_id[1]=0xAA;
+			cyrfmfg_id[2]=0x59;
+			cyrfmfg_id[3]=0xE6;
+			//cyrfmfg_id[4]=0x44;			// Unused
+			//cyrfmfg_id[5]=0xFB;			// Unused
+			hopping_frequency[0] = 0x0B;
+		}
+	#endif
+	#ifdef TRAXXAS_TQ2_FORCE_ID				// data taken from TX dump
+		if(sub_protocol == TRAXXAS_TQ2)
+		{
+			cyrfmfg_id[0]=0x65;				// CYRF MFG ID
+			cyrfmfg_id[1]=0xE2;
+			cyrfmfg_id[2]=0x5E;
+			cyrfmfg_id[3]=0x55;
+			cyrfmfg_id[4]=0x4D;
+			cyrfmfg_id[5]=0xFE;
+			hopping_frequency[0] = 0x05;	// seen 05 and 0F
+		}
 	#endif
 	#ifdef TRAXXAS_DEBUG
 		debugln("ID: %02X %02X %02X %02X %02X %02X",cyrfmfg_id[0],cyrfmfg_id[1],cyrfmfg_id[2],cyrfmfg_id[3],cyrfmfg_id[4],cyrfmfg_id[5]);
 		debugln("RF CH: %02X",hopping_frequency[0]);
 	#endif
 	
-	if(IS_BIND_IN_PROGRESS)
+	bind_counter=100;
+	if(sub_protocol == TRAXXAS_TQ1)
 	{
-		bind_counter=100;
-		phase = TRAXXAS_BIND_PREP_RX;
+		CYRF_PROGMEM_ConfigSOPCode(DEVO_j6pro_sopcodes[0]);
+		if(IS_BIND_IN_PROGRESS)
+			phase = TRAXXAS_TQ1_BIND;
+		else
+			phase = TRAXXAS_TQ1_DATA1;
 	}
 	else
-		phase = TRAXXAS_PREP_DATA;
-	
+	{//TRAXXAS_TQ2
+		if(IS_BIND_IN_PROGRESS)
+			phase = TRAXXAS_BIND_PREP_RX;
+		else
+			phase = TRAXXAS_PREP_DATA;
+	}
 	//
 //	phase = TRAXXAS_BIND_TX1;
 //	TRAXXAS_cyrf_bind_config();
@@ -266,6 +372,8 @@ void TRAXXAS_init()
 }
 
 /*
+Traxxas TQ 2nd generation
+-------------------------
 Packets 0x02: Bind learn TX/RX addresses
 CHANNEL:	0x2B
 SOP_CODE:	0x3C	0x37	0xCC	0x91	0xE2	0xF8	0xCC	0x91
@@ -310,8 +418,8 @@ RX ID: \x4B\xA3\x2D\x1A\x49\xFE CRC 0x1A 0x3F => CRC: 65-4B=1A E2-A3=3F
 RX ID: \x00\x00\x2D\x1A\x49\xFE CRC 0x65 0xE2 => CRC: 65-00=65 E2-00=E2
 RX ID: \x00\xFF\x2D\x1A\x49\xFE CRC 0x65 0xE3 => CRC: 65-00=65 E2-FF=E3
 RX ID: \xFF\x00\x2D\x1A\x49\xFE CRC 0x66 0xE2 => CRC: 65-FF=66 E2-00=E2
-*/
-/*
+
+SOP Codes:
 RX1: 02 4A A3 2D 1A 49 FE 06 00 00 02 01 06 06 00 00
 SOP: A1 78 DC 3C 9E 82 DC 3C
 RX2: 02 49 AC 4F 55 4D FE 05 00 00 02 01 06 06 00 00
@@ -340,4 +448,9 @@ Dump of SOP Codes:
 20: 00 00 00 33 DE AD BA BE ??over??
 */
 
+/*
+Traxxas TQ 1st generation
+-------------------------
+https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/issues/967#issuecomment-2079038576
+*/
 #endif

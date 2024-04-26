@@ -363,7 +363,8 @@ enum REDPINE
 };
 enum TRAXXAS
 {
-	TRAXXAS_TQ	= 0,
+	TRAXXAS_TQ2	= 0,
+	TRAXXAS_TQ1	= 1,
 };
 enum ESKY150
 {

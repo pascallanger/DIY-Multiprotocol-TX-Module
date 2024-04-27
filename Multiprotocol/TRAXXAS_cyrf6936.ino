@@ -120,6 +120,7 @@ static void __attribute__((unused)) TRAXXAS_TQ1_send_data_packet()
 	}
 	else
 	{
+		packet_length = 16;
 		packet[0] = 0x02;						// Normal packet
 		packet[5] = 0xA2;						// Bind phase 2 = completed?
 		//4 channels

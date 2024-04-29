@@ -21,7 +21,7 @@
 
 #define TRAXXAS_TQ1_FORCE_ID
 //#define TRAXXAS_TQ2_FORCE_ID
-//#define TRAXXAS_DEBUG
+#define TRAXXAS_DEBUG
 
 #define TRAXXAS_BIND_CHANNEL		0x2B
 #define TRAXXAS_CHECK_CHANNEL		0x22
@@ -116,7 +116,7 @@ static void __attribute__((unused)) TRAXXAS_TQ1_send_data_packet()
 		packet_length = 8;
 		packet[0] = 0x2A;						// Bind packet
 		packet[5] = 0xA0;						// Bind phase 0
-		packet[6] = TRAXXAS_BIND_CHANNEL-1;		// Not sure...
+		packet[6] = TRAXXAS_TQ1_BIND_CHANNEL-1;	// Not sure...
 	}
 	else
 	{
@@ -351,6 +351,8 @@ void TRAXXAS_init()
 	bind_counter=100;
 	if(sub_protocol == TRAXXAS_TQ1)
 	{
+		CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE,0x00);			// Not needed...
+		CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x29);				// Not needed...
 		CYRF_PROGMEM_ConfigSOPCode(DEVO_j6pro_sopcodes[0]);
 		if(IS_BIND_IN_PROGRESS)
 			phase = TRAXXAS_TQ1_BIND;

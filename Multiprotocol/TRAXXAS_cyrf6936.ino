@@ -45,15 +45,15 @@ enum {
 
 const uint8_t PROGMEM TRAXXAS_init_vals[][2] = {
 	//Init from dump
-	{CYRF_0B_PWR_CTRL, 0x00},					// PMU
 	{CYRF_32_AUTO_CAL_TIME, 0x3C},				// Default init value
 	{CYRF_35_AUTOCAL_OFFSET, 0x14},				// Default init value
 	{CYRF_1B_TX_OFFSET_LSB, 0x55},				// Default init value
 	{CYRF_1C_TX_OFFSET_MSB, 0x05},				// Default init value
 	{CYRF_28_CLK_EN, 0x02},						// Force Receive Clock Enable
+	{CYRF_03_TX_CFG, 0x08 | CYRF_BIND_POWER},	// 8DR Mode, 32 chip codes
+	{CYRF_0B_PWR_CTRL, 0x00},					// PMU
 	{CYRF_06_RX_CFG, 0x88 | 0x02},				// AGC enabled, Fast Turn Mode enabled, adding overwrite enable to not lockup RX
 	{CYRF_1E_RX_OVERRIDE, 0x08},				// Reject packets with 0 seed
-	{CYRF_03_TX_CFG, 0x08 | CYRF_BIND_POWER},	// 8DR Mode, 32 chip codes
 };
 
 static void __attribute__((unused)) TRAXXAS_cyrf_bind_config()
@@ -286,18 +286,18 @@ uint16_t TRAXXAS_callback()
 		case TRAXXAS_TQ1_DATA1:
 			//debugln_time("DATA1");
 			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(20000);
+				telemetry_set_input_sync(19900);
 			#endif
 			CYRF_ConfigRFChannel(TRAXXAS_TQ1_CHECK_CHANNEL);
 			TRAXXAS_TQ1_send_data_packet();
 			phase++;
-			return 7000;
+			return 7100;
 		case TRAXXAS_TQ1_DATA2:
 			//debugln_time("DATA2");
 			CYRF_ConfigRFChannel(hopping_frequency[0]);
 			TRAXXAS_TQ1_send_data_packet();
 			phase = TRAXXAS_TQ1_DATA1;
-			return 13000;
+			return 12800;
 	}
 	return 10000;
 }
@@ -305,7 +305,16 @@ uint16_t TRAXXAS_callback()
 void TRAXXAS_init()
 { 
 	//Config CYRF registers
-	for(uint8_t i = 0; i < sizeof(TRAXXAS_init_vals) / 2; i++)	
+	uint8_t init;
+	if(sub_protocol == TRAXXAS_TQ1)
+	{
+		CYRF_WriteRegister(CYRF_06_RX_CFG, 0x48 | 0x02);
+		CYRF_WriteRegister(CYRF_26_XTAL_CFG, 0x08);
+		init = 5;
+	}
+	else //TQ2
+		init = sizeof(TRAXXAS_init_vals) / 2;
+	for(uint8_t i = 0; i < init; i++)	
 		CYRF_WriteRegister(pgm_read_byte_near(&TRAXXAS_init_vals[i][0]), pgm_read_byte_near(&TRAXXAS_init_vals[i][1]));
 
 	//Read CYRF ID
@@ -351,7 +360,6 @@ void TRAXXAS_init()
 	bind_counter=100;
 	if(sub_protocol == TRAXXAS_TQ1)
 	{
-		CYRF_WriteRegister(CYRF_1E_RX_OVERRIDE,0x00);			// Not needed...
 		CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x29);				// Not needed...
 		CYRF_PROGMEM_ConfigSOPCode(DEVO_j6pro_sopcodes[0]);
 		if(IS_BIND_IN_PROGRESS)

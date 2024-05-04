@@ -35,7 +35,6 @@ enum PktState {
     J6PRO_CHAN_4,
 };
 
-const uint8_t PROGMEM j6pro_bind_sop_code[] = {0x62, 0xdf, 0xc1, 0x49, 0xdf, 0xb1, 0xc0, 0x49};
 const uint8_t j6pro_data_code[] = {0x02, 0xf9, 0x93, 0x97, 0x02, 0xfa, 0x5c, 0xe3, 0x01, 0x2b, 0xf1, 0xdb, 0x01, 0x32, 0xbe, 0x6f}; // unneeded since this is the default table after a reset
 
 static void __attribute__((unused)) j6pro_build_bind_packet()
@@ -99,7 +98,7 @@ static void __attribute__((unused)) cyrf_bindinit()
     /* Use when binding */
     CYRF_SetPower(0x28); //Deviation using max power, replaced by bind power...
     //CYRF_ConfigRFChannel(0x52);
-    CYRF_PROGMEM_ConfigSOPCode(j6pro_bind_sop_code);
+    CYRF_PROGMEM_ConfigSOPCode(DEVO_j6pro_sopcodes[19]);
     CYRF_ConfigCRCSeed(0x0000);
     //CYRF_WriteRegister(CYRF_06_RX_CFG, 0x4a);
     //CYRF_WriteRegister(CYRF_05_RX_CTRL, 0x80);

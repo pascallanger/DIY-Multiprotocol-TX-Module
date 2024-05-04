@@ -284,7 +284,6 @@ uint16_t TRAXXAS_callback()
 			}
 			return 10000;
 		case TRAXXAS_TQ1_DATA1:
-			//debugln_time("DATA1");
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(19900);
 			#endif
@@ -293,7 +292,6 @@ uint16_t TRAXXAS_callback()
 			phase++;
 			return 7100;
 		case TRAXXAS_TQ1_DATA2:
-			//debugln_time("DATA2");
 			CYRF_ConfigRFChannel(hopping_frequency[0]);
 			TRAXXAS_TQ1_send_data_packet();
 			phase = TRAXXAS_TQ1_DATA1;
@@ -308,14 +306,16 @@ void TRAXXAS_init()
 	uint8_t init;
 	if(sub_protocol == TRAXXAS_TQ1)
 	{
-		CYRF_WriteRegister(CYRF_06_RX_CFG, 0x48 | 0x02);
-		CYRF_WriteRegister(CYRF_26_XTAL_CFG, 0x08);
+		//CYRF_WriteRegister(CYRF_06_RX_CFG, 0x48 | 0x02);
+		//CYRF_WriteRegister(CYRF_26_XTAL_CFG, 0x08);
 		init = 5;
 	}
 	else //TQ2
+	{
 		init = sizeof(TRAXXAS_init_vals) / 2;
-	for(uint8_t i = 0; i < init; i++)	
-		CYRF_WriteRegister(pgm_read_byte_near(&TRAXXAS_init_vals[i][0]), pgm_read_byte_near(&TRAXXAS_init_vals[i][1]));
+		for(uint8_t i = 0; i < init; i++)	
+			CYRF_WriteRegister(pgm_read_byte_near(&TRAXXAS_init_vals[i][0]), pgm_read_byte_near(&TRAXXAS_init_vals[i][1]));
+	}
 
 	//Read CYRF ID
 	CYRF_GetMfgData(cyrfmfg_id);
@@ -323,7 +323,7 @@ void TRAXXAS_init()
 	if(sub_protocol == TRAXXAS_TQ1)
 	{
 		cyrfmfg_id[3]+=RX_num;				// Not needed for TQ2 since the TX and RX have to match
-		CYRF_FindBestChannels(hopping_frequency,1,1,0x0B,0x30, FIND_CHANNEL_ANY);	// Complete guess
+		//CYRF_FindBestChannels(hopping_frequency,1,1,0x0B,0x30, FIND_CHANNEL_ANY);	// Complete guess
 	}
 	else //TRAXXAS_TQ2
 		CYRF_FindBestChannels(hopping_frequency,1,1,0x02,0x21, FIND_CHANNEL_ANY);
@@ -360,8 +360,18 @@ void TRAXXAS_init()
 	bind_counter=100;
 	if(sub_protocol == TRAXXAS_TQ1)
 	{
-		CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x29);				// Not needed...
+		CYRF_WriteRegister(CYRF_28_CLK_EN, 0x02);
+		CYRF_WriteRegister(CYRF_32_AUTO_CAL_TIME, 0x3C);
+		CYRF_WriteRegister(CYRF_35_AUTOCAL_OFFSET, 0x14);
+		CYRF_WriteRegister(CYRF_26_XTAL_CFG, 0x08);
+		CYRF_WriteRegister(CYRF_06_RX_CFG, 0x48);
+		CYRF_WriteRegister(CYRF_1B_TX_OFFSET_LSB, 0x55);
+		CYRF_WriteRegister(CYRF_1C_TX_OFFSET_MSB, 0x05);
+		CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x21);
+		CYRF_WriteRegister(CYRF_03_TX_CFG, 0x0C);
 		CYRF_PROGMEM_ConfigSOPCode(DEVO_j6pro_sopcodes[0]);
+		CYRF_SetTxRxMode(TX_EN);
+		CYRF_WriteRegister(CYRF_0F_XACT_CFG, 0x21);
 		if(IS_BIND_IN_PROGRESS)
 			phase = TRAXXAS_TQ1_BIND;
 		else

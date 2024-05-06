@@ -480,6 +480,13 @@ enum FX
 	FX620			= 1,
     FX9630          = 2,
 };
+enum CFLIE
+{
+  CFLIE_DEFAULT = 0,
+  CFLIE_2Mbps = 1,
+  CFLIE_1Mbps = 2,
+  CFLIE_250kbps = 3,
+};
 
 #define NONE 		0
 #define P_HIGH		1

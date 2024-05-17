@@ -90,6 +90,7 @@
 58,0,FX,816,1
 58,1,FX,620,1
 58,2,FX,9630,1,Rate,Gyro,TrimR,TrimA,TrimE
+58,3,FX,Q560,1,FLIP,Gyro,LEDs
 20,0,FY326,FY326,1,Flip,RTH,HLess,Expert,Calib
 20,1,FY326,FY319,1,Flip,RTH,HLess,Expert,Calib
 23,0,FY326,FY326,1,Flip,RTH,HLess,Expert

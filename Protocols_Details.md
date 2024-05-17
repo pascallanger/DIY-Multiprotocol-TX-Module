@@ -1735,7 +1735,7 @@ Only 8 TX IDs available
 Model: FX620 SU35
 
 ### Sub_protocol 9630 - *2*
-Model: FX9630, FX9603, QIDI-550 and QIDI-560
+Model: FX9630, FX9603, QIDI-550
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
@@ -1744,6 +1744,15 @@ A|E|T|R|RATE|GYRO|TrimR|TrimA|TrimE
 FX9630 and FX9603 Gyro: -100%=6G small throw, 0%=6G large throw, +100%=3D
 
 QIDI-550 Gyro: -100%=3D, 0%=6G, +100%=Torque
+
+### Sub_protocol Q560 - *2*
+Model: QIDI-560
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|FLIP|GYRO|LEDs
+
+FLIP and LEDs are toggle channels meaning that -100% to +100% is a command and +100% to -100% is also a command
 
 ## FY326 - *20*
 

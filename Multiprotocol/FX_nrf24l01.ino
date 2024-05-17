@@ -33,7 +33,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FX620_PAYLOAD_SIZE			7
 #define FX620_CH_OFFSET				1
 
-#define FX9630_PACKET_PERIOD		8124
+#define FX9630_PACKET_PERIOD		8124	//8156 on QIDI-560
 #define FX9630_BIND_PACKET_PERIOD	8124
 #define FX9630_BIND_CHANNEL			51
 #define FX9630_PAYLOAD_SIZE			8
@@ -51,14 +51,19 @@ static void __attribute__((unused)) FX_send_packet()
 	if(IS_BIND_DONE)
 	{
 		XN297_Hopping(hopping_frequency_no++);
-		if(sub_protocol == FX9630)
-		{
+		if(sub_protocol >= FX9630)
+		{ // FX9630 & FX_Q560
 			XN297_SetTXAddr(rx_tx_addr, 4);
 			if (hopping_frequency_no >= FX9630_NUM_CHANNELS)
 			{
 				hopping_frequency_no = 0;
-				trim_ch++;
-				if(trim_ch > 3) trim_ch = 0;
+				if(sub_protocol == FX9630)
+				{
+					trim_ch++;
+					if(trim_ch > 3) trim_ch = 0;
+				}
+				else // FX_Q560
+					trim_ch = 0;
 			}
 		}
 		else // FX816 and FX620
@@ -71,8 +76,8 @@ static void __attribute__((unused)) FX_send_packet()
 
 	//Channels
 	uint8_t val;
-	if (sub_protocol == FX9630)
-	{
+	if (sub_protocol >= FX9630)
+	{ // FX9630 & FX_Q560
 		packet[0] = convert_channel_8b(THROTTLE);
 		packet[1] = convert_channel_8b(AILERON);
 		packet[2] = 0xFF - convert_channel_8b(ELEVATOR);
@@ -83,7 +88,9 @@ static void __attribute__((unused)) FX_send_packet()
 					| GET_FLAG(CH5_SW, 0x01)  // DR toggle swich: 0 small throw, 1 large throw
 					// FX9630  =>0:6G small throw, 1:6G large throw, 2:3D
 					// QIDI-550=>0:3D, 1:6G, 2:Torque
-					| ((Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x02 : 0x01)) << 1);
+					| (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x04 : 0x02));
+		if(sub_protocol == FX_Q560)
+			packet[5] |= GET_FLAG(CH7_SW, 0x10);
 	}
 	else // FX816 and FX620
 	{
@@ -123,7 +130,7 @@ static void __attribute__((unused)) FX_send_packet()
 			packet[5] = 0xAB;	// Is it based on ID??
 		}
 	}
-	else // FX9630
+	else // FX9630 & FX_Q560
 	{
 		if(IS_BIND_IN_PROGRESS)
 		{
@@ -175,7 +182,7 @@ static void __attribute__((unused)) FX_RF_init()
 		packet_period = FX620_BIND_PACKET_PERIOD;
 		packet_length = FX620_PAYLOAD_SIZE;
 	}
-	else // FX9630
+	else // FX9630 & FX_Q560
 	{
 		XN297_SetTXAddr((uint8_t *)"\x56\x78\x90\x12", 4);
 		XN297_RFChannel(FX9630_BIND_CHANNEL);
@@ -207,7 +214,7 @@ static void __attribute__((unused)) FX_initialize_txid()
 		for(uint8_t i=1;i<FX_NUM_CHANNELS;i++)
 			hopping_frequency[i] = i*10 + hopping_frequency[0];
 	}
-	else // FX9630
+	else // FX9630 & FX_Q560
 	{
 		#ifdef FORCE_FX9630_ID
 			memcpy(rx_tx_addr,(uint8_t*)"\xCE\x31\x9B\x73", 4);
@@ -220,6 +227,10 @@ static void __attribute__((unused)) FX_initialize_txid()
 		#ifdef FORCE_QIDI_ID
 			memcpy(rx_tx_addr,(uint8_t*)"\x23\xDC\x76\xA2", 4);
 			memcpy(hopping_frequency,"\x08\x25\x33", FX9630_NUM_CHANNELS);		//Original dump=>08=0x08,37=0x25,51=0x33
+
+			//QIDI-560 #1
+			//memcpy(rx_tx_addr,(uint8_t*)"\x38\xC7\x6D\x8D", 4);
+			//memcpy(hopping_frequency,"\x0D\x20\x3A", FX9630_NUM_CHANNELS);
 		#endif
 		//??? Need to find out how the first RF channel is calculated ???
 	}

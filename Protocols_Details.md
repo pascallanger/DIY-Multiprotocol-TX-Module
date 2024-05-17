@@ -1754,6 +1754,8 @@ A|E|T|R|FLIP|GYRO|LEDs
 
 FLIP and LEDs are toggle channels meaning that -100% to +100% is a command and +100% to -100% is also a command
 
+Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
+
 ## FY326 - *20*
 
 ### Sub_protocol FY326 - *0*

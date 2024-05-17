@@ -143,12 +143,12 @@ static void __attribute__((unused)) FX_send_packet()
 
 	//Check
 	uint8_t last_packet_idx = packet_length-1;
-	if (sub_protocol == FX9630 && IS_BIND_IN_PROGRESS)
+	if (sub_protocol >= FX9630 && IS_BIND_IN_PROGRESS)
 		last_packet_idx--;
 	val=0;
 	for(uint8_t i=0;i<last_packet_idx;i++)
 		val+=packet[i];
-	if (sub_protocol == FX9630)
+	if (sub_protocol >= FX9630)
 		val = val ^ 0xFF;
 	packet[last_packet_idx]=val;
 

@@ -85,12 +85,12 @@ static void __attribute__((unused)) FX_send_packet()
 		val = trim_ch==0 ? 0x20 : (convert_channel_8b(trim_ch + CH6) >> 2);	// no trim on Throttle
 		packet[4] = val;			// Trim for channel x 0C..20..34
 		packet[5] = (trim_ch << 4)	// channel x << 4
-					| GET_FLAG(CH5_SW, 0x01)  // DR toggle swich: 0 small throw, 1 large throw
+					| GET_FLAG(CH5_SW, 0x01)  // DR toggle swich: 0 small throw, 1 large throw / Q560 acrobatic
 					// FX9630  =>0:6G small throw, 1:6G large throw, 2:3D
 					// QIDI-550=>0:3D, 1:6G, 2:Torque
 					| (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x04 : 0x02));
 		if(sub_protocol == FX_Q560)
-			packet[5] |= GET_FLAG(CH7_SW, 0x10);
+			packet[5] |= GET_FLAG(CH7_SW, 0x10);	// Q560 LED flag conflicting with trim_ch...
 	}
 	else // FX816 and FX620
 	{

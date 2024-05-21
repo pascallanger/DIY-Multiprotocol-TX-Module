@@ -1239,7 +1239,7 @@ CH1|CH2|CH3|CH4|CH5|CH6
 ---|---|---|---|---|---
 A|E|T|R|6G3D|Light
 
-Model: KFPLAN Z61 BF109
+Model: KFPLAN Z-Series like Z61 BF109, Z54 A380,...
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
@@ -1752,7 +1752,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
 A|E|T|R|FLIP|GYRO|LEDs
 
-FLIP is a toggle channels meaning that -100% to +100% is a command and +100% to -100% is also a command
+FLIP is a toggle channel meaning that -100% to +100% is a command and +100% to -100% is also a command
 
 Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
 

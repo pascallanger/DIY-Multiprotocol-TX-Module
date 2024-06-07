@@ -354,6 +354,7 @@
 	#undef	SLT_CCNRF_INO
 	#undef	V911S_CCNRF_INO
 	#undef	XK_CCNRF_INO
+	#undef	XK2_CCNRF_INO
 #endif
 #if not defined(DSM_CYRF6936_INO)
 	#undef	LOSI_CYRF6936_INO

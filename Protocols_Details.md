@@ -151,7 +151,8 @@ CFlie|38|CFlie||||||||NRF24L01|
 [WFLY2](Protocols_Details.md#WFLY2---79)|79|RF20x||||||||A7105|
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936|
 [XERALL](Protocols_Details.md#XERALL---91)|91|Tank||||||||NRF24L01|XN297
-[XK](Protocols_Details.md#XK---62)|62|X450|X420|Cars||||||NRF24L01|XN297
+[XK](Protocols_Details.md#XK---62)|62|X450|X420|Cars||||||NRF24L011&CC2500|XN297
+[XK2](Protocols_Details.md#XK2---99)|99|X4||||||||NRF24L01&CC2500|XN297
 [YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01|
 [ZSX](Protocols_Details.md#ZSX---52)|52|280||||||||NRF24L01|XN297
 * "*" Sub Protocols designated by * suffix are using a XN297L@250kbps which will be emulated by default with the NRF24L01. If option (freq tune) is diffrent from 0, the CC2500 module (if installed) will be used instead. Each specific sub protocol has a more detailed explanation.
@@ -1474,6 +1475,24 @@ A|E|T|R|FLIP|LIGHT
 ### Sub_protocol Cars - *2*
 Models: WLtoys cars 284131/284161/284010/124016/124017/144010 and Eachine EAT14
 
+## XK2 - *99*
+
+### Sub_protocol X4 - *0*
+Transmitter: XK X4, model: XK A160S
+
+**Only 1 ID and might only work with my plane**
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|Rate|Mode|Hover
+
+The plane does not need to be bound each time if it is powered on **after** the radio/protocol is on.
+
+The rudder trim is driven from the rudder channel to increase the range (Original TX rudder has no range once the motor has been turned on...).
 
 ***
 # NRF24L01 RF Module

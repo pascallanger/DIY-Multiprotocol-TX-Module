@@ -82,6 +82,7 @@ const char STR_FX[]			="FX";
 const char STR_BAYANG_RX[]	="BayanRX";
 const char STR_PELIKAN[]	="Pelikan";
 const char STR_XK[]			="XK";
+const char STR_XK2[]		="XK2";
 const char STR_XN297DUMP[]	="XN297DP";
 const char STR_FRSKYR9[]	="FrSkyR9";
 const char STR_PROPEL[]		="Propel";
@@ -494,6 +495,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(XK_CCNRF_INO)
 		{PROTO_XK,         STR_XK,        STR_SUBTYPE_XK,        3, OPTION_RFTUNE,  0, 0, SW_NRF,    XK_init,         XK_callback         },	
+	#endif
+	#if defined(XK2_CCNRF_INO)
+		{PROTO_XK2,        STR_XK2,       NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    XK2_init,        XK2_callback        },	
 	#endif
 	#if defined(XN297DUMP_NRF24L01_INO)
 		{PROTO_XN297DUMP,  STR_XN297DUMP, STR_SUBTYPE_XN297DUMP, 6, OPTION_RFCHAN,  0, 0, SW_NRF,    XN297Dump_init,  XN297Dump_callback  },

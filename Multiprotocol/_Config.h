@@ -272,6 +272,7 @@
 #define	SLT_CCNRF_INO
 #define	V911S_CCNRF_INO
 #define	XK_CCNRF_INO
+#define	XK2_CCNRF_INO
 
 //The protocols below need a SX1276 to be installed
 #define	FRSKYR9_SX1276_INO
@@ -857,6 +858,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		X450
 		X420
 		XK_CARS
+	PROTO_XK2
+		NONE
 	PROTO_YD717
 		YD717
 		SKYWLKR

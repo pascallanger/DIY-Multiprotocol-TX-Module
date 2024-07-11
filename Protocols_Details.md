@@ -645,7 +645,7 @@ Loop: circular flight on the C159 (others?)
 
 Flip: flip/aerobatic on the C129v2 (others?)
 
-Debug: you must know what you are doing!!! The trims should be set to 0 before entering this mode. The new value is saved at power off. The rudder trim is used to change the pitch value. There might be other settings...
+Debug: you must know what you are doing!!! The new values are stored at power off. The rudder trim is used to change the pitch value (relative to the previously stored value). Ail end Ele trims are used to better trim the FC.
 
 ## J6Pro - *22*
 

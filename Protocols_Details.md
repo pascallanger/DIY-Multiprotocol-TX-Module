@@ -635,15 +635,17 @@ Models: Eachine E129/E130 and Twister Ninja 250
 ### Sub_protocol C186 - *1*
 Models: RC ERA C186/E120, C127/E110, K127, C159, C189, C129v2
 
-The FC of the heli seems to store the trims Trim A/E/R=CH7..9. If you use these trims, make sure to center them after powering off the heli or they will be added to the previous trims and over correct.
+The FC of the heli store the trims Trim A/E/R=CH7..9. If you use these trims, make sure to reset them to 0 after powering off the heli or they will be added to the previous trims therefore over correctting.
 
-CH10|CH11
----|---
-Loop|Flip
+CH10|CH11|CH12
+---|---|---
+Loop|Flip|Debug
 
 Loop: circular flight on the C159 (others?)
 
 Flip: flip/aerobatic on the C129v2 (others?)
+
+Debug: you must know what you are doing!!! The trims should be set to 0 before entering this mode. The new value is saved at power off. The rudder trim is used to change the pitch value. There might be other settings...
 
 ## J6Pro - *22*
 
@@ -1432,7 +1434,7 @@ Rate: -100% High, +100% Low
 Models: WLtoys V911S, XK A110
 
 ### Sub_protocol E119 - *1*
-Models: Eachine E119, JJRC W01-J3, XK A220 P-40, XK A800 R2, F959S R2, A160 R2, A280
+Models: Eachine E119, JJRC W01-J3, XK A220 P-40, (TX X4-A800) A800 R2, F959S R2, (TX X4-A800) A160 R2, A280
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 ---|---|---|---|---|---|---|---|---
@@ -1478,7 +1480,7 @@ Models: WLtoys cars 284131/284161/284010/124016/124017/144010 and Eachine EAT14
 ## XK2 - *99*
 
 ### Sub_protocol X4 - *0*
-Transmitter: XK X4, model: XK A160S
+Transmitter: XK X4-A160, model: XK A160S
 
 **Only 1 ID and might only work with my plane**
 

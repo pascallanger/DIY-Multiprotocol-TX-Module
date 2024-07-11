@@ -204,7 +204,7 @@
 81,0,E010r5,E010r5,1,Flip,LED,CALIB,HLess,RTH,GLIDE
 82,0,LOLI,Std,0,CH5,CH6,CH7,CH8,1SwSePpPw,2SwSePw,3SwSe,4SwSe,5SwSeSb,6SwSe,7SwSePw,8SwSe
 83,0,E129,E129,1,TakLan,EmStop,TrimA,TrimE,TrimR
-83,1,E129,C186,1,TakLan,EmStop,TrimA,TrimE,TrimR,Loop,Flip
+83,1,E129,C186,1,TakLan,EmStop,TrimA,TrimE,TrimR,Loop,Flip,Debug
 84,0,JOYSWAY,Std,0
 85,0,E016H,Std,1,Stop,Flip,n-a,HLess,RTH
 87,0,IKEA

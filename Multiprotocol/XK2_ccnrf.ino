@@ -138,11 +138,11 @@ uint16_t XK2_callback()
 						debug(" %02X",packet[i]);
 					debugln("");
 				#endif
+				//phase = XK2_BIND1;
+				//return 500;
 				crc8 = 0xBF;
 				for(uint8_t i=0; i<XK2_PAYLOAD_SIZE-1; i++)
 					crc8 += packet[i];
-				//phase = XK2_BIND1;
-				//return 500;
 				if(crc8 != packet[8])
 				{
 					phase = XK2_BIND1;
@@ -199,3 +199,93 @@ void XK2_init()
 
 #endif
 
+/*
+XK A160 Piper CUB
+
+Bind
+----
+Plane sends these packets:
+RX:     0us C=71 S=Y A= CC CC CC CC CC P(9)= 9C BB CC DD 38 12 10 00 19
+P[0] = 9C bind phase 1
+P[1] = Dummy TX_ID
+P[2] = Dummy TX_ID
+P[3] = Dummy TX_ID
+P[4] = RX_ID[0]
+P[5] = RX_ID[1]
+P[6] = RX_ID[2]
+P[7] = 00
+P[8] = sum P[0..7] + BF
+
+TX responds to plane:
+RX 9D 66 4F 47 38 12 10 00 B3
+P[0] = 9D bind phase 2
+P[1] = TX_ID[0]
+P[2] = TX_ID[1]
+P[3] = TX_ID[2]
+P[4] = RX_ID[0]
+P[5] = RX_ID[1]
+P[6] = RX_ID[2]
+P[7] = 00
+P[8] = sum P[0..7] + C0
+
+Planes ack:
+RX:  4299us C=71 S=Y A= CC CC CC CC CC P(9)= 9B 66 4F 47 38 12 10 00 B0
+RX: 26222us C=71 S=Y A= CC CC CC CC CC P(9)= 9B 66 4F 47 38 12 10 00 B0
+RX:  8743us C=71 S=Y A= CC CC CC CC CC P(9)= 9B 66 4F 47 38 12 10 00 B0
+P[0] = 9B bind phase 3
+P[1] = TX_ID[0]
+P[2] = TX_ID[1]
+P[3] = TX_ID[2]
+P[4] = RX_ID[0]
+P[5] = RX_ID[1]
+P[6] = RX_ID[2]
+P[7] = 00
+P[8] = sum P[0..7] + BF
+
+Normal
+------
+TX sends
+C=65,69,73,77 -> only one channel when telemetry is working
+250K C=69 S=Y A= 66 4F 47 CC CC P(9)= 32 32 00 32 E0 00 01 5A 50
+P[0] = A 00..32..64
+P[1] = E 00..32..64
+P[2] = T 00..64
+P[3] = R 00..32..64
+P[4] = alternates 20,60,A0,E0
+       trims
+		A 01..20..3F
+		E 41..60..7F
+		R 81..A0..BF
+	   telemetry
+	    E0 present when the telemetry works
+	   6g/3d
+		C1 few times if P[6] flag 00->08
+		C0 few times if P[6] = flag 08->00
+P[5] = flags
+        01=high rate
+		20=hover=long_press_left
+		08=6g/3d=short_press_right sequece also switches for a few packets to C1 if 8 C0 if 0
+P[6] = 00 telemetry nok
+       01 telemetry ok but sometimes switch to 1 also when telemetry is nok...
+P[7] = 5A
+P[8] = sum P[0..7] + 7F
+
+Telemetry
+RX on channel: 69, Time:  3408us P: 66 4F 47 00 00 00 00 00 C8
+P[0] = TX_ID[0]
+P[1] = TX_ID[1]
+P[2] = TX_ID[2]
+P[8] = sum P[0..7] + CC
+
+Timing when plane is not detected:
+RF
+2469 110713 0
+2473 114560 3847
+2477 120291 5731
+2465 135684 15393
+2469 142138 6454
+2473 145984 3846
+2477 151753 5769
+2465 155330 3577
+
+*/

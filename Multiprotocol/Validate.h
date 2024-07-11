@@ -436,6 +436,7 @@
 	#undef	Q303_CCNRF_INO
 	#undef	Q90C_CCNRF_INO
 	#undef	V911S_CCNRF_INO
+	#undef	SGF22_NRF24L01_INO
 #endif
 
 //OpenTX 2.3.x issue

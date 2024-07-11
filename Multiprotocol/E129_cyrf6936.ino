@@ -41,7 +41,8 @@ static void __attribute__((unused)) E129_build_data_packet()
 	}
 	else
 	{
-		packet[ 1] = 0xA6;
+		packet[ 1] = 0xA6;								// Set to A5 every few packets??
+
 		//Flags
 		if(sub_protocol == E129_E129)
 			packet[ 2] = 0xF7;							// High rate 0xF7, low 0xF4
@@ -53,11 +54,18 @@ static void __attribute__((unused)) E129_build_data_packet()
 			packet[15] = bit_reverse(rx_tx_addr[0]);
 			packet[16] = bit_reverse(rx_tx_addr[1]);
 		}
-		packet[ 3] = GET_FLAG(CH10_SW, 0x40)			// C159 loop flight 0x40, flag 0x04 is also set on this heli
-				   | GET_FLAG(CH11_SW, 0x08);			// C129V2 flip
-														// Other flags in packet[3] => E129 Mode: short press=0x20->0x00->0x20->..., long press=0x10->0x30->0x10->... => C186 throttle trim is doing the same:up=short press and down=long press
+		packet[ 3] = GET_FLAG(CH10_SW, 0x40)			// C159: loop flight 0x40
+				   | GET_FLAG(CH11_SW, 0x08);			// C129V2: flip
+		//Other flags seen in packet[3]
+		//  Flag 0x04 is set on some helis (C159/C190)
+		//  E129 Mode: short press=0x20->0x00->0x20->..., long press=0x10->0x30->0x10->... => C186 throttle trim is doing the same:up=short press and down=long press
 		packet[ 4] = GET_FLAG(CH5_SW,  0x20)			// Take off/Land 0x20
-				   | GET_FLAG(CH6_SW,  0x04);			// Emergency stop 0x04
+				   | GET_FLAG(CH6_SW,  0x04)			// Emergency stop 0x04
+				   | GET_FLAG(CH12_SW, 0x80);			// C190: debug mode->remote THR trim down sets 0x80
+		//Other flags seen in packet[4]
+		//  C190 remote LANDING sets 0x10
+		//  C190 remote THR trim down sets 0x80
+
 		//Channels and trims
 		uint16_t val = convert_channel_10b(AILERON,false);
 		uint8_t trim = convert_channel_8b(CH7) & 0xFC;

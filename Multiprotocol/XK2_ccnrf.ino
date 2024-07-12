@@ -74,7 +74,7 @@ static void __attribute__((unused)) XK2_send_packet()
 		//Telemetry not received=00, Telemetry received=01 but sometimes switch to 1 even if telemetry is not there...
 		packet[6] = 0x00;
 		//Unknown
-		packet[7] = 0x5A;												//Constant?
+		packet[7] = crc8;												//?? RX_ID checksum ?? => sum RX_ID[0..2]
 		//Checksum seed
 		packet[8] = 0x7F;												//Constant?
 	}
@@ -152,18 +152,25 @@ uint16_t XK2_callback()
 					phase++;
 				else
 				{
+					//checksum of RX_ID
+					crc8 = packet[4] + packet[5] + packet[6];
+					debugln("W:RX_ID=%02X",crc8);
+					eeprom_write_byte((EE_ADDR)(XK2_EEPROM_OFFSET+RX_num),crc8);
 					XN297_SetTxRxMode(TXRX_OFF);
 					XN297_SetTxRxMode(TX_EN);
-					bind_counter = 10;
+					bind_counter = 10;					//send 10 bind end packets
 					phase = XK2_DATA;
 				}
 			}
 			return 1000;
 		case XK2_DATA_PREP:
+			crc8=eeprom_read_byte((EE_ADDR)(XK2_EEPROM_OFFSET+RX_num));
+			debugln("R:RX_ID=%02X",crc8);
 			XN297_SetTxRxMode(TXRX_OFF);
 			XN297_SetTxRxMode(TX_EN);
 			XN297_SetTXAddr(rx_tx_addr, 5);
 			BIND_DONE;
+			phase++;
 		case XK2_DATA:
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(XK2_PACKET_PERIOD);
@@ -267,7 +274,7 @@ P[5] = flags
 		08=6g/3d=short_press_right sequece also switches for a few packets to C1 if 8 C0 if 0
 P[6] = 00 telemetry nok
        01 telemetry ok but sometimes switch to 1 also when telemetry is nok...
-P[7] = 5A
+P[7] = 5A -> ?? RX_ID checksum ?? => sum RX_ID[0..2] 
 P[8] = sum P[0..7] + 7F
 
 Telemetry

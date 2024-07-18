@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install Arduino CLI
-        uses: arduino/setup-arduino-cli@v1.1.2
+        uses: arduino/setup-arduino-cli@v2
         with:
           version: "0.32.2"
       
@@ -257,7 +257,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install Arduino CLI
-        uses: arduino/setup-arduino-cli@v1.1.2
+        uses: arduino/setup-arduino-cli@v2
         with:
           version: "0.32.2"
       

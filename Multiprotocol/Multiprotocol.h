@@ -481,6 +481,11 @@ enum FX
     FX9630          = 2,
 	FX_Q560			= 3,
 };
+enum SGF22
+{
+  SGF22     = 0,
+  PTF22S    = 1,
+};
 
 #define NONE 		0
 #define P_HIGH		1

@@ -12,7 +12,7 @@ Multiprotocol is distributed in the hope that it will be useful,
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Compatible with SGF22 R11
+// Compatible with SGF22, ParkTen F22S
 
 #if defined(SGF22_NRF24L01_INO)
 
@@ -37,11 +37,16 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_FLAG_PHOTO		0x40
 #define SGF22_FLAG_TRIMRESET	0x04
 
+#define PTF22S_BIND_RF_CHANNEL	10
+
 static void __attribute__((unused)) SGF22_send_packet()
 {
 	if(IS_BIND_IN_PROGRESS)
 	{
-		packet[ 0] = 0x5B;
+		if (sub_protocol == SGF22) 
+			packet[ 0] = 0x5B;
+		else if (sub_protocol == PTF22S) 
+			packet[ 0] = 0x61;	
 		packet[ 8] = 0x00;								// ??? do they have to be 0 for bind to succeed ?
 		packet[ 9] = 0x00;								// ??? do they have to be 0 for bind to succeed ?
 		packet[10] = 0xAA;
@@ -58,7 +63,10 @@ static void __attribute__((unused)) SGF22_send_packet()
 		if(packet_sent > 0x7B)
 			packet_sent = 0;
 		//packet
-		packet[0] = 0x1B;
+    		if (sub_protocol == SGF22) 
+      			packet[ 0] = 0x1B;
+    		else if (sub_protocol == PTF22S) 
+      			packet[ 0] = 0x21;
 		packet[8] = SGF22_FLAG_3D						// default
 				| GET_FLAG(CH6_SW, SGF22_FLAG_ROLL)		// roll
 				| GET_FLAG(CH7_SW, SGF22_FLAG_LIGHT)	// push up throttle trim for light
@@ -131,7 +139,12 @@ static void __attribute__((unused)) SGF22_RF_init()
 {
 	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t*)"\xC7\x95\x3C\xBB\xA5", 5);
-	XN297_RFChannel(SGF22_BIND_RF_CHANNEL);			// Set bind channel
+  	uint16_t val;
+  	if (sub_protocol == SGF22) 
+    		val = SGF22_BIND_RF_CHANNEL;
+  	else if (sub_protocol == PTF22S) 
+    		val = PTF22S_BIND_RF_CHANNEL;
+	XN297_RFChannel(val);	// Set bind channel
 }
 
 uint16_t SGF22_callback()

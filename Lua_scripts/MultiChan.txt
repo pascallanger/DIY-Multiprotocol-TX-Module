@@ -217,6 +217,7 @@
 94,0,Scorpio
 95,0,Bluefly,HP100,0,CH5,CH6,CH7,CH8
 96,0,BumbleB
-97,0,SGF22,Std,1,Mode,Flip,LED,Pict,Video,TrRes
-61,1,EazyRC
+97,0,SGF22,F22,1,Mode,Flip,LED,Pict,Video,TrRes
+97,1,SGF22,F22S,1,Mode,Flip,LED,Pict,Video,TrRes
+61,0,EazyRC
 98,0,Kyosho3,ASF,0

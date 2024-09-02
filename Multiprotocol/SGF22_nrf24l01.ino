@@ -12,7 +12,7 @@ Multiprotocol is distributed in the hope that it will be useful,
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Compatible with SGF22 R11
+// Compatible with SGF22, ParkTen F22S
 
 #if defined(SGF22_NRF24L01_INO)
 
@@ -20,11 +20,12 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 //#define FORCE_SGF22_ORIGINAL_ID
 
-#define SGF22_PACKET_PERIOD		11950 //10240
-#define SGF22_BIND_RF_CHANNEL	78
-#define SGF22_PAYLOAD_SIZE		12
-#define SGF22_BIND_COUNT		50
-#define SGF22_RF_NUM_CHANNELS	4
+#define SGF22_PACKET_PERIOD			11950 //10240
+#define SGF22_BIND_RF_CHANNEL		78
+#define SGF22_PAYLOAD_SIZE			12
+#define SGF22_BIND_COUNT			50
+#define SGF22_RF_NUM_CHANNELS		4
+#define SGF22_F22S_BIND_RF_CHANNEL	10
 
 //packet[8]
 #define SGF22_FLAG_3D			0x00
@@ -72,6 +73,8 @@ static void __attribute__((unused)) SGF22_send_packet()
 		packet[10] = 0x42;								// no fine tune
 		packet[11] = 0x10;								// no fine tune
 	}
+	if(sub_protocol == SGF22_F22S)
+		packet[0] += 6;
 	packet[1] = packet_count;							// sequence
 	packet[2] = rx_tx_addr[2];
 	packet[3] = rx_tx_addr[3];
@@ -131,7 +134,7 @@ static void __attribute__((unused)) SGF22_RF_init()
 {
 	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t*)"\xC7\x95\x3C\xBB\xA5", 5);
-	XN297_RFChannel(SGF22_BIND_RF_CHANNEL);			// Set bind channel
+	XN297_RFChannel(sub_protocol == SGF22_F22S ? SGF22_F22S_BIND_RF_CHANNEL : SGF22_BIND_RF_CHANNEL);	// Set bind channel
 }
 
 uint16_t SGF22_callback()

@@ -93,6 +93,6 @@
 94,Scorpio
 95,BlueFly
 96,BumbleB
-97,SGF22,F22,F22S
+97,SGF22,F22,F22S,J20
 98,Kyosho3
 99,XK2

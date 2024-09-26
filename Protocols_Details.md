@@ -138,7 +138,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Redpine](Protocols_Details.md#Redpine---50)|50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)|54|||||||||CC2500|
 [Scorpio](Protocols_Details.md#Scorpio---94)|94|||||||||CYRF6936|
-[SGF22](Protocols_Details.md#SGF22---97)|97|F22|F22S|||||||NRF24L01|XN297
+[SGF22](Protocols_Details.md#SGF22---97)|97|F22|F22S|J20||||||NRF24L01|XN297
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100|V1_4CH|||NRF24L01|CC2500
@@ -2036,8 +2036,17 @@ A|E|T|R|MODE|FLIP|LIGHT|PHOTO|VIDEO|TRIMRESET
 ### Sub_protocol F22
 Model: SG F22
 
+SGF22: Mode -100% = 3D, 0% = 6G, 100% = Vertical
+
 ### Sub_protocol F22S
-Model: ParkTen F22S 
+Model: ParkTen F22S
+
+F22S: Mode -100% = 3D, 0% = 6G, 100% = Vertical
+
+### Sub_protocol J20
+Model: KF700 J20
+
+J20: Mode -100% = Gyro off, 0% = Horizontal, 100% = Vertical. CH8 - Invert
 
 ## Shenqi - *19*
 Autobind protocol

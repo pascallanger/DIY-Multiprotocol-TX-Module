@@ -12,7 +12,7 @@ Multiprotocol is distributed in the hope that it will be useful,
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Compatible with SGF22, ParkTen F22S
+// Compatible with SGF22, ParkTen F22S, KF700 J20
 
 #if defined(SGF22_NRF24L01_INO)
 
@@ -26,6 +26,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_BIND_COUNT			50
 #define SGF22_RF_NUM_CHANNELS		4
 #define SGF22_F22S_BIND_RF_CHANNEL	10
+#define SGF22_J20_BIND_RF_CHANNEL  	28
 
 //packet[8]
 #define SGF22_FLAG_3D			0x00
@@ -34,9 +35,12 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_FLAG_VIDEO		0x10
 #define SGF22_FLAG_6G			0x40
 #define SGF22_FLAG_VERTICAL		0xC0
+
+#define SGF22_J20_FLAG_HORIZONTAL  	0x80
+
 //packet[9]
-#define SGF22_FLAG_PHOTO		0x40
-#define SGF22_FLAG_TRIMRESET	0x04
+#define SGF22_FLAG_PHOTO		0x40	// #define SGF22_J20_FLAG_INVERT  0x40
+#define SGF22_FLAG_TRIMRESET		0x04
 
 static void __attribute__((unused)) SGF22_send_packet()
 {
@@ -60,21 +64,23 @@ static void __attribute__((unused)) SGF22_send_packet()
 			packet_sent = 0;
 		//packet
 		packet[0] = 0x1B;
-		packet[8] = SGF22_FLAG_3D						// default
-				| GET_FLAG(CH6_SW, SGF22_FLAG_ROLL)		// roll
-				| GET_FLAG(CH7_SW, SGF22_FLAG_LIGHT)	// push up throttle trim for light
-				| GET_FLAG(CH9_SW, SGF22_FLAG_VIDEO);   // push down throttle trim for video
-		if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)
-			packet[8] |= SGF22_FLAG_6G;					// mode 1 - 6g
-		if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
-			packet[8] |= SGF22_FLAG_VERTICAL;			// mode 0 - vertical
-		packet[9] = GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO)	// press in throttle trim for photo
-				| GET_FLAG(CH10_SW, SGF22_FLAG_TRIMRESET);   // Both sticks down inwards
+    		packet[8] = SGF22_FLAG_3D           // CH5 -100%, F22 & F22S - 3D mode, J20 - Gyro off  
+        		| GET_FLAG(CH6_SW, SGF22_FLAG_ROLL)   // roll
+        		| GET_FLAG(CH7_SW, SGF22_FLAG_LIGHT)  // push up throttle trim for light in the stock TX
+        		| GET_FLAG(CH9_SW, SGF22_FLAG_VIDEO);   // push down throttle trim for video in the stock TX
+    		if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
+      			packet[8] |= SGF22_FLAG_VERTICAL;     // CH5 100%,  vertical mode (torque)    
+    		else if(Channel_data[CH5] > CHANNEL_MIN_COMMAND )
+      			packet[8] |= ( sub_protocol == SGF22_J20 ? SGF22_J20_FLAG_HORIZONTAL : SGF22_FLAG_6G );     // CH5 0%, F22 & F22S - 6G mode, J20 - Horizontal mode
+    		packet[9] = GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO)  // F22: photo, press in throttle trim in the stock TX, J20: invert flight
+        		| GET_FLAG(CH10_SW, SGF22_FLAG_TRIMRESET);   // Both sticks down inwards in the stock TX
 		packet[10] = 0x42;								// no fine tune
 		packet[11] = 0x10;								// no fine tune
 	}
 	if(sub_protocol == SGF22_F22S)
 		packet[0] += 6;
+	else if (sub_protocol == SGF22_J20)
+    		packet[0] += 3; 
 	packet[1] = packet_count;							// sequence
 	packet[2] = rx_tx_addr[2];
 	packet[3] = rx_tx_addr[3];
@@ -134,7 +140,8 @@ static void __attribute__((unused)) SGF22_RF_init()
 {
 	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t*)"\xC7\x95\x3C\xBB\xA5", 5);
-	XN297_RFChannel(sub_protocol == SGF22_F22S ? SGF22_F22S_BIND_RF_CHANNEL : SGF22_BIND_RF_CHANNEL);	// Set bind channel
+	const uint8_t bind_chan[SGF22_J20 + 1] = {SGF22_BIND_RF_CHANNEL, SGF22_F22S_BIND_RF_CHANNEL, SGF22_J20_BIND_RF_CHANNEL}; 
+	XN297_RFChannel(bind_chan[sub_protocol]);	// Set bind channel
 }
 
 uint16_t SGF22_callback()

@@ -45,11 +45,18 @@ enum {
 
 enum{
     // flags going to packet[6] (MT99xx, H7)
-    FLAG_MT_RATE1   = 0x01, // (H7 & A180 high rate)
+    FLAG_MT_RATE1   = 0x01, // (H7 & A180 high rate) FLAG_SU35_HIRATE = 0x01
     FLAG_MT_RATE2   = 0x02, // (MT9916 only)
     FLAG_MT_VIDEO   = 0x10,
     FLAG_MT_SNAPSHOT= 0x20,
     FLAG_MT_FLIP    = 0x80,
+    // flags for QF009 Su 35
+    FLAG_SU35_HIRATE = 0x01,
+    FLAG_SU35_LED    = 0x02,
+    FLAG_SU35_FLASH  = 0x04,
+    FLAG_SU35_INVERT = 0x08,
+    FLAG_SU35_6G     = 0x00,
+    FLAG_SU35_3D     = 0x40, 
 };
 
 enum{
@@ -194,7 +201,14 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					  | GET_FLAG( CH8_SW, FLAG_MT_VIDEO );
 					break;
 				case H7:
-					packet[6] |= FLAG_MT_RATE1; 						// max rate on H7
+					// packet[6] |= FLAG_MT_RATE1; 						// max rate on H7
+					packet[6] = FLAG_SU35_6G 
+           					| GET_FLAG( CH5_SW, FLAG_SU35_3D )
+            					| GET_FLAG( CH6_SW, FLAG_SU35_LED )
+            					| GET_FLAG( CH7_SW, FLAG_SU35_FLASH )
+            					| GET_FLAG( CH8_SW, FLAG_SU35_INVERT )
+            					| GET_FLAG( CH9_SW, FLAG_SU35_HIRATE );  // CH9 100% is equivalent to the original "packet[6] |= FLAG_MT_RATE1"
+
 					break;
 				case LS:
 					packet[6] |= FLAG_LS_RATE							// max rate

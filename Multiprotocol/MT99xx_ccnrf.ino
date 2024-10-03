@@ -12,7 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// compatible with MT99xx, Eachine H7, Yi Zhan i6S and LS114/124
+// compatible with MT99xx, Eachine H7, Yi Zhan i6S, LS114/124, QF009 Su35
 // Last sync with Goebish mt99xx_nrf24l01.c dated 2016-01-29
 
 #if defined(MT99XX_CCNRF_INO)
@@ -94,6 +94,16 @@ enum{
     // flags going to packet[6] (PA18)
 	FLAG_PA18_RTH		= 0x08,
 	FLAG_PA18_FLIP		= 0x80,
+};
+
+enum{
+    // flags going to packet[6] (QF009 Su35)
+    FLAG_SU35_6G     = 0x00,
+    FLAG_SU35_3D     = 0x40, 
+    FLAG_SU35_HIRATE = 0x01,
+    FLAG_SU35_LED    = 0x02,
+    FLAG_SU35_FLASH  = 0x04,
+    FLAG_SU35_INVERT = 0x08,   
 };
 
 const uint8_t h7_mys_byte[] = {
@@ -271,6 +281,14 @@ static void __attribute__((unused)) MT99XX_send_packet()
 					if(hopping_frequency_no == 0)
 						packet[7] ^= 0x40;
 					break;
+        case SU35+8:
+          packet[6] = FLAG_SU35_6G
+            | GET_FLAG( CH5_SW, FLAG_SU35_3D )
+            | GET_FLAG( !CH6_SW, FLAG_SU35_LED )
+            | GET_FLAG( CH7_SW, FLAG_SU35_FLASH )
+            | GET_FLAG( CH8_SW, FLAG_SU35_INVERT )
+            | GET_FLAG( CH9_SW, FLAG_SU35_HIRATE );
+          break; 
 			}
 			uint8_t result=crc8;
 			for(uint8_t i=0; i<8; i++)

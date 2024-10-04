@@ -88,7 +88,7 @@
 89,Losi
 90,MouldKg,Analog,Digit
 91,Xerall
-92,MT99xx,PA18
+92,MT99xx,PA18,SU35
 93,Kyosho2,KT-17
 94,Scorpio
 95,BlueFly

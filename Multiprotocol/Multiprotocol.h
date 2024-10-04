@@ -254,7 +254,8 @@ enum MT99XX
 };
 enum MT99XX2
 {
-	PA18	= 0,
+	PA18	= 0,  
+	SU35	= 1,
 };
 enum MJXQ
 {

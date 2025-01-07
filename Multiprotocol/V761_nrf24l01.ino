@@ -118,9 +118,10 @@ static void __attribute__((unused)) V761_send_packet()
 
 		packet[5] |= flags;
 
-		packet[6] =  GET_FLAG(CH7_SW, 0x20) 			// Flip
-					|GET_FLAG(CH8_SW, 0x08)				// RTH activation
-					|GET_FLAG(CH9_SW, 0x10);			// RTH on/off
+		packet[6] =  GET_FLAG(CH7_SW,  0x20) 			// Flip
+					|GET_FLAG(CH8_SW,  0x08)			// RTH activation
+					|GET_FLAG(CH9_SW,  0x10)			// RTH on/off
+					|GET_FLAG(CH10_SW, 0x40);			// Beeper on/off
 		if(sub_protocol == V761_3CH)
 			packet[6] |= 0x80;							// Unknown, set on original V761-1 dump but not on eachine dumps, keeping for compatibility
 	}

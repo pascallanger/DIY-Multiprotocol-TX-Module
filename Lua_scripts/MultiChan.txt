@@ -176,8 +176,8 @@
 43,0,Traxxas,TQ,0
 5,0,V2x2,Std,1,Flip,Light,Pict,Video,HLess,CalX,CalY
 5,1,V2x2,JXD506,1,Flip,Light,Pict,Video,HLess,StaSto,Emerg,Cam_UD
-48,0,V761,3CH,0,Gyro,Calib,Flip,RtnAct,Rtn
-48,1,V761,4CH,0,Gyro,Calib,Flip,RtnAct,Rtn
+48,0,V761,3CH,0,Gyro,Calib,Flip,RtnAct,Rtn,Beep
+48,1,V761,4CH,0,Gyro,Calib,Flip,RtnAct,Rtn,Beep
 48,2,V761,TOPRC,0,Gyro,Calib,Flip,RtnAct,Rtn
 46,0,V911s,V911s,1,Calib,Rate
 46,1,V911s,E119,1,Calib,Rate,6G_3D

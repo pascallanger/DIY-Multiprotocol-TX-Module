@@ -143,7 +143,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100|V1_4CH|||NRF24L01|CC2500
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
-[Traxxas](Protocols_Details.md#Traxxas---43)|43|TQ||||||||CYRF6936|
+[Traxxas](Protocols_Details.md#Traxxas---43)|43|TQ1|TQ2|||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
 [V761](Protocols_Details.md#V761---48)|48|3CH|4CH|TOPRC||||||NRF24L01|XN297
 [V911S](Protocols_Details.md#V911S---46)|46|V911S*|E119*|||||||NRF24L01|XN297
@@ -696,6 +696,13 @@ CH1|CH2|CH3|CH4
 A|E|T|R
 
 ## Traxxas - *43*
+
+### Sub_protocol TQ1 - *0*
+Transmitter 2228 TX and a 2217 RX
+
+Under dev
+
+### Sub_protocol TQ2 - *1*
 Transmitter TQ, Receivers: 6519, 2218(X), ECM-2.5
 
 Extended limits supported
@@ -2123,18 +2130,18 @@ RTN_ACT and RTN: -100% disable, +100% enable
 ### Sub_protocol 3CH - *0*
 Models: Volantex V761-1, V761-3 and may be others
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
--|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+-|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN|BEEP
 
 ### Sub_protocol 4CH - *1*
 Models: Volantex V761-4+ and Eachine P51-D, F4U, F22 and may be others
 
 If the model (761-11 and above) sends telemetry then the battery status ok/empty is in A1 (4.4V -> 2.2V) and RSSI gets a dummy value of 100.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|GYRO|CALIB|FLIP|RTN_ACT|RTN|BEEP
 
 ### Sub_protocol TOPRC - *2*
 Models: Top RC Hobby Spitfire, P51D, BF-109

@@ -610,11 +610,11 @@ static uint16_t XN297Dump_callback()
 		{
 			if(phase==0)
 			{
-				address_length=4;
-				memcpy(rx_tx_addr, (uint8_t *)"\xF4\x71\x8D\x01", address_length);	// bind \x7E\xB8\x63\xA9
+				address_length=5;
+				memcpy(rx_tx_addr, (uint8_t *)"\xCC\xCC\xCC\xCC\xCC", address_length);	// bind \x7E\xB8\x63\xA9
 				bitrate=XN297DUMP_250K;
-				packet_length=7;
-				hopping_frequency_no=0x50; //bind 0x50, normal ??
+				packet_length=9;
+				hopping_frequency_no=71; //bind 71, normal ??
 				
 				NRF24L01_Initialize();
 				NRF24L01_SetTxRxMode(TXRX_OFF);

@@ -154,6 +154,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [XK](Protocols_Details.md#XK---62)|62|X450|X420|Cars||||||NRF24L011&CC2500|XN297
 [XK2](Protocols_Details.md#XK2---99)|99|X4||||||||NRF24L01&CC2500|XN297
 [YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01|
+[YuXiang](Protocols_Details.md#YuXiang---100)|100|||||||||NRF24L01|XN297
 [ZSX](Protocols_Details.md#ZSX---52)|52|280||||||||NRF24L01|XN297
 * "*" Sub Protocols designated by * suffix are using a XN297L@250kbps which will be emulated by default with the NRF24L01. If option (freq tune) is diffrent from 0, the CC2500 module (if installed) will be used instead. Each specific sub protocol has a more detailed explanation.
 
@@ -2186,6 +2187,14 @@ A|E|T|R|FLIP|LIGHT|PICTURE|VIDEO|HEADLESS
 ### Sub_protocol XINXUN - *3*
 ### Sub_protocol NIHUI - *4*
 Same channels assignement as above.
+
+## YuXiang - *100*
+
+**Only 1 TX ID**. Bind might not work... Telemetry is received but content unknown yet.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|LOCK|RATE|LAND|ALTHOL|MANUAL|FLIP|MODE|PITCH
 
 ## ZSX - *52*
 Model: JJRC ZSX-280

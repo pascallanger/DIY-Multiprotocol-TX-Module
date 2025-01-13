@@ -259,6 +259,7 @@
 #define	V761_NRF24L01_INO
 #define	XERALL_NRF24L01_INO
 #define	YD717_NRF24L01_INO
+#define	YUXIANG_NRF24L01_INO
 #define	ZSX_NRF24L01_INO
 
 //The protocols below need either a CC2500 or NRF24L01 to be installed
@@ -346,6 +347,7 @@
 #define NCC1701_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define OMP_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define V761_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
+#define YUXIANG_HUB_TELEMETRY
 #define PROPEL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define RLINK_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
@@ -868,6 +870,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		SYMAX4
 		XINXUN
 		NIHUI
+	PROTO_YUXIANG
+		NONE
 	PROTO_ZSX
 		NONE
 */

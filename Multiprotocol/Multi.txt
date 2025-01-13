@@ -96,3 +96,4 @@
 97,SGF22,F22,F22S,J20
 98,Kyosho3
 99,XK2
+100,YuXiang

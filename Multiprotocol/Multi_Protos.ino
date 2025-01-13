@@ -111,6 +111,7 @@ const char STR_BUMBLEB[]    ="BumbleB";
 const char STR_SGF22[]      ="SGF22";
 const char STR_EAZYRC[]     ="EazyRC";
 const char STR_KYOSHO3[]    ="Kyosho3";
+const char STR_YUXIANG[]    ="YuXiang";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -156,7 +157,7 @@ const char STR_SUBTYPE_REDPINE[] =    "\x04""Fast""Slow";
 const char STR_SUBTYPE_POTENSIC[] =   "\x03""A20";
 const char STR_SUBTYPE_ZSX[] =        "\x07""280JJRC";
 const char STR_SUBTYPE_HEIGHT[] =     "\x03""5ch""8ch";
-const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ""NRF\0   ""CC2500\0";
+const char STR_SUBTYPE_XN297DUMP[] =  "\x07""250Kbps""1Mbps\0 ""2Mbps\0 ""Auto\0  ""NRF\0   ""CC2500\0""XN297\0 ";
 const char STR_SUBTYPE_ESKY150[] =    "\x03""4ch""7ch";
 const char STR_SUBTYPE_ESKY150V2[] =  "\x05""150V2";
 const char STR_SUBTYPE_V911S[] =      "\x05""V911S""E119\0";
@@ -501,10 +502,13 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_XK2,        STR_XK2,       NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    XK2_init,        XK2_callback        },	
 	#endif
 	#if defined(XN297DUMP_NRF24L01_INO)
-		{PROTO_XN297DUMP,  STR_XN297DUMP, STR_SUBTYPE_XN297DUMP, 6, OPTION_RFCHAN,  0, 0, SW_NRF,    XN297Dump_init,  XN297Dump_callback  },
+		{PROTO_XN297DUMP,  STR_XN297DUMP, STR_SUBTYPE_XN297DUMP, 7, OPTION_RFCHAN,  0, 0, SW_NRF,    XN297Dump_init,  XN297Dump_callback  },
 	#endif
 	#if defined(YD717_NRF24L01_INO)
 		{PROTO_YD717,      STR_YD717,     STR_SUBTYPE_YD717,     5, OPTION_NONE,    0, 0, SW_NRF,    YD717_init,      YD717_callback      },
+	#endif
+	#if defined(YUXIANG_NRF24L01_INO)
+		{PROTO_YUXIANG,    STR_YUXIANG,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    YUXIANG_init,    YUXIANG_callback    },
 	#endif
 	#if defined(ZSX_NRF24L01_INO)
 		{PROTO_ZSX,        STR_ZSX,       STR_SUBTYPE_ZSX,       1, OPTION_NONE,    0, 0, SW_NRF,    ZSX_init,        ZSX_callback        },

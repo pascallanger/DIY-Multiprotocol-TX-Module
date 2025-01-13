@@ -122,7 +122,6 @@ static void __attribute__((unused)) YUXIANG_initialize_txid()
 		memcpy(rx_tx_addr,(uint8_t *)"\xB3\x13\x36\xDD",4); //rx_tx_addr[4]=0xD9
 		memcpy(hopping_frequency,(uint8_t *)"\x32\x35\x42\x49",4);
 	#endif
-	rx_tx_addr[0]++;
 	uint8_t sum=0;
 	for(uint8_t i=0; i<4; i++)
 		sum += rx_tx_addr[i];
@@ -133,7 +132,6 @@ static void __attribute__((unused)) YUXIANG_initialize_txid()
 uint16_t YUXIANG_callback()
 {
 	static bool rx = false;
-	hopping_frequency[0] = 0x30 + RX_num;
 	
 	switch(phase)
 	{

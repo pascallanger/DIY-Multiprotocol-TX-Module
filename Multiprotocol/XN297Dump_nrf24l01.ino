@@ -23,7 +23,7 @@
 
 // Parameters which can be modified
 #define XN297DUMP_PERIOD_SCAN		50000 	// 25000
-#define XN297DUMP_MAX_RF_CHANNEL	127		// Default 84
+#define XN297DUMP_MAX_RF_CHANNEL	84		// Default 84
 
 // Do not touch from there
 #define XN297DUMP_INITIAL_WAIT		500
@@ -186,6 +186,7 @@ static void __attribute__((unused)) XN297Dump_overflow()
 static uint16_t XN297Dump_callback()
 {
 	static uint32_t time=0,*time_rf;
+	static uint8_t *nbr_rf,compare_channel;
 
 	//!!!Blocking mode protocol!!!
 	TX_MAIN_PAUSE_off;
@@ -370,8 +371,15 @@ static uint16_t XN297Dump_callback()
 								hopping_frequency_no=0;
 								rf_ch_num=0;
 								packet_count=0;
+								nbr_rf=(uint8_t*)malloc(XN297DUMP_MAX_RF_CHANNEL*sizeof(uint8_t));
+								if(nbr_rf==NULL)
+								{
+									debugln("\r\nCan't allocate memory for next phase!!!");
+									phase=0;
+									break;
+								}
 								debug("Trying RF channel: 0");
-
+								rx_tx_addr[0]=0;rx_tx_addr[1]=0;rx_tx_addr[2]=0;rx_tx_addr[3]=0;rx_tx_addr[4]=0;
 								XN297_SetTXAddr(rx_tx_addr,address_length);
 								XN297_SetRXAddr(rx_tx_addr,packet_length);
 								XN297_RFChannel(0);
@@ -391,9 +399,34 @@ static uint16_t XN297Dump_callback()
 						packet_count=0;
 						if(hopping_frequency_no>XN297DUMP_MAX_RF_CHANNEL)
 						{
+							uint8_t nbr_max=0,j=0;
 							debug("\r\n\r\n%d RF channels identified:",rf_ch_num);
+							compare_channel=0;
 							for(uint8_t i=0;i<rf_ch_num;i++)
-								debug(" %d",hopping_frequency[i]);
+							{
+								debug(" %d[%d]",hopping_frequency[i],nbr_rf[i]);
+								if(nbr_rf[i]>nbr_max)
+								{
+									nbr_max=nbr_rf[i];
+									compare_channel=i;
+								}
+							}
+							nbr_max = (nbr_max*2)/3;
+							debug("\r\nKeeping only RF channels with more than %d packets:", nbr_max);
+							for(uint8_t i=0;i<rf_ch_num;i++)
+								if(nbr_rf[i]>=nbr_max)
+								{
+									hopping_frequency[j]=hopping_frequency[i];
+									debug(" %d",hopping_frequency[j]);
+									if(compare_channel==i)
+									{
+										compare_channel=j;
+										debug("*");
+									}
+									j++;
+								}
+							rf_ch_num = j;
+							free(nbr_rf);
 							time_rf=(uint32_t*)malloc(rf_ch_num*sizeof(time));
 							if(time_rf==NULL)
 							{
@@ -403,13 +436,13 @@ static uint16_t XN297Dump_callback()
 							}
 							debugln("\r\n--------------------------------");
 							debugln("Identifying RF channels order.");
-							hopping_frequency_no=1;
+							hopping_frequency_no=0;
 							phase=3;
 							packet_count=0;
 							bind_counter=0;
-							debugln("Time between CH:%d and CH:%d",hopping_frequency[0],hopping_frequency[hopping_frequency_no]);
+							debugln("Time between CH:%d and CH:%d",hopping_frequency[compare_channel],hopping_frequency[hopping_frequency_no]);
 							time_rf[hopping_frequency_no]=0xFFFFFFFF;
-							XN297_RFChannel(hopping_frequency[0]);
+							XN297_RFChannel(hopping_frequency[compare_channel]);
 							uint16_t timeL=TCNT1;
 							if(TIMER2_BASE->SR & TIMER_SR_UIF)
 							{//timer just rolled over...
@@ -430,7 +463,7 @@ static uint16_t XN297Dump_callback()
 					}
 					if( XN297_IsRX() )
 					{ // RX fifo data ready
-						//	if(NRF24L01_ReadReg(NRF24L01_09_CD))
+						if(NRF24L01_ReadReg(NRF24L01_09_CD))
 						{
 							uint8_t res;
 							if(enhanced)
@@ -462,6 +495,7 @@ static uint16_t XN297Dump_callback()
 								for(uint8_t i=0;i<packet_length;i++)
 									debug(" %02X",packet[i]);
 								packet_count++;
+								nbr_rf[rf_ch_num-1]=packet_count;
 								if(packet_count>20)
 								{//change channel
 									bind_counter=XN297DUMP_PERIOD_SCAN+1;
@@ -484,15 +518,15 @@ static uint16_t XN297Dump_callback()
 						{
 							uint8_t next=0;
 							debugln("\r\n\r\nChannel order:");
-							debugln("%d:     0us",hopping_frequency[0]);
-							uint8_t i=1;
+							debugln("%d:     0us",hopping_frequency[compare_channel]);
+							uint8_t i=0;
 							do
 							{
 								time=time_rf[i];
 								if(time!=0xFFFFFFFF)
 								{
 									next=i;
-									for(uint8_t j=2;j<rf_ch_num;j++)
+									for(uint8_t j=1;j<rf_ch_num;j++)
 										if(time>time_rf[j])
 										{
 											next=j;
@@ -512,9 +546,9 @@ static uint16_t XN297Dump_callback()
 							hopping_frequency_no=0;
 							break;
 						}
-						debugln("Time between CH:%d and CH:%d",hopping_frequency[0],hopping_frequency[hopping_frequency_no]);
+						debugln("Time between CH:%d and CH:%d",hopping_frequency[compare_channel],hopping_frequency[hopping_frequency_no]);
 						time_rf[hopping_frequency_no]=-1;
-						XN297_RFChannel(hopping_frequency[0]);
+						XN297_RFChannel(hopping_frequency[compare_channel]);
 						uint16_t timeL=TCNT1;
 						if(TIMER2_BASE->SR & TIMER_SR_UIF)
 						{//timer just rolled over...
@@ -528,7 +562,7 @@ static uint16_t XN297Dump_callback()
 					}
 					if( XN297_IsRX() )
 					{ // RX fifo data ready
-						//if(NRF24L01_ReadReg(NRF24L01_09_CD))
+						if(NRF24L01_ReadReg(NRF24L01_09_CD))
 						{
 							uint8_t res;
 							if(enhanced)
@@ -553,7 +587,7 @@ static uint16_t XN297Dump_callback()
 									if(time_rf[hopping_frequency_no] > (time>>1))
 										time_rf[hopping_frequency_no]=time>>1;
 									debugln("Time: %5luus", time>>1);
-									XN297_RFChannel(hopping_frequency[0]);
+									XN297_RFChannel(hopping_frequency[compare_channel]);
 								}
 								else
 								{
@@ -850,6 +884,63 @@ static uint16_t XN297Dump_callback()
 				}
 			}
 		#endif
+		}
+		else if(sub_protocol == XN297DUMP_XN297)
+		{
+			if(phase==0)
+			{
+				address_length=5;
+				memcpy(rx_tx_addr, (uint8_t *)"\x00\x00\x00\x00\x00", address_length);	// bind \x7E\xB8\x63\xA9
+				packet_length=9;
+				hopping_frequency_no=0x30;
+				
+				XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
+				XN297_SetTxRxMode(TXRX_OFF);
+				XN297_SetTXAddr(rx_tx_addr, address_length);
+				XN297_SetRXAddr(rx_tx_addr, packet_length);
+				XN297_Hopping(option);
+				old_option = option;
+				XN297_SetTxRxMode(RX_EN);
+				
+				debugln("XN297 dump, len=%d, rf=%d, address length=%d",packet_length,option,address_length);	//hopping_frequency_no,address_length);
+				phase = 1;
+			}
+			else
+			{
+				bool rx = XN297_IsRX();					// Needed for the NRF24L01 since otherwise the bit gets cleared
+				if(rx)
+				{ // RX fifo data ready
+					XN297_SetTxRxMode(TXRX_OFF);
+					XN297_SetTxRxMode(RX_EN);
+					XN297Dump_overflow();
+					uint16_t timeL=TCNT1;
+					if(TIMER2_BASE->SR & TIMER_SR_UIF)
+					{//timer just rolled over...
+						XN297Dump_overflow();
+						timeL=0;
+					}
+					time=(timeH<<16)+timeL-time;
+					debug("RX: %5luus ", time>>1);
+					time=(timeH<<16)+timeL;
+					if(XN297_ReadPayload(packet_in, packet_length))
+					{
+						debug("OK:");
+						for(uint8_t i=0;i<packet_length;i++)
+							debug(" %02X",packet_in[i]);
+					}
+					else // Bad packet
+						debug(" NOK");
+					debugln("");
+					// restart RX mode
+				}
+				XN297Dump_overflow();
+				if(old_option != option)
+				{
+					debugln("C=%d(%02X)",option,option);
+					XN297_Hopping(option);
+					old_option = option;
+				}
+			}
 		}
 		bind_counter++;
 		if(IS_RX_FLAG_on)					// Let the radio update the protocol

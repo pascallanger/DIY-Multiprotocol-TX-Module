@@ -118,9 +118,16 @@ static void __attribute__((unused)) YUXIANG_RF_init()
 static void __attribute__((unused)) YUXIANG_initialize_txid()
 {
 	#ifdef YUXIANG_FORCE_ID
-		//TX1
-		memcpy(rx_tx_addr,(uint8_t *)"\xB3\x13\x36\xDD",4); //rx_tx_addr[4]=0xD9
-		memcpy(hopping_frequency,(uint8_t *)"\x32\x35\x42\x49",4);
+		if(RX_num==0)
+		{//TX1
+			memcpy(rx_tx_addr,(uint8_t *)"\xB3\x13\x36\xDD",4); //rx_tx_addr[4]=0xD9
+			memcpy(hopping_frequency,(uint8_t *)"\x49\x32\x35\x42",4);
+		}
+		else
+		{//TX2
+			memcpy(rx_tx_addr,(uint8_t *)"\xEB\x13\x36\xAC",4); //rx_tx_addr[4]=0xE0
+			memcpy(hopping_frequency,(uint8_t *)"\x4D\x3A\x3E\x47",4);
+		}
 	#endif
 	uint8_t sum=0;
 	for(uint8_t i=0; i<4; i++)

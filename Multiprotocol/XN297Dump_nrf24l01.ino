@@ -379,7 +379,6 @@ static uint16_t XN297Dump_callback()
 									break;
 								}
 								debug("Trying RF channel: 0");
-								rx_tx_addr[0]=0;rx_tx_addr[1]=0;rx_tx_addr[2]=0;rx_tx_addr[3]=0;rx_tx_addr[4]=0;
 								XN297_SetTXAddr(rx_tx_addr,address_length);
 								XN297_SetRXAddr(rx_tx_addr,packet_length);
 								XN297_RFChannel(0);
@@ -911,7 +910,6 @@ static uint16_t XN297Dump_callback()
 				if(rx)
 				{ // RX fifo data ready
 					XN297_SetTxRxMode(TXRX_OFF);
-					XN297_SetTxRxMode(RX_EN);
 					XN297Dump_overflow();
 					uint16_t timeL=TCNT1;
 					if(TIMER2_BASE->SR & TIMER_SR_UIF)
@@ -932,6 +930,7 @@ static uint16_t XN297Dump_callback()
 						debug(" NOK");
 					debugln("");
 					// restart RX mode
+					XN297_SetTxRxMode(RX_EN);
 				}
 				XN297Dump_overflow();
 				if(old_option != option)

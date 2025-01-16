@@ -64,14 +64,14 @@ static void __attribute__((unused)) YUXIANG_send_packet()
 			| GET_FLAG(telemetry_lost, 0x20)	// No telem
 			| GET_FLAG(!CH5_SW, 0x10)			// Lock
 			| GET_FLAG(CH6_SW, 0x08)			// High
-			| GET_FLAG(CH12_SW, 0x01);			// Screw pitch -> temporary
+			| GET_FLAG(CH11_SW, 0x01);			// Screw pitch -> temporary
 	
 	packet[1] = GET_FLAG(CH7_SW, 0x08)			// Land only when unlock
-			| GET_FLAG(CH11_SW, 0x20);			// Mode
+			| GET_FLAG(CH10_SW, 0x20);			// Mode
 
-	packet[2] = GET_FLAG(CH8_SW, 0x02)			// Altitude hold
-			| GET_FLAG(CH9_SW, 0x03)			// Manual
-			| GET_FLAG(CH10_SW, 0x40);			// Flip
+	packet[2] = GET_FLAG(CH5_SW, 0x02)			// Altitude hold set when unlock
+			| GET_FLAG(CH8_SW, 0x01)			// Manual
+			| GET_FLAG(CH9_SW, 0x40);			// Flip
 
 	uint16_t value = convert_channel_16b_limit(AILERON,0,1000);
 	packet[3] = value;

@@ -221,4 +221,4 @@
 97,1,SGF22,F22S,1,Mode,Flip,LED,Pict,Video,TrRes
 61,0,EazyRC
 98,0,Kyosho3,ASF,0
-100,0,YuXiang,Std,0,Lock,Rate,Land,AltHol,Manual,Flip,Mode,Pitch
+100,0,YuXiang,Std,0,Lock,Rate,Land,Manual,Flip,Mode,Pitch

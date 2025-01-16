@@ -2190,11 +2190,13 @@ Same channels assignement as above.
 
 ## YuXiang - *100*
 
-**Only 1 TX ID**. Bind might not work... Telemetry is received but content unknown yet.
+Models: E190, F07 UH-1D
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|LOCK|RATE|LAND|ALTHOL|MANUAL|FLIP|MODE|PITCH
+**Only 2 TX ID, use the RX number to switch**. Work in progress, bind might not work... Telemetry is received but content unknown yet.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|LOCK|RATE|LAND|MANUAL|FLIP|MODE|PITCH
 
 ## ZSX - *52*
 Model: JJRC ZSX-280

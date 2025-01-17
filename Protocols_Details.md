@@ -2192,7 +2192,8 @@ Same channels assignement as above.
 
 Models: E190, F07 UH-1D
 
-**Only 2 TX ID, use the RX number to switch**. Work in progress, bind might not work... Telemetry is received but content unknown yet.
+**Only 2 TX ID, use the RX number to switch**.
+Telemetry is received but content unknown yet.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|---|---

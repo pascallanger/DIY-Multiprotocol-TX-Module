@@ -19,9 +19,9 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #define YUXIANG_FORCE_ID
 
-#define YUXIANG_PACKET_PERIOD		12430
+#define YUXIANG_PACKET_PERIOD		12422
 #define YUXIANG_PACKET_SIZE			9
-#define YUXIANG_BIND_COUNT			20000
+#define YUXIANG_BIND_COUNT			150
 #define YUXIANG_BIND_FREQ			0x30
 #define YUXIANG_RF_NUM_CHANNELS		4
 
@@ -36,31 +36,36 @@ enum
 
 static void __attribute__((unused)) YUXIANG_send_packet()
 {
-	static bool bind_state = false;
-
-	if(bind_counter && (hopping_frequency_no & 0x0E) == 0)
+	if(bind_counter && packet_sent < 5 && (hopping_frequency_no & 0x07) == 0)
 	{
 		bind_counter--;
 		if(!bind_counter)
 			BIND_DONE;
-		XN297_Hopping(YUXIANG_BIND_FREQ);
+	#if 0
+		debug("B C:%d, ",YUXIANG_BIND_FREQ);
+	#endif
+		XN297_RFChannel(YUXIANG_BIND_FREQ);
 		XN297_SetTXAddr((uint8_t*)"\x00\x00\x00\x00\x00", 5);
-		XN297_SetRXAddr((uint8_t*)"\x00\x00\x00\x00\x00", YUXIANG_PACKET_SIZE);
-		bind_state = true;
+		bind_phase = 1;
+		packet_sent++;
 	}
 	else
-	{
+	{//Normal operation
 		XN297_Hopping(hopping_frequency_no & 0x03);
-		if(bind_state)
+	#if 0
+		debug("C:%d, ",hopping_frequency[hopping_frequency_no & 0x03]);
+	#endif
+		hopping_frequency_no++;
+		if(bind_phase)
 		{
 			XN297_SetTXAddr(rx_tx_addr, 5);
 			XN297_SetRXAddr(rx_tx_addr, YUXIANG_PACKET_SIZE);
-			bind_state = false;
+			bind_phase = 0;
+			packet_sent = 0;
 		}
 	}
-	hopping_frequency_no++;
-	
-	packet[0] = GET_FLAG(!bind_state, 0x80)		// Bind packet
+
+	packet[0] = GET_FLAG(!bind_phase, 0x80)		// Bind packet
 			| GET_FLAG(telemetry_lost, 0x20)	// No telem
 			| GET_FLAG(!CH5_SW, 0x10)			// Lock
 			| GET_FLAG(CH6_SW, 0x08)			// High
@@ -86,17 +91,15 @@ static void __attribute__((unused)) YUXIANG_send_packet()
 	packet[6] = value;
 	packet[7] |= (value >> 2) & 0xC0;
 
-	if(bind_state && (hopping_frequency_no&1))
+	if(bind_phase)
 		memcpy(&packet[3], rx_tx_addr, 4);
-	else
-		packet[0] |= 0x80;
 
 	uint8_t checksum = 0;
 	for(uint8_t i=0; i<YUXIANG_PACKET_SIZE-1; i++)
 		checksum += packet[i];
 	packet[8] = checksum;
 	
-	#if 1
+	#if 0
 		debug("P:");
 		for(uint8_t i=0;i<YUXIANG_PACKET_SIZE;i++)
 			debug(" %02X",packet[i]);
@@ -111,8 +114,6 @@ static void __attribute__((unused)) YUXIANG_send_packet()
 static void __attribute__((unused)) YUXIANG_RF_init()
 {
 	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
-	XN297_SetTXAddr(rx_tx_addr, 5);
-	XN297_SetRXAddr(rx_tx_addr, YUXIANG_PACKET_SIZE);
 }
 
 static void __attribute__((unused)) YUXIANG_initialize_txid()
@@ -138,7 +139,7 @@ static void __attribute__((unused)) YUXIANG_initialize_txid()
 
 uint16_t YUXIANG_callback()
 {
-	static bool rx = false;
+	bool rx = false;
 	
 	switch(phase)
 	{
@@ -152,7 +153,7 @@ uint16_t YUXIANG_callback()
 				packet_count++;
 	#endif
 			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(packet_period);
+				telemetry_set_input_sync(YUXIANG_PACKET_PERIOD);
 			#endif
 			YUXIANG_send_packet();
 			if(rx)
@@ -195,18 +196,21 @@ uint16_t YUXIANG_callback()
 			}
 			phase++;
 			return YUXIANG_WRITE_TIME;
-		case YUXIANG_RX:
+		default:
+			// RX
 			{ // Wait for packet to be sent before switching to receive mode
 				uint16_t start=(uint16_t)micros();
 				while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 500)
 					if(XN297_IsPacketSent())
 						break;
 			}
+			//if(bind_phase)
+			//	XN297_Hopping(3);
 			XN297_SetTxRxMode(RX_EN);
 			phase = YUXIANG_DATA;
 			return YUXIANG_PACKET_PERIOD - YUXIANG_WRITE_TIME;
 	}
-	return YUXIANG_PACKET_PERIOD;
+	return 0;
 }
 
 void YUXIANG_init(void)
@@ -221,6 +225,8 @@ void YUXIANG_init(void)
 		
 	phase = YUXIANG_DATA;
 	hopping_frequency_no = 0;
+	bind_phase = 1;
+	packet_sent = 8;
 	#ifdef YUXIANG_HUB_TELEMETRY
 		packet_count = 0;
 		telemetry_lost = 1;

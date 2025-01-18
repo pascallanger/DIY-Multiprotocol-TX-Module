@@ -26,7 +26,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define YUXIANG_RF_NUM_CHANNELS		4
 
 #define YUXIANG_WRITE_TIME			1000
-#define YUXIANG_TELEM_DEBUG
+>>#define YUXIANG_TELEM_DEBUG
 
 enum 
 {
@@ -163,18 +163,22 @@ uint16_t YUXIANG_callback()
 				#endif
 				if(XN297_ReadPayload(packet_in, YUXIANG_PACKET_SIZE))
 				{ // packet with good CRC and length
-					#ifdef YUXIANG_TELEM_DEBUG
-						debug("OK:");
-						for(uint8_t i=0;i<YUXIANG_PACKET_SIZE;i++)
-							debug(" %02X",packet_in[i]);
-					#endif
 					uint8_t checksum = 0;
 					for(uint8_t i=0; i<YUXIANG_PACKET_SIZE-1; i++)
 						checksum += packet_in[i];
 					if(packet_in[8] == checksum)
 					{
 	#ifdef YUXIANG_HUB_TELEMETRY
-						v_lipo1 = packet_in[4];
+						if(packet_in[0]==0x78)
+						{
+							#ifdef YUXIANG_TELEM_DEBUG
+								debug("OK:");
+								for(uint8_t i=0;i<YUXIANG_PACKET_SIZE;i++)
+									debug(" %02X",packet_in[i]);
+							#endif
+							v_lipo1 = packet_in[4];
+							v_lipo2 = packet_in[6];
+						}
 						telemetry_link = 1;
 	#endif
 						telemetry_lost = 0;

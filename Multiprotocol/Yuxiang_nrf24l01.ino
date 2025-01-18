@@ -26,7 +26,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define YUXIANG_RF_NUM_CHANNELS		4
 
 #define YUXIANG_WRITE_TIME			1000
->>#define YUXIANG_TELEM_DEBUG
+//#define YUXIANG_TELEM_DEBUG
 
 enum 
 {

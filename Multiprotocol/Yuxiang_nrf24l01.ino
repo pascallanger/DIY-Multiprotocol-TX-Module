@@ -119,7 +119,7 @@ static void __attribute__((unused)) YUXIANG_RF_init()
 static void __attribute__((unused)) YUXIANG_initialize_txid()
 {
 	#ifdef YUXIANG_FORCE_ID
-		if(RX_num==0)
+		if(rx_tx_addr[3] & 0x01)
 		{//TX1
 			memcpy(rx_tx_addr,(uint8_t *)"\xB3\x13\x36\xDD",4); //rx_tx_addr[4]=0xD9
 			memcpy(hopping_frequency,(uint8_t *)"\x49\x32\x35\x42",4);

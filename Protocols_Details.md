@@ -6,6 +6,7 @@ Here are detailed descriptions of every supported protocols (sorted by RF module
  The Deviation project (on which this project was based) have a useful list of models and protocols [here](http://www.deviationtx.com/wiki/supported_models).
 
 ## Useful notes and definitions
+- **Surface and air protocols** - As the list of supported protocols grows even the STM32 ARM microcontroller cannot hold all of the protocols. Firmware available from the [Multi-Module](https://downloads.multi-module.org) website has been split into two groups, surface "SFC" and air "AIR". You can check which protocols are included in each of these groups in the [Validate.h](Multiprotocol/Validate.h) source file.
 - **Channel Order** - The channel order assumed in all the documentation is AETR. You can change this in the compilation settings or by using a precompiled firmware. The module will take whatever input channel order you have choosen and will rearrange them to match the output channel order required by the selected protocol. 
 - **Channel ranges** - A radio output of -100%..0%..+100% will match on the selected protocol -100%,0%,+100%. No convertion needs to be done.
 - **Extended limits supported** - A channel range of -125%..+125% will be transmitted. Otherwise it will be truncated to -100%..+100%.

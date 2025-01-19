@@ -100,7 +100,7 @@ For example, if you have no interest in binding your Tx to an model with and FrS
 
 ## **Choice 3:** Which protocols to upload to the MULTI-Module
 
-As the list of supported protocols grows even the STM32 ARM microcontroller cannot hold all of the protocols. You can select the protocols you need and complie your own firmware. Fortunately, the process of selecting and compiling is not too difficult and it is fully documented on the [Compiling and Programming](docs/Compiling.md) page. You can also download firmware from the [Multi-Module](https://downloads.multi-module.org) website. These firmware files have been split into two groups, surfae and air. You can check which protocols are included in each of these groups in the [Validate.h](Multiprotocol/Validate.h) source file.
+As the list of supported protocols grows even the STM32 ARM microcontroller cannot hold all of the protocols. You can select the protocols you need and complie your own firmware. Fortunately, the process of selecting and compiling is not too difficult and it is fully documented on the [Compiling and Programming](docs/Compiling.md) page. You can also download firmware from the [Multi-Module](https://downloads.multi-module.org) website. These firmware files have been split into two groups, surface "SFC" and air "AIR". You can check which protocols are included in each of these groups in the [Validate.h](Multiprotocol/Validate.h) source file.
 
 In the case of the ATmega328, the memory required by all the possible protocols exceeds the 32KB flash limit considerably. This means that you will need to make a choice of which protocols you will compile into your firmware.
 

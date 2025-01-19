@@ -215,6 +215,7 @@
 90,1,MouldKg,Digit,0
 91,0,Xerall,Tank,0,FlTa,TakLan,Rate,HLess,Photo,Video,TrimR,TrimE,TrimA
 92,0,MT99xx2,PA18,0,MODE,FLIP,RTH
+92,1,MT99xx2,SU35,0,Mode,LED,LED_FH,Invert,Rate
 93,0,Kyosho2,KT-17,0
 94,0,Scorpio
 95,0,Bluefly,HP100,0,CH5,CH6,CH7,CH8

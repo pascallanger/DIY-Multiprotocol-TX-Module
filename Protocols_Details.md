@@ -124,7 +124,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [MLINK](Protocols_Details.md#MLINK---78)|78|||||||||CYRF6936|
 [MouldKg](Protocols_Details.md#mouldkg---90)|90|Analog|Digit|||||||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805|A180|DRAGON|F949G|NRF24L01|XN297
-[MT99xx2](Protocols_Details.md#MT99XX2---92)|92|PA18||||||||NRF24L01|XN297
+[MT99xx2](Protocols_Details.md#MT99XX2---92)|92|PA18|SU35|||||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|||||||||NRF24L01|
 [OMP](Protocols_Details.md#OMP---77)|77|||||||||CC2500&NRF24L01|XN297L
 [OpenLRS](Protocols_Details.md#OpenLRS---27)|27|||||||||None|
@@ -1259,7 +1259,7 @@ Unk1&2: long press right/left
 
 ## MT99XX2 - *92*
 
-### Sub_protocol PA18 - *92*
+### Sub_protocol PA18 - *0*
 Model: PA18 mini
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
@@ -1267,6 +1267,17 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
 A|E|T|R|MODE|FLIP|RTH
 
 MODE: -100% beginner, 0% intermediate, +100% Expert
+
+### Sub_protocol SU35 - *1*
+Model: QF009 SU35
+
+CH6 - LED, CH7 - LED Flash, CH8 - Invert, CH9 - Rate
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|LED|LED_FLASH|INVERT|RATE
+
+MODE: -100% 6G, +100% 3D
 
 ## OMP - *77*
 Model: OMPHOBBY M1 & M2 Helis, T720 RC Glider

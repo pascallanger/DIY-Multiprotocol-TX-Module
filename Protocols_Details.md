@@ -141,7 +141,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [SGF22](Protocols_Details.md#SGF22---97)|97|F22|F22S|J20||||||NRF24L01|XN297
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
-[SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100|V1_4CH|||NRF24L01|CC2500
+[SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100|V1_4CH|RF_SIM||NRF24L01|CC2500
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
 [Traxxas](Protocols_Details.md#Traxxas---43)|43|TQ1|TQ2|||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)|5|V2x2|JXD506|MR101||||||NRF24L01|
@@ -1429,6 +1429,23 @@ MODE: -100% level, +100% acro
 CH1|CH2|CH3|CH4
 ---|---|---|---
 CH1|CH2|CH3|CH4
+
+### Sub_protocol RF_SIM - *6*
+Models: the SLT-dongle included in RealFlight 7.5
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10
+
+Output 10 channelsi to use with RealFlight simulator.
+The RealFlight "reset" button found on the RealFlight USB-transmitter, can now be CH9 or CH10.
+
+RealFlight 8 crashes when trying to save file with reset-button defined.
+
+Please save radio-profile with a new name without setting reset-button in RF8. Then edit the radio-profile definition in  ~\Documents\RealFlight8\RadioProfiles\ in an ordinary fileeditor.
+
+Find the [Reset21] section and change Input=INT:-1 to Input=INT:9 
+
 
 ## V911S - *46*
 

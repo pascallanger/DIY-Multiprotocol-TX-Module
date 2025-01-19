@@ -830,6 +830,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		Q100
 		Q200
 		MR100
+		V1_4CH
+		RF_SIM
 	PROTO_SYMAX
 		SYMAX
 		SYMAX5C

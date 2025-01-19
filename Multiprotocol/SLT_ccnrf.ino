@@ -137,7 +137,7 @@ static void __attribute__((unused)) SLT_build_packet()
 	for (uint8_t i = 0; i < 4; ++i)
 	{
 		uint16_t v = convert_channel_10b(sub_protocol != SLT_V1_4 ? CH_AETR[i] : i, false);
-		if(sub_protocol>SLT_V2 && (i==CH2 || i==CH3) && sub_protocol != SLT_V1_4)
+		if(sub_protocol>SLT_V2 && (i==CH2 || i==CH3) && sub_protocol != SLT_V1_4 && sub_protocol != RF_SIM)
 			v=1023-v;	// reverse throttle and elevator channels for Q100/Q200/MR100 protocols
 		packet[i] = v;
 		e = (e >> 2) | (uint8_t) ((v >> 2) & 0xC0);
@@ -165,8 +165,13 @@ static void __attribute__((unused)) SLT_build_packet()
 					|GET_FLAG(CH12_SW, FLAG_MR100_PICTURE);	// Does not exist on the Q100 but...
 	packet[7]=convert_channel_8b(CH7);
 	packet[8]=convert_channel_8b(CH8);
-	packet[9]=0xAA;				//normal mode for Q100/Q200, unknown for V2/MR100
-	packet[10]=0x00;			//normal mode for Q100/Q200, unknown for V2/MR100
+  if(sub_protocol==RF_SIM) {
+    packet[9]=convert_channel_8b(CH9);
+    packet[10]=convert_channel_8b(CH10);
+  } else {
+    packet[9]=0xAA;       //normal mode for Q100/Q200, unknown for V2/MR100
+    packet[10]=0x00;      //normal mode for Q100/Q200, unknown for V2/MR100
+  }
 	if((sub_protocol==Q100 || sub_protocol==Q200) && CH13_SW)
 	{//Calibrate
 		packet[9]=0x77;			//enter calibration

@@ -132,7 +132,7 @@ const char STR_SUBTYPE_DEVO[] =       "\x04""8ch\0""10ch""12ch""6ch\0""7ch\0";
 const char STR_SUBTYPE_YD717[] =      "\x07""Std\0   ""SkyWlkr""Syma X4""XINXUN\0""NIHUI\0 ";
 const char STR_SUBTYPE_KN[] =         "\x06""WLtoys""FeiLun";
 const char STR_SUBTYPE_SYMAX[] =      "\x03""Std""X5C";
-const char STR_SUBTYPE_SLT[] =        "\x06""V1_6ch""V2_8ch""Q100\0 ""Q200\0 ""MR100\0""V1_4ch";
+const char STR_SUBTYPE_SLT[] =        "\x06""V1_6ch""V2_8ch""Q100\0 ""Q200\0 ""MR100\0""V1_4ch""RF_SIM";
 const char STR_SUBTYPE_CX10[] =       "\x07""Green\0 ""Blue\0  ""DM007\0 ""-\0     ""JC3015a""JC3015b""MK33041";
 const char STR_SUBTYPE_CG023[] =      "\x05""Std\0 ""YD829";
 const char STR_SUBTYPE_BAYANG[] =     "\x07""Std\0   ""H8S3D\0 ""X16 AH\0""IRDrone""DHD D4\0""QX100\0 ";
@@ -465,7 +465,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_SKYARTEC,   STR_SKYARTEC,  NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 1, SW_CC2500, SKYARTEC_init,   SKYARTEC_callback   },
 	#endif
 	#if defined(SLT_CCNRF_INO)
-		{PROTO_SLT,        STR_SLT,       STR_SUBTYPE_SLT,       6, OPTION_RFTUNE,  0, 1, SW_NRF,    SLT_init,        SLT_callback        },
+		{PROTO_SLT,        STR_SLT,       STR_SUBTYPE_SLT,       7, OPTION_RFTUNE,  0, 1, SW_NRF,    SLT_init,        SLT_callback        },
 	#endif
 	#if defined(SYMAX_NRF24L01_INO)
 		{PROTO_SYMAX,      STR_SYMAX,     STR_SUBTYPE_SYMAX,     2, OPTION_NONE,    0, 0, SW_NRF,    SYMAX_init,      SYMAX_callback      },

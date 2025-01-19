@@ -1437,7 +1437,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10
 
-Output 10 channelsi to use with RealFlight simulator.
+Output 10 channels to use with RealFlight simulator.
 The RealFlight "reset" button found on the RealFlight USB-transmitter, can now be CH9 or CH10.
 
 RealFlight 8 crashes when trying to save file with reset-button defined.

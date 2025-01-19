@@ -137,7 +137,7 @@ const char STR_SUBTYPE_CX10[] =       "\x07""Green\0 ""Blue\0  ""DM007\0 ""-\0  
 const char STR_SUBTYPE_CG023[] =      "\x05""Std\0 ""YD829";
 const char STR_SUBTYPE_BAYANG[] =     "\x07""Std\0   ""H8S3D\0 ""X16 AH\0""IRDrone""DHD D4\0""QX100\0 ";
 const char STR_SUBTYPE_MT99[] =       "\x06""MT99\0 ""H7\0   ""YZ\0   ""LS\0   ""FY805\0""A180\0 ""Dragon""F949G\0";
-const char STR_SUBTYPE_MT992[] =      "\x04""PA18";
+const char STR_SUBTYPE_MT992[] =      "\x04""PA18""SU35";
 const char STR_SUBTYPE_MJXQ[] =       "\x07""WLH08\0 ""X600\0  ""X800\0  ""H26D\0  ""E010\0  ""H26WH\0 ""Phoenix";
 const char STR_SUBTYPE_FY326[] =      "\x05""Std\0 ""FY319";
 const char STR_SUBTYPE_HONTAI[] =     "\x07""Std\0   ""JJRC X1""X5C1\0  ""FQ_951";
@@ -414,7 +414,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_MT99XX,     STR_MT99XX,    STR_SUBTYPE_MT99,      8, OPTION_NONE,    0, 0, SW_NRF,    MT99XX_init,     MT99XX_callback     },
 	#endif
 	#if defined(MT99XX_CCNRF_INO)
-		{PROTO_MT99XX2,    STR_MT99XX2,   STR_SUBTYPE_MT992,     1, OPTION_NONE,    0, 0, SW_NRF,    MT99XX_init,     MT99XX_callback     },
+		{PROTO_MT99XX2,    STR_MT99XX2,   STR_SUBTYPE_MT992,     2, OPTION_NONE,    0, 0, SW_NRF,    MT99XX_init,     MT99XX_callback     },
 	#endif
 	#if defined(NCC1701_NRF24L01_INO)
 		{PROTO_NCC1701,    STR_NCC1701,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    NCC_init,        NCC_callback        },

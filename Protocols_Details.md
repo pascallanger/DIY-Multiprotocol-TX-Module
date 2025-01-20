@@ -1517,8 +1517,6 @@ Models: WLtoys cars 284131/284161/284010/124016/124017/144010 and Eachine EAT14
 ### Sub_protocol X4 - *0*
 Transmitter: XK X4-A160, X5S, model: XK A160S, XK A280
 
-**Only 2 IDs**
-
 If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 
 If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.

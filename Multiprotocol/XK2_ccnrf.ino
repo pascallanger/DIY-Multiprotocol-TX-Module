@@ -157,8 +157,6 @@ uint16_t XK2_callback()
 						debug(" %02X",packet[i]);
 					debugln("");
 				#endif
-				//phase = XK2_BIND1;
-				//return 500;
 				crc8 = 0xBF;
 				for(uint8_t i=0; i<XK2_PAYLOAD_SIZE-1; i++)
 					crc8 += packet[i];

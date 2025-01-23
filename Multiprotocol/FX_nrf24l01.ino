@@ -90,7 +90,7 @@ static void __attribute__((unused)) FX_send_packet()
 					// QIDI-550=>0:3D, 1:6G, 2:Torque
 					| (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x04 : 0x02));
 		if(sub_protocol == FX_Q560)
-			packet[5] |= GET_FLAG(CH7_SW, 0x10);	// Q560 LED flag conflicting with trim_ch...
+			packet[5] |= GET_FLAG(CH7_SW, 0x18);	// Q560 LED flag 0x10 conflicting with trim_ch...
 	}
 	else // FX816 and FX620
 	{

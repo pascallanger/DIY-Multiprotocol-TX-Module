@@ -30,8 +30,8 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 //packet[8]
 #define SGF22_FLAG_3D			0x00
-#define SGF22_FLAG_ROLL			0x08
 #define SGF22_FLAG_LIGHT		0x04
+#define SGF22_FLAG_ROLL			0x08
 #define SGF22_FLAG_VIDEO		0x10
 #define SGF22_FLAG_6G			0x40
 #define SGF22_FLAG_VERTICAL		0xC0
@@ -40,8 +40,8 @@ Multiprotocol is distributed in the hope that it will be useful,
 //#define SGF22_J20_FLAG_SPEED       0x01	// Up/Down trim, not implemented
 
 //packet[9]
-#define SGF22_FLAG_PHOTO			0x40	// #define SGF22_J20_FLAG_INVERT  0x40
 #define SGF22_FLAG_TRIMRESET		0x04
+#define SGF22_FLAG_PHOTO			0x40	// #define SGF22_J20_FLAG_INVERT  0x40
 #define SGF22_J20_FLAG_FIXHEIGHT	0x80
 
 static void __attribute__((unused)) SGF22_send_packet()
@@ -66,16 +66,31 @@ static void __attribute__((unused)) SGF22_send_packet()
 			packet_sent = 0;
 		//packet
 		packet[0] = 0x1B;
-    		packet[8] = SGF22_FLAG_3D           // CH5 -100%, F22 & F22S - 3D mode, J20 - Gyro off  
-        		| GET_FLAG(CH6_SW, SGF22_FLAG_ROLL)   // roll
-        		| GET_FLAG(CH7_SW, SGF22_FLAG_LIGHT)  // push up throttle trim for light in the stock TX
-        		| GET_FLAG(CH9_SW, SGF22_FLAG_VIDEO);   // push down throttle trim for video in the stock TX
-    		if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
-      			packet[8] |= SGF22_FLAG_VERTICAL;     // CH5 100%,  vertical mode (torque)    
-    		else if(Channel_data[CH5] > CHANNEL_MIN_COMMAND )
-      			packet[8] |= ( sub_protocol == SGF22_J20 ? SGF22_J20_FLAG_HORIZONTAL : SGF22_FLAG_6G );     // CH5 0%, F22 & F22S - 6G mode, J20 - Horizontal mode
-    		packet[9] = GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO)  // F22: photo, press in throttle trim in the stock TX, J20: invert flight
-				| GET_FLAG(CH10_SW, ( sub_protocol == SGF22_J20 ? SGF22_J20_FLAG_FIXHEIGHT : SGF22_FLAG_TRIMRESET )) ;   // F22: Both sticks down inwards in the stock TX, J20: Altitude hold
+		packet[8] = SGF22_FLAG_3D           // CH5 -100%, F22 & F22S - 3D mode, J20 - Gyro off  
+			| GET_FLAG(CH6_SW, SGF22_FLAG_ROLL)   // roll
+			| GET_FLAG(CH7_SW, SGF22_FLAG_LIGHT)  // push up throttle trim for light in the stock TX
+			| GET_FLAG(CH9_SW, SGF22_FLAG_VIDEO);   // push down throttle trim for video in the stock TX
+		if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
+			packet[8] |= SGF22_FLAG_VERTICAL;     // CH5 100%,  vertical mode (torque)    
+		else if(Channel_data[CH5] > CHANNEL_MIN_COMMAND )
+			packet[8] |= ( sub_protocol == SGF22_J20 ? SGF22_J20_FLAG_HORIZONTAL : SGF22_FLAG_6G );     // CH5 0%, F22 & F22S - 6G mode, J20 - Horizontal mode
+		packet[9] = GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO)  // F22: photo, press in throttle trim in the stock TX, J20: invert flight
+			| GET_FLAG(CH10_SW, ( sub_protocol == SGF22_J20 ? SGF22_J20_FLAG_FIXHEIGHT : SGF22_FLAG_TRIMRESET )) ;   // F22: Both sticks down inwards in the stock TX, J20: Altitude hold
+
+		//Trial for FLYBear FX922
+		if(sub_protocol==SGF22_F22)
+		{
+			packet[8] = GET_FLAG(CH11_SW, 0x01)
+					  | GET_FLAG(CH12_SW, 0x02)
+					  | GET_FLAG(CH13_SW, 0x20)
+					  | GET_FLAG(CH14_SW, 0x80);
+			packet[9] = GET_FLAG(CH15_SW, 0x01)
+					  | GET_FLAG(CH16_SW, 0x02);
+			//		  | GET_FLAG(CH13_SW, 0x08)
+			//		  | GET_FLAG(CH13_SW, 0x10)
+			//		  | GET_FLAG(CH13_SW, 0x20)
+			//		  | GET_FLAG(CH13_SW, 0x80)
+		}
 		packet[10] = 0x42;								// no fine tune
 		packet[11] = 0x10;								// no fine tune
 	}

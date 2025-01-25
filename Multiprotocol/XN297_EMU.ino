@@ -440,7 +440,6 @@ static uint8_t __attribute__((unused)) XN297_ReadEnhancedPayload(uint8_t* msg, u
 
 	// Read payload
 	XN297_ReceivePayload(buffer, len+2);		// Read pcf + payload + CRC
-
 	// Decode payload
 	pcf_size = buffer[0];
 	if(xn297_scramble_enabled)

@@ -112,6 +112,7 @@ const char STR_SGF22[]      ="SGF22";
 const char STR_EAZYRC[]     ="EazyRC";
 const char STR_KYOSHO3[]    ="Kyosho3";
 const char STR_YUXIANG[]    ="YuXiang";
+const char STR_PINECONE[]   ="PineCone";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -424,6 +425,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(PELIKAN_A7105_INO)
 		{PROTO_PELIKAN,    STR_PELIKAN,   STR_SUBTYPE_PELIKAN,   3, OPTION_NONE,    0, 1, SW_A7105,  PELIKAN_init,    PELIKAN_callback    },
+	#endif
+	#if defined(PINECONE_CCNRF_INO)
+		{PROTO_PINECONE,   STR_PINECONE,  NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    PINECONE_init,   PINECONE_callback   },
 	#endif
 	#if defined(POTENSIC_NRF24L01_INO)
 		{PROTO_POTENSIC,   STR_POTENSIC,  STR_SUBTYPE_POTENSIC,  1, OPTION_NONE,    0, 0, SW_NRF,    POTENSIC_init,   POTENSIC_callback   },

@@ -2062,14 +2062,18 @@ A|E|T|R|FLIP|LIGHT|CALIB|HLESS|RTH|THR_CUT|ROTATE
 ## SGF22 - *97*
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|---
-A|E|T|R|MODE|FLIP|LIGHT|PHOTO|VIDEO|TRIMRESET
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|FLIP|LIGHT|PHOTO|VIDEO|TRIMRESET|BAL|BALHIG
 
 ### Sub_protocol F22
 Model: SG F22
 
-SGF22: Mode -100% = 3D, 0% = 6G, 100% = Vertical
+Mode: -100% = 3D, 0% = 6G, 100% = Vertical
+
+Model: FlyBear FX922
+
+Manual CH11=-100% & CH12=-100%, Balance CH11=+100% & CH12=-100%, Large Angle Balance CH11=-100% & CH12=+100%
 
 ### Sub_protocol F22S
 Model: ParkTen F22S

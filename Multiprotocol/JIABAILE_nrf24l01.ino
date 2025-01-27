@@ -35,12 +35,12 @@ enum {
 static uint8_t __attribute__((unused)) JIABAILE_channel(uint8_t num)
 {
 	uint8_t val=convert_channel_16b_limit(num,0,100);
-	if(val>50)
+	if(val > 50+num)
 	{
 		packet[3] |= 0x01;
 		return val-50;
 	}
-	if(val<50)
+	if(val < 50-num)
 	{
 		packet[3] |= 0x02;
 		return 50-val;
@@ -77,7 +77,7 @@ static void __attribute__((unused)) JIABAILE_send_packet()
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, JIABAILE_PAYLOAD_SIZE);
-	#ifdef ADEBUG_SERIAL
+	#ifdef DEBUG_SERIAL
 		debug("H%d RF%d",hopping_frequency_no,hopping_frequency[hopping_frequency_no]);
 		for(uint8_t i=0; i < JIABAILE_PAYLOAD_SIZE; i++)
 			debug(" %02X", packet[i]);

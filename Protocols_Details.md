@@ -1912,6 +1912,15 @@ ARM|
 
 ### Sub_protocol FQ777_951 - *3*
 
+## JIABAILE - *102*
+Autobind protocol
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+ST|TH|-|ST_TRIM|SPEED|LIGHT|FLASH
+
+SPEED: -100% High, 0% Mid, +100% Low
+
 ## JJRC345 - *71*
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11

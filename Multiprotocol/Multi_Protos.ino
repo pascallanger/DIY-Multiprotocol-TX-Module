@@ -113,6 +113,7 @@ const char STR_EAZYRC[]     ="EazyRC";
 const char STR_KYOSHO3[]    ="Kyosho3";
 const char STR_YUXIANG[]    ="YuXiang";
 const char STR_PINECONE[]   ="PineCone";
+const char STR_JIABAILE[]	="JIABAILE";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -374,6 +375,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(J6PRO_CYRF6936_INO)
 		{PROTO_J6PRO,      STR_J6PRO,     NO_SUBTYPE,            0, OPTION_NONE,    0, 1, SW_CYRF,   J6PRO_init,      J6PRO_callback      },
+	#endif
+	#if defined(JIABAILE_NRF24L01_INO)
+		{PROTO_JIABAILE,   STR_JIABAILE,  NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    JIABAILE_init,   JIABAILE_callback   },
 	#endif
 	#if defined(JJRC345_NRF24L01_INO)
 		{PROTO_JJRC345,    STR_JJRC345,   STR_SUBTYPE_JJRC345,   2, OPTION_NONE,    0, 0, SW_NRF,    JJRC345_init,    JJRC345_callback    },

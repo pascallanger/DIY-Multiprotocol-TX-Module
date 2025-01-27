@@ -226,3 +226,4 @@
 61,0,EazyRC
 98,0,Kyosho3,ASF,0
 100,0,YuXiang,Std,0,Lock,Rate,Land,Manual,Flip,Mode,Pitch
+102,0,JIABAILE,Std,1,Speed,Light,Flash

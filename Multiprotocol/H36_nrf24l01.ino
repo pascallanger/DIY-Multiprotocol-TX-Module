@@ -16,7 +16,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_xn297.h"
 
-#define FORCE_H36_ORIGINAL_ID
+//#define FORCE_H36_ORIGINAL_ID
 
 #define H36_PAYLOAD_SIZE		13
 #define H36_RF_NUM_CHANNELS		4

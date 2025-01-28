@@ -55,6 +55,7 @@ const char STR_DM002[]		="DM002";
 const char STR_CABELL[]		="Cabell";
 const char STR_ESKY150[]	="Esky150";
 const char STR_ESKY150V2[]	="EskyV2";
+const char STR_H36[]		="H36";
 const char STR_H8_3D[]		="H8 3D";
 const char STR_CORONA[]		="Corona";
 const char STR_CFLIE[]		="CFlie";
@@ -348,6 +349,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(GW008_NRF24L01_INO)
 		{PROTO_GW008,      STR_GW008,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    GW008_init,      GW008_callback      },
+	#endif
+	#if defined(H36_NRF24L01_INO)
+		{PROTO_H36,        STR_H36,       NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    H36_init,        H36_callback        },
 	#endif
 	#if defined(H8_3D_NRF24L01_INO)
 		{PROTO_H8_3D,      STR_H8_3D,     STR_SUBTYPE_H83D,      4, OPTION_NONE,    0, 0, SW_NRF,    H8_3D_init,      H8_3D_callback      },

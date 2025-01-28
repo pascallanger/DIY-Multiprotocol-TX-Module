@@ -103,6 +103,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)|20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)|47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
 [GW008](Protocols_Details.md#GW008---32)|32|||||||||NRF24L01|XN297
+[H36](Protocols_Details.md#H36---103)|H36|||||||||NRF24L01|XN297
 [H8_3D](Protocols_Details.md#H8_3D---36)|36|H8_3D|H20H|H20Mini|H30Mini|||||NRF24L01|XN297
 [Height](Protocols_Details.md#HEIGHT---53)|53|5ch|8ch|||||||A7105|
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01|
@@ -1839,15 +1840,24 @@ CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
 A|E|T|R|FLIP
 
+## H36 - *103*
+Autobind protocol
+
+Model: JJRC H36 (JR-NH010R9 board)
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+A|E|T|R|FLIP|HEADLESS|RTH
+
 ## H8_3D - *36*
 Autobind protocol
 
 ### Sub_protocol H8_3D - *0*
 Models: Eachine H8 mini 3D,Eachine E10, JJRC H20/H22/H11D
 
-CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
----|---|---|---|---|---|---|---|---
-FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LIGTH|PICTURE|VIDEO|OPT1|OPT2|CAL1|CAL2|GIMBAL
 
 JJRC H20: OPT1=Headless, OPT2=RTH
 

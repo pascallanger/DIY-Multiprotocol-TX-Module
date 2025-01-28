@@ -83,8 +83,11 @@ static void __attribute__((unused)) H36_initialize_txid()
 	rx_tx_addr[0] = rx_tx_addr[3];
 	calc_fh_channels(4);
 	#ifdef FORCE_H36_ORIGINAL_ID
-		memcpy(rx_tx_addr,(uint8_t *)"\x00\x11\x00",3);
-		memcpy(hopping_frequency,(uint8_t *)"\x36\x3A\x31\x2B",4);	//54, 58, 49, 43 
+		if(!RX_num)
+		{
+			memcpy(rx_tx_addr,(uint8_t *)"\x00\x11\x00",3);
+			memcpy(hopping_frequency,(uint8_t *)"\x36\x3A\x31\x2B",4);	//54, 58, 49, 43 
+		}
 	#endif
 }
 

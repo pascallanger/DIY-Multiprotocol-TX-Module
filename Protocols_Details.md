@@ -1929,7 +1929,7 @@ ARM|
 
 ## JIABAILE - *102*
 
-Models: JBL-430x
+Models: JBL-430x without gyro
 
 You must assign a different RX number for each car. Otherwise the new car ID will overwrite the previous one.
 

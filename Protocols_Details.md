@@ -701,6 +701,8 @@ A|E|T|R
 
 ## Traxxas - *43*
 
+You must assign a different RX number for each receiver/car. Otherwise the new receiver/car ID will overwrite the previous one.
+
 ### Sub_protocol TQ2 - *0*
 Transmitter TQ, Receivers: 6519, 2218(X), ECM-2.5
 
@@ -1516,6 +1518,8 @@ Models: WLtoys cars 284131/284161/284010/124016/124017/144010 and Eachine EAT14
 
 ## XK2 - *99*
 
+You must assign a different RX number for each receiver/plane. Otherwise the new receiver/plane ID will overwrite the previous one.
+
 ### Sub_protocol X4 - *0*
 Transmitter: XK X4-A160, X5S, model: XK A160S, XK A280, XK A300
 
@@ -1924,7 +1928,10 @@ ARM|
 ### Sub_protocol FQ777_951 - *3*
 
 ## JIABAILE - *102*
-Autobind protocol
+
+Models: JBL-430x
+
+You must assign a different RX number for each car. Otherwise the new car ID will overwrite the previous one.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---

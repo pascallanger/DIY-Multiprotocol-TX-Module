@@ -23,12 +23,13 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define JIABAILE_RF_NUM_CHANNELS		3
 #define JIABAILE_BIND_PACKET_PERIOD		12700
 #define JIABAILE_PACKET_PERIOD			2408
-#define JIABAILE_BIND_COUNT				2000
+#define JIABAILE_BIND_COUNT				160		//2 sec
 #define JIABAILE_WRITE_TIME				1000
 
 enum {
 	JIABAILE_BIND=0,
 	JIABAILE_RX,
+	JIABAILE_PREP_DATA,
 	JIABAILE_DATA,
 };
 
@@ -70,6 +71,15 @@ static void __attribute__((unused)) JIABAILE_send_packet()
 		if(!CH5_SW && Channel_data[CH5] > CHANNEL_MIN_COMMAND)
 			packet[3] |= 0x10;									//Mid speed
 	}
+	else
+	{
+		bind_counter--;
+		if(!bind_counter)
+		{
+			BIND_DONE;
+			phase = JIABAILE_PREP_DATA;
+		}
+	}
 	packet[7] = 0x55 + hopping_frequency[hopping_frequency_no];
 	for(uint8_t i=0;i<JIABAILE_PAYLOAD_SIZE-1;i++)
 		packet[7] += packet[i];
@@ -110,9 +120,13 @@ static void __attribute__((unused)) JIABAILE_RF_init()
 
 uint16_t JIABAILE_callback()
 {
+	uint8_t sum;
+	uint16_t addr;
+
 	switch(phase)
 	{
 		case JIABAILE_BIND:
+			phase++;		// JIABAILE_RX but is overwritten if RX or bind timeout
 			if(XN297_IsRX())
 			{
 				if(XN297_ReadPayload(packet_in, JIABAILE_RX_PAYLOAD_SIZE))
@@ -127,33 +141,24 @@ uint16_t JIABAILE_callback()
 					if(memcmp(packet_in,rx_tx_addr,3)==0)
 					{//TX ID match
 						//Check packet
-						uint8_t sum=0xAA + hopping_frequency[hopping_frequency_no];
+						sum=0xAA + hopping_frequency[hopping_frequency_no];
 						for(uint8_t i=0; i < JIABAILE_RX_PAYLOAD_SIZE-1; i++)
 							sum+=packet_in[i];
 						if(sum==packet_in[6])
 						{
-							//Write the RXID in the address
-							memcpy(&rx_id[1],&packet_in[3],3);
-							XN297_SetTxRxMode(TXRX_OFF);
-							XN297_SetTXAddr(rx_id, 5);
-							//Set the normal frequencies
-							sum=packet_in[3]&0x07;
-							hopping_frequency[0] = (sum>4?30:8) + sum;
-							if(sum==4 || sum ==7)
-								hopping_frequency[0]++;
-							hopping_frequency[1] = 40 + sum;
-							if((sum & 0x06) == 0x06)
-								hopping_frequency[1] += 21;
-							hopping_frequency[2] = 70 + sum;
+							//Write the RXID
 							#ifdef DEBUG_SERIAL
-								debug("RF");
+								debug("RXID ");
 								for(uint8_t i=0; i < 3; i++)
-									debug(" %d", hopping_frequency[i]);
+									debug(" %02X", packet_in[3+i]);
 								debugln();
 							#endif
+							addr=JIABAILE_EEPROM_OFFSET+RX_num*3;
+							for(uint8_t i=0;i<3;i++)
+								eeprom_write_byte((EE_ADDR)(addr+i),packet_in[3+i]);
 							//Switch to normal mode
 							BIND_DONE;
-							phase = JIABAILE_DATA;
+							phase = JIABAILE_PREP_DATA;
 						}
 			#ifdef DEBUG_SERIAL
 						else
@@ -172,7 +177,6 @@ uint16_t JIABAILE_callback()
 			}
 			XN297_SetTxRxMode(TXRX_OFF);
 			JIABAILE_send_packet();
-			phase++;
 			return JIABAILE_WRITE_TIME;
 		case JIABAILE_RX:
 			//Wait for the packet transmission to finish
@@ -182,6 +186,34 @@ uint16_t JIABAILE_callback()
 			XN297_SetTxRxMode(RX_EN);
 			phase = JIABAILE_BIND;
 			return JIABAILE_BIND_PACKET_PERIOD - JIABAILE_WRITE_TIME;
+		case JIABAILE_PREP_DATA:
+			//Read the RXID
+			addr=JIABAILE_EEPROM_OFFSET+RX_num*3;
+			for(uint8_t i=0;i<3;i++)
+				rx_id[i+1] = eeprom_read_byte((EE_ADDR)(addr+i));
+			#ifdef DEBUG_SERIAL
+				debug("RXID ");
+				for(uint8_t i=0; i < 3; i++)
+					debug(" %02X", rx_id[i+1]);
+			#endif
+			XN297_SetTxRxMode(TXRX_OFF);
+			XN297_SetTXAddr(rx_id, 5);
+			//Set the normal frequencies
+			sum=rx_id[1]&0x07;
+			hopping_frequency[0] = (sum>4?30:8) + sum;
+			if(sum==4 || sum ==7)
+				hopping_frequency[0]++;
+			hopping_frequency[1] = 40 + sum;
+			if((sum & 0x06) == 0x06)
+				hopping_frequency[1] += 21;
+			hopping_frequency[2] = 70 + sum;
+			#ifdef DEBUG_SERIAL
+				debug(" RF");
+				for(uint8_t i=0; i < 3; i++)
+					debug(" %d", hopping_frequency[i]);
+				debugln();
+			#endif
+			phase++;
 		default:	//JIABAILE_DATA
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(JIABAILE_PACKET_PERIOD);
@@ -194,10 +226,15 @@ uint16_t JIABAILE_callback()
 
 void JIABAILE_init()
 {
-	BIND_IN_PROGRESS;	// Autobind protocol
 	JIABAILE_initialize_txid();
 	JIABAILE_RF_init();
-	phase = JIABAILE_BIND;
+	if(IS_BIND_IN_PROGRESS)
+	{
+		phase = JIABAILE_BIND;
+		bind_counter = JIABAILE_BIND_COUNT;
+	}
+	else
+		phase = JIABAILE_PREP_DATA;
 	hopping_frequency_no = 0;
 }
 

@@ -298,7 +298,7 @@ uint16_t DSM_callback()
 	#define DSM_READ_DELAY		600				// Time before write to check read phase, and switch channels. Was 400 but 600 seems what the 328p needs to read a packet
 	#if defined DSM_TELEMETRY
 		uint8_t rx_phase;
-		uint8_t len;
+		uint8_t length;
 	#endif
 	uint8_t start;
 	//debugln("P=%d",phase);
@@ -474,15 +474,15 @@ uint16_t DSM_callback()
 			if((rx_phase & 0x07) == 0x02)
 			{ // good data (complete with no errors)
 				CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);	// need to set RXOW before data read
-				len=CYRF_ReadRegister(CYRF_09_RX_COUNT);
-				if(len>TELEMETRY_BUFFER_SIZE-2)
-					len=TELEMETRY_BUFFER_SIZE-2;
-				CYRF_ReadDataPacketLen(packet_in+1, len);
+				length=CYRF_ReadRegister(CYRF_09_RX_COUNT);
+				if(length>TELEMETRY_BUFFER_SIZE-2)
+					length=TELEMETRY_BUFFER_SIZE-2;
+				CYRF_ReadDataPacketLen(packet_in+1, length);
 				#ifdef DSM_DEBUG_FWD_PGM
 					//debug(" %02X", packet_in[1]);
 					if(packet_in[1]==9)
 					{
-						for(uint8_t i=0;i<len;i++)
+						for(uint8_t i=0;i<length;i++)
 							debug(" %02X", packet_in[i+1]);
 						debugln("");
 					}
@@ -612,10 +612,10 @@ void DSM_init()
 		{
 			//SUB_PROTO_VALID;
 			CYRF_GetMfgData(cyrfmfg_id);
+			//Model match
+			cyrfmfg_id[3]^=RX_num;
 		}
 	}
-	//Model match
-	cyrfmfg_id[3]^=RX_num;
 
 	//Calc sop_col
 	sop_col = (cyrfmfg_id[0] + cyrfmfg_id[1] + cyrfmfg_id[2] + 2) & 0x07;

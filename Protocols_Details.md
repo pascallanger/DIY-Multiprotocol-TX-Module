@@ -108,7 +108,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Height](Protocols_Details.md#HEIGHT---53)|53|5ch|8ch|||||||A7105|
 [Hisky](Protocols_Details.md#HISKY---4)|4|Hisky|HK310|||||||NRF24L01|
 [Hitec](Protocols_Details.md#HITEC---39)|39|OPT_FW|OPT_HUB|MINIMA||||||CC2500|
-[Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|||||NRF24L01|XN297
+[Hontai](Protocols_Details.md#HONTAI---26)|26|HONTAI|JJRCX1|X5C1|FQ777_951|XKK170||||NRF24L01|XN297
 [HoTT](Protocols_Details.md#HoTT---57)|57|Sync|No_Sync|||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105|
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|||||||||CYRF6936|
@@ -1926,6 +1926,16 @@ ARM|
 ### Sub_protocol X5C1 clone - *2*
 
 ### Sub_protocol FQ777_951 - *3*
+
+### Sub_protocol XKK170 - *3*
+
+Model: XK K170 UH-60L Black hawk
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATE|EMERGENCY|TAKE_OFF/LANDING|CALIB|TrimA|TrimE
+
+RATE: -100% Low, 0% Mid, +100% High
 
 ## JIABAILE - *102*
 

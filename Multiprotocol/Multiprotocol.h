@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	4
-#define VERSION_PATCH_LEVEL	27
+#define VERSION_PATCH_LEVEL	28
 
 #define MODE_SERIAL 0
 
@@ -288,10 +288,11 @@ enum FRSKYX
 };
 enum HONTAI
 {
-	HONTAI	= 0,
-	JJRCX1	= 1,
-	X5C1	= 2,
-	FQ777_951 =3,
+	HONTAI			= 0,
+	JJRCX1			= 1,
+	X5C1			= 2,
+	FQ777_951		= 3,
+	HONTAI_XKK170	= 4,
 };
 enum V2X2
 {

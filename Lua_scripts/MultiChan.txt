@@ -110,6 +110,7 @@
 26,1,Hontai,JJRCX1,1,Flip,Arm,Pict,Video,HLess,RTH,Calib
 26,2,Hontai,X5C1,1,Flip,Arm,Pict,Video,HLess,RTH,Calib
 26,3,Hontai,FQ777_951,1,Flip,Arm,Pict,Video,HLess,RTH,Calib
+26,4,Hontai,XKK170,1,Rate,Emerg,TakLan,Calib,TrimA,TrimE
 57,0,HoTT,Sync,0,CH5,CH6,CH7,CH8,CH9,CH10,CH11,CH12,CH13,CH14,CH15,CH16
 57,1,HoTT,No_Sync,0,CH5,CH6,CH7,CH8,CH9,CH10,CH11,CH12,CH13,CH14,CH15,CH16
 2,0,Hubsan,H107,1,Flip,Light,Pict,Video,HLess

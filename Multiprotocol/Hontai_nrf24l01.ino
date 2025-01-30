@@ -17,21 +17,25 @@
 
 #include "iface_xn297.h"	// mix of nrf and xn297 at 1Mb...
 
-#define HONTAI_BIND_COUNT 80
-#define HONTAI_PACKET_PERIOD    13500
-#define FQ777_951_PACKET_PERIOD	10000
-#define HONTAI_INITIAL_WAIT       500
-#define HONTAI_BIND_PACKET_SIZE   10
-#define HONTAI_PACKET_SIZE        12
-#define HONTAI_RF_BIND_CHANNEL    0
+#define HONTAI_BIND_COUNT			80
+#define HONTAI_PACKET_PERIOD		13500
+#define FQ777_951_PACKET_PERIOD		10000
+#define HONTAI_INITIAL_WAIT			500
+#define HONTAI_BIND_PACKET_SIZE		10
+#define HONTAI_PACKET_SIZE			12
+#define HONTAI_RF_BIND_CHANNEL		0
+#define HONTAI_XKK170_RF_BIND_CHANNEL	20
+#define HONTAI_XKK170_PACKET_PERIOD	8085
+
+//#define FORCE_HONTAI_XKK170_ORIGINAL_ID
 
 enum{
-    HONTAI_FLAG_FLIP      = 0x01, 
-    HONTAI_FLAG_PICTURE   = 0x02, 
-    HONTAI_FLAG_VIDEO     = 0x04, 
-    HONTAI_FLAG_HEADLESS  = 0x08, 
-    HONTAI_FLAG_RTH       = 0x10,
-    HONTAI_FLAG_CALIBRATE = 0x20,
+	HONTAI_FLAG_FLIP		= 0x01,
+	HONTAI_FLAG_PICTURE		= 0x02,
+	HONTAI_FLAG_VIDEO		= 0x04,
+	HONTAI_FLAG_HEADLESS	= 0x08,
+	HONTAI_FLAG_RTH			= 0x10,
+	HONTAI_FLAG_CALIBRATE	= 0x20,
 };
 
 static void __attribute__((unused)) HONTAI_send_packet()
@@ -40,6 +44,8 @@ static void __attribute__((unused)) HONTAI_send_packet()
 	{
 		memcpy(packet, rx_tx_addr, 5);
 		memset(&packet[5], 0, 3);
+		//if(sub_protocol == HONTAI_XKK170)
+		//	packet[6] = 0xD2;
 		packet_length = HONTAI_BIND_PACKET_SIZE;
 	}
 	else
@@ -50,58 +56,87 @@ static void __attribute__((unused)) HONTAI_send_packet()
 			XN297_Hopping(hopping_frequency_no++);
 		hopping_frequency_no %= 3;
 		memset(packet,0,HONTAI_PACKET_SIZE);
-		packet[3] = convert_channel_16b_limit(THROTTLE, 0, 127) << 1;	// Throttle
-		packet[4] = convert_channel_16b_limit(AILERON, 63, 0);			// Aileron
-		packet[5] = convert_channel_16b_limit(ELEVATOR, 0, 63);			// Elevator
-		packet[6] = convert_channel_16b_limit(RUDDER, 0, 63);			// Rudder
-		if(sub_protocol == X5C1)
-			packet[7] = convert_channel_16b_limit(AILERON, 0, 63)-31;	// Aileron trim
+		for(uint8_t i=0; i<4; i++)
+			packet[i+3] = convert_channel_8b(CH_TAER[i]);
+		if(sub_protocol != HONTAI_XKK170)
+		{
+			//Drive trims
+			packet[7] = (packet[4]>>3)-16;
+			packet[8] = (packet[6]>>3)-16;
+			packet[9] = (packet[5]>>3)-16;
+			//Reverse aileron
+			packet[4] ^= 0xFF;
+			//Limit range
+			for(uint8_t i=3; i<7; i++)
+				packet[i] >>= 2;			//00..63
+		}
 		else
-			packet[7] = convert_channel_16b_limit(AILERON, 0, 32)-16;	// Aileron trim
-		packet[8] = convert_channel_16b_limit(RUDDER, 0, 32)-16;			// Rudder trim
-		if (sub_protocol == X5C1)
-			packet[9] = convert_channel_16b_limit(ELEVATOR, 0, 63)-31;	// Elevator trim
-		else
-			packet[9] = convert_channel_16b_limit(ELEVATOR, 0, 32)-16;	// Elevator trim
+		{//K170
+			//packet[2] = 0xAB; //This value keeps changing when touching any button... Left over from debug?
+			//Sticks
+			for(uint8_t i=1; i<4; i++)
+				packet[i+3] = convert_channel_16b_limit(CH_TAER[i],0x28,0xD8);
+			packet[6] ^= 0xFF;	//Reverse rudder
+			//flags
+			packet[1] =  GET_FLAG(CH8_SW, 0x04);	//Gyro calibration (momentary)
+			//			|GET_FLAG(CH_SW, 0x08)		//Unk long press second top right button (momentary)
+			//			|GET_FLAG(CH_SW, 0x10)		//Unk short press second top right button (toggle)
+			//			|GET_FLAG(CH_SW, 0x40)		//Unk short press second top left button (momentary)
+			//			|GET_FLAG(CH_SW, 0x80);		//Unk long press second top left button (momentary)
+			uint8_t rate = 0x80;					//Mid rate
+			if(CH5_SW)
+				rate = 0xC0;						//High rate
+			else if(Channel_data[CH5] < CHANNEL_MIN_COMMAND)
+				rate = 0x40;						//Low rate
+			packet[8] = rate
+						|GET_FLAG(CH7_SW, 0x04)		//Take-off/Landing (momentary)
+						|GET_FLAG(CH6_SW, 0x10);	//Emergency (momentary)
+			//Trims
+			packet[7] = ((convert_channel_8b(CH9)^0xFF)>>2)-31;	// Trim Aileron
+			packet[9] = ( convert_channel_8b(CH10)     >>2)-32;	// Trim Elevator
+		}
+		
 		switch(sub_protocol)
 		{
 			case HONTAI:
 				packet[0]  = 0x0B;
 				packet[3] |= GET_FLAG(CH7_SW, 0x01);				// Picture
-				packet[4] |= GET_FLAG(CH10_SW, 0x80)					// RTH
+				packet[4] |= GET_FLAG(CH10_SW, 0x80)				// RTH
 						  |  GET_FLAG(CH9_SW, 0x40);				// Headless
-				packet[5] |= GET_FLAG(CH11_SW, 0x80)					// Calibrate
+				packet[5] |= GET_FLAG(CH11_SW, 0x80)				// Calibrate
 						  |  GET_FLAG(CH5_SW, 0x40);				// Flip
 				packet[6] |= GET_FLAG(CH8_SW, 0x80);				// Video
 				break;
 			case JJRCX1:
 				packet[0]  = GET_FLAG(CH6_SW, 0x02);				// Arm
 				packet[3] |= GET_FLAG(CH7_SW, 0x01);				// Picture
-				packet[4] |= 0x80;										// unknown
-				packet[5] |= GET_FLAG(CH11_SW, 0x80)					// Calibrate
+				packet[4] |= 0x80;									// unknown
+				packet[5] |= GET_FLAG(CH11_SW, 0x80)				// Calibrate
 						  |  GET_FLAG(CH5_SW, 0x40);				// Flip
 				packet[6] |= GET_FLAG(CH8_SW, 0x80);				// Video
-				packet[8]  = 0xC0										// high rate, no rudder trim
-						  |  GET_FLAG(CH10_SW, 0x02)					// RTH
+				packet[8]  = 0xC0									// high rate, no rudder trim
+						  |  GET_FLAG(CH10_SW, 0x02)				// RTH
 						  |  GET_FLAG(CH9_SW, 0x01);				// Headless
 				break;
 			case X5C1:
 				packet[0]  = 0x0B;
 				packet[3] |= GET_FLAG(CH7_SW, 0x01);				// Picture
-				packet[4]  = 0x80										// unknown
+				packet[4]  = 0x80									// unknown
 						  |  GET_FLAG(CH6_SW, 0x40);				// Lights
-				packet[5] |= GET_FLAG(CH11_SW, 0x80)					// Calibrate
+				packet[5] |= GET_FLAG(CH11_SW, 0x80)				// Calibrate
 						  |  GET_FLAG(CH5_SW, 0x40);				// Flip
 				packet[6] |= GET_FLAG(CH8_SW, 0x80);				// Video
-				packet[8]  = 0xC0										// high rate, no rudder trim
-						  |  GET_FLAG(CH10_SW, 0x02)					// RTH
+				packet[7] <<= 1;									// Aileron trim
+				packet[8]  = 0xC0									// high rate, no rudder trim
+						  |  GET_FLAG(CH10_SW, 0x02)				// RTH
 						  |  GET_FLAG(CH9_SW, 0x01);				// Headless
+				packet[9] <<= 1;									// Elevator trim
 				break;
 			case FQ777_951:
 				packet[0]  = GET_FLAG(CH7_SW, 0x01)					// Picture
 						  |  GET_FLAG(CH8_SW, 0x02);				// Video
 				packet[3] |= GET_FLAG(CH5_SW, 0x01);				// Flip
-				packet[4] |= 0xC0;										// High rate (mid=0xa0, low=0x60)
+				packet[4] |= 0xC0;									// High rate (mid=0xa0, low=0x60)
 				packet[5] |= GET_FLAG(CH11_SW, 0x80);				// Calibrate
 				packet[6] |= GET_FLAG(CH9_SW, 0x40);				// Headless
 				break;
@@ -109,13 +144,18 @@ static void __attribute__((unused)) HONTAI_send_packet()
 		packet_length = HONTAI_PACKET_SIZE;
 	}
 
-	// CRC 16 bits reflected in and out
-	crc=0xFFFF;
-	for(uint8_t i=0; i< packet_length-2; i++)
-		crc16_update(bit_reverse(packet[i]),8);
-	crc ^= 0xFFFF;
-	packet[packet_length-2]=bit_reverse(crc>>8);
-	packet[packet_length-1]=bit_reverse(crc);
+	if(sub_protocol != HONTAI_XKK170)
+	{
+		// CRC 16 bits reflected in and out
+		crc=0xFFFF;
+		for(uint8_t i=0; i< packet_length-2; i++)
+			crc16_update(bit_reverse(packet[i]),8);
+		crc ^= 0xFFFF;
+		packet[packet_length-2]=bit_reverse(crc>>8);
+		packet[packet_length-1]=bit_reverse(crc);
+	}
+	else
+		memset(&packet[packet_length-2], 0xAA, 2);
 
 	// Power on, TX mode, 2byte CRC
 	/*if(sub_protocol == JJRCX1)
@@ -135,6 +175,11 @@ static void __attribute__((unused)) HONTAI_send_packet()
 		NRF24L01_WritePayload(packet, packet_length);
 	else
 		XN297_WritePayload(packet, packet_length);
+	#ifdef DEBUG_SERIAL
+		for(uint8_t i=0; i < packet_length; i++)
+			debug("%02X ", packet[i]);
+		debugln();
+	#endif
 }
 
 static void __attribute__((unused)) HONTAI_RF_init()
@@ -152,15 +197,16 @@ static void __attribute__((unused)) HONTAI_RF_init()
 	}
 	else
 	{
-		XN297_SetTXAddr((const uint8_t*)"\xd2\xb5\x99\xb3\x4a", 5);
+		memcpy(rx_id,(const uint8_t*)"\xD2\xB5\x99\xB3\x41",5);
+		if(sub_protocol == HONTAI_XKK170)
+			rx_id[4] = 0x4A;
+		XN297_SetTXAddr(rx_id, 5);
 		//XN297_HoppingCalib(3);
 	}
-	XN297_RFChannel(HONTAI_RF_BIND_CHANNEL);
+	XN297_RFChannel(sub_protocol==HONTAI_XKK170?HONTAI_XKK170_RF_BIND_CHANNEL:HONTAI_RF_BIND_CHANNEL);
 }
 
-const uint8_t PROGMEM HONTAI_hopping_frequency_nonels[][3] = {
-	{0x05, 0x19, 0x28},     // Hontai
-	{0x0a, 0x1e, 0x2d}};    // JJRC X1
+const uint8_t PROGMEM HONTAI_hopping_frequency[3] = { 0x05, 0x19, 0x28 };
 
 const uint8_t PROGMEM HONTAI_addr_vals[4][16] = {
 	{0x24, 0x26, 0x2a, 0x2c, 0x32, 0x34, 0x36, 0x4a, 0x4c, 0x4e, 0x54, 0x56, 0x5a, 0x64, 0x66, 0x6a},
@@ -178,32 +224,69 @@ static void __attribute__((unused)) HONTAI_init2()
 	data_tx_addr[2] = pgm_read_byte_near( &HONTAI_addr_vals[2][ rx_tx_addr[4]       & 0x0f]);
 	data_tx_addr[3] = pgm_read_byte_near( &HONTAI_addr_vals[3][(rx_tx_addr[4] >> 4) & 0x0f]);
 	data_tx_addr[4] = 0x24;
+	#ifdef DEBUG_SERIAL
+		debug("A N");
+		for(uint8_t i=0; i < 5; i++)
+			debug(" %02X", data_tx_addr[i]);
+		debugln();
+	#endif
 	if(sub_protocol == JJRCX1)
 		NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, data_tx_addr, 5);
 	else
 		XN297_SetTXAddr(data_tx_addr, 5);
 
 	//Hopping frequency table
+	uint8_t val;
 	for(uint8_t i=0;i<3;i++)
-		hopping_frequency[i]=pgm_read_byte_near( &HONTAI_hopping_frequency_nonels[sub_protocol == JJRCX1?1:0][i] );
+	{
+		if(sub_protocol==HONTAI_XKK170)
+			val = 60+10*i;
+		else
+		{
+			val = pgm_read_byte_near( &HONTAI_hopping_frequency[i] );
+			if(sub_protocol == JJRCX1)
+				val += 5;
+		}
+		hopping_frequency[i] = val;
+	}
 	hopping_frequency_no=0;
+	#ifdef DEBUG_SERIAL
+		debug("H");
+		for(uint8_t i=0; i < 3; i++)
+			debug(" %d(%02X)", hopping_frequency[i], hopping_frequency[i]);
+		debugln();
+	#endif
 }
 
 static void __attribute__((unused)) HONTAI_initialize_txid()
 {
 	rx_tx_addr[4] = rx_tx_addr[2]; 
-	if(sub_protocol == HONTAI || sub_protocol == FQ777_951)
-	{
-		rx_tx_addr[0] = 0x4c; // first three bytes some kind of model id? - set same as stock tx
-		rx_tx_addr[1] = 0x4b;
-		rx_tx_addr[2] = 0x3a;
+	// First three bytes some kind of model id? - set same as stock tx
+	if(sub_protocol == JJRCX1 || sub_protocol == X5C1)
+	{//JJRCX1 & X5C1
+		rx_tx_addr[0] = 0x4B;
+		rx_tx_addr[1] = 0x59;
+		rx_tx_addr[2] = 0x3A;
 	}
 	else
-	{
-		rx_tx_addr[0] = 0x4b; // JJRC X1
-		rx_tx_addr[1] = 0x59;
-		rx_tx_addr[2] = 0x3a;
+	{//HONTAI, FQ777_951, HONTAI_XKK170
+		rx_tx_addr[0] = 0x4C;
+		rx_tx_addr[1] = 0x4B;
+		rx_tx_addr[2] = 0x3A;
+		#ifdef FORCE_HONTAI_XKK170_ORIGINAL_ID
+			if(sub_protocol == HONTAI_XKK170)
+			{
+				rx_tx_addr[3] = 0x5A;
+				rx_tx_addr[4] = 0x06;
+			}
+		#endif
 	}
+	#ifdef DEBUG_SERIAL
+		debug("A B");
+		for(uint8_t i=0; i < 5; i++)
+			debug(" %02X", rx_tx_addr[i]);
+		debugln();
+	#endif
 }
 
 uint16_t HONTAI_callback()
@@ -228,8 +311,14 @@ void HONTAI_init()
 {
 	BIND_IN_PROGRESS;	// autobind protocol
 	bind_counter = HONTAI_BIND_COUNT;
-	HONTAI_initialize_txid();
 	HONTAI_RF_init();
-	packet_period = sub_protocol == FQ777_951 ? FQ777_951_PACKET_PERIOD : HONTAI_PACKET_PERIOD;
+	HONTAI_initialize_txid();
+	if(sub_protocol == FQ777_951)
+		packet_period = FQ777_951_PACKET_PERIOD;
+	else if(sub_protocol == HONTAI_XKK170)
+		packet_period = HONTAI_XKK170_PACKET_PERIOD;
+	else
+		packet_period = HONTAI_PACKET_PERIOD;
+			
 }
 #endif

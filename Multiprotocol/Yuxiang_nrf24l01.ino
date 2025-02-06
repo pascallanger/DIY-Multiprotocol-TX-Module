@@ -17,12 +17,12 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #include "iface_xn297.h"
 
-#define YUXIANG_FORCE_ID
+//#define YUXIANG_FORCE_ID
 
 #define YUXIANG_PACKET_PERIOD		12422
 #define YUXIANG_PACKET_SIZE			9
 #define YUXIANG_BIND_COUNT			150
-#define YUXIANG_BIND_FREQ			0x30
+#define YUXIANG_BIND_FREQ			0x30	//48
 #define YUXIANG_RF_NUM_CHANNELS		4
 
 #define YUXIANG_WRITE_TIME			1000
@@ -118,23 +118,43 @@ static void __attribute__((unused)) YUXIANG_RF_init()
 
 static void __attribute__((unused)) YUXIANG_initialize_txid()
 {
+	//Modify address to influence hop 
+	rx_tx_addr[0] += RX_num;
+	//Calc hop
+	uint8_t val;
+	for(uint8_t i=0; i<4; i++)
+	{
+		val = i*0x06;
+		if(i) val |= 0x01;
+		val += rx_tx_addr[0];
+		val &= 0x1F;
+		val += 47;
+		if(val < 50)
+			val = 50;
+		if(val > 62 && val < 66)
+			val = 62;
+		hopping_frequency[i] = val;
+	}
+
 	#ifdef YUXIANG_FORCE_ID
-		if(rx_tx_addr[3] & 0x01)
-		{//TX1
-			memcpy(rx_tx_addr,(uint8_t *)"\xB3\x13\x36\xDD",4); //rx_tx_addr[4]=0xD9
-			memcpy(hopping_frequency,(uint8_t *)"\x49\x32\x35\x42",4);
-		}
-		else
-		{//TX2
-			memcpy(rx_tx_addr,(uint8_t *)"\xEB\x13\x36\xAC",4); //rx_tx_addr[4]=0xE0
-			memcpy(hopping_frequency,(uint8_t *)"\x4D\x3A\x3E\x47",4);
+		switch(RX_num)
+		{
+			case 0://TX1
+				memcpy(rx_tx_addr,(uint8_t *)"\xB3\x13\x36\xDD",4); 		//rx_tx_addr[4]=0xD9
+				memcpy(hopping_frequency,(uint8_t *)"\x42\x49\x32\x35",4);	//66,73,50,53
+				break;
+			case 1://TX2
+				memcpy(rx_tx_addr,(uint8_t *)"\xEB\x13\x36\xAC",4);			//rx_tx_addr[4]=0xE0
+				memcpy(hopping_frequency,(uint8_t *)"\x47\x4D\x3A\x3E",4);	//58,62,71,77
+				break;
 		}
 	#endif
+
 	uint8_t sum=0;
 	for(uint8_t i=0; i<4; i++)
 		sum += rx_tx_addr[i];
 	rx_tx_addr[4] = sum;
-	debugln("ID: %02X %02X %02X %02X %02X , HOP: %02X %02X %02X %02X",rx_tx_addr[0],rx_tx_addr[1],rx_tx_addr[2],rx_tx_addr[3],rx_tx_addr[4],hopping_frequency[0],hopping_frequency[1],hopping_frequency[2],hopping_frequency[3]);
+	debugln("ID: %02X %02X %02X %02X %02X , HOP: %2d %2d %2d %2d",rx_tx_addr[0],rx_tx_addr[1],rx_tx_addr[2],rx_tx_addr[3],rx_tx_addr[4],hopping_frequency[0],hopping_frequency[1],hopping_frequency[2],hopping_frequency[3]);
 }
 
 uint16_t YUXIANG_callback()

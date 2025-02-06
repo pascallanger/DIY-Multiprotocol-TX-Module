@@ -1948,6 +1948,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
 ST|TH|-|ST_TRIM|SPEED|LIGHT|FLASH
 
+ - Extended Steering comparing to original
  - SPEED: -100% High, 0% Mid, +100% Low
  - ST_TRIM: value between -100% and +100% but using the steering radio trim looks better
 
@@ -1958,6 +1959,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
 ST|TH|GYRO|ST_TRIM|SPEED|LIGHT|FLASH
 
+ - Extended Steering comparing to original
  - SPEED: -100% High, 0% Mid, +100% Low
  - GYRO: -100% Off..+100% Max
  - ST_TRIM: momentary switch, -100% Trim left, 0% Idle, +100% Trim right. Configure the radio steering trim has buttons (ST- and ST+) and assign them to that channel. Don't forget to disable the steering trim.

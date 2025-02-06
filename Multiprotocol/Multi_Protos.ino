@@ -185,6 +185,7 @@ const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320""ZCZ50\0";
 const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
 const char STR_SUBTYPE_FX[] =         "\x04""816\0""620\0""9630""Q560";
 const char STR_SUBTYPE_SGF22[] =      "\x04""F22\0""F22S""J20\0";
+const char STR_SUBTYPE_JIABAILE[] =   "\x04""Std\0""Gyro";
 #define NO_SUBTYPE		nullptr
 
 #ifdef SEND_CPPM
@@ -381,7 +382,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_J6PRO,      STR_J6PRO,     NO_SUBTYPE,            0, OPTION_NONE,    0, 1, SW_CYRF,   J6PRO_init,      J6PRO_callback      },
 	#endif
 	#if defined(JIABAILE_NRF24L01_INO)
-		{PROTO_JIABAILE,   STR_JIABAILE,  NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    JIABAILE_init,   JIABAILE_callback   },
+		{PROTO_JIABAILE,   STR_JIABAILE,  STR_SUBTYPE_JIABAILE,  2, OPTION_NONE,    0, 0, SW_NRF,    JIABAILE_init,   JIABAILE_callback   },
 	#endif
 	#if defined(JJRC345_NRF24L01_INO)
 		{PROTO_JJRC345,    STR_JJRC345,   STR_SUBTYPE_JJRC345,   2, OPTION_NONE,    0, 0, SW_NRF,    JJRC345_init,    JJRC345_callback    },

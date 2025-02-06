@@ -17,12 +17,14 @@ Multiprotocol is distributed in the hope that it will be useful,
 #include "iface_xn297.h"
 
 //#define FORCE_JIABAILE_ORIGINAL_ID
+//#define FORCE_JIABAILE_GYRO_ORIGINAL_ID
 
 #define JIABAILE_PAYLOAD_SIZE			8
 #define JIABAILE_RX_PAYLOAD_SIZE		7
 #define JIABAILE_RF_NUM_CHANNELS		3
 #define JIABAILE_BIND_PACKET_PERIOD		12700
 #define JIABAILE_PACKET_PERIOD			2408
+#define JIABAILE_GYRO_PACKET_PERIOD		8205
 #define JIABAILE_BIND_COUNT				160		//2 sec
 #define JIABAILE_WRITE_TIME				1000
 
@@ -51,43 +53,98 @@ static uint8_t __attribute__((unused)) JIABAILE_channel(uint8_t num)
 
 static void __attribute__((unused)) JIABAILE_send_packet()
 {
-	hopping_frequency_no++;
-	if(hopping_frequency_no > 2)
-		hopping_frequency_no = 0;
-	XN297_Hopping(hopping_frequency_no);
+	if(!(sub_protocol == JIABAILE_GYRO && IS_BIND_IN_PROGRESS))
+	{
+		hopping_frequency_no++;
+		if(hopping_frequency_no > 2)
+			hopping_frequency_no = 0;
+		XN297_Hopping(hopping_frequency_no);
+	}
 
-	memcpy(packet,rx_tx_addr,3);
-	memset(&packet[3], 0x00, 4);
-	if(IS_BIND_DONE)
-	{//Normal
-		packet[4] = convert_channel_16b_limit(RUDDER,0,50)-25;	//ST Trim
-		packet[6] = JIABAILE_channel(AILERON);					//ST
-		packet[3] ^= 0x03;										//Reverse ST channel
-		packet[3] <<= 2;										//Move ST channel where it should be
-		packet[5] = JIABAILE_channel(ELEVATOR);					//TH
-		packet[3] |= GET_FLAG(CH5_SW,  0x20)					//Low speed
-					|GET_FLAG(CH7_SW,  0x40)					//Flash light
-					|GET_FLAG(!CH6_SW,  0x80);					//Light
-		if(!CH5_SW && Channel_data[CH5] > CHANNEL_MIN_COMMAND)
-			packet[3] |= 0x10;									//Mid speed
+	if(sub_protocol == JIABAILE_STD)
+	{//Std
+		memcpy(packet,rx_tx_addr,3);
+		memset(&packet[3], 0x00, 4);
+		if(IS_BIND_DONE)
+		{//Normal
+			packet[4] = convert_channel_16b_limit(RUDDER,0,50)-25;	//ST Trim
+			packet[6] = JIABAILE_channel(AILERON);					//ST
+			packet[3] ^= 0x03;										//Reverse ST channel
+			packet[3] <<= 2;										//Move ST channel where it should be
+			packet[5] = JIABAILE_channel(ELEVATOR);					//TH
+			packet[3] |= GET_FLAG(CH5_SW,  0x20)					//Low speed
+						|GET_FLAG(CH7_SW,  0x40)					//Flash light
+						|GET_FLAG(!CH6_SW,  0x80);					//Light
+			if(!CH5_SW && Channel_data[CH5] > CHANNEL_MIN_COMMAND)
+				packet[3] |= 0x10;									//Mid speed
+		}
+		else
+		{
+			bind_counter--;
+			if(!bind_counter)
+			{
+				BIND_DONE;
+				phase = JIABAILE_PREP_DATA;
+			}
+		}
+		packet[7] = 0x55 + hopping_frequency[hopping_frequency_no];
+		for(uint8_t i=0;i<JIABAILE_PAYLOAD_SIZE-1;i++)
+			packet[7] += packet[i];
 	}
 	else
-	{
-		bind_counter--;
-		if(!bind_counter)
+	{//Gyro
+		if(bind_counter)
 		{
-			BIND_DONE;
-			phase = JIABAILE_PREP_DATA;
+			bind_counter--;
+			if(!bind_counter)
+			{
+				BIND_DONE;
+				XN297_SetTXAddr(rx_tx_addr, 4);
+			}
 		}
+		uint8_t crc_pos;
+		if(IS_BIND_IN_PROGRESS)
+		{
+			memcpy(packet,rx_tx_addr,4);
+			packet[4] = hopping_frequency[1];
+			packet[5] = hopping_frequency[2];
+			crc_pos = 6;
+			packet[7] = 0x55;
+		}
+		else
+		{
+			packet[0] = convert_channel_16b_limit(CH2,0x60,0xA0);	//Throttle
+			packet[1] = convert_channel_16b_limit(CH1,0x40,0xC0);	//Steering
+			if(Channel_data[CH5] < CHANNEL_MIN_COMMAND)
+				packet[2] = 0x02;										//High speed
+			else if(CH5_SW)
+				packet[2] = 0x00;										//Low speed
+			else
+				packet[2] = 0x01;										//Mid speed
+			packet[3] = convert_channel_8b(CH3) ^0xFF;					//Gyro
+			uint8_t val = GET_FLAG(CH6_SW,  0x04)						//Light
+						 |GET_FLAG(CH7_SW,  0x08);						//Flash
+			if(Channel_data[CH4] > CHANNEL_MAX_COMMAND)
+				val |= 0x01;											//Trim right
+			else if(Channel_data[CH4] < CHANNEL_MIN_COMMAND)
+				val |= 0x02;											//Trim left
+			packet[4] = val;
+			packet[5] = packet[6] = 0x00;								//?
+			crc_pos = 7;
+		}
+		uint8_t sum=0;
+		for(uint8_t i=0; i<crc_pos; i++)
+			sum += packet[i];
+		sum ^= 0xFF;
+		packet[crc_pos] = sum;	
 	}
-	packet[7] = 0x55 + hopping_frequency[hopping_frequency_no];
-	for(uint8_t i=0;i<JIABAILE_PAYLOAD_SIZE-1;i++)
-		packet[7] += packet[i];
+	
 	// Send
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, JIABAILE_PAYLOAD_SIZE);
-	#ifdef DEBUG_SERIAL
+	#if 0
+		debug("B%d ",bind_counter);
 		debug("H%d RF%d",hopping_frequency_no,hopping_frequency[hopping_frequency_no]);
 		for(uint8_t i=0; i < JIABAILE_PAYLOAD_SIZE; i++)
 			debug(" %02X", packet[i]);
@@ -97,25 +154,56 @@ static void __attribute__((unused)) JIABAILE_send_packet()
 
 static void __attribute__((unused)) JIABAILE_initialize_txid()
 {
-	rx_tx_addr[0] = rx_tx_addr[3];
-	#ifdef FORCE_JIABAILE_ORIGINAL_ID
-		memcpy(rx_tx_addr,(uint8_t *)"\xCB\x03\xA5",3);
-		//memcpy(rx_tx_addr,(uint8_t *)"\x3D\x08\xA2",3);
-		//Normal frequencies are calculated from the car ID...
-		//memcpy(&hopping_frequency[3],(uint8_t *)"\x23\x2D\x4B",3);	//35,45,75
-		memcpy(&hopping_frequency[3],(uint8_t *)"\x24\x43\x4C",3);	//36,67,76
-	#endif
-	//Bind frequencies
-	memcpy(hopping_frequency,(uint8_t *)"\x07\x27\x45",3);	//7,39,69
+	if(sub_protocol == JIABAILE_STD)
+	{//Std
+		rx_tx_addr[0] = rx_tx_addr[3];
+		#ifdef FORCE_JIABAILE_ORIGINAL_ID
+			memcpy(rx_tx_addr,(uint8_t *)"\xCB\x03\xA5",3);
+			//memcpy(rx_tx_addr,(uint8_t *)"\x3D\x08\xA2",3);
+			//Normal frequencies are calculated from the car ID...
+			//memcpy(&hopping_frequency[3],(uint8_t *)"\x23\x2D\x4B",3);	//35,45,75
+			memcpy(&hopping_frequency[3],(uint8_t *)"\x24\x43\x4C",3);	//36,67,76
+		#endif
+		//Bind frequencies
+		memcpy(hopping_frequency,(uint8_t *)"\x07\x27\x45",3);	//7,39,69
+	}
+	else
+	{//Gyro
+		rx_tx_addr[0] += RX_num;
+		uint8_t val = (rx_tx_addr[0] & 0x0F) + 5;	//5..20
+		for(uint8_t i=0; i<3; i++)
+			hopping_frequency[i] = val+ 20*i;		//hopping_frequency[1,2] could be whatever but...
+		#ifdef FORCE_JIABAILE_GYRO_ORIGINAL_ID
+			if(RX_num)
+			{
+				memcpy(rx_tx_addr,(uint8_t *)"\x7D\x82\x28\xC2",4);
+				memcpy(hopping_frequency,(uint8_t *)"\x12\x1B\x35",3);	//18,27,53
+			}
+			else
+			{
+				memcpy(rx_tx_addr,(uint8_t *)"\x0C\xF3\x59\xB3",4);
+				memcpy(hopping_frequency,(uint8_t *)"\x11\x1C\x36",3);	//17,28,54
+			}
+		#endif
+		debugln("ID: %02X %02X %02X %02X, HOP: %2d %2d %2d",rx_tx_addr[0],rx_tx_addr[1],rx_tx_addr[2],rx_tx_addr[3],hopping_frequency[0],hopping_frequency[1],hopping_frequency[2]);
+	}
 }
 
 static void __attribute__((unused)) JIABAILE_RF_init()
 {
 	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	//Bind address
-	memcpy(rx_id,(uint8_t*)"\xA7\x07\x57\xA7\x26", 5);
-	XN297_SetTXAddr(rx_id, 5);
-	XN297_SetRXAddr(rx_id, JIABAILE_RX_PAYLOAD_SIZE);
+	if(sub_protocol == JIABAILE_STD)
+	{//Std
+		memcpy(rx_id,(uint8_t*)"\xA7\x07\x57\xA7\x26", 5);
+		XN297_SetTXAddr(rx_id, 5);
+		XN297_SetRXAddr(rx_id, JIABAILE_RX_PAYLOAD_SIZE);
+	}
+	else
+	{//Gyro
+		XN297_SetTXAddr((uint8_t*)"\x14\x41\x11\x13", 4);
+		XN297_RFChannel(0x29);	//41
+	}
 }
 
 uint16_t JIABAILE_callback()
@@ -216,25 +304,35 @@ uint16_t JIABAILE_callback()
 			phase++;
 		default:	//JIABAILE_DATA
 			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(JIABAILE_PACKET_PERIOD);
+				telemetry_set_input_sync(packet_period);
 			#endif
 			JIABAILE_send_packet();
 			break;
 	}
-	return JIABAILE_PACKET_PERIOD;
+	return packet_period;
 }
 
 void JIABAILE_init()
 {
 	JIABAILE_initialize_txid();
 	JIABAILE_RF_init();
-	if(IS_BIND_IN_PROGRESS)
-	{
-		phase = JIABAILE_BIND;
-		bind_counter = JIABAILE_BIND_COUNT;
+	if(sub_protocol == JIABAILE_STD)
+	{//Std
+		if(IS_BIND_IN_PROGRESS)
+		{
+			phase = JIABAILE_BIND;
+			bind_counter = JIABAILE_BIND_COUNT;
+		}
+		else
+			phase = JIABAILE_PREP_DATA;
+		packet_period = JIABAILE_PACKET_PERIOD;
 	}
 	else
-		phase = JIABAILE_PREP_DATA;
+	{//Gyro
+		phase = JIABAILE_DATA;
+		bind_counter = IS_BIND_IN_PROGRESS?JIABAILE_BIND_COUNT>>2:1;
+		packet_period = JIABAILE_GYRO_PACKET_PERIOD;
+	}	
 	hopping_frequency_no = 0;
 }
 

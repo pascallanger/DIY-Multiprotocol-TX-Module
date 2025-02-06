@@ -112,7 +112,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [HoTT](Protocols_Details.md#HoTT---57)|57|Sync|No_Sync|||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)|2|H107|H301|H501||||||A7105|
 [J6Pro](Protocols_Details.md#J6Pro---22)|22|||||||||CYRF6936|
-[JIABAILE](Protocols_Details.md#JIABAILE---102)|102|||||||||NRF24L01|XN297
+[JIABAILE](Protocols_Details.md#JIABAILE---102)|102|Std|Gyro|||||||NRF24L01|XN297
 [JJRC345](Protocols_Details.md#JJRC345---71)|71|JJRC345|SkyTmblr|||||||NRF24L01|XN297
 [JOYSWAY](Protocols_Details.md#JOYSWAY---84)|84|||||||||NRF24L01|XN297
 [KF606](Protocols_Details.md#KF606---49)|49|KF606|MIG320|ZCZ50||||||NRF24L01|XN297
@@ -1939,6 +1939,7 @@ RATE: -100% Low, 0% Mid, +100% High
 
 ## JIABAILE - *102*
 
+### Sub_protocol Std - *0*
 Models: JBL-430x 1:43 car without gyro
 
 You must assign a different RX number for each car. Otherwise the new car ID will overwrite the previous one.
@@ -1947,7 +1948,19 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
 ST|TH|-|ST_TRIM|SPEED|LIGHT|FLASH
 
-SPEED: -100% High, 0% Mid, +100% Low
+ - SPEED: -100% High, 0% Mid, +100% Low
+ - ST_TRIM: value between -100% and +100% but using the steering radio trim looks better
+
+### Sub_protocol Gyro - *1*
+Models: JBL-430x 1:43 car with gyro
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+ST|TH|GYRO|ST_TRIM|SPEED|LIGHT|FLASH
+
+ - SPEED: -100% High, 0% Mid, +100% Low
+ - GYRO: -100% Off..+100% Max
+ - ST_TRIM: momentary switch, -100% Trim left, 0% Idle, +100% Trim right. Configure the radio steering trim has buttons (ST- and ST+) and assign them to that channel. Don't forget to disable the steering trim.
 
 ## JJRC345 - *71*
 
@@ -2256,9 +2269,8 @@ Same channels assignement as above.
 
 ## YuXiang - *100*
 
-Models: E190, F07 UH-1D
+Models: E190 F07 UH-1D, E186 F08 Bell-206
 
-**Only 2 TX ID, use the RX number to switch**.
 Telemetry A1=Batt voltage with a Ratio 3.5 and Offset 7, A2=Low batt with 0=OK, everything else=BAD
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11

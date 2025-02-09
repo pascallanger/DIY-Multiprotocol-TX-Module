@@ -873,7 +873,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		X420
 		XK_CARS
 	PROTO_XK2
-		NONE
+		XK2_X4
+		XK2_P10
 	PROTO_YD717
 		YD717
 		SKYWLKR

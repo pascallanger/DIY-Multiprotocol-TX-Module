@@ -155,7 +155,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936|
 [XERALL](Protocols_Details.md#XERALL---91)|91|Tank||||||||NRF24L01|XN297
 [XK](Protocols_Details.md#XK---62)|62|X450|X420|Cars||||||NRF24L011&CC2500|XN297
-[XK2](Protocols_Details.md#XK2---99)|99|X4||||||||NRF24L01&CC2500|XN297
+[XK2](Protocols_Details.md#XK2---99)|99|X4|P10|||||||NRF24L01&CC2500|XN297
 [YD717](Protocols_Details.md#YD717---8)|8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01|
 [YuXiang](Protocols_Details.md#YuXiang---100)|100|||||||||NRF24L01|XN297
 [ZSX](Protocols_Details.md#ZSX---52)|52|280||||||||NRF24L01|XN297
@@ -1522,6 +1522,21 @@ You must assign a different RX number for each receiver/plane. Otherwise the new
 
 ### Sub_protocol X4 - *0*
 Transmitter: XK X4-A160, X5S, model: XK A160S, XK A280, XK A300
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|Rate|Mode|Hover|Light
+
+The plane does not need to be bound each time if it is powered on **after** the radio/protocol is on.
+
+The rudder trim is driven from the rudder channel to increase the range (Original TX rudder has no range once the motor has been turned on...).
+
+### Sub_protocol P10 - *1*
+Model: Park10 J3-CUB
 
 If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
 

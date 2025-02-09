@@ -165,6 +165,7 @@ const char STR_SUBTYPE_ESKY150[] =    "\x03""4ch""7ch";
 const char STR_SUBTYPE_ESKY150V2[] =  "\x05""150V2";
 const char STR_SUBTYPE_V911S[] =      "\x05""V911S""E119\0";
 const char STR_SUBTYPE_XK[] =         "\x04""X450""X420""Cars";
+const char STR_SUBTYPE_XK2[] =        "\x03""X4\0""P10";
 const char STR_SUBTYPE_FRSKYR9[] =    "\x07""915MHz\0""868MHz\0""915 8ch""868 8ch""FCC\0   ""--\0    ""FCC 8ch""-- 8ch\0";
 const char STR_SUBTYPE_ESKY[] =       "\x03""Std""ET4";
 const char STR_SUBTYPE_PROPEL[] =     "\x04""74-Z";
@@ -512,7 +513,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_XK,         STR_XK,        STR_SUBTYPE_XK,        3, OPTION_RFTUNE,  0, 0, SW_NRF,    XK_init,         XK_callback         },	
 	#endif
 	#if defined(XK2_CCNRF_INO)
-		{PROTO_XK2,        STR_XK2,       NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    XK2_init,        XK2_callback        },	
+		{PROTO_XK2,        STR_XK2,       STR_SUBTYPE_XK2,       2, OPTION_RFTUNE,  0, 0, SW_NRF,    XK2_init,        XK2_callback        },	
 	#endif
 	#if defined(XN297DUMP_NRF24L01_INO)
 		{PROTO_XN297DUMP,  STR_XN297DUMP, STR_SUBTYPE_XN297DUMP, 7, OPTION_RFCHAN,  0, 0, SW_NRF,    XN297Dump_init,  XN297Dump_callback  },

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	4
-#define VERSION_PATCH_LEVEL	30
+#define VERSION_PATCH_LEVEL	31
 
 #define MODE_SERIAL 0
 
@@ -499,6 +499,11 @@ enum JIABAILE
 {
 	JIABAILE_STD	= 0,
 	JIABAILE_GYRO	= 1,
+};
+enum XK2
+{
+	XK2_X4	= 0,
+	XK2_P10	= 1,
 };
 
 #define NONE 		0

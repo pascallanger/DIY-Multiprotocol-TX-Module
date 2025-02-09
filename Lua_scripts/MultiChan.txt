@@ -195,6 +195,7 @@
 62,1,XK,X420,1,FMode,TakeOf,Emerg,3D_6G,Pict,Video,Flip,Light
 62,2,XK,Cars,0,FMode,TakeOf,Emerg,3D_6G,Pict,Video,Flip,Light
 99,0,XK2,X4,0,Rate,Mode,Hover,Light
+99,1,XK2,P10,0,Rate,Mode,Hover,Light
 8,0,YD717,Std,1,Flip,Light,Pict,Video,HLess
 8,1,YD717,SkyWlkr,1,Flip,Light,Pict,Video,HLess
 8,2,YD717,Simax4,1,Flip,Light,Pict,Video,HLess

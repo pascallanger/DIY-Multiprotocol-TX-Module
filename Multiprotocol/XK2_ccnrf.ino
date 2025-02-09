@@ -19,8 +19,10 @@ Multiprotocol is distributed in the hope that it will be useful,
 #include "iface_xn297.h"
 
 //#define FORCE_XK2_ID
+//#define FORCE_XK2_P10_ID
 
 #define XK2_RF_BIND_CHANNEL	71
+#define XK2_P10_RF_BIND_CHANNEL	69
 #define XK2_PAYLOAD_SIZE	9
 #define XK2_PACKET_PERIOD	4911
 #define XK2_RF_NUM_CHANNELS	4
@@ -46,7 +48,7 @@ static void __attribute__((unused)) XK2_send_packet()
 		//Unknown
 		packet[7] = 0x00;
 		//Checksum seed
-		packet[8] = 0xC0;												//Constant?
+		packet[8] = 0xC0;
 	}
 	else
 	{
@@ -74,7 +76,7 @@ static void __attribute__((unused)) XK2_send_packet()
 				  | GET_FLAG(CH8_SW, 0x40);								//Light
 		//Telemetry not received=00, Telemetry received=01 but sometimes switch to 1 even if telemetry is not there...
 		packet[6] = 0x00;
-		//Unknown
+		//RXID checksum
 		packet[7] = crc8;												//Sum RX_ID[0..2]
 		//Checksum seed
 		packet[8] = num_ch;												//Based on TX ID
@@ -82,6 +84,8 @@ static void __attribute__((unused)) XK2_send_packet()
 	//Checksum
 	for(uint8_t i=0; i<XK2_PAYLOAD_SIZE-1; i++)
 		packet[8] += packet[i];
+	if(sub_protocol == XK2_P10)
+		packet[8] += 0x10;
 
 	// Send
 	XN297_SetFreqOffset();
@@ -104,11 +108,22 @@ static void __attribute__((unused)) XK2_RF_init()
 	XN297_SetRXAddr((uint8_t*)"\xcc\xcc\xcc\xcc\xcc", XK2_PAYLOAD_SIZE);
 
 	XN297_HoppingCalib(XK2_RF_NUM_CHANNELS);
-	XN297_RFChannel(XK2_RF_BIND_CHANNEL);
+	XN297_RFChannel(sub_protocol==XK2_X4?XK2_RF_BIND_CHANNEL:XK2_P10_RF_BIND_CHANNEL);
 }
 
 static void __attribute__((unused)) XK2_initialize_txid()
 {
+	rx_tx_addr[0] = rx_tx_addr[3];				// Use RX_num
+
+	num_ch = 0x21 + rx_tx_addr[0] - rx_tx_addr[1] + rx_tx_addr[2];
+
+	//RF frequencies for X4: 65=0x41, 69=0x45, 73=0x49, 77=0x4D
+	//RF frequencies for P10: 67, unknown
+	uint8_t start = 65;
+	if(sub_protocol == XK2_P10) start += 2;
+	for(uint8_t i=0;i<XK2_RF_NUM_CHANNELS;i++)
+		hopping_frequency[i] = start + i*4;
+
 	#ifdef FORCE_XK2_ID
 		if(rx_tx_addr[3]&1)
 		{//Pascal
@@ -127,13 +142,15 @@ static void __attribute__((unused)) XK2_initialize_txid()
 			//hopping frequencies 65=0x41, 69=0x45, 73=0x49, 77=0x4D
 		}
 	#endif
-	rx_tx_addr[0] = rx_tx_addr[3];				// Use RX_num
+	#ifdef FORCE_XK2_P10_ID
+		rx_tx_addr[0] = 0xE8;
+		rx_tx_addr[1] = 0x25;
+		rx_tx_addr[2] = 0x3B;
+		num_ch = 0x1F;
+		//hopping frequencies 67=0x43, =0x, =0x, =0x
+	#endif
+
 	rx_tx_addr[3] = rx_tx_addr[4] = 0xCC;
-	num_ch = 0x21 + rx_tx_addr[0] - rx_tx_addr[1] + rx_tx_addr[2];
-
-	for(uint8_t i=0;i<XK2_RF_NUM_CHANNELS;i++)	// Are these RF frequencies always the same? It looks like yes...
-		hopping_frequency[i] = 65 + i*4;		//65=0x41, 69=0x45, 73=0x49, 77=0x4D
-
 	debugln("ID: %02X %02X %02X %02X %02X, OFFSET: %02X, HOP: %02X %02X %02X %02X",rx_tx_addr[0],rx_tx_addr[1],rx_tx_addr[2],rx_tx_addr[3],rx_tx_addr[4],num_ch,hopping_frequency[0],hopping_frequency[1],hopping_frequency[2],hopping_frequency[3]);
 }
 
@@ -160,6 +177,8 @@ uint16_t XK2_callback()
 				crc8 = 0xBF;
 				for(uint8_t i=0; i<XK2_PAYLOAD_SIZE-1; i++)
 					crc8 += packet[i];
+				if(sub_protocol == XK2_P10)
+					crc8 += 0x10;
 				if(crc8 != packet[8])
 				{
 					phase = XK2_BIND1;
@@ -292,8 +311,8 @@ P[5] = flags
 		08=6g/3d=short_press_right sequece also switches for a few packets to C1 if 8 C0 if 0
 P[6] = 00 telemetry nok
        01 telemetry ok but sometimes switch to 1 also when telemetry is nok...
-P[7] = 5A -> ?? RX_ID checksum ?? => sum RX_ID[0..2] 
-P[8] = sum P[0..7] + 7F
+P[7] = 5A -> sum RX_ID[0..2] 
+P[8] = sum P[0..7] + TX_ID[0] - TX_ID[1] + TX_ID[2] + 21
 
 Telemetry
 RX on channel: 69, Time:  3408us P: 66 4F 47 00 00 00 00 00 C8
@@ -313,4 +332,49 @@ RF
 2477 151753 5769
 2465 155330 3577
 
+*/
+/* P10 Piper CUB
+Bind
+----
+Phase 1
+Plane sends these packets:
+250K C=69 S=Y A= CC CC CC CC CC P(9)= 9C BB CC DD 84 24 20 00 97
+P[0] = 9C bind phase 1
+P[1] = Dummy TX_ID
+P[2] = Dummy TX_ID
+P[3] = Dummy TX_ID
+P[4] = RX_ID[0]
+P[5] = RX_ID[1]
+P[6] = RX_ID[2]
+P[7] = 00
+P[8] = sum P[0..7] + BF + 10
+
+Normal
+------
+TX sends
+C=67 -> only one channel when telemetry is working
+A= E8 25 3B CC CC P(9)= 32 32 00 32 A0 40 01 C8 6E
+P[0] = A 00..32..64
+P[1] = E 00..32..64
+P[2] = T 00..64
+P[3] = R 00..32..64
+P[4] = alternates 20,60,A0,E0
+       trims
+		A 01..20..3F
+		E 41..60..7F
+		R 81..A0..BF
+	   telemetry
+	    E0 present when the telemetry works
+	   6g/3d
+		C1 few times if P[6] flag 00->08
+		C0 few times if P[6] = flag 08->00
+P[5] = flags
+        01=high rate
+		20=hover=long_press_left
+		40=light -> temporary
+		08=6g/3d=short_press_right sequece also switches for a few packets to C1 if 8 C0 if 0
+P[6] = 00 telemetry nok
+       01 telemetry ok but sometimes switch to 1 also when telemetry is nok...
+P[7] = C8 -> sum RX_ID[0..2] 
+P[8] = sum P[0..7] + TX_ID[0] - TX_ID[1] + TX_ID[2] + 21 +10
 */

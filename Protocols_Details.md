@@ -1520,35 +1520,23 @@ Models: WLtoys cars 284131/284161/284010/124016/124017/144010 and Eachine EAT14
 
 You must assign a different RX number for each receiver/plane. Otherwise the new receiver/plane ID will overwrite the previous one.
 
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|Rate|Mode|Hover|Light
+
+The plane does not need to be bound each time if it is powered on **after** the radio/protocol is on.
+
+The rudder trim is driven from the rudder channel to increase the range (Original TX rudder has no range once the motor has been turned on...).
+
 ### Sub_protocol X4 - *0*
 Transmitter: XK X4-A160, X5S, model: XK A160S, XK A280, XK A300
 
-If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|Rate|Mode|Hover|Light
-
-The plane does not need to be bound each time if it is powered on **after** the radio/protocol is on.
-
-The rudder trim is driven from the rudder channel to increase the range (Original TX rudder has no range once the motor has been turned on...).
-
 ### Sub_protocol P10 - *1*
 Model: Park10 J3-CUB
-
-If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
-
-If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|Rate|Mode|Hover|Light
-
-The plane does not need to be bound each time if it is powered on **after** the radio/protocol is on.
-
-The rudder trim is driven from the rudder channel to increase the range (Original TX rudder has no range once the motor has been turned on...).
 
 ***
 # NRF24L01 RF Module

@@ -231,3 +231,4 @@
 102,0,JIABAILE,Std,0,Speed,Light,Flash
 102,1,JIABAILE,Gyro,0,Speed,Light,Flash,Tr_ST
 103,0,H36,Std,1,Flip,HLess,RTH
+104,0,KAMTOM_NRF24L01_INO,Std,1,

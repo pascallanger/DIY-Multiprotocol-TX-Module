@@ -273,6 +273,7 @@
 #define	Q303_CCNRF_INO
 #define	Q90C_CCNRF_INO
 #define	SLT_CCNRF_INO
+#define	UDIRC_CCNRF_INO
 #define	V911S_CCNRF_INO
 #define	XK_CCNRF_INO
 #define	XK2_CCNRF_INO
@@ -844,6 +845,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		SYMAX
 		SYMAX5C
 	PROTO_TRAXXAS
+		NONE
+	PROTO_UDIRC
 		NONE
 	PROTO_V2X2
 		V2X2

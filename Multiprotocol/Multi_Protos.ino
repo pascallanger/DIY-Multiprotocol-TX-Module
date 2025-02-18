@@ -113,7 +113,7 @@ const char STR_SGF22[]      ="SGF22";
 const char STR_EAZYRC[]     ="EazyRC";
 const char STR_KYOSHO3[]    ="Kyosho3";
 const char STR_YUXIANG[]    ="YuXiang";
-const char STR_PINECONE[]   ="PineCone";
+const char STR_UDIRC[]      ="UDIRC";
 const char STR_JIABAILE[]	="JIABAILE";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
@@ -436,9 +436,6 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(PELIKAN_A7105_INO)
 		{PROTO_PELIKAN,    STR_PELIKAN,   STR_SUBTYPE_PELIKAN,   3, OPTION_NONE,    0, 1, SW_A7105,  PELIKAN_init,    PELIKAN_callback    },
 	#endif
-	#if defined(PINECONE_CCNRF_INO)
-		{PROTO_PINECONE,   STR_PINECONE,  NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    PINECONE_init,   PINECONE_callback   },
-	#endif
 	#if defined(POTENSIC_NRF24L01_INO)
 		{PROTO_POTENSIC,   STR_POTENSIC,  STR_SUBTYPE_POTENSIC,  1, OPTION_NONE,    0, 0, SW_NRF,    POTENSIC_init,   POTENSIC_callback   },
 	#endif
@@ -486,6 +483,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(TRAXXAS_CYRF6936_INO)
 		{PROTO_TRAXXAS,    STR_TRAXXAS,   STR_SUBTYPE_TRAXXAS,   2, OPTION_NONE,    0, 0, SW_CYRF,   TRAXXAS_init,    TRAXXAS_callback    },
+	#endif
+	#if defined(UDIRC_CCNRF_INO)
+		{PROTO_UDIRC,      STR_UDIRC,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    UDIRC_init,      UDIRC_callback      },
 	#endif
 	#if defined(V2X2_NRF24L01_INO)
 		{PROTO_V2X2,       STR_V2X2,      STR_SUBTYPE_V2X2,      3, OPTION_NONE,    0, 0, SW_NRF,    V2X2_init,       V2X2_callback       },

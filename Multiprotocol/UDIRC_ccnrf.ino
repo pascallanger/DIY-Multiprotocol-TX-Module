@@ -12,24 +12,24 @@ Multiprotocol is distributed in the hope that it will be useful,
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-#if defined(PINECONE_CCNRF_INO)
+#if defined(UDIRC_CCNRF_INO)
 
 #include "iface_xn297.h"
 
-#define FORCE_PINECONE_ORIGINAL_ID
+#define FORCE_UDIRC_ORIGINAL_ID
 
-#define PINECONE_PAYLOAD_SIZE			15
-#define PINECONE_RF_NUM_CHANNELS		4
-#define PINECONE_PACKET_PERIOD			9000
-#define PINECONE_BIND_COUNT				2000
-#define PINECONE_WRITE_TIME				1500
+#define UDIRC_PAYLOAD_SIZE			15
+#define UDIRC_RF_NUM_CHANNELS		4
+#define UDIRC_PACKET_PERIOD			8000
+#define UDIRC_BIND_COUNT			2000
+#define UDIRC_WRITE_TIME			1500
 
 enum {
-	PINECONE_DATA=0,
-	PINECONE_RX,
+	UDIRC_DATA=0,
+	UDIRC_RX,
 };
 
-static void __attribute__((unused)) PINECONE_send_packet()
+static void __attribute__((unused)) UDIRC_send_packet()
 {
 	if(rf_ch_num==0)
 	{
@@ -39,7 +39,6 @@ static void __attribute__((unused)) PINECONE_send_packet()
 		hopping_frequency_no &= 3;
 	}
 
-	if(bind_counter==0) bind_counter=2;
 	memset(&packet[3], 0x00, 12);
 	if(bind_counter)
 	{//Bind in progress
@@ -51,8 +50,9 @@ static void __attribute__((unused)) PINECONE_send_packet()
 		}
 		else
 		{//Switch to normal
+			BIND_DONE;
 			XN297_SetTXAddr(rx_tx_addr, 5);
-			XN297_SetRXAddr(rx_tx_addr, PINECONE_PAYLOAD_SIZE);
+			XN297_SetRXAddr(rx_tx_addr, UDIRC_PAYLOAD_SIZE);
 		}
 	}
 	if(!bind_counter)
@@ -70,22 +70,22 @@ static void __attribute__((unused)) PINECONE_send_packet()
 	packet[12] = GET_FLAG(CH8_SW,  0x40)						//TH.REV
 				|GET_FLAG(CH9_SW,  0x80);						//ST.REV
 	//packet[13] = 00 unknown
-	for(uint8_t i=0;i<PINECONE_PAYLOAD_SIZE-1;i++)
+	for(uint8_t i=0;i<UDIRC_PAYLOAD_SIZE-1;i++)
 		packet[14] += packet[i];
 	// Send
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);
-	XN297_WriteEnhancedPayload(packet, PINECONE_PAYLOAD_SIZE,false);
+	XN297_WriteEnhancedPayload(packet, UDIRC_PAYLOAD_SIZE,false);
 	#ifdef DEBUG_SERIAL
-		for(uint8_t i=0; i < PINECONE_PAYLOAD_SIZE; i++)
+		for(uint8_t i=0; i < UDIRC_PAYLOAD_SIZE; i++)
 			debug("%02X ", packet[i]);
 		debugln();
 	#endif
 }
 
-static void __attribute__((unused)) PINECONE_initialize_txid()
+static void __attribute__((unused)) UDIRC_initialize_txid()
 {
-	#ifdef FORCE_PINECONE_ORIGINAL_ID
+	#ifdef FORCE_UDIRC_ORIGINAL_ID
 		rx_tx_addr[0] = 0xD0;
 		rx_tx_addr[1] = 0x06;
 		rx_tx_addr[2] = 0x00;
@@ -98,70 +98,72 @@ static void __attribute__((unused)) PINECONE_initialize_txid()
 	#endif
 }
 
-static void __attribute__((unused)) PINECONE_RF_init()
+static void __attribute__((unused)) UDIRC_RF_init()
 {
 	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K);
 	//Bind address
 	XN297_SetTXAddr((uint8_t*)"\x01\x03\x05\x07\x09", 5);
-	XN297_SetRXAddr((uint8_t*)"\x01\x03\x05\x07\x09", PINECONE_PAYLOAD_SIZE);
-	XN297_HoppingCalib(PINECONE_RF_NUM_CHANNELS);
+	XN297_SetRXAddr((uint8_t*)"\x01\x03\x05\x07\x09", UDIRC_PAYLOAD_SIZE);
+	XN297_HoppingCalib(UDIRC_RF_NUM_CHANNELS);
 }
 
-uint16_t PINECONE_callback()
+uint16_t UDIRC_callback()
 {
 	bool rx;
 	switch(phase)
 	{
-		case PINECONE_DATA:
+		case UDIRC_DATA:
 			rx = XN297_IsRX();
 			XN297_SetTxRxMode(TXRX_OFF);
 			#ifdef MULTI_SYNC
-				telemetry_set_input_sync(PINECONE_PACKET_PERIOD);
+				telemetry_set_input_sync(UDIRC_PACKET_PERIOD);
 			#endif
-			PINECONE_send_packet();
+			UDIRC_send_packet();
 			if(rx)
 			{
-				uint8_t val=XN297_ReadEnhancedPayload(packet_in, PINECONE_PAYLOAD_SIZE);
-				debug("RX %d ",val);
+				uint8_t val=XN297_ReadEnhancedPayload(packet_in, UDIRC_PAYLOAD_SIZE);
+				debug("RX %d",val);
 				if(val==0)
+				{
 					rf_ch_num = 1;
+					if(bind_counter)
+						bind_counter=1;
+				}
 				else
 				{
 					#ifdef DEBUG_SERIAL
-						for(uint8_t i=0; i < PINECONE_PAYLOAD_SIZE; i++)
-							debug("%02X ", packet_in[i]);
+						for(uint8_t i=0; i < UDIRC_PAYLOAD_SIZE; i++)
+							debug(" %02X", packet_in[i]);
 						debugln();
 					#endif
-					//could check the validity of the packet by looking at the sum...
 				}
 				//else
-				//	debug("NOK");
+				//	debug(" NOK");
 				debugln("");
 			}
 			phase++;
-			return PINECONE_WRITE_TIME;
-		default: //PINECONE_RX
+			return UDIRC_WRITE_TIME;
+		default: //UDIRC_RX
 			//Wait for the packet transmission to finish
 			while(XN297_IsPacketSent()==false);
 			//Switch to RX
 			XN297_SetTxRxMode(TXRX_OFF);
 			XN297_SetTxRxMode(RX_EN);
-			phase = PINECONE_DATA;
-			return PINECONE_PACKET_PERIOD - PINECONE_WRITE_TIME;
+			phase = UDIRC_DATA;
+			return UDIRC_PACKET_PERIOD - UDIRC_WRITE_TIME;
 	}
 	return 0;
 }
 
-void PINECONE_init()
+void UDIRC_init()
 {
-	PINECONE_initialize_txid();
-	PINECONE_RF_init();
+	UDIRC_initialize_txid();
+	UDIRC_RF_init();
 
-	bind_counter = IS_BIND_IN_PROGRESS ? PINECONE_BIND_COUNT : 1;
-	phase = PINECONE_DATA;
+	bind_counter = IS_BIND_IN_PROGRESS ? UDIRC_BIND_COUNT : 1;
+	phase = UDIRC_DATA;
 	hopping_frequency_no = 0;
-	rf_ch_num=0;
-	bind_counter = 2000;
+	rf_ch_num = 0;
 }
 
 #endif

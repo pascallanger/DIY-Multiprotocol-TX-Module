@@ -20,12 +20,14 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 #define UDIRC_PAYLOAD_SIZE			15
 #define UDIRC_RF_NUM_CHANNELS		4
-#define UDIRC_PACKET_PERIOD			8000
+#define UDIRC_PACKET_PERIOD			21000
 #define UDIRC_BIND_COUNT			2000
+#define UDIRC_P1_P2_TIME			5000
 #define UDIRC_WRITE_TIME			1500
 
 enum {
-	UDIRC_DATA=0,
+	UDIRC_DATA1=0,
+	UDIRC_DATA2,
 	UDIRC_RX,
 };
 
@@ -73,6 +75,7 @@ static void __attribute__((unused)) UDIRC_send_packet()
 	for(uint8_t i=0;i<UDIRC_PAYLOAD_SIZE-1;i++)
 		packet[14] += packet[i];
 	// Send
+	XN297_SetFreqOffset();
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);
 	XN297_WriteEnhancedPayload(packet, UDIRC_PAYLOAD_SIZE,false);
@@ -86,11 +89,22 @@ static void __attribute__((unused)) UDIRC_send_packet()
 static void __attribute__((unused)) UDIRC_initialize_txid()
 {
 	#ifdef FORCE_UDIRC_ORIGINAL_ID
-		rx_tx_addr[0] = 0xD0;
-		rx_tx_addr[1] = 0x06;
-		rx_tx_addr[2] = 0x00;
-		rx_tx_addr[3] = 0x00;
-		rx_tx_addr[4] = 0x81;
+		if(rx_num)
+		{
+			rx_tx_addr[0] = 0xD0;
+			rx_tx_addr[1] = 0x06;
+			rx_tx_addr[2] = 0x00;
+			rx_tx_addr[3] = 0x00;
+			rx_tx_addr[4] = 0x81;
+		}
+		else
+		{
+			rx_tx_addr[0] = 0xF6;
+			rx_tx_addr[1] = 0x96;
+			rx_tx_addr[2] = 0x01;
+			rx_tx_addr[3] = 0x00;
+			rx_tx_addr[4] = 0x81;
+		}
 		hopping_frequency[0] = 45;
 		hopping_frequency[1] = 59;
 		hopping_frequency[2] = 52;
@@ -112,7 +126,7 @@ uint16_t UDIRC_callback()
 	bool rx;
 	switch(phase)
 	{
-		case UDIRC_DATA:
+		case UDIRC_DATA1:
 			rx = XN297_IsRX();
 			XN297_SetTxRxMode(TXRX_OFF);
 			#ifdef MULTI_SYNC
@@ -123,24 +137,24 @@ uint16_t UDIRC_callback()
 			{
 				uint8_t val=XN297_ReadEnhancedPayload(packet_in, UDIRC_PAYLOAD_SIZE);
 				debug("RX %d",val);
-				if(val==0)
+				if(val != 255)
 				{
 					rf_ch_num = 1;
 					if(bind_counter)
 						bind_counter=1;
-				}
-				else
-				{
 					#ifdef DEBUG_SERIAL
 						for(uint8_t i=0; i < UDIRC_PAYLOAD_SIZE; i++)
 							debug(" %02X", packet_in[i]);
 						debugln();
 					#endif
 				}
-				//else
-				//	debug(" NOK");
 				debugln("");
 			}
+			phase++;
+			return UDIRC_P1_P2_TIME;
+		case UDIRC_DATA2:
+			//Resend packet
+			NRF24L01_Strobe(NRF24L01_E3_REUSE_TX_PL);
 			phase++;
 			return UDIRC_WRITE_TIME;
 		default: //UDIRC_RX
@@ -149,8 +163,8 @@ uint16_t UDIRC_callback()
 			//Switch to RX
 			XN297_SetTxRxMode(TXRX_OFF);
 			XN297_SetTxRxMode(RX_EN);
-			phase = UDIRC_DATA;
-			return UDIRC_PACKET_PERIOD - UDIRC_WRITE_TIME;
+			phase = UDIRC_DATA1;
+			return UDIRC_PACKET_PERIOD - UDIRC_P1_P2_TIME - UDIRC_WRITE_TIME;
 	}
 	return 0;
 }
@@ -161,7 +175,7 @@ void UDIRC_init()
 	UDIRC_RF_init();
 
 	bind_counter = IS_BIND_IN_PROGRESS ? UDIRC_BIND_COUNT : 1;
-	phase = UDIRC_DATA;
+	phase = UDIRC_DATA1;
 	hopping_frequency_no = 0;
 	rf_ch_num = 0;
 }

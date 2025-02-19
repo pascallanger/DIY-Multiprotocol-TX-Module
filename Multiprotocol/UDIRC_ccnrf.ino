@@ -60,18 +60,16 @@ static void __attribute__((unused)) UDIRC_send_packet()
 	if(!bind_counter)
 	{//Normal
 		packet[0] = 0x08;
-		packet[1] = convert_channel_16b_limit(AILERON,0,200);	//ST
-		packet[2] = convert_channel_16b_limit(THROTTLE,0,200);	//TH
-		packet[3] = convert_channel_16b_limit(ELEVATOR,0,200);	//CH4
-		packet[4] = convert_channel_16b_limit(RUDDER,0,200);	//CH3
+		//Channels ST/TH/CH4 /CH3  /UNK/UNK/UNK/UNK/GYRO/ST_TRIM/ST_DR
+		//Channels ST/TH/RATE/LIGHT/UNK/UNK/UNK/UNK/GYRO/ST_TRIM/ST_DR
+		for(uint8_t i=0; i<9; i++)
+			packet[i+1] = convert_channel_16b_limit(i,0,200);
+		//Just for now let's set the additional channels to 0
+		packet[5] = packet[6] = packet[7] = packet[8] = 0;
 	}
-	//packet[5/6..8] = 00 unknown
-	packet[9] = convert_channel_16b_limit(CH5,0,200);			//ESP
-	packet[10] = convert_channel_16b_limit(CH6,0,200);			//ST_TRIM
-	packet[11] = convert_channel_16b_limit(CH7,0,200);			//ST_DR
-	packet[12] = GET_FLAG(CH8_SW,  0x40)						//TH.REV
-				|GET_FLAG(CH9_SW,  0x80);						//ST.REV
-	//packet[13] = 00 unknown
+	packet[12] = GET_FLAG(CH12_SW,  0x40)						//TH.REV
+				|GET_FLAG(CH13_SW,  0x80);						//ST.REV
+	//packet[13] = 00; //Unknown, future flags?
 	for(uint8_t i=0;i<UDIRC_PAYLOAD_SIZE-1;i++)
 		packet[14] += packet[i];
 	// Send
@@ -89,7 +87,7 @@ static void __attribute__((unused)) UDIRC_send_packet()
 static void __attribute__((unused)) UDIRC_initialize_txid()
 {
 	#ifdef FORCE_UDIRC_ORIGINAL_ID
-		if(rx_num)
+		if(RX_num)
 		{
 			rx_tx_addr[0] = 0xD0;
 			rx_tx_addr[1] = 0x06;

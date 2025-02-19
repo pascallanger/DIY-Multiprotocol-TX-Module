@@ -30,6 +30,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 enum {
 	UDIRC_DATA1=0,
 	UDIRC_DATA2,
+	UDIRC_DATA3,
 	UDIRC_RX,
 };
 
@@ -54,6 +55,7 @@ static void __attribute__((unused)) UDIRC_send_packet()
 		}
 		else
 		{//Switch to normal
+			rf_ch_num = 1;
 			BIND_DONE;
 			XN297_SetTXAddr(rx_tx_addr, 5);
 			XN297_SetRXAddr(rx_tx_addr, UDIRC_PAYLOAD_SIZE);
@@ -64,7 +66,7 @@ static void __attribute__((unused)) UDIRC_send_packet()
 		packet[0] = 0x08;
 		//Channels SG-16xx: ST/TH/CH4 /CH3  /UNK/UNK/UNK/UNK/GYRO/ST_TRIM/ST_DR
 		//Channels EAT15  : ST/TH/RATE/LIGHT/UNK/UNK/UNK/UNK/GYRO/ST_TRIM/ST_DR
-		for(uint8_t i=0; i<9; i++)
+		for(uint8_t i=0; i<12; i++)
 			packet[i+1] = convert_channel_16b_limit(i,0,200);
 		//Just for now let's set the additional channels to 0
 		packet[5] = packet[6] = packet[7] = packet[8] = 0;
@@ -136,7 +138,7 @@ uint16_t UDIRC_callback()
 			if(rx)
 			{
 				uint8_t val=XN297_ReadEnhancedPayload(packet_in, UDIRC_PAYLOAD_SIZE);
-				debug("RX %d",val);
+				debug("RX(%d):",val);
 				if(val != 255)
 				{
 					rf_ch_num = 1;
@@ -145,7 +147,6 @@ uint16_t UDIRC_callback()
 					#ifdef DEBUG_SERIAL
 						for(uint8_t i=0; i < UDIRC_PAYLOAD_SIZE; i++)
 							debug(" %02X", packet_in[i]);
-						debugln();
 					#endif
 				}
 				debugln("");

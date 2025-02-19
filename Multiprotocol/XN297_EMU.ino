@@ -207,6 +207,27 @@ static void __attribute__((unused)) XN297_SetTxRxMode(enum TXRX_State mode)
 	#endif
 }
 
+#ifdef CC2500_INSTALLED
+uint8_t XN297_Buffer[32];
+uint8_t XN297_Buffer_Len = 0;
+
+static void __attribute__((unused)) XN297_SendCC2500Payload()
+{
+	// stop TX/RX
+	CC2500_Strobe(CC2500_SIDLE);
+	// flush tx FIFO
+	CC2500_Strobe(CC2500_SFTX);
+	// packet length
+	CC2500_WriteReg(CC2500_06_PKTLEN, XN297_Buffer_Len + 4);  // Packet len, fix packet len
+	// xn297L preamble
+	CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, (uint8_t*)"\x0C\x71\x0F\x55", 4);
+	// xn297 packet
+	CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, XN297_Buffer, XN297_Buffer_Len);
+	// transmit
+	CC2500_Strobe(CC2500_STX);
+}
+#endif
+
 static void __attribute__((unused)) XN297_SendPayload(uint8_t* msg, uint8_t len)
 {
 	#ifdef NRF24L01_INSTALLED
@@ -220,19 +241,22 @@ static void __attribute__((unused)) XN297_SendPayload(uint8_t* msg, uint8_t len)
 	#ifdef CC2500_INSTALLED
 		if(xn297_rf == XN297_CC2500)
 		{
-			// stop TX/RX
-			CC2500_Strobe(CC2500_SIDLE);
-			// flush tx FIFO
-			CC2500_Strobe(CC2500_SFTX);
-			// packet length
-			CC2500_WriteReg(CC2500_06_PKTLEN, len + 4);  // Packet len, fix packet len
-			// xn297L preamble
-			CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, (uint8_t*)"\x0C\x71\x0F\x55", 4);
-			// xn297 packet
-			CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, msg, len);
-			// transmit
-			CC2500_Strobe(CC2500_STX);
+			memcpy(XN297_Buffer, msg, len);
+			XN297_Buffer_Len = len;
+			XN297_SendCC2500Payload();
 		}
+	#endif
+}
+
+static void __attribute__((unused)) XN297_ReSendPayload()
+{
+	#ifdef NRF24L01_INSTALLED
+		if(xn297_rf == XN297_NRF)
+			NRF24L01_Strobe(NRF24L01_E3_REUSE_TX_PL);
+	#endif
+	#ifdef CC2500_INSTALLED
+		if(xn297_rf == XN297_CC2500)
+			XN297_SendCC2500Payload();
 	#endif
 }
 

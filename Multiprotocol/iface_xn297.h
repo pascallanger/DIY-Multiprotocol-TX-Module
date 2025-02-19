@@ -28,6 +28,7 @@ static void __attribute__((unused)) XN297_SetTXAddr(const uint8_t*, uint8_t);
 static void __attribute__((unused)) XN297_SetRXAddr(const uint8_t*, uint8_t);
 static void __attribute__((unused)) XN297_SetTxRxMode(enum TXRX_State);
 static void __attribute__((unused)) XN297_SendPayload(uint8_t*, uint8_t);
+static void __attribute__((unused)) XN297_ReSendPayload();
 static void __attribute__((unused)) XN297_WritePayload(uint8_t*, uint8_t);
 static void __attribute__((unused)) XN297_WriteEnhancedPayload(uint8_t*, uint8_t, uint8_t);
 static bool __attribute__((unused)) XN297_IsRX();

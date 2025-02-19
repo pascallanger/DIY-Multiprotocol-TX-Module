@@ -12,6 +12,8 @@ Multiprotocol is distributed in the hope that it will be useful,
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
+//Models: UDIRC UD160x(PRO), Pinecone Models SG-160x, Eachine EAT15
+
 #if defined(UDIRC_CCNRF_INO)
 
 #include "iface_xn297.h"
@@ -60,8 +62,8 @@ static void __attribute__((unused)) UDIRC_send_packet()
 	if(!bind_counter)
 	{//Normal
 		packet[0] = 0x08;
-		//Channels ST/TH/CH4 /CH3  /UNK/UNK/UNK/UNK/GYRO/ST_TRIM/ST_DR
-		//Channels ST/TH/RATE/LIGHT/UNK/UNK/UNK/UNK/GYRO/ST_TRIM/ST_DR
+		//Channels SG-16xx: ST/TH/CH4 /CH3  /UNK/UNK/UNK/UNK/GYRO/ST_TRIM/ST_DR
+		//Channels EAT15  : ST/TH/RATE/LIGHT/UNK/UNK/UNK/UNK/GYRO/ST_TRIM/ST_DR
 		for(uint8_t i=0; i<9; i++)
 			packet[i+1] = convert_channel_16b_limit(i,0,200);
 		//Just for now let's set the additional channels to 0
@@ -152,7 +154,7 @@ uint16_t UDIRC_callback()
 			return UDIRC_P1_P2_TIME;
 		case UDIRC_DATA2:
 			//Resend packet
-			NRF24L01_Strobe(NRF24L01_E3_REUSE_TX_PL);
+			XN297_ReSendPayload();
 			phase++;
 			return UDIRC_WRITE_TIME;
 		default: //UDIRC_RX

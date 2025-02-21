@@ -353,9 +353,9 @@ static void __attribute__((unused)) XN297_WriteEnhancedPayload(uint8_t* msg, uin
 
 		last++;
 		buf[last] = bit_reverse(msg[len-1]) << 6; // last 2 bit of payload
-		if(xn297_scramble_enabled)
-			buf[last] ^= xn297_scramble[scramble_index++] & 0xc0;
 	}
+	if(xn297_scramble_enabled)
+		buf[last] ^= xn297_scramble[scramble_index++] & 0xc0;
 
 	// crc
 	if (xn297_crc)
@@ -375,8 +375,7 @@ static void __attribute__((unused)) XN297_WriteEnhancedPayload(uint8_t* msg, uin
 		buf[last++] = (crc & 0xff) << 6;
 	}
 	pid++;
-	if(pid>3)
-		pid=0;
+	pid &= 0x03;
 
 	// send packet
 	XN297_SendPayload(buf, last);

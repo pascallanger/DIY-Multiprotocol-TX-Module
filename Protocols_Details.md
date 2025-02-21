@@ -1981,6 +1981,15 @@ Model: DF-Models SkyTumbler
 
 RTH not supported
 
+## KAMTOM - *104*
+Models: KAMTOM KM24xx (KM32xx?), Pinecone SG-24xx
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+ST|TH|UNK1|UNK2|ST_TR|TH_TR|TH_DR
+
+Low batt telemetry is not yet added.
+
 ## KYOSHO2 - *93*
 Model: TX KT-17, Minium Edge 540, Minium Citabria
 

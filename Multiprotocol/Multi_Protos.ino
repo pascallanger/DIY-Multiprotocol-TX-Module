@@ -114,7 +114,8 @@ const char STR_EAZYRC[]     ="EazyRC";
 const char STR_KYOSHO3[]    ="Kyosho3";
 const char STR_YUXIANG[]    ="YuXiang";
 const char STR_UDIRC[]      ="UDIRC";
-const char STR_JIABAILE[]	="JIABAILE";
+const char STR_JIABAILE[]   ="JIABAILE";
+const char STR_KAMTOM[]     ="KAMTOM";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -390,6 +391,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(JOYSWAY_A7105_INO)
 		{PROTO_JOYSWAY,    STR_JOYSWAY,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_A7105,  JOYSWAY_init,    JOYSWAY_callback    },
+	#endif
+	#if defined(KAMTOM_NRF24L01_INO)
+		{PROTO_KAMTOM,     STR_KAMTOM,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    KAMTOM_init,     KAMTOM_callback     },
 	#endif
 	#if defined(KF606_CCNRF_INO)
 		{PROTO_KF606,      STR_KF606,     STR_SUBTYPE_KF606,     3, OPTION_RFTUNE,  0, 0, SW_NRF,    KF606_init,      KF606_callback      },

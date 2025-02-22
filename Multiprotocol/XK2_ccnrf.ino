@@ -200,7 +200,7 @@ uint16_t XK2_callback()
 			}
 			return 1000;
 		case XK2_DATA_PREP:
-			crc8=eeprom_read_byte((EE_ADDR)(XK2_EEPROM_OFFSET+RX_num));
+			crc8 = eeprom_read_byte((EE_ADDR)(XK2_EEPROM_OFFSET+RX_num));
 			debugln("R:RX_ID=%02X",crc8);
 			XN297_SetTxRxMode(TXRX_OFF);
 			XN297_SetTxRxMode(TX_EN);

@@ -136,10 +136,13 @@ uint16_t KAMTOM_callback()
 				{
 					BIND_DONE;
 					if(packet_in[0] == 0xA0 && packet_in[14] == rx_tx_addr[2] && packet_in[15] == rx_tx_addr[3])
-					{
+					{//Good packet with our TXID
 						rx_tx_addr[0] = packet_in[9];
 						rx_tx_addr[1] = packet_in[10];
-						//if(packet_in[1] == 0x03)		// low voltage
+						#ifdef KAMTOM_HUB_TELEMETRY
+							v_lipo1 = packet_in[1] == 0x03 ? 0x00:0xFF;		// low voltage
+							telemetry_link = 1;
+						#endif
 					}
 					#if 0
 						for(uint8_t i=0; i < KAMTOM_PAYLOAD_SIZE; i++)
@@ -174,6 +177,9 @@ void KAMTOM_init()
 	bind_counter = KAMTOM_BIND_COUNT;
 	phase = KAMTOM_DATA;
 	hopping_frequency_no = 0;
+	#ifdef KAMTOM_HUB_TELEMETRY
+		RX_RSSI = 100;		// Dummy value
+	#endif
 }
 
 #endif

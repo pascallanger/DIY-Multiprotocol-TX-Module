@@ -108,7 +108,7 @@ The images below indicate the pin layout and the location of the ground pin on t
 |:---:|:---:|:---:|
 <img src="images/V2b_ISP.jpeg" width="189" height="200" /> | <img src="images/MPTM_PCB_2.3d_ISP.png" width="486" height="201" /> | <img src="images/ProMini_ISP.png" width="195" height="200" /> |
 
-You are now ready to plug in the USB programmer to the computer.  If you are looking for a good working USBasp Windows driver, [use this one](http://www.protostack.com/download/USBasp-win-driver-x86-x64-v3.0.7.zip).
+You are now ready to plug in the USB programmer to the computer.  If you are looking for a good working USBasp Windows driver, [use this one](https://protostack.com.au/download/USBasp-win-driver-x86-x64-v3.0.7.zip).
 
 ### Burn bootloader and set fuses
 The bootloader only needs to be burned once, unless you decide to switch from one option to the other (or it is accidentally erased).  If you have already burned the bootloader / set the fuses you can skip this step.

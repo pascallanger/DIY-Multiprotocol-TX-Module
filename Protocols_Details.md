@@ -144,6 +144,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Scorpio](Protocols_Details.md#Scorpio---94)|94|||||||||CYRF6936|
 [SGF22](Protocols_Details.md#SGF22---97)|97|F22|F22S|J20||||||NRF24L01|XN297
 [Shenqi](Protocols_Details.md#Shenqi---19)|19|Shenqi||||||||NRF24L01|LT8900
+[Shenqi2](Protocols_Details.md#Shenqi2---105)|105|Shenqi2||||||||NRF24L01|XN297
 [Skyartec](Protocols_Details.md#Skyartec---68)|68|||||||||CC2500|CC2500
 [SLT](Protocols_Details.md#SLT---11)|11|SLT_V1|SLT_V2|Q100|Q200|MR100|V1_4CH|RF_SIM||NRF24L01|CC2500
 [SymaX](Protocols_Details.md#Symax---10)|10|SYMAX|SYMAX5C|||||||NRF24L01|
@@ -2160,6 +2161,15 @@ CH1|CH2|CH3|CH4
 -|-|T|R
 
 Throttle +100%=full forward,0%=stop,-100%=full backward.
+
+## Shenqi2 - *105*
+Autobind protocol
+
+Model: Shenqiwei 1/20 Mini Motorcycle
+
+CH1|CH2
+---|---
+ST|TH
 
 ## Symax - *10*
 Autobind protocol

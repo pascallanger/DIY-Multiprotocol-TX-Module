@@ -36,6 +36,7 @@ const char STR_MT99XX[]		="MT99XX";
 const char STR_MT99XX2[]	="MT99XX2";
 const char STR_MJXQ[]		="MJXq";
 const char STR_SHENQI[]		="Shenqi";
+const char STR_SHENQI2[]	="Shenqi2";
 const char STR_FY326[]		="FY326";
 const char STR_FUTABA[]		="Futaba";
 const char STR_J6PRO[]		="J6 Pro";
@@ -475,6 +476,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(SHENQI_NRF24L01_INO)
 		{PROTO_SHENQI,     STR_SHENQI,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    SHENQI_init,     SHENQI_callback     },
+	#endif
+	#if defined(SHENQI2_NRF24L01_INO)
+		{PROTO_SHENQI2,    STR_SHENQI2,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    SHENQI2_init,     SHENQI2_callback   },
 	#endif
 	#if defined(SKYARTEC_CC2500_INO)
 		{PROTO_SKYARTEC,   STR_SKYARTEC,  NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 1, SW_CC2500, SKYARTEC_init,   SKYARTEC_callback   },

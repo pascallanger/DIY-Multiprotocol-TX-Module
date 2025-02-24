@@ -232,3 +232,4 @@
 102,1,JIABAILE,Gyro,0,Speed,Light,Flash,ST_Tr
 103,0,H36,Std,1,Flip,HLess,RTH
 104,0,KAMTOM,Std,0,ST_Tr,TH_Tr,TH_DR
+105,0,Shenqi2,Std,1

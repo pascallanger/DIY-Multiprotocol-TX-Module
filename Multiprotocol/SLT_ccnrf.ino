@@ -19,7 +19,7 @@
 #include "iface_nrf250k.h"
 
 //#define SLT_Q200_FORCE_ID
-#define SLT_V1_4_FORCE_ID
+//#define SLT_V1_4_FORCE_ID
 
 // For code readability
 #define SLT_PAYLOADSIZE_V1		7
@@ -290,13 +290,14 @@ void SLT_init()
 		/*	rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x0B;rx_tx_addr[3]=0x57;*/
 		#endif
 	}
-	#ifdef SLT_V1_4_FORCE_ID
-		if(sub_protocol==SLT_V1_4)
-		{
+	if(sub_protocol==SLT_V1_4)
+	{
+		rx_tx_addr[0]=0xF4;
+		rx_tx_addr[1]=0x71;
+		#ifdef SLT_V1_4_FORCE_ID
 			memcpy(rx_tx_addr,"\xF4\x71\x8D\x01",SLT_TXID_SIZE);
-			rx_tx_addr[2] += RX_num;
-		}
-	#endif
+		#endif
+	}
 	SLT_RF_init();
 	SLT_set_freq();
 	phase = SLT_BUILD;

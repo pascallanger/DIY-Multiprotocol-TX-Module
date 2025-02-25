@@ -19,6 +19,7 @@
 #include "iface_nrf250k.h"
 
 //#define SLT_Q200_FORCE_ID
+#define SLT_V1_4_FORCE_ID
 
 // For code readability
 #define SLT_PAYLOADSIZE_V1		7
@@ -94,10 +95,10 @@ static void __attribute__((unused)) SLT_set_freq(void)
 				}
 		}
 	}
-	#if 0
+	#ifdef DEBUG_SERIAL
 		debug("CH:");
 		for (uint8_t i = 0; i < SLT_NFREQCHANNELS; ++i)
-			debug(" %02X", hopping_frequency[i]);
+			debug(" %02X(%d)", hopping_frequency[i], hopping_frequency[i]);
 		debugln();
 	#endif
 	
@@ -289,6 +290,10 @@ void SLT_init()
 		/*	rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x0B;rx_tx_addr[3]=0x57;*/
 		#endif
 	}
+	#ifdef SLT_V1_4_FORCE_ID
+		if(sub_protocol==SLT_V1_4)
+			memcpy(rx_tx_addr,"\xF4\x71\x8D\x01",SLT_TXID_SIZE);
+	#endif
 	SLT_RF_init();
 	SLT_set_freq();
 	phase = SLT_BUILD;
@@ -305,10 +310,6 @@ void SLT_init()
 		#ifdef MULTI_SYNC
 			packet_period = 18000;								//18ms
 		#endif
-		//Test IDs
-		MProtocol_id = MProtocol_id_master ^ (1<<RX_num);
-		set_rx_tx_addr(MProtocol_id);
-		debugln("Try ID: %lx", MProtocol_id);
 	}
 	else //V2
 	{

@@ -292,7 +292,10 @@ void SLT_init()
 	}
 	#ifdef SLT_V1_4_FORCE_ID
 		if(sub_protocol==SLT_V1_4)
+		{
 			memcpy(rx_tx_addr,"\xF4\x71\x8D\x01",SLT_TXID_SIZE);
+			rx_tx_addr[3] += RX_num;
+		}
 	#endif
 	SLT_RF_init();
 	SLT_set_freq();

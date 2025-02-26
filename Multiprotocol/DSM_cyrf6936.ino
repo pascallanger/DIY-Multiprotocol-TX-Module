@@ -462,7 +462,7 @@ uint16_t DSM_callback()
 						else
 							return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
 					}
-					return 11000 - DSM_WRITE_DELAY - DSM_READ_DELAY;
+					return 10900 - DSM_WRITE_DELAY - DSM_READ_DELAY;	//Was 11000 but the SR6200A needs 10900 to report telemetry correctly
 				}
 			#endif
 			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
@@ -470,12 +470,15 @@ uint16_t DSM_callback()
 		case DSM_CH2_READ_B:
 			//Read telemetry
 			rx_phase = CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
+			debug("ST1:%02X ",rx_phase);
 			if((rx_phase & 0x03) == 0x02)  					// RXC=1, RXE=0 then 2nd check is required (debouncing)
 				rx_phase |= CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
+			debug("ST2:%02X ",rx_phase);
 			if((rx_phase & 0x07) == 0x02)
 			{ // good data (complete with no errors)
 				CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);	// need to set RXOW before data read
 				length=CYRF_ReadRegister(CYRF_09_RX_COUNT);
+				debug("RX(%d)",length);
 				if(length>TELEMETRY_BUFFER_SIZE-2)
 					length=TELEMETRY_BUFFER_SIZE-2;
 				CYRF_ReadDataPacketLen(packet_in+1, length);
@@ -489,8 +492,11 @@ uint16_t DSM_callback()
 					}
 				#endif
 				packet_in[0]=CYRF_ReadRegister(CYRF_13_RSSI)&0x1F;// store RSSI of the received telemetry signal
+				//for(uint8_t i=0;i<length+1;i++)
+				//	debug(" %02X", packet_in[i]);
 				telemetry_link=1;
 			}
+			debugln("");
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation
 			if (phase == DSM_CH2_READ_A && (sub_protocol==DSM2_1F || sub_protocol==DSMX_1F) && num_ch < 8)	// 22ms mode
 			{

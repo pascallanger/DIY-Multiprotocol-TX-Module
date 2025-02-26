@@ -74,12 +74,12 @@ static void __attribute__((unused)) SLT_set_freq(void)
 	}
 
 	// Unique freq
-	uint8_t max_freq=0x50;	//V1 and V2
-	if(sub_protocol==Q200)
+	uint8_t max_freq = 0x50;	//V1 and V2
+	if(sub_protocol == Q200)
 		max_freq=45;
 	for (uint8_t i = 0; i < SLT_NFREQCHANNELS; ++i)
 	{
-		if(sub_protocol==Q200 && hopping_frequency[i] >= max_freq)
+		if(sub_protocol == Q200 && hopping_frequency[i] >= max_freq)
 			hopping_frequency[i] = hopping_frequency[i] - max_freq + 0x03;
 		uint8_t done = 0;
 		while (!done)
@@ -103,7 +103,7 @@ static void __attribute__((unused)) SLT_set_freq(void)
 	#endif
 	
 	//Bind channel
-	hopping_frequency[SLT_NFREQCHANNELS]=SLT_BIND_CHANNEL;
+	hopping_frequency[SLT_NFREQCHANNELS] = SLT_BIND_CHANNEL;
 	
 	//Calib all channels
 	NRF250K_HoppingCalib(SLT_NFREQCHANNELS+1);
@@ -154,35 +154,38 @@ static void __attribute__((unused)) SLT_build_packet()
 
 	//->V1 stops here
 
-	if(sub_protocol==Q200)
+	if(sub_protocol == Q200)
 		packet[6] =  GET_FLAG(CH9_SW , FLAG_Q200_FMODE)
 					|GET_FLAG(CH10_SW, FLAG_Q200_FLIP)
 					|GET_FLAG(CH11_SW, FLAG_Q200_VIDON)
 					|GET_FLAG(CH12_SW, FLAG_Q200_VIDOFF);
-	else if(sub_protocol==MR100 || sub_protocol==Q100)
+	else if(sub_protocol == MR100 || sub_protocol == Q100)
 		packet[6] =  GET_FLAG(CH9_SW , FLAG_MR100_FMODE)
 					|GET_FLAG(CH10_SW, FLAG_MR100_FLIP)
 					|GET_FLAG(CH11_SW, FLAG_MR100_VIDEO)	// Does not exist on the Q100 but...
 					|GET_FLAG(CH12_SW, FLAG_MR100_PICTURE);	// Does not exist on the Q100 but...
-	packet[7]=convert_channel_8b(CH7);
-	packet[8]=convert_channel_8b(CH8);
-  if(sub_protocol==RF_SIM) {
-    packet[9]=convert_channel_8b(CH9);
-    packet[10]=convert_channel_8b(CH10);
-  } else {
-    packet[9]=0xAA;       //normal mode for Q100/Q200, unknown for V2/MR100
-    packet[10]=0x00;      //normal mode for Q100/Q200, unknown for V2/MR100
-  }
-	if((sub_protocol==Q100 || sub_protocol==Q200) && CH13_SW)
-	{//Calibrate
-		packet[9]=0x77;			//enter calibration
-		if(calib_counter>=20 && calib_counter<=25)	// 7 packets for Q100 / 3 packets for Q200
-			packet[10]=0x20;	//launch calibration
-		calib_counter++;
-		if(calib_counter>250) calib_counter=250;
+	packet[7] = convert_channel_8b(CH7);
+	packet[8] = convert_channel_8b(CH8);
+	if(sub_protocol == RF_SIM)
+	{
+		packet[9]  = convert_channel_8b(CH9);
+		packet[10] = convert_channel_8b(CH10);
 	}
 	else
-		calib_counter=0;
+	{
+		packet[9]  = 0xAA;		//normal mode for Q100/Q200, unknown for V2/MR100
+		packet[10] = 0x00;		//normal mode for Q100/Q200, unknown for V2/MR100
+	}
+	if((sub_protocol == Q100 || sub_protocol == Q200) && CH13_SW)
+	{//Calibrate
+		packet[9] = 0x77;			//enter calibration
+		if(calib_counter >= 20 && calib_counter <= 25)	// 7 packets for Q100 / 3 packets for Q200
+			packet[10] = 0x20;	//launch calibration
+		calib_counter++;
+		if(calib_counter > 250) calib_counter = 250;
+	}
+	else
+		calib_counter = 0;
 }
 
 static void __attribute__((unused)) SLT_send_bind_packet()
@@ -193,8 +196,8 @@ static void __attribute__((unused)) SLT_send_bind_packet()
 	NRF250K_SetPower();
 	BIND_DONE;
 	NRF250K_SetTXAddr((uint8_t *)"\x7E\xB8\x63\xA9", SLT_TXID_SIZE);
-	memcpy((void*)packet,(void*)rx_tx_addr,SLT_TXID_SIZE);
-	if(phase==SLT_BIND2)
+	memcpy((void*)packet, (void*)rx_tx_addr, SLT_TXID_SIZE);
+	if(phase == SLT_BIND2)
 		SLT_send_packet(SLT_TXID_SIZE);
 	else // SLT_BIND1
 		SLT_send_packet(SLT_PAYLOADSIZE_V2);
@@ -225,9 +228,9 @@ uint16_t SLT_callback()
 		case SLT_DATA2:
 			phase++;
 			SLT_send_packet(packet_length);
-			if(sub_protocol==SLT_V1)
+			if(sub_protocol == SLT_V1)
 				return SLT_V1_TIMING_PACKET;
-			if(sub_protocol==SLT_V1_4)
+			if(sub_protocol == SLT_V1_4)
 			{
 				phase++;						//Packets are sent two times only
 				return SLT_V1_4_TIMING_PACKET;
@@ -239,24 +242,24 @@ uint16_t SLT_callback()
 			if (++packet_count >= 100)
 			{// Send bind packet
 				packet_count = 0;
-				if(sub_protocol==SLT_V1||sub_protocol==SLT_V1_4)
+				if(sub_protocol == SLT_V1 || sub_protocol == SLT_V1_4)
 				{
-					phase=SLT_BIND2;
+					phase = SLT_BIND2;
 					return SLT_V1_TIMING_BIND2;
 				}
 				//V2
-				phase=SLT_BIND1;
+				phase = SLT_BIND1;
 				return SLT_V2_TIMING_BIND1;
 			}
 			else
 			{// Continue to send normal packets
 				phase = SLT_BUILD;
-				if(sub_protocol==SLT_V1)
-					return 20000-SLT_TIMING_BUILD;
+				if(sub_protocol == SLT_V1)
+					return 20000 - SLT_TIMING_BUILD;
 				if(sub_protocol==SLT_V1_4)
-					return 18000-SLT_TIMING_BUILD-SLT_V1_4_TIMING_PACKET;
+					return 18000 - SLT_TIMING_BUILD - SLT_V1_4_TIMING_PACKET;
 				//V2
-				return 13730-SLT_TIMING_BUILD;
+				return 13730 - SLT_TIMING_BUILD;
 			}
 		case SLT_BIND1:
 			SLT_send_bind_packet();
@@ -265,12 +268,12 @@ uint16_t SLT_callback()
 		case SLT_BIND2:
 			SLT_send_bind_packet();
 			phase = SLT_BUILD;
-			if(sub_protocol==SLT_V1)
-				return 20000-SLT_TIMING_BUILD-SLT_V1_TIMING_BIND2;
-			if(sub_protocol==SLT_V1_4)
-				return 18000-SLT_TIMING_BUILD-SLT_V1_TIMING_BIND2-SLT_V1_4_TIMING_PACKET;
+			if(sub_protocol == SLT_V1)
+				return 20000 - SLT_TIMING_BUILD - SLT_V1_TIMING_BIND2;
+			if(sub_protocol == SLT_V1_4)
+				return 18000 - SLT_TIMING_BUILD - SLT_V1_TIMING_BIND2 - SLT_V1_4_TIMING_PACKET;
 			//V2
-			return 13730-SLT_TIMING_BUILD-SLT_V2_TIMING_BIND1-SLT_V2_TIMING_BIND2;
+			return 13730 - SLT_TIMING_BUILD - SLT_V2_TIMING_BIND1 - SLT_V2_TIMING_BIND2;
 	}
 	return 19000;
 }
@@ -281,38 +284,25 @@ void SLT_init()
 	packet_count = 0;
 	packet_sent = 0;
 	hopping_frequency_no = 0;
-	if(sub_protocol==Q200)
-	{ //Q200: Force high part of the ID otherwise it won't bind
-		rx_tx_addr[0]=0x01;
-		rx_tx_addr[1]=0x02;
-		#ifdef SLT_Q200_FORCE_ID	// ID taken from TX dumps
-			rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x6A;rx_tx_addr[3]=0x31;
-		/*	rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x0B;rx_tx_addr[3]=0x57;*/
-		#endif
-	}
-	if(sub_protocol==SLT_V1_4)
-	{
-		rx_tx_addr[0]=0xF4;
-		rx_tx_addr[1]=0x71;
-		#ifdef SLT_V1_4_FORCE_ID
-			memcpy(rx_tx_addr,"\xF4\x71\x8D\x01",SLT_TXID_SIZE);
-		#endif
-	}
-	SLT_RF_init();
-	SLT_set_freq();
-	phase = SLT_BUILD;
-	if(sub_protocol==SLT_V1)
+
+	if(sub_protocol == SLT_V1)
 	{
 		packet_length = SLT_PAYLOADSIZE_V1;
 		#ifdef MULTI_SYNC
 			packet_period = 20000+2*SLT_V1_TIMING_PACKET;		//22ms
 		#endif
 	}
-	else if(sub_protocol==SLT_V1_4)
+	else if(sub_protocol == SLT_V1_4)
 	{
 		packet_length = SLT_PAYLOADSIZE_V1_4;
 		#ifdef MULTI_SYNC
 			packet_period = 18000;								//18ms
+		#endif
+		 //Force high part of the ID otherwise the RF frequencies do not match, only tested the 2 last bytes...
+		rx_tx_addr[0]=0xF4;
+		rx_tx_addr[1]=0x71;
+		#ifdef SLT_V1_4_FORCE_ID	// ID taken from TX dumps
+			memcpy(rx_tx_addr,"\xF4\x71\x8D\x01",SLT_TXID_SIZE);
 		#endif
 	}
 	else //V2
@@ -322,6 +312,21 @@ void SLT_init()
 			packet_period = 13730+2*SLT_V2_TIMING_PACKET;		//~18ms
 		#endif
 	}
+
+	if(sub_protocol == Q200)
+	{ //Q200: Force high part of the ID otherwise it won't bind
+		rx_tx_addr[0]=0x01;
+		rx_tx_addr[1]=0x02;
+		#ifdef SLT_Q200_FORCE_ID	// ID taken from TX dumps
+			rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x6A;rx_tx_addr[3]=0x31;
+		/*	rx_tx_addr[0]=0x01;rx_tx_addr[1]=0x02;rx_tx_addr[2]=0x0B;rx_tx_addr[3]=0x57;*/
+		#endif
+	}
+
+	SLT_RF_init();
+	SLT_set_freq();
+
+	phase = SLT_BUILD;
 }
 
 #endif

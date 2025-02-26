@@ -1441,10 +1441,13 @@ FLIP: sets model into flip mode for approx 5 seconds at each throw of switch (re
 MODE: -100% level, +100% acro
 
 ### Sub_protocol V1_4CH - *5*
+Transmitters: SLT2 and SLT2 DLC, Receivers: SPMXSE2825RX, SPMXSBER1025G, SPMXSE4510RX, ...
 
 CH1|CH2|CH3|CH4
 ---|---|---|---
 CH1|CH2|CH3|CH4
+
+CH4 is used for DSC settings: -35% off to +15% full
 
 ### Sub_protocol RF_SIM - *6*
 Models: the SLT-dongle included in RealFlight 7.5

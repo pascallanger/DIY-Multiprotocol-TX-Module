@@ -112,7 +112,10 @@ void KYOSHO3_init()
 		debugln("RF CH: %02X",hopping_frequency[0]);
 	#endif
 
-	CYRF_ConfigRFChannel(hopping_frequency[0]);
+	if(IS_BIND_IN_PROGRESS)
+		CYRF_ConfigRFChannel(0x04);
+	else
+		CYRF_ConfigRFChannel(hopping_frequency[0]);
 	
 	bind_counter = 8217;
 	phase = 0;

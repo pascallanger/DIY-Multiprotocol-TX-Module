@@ -155,6 +155,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [WFLY](Protocols_Details.md#WFLY---40)|40|WFR0x||||||||CYRF6936|
 [WFLY2](Protocols_Details.md#WFLY2---79)|79|RF20x||||||||A7105|
 [WK2x01](Protocols_Details.md#WK2X01---30)|30|WK2801|WK2401|W6_5_1|W6_6_1|W6_HEL|W6_HEL_I|||CYRF6936|
+[WL91X](Protocols_Details.md#WL91X---106)|106|||||||||NRF24L011&CC2500|XN297
 [XERALL](Protocols_Details.md#XERALL---91)|91|Tank||||||||NRF24L01|XN297
 [XK](Protocols_Details.md#XK---62)|62|X450|X420|Cars||||||NRF24L011&CC2500|XN297
 [XK2](Protocols_Details.md#XK2---99)|99|X4|P10|||||||NRF24L01&CC2500|XN297

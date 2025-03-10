@@ -117,6 +117,7 @@ const char STR_YUXIANG[]    ="YuXiang";
 const char STR_UDIRC[]      ="UDIRC";
 const char STR_JIABAILE[]   ="JIABAILE";
 const char STR_KAMTOM[]     ="KAMTOM";
+const char STR_WL91X[]      ="WL91x";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -504,9 +505,6 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(V911S_CCNRF_INO)
 		{PROTO_V911S,      STR_V911S,     STR_SUBTYPE_V911S,     2, OPTION_RFTUNE,  0, 0, SW_NRF,    V911S_init,      V911S_callback      },
 	#endif
-	#if defined(WK2x01_CYRF6936_INO)
-		{PROTO_WK2x01,     STR_WK2x01,    STR_SUBTYPE_WK2x01,    6, OPTION_NONE,    1, 1, SW_CYRF,   WK_init,         WK_callback         },
-	#endif
 	#if defined(WFLY_CYRF6936_INO)
 		{PROTO_WFLY,       STR_WFLY,      STR_SUBTYPE_WFLY,      1, OPTION_NONE,    1, 0, SW_CYRF,   WFLY_init,       WFLY_callback       },
 	#endif
@@ -514,6 +512,13 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_WFLY2,      STR_WFLY2,     STR_SUBTYPE_WFLY2,     1, OPTION_OPTION,  1, 0, SW_A7105,  WFLY2_init,      WFLY2_callback      },
 //		{PROTO_WFLY2,      STR_WFLY2,     STR_SUBTYPE_WFLY2,     1, OPTION_WBUS,    1, 0, SW_A7105,  WFLY2_init,      WFLY2_callback      },// crash OpenTX...
 	#endif
+	#if defined(WK2x01_CYRF6936_INO)
+		{PROTO_WK2x01,     STR_WK2x01,    STR_SUBTYPE_WK2x01,    6, OPTION_NONE,    1, 1, SW_CYRF,   WK_init,         WK_callback         },
+	#endif
+	#if defined(WL91X_CCNRF_INO)
+		{PROTO_WL91X,      STR_WL91X,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    WL91X_init,      WL91X_callback      },
+	#endif
+	
 	#if defined(XERALL_NRF24L01_INO)
 		{PROTO_XERALL,     STR_XERALL,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    XERALL_init,     XERALL_callback     },	
 	#endif

@@ -359,6 +359,7 @@
 	#undef	SLT_CCNRF_INO
 	#undef	UDIRC_CCNRF_INO
 	#undef	V911S_CCNRF_INO
+	#undef	WL91X_CCNRF_INO
 	#undef	XK_CCNRF_INO
 	#undef	XK2_CCNRF_INO
 #endif
@@ -397,6 +398,7 @@
 	#undef	JIABAILE_NRF24L01_INO
 	#undef	UDIRC_CCNRF_INO
 	#undef	KAMTOM_NRF24L01_INO
+	#undef	WL91X_CCNRF_INO
 #endif
 
 #ifdef MULTI_SURFACE

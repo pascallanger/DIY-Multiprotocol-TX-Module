@@ -1486,6 +1486,14 @@ A|E|T|R|CALIB|RATE|6G_3D|6GSENIOR|LIGHT
 
 A280 -> 6GSENIOR: -100% - 6G, +100% - Senior mode (turn off gyro), LIGHT: cycle the light through on-flash-off when the CH9 value is changed from -100% to 100%
 
+## WL91X - *106*
+
+Models: WLtoys WL911, WL913, WL915 and may be others...
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+ST|TH|ST_TR|TH_TR
+
 ## XK - *62*
 
 CC2500: only X450 is supported.

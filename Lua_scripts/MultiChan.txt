@@ -233,3 +233,4 @@
 103,0,H36,Std,1,Flip,HLess,RTH
 104,0,KAMTOM,Std,0,ST_Tr,TH_Tr,TH_DR
 105,0,Shenqi2,Std,1
+106,0,WL91x,Std,0

@@ -62,7 +62,7 @@ static void __attribute__((unused)) FX_send_packet()
 					trim_ch++;
 					if(trim_ch > 3) trim_ch = 0;
 				}
-				else // FX_Q560
+				else // FX_Q560, QF012
 					trim_ch = 0;
 			}
 		}
@@ -85,12 +85,16 @@ static void __attribute__((unused)) FX_send_packet()
 		val = trim_ch==0 ? 0x20 : (convert_channel_8b(trim_ch + CH6) >> 2);	// no trim on Throttle
 		packet[4] = val;			// Trim for channel x 0C..20..34
 		packet[5] = (trim_ch << 4)	// channel x << 4
-					| GET_FLAG(CH5_SW, 0x01)  // DR toggle swich: 0 small throw, 1 large throw / Q560 acrobatic
+					| GET_FLAG(CH5_SW, (sub_protocol == FX_QF012 ? 0x08 : 0x01))  // DR toggle swich: 0 small throw, 1 large throw / Q560 acrobatic / QF012 Special effects
 					// FX9630  =>0:6G small throw, 1:6G large throw, 2:3D
 					// QIDI-550=>0:3D, 1:6G, 2:Torque
+					// QF012=>0:beginner(6G), 1:mid(3D), 2:expert(Gyro off) 
 					| (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x04 : 0x02));
 		if(sub_protocol == FX_Q560)
 			packet[5] |= GET_FLAG(CH7_SW, 0x18);	// Q560 LED flag 0x10 conflicting with trim_ch... Corrected on new boards using 0x08 instead
+		else if (sub_protocol == FX_QF012) 
+      			packet[5] |=  GET_FLAG(CH7_SW, 0x40)  // QF012 invert flight
+                		    | GET_FLAG(CH8_SW, 0x80);  // QF012 Restore fine tunning midpoint
 	}
 	else // FX816 and FX620
 	{

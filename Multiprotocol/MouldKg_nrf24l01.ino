@@ -53,8 +53,8 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 		if(sub_protocol == MOULDKG_ANALOG)
 		{
 			packet[0] = 0x36;
-			uint8_t ch[]={ 1,0,2,3 };
-			for(uint8_t i=0;i<4;i++)
+			uint8_t ch[]={ 1,0,2,3,4,5 };
+			for(uint8_t i=0;i<6;i++)
 				packet[i+4] = convert_channel_8b(ch[i]+n);
 			len = MOULDKG_PAYLOAD_SIZE_ANALOG;
 		}

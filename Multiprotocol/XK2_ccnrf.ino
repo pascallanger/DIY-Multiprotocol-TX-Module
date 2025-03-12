@@ -71,9 +71,13 @@ static void __attribute__((unused)) XK2_send_packet()
 		}
 		//Flags
 		packet[5] = GET_FLAG(CH5_SW, 0x01)								//Rate
-				  | GET_FLAG(CH6_SW, 0x08)								//Mode
 				  | GET_FLAG(CH7_SW, 0x20)								//Hover
 				  | GET_FLAG(CH8_SW, 0x40);								//Light
+		if(CH6_SW)
+			packet[5] |= 0x10;											//Gyro off (senior mode)
+		else if(Channel_data[CH6] > CHANNEL_MIN_COMMAND)
+			packet[5] |= 0x08;											//3D
+
 		//Telemetry not received=00, Telemetry received=01 but sometimes switch to 1 even if telemetry is not there...
 		packet[6] = 0x00;
 		//RXID checksum

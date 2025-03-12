@@ -1546,6 +1546,8 @@ The plane does not need to be bound each time if it is powered on **after** the 
 
 The rudder trim is driven from the rudder channel to increase the range (Original TX rudder has no range once the motor has been turned on...).
 
+Mode: -100%=6G, 0%=3D, +100%=Gyro off (Senior mode)
+
 ### Sub_protocol X4 - *0*
 Transmitter: XK X4-A160, X5S, model: XK A160S, XK A280, XK A300
 

@@ -189,8 +189,8 @@ static void __attribute__((unused)) MT99XX_send_packet()
 			packet[1] = convert_channel_16b_limit(RUDDER  ,0x00,0xE1);	// rudder
 			packet[2] = convert_channel_16b_limit(AILERON ,0xE1,0x00);	// aileron
 			packet[3] = convert_channel_16b_limit(ELEVATOR,0x00,0xE1);	// elevator
-			packet[4] = 0x20; 											// pitch trim (0x3f-0x20-0x00)
-			packet[5] = 0x20; 											// roll trim (0x00-0x20-0x3f)
+			packet[4] = (convert_channel_8b(CH10) ^ 0xFF) >> 2; 		// aileron trim  (3F..20..00)
+			packet[5] =  convert_channel_8b(CH11)         >> 2;			// elevator trim (00..20..3F)
 			packet[6] = GET_FLAG( CH5_SW, FLAG_MT_FLIP );
 			if(sub_protocol != PA18+8)
 				packet[7] = h7_mys_byte[hopping_frequency_no];			// next rf channel index ?
@@ -337,7 +337,7 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, MT99XX_PACKET_SIZE);
 	
-	#if 0
+	#if 1
 		for(uint8_t i=0; i<MT99XX_PACKET_SIZE; i++)
 			debug(" %02X",packet[i]);
 		debugln();

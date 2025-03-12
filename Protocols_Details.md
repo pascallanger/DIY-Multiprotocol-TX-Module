@@ -1185,16 +1185,22 @@ If only a NRF24L01 is installed then this sub protocol might be problematic beca
 ## MT99XX - *17*
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS
-
-CC2500: only YZ is supported.
+CC2500: only YZ and F949G are supported.
 
 ### Sub_protocol MT99 - *0*
 Models: MT99xx
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|ATrim|ETrim
+
 ### Sub_protocol H7 - *1*
 Models: Eachine H7, Cheerson CX023
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|ATrim|ETrim
+
 ### Sub_protocol YZ - *2*
 Model: Yi Zhan i6S
 
@@ -1204,63 +1210,71 @@ If a CC2500 is installed it will be used for this sub protocol. Option in this c
 
 If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|LED|PICTURE|VIDEO|HEADLESS|ATrim|ETrim
+
 ### Sub_protocol LS - *3*
 Models: LS114, 124, 215
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP|INVERT|PICTURE|VIDEO|HEADLESS
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|INVERT|PICTURE|VIDEO|HEADLESS|ATrim|ETrim
 
 ### Sub_protocol FY805 - *4*
 Model: FY805
 
 **Only 1 ID available**
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|FLIP||||HEADLESS
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP||||HEADLESS|ATrim|ETrim
 
 ### Sub_protocol A180 - *5*
 Model: XK A180, A120, F949S, F959
 
 A180:
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|3D6G|RATE
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|3D6G|RATE||||ATrim|ETrim
 
 A120:
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|RATE|LED
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATE|LED||||ATrim|ETrim
 
 F949S:
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|RATE|RXLED|3D6G
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATE|RXLED|3D6G|||ATrim|ETrim
 
 ### Sub_protocol DRAGON - *6*
 Model: Eachine Mini Wing Dragon, Eachine Mini Cessna
 
 Telemetry is supported: A1 = battery voltage with a Ratio of 25.5, A2=battery low flag (0=off,>0=on) and RSSI = dummy value of 100
 
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|MODE|RTH
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|RTH||||ATrim|ETrim
 
 MODE: -100%=Beginner, 0%=Intermediate, +100%=Advanced
 
 ### Sub_protocol F949G - *7*
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
 Model: F949G
 
-CH1|CH2|CH3|CH4|CH5|CH6
----|---|---|---|---|---
-A|E|T|R|6G3D|Light
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|6G3D|Light||||ATrim|ETrim
 
 Model: KFPLAN Z-Series like Z61 BF109, Z54 A380,...
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|-|Rate|Light|Unk1|Unk2
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R||Rate|Light|Unk1|Unk2|ATrim|ETrim
 
 Unk1&2: long press right/left
 
@@ -1269,20 +1283,18 @@ Unk1&2: long press right/left
 ### Sub_protocol PA18 - *0*
 Model: PA18 mini
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|MODE|FLIP|RTH
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|FLIP|RTH|||ATrim|ETrim
 
 MODE: -100% beginner, 0% intermediate, +100% Expert
 
 ### Sub_protocol SU35 - *1*
 Model: QF009 SU35
 
-CH6 - LED, CH7 - LED Flash, CH8 - Invert, CH9 - Rate
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
----|---|---|---|---|---|---|---|---
-A|E|T|R|MODE|LED|LED_FLASH|INVERT|RATE
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|LED|LED_FLASH|INVERT|RATE|ATrim|ETrim
 
 MODE: -100% 6G, +100% 3D
 

@@ -1840,13 +1840,15 @@ Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
 ### Sub_protocol QF012 - *4*
 Model: QF012 SBD Dauntless
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7
----|---|---|---|---|---|---
-A|E|T|R|FLIP|GYRO|Invert
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|GYRO|Invert|Reset
 
 FLIP is a toggle channel meaning that -100% to +100% is a command and +100% to -100% is also a command
 
 Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
+
+Reset: Restore fine tunning midpoint
 
 ## FY326 - *20*
 

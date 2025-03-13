@@ -125,7 +125,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [Losi](Protocols_Details.md#Losi---89)|89|||||||||CYRF6936|
 [MJXq](Protocols_Details.md#MJXQ---18)|18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MLINK](Protocols_Details.md#MLINK---78)|78|||||||||CYRF6936|
-[MouldKg](Protocols_Details.md#mouldkg---90)|90|Analog|Digit|||||||NRF24L01|XN297
+[MouldKg](Protocols_Details.md#mouldkg---90)|90|A4444|D4444|A664||||||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)|17|MT|H7|YZ|LS|FY805|A180|DRAGON|F949G|NRF24L01|XN297
 [MT99xx2](Protocols_Details.md#MT99XX2---92)|92|PA18|SU35|||||||NRF24L01|XN297
 [NCC1701](Protocols_Details.md#NCC1701---44)|44|||||||||NRF24L01|
@@ -2071,7 +2071,7 @@ CH16| CH8 | -100% | 0% | - | - | -
 ## MouldKg - *90*
 Mould King 2.4GHz TX: Technic Brick models
 
-### Sub_protocol Analog4 - *0*
+### Sub_protocol A4444 - *0*
 Model: 4 analog ports brick
 
 Up to 4 bricks can be controlled at the same time.
@@ -2093,7 +2093,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
 Brick1_A|Brick1_B|Brick1_C|Brick1_D|Brick2_A|Brick2_B|Brick2_C|Brick2_D|Brick3_A|Brick3_B|Brick3_C|Brick3_D|Brick4_A|Brick4_B|Brick4_C|Brick4_D
 
-### Sub_protocol Digit4 - *1*
+### Sub_protocol D4444 - *1*
 Model: 4 digital ports brick
 
 Up to 4 bricks can be controlled at the same time.
@@ -2115,7 +2115,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
 Brick1_A|Brick1_B|Brick1_C|Brick1_D|Brick2_A|Brick2_B|Brick2_C|Brick2_D|Brick3_A|Brick3_B|Brick3_C|Brick3_D|Brick4_A|Brick4_B|Brick4_C|Brick4_D
 
-### Sub_protocol Analog6 - *2*
+### Sub_protocol A664 - *2*
 Model: 4/6 analog ports brick
 
 Up to 3 bricks can be controlled at the same time. The bricks can be either 4 or 6 ports but only the 2 first bricks will be sent 6 channels, the last brick will only be sent 4 channels.

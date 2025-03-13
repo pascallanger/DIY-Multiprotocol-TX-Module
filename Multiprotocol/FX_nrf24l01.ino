@@ -52,7 +52,7 @@ static void __attribute__((unused)) FX_send_packet()
 	{
 		XN297_Hopping(hopping_frequency_no++);
 		if(sub_protocol >= FX9630)
-		{ // FX9630 & FX_Q560
+		{ // FX9630 & FX_Q560 & FX_QF012
 			XN297_SetTXAddr(rx_tx_addr, 4);
 			if (hopping_frequency_no >= FX9630_NUM_CHANNELS)
 			{
@@ -60,13 +60,13 @@ static void __attribute__((unused)) FX_send_packet()
 				if(sub_protocol == FX9630)
 				{
 					trim_ch++;
-					if(trim_ch > 3) trim_ch = 0;
+					trim_ch &= 3;
 				}
-				else // FX_Q560, QF012
+				else // FX_Q560 & FX_QF012
 					trim_ch = 0;
 			}
 		}
-		else // FX816 and FX620
+		else // FX816 & FX620
 		{
 			hopping_frequency_no &= 0x03;
 		}
@@ -220,13 +220,14 @@ static void __attribute__((unused)) FX_initialize_txid()
 	}
 	else // FX9630 & FX_Q560
 	{
+		//??? Need to find out how the first RF channel is calculated ???
+		hopping_frequency[0] = 0x13;
+		//Other 2 RF channels are sent during the bind phase so they can be whatever
+		hopping_frequency[1] = RX_num & 0x0F + 0x1A;
+		hopping_frequency[2] = rx_tx_addr[3] & 0x0F + 0x38;
 		#ifdef FORCE_FX9630_ID
 			memcpy(rx_tx_addr,(uint8_t*)"\xCE\x31\x9B\x73", 4);
 			memcpy(hopping_frequency,"\x13\x1A\x38", FX9630_NUM_CHANNELS);		//Original dump=>19=0x13,26=0x1A,56=0x38
-		#else
-			hopping_frequency[0] = 0x13; // constant???
-			hopping_frequency[1] = RX_num & 0x0F + 0x1A;
-			hopping_frequency[2] = rx_tx_addr[3] & 0x0F + 0x38;
 		#endif
 		#ifdef FORCE_QIDI_ID
 			memcpy(rx_tx_addr,(uint8_t*)"\x23\xDC\x76\xA2", 4);
@@ -236,7 +237,6 @@ static void __attribute__((unused)) FX_initialize_txid()
 			//memcpy(rx_tx_addr,(uint8_t*)"\x38\xC7\x6D\x8D", 4);
 			//memcpy(hopping_frequency,"\x0D\x20\x3A", FX9630_NUM_CHANNELS);
 		#endif
-		//??? Need to find out how the first RF channel is calculated ???
 	}
 }
 

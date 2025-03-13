@@ -492,7 +492,7 @@ enum FX
 	FX620			= 1,
     FX9630          = 2,
 	FX_Q560			= 3,
-	FX_QF012  = 4,
+	FX_QF012		= 4,
 };
 enum SGF22
 {

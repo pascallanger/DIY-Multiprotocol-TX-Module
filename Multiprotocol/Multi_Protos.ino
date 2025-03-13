@@ -184,7 +184,7 @@ const char STR_SUBTYPE_KYOSHO2[] =    "\x05""KT-17";
 const char STR_SUBTYPE_KYOSHO3[] =    "\x03""ASF";
 const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
-const char STR_SUBTYPE_MOULDKG[] =    "\x06""Analog""Digit\0";
+const char STR_SUBTYPE_MOULDKG[] =    "\x07""Analog4""Digit4\0""Analog6";
 const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320""ZCZ50\0";
 const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
 const char STR_SUBTYPE_FX[] =         "\x05""816\0 ""620\0 ""9630\0""Q560\0""QF012";
@@ -425,7 +425,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_MLINK,      STR_MLINK,     NO_SUBTYPE,            0, OPTION_NONE,    1, 0, SW_CYRF,   MLINK_init,      MLINK_callback      },
 	#endif
 	#if defined(MOULDKG_NRF24L01_INO)
-		{PROTO_MOULDKG,    STR_MOULDKG,   STR_SUBTYPE_MOULDKG,   2, OPTION_OPTION,  0, 0, SW_NRF,    MOULDKG_init,    MOULDKG_callback    },
+		{PROTO_MOULDKG,    STR_MOULDKG,   STR_SUBTYPE_MOULDKG,   3, OPTION_OPTION,  0, 0, SW_NRF,    MOULDKG_init,    MOULDKG_callback    },
 	#endif
 	#if defined(MT99XX_CCNRF_INO)
 		{PROTO_MT99XX,     STR_MT99XX,    STR_SUBTYPE_MT99,      8, OPTION_NONE,    0, 0, SW_NRF,    MT99XX_init,     MT99XX_callback     },

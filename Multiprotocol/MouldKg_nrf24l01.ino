@@ -50,12 +50,19 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 	else
 	{
 		uint8_t n = num_ch<<2;
-		if(sub_protocol == MOULDKG_ANALOG)
+		if(sub_protocol == MOULDKG_ANALOG4 || sub_protocol == MOULDKG_ANALOG6 )
 		{
 			packet[0] = 0x36;
-			uint8_t ch[]={ 1,0,2,3,4,5 };
+			const uint8_t ch[]={ 1,0,2,3,4,5 };
+			if(sub_protocol == MOULDKG_ANALOG6)
+				n += num_ch<<1;
 			for(uint8_t i=0;i<6;i++)
-				packet[i+4] = convert_channel_8b(ch[i]+n);
+			{
+				if(i > 3 && (sub_protocol == MOULDKG_ANALOG4 || i + n > 15))
+					packet[i+4] = 0x80;							//Centered channel
+				else
+					packet[i+4] = convert_channel_8b(ch[i]+n);
+			}
 			len = MOULDKG_PAYLOAD_SIZE_ANALOG;
 		}
 		else

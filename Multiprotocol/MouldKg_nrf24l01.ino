@@ -53,7 +53,7 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 		if(sub_protocol == MOULDKG_ANALOG4 || sub_protocol == MOULDKG_ANALOG6 )
 		{
 			packet[0] = 0x36;
-			const uint8_t ch[]={ 1,0,2,3,4,5 };
+			const uint8_t ch[]={ 1,0,2,3,5,4 };
 			if(sub_protocol == MOULDKG_ANALOG6)
 				n += num_ch<<1;
 			for(uint8_t i=0;i<6;i++)

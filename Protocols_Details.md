@@ -2117,7 +2117,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 Brick1_A|Brick1_B|Brick1_C|Brick1_D|Brick2_A|Brick2_B|Brick2_C|Brick2_D|Brick3_A|Brick3_B|Brick3_C|Brick3_D|Brick4_A|Brick4_B|Brick4_C|Brick4_D
 
 ### Sub_protocol D4444 - *1*
-Model: 4 digital ports brick
+Model: 4 digital ports brick and Integrated power module
 
 Up to 4 bricks can be controlled at the same time.
 

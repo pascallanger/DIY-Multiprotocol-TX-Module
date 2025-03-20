@@ -58,7 +58,7 @@ static void __attribute__((unused)) MOULDKG_send_packet()
 				n += num_ch<<1;
 			for(uint8_t i=0;i<6;i++)
 			{
-				if(i > 3 && (sub_protocol == MOULDKG_ANALOG4 || i + n > 15))
+				if( (i > 3 && sub_protocol == MOULDKG_ANALOG4) || i + n > 15)
 					packet[i+4] = 0x80;							//Centered channel
 				else
 					packet[i+4] = convert_channel_8b(ch[i]+n);

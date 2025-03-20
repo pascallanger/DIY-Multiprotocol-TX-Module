@@ -93,15 +93,17 @@ static void AFHDS2A_update_telemetry()
 		if (option & 0x80)
 		{// forward 0xAA and 0xAC telemetry to TX, skip rx and tx id to save space
 			packet_in[0]= TX_RSSI;
-			debug("T(%02X)=",packet[0]);
-			for(uint8_t i=9;i < AFHDS2A_RXPACKET_SIZE; i++)
-			{
-				packet_in[i-8]=packet[i];
-				debug(" %02X",packet[i]);
-			}
+			#if 0
+				debug("T(%02X)=",packet[0]);
+				for(uint8_t i=9;i < AFHDS2A_RXPACKET_SIZE; i++)
+				{
+					packet_in[i-8]=packet[i];
+					debug(" %02X",packet[i]);
+				}
+				debugln("");
+			#endif
 			packet_in[29]=packet[0];	// 0xAA Normal telemetry, 0xAC Extended telemetry
 			telemetry_link=2;
-			debugln("");
 			return;
 		}
 	#endif
@@ -186,16 +188,40 @@ static void AFHDS2A_build_packet(uint8_t type)
 		case AFHDS2A_PACKET_STICKS:		
 			packet[0] = 0x58;
 			//16 channels + RX_LQI on channel 17
-			for(uint8_t ch=0; ch<num_ch; ch++)
+			for(uint8_t ch=0; ch<17; ch++)
 			{
-				if(ch == 16 // CH17=RX_LQI
-				#ifdef AFHDS2A_LQI_CH
-					|| ch == (AFHDS2A_LQI_CH-1)	// override channel with LQI
-				#endif
-					)
-					val = 2000 - 10*RX_LQI;
+				val = convert_channel_ppm(sub_protocol<AFHDS2A_GYRO_OFF?CH_AETR[ch]:ch);	// No remapping for BS receivers
+				if(ch<14)
+				{
+					packet[9 +  ch*2] = val;
+					packet[10 + ch*2] = (val>>8)&0x0F;
+				}
 				else
-					val = convert_channel_ppm(CH_AETR[ch]);
+				{
+					if(ch == 16)	//CH17=RX_LQI
+						val = 2000 - 10*RX_LQI;
+					packet[10 + (ch-14)*6] |= (val)<<4;
+					packet[12 + (ch-14)*6] |= (val)&0xF0;
+					packet[14 + (ch-14)*6] |= (val>>4)&0xF0;
+				}
+			}
+			{
+				uint8_t next_hop = (hopping_frequency_no+1)&0x0F;
+				packet[34] |= next_hop<<4;
+				packet[36] |= next_hop?0x80:0x90;
+			}
+			break;
+		case AFHDS2A_PACKET_FAILSAFE:
+			packet[0] = 0x56;
+			for(uint8_t ch=0; ch<16; ch++)
+			{ // Failsafe values
+				#ifdef FAILSAFE_ENABLE
+					val = Failsafe_data[protocol==PROTO_AFHDS2A?CH_AETR[ch]:ch];	// No remapping for BS receivers
+					if(val!=FAILSAFE_CHANNEL_HOLD && val!=FAILSAFE_CHANNEL_NOPULSES)
+						val = (((val<<2)+val)>>3)+860;
+					else
+				#endif
+						val = 0x0FFF;
 				if(ch<14)
 				{
 					packet[9 +  ch*2] = val;
@@ -209,42 +235,6 @@ static void AFHDS2A_build_packet(uint8_t type)
 				}
 			}
 			break;
-		case AFHDS2A_PACKET_FAILSAFE:
-			packet[0] = 0x56;
-			for(uint8_t ch=0; ch<num_ch; ch++)
-			{
-				#ifdef FAILSAFE_ENABLE
-					if(ch<16)
-						val = Failsafe_data[CH_AETR[ch]];
-					else
-						val = FAILSAFE_CHANNEL_NOPULSES;
-					if(val!=FAILSAFE_CHANNEL_HOLD && val!=FAILSAFE_CHANNEL_NOPULSES)
-					{ // Failsafe values
-						val = (((val<<2)+val)>>3)+860;
-						if(ch<14)
-						{
-							packet[9 +  ch*2] = val;
-							packet[10 + ch*2] = (val>>8)&0x0F;
-						}
-						else
-						{
-							packet[10 + (ch-14)*6] &= 0x0F;
-							packet[10 + (ch-14)*6] |= (val)<<4;
-							packet[12 + (ch-14)*6] &= 0x0F;
-							packet[12 + (ch-14)*6] |= (val)&0xF0;
-							packet[14 + (ch-14)*6] &= 0x0F;
-							packet[14 + (ch-14)*6] |= (val>>4)&0xF0;
-						}
-					}
-					else
-				#endif
-						if(ch<14)
-						{ // no values
-							packet[9 + ch*2] = 0xff;
-							packet[10+ ch*2] = 0xff;
-						}
-			}
-			break;
 		case AFHDS2A_PACKET_SETTINGS:
 			packet[0] = 0xaa;
 			packet[9] = 0xfd;
@@ -253,17 +243,43 @@ static void AFHDS2A_build_packet(uint8_t type)
 			if(val<50 || val>400) val=50;	// default is 50Hz
 			packet[11]= val;
 			packet[12]= val >> 8;
-			packet[13] = sub_protocol & 0x01;	// 1 -> PPM output enabled
-			packet[14]= 0x00;
-			for(uint8_t i=15; i<37; i++)
-				packet[i] = 0xff;
-			packet[18] = 0x05;		// ?
-			packet[19] = 0xdc;		// ?
-			packet[20] = 0x05;		// ?
-			if(sub_protocol&2)
-				packet[21] = 0xdd;	// SBUS output enabled
+			memset(&packet[15],0xFF,22);
+#ifndef MULTI_AIR
+			if(sub_protocol < AFHDS2A_GYRO_OFF)
+			{
+#endif
+				packet[13] = sub_protocol & 0x01;	// 1 -> PPM output enabled
+				packet[14] = 0x00;		// ?
+				packet[18] = 0x05;		// ?
+				packet[19] = 0xdc;		// ?
+				packet[20] = 0x05;		// ?
+				if(sub_protocol&2)
+					packet[21] = 0xdd;	// SBUS output enabled
+				else
+					packet[21] = 0xde;	// IBUS
+#ifndef MULTI_AIR
+			}
 			else
-				packet[21] = 0xde;	// IBUS
+			{//BS receivers
+				if(sub_protocol == AFHDS2A_GYRO_OFF)
+				{
+					memset(&packet[15],0x00,4);
+					packet[22] = 0xFC;	// ?
+				}
+				else
+				{//AFHDS2A_GYRO_ON & AFHDS2A_GYRO_ON_REV
+					packet[15] = convert_channel_16b_limit(CH13,0,100);	// ST Gain
+					packet[16] = convert_channel_16b_limit(CH14,0,100);	// TH Gain
+					packet[17] = convert_channel_16b_limit(CH15,0,100);	// Priority
+					if(sub_protocol == AFHDS2A_GYRO_ON_REV)
+						packet[17] |= 0x80;								// Reverse
+					packet[18] = CH16_SW?(0x32|0x80):0x32;				// Calib|50?
+					packet[19] = 0x64;									// 100?
+					packet[20] = 0x64;									// 100?
+					packet[22] = 0xFE;									// ?
+				}
+			}
+#endif
 			break;
 	}
 	packet[37] = 0x00;
@@ -283,6 +299,9 @@ uint16_t AFHDS2A_callback()
 	static uint16_t packet_counter;
 	uint8_t data_rx=0;
 	uint16_t start;
+	#ifndef MULTI_AIR
+		static uint16_t Prev_Channel[4] = { 0,0,0,0 };
+	#endif
 	#ifndef FORCE_AFHDS2A_TUNING
 		A7105_AdjustLOBaseFreq(1);
 	#endif
@@ -367,10 +386,39 @@ uint16_t AFHDS2A_callback()
 			AFHDS2A_build_packet(packet_type);
 			data_rx=A7105_ReadReg(A7105_00_MODE);			// Check if something has been received...
 			A7105_WriteData(AFHDS2A_TXPACKET_SIZE, hopping_frequency[hopping_frequency_no++]);
-			if(hopping_frequency_no >= AFHDS2A_NUMFREQ)
-				hopping_frequency_no = 0;
+			hopping_frequency_no &= 0x0F;					// AFHDS2A_NUMFREQ
+			#if 0
+				for(uint8_t i=0; i<AFHDS2A_TXPACKET_SIZE; i++)
+					debug(" %02X",packet[i]);
+				debugln("");
+			#endif
+			#ifndef MULTI_AIR
+				if(sub_protocol > AFHDS2A_GYRO_OFF)
+				{//Gyro is on
+					//Check if gyro settings have changed
+					uint16_t val;
+					for(uint8_t i=0;i<4;i++)
+					{
+						val = Channel_data[CH13+i] - Prev_Channel[i];
+						if(val&0x8000) val ^= 0xFFFF;
+						if(val > 10)
+						{//This setting has significantly changed
+							Prev_Channel[i] = Channel_data[CH13+i];
+							packet_sent = 5;
+						}
+					}
+				}
+				if(packet_sent && (packet_counter%5)==0)
+				{//Inform the RX of the change
+					packet_type = AFHDS2A_PACKET_SETTINGS;
+					packet_sent--;
+				}
+				else
+			#endif
 			if(!(packet_counter % 1313))
+			{//Send settings every 5s
 				packet_type = AFHDS2A_PACKET_SETTINGS;
+			}
 			else
 			{
 				#ifdef FAILSAFE_ENABLE
@@ -448,9 +496,6 @@ void AFHDS2A_init()
 			rx_id[i]=eeprom_read_byte((EE_ADDR)(addr+i));
 	}
 	hopping_frequency_no = 0;
-	if(sub_protocol&0x04)
-		num_ch=17;
-	else
-		num_ch=14;
+	packet_sent = 0;
 }
 #endif

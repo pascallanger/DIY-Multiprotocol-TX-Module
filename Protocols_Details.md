@@ -88,7 +88,7 @@ CFlie|38|CFlie||||||||NRF24L01|
 [ESky150](Protocols_Details.md#ESKY150---35)|35|||||||||NRF24L01|
 [ESky150V2](Protocols_Details.md#ESKY150V2---69)|69|||||||||CC2500|NRF51822
 [Flysky](Protocols_Details.md#FLYSKY---1)|1|Flysky|V9x9|V6x6|V912|CX20||||A7105|
-[Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|PWM_IBUS16|PPM_IBUS16|PWM_SBUS16|PPM_SBUS16|A7105|
+[Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)|28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|Gyro_Off|Gyro_On|Gyro_On_Rev||A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)|56|Multi|CPPM|||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)|23|||||||||NRF24L01|SSV7241
 [FrskyD](Protocols_Details.md#FRSKYD---3)|3|D8|Cloned|||||||CC2500|
@@ -227,36 +227,59 @@ Telemetry enabled protocol:
  - if using erskyTX and OpenTX: full telemetry information available
  - if telemetry is incomplete (missing RX RSSI for example), it means that you have to upgrade your RX firmware to version 1.6 or later. You can do it from an original Flysky TX or using a STLink like explained in [this tutorial](https://www.rcgroups.com/forums/showthread.php?2677694-How-to-upgrade-Flysky-Turnigy-iA6B-RX-to-firmware-1-6-with-a-ST-Link).
 
+LQI: Link Quality Indicator which is sent back to the RX on CH17
+
 Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 70 gives 400Hz (max). Specific refresh rate value can be calculated like this option=(refresh_rate-50)/5.
 
 **RX_Num is used to give a number a given RX. You must use a different RX_Num per RX. A maximum of 64 AFHDS2A RXs are supported.**
 
-AFHDS2A_LQI_CH is a feature which is disabled by defaut in the _config.h file. When enabled, it makes LQI (Link Quality Indicator) available on one of the RX ouput channel (5-14).
-
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
----|---|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14
-
-RX output will match the Flysky standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
-
 ### Sub_protocol PWM_IBUS - *0*
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14CH15|CH16|LQI
+
+RX output will match the Flysky standard AETR.
+
 ### Sub_protocol PPM_IBUS - *1*
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14CH15|CH16|LQI
+
+RX output will match the Flysky standard AETR.
+
 ### Sub_protocol PWM_SBUS - *2*
-### Sub_protocol PPM_SBUS - *3*
-As stated above.
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14CH15|CH16|LQI
 
-### Sub_protocol PWM_IBUS16 - *4*
-### Sub_protocol PPM_IBUS16 - *5*
-### Sub_protocol PWM_SBUS16 - *6*
-### Sub_protocol PPM_SBUS16 - *7*
+RX output will match the Flysky standard AETR.
 
-3 additional channels. Need recent or updated RXs.
+### Sub_protocol Gyro_Off - *3*
+RXs: FS-BS6, FS-BS4
 
-CH15|CH16|CH17
----|---|---
-CH15|CH16|LQI
+Gyro is off
 
-LQI: Link Quality Indicator
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|-|-|-|-|LQI
+
+### Sub_protocol Gyro_On - *4*
+RXs: FS-BS6, FS-BS4
+
+Gyro is on
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|ST_Gain|TH_Gain|Priority|Calib|LQI
+
+### Sub_protocol Gyro_On_Rev - *5*
+RXs: FS-BS6, FS-BS4
+
+Gyro is on and reversed
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|ST_Gain|TH_Gain|Priority|Calib|LQI
 
 ## FLYSKY AFHDS2A RX - *56*
 The Flysky AFHDS2A receiver protocol enables master/slave trainning, separate access from 2 different radios to the same model,...

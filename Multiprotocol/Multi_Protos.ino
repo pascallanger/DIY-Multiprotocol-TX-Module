@@ -147,7 +147,7 @@ const char STR_SUBTYPE_MT992[] =      "\x04""PA18""SU35";
 const char STR_SUBTYPE_MJXQ[] =       "\x07""WLH08\0 ""X600\0  ""X800\0  ""H26D\0  ""E010\0  ""H26WH\0 ""Phoenix";
 const char STR_SUBTYPE_FY326[] =      "\x05""Std\0 ""FY319";
 const char STR_SUBTYPE_HONTAI[] =     "\x06""Std\0  ""JJRCX1""X5C1\0 ""FQ_951""XKK170";
-const char STR_SUBTYPE_AFHDS2A[] =    "\x08""PWM,IBUS""PPM,IBUS""PWM,SBUS""PPM,SBUS""PWM,IB16""PPM,IB16""PWM,SB16""PPM,SB16";
+const char STR_SUBTYPE_AFHDS2A[] =    "\x08""PWM,IBUS""PPM,IBUS""PWM,SBUS""PPM,SBUS""Gyro_Off""Gyro_On\0""G_On_Rev";
 const char STR_SUBTYPE_Q2X2[] =       "\x04""Q222""Q242""Q282";
 const char STR_SUBTYPE_WK2x01[] =     "\x06""WK2801""WK2401""W6_5_1""W6_6_1""W6_HeL""W6_HeI";
 const char STR_SUBTYPE_Q303[] =       "\x06""Std\0  ""CX35\0 ""CX10D\0""CX10WD";
@@ -307,7 +307,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_FLYSKY,     STR_FLYSKY,    STR_SUBTYPE_FLYSKY,    5, OPTION_NONE,    0, 1, SW_A7105,  FLYSKY_init,     FLYSKY_callback     },
 	#endif
 	#if defined(AFHDS2A_A7105_INO)
-		{PROTO_AFHDS2A,    STR_AFHDS2A,   STR_SUBTYPE_AFHDS2A,   8, OPTION_SRVFREQ, 1, 1, SW_A7105,  AFHDS2A_init,    AFHDS2A_callback    },
+		{PROTO_AFHDS2A,    STR_AFHDS2A,   STR_SUBTYPE_AFHDS2A,   7, OPTION_SRVFREQ, 1, 1, SW_A7105,  AFHDS2A_init,    AFHDS2A_callback    },
 	#endif
 	#if defined(AFHDS2A_RX_A7105_INO)
 		{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,STR_CPPM,       NBR_CPPM, OPTION_NONE,    0, 0, SW_A7105,  AFHDS2A_RX_init, AFHDS2A_RX_callback },

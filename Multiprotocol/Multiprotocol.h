@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	4
-#define VERSION_PATCH_LEVEL	46
+#define VERSION_PATCH_LEVEL	47
 
 #define MODE_SERIAL 0
 
@@ -159,14 +159,13 @@ enum Hubsan
 };
 enum AFHDS2A
 {
-	PWM_IBUS = 0,
-	PPM_IBUS = 1,
-	PWM_SBUS = 2,
-	PPM_SBUS = 3,
-	PWM_IB16 = 4,
-	PPM_IB16 = 5,
-	PWM_SB16 = 6,
-	PPM_SB16 = 7,
+	PWM_IBUS			= 0,
+	PPM_IBUS			= 1,
+	PWM_SBUS			= 2,
+	PPM_SBUS			= 3,
+	AFHDS2A_GYRO_OFF	= 4,
+	AFHDS2A_GYRO_ON		= 5,
+	AFHDS2A_GYRO_ON_REV	= 6,
 };
 enum Hisky
 {

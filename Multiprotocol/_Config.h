@@ -211,7 +211,7 @@
 #define	FRSKYL_CC2500_INO
 #define	FRSKYD_CC2500_INO
 #define	FRSKYV_CC2500_INO
-#define	FRSKYX_CC2500_INO
+#define	FRSKYX_CC2500_INO		//Include FRSKYX2 protocol
 #define	FRSKY_RX_CC2500_INO
 #define	HITEC_CC2500_INO
 #define	HOTT_CC2500_INO
@@ -301,11 +301,6 @@
 
 //Enable DSM Forward Programming
 #define DSM_FWD_PGM
-
-//AFHDS2A specific settings
-//-------------------------
-//When enabled (remove the "//"), the below setting makes LQI (Link Quality Indicator) available on one of the RX ouput channel (5-14).
-//#define AFHDS2A_LQI_CH 14
 
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
@@ -568,10 +563,9 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		PPM_IBUS
 		PWM_SBUS
 		PPM_SBUS
-		PWM_IB16
-		PPM_IB16
-		PWM_SB16
-		PPM_SB16
+		AFHDS2A_GYRO_OFF
+		AFHDS2A_GYRO_ON
+		AFHDS2A_GYRO_ON_REV
 	PROTO_AFHDS2A_RX
 		NONE
 	PROTO_ASSAN

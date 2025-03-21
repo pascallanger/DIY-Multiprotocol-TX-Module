@@ -40,6 +40,9 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FX9630_NUM_CHANNELS			3
 #define FX9630_WRITE_TIME			500
 
+#define FX_QF012_BIND_PACKET_PERIOD	12194
+#define FX_QF012_RX_PAYLOAD_SIZE	3
+
 //#define FORCE_FX620_ID
 //#define FORCE_FX9630_ID
 //#define FORCE_QIDI_ID
@@ -83,7 +86,7 @@ static void __attribute__((unused)) FX_send_packet()
 	//Channels
 	uint8_t val;
 	if (sub_protocol >= FX9630)
-	{ // FX9630 & FX_Q560
+	{ // FX9630 & FX_Q560 & FX_QF012
 		packet[0] = convert_channel_8b(THROTTLE);
 		packet[1] = convert_channel_8b(AILERON);
 		packet[2] = 0xFF - convert_channel_8b(ELEVATOR);
@@ -102,7 +105,7 @@ static void __attribute__((unused)) FX_send_packet()
       			packet[5] |=  GET_FLAG(CH7_SW, 0x40)  // QF012 invert flight
                 		    | GET_FLAG(CH8_SW, 0x80);  // QF012 Restore fine tunning midpoint
 	}
-	else // FX816 and FX620
+	else // FX816 & FX620
 	{
 		uint8_t offset=sub_protocol == FX816 ? FX816_CH_OFFSET:FX620_CH_OFFSET;
 		val=convert_channel_8b(AILERON);
@@ -140,7 +143,7 @@ static void __attribute__((unused)) FX_send_packet()
 			packet[5] = 0xAB;	// Is it based on ID??
 		}
 	}
-	else // FX9630 & FX_Q560
+	else // FX9630 & FX_Q560 & FX_QF012
 	{
 		if(IS_BIND_IN_PROGRESS)
 		{
@@ -196,7 +199,7 @@ static void __attribute__((unused)) FX_RF_init()
 	{
 		XN297_SetTXAddr((uint8_t *)"\x56\x78\x90\x12", 4);
 		XN297_RFChannel(FX9630_BIND_CHANNEL);
-		packet_period = FX9630_BIND_PACKET_PERIOD;
+		packet_period = sub_protocol == FX_QF012 ? FX_QF012_BIND_PACKET_PERIOD : FX9630_BIND_PACKET_PERIOD;
 		packet_length = FX9630_PAYLOAD_SIZE;
 	}
 }
@@ -273,7 +276,7 @@ uint16_t FX_callback()
 						{ // FX9630 & FX_Q560 & FX_QF012
 							XN297_SetTXAddr(rx_tx_addr, 4);
 	#ifdef FX_HUB_TELEMETRY
-							XN297_SetRXAddr(rx_tx_addr,packet_length);
+							XN297_SetRXAddr(rx_tx_addr, FX_QF012_RX_PAYLOAD_SIZE);
 	#endif
 						}
 					}
@@ -284,12 +287,13 @@ uint16_t FX_callback()
 				if(rx)
 				{
 					debug("RX");
-					if(XN297_ReadPayload(packet_in, packet_length))
+					if(XN297_ReadPayload(packet_in, FX_QF012_RX_PAYLOAD_SIZE))
 					{//Good CRC
+						//packets: A5 00 11 -> A5 01 11
 						telemetry_link = 1;
-						//v_lipo1 = packet_in[1] == 0x03 ? 0x00:0xFF;		// low voltage
-						#if 1
-							for(uint8_t i=0; i < packet_length; i++)
+						v_lipo1 = packet_in[1] == 0x01 ? 60:81;		// low voltage
+						#if 0
+							for(uint8_t i=0; i < FX_QF012_RX_PAYLOAD_SIZE; i++)
 								debug(" %02X", packet_in[i]);
 						#endif
 					}

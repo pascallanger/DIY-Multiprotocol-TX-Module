@@ -1877,13 +1877,11 @@ Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
 ### Sub_protocol QF012 - *4*
 Model: QF012 SBD Dauntless
 
-Telemetry supported and gives a battery status of ok/empty in A1 (4.2V -> 3.1V) and RSSI gets a dummy value of 100.
+Telemetry supported. The plane sends a battery status of good->empty which is visible in A1 (good=4.2V->empty=3.1V) and RSSI gets a dummy value of 100.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|FLIP|GYRO|Invert|Reset
-
-FLIP is a toggle channel meaning that -100% to +100% is a command and +100% to -100% is also a command
 
 Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
 

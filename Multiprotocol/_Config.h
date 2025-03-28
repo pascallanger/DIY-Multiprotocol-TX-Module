@@ -350,6 +350,7 @@
 #define V761_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define KAMTOM_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define FX_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
+#define XK2_HUB_TELEMETRY			// Use FrSkyD Hub format to send telemetry to TX
 #define YUXIANG_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define PROPEL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX
 #define CABELL_HUB_TELEMETRY		// Use FrSkyD Hub format to send telemetry to TX

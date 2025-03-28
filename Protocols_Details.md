@@ -1579,6 +1579,8 @@ A|E|T|R|Rate|Mode|Hover|Light
 
 The plane does not need to be bound each time if it is powered on **after** the radio/protocol is on.
 
+Telemetry is supported. The plane sends a battery status of good->empty which is visible in A1 (good=8.4V->empty=7.1V) and RSSI gets a dummy value of 100.
+
 The rudder trim is driven from the rudder channel to increase the range (Original TX rudder has no range once the motor has been turned on...).
 
 Mode: -100%=6G, 0%=3D, +100%=Gyro off (Senior mode)

@@ -21,18 +21,29 @@ Multiprotocol is distributed in the hope that it will be useful,
 //#define FORCE_XK2_ID
 //#define FORCE_XK2_P10_ID
 
-#define XK2_RF_BIND_CHANNEL	71
+#define XK2_RF_BIND_CHANNEL		71
 #define XK2_P10_RF_BIND_CHANNEL	69
-#define XK2_PAYLOAD_SIZE	9
-#define XK2_PACKET_PERIOD	4911
-#define XK2_RF_NUM_CHANNELS	4
+#define XK2_PAYLOAD_SIZE		9
+#define XK2_PACKET_PERIOD		4911
+#define XK2_RF_NUM_CHANNELS		4
+#define XK2_WRITE_TIME			1000
 
 enum {
 	XK2_BIND1,
 	XK2_BIND2,
 	XK2_DATA_PREP,
-	XK2_DATA
+	XK2_DATA,
+	XK2_RX,
 };
+
+static uint8_t __attribute__((unused)) XK2_checksum(uint8_t init)
+{
+	for(uint8_t i=0; i<XK2_PAYLOAD_SIZE-1; i++)
+		init += packet[i];
+	if(sub_protocol == XK2_P10)
+		init += 0x10;
+	return init;
+}
 
 static void __attribute__((unused)) XK2_send_packet()
 {
@@ -47,8 +58,6 @@ static void __attribute__((unused)) XK2_send_packet()
 		//memcpy(&packet[4], rx_id     , 3);
 		//Unknown
 		packet[7] = 0x00;
-		//Checksum seed
-		packet[8] = 0xC0;
 	}
 	else
 	{
@@ -77,19 +86,13 @@ static void __attribute__((unused)) XK2_send_packet()
 			packet[5] |= 0x10;											//Gyro off (senior mode)
 		else if(Channel_data[CH6] > CHANNEL_MIN_COMMAND)
 			packet[5] |= 0x08;											//3D
-
-		//Telemetry not received=00, Telemetry received=01 but sometimes switch to 1 even if telemetry is not there...
-		packet[6] = 0x00;
+		//Requiest telemetry flag
+		packet[6] = 0x01;
 		//RXID checksum
 		packet[7] = crc8;												//Sum RX_ID[0..2]
-		//Checksum seed
-		packet[8] = num_ch;												//Based on TX ID
 	}
 	//Checksum
-	for(uint8_t i=0; i<XK2_PAYLOAD_SIZE-1; i++)
-		packet[8] += packet[i];
-	if(sub_protocol == XK2_P10)
-		packet[8] += 0x10;
+	packet[8] = XK2_checksum(IS_BIND_IN_PROGRESS ? 0xC0 : num_ch);
 
 	// Send
 	XN297_SetFreqOffset();
@@ -160,6 +163,8 @@ static void __attribute__((unused)) XK2_initialize_txid()
 
 uint16_t XK2_callback()
 {
+	static bool rx = false;
+
 	switch(phase)
 	{
 		case XK2_BIND1:
@@ -178,13 +183,8 @@ uint16_t XK2_callback()
 						debug(" %02X",packet[i]);
 					debugln("");
 				#endif
-				crc8 = 0xBF;
-				for(uint8_t i=0; i<XK2_PAYLOAD_SIZE-1; i++)
-					crc8 += packet[i];
-				if(sub_protocol == XK2_P10)
-					crc8 += 0x10;
-				if(crc8 != packet[8])
-				{
+				if(XK2_checksum(0xBF) != packet[8])
+				{//Wrong checksum
 					phase = XK2_BIND1;
 					return 1000;
 				}
@@ -209,23 +209,67 @@ uint16_t XK2_callback()
 			XN297_SetTxRxMode(TXRX_OFF);
 			XN297_SetTxRxMode(TX_EN);
 			XN297_SetTXAddr(rx_tx_addr, 5);
+	#ifdef XK2_HUB_TELEMETRY
+			XN297_SetRXAddr(rx_tx_addr, XK2_PAYLOAD_SIZE);
+	#endif
 			BIND_DONE;
 			phase++;
 		case XK2_DATA:
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(XK2_PACKET_PERIOD);
 			#endif
+	#ifdef XK2_HUB_TELEMETRY
+			rx = XN297_IsRX();
+			XN297_SetTxRxMode(TXRX_OFF);
+	#endif
+			XK2_send_packet();
+	#ifdef XK2_HUB_TELEMETRY
+			if(rx)
+			{
+				XN297_ReadPayload(packet, XK2_PAYLOAD_SIZE);
+				#if 0
+					debug("RX");
+					for(uint8_t i=0; i<XK2_PAYLOAD_SIZE; i++)
+						debug(" %02X",packet[i]);
+					debugln("");
+				#endif
+				if(XK2_checksum(0xCC) == packet[8] && memcmp(packet, rx_tx_addr, 3) == 0)
+				{//Good checksum and TXID
+					//packets: E5 20 F2 00 00 00 00 00 C3 -> E5 20 F2 80 00 00 00 00 43
+					telemetry_link = 1;
+					v_lipo1 = packet[3] ? 137:162;		// low voltage 7.1V
+				}
+			}
+	#endif
 			if(bind_counter)
 			{
 				bind_counter--;
 				if(bind_counter == 0)
-				{
 					phase = XK2_DATA_PREP;
-					//phase = XK2_BIND1;
-				}
+				break;
 			}
-			XK2_send_packet();
+	#ifndef XK2_HUB_TELEMETRY
 			break;
+	#else
+			phase++;
+			return XK2_WRITE_TIME;
+		default: //XK2_RX
+			/*{ // Wait for packet to be sent before switching to receive mode
+				uint16_t start=(uint16_t)micros(), count=0;
+				while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 500)
+				{
+					if(XN297_IsPacketSent())
+						break;
+					count++;
+				}
+				debugln("%d",count);
+			}*/
+			//Switch to RX
+			XN297_SetTxRxMode(TXRX_OFF);
+			XN297_SetTxRxMode(RX_EN);
+			phase = XK2_DATA;
+			return XK2_PACKET_PERIOD-XK2_WRITE_TIME;
+	#endif
 	}
 	return XK2_PACKET_PERIOD;
 }
@@ -242,6 +286,9 @@ void XK2_init()
 		phase = XK2_DATA_PREP;
 	bind_counter = 0;
 	hopping_frequency_no = 0;
+	#ifdef XK2_HUB_TELEMETRY
+		RX_RSSI = 100;		// Dummy value
+	#endif
 }
 
 #endif

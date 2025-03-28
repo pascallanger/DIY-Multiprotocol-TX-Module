@@ -34,13 +34,12 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FX620_CH_OFFSET				1
 
 #define FX9630_PACKET_PERIOD		8124	//8156 on QIDI-560
-#define FX9630_BIND_PACKET_PERIOD	8124
 #define FX9630_BIND_CHANNEL			51
 #define FX9630_PAYLOAD_SIZE			8
 #define FX9630_NUM_CHANNELS			3
 #define FX9630_WRITE_TIME			500
 
-#define FX_QF012_BIND_PACKET_PERIOD	12194
+#define FX_QF012_PACKET_PERIOD		12194
 #define FX_QF012_RX_PAYLOAD_SIZE	3
 
 //#define FORCE_FX620_ID
@@ -199,7 +198,7 @@ static void __attribute__((unused)) FX_RF_init()
 	{
 		XN297_SetTXAddr((uint8_t *)"\x56\x78\x90\x12", 4);
 		XN297_RFChannel(FX9630_BIND_CHANNEL);
-		packet_period = sub_protocol == FX_QF012 ? FX_QF012_BIND_PACKET_PERIOD : FX9630_BIND_PACKET_PERIOD;
+		packet_period = sub_protocol == FX_QF012 ? FX_QF012_PACKET_PERIOD : FX9630_PACKET_PERIOD;
 		packet_length = FX9630_PAYLOAD_SIZE;
 	}
 }
@@ -291,7 +290,7 @@ uint16_t FX_callback()
 					{//Good CRC
 						//packets: A5 00 11 -> A5 01 11
 						telemetry_link = 1;
-						v_lipo1 = packet_in[1] == 0x01 ? 60:81;		// low voltage
+						v_lipo1 = packet_in[1] ? 60:81;		// low voltage 3.7V
 						#if 0
 							for(uint8_t i=0; i < FX_QF012_RX_PAYLOAD_SIZE; i++)
 								debug(" %02X", packet_in[i]);

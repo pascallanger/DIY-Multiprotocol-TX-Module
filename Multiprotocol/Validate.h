@@ -399,6 +399,9 @@
 	#undef	UDIRC_CCNRF_INO
 	#undef	KAMTOM_NRF24L01_INO
 	#undef	WL91X_CCNRF_INO
+	//Save flash space...
+	#undef	CABELL_NRF24L01_INO
+	#undef	REDPINE_CC2500_INO
 #endif
 
 #ifdef MULTI_SURFACE

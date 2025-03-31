@@ -96,12 +96,11 @@ static void AFHDS2A_update_telemetry()
 			#if 0
 				debug("T(%02X)=",packet[0]);
 				for(uint8_t i=9;i < AFHDS2A_RXPACKET_SIZE; i++)
-				{
-					packet_in[i-8]=packet[i];
 					debug(" %02X",packet[i]);
-				}
 				debugln("");
 			#endif
+			for(uint8_t i=9;i < AFHDS2A_RXPACKET_SIZE; i++)
+				packet_in[i-8]=packet[i];
 			packet_in[29]=packet[0];	// 0xAA Normal telemetry, 0xAC Extended telemetry
 			telemetry_link=2;
 			return;

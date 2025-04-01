@@ -20,21 +20,21 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 //#define FORCE_SGF22_ORIGINAL_ID
 
-#define SGF22_PACKET_PERIOD			11950 //10240
-#define SGF22_BIND_RF_CHANNEL		78
-#define SGF22_PAYLOAD_SIZE			12
-#define SGF22_BIND_COUNT			50
-#define SGF22_RF_NUM_CHANNELS		4
-#define SGF22_F22S_BIND_RF_CHANNEL	10
-#define SGF22_J20_BIND_RF_CHANNEL  	28
+#define SGF22_PACKET_PERIOD				11950 //10240
+#define SGF22_BIND_RF_CHANNEL			78
+#define SGF22_PAYLOAD_SIZE				12
+#define SGF22_BIND_COUNT				50
+#define SGF22_RF_NUM_CHANNELS			4
+#define SGF22_F22S_BIND_RF_CHANNEL		10
+#define SGF22_J20_BIND_RF_CHANNEL  		28
 
 //packet[8]
-#define SGF22_FLAG_3D			0x00
-#define SGF22_FLAG_LIGHT		0x04
-#define SGF22_FLAG_ROLL			0x08
-#define SGF22_FLAG_VIDEO		0x10
-#define SGF22_FLAG_6G			0x40
-#define SGF22_FLAG_VERTICAL		0xC0
+#define SGF22_FLAG_3D					0x00
+#define SGF22_FLAG_LIGHT				0x04
+#define SGF22_FLAG_ROLL					0x08
+#define SGF22_FLAG_VIDEO				0x10
+#define SGF22_FLAG_6G					0x40
+#define SGF22_FLAG_VERTICAL				0xC0
 
 #define SGF22_J20_FLAG_HORIZONTAL		0x80
 //#define SGF22_J20_FLAG_SPEED			0x01	// Up/Down trim, not implemented
@@ -44,9 +44,19 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 
 //packet[9]
-#define SGF22_FLAG_TRIMRESET		0x04
-#define SGF22_FLAG_PHOTO			0x40	// #define SGF22_J20_FLAG_INVERT  0x40
-#define SGF22_J20_FLAG_FIXHEIGHT	0x80
+#define SGF22_FLAG_TRIMRESET			0x04
+#define SGF22_FLAG_PHOTO				0x40	// #define SGF22_J20_FLAG_INVERT  0x40
+#define SGF22_J20_FLAG_FIXHEIGHT		0x80
+
+#define SGF22_WRITE_TIME				1000
+//#define SGF22_HUB_TELEMETRY
+
+enum {
+	SGF22_DATA1,
+	SGF22_DATA2,
+	SGF22_DATA3,
+	SGF22_RX,
+};
 
 static void __attribute__((unused)) SGF22_send_packet()
 {
@@ -148,34 +158,80 @@ static void __attribute__((unused)) SGF22_RF_init()
 {
 	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
 	XN297_SetTXAddr((uint8_t*)"\xC7\x95\x3C\xBB\xA5", 5);
+	#ifdef SGF22_HUB_TELEMETRY
+		XN297_SetRXAddr((uint8_t*)"\xC7\x95\x3C\xBB\xA5", SGF22_PAYLOAD_SIZE);
+	#endif
+
 	const uint8_t bind_chan[] = {SGF22_BIND_RF_CHANNEL, SGF22_F22S_BIND_RF_CHANNEL, SGF22_J20_BIND_RF_CHANNEL}; 
 	XN297_RFChannel(bind_chan[sub_protocol]);	// Set bind channel
 }
 
 uint16_t SGF22_callback()
 {
-	if(phase == 0)
+	#ifdef SGF22_HUB_TELEMETRY
+		bool rx = false;
+	#endif
+
+	switch(phase)
 	{
-		phase++;
-		#ifdef MULTI_SYNC
-			telemetry_set_input_sync(SGF22_PACKET_PERIOD);
-		#endif
-		SGF22_send_packet();
-		if(IS_BIND_IN_PROGRESS)
-		{
-			if(--bind_counter==0)
-				BIND_DONE;
-		}
-	}
-	else
-	{//send 3 times in total the same packet
-		XN297_ReSendPayload();
-		phase++;
-		if(phase > 2)
-		{
-			phase = 0;
-			return SGF22_PACKET_PERIOD - 2*1550;
-		}
+		case SGF22_DATA1:
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(SGF22_PACKET_PERIOD);
+			#endif
+	#ifdef SGF22_HUB_TELEMETRY
+			rx = XN297_IsRX();
+			XN297_SetTxRxMode(TXRX_OFF);
+	#endif
+			SGF22_send_packet();
+			if(IS_BIND_IN_PROGRESS)
+			{
+				if(--bind_counter==0)
+					BIND_DONE;
+			}
+	#ifdef SGF22_HUB_TELEMETRY
+			if(rx)
+			{
+				uint8_t p_len = XN297_ReadEnhancedPayload(packet_in, SGF22_PAYLOAD_SIZE);
+				if(p_len == 3 && packet_in[0] == rx_tx_addr[2] && packet_in[1] == rx_tx_addr[3])
+				{//packets only received when battery is low: 00 0B 01
+					telemetry_link = 1;
+					v_lipo1 = packet_in[2] ? 0 : 255;
+				}
+				#if 0
+					debug("L %d ",p_len);
+					debug("RX");
+					for(uint8_t i=0; i<SGF22_PAYLOAD_SIZE; i++)
+						debug(" %02X",packet_in[i]);
+					debugln("");
+				#endif
+			}
+	#endif
+			phase++;
+			break;
+		case SGF22_DATA2:
+		case SGF22_DATA3:
+			//send 3 times in total the same packet
+			XN297_ReSendPayload();
+			phase++;
+			break;
+		default: //SGF22_RX
+	#ifdef SGF22_HUB_TELEMETRY
+			/*{ // Wait for packet to be sent before switching to receive mode
+				uint16_t start=(uint16_t)micros(), count=0;
+				while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 500)
+				{
+					if(XN297_IsPacketSent())
+						break;
+					count++;
+				}
+				debugln("%d",count);
+			}*/
+			//Switch to RX
+			XN297_SetTxRxMode(TXRX_OFF);
+			XN297_SetTxRxMode(RX_EN);
+	#endif
+			phase = SGF22_DATA1;
+			return SGF22_PACKET_PERIOD - 3*1550;
 	}
 	return 1550;
 }
@@ -187,7 +243,10 @@ void SGF22_init()
 	SGF22_RF_init();
 	bind_counter=SGF22_BIND_COUNT;
 	packet_sent = packet_count = 0x26;	// TX2:26 TX3:26
-	phase = 0;
+	phase = SGF22_DATA1;
+	#ifdef SGF22_HUB_TELEMETRY
+		RX_RSSI = 100;		// Dummy value
+	#endif
 }
 
 #endif

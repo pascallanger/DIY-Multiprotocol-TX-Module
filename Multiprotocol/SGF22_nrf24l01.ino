@@ -49,7 +49,6 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_J20_FLAG_FIXHEIGHT		0x80
 
 #define SGF22_WRITE_TIME				1000
-//#define SGF22_HUB_TELEMETRY
 
 enum {
 	SGF22_DATA1,

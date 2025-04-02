@@ -2238,6 +2238,8 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|---|---|---
 A|E|T|R|MODE|FLIP|LIGHT|PHOTO|VIDEO|TRIMRESET|BAL|BALHIG
 
+Telemetry is supported. The plane sends a battery status of good->empty which is visible in A1 (good=13.2V->empty=0V) and RSSI gets a dummy value of 100.
+
 ### Sub_protocol F22
 Model: SG F22
 

@@ -192,9 +192,9 @@ uint16_t SGF22_callback()
 			{
 				uint8_t p_len = XN297_ReadEnhancedPayload(packet_in, SGF22_PAYLOAD_SIZE);
 				if(p_len == 3 && packet_in[0] == rx_tx_addr[2] && packet_in[1] == rx_tx_addr[3])
-				{//packets only received when battery is low: 00 0B 01
+				{//packets: 00 0B 00 -> 00 0B 01
 					telemetry_link = 1;
-					v_lipo1 = packet_in[2] ? 0 : 255;
+					v_lipo1 = packet_in[2] ? 0 : 255;	//2.9V for 1S, 7.0V for 2S
 				}
 				#if 0
 					debug("L %d ",p_len);

@@ -292,7 +292,7 @@ uint16_t DSM_callback()
 	#define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
 	#ifdef STM32_BOARD
 		#define DSM_WRITE_DELAY		1600		// Time after write to verify write complete
-		#define DSM_READ_DELAY		400			// Time before write to check read phase, and switch channels.
+		#define DSM_READ_DELAY		300			// Time before write to check read phase, and switch channels.
 	#else
 		#define DSM_WRITE_DELAY		1950		// Time after write to verify write complete
 		#define DSM_READ_DELAY		600			// Time before write to check read phase, and switch channels.
@@ -470,15 +470,15 @@ uint16_t DSM_callback()
 		case DSM_CH2_READ_B:
 			//Read telemetry
 			rx_phase = CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
-			debug("ST1:%02X ",rx_phase);
+			//debug("ST1:%02X ",rx_phase);
 			if((rx_phase & 0x03) == 0x02)  					// RXC=1, RXE=0 then 2nd check is required (debouncing)
 				rx_phase |= CYRF_ReadRegister(CYRF_07_RX_IRQ_STATUS);
-			debug("ST2:%02X ",rx_phase);
+			//debug("ST2:%02X ",rx_phase);
 			if((rx_phase & 0x07) == 0x02)
 			{ // good data (complete with no errors)
 				CYRF_WriteRegister(CYRF_07_RX_IRQ_STATUS, 0x80);	// need to set RXOW before data read
 				length=CYRF_ReadRegister(CYRF_09_RX_COUNT);
-				debug("RX(%d)",length);
+				//debug("RX(%d)",length);
 				if(length>TELEMETRY_BUFFER_SIZE-2)
 					length=TELEMETRY_BUFFER_SIZE-2;
 				CYRF_ReadDataPacketLen(packet_in+1, length);
@@ -496,7 +496,7 @@ uint16_t DSM_callback()
 				//	debug(" %02X", packet_in[i]);
 				telemetry_link=1;
 			}
-			debugln("");
+			//debugln("");
 			CYRF_WriteRegister(CYRF_29_RX_ABORT, 0x20);		// Abort RX operation
 			if (phase == DSM_CH2_READ_A && (sub_protocol==DSM2_1F || sub_protocol==DSMX_1F) && num_ch < 8)	// 22ms mode
 			{

@@ -62,7 +62,7 @@ You've upgraded the module but the radio does not display the name of the protoc
 # Available Protocol Table of Contents (Listed Alphabetically)
 
 Protocol Name|Build|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Sub_Proto 4|Sub_Proto 5|Sub_Proto 6|Sub_Proto 7|RF Module|Emulation
----|---|---|---|---|---|---|---|---|---|---|---
+---|---|---|---|---|---|---|---|---|---|---|---|---
 [Assan](Protocols_Details.md#ASSAN---24)|AIR/SFC|24|||||||||NRF24L01|
 [Bayang](Protocols_Details.md#BAYANG---14)|AIR/SFC|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4|QX100|||NRF24L01|XN297
 [Bayang RX](Protocols_Details.md#BAYANG-RX---59)|AIR/SFC|59|Multi|CPPM|||||||NRF24L01|XN297

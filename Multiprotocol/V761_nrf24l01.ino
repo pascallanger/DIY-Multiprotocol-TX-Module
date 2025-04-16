@@ -244,7 +244,7 @@ uint16_t V761_callback()
 			else
 			{
 				packet_count++;
-				if(!telemetry_lost && !rx && (packet_count%64) == 0)
+				if(!telemetry_lost && !rx && (packet_count & 0x3F) == 0)
 				{// Should have received a telem packet but... Send telem to the radio to keep it alive
 					telemetry_link = 1;
 					#ifdef V761_TELEM_DEBUG

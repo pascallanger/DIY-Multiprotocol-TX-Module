@@ -169,6 +169,7 @@ uint16_t SGF22_callback()
 {
 	#ifdef SGF22_HUB_TELEMETRY
 		bool rx = false;
+		static uint8_t telem_count = 0;
 	#endif
 
 	switch(phase)
@@ -195,6 +196,8 @@ uint16_t SGF22_callback()
 				{//packets: 00 0B 00 -> 00 0B 01
 					telemetry_link = 1;
 					v_lipo1 = packet_in[2] ? 0 : 255;	//2.9V for 1S, 7.0V for 2S
+					telemetry_lost = 0;
+					telem_count = 0;
 				}
 				#if 0
 					debug("L %d ",p_len);
@@ -204,6 +207,20 @@ uint16_t SGF22_callback()
 					debugln("");
 				#endif
 			}
+			if(telem_count > 4*63)				// Around 3.5sec with no telemetry
+				telemetry_lost = 1;
+			else
+			{
+				telem_count++;
+				if(!telemetry_lost && (telem_count & 0x3F) == 0)
+				{// Should have received a telem packet but... Send telem to the radio to keep it alive
+					telemetry_link = 1;
+					#if 0
+						debugln("Miss");
+					#endif
+				}
+			}
+
 	#endif
 			phase++;
 			break;
@@ -245,6 +262,7 @@ void SGF22_init()
 	phase = SGF22_DATA1;
 	#ifdef SGF22_HUB_TELEMETRY
 		RX_RSSI = 100;		// Dummy value
+		telemetry_lost = 1;
 	#endif
 }
 

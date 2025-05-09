@@ -232,7 +232,7 @@ static void __attribute__((unused)) RLINK_send_packet()
 			packet[1] |= 0x21;					//air 0x21 on dump but it looks to support telemetry at least RSSI
 			break;
 		case RLINK_DUMBORC:
-			packet[1]  = 0x00;					//always 0x00 on dump
+			packet[1] |= 0x01;					//always 0x00 on dump but does appear to support telemtry on newer transmitters
 			break;
 	}
 	
@@ -384,8 +384,9 @@ uint16_t RLINK_callback()
 					debug("Telem:");
 				#endif
 				CC2500_ReadData(packet_in, len);
-				if(packet_in[0]==RLINK_RX_PACKET_LEN && (packet_in[len-1] & 0x80) && memcmp(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN)==0 && packet_in[6]==packet[1])
+				if(packet_in[0]==RLINK_RX_PACKET_LEN && (packet_in[len-1] & 0x80) && memcmp(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN)==0 && (packet_in[6]==packet[1] || sub_protocol == RLINK_DUMBORC))
 				{//Correct telemetry received: length, CRC, ID and type
+				 //packet_in[6] is 0x00 on almost all DumboRC RX so assume it is always valid
 					#ifdef RLINK_DEBUG_TELEM
 						for(uint8_t i=0;i<len;i++)
 							debug(" %02X",packet_in[i]);

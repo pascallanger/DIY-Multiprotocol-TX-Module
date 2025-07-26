@@ -26,6 +26,11 @@
 #define CX10_PACKET_PERIOD	1316	// Timeout for callback in uSec
 #define CX10A_PACKET_PERIOD	6000
 
+#define CX10N_PACKET_SIZE	  12
+#define CX10N_BIND_COUNT	 100
+#define CX10N_PACKET_PERIOD	4000
+#define CX10N_RF_BIND_CHANNEL 48
+
 #define CX10_INITIAL_WAIT     500
 
 // flags
@@ -51,18 +56,41 @@ static void __attribute__((unused)) CX10_Write_Packet()
 	uint8_t offset = 0;
 	if(sub_protocol == CX10_BLUE)
 		offset = 4;
+
+if (false) {
+
 	packet[0] = IS_BIND_IN_PROGRESS ? 0xAA : 0x55;
 	packet[1] = rx_tx_addr[0];
 	packet[2] = rx_tx_addr[1];
 	packet[3] = rx_tx_addr[2];
 	packet[4] = rx_tx_addr[3];
+
+} else {
+
+	packet[0] = IS_BIND_IN_PROGRESS ? 0xC5 : 0x85;
+	packet[1] = IS_BIND_IN_PROGRESS ? 0x11 : packet_count++;
+	packet[2] = rx_tx_addr[0];
+	packet[3] = rx_tx_addr[1];
+
+}
+
+/*
+
 	// packet[5] to [8] (aircraft id) is filled during bind for blue board
 	uint16_t aileron= convert_channel_16b_limit(AILERON ,1000,2000);
 	uint16_t elevator=convert_channel_16b_limit(ELEVATOR,2000,1000);
 	uint16_t throttle=convert_channel_16b_limit(THROTTLE,1000,2000);
 	uint16_t rudder=  convert_channel_16b_limit(RUDDER  ,2000,1000);
+
+*/
+
+	uint8_t aileron  = convert_channel_8b(AILERON);
+	uint8_t elevator = convert_channel_8b(ELEVATOR);
+	uint8_t throttle = convert_channel_8b(THROTTLE);
+	uint8_t rudder   = convert_channel_8b(RUDDER);
+
     // Channel 5 - flip flag
-	packet[12+offset] = GET_FLAG(CH5_SW,CX10_FLAG_FLIP); 	// flip flag applied on rudder
+//	packet[12+offset] = GET_FLAG(CH5_SW,CX10_FLAG_FLIP); 	// flip flag applied on rudder
 
 	// Channel 6 - rate mode is 2 lsb of packet 13
 	if(CH6_SW)												// rate 3 / headless on CX-10A
@@ -72,6 +100,10 @@ static void __attribute__((unused)) CX10_Write_Packet()
 			flags = 0x00;									// rate 1
 		else
 			flags = 0x01;									// rate 2
+
+
+if (false) {
+
 	uint8_t flags2=0;										// packet 14
 
 	uint8_t video_state=packet[14] & 0x21;
@@ -150,7 +182,31 @@ static void __attribute__((unused)) CX10_Write_Packet()
 	packet[12+offset]|= highByte(rudder);
 	packet[13+offset]=flags;
 	packet[14+offset]=flags2;
-	
+
+} else {
+
+	packet[4] = throttle;
+	packet[5] = rudder;
+	packet[6] = elevator;
+	packet[7] = aileron;
+
+	if(IS_BIND_DONE) {
+		packet[8] = !CH5_SW ? 0x04 + flags : 0x0C;
+
+		// TODO horizontal and vertical adjustments
+		packet[10] = 0x42;
+		packet[11] = 0x10;
+
+	} else {
+
+		packet[8] = 0x00;
+
+		packet[10] = 0xAA;
+		packet[11] = 0x55;
+	}
+
+}
+
 	// Send
 	if(IS_BIND_DONE)
 	{
@@ -165,9 +221,11 @@ static void __attribute__((unused)) CX10_Write_Packet()
 static void __attribute__((unused)) CX10_RF_init()
 {
 	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_1M);
-	XN297_SetTXAddr((uint8_t *)"\xcc\xcc\xcc\xcc\xcc", 5);
+//	XN297_SetTXAddr((uint8_t *)"\xcc\xcc\xcc\xcc\xcc", 5);
+	XN297_SetTXAddr((uint8_t *)"\xc7\x95\x3c\xbb\xa5", 5);
 	XN297_SetRXAddr((uint8_t *)"\xcc\xcc\xcc\xcc\xcc", packet_length);
-	XN297_RFChannel(CX10_RF_BIND_CHANNEL);
+//	XN297_RFChannel(CX10_RF_BIND_CHANNEL);
+	XN297_RFChannel(CX10N_RF_BIND_CHANNEL);
 }
 
 uint16_t CX10_callback()
@@ -234,17 +292,45 @@ static void __attribute__((unused)) CX10_initialize_txid()
 	}
 	else
 	{
+
+if (false) {
+
 		hopping_frequency[0] = 0x03 + (rx_tx_addr[0] & 0x0F);
 		hopping_frequency[1] = 0x16 + (rx_tx_addr[0] >> 4);
 		hopping_frequency[2] = 0x2D + (rx_tx_addr[1] & 0x0F);
 		hopping_frequency[3] = 0x40 + (rx_tx_addr[1] >> 4);
+
+} else {
+
+		rx_tx_addr[0] = 0x4C;
+		rx_tx_addr[1] = 0xD7;
+
+		hopping_frequency[0] = 55;
+		hopping_frequency[1] = 66;
+		hopping_frequency[2] = 71;
+		hopping_frequency[3] = 60;
+
+/*
+		rx_tx_addr[0] = 0x50;
+		rx_tx_addr[1] = 0xE1;
+
+		hopping_frequency[0] = 59;
+		hopping_frequency[1] = 75;
+		hopping_frequency[2] = 70;
+		hopping_frequency[3] = 65;
+*/
+
+}
+
 	}
 }
 
 void CX10_init(void)
 {
 	BIND_IN_PROGRESS;	// autobind protocol
-	
+
+if (false) {
+
 	if(protocol == PROTO_Q2X2)
 		sub_protocol|=0x08;		// Increase the number of sub_protocols for CX-10
 	
@@ -269,6 +355,19 @@ void CX10_init(void)
 		phase = CX10_BIND1;
 		bind_counter = CX10_BIND_COUNT;
 	}
+
+} else {
+
+	packet_length = CX10N_PACKET_SIZE;
+	packet_period = CX10N_PACKET_PERIOD;
+	packet_count = 0;
+	phase = CX10_BIND1;
+	bind_counter = CX10N_BIND_COUNT;
+
+	packet[9] = 0x00;
+
+}
+
 	CX10_initialize_txid();
 	CX10_RF_init();
 }

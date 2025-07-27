@@ -19,7 +19,6 @@ Multiprotocol is distributed in the hope that it will be useful,
 #include "iface_xn297.h"
 
 #define FORCE_WPL_ORIGINAL_ID
-//#define WPL_TEST
 
 #define WPL_PACKET_PERIOD   9875
 #define WPL_RF_NUM_CHANNELS 4
@@ -30,9 +29,6 @@ static void __attribute__((unused)) WPL_send_packet()
 {
 	#if 0
 		debug("no:%d, rf:%d, ",hopping_frequency_no + (IS_BIND_IN_PROGRESS?0:4),hopping_frequency[hopping_frequency_no + (IS_BIND_IN_PROGRESS?0:4)]);
-	#endif
-	#ifdef WPL_TEST
-		memset(hopping_frequency+4,option,4);
 	#endif
 	XN297_Hopping(hopping_frequency_no + (IS_BIND_IN_PROGRESS?0:4) );
 	hopping_frequency_no++;
@@ -86,14 +82,11 @@ static void __attribute__((unused)) WPL_initialize_txid()
 {
 	//Bind frequencies
 	memcpy(hopping_frequency  ,"\x17\x25\x46\x36", WPL_RF_NUM_CHANNELS);	//23=17, 37=25, 70=46, 54=36
-	//Normal frequencies
-	memcpy(hopping_frequency+4,"\x0C\x2A\x3D\x1D", WPL_RF_NUM_CHANNELS);	//12=0C, 42=2A, 61=3D, 29=1D
 	#ifdef FORCE_WPL_ORIGINAL_ID
+		//Original ID
 		memcpy(rx_tx_addr,"\x96\x2A\xA9\x32\xB4",5);
-	#endif
-	#ifdef WPL_TEST
-		memcpy(rx_tx_addr,"\x96\x2A\xA9\x32\xB4",5);
-		rx_tx_addr[0] += RX_num;
+		//Normal frequencies
+		memcpy(hopping_frequency+4,"\x0C\x2A\x3D\x1D", WPL_RF_NUM_CHANNELS);	//12=0C, 42=2A, 61=3D, 29=1D
 	#endif
 }
 

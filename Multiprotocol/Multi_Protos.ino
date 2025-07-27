@@ -118,6 +118,7 @@ const char STR_UDIRC[]      ="UDIRC";
 const char STR_JIABAILE[]   ="JIABAILE";
 const char STR_KAMTOM[]     ="KAMTOM";
 const char STR_WL91X[]      ="WL91x";
+const char STR_WPL[]        ="WPL";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -518,7 +519,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(WL91X_CCNRF_INO)
 		{PROTO_WL91X,      STR_WL91X,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    WL91X_init,      WL91X_callback      },
 	#endif
-	
+	#if defined(WPL_NRF24L01_INO)
+		{PROTO_WPL,        STR_WPL,       NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    WPL_init,        WPL_callback        },
+	#endif
 	#if defined(XERALL_NRF24L01_INO)
 		{PROTO_XERALL,     STR_XERALL,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    XERALL_init,     XERALL_callback     },	
 	#endif

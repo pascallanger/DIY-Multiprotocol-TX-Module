@@ -27,6 +27,9 @@ Multiprotocol is distributed in the hope that it will be useful,
 
 static void __attribute__((unused)) WPL_send_packet()
 {
+	#if 0
+		debug("no:%d, rf:%d, ",hopping_frequency_no + (IS_BIND_IN_PROGRESS?0:4),hopping_frequency[hopping_frequency_no + (IS_BIND_IN_PROGRESS?0:4)]);
+	#endif
 	XN297_Hopping(hopping_frequency_no + (IS_BIND_IN_PROGRESS?0:4) );
 	hopping_frequency_no++;
 	hopping_frequency_no &= WPL_RF_NUM_CHANNELS-1;	// 4 RF channels
@@ -47,7 +50,7 @@ static void __attribute__((unused)) WPL_send_packet()
 		packet[4 ] = convert_channel_s8b(CH2);					// Steering
 		packet[5 ] = convert_channel_16b_limit(CH3,0x22,0x5E);	// Steering trim
 		packet[6 ] = rx_tx_addr[3];								// 0x32??
-		packet[7 ] = convert_channel_s8b(CH4);					// Aux
+		packet[7 ] = 0x80; //convert_channel_s8b(CH4);			// Aux
 		packet[9 ] = 0x80										// ?? Bound
 				   | GET_FLAG(CH5_SW, 0x08)						// Headlights 100%=on
 				   | GET_FLAG(CH6_SW, 0x04)						// Throttle rate 100%=high
@@ -61,6 +64,11 @@ static void __attribute__((unused)) WPL_send_packet()
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);
 	XN297_WritePayload(packet, WPL_PAYLOAD_SIZE);
+	#if 0
+		for(uint8_t i=0; i<WPL_PAYLOAD_SIZE; i++)
+			debug(" %02X",packet[i]);
+		debugln("");
+	#endif
 }
 
 static void __attribute__((unused)) WPL_RF_init()

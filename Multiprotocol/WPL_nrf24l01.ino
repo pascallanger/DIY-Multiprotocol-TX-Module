@@ -50,7 +50,7 @@ static void __attribute__((unused)) WPL_send_packet()
 		packet[4 ] = convert_channel_s8b(CH2);					// Steering
 		packet[5 ] = convert_channel_16b_limit(CH3,0x22,0x5E);	// Steering trim
 		packet[6 ] = rx_tx_addr[3];								// 0x32??
-		packet[7 ] = 0x80; //convert_channel_s8b(CH4);			// Aux
+		packet[7 ] = convert_channel_s8b(CH4);					// Aux
 		packet[9 ] = 0x80										// ?? Bound
 				   | GET_FLAG(CH5_SW, 0x08)						// Headlights 100%=on
 				   | GET_FLAG(CH6_SW, 0x04)						// Throttle rate 100%=high
@@ -96,7 +96,10 @@ uint16_t WPL_callback()
 	#endif
 	if(bind_counter)
 		if(--bind_counter==0)
+		{
 			BIND_DONE;
+			XN297_SetTXAddr(rx_tx_addr, 5);
+		}
 	WPL_send_packet();
 	return WPL_PACKET_PERIOD;
 }

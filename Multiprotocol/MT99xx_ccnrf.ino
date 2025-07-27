@@ -530,7 +530,7 @@ void MT99XX_init(void)
     bind_counter = MT99XX_BIND_COUNT;
 	if(IS_BIND_DONE)
 	{		
-		if(sub_protocol != A180 && sub_protocol != DRAGON && sub_protocol != F949G && sub_protocol != PA18+8)
+		if(sub_protocol != A180 && sub_protocol != DRAGON && sub_protocol != F949G && sub_protocol != PA18+8 && sub_protocol != SU35+8)
 			BIND_IN_PROGRESS;	// autobind protocol
 		else
 		    bind_counter = 1;

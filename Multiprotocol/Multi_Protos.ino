@@ -520,7 +520,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_WL91X,      STR_WL91X,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    WL91X_init,      WL91X_callback      },
 	#endif
 	#if defined(WPL_NRF24L01_INO)
-		{PROTO_WPL,        STR_WPL,       NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    WPL_init,        WPL_callback        },
+		{PROTO_WPL,        STR_WPL,       NO_SUBTYPE,            0, OPTION_OPTION,  0, 0, SW_NRF,    WPL_init,        WPL_callback        },
 	#endif
 	#if defined(XERALL_NRF24L01_INO)
 		{PROTO_XERALL,     STR_XERALL,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    XERALL_init,     XERALL_callback     },	

@@ -53,7 +53,10 @@ static void __attribute__((unused)) WPL_send_packet()
 				   | GET_FLAG(CH6_SW, 0x04)						// Throttle rate 100%=high
 				   | GET_FLAG(CH7_SW, 0x02);					// Steering rate 100%=high
 	}
-
+	uint8_t sum = 0x66;
+	for(uint8_t i=0;i<WPL_PAYLOAD_SIZE-1;i++)
+		sum += packet[i];
+	packet[WPL_PAYLOAD_SIZE-1] = sum;
 	// Send
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);

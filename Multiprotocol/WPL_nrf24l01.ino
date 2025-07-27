@@ -92,8 +92,8 @@ static void __attribute__((unused)) WPL_initialize_txid()
 		memcpy(rx_tx_addr,"\x96\x2A\xA9\x32\xB4",5);
 	#endif
 	#ifdef WPL_TEST
-		memcpy(rx_tx_addr,"\x00\x00\x00\x00\x00",5);
-		rx_tx_addr[0] = RX_num;
+		memcpy(rx_tx_addr,"\x96\x2A\xA9\x32\xB4",5);
+		rx_tx_addr[0] += RX_num;
 	#endif
 }
 

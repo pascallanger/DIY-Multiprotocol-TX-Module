@@ -27,6 +27,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_RF_NUM_CHANNELS			4
 #define SGF22_F22S_BIND_RF_CHANNEL		10
 #define SGF22_J20_BIND_RF_CHANNEL  		28
+#define CX10_BIND_RF_CHANNEL			48
 
 //packet[8]
 #define SGF22_FLAG_3D					0x00
@@ -61,7 +62,9 @@ static void __attribute__((unused)) SGF22_send_packet()
 {
 	if(IS_BIND_IN_PROGRESS)
 	{
-		packet[ 0] = 0x5B;
+//		packet[ 0] = 0x5B;
+		packet[ 0] = 0xC5;
+		packet[ 1] = 0x11;
 		packet[ 8] = 0x00;								// ??? do they have to be 0 for bind to succeed ?
 		packet[ 9] = 0x00;								// ??? do they have to be 0 for bind to succeed ?
 		packet[10] = 0xAA;
@@ -78,7 +81,9 @@ static void __attribute__((unused)) SGF22_send_packet()
 		if(packet_sent > 0x7B)
 			packet_sent = 0;
 		//packet
-		packet[0] = 0x1B;
+//		packet[0] = 0x1B;
+		packet[0] = 0x85;
+		packet[1] = packet_count;							// sequence
 		packet[8] = SGF22_FLAG_3D           			// CH5 -100%, F22 & F22S - 3D mode, J20 - Gyro off  
 			| GET_FLAG(CH6_SW, SGF22_FLAG_ROLL)			// roll
 			| GET_FLAG(CH7_SW, SGF22_FLAG_LIGHT)		// push up throttle trim for light in the stock TX
@@ -89,6 +94,17 @@ static void __attribute__((unused)) SGF22_send_packet()
 			packet[8] |= SGF22_FLAG_VERTICAL;     		// CH5 100%,  vertical mode (torque)    
 		else if(Channel_data[CH5] > CHANNEL_MIN_COMMAND )
 			packet[8] |= ( sub_protocol == SGF22_J20 ? SGF22_J20_FLAG_HORIZONTAL : SGF22_FLAG_6G );     // CH5 0%, F22 & F22S - 6G mode, J20 - Horizontal mode
+
+		// Channel 6 - packet 8 is rate mode or flip mode
+		if(CH6_SW)												// rate 3
+			flags = 0x02;
+		else
+			if(Channel_data[CH6] < CHANNEL_MIN_COMMAND)
+				flags = 0x00;									// rate 1
+			else
+				flags = 0x01;
+		packet[8] = !CH5_SW ? 0x04 + flags : 0x0C;
+
 		packet[9] = GET_FLAG(CH8_SW, SGF22_FLAG_PHOTO)  // F22: photo, press in throttle trim in the stock TX, J20: invert flight
 			| GET_FLAG(CH10_SW, ( sub_protocol == SGF22_J20 ? SGF22_J20_FLAG_FIXHEIGHT : SGF22_FLAG_TRIMRESET )) ;   // F22: Both sticks down inwards in the stock TX, J20: Altitude hold
 		packet[10] = 0x42;								// no fine tune
@@ -98,7 +114,7 @@ static void __attribute__((unused)) SGF22_send_packet()
 		packet[0] += 6;
 	else if (sub_protocol == SGF22_J20)
     		packet[0] += 3; 
-	packet[1] = packet_count;							// sequence
+//	packet[1] = packet_count;							// sequence
 	packet[2] = rx_tx_addr[2];
 	packet[3] = rx_tx_addr[3];
 	packet[4] = convert_channel_8b(THROTTLE);
@@ -108,7 +124,8 @@ static void __attribute__((unused)) SGF22_send_packet()
 
 	XN297_SetPower();
 	XN297_SetTxRxMode(TX_EN);
-	XN297_WriteEnhancedPayload(packet, SGF22_PAYLOAD_SIZE,0);
+//	XN297_WriteEnhancedPayload(packet, SGF22_PAYLOAD_SIZE,0);
+	XN297_WritePayload(packet, SGF22_PAYLOAD_SIZE);
 	#if 0
 		debug_time("");
 		for(uint8_t i=0; i<SGF22_PAYLOAD_SIZE; i++)
@@ -151,6 +168,16 @@ static void __attribute__((unused)) SGF22_initialize_txid()
 			debug(" %02X",hopping_frequency[i]);
 		debugln("");
 	#endif
+
+	rx_tx_addr[2] = 0x4C;
+	rx_tx_addr[3] = 0xD7;
+	memcpy(hopping_frequency, "\x37\x42\x47\x3c", SGF22_RF_NUM_CHANNELS);
+
+/*
+	rx_tx_addr[2] = 0x50;
+	rx_tx_addr[3] = 0xE1;
+	memcpy(hopping_frequency, "\x3b\x4b\x46\x41", SGF22_RF_NUM_CHANNELS);
+*/
 }
 
 static void __attribute__((unused)) SGF22_RF_init()
@@ -161,7 +188,8 @@ static void __attribute__((unused)) SGF22_RF_init()
 		XN297_SetRXAddr((uint8_t*)"\xC7\x95\x3C\xBB\xA5", SGF22_PAYLOAD_SIZE);
 	#endif
 
-	const uint8_t bind_chan[] = {SGF22_BIND_RF_CHANNEL, SGF22_F22S_BIND_RF_CHANNEL, SGF22_J20_BIND_RF_CHANNEL}; 
+//	const uint8_t bind_chan[] = {SGF22_BIND_RF_CHANNEL, SGF22_F22S_BIND_RF_CHANNEL, SGF22_J20_BIND_RF_CHANNEL};
+	const uint8_t bind_chan[] = {CX10_BIND_RF_CHANNEL, SGF22_F22S_BIND_RF_CHANNEL, SGF22_J20_BIND_RF_CHANNEL};
 	XN297_RFChannel(bind_chan[sub_protocol]);	// Set bind channel
 }
 

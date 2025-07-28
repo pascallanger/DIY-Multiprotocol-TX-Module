@@ -835,6 +835,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		SGF22
 		F22S
   		J20
+		CX10
 	PROTO_SHENQI
 		NONE
 	PROTO_SHENQI2

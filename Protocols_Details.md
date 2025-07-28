@@ -2253,12 +2253,19 @@ Manual CH11=-100% & CH12=-100%, Balance CH11=+100% & CH12=-100%, Large Angle Bal
 ### Sub_protocol F22S
 Model: ParkTen F22S
 
-F22S: Mode -100% = 3D, 0% = 6G
+Mode -100% = 3D, 0% = 6G
 
 ### Sub_protocol J20
 Model: KF700 J20
 
-J20: Mode -100% = Gyro off, 0% = Horizontal, 100% = Vertical. CH8 - Invert, CH10 - Fix Height (Altitude hold)
+Mode -100% = Gyro off, 0% = Horizontal, 100% = Vertical. CH8 - Invert, CH10 - Fix Height (Altitude hold)
+
+### Sub_protocol CX10
+Model: Cheerson CX-10 with red PCB
+
+**Only 2 IDs available**, use RX num to cycle through them.
+
+Mode -100% = Low, 0% = Medium, 100% = High
 
 ## Shenqi - *19*
 Autobind protocol

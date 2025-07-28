@@ -189,7 +189,7 @@ const char STR_SUBTYPE_MOULDKG[] =    "\x05""A4444""D4444""A664\0";
 const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320""ZCZ50\0";
 const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
 const char STR_SUBTYPE_FX[] =         "\x05""816\0 ""620\0 ""9630\0""Q560\0""QF012";
-const char STR_SUBTYPE_SGF22[] =      "\x04""F22\0""F22S""J20\0";
+const char STR_SUBTYPE_SGF22[] =      "\x04""F22\0""F22S""J20\0""CX10";
 const char STR_SUBTYPE_JIABAILE[] =   "\x04""Std\0""Gyro";
 #define NO_SUBTYPE		nullptr
 
@@ -474,7 +474,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_SCORPIO,    STR_SCORPIO,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_CYRF,   SCORPIO_init,    SCORPIO_callback    },
 	#endif
 	#if defined(SGF22_NRF24L01_INO)
-		{PROTO_SGF22,      STR_SGF22,     STR_SUBTYPE_SGF22,     3, OPTION_NONE,    0, 0, SW_NRF,    SGF22_init,      SGF22_callback      },
+		{PROTO_SGF22,      STR_SGF22,     STR_SUBTYPE_SGF22,     4, OPTION_NONE,    0, 0, SW_NRF,    SGF22_init,      SGF22_callback      },
 	#endif
 	#if defined(SHENQI_NRF24L01_INO)
 		{PROTO_SHENQI,     STR_SHENQI,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    SHENQI_init,     SHENQI_callback     },

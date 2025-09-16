@@ -167,6 +167,7 @@ static void __attribute__((unused)) SGF22_initialize_txid()
 		rx_tx_addr[3] = 0x61;	// TX2:51 TX3:0C
 		memcpy(hopping_frequency,"\x15\x34\x24\x44", SGF22_RF_NUM_CHANNELS);    //Original dump=>21=0x15,52=0x34,36=0x24,68=0x44
 	#endif
+	if (sub_protocol == SGF22_CX10)
 	#ifdef FORCE_SGF22_CX10_ORIGINAL_ID
 		if(rx_tx_addr[3] & 1)
 		{

@@ -12,7 +12,7 @@
  You should have received a copy of the GNU General Public License
  along with Multiprotocol.  If not, see <http://www.gnu.org/licenses/>.
  */
-// Radiolink surface protocol. TXs: RC4GS,RC6GS. Compatible RXs:R7FG(Std),R6FG,R6F,R8EF,R8FM,R8F,R4FGM 
+// Radiolink surface protocol. TXs: RC4GS,RC6GS. Compatible RXs:R7FG(Std),R6FG,R6F,R8EF,R8FM,R8F,R4FGM
 
 #if defined(RLINK_CC2500_INO)
 
@@ -37,6 +37,7 @@ enum {
 
 uint32_t RLINK_rand1;
 uint32_t RLINK_rand2;
+uint32_t RLINK_pseudo;
 
 static uint32_t __attribute__((unused)) RLINK_prng_next(uint32_t r)
 {
@@ -84,7 +85,7 @@ static void __attribute__((unused)) RLINK_shuffle_freqs(uint32_t seed)
 static void __attribute__((unused)) RLINK_hop()
 {
 	uint8_t inc=3*(rx_tx_addr[0]&3);
-	
+
 	// init hop table
 	for(uint8_t i=0; i<RLINK_HOP; i++)
 		hopping_frequency[i] = (12*i) + inc;
@@ -93,10 +94,77 @@ static void __attribute__((unused)) RLINK_hop()
 	RLINK_shuffle_freqs(RLINK_compute_start_id(rx_tx_addr[0] + (rx_tx_addr[1] << 8)));
 	RLINK_shuffle_freqs(RLINK_compute_start_id(rx_tx_addr[2] + (rx_tx_addr[3] << 8)));
 
-	// replace one of the channel randomely
+	// replace one of the channel randomly
 	rf_ch_num=random(0xfefefefe)%0x11;		// 0x00..0x10
 	if(inc==9) inc=6;						// frequency exception
 	hopping_frequency[rf_ch_num]=12*16+inc;
+}
+
+static void __attribute__((unused)) RLINK_hop_RC4G()
+{
+  // Find 2 unused channels
+  //  first  channel is a multiple of 3 between 00 and 5D
+  //  second channel is a multiple of 3 between 63 and BD
+  CC2500_Strobe(CC2500_SIDLE);
+  CC2500_WriteReg(CC2500_17_MCSM1,0x3C);
+  CC2500_Strobe(CC2500_SFRX);
+  CC2500_SetTxRxMode(RX_EN);
+  CC2500_Strobe(CC2500_SRX);
+  delayMilliseconds(1);           //wait for RX mode
+  uint16_t val;
+  uint8_t val_low = 0xFF;
+  hopping_frequency[0] = 0x00;
+  hopping_frequency[1] = 0x63;
+  for(uint8_t ch=0; ch<=0xBD; ch+=3)
+  {
+    if(ch==0x63)
+      val_low = 0xFF;           //init for second block
+    if(ch==0x60)
+      continue;             //skip channel
+    CC2500_WriteReg(CC2500_0A_CHANNR, ch);  //switch channel
+    delayMicroseconds(370);         //wait to read
+    val = 0;
+    for(uint8_t i=0;i<16;i++)
+      val += CC2500_ReadReg(CC2500_34_RSSI | CC2500_READ_BURST);
+    val >>= 4;
+    debug("C:%02X RSSI:%02X",ch,val);
+    if(val_low > val)
+    {
+      debug(" OK");
+      val_low = val;
+      hopping_frequency[ch<0x63?0:1]=ch;  //save best channel
+    }
+    debugln("");
+  }
+  CC2500_WriteReg(CC2500_17_MCSM1,0x30);
+  CC2500_Strobe(CC2500_SIDLE);
+  CC2500_SetTxRxMode(TX_EN);
+  #ifdef RLINK_RC4G_FORCE_ID
+    hopping_frequency[0] = 0x03;
+    hopping_frequency[1] = 0x6F;
+  #endif
+}
+
+// calc next pseudo random value
+static void __attribute__((unused)) RLINK_next_pseudo()
+{
+	RLINK_pseudo = ((RLINK_pseudo * 0xAA) + 0x03) % 0x7673;
+}
+
+static void __attribute__((unused)) RLINK_set_next_channel()
+{
+	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[RLINK_pseudo & 0x0F]);
+}
+
+static uint8_t __attribute__((unused)) RLINK_checksum(const uint8_t *data, uint8_t payload_len, bool include_id=false)
+{
+	uint8_t sum=0;
+	for(uint8_t i=0;i<payload_len;i++)
+		sum+=data[i];
+	if(include_id)
+		for(uint8_t i=0;i<RLINK_TX_ID_LEN;i++)
+			sum+=rx_tx_addr[i];
+	return sum;
 }
 
 static void __attribute__((unused)) RLINK_TXID_init()
@@ -117,52 +185,10 @@ static void __attribute__((unused)) RLINK_TXID_init()
 			memcpy(rx_tx_addr,"\xFC\x11\x0D\x20",RLINK_TX_ID_LEN);	//air T8FB
 	#endif
 	// channels order depend on ID
-	if(sub_protocol!=RLINK_RC4G)
-		RLINK_hop();
+	if(sub_protocol==RLINK_RC4G)
+    RLINK_hop_RC4G();
 	else
-	{//RLINK_RC4G
-		// Find 2 unused channels
-		//  first  channel is a multiple of 3 between 00 and 5D
-		//  second channel is a multiple of 3 between 63 and BD
-		CC2500_Strobe(CC2500_SIDLE);
-		CC2500_WriteReg(CC2500_17_MCSM1,0x3C);
-		CC2500_Strobe(CC2500_SFRX);
-		CC2500_SetTxRxMode(RX_EN);
-		CC2500_Strobe(CC2500_SRX);
-		delayMilliseconds(1);						//wait for RX mode
-		uint16_t val;
-		uint8_t val_low = 0xFF;
-		hopping_frequency[0] = 0x00;
-		hopping_frequency[1] = 0x63;
-		for(uint8_t ch=0; ch<=0xBD; ch+=3)
-		{
-			if(ch==0x63)
-				val_low	= 0xFF;						//init for second block
-			if(ch==0x60)
-				continue;							//skip channel
-			CC2500_WriteReg(CC2500_0A_CHANNR, ch);	//switch channel
-			delayMicroseconds(370);					//wait to read
-			val = 0;
-			for(uint8_t i=0;i<16;i++)
-				val += CC2500_ReadReg(CC2500_34_RSSI | CC2500_READ_BURST);
-			val >>= 4;
-			debug("C:%02X RSSI:%02X",ch,val);
-			if(val_low > val)
-			{
-				debug(" OK");
-				val_low = val;
-				hopping_frequency[ch<0x63?0:1]=ch;	//save best channel
-			}
-			debugln("");
-		}
-		CC2500_WriteReg(CC2500_17_MCSM1,0x30);
-		CC2500_Strobe(CC2500_SIDLE);
-		CC2500_SetTxRxMode(TX_EN);
-		#ifdef RLINK_RC4G_FORCE_ID
-			hopping_frequency[0] = 0x03;
-			hopping_frequency[1] = 0x6F;
-		#endif
-	}
+    RLINK_hop();
 
  	#ifdef RLINK_DEBUG
 		debug("ID:");
@@ -198,15 +224,14 @@ static void __attribute__((unused)) RLINK_rf_init()
 	}
 	else if(sub_protocol==RLINK_RC4G)
 		CC2500_WriteReg(5, 0xA5);
-		
+
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
-	
+
 	CC2500_SetTxRxMode(TX_EN);
 }
 
 static void __attribute__((unused)) RLINK_send_packet()
 {
-	static uint32_t pseudo=0;
 	uint32_t bits = 0;
 	uint8_t bitsavailable = 0;
 	uint8_t idx = 6;
@@ -225,7 +250,7 @@ static void __attribute__((unused)) RLINK_send_packet()
 	{
 		case RLINK_SURFACE:
 			packet[1] |= 0x01;
-			//radiolink additionnal ID which is working only on a small set of RXs
+			//radiolink additional ID which is working only on a small set of RXs
 			//if(RX_num) packet[1] |= ((RX_num+2)<<4)+4;	// RX number limited to 10 values, 0 is a wildcard
 			break;
 		case RLINK_AIR:
@@ -235,7 +260,7 @@ static void __attribute__((unused)) RLINK_send_packet()
 			packet[1] |= 0x01;					//always 0x00 on dump but does appear to support telemtry on newer transmitters
 			break;
 	}
-	
+
 	// ID
 	memcpy(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN);
 
@@ -256,36 +281,102 @@ static void __attribute__((unused)) RLINK_send_packet()
 			bitsavailable -= 8;
 		}
 	}
-	
+
 	// hop
-	pseudo=((pseudo * 0xAA) + 0x03) % 0x7673;	// calc next pseudo random value
-	CC2500_WriteReg(CC2500_0A_CHANNR, hopping_frequency[pseudo & 0x0F]);
-	packet[28]= pseudo;
-	packet[29]= pseudo >> 8;
+	RLINK_next_pseudo();
+	RLINK_set_next_channel();
+	packet[28]= RLINK_pseudo;
+	packet[29]= RLINK_pseudo >> 8;
 	packet[30]= 0x00;						// unknown
 	packet[31]= 0x00;						// unknown
 	packet[32]= rf_ch_num;					// index of value changed in the RF table
-	
+
 	// check
-	uint8_t sum=0;
-	for(uint8_t i=1;i<33;i++)
-		sum+=packet[i];
-	packet[33]=sum;
+	packet[33]=RLINK_checksum(&packet[1], RLINK_TX_PACKET_LEN-1);
 
 	// send packet
 	CC2500_WriteData(packet, RLINK_TX_PACKET_LEN+1);
-	
+
 	// packets type
 	packet_count++;
 	if(packet_count>5) packet_count=0;
 
 	#ifdef RLINK_DEBUG
-		debugln("C= 0x%02X",hopping_frequency[pseudo & 0x0F]);
+		debugln("C= 0x%02X",hopping_frequency[RLINK_pseudo & 0x0F]);
 		debug("P=");
 		for(uint8_t i=1;i<RLINK_TX_PACKET_LEN+1;i++)
 			debug(" 0x%02X",packet[i]);
 		debugln("");
 	#endif
+}
+
+#ifdef RLINK_HUB_TELEMETRY
+
+static bool __attribute__((unused)) RLINK_DUMBORC_send_command()
+{
+	if(!RLINK_SerialRX || sub_protocol != RLINK_DUMBORC)
+		return false;
+
+	RLINK_SerialRX=false;
+
+	if(RLINK_SerialRX_len > sizeof(RLINK_SerialRX_val))
+		return false;
+
+	CC2500_Strobe(CC2500_SIDLE);
+
+	RLINK_next_pseudo();
+	RLINK_set_next_channel();
+
+	packet[0] = RLINK_SerialRX_len;
+	memcpy(&packet[1], RLINK_SerialRX_val, RLINK_SerialRX_len);
+	packet[2] = RLINK_pseudo;
+	packet[3] = RLINK_pseudo >> 8;
+	// special packages have id check embedded in checksum
+	packet[RLINK_SerialRX_len] = RLINK_checksum(&packet[1], RLINK_SerialRX_len - 1, true);
+
+	CC2500_WriteData(packet, RLINK_SerialRX_len + 1);
+
+	packet_count++;
+	if(packet_count>5) packet_count=0;
+
+	#ifdef RLINK_DEBUG
+		debugln("C= 0x%02X",hopping_frequency[RLINK_pseudo & 0x0F]);
+		debug("DumboRC command=");
+		for(uint8_t i=1;i<packet[0]+1;i++)
+			debug(" 0x%02X",packet[i]);
+		debugln("");
+	#endif
+
+	return true;
+}
+#endif
+
+// logic is rougly copied from ddf-350, which in itself seems to be based on cc2500 docs
+static uint8_t __attribute__((unused)) RLINK_DUMBORC_tele_rssi_as_percent(uint8_t rssi)
+{
+	if(rssi < 15)
+		rssi=15;
+	else if(rssi > 90)
+		rssi=90;
+	return ((90 - rssi) * 100) / 75;
+}
+
+static bool __attribute__((unused)) RLINK_DUMBORC_validate_telemetry_packet(const uint8_t *data)
+{
+	const uint8_t declaredLen = data[0];
+
+	if(data[1] == 0x00)
+	{
+		// telemetry package follows base radiolink procotol with slightly less rules
+		if(declaredLen != RLINK_RX_PACKET_LEN || memcmp(&data[2], rx_tx_addr, RLINK_TX_ID_LEN) != 0)
+			return false;
+
+		// telemetry packages do not have id check embeeded in checksum, just like base RadioLink
+		return data[RLINK_RX_PACKET_LEN] == RLINK_checksum(&data[1], RLINK_RX_PACKET_LEN - 1);
+	}
+
+	// special packages have id check embedded in checksum
+	return data[declaredLen] == RLINK_checksum(&data[1], declaredLen - 1, true);
 }
 
 #ifndef MULTI_AIR
@@ -311,7 +402,7 @@ static void __attribute__((unused)) RLINK_RC4G_send_packet()
 		packet[5+i*2] = val;
 		packet[8+i  ] |= (val>>4) & 0xF0;
 	}
-	//special channel which is linked to gyro on the orginal TX but allocating it on CH5 here
+	//special channel which is linked to gyro on the original TX but allocating it on CH5 here
 	packet[10] = convert_channel_16b_limit(CH5,0,100);
 	//failsafe
 	for(uint8_t i=0;i<4;i++)
@@ -332,10 +423,15 @@ static void __attribute__((unused)) RLINK_RC4G_send_packet()
 }
 #endif
 
+#if defined RLINK_HUB_TELEMETRY
+uint16_t RLINK_timing_last_rfsend = 0;
+#endif
+
 #define RLINK_TIMING_PROTO	20000-100		// -100 for compatibility with R8EF
 #define RLINK_TIMING_RFSEND	10500
 #define RLINK_TIMING_CHECK	2000
 #define RLINK_RC4G_TIMING_PROTO 14460
+#define RLINK_DUMBORC_COMMAND_RFSEND 5000
 uint16_t RLINK_callback()
 {
 	if(sub_protocol == RLINK_RC4G)
@@ -360,48 +456,91 @@ uint16_t RLINK_callback()
 			#endif
 			CC2500_SetPower();
 			CC2500_SetFreqOffset();
-			RLINK_send_packet();
 #if not defined RLINK_HUB_TELEMETRY
-			return RLINK_TIMING_PROTO;
+			RLINK_send_packet();
+			return RLINK_TIMING_PROTO;						// RLINK_DATA
 #else
+			if(RLINK_DUMBORC_send_command())
+			{
+				phase++;									// RX1
+				RLINK_timing_last_rfsend = RLINK_DUMBORC_COMMAND_RFSEND;
+				return RLINK_timing_last_rfsend;
+			}
+
+			RLINK_send_packet();
+
 			if(!(packet[1]&0x02))
-				return RLINK_TIMING_PROTO;					//Normal packet
-															//Telemetry packet
+				return RLINK_TIMING_PROTO;					// Normal packet -> RLINK_DATA
+															// Telemetry packet
 			phase++;										// RX1
-			return RLINK_TIMING_RFSEND;
+			RLINK_timing_last_rfsend = RLINK_TIMING_RFSEND;
+			return RLINK_timing_last_rfsend;
 		case RLINK_RX1:
 			CC2500_Strobe(CC2500_SIDLE);
 			CC2500_Strobe(CC2500_SFRX);
 			CC2500_SetTxRxMode(RX_EN);
 			CC2500_Strobe(CC2500_SRX);
 			phase++;										// RX2
-			return RLINK_TIMING_PROTO-RLINK_TIMING_RFSEND-RLINK_TIMING_CHECK;
+			return RLINK_TIMING_PROTO-RLINK_timing_last_rfsend-RLINK_TIMING_CHECK;
 		case RLINK_RX2:
-			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;	
-			if (len == RLINK_RX_PACKET_LEN + 1 + 2)			//Telemetry frame is 15 bytes + 1 byte for length + 2 bytes for RSSI&LQI&CRC
+			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
+			//Telemetry frame is 15 bytes + 1 byte for length + 2 bytes for RSSI&LQI&CRC
+			const bool rlink_telem_len = sub_protocol != RLINK_DUMBORC && len == RLINK_RX_PACKET_LEN + 1 + 2;
+			// length byte + type byte + checksum byte + RSSI/LQI/CRC
+			const bool dumborc_len     = sub_protocol == RLINK_DUMBORC && len >= 5 && len <= sizeof(packet_in);
+			if (rlink_telem_len || dumborc_len)
 			{
 				#ifdef RLINK_DEBUG_TELEM
 					debug("Telem:");
 				#endif
 				CC2500_ReadData(packet_in, len);
-				if(packet_in[0]==RLINK_RX_PACKET_LEN && (packet_in[len-1] & 0x80) && memcmp(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN)==0 && (packet_in[6]==packet[1] || sub_protocol == RLINK_DUMBORC))
-				{//Correct telemetry received: length, CRC, ID and type
-				 //packet_in[6] is 0x00 on almost all DumboRC RX so assume it is always valid
+				if(len >= 3 && packet_in[0] == len - 3 && (packet_in[len-1] & 0x80))
+				{//Telemetry received with correct length and CC2500 CRC
 					#ifdef RLINK_DEBUG_TELEM
 						for(uint8_t i=0;i<len;i++)
 							debug(" %02X",packet_in[i]);
 					#endif
-					TX_RSSI = packet_in[len-2];
-					if(TX_RSSI >=128)
-						TX_RSSI -= 128;
-					else
-						TX_RSSI += 128;
-					RX_RSSI=packet_in[7]&0x7F;				//Should be packet_in[7]-256 but since it's an uint8_t...
-					v_lipo1=packet_in[8]<<1;				//RX Batt
-					v_lipo2=packet_in[9];					//Batt
-					telemetry_link=1;						//Send telemetry out
-					pps_counter++;
-					packet_count=0;
+					bool valid_telem=false;
+					if(sub_protocol == RLINK_DUMBORC)
+					{
+						if(RLINK_DUMBORC_validate_telemetry_packet(packet_in))
+						{
+							if(packet_in[1] == 0x00)
+							{
+								uint8_t tele_rssi = RLINK_DUMBORC_tele_rssi_as_percent(packet_in[7]);
+								uint16_t ext_v = packet_in[9] | (((uint16_t)packet_in[10]) << 8);
+								uint16_t direct_rssi = packet_in[11] | (((uint16_t)packet_in[12]) << 8);
+								direct_rssi = direct_rssi > 100 ? 100 : direct_rssi;
+								RX_RSSI = direct_rssi ? direct_rssi : tele_rssi;
+								v_lipo1 = ext_v > 255 ? 255 : ext_v;	// FrSkyD A1 is 8-bit, 0.1V units.
+								v_lipo2 = 0;							// DumboRC has no confirmed second voltage.
+								valid_telem=true;
+							}
+							else
+							{
+								telemetry_link=2; // Raw DumboRC packet to Lua/multiBuffer handling.
+								pps_counter++;
+							}
+						}
+					}
+					else if(packet_in[0] == RLINK_RX_PACKET_LEN && memcmp(&packet[2],rx_tx_addr,RLINK_TX_ID_LEN)==0 && packet_in[6]==packet[1])
+					{
+						RX_RSSI=packet_in[7]&0x7F;			//Should be packet_in[7]-256 but since it's an uint8_t...
+						v_lipo1=packet_in[8]<<1;			//RX Batt
+						v_lipo2=packet_in[9];				//Batt
+						valid_telem=true;
+					}
+					if(valid_telem)
+					{
+						TX_RSSI = packet_in[len-2];
+						if(TX_RSSI >=128)
+							TX_RSSI -= 128;
+						else
+							TX_RSSI += 128;
+						telemetry_link=1;					//Send telemetry out
+						pps_counter++;
+						packet_count=0;
+					}
 				}
 				#ifdef RLINK_DEBUG_TELEM
 					debugln("");

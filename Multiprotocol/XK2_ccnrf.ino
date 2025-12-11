@@ -86,6 +86,8 @@ static void __attribute__((unused)) XK2_send_packet()
 			packet[5] |= 0x10;											//Gyro off (senior mode)
 		else if(Channel_data[CH6] > CHANNEL_MIN_COMMAND)
 			packet[5] |= 0x08;											//3D
+		packet[5] |= GET_FLAG(CH9_SW, 0x04) ;     						//SkyViper Vector stunt flag
+		//SkyViper Vector: Telemetry A1 value is changed from 8.4v to 7.1v when the battery voltage is less than 3.3v
 		//Requiest telemetry flag
 		packet[6] = 0x01;
 		//RXID checksum

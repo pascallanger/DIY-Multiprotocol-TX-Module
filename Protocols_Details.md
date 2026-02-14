@@ -99,7 +99,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)||64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)||55|Multi|CloneTX|EraseTX|CPPM|||||CC2500|
 [Futaba/SFHSS](Protocols_Details.md#Futaba---21)||21|SFHSS||||||||CC2500|
-[FX](Protocols_Details.md#FX---58)||28|816|620|9630|Q560|QF012||||NRF24L01|
+[FX](Protocols_Details.md#FX---58)||28|816|620|9630|Q560|QF012|BM26|||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)||20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)||47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
 [GW008](Protocols_Details.md#GW008---32)||32|||||||||NRF24L01|XN297
@@ -1574,9 +1574,9 @@ If a CC2500 is installed it will be used for this sub protocol. Option in this c
 
 If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|Rate|Mode|Hover|Light
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|Rate|Mode|Hover|Light|Stunt
 
 The plane does not need to be bound each time if it is powered on **after** the radio/protocol is on.
 
@@ -1585,6 +1585,8 @@ Telemetry is supported. The plane sends a battery status of good->empty which is
 The rudder trim is driven from the rudder channel to increase the range (Original TX rudder has no range once the motor has been turned on...).
 
 Mode: -100%=6G, 0%=3D, +100%=Gyro off (Senior mode)
+
+CH9 - Stunt is for SkyViper Vector.
 
 ### Sub_protocol X4 - *0*
 Transmitter: XK X4-A160, X5S, model: XK A160S, XK A280, XK A300
@@ -1889,6 +1891,17 @@ A|E|T|R|FLIP|GYRO|Invert|Reset
 Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
 
 Reset: Restore fine tunning midpoint
+
+### Sub_protocol BM26 - *5*
+Model: BM26 P51
+
+Telemetry supported. The plane sends a battery status of good->empty which is visible in A1 (good=4.2V->empty=3.1V) and RSSI gets a dummy value of 100.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|FLIP|GYRO|Light Switch|Turning Light switch|Gyro Calibration
+
+Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
 
 ## FY326 - *20*
 

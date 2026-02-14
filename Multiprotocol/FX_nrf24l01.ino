@@ -42,6 +42,9 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FX_QF012_PACKET_PERIOD		12194
 #define FX_QF012_RX_PAYLOAD_SIZE	3
 
+#define FX_BM26_BIND_CHANNEL		40      
+#define FX_BM26_PACKET_PERIOD		14066
+
 //#define FORCE_FX620_ID
 //#define FORCE_FX9630_ID
 //#define FORCE_QIDI_ID
@@ -90,6 +93,12 @@ static void __attribute__((unused)) FX_send_packet()
 		packet[1] = convert_channel_8b(AILERON);
 		packet[2] = 0xFF - convert_channel_8b(ELEVATOR);
 		packet[3] = convert_channel_8b(RUDDER);
+		if ( sub_protocol == FX_BM26 )  // BM26 Ail, Elev, Rud range between 0x00-0x3F-0x7F
+    	{
+			packet[1] >>= 1;
+			packet[2] >>= 1;
+			packet[3] >>= 1;
+    	}
 		val = trim_ch==0 ? 0x20 : (convert_channel_8b(trim_ch + CH6) >> 2);	// no trim on Throttle
 		packet[4] = val;			// Trim for channel x 0C..20..34
 		packet[5] = (trim_ch << 4)	// channel x << 4
@@ -103,6 +112,22 @@ static void __attribute__((unused)) FX_send_packet()
 		else if (sub_protocol == FX_QF012) 
       			packet[5] |=  GET_FLAG(CH7_SW, 0x40)  // QF012 invert flight
                 		    | GET_FLAG(CH8_SW, 0x80);  // QF012 Restore fine tunning midpoint
+		else if ( sub_protocol == FX_BM26 ) 
+		{
+			if ( packet_count == 0 || packet_count > 3 ) {
+				packet[5] = 0x00;
+				packet_count = 0;
+			}
+			else packet[5] += 0x40;
+			packet_count++;        
+			// BM26 P51=>0:beginner(6G), 1:mid(3D), 2:expert(Gyro off) 
+			packet[5] |= (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x08 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x0C : 0x0A));
+			
+			packet[6] = (Channel_data[CH5] > CHANNEL_MAX_COMMAND ? 0x20 : 0x00 )  // 6G Roll
+        			  | (Channel_data[CH7] > CHANNEL_MAX_COMMAND ? 0x00 : 0x08 )  // Light control switch, default on
+            		  | (Channel_data[CH8] > CHANNEL_MAX_COMMAND ? 0x00 : 0x10 )  // Turn signal switch, default on
+        			  | (Channel_data[CH9] > CHANNEL_MAX_COMMAND ? 0x01 : 0x00 ); // Gyro Calibration
+    	}  
 	}
 	else // FX816 & FX620
 	{
@@ -164,6 +189,8 @@ static void __attribute__((unused)) FX_send_packet()
 		val = val ^ 0xFF;
 	packet[last_packet_idx]=val;
 
+	if ( IS_BIND_IN_PROGRESS && sub_protocol == FX_BM26 ) packet[7] = packet[6];
+	
 	//Debug
 	#if 0
 		for(uint8_t i=0;i<packet_length;i++)
@@ -193,6 +220,13 @@ static void __attribute__((unused)) FX_RF_init()
 		XN297_RFChannel(FX620_BIND_CHANNEL);
 		packet_period = FX620_BIND_PACKET_PERIOD;
 		packet_length = FX620_PAYLOAD_SIZE;
+	}
+	else if (sub_protocol == FX_BM26)
+	{
+		XN297_SetTXAddr((uint8_t *)"\x12\x34\x10\x10", 4); 
+    	XN297_RFChannel(FX_BM26_BIND_CHANNEL); 
+    	packet_period = FX_BM26_PACKET_PERIOD;
+    	packet_length = FX9630_PAYLOAD_SIZE;
 	}
 	else // FX9630 & FX_Q560 & FX_QF012
 	{
@@ -229,7 +263,7 @@ static void __attribute__((unused)) FX_initialize_txid()
 	else // FX9630 & FX_Q560 & FX_QF012
 	{
 		//??? Need to find out how the first RF channel is calculated ???
-		hopping_frequency[0] = 0x13;
+		hopping_frequency[0] = sub_protocol == FX_BM26? 0x0C : 0x13;
 		//Other 2 RF channels are sent during the bind phase so they can be whatever
 		hopping_frequency[1] = RX_num & 0x0F + 0x1A;
 		hopping_frequency[2] = rx_tx_addr[3] & 0x0F + 0x38;
@@ -245,7 +279,8 @@ static void __attribute__((unused)) FX_initialize_txid()
 			//memcpy(rx_tx_addr,(uint8_t*)"\x38\xC7\x6D\x8D", 4);
 			//memcpy(hopping_frequency,"\x0D\x20\x3A", FX9630_NUM_CHANNELS);
 		#endif
-	}
+		// BM26 rx_tx_addr: "\x17\x03\x00\x00", hopping_frequency: 0x0C,0x30,0x43(12,48,67)
+	} 
 }
 
 uint16_t FX_callback()
@@ -288,9 +323,9 @@ uint16_t FX_callback()
 					debug("RX");
 					if(XN297_ReadPayload(packet_in, FX_QF012_RX_PAYLOAD_SIZE))
 					{//Good CRC
-						//packets: A5 00 11 -> A5 01 11
 						telemetry_link = 1;
-						v_lipo1 = packet_in[1] ? 60:81;		// low voltage 3.7V
+						if ( sub_protocol == FX_BM26 ) v_lipo1 = packet_in[0] <  packet_in[2]? 60:81;  // packets: AA 00 55 -> 55 00 AA
+						else v_lipo1 = packet_in[1] ? 60:81;	//packets: A5 00 11 -> A5 01 11	// low voltage 3.7V
 						#if 0
 							for(uint8_t i=0; i < FX_QF012_RX_PAYLOAD_SIZE; i++)
 								debug(" %02X", packet_in[i]);
@@ -328,6 +363,7 @@ void FX_init()
 	FX_RF_init();
 	hopping_frequency_no = 0;
 	bind_counter=FX_BIND_COUNT;
+	packet_count = 0;
 	#ifdef FX_HUB_TELEMETRY
 		RX_RSSI = 100;		// Dummy value
 		phase = FX_DATA;

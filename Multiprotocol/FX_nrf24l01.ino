@@ -43,7 +43,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FX_QF012_RX_PAYLOAD_SIZE	3
 
 #define FX_BM26_BIND_CHANNEL		40      
-#define FX_BM26_PACKET_PERIOD		14066
+#define FX_BM26_PACKET_PERIOD		14060
 
 //#define FORCE_FX620_ID
 //#define FORCE_FX9630_ID

@@ -119,6 +119,7 @@ const char STR_JIABAILE[]   ="JIABAILE";
 const char STR_KAMTOM[]     ="KAMTOM";
 const char STR_WL91X[]      ="WL91x";
 const char STR_WPL[]        ="WPL";
+const char STR_ARES[]       ="Ares";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -191,6 +192,7 @@ const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
 const char STR_SUBTYPE_FX[] =         "\x05""816\0 ""620\0 ""9630\0""Q560\0""QF012";
 const char STR_SUBTYPE_SGF22[] =      "\x04""F22\0""F22S""J20\0""CX10";
 const char STR_SUBTYPE_JIABAILE[] =   "\x04""Std\0""Gyro";
+const char STR_SUBTYPE_ARES[] =       "\x07""6HPA_Tx";
 #define NO_SUBTYPE		nullptr
 
 #ifdef SEND_CPPM
@@ -228,6 +230,9 @@ const mm_protocol_definition multi_protocols[] = {
 // Protocol number, Protocol String, Sub_protocol strings, Number of sub_protocols, Option type, Failsafe, ChMap, RF switch, Init, Callback
 	#if defined(MULTI_CONFIG_INO)
 		{PROTO_CONFIG,     STR_CONFIG,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, 0,         CONFIG_init,     CONFIG_callback     },
+	#endif
+	#if defined(ARES_CC2500_INO)
+		{PROTO_ARES,       STR_ARES,      STR_SUBTYPE_ARES,      1, OPTION_RFTUNE,  0, 0, SW_CC2500, ARES_init,       ARES_callback       },
 	#endif
 	#if defined(ASSAN_NRF24L01_INO)
 		{PROTO_ASSAN,      STR_ASSAN,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    ASSAN_init,      ASSAN_callback      },

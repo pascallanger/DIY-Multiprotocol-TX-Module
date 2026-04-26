@@ -63,6 +63,7 @@ You've upgraded the module but the radio does not display the name of the protoc
 
 Protocol Name|Build|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Sub_Proto 4|Sub_Proto 5|Sub_Proto 6|Sub_Proto 7|RF Module|Emulation
 ---|---|---|---|---|---|---|---|---|---|---|---|---
+[Ares](Protocols_Details.md#ARES---108)|AIR|108|6HPA_Tx||||||||CC2500|
 [Assan](Protocols_Details.md#ASSAN---24)|AIR/SFC|24|||||||||NRF24L01|
 [Bayang](Protocols_Details.md#BAYANG---14)|AIR/SFC|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4|QX100|||NRF24L01|XN297
 [Bayang RX](Protocols_Details.md#BAYANG-RX---59)|AIR/SFC|59|Multi|CPPM|||||||NRF24L01|XN297
@@ -759,6 +760,27 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 
 ***
 # CC2500 RF Module
+
+## ARES - *108*
+Models: ARES RTF Park Flyer Aircraft.
+
+### Sub_protocol 6HPA_Tx - *0*
+Models: ARES Gamma 370, P-51D Mustang 350, RTF models with 6HPA-Tx and AZS12006-Rx (6 channel).
+
+Autobind protocol:
+- to bind, power on the TX first
+- then power on the receiver - LED slow flash
+- press receiver bind button - LED faster flash
+- receiver LED will flash quickly (15 seconds) when bound LED turns solid
+
+Receiver numbers (0-63) available for model match, MPM global ID used for unique module identifier. Changing the TX module or RX number will require re-binding the receiver.
+
+Option for this protocol corresponds to fine frequency tuning. This value is different for each Module and **must** be accurate otherwise the link will not be stable.
+Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6
 
 ## CORONA - *37*
 Models: Corona 2.4GHz FSS and DSSS receivers.

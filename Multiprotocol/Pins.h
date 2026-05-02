@@ -234,6 +234,12 @@
 	#define	A7105_CSN_pin	PB9								//A7105
 	#define	CYRF_CSN_pin	PB12							//CYRF CSN
 	#define SPI_CSN_pin		PA15
+	//LT8910 RESET pin (external RF board via SPI header)
+	//PA14 (SWCLK) is available after afio_cfg_debug_ports(AFIO_DEBUG_NONE).
+	//Using a dedicated pin avoids conflict with onboard 4in1 RF chips
+	#define	LT8910_RST_pin	PA14
+	#define	LT8910_RST_HI	digitalWrite(LT8910_RST_pin,HIGH)
+	#define	LT8910_RST_LO	digitalWrite(LT8910_RST_pin,LOW)
 	//SPI pins	
 	#define	SCK_pin			PB13							//SCK
 	#define	SDO_pin			PB14							//MISO

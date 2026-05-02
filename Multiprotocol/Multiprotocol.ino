@@ -326,6 +326,10 @@ void setup()
 		pinMode(CYRF_CSN_pin,OUTPUT);
 		pinMode(SPI_CSN_pin,OUTPUT);
 		pinMode(CYRF_RST_pin,OUTPUT);
+		#ifdef LT8910_RST_pin
+			pinMode(LT8910_RST_pin,OUTPUT);
+			LT8910_RST_HI;  // Start with RESET HIGH (inactive)
+		#endif
 		pinMode(PE1_pin,OUTPUT);
 		pinMode(PE2_pin,OUTPUT);
 		pinMode(TX_INV_pin,OUTPUT);
@@ -1183,7 +1187,7 @@ static void protocol_init()
 			release_trainer_ppm();
 		#endif
 		
-		//Set global ID and rx_tx_addr
+		// Set global ID and rx_tx_addr (RX_num 0-63 drives model match/bind ID)
 		MProtocol_id = RX_num + MProtocol_id_master;
 		set_rx_tx_addr(MProtocol_id);
 		
@@ -1257,13 +1261,15 @@ static void protocol_init()
 		#endif
 	}
 
-	#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
-		if( IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && (cur_protocol[1]&0x80)==0 && mode_select == MODE_SERIAL)
+#if defined(WAIT_FOR_BIND) && defined(ENABLE_BIND_CH)
+		bool bind_not_requested = (rx_ok_buff[1]&0x80)==0;
+		// Use the current serial frame bind bit here, not cur_protocol, so autobind does not wait on a stale bind flag from the previous selection.
+		if( IS_AUTOBIND_FLAG_on && IS_BIND_CH_PREV_off && bind_not_requested && mode_select == MODE_SERIAL)
 		{ // Autobind is active but no bind requested by either BIND_CH or BIND. But do not wait if in PPM mode...
 			WAIT_BIND_on;
 			return;
 		}
-	#endif
+#endif
 	WAIT_BIND_off;
 	CHANGE_PROTOCOL_FLAG_off;
 
@@ -1454,6 +1460,7 @@ void update_serial_data()
 		if( ((rx_ok_buff[1]&0x80)!=0) && ((cur_protocol[1]&0x80)==0) )		// Bind flag has been set
 		{ // Restart protocol with bind
 			CHANGE_PROTOCOL_FLAG_on;
+			WAIT_BIND_off;
 			BIND_IN_PROGRESS;
 		}
 		else
@@ -1614,6 +1621,18 @@ void update_serial_data()
 
 void modules_reset()
 {
+	#ifdef	LT8910_INSTALLED
+		// CRITICAL: Restore SPI2 to Mode 0 and default speed FIRST, before ANY
+		// chip reset that uses SPI.  CG022 sets CPHA=1 (Mode 1) and BR=/256 for
+		// the LT8910; if we call CYRF_Reset() (or any other chip reset) while
+		// SPI is still in Mode 1, those chips won't respond correctly and the
+		// module will lock up.  This must happen BEFORE CYRF_Reset().
+		SPI_DISABLE();
+		SPI2_BASE->CR1 &= ~(SPI_CR1_CPOL|SPI_CR1_CPHA);	// Mode 0
+		SPI2_BASE->CR1 &= ~SPI_CR1_BR;
+		SPI2_BASE->CR1 |= SPI_CR1_BR_PCLK_DIV_8;	// Restore 4.5MHz
+		SPI_ENABLE();
+	#endif
 	#ifdef	CC2500_INSTALLED
 		CC2500_Reset();
 	#endif
@@ -1628,6 +1647,9 @@ void modules_reset()
 	#endif
 	#ifdef	SX1276_INSTALLED
 		SX1276_Reset();
+	#endif
+	#ifdef	LT8910_INSTALLED
+		LT8910_Reset();
 	#endif
 
 	//Wait for every component to reset

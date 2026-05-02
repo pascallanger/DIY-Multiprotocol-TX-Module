@@ -46,6 +46,16 @@ void SPI_Write(uint8_t command)
 	command = SPI2_BASE->DR;					// ... and read the last received data.
 }
 
+uint8_t SPI_Transfer(uint8_t data)
+{
+	SPI2_BASE->DR = data;
+	#ifdef DEBUG_SPI
+		debug("%02X ",data);
+	#endif
+	while (!(SPI2_BASE->SR & SPI_SR_RXNE));
+	return SPI2_BASE->DR;
+}
+
 uint8_t SPI_Read(void)
 {
 	SPI_Write(0x00);		

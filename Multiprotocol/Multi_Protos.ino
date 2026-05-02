@@ -120,6 +120,7 @@ const char STR_KAMTOM[]     ="KAMTOM";
 const char STR_WL91X[]      ="WL91x";
 const char STR_WPL[]        ="WPL";
 const char STR_ARES[]       ="Ares";
+const char STR_AOSENMA[]    ="AoSenMa";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -193,6 +194,7 @@ const char STR_SUBTYPE_FX[] =         "\x05""816\0 ""620\0 ""9630\0""Q560\0""QF0
 const char STR_SUBTYPE_SGF22[] =      "\x04""F22\0""F22S""J20\0""CX10";
 const char STR_SUBTYPE_JIABAILE[] =   "\x04""Std\0""Gyro";
 const char STR_SUBTYPE_ARES[] =       "\x07""6HPA_Tx";
+const char STR_SUBTYPE_AOSENMA[] =    "\x05""CG022";
 #define NO_SUBTYPE		nullptr
 
 #ifdef SEND_CPPM
@@ -233,6 +235,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(ARES_CC2500_INO)
 		{PROTO_ARES,       STR_ARES,      STR_SUBTYPE_ARES,      1, OPTION_RFTUNE,  0, 0, SW_CC2500, ARES_init,       ARES_callback       },
+	#endif
+	#if defined(CG022_LT8910_INO)
+		{PROTO_AOSENMA,    STR_AOSENMA,   STR_SUBTYPE_AOSENMA,   1, OPTION_NONE,    0, 0, 0,         CG022_init,      CG022_callback      },
 	#endif
 	#if defined(ASSAN_NRF24L01_INO)
 		{PROTO_ASSAN,      STR_ASSAN,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    ASSAN_init,      ASSAN_callback      },

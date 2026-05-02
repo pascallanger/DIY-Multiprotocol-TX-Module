@@ -387,9 +387,16 @@
 #endif
 #if not defined(STM32_BOARD)
 	#undef SX1276_INSTALLED
+	#undef LT8910_INSTALLED
 #endif
 #if not defined(SX1276_INSTALLED) || defined MULTI_EU
 	#undef FRSKYR9_SX1276_INO
+#endif
+#if not defined(LT8910_INSTALLED)
+	#undef CG022_LT8910_INO
+#endif
+#if defined(LT8910_INSTALLED) && defined(SX1276_INSTALLED)
+	#error "LT8910 and SX1276 both use PA15 for chip select and cannot both be installed; comment out LT8910_INSTALLED or SX1276_INSTALLED in _Config.h"
 #endif
 
 #ifdef MULTI_AIR
@@ -470,6 +477,7 @@
 	#undef	V911S_CCNRF_INO
 	#undef	SGF22_NRF24L01_INO
 	#undef	YUXIANG_NRF24L01_INO
+	#undef	CG022_LT8910_INO
 #endif
 
 //OpenTX 2.3.x issue

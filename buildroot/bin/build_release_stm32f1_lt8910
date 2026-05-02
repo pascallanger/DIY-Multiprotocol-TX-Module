@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+source ./buildroot/bin/buildFunctions;
+exitcode=0;
+
+# STM32 LT8910 AIR builds
+opt_add MULTI_AIR;
+opt_disable ENABLE_PPM;
+opt_disable CFLIE_NRF24L01_INO
+opt_enable LT8910_INSTALLED;
+
+printf "\e[33;1mBuilding mm-stm-ser-lt8910-aetr-air-v$MULTI_VERSION.bin\e[0m\n";
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-ser-lt8910-aetr-air-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-ser-lt8910-taer-air-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace AETR TAER;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-ser-lt8910-taer-air-v$MULTI_VERSION.bin;
+
+printf "\e[33;1mBuilding mm-stm-ser-lt8910-reta-air-v$MULTI_VERSION.bin\e[0m\n";
+opt_replace TAER RETA;
+buildMulti;
+exitcode=$((exitcode+$?));
+mv build/Multiprotocol.ino.bin ./binaries/mm-stm-ser-lt8910-reta-air-v$MULTI_VERSION.bin;
+
+exit $exitcode;

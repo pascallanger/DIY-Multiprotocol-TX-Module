@@ -120,6 +120,7 @@ jobs:
           echo "CYRF6936_PROTOCOLS=$(echo $CYRF6936_PROTOCOLS)" >> $GITHUB_ENV
           echo "NRF24L01_PROTOCOLS=$(echo $NRF24L01_PROTOCOLS)" >> $GITHUB_ENV
           echo "SX1276_PROTOCOLS=$(echo $SX1276_PROTOCOLS)" >> $GITHUB_ENV
+          echo "LT8910_PROTOCOLS=$(echo $LT8910_PROTOCOLS)" >> $GITHUB_ENV
           echo "CCNRF_INO_PROTOCOLS=$(echo $CCNRF_INO_PROTOCOLS)" >> $GITHUB_ENV
           echo "ALL_PROTOCOLS=$(echo $ALL_PROTOCOLS)" >> $GITHUB_ENV
 
@@ -232,6 +233,9 @@ jobs:
           - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=ftdi"
             name: "STM32F103 (128KB, Serial Debug)"
             release: "stm32f103-128k-serial-debug"
+          - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=none"
+            name: "STM32F103 LT8910 (128KB)"
+            release: "stm32f103-128k-lt8910"
           - board: "multi4in1:STM32F1:multistm32f103cb:debug_option=none"
             name: "STM32F103 5-in-1 (128KB)"
             release: "stm32f103-128k-5in1"

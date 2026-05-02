@@ -63,6 +63,7 @@ You've upgraded the module but the radio does not display the name of the protoc
 
 Protocol Name|Build|Protocol Number|Sub_Proto 0|Sub_Proto 1|Sub_Proto 2|Sub_Proto 3|Sub_Proto 4|Sub_Proto 5|Sub_Proto 6|Sub_Proto 7|RF Module|Emulation
 ---|---|---|---|---|---|---|---|---|---|---|---|---
+[AoSenMa](Protocols_Details.md#AOSENMA---109)|AIR|109|CG022||||||||LT8910|
 [Ares](Protocols_Details.md#ARES---108)|AIR|108|6HPA_Tx||||||||CC2500|
 [Assan](Protocols_Details.md#ASSAN---24)|AIR/SFC|24|||||||||NRF24L01|
 [Bayang](Protocols_Details.md#BAYANG---14)|AIR/SFC|14|Bayang|H8S3D|X16_AH|IRDRONE|DHD_D4|QX100|||NRF24L01|XN297
@@ -759,6 +760,32 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
 
 ***
+# LT8910 RF Module
+
+## AOSENMA - *109*
+Requires an external LT8910 RF board connected to the MPM 6-pin SPI header (MOSI, MISO, SCK, CS, 3.3V, GND).
+RET must also be wired to STM32 MPU Pin 37 (PA14), with PKT not connected (floating - same as Original TX).
+Hardware setup: [docs/LT8910_CG022_Implementation.md#1-hardware-setup](docs/LT8910_CG022_Implementation.md#1-hardware-setup).
+
+### Sub_protocol CG022 - *0*
+Autobind protocol
+
+Model: Ao-Sen-Ma CG022 quad copter
+Unique model match is available by changing receiver numbers (0-63); changing the RX number requires re-binding.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|RATE|FLIP|HEADLESS|LED
+
+**Rate control (CH5):** 3-position switch for rate/sensitivity mode:
+- Low position (-100%): 20% rate (gentle)
+- Mid position (0%): 60% rate (normal)
+- High position (+100%): 100% rate (aggressive with flip near endpoints)
+
+**Binding:** Binding can occur in one of these two ways:
+1. Automatic bind on TX power-on: The transmitter automatically enters bind mode when the protocol is selected
+2. Manual rebind via CH16: Enable "Bind on channel" in GUI, then toggle CH16 from low to high to trigger a rebind sequence
+
 # CC2500 RF Module
 
 ## ARES - *108*

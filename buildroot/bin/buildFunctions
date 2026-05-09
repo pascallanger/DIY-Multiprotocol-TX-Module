@@ -40,6 +40,37 @@ getAllProtocols() {
     fi
 }
 
+getMaxBinSize() {
+    if [[ "$BOARD" =~ ":STM32F1:multistm32f103cb" ]] || [[ "$BOARD" =~ ":STM32F1:multi5in1t18int" ]]; then
+        echo "${MULTI_MAX_BIN_SIZE:-119808}"
+    fi
+}
+
+checkBinarySize() {
+    local max_size
+    local bin_path
+    local size
+
+    max_size=$(getMaxBinSize)
+    if [ -z "$max_size" ]; then
+        return 0
+    fi
+
+    bin_path="${GITHUB_WORKSPACE}/build/Multiprotocol.ino.bin"
+    if [ ! -f "$bin_path" ]; then
+        printf "\e[31;1mBinary size check failed: %s not found.\e[0m\n" "$bin_path"
+        return 1
+    fi
+
+    size=$(wc -c < "$bin_path" | tr -d ' ')
+    printf "\e[33;1mBinary size: %s bytes (limit: %s bytes)\e[0m\n" "$size" "$max_size"
+    if [ "$size" -gt "$max_size" ]; then
+        printf "\e[31;1mBinary exceeds limit by %s bytes.\e[0m\n" "$((size - max_size))"
+        return 1
+    fi
+    return 0
+}
+
 buildMulti() {
     echo ::group::_Config.h
     git diff Multiprotocol/_Config.h
@@ -49,6 +80,10 @@ buildMulti() {
     BUILDCMD="arduino-cli compile -b $BOARD ${GITHUB_WORKSPACE}/Multiprotocol/Multiprotocol.ino --build-path ${GITHUB_WORKSPACE}/build/";
     echo $BUILDCMD;
     $BUILDCMD
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+    checkBinarySize
     return $?
 }
 

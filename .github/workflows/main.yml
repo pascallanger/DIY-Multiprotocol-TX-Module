@@ -63,6 +63,7 @@ jobs:
     # Set the environment variables
     env:
       BOARD: ${{ matrix.board }}
+      MULTI_MAX_BIN_SIZE: 119808
 
     steps:
       - uses: actions/checkout@v4
@@ -256,6 +257,7 @@ jobs:
     env:
       BOARD: ${{ matrix.board }}
       RELEASE: ${{ matrix.release }}
+      MULTI_MAX_BIN_SIZE: 119808
 
     steps:
       - uses: actions/checkout@v4

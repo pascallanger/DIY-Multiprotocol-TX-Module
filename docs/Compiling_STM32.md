@@ -115,6 +115,8 @@ To check that the program will compile correctly and fit in the STM32 click **Sk
 
 If there are errors, carefully read it, go to the line number indicated and correct your typo. Arduino has different ways to indicate that the firmware is too big so check this by removing a large number of protocols and reenable them as you need.
 
+**Note for scripted builds:** The `buildroot/bin` build scripts enforce a binary size limit for STM32F103CB (128KB) builds. You can override the limit (in bytes) by setting `MULTI_MAX_BIN_SIZE` when running the scripts or in CI.
+
 If there are no errors and you see output like this:
 ```
 Sketch uses 68564 bytes (52%) of program storage space. Maximum is 131072 bytes.  

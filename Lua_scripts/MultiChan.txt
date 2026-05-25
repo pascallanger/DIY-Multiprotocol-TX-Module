@@ -93,7 +93,8 @@
 58,4,FX,QF012,1,FLIP,Gyro,Invert,Reset
 20,0,FY326,FY326,1,Flip,RTH,HLess,Expert,Calib
 20,1,FY326,FY319,1,Flip,RTH,HLess,Expert,Calib
-23,0,FY326,FY326,1,Flip,RTH,HLess,Expert
+23,0,FQ777,124,1,Flip,RTH,HLess,Expert
+23,1,FQ777,XBM37,1,Rate,Flip,HLess,LED,Pict,Video,RTH,OK,ETrim,Atrim
 47,0,GD00x,V1,1,Trim,LED,Rate
 47,1,GD00x,V2,1,Trim,LED,Rate
 32,0,GW008,FY326,1,Flip

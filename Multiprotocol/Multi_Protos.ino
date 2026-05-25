@@ -149,6 +149,7 @@ const char STR_SUBTYPE_MT99[] =       "\x06""MT99\0 ""H7\0   ""YZ\0   ""LS\0   "
 const char STR_SUBTYPE_MT992[] =      "\x04""PA18""SU35";
 const char STR_SUBTYPE_MJXQ[] =       "\x07""WLH08\0 ""X600\0  ""X800\0  ""H26D\0  ""E010\0  ""H26WH\0 ""Phoenix";
 const char STR_SUBTYPE_FY326[] =      "\x05""Std\0 ""FY319";
+const char STR_SUBTYPE_FQ777[] =      "\x06""124\0  ""XBM-37";
 const char STR_SUBTYPE_HONTAI[] =     "\x06""Std\0  ""JJRCX1""X5C1\0 ""FQ_951""XKK170";
 const char STR_SUBTYPE_AFHDS2A[] =    "\x08""PWM,IBUS""PPM,IBUS""PWM,SBUS""PPM,SBUS""Gyro_Off""Gyro_On\0""G_On_Rev";
 const char STR_SUBTYPE_Q2X2[] =       "\x04""Q222""Q242""Q282";
@@ -324,7 +325,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_AFHDS2A_RX, STR_AFHDS2A_RX,STR_CPPM,       NBR_CPPM, OPTION_NONE,    0, 0, SW_A7105,  AFHDS2A_RX_init, AFHDS2A_RX_callback },
 	#endif
 	#if defined(FQ777_NRF24L01_INO)
-		{PROTO_FQ777,      STR_FQ777,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    FQ777_init,      FQ777_callback      },
+		{PROTO_FQ777,      STR_FQ777,     STR_SUBTYPE_FQ777,     2, OPTION_NONE,    0, 0, SW_NRF,    FQ777_init,      FQ777_callback      },
 	#endif
 //OpenTX 2.3.x issue: DO NOT CHANGE ORDER below
 	#if defined(FRSKY_RX_CC2500_INO)

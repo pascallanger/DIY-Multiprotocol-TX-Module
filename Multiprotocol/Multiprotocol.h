@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		9
 #define VERSION_REVISION	4
-#define VERSION_PATCH_LEVEL	57
+#define VERSION_PATCH_LEVEL	58
 
 #define MODE_SERIAL 0
 
@@ -314,6 +314,11 @@ enum FY326
 {
 	FY326	= 0,
 	FY319	= 1,
+};
+enum FQ777
+{
+	FQ777	= 0,
+	XBM37	= 1,
 };
 enum WK2x01
 {
@@ -1108,6 +1113,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==FY326
 			FY326		0
 			FY319		1
+		sub_protocol==FQ777
+			FQ777		0
+			XBM37		1
 		sub_protocol==WK2x01
 			WK2801		0
 			WK2401		1

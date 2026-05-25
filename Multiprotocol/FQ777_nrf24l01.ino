@@ -31,6 +31,19 @@ enum {
 	FQ777_FLAG_FLIP       = 0x80,
 };
 
+enum {
+	XBM37_B5_OK           = 0x80,
+	XBM37_B6_RATE_LOW     = 0x00,
+	XBM37_B6_RATE_MID     = 0x01,
+	XBM37_B6_RATE_HIGH    = 0x02,
+	XBM37_B6_LED_OFF      = 0x04,
+	XBM37_B6_RTH          = 0x08,
+	XBM37_B6_HEADLESS     = 0x10,
+	XBM37_B6_VIDEO        = 0x20,
+	XBM37_B6_PICTURE      = 0x40,
+	XBM37_B6_FLIP         = 0x80,
+};
+
 const uint8_t ssv_xor[] = {0x80,0x44,0x64,0x75,0x6C,0x71,0x2A,0x36,0x7C,0xF1,0x6E,0x52,0x9,0x9D,0x1F,0x78,0x3F,0xE1,0xEE,0x16,0x6D,0xE8,0x73,0x9,0x15,0xD7,0x92,0xE7,0x3,0xBA};
 uint8_t FQ777_bind_addr []   = {0xe7,0xe7,0xe7,0xe7,0x67};
 
@@ -87,12 +100,21 @@ static void __attribute__((unused)) FQ777_send_packet()
 	uint8_t packet_ori[8];
 	if (IS_BIND_IN_PROGRESS)
 	{
-		// 4,5,6 = address fields
-		// last field is checksum of address fields
+		// Byte 0 is always 0x20; bytes 1-3 are sub-protocol specific
 		packet_ori[0] = 0x20;
-		packet_ori[1] = 0x15;
-		packet_ori[2] = 0x05;
-		packet_ori[3] = 0x06;
+		if (sub_protocol == XBM37)
+		{
+			packet_ori[1] = 0x14;
+			packet_ori[2] = 0x07;
+			packet_ori[3] = 0x03;
+		}
+		else  // FQ777
+		{
+			packet_ori[1] = 0x15;
+			packet_ori[2] = 0x05;
+			packet_ori[3] = 0x06;
+		}
+		// Bytes 4-6: address fields, byte 7: checksum of address fields (shared by both protocols)
 		packet_ori[4] = rx_tx_addr[0];
 		packet_ori[5] = rx_tx_addr[1];
 		packet_ori[6] = rx_tx_addr[2];
@@ -100,36 +122,64 @@ static void __attribute__((unused)) FQ777_send_packet()
 	}
 	else
 	{
-		// throt, yaw, pitch, roll, trims, flags/left button,00,right button
-		//0-3 0x00-0x64
-		//4 roll/pitch/yaw trims. cycles through one trim at a time - 0-40 trim1, 40-80 trim2, 80-C0 trim3 (center:  A0 20 60)
-		//5 flags for throttle button, two buttons above throttle - def: 0x40
-		//6 00 ??
-		//7 checksum - add values in other fields 
+		if (sub_protocol == XBM37)
+		{
+			packet_ori[0] = convert_channel_16b_limit(THROTTLE,0xE1,0);	// reverse channel
+			packet_ori[1] = convert_channel_16b_limit(RUDDER,0,0xE1);
+			packet_ori[2] = convert_channel_16b_limit(AILERON,0xE1,0);	// reverse channel
+			packet_ori[3] = convert_channel_16b_limit(ELEVATOR,0xE1,0);	// reverse channel
+			packet_ori[4] = ((convert_channel_8b(CH13) * 63) / 255) + 1;					// ele trim (01..20..40) front ^ plus 0x01, back - minus 0x01 per click
+			packet_ori[5] = 64 - (((uint32_t)convert_channel_8b(CH14) * 63 + 127) / 255);	// ail trim (40..20..01) left <- plus 0x01, right -> minus 0x01 per click
+			packet_ori[5] |= GET_FLAG(CH12_SW, XBM37_B5_OK);			// bit7 = OK button ...unknown use for this model?
 
-		
-		// Trims are usually done through the radio configuration but leaving the code here just in case...
-		uint8_t trim_mod  = packet_count % 144;
-		uint8_t trim_val  = 0;
-		if (36 <= trim_mod && trim_mod < 72) // yaw
-			trim_val  = 0x20; // don't modify yaw trim
-		else
-			if (108 < trim_mod && trim_mod) // pitch
-				trim_val = 0xA0;
-			else // roll
-				trim_val = 0x60;
+			uint8_t rate_bits;
+			if (CH5_SW)
+				rate_bits = XBM37_B6_RATE_HIGH;				// high rate
+			else if (Channel_data[CH5] < CHANNEL_MIN_COMMAND)
+				rate_bits = XBM37_B6_RATE_LOW;				// low rate
+			else
+				rate_bits = XBM37_B6_RATE_MID;				// medium rate
 
-		packet_ori[0] = convert_channel_16b_limit(THROTTLE,0,0x64);
-		packet_ori[1] = convert_channel_16b_limit(RUDDER,0,0x64);
-		packet_ori[2] = convert_channel_16b_limit(ELEVATOR,0,0x64);
-		packet_ori[3] = convert_channel_16b_limit(AILERON,0,0x64);
-		packet_ori[4] = trim_val; // calculated above
-		packet_ori[5] = GET_FLAG(CH5_SW, FQ777_FLAG_FLIP)
-				  | GET_FLAG(CH7_SW, FQ777_FLAG_HEADLESS)
-				  | GET_FLAG(!CH6_SW, FQ777_FLAG_RETURN)
-				  | GET_FLAG(CH8_SW,FQ777_FLAG_EXPERT);
-		packet_ori[6] = 0x00;
-		// calculate checksum
+			packet_ori[6] = rate_bits						// bits[1:0] = rate
+					| GET_FLAG(CH8_SW, XBM37_B6_LED_OFF)	// bit2 = LED off
+					| GET_FLAG(CH11_SW, XBM37_B6_RTH)		// bit3 = RTH
+					| GET_FLAG(CH7_SW, XBM37_B6_HEADLESS)	// bit4 = headless
+					| GET_FLAG(CH10_SW, XBM37_B6_VIDEO)		// bit5 = video
+					| GET_FLAG(CH9_SW, XBM37_B6_PICTURE)	// bit6 = picture
+					| GET_FLAG(CH6_SW, XBM37_B6_FLIP);		// bit7 = flip
+		}
+		else  // FQ777
+		{
+			// throt, yaw, pitch, roll, trims, flags/left button,00,right button
+			//0-3 0x00-0x64
+			//4 roll/pitch/yaw trims. cycles through one trim at a time - 0-40 trim1, 40-80 trim2, 80-C0 trim3 (center:  A0 20 60)
+			//5 flags for throttle button, two buttons above throttle - def: 0x40
+			//6 00 ??
+			//7 checksum - add values in other fields
+
+			// Trims are usually done through the radio configuration but leaving the code here just in case...
+			uint8_t trim_mod  = packet_count % 144;
+			uint8_t trim_val  = 0;
+			if (36 <= trim_mod && trim_mod < 72) // yaw
+				trim_val  = 0x20; // don't modify yaw trim
+			else
+				if (108 < trim_mod && trim_mod) // pitch
+					trim_val = 0xA0;
+				else // roll
+					trim_val = 0x60;
+
+			packet_ori[0] = convert_channel_16b_limit(THROTTLE,0,0x64);
+			packet_ori[1] = convert_channel_16b_limit(RUDDER,0,0x64);
+			packet_ori[2] = convert_channel_16b_limit(ELEVATOR,0,0x64);
+			packet_ori[3] = convert_channel_16b_limit(AILERON,0,0x64);
+			packet_ori[4] = trim_val; // calculated above
+			packet_ori[5] = GET_FLAG(CH5_SW, FQ777_FLAG_FLIP)
+					  | GET_FLAG(CH7_SW, FQ777_FLAG_HEADLESS)
+					  | GET_FLAG(!CH6_SW, FQ777_FLAG_RETURN)
+					  | GET_FLAG(CH8_SW,FQ777_FLAG_EXPERT);
+			packet_ori[6] = 0x00;
+		}
+		// Data packet checksum: sum of bytes 0-6 (not applied to bind packets)
 		uint8_t checksum = 0;
 		for (int i = 0; i < 7; ++i)
 			checksum += packet_ori[i];
@@ -181,12 +231,17 @@ void FQ777_init(void)
 	BIND_IN_PROGRESS;	// autobind protocol
 	bind_counter = FQ777_BIND_COUNT;
 	packet_count=0;
-	hopping_frequency[0] = 0x4D;
-	hopping_frequency[1] = 0x43;
-	hopping_frequency[2] = 0x27;
+	// Sub-protocol hop channel table: first 3 channels differ; channel[3]=0x07 is shared
+	static const uint8_t hop_ch[2][3] = {
+		{0x4D, 0x43, 0x27},  // FQ777
+		{0x49, 0x34, 0x26},  // XBM-37
+	};
+	hopping_frequency[0] = hop_ch[sub_protocol][0];
+	hopping_frequency[1] = hop_ch[sub_protocol][1];
+	hopping_frequency[2] = hop_ch[sub_protocol][2];
 	hopping_frequency[3] = 0x07;
 	hopping_frequency_no=0;
-	rx_tx_addr[2] = 0x00;
+	rx_tx_addr[2] = (sub_protocol == XBM37) ? (RX_num & 0x3F) : 0x00; // XBM-37 uses receiver number (0-63) for model match capability
 	rx_tx_addr[3] = 0xe7;
 	rx_tx_addr[4] = 0x67;
 	FQ777_RF_init();

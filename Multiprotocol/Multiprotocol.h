@@ -584,6 +584,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_MLINK			= 15,
 	MULTI_TELEMETRY_CONFIG			= 16,
 	MULTI_TELEMETRY_PROTO			= 17,
+	MULTI_TELEMETRY_RLINK			= 18,
 };
 
 // Macros
@@ -1227,6 +1228,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
       FrSkyX and FrSkyX2: Stream[27..34] during normal operation unstuffed SPort data to be sent
 	  HoTT: Stream[27] 1 byte for telemetry type
 	  DSM: Stream[27..33] Forward Programming
+	  RadioLink/DumboRC: Stream[27..35] raw command payload, used to send failsafe and gyro settings
 */
 /*
   Multiprotocol telemetry/command definition for OpenTX and erskyTX
@@ -1377,5 +1379,9 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[n+2]   = number of sub protocols
    data[n+3]   = sub protocols text length, only sent if nbr_sub != 0
    data[n+4..] = sub protocol names, only sent if nbr_sub != 0
-   
+
+  Type 0x12 RadioLink/DumboRC raw command payload
+   length: variable
+   data[0..] = raw command payload, used to send failsafe and gyro settings
+
 */

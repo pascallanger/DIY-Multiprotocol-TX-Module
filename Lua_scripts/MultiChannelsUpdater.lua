@@ -280,7 +280,7 @@ local function Multi_Init()
   end
  
   --Exceptions on first 4 channels...
-  if ( protocol == 73 or (protocol == 74 and sub_protocol == 0) or (protocol == 60 and sub_protocol == 2) or protocol == 89) then -- Kyosho or RadioLink Surface or Pelikan/SCX24 or Losi
+  if ( protocol == 73 or (protocol == 74 and (sub_protocol == 0 or sub_protocol == 2)) or (protocol == 60 and sub_protocol == 2) or protocol == 89) then -- Kyosho or RadioLink (Surface or DumboRc) or Pelikan/SCX24 or Losi
     channel_names[1] = "ST"
     channel_names[2] = "THR"
     channel_names[3] = "CH3"

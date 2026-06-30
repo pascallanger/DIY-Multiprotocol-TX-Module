@@ -2018,11 +2018,13 @@ ARM|
 
 Model: XK K170 UH-60L Black hawk
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|---
-A|E|T|R|RATE|EMERGENCY|TAKE_OFF/LANDING|CALIB|TrimA|TrimE
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATE|EMERGENCY|TAKE_OFF/LANDING|CALIB|TrimA|TrimE|Optical
 
 RATE: -100% Low, 0% Mid, +100% High
+
+CH11: XK K270 only
 
 ## JIABAILE - *102*
 

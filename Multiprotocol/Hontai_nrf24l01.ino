@@ -78,7 +78,9 @@ static void __attribute__((unused)) HONTAI_send_packet()
 				packet[i+3] = convert_channel_16b_limit(CH_TAER[i],0x28,0xD8);
 			packet[6] ^= 0xFF;	//Reverse rudder
 			//flags
-			packet[1] =  GET_FLAG(CH8_SW, 0x04);	//Gyro calibration (momentary)
+			//packet[1] =  GET_FLAG(CH8_SW, 0x04);	//Gyro calibration (momentary)
+			packet[1] =  GET_FLAG(CH8_SW, 0x04) //Gyro calibration (momentary)
+            	| GET_FLAG(CH11_SW, 0x10);    //XK K270 optical flow switch
 			//			|GET_FLAG(CH_SW, 0x08)		//Unk long press second top right button (momentary)
 			//			|GET_FLAG(CH_SW, 0x10)		//Unk short press second top right button (toggle)
 			//			|GET_FLAG(CH_SW, 0x40)		//Unk short press second top left button (momentary)

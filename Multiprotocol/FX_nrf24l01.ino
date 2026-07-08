@@ -42,9 +42,12 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define FX_QF012_PACKET_PERIOD		12194
 #define FX_QF012_RX_PAYLOAD_SIZE	3
 
+#define FX_A570_PACKET_PERIOD		10270
+
 //#define FORCE_FX620_ID
 //#define FORCE_FX9630_ID
 //#define FORCE_QIDI_ID
+//#define FORCE_FX_A570_ID
 
 enum 
 {
@@ -61,7 +64,7 @@ static void __attribute__((unused)) FX_send_packet()
 	{
 		XN297_Hopping(hopping_frequency_no++);
 		if(sub_protocol >= FX9630)
-		{ // FX9630 & FX_Q560 & FX_QF012
+		{ // FX9630 & FX_Q560 & FX_QF012 & FX_A570
 			if (hopping_frequency_no >= FX9630_NUM_CHANNELS)
 			{
 				hopping_frequency_no = 0;
@@ -70,7 +73,7 @@ static void __attribute__((unused)) FX_send_packet()
 					trim_ch++;
 					trim_ch &= 3;
 				}
-				else // FX_Q560 & FX_QF012
+				else // FX_Q560 & FX_QF012 & FX_A570
 					trim_ch = 0;
 			}
 		}
@@ -84,8 +87,37 @@ static void __attribute__((unused)) FX_send_packet()
 
 	//Channels
 	uint8_t val;
-	if (sub_protocol >= FX9630)
-	{ // FX9630 & FX_Q560 & FX_QF012
+	if (sub_protocol == FX816 || sub_protocol == FX620)
+	{
+		uint8_t offset=sub_protocol == FX816 ? FX816_CH_OFFSET:FX620_CH_OFFSET;
+		val=convert_channel_8b(AILERON);
+		if(val>127+FX_SWITCH)
+			packet[offset] = sub_protocol == FX816 ? 1:0xFF;
+		else if(val<127-FX_SWITCH)
+			packet[offset] = sub_protocol == FX816 ? 2:0x00;
+		else
+			packet[offset] = sub_protocol == FX816 ? 0:0x7F;
+		packet[offset+1] = convert_channel_16b_limit(THROTTLE,0,100);	//FX816:0x00..0x63, FX620:0x00..0x5E but that should work
+	}
+	else if (sub_protocol == FX_A570)
+	{
+		packet[0] = convert_channel_16b_limit(THROTTLE,0x1C,0xE4);
+		packet[1] = convert_channel_16b_limit(AILERON,0xE4,0x1C);
+		packet[2] = convert_channel_16b_limit(ELEVATOR,0xE4,0x1C);
+		packet[3] = convert_channel_16b_limit(RUDDER,0x1C,0xE4);
+				// Trims - Ruddder L:01 R:02, Aileron L:03 R:04, Elevator Fwd:05 Back:06
+		packet[4]  =  (Channel_data[CH10] < CHANNEL_MIN_COMMAND ? 0x01 : (Channel_data[CH10] > CHANNEL_MAX_COMMAND ? 0x02 : 0x00))  // Rudder trim
+					| (Channel_data[CH11] < CHANNEL_MIN_COMMAND ? 0x03 : (Channel_data[CH11] > CHANNEL_MAX_COMMAND ? 0x04 : 0x00))  // Aileron trim
+					| (Channel_data[CH12] < CHANNEL_MIN_COMMAND ? 0x06 : (Channel_data[CH12] > CHANNEL_MAX_COMMAND ? 0x05 : 0x00)); // Elevator trim
+		packet[5]  =  GET_FLAG(CH5_SW, 0x40)  // motors stop
+				// A570 flight modes = 0>vertical flight(3 axis mode):00, 1>flat flight(6G):02, 2>vertical flight(2 axis mode):04
+					| (Channel_data[CH6] < CHANNEL_MIN_COMMAND ? 0x00 : (Channel_data[CH6] > CHANNEL_MAX_COMMAND ? 0x04 : 0x02))
+					| GET_FLAG(CH7_SW, 0x01)  // 0:low rate, 1:high rate
+					| GET_FLAG(CH8_SW, 0x08)  // LED color change
+					| GET_FLAG(CH9_SW, 0x10); // LED off
+	}
+	else // FX9630 & FX_Q560 & FX_QF012
+	{
 		packet[0] = convert_channel_8b(THROTTLE);
 		packet[1] = convert_channel_8b(AILERON);
 		packet[2] = 0xFF - convert_channel_8b(ELEVATOR);
@@ -101,20 +133,8 @@ static void __attribute__((unused)) FX_send_packet()
 		if(sub_protocol == FX_Q560)
 			packet[5] |= GET_FLAG(CH7_SW, 0x18);	// Q560 LED flag 0x10 conflicting with trim_ch... Corrected on new boards using 0x08 instead
 		else if (sub_protocol == FX_QF012) 
-      			packet[5] |=  GET_FLAG(CH7_SW, 0x40)  // QF012 invert flight
-                		    | GET_FLAG(CH8_SW, 0x80);  // QF012 Restore fine tunning midpoint
-	}
-	else // FX816 & FX620
-	{
-		uint8_t offset=sub_protocol == FX816 ? FX816_CH_OFFSET:FX620_CH_OFFSET;
-		val=convert_channel_8b(AILERON);
-		if(val>127+FX_SWITCH)
-			packet[offset] = sub_protocol == FX816 ? 1:0xFF;
-		else if(val<127-FX_SWITCH)
-			packet[offset] = sub_protocol == FX816 ? 2:0x00;
-		else
-			packet[offset] = sub_protocol == FX816 ? 0:0x7F;
-		packet[offset+1] = convert_channel_16b_limit(THROTTLE,0,100);	//FX816:0x00..0x63, FX620:0x00..0x5E but that should work
+			packet[5] |=  GET_FLAG(CH7_SW, 0x40)  // QF012 invert flight
+						| GET_FLAG(CH8_SW, 0x80);  // QF012 Restore fine tunning midpoint
 	}
 
 	//Bind and specifics
@@ -142,7 +162,7 @@ static void __attribute__((unused)) FX_send_packet()
 			packet[5] = 0xAB;	// Is it based on ID??
 		}
 	}
-	else // FX9630 & FX_Q560 & FX_QF012
+	else // FX9630 & FX_Q560 & FX_QF012 & FX_A570
 	{
 		if(IS_BIND_IN_PROGRESS)
 		{
@@ -194,6 +214,15 @@ static void __attribute__((unused)) FX_RF_init()
 		packet_period = FX620_BIND_PACKET_PERIOD;
 		packet_length = FX620_PAYLOAD_SIZE;
 	}
+
+	else if(sub_protocol == FX_A570)
+	{
+		XN297_SetTXAddr((uint8_t *)"\x56\x78\x92\x13", 4);
+		XN297_RFChannel(FX9630_BIND_CHANNEL);
+		packet_period = FX_A570_PACKET_PERIOD;
+		packet_length = FX9630_PAYLOAD_SIZE;
+	}
+
 	else // FX9630 & FX_Q560 & FX_QF012
 	{
 		XN297_SetTXAddr((uint8_t *)"\x56\x78\x90\x12", 4);
@@ -226,6 +255,16 @@ static void __attribute__((unused)) FX_initialize_txid()
 		for(uint8_t i=1;i<FX_NUM_CHANNELS;i++)
 			hopping_frequency[i] = i*10 + hopping_frequency[0];
 	}
+	else if (sub_protocol == FX_A570)
+	{
+		hopping_frequency[0] = 0x0E;
+		hopping_frequency[1] = RX_num & 0x0F + 0x1A;
+		hopping_frequency[2] = rx_tx_addr[3] & 0x0F + 0x38;
+		#ifdef FORCE_FX_A570_ID
+			memcpy(rx_tx_addr,(uint8_t*)"\xA9\x56\xFC\x1C", 4);
+			memcpy(hopping_frequency,"\x0E\x1F\x39", FX9630_NUM_CHANNELS);		//Original dump=>14=0x0E,31=0x1F,57=0x39
+		#endif
+	}
 	else // FX9630 & FX_Q560 & FX_QF012
 	{
 		//??? Need to find out how the first RF channel is calculated ???
@@ -252,7 +291,7 @@ uint16_t FX_callback()
 {
 	#ifdef FX_HUB_TELEMETRY
 		bool rx=false;
-		
+		static uint8_t telem_count = 0;
 		switch(phase)
 		{
 			case FX_DATA:
@@ -272,7 +311,7 @@ uint16_t FX_callback()
 							packet_period = FX620_PACKET_PERIOD;
 						}
 						else if(sub_protocol >= FX9630)
-						{ // FX9630 & FX_Q560 & FX_QF012
+						{ // FX9630 & FX_Q560 & FX_QF012 & FX_A570
 							XN297_SetTXAddr(rx_tx_addr, 4);
 	#ifdef FX_HUB_TELEMETRY
 							XN297_SetRXAddr(rx_tx_addr, FX_QF012_RX_PAYLOAD_SIZE);
@@ -281,7 +320,7 @@ uint16_t FX_callback()
 					}
 				FX_send_packet();
 	#ifdef FX_HUB_TELEMETRY
-				if(sub_protocol < FX9630)
+				if (sub_protocol == FX816 || sub_protocol == FX620 || sub_protocol == FX_A570)
 					break;
 				if(rx)
 				{
@@ -291,12 +330,27 @@ uint16_t FX_callback()
 						//packets: A5 00 11 -> A5 01 11
 						telemetry_link = 1;
 						v_lipo1 = packet_in[1] ? 60:81;		// low voltage 3.7V
+						telemetry_lost = 0;
+						telem_count = 0;
 						#if 0
 							for(uint8_t i=0; i < FX_QF012_RX_PAYLOAD_SIZE; i++)
 								debug(" %02X", packet_in[i]);
 						#endif
 					}
 					debugln();
+				}
+				if(telem_count > 4*63)				// Around 3.5 sec with no telemetry
+					telemetry_lost = 1;
+				else
+				{
+					telem_count++;
+					if(!telemetry_lost && (telem_count & 0x3F) == 0)
+					{// Should have received a telem packet but... Send telem to the radio to keep it alive
+						telemetry_link = 1;
+						#if 0
+							debugln("Miss");
+						#endif
+					}
 				}
 				phase++;
 				return FX9630_WRITE_TIME;
@@ -330,6 +384,7 @@ void FX_init()
 	bind_counter=FX_BIND_COUNT;
 	#ifdef FX_HUB_TELEMETRY
 		RX_RSSI = 100;		// Dummy value
+		telemetry_lost = 1;
 		phase = FX_DATA;
 	#endif
 }

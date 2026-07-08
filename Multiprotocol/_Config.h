@@ -705,6 +705,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		FX9630
 		Q560
 		QF012
+		A570
 	PROTO_FY326
 		FY326
 		FY319

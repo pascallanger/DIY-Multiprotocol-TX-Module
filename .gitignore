@@ -3,3 +3,4 @@ _codeql_detected_source_root
 build/
 *.bak
 bin/
+_MyConfig.h

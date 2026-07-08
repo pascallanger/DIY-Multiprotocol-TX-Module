@@ -101,7 +101,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)||64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)||55|Multi|CloneTX|EraseTX|CPPM|||||CC2500|
 [Futaba/SFHSS](Protocols_Details.md#Futaba---21)||21|SFHSS||||||||CC2500|
-[FX](Protocols_Details.md#FX---58)||28|816|620|9630|Q560|QF012||||NRF24L01|
+[FX](Protocols_Details.md#FX---58)||28|816|620|9630|Q560|QF012|A570|||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)||20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)||47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
 [GW008](Protocols_Details.md#GW008---32)||32|||||||||NRF24L01|XN297
@@ -1954,6 +1954,25 @@ A|E|T|R|FLIP|GYRO|Invert|Reset
 Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
 
 Reset: Restore fine tunning midpoint
+
+### Sub_protocol A570 - *5*
+VTOL Model: Kootai A570, QIDI-570
+
+This model has no telemetry. Low battery indicated by model LED's turning flashing red.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
+---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|STOP|MODE|Rate|Color|LED-Off|TrimR|TrimA|TrimE
+
+ - STOP: -100% allows standard start / sticks moved down and center (Mode 2), +100% all motors stop
+ - MODE: -100%=Vertical hover, 0%=Flat flight, +100%=Vertical flight (Original TX will not allow motor start in Flat flight)
+ - Rate: -100%=Low Rate, +100%=High Rate
+ - Color: -100% / +100% toggles LED lights through color choices
+ - LED-Off: +100% switches lights OFF, -100% allows lights ON after a toggle of the color channel
+ - Trims: -100%=Rud-L,Ail-L,Ele-Back, +100%=Rud-R,Ail-R,Ele-Fwd, if used must be tied to momentary 3-pos switches
+ - (trim switches disabled in FM tab, added to trim channels 10,11,12 in mixes tab)
+
+Calibration: Same as original TX, model on level surface, TX bound, sticks lower left corners, LED's flashing
 
 ## FY326 - *20*
 

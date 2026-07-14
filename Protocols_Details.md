@@ -2012,13 +2012,15 @@ ARM|
 
 ### Sub_protocol XKK170 - *3*
 
-Model: XK K170 UH-60L Black hawk
+Model: XK K170 UH-60L Black hawk, XK K270 UH-60L
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
----|---|---|---|---|---|---|---|---|---
-A|E|T|R|RATE|EMERGENCY|TAKE_OFF/LANDING|CALIB|TrimA|TrimE
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
+---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|RATE|EMERGENCY|TAKE_OFF/LANDING|CALIB|TrimA|TrimE|Optic
 
 RATE: -100% Low, 0% Mid, +100% High
+
+Optic: enable/disable the optical flow sensor for K270
 
 ## JIABAILE - *102*
 

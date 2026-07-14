@@ -599,6 +599,7 @@ void DSM_init()
 				uint16_t temp = DSM_CLONE_EEPROM_OFFSET;
 				for(uint8_t i=0;i<4;i++)
 					cyrfmfg_id[i] = eeprom_read_byte((EE_ADDR)temp++);
+					cyrfmfg_id[3]^=RX_num;		//Model match
 				#if DEBUG_BIND
 					debugln("Using cloned ID");  
 					debug("Clone ID=")
@@ -619,8 +620,7 @@ void DSM_init()
 		{
 			//SUB_PROTO_VALID;
 			CYRF_GetMfgData(cyrfmfg_id);
-			//Model match
-			cyrfmfg_id[3]^=RX_num;
+			cyrfmfg_id[3]^=RX_num;			//Model match
 		}
 	}
 

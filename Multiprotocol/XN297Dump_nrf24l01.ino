@@ -22,7 +22,9 @@
 #include "iface_xn297.h"
 
 // Parameters which can be modified
-#define XN297DUMP_PERIOD_SCAN		50000 	// 25000
+#define XN297DUMP_PERIOD_FAST_SCAN	50000	// 50000
+#define XN297DUMP_PERIOD_SLOW_SCAN	100000 	// 75000
+#define XN297DUMP_MAX_PACKET		50 		// 20
 #define XN297DUMP_MAX_RF_CHANNEL	84		// Default 84
 
 // Do not touch from there
@@ -38,6 +40,7 @@ boolean ack;
 uint8_t pid;
 uint8_t bitrate;
 uint8_t old_option;
+uint32_t scan_counter;
 
 static void __attribute__((unused)) XN297Dump_RF_init()
 {
@@ -195,10 +198,10 @@ static uint16_t XN297Dump_callback()
 	{
 		if(sub_protocol<XN297DUMP_AUTO)
 		{
-			if(option==0xFF && bind_counter>XN297DUMP_PERIOD_SCAN)
+			if(option==0xFF && scan_counter>XN297DUMP_PERIOD_SLOW_SCAN)
 			{	// Scan frequencies
 				hopping_frequency_no++;
-				bind_counter=0;
+				scan_counter=0;
 			}
 			if(hopping_frequency_no!=rf_ch_num)
 			{	// Channel has changed
@@ -294,10 +297,10 @@ static uint16_t XN297Dump_callback()
 					phase++;
 					break;
 				case 1:
-					if(bind_counter>XN297DUMP_PERIOD_SCAN)
+					if(scan_counter>XN297DUMP_PERIOD_FAST_SCAN)
 					{	// Scan frequencies
 						hopping_frequency_no++;
-						bind_counter=0;
+						scan_counter=0;
 						if(hopping_frequency_no>XN297DUMP_MAX_RF_CHANNEL)
 						{
 							hopping_frequency_no=0;
@@ -367,7 +370,7 @@ static uint16_t XN297Dump_callback()
 								debugln("\r\n--------------------------------");
 								phase=2;
 								debugln("Identifying all RF channels in use.");
-								bind_counter=0;
+								scan_counter=0;
 								hopping_frequency_no=0;
 								rf_ch_num=0;
 								packet_count=0;
@@ -389,11 +392,11 @@ static uint16_t XN297Dump_callback()
 					}
 					break;
 				case 2:
-					if(bind_counter>XN297DUMP_PERIOD_SCAN)
+					if(scan_counter>XN297DUMP_PERIOD_SLOW_SCAN)
 					{	// Scan frequencies
 						hopping_frequency_no++;
-						bind_counter=0;
-						if(packet_count && packet_count<=20)
+						scan_counter=0;
+						if(packet_count && packet_count<=XN297DUMP_MAX_PACKET)
 							debug("\r\nTrying RF channel: ");
 						packet_count=0;
 						if(hopping_frequency_no>XN297DUMP_MAX_RF_CHANNEL)
@@ -438,7 +441,7 @@ static uint16_t XN297Dump_callback()
 							hopping_frequency_no=0;
 							phase=3;
 							packet_count=0;
-							bind_counter=0;
+							scan_counter=0;
 							debugln("Time between CH:%d and CH:%d",hopping_frequency[compare_channel],hopping_frequency[hopping_frequency_no]);
 							time_rf[hopping_frequency_no]=0xFFFFFFFF;
 							XN297_RFChannel(hopping_frequency[compare_channel]);
@@ -495,9 +498,9 @@ static uint16_t XN297Dump_callback()
 									debug(" %02X",packet[i]);
 								packet_count++;
 								nbr_rf[rf_ch_num-1]=packet_count;
-								if(packet_count>20)
+								if(packet_count>XN297DUMP_MAX_PACKET)
 								{//change channel
-									bind_counter=XN297DUMP_PERIOD_SCAN+1;
+									scan_counter=XN297DUMP_PERIOD_SLOW_SCAN+1;
 									debug("\r\nTrying RF channel: ");
 								}
 							}
@@ -509,10 +512,10 @@ static uint16_t XN297Dump_callback()
 					XN297Dump_overflow();
 					break;
 				case 3:
-					if(bind_counter>XN297DUMP_PERIOD_SCAN)
+					if(scan_counter>XN297DUMP_PERIOD_SLOW_SCAN)
 					{	// Scan frequencies
 						hopping_frequency_no++;
-						bind_counter=0;
+						scan_counter=0;
 						if(hopping_frequency_no>=rf_ch_num)
 						{
 							uint8_t next=0;
@@ -596,7 +599,7 @@ static uint16_t XN297Dump_callback()
 								packet_count++;
 								if(packet_count>24)
 								{
-									bind_counter=XN297DUMP_PERIOD_SCAN+1;
+									scan_counter=XN297DUMP_PERIOD_SLOW_SCAN+1;
 									packet_count=0;
 								}
 							}
@@ -941,7 +944,7 @@ static uint16_t XN297Dump_callback()
 				}
 			}
 		}
-		bind_counter++;
+		scan_counter++;
 		if(IS_RX_FLAG_on)					// Let the radio update the protocol
 		{
 			if(Update_All()) return 10000;	// New protocol selected
@@ -967,7 +970,7 @@ void XN297Dump_init(void)
 	if(address_length<3||address_length>5)
 		address_length=5;	//default
 	XN297Dump_RF_init();
-	bind_counter=0;
+	scan_counter=0;
 	rf_ch_num=0xFF;
 	prev_option=option^0x55;
 	phase=0;				// init

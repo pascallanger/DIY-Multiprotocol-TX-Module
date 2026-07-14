@@ -48,32 +48,19 @@ static void __attribute__((unused)) KF606_send_packet()
 		hopping_frequency_no ^= 1;			// 2 RF channels
 
 		packet[0] = 0x55;
-		packet[1] = convert_channel_8b(THROTTLE);					// 0..255
+		if(sub_protocol == KF606_ZCZ50) len--;
+		packet[len-3] = convert_channel_8b(THROTTLE);									// 0..255
 		// Deadband is needed on aileron, 40 gives +-6%
-		switch(sub_protocol)
-		{
-			case KF606_KF606:
-				packet[2] = convert_channel_8b_limit_deadband(AILERON,0x20,0x80,0xE0,40);	// Aileron: Max values:20..80..E0, Low rates:50..80..AF, High rates:3E..80..C1
-				packet[3] = convert_channel_16b_limit(CH5,0xC1,0xDF);						// Aileron trim must be on a separated channel C1..D0..DF
-				break;
-			case KF606_MIG320:
-				packet[2] = convert_channel_8b_limit_deadband(AILERON,0x00,0x80,0xFF,40);	// Aileron: High rate:2B..80..DA
-				packet[3] = convert_channel_16b_limit(CH5,0x01,0x1F);						// Aileron trim must be on a separated channel 01..10..1F
-				packet[3] += (packet[2]-0x80)>>3;											// Drive trims for more aileron authority
-				if(packet[3] > 0x80)
-					packet[3] = 0x01;
-				else if(packet[3] > 0x1F)
-					packet[3] = 0x1F;
-				packet[3] |= GET_FLAG(CH6_SW, 0xC0);										// 0xC0 and 0xE0 are both turning the LED off, not sure if there is another hidden feature
-				break;
-			case KF606_ZCZ50:
-				len--;																		// uses only 3 bytes of payload
-				packet[0] = packet[1];														// Throttle: 0x00..0xFF
-				packet[1] = convert_channel_8b_limit_deadband(AILERON,0x20,0x80,0xE0,40);	// Aileron: Max values:20..80..E0, low rate 0x52..0x80..0xB1, high rate: 0x41..0x80..0xC3.
-				packet[2] = convert_channel_16b_limit(CH5,0x01,0x1F);						// Trim: 0x01..0x10..0x1F
-				packet[2] |= GET_FLAG(CH6_SW, 0xC0);										// Unknown: 0x00 or 0xC0. Left top switch on original TX changes nothing on my plane. Maybe ON/OFF for main motor?
-				break;
-		}
+		packet[len-2] = convert_channel_8b_limit_deadband(AILERON,0x00,0x80,0xFF,40);	// Aileron: High rate:2B..80..DA
+		uint8_t p3;
+		p3 = convert_channel_8b(CH5)>>3;												// Aileron trim must be on a separated channel 01..10..1F
+		p3 += (packet[2]-0x80)>>3;														// Drive trims for more aileron authority
+		if(p3 > 0x80)
+			p3 = 0x01;
+		else if(p3 > 0x1F)
+			p3 = 0x1F;
+		p3 |= GET_FLAG(CH6_SW, 0xC0);													// 0xC0 and 0xE0 are both turning the LED off, not sure if there is another hidden feature
+		packet[len-1] = p3;
 	}
 
 	if(sub_protocol == KF606_MIG320)

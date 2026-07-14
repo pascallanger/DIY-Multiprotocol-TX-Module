@@ -99,7 +99,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)||64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)||55|Multi|CloneTX|EraseTX|CPPM|||||CC2500|
 [Futaba/SFHSS](Protocols_Details.md#Futaba---21)||21|SFHSS||||||||CC2500|
-[FX](Protocols_Details.md#FX---58)||28|816|620|9630|Q560|QF012||||NRF24L01|
+[FX](Protocols_Details.md#FX---58)||28|FX816|FX620|9630|Q560|QF012|FX818|||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)||20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)||47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
 [GW008](Protocols_Details.md#GW008---32)||32|||||||||NRF24L01|XN297
@@ -1144,9 +1144,9 @@ New generation of GD models
 ### Sub_protocol KF606 - *0*
 Model: KF606
 
-CH1|CH2|CH3|CH4|CH5
----|---|---|---|---
-A||T||TRIM
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A||T||TRIM|LED
 
 ### Sub_protocol MIG320 - *1*
 Model: Zhiyang MIG-320
@@ -1839,7 +1839,7 @@ FMODE and AUX7 have 4 positions: -100%..-50%=>0, -50%..5%=>1, 5%..50%=>2, 50%..1
 ## FX - *58*
 FEI XIONG
 
-### Sub_protocol 816 - *0*
+### Sub_protocol FX816 - *0*
 Model: FX816 P38, B17
 
 Only 8 TX IDs available
@@ -1848,7 +1848,7 @@ CH1|CH2|CH3|CH4
 ---|---|---|---
 A|-|T|-
 
-### Sub_protocol 620 - *1*
+### Sub_protocol FX620 - *1*
 Model: FX620 SU35
 
 CH1|CH2|CH3|CH4
@@ -1889,6 +1889,15 @@ A|E|T|R|FLIP|GYRO|Invert|Reset
 Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
 
 Reset: Restore fine tunning midpoint
+
+### Sub_protocol FX818 - *5*
+Model: FX818/FX820/FX822/FX823
+
+Telemetry supported. The plane sends a battery status of good->empty which is visible in A1 (good=4.2V->empty=3.1V) and RSSI gets a dummy value of 100.
+
+CH1|CH2|CH3|CH4
+---|---|---|---
+A|-|T|-
 
 ## FY326 - *20*
 

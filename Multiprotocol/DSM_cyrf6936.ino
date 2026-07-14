@@ -20,7 +20,10 @@
 //#define DSM_DEBUG_FWD_PGM
 //#define DEBUG_BIND  1
 
-#define CLONE_BIT_MASK			0x20
+#define CLONE_BIT_MASK		0x20
+#define MODE_11MS_BIT_MASK	0x40
+#define MAX_THROW_BIT_MASK	0x80
+
 #define DSM_BIND_CHANNEL		0x0D	//13 This can be any odd channel
 #define DSM2_SFC_PERIOD			16500
 
@@ -51,6 +54,12 @@ enum {
 	DSM_CH2_READ_B,
 };
 
+#if defined(DSM_X_PLUS)
+  #define XP_CH   CH13    // X-Plus channel placeholder in frame
+  uint8_t x_plus_ch = 0;  // X-Plus channel currently multiplexing
+#else
+  #define XP_CH   0xff    // No Channel
+#endif
 //
 uint8_t ch_map[14];
 const uint8_t PROGMEM DSM_ch_map_progmem[][14] = {
@@ -65,7 +74,7 @@ const uint8_t PROGMEM DSM_ch_map_progmem[][14] = {
 	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    8,    0xff, 0xff, 0xff}, //9ch  - Guess
 	{1, 5, 2, 3, 6,    0xff, 0xff, 4,    0,    7,    8,    9,    0xff, 0xff}, //10ch - Guess
 	{1, 5, 2, 3, 6,    10,   0xff, 4,    0,    7,    8,    9,    0xff, 0xff}, //11ch - Guess
-	{1, 5, 2, 4, 6,    10,   0xff, 0,    7,    3,    8,    9   , 11  , 0xff}, //12ch - DX18/DX8G2
+	{1, 5, 2, 4, 6,    10,  XP_CH, 0,    7,    3,    8,    9   , 11  , 0xff}, //12ch - DX18/DX8G2
 //11ms for 8..11 channels
 	{1, 5, 2, 3, 6,    7,    0xff, 1,    5,    2,    4,    0,    0xff, 0xff}, //8ch  - DX7
 	{1, 5, 2, 3, 6,    7,    0xff, 1,    5,    2,    4,    0,    8,    0xff}, //9ch  - Guess
@@ -148,7 +157,7 @@ static void __attribute__((unused)) DSM_update_channels()
 
 	// Create channel map based on number of channels and refresh rate
 	uint8_t idx=num_ch-3;
-	if((option & 0x40) && num_ch>7 && num_ch<12)
+	if((option & MODE_11MS_BIT_MASK) && num_ch>7 && num_ch<12)
 		idx+=5;							// In 11ms mode change index only for channels 8..11
 	for(uint8_t i=0;i<14;i++)
 		ch_map[i]=pgm_read_byte_near(&DSM_ch_map_progmem[idx][i]);
@@ -199,20 +208,23 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 		}
 	#endif
 	
-	#ifdef DSM_THROTTLE_KILL_CH
+	#if defined(DSM_THROTTLE_KILL_CH)
 		uint16_t kill_ch=Channel_data[DSM_THROTTLE_KILL_CH-1];
 	#endif
 	for (uint8_t i = 0; i < 7; i++)
 	{	
 		uint8_t idx = ch_map[(upper?7:0) + i];		// 1,5,2,3,0,4	   
 		uint16_t value = 0xffff;
-		if((option&0x40) == 0 && num_ch < 8 && upper)
+
+		if((option & MODE_11MS_BIT_MASK) == 0 && num_ch < 8 && upper)
 			idx=0xff;								// in 22ms do not transmit upper channels if <8, is it the right method???
-		if (idx != 0xff)
+		
+    else
+    if (idx != 0xff)
 		{
 			/* Spektrum own remotes transmit normal values during bind and actually use this (e.g. Nano CP X) to
 			   select the transmitter mode (e.g. computer vs non-computer radio), so always send normal output */
-			#ifdef DSM_THROTTLE_KILL_CH
+			#if defined(DSM_THROTTLE_KILL_CH)
 				if(idx==CH1 && kill_ch<=604)
 				{//Activate throttle kill only if channel is throttle and DSM_THROTTLE_KILL_CH below -50%
 					if(kill_ch<CHANNEL_MIN_100)		// restrict val to 0...400
@@ -223,17 +235,38 @@ static void __attribute__((unused)) DSM_build_data_packet(uint8_t upper)
 				}
 				else
 			#endif
+        { 
+        #if defined(DSM_X_PLUS)
+          if (idx==XP_CH) {  // X-Plus special channel placeholder
+            idx = XP_CH + x_plus_ch; // Encode CH13-CH16 instead
+          }
+        #endif
 				#ifdef DSM_MAX_THROW
 					value=Channel_data[CH_TAER[idx]];										// -100%..+100% => 1024..1976us and -125%..+125% => 904..2096us based on Redcon 6 channel DSM2 RX
 				#else
-					if(option & 0x80)
+					if(option & MAX_THROW_BIT_MASK)
 						value=Channel_data[CH_TAER[idx]];									// -100%..+100% => 1024..1976us and -125%..+125% => 904..2096us based on Redcon 6 channel DSM2 RX
 					else
 						value=convert_channel_16b_nolimit(CH_TAER[idx],0x156,0x6AA,false);	// -100%..+100% => 1100..1900us and -125%..+125% => 1000..2000us based on a DX8 G2 dump
 				#endif
-			if(bits==10) value>>=1;
-			value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);
-		}	  
+        }
+
+      #if defined(DSM_X_PLUS)
+      if (idx >= XP_CH) { // X-Plus Channel
+        // Multiplexing 4 chanels on the same frame channel placeholder for channel 13 (ID=12) over time (Refresh cycle 88ms)
+        // CH13-16 lower frame, and Ch17-20 upper. We only do lower right now, since MM cannot handle more than 16ch
+        // Channel value is 9 bits, and upper 2 bits is the X-Plus channel (CH13..CH16). 
+			value >>= 2; // Convert to 9 bits
+			value |= (XP_CH << 11) | (x_plus_ch << 9); // constant 12 (4 bits), XPlus Ch (2 bits), Value (9 bits)
+			x_plus_ch = (x_plus_ch + 1) % 4;  // only 0..3
+		} else 
+      #endif
+		{ // Regular channel
+			  if(bits==10) value>>=1;
+			  value |= (upper && i==0 ? 0x8000 : 0) | (idx << bits);
+		}
+	  }	  
+
 		packet[i*2+2] = value >> 8;
 		packet[i*2+3] = value;
 	}

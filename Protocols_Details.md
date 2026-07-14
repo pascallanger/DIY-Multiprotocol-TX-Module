@@ -1580,7 +1580,7 @@ A|E|T|R|Rate|Mode|Hover|Light|Stunt
 
 The plane does not need to be bound each time if it is powered on **after** the radio/protocol is on.
 
-Telemetry is supported. The plane sends a battery status of good->empty which is visible in A1 (good=8.4V->empty=7.1V) and RSSI gets a dummy value of 100. For the Sky Viper Vector, the battery telemetry will still appear  in A1 (good=8.4V->empty=7.1V) despite being a 1S plane with a switch good/bad at 3.3V.
+Telemetry is supported. The plane sends a battery status of good->empty which is visible in A1 (good=8.4V->empty=7.1V) and RSSI gets a dummy value of 100. For the Sky Viper Vector, the battery telemetry will still appear  in A1 with good=8.4V->empty=7.1V despite being a 1S plane with a switch good/bad in reality at 3.3V.
 
 The rudder trim is driven from the rudder channel to increase the range (Original TX rudder has no range once the motor has been turned on...).
 

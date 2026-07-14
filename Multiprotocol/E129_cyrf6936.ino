@@ -44,9 +44,8 @@ static void __attribute__((unused)) E129_build_data_packet()
 		packet[ 1] = 0xA6;								// Set to A5 every few packets??
 
 		//Flags
-		if(sub_protocol == E129_E129)
-			packet[ 2] = 0xF7;							// High rate 0xF7, low 0xF4
-		else //C186
+		packet[ 2] = 0xF7;								// E129 High rate 0xF7, low 0xF4
+		if(sub_protocol == E129_C186)
 		{
 			packet[ 2] = 0xFA;							// High rate 0xFA, medium 0xF7, low 0xF4
 			packet[13] = bit_reverse(rx_tx_addr[2]);

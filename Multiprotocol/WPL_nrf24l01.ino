@@ -131,7 +131,7 @@ P[3..7] = Normal address
 P[8] = 00 ??
 P[9] = 08 ?? not bound?, Throttle and Steering rate low, Headlights on
 P[10..14] = 00 ??
-P[15] = sum(P[0..14])+66 why 66...
+P[15] = sum(P[0..14])+66 why 66? 66=(94+16)^CC...
 
 Normal packet
 -----------
@@ -154,5 +154,5 @@ P[9] = 80 ?? bound?, Throttle and Steering rate low, Headlights off
       |04 -> Throttle rate high
       |08 -> Headlights on
 P[10..14] = 00 ??
-P[15] = sum(P[0..14])+66 why 66...
+P[15] = sum(P[0..14])+66 why 66? 66=(94+16)^CC...
 */

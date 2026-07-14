@@ -93,6 +93,9 @@ static void AFHDS2A_update_telemetry()
 		if (option & 0x80)
 		{// forward 0xAA and 0xAC telemetry to TX, skip rx and tx id to save space
 			packet_in[0]= TX_RSSI;
+			//Fix for CROSSOVER-RX, 
+			if(packet[17+8]==0xFF && packet[21+8]==0xFC && packet[25+8]==0xFF)
+				packet[17+8]=0xFE;	// RX_ERR_RATE needed for TX to validate the telem
 			#if 0
 				debug("T(%02X)=",packet[0]);
 				for(uint8_t i=9;i < AFHDS2A_RXPACKET_SIZE; i++)

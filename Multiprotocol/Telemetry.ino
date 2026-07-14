@@ -887,7 +887,7 @@ void TelemetryUpdate()
 			t += TXBUFFER_SIZE - h ;
 		else
 			t -= h ;
-		if ( t < 32 )
+		if ( t < 48 ) //32 )
 		{
 			debugln("TEL_BUF_FULL %d",t);
 			return ;

@@ -1574,9 +1574,9 @@ If a CC2500 is installed it will be used for this sub protocol. Option in this c
 
 If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
----|---|---|---|---|---|---|---
-A|E|T|R|Rate|Mode|Hover|Light
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9
+---|---|---|---|---|---|---|---|---
+A|E|T|R|Rate|Mode|Hover|Light|Stunt
 
 The plane does not need to be bound each time if it is powered on **after** the radio/protocol is on.
 
@@ -1586,8 +1586,12 @@ The rudder trim is driven from the rudder channel to increase the range (Origina
 
 Mode: -100%=6G, 0%=3D, +100%=Gyro off (Senior mode)
 
+Stunt: Sky Viper Vector
+
 ### Sub_protocol X4 - *0*
 Transmitter: XK X4-A160, X5S, model: XK A160S, XK A280, XK A300
+
+Model: Sky Viper Vector
 
 ### Sub_protocol P10 - *1*
 Model: Park10 J3-CUB
@@ -2016,7 +2020,7 @@ Model: XK K170 UH-60L Black hawk, XK K270 UH-60L
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|RATE|EMERGENCY|TAKE_OFF/LANDING|CALIB|TrimA|TrimE|Optic
+A|E|T|R|RATE|EMERGENCY|TAKE_OFF/LANDING|CALIB|TrimA|TrimE|Optical
 
 RATE: -100% Low, 0% Mid, +100% High
 

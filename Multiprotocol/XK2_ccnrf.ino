@@ -86,7 +86,8 @@ static void __attribute__((unused)) XK2_send_packet()
 			packet[5] |= 0x10;											//Gyro off (senior mode)
 		else if(Channel_data[CH6] > CHANNEL_MIN_COMMAND)
 			packet[5] |= 0x08;											//3D
-		//Requiest telemetry flag
+		packet[5] |= GET_FLAG(CH9_SW, 0x04);							//Sky Viper Vector stunt flag
+		//Request telemetry flag
 		packet[6] = 0x01;
 		//RXID checksum
 		packet[7] = crc8;												//Sum RX_ID[0..2]

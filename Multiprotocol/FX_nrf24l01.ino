@@ -282,7 +282,7 @@ uint16_t FX_callback()
 {
 	#ifdef FX_HUB_TELEMETRY
 		bool rx=false;
-		
+		static uint8_t telem_count = 0;
 		switch(phase)
 		{
 			case FX_DATA:
@@ -319,6 +319,8 @@ uint16_t FX_callback()
 					if(XN297_ReadPayload(packet_in, FX_QF012_RX_PAYLOAD_SIZE))
 					{//Good CRC
 						telemetry_link = 1;
+						telemetry_lost = 0;
+						telem_count = 0;
 						if ( sub_protocol == FX_BM26 )
 							v_lipo1 = packet_in[0] <  packet_in[2] ? 60:81;	// packets: AA 00 55 -> 55 00 AA = low voltage 3.7V
 						else
@@ -329,6 +331,19 @@ uint16_t FX_callback()
 						#endif
 					}
 					debugln();
+				}
+				if(telem_count > 4*63)				// Around 3.5 sec with no telemetry
+					telemetry_lost = 1;
+				else
+				{
+					telem_count++;
+					if(!telemetry_lost && (telem_count & 0x3F) == 0)
+					{// Should have received a telem packet but... Send telem to the radio to keep it alive
+						telemetry_link = 1;
+						#if 0
+							debugln("Miss");
+						#endif
+					}
 				}
 				phase++;
 				return FX9630_WRITE_TIME;
@@ -362,6 +377,7 @@ void FX_init()
 	bind_counter=FX_BIND_COUNT;
 	#ifdef FX_HUB_TELEMETRY
 		RX_RSSI = 100;		// Dummy value
+		telemetry_lost = 1;
 		phase = FX_DATA;
 	#endif
 }

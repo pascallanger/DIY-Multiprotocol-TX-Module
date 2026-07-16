@@ -18,6 +18,7 @@ local TX_MAX_PAYLOAD = 8
 local RX_READY = 14
 local RX_PAYLOAD = 15
 local RX_MAX_PAYLOAD = 32
+local colorLcd = type(lcd.RGB) == "function"
 
 local servoHz = { "67HZ", "250HZ", "50HZ", "300HZ" }
 
@@ -40,27 +41,24 @@ local function byte(v)
   return limit(math.floor(tonumber(v) or 0), 0, 255)
 end
 
-local function percent(v)
-  return limit(math.floor(tonumber(v) or 0), 0, 100)
-end
-
 local function gyroRaw(v)
-  return percent(v) * 2
+  return limit(math.floor(tonumber(v) or 0), 0, 200)
 end
 
-local function gyroUi(v)
-  return limit(math.floor((tonumber(v) or 0) / 2), 0, 100)
+local function gyroText(v)
+  local raw = gyroRaw(v)
+  return tostring(math.floor(raw / 2)) .. (raw % 2 == 0 and ".0" or ".5")
 end
 
 local function screenLines()
-  if LCD_W >= 480 then return limit(math.floor(((LCD_H or 272) - 46) / 20), 8, 12) end
+  if colorLcd then return limit(math.floor(((LCD_H or 272) - 46) / 20), 8, 12) end
   return 6
 end
 
 local function drawTitle(title)
-  if LCD_W >= 480 and lcd.drawFilledRectangle then
-    lcd.drawFilledRectangle(0, 0, LCD_W, 30, TITLE_BGCOLOR or 0)
-    lcd.drawText(3, 5, title, MENU_TITLE_COLOR or 0)
+  if colorLcd and lcd.drawFilledRectangle then
+    lcd.drawFilledRectangle(0, 0, LCD_W, 30, COLOR_THEME_SECONDARY1)
+    lcd.drawText(3, 5, title, COLOR_THEME_PRIMARY2)
   elseif lcd.drawScreenTitle then
     lcd.drawScreenTitle(title, 0, 0)
   else
@@ -138,9 +136,9 @@ local function decodeGyroBytes(b0, b1, b2, b3)
   gyro.phase = math.floor(b0 / 2) % 2
   local selector = math.floor(b0 / 4) % 16
   gyro.senCh = selector == 0 and 0 or limit(selector + 1, 2, 8)
-  gyro.sen = gyroUi(math.floor(b0 / 64) + (b1 % 64) * 4)
-  gyro.pca = gyroUi(math.floor(b1 / 64) + (b2 % 64) * 4)
-  gyro.ags = gyroUi(math.floor(b2 / 64) + (b3 % 64) * 4)
+  gyro.sen = gyroRaw(math.floor(b0 / 64) + (b1 % 64) * 4)
+  gyro.pca = gyroRaw(math.floor(b1 / 64) + (b2 % 64) * 4)
+  gyro.ags = gyroRaw(math.floor(b2 / 64) + (b3 % 64) * 4)
   gyro.flags = math.floor(b3 / 64) % 4
   haveValues = true
 end
@@ -190,7 +188,7 @@ local function lineValue(line)
   if not haveValues then return "--" end
   if line[2] == "toggle" then return gyro[line[3]] == 0 and "Off" or "On" end
   if line[2] == "channel" then return chText() end
-  if line[2] == "percent" then return tostring(percent(gyro[line[3]])) end
+  if line[2] == "percent" then return gyroText(gyro[line[3]]) end
   if line[2] == "flags" then return servoHz[gyro.flags + 1] or tostring(gyro.flags) end
   return ""
 end
@@ -198,11 +196,11 @@ end
 local function changeValue(dir, fast)
   local line = lines[sel]
   if not line then return end
-  local step = fast and 10 or 1
+  local step = fast and 20 or 1
   haveValues = true
 
   if line[2] == "toggle" then
-    gyro[line[3]] = gyro[line[3]] == 0 and 1 or 0
+    gyro[line[3]] = dir > 0 and 1 or 0
   elseif line[2] == "channel" then
     local vals = { 0, 2, 3, 4, 5, 6, 7, 8 }
     local pos = 1
@@ -211,21 +209,28 @@ local function changeValue(dir, fast)
     end
     gyro.senCh = vals[limit(pos + dir, 1, #vals)]
   elseif line[2] == "percent" then
-    gyro[line[3]] = percent(gyro[line[3]] + dir * step)
+    gyro[line[3]] = gyroRaw(gyro[line[3]] + dir * step)
   elseif line[2] == "flags" then
     gyro.flags = limit(gyro.flags + dir, 0, 3)
   end
 end
 
+local function fastRotary()
+  return getRotEncSpeed() > 1
+end
+
 local function handleEvent(event)
-  if event == EVT_VIRTUAL_NEXT then
-    if edit then changeValue(1, false) else sel = limit(sel + 1, 1, #lines) end
-  elseif event == EVT_VIRTUAL_PREV then
-    if edit then changeValue(-1, false) else sel = limit(sel - 1, 1, #lines) end
+  local nextEvent = edit and EVT_VIRTUAL_INC or EVT_VIRTUAL_NEXT
+  local prevEvent = edit and EVT_VIRTUAL_DEC or EVT_VIRTUAL_PREV
+  if event == nextEvent then
+    if edit then changeValue(1, fastRotary()) else sel = limit(sel + 1, 1, #lines) end
+  elseif event == prevEvent then
+    if edit then changeValue(-1, fastRotary()) else sel = limit(sel - 1, 1, #lines) end
   elseif event == EVT_VIRTUAL_NEXT_PAGE then
     if edit then changeValue(1, true) else sel = limit(sel + screenLines(), 1, #lines) end
   elseif event == EVT_VIRTUAL_PREV_PAGE then
     if edit then changeValue(-1, true) else sel = limit(sel - screenLines(), 1, #lines) end
+    killEvents(event)
   elseif event == EVT_VIRTUAL_ENTER then
     local line = lines[sel]
     if line and line[2] == "action" then
@@ -244,14 +249,14 @@ local function draw()
   lcd.clear()
   drawTitle("DumboRC P series")
 
-  local font = LCD_W >= 480 and 0 or SMLSIZE
+  local font = colorLcd and 0 or SMLSIZE
   local x = 2
-  local y = LCD_W >= 480 and 34 or 9
-  local dy = LCD_W >= 480 and 20 or 8
-  local valueX = LCD_W >= 480 and 150 or 82
+  local y = colorLcd and 34 or 9
+  local dy = colorLcd and 20 or 8
+  local valueX = colorLcd and 150 or 82
 
   if not moduleOk then
-    if LCD_W >= 480 then
+    if colorLcd then
       lcd.drawText(x, y + dy, "Select Multi RadLink/Dumbo_P", font + BLINK)
     else
       lcd.drawText(x, y + dy, "Select RadLink", font + BLINK)
@@ -276,9 +281,9 @@ local function draw()
 end
 
 local function init()
-  moduleOk = findModule()
+  moduleOk = type(multiBuffer) == "function" and findModule()
   rebuildLines()
-  initBuffer()
+  if moduleOk then initBuffer() end
 end
 
 local function run(event)
@@ -286,11 +291,13 @@ local function run(event)
     error("Cannot be run as a model script!")
     return 2
   elseif event == EVT_VIRTUAL_EXIT then
-    release()
+    if moduleOk then release() end
     return 2
   end
-  pollRx()
-  handleEvent(event)
+  if moduleOk then
+    pollRx()
+    handleEvent(event)
+  end
   draw()
   return 0
 end

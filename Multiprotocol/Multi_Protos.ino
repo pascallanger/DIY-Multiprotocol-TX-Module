@@ -188,7 +188,7 @@ const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
 const char STR_SUBTYPE_MOULDKG[] =    "\x05""A4444""D4444""A664\0";
 const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320""ZCZ50\0";
 const char STR_SUBTYPE_E129[] =       "\x04""E129""C186";
-const char STR_SUBTYPE_FX[] =         "\x05""FX816""FX620""9630\0""Q560\0""QF012""BM26\0""FX818";
+const char STR_SUBTYPE_FX[] =         "\x05""FX816""FX620""9630\0""Q560\0""QF012""BM26\0""A570\0";
 const char STR_SUBTYPE_SGF22[] =      "\x04""F22\0""F22S""J20\0""CX10";
 const char STR_SUBTYPE_JIABAILE[] =   "\x04""Std\0""Gyro";
 #define NO_SUBTYPE		nullptr

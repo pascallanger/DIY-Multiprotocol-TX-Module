@@ -92,7 +92,7 @@
 58,3,FX,Q560,1,FLIP,Gyro,LEDs
 58,4,FX,QF012,1,FLIP,Gyro,Invert,Reset
 58,5,FX,BM26,1,FLIP,Gyro,LEDs,LED,CALIB
-58,6,FX,FX818,1
+58,6,FX,A570,1,STOP,Rate,Color,LED,TrimR,TrimA,TrimE
 20,0,FY326,FY326,1,Flip,RTH,HLess,Expert,Calib
 20,1,FY326,FY319,1,Flip,RTH,HLess,Expert,Calib
 23,0,FY326,FY326,1,Flip,RTH,HLess,Expert

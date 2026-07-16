@@ -217,7 +217,7 @@ static void __attribute__((unused)) RLINK_rf_init()
 	for (uint8_t i = 0; i < 39; ++i)
 		CC2500_WriteReg(i, pgm_read_byte_near(&RLINK_init_values[i]));
 
-	if(sub_protocol==RLINK_DUMBORC)
+	if(sub_protocol == RLINK_DUMBORC || sub_protocol == RLINK_DUMBORC_P)
 	{
 		CC2500_WriteReg(4, 0xBA);
 		CC2500_WriteReg(5, 0xDC);
@@ -257,6 +257,7 @@ static void __attribute__((unused)) RLINK_send_packet()
 			packet[1] |= 0x21;					//air 0x21 on dump but it looks to support telemetry at least RSSI
 			break;
 		case RLINK_DUMBORC:
+		case RLINK_DUMBORC_P:
 			packet[1] |= 0x01;					//always 0x00 on dump but does appear to support telemtry on newer transmitters
 			break;
 	}
@@ -314,7 +315,7 @@ static void __attribute__((unused)) RLINK_send_packet()
 
 static bool __attribute__((unused)) RLINK_DUMBORC_send_command()
 {
-	if(!RLINK_SerialRX || sub_protocol != RLINK_DUMBORC)
+	if(!RLINK_SerialRX || sub_protocol != RLINK_DUMBORC_P)
 		return false;
 
 	RLINK_SerialRX=false;
@@ -341,7 +342,7 @@ static bool __attribute__((unused)) RLINK_DUMBORC_send_command()
 
 	#ifdef RLINK_DEBUG
 		debugln("C= 0x%02X",hopping_frequency[RLINK_pseudo & 0x0F]);
-		debug("DumboRC command=");
+		debug("DumboRC P command=");
 		for(uint8_t i=1;i<packet[0]+1;i++)
 			debug(" 0x%02X",packet[i]);
 		debugln("");
@@ -374,6 +375,9 @@ static bool __attribute__((unused)) RLINK_DUMBORC_validate_telemetry_packet(cons
 		// telemetry packages do not have id check embeeded in checksum, just like base RadioLink
 		return data[RLINK_RX_PACKET_LEN] == RLINK_checksum(&data[1], RLINK_RX_PACKET_LEN - 1);
 	}
+
+	if(sub_protocol != RLINK_DUMBORC_P)
+		return false;
 
 	// special packages have id check embedded in checksum
 	return data[declaredLen] == RLINK_checksum(&data[1], declaredLen - 1, true);
@@ -484,10 +488,11 @@ uint16_t RLINK_callback()
 			return RLINK_TIMING_PROTO-RLINK_timing_last_rfsend-RLINK_TIMING_CHECK;
 		case RLINK_RX2:
 			len = CC2500_ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
+			const bool dumborc_family = sub_protocol == RLINK_DUMBORC || sub_protocol == RLINK_DUMBORC_P;
 			//Telemetry frame is 15 bytes + 1 byte for length + 2 bytes for RSSI&LQI&CRC
-			const bool rlink_telem_len = sub_protocol != RLINK_DUMBORC && len == RLINK_RX_PACKET_LEN + 1 + 2;
+			const bool rlink_telem_len = !dumborc_family && len == RLINK_RX_PACKET_LEN + 1 + 2;
 			// length byte + type byte + checksum byte + RSSI/LQI/CRC
-			const bool dumborc_len     = sub_protocol == RLINK_DUMBORC && len >= 5 && len <= sizeof(packet_in);
+			const bool dumborc_len     = dumborc_family && len >= 5 && len <= sizeof(packet_in);
 			if (rlink_telem_len || dumborc_len)
 			{
 				#ifdef RLINK_DEBUG_TELEM
@@ -501,7 +506,7 @@ uint16_t RLINK_callback()
 							debug(" %02X",packet_in[i]);
 					#endif
 					bool valid_telem=false;
-					if(sub_protocol == RLINK_DUMBORC)
+					if(dumborc_family)
 					{
 						if(RLINK_DUMBORC_validate_telemetry_packet(packet_in))
 						{
@@ -512,13 +517,13 @@ uint16_t RLINK_callback()
 								uint16_t direct_rssi = packet_in[11] | (((uint16_t)packet_in[12]) << 8);
 								direct_rssi = direct_rssi > 100 ? 100 : direct_rssi;
 								RX_RSSI = direct_rssi ? direct_rssi : tele_rssi;
-								v_lipo1 = ext_v > 255 ? 255 : ext_v;	// FrSkyD A1 is 8-bit, 0.1V units.
-								v_lipo2 = 0;							// DumboRC has no confirmed second voltage.
+								v_lipo1 = 0;							//Has no RX batt
+								v_lipo2 = ext_v > 255 ? 255 : ext_v;	//Batt in same position as base radiolink
 								valid_telem=true;
 							}
-							else
+							else if(sub_protocol == RLINK_DUMBORC_P)
 							{
-								telemetry_link=2; // Raw DumboRC packet to Lua/multiBuffer handling.
+								telemetry_link=2; // Raw DumboRC P packet to Lua/multiBuffer handling.
 								pps_counter++;
 							}
 						}

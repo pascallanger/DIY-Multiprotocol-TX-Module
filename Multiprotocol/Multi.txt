@@ -71,7 +71,7 @@
 71,JJRC345,JJRC345,SkyTmblr
 72,Q90C
 73,Kyosho,FHSS,Hype
-74,RadioLink,Surface,Air,DumboRC,RC4G
+74,RadioLink,Surface,Air,DumboRC,RC4G,Dumbo_P
 75,---
 76,Realacc
 77,OMP

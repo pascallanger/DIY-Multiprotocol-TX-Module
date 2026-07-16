@@ -473,6 +473,7 @@ enum RLINK
 	RLINK_AIR		= 1,
 	RLINK_DUMBORC	= 2,
 	RLINK_RC4G		= 3,
+	RLINK_DUMBORC_P	= 4,
 };
 enum MOULDKG
 {
@@ -1201,6 +1202,8 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			RLINK_SURFACE	0
 			RLINK_AIR		1
 			RLINK_DUMBORC	2
+			RLINK_RC4G		3
+			RLINK_DUMBORC_P	4
 
    Power value => 0x80	0=High/1=Low
   Stream[3]   = option_protocol;
@@ -1228,7 +1231,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
       FrSkyX and FrSkyX2: Stream[27..34] during normal operation unstuffed SPort data to be sent
 	  HoTT: Stream[27] 1 byte for telemetry type
 	  DSM: Stream[27..33] Forward Programming
-	  RadioLink/DumboRC: Stream[27..35] raw command payload, used to send failsafe and gyro settings
+	  RadioLink/DumboRC P: Stream[27..35] raw command payload, used to send failsafe and gyro settings
 */
 /*
   Multiprotocol telemetry/command definition for OpenTX and erskyTX
@@ -1380,7 +1383,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
    data[n+3]   = sub protocols text length, only sent if nbr_sub != 0
    data[n+4..] = sub protocol names, only sent if nbr_sub != 0
 
-  Type 0x12 RadioLink/DumboRC raw command payload
+  Type 0x12 RadioLink/DumboRC P raw command payload
    length: variable
    data[0..] = raw command payload, used to send failsafe and gyro settings
 

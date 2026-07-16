@@ -10,7 +10,7 @@ local toolName = "TNS|DumboRC P series|TNE"
 -- bits22..29 AGS, bits30..31 servo frequency (67HZ,250HZ,50HZ,300HZ).
 
 local PROTO_RLINK = 74
-local SUB_DUMBORC = 2
+local SUB_DUMBORC_P = 4
 
 local TX_READY = 4
 local TX_PAYLOAD = 5
@@ -71,7 +71,7 @@ end
 local function findModule()
   for i = 0, 1 do
     local m = model.getModule(i)
-    if m and m["Type"] == 6 and m["protocol"] == PROTO_RLINK and m["subProtocol"] == SUB_DUMBORC then
+    if m and m["Type"] == 6 and m["protocol"] == PROTO_RLINK and m["subProtocol"] == SUB_DUMBORC_P then
       return true
     end
   end
@@ -252,10 +252,10 @@ local function draw()
 
   if not moduleOk then
     if LCD_W >= 480 then
-      lcd.drawText(x, y + dy, "Select Multi RadLink/DumboRC", font + BLINK)
+      lcd.drawText(x, y + dy, "Select Multi RadLink/Dumbo_P", font + BLINK)
     else
       lcd.drawText(x, y + dy, "Select RadLink", font + BLINK)
-      lcd.drawText(x, y + dy * 2, "DumboRC", font + BLINK)
+      lcd.drawText(x, y + dy * 2, "Dumbo_P", font + BLINK)
     end
     return
   end

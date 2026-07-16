@@ -1583,9 +1583,9 @@ void update_serial_data()
 			}
 		#endif
 		#ifdef RLINK_HUB_TELEMETRY
-			if(protocol==PROTO_RLINK && sub_protocol==RLINK_DUMBORC
+			if(protocol==PROTO_RLINK && sub_protocol==RLINK_DUMBORC_P
 				&& rx_len>27 && rx_len<=27+sizeof(RLINK_SerialRX_val))
-			{//DumboRC raw special payload from Lua/multiBuffer bridge
+			{//DumboRC P raw command payload from Lua/multiBuffer bridge
 				RLINK_SerialRX_len=rx_len-27;
 				memcpy(RLINK_SerialRX_val, (const void *)&rx_ok_buff[27], RLINK_SerialRX_len);
 				RLINK_SerialRX=true;

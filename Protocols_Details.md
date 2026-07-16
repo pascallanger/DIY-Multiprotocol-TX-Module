@@ -1879,8 +1879,8 @@ A|E|T|R|FLIP|GYRO|LEDs
 
 FLIP is a toggle channel meaning that -100% to +100% is a command and +100% to -100% is also a command
 
-QIDI-560 Gyro: -100%=6G, 0%=3D+Gyro, +100%=3D
-QIDI-580 Gyro: -100%=6G, 0%=6G+Inverted, +100%=3D+Gyro
+- GYRO QIDI-560: -100%=6G, 0%=3D+Gyro, +100%=3D
+- GYRO QIDI-580: -100%=6G, 0%=6G+Inverted, +100%=3D+Gyro
 
 ### Sub_protocol QF012 - *4*
 Model: QF012 SBD Dauntless

@@ -315,6 +315,15 @@ static void multi_send_status()
 	}
 #endif
 
+#ifdef RLINK_HUB_TELEMETRY
+	void RLINK_raw_frame()
+	{
+		multi_send_header(MULTI_TELEMETRY_RLINK, packet_in[0]);
+		for (uint8_t i = 1; i <= packet_in[0]; i++)	// raw DumboRC reply payload
+			Serial_write(packet_in[i]);
+	}
+#endif
+
 static void multi_send_frskyhub()
 {
 	multi_send_header(MULTI_TELEMETRY_HUB, 9);
@@ -988,6 +997,14 @@ void TelemetryUpdate()
 			if(telemetry_link == 2 && protocol == PROTO_HOTT)
 			{
 				HOTT_short_frame();
+				telemetry_link=0;
+				return;
+			}
+		#endif
+		#if defined RLINK_HUB_TELEMETRY
+			if(telemetry_link == 2 && protocol == PROTO_RLINK)
+			{
+				RLINK_raw_frame();
 				telemetry_link=0;
 				return;
 			}

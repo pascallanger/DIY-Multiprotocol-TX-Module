@@ -265,6 +265,11 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		uint8_t CONFIG_SerialRX_val[7];
 		bool CONFIG_SerialRX=false;
 	#endif
+	#ifdef RLINK_HUB_TELEMETRY
+		uint8_t RLINK_SerialRX_val[8];
+		uint8_t RLINK_SerialRX_len=0;
+		bool RLINK_SerialRX=false;
+	#endif
 #endif // TELEMETRY
 
 uint8_t multi_protocols_index=0xFF;
@@ -1575,6 +1580,15 @@ void update_serial_data()
 			{//Protocol waiting for 7 bytes
 				memcpy(CONFIG_SerialRX_val, (const void *)&rx_ok_buff[27],7);
 				CONFIG_SerialRX=true;
+			}
+		#endif
+		#ifdef RLINK_HUB_TELEMETRY
+			if(protocol==PROTO_RLINK && sub_protocol==RLINK_DUMBORC_P
+				&& rx_len>27 && rx_len<=27+sizeof(RLINK_SerialRX_val))
+			{//DumboRC P raw command payload from Lua/multiBuffer bridge
+				RLINK_SerialRX_len=rx_len-27;
+				memcpy(RLINK_SerialRX_val, (const void *)&rx_ok_buff[27], RLINK_SerialRX_len);
+				RLINK_SerialRX=true;
 			}
 		#endif
 	}

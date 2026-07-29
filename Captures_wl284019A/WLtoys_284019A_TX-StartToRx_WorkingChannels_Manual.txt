@@ -199,7 +199,7 @@ RX: 16271us C=80 Enhanced pid=2 ack S=Y A= 4D 41 49 4E P(10)= B1 32 E9 DE 0A 45 
 RX: 16277us C=80 Enhanced pid=0 ack S=Y A= 4D 41 49 4E P(10)= B1 32 E9 DE 0A 45 42 38 3C 4A
 RX: 16273us C=80 Enhanced pid=2 ack S=Y A= 4D 41 49 4E P(10)= B1 32 E9 DE 0A 45 42 38 3C 4A
 RX: 16260us C=80 Enhanced pid=0 ack S=Y A= 4D 41 49 4E P(10)= B1 32 E9 DE 0A 45 42 38 3C 4A
-RX: 10655us C=80 Enhanced pid=3 ack S=Y A= 32 E9 DE 8A P(3)= B3 D4 E9									-> RX Turned ON, Packets returned from RX, B3 designates waitnig for TX to ACK ?
+RX: 10655us C=80 Enhanced pid=3 ack S=Y A= 32 E9 DE 8A P(3)= B3 D4 E9									-> RX Turned ON, Packets returned from RX, B3 designates waiting for TX to ACK ?
 RX:  5690us C=80 Enhanced pid=2 ack S=Y A= 4D 41 49 4E P(12)= B4 D4 E9 32 E9 DE 0A 45 42 38 3C 4A		-> B4 designates TX found RX ?, TX adds packet(2) and (3) from RX, P(10) to P(12)
 RX:  6489us C=80 Enhanced pid=2 ack S=Y A= 32 E9 DE 8A P(3)= B3 D4 E9
 RX:  9776us C=80 Enhanced pid=0 ack S=Y A= 4D 41 49 4E P(12)= B4 D4 E9 32 E9 DE 0A 45 42 38 3C 4A

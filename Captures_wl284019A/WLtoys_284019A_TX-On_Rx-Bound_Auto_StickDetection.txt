@@ -628,8 +628,8 @@ Packet(4) Steering	-> 1F..80..E7
 Packet(5) GY Trim	-> 02..3D
 Packet(6) = 20		-> Constant?
 Packet(7) TH Trim	-> 02..3D
-Packet(8) ST Trim	-> ?..20..?
-Packet(9) = 89		-> Changes on each TX start? different value on each channel
+Packet(8) ST Trim	-> 01..20..3F ? every other value masked with 0x80 as a direction flag?
+Packet(9) = 89		-> Changes on each TX start? different values on each channel
 Packet(10)= 0C		-> Constant?
 Packet(11)= 0		-> Constant?
 Packet(12)= 0		-> Constant?

@@ -137,7 +137,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [Q2X2](Protocols_Details.md#Q2X2---29)||29|Q222|Q242|Q282||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)||31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
 [Q90C](Protocols_Details.md#Q90C---72)||72|Q90C*||||||||NRF24L01|XN297
-[RadioLink](Protocols_Details.md#RadioLink---74)||74|Surface|Air|DumboRC|RC4G|||||CC2500|
+[RadioLink](Protocols_Details.md#RadioLink---74)||74|Surface|Air|DumboRC|RC4G|Dumbo_P||||CC2500|
 [Realacc](Protocols_Details.md#Realacc---76)||76|R11||||||||NRF24L01|
 [Redpine](Protocols_Details.md#Redpine---50)||50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)||54|||||||||CC2500|
@@ -1063,7 +1063,21 @@ Air protocol. TXs: T8FB,T8S. Compatible RXs: R8EF,R8FM,R8SM,R4FG,R4F
 Telemetry: RX_RSSI (for the original value add -256), TX_RSSI, TX_QLY (0..100%)
 
 ### Sub_protocol DumboRC - *2*
-Compatible RXs: X6/X6F/X6FG
+Compatible RXs:
+* X6/X6F/X6FG/X6DC/X6DCG/X10F/X10FG (Other X Series should work as well)
+* P6F/P6FG/P6DC/P6DCG/P6FP/P10F/P10FG (Other P Series should work as well)
+
+For P series specific features, see subprotocol 4 below.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8/Gyro gain|CH9|CH10
+
+Telemetry:
+* RX_RSSI uses the receiver's direct percentage when available
+* TX_RSSI is the module-side received RSSI
+* TX_QLY is 0..100%
+* A2=external battery voltage in 0.1V units (set the ratio to 25.5 and adjust with offset)
 
 ### Sub_protocol RC4G - *3*
 Compatible RXs: R4EH-G(/R4EH-H)
@@ -1075,6 +1089,21 @@ CH1|CH2|CH3|CH4|CH5|FS_CH1|FS_CH2|FS_CH3|FS_CH4
 FS=FailSafe
 
 CH5 is driven by CH3 on the original TX, gyro sensitivity?
+
+### Sub_protocol Dumbo_P - *4*
+Compatible RXs: P6F/P6FG/P6DC/P6DCG/P6FP/P10F/P10FG (Other P Series should work as well)
+
+P series supports configuring receiver from transmitter. Originally, this logic appeared on DumboRC DDF-350 transmitter in 1.1.5 firmware version.
+
+You can adjust these settings by using "DumboRC P Series.lua" script.
+
+Settings include:
+* gyro on/off
+* gyro phase
+* gyro tuning
+* gyro gain channel
+* setting gyro endpoints
+* setting failsafe values
 
 ## Futaba - *21*
 Also called SFHSS depending on radio version.

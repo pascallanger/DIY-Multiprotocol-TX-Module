@@ -364,15 +364,6 @@
 	#undef	XK_CCNRF_INO
 	#undef	XK2_CCNRF_INO
 #endif
-#if defined(MCU_STM32F103C8)	// Save flash space...
-	#undef	BUMBLEB_CCNRF_INO
-	#undef	CABELL_NRF24L01_INO
-	#undef	FQ777_NRF24L01_INO
-	#undef	NCC1701_NRF24L01_INO
-	#undef	Q303_CCNRF_INO
-	#undef	Q90C_CCNRF_INO
-	#undef	REDPINE_CC2500_INO
-#endif
 #if not defined(DSM_CYRF6936_INO)
 	#undef	LOSI_CYRF6936_INO
 #endif
@@ -405,7 +396,14 @@
 	#undef	KAMTOM_NRF24L01_INO
 	#undef	WL91X_CCNRF_INO
 	#undef	WPL_NRF24L01_INO
-#endif
+	// Save flash space...
+	#undef	BUMBLEB_CCNRF_INO
+	#undef	CABELL_NRF24L01_INO
+	#undef	FQ777_NRF24L01_INO
+	#undef	NCC1701_NRF24L01_INO
+	#undef	Q303_CCNRF_INO
+	#undef	Q90C_CCNRF_INO
+	#undef	REDPINE_CC2500_INO#endif
 
 #ifdef MULTI_SURFACE
 	#undef	BUGS_A7105_INO

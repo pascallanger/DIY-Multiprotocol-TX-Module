@@ -50,19 +50,19 @@ static void __attribute__((unused)) REALACC_send_packet()
 {
 	if(sub_protocol == REALACC_WLV8TX)
 	{
-		packet[ 0]= 0xDC;							// DC
-		packet[ 1]= 0x80;							// not used
-		packet[ 2]= 0x80;							// not used
-		packet[ 3]= convert_channel_8b(CH2);		// Throttle 0F..80..F7 (spring center)
-		packet[ 4]= convert_channel_8b(CH1);		// Steering 1F..80..E7
-		packet[ 5]= (convert_channel_8b(CH3) >> 2);	// Gyro Rate         02..20..3D
-		packet[ 6]= 0x20; 							// Constant?
-		packet[ 7]= (convert_channel_8b(CH4) >> 2);	// Throttle Rate     02..20..3D
-		packet[ 8]= (convert_channel_8b(CH5) >> 2);	// St Trim (R..C..L) 01..20..3F
-		packet[ 9]= 0x77;							// Change at each power up? unknown
-		packet[10]= 0x0C;							// WL-V8Tx: fixed value = 0C
-		packet[11]= 0x00;							// Constant?
-		packet[12]= 0x00;							// Constant?
+		packet[ 0]= 0xDC;									// DC
+		packet[ 1]= 0x80;									// not used
+		packet[ 2]= 0x80;									// not used
+		packet[ 3]= convert_channel_8b(CH1);				// Throttle 0F..80..F7 (spring center)
+		packet[ 4]=(convert_channel_8b(CH2) ^ 0xFF);		// Steering 1F..80..E7 (reversed)
+		packet[ 5]=(convert_channel_8b(CH3) >> 2);			// GY Trim (Rate)    02..20..3D
+		packet[ 6]= 0x20; 									// Constant?
+		packet[ 7]= (convert_channel_8b(CH4) >> 2);			// TH Trim (Rate)    02..20..3D
+		packet[ 8]=((convert_channel_8b(CH5) >> 2) ^ 0x3F);	// ST Trim (R..C..L) 3F..20..01 (reversed)
+		packet[ 9]= 0x77;									// Change at each power up? 07 0D 25 50 77 82 89 A5 E4
+		packet[10]= 0x0C;									// WL-V8Tx: fixed value = 0C
+		packet[11]= 0x00;									// Constant?
+		packet[12]= 0x00;									// Constant?
 	}
 	else
 	{
@@ -188,6 +188,7 @@ static void __attribute__((unused)) REALACC_wlv8tx_process_rx()
 		realacc_wlv8tx_extra[1] = packet_in[2];
 		rx_tx_addr[2] ^= packet_in[1];
 		rx_tx_addr[3] ^= packet_in[2];
+		rx_tx_addr[3] |= 0x80;
 	}
 	else if(packet_in[0] == 0xB5 && realacc_wlv8tx_rx_b3)
 	{

@@ -182,6 +182,7 @@ const char STR_SUBTYPE_PELIKAN[] =    "\x05""Pro\0 ""Lite\0""SCX24";
 const char STR_SUBTYPE_V761[] =       "\x05""3ch\0 ""4ch\0 ""TOPRC";
 const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ""DumboRC""RC4G\0  ";
 const char STR_SUBTYPE_REALACC[] =    "\x07""R11\0   ""WL-V8Tx";
+const char STR_SUBTYPE_RLINK[] =      "\x07""Surface""Air\0   ""DumboRC""RC4G\0  ""Dumbo_P";
 const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
 const char STR_SUBTYPE_KYOSHO2[] =    "\x05""KT-17";
 const char STR_SUBTYPE_KYOSHO3[] =    "\x03""ASF";
@@ -461,7 +462,7 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_Q90C,       STR_Q90C,      NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    Q90C_init,       Q90C_callback       },
 	#endif
 	#if defined(RLINK_CC2500_INO)
-		{PROTO_RLINK,      STR_RLINK,     STR_SUBTYPE_RLINK,     4, OPTION_RFTUNE,  0, 0, SW_CC2500, RLINK_init,      RLINK_callback      },
+		{PROTO_RLINK,      STR_RLINK,     STR_SUBTYPE_RLINK,     5, OPTION_RFTUNE,  0, 0, SW_CC2500, RLINK_init,      RLINK_callback      },
 	#endif
 	#if defined(REALACC_NRF24L01_INO)
 		{PROTO_REALACC,    STR_REALACC,   STR_SUBTYPE_REALACC,   2, OPTION_NONE,    0, 0, SW_NRF,    REALACC_init,    REALACC_callback    },

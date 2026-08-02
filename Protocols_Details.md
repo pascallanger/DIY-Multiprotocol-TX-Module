@@ -2289,7 +2289,7 @@ Models: WLtoys 284019A, 284191, Cars using V8 Transmitter
 
 CH1|CH2|CH3|CH4|CH5
 ---|---|---|---|---
-Throttle|Steering|GY_TRIM|TH_TRIM|ST_TRIM
+Steering|Throttle|GY_TRIM|TH_TRIM|ST_TRIM
 
 GY TRIM: (Rate) -100% Min, +100% Max, variable/set up on a adj. pot.
 

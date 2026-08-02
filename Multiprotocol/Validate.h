@@ -404,6 +404,7 @@
 	#undef	Q303_CCNRF_INO
 	#undef	Q90C_CCNRF_INO
 	#undef	REDPINE_CC2500_INO#endif
+#endif
 
 #ifdef MULTI_SURFACE
 	#undef	BUGS_A7105_INO

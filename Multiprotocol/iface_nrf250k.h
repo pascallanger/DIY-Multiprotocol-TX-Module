@@ -13,7 +13,7 @@
 
 //////////////
 // Functions
-#define NRF250K_Init()			XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K)
+#define NRF250K_Init(X)			XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, XN297_250K, X)
 #define NRF250K_HoppingCalib(X)	XN297_HoppingCalib(X)
 #define NRF250K_Hopping(X)		XN297_Hopping(X)
 #define NRF250K_RFChannel(X)	XN297_RFChannel(X)

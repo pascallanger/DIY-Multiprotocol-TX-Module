@@ -16,13 +16,25 @@
 
 #include "iface_nrf250k.h"
 
+#if defined(CC2500_INSTALLED) && defined(NRF24L01_INSTALLED)
+	extern bool xn297_rf;
+#endif
+
 uint8_t cc2500_nrf_tx_addr[5], cc2500_nrf_addr_len;
 
 static void __attribute__((unused)) NRF250K_SetTXAddr(uint8_t* addr, uint8_t len)
 {
 	if (len > 5) len = 5;
 	if (len < 3) len = 3;
-	#if defined(CC2500_INSTALLED)
+	#if defined(CC2500_INSTALLED) && defined(NRF24L01_INSTALLED)
+		cc2500_nrf_addr_len = len;
+		memcpy(cc2500_nrf_tx_addr, addr, len);
+		if(xn297_rf == XN297_NRF)
+		{
+			NRF24L01_WriteReg(NRF24L01_03_SETUP_AW, len-2);
+			NRF24L01_WriteRegisterMulti(NRF24L01_10_TX_ADDR, addr, len);
+		}
+	#elif defined(CC2500_INSTALLED)
 		cc2500_nrf_addr_len = len;
 		memcpy(cc2500_nrf_tx_addr, addr, len);
 	#elif defined(NRF24L01_INSTALLED)
@@ -33,6 +45,22 @@ static void __attribute__((unused)) NRF250K_SetTXAddr(uint8_t* addr, uint8_t len
 
 static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t len)
 {
+	#if defined(NRF24L01_INSTALLED)
+		#if defined(CC2500_INSTALLED)
+			if(xn297_rf == XN297_NRF)
+		#endif
+		{
+			if(len<=32)
+			{
+				NRF24L01_FlushTx();
+				NRF24L01_WriteReg(NRF24L01_07_STATUS, _BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_RX_DR) | _BV(NRF24L01_07_MAX_RT));
+				NRF24L01_WritePayload(msg, len);
+			}
+			#if defined(CC2500_INSTALLED)
+				return;
+			#endif
+		}
+	#endif
 	#if defined(CC2500_INSTALLED)
 		#if defined(ESKY150V2_CC2500_INO)
 			uint8_t buf[158];
@@ -105,13 +133,6 @@ static void __attribute__((unused)) NRF250K_WritePayload(uint8_t* msg, uint8_t l
 		{//Send packet
 			CC2500_WriteRegisterMulti(CC2500_3F_TXFIFO, buff, last);
 			CC2500_Strobe(CC2500_STX);
-		}
-	#elif defined(NRF24L01_INSTALLED)
-		if(len<=32)
-		{
-			NRF24L01_FlushTx();
-			NRF24L01_WriteReg(NRF24L01_07_STATUS, _BV(NRF24L01_07_TX_DS) | _BV(NRF24L01_07_RX_DR) | _BV(NRF24L01_07_MAX_RT));
-			NRF24L01_WritePayload(msg, len);
 		}
 	#endif
 }

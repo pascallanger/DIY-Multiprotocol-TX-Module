@@ -146,7 +146,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [Shenqi](Protocols_Details.md#Shenqi---19)||19|Shenqi||||||||NRF24L01|LT8900
 [Shenqi2](Protocols_Details.md#Shenqi2---105)||105|Shenqi2||||||||NRF24L01|XN297
 [Skyartec](Protocols_Details.md#Skyartec---68)||68|||||||||CC2500|CC2500
-[SLT](Protocols_Details.md#SLT---11)||11|SLT_V1|SLT_V2|Q100|Q200|MR100|V1_4CH|RF_SIM||NRF24L01|CC2500
+[SLT](Protocols_Details.md#SLT---11)||11|SLT_V1|SLT_V2|Q100|Q200|MR100|V1_4CH|RF_SIM|SLT6TX|NRF24L01|CC2500
 [SymaX](Protocols_Details.md#Symax---10)||10|SYMAX|SYMAX5C|||||||NRF24L01|
 [Traxxas](Protocols_Details.md#Traxxas---43)||43|TQ2|TQ1|||||||CYRF6936|
 [V2x2](Protocols_Details.md#V2X2---5)||5|V2x2|JXD506|MR101||||||NRF24L01|
@@ -1532,6 +1532,16 @@ Please save radio-profile with a new name without setting reset-button in RF8. T
 
 Find the [Reset21] section and change Input=INT:-1 to Input=INT:9 
 
+### Sub_protocol SLT6TX - *7*
+Models: Blade Revolution 90 FP helicopter (SLT6 transmitter)
+
+CH1|CH2|CH3|CH4|CH5|CH6
+---|---|---|---|---|---
+A|E|T|R|FMODE|PANIC
+
+FMODE: flight mode switch (3-position)
+
+PANIC: panic/recovery button
 
 ## V911S - *46*
 

@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	4
-#define VERSION_PATCH_LEVEL	61
+#define VERSION_PATCH_LEVEL	62
 
 #define MODE_SERIAL 0
 
@@ -216,6 +216,7 @@ enum SLT
 	MR100		= 4,
 	SLT_V1_4	= 5,
 	RF_SIM		= 6,
+	SLT6TX		= 7,
 };
 enum CX10
 {
@@ -1149,6 +1150,7 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 			MR100		4
 			SLT_V1_4CH	5
 			RF_SIM		6
+			SLT6TX		7
 		sub_protocol==E01X
 			E012		0
 			E015		1

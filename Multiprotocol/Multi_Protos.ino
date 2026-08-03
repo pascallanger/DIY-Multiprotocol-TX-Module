@@ -119,6 +119,7 @@ const char STR_JIABAILE[]   ="JIABAILE";
 const char STR_KAMTOM[]     ="KAMTOM";
 const char STR_WL91X[]      ="WL91x";
 const char STR_WPL[]        ="WPL";
+const char STR_ARES[]        ="ARES";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -230,6 +231,9 @@ const mm_protocol_definition multi_protocols[] = {
 // Protocol number, Protocol String, Sub_protocol strings, Number of sub_protocols, Option type, Failsafe, ChMap, RF switch, Init, Callback
 	#if defined(MULTI_CONFIG_INO)
 		{PROTO_CONFIG,     STR_CONFIG,    NO_SUBTYPE,            0, OPTION_NONE,    0, 0, 0,         CONFIG_init,     CONFIG_callback     },
+	#endif
+	#if defined(ARES_CC2500_INO)
+		{PROTO_ARES,       STR_ARES,      NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_CC2500, ARES_init,       ARES_callback       },
 	#endif
 	#if defined(ASSAN_NRF24L01_INO)
 		{PROTO_ASSAN,      STR_ASSAN,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    ASSAN_init,      ASSAN_callback      },

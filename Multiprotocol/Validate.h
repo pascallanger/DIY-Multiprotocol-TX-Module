@@ -69,6 +69,11 @@
 
 // Check forced tuning values are valid
 //CC2500
+#ifdef FORCE_ARES_TUNING
+	#if ( FORCE_ARES_TUNING < -127 ) || ( FORCE_ARES_TUNING > 127 )
+		#error "The ARES forced frequency tuning value is outside of the range -127..127."
+	#endif
+#endif
 #ifdef FORCE_CORONA_TUNING
 	#if ( FORCE_CORONA_TUNING < -127 ) || ( FORCE_CORONA_TUNING > 127 )
 		#error "The CORONA forced frequency tuning value is outside of the range -127..127."
@@ -276,6 +281,7 @@
 #endif
 
 #if not defined(CC2500_INSTALLED) || defined MULTI_EU
+	#undef	ARES_CC2500_INO
 	#undef	CORONA_CC2500_INO
 	#undef	E016HV2_CC2500_INO
 	#undef	ESKY150V2_CC2500_INO
@@ -410,6 +416,7 @@
 #endif
 
 #ifdef MULTI_SURFACE
+	#undef	ARES_CC2500_INO
 	#undef	BUGS_A7105_INO
 	#undef	HEIGHT_A7105_INO
 	#undef	HUBSAN_A7105_INO

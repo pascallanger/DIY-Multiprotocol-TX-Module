@@ -107,6 +107,7 @@
 //#define FORCE_REDPINE_TUNING	0
 //#define FORCE_FUTABA_TUNING	0
 //#define FORCE_SKYARTEC_TUNING	0
+//#define FORCE_ARES_TUNING		0
 
 /** A7105 Fine Frequency Tuning **/
 //This is required in rare cases where some A7105 modules and/or RXs have an inaccurate crystal oscillator.
@@ -205,6 +206,7 @@
 #define	WK2x01_CYRF6936_INO
 
 //The protocols below need a CC2500 to be installed
+#define	ARES_CC2500_INO
 #define	CORONA_CC2500_INO
 #define	E016HV2_CC2500_INO
 #define	ESKY150V2_CC2500_INO
@@ -213,11 +215,11 @@
 #define	FRSKYV_CC2500_INO
 #define	FRSKYX_CC2500_INO		//Include FRSKYX2 protocol
 #define	FRSKY_RX_CC2500_INO
+#define	FUTABA_CC2500_INO
 #define	HITEC_CC2500_INO
 #define	HOTT_CC2500_INO
 //#define	IKEAANSLUTA_CC2500_INO  // This is mostly a "for-fun" kind of a thing, not needed for most users
 #define	SCANNER_CC2500_INO
-#define	FUTABA_CC2500_INO
 #define	SKYARTEC_CC2500_INO
 #define	REDPINE_CC2500_INO
 #define	RLINK_CC2500_INO
@@ -565,6 +567,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 //  - 0x0000ABCD will give to the protocol the channels in the order 1,2,3,4,10,11,12,13 which potentially enables acces to channels not available on your TX. Note A=10,B=11,C=12,D=13,E=14,F=15.
 
 /* Available protocols and associated sub protocols to pick and choose from (Listed in alphabetical order)
+	PROTO_ARES
+		NONE
 	PROTO_AFHDS2A
 		PWM_IBUS
 		PPM_IBUS

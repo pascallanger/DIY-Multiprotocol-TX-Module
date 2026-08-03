@@ -241,3 +241,4 @@
 105,0,Shenqi2,Std,1
 106,0,WL91x,Std,0
 107,0,WPL,Std,0,Light,TH_DR,ST_DR
+108,0,Ares,6HPA_Tx,0,CH5,CH6

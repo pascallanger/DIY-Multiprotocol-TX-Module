@@ -43,7 +43,6 @@ enum
 };
 
 static uint8_t realacc_phase;
-static uint8_t realacc_wlv8tx_extra[2];
 static bool realacc_wlv8tx_rx_b3;
 #endif
 static uint8_t realacc_bind_packet[REALACC_BIND_PAYLOAD_SIZE];
@@ -104,8 +103,8 @@ static void __attribute__((unused)) REALACC_send_bind_packet()
 	if(sub_protocol == REALACC_WLV8TX && realacc_wlv8tx_rx_b3)
 	{ // WLV8TX bind sent after RX packet B3 acknowledged
 		packet[0] = 0xB4;
-		packet[1] = realacc_wlv8tx_extra[0];
-		packet[2] = realacc_wlv8tx_extra[1];
+		packet[1] = rx_id[1];
+		packet[2] = rx_id[2];
 		memcpy(&packet[3], realacc_bind_packet, 4);	// Original TX ID before XOR
 		memcpy(&packet[7], hopping_frequency, 5);	// RF frequencies
 		XN297_WriteEnhancedPayload(packet, WLV8TX_BIND2_PAYLOAD_SIZE,1);
@@ -191,8 +190,8 @@ static void __attribute__((unused)) REALACC_wlv8tx_process_rx()
 	if(packet_in[0] == 0xB3 && !realacc_wlv8tx_rx_b3)
 	{
 		realacc_wlv8tx_rx_b3 = true;
-		realacc_wlv8tx_extra[0] = packet_in[1];
-		realacc_wlv8tx_extra[1] = packet_in[2];
+		rx_id[1] = packet_in[1];
+		rx_id[2] = packet_in[2];
 		rx_tx_addr[2] ^= packet_in[1];
 		rx_tx_addr[3] ^= packet_in[2];
 		rx_tx_addr[3] |= 0x80;
@@ -278,8 +277,8 @@ void REALACC_init()
 	#ifndef MULTI_AIR
 	if(sub_protocol == REALACC_WLV8TX)
 	{
-		realacc_wlv8tx_extra[0] = 0;
-		realacc_wlv8tx_extra[1] = 0;
+		rx_id[1] = 0;
+		rx_id[2] = 0;
 		realacc_wlv8tx_rx_b3 = false;
 		realacc_phase = REALACC_WLV8TX_BIND_TX;
 		memcpy(packet, realacc_bind_packet, 4);

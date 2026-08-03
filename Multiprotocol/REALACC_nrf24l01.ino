@@ -29,6 +29,7 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define REALACC_BIND_COUNT			50
 #define REALACC_RF_NUM_CHANNELS		5
 
+#ifndef MULTI_AIR
 #define WLV8TX_PACKET_PERIOD		16279
 #define WLV8TX_BIND2_PAYLOAD_SIZE	12
 #define WLV8TX_RX_PAYLOAD_SIZE		6
@@ -42,12 +43,14 @@ enum
 };
 
 static uint8_t realacc_phase;
-static uint8_t realacc_bind_packet[REALACC_BIND_PAYLOAD_SIZE];
 static uint8_t realacc_wlv8tx_extra[2];
 static bool realacc_wlv8tx_rx_b3;
+#endif
+static uint8_t realacc_bind_packet[REALACC_BIND_PAYLOAD_SIZE];
 
 static void __attribute__((unused)) REALACC_send_packet()
 {
+	#ifndef MULTI_AIR
 	if(sub_protocol == REALACC_WLV8TX)
 	{
 		packet[ 0]= 0xDC;										// DC
@@ -65,6 +68,7 @@ static void __attribute__((unused)) REALACC_send_packet()
 		packet[12]= 0x00;										// Constant?
 	}
 	else
+	#endif
 	{
 		packet[ 0]= 0xDC;							// DC/D6/DE
 		packet[ 1]= convert_channel_8b(AILERON);	// 00..80..FF
@@ -96,7 +100,8 @@ static void __attribute__((unused)) REALACC_send_packet()
 
 static void __attribute__((unused)) REALACC_send_bind_packet()
 {
-if(sub_protocol == REALACC_WLV8TX && realacc_wlv8tx_rx_b3)
+	#ifndef MULTI_AIR
+	if(sub_protocol == REALACC_WLV8TX && realacc_wlv8tx_rx_b3)
 	{ // WLV8TX bind sent after RX packet B3 acknowledged
 		packet[0] = 0xB4;
 		packet[1] = realacc_wlv8tx_extra[0];
@@ -106,6 +111,7 @@ if(sub_protocol == REALACC_WLV8TX && realacc_wlv8tx_rx_b3)
 		XN297_WriteEnhancedPayload(packet, WLV8TX_BIND2_PAYLOAD_SIZE,1);
 	}
 	else
+	#endif
 	{ // initial bind sent for all models
 		packet[0] = 0xB1;							// B0/B1
 		memcpy(&packet[1],realacc_bind_packet,4);	// Address
@@ -173,6 +179,7 @@ static void __attribute__((unused)) REALACC_RF_init()
 	XN297_RFChannel(REALACC_BIND_RF_CHANNEL);	// Set bind channel
 }
 
+#ifndef MULTI_AIR
 static void __attribute__((unused)) REALACC_wlv8tx_process_rx()
 {
 	if(!XN297_IsRX())
@@ -198,6 +205,7 @@ static void __attribute__((unused)) REALACC_wlv8tx_process_rx()
 	realacc_phase = REALACC_WLV8TX_DATA;
 	}
 }
+#endif
 
 uint16_t REALACC_callback()
 {
@@ -206,6 +214,13 @@ uint16_t REALACC_callback()
 	#endif
 	XN297_SetPower();
 
+	#ifdef MULTI_AIR
+		if(sub_protocol == REALACC_WLV8TX)
+		{
+			SUB_PROTO_INVALID;
+			return 10000;
+		}
+	#else
 	if(sub_protocol == REALACC_WLV8TX)
 	{
 		if(realacc_phase == REALACC_WLV8TX_DATA)
@@ -238,6 +253,7 @@ uint16_t REALACC_callback()
 		realacc_phase = REALACC_WLV8TX_BIND_RX_SETUP;
 		return WLV8TX_PACKET_PERIOD/3;
 	}
+	#endif
 
 	XN297_SetTxRxMode(TX_EN);
 	if(IS_BIND_IN_PROGRESS)
@@ -259,6 +275,7 @@ void REALACC_init()
 	BIND_IN_PROGRESS;	// autobind protocol
 	REALACC_initialize_txid();
 	REALACC_RF_init();
+	#ifndef MULTI_AIR
 	if(sub_protocol == REALACC_WLV8TX)
 	{
 		realacc_wlv8tx_extra[0] = 0;
@@ -270,6 +287,7 @@ void REALACC_init()
 		XN297_SetRXAddr(packet, 4);
 	}
 	else
+	#endif
 		bind_counter=REALACC_BIND_COUNT;
 	hopping_frequency_no=0;
 }

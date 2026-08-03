@@ -539,9 +539,9 @@ Extended limits supported
 
 Telemetry enabled for TSSI and plugins
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|CH14
----|---|---|---|---|---|---|---|---|----|----|----|----|----
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|----|TH_KILL
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14/TH_KILL|CH15|CH16
 
 Notes:
  - The "AUTO" sub protocol is recommended to automatically select the best settings for your DSM RX. If the RX doesn't bind or work properly after bind, don't hesitate to test different combinations of sub protocol and number of channels until you have something working.
@@ -551,6 +551,7 @@ Notes:
     - If you want to override the above and get maximum throw either uncomment in _config.h the line #define DSM_MAX_THROW or on OpenTX 2.3.3+ use the "Enable max throw" feature on the GUI (0=No,1=Yes). In this mode to achieve standard throw use a channel weight of 84%.
  - TH_KILL is a feature which is enabled on channel 14 by default (can be disabled/changed) in the _config.h file. Some models (X-Vert, Blade 230S...) require a special position to instant stop the motor(s). If the channel 14 is above -50% the throttle is untouched but if it is between -50% and -100%, the throttle output will be forced between -100% and -150%. For example, a value of -80% applied on channel 14 will instantly kill the motors on the X-Vert.
  - To allow SAFE to be ON with a switch assignment you must remove the bind plug after powering up the RX but before turning on the TX to bind. If you select Autodetect to bind, The MPM will choose DSMX 11ms and Channels 1-7 ( Change to 1-9 if you wish to assign switch above channel 7 ). Then in order to use the manuals diagram of both sticks "Down-Inside" to set a SAFE Select Switch Designation, you must have Throttle and Elevator channels set to Normal direction but the Aileron and Rudder set to Reverse direction. If setting up a new model with all channels set to Normal you can hold both sticks "Down- OUTSIDE" to assign the switch with 5x flips. Tested on a Mode2 radio.
+ - Channels 13/14/15/16 are using XPlus with TH_KILL disabled. They are available when the number of channels selected on the TX is more than 12.
  
 Option=number of channels from 3 to 12. Option|0x80 enables Max Throw. Option|0x40 enables a servo refresh rate of 11ms.
 

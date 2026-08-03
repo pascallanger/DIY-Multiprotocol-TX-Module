@@ -447,7 +447,7 @@
 	#undef	NCC1701_NRF24L01_INO
 	#undef	POTENSIC_NRF24L01_INO
 	#undef	PROPEL_NRF24L01_INO
-	#undef	REALACC_NRF24L01_INO
+	//#undef	REALACC_NRF24L01_INO // This now contains a WLtoys car sub protocol
 	#undef	SGF22_NRF24L01_INO
 	#undef	SYMAX_NRF24L01_INO
 	#undef	V761_NRF24L01_INO

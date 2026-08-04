@@ -73,7 +73,7 @@
 73,Kyosho,FHSS,Hype
 74,RadioLink,Surface,Air,DumboRC,RC4G,Dumbo_P
 75,---
-76,Realacc,R11,WL-V8Tx
+76,Realacc,R11,WLV8TX
 77,OMP
 78,M-Link
 79,WFLY,RF20x

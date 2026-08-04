@@ -139,7 +139,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [Q303](Protocols_Details.md#Q303---31)||31|Q303|CX35|CX10D|CX10WD|||||NRF24L01|XN297
 [Q90C](Protocols_Details.md#Q90C---72)||72|Q90C*||||||||NRF24L01|XN297
 [RadioLink](Protocols_Details.md#RadioLink---74)||74|Surface|Air|DumboRC|RC4G|Dumbo_P||||CC2500|
-[Realacc](Protocols_Details.md#Realacc---76)||76|R11|WL-V8Tx|||||||NRF24L01|
+[Realacc](Protocols_Details.md#Realacc---76)||76|R11|WLV8TX|||||||NRF24L01|
 [Redpine](Protocols_Details.md#Redpine---50)||50|FAST|SLOW|||||||NRF24L01|XN297
 [Scanner](Protocols_Details.md#Scanner---54)||54|||||||||CC2500|
 [Scorpio](Protocols_Details.md#Scorpio---94)||94|||||||||CYRF6936|
@@ -2342,7 +2342,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11
 ---|---|---|---|---|---|---|---|---|----|----
 A|E|T|R|FLIP|LIGHT|CALIB|HLESS|RTH|THR_CUT|ROTATE
 
-### Sub_protocol WL-V8Tx - *1*
+### Sub_protocol WLV8TX - *1*
 
 Models: WLtoys 284019A, 284191, Cars using V8 Transmitter
 

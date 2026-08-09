@@ -102,7 +102,7 @@ static void __attribute__((unused)) DSM_build_bind_packet()
 	if(sub_protocol==DSM_AUTO)
 		packet[11] = 12;
 	else
-		packet[11] = num_ch;				// DX5 DSMR sends 0x48...
+		packet[11] = min(num_ch,12);				// DX5 DSMR sends 0x48...
 	//packet[11] = 3;						// DX3R
 
 	if (sub_protocol==DSMR)
@@ -142,9 +142,12 @@ static void __attribute__((unused)) DSM_initialize_bind_phase()
 static void __attribute__((unused)) DSM_update_channels()
 {
 	prev_option=option;
-	num_ch=option & 0x0F;				// Remove flags 0x80=max_throw, 0x40=11ms
-
-	if(num_ch<3 || num_ch>12)
+	num_ch=option & 0x0F;				// Remove flags 0x80=max_throw, 0x40=11ms, 0x20=Cloned
+  
+  if (num_ch==0)            // Special case for 16ch, since channels are encoded in lower 4 bits
+    num_ch=16; 
+  
+	if(num_ch<3)
 		num_ch=6;						// Default to 6 channels if invalid choice...
 
 	#ifndef MULTI_AIR

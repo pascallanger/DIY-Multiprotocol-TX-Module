@@ -129,13 +129,18 @@ static void __attribute__((unused)) MT99XX_send_packet()
 	static uint8_t seq_num=0;
 
 	//Set RF freq
-	if(sub_protocol == LS)
-		XN297_RFChannel(0x2D); 			// LS always transmits on the same channel
+	if(IS_BIND_IN_PROGRESS && sub_protocol == PA18+8)
+		XN297_RFChannel(0x02);
 	else
-		if(sub_protocol==FY805)
-			XN297_RFChannel(0x4B);		// FY805 always transmits on the same channel
-		else // MT99 & H7 & YZ & A180 & DRAGON & F949G & PA18
-			XN297_Hopping(hopping_frequency_no);
+	{
+		if(sub_protocol == LS)
+			XN297_RFChannel(0x2D); 			// LS always transmits on the same channel
+		else
+			if(sub_protocol==FY805)
+				XN297_RFChannel(0x4B);		// FY805 always transmits on the same channel
+			else // MT99 & H7 & YZ & A180 & DRAGON & F949G & PA18
+				XN297_Hopping(hopping_frequency_no);
+	}
 
 	if(IS_BIND_IN_PROGRESS)
 	{

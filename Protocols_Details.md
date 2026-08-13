@@ -238,21 +238,21 @@ Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 
 ### Sub_protocol PWM_IBUS - *0*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14CH15|CH16|LQI
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|LQI
 
 RX output will match the Flysky standard AETR.
 
 ### Sub_protocol PPM_IBUS - *1*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14CH15|CH16|LQI
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|LQI
 
 RX output will match the Flysky standard AETR.
 
 ### Sub_protocol PWM_SBUS - *2*
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14CH15|CH16|LQI
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|LQI
 
 RX output will match the Flysky standard AETR.
 
@@ -1930,7 +1930,7 @@ FX9630 and FX9603 Gyro: -100%=6G small throw, 0%=6G large throw, +100%=3D
 QIDI-550 Gyro: -100%=3D, 0%=6G, +100%=Torque
 
 ### Sub_protocol Q560 - *3*
-Model: QIDI-560, QIDI-580 (Cirrus SR22)
+Model: QIDI-560, QIDI-580, QIDI-590
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---

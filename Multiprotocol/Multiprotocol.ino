@@ -639,7 +639,8 @@ void setup()
 			if (protocol==PROTO_ARES)
 				option			=	FORCE_ARES_TUNING;			// Use config-defined tuning value for ARES
 			else
-		#endif				option			=	(uint8_t)PPM_prot_line->option;	// Use radio-defined option value
+		#endif
+				option			=	(uint8_t)PPM_prot_line->option;	// Use radio-defined option value
 
 		if(PPM_prot_line->power)		POWER_FLAG_on;
 		if(PPM_prot_line->autobind)

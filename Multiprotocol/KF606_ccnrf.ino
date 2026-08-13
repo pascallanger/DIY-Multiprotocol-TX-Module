@@ -54,7 +54,7 @@ static void __attribute__((unused)) KF606_send_packet()
 		packet[len-2] = convert_channel_8b_limit_deadband(AILERON,0x00,0x80,0xFF,40);	// Aileron: High rate:2B..80..DA
 		uint8_t p3;
 		p3 = convert_channel_8b(CH5)>>3;												// Aileron trim must be on a separated channel 01..10..1F
-		p3 += (packet[2]-0x80)>>3;														// Drive trims for more aileron authority
+		p3 += (packet[len-2]-0x80)>>3;													// Drive trims for more aileron authority
 		if(p3 > 0x80)
 			p3 = 0x01;
 		else if(p3 > 0x1F)

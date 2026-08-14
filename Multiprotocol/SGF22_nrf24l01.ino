@@ -25,10 +25,12 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_PAYLOAD_SIZE				12
 #define SGF22_BIND_COUNT				50
 #define SGF22_RF_NUM_CHANNELS			4
+
 #define SGF22_BIND_RF_CHANNEL			78
 #define SGF22_F22S_BIND_RF_CHANNEL		10
 #define SGF22_J20_BIND_RF_CHANNEL  		28
 #define SGF22_CX10_BIND_RF_CHANNEL		48
+#define SGF22_T28_BIND_RF_CHANNEL  		28
 
 //packet[8]
 #define SGF22_FLAG_3D					0x00
@@ -111,7 +113,7 @@ static void __attribute__((unused)) SGF22_send_packet()
 		packet[10] = 0x42;									// no fine tune
 		packet[11] = 0x10;									// no fine tune
 	}
-	if(sub_protocol == SGF22_F22S)
+	if(sub_protocol == SGF22_F22S || sub_protocol == SGF22_T28)
 		packet[0] += 6;
 	else if (sub_protocol == SGF22_J20)
     		packet[0] += 3; 
@@ -200,7 +202,7 @@ static void __attribute__((unused)) SGF22_RF_init()
 		XN297_SetRXAddr((uint8_t*)"\xC7\x95\x3C\xBB\xA5", SGF22_PAYLOAD_SIZE);
 	#endif
 
-	const uint8_t bind_chan[] = {SGF22_BIND_RF_CHANNEL, SGF22_F22S_BIND_RF_CHANNEL, SGF22_J20_BIND_RF_CHANNEL, SGF22_CX10_BIND_RF_CHANNEL};
+	const uint8_t bind_chan[] = {SGF22_BIND_RF_CHANNEL, SGF22_F22S_BIND_RF_CHANNEL, SGF22_J20_BIND_RF_CHANNEL, SGF22_CX10_BIND_RF_CHANNEL, SGF22_T28_BIND_RF_CHANNEL};
 	XN297_RFChannel(bind_chan[sub_protocol]);	// Set bind channel
 }
 

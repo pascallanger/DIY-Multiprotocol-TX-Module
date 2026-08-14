@@ -19,7 +19,7 @@
 #define VERSION_MAJOR		1
 #define VERSION_MINOR		3
 #define VERSION_REVISION	4
-#define VERSION_PATCH_LEVEL	64
+#define VERSION_PATCH_LEVEL	65
 
 #define MODE_SERIAL 0
 
@@ -515,6 +515,7 @@ enum SGF22
 	SGF22_F22S		= 1,
 	SGF22_J20 		= 2,
 	SGF22_CX10		= 3,
+	SGF22_T28 		= 4,
 };
 enum JIABAILE
 {

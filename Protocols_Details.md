@@ -2393,12 +2393,12 @@ Mode -100% = Gyro off, 0% = Horizontal, 100% = Vertical. CH8 - Invert, CH10 - Fi
 ### Sub_protocol CX10
 Model: Cheerson CX-10 with red PCB
 
-### Sub_protocol T28
-Model: FMS T28
-
 **Only 2 IDs available**, use RX num to cycle through them.
 
 Mode -100% = Low, 0% = Medium, 100% = High
+
+### Sub_protocol T28
+Model: FMS T28
 
 ## Shenqi - *19*
 Autobind protocol

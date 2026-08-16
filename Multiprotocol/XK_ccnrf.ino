@@ -122,7 +122,7 @@ static void __attribute__((unused)) XK_send_packet()
 		else
 			if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)
 				packet[10] = 0x01; 					// 3D-Mode
-		packet[10] |= GET_FLAG(CH6_SW ,0x08);		// Low/High rate
+		packet[10] |= GET_FLAG(CH6_SW ,0xFC);		// Low/High rate
 		packet[11]  = GET_FLAG(CH7_SW ,0x10)		// Back Flip - momentary switch
 					 |GET_FLAG(CH8_SW ,0x20)		// Left Roll - momentary switch
 					 |GET_FLAG(CH9_SW ,0x40)		// Right Roll - momentary switch
@@ -134,10 +134,10 @@ static void __attribute__((unused)) XK_send_packet()
 		crc+=packet[i];
 	packet[15]=crc;
 
-//	debug("C: %02X, P:",hopping_frequency[rf_ch_num]);
-//	for(uint8_t i=0; i<XK_PAYLOAD_SIZE; i++)
-//		debug(" %02X",packet[i]);
-//	debugln("");
+	debug("C: %02X, P:",hopping_frequency[rf_ch_num]);
+	for(uint8_t i=0; i<XK_PAYLOAD_SIZE; i++)
+		debug(" %02X",packet[i]);
+	debugln("");
 	
 	// Send
 	XN297_SetPower();			// Set tx_power

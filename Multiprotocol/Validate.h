@@ -403,6 +403,7 @@
 
 #if defined(MULTI_AIR) || defined(MCU_STM32F103C8)
 	// Save flash space...
+	#undef	ARES_CC2500_INO
 	#undef	BUMBLEB_CCNRF_INO
 	#undef	CABELL_NRF24L01_INO
 	#undef	FQ777_NRF24L01_INO

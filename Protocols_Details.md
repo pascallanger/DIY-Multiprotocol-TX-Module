@@ -2365,9 +2365,9 @@ ST TRIM: -100% Left, +100% Right, variable/shouldn't be needed? CH1 trim on stee
 ## SGF22 - *97*
 Autobind protocol
 
-CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
----|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|MODE|FLIP|LIGHT|PHOTO|VIDEO|TRIMRESET|BAL|BALHIG
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|FLIP|LIGHT|PHOTO|VIDEO|TRIMRESET|BAL|BALHIG|RTH_SET
 
 Telemetry is supported. The plane sends a battery status of good->empty which is visible in A1 (good=13.2V->empty=0V) and RSSI gets a dummy value of 100.
 
@@ -2399,6 +2399,12 @@ Mode -100% = Low, 0% = Medium, 100% = High
 
 ### Sub_protocol T28
 Model: FMS T28
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
+---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|MODE|FLIP|LIGHT|-|RTH|-|-|-|RTH_SET
+
+Mode -100% = Gyro off, 0% = Stabilized, 100% = Optimized
 
 ## Shenqi - *19*
 Autobind protocol

@@ -201,6 +201,7 @@
 62,0,XK,X450,1,FMode,TakeOf,Emerg,3D_6G,Pict,Video
 62,1,XK,X420,1,FMode,TakeOf,Emerg,3D_6G,Pict,Video,Flip,Light
 62,2,XK,Cars,0,FMode,TakeOf,Emerg,3D_6G,Pict,Video,Flip,Light
+62,3,XK,MoFly,0,FMode,Rate,BFlip,LRoll,RRoll,Invert
 99,0,XK2,X4,0,Rate,Mode,Hover,Light,Stunt
 99,1,XK2,P10,0,Rate,Mode,Hover,Light,Stunt
 8,0,YD717,Std,1,Flip,Light,Pict,Video,HLess

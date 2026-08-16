@@ -901,6 +901,7 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		X450
 		X420
 		XK_CARS
+		MOFLY
 	PROTO_XK2
 		XK2_X4
 		XK2_P10

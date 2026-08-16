@@ -159,7 +159,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [WL91X](Protocols_Details.md#WL91X---106)||106|||||||||NRF24L01&CC2500|XN297
 [WPL](Protocols_Details.md#WPL---107)||107|||||||||NRF24L01|XN297
 [XERALL](Protocols_Details.md#XERALL---91)||91|Tank||||||||NRF24L01|XN297
-[XK](Protocols_Details.md#XK---62)||62|X450|X420|Cars||||||NRF24L01&CC2500|XN297
+[XK](Protocols_Details.md#XK---62)||62|X450|X420|Cars|MoFly|||||NRF24L01&CC2500|XN297
 [XK2](Protocols_Details.md#XK2---99)||99|X4|P10|||||||NRF24L01&CC2500|XN297
 [YD717](Protocols_Details.md#YD717---8)||8|YD717|SKYWLKR|SYMAX4|XINXUN|NIHUI||||NRF24L01|
 [YuXiang](Protocols_Details.md#YuXiang---100)||100|||||||||NRF24L01|XN297
@@ -1605,7 +1605,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 A|E|T|R|Flight_modes|Take_off|Emerg stop|3D/6G|Picture|Video
 
-Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary switches.
+Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are momentary switches.
 
 ### Sub_protocol X420 - *1*
 Models: XK X420/X520 (TX=X4)
@@ -1614,7 +1614,7 @@ CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
 ---|---|---|---|---|---|---|---|---|----
 A|E|T|R|Flight_modes|Take_off|Emerg stop|3D/6G|Picture|Video
 
-Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are mementary switches.
+Flight_modes: -100%=M-Mode, 0%=6G-Mode, +100%=V-Mode. CH6-CH10 are momentary switches.
 
 Model: Tiger Drone 1400782
 
@@ -1624,6 +1624,19 @@ A|E|T|R|FLIP|LIGHT
 
 ### Sub_protocol Cars - *2*
 Models: WLtoys cars 284131/284161/284010/124016/124017/144010 and Eachine EAT14
+
+### Sub_protocol MoFly - *3*
+Models: MoFly planes
+
+If a CC2500 is installed it will be used for this sub protocol. Option in this case is used for fine frequency tuning like any CC2500 protocols so check the [Frequency Tuning page](/docs/Frequency_Tuning.md).
+
+If only a NRF24L01 is installed then this sub protocol might be problematic because it is using the xn297L emulation with a transmission speed of 250kbps which doesn't work very well with every NRF24L01, this is an hardware issue with the authenticity and accuracy of the components.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10
+---|---|---|---|---|---|---|---|---|----
+A|E|T|R|Flight_modes|Rate_L/H|Back_Flip|Left_Roll|Right_Roll|Inverted
+
+Flight_modes: -100%=MM-Mode, 0%=3D-Mode, +100%=6G-Mode. CH7-CH9 are momentary switches. CH10 is a toggle switch.
 
 ## XK2 - *99*
 

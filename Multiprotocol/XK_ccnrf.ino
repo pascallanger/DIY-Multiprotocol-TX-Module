@@ -68,43 +68,65 @@ static void __attribute__((unused)) XK_send_packet()
 	memset(packet,0x00,7);
 	memset(&packet[10],0x00,5);
 
-	packet[12]=0x40;
-	packet[13]=0x40;
-	if(IS_BIND_IN_PROGRESS)
-		packet[14] = 0xC0;
+	if(sub_protocol != MOFLY)
+	{
+		packet[12]=0x40;
+		packet[13]=0x40;
+		if(IS_BIND_IN_PROGRESS)
+			packet[14] = 0xC0;
+		else
+		{
+			uint16_t val=convert_channel_10b(THROTTLE, false);
+			packet[0] = val>>2;						// 0..255
+			packet[12] |= val & 2;
+			val=XK_convert_channel(RUDDER);
+			packet[1] = val>>2;
+			packet[12] |= (val & 2)<<2;
+			val=XK_convert_channel(ELEVATOR);
+			packet[2] = val>>2;
+			packet[13] |= val & 2;
+			val=XK_convert_channel(AILERON);
+			packet[3] = val>>2;
+			packet[13] |= (val & 2)<<2;
+			
+			memset(&packet[4],0x40,3);				// Trims
+			
+			if(CH5_SW)
+				packet[10] = 0x10; 					// V-Mode
+			else
+				if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)
+					packet[10] = 0x04; 				// 6G-Mode
+			//0x00 default M-Mode
+			
+			packet[10] |= GET_FLAG(CH7_SW ,0x80);	// Emergency stop momentary switch
+
+			packet[11]  = GET_FLAG(CH8_SW ,0x03)	// 3D/6G momentary switch
+						 |GET_FLAG(CH6_SW ,0x40);	// Take off momentary switch
+			packet[14]  = GET_FLAG(CH9_SW ,0x01)	// Photo momentary switch
+						 |GET_FLAG(CH10_SW,0x02)	// Video momentary switch
+						 |GET_FLAG(CH11_SW,0x04)	// Flip
+						 |GET_FLAG(CH12_SW,0x10);	// Light
+			//debugln("P1:%02X,P12:%02X",packet[1],packet[12]);
+		}
+	}
 	else
 	{
-		uint16_t val=convert_channel_10b(THROTTLE, false);
-		packet[0] = val>>2;						// 0..255
-		packet[12] |= val & 2;
-		val=XK_convert_channel(RUDDER);
-		packet[1] = val>>2;
-		packet[12] |= (val & 2)<<2;
-		val=XK_convert_channel(ELEVATOR);
-		packet[2] = val>>2;
-		packet[13] |= val & 2;
-		val=XK_convert_channel(AILERON);
-		packet[3] = val>>2;
-		packet[13] |= (val & 2)<<2;
-		
-		memset(&packet[4],0x40,3);				// Trims
-		
-		if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
-			packet[10] = 0x10; 					// V-Mode
+		packet[0] = convert_channel_8b(THROTTLE);
+		packet[1] = convert_channel_s8b(RUDDER);
+		packet[2] = convert_channel_s8b(ELEVATOR);
+		packet[3] = convert_channel_s8b(AILERON);
+		memset(&packet[4],0x40,3);					// Trims centered
+		//0x00 default MM Mode
+		if(CH5_SW)
+			packet[10] = 0x02; 						// 6G Mode
 		else
 			if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)
-				packet[10] = 0x04; 				// 6G-Mode
-		//0x00 default M-Mode
-		
-		packet[10] |= GET_FLAG(CH7_SW ,0x80);	// Emergency stop momentary switch
-
-		packet[11]  = GET_FLAG(CH8_SW ,0x03)	// 3D/6G momentary switch
-					 |GET_FLAG(CH6_SW ,0x40);	// Take off momentary switch
-		packet[14]  = GET_FLAG(CH9_SW ,0x01)	// Photo momentary switch
-					 |GET_FLAG(CH10_SW,0x02)	// Video momentary switch
-					 |GET_FLAG(CH11_SW,0x04)	// Flip
-					 |GET_FLAG(CH12_SW,0x10);	// Light
-		//debugln("P1:%02X,P12:%02X",packet[1],packet[12]);
+				packet[10] = 0x01; 					// 3D-Mode
+		packet[10] |= GET_FLAG(CH6_SW ,0x08);		// Low/High rate
+		packet[11]  = GET_FLAG(CH7_SW ,0x10)		// Back Flip - momentary switch
+					 |GET_FLAG(CH8_SW ,0x20)		// Left Roll - momentary switch
+					 |GET_FLAG(CH9_SW ,0x40)		// Right Roll - momentary switch
+					 |GET_FLAG(CH10_SW,0x80);		// Inverted Flight - latching switch
 	}
 
 	crc=packet[0];
@@ -128,7 +150,7 @@ const uint8_t PROGMEM XK_bind_hop[XK_RF_BIND_NUM_CHANNELS]= { 0x07, 0x24, 0x3E, 
 
 const uint8_t PROGMEM XK_tx_addr[]= { 0xB3, 0x67, 0xE9, 0x98, 0x3A, 0xEC, 0xA6, 0x59, 0xB2, 0x94, 0x2B, 0xA5, 0x37, 0xC5, 0x4A, 0xD3,
 									  0x49, 0xA6, 0x83, 0xEB, 0x4B, 0xC9, 0x59, 0xD2, 0x65, 0x34, 0x6A, 0xD3, 0x2C, 0x96, 0x2A, 0xA9,
-									  0x32, 0xB2, 0xB4, 0x49, 0xD3, 0x37, 0xE9 };
+									  0x32, 0xB2, 0xB4, 0x49, 0xD3, 0x37, 0xE9 }; // last one in the table is 0x68 but not reachable
 
 const uint8_t PROGMEM XK_hop[]= { 0x47, 0x3A, 0x4C, 0x39, 0x4D, 0x34, 0x4A, 0x3F, 0x45, 0x3E, 0x4B, 0x3D, 0x3B, 0x48, 0x40, 0x49,
 								  0x46, 0x3C, 0x43, 0x38, 0x35, 0x42, 0x33, 0x44, 0x4E, 0x37, 0x44, 0x35, 0x37, 0x4E, 0x36, 0x41 };
@@ -196,7 +218,7 @@ static void __attribute__((unused)) XK_initialize_txid()
 
 static void __attribute__((unused)) XK_RF_init()
 {
-	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, sub_protocol==X450 ? XN297_250K : XN297_1M );
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, (sub_protocol==X450||sub_protocol==MOFLY) ? XN297_250K : XN297_1M );
 	XN297_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);						// Bind address
 	XN297_HoppingCalib(XK_RF_BIND_NUM_CHANNELS+XK_RF_NUM_CHANNELS);				// Calibrate all channels
 }

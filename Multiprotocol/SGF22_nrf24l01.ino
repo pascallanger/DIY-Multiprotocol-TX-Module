@@ -46,7 +46,8 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define SGF22_FX922_FLAG_BALANCEHIGH	0x01
 #define SGF22_FX922_FLAG_BALANCE		0x02
 
-#define SGF22_T18_RTH_SET				0x20
+#define SGF22_T28_RTH_SET				0x20
+#define SGF22_T28_FLAG_OPTIMIZED		0x80
 
 //packet[9]
 #define SGF22_FLAG_TRIMRESET			0x04
@@ -92,7 +93,7 @@ static void __attribute__((unused)) SGF22_send_packet()
 				| GET_FLAG(CH9_SW, SGF22_FLAG_VIDEO)		// push down throttle trim for video in the stock TX
 				| GET_FLAG(CH11_SW, SGF22_FX922_FLAG_BALANCE)
 				| GET_FLAG(CH12_SW, SGF22_FX922_FLAG_BALANCEHIGH)
-				| GET_FLAG(CH13_SW, SGF22_T18_RTH_SET);
+				| GET_FLAG(CH13_SW, SGF22_T28_RTH_SET);
 			if(Channel_data[CH5] > CHANNEL_MAX_COMMAND)
 				packet[8] |= ( sub_protocol == SGF22_T28 ? SGF22_T28_FLAG_OPTIMIZED : SGF22_FLAG_VERTICAL);  // CH5 100%,  vertical mode (torque)    
 			else if(Channel_data[CH5] > CHANNEL_MIN_COMMAND )

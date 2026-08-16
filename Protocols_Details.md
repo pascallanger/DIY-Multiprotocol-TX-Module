@@ -811,6 +811,8 @@ To bind V2 RXs you must follow the below procedure (original):
 ### Sub_protocol FD_V3 - *2*
 FlyDream RXs like IS-4R and IS-4R0
 
+Protronik (PTR-6A) RXs like R8X: you need to initiate binding on the receiver, then on the transmitter, and finally press the bind button on the receiver.
+
 ## E016HV2 - *80*
 Models: E016H v2
 

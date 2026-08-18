@@ -127,6 +127,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [MJXq](Protocols_Details.md#MJXQ---18)||18|WLH08|X600|X800|H26D|E010*|H26WH|PHOENIX*||NRF24L01|XN297
 [MLINK](Protocols_Details.md#MLINK---78)||78|||||||||CYRF6936|
 [MoFly](Protocols_Details.md#MoFly---109)||109|||||||||NRF24L01&CC2500|XN297
+[MC8RE V2](Protocols_Details.md#MC8RE-V2---110)|AIR|110|||||||||A7105|
 [MouldKg](Protocols_Details.md#mouldkg---90)||90|A4444|D4444|A664||||||NRF24L01|XN297
 [MT99xx](Protocols_Details.md#MT99XX---17)||17|MT|H7|YZ|LS|FY805|A180|DRAGON|F949G|NRF24L01|XN297
 [MT99xx2](Protocols_Details.md#MT99XX2---92)||92|PA18|SU35|||||||NRF24L01|XN297
@@ -380,6 +381,20 @@ CH1|CH2|CH3|CH4|CH5|CH6
 A|E|T|R|CH5|CH6
 
 RX output will match the Hype standard AETR independently of the input configuration AETR, RETA... unless on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+
+## MC8RE V2 - *110*
+
+MC8RE V2 receiver family.  Bind from the transmitter GUI, then set A1 to the
+receiver/BEC voltage and A2 to the external battery voltage.  Set A2's ratio
+to 25.5 V for a 4S voltage range.
+
+This protocol is fixed to the capture-proven transmitter identity and hopping
+sequence.  It is not yet a universal implementation for transmitters with a
+different original identity; see [MC8RE_V2.md](docs/MC8RE_V2.md).
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
 
 ## Pelikan - *60*
 Extended limits supported

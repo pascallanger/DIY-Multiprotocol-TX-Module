@@ -118,15 +118,15 @@ static void __attribute__((unused)) XK_send_packet()
 		memset(&packet[4],0x40,3);					// Trims centered
 		//0x00 default MM Mode
 		if(CH5_SW)
-			packet[10] = 0x02; 						// 6G Mode
+			packet[10] = 0x01; 						// 6G Mode
 		else
 			if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)
-				packet[10] = 0x01; 					// 3D-Mode
-		packet[10] |= GET_FLAG(CH6_SW ,0xFC);		// Low/High rate
+				packet[10] = 0x02; 					// 3D-Mode
+		packet[10] |= GET_FLAG(CH6_SW ,0x04);		// Low/High rate
 		packet[11]  = GET_FLAG(CH7_SW ,0x10)		// Back Flip - momentary switch
 					 |GET_FLAG(CH8_SW ,0x20)		// Left Roll - momentary switch
-					 |GET_FLAG(CH9_SW ,0x40)		// Right Roll - momentary switch
-					 |GET_FLAG(CH10_SW,0x80);		// Inverted Flight - latching switch
+					 |GET_FLAG(CH9_SW ,0x04)		// Right Roll - momentary switch
+					 |GET_FLAG(CH10_SW,0x08);		// Inverted Flight - latching switch
 	}
 
 	crc=packet[0];

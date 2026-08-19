@@ -2422,6 +2422,10 @@ A|E|T|R|MODE|STUNT|LIGHT|INVERT|RTH|-|-|-|RTH_SET
 
 Mode: -100% = Gyro off, 0% = Stabilized, 100% = Optimized
 
+Notes:
+ - CH6/CH9/CH13 (STUNT, RTH, RTH Set) are NOT required to be bound, or used to fly the plane.
+ - CH9 (RTH) WILL function without CH13 (RTH Set) bound/used.
+
 ## Shenqi - *19*
 Autobind protocol
 

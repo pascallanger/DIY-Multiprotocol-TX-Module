@@ -59,7 +59,7 @@
 59,Bayang_RX,Multi,CPPM
 60,Pelikan,Pro,Lite,SCX24
 61,EazyRC
-62,XK,X450,X420,Cars,MoFly
+62,XK,X450,X420,Cars
 63,XN_DUMP,250K,1M,2M,AUTO
 64,FrskyX2,CH_16,CH_8,EU_16,EU_8,Cloned
 65,FrSkyR9,915MHz,868MHz,915_8ch,868_8ch,FCC,--,FCC_8ch,--_8ch
@@ -103,4 +103,5 @@
 105,Shenqi2
 106,WL91x
 107,WPL
-108,0,Ares
+108,Ares
+109,MoFly

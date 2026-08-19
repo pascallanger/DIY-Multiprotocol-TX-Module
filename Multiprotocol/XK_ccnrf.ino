@@ -68,7 +68,7 @@ static void __attribute__((unused)) XK_send_packet()
 	memset(packet,0x00,7);
 	memset(&packet[10],0x00,5);
 
-	if(sub_protocol != MOFLY)
+	if(protocol != PROTO_MOFLY)
 	{
 		packet[12]=0x40;
 		packet[13]=0x40;
@@ -218,7 +218,7 @@ static void __attribute__((unused)) XK_initialize_txid()
 
 static void __attribute__((unused)) XK_RF_init()
 {
-	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, (sub_protocol==X450||sub_protocol==MOFLY) ? XN297_250K : XN297_1M );
+	XN297_Configure(XN297_CRCEN, XN297_SCRAMBLED, sub_protocol==X450 ? XN297_250K : XN297_1M );	//MoFly equals to X450 here
 	XN297_SetTXAddr((uint8_t*)"\x68\x94\xA6\xD5\xC3", 5);						// Bind address
 	XN297_HoppingCalib(XK_RF_BIND_NUM_CHANNELS+XK_RF_NUM_CHANNELS);				// Calibrate all channels
 }
@@ -240,7 +240,7 @@ uint16_t XK_callback()
 
 void XK_init()
 {
-	if(sub_protocol != XK_CARS)
+	if(sub_protocol != XK_CARS && protocol != PROTO_MOFLY)
 		BIND_IN_PROGRESS;															// Autobind protocol
 	XK_initialize_txid();
 	XK_RF_init();

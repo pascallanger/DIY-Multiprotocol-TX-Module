@@ -281,7 +281,7 @@
 #define	UDIRC_CCNRF_INO
 #define	V911S_CCNRF_INO
 #define	WL91X_CCNRF_INO
-#define	XK_CCNRF_INO
+#define	XK_CCNRF_INO			//Include MoFly protocol
 #define	XK2_CCNRF_INO
 
 //The protocols below need a SX1276 to be installed
@@ -789,6 +789,8 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		PHOENIX
 	PROTO_MLINK
 		NONE
+	PROTO_MOFLY
+		NONE
 	PROTO_MOULDKG
 		MOULDKG_ANALOG4
 		MOULDKG_DIGIT4
@@ -901,7 +903,6 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		X450
 		X420
 		XK_CARS
-		MOFLY
 	PROTO_XK2
 		XK2_X4
 		XK2_P10

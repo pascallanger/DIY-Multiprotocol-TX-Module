@@ -33,6 +33,18 @@
 
 HoTT_Sensor = 0
 Timer_128 = 100
+local colorLcd = type(lcd.RGB) == "function"
+
+local function drawTitle(title)
+  if colorLcd and lcd.drawFilledRectangle then
+    lcd.drawFilledRectangle(0, 0, LCD_W, 30, TITLE_BGCOLOR)
+    lcd.drawText(1, 5, title, MENU_TITLE_COLOR)
+  elseif lcd.drawScreenTitle then
+    lcd.drawScreenTitle(title, 0, 0)
+  else
+    lcd.drawText(0, 0, title, INVERS)
+  end
+end
 
 local function HoTT_Release()
   multiBuffer( 0, 0 )
@@ -67,7 +79,7 @@ local function HoTT_Draw_LCD()
 
   lcd.clear()
 
-  if LCD_W == 480 then
+  if colorLcd then
     --Draw title
     lcd.drawFilledRectangle(0, 0, LCD_W, 30, TITLE_BGCOLOR)
     lcd.drawText(1, 5, "Graupner HoTT: config RX" .. sensor_name[HoTT_Sensor+1] .. " - Menu cycle Sensors", MENU_TITLE_COLOR)
@@ -80,9 +92,9 @@ local function HoTT_Draw_LCD()
           value=multiBuffer( line*21+6+i )
           if value > 0x80 then
             value = value - 0x80
-            lcd.drawText(10+i*16,32+20*line,string.char(value).."   ",INVERS)
+            lcd.drawText(10+i*16,34+22*line,string.char(value).."   ",INVERS)
           else
-            lcd.drawText(10+i*16,32+20*line,string.char(value))
+            lcd.drawText(10+i*16,34+22*line,string.char(value))
           end
         end
       end
@@ -95,7 +107,7 @@ local function HoTT_Draw_LCD()
       if Timer_128 ~= 0 then
         --Intro page
         Timer_128 = Timer_128 - 1
-        lcd.drawScreenTitle("Graupner Hott",0,0)
+        drawTitle("Graupner Hott")
         lcd.drawText(2,17,"Configuration of RX" .. sensor_name[HoTT_Sensor+1] ,SMLSIZE)
         lcd.drawText(2,37,"Press menu to cycle Sensors" ,SMLSIZE)
       else

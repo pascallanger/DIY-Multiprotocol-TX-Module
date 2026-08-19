@@ -30,13 +30,16 @@ local sub_protocol = 0
 local f_seek = 0
 local channel_names={}
 local num_search = "Searching"
+local colorLcd = type(lcd.RGB) == "function"
 
 local function drawScreenTitle(title)
-    if LCD_W == 480 then
+    if colorLcd and lcd.drawFilledRectangle then
         lcd.drawFilledRectangle(0, 0, LCD_W, 30, TITLE_BGCOLOR)
         lcd.drawText(1, 5, title, MENU_TITLE_COLOR)
-    else
+    elseif lcd.drawScreenTitle then
         lcd.drawScreenTitle(title, 0, 0)
+    else
+        lcd.drawText(0, 0, title, INVERS)
     end
 end
 
@@ -62,10 +65,10 @@ local function Multi_Draw_LCD(event)
 
   --Display settings
   local lcd_opt = 0
-  if LCD_W == 480 then
+  if colorLcd then
     x_pos = 10
-    y_pos = 32
-    y_inc = 20
+    y_pos = 34
+    y_inc = 22
   else
     x_pos = 0
     y_pos = 9
@@ -75,7 +78,7 @@ local function Multi_Draw_LCD(event)
 
   --Multi Module detection
   if module_conf["Type"] ~= 6 then
-    if LCD_W == 480 then
+    if colorLcd then
       lcd.drawText(10,50,"No Multi module configured...", BLINK)
     else
       --Draw on LCD_W=128

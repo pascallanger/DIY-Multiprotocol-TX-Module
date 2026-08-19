@@ -33,13 +33,16 @@ local edit = false
 
 local blink = 0
 local BLINK_SPEED = 15
+local colorLcd = type(lcd.RGB) == "function"
 
 local function drawScreenTitle(title)
-    if LCD_W == 480 then
+    if colorLcd and lcd.drawFilledRectangle then
         lcd.drawFilledRectangle(0, 0, LCD_W, 30, TITLE_BGCOLOR)
         lcd.drawText(1, 5, title, MENU_TITLE_COLOR)
-    else
+    elseif lcd.drawScreenTitle then
         lcd.drawScreenTitle(title, 0, 0)
+    else
+    lcd.drawText(0, 0, title, INVERS)
     end
 end
 
@@ -50,12 +53,12 @@ local function LOLI_Draw_LCD(event)
 
   --Display settings
   local lcd_opt = 0
-  if LCD_W == 480 then
+  if colorLcd then
     drawScreenTitle("Multi - LOLI RX configuration tool")
     x_pos = 152
 	x_inc = 90
     y_pos = 40
-    y_inc = 20
+    y_inc = 22
   else
     x_pos = 5
 	x_inc = 30
@@ -66,7 +69,7 @@ local function LOLI_Draw_LCD(event)
 
   --Multi Module detection
   if loli_nok then
-    if LCD_W == 480 then
+    if colorLcd then
       lcd.drawText(10,50,"The LOLI protocol is not selected...", lcd_opt)
     else
       --Draw on LCD_W=128
@@ -76,12 +79,12 @@ local function LOLI_Draw_LCD(event)
   end
   
   --Display current config
-  if LCD_W == 480 then
+  if colorLcd then
 	line = line + 1
 	lcd.drawText(x_pos, y_pos+y_inc*line -2, "Channel", lcd_opt)
 	lcd.drawText(x_pos+x_inc, y_pos+y_inc*line -2, "Function", lcd_opt)
 	lcd.drawRectangle(x_pos-4, y_pos+y_inc*line -4 , 2*x_inc +2, 188)
-	lcd.drawLine(x_pos-4, y_pos+y_inc*line +18, x_pos-4 +2*x_inc +1, y_pos+y_inc*line +18, SOLID, 0)
+    lcd.drawLine(x_pos-4, y_pos+y_inc*line +20, x_pos-4 +2*x_inc +1, y_pos+y_inc*line +20, SOLID, 0)
 	lcd.drawLine(x_pos+x_inc -5, y_pos+y_inc*line -4, x_pos+x_inc -5, y_pos+y_inc*line -5 +188, SOLID, 0)
     line = line + 1
   end

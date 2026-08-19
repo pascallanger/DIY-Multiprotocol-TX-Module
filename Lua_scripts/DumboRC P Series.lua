@@ -51,7 +51,7 @@ local function gyroText(v)
 end
 
 local function screenLines()
-  if colorLcd then return limit(math.floor(((LCD_H or 272) - 46) / 20), 8, 12) end
+  if colorLcd then return limit(math.floor(((LCD_H or 272) - 46) / 22), 8, 12) end
   return 6
 end
 
@@ -252,7 +252,7 @@ local function draw()
   local font = colorLcd and 0 or SMLSIZE
   local x = 2
   local y = colorLcd and 34 or 9
-  local dy = colorLcd and 20 or 8
+  local dy = colorLcd and 22 or 8
   local valueX = colorLcd and 150 or 82
 
   if not moduleOk then

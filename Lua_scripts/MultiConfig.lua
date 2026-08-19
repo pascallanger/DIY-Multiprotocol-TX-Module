@@ -49,6 +49,7 @@ local ModuleType = ""
 local Module = {}
 local InitialProtocol = 0
 local InitialSubProtocol = 0
+local colorLcd = type(lcd.RGB) == "function"
 
 function bitand(a, b)
     local result = 0
@@ -277,7 +278,7 @@ local function Config_Draw_Menu()
   
   lcd.clear()
 
-  if LCD_W == 480 then
+  if colorLcd then
     --Draw title
     lcd.drawFilledRectangle(0, 0, LCD_W, 30, TITLE_BGCOLOR)
     lcd.drawText(1, 5, "Multi Config " .. Version, MENU_TITLE_COLOR)
@@ -293,7 +294,7 @@ local function Config_Draw_Menu()
   end
 
   if multiBuffer(13) ~= 0x00 then
-    if LCD_W == 480 then
+    if colorLcd then
       --Draw firmware version and channels order
       local ch_order = multiBuffer(17)
       local channel_names = {}
@@ -359,8 +360,8 @@ local function Config_Draw_Menu()
         if Menu[line].field_type == 0xA0 or Menu[line].field_type == 0xB0 or Menu[line].field_type == 0xC0 or Menu[line].field_type == 0xD0 then
           Menu[line].text = Menu[line].text .. ":"
         end
-        if LCD_W == 480 then
-          lcd.drawText(10,32+20*line,Menu[line].text )
+        if colorLcd then
+          lcd.drawText(10,34+22*line,Menu[line].text )
         else
           lcd.drawText(2,1+8*line,Menu[line].text,SMLSIZE)
         end
@@ -373,8 +374,8 @@ local function Config_Draw_Menu()
       end
       if Menu[line].field_type == 0x80 or Menu[line].field_type == 0x90 then
       -- Text
-        if LCD_W == 480 then
-          lcd.drawText(10+9*#Menu[line].text, 32+20*line, Menu[line].field_text, attrib)
+        if colorLcd then
+          lcd.drawText(10+9*#Menu[line].text, 34+22*line, Menu[line].field_text, attrib)
         else
           lcd.drawText(2+5*#Menu[line].text, 1+8*line, Menu[line].field_text, SMLSIZE + attrib)
         end
@@ -384,8 +385,8 @@ local function Config_Draw_Menu()
         for i = 1, Menu[line].field_len, 1 do
           value = value*256 + value
         end
-        if LCD_W == 480 then
-          lcd.drawText(10+9*#Menu[line].text, 32+20*line, value, attrib)
+        if colorLcd then
+          lcd.drawText(10+9*#Menu[line].text, 34+22*line, value, attrib)
         else
           lcd.drawText(2+5*#Menu[line].text, 1+8*line, value, SMLSIZE + attrib)
         end
@@ -395,8 +396,8 @@ local function Config_Draw_Menu()
         for i = 1, Menu[line].field_len, 1 do
           text = text .. string.format('%02X ', Menu[line].field_value[i])
         end
-        if LCD_W == 480 then
-          lcd.drawText(10+9*#Menu[line].text, 32+20*line, text, attrib)
+        if colorLcd then
+          lcd.drawText(10+9*#Menu[line].text, 34+22*line, text, attrib)
         else
           lcd.drawText(2+5*#Menu[line].text, 1+8*line, text, SMLSIZE + attrib)
         end

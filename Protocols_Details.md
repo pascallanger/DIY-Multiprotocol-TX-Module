@@ -2404,23 +2404,23 @@ Mode -100% = 3D, 0% = 6G
 ### Sub_protocol J20
 Model: KF700 J20
 
-Mode -100% = Gyro off, 0% = Horizontal, 100% = Vertical. CH8 - Invert, CH10 - Fix Height (Altitude hold)
+Mode: -100% = Gyro off, 0% = Horizontal, 100% = Vertical. CH8 - Invert, CH10 - Fix Height (Altitude hold)
 
 ### Sub_protocol CX10
 Model: Cheerson CX-10 with red PCB
 
 **Only 2 IDs available**, use RX num to cycle through them.
 
-Mode -100% = Low, 0% = Medium, 100% = High
+Mode: -100% = Low, 0% = Medium, 100% = High
 
 ### Sub_protocol T28
 Model: FMS T28
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13
 ---|---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|MODE|FLIP|LIGHT|-|RTH|-|-|-|RTH_SET
+A|E|T|R|MODE|STUNT|LIGHT|INVERT|RTH|-|-|-|RTH_SET
 
-Mode -100% = Gyro off, 0% = Stabilized, 100% = Optimized
+Mode: -100% = Gyro off, 0% = Stabilized, 100% = Optimized
 
 ## Shenqi - *19*
 Autobind protocol

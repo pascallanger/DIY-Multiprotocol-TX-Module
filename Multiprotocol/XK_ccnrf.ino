@@ -27,6 +27,11 @@ Multiprotocol is distributed in the hope that it will be useful,
 #define XK_PAYLOAD_SIZE		16
 #define XK_BIND_COUNT		750					//3sec
 
+enum {
+	XK_DATA,
+	XK_RX,
+};
+
 static uint16_t __attribute__((unused)) XK_convert_channel(uint8_t num)
 {
 	uint16_t val;
@@ -134,10 +139,12 @@ static void __attribute__((unused)) XK_send_packet()
 		crc+=packet[i];
 	packet[15]=crc;
 
-	debug("C: %02X, P:",hopping_frequency[rf_ch_num]);
-	for(uint8_t i=0; i<XK_PAYLOAD_SIZE; i++)
-		debug(" %02X",packet[i]);
-	debugln("");
+	#if 0
+		debug("C: %02X, P:",hopping_frequency[rf_ch_num]);
+		for(uint8_t i=0; i<XK_PAYLOAD_SIZE; i++)
+			debug(" %02X",packet[i]);
+		debugln("");
+	#endif
 	
 	// Send
 	XN297_SetPower();			// Set tx_power
@@ -225,27 +232,95 @@ static void __attribute__((unused)) XK_RF_init()
 
 uint16_t XK_callback()
 {
-	#ifdef MULTI_SYNC
-		telemetry_set_input_sync(XK_PACKET_PERIOD);
+	#ifdef XK_HUB_TELEMETRY
+		bool rx = false;
 	#endif
-	if(bind_counter)
-		if(--bind_counter==0)
-		{
-			BIND_DONE;
-			XN297_SetTXAddr(rx_tx_addr, 5);										// Normal packets address
-		}
-	XK_send_packet();
+
+	switch(phase)
+	{
+		case XK_DATA:
+			#ifdef MULTI_SYNC
+				telemetry_set_input_sync(XK_PACKET_PERIOD);
+			#endif
+	#ifdef XK_HUB_TELEMETRY
+			rx = XN297_IsRX();
+			XN297_SetTxRxMode(TXRX_OFF);
+	#endif
+			XK_send_packet();
+			if(bind_counter)
+				if(--bind_counter==0)
+				{
+					BIND_DONE;
+					XN297_SetTXAddr(rx_tx_addr, 5);									// Normal packets address
+					#ifdef XK_HUB_TELEMETRY
+						XN297_SetRXAddr(rx_tx_addr, XK_PAYLOAD_SIZE);									// Normal packets address
+					#endif
+				}
+	#ifdef XK_HUB_TELEMETRY
+			if(rx)
+			{
+				XN297_ReadPayload(packet_in, XK_PAYLOAD_SIZE);
+				#if 1
+					debug("RX");
+					for(uint8_t i=0; i<XK_PAYLOAD_SIZE; i++)
+						debug(" %02X",packet_in[i]);
+					debugln("");
+				#endif
+				if(memcmp(&packet[7], packet_in, 3) == 0)
+				{//TX_ID ok
+					crc=packet_in[0]+0x68;
+					for(uint8_t i=1; i<XK_PAYLOAD_SIZE-1;i++)
+						crc+=packet_in[i];
+					if(packet_in[15] == crc)
+					{//Checksum ok
+						telemetry_link = 1;
+						v_lipo1 = packet_in[10] ? 137:162;		// low voltage 7.1V
+					}
+				}
+			}
+			phase++;
+			return 1350;
+	#endif
+			break;
+	#ifdef XK_HUB_TELEMETRY
+		default: //XK_RX
+			/*{ // Wait for packet to be sent before switching to receive mode
+				uint16_t start=(uint16_t)micros(), count=0;
+				while ((uint16_t)((uint16_t)micros()-(uint16_t)start) < 500)
+				{
+					if(XN297_IsPacketSent())
+						break;
+					count++;
+				}
+				debugln("%d",count);
+			}*/
+			//Switch to RX
+			XN297_SetTxRxMode(TXRX_OFF);
+			XN297_SetTxRxMode(RX_EN);
+			phase = XK_DATA;
+			return XK_PACKET_PERIOD-1350;
+	#endif
+	}
 	return XK_PACKET_PERIOD;
 }
 
 void XK_init()
 {
 	if(sub_protocol != XK_CARS && protocol != PROTO_MOFLY)
+	{
+		bind_counter=XK_BIND_COUNT;
 		BIND_IN_PROGRESS;															// Autobind protocol
+	}
+	else	
+		bind_counter=0;
 	XK_initialize_txid();
 	XK_RF_init();
 	hopping_frequency_no = 0;
-	bind_counter=XK_BIND_COUNT;
+	phase = XK_DATA;
+	#ifdef XK_HUB_TELEMETRY
+		RX_RSSI = 100;		// Dummy value
+		telemetry_lost = 1;
+	#endif
 }
 
 #endif

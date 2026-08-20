@@ -306,7 +306,7 @@ uint16_t XK_callback()
 
 void XK_init()
 {
-	if(sub_protocol != XK_CARS && protocol != PROTO_MOFLY)
+	if((sub_protocol != XK_CARS && protocol != PROTO_MOFLY) || IS_BIND_IN_PROGRESS)
 	{
 		bind_counter=XK_BIND_COUNT;
 		BIND_IN_PROGRESS;															// Autobind protocol

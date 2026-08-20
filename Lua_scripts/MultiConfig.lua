@@ -50,6 +50,23 @@ local Module = {}
 local InitialProtocol = 0
 local InitialSubProtocol = 0
 local colorLcd = type(lcd.RGB) == "function"
+local screenMode = "mono"
+if colorLcd then
+  if (LCD_W or 0) >= 720 and (LCD_H or 0) >= 320 then
+    screenMode = "mk3"
+  elseif (LCD_W or 0) >= 320 and (LCD_H or 0) >= 200 then
+    screenMode = "color"
+  end
+end
+
+local editLayout = screenMode == "mk3" and {
+  x = 270, y = 150, width = 260, height = 70,
+  textX = 285, textY = 162, optionY = 192, cancelX = 430, font = 0
+} or {
+  x = 160, y = 100, width = 160, height = 55,
+  textX = 170, textY = 110, optionY = 130, cancelX = 260,
+  font = screenMode == "mono" and SMLSIZE or 0
+}
 
 function bitand(a, b)
     local result = 0
@@ -152,9 +169,9 @@ local function Config_Draw_Edit( event )
       end
     end
     --Display
-    if LCD_W == 480 then
-      lcd.drawRectangle(160-1, 100-1, 160+2, 55+2, TEXT_COLOR)
-      lcd.drawFilledRectangle(160, 100, 160, 55, TEXT_BGCOLOR)
+    if screenMode ~= "mono" then
+      lcd.drawRectangle(editLayout.x-1, editLayout.y-1, editLayout.width+2, editLayout.height+2, TEXT_COLOR)
+      lcd.drawFilledRectangle(editLayout.x, editLayout.y, editLayout.width, editLayout.height, TEXT_BGCOLOR)
     else
       lcd.clear()
     end
@@ -164,10 +181,10 @@ local function Config_Draw_Edit( event )
       else
         attrib = 0
       end
-      if LCD_W == 480 then
-        lcd.drawText(170+12*2*(i-1), 110, string.format('%02X', Menu_value[i]), attrib)
+      if screenMode ~= "mono" then
+        lcd.drawText(editLayout.textX+12*2*(i-1), editLayout.textY, string.format('%02X', Menu_value[i]), attrib)
       else
-        lcd.drawText(17+6*2*(i-1), 10, string.format('%02X', Menu_value[i]), attrib + SMLSIZE)
+        lcd.drawText(17+6*2*(i-1), 10, string.format('%02X', Menu_value[i]), attrib + editLayout.font)
       end
     end
     if Edit_pos == Menu[Focus].field_len + 1 then
@@ -175,20 +192,20 @@ local function Config_Draw_Edit( event )
     else
       attrib = 0
     end
-    if LCD_W == 480 then
-      lcd.drawText(170, 130, "Save", attrib)
+    if screenMode ~= "mono" then
+      lcd.drawText(editLayout.textX, editLayout.optionY, "Save", attrib)
     else
-      lcd.drawText(17, 30, "Save", attrib + SMLSIZE)
+      lcd.drawText(17, 30, "Save", attrib + editLayout.font)
     end
     if Edit_pos == Menu[Focus].field_len + 2 then
       attrib = INVERS
     else
       attrib = 0
     end
-    if LCD_W == 480 then
-      lcd.drawText(260, 130, "Cancel", attrib)
+    if screenMode ~= "mono" then
+      lcd.drawText(editLayout.cancelX, editLayout.optionY, "Cancel", attrib)
     else
-      lcd.drawText(77, 30, "Cancel", attrib + SMLSIZE)
+      lcd.drawText(77, 30, "Cancel", attrib + editLayout.font)
     end
 
   elseif Menu[Focus].field_type == 0x90 then
@@ -214,36 +231,36 @@ local function Config_Draw_Edit( event )
       Edit_pos = Edit_pos + 1
     end
     -- Display
-    if LCD_W == 480 then
-      lcd.drawRectangle(160-1, 100-1, 160+2, 55+2, TEXT_COLOR)
-      lcd.drawFilledRectangle(160, 100, 160, 55, TEXT_BGCOLOR)
+    if screenMode ~= "mono" then
+      lcd.drawRectangle(editLayout.x-1, editLayout.y-1, editLayout.width+2, editLayout.height+2, TEXT_COLOR)
+      lcd.drawFilledRectangle(editLayout.x, editLayout.y, editLayout.width, editLayout.height, TEXT_BGCOLOR)
     else
       lcd.clear()
     end
-    if LCD_W == 480 then
-      lcd.drawText(170, 110, Menu[Focus].field_text .. "?")
+    if screenMode ~= "mono" then
+      lcd.drawText(editLayout.textX, editLayout.textY, Menu[Focus].field_text .. "?")
     else
-      lcd.drawText(17, 10, Menu[Focus].field_text .. "?", SMLSIZE)
+      lcd.drawText(17, 10, Menu[Focus].field_text .. "?", editLayout.font)
     end
     if Edit_pos == 1 then
       attrib = INVERS
     else
       attrib = 0
     end
-    if LCD_W == 480 then
-      lcd.drawText(170, 130, "Yes", attrib)
+    if screenMode ~= "mono" then
+      lcd.drawText(editLayout.textX, editLayout.optionY, "Yes", attrib)
     else
-      lcd.drawText(17, 30, "Yes", attrib + SMLSIZE)
+      lcd.drawText(17, 30, "Yes", attrib + editLayout.font)
     end
     if Edit_pos == 2 then
       attrib = INVERS
     else
       attrib = 0
     end
-    if LCD_W == 480 then
-      lcd.drawText(260, 130, "No", attrib)
+    if screenMode ~= "mono" then
+      lcd.drawText(editLayout.cancelX, editLayout.optionY, "No", attrib)
     else
-      lcd.drawText(77, 30, "No", attrib)
+      lcd.drawText(77, 30, "No", attrib + editLayout.font)
     end
   end
 end
@@ -278,10 +295,10 @@ local function Config_Draw_Menu()
   
   lcd.clear()
 
-  if colorLcd then
+  if screenMode ~= "mono" then
     --Draw title
-    lcd.drawFilledRectangle(0, 0, LCD_W, 30, TITLE_BGCOLOR)
-    lcd.drawText(1, 5, "Multi Config " .. Version, MENU_TITLE_COLOR)
+    lcd.drawFilledRectangle(0, 0, LCD_W, 30, COLOR_THEME_SECONDARY1)
+    lcd.drawText(3, 5, "Multi Config " .. Version, COLOR_THEME_PRIMARY2)
     if multiBuffer(13) == 0x00 then
       lcd.drawText(10,50,"No Config telemetry...", BLINK)
     end
@@ -294,7 +311,7 @@ local function Config_Draw_Menu()
   end
 
   if multiBuffer(13) ~= 0x00 then
-    if colorLcd then
+    if screenMode ~= "mono" then
       --Draw firmware version and channels order
       local ch_order = multiBuffer(17)
       local channel_names = {}
@@ -360,7 +377,9 @@ local function Config_Draw_Menu()
         if Menu[line].field_type == 0xA0 or Menu[line].field_type == 0xB0 or Menu[line].field_type == 0xC0 or Menu[line].field_type == 0xD0 then
           Menu[line].text = Menu[line].text .. ":"
         end
-        if colorLcd then
+        if screenMode == "mk3" then
+          lcd.drawText(20,42+26*line,Menu[line].text )
+        elseif screenMode == "color" then
           lcd.drawText(10,34+22*line,Menu[line].text )
         else
           lcd.drawText(2,1+8*line,Menu[line].text,SMLSIZE)
@@ -374,7 +393,9 @@ local function Config_Draw_Menu()
       end
       if Menu[line].field_type == 0x80 or Menu[line].field_type == 0x90 then
       -- Text
-        if colorLcd then
+        if screenMode == "mk3" then
+          lcd.drawText(20+11*#Menu[line].text, 42+26*line, Menu[line].field_text, attrib)
+        elseif screenMode == "color" then
           lcd.drawText(10+9*#Menu[line].text, 34+22*line, Menu[line].field_text, attrib)
         else
           lcd.drawText(2+5*#Menu[line].text, 1+8*line, Menu[line].field_text, SMLSIZE + attrib)
@@ -385,7 +406,9 @@ local function Config_Draw_Menu()
         for i = 1, Menu[line].field_len, 1 do
           value = value*256 + value
         end
-        if colorLcd then
+        if screenMode == "mk3" then
+          lcd.drawText(20+11*#Menu[line].text, 42+26*line, value, attrib)
+        elseif screenMode == "color" then
           lcd.drawText(10+9*#Menu[line].text, 34+22*line, value, attrib)
         else
           lcd.drawText(2+5*#Menu[line].text, 1+8*line, value, SMLSIZE + attrib)
@@ -396,7 +419,9 @@ local function Config_Draw_Menu()
         for i = 1, Menu[line].field_len, 1 do
           text = text .. string.format('%02X ', Menu[line].field_value[i])
         end
-        if colorLcd then
+        if screenMode == "mk3" then
+          lcd.drawText(20+11*#Menu[line].text, 42+26*line, text, attrib)
+        elseif screenMode == "color" then
           lcd.drawText(10+9*#Menu[line].text, 34+22*line, text, attrib)
         else
           lcd.drawText(2+5*#Menu[line].text, 1+8*line, text, SMLSIZE + attrib)

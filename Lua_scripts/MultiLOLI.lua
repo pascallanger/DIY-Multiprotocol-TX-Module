@@ -34,11 +34,19 @@ local edit = false
 local blink = 0
 local BLINK_SPEED = 15
 local colorLcd = type(lcd.RGB) == "function"
+local screenMode = "mono"
+if colorLcd then
+  if (LCD_W or 0) >= 720 and (LCD_H or 0) >= 320 then
+    screenMode = "mk3"
+  elseif (LCD_W or 0) >= 320 and (LCD_H or 0) >= 200 then
+    screenMode = "color"
+  end
+end
 
 local function drawScreenTitle(title)
-    if colorLcd and lcd.drawFilledRectangle then
-        lcd.drawFilledRectangle(0, 0, LCD_W, 30, TITLE_BGCOLOR)
-        lcd.drawText(1, 5, title, MENU_TITLE_COLOR)
+  if screenMode ~= "mono" and lcd.drawFilledRectangle then
+    lcd.drawFilledRectangle(0, 0, LCD_W, 30, COLOR_THEME_SECONDARY1)
+    lcd.drawText(3, 5, title, COLOR_THEME_PRIMARY2)
     elseif lcd.drawScreenTitle then
         lcd.drawScreenTitle(title, 0, 0)
     else
@@ -52,24 +60,21 @@ local function LOLI_Draw_LCD(event)
   lcd.clear()
 
   --Display settings
-  local lcd_opt = 0
-  if colorLcd then
+  local lcd_opt = screenMode == "mono" and SMLSIZE or 0
+  if screenMode ~= "mono" then
     drawScreenTitle("Multi - LOLI RX configuration tool")
-    x_pos = 152
-	x_inc = 90
-    y_pos = 40
-    y_inc = 22
-  else
-    x_pos = 5
-	x_inc = 30
-    y_pos = 1
-    y_inc = 8
-    lcd_opt = SMLSIZE
   end
+  local layout = screenMode == "mk3" and { x = 180, increment = 120, y = 42, spacing = 26 } or
+                 screenMode == "color" and { x = 120, increment = 80, y = 32, spacing = 18 } or
+                 { x = 5, increment = 30, y = 1, spacing = 8 }
+  local x_pos = layout.x
+  local x_inc = layout.increment
+  local y_pos = layout.y
+  local y_inc = layout.spacing
 
   --Multi Module detection
   if loli_nok then
-    if colorLcd then
+    if screenMode ~= "mono" then
       lcd.drawText(10,50,"The LOLI protocol is not selected...", lcd_opt)
     else
       --Draw on LCD_W=128
@@ -79,13 +84,13 @@ local function LOLI_Draw_LCD(event)
   end
   
   --Display current config
-  if colorLcd then
-	line = line + 1
-	lcd.drawText(x_pos, y_pos+y_inc*line -2, "Channel", lcd_opt)
-	lcd.drawText(x_pos+x_inc, y_pos+y_inc*line -2, "Function", lcd_opt)
-	lcd.drawRectangle(x_pos-4, y_pos+y_inc*line -4 , 2*x_inc +2, 188)
+  if screenMode ~= "mono" then
+    line = line + 1
+    lcd.drawText(x_pos, y_pos+y_inc*line -2, "Channel", lcd_opt)
+    lcd.drawText(x_pos+x_inc, y_pos+y_inc*line -2, "Function", lcd_opt)
+    lcd.drawRectangle(x_pos-4, y_pos+y_inc*line -4 , 2*x_inc +2, 188)
     lcd.drawLine(x_pos-4, y_pos+y_inc*line +20, x_pos-4 +2*x_inc +1, y_pos+y_inc*line +20, SOLID, 0)
-	lcd.drawLine(x_pos+x_inc -5, y_pos+y_inc*line -4, x_pos+x_inc -5, y_pos+y_inc*line -5 +188, SOLID, 0)
+    lcd.drawLine(x_pos+x_inc -5, y_pos+y_inc*line -4, x_pos+x_inc -5, y_pos+y_inc*line -5 +188, SOLID, 0)
     line = line + 1
   end
   

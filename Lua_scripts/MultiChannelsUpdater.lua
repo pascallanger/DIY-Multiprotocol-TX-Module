@@ -31,11 +31,19 @@ local f_seek = 0
 local channel_names={}
 local num_search = "Searching"
 local colorLcd = type(lcd.RGB) == "function"
+local screenMode = "mono"
+if colorLcd then
+  if (LCD_W or 0) >= 720 and (LCD_H or 0) >= 320 then
+    screenMode = "mk3"
+  elseif (LCD_W or 0) >= 320 and (LCD_H or 0) >= 200 then
+    screenMode = "color"
+  end
+end
 
 local function drawScreenTitle(title)
-    if colorLcd and lcd.drawFilledRectangle then
-        lcd.drawFilledRectangle(0, 0, LCD_W, 30, TITLE_BGCOLOR)
-        lcd.drawText(1, 5, title, MENU_TITLE_COLOR)
+  if screenMode ~= "mono" and lcd.drawFilledRectangle then
+    lcd.drawFilledRectangle(0, 0, LCD_W, 30, COLOR_THEME_SECONDARY1)
+    lcd.drawText(3, 5, title, COLOR_THEME_PRIMARY2)
     elseif lcd.drawScreenTitle then
         lcd.drawScreenTitle(title, 0, 0)
     else
@@ -64,21 +72,17 @@ local function Multi_Draw_LCD(event)
   drawScreenTitle("Multi channels namer")
 
   --Display settings
-  local lcd_opt = 0
-  if colorLcd then
-    x_pos = 10
-    y_pos = 34
-    y_inc = 22
-  else
-    x_pos = 0
-    y_pos = 9
-    y_inc = 8
-    lcd_opt = SMLSIZE
-  end
+  local lcd_opt = screenMode == "mono" and SMLSIZE or 0
+  local layout = screenMode == "mk3" and { x = 12, y = 36, spacing = 26 } or
+                 screenMode == "color" and { x = 10, y = 28, spacing = 18 } or
+                 { x = 0, y = 9, spacing = 8 }
+  local x_pos = layout.x
+  local y_pos = layout.y
+  local y_inc = layout.spacing
 
   --Multi Module detection
   if module_conf["Type"] ~= 6 then
-    if colorLcd then
+    if screenMode ~= "mono" then
       lcd.drawText(10,50,"No Multi module configured...", BLINK)
     else
       --Draw on LCD_W=128
@@ -169,7 +173,7 @@ local function Multi_Draw_LCD(event)
   if protocol_name == "" or sub_protocol_name == "" then
     lcd.drawText(x_pos, y_pos+y_inc*line,"Unknown protocol "..tostring(protocol).."/"..tostring(sub_protocol).." ...", lcd_opt)
     return
-  elseif LCD_W > 128 then
+  elseif screenMode ~= "mono" then
     lcd.drawText(x_pos, y_pos+y_inc*line,"Protocol: " .. protocol_name .. " / SubProtocol: " .. sub_protocol_name, lcd_opt)
     line = line + 1
   else
@@ -196,7 +200,7 @@ local function Multi_Draw_LCD(event)
       end
     end
   end
-  if LCD_W > 128 then
+  if screenMode ~= "mono" then
     lcd.drawText(x_pos, y_pos+y_inc*line,"Channels: " .. text1, lcd_opt)
     line = line + 1
     if text2 ~= "" then

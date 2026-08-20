@@ -246,7 +246,6 @@ uint16_t XK_callback()
 			rx = XN297_IsRX();
 			XN297_SetTxRxMode(TXRX_OFF);
 	#endif
-			XK_send_packet();
 			if(bind_counter)
 				if(--bind_counter==0)
 				{
@@ -256,6 +255,7 @@ uint16_t XK_callback()
 						XN297_SetRXAddr(rx_tx_addr, XK_PAYLOAD_SIZE);									// Normal packets address
 					#endif
 				}
+			XK_send_packet();
 	#ifdef XK_HUB_TELEMETRY
 			if(rx)
 			{
@@ -312,7 +312,7 @@ void XK_init()
 		BIND_IN_PROGRESS;															// Autobind protocol
 	}
 	else	
-		bind_counter=0;
+		bind_counter=1;
 	XK_initialize_txid();
 	XK_RF_init();
 	hopping_frequency_no = 0;

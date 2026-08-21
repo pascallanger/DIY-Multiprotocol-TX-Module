@@ -128,10 +128,19 @@ static void __attribute__((unused)) XK_send_packet()
 			if(Channel_data[CH5] > CHANNEL_MIN_COMMAND)
 				packet[10] = 0x02; 					// 3D-Mode
 		packet[10] |= GET_FLAG(CH6_SW ,0x04);		// Low/High rate
-		packet[11]  = GET_FLAG(CH7_SW ,0x10)		// Back Flip - momentary switch
-					 |GET_FLAG(CH8_SW ,0x20)		// Left Roll - momentary switch
-					 |GET_FLAG(CH9_SW ,0x04)		// Right Roll - momentary switch
-					 |GET_FLAG(CH10_SW,0x08);		// Inverted Flight - latching switch
+		//Aerobatic flags
+		if(CH5_SW)									// Only used in 6G mode
+		{
+			flags =  GET_FLAG(CH7_SW ,0x10)			// Back Flip - momentary switch
+					|GET_FLAG(CH8_SW ,0x20)			// Left Roll - momentary switch
+					|GET_FLAG(CH9_SW ,0x04)			// Right Roll - momentary switch
+					|GET_FLAG(CH10_SW,0x08);		// Inverted Flight - latching switch
+			for(uint8_t i=0; i<8; i++)
+				if((flags & (1<<i)) == 0) arm_flags |= 1<<i;
+			packet[11] = flags & arm_flags;
+		}
+		else
+			arm_flags = 0;
 	}
 
 	crc=packet[0];
@@ -317,6 +326,9 @@ void XK_init()
 	XK_RF_init();
 	hopping_frequency_no = 0;
 	phase = XK_DATA;
+
+	arm_flags = 0;
+
 	#ifdef XK_HUB_TELEMETRY
 		RX_RSSI = 100;		// Dummy value
 		telemetry_lost = 1;

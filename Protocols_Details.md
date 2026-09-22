@@ -239,7 +239,7 @@ Option is used to change the servo refresh rate. A value of 0 gives 50Hz (min), 
 ### Sub_protocol PWM_IBUS - *0*
 RX output will match the Flysky standard AETR.
 
-If the RX number is between 0 and 31, only 14 channels are sent. If the RX number is between 32 and 63, all 17 channels are sent.
+If the RX number is between 0 and 31, only 14 channels are sent. Between 32 and 63, all 17 channels are sent.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
@@ -248,7 +248,7 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|LQI
 ### Sub_protocol PPM_IBUS - *1*
 RX output will match the Flysky standard AETR.
 
-If the RX number is between 0 and 31, only 14 channels are sent. If the RX number is between 32 and 63, all 17 channels are sent.
+If the RX number is between 0 and 31, only 14 channels are sent. Between 32 and 63, all 17 channels are sent.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
@@ -257,7 +257,7 @@ A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|LQI
 ### Sub_protocol PWM_SBUS - *2*
 RX output will match the Flysky standard AETR.
 
-If the RX number is between 0 and 31, only 14 channels are sent. If the RX number is between 32 and 63, all 17 channels are sent.
+If the RX number is between 0 and 31, only 14 channels are sent. Between 32 and 63, all 17 channels are sent.
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16|CH17
 ---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---

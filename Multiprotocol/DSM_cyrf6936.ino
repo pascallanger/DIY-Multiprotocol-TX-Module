@@ -329,7 +329,7 @@ uint16_t DSM_callback()
 	#define DSM_CH1_CH2_DELAY	4010			// Time between write of channel 1 and channel 2
 	#ifdef STM32_BOARD
 		#define DSM_WRITE_DELAY		1600		// Time after write to verify write complete
-		#define DSM_READ_DELAY		300			// Time before write to check read phase, and switch channels.
+		#define DSM_READ_DELAY		400			// Time before write to check read phase, and switch channels.
 	#else
 		#define DSM_WRITE_DELAY		1950		// Time after write to verify write complete
 		#define DSM_READ_DELAY		600			// Time before write to check read phase, and switch channels.
@@ -499,7 +499,7 @@ uint16_t DSM_callback()
 						else
 							return DSM2_SFC_PERIOD - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;
 					}
-					return 10900 - DSM_WRITE_DELAY - DSM_READ_DELAY;	//Was 11000 but the SR6200A needs 10900 to report telemetry correctly
+					return 11000 - DSM_WRITE_DELAY - DSM_READ_DELAY;	//Was 11000 but the SR6200A needs 10900 to report telemetry correctly
 				}
 			#endif
 			return 11000 - DSM_CH1_CH2_DELAY - DSM_WRITE_DELAY - DSM_READ_DELAY;

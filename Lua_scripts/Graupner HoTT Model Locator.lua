@@ -45,6 +45,15 @@
 local delayMillis = 100
 local nextPlayTime = getTime()
 local img = Bitmap.open("/SCRIPTS/TOOLS/Model Locator (by RSSI).png")
+local colorLcd = type(lcd.RGB) == "function"
+local screenMode = "mono"
+if colorLcd then
+  if (LCD_W or 0) >= 720 and (LCD_H or 0) >= 320 then
+    screenMode = "mk3"
+  elseif (LCD_W or 0) >= 320 and (LCD_H or 0) >= 200 then
+    screenMode = "color"
+  end
+end
 
 --------------------------------------------------------------
 local function log(s)
@@ -52,7 +61,6 @@ local function log(s)
   print("locator: " .. s)
 end
 --------------------------------------------------------------
-
 
 -- init_func is called once when model is loaded
 local function init()
@@ -66,6 +74,9 @@ end
 
 -- This function returns green at gvalue, red at rvalue and graduate in between
 local function getRangeColor(value, red_value, green_value)
+  if not colorLcd then
+    return 0
+  end
   local range = math.abs(green_value - red_value)
   if range == 0 then
     return lcd.RGB(0, 0xdf, 0)
@@ -100,6 +111,19 @@ end
 local function main(event)
 
   lcd.clear()
+
+  local width = LCD_W or 480
+  local height = LCD_H or 272
+  local layout = screenMode == "mk3" and {
+    valueX = math.floor(width * 0.40), valueY = 42,
+    labelX = math.floor(width * 0.61), labelY = 92
+  } or {
+    valueX = 180, valueY = 30, labelX = 275, labelY = 73
+  }
+  local barBottom = height - 2
+  local barHeight = math.floor(height * 0.26)
+  local barStep = math.max(10, math.floor(width / 24))
+  local barWidth = math.max(6, barStep - 5)
   
 	-- fetch uplink rssi (HoTT sensor Rssi)
 	local rssi = getValue("Rssi")
@@ -119,12 +143,19 @@ local function main(event)
 		end
 	end
 	
-  lcd.drawBitmap(img, 250, 50, 40)
+  lcd.drawBitmap(img, math.floor(width * 0.52), math.floor(height * 0.18), 40)
 
   -- Title
-  lcd.drawText(3, 3, "Graupner HoTT Rssi Model Locator", 0)
+  if colorLcd then
+    lcd.drawFilledRectangle(0, 0, width, 30, COLOR_THEME_SECONDARY1)
+    lcd.drawText(3, 5, "Graupner HoTT Rssi Model Locator", COLOR_THEME_PRIMARY2)
+  else
+    lcd.drawText(3, 5, "Graupner HoTT Rssi Model Locator", 0)
+  end
   myColor = getRangeColor(rssi, 0, 100)
-  lcd.setColor(CUSTOM_COLOR, myColor)
+  if colorLcd then
+    lcd.setColor(CUSTOM_COLOR, myColor)
+  end
 
   -- draw current value
 	local dx = 0
@@ -133,25 +164,28 @@ local function main(event)
 	end
 	
 	if rssi == 0 then	
-		lcd.drawText(115, 73, "no telemetry", DBLSIZE + CUSTOM_COLOR)
+  lcd.drawText(math.floor(width * 0.24), layout.labelY, "no telemetry", DBLSIZE + (colorLcd and CUSTOM_COLOR or 0))
 	else
-	  lcd.drawNumber(180+dx, 30, rssi, XXLSIZE + CUSTOM_COLOR)
-		lcd.drawText(275, 73, "db", 0 + CUSTOM_COLOR)
+  lcd.drawNumber(layout.valueX+dx, layout.valueY, rssi, XXLSIZE + (colorLcd and CUSTOM_COLOR or 0))
+  lcd.drawText(layout.labelX, layout.labelY, "db", colorLcd and CUSTOM_COLOR or 0)
 	end
 
   -- draw main bar
-  lcd.setColor(CUSTOM_COLOR, YELLOW) -- RED / YELLOW
+  if colorLcd then
+    lcd.setColor(CUSTOM_COLOR, YELLOW) -- RED / YELLOW
+  end
   local xMin = 0
-  local yMin = 270
-  local xMax = 480
-  local yMax = 200
+  local yMin = barBottom
+  local xMax = width
   local h = 0
   local rssiAsX = (rssiP * xMax) / 100
 
-  for xx = xMin, rssiAsX, 20 do
-    lcd.setColor(CUSTOM_COLOR, getRangeColor(xx, xMin, xMax - 40))
-    h = h + 10
-    lcd.drawFilledRectangle(xx, yMin - h, 15, h, CUSTOM_COLOR)
+  for xx = xMin, rssiAsX, barStep do
+    if colorLcd then
+      lcd.setColor(CUSTOM_COLOR, getRangeColor(xx, xMin, xMax - barStep * 2))
+    end
+    h = h + math.max(4, math.floor(barHeight / math.max(1, math.floor(xMax / barStep))))
+    lcd.drawFilledRectangle(xx, yMin - h, barWidth, h, colorLcd and CUSTOM_COLOR or 0)
   end
 
   -- beep

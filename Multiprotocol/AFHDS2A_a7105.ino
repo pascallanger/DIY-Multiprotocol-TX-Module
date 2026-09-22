@@ -183,16 +183,22 @@ static void AFHDS2A_build_bind_packet()
 static void AFHDS2A_build_packet(uint8_t type)
 {
 	uint16_t val;
+	uint8_t num_ch = 14;	//14 channels
+	if(RX_num > 31)
+		num_ch = 17;		//16 channels
 	memcpy( &packet[1], rx_tx_addr, 4);
 	memcpy( &packet[5], rx_id, 4);
 	switch(type)
 	{
 		case AFHDS2A_PACKET_STICKS:		
 			packet[0] = 0x58;
-			//16 channels + RX_LQI on channel 17
-			for(uint8_t ch=0; ch<17; ch++)
+			for(uint8_t ch=0; ch<num_ch; ch++)
 			{
-				val = convert_channel_ppm(sub_protocol<AFHDS2A_GYRO_OFF?CH_AETR[ch]:ch);	// No remapping for BS receivers
+				if(ch != 16)
+					val = convert_channel_ppm(sub_protocol<AFHDS2A_GYRO_OFF?CH_AETR[ch]:ch);	// No remapping for BS receivers
+				else
+					val = 2000 - 10*RX_LQI;	//CH17=RX_LQI
+				
 				if(ch<14)
 				{
 					packet[9 +  ch*2] = val;
@@ -200,8 +206,6 @@ static void AFHDS2A_build_packet(uint8_t type)
 				}
 				else
 				{
-					if(ch == 16)	//CH17=RX_LQI
-						val = 2000 - 10*RX_LQI;
 					packet[10 + (ch-14)*6] |= (val)<<4;
 					packet[12 + (ch-14)*6] |= (val)&0xF0;
 					packet[14 + (ch-14)*6] |= (val>>4)&0xF0;
@@ -215,7 +219,9 @@ static void AFHDS2A_build_packet(uint8_t type)
 			break;
 		case AFHDS2A_PACKET_FAILSAFE:
 			packet[0] = 0x56;
-			for(uint8_t ch=0; ch<16; ch++)
+			if(num_ch == 17)
+				num_ch--;
+			for(uint8_t ch=0; ch<num_ch; ch++)
 			{ // Failsafe values
 				#ifdef FAILSAFE_ENABLE
 					val = Failsafe_data[protocol==PROTO_AFHDS2A?CH_AETR[ch]:ch];	// No remapping for BS receivers

@@ -368,10 +368,13 @@ Models: HYPER GO H16BM 1/16 RTR Brushless (and compatible Hyper Go surface model
 
 Autobind protocol
 
+Bind: RF channel 79, address `6D 6A 58 52 43`, then switches to data address / hop below.
+
 CH1|CH2|CH3|CH4|CH5|CH6|CH7
 ---|---|---|---|---|---|---
-ST|TH|-|-|TH_Rate|LED|ST_Trim
+ST|TH|CH3|CH4|TH_Rate|LED|ST_Trim
 
+ - CH3/CH4: unused on stock T3A (leave centered unless needed)
  - TH_Rate: -100%=100% (full), +100%=70% (T3A mid rate). Do **not** use Dual Rate on TH — the RX/ESC applies the limit from a flag; stock TX does not scale the throttle channel.
  - LED: -100%=Off, +100%=On
  - ST_Trim: value between -100% and +100% (stock dial ~limited range)

@@ -361,7 +361,7 @@ H122D: FLIP
 H123D: FMODES -> -100%=Sport mode 1,0%=Sport mode 2,+100%=Acro
 
 ## HyperGo - *110*
-TX: MJX T3A, RX: R30  
+TX: MJX T3A (PCB T3A V01, RF IC 2427CTb), RX: R30  
 Models: HYPER GO H16BM 1/16 RTR Brushless (and compatible Hyper Go surface models using T3A/R30)
 
 **Only 1 ID** available (captured from stock TX). Generic TXID / hop algorithm unknown — if you have another T3A/R30 pair contact me on GitHub.

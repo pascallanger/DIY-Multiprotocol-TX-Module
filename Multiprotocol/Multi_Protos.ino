@@ -121,6 +121,7 @@ const char STR_KAMTOM[]     ="KAMTOM";
 const char STR_WL91X[]      ="WL91x";
 const char STR_WPL[]        ="WPL";
 const char STR_ARES[]        ="ARES";
+const char STR_HYPERGO[]    ="HyperGo";
 
 const char STR_SUBTYPE_FLYSKY[] =     "\x04""Std\0""V9x9""V6x6""V912""CX20";
 const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
@@ -386,6 +387,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#endif
 	#if defined(HUBSAN_A7105_INO)
 		{PROTO_HUBSAN,     STR_HUBSAN,    STR_SUBTYPE_HUBSAN,    3, OPTION_VIDFREQ, 0, 0, SW_A7105,  HUBSAN_init,     HUBSAN_callback     },
+	#endif
+	#if defined(HYPERGO_NRF24L01_INO)
+		{PROTO_HYPERGO,    STR_HYPERGO,   NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_NRF,    HYPERGO_init,    HYPERGO_callback    },
 	#endif
 	#if defined(IKEAANSLUTA_CC2500_INO)
 		{PROTO_IKEAANSLUTA,STR_IKEAANSLUTA,NO_SUBTYPE,           0, OPTION_OPTION,  0, 0, SW_CC2500, IKEAANSLUTA_init,IKEAANSLUTA_callback },

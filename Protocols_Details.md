@@ -361,12 +361,13 @@ H122D: FLIP
 H123D: FMODES -> -100%=Sport mode 1,0%=Sport mode 2,+100%=Acro
 
 ## HyperGo - *110*
-TX: MJX T3A (PCB T3A V01, RF IC 2427CTb), RX: R30  
+TX: MJX T3A (PCB T3A V01, RF IC 2427CTb), RX: R30 (PCB R30 V02 LT, RF IC 2444CYa)  
 Models: HYPER GO H16BM 1/16 RTR Brushless (and compatible Hyper Go surface models using T3A/R30)
 
-**Only 1 ID** available (captured from stock TX). Generic TXID / hop algorithm unknown — if you have another T3A/R30 pair contact me on GitHub.
+**Only 1 ID** (forced `B4 46 F2 25 D7` from one captured pair). Open-loop bind replay on CH79 / `6D…` then data hop 62/49/75.  
+**Limitation:** validated control on that already-bound car. Virgin bind / other RX IDs not proven — another Hyper Go will likely not bind to this ID. Generic RX-ID listen TBD. Contact on GitHub if you have another T3A/R30 pair or dumps.
 
-Autobind protocol
+Autobind protocol (forced ID)
 
 Bind: RF channel 79, address `6D 6A 58 52 43`, then switches to data address / hop below.
 

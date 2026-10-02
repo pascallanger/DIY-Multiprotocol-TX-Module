@@ -88,18 +88,34 @@ static uint32_t mc8v43_frame;
 static uint32_t mc8v43_link_id;
 
 /* P1 is a rolling frame counter.  P2..P12 are 88 bits containing eight
- * consecutive little-endian 11-bit channel values.  Captured hardware tests
- * established 358/1024/1689 as the wire values for 1000/1500/2000 us. */
+ * consecutive little-endian 11-bit channel values. Session 3 receiver CH1
+ * PWM measurements with v1.3.4.73 gave about 858/1523/2187 us at minimum,
+ * neutral and maximum. These support PWM_us ~= wire_value + 500.
+ * Session 4 confirmed nominal 1000/1500/2000 us with wire 500/1000/1500.
+ * Preserve nominal 1000/1500/2000 us at -100/0/+100%.
+ * Only the extended input segments -125..-100% and +100..+125% stretch
+ * to nominal 500 and 2500 us. Receiver CH1 extended-range measurements
+ * with v1.3.4.76 gave approximately 499/1500/2499 us. */
 static uint16_t mc8v53_standard_channel(uint8_t source)
 {
-	const uint16_t input = limit_channel_100(CH_AETR[source]);
-	const uint16_t low = 358U;
-	const uint16_t high = 1689U;
+	const uint16_t channel = Channel_data[CH_AETR[source]];
+	const uint16_t input = channel > CHANNEL_MAX_125 ? CHANNEL_MAX_125 : channel;
+	const uint16_t low = 500U;
+	const uint16_t middle = 1000U;
+	const uint16_t high = 1500U;
+	if(input < CHANNEL_MIN_100)
+		return ((uint32_t)(input - CHANNEL_MIN_125) * low
+			+ (CHANNEL_MIN_100 - CHANNEL_MIN_125) / 2U)
+			/ (CHANNEL_MIN_100 - CHANNEL_MIN_125);
+	if(input > CHANNEL_MAX_100)
+		return high + ((uint32_t)(input - CHANNEL_MAX_100) * 500U
+			+ (CHANNEL_MAX_125 - CHANNEL_MAX_100) / 2U)
+			/ (CHANNEL_MAX_125 - CHANNEL_MAX_100);
 	if(input <= CHANNEL_MID)
-		return 1024U - ((uint32_t)(CHANNEL_MID - input) * (1024U - low)
+		return middle - ((uint32_t)(CHANNEL_MID - input) * (middle - low)
 			+ (CHANNEL_MID - CHANNEL_MIN_100) / 2U)
 			/ (CHANNEL_MID - CHANNEL_MIN_100);
-	return 1024U + ((uint32_t)(input - CHANNEL_MID) * (high - 1024U)
+	return middle + ((uint32_t)(input - CHANNEL_MID) * (high - middle)
 		+ (CHANNEL_MAX_100 - CHANNEL_MID) / 2U)
 		/ (CHANNEL_MAX_100 - CHANNEL_MID);
 }

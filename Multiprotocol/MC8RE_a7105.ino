@@ -92,32 +92,17 @@ static uint32_t mc8v43_link_id;
  * PWM measurements with v1.3.4.73 gave about 858/1523/2187 us at minimum,
  * neutral and maximum. These support PWM_us ~= wire_value + 500.
  * Session 4 confirmed nominal 1000/1500/2000 us with wire 500/1000/1500.
- * Preserve nominal 1000/1500/2000 us at -100/0/+100%.
- * Only the extended input segments -125..-100% and +100..+125% stretch
- * to nominal 500 and 2500 us. Receiver CH1 extended-range measurements
- * with v1.3.4.76 gave approximately 499/1500/2499 us. */
+ * v1.3.4.76 confirmed wire 0/1000/2000 near 499/1500/2499 us on CH1.
+ * Linear mapping: serial 0..2047 (-125..+125%) -> wire 375..1625,
+ * nominal PWM 875..2125 us. EdgeTX -100/0/+100% serial 205/1024/1843
+ * maps to wire 500/1000/1500 (nominal PWM 1000/1500/2000 us).
+ * Use one slope across the full range; round to the nearest wire count. */
 static uint16_t mc8v53_standard_channel(uint8_t source)
 {
 	const uint16_t channel = Channel_data[CH_AETR[source]];
 	const uint16_t input = channel > CHANNEL_MAX_125 ? CHANNEL_MAX_125 : channel;
-	const uint16_t low = 500U;
-	const uint16_t middle = 1000U;
-	const uint16_t high = 1500U;
-	if(input < CHANNEL_MIN_100)
-		return ((uint32_t)(input - CHANNEL_MIN_125) * low
-			+ (CHANNEL_MIN_100 - CHANNEL_MIN_125) / 2U)
-			/ (CHANNEL_MIN_100 - CHANNEL_MIN_125);
-	if(input > CHANNEL_MAX_100)
-		return high + ((uint32_t)(input - CHANNEL_MAX_100) * 500U
-			+ (CHANNEL_MAX_125 - CHANNEL_MAX_100) / 2U)
-			/ (CHANNEL_MAX_125 - CHANNEL_MAX_100);
-	if(input <= CHANNEL_MID)
-		return middle - ((uint32_t)(CHANNEL_MID - input) * (middle - low)
-			+ (CHANNEL_MID - CHANNEL_MIN_100) / 2U)
-			/ (CHANNEL_MID - CHANNEL_MIN_100);
-	return middle + ((uint32_t)(input - CHANNEL_MID) * (high - middle)
-		+ (CHANNEL_MAX_100 - CHANNEL_MID) / 2U)
-		/ (CHANNEL_MAX_100 - CHANNEL_MID);
+	return 375U + ((uint32_t)input * 1250U + CHANNEL_MAX_125 / 2U)
+		/ CHANNEL_MAX_125;
 }
 
 static void mc8v53_put_u11(uint8_t slot, uint16_t value)

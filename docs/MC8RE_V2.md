@@ -10,10 +10,10 @@ transmitter and then verified on two MC8RE V2 receivers.
   `01`, then normal operation on ID `51D567EB`;
 - 16-channel hopping and the original startup/RX slot timing captured from
   the transmitter;
-- eight 11-bit packed output channels with piecewise scaling: EdgeTX
+- eight 11-bit packed output channels with linear scaling: EdgeTX
   -100%/0%/+100% maps to nominal PWM 1000/1500/2000 us (wire
-  500/1000/1500). Extended -125%/+125% reaches nominal 500/2500 us
-  (wire 0/2000);
+  500/1000/1500). Extended -125%/+125% reaches nominal 875/2125 us
+  (wire 375/1625). v1.3.4.77 uses a single slope throughout;
 - telemetry A1 (receiver/BEC voltage) and A2 (external battery voltage,
   0.1 V per count; set EdgeTX A2 ratio to 25.5 V for a 4S range);
 - a relative local A7105 RSSI indication.  It is not a calibrated received
@@ -38,11 +38,17 @@ The extended-range capture did not separately hold +/-100% positions;
 those were measured on the preceding standard-range build. No simultaneous
 SPI traffic was recorded in these PWM captures.
 
+The current v1.3.4.77 mapping replaces the earlier piecewise expansion with
+one linear mapping: serial 0..2047 -> wire 375..1625, rounded to the
+nearest count. EdgeTX serial values 205/1024/1843 at -100%/0%/+100%
+map to wire 500/1000/1500. The nominal extended PWM range is now
+875–2125 us. New hardware measurements are pending; the measurements
+above describe the preceding builds, not the new extended endpoint values.
+
 For the full range, enable EdgeTX Extended Limits, keep mixer weight at
 100%, and set output limits to -125%/+125% with zero trim/subtrim/offset.
 Confirm the channel monitor reaches +/-125%. MULTI serial input saturates
-at that range. The outer 100–125% segments intentionally have a steeper
-slope than the standard range.
+at that range. Values above +/-125% do not extend the received serial range.
 
 ## Known limitation
 

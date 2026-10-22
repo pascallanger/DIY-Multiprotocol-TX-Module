@@ -41,6 +41,7 @@ static void __attribute__((unused)) XN297_RFChannel(uint8_t);
 static void __attribute__((unused)) XN297_SetPower();
 static void __attribute__((unused)) XN297_SetFreqOffset();
 static bool __attribute__((unused)) XN297_IsPacketSent();
+static uint16_t __attribute__((unused)) XN297_crc_xorout(bool, uint16_t);
 
 #endif
 

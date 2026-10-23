@@ -112,6 +112,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [Hontai](Protocols_Details.md#HONTAI---26)||26|HONTAI|JJRCX1|X5C1|FQ777_951|XKK170||||NRF24L01|XN297
 [HoTT](Protocols_Details.md#HoTT---57)||57|Sync|No_Sync|||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)||2|H107|H301|H501||||||A7105|
+[HyperGo](Protocols_Details.md#HyperGo---110)||110|||||||||NRF24L01|XN297
 [J6Pro](Protocols_Details.md#J6Pro---22)||22|||||||||CYRF6936|
 [JIABAILE](Protocols_Details.md#JIABAILE---102)||102|Std|Gyro|||||||NRF24L01|XN297
 [JJRC345](Protocols_Details.md#JJRC345---71)||71|JJRC345|SkyTmblr|||||||NRF24L01|XN297
@@ -358,6 +359,26 @@ A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS|GPS_HOLD|ALT_HOLD|FLIP|FMODES
 H122D: FLIP
 
 H123D: FMODES -> -100%=Sport mode 1,0%=Sport mode 2,+100%=Acro
+
+## HyperGo - *110*
+TX: MJX T3A (PCB T3A V01, RF IC 2427CTb), RX: R30 (PCB R30 V02 LT, RF IC 2444CYa)  
+Models: HYPER GO H16BM 1/16 RTR Brushless (and compatible Hyper Go surface models using T3A/R30)
+
+**Only 1 ID** (forced `B4 46 F2 25 D7` from one captured pair). Open-loop bind replay on CH79 / `6D…` then data hop 62/49/75.  
+**Limitation:** validated control on that already-bound car. Virgin bind / other RX IDs not proven — another Hyper Go will likely not bind to this ID. Generic RX-ID listen TBD. Contact on GitHub if you have another T3A/R30 pair or dumps.
+
+Autobind protocol (forced ID)
+
+Bind: RF channel 79, address `6D 6A 58 52 43`, then switches to data address / hop below.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7
+---|---|---|---|---|---|---
+ST|TH|CH3|CH4|TH_Rate|LED|ST_Trim
+
+ - CH3/CH4: unused on stock T3A (leave centered unless needed)
+ - TH_Rate: -100%=100% (full), +100%=70% (T3A mid rate). Do **not** use Dual Rate on TH — the RX/ESC applies the limit from a flag; stock TX does not scale the throttle channel.
+ - LED: -100%=Off, +100%=On
+ - ST_Trim: value between -100% and +100% (stock dial ~limited range)
 
 ## JOYSWAY - *84*
 

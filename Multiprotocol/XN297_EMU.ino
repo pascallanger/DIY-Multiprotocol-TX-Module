@@ -14,44 +14,30 @@ const uint8_t xn297_scramble[] = {
     0x1B, 0x5D, 0x19, 0x10, 0x24, 0xD3, 0xDC, 0x3F,
     0x8E, 0xC5, 0x2F, 0xAA, 0x16, 0xF3, 0x95 };
 
-// scrambled, standard mode crc xorout table
-const uint16_t PROGMEM xn297_crc_xorout_scrambled[] = {
-    0x0000, 0x3448, 0x9BA7, 0x8BBB, 0x85E1, 0x3E8C,
-    0x451E, 0x18E6, 0x6B24, 0xE7AB, 0x3828, 0x814B,
-    0xD461, 0xF494, 0x2503, 0x691D, 0xFE8B, 0x9BA7,
-    0x8B17, 0x2920, 0x8B5F, 0x61B1, 0xD391, 0x7401,
-    0x2138, 0x129F, 0xB3A0, 0x2988, 0x23CA, 0xC0CB,
-    0x0C6C, 0xB329, 0xA0A1, 0x0A16, 0xA9D0 };
-
-// unscrambled, standard mode crc xorout table
-const uint16_t PROGMEM xn297_crc_xorout[] = {
-    0x0000, 0x3D5F, 0xA6F1, 0x3A23, 0xAA16, 0x1CAF,
-    0x62B2, 0xE0EB, 0x0821, 0xBE07, 0x5F1A, 0xAF15,
-    0x4F0A, 0xAD24, 0x5E48, 0xED34, 0x068C, 0xF2C9,
-    0x1852, 0xDF36, 0x129D, 0xB17C, 0xD5F5, 0x70D7,
-    0xB798, 0x5133, 0x67DB, 0xD94E, 0x0A5B, 0xE445,
-    0xE6A5, 0x26E7, 0xBDAB, 0xC379, 0x8E20 };
-
-// scrambled enhanced mode crc xorout table
-const uint16_t PROGMEM xn297_crc_xorout_scrambled_enhanced[] = {
-    0x0000, 0x7EBF, 0x3ECE, 0x07A4, 0xCA52, 0x343B,
-    0x53F8, 0x8CD0, 0x9EAC, 0xD0C0, 0x150D, 0x5186,
-    0xD251, 0xA46F, 0x8435, 0xFA2E, 0x7EBD, 0x3C7D,
-    0x94E0, 0x3D5F, 0xA685, 0x4E47, 0xF045, 0xB483,
-    0x7A1F, 0xDEA2, 0x9642, 0xBF4B, 0x032F, 0x01D2,
-    0xDC86, 0x92A5, 0x183A, 0xB760, 0xA953 };
-
-// unscrambled enhanced mode crc xorout table
-// unused so far
-#ifdef XN297DUMP_NRF24L01_INO
-const uint16_t xn297_crc_xorout_enhanced[] = {
-    0x0000, 0x8BE6, 0xD8EC, 0xB87A, 0x42DC, 0xAA89,
-    0x83AF, 0x10E4, 0xE83E, 0x5C29, 0xAC76, 0x1C69,
-    0xA4B2, 0x5961, 0xB4D3, 0x2A50, 0xCB27, 0x5128,
-    0x7CDB, 0x7A14, 0xD5D2, 0x57D7, 0xE31D, 0xCE42,
-    0x648D, 0xBF2D, 0x653B, 0x190C, 0x9117, 0x9A97,
-    0xABFC, 0xE68E, 0x0DE7, 0x28A2, 0x1965 };
-#endif
+// XN297 CRC: CRC-16/CCITT (init 0xFFFF, xorout 0xFFFF) over the unscrambled
+// address, pcf and payload, sent scrambled. The emulation computes it from 0xB5D2
+// over the bits as sent: the xorout is the difference for a CRC over 'bits' bits,
+// the CRC of the scramble bits plus the scramble of the CRC bits.
+static uint16_t __attribute__((unused)) XN297_crc_xorout(bool scramble, uint16_t bits)
+{
+	uint16_t xorout = 0xFFFF ^ 0xB5D2;
+	uint8_t lfsr = 0x71, s;					// scramble bits (xn297_scramble[]): 1110001, then s[i] = s[i-7] ^ s[i-3]
+	for(uint16_t i = 0; i < bits + 16; i++)
+	{
+		s = scramble ? lfsr >> 6 : 0;
+		lfsr = ((lfsr << 1) | (((lfsr >> 6) ^ (lfsr >> 2)) & 1)) & 0x7F;
+		if(i < bits)
+		{
+			if((xorout >> 15) ^ s)
+				xorout = (xorout << 1) ^ 0x1021;
+			else
+				xorout <<= 1;
+		}
+		else
+			xorout ^= (uint16_t)s << (bits + 15 - i);
+	}
+	return ~xorout;
+}
 
 static bool __attribute__((unused)) XN297_Configure(bool crc_en, bool scramble_en, bool bitrate, bool force_nrf)
 {
@@ -296,10 +282,7 @@ static void __attribute__((unused)) XN297_WritePayload(uint8_t* msg, uint8_t len
 		crc = 0xb5d2;
 		for (uint8_t i = offset; i < last; ++i)
 			crc16_update( buf[i], 8);
-		if(xn297_scramble_enabled)
-			crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
-		else
-			crc ^= pgm_read_word(&xn297_crc_xorout[xn297_addr_len - 3 + len]);
+		crc ^= XN297_crc_xorout(xn297_scramble_enabled, 8 * (xn297_addr_len + len));
 		buf[last++] = crc >> 8;
 		buf[last++] = crc & 0xff;
 	}
@@ -366,9 +349,9 @@ static void __attribute__((unused)) XN297_WriteEnhancedPayload(uint8_t* msg, uin
 			crc16_update( buf[i], 8);
 		crc16_update( buf[last] & 0xc0, 2);
 		if (xn297_scramble_enabled)
-			crc ^= pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[xn297_addr_len-3+len]);
+			crc ^= XN297_crc_xorout(true, 8 * (xn297_addr_len + len) + 10);
 		//else
-		//	crc ^= pgm_read_word(&xn297_crc_xorout_enhanced[xn297_addr_len - 3 + len]);
+		//	crc ^= XN297_crc_xorout(false, 8 * (xn297_addr_len + len) + 10);
 
 		buf[last++] |= (crc >> 8) >> 2;
 		buf[last++] = ((crc >> 8) << 6) | ((crc & 0xff) >> 2);
@@ -446,10 +429,7 @@ static bool __attribute__((unused)) XN297_ReadPayload(uint8_t* msg, uint8_t len)
 	for (uint8_t i = 0; i < len; ++i)
 		crc16_update( buf[i], 8);
 	//xorout
-	if(xn297_scramble_enabled)
-		crc ^= pgm_read_word(&xn297_crc_xorout_scrambled[xn297_addr_len - 3 + len]);
-	else
-		crc ^= pgm_read_word(&xn297_crc_xorout[xn297_addr_len - 3 + len]);
+	crc ^= XN297_crc_xorout(xn297_scramble_enabled, 8 * (xn297_addr_len + len));
 	//test
 	if( (crc >> 8) == buf[len] && (crc & 0xff) == buf[len+1])
 		return true;	// CRC  OK
@@ -492,10 +472,10 @@ static uint8_t __attribute__((unused)) XN297_ReadEnhancedPayload(uint8_t* msg, u
 	crc16_update( buffer[pcf_size+1] & 0xc0, 2);
 	//xorout
 	if (xn297_scramble_enabled)
-		crc ^= pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[xn297_addr_len-3+pcf_size]);
+		crc ^= XN297_crc_xorout(true, 8 * (xn297_addr_len + pcf_size) + 10);
 #ifdef XN297DUMP_NRF24L01_INO
 	else
-		crc ^= pgm_read_word(&xn297_crc_xorout_enhanced[xn297_addr_len - 3 + pcf_size]);
+		crc ^= XN297_crc_xorout(false, 8 * (xn297_addr_len + pcf_size) + 10);
 #endif
 	uint16_t crcxored=(buffer[pcf_size+1]<<10)|(buffer[pcf_size+2]<<2)|(buffer[pcf_size+3]>>6) ;
 	if( crc == crcxored)

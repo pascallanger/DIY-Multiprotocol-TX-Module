@@ -71,10 +71,6 @@ static void __attribute__((unused)) XN297Dump_RF_init()
 }
 
 extern const uint8_t xn297_scramble[];
-extern const uint16_t PROGMEM xn297_crc_xorout_scrambled[];
-extern const uint16_t PROGMEM xn297_crc_xorout[];
-extern const uint16_t PROGMEM xn297_crc_xorout_scrambled_enhanced[];
-extern const uint16_t xn297_crc_xorout_enhanced[];
 
 static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 {
@@ -104,7 +100,7 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 		packet_sc[i] = bit_reverse(packet[i]^xn297_scramble[i]);
 		packet_un[i] = bit_reverse(packet[i]);
 		// check crc
-		crcxored = crc ^ pgm_read_word(&xn297_crc_xorout[i+1 - 3]);
+		crcxored = crc ^ XN297_crc_xorout(false, 8 * (i+1));
 		if( (crcxored >> 8) == packet[i + 1] && (crcxored & 0xff) == packet[i + 2])
 		{
 			packet_length=i+1;
@@ -112,7 +108,7 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 			scramble=false;
 			return true;
 		}
-		crcxored = crc ^ pgm_read_word(&xn297_crc_xorout_scrambled[i+1 - 3]);
+		crcxored = crc ^ XN297_crc_xorout(true, 8 * (i+1));
 		if( (crcxored >> 8) == packet[i + 1] && (crcxored & 0xff) == packet[i + 2])
 		{
 			packet_length=i+1;
@@ -135,7 +131,7 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 		crcxored=(packet[i+1]<<10)|(packet[i+2]<<2)|(packet[i+3]>>6) ;
 		if(i>=3)
 		{
-			if((crc ^ pgm_read_word(&xn297_crc_xorout_scrambled_enhanced[i - 3])) == crcxored)
+			if((crc ^ XN297_crc_xorout(true, 8 * i + 10)) == crcxored)
 			{ // Found a valid CRC for the enhanced payload mode
 				packet_length=i;
 				scramble=true;
@@ -144,7 +140,7 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 				memcpy(packet_un,packet_sc,packet_length+2); // unscramble packet
 				break;
 			}
-			if((crc ^ pgm_read_word(&xn297_crc_xorout_enhanced[i - 3])) == crcxored)
+			if((crc ^ XN297_crc_xorout(false, 8 * i + 10)) == crcxored)
 			{ // Found a valid CRC for the enhanced payload mode
 				packet_length=i;
 				scramble=false;

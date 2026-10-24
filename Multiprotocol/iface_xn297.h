@@ -20,6 +20,9 @@
 #define	XN297_250K          true
 #define	XN297_NRF           false
 #define	XN297_CC2500        true
+#define	XN297_SCRAMBLE_SEED 0xE3B14BE0	// whitening x^7 + x^3 + 1, seed 0x71: first 28 bits
+
+extern uint32_t xn297_lfsr;
 
 //////////////
 // Functions
@@ -41,7 +44,10 @@ static void __attribute__((unused)) XN297_RFChannel(uint8_t);
 static void __attribute__((unused)) XN297_SetPower();
 static void __attribute__((unused)) XN297_SetFreqOffset();
 static bool __attribute__((unused)) XN297_IsPacketSent();
+static uint8_t __attribute__((unused)) XN297_scramble_byte();
+#ifdef XN297DUMP_NRF24L01_INO
 static uint16_t __attribute__((unused)) XN297_crc_xorout(bool, uint16_t);
+#endif
 
 #endif
 

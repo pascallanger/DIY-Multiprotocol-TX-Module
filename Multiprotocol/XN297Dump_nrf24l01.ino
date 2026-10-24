@@ -70,12 +70,14 @@ static void __attribute__((unused)) XN297Dump_RF_init()
 	}
 }
 
-extern const uint8_t xn297_scramble[];
-
 static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 {
 	uint16_t crcxored;
 	uint8_t packet_sc[XN297DUMP_MAX_PACKET_LEN], packet_un[XN297DUMP_MAX_PACKET_LEN];
+	uint8_t xn297_scramble[XN297DUMP_MAX_PACKET_LEN];
+	xn297_lfsr = XN297_SCRAMBLE_SEED;
+	for (uint8_t i = 0; i < XN297DUMP_MAX_PACKET_LEN; i++)
+		xn297_scramble[i] = XN297_scramble_byte();
 	enhanced=false;
 	// init crc
 	crc = 0xb5d2;

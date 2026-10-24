@@ -96,6 +96,7 @@ const char STR_RLINK[]		="RadLink";
 const char STR_REALACC[]	="Realacc";
 const char STR_OMP[]		="OMP";
 const char STR_MLINK[]		="M-Link";
+const char STR_MC8RE[]		="MC8RE V2";
 const char STR_TEST[]		="Test";
 const char STR_NANORF[]		="NanoRF";
 const char STR_E016HV2[]    ="E016Hv2";
@@ -433,7 +434,10 @@ const mm_protocol_definition multi_protocols[] = {
 		{PROTO_MLINK,      STR_MLINK,     NO_SUBTYPE,            0, OPTION_NONE,    1, 0, SW_CYRF,   MLINK_init,      MLINK_callback      },
 	#endif
 	#if defined(XK_CCNRF_INO)
-		{PROTO_MOFLY,      STR_MOFLY,     NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    XK_init,         XK_callback         },	
+		{PROTO_MOFLY,      STR_MOFLY,     NO_SUBTYPE,            0, OPTION_RFTUNE,  0, 0, SW_NRF,    XK_init,         XK_callback         },
+	#endif
+	#if defined(MC8RE_A7105_INO)
+		{PROTO_MC8RE,      STR_MC8RE,     NO_SUBTYPE,            0, OPTION_NONE,    0, 0, SW_A7105,  MC8RE_init,      MC8RE_callback      },
 	#endif
 	#if defined(MOULDKG_NRF24L01_INO)
 		{PROTO_MOULDKG,    STR_MOULDKG,   STR_SUBTYPE_MOULDKG,   3, OPTION_OPTION,  0, 0, SW_NRF,    MOULDKG_init,    MOULDKG_callback    },

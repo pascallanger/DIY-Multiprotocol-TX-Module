@@ -326,6 +326,18 @@ static void multi_send_status()
 
 static void multi_send_frskyhub()
 {
+	#if defined(MC8RE_A7105_INO)
+		/* MC8RE V2 provides only A1/A2 plus the FrSky-D link marker.  A short
+		 * frame intentionally prevents EdgeTX from creating synthetic link
+		 * quality telemetry fields that this receiver does not transmit. */
+		if(protocol == PROTO_MC8RE && frame[0] == 0xFE)
+		{
+			multi_send_header(MULTI_TELEMETRY_HUB, 4);
+			for(uint8_t i = 0; i < 4; i++)
+				Serial_write(frame[i]);
+			return;
+		}
+	#endif
 	multi_send_header(MULTI_TELEMETRY_HUB, 9);
 	for (uint8_t i = 0; i < 9; i++)
 		Serial_write(frame[i]);

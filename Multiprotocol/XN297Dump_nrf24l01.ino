@@ -73,8 +73,11 @@ static void __attribute__((unused)) XN297Dump_RF_init()
 static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 {
 	uint16_t crcxored;
-	uint8_t lfsr = 0x71;
 	uint8_t packet_sc[XN297DUMP_MAX_PACKET_LEN], packet_un[XN297DUMP_MAX_PACKET_LEN];
+	uint8_t xn297_scramble[XN297DUMP_MAX_PACKET_LEN];
+	xn297_lfsr = XN297_SCRAMBLE_SEED;
+	for (uint8_t i = 0; i < XN297DUMP_MAX_PACKET_LEN; i++)
+		xn297_scramble[i] = XN297_scramble_byte();
 	enhanced=false;
 	// init crc
 	crc = 0xb5d2;
@@ -89,14 +92,14 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 	{
 		crc16_update( packet[i], 8);
 		packet_un[address_length-1-i]=packet[i];
-		packet_sc[address_length-1-i]=packet[i] ^ XN297_scramble_byte(lfsr);
+		packet_sc[address_length-1-i]=packet[i] ^ xn297_scramble[i];
 	}
 	
 	// payload
 	for (uint8_t i = address_length; i < XN297DUMP_MAX_PACKET_LEN-XN297DUMP_CRC_LENGTH; i++)
 	{
 		crc16_update( packet[i], 8);
-		packet_sc[i] = bit_reverse(packet[i]^XN297_scramble_byte(lfsr));
+		packet_sc[i] = bit_reverse(packet[i]^xn297_scramble[i]);
 		packet_un[i] = bit_reverse(packet[i]);
 		// check crc
 		crcxored = crc ^ XN297_crc_xorout(false, 8 * (i+1));
@@ -118,12 +121,11 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 	}
 
 	//Try enhanced payload
-	lfsr = 0x71;
 	uint16_t crc_save = 0xb5d2;
 	packet_length=0;
 	for (uint8_t i = 0; i < XN297DUMP_MAX_PACKET_LEN-XN297DUMP_CRC_LENGTH; i++) 
 	{
-		packet_sc[i]=packet[i]^XN297_scramble_byte(lfsr);
+		packet_sc[i]=packet[i]^xn297_scramble[i];
 		crc = crc_save;
 		crc16_update( packet[i], 8);
 		crc_save = crc;
@@ -136,7 +138,7 @@ static boolean __attribute__((unused)) XN297Dump_process_packet(void)
 				packet_length=i;
 				scramble=true;
 				i++;
-				packet_sc[i]=packet[i]^XN297_scramble_byte(lfsr);
+				packet_sc[i]=packet[i]^xn297_scramble[i];
 				memcpy(packet_un,packet_sc,packet_length+2); // unscramble packet
 				break;
 			}

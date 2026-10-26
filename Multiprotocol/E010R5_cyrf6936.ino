@@ -70,6 +70,8 @@ uint16_t E010R5_callback()
 		case 5:
 			return 1183;
 		default:
+			//Wait for the end of the packet before changing the channel: RF2500_SendPayload() returns once the CYRF6936 buffer is filled
+			for(uint8_t i=0; i<100 && (CYRF_ReadRegister(CYRF_04_TX_IRQ_STATUS)&0x02)==0; i++);
 			hopping_frequency_no++;
 			hopping_frequency_no &= 3;
 			if(IS_BIND_IN_PROGRESS)

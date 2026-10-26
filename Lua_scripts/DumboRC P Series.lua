@@ -19,6 +19,14 @@ local RX_READY = 14
 local RX_PAYLOAD = 15
 local RX_MAX_PAYLOAD = 32
 local colorLcd = type(lcd.RGB) == "function"
+local screenMode = "mono"
+if colorLcd then
+  if (LCD_W or 0) >= 720 and (LCD_H or 0) >= 320 then
+    screenMode = "mk3"
+  elseif (LCD_W or 0) >= 320 and (LCD_H or 0) >= 200 then
+    screenMode = "color"
+  end
+end
 
 local servoHz = { "67HZ", "250HZ", "50HZ", "300HZ" }
 
@@ -51,12 +59,13 @@ local function gyroText(v)
 end
 
 local function screenLines()
-  if colorLcd then return limit(math.floor(((LCD_H or 272) - 46) / 20), 8, 12) end
+  if screenMode == "mk3" then return limit(math.floor(((LCD_H or 400) - 46) / 26), 8, 12) end
+  if screenMode == "color" then return limit(math.floor(((LCD_H or 240) - 36) / 18), 6, 10) end
   return 6
 end
 
 local function drawTitle(title)
-  if colorLcd and lcd.drawFilledRectangle then
+  if screenMode ~= "mono" and lcd.drawFilledRectangle then
     lcd.drawFilledRectangle(0, 0, LCD_W, 30, COLOR_THEME_SECONDARY1)
     lcd.drawText(3, 5, title, COLOR_THEME_PRIMARY2)
   elseif lcd.drawScreenTitle then
@@ -66,6 +75,9 @@ local function drawTitle(title)
   end
 end
 
+  local layout = screenMode == "mk3" and { y = 42, spacing = 26, valueX = 200 } or
+                 screenMode == "color" and { y = 30, spacing = 18, valueX = 130 } or
+                 { y = 9, spacing = 8, valueX = 82 }
 local function findModule()
   for i = 0, 1 do
     local m = model.getModule(i)
@@ -249,14 +261,14 @@ local function draw()
   lcd.clear()
   drawTitle("DumboRC P series")
 
-  local font = colorLcd and 0 or SMLSIZE
+  local font = screenMode == "mono" and SMLSIZE or 0
   local x = 2
-  local y = colorLcd and 34 or 9
-  local dy = colorLcd and 20 or 8
-  local valueX = colorLcd and 150 or 82
+  local y = layout.y
+  local dy = layout.spacing
+  local valueX = layout.valueX
 
   if not moduleOk then
-    if colorLcd then
+    if screenMode ~= "mono" then
       lcd.drawText(x, y + dy, "Select Multi RadLink/Dumbo_P", font + BLINK)
     else
       lcd.drawText(x, y + dy, "Select RadLink", font + BLINK)

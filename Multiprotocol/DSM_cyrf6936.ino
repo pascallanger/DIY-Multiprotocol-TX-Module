@@ -642,7 +642,7 @@ void DSM_init()
 					cyrfmfg_id[3]^=RX_num;		//Model match
 				#if DEBUG_BIND
 					debugln("Using cloned ID");  
-					debug("Clone ID=")
+					debug("Clone ID=");
 					for(uint8_t i=0;i<4;i++)
 						debug("%02x ", cyrfmfg_id[i]);
 					debugln("");

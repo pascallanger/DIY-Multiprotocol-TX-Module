@@ -137,6 +137,7 @@ enum PROTOCOLS
 	PROTO_WPL		= 107,	// =>NRF24L01
 	PROTO_ARES		= 108,	// =>CC2500
 	PROTO_MOFLY		= 109,	// =>CC2500 & NRF24L01
+	PROTO_MC8RE		= 110,	// =>A7105
 	
 	PROTO_NANORF	= 126,	// =>NRF24L01
 	PROTO_TEST		= 127,	// =>CC2500
@@ -596,6 +597,11 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_PROTO			= 17,
 	MULTI_TELEMETRY_RLINK			= 18,
 };
+
+#if defined(MC8RE_A7105_INO)
+void MC8RE_init();
+uint16_t MC8RE_callback();
+#endif
 
 // Macros
 #define NOP() __asm__ __volatile__("nop")

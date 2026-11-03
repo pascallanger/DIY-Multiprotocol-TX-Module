@@ -112,6 +112,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [Hontai](Protocols_Details.md#HONTAI---26)||26|HONTAI|JJRCX1|X5C1|FQ777_951|XKK170||||NRF24L01|XN297
 [HoTT](Protocols_Details.md#HoTT---57)||57|Sync|No_Sync|||||||CC2500|
 [Hubsan](Protocols_Details.md#HUBSAN---2)||2|H107|H301|H501||||||A7105|
+[HyperGo T3F](Protocols_Details.md#HyperGo-T3F---111)||111|||||||||NRF24L01|XN297
 [J6Pro](Protocols_Details.md#J6Pro---22)||22|||||||||CYRF6936|
 [JIABAILE](Protocols_Details.md#JIABAILE---102)||102|Std|Gyro|||||||NRF24L01|XN297
 [JJRC345](Protocols_Details.md#JJRC345---71)||71|JJRC345|SkyTmblr|||||||NRF24L01|XN297
@@ -358,6 +359,24 @@ A|E|T|R|RTH|LIGHT|PICTURE|VIDEO|HEADLESS|GPS_HOLD|ALT_HOLD|FLIP|FMODES
 H122D: FLIP
 
 H123D: FMODES -> -100%=Sport mode 1,0%=Sport mode 2,+100%=Acro
+
+## HyperGo T3F - *111*
+TX: MJX T3F; RX: MJX Hyper Go 43308 (PAN2110-based variant).
+
+**Only 1 ID:** the bind/data ID `D6 7E A8 EF 47` and hop sequence below are from one captured T3F/43308 pair. This implementation replays that captured bind sequence; support for other receiver IDs has not been established.
+
+Autobind protocol. The transmitter sends 57 bind beacons on channels 61/79/43, followed by the captured ID echo and four `0x50` bind packets. It then switches to the data address.
+
+Data address: `D6 7E A8 EF 47`; data channels: 75/64/53; 13-byte packets at approximately 10 ms intervals.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+ST|TH|Unused|Unused|Unused|LED|ST_Trim|GYRO
+
+- LED: low = off, high = on.
+- GYRO: proportional range 0–100; assign a knob to CH8.
+- Throttle is centered at 0; the lower and upper sides encode reverse and forward respectively.
+- CH3–CH5 are currently unused. The packet is fixed to the 100% rate flag.
 
 ## JOYSWAY - *84*
 

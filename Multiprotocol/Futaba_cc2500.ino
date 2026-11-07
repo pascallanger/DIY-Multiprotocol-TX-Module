@@ -159,11 +159,10 @@ static void __attribute__((unused)) SFHSS_send_packet()
 		{	//Failsafe data are:
 			// 0 to 1023 -> no output on channel
 			// 1024-2047 -> hold output on channel
-			// 2048-4095 -> channel_output=(data&0x3FF)*5/4+880 in µs
+			// 2048-4095 -> channel_output=1520+offset*5/4 in µs, offset=data&0x3FF as a signed 10-bit value, bit 10 ignored
 			// Notes:
-			//    2048-2559 -> does not look valid since it only covers the range from 1520µs to 2160µs 
-			//    2560-3583 -> valid for any channel values from 880µs to 2160µs
-			//    3584-4095 -> looks to be used for the throttle channel with values ranging from 880µs to 1520µs
+			//    Same scale as the normal data: the T14SG sends 0x800|offset, its live and F/S values match
+			//    3072 is 1520µs, 2672..3472 is 1020..2020µs like the normal data, 1..2046 (+-125%) stays within +-511
 			for(uint8_t i=0;i<4;i++)
 			{
 				uint16_t val=Failsafe_data[CH_AETR[ch_offset+i]];
@@ -173,7 +172,7 @@ static void __attribute__((unused)) SFHSS_send_packet()
 					ch[i]=0;
 				else
 				{ //Use channel value
-					ch[i] = convert_channel_16b_nolimit(CH_AETR[ch_offset+i],3571,2571,true); //3472,2672: not enough throw
+					ch[i] = convert_channel_16b_nolimit(CH_AETR[ch_offset+i],3472,2672,true);
 				}
 			}
 		}

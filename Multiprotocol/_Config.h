@@ -91,7 +91,7 @@
 //#define ORANGE_TX_BLUE
 
 /** CC2500 Fine Frequency Tuning **/
-//For optimal performance the CC2500 RF module used by the CORONA, FrSkyD, FrSkyV, FrSkyX, Hitec, HoTT, Futaba/SFHSS and Redpine protocols needs to be tuned for each protocol.
+//For optimal performance the CC2500 RF module used by the CORONA, FrSkyD, FrSkyV, FrSkyX, Hitec, HoTT, Futaba (SFHSS, T-FHSS) and Redpine protocols needs to be tuned for each protocol.
 //Initial tuning should be done via the radio menu with a genuine CORONA/FrSky/Hitec/HoTT/Futaba/Redpine receiver.  
 //Once a good tuning value is found it can be set here and will override the radio's 'option' setting for all existing and new models which use that protocol.
 //For more information: https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/docs/Frequency_Tuning.md
@@ -312,7 +312,7 @@
 /**************************/
 /*** FAILSAFE SETTINGS  ***/
 /**************************/
-//The following protocols are supporting failsafe: FrSkyX, FrSkyX2, FRSKYR9, Devo, WK2x01, Futaba/SFHSS, HISKY/HK310, HoTT, LOLI, MLINK, WFLY, WFLY2 and AFHDS2A
+//The following protocols are supporting failsafe: FrSkyX, FrSkyX2, FRSKYR9, Devo, WK2x01, Futaba/SFHSS, Futaba/T-FHSS (Surface, SR), HISKY/HK310, HoTT, LOLI, MLINK, WFLY, WFLY2 and AFHDS2A
 //In Serial mode failsafe is configured on the radio itself.
 //In PPM mode and only after the module is up and fully operational, press the bind button for at least 5sec to send all the current channels positions as failsafe to the RX.
 //If you want to disable failsafe globally comment the line below using "//".
@@ -375,6 +375,7 @@
 #define FRSKY_RX_TELEMETRY			// Forward channels data to TX
 #define AFHDS2A_RX_TELEMETRY		// Forward channels data to TX
 #define HOTT_FW_TELEMETRY			// Forward received telemetry packets to be decoded by erskyTX and OpenTX
+#define FUTABA_FW_TELEMETRY			// Forward received T-FHSS telemetry (S.BUS2 slots) to TX
 #define BAYANG_RX_TELEMETRY			// Forward channels data to TX
 
 /**************************/
@@ -702,7 +703,10 @@ const PPM_Parameters PPM_prot[14*NBR_BANKS]=	{
 		FRSKY_RX
 		FRSKY_CLONE
 	PROTO_FUTABA
-		NONE
+		SFHSS
+		TFHSS
+		TFHSS_SR
+		TFHSS_AIR
 	PROTO_FX
 		FX816
 		FX620

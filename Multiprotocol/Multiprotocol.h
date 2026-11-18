@@ -426,6 +426,13 @@ enum FQ777
 	FQ777	= 0,
 	XBM37	= 1,
 };
+enum FUTABA
+{
+	SFHSS		= 0,
+	TFHSS		= 1,
+	TFHSS_SR	= 2,
+	TFHSS_AIR	= 3,
+};
 enum FRSKY_RX
 {
 	FRSKY_RX	= 0,
@@ -595,6 +602,7 @@ enum MultiPacketTypes
 	MULTI_TELEMETRY_CONFIG			= 16,
 	MULTI_TELEMETRY_PROTO			= 17,
 	MULTI_TELEMETRY_RLINK			= 18,
+	MULTI_TELEMETRY_FUTABA			= 19,
 };
 
 // Macros
@@ -1210,6 +1218,11 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
 		sub_protocol==JJRC345
 			JJRC345		0
 			SKYTMBLR	1
+		sub_protocol==FUTABA
+			SFHSS		0
+			TFHSS		1
+			TFHSS_SR	2
+			TFHSS_AIR	3
 		sub_protocol==RLINK
 			RLINK_SURFACE	0
 			RLINK_AIR		1
@@ -1398,5 +1411,14 @@ Serial: 100000 Baud 8e2      _ xxxx xxxx p --
   Type 0x12 RadioLink/DumboRC P raw command payload
    length: variable
    data[0..] = raw command payload, used to send failsafe and gyro settings
+
+  Type 0x13 Futaba telemetry (T-FHSS): S.BUS2 slots as the sensors send them
+   length: variable, 3 + 2 x number of slots
+   data[0] = number of the first slot (0..31)
+   data[1] = RSSI of the receiver's reply at the module in dBm (signed)
+   data[2] = link quality % sent by the receiver, 0xFF if none in this reply
+   data[3..] = 2 bytes per slot as on the S.BUS2 bus. Slot 0 is the
+               receiver's: byte 0 bits 7..6 = link quality bars (0..3),
+               bit 2 = 0: byte 1 = its voltage in 0.1 V
 
 */

@@ -44,7 +44,8 @@
 // replies. No failsafe frames yet (the T6K's not fully decoded): the
 // receiver's own failsafe applies.
 //
-// STM32 only (FUTABA_TFHSS, Validate.h): too large for the ATmega328p.
+// 128KB STM32 only (FUTABA_TFHSS, Validate.h): too large for the ATmega328p
+// and the 64KB STM32.
 //
 // Telemetry (FUTABA_FW_TELEMETRY): the link frame (A1 = the receiver's
 // voltage at the 13.2 V ratio, RSSI = its link quality (Surface), TX_RSSI

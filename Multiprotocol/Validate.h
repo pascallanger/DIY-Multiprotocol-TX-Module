@@ -477,8 +477,8 @@
 	#define	FRSKY_RX_CC2500_INO
 #endif
 
-//Futaba T-FHSS sub protocols (TFHSS_cc2500.ino): STM32 only, too large for the ATmega328p
-#if defined(FUTABA_CC2500_INO) && defined(STM32_BOARD)
+//Futaba T-FHSS sub protocols (TFHSS_cc2500.ino): 128KB STM32 only, too large for the ATmega328p and the 64KB STM32
+#if defined(FUTABA_CC2500_INO) && defined(STM32_BOARD) && not defined(MCU_STM32F103C8)
 	#define FUTABA_TFHSS
 #endif
 

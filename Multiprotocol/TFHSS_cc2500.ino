@@ -44,13 +44,15 @@
 // replies. No failsafe frames yet (the T6K's not fully decoded): the
 // receiver's own failsafe applies.
 //
+// STM32 only (FUTABA_TFHSS, Validate.h): too large for the ATmega328p.
+//
 // Telemetry (FUTABA_FW_TELEMETRY): the link frame (A1 = the receiver's
 // voltage at the 13.2 V ratio, RSSI = its link quality (Surface), TX_RSSI
 // = its replies here), then the S.BUS2 slots as the sensors send them
 // (MULTI_TELEMETRY_FUTABA: the first slot, the reply's RSSI in dBm, the
 // link quality % or 0xFF, 2 bytes per slot).
 
-#if defined(FUTABA_CC2500_INO)
+#if defined(FUTABA_TFHSS)
 
 #include "iface_cc2500.h"
 

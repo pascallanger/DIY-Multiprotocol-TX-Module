@@ -477,6 +477,11 @@
 	#define	FRSKY_RX_CC2500_INO
 #endif
 
+//Futaba T-FHSS sub protocols (TFHSS_cc2500.ino): STM32 only, too large for the ATmega328p
+#if defined(FUTABA_CC2500_INO) && defined(STM32_BOARD)
+	#define FUTABA_TFHSS
+#endif
+
 //Make sure telemetry is selected correctly
 #ifndef TELEMETRY
 	#undef INVERT_TELEMETRY
@@ -614,7 +619,7 @@
 	#if not defined(HOTT_CC2500_INO)
 		#undef HOTT_FW_TELEMETRY
 	#endif
-	#if not defined(FUTABA_CC2500_INO)
+	#if not defined(FUTABA_TFHSS)
 		#undef FUTABA_FW_TELEMETRY
 	#endif
 	#if not defined(WFLY2_A7105_INO)

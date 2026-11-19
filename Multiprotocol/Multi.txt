@@ -105,3 +105,4 @@
 107,WPL
 108,Ares
 109,MoFly
+112,FrskyA,16ch,8ch,EU16ch,EU8ch

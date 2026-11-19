@@ -289,6 +289,7 @@
 	#undef	FRSKYL_CC2500_INO
 	#undef	FRSKYV_CC2500_INO
 	#if not defined(CC2500_INSTALLED)
+		#undef	FRSKYA_CC2500_INO
 		#undef	FRSKYX_CC2500_INO
 		#undef	FRSKY_RX_CC2500_INO
 	#endif
@@ -380,6 +381,7 @@
 #endif
 #if not defined(STM32_BOARD)
 	#undef SX1276_INSTALLED
+	#undef FRSKYA_CC2500_INO		//STM32 only: doesn't fit the atmega328p with the other CC2500 protocols
 #endif
 #if not defined(SX1276_INSTALLED) || defined MULTI_EU
 	#undef FRSKYR9_SX1276_INO
@@ -469,6 +471,11 @@
 	#undef	V911S_CCNRF_INO
 	#undef	SGF22_NRF24L01_INO
 	#undef	YUXIANG_NRF24L01_INO
+#endif
+
+//FrSky ACCESS uses the FrSky X routines and telemetry
+#if defined(FRSKYA_CC2500_INO)
+	#define	FRSKYX_CC2500_INO
 #endif
 
 //OpenTX 2.3.x issue

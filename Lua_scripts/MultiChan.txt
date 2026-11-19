@@ -202,6 +202,10 @@
 62,1,XK,X420,1,FMode,TakeOf,Emerg,3D_6G,Pict,Video,Flip,Light
 62,2,XK,Cars,0,FMode,TakeOf,Emerg,3D_6G,Pict,Video,Flip,Light
 109,0,MoFly,Std,0,FMode,Rate,BFlip,LRoll,RRoll,Invert
+112,0,FrSkyA,16ch,0,CH5,CH6,CH7,CH8,CH9,CH10,CH11,CH12,CH13,CH14,CH15,CH16
+112,1,FrSkyA,8ch,0,CH5,CH6,CH7,CH8
+112,2,FrSkyA,EU16ch,0,CH5,CH6,CH7,CH8,CH9,CH10,CH11,CH12,CH13,CH14,CH15,CH16
+112,3,FrSkyA,EU8ch,0,CH5,CH6,CH7,CH8
 99,0,XK2,X4,0,Rate,Mode,Hover,Light,Stunt
 99,1,XK2,P10,0,Rate,Mode,Hover,Light,Stunt
 8,0,YD717,Std,1,Flip,Light,Pict,Video,HLess

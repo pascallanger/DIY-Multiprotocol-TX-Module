@@ -38,11 +38,13 @@ uint8_t RetrySequence ;
 
 	// Store for out of sequence packet
 	uint8_t FrSkyX_RX_ValidSeq ;
+	// Payload: up to 6 bytes from a D16 receiver, 8 from an ACCESS one
+	#define FRSKYX_RX_PAYLOAD_MAX 8
 	struct t_FrSkyX_RX_Frame
 	{
 		boolean valid;
 		uint8_t count;
-		uint8_t payload[6];
+		uint8_t payload[FRSKYX_RX_PAYLOAD_MAX];
 	} ;
 
 	// Store for FrskyX telemetry
@@ -395,7 +397,7 @@ bool frsky_process_telemetry(uint8_t *buffer,uint8_t len)
 #endif
 
 #if defined SPORT_TELEMETRY && (defined FRSKYX_CC2500_INO || defined FRSKYR9_SX1276_INO)
-	if (protocol==PROTO_FRSKYX||protocol==PROTO_FRSKYX2)
+	if (protocol==PROTO_FRSKYX||protocol==PROTO_FRSKYX2||protocol==PROTO_FRSKYA)
 	{
 		/*Telemetry frames(RF) SPORT info 
 		15 bytes payload
@@ -429,7 +431,7 @@ bool frsky_process_telemetry(uint8_t *buffer,uint8_t len)
 				return true;
 		#endif
 	}
-	if (protocol==PROTO_FRSKYX||protocol==PROTO_FRSKYX2||protocol==PROTO_FRSKY_R9)
+	if (protocol==PROTO_FRSKYX||protocol==PROTO_FRSKYX2||protocol==PROTO_FRSKYA||protocol==PROTO_FRSKY_R9)
 	{
 		telemetry_lost=0;
 
@@ -457,7 +459,7 @@ bool frsky_process_telemetry(uint8_t *buffer,uint8_t len)
 			// buffer[7-12] payload			
 			p = &FrSkyX_RX_Frames[packet_seq] ;
 			count = buffer[6];					// Payload length
-			if ( count <= 6 )
+			if ( count <= FRSKYX_RX_PAYLOAD_MAX )
 			{//Store payload
 				p->count = count ;
 				for ( uint8_t i = 0 ; i < count ; i++ )
@@ -488,7 +490,7 @@ bool frsky_process_telemetry(uint8_t *buffer,uint8_t len)
 			{//Received next sequence -> save it
 				q = &FrSkyX_RX_Frames[packet_seq] ;
 				count = buffer[6];				// Payload length
-				if ( count <= 6 )
+				if ( count <= FRSKYX_RX_PAYLOAD_MAX )
 				{//Store payload
 					q->count = count ;
 					for ( uint8_t i = 0 ; i < count ; i++ )
@@ -923,9 +925,19 @@ void TelemetryUpdate()
 				return;
 			}
 		#endif
+		#if defined(FRSKYA_CC2500_INO)
+			if(protocol == PROTO_FRSKYA && FrSkyA_lua_out_len)
+			{// Receiver message for the Lua script (multiBuffer "Pipe")
+				multi_send_header(MULTI_TELEMETRY_RLINK, FrSkyA_lua_out_len);
+				for (uint8_t i = 0; i < FrSkyA_lua_out_len; i++)
+					Serial_write(FrSkyA_lua_out[i]);
+				FrSkyA_lua_out_len = 0;
+				return;
+			}
+		#endif
 	#endif
 	#if defined SPORT_TELEMETRY
-		if ((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2||protocol==PROTO_FRSKY_R9) && telemetry_link 
+		if ((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2||protocol==PROTO_FRSKYA||protocol==PROTO_FRSKY_R9) && telemetry_link 
 		#ifdef TELEMETRY_FRSKYX_TO_FRSKYD
 			&& mode_select==MODE_SERIAL
 		#endif

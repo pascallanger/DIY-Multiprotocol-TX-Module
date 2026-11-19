@@ -690,6 +690,55 @@ void setup()
 
 // Main
 // Protocol scheduler
+#ifdef SPORT_SEND
+// One S.Port packet from the radio (physical ID, primId, data ID, value; no
+// CRC) into the stuffed downlink stream (FrSky X, X2, ACCESS, R9)
+void SportQueue(const uint8_t *b)
+{
+	#define BYTE_STUFF	0x7D
+	#define STUFF_MASK	0x20
+	//debug("SPort_in: ");
+	boolean sport_valid=false;
+	for(uint8_t i=1;i<8;i++)
+		if(b[i]!=0) sport_valid=true;	//Check that the payload is not full of 0
+	if((b[0]&0x1F) > 0x1B)				//Check 1st byte validity
+		sport_valid=false;
+	if(sport_valid)
+	{
+		SportData[SportTail]=0x7E;
+		SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+		SportData[SportTail]=b[0]&0x1F;
+		SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+		for(uint8_t i=1;i<8;i++)
+		{
+			if( (b[i]==BYTE_STUFF) || (b[i]==0x7E) )
+			{//stuff
+				SportData[SportTail]=BYTE_STUFF;
+				SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+				SportData[SportTail]=b[i]^STUFF_MASK;
+			}
+			else
+				SportData[SportTail]=b[i];
+			//debug("%02X ",SportData[SportTail]);
+			SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
+		}
+		uint8_t used = SportTail;
+		if ( SportHead > SportTail )
+			used += MAX_SPORT_BUFFER - SportHead ;
+		else
+			used -= SportHead ;
+		if ( used >= MAX_SPORT_BUFFER-(MAX_SPORT_BUFFER>>2) )
+		{
+			DATA_BUFFER_LOW_on;
+			//Send Multi Status ASAP to inform the TX
+			SEND_MULTI_STATUS_on;
+			Update_Telem();
+			debugln("Low buf=%d,h=%d,t=%d",used,SportHead,SportTail);
+		}
+	}
+}
+#endif
+
 void loop()
 { 
 	uint16_t next_callback, diff;
@@ -766,7 +815,7 @@ void loop()
 void End_Bind()
 {
 	//Request protocol to terminate bind
-	if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYV || protocol==PROTO_FRSKY_R9
+	if(protocol==PROTO_FRSKYD || protocol==PROTO_FRSKYL || protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYA || protocol==PROTO_FRSKYV || protocol==PROTO_FRSKY_R9
 	|| protocol==PROTO_DSM_RX || protocol==PROTO_AFHDS2A_RX || protocol==PROTO_FRSKY_RX || protocol==PROTO_BAYANG_RX
 	|| protocol==PROTO_AFHDS2A || protocol==PROTO_BUGS || protocol==PROTO_BUGSMINI || protocol==PROTO_HOTT || protocol==PROTO_ASSAN)
 		BIND_DONE;
@@ -1526,50 +1575,8 @@ void update_serial_data()
 			}
 		#endif
 		#ifdef SPORT_SEND
-			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKY_R9) && rx_len==27+8)
-			{//Protocol waiting for 8 bytes
-				#define BYTE_STUFF	0x7D
-				#define STUFF_MASK	0x20
-				//debug("SPort_in: ");
-				boolean sport_valid=false;
-				for(uint8_t i=28;i<28+7;i++)
-					if(rx_ok_buff[i]!=0) sport_valid=true;	//Check that the payload is not full of 0
-				if((rx_ok_buff[27]&0x1F) > 0x1B)				//Check 1st byte validity
-					sport_valid=false;
-				if(sport_valid)
-				{
-					SportData[SportTail]=0x7E;
-					SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-					SportData[SportTail]=rx_ok_buff[27]&0x1F;
-					SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-					for(uint8_t i=28;i<28+7;i++)
-					{
-						if( (rx_ok_buff[i]==BYTE_STUFF) || (rx_ok_buff[i]==0x7E) )
-						{//stuff
-							SportData[SportTail]=BYTE_STUFF;
-							SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-							SportData[SportTail]=rx_ok_buff[i]^STUFF_MASK;
-						}
-						else
-							SportData[SportTail]=rx_ok_buff[i];
-						//debug("%02X ",SportData[SportTail]);
-						SportTail = (SportTail+1) & (MAX_SPORT_BUFFER-1);
-					}
-					uint8_t used = SportTail;
-					if ( SportHead > SportTail )
-						used += MAX_SPORT_BUFFER - SportHead ;
-					else
-						used -= SportHead ;
-					if ( used >= MAX_SPORT_BUFFER-(MAX_SPORT_BUFFER>>2) )
-					{
-						DATA_BUFFER_LOW_on;
-						//Send Multi Status ASAP to inform the TX
-						SEND_MULTI_STATUS_on;
-						Update_Telem();
-						debugln("Low buf=%d,h=%d,t=%d",used,SportHead,SportTail);
-					}
-				}
-			}
+			if((protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYA || protocol==PROTO_FRSKY_R9) && rx_len==27+8)
+				SportQueue((const uint8_t *)&rx_ok_buff[27]);	//Protocol waiting for 8 bytes
 		#endif //SPORT_SEND
 		#ifdef HOTT_FW_TELEMETRY
 			if(protocol==PROTO_HOTT && rx_len==27+1)
@@ -1590,6 +1597,12 @@ void update_serial_data()
 			{//Protocol waiting for 7 bytes
 				memcpy(CONFIG_SerialRX_val, (const void *)&rx_ok_buff[27],7);
 				CONFIG_SerialRX=true;
+			}
+		#endif
+		#if defined(FRSKYA_CC2500_INO)
+			if(protocol==PROTO_FRSKYA && rx_len>27+1 && rx_len<27+8)
+			{//Lua/multiBuffer message (8 bytes = S.Port)
+				FrSkyA_lua_in((const uint8_t *)&rx_ok_buff[27], rx_len-27);
 			}
 		#endif
 		#ifdef RLINK_HUB_TELEMETRY
@@ -1853,7 +1866,7 @@ void PPM_Telemetry_serial_init()
 	 )
 		initTXSerial( SPEED_9600 ) ;
 	#ifndef TELEMETRY_FRSKYX_TO_FRSKYD
-		if(protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2)
+		if(protocol==PROTO_FRSKYX || protocol==PROTO_FRSKYX2 || protocol==PROTO_FRSKYA)
 			initTXSerial( SPEED_57600 ) ;
 	#endif
 	if(protocol==PROTO_DSM)

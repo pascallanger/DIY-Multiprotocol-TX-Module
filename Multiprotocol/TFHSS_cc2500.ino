@@ -29,7 +29,7 @@
 // turn (ch5..8: a guess, the 4PM Plus sends none); the receiver's reply
 // 1.9 ms after the TX packet on the next channel (S.BUS2 slots, 4 per
 // reply). SR (TFHSS_SR, "Super Response"): 1.2 ms frames, no telemetry,
-// the receiver bound in SR mode. Bind (link), at bind power: plain
+// the receiver bound in SR mode. Bind (link), at the normal power: plain
 // packets (the TX ID and the key's 4 other bytes) on the 16-channel list,
 // one per 3 ms (the 4PM Plus: channel 1 every 48 ms), until the receiver
 // in its link mode answers (type 24 / 25, on the same channel); then
@@ -40,9 +40,10 @@
 //
 // Air (TFHSS_AIR): 128 kbps 2-FSK (the S-FHSS modem), 17 bytes, a frame
 // every 15.04 ms; 16 channels in 9 slots of 11 bits (us - 880), the
-// channel halves in turn. Bind (link): plain link frames on a 16-channel
-// list; the receiver answers with its ID, which keys its telemetry (8
-// S.BUS2 slots per reply, 6.3 ms after the TX packet on the next channel).
+// channel halves in turn. Bind (link), at the normal power: plain link
+// frames on a 16-channel list; the receiver answers with its ID, which
+// keys its telemetry (8 S.BUS2 slots per reply, 6.3 ms after the TX packet
+// on the next channel).
 // Without a bind since the start, the receiver's ID is found in its
 // replies. No failsafe frames yet (the T6K's not fully decoded): the
 // receiver's own failsafe applies.
@@ -179,6 +180,30 @@ static bool __attribute__((unused)) TFHSS_unkey(const uint8_t *in, uint8_t len, 
 	for(uint8_t i = 0; i < data; i++)
 		out[i] = a ? in[i] ^ TFHSS_key(i, n, a, b) : in[i];
 	return TFHSS_crc(out, data) == (in[data] | in[data + 1] << 8);
+}
+
+// The bind (link) at the normal power, not CC2500_BIND_POWER: the R334SBS
+// takes a bind packet only above about -79 dBm (its RSSI check), the 4PM
+// Plus binds 33 dB down from its normal power, the T6K links at full power
+static void __attribute__((unused)) TFHSS_SetPower()
+{
+	if(!TFHSS_list_mode)
+	{
+		CC2500_SetPower();
+		return;
+	}
+	uint8_t power = CC2500_HIGH_POWER;
+	#ifdef CC2500_ENABLE_LOW_POWER
+		if(!IS_POWER_FLAG_on)
+			power = CC2500_LOW_POWER;
+	#endif
+	if(IS_RANGE_FLAG_on)
+		power = CC2500_RANGE_POWER;
+	if(prev_power != power)
+	{
+		CC2500_WriteReg(CC2500_3E_PATABLE, power);
+		prev_power = power;
+	}
 }
 
 static uint8_t __attribute__((unused)) TFHSS_channel(uint8_t pos)
@@ -448,7 +473,7 @@ static uint16_t __attribute__((unused)) TFHSS_air_callback()
 				telemetry_set_input_sync(TFHSS_AIR_PERIOD);
 			#endif
 			CC2500_SetFreqOffset();
-			CC2500_SetPower();
+			TFHSS_SetPower();
 			TFHSS_tune(TFHSS_ch);
 			if(TFHSS_list_mode)
 			{	// Link: until the reply and TFHSS_AIR_LINK_AFTER frames
@@ -508,7 +533,7 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 				telemetry_set_input_sync(sr ? TFHSS_SR_PERIOD : TFHSS_PERIOD);
 			#endif
 			CC2500_SetFreqOffset();
-			CC2500_SetPower();
+			TFHSS_SetPower();
 			TFHSS_tune(TFHSS_ch);
 			if(TFHSS_list_mode)
 			{	// Bind: 3 ms frames, the reply on the same channel
@@ -575,7 +600,7 @@ static void __attribute__((unused)) TFHSS_init()
 	prev_option = option;
 	CC2500_WriteReg(CC2500_0C_FSCTRL0, option);
 	CC2500_SetTxRxMode(TX_EN);
-	CC2500_SetPower();
+	TFHSS_SetPower();
 
 	rf_ch_num = 0;
 	phase = TFHSS_CAL;

@@ -39,8 +39,8 @@
 // The per channel "high speed" flags (760 us pulses) are left off.
 //
 // Air (TFHSS_AIR): 128 kbps 2-FSK (the S-FHSS modem), 17 bytes, a frame
-// every 15.04 ms; 16 channels in 9 slots of 11 bits (us - 880), the
-// channel halves in turn. Bind (link), at the normal power: plain link
+// every 15.04 ms; 16 channels in 9 slots of 11 bits (us - 880), a slot's
+// channel or its alternate as the T18SZ picks them (moved, age). Bind (link), at the normal power: plain link
 // frames on a 16-channel list; the receiver answers with its ID, which
 // keys its telemetry (8 S.BUS2 slots per reply, 6.3 ms after the TX packet
 // on the next channel).
@@ -127,6 +127,8 @@ static uint8_t TFHSS_ch;		// the channel of the next TX packet
 static uint16_t TFHSS_frame;
 static uint16_t TFHSS_link;		// link frames left (after the reply) or sent
 static uint8_t TFHSS_replies;
+static uint16_t TFHSS_sent[16];	// Air: the last value sent of each channel
+static uint8_t TFHSS_age[16];	// and the frames since
 
 static uint16_t __attribute__((unused)) TFHSS_crc(const uint8_t *p, uint8_t len)
 {
@@ -390,28 +392,54 @@ static uint16_t __attribute__((unused)) TFHSS_air_value(uint8_t num)
 	return v < 0 ? 0 : v > 2047 ? 2047 : v;
 }
 
+// Slot 0..8: its own channel (ch1..9) or the alternate (ch11..16, ch10;
+// slots 6, 7: ch7, ch8 only). The T18SZ's choice (ffea4153): a channel
+// moved = more than 3 us (5 of its steps) from the value last sent; the
+// age = frames since it was sent. Own moved: the alternate if it moved too
+// and is 2 frames old, or is 64 old; else own. Own still: the alternate if
+// it moved (unless own is 64 old), else the older one, own on a tie
+static bool __attribute__((unused)) TFHSS_air_alt(uint8_t own, uint8_t alt, const uint16_t *v)
+{
+	bool om = v[own] > TFHSS_sent[own] + 3 || v[own] + 3 < TFHSS_sent[own];
+	bool am = v[alt] > TFHSS_sent[alt] + 3 || v[alt] + 3 < TFHSS_sent[alt];
+	if(om)
+		return TFHSS_age[alt] >= (am ? 2 : 64);
+	if(am)
+		return TFHSS_age[own] < 64;
+	return TFHSS_age[alt] > TFHSS_age[own];
+}
+
 static void __attribute__((unused)) TFHSS_air_packet()
 {
-	// Slots 0..5: ch1..6, or ch11..16 (flags b14 bits 0..5); 6, 7: ch7, ch8;
-	// 8: ch9, or ch10 (b13 bit 3)
-	bool half = TFHSS_frame & 1;
+	static const uint8_t alt_of[9] = { 10, 11, 12, 13, 14, 15, 0xFF, 0xFF, 9 };
+	uint16_t v[16];
+	for(uint8_t i = 0; i < 16; i++)
+	{
+		v[i] = TFHSS_air_value(i);
+		if(TFHSS_age[i] < 255)
+			TFHSS_age[i]++;
+	}
 	memset(packet, 0, TFHSS_AIR_LEN);
 	for(uint8_t i = 0, bit = 0; i < 9; i++)
 	{
-		uint8_t num = i < 6 ? (half ? i + 10 : i) : i < 8 ? i : (half ? 9 : 8);
-		uint16_t v = TFHSS_air_value(num);
+		uint8_t num = i;
+		if(alt_of[i] != 0xFF && TFHSS_air_alt(i, alt_of[i], v))
+		{
+			num = alt_of[i];
+			if(i < 6)
+				packet[14] |= 1 << i;		// flags b14 bits 0..5
+			else
+				packet[13] |= 0x08;			// slot 8: b13 bit 3
+		}
+		TFHSS_sent[num] = v[num];
+		TFHSS_age[num] = 0;
 		for(uint8_t j = 0; j < 11; j++, bit++)
-			if(v >> j & 1)
+			if(v[num] >> j & 1)
 				packet[1 + bit / 8] |= 1 << (bit & 7);
 	}
 	packet[0] = TFHSS_row << 3;
 	if(IS_DISABLE_TELEM_off && TFHSS_frame % TFHSS_AIR_T_EVERY == 0)
 		packet[0] |= 0x04;
-	if(half)
-	{
-		packet[13] |= 0x08;
-		packet[14] = 0x3F;
-	}
 	TFHSS_send(TFHSS_AIR_LEN, true);
 }
 
@@ -586,6 +614,8 @@ static void __attribute__((unused)) TFHSS_init()
 	TFHSS_frame = 0;
 	TFHSS_replies = 0;
 	TFHSS_link = 0;
+	memset(TFHSS_sent, 0, sizeof(TFHSS_sent));
+	memset(TFHSS_age, 0, sizeof(TFHSS_age));
 	TFHSS_list_mode = IS_BIND_IN_PROGRESS;
 	hopping_frequency_no = 0;
 	TFHSS_ch = TFHSS_channel(0);

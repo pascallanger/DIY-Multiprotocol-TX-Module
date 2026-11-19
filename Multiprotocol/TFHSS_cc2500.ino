@@ -29,9 +29,12 @@
 // turn (ch5..8: a guess, the 4PM Plus sends none); the receiver's reply
 // 1.9 ms after the TX packet on the next channel (S.BUS2 slots, 4 per
 // reply). SR (TFHSS_SR, "Super Response"): 1.2 ms frames, no telemetry,
-// the receiver bound in SR mode. Bind: plain packets on channel 1 every
-// 48 ms at bind power (the TX ID and the key's 4 other bytes; the
-// receiver in its link mode). Failsafe: every 5 s a group of 4 frames, one
+// the receiver bound in SR mode. Bind (link), at bind power: plain
+// packets (the TX ID and the key's 4 other bytes) on the 16-channel list,
+// one per 3 ms (the 4PM Plus: channel 1 every 48 ms), until the receiver
+// in its link mode answers (type 24 / 25, on the same channel); then
+// TFHSS_BIND_ACKED more with byte 1 bit 7, which make the receiver store
+// the bind (R334SBS firmware). Failsafe: every 5 s a group of 4 frames, one
 // per channel: its F/S position, or hold (the 4PM Plus' default).
 // The per channel "high speed" flags (760 us pulses) are left off.
 //
@@ -66,8 +69,8 @@
 #define TFHSS_LEN				14
 #define TFHSS_FS_EVERY			1667	// frames, 5 s
 #define TFHSS_SR_FS_EVERY		4167
-#define TFHSS_BIND_PERIOD		48000
-#define TFHSS_BIND_PACKETS		200		// 9.6 s
+#define TFHSS_BIND_FRAMES		3200	// 9.6 s without a reply (the 4PM Plus' 9.1 s)
+#define TFHSS_BIND_ACKED		240		// after the reply (the 4PM Plus: 720 ms)
 #define TFHSS_TELEM_EVERY		5		// replies to the radio: 1 in 5 (all groups in turn)
 #define TFHSS_AIR_PERIOD		15040
 #define TFHSS_AIR_RX_ON			2000
@@ -81,7 +84,6 @@
 
 enum {
 	TFHSS_CAL = 0,
-	TFHSS_BIND,
 	TFHSS_DATA,
 	TFHSS_RX,
 	TFHSS_READ,
@@ -119,10 +121,10 @@ static uint8_t TFHSS_rx_id[4];	// Air: the receiver's ID
 static bool TFHSS_rx_known;
 static uint8_t TFHSS_misses;
 static uint8_t TFHSS_row;
-static bool TFHSS_list_mode;	// Air: hopping on the link list
+static bool TFHSS_list_mode;	// bind (link): hopping on the list
 static uint8_t TFHSS_ch;		// the channel of the next TX packet
 static uint16_t TFHSS_frame;
-static uint16_t TFHSS_link;		// Air: link frames left (after the reply) or sent
+static uint16_t TFHSS_link;		// link frames left (after the reply) or sent
 static uint8_t TFHSS_replies;
 
 static uint16_t __attribute__((unused)) TFHSS_crc(const uint8_t *p, uint8_t len)
@@ -262,14 +264,14 @@ static uint16_t __attribute__((unused)) TFHSS_value(uint8_t num, bool failsafe)
 static void __attribute__((unused)) TFHSS_surface_bind_packet()
 {
 	bool sr = sub_protocol == TFHSS_SR;
-	bool second = TFHSS_frame++ & 8;	// 8 packets each half, the second with bit 7
+	// Bit 7: the receiver's reply heard
 	packet[0] = (sr ? 9 : 8) | (TFHSS_row & 7) << 5;
-	packet[1] = TFHSS_row >> 3 | (sr ? 0x10 : 0) | (second ? 0x80 : 0);
+	packet[1] = TFHSS_row >> 3 | (sr ? 0x10 : 0) | (TFHSS_rx_known ? 0x80 : 0);
 	memcpy(packet + 2, TFHSS_id, 4);
 	packet[6] = 0;
 	packet[7] = 1;
-	// SR: the first half without b5..b8 (as the 4PM Plus)
-	if(sr && !second)
+	// SR: without b5..b8 until the reply (as the 4PM Plus)
+	if(sr && !TFHSS_rx_known)
 		memset(packet + 8, 0, 4);
 	else
 		memcpy(packet + 8, TFHSS_b, 4);
@@ -326,6 +328,34 @@ static void __attribute__((unused)) TFHSS_surface_reply(uint8_t n)
 		return;
 	TFHSS_telemetry(4 * ((pl[1] >> 4) & 7), pl + 2, 4, pl[10] & 0x40 ? 0xFF : pl[11],
 		packet_in[TFHSS_LEN], packet_in[TFHSS_LEN + 1]);
+}
+
+// The receiver's bind reply: type 24 / 25, our ID, keyed as its telemetry
+// with the b5..b8 it got (SR: 0 until the reply), or plain
+static void __attribute__((unused)) TFHSS_surface_bind_reply(uint8_t n)
+{
+	static const uint8_t zero[4] = { 0, 0, 0, 0 };
+	uint8_t pl[TFHSS_LEN - 2];
+	const uint8_t *b = sub_protocol == TFHSS_SR && !TFHSS_rx_known ? zero : TFHSS_b;
+	if((TFHSS_unkey(packet_in, TFHSS_LEN, n, b, TFHSS_id, pl) || TFHSS_unkey(packet_in, TFHSS_LEN, n, NULL, NULL, pl))
+		&& (pl[0] & 0x1E) == 24 && !memcmp(pl + 2, TFHSS_id, 4) && !TFHSS_rx_known)
+	{
+		TFHSS_rx_known = true;
+		TFHSS_link = TFHSS_BIND_ACKED;
+	}
+}
+
+// Bind (link) frame: over (the radio ended the bind, the frames after the
+// reply sent, or none in frames) -> back to the row
+static bool __attribute__((unused)) TFHSS_link_over(uint16_t frames)
+{
+	if(!IS_BIND_DONE && (TFHSS_rx_known ? TFHSS_link-- != 0 : ++TFHSS_link <= frames))
+		return false;
+	TFHSS_list_mode = false;
+	hopping_frequency_no = 0;
+	TFHSS_ch = TFHSS_channel(0);
+	BIND_DONE;
+	return true;
 }
 
 // Air: the 11-bit value of a channel, us - 880
@@ -421,19 +451,9 @@ static uint16_t __attribute__((unused)) TFHSS_air_callback()
 			CC2500_SetPower();
 			TFHSS_tune(TFHSS_ch);
 			if(TFHSS_list_mode)
-			{	// Link: until the reply and TFHSS_AIR_LINK_AFTER frames, or
-				// the radio ends the bind, or TFHSS_AIR_LINK_FRAMES without a reply
-				if(IS_BIND_DONE || (TFHSS_rx_known && TFHSS_link == 0) ||
-					(!TFHSS_rx_known && ++TFHSS_link > TFHSS_AIR_LINK_FRAMES))
-				{
-					TFHSS_list_mode = false;
-					hopping_frequency_no = 0;
-					TFHSS_ch = TFHSS_channel(0);
-					BIND_DONE;
+			{	// Link: until the reply and TFHSS_AIR_LINK_AFTER frames
+				if(TFHSS_link_over(TFHSS_AIR_LINK_FRAMES))
 					return TFHSS_AIR_PERIOD;
-				}
-				if(TFHSS_rx_known)
-					TFHSS_link--;
 				TFHSS_air_link_packet();
 			}
 			else
@@ -475,11 +495,6 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 			return 1000;
 		}
 		phase = TFHSS_DATA;
-		if(IS_BIND_IN_PROGRESS && sub_protocol != TFHSS_AIR)
-		{
-			bind_counter = TFHSS_BIND_PACKETS;
-			phase = TFHSS_BIND;
-		}
 		return 1000;
 	}
 	if(sub_protocol == TFHSS_AIR)
@@ -488,19 +503,6 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 	bool sr = sub_protocol == TFHSS_SR;
 	switch(phase)
 	{
-		case TFHSS_BIND:
-			// Plain bind packets on channel 1 (the receiver in its link mode)
-			if(bind_counter == 0 || IS_BIND_DONE)
-			{
-				BIND_DONE;
-				phase = TFHSS_DATA;
-				return TFHSS_PERIOD;
-			}
-			bind_counter--;
-			CC2500_SetPower();
-			TFHSS_tune(1);
-			TFHSS_surface_bind_packet();
-			return TFHSS_BIND_PERIOD;
 		case TFHSS_DATA:
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(sr ? TFHSS_SR_PERIOD : TFHSS_PERIOD);
@@ -508,6 +510,14 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 			CC2500_SetFreqOffset();
 			CC2500_SetPower();
 			TFHSS_tune(TFHSS_ch);
+			if(TFHSS_list_mode)
+			{	// Bind: 3 ms frames, the reply on the same channel
+				if(TFHSS_link_over(TFHSS_BIND_FRAMES))
+					return TFHSS_PERIOD;
+				TFHSS_surface_bind_packet();
+				phase = TFHSS_RX;
+				return TFHSS_RX_ON;
+			}
 			TFHSS_surface_packet();
 			TFHSS_frame++;
 			TFHSS_next();
@@ -520,7 +530,13 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 			phase = TFHSS_READ;
 			return TFHSS_RX_READ - TFHSS_RX_ON;
 		case TFHSS_READ:
-			if(TFHSS_rx_read(TFHSS_LEN))
+			if(TFHSS_list_mode)
+			{
+				if(TFHSS_rx_read(TFHSS_LEN))
+					TFHSS_surface_bind_reply(TFHSS_ch);
+				TFHSS_next();
+			}
+			else if(TFHSS_rx_read(TFHSS_LEN))
 				TFHSS_surface_reply(TFHSS_ch);
 			phase = TFHSS_DATA;
 			return TFHSS_PERIOD - TFHSS_RX_READ;
@@ -545,7 +561,7 @@ static void __attribute__((unused)) TFHSS_init()
 	TFHSS_frame = 0;
 	TFHSS_replies = 0;
 	TFHSS_link = 0;
-	TFHSS_list_mode = sub_protocol == TFHSS_AIR && IS_BIND_IN_PROGRESS;
+	TFHSS_list_mode = IS_BIND_IN_PROGRESS;
 	hopping_frequency_no = 0;
 	TFHSS_ch = TFHSS_channel(0);
 

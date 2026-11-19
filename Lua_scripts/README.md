@@ -40,6 +40,12 @@ Script to set the channels function (switch, servo, pwm, ppm, sbus) on a [LOLI R
 
 [![MultiLOLIconfig](https://img.youtube.com/vi/e698pQxfv-A/0.jpg)](https://www.youtube.com/watch?v=e698pQxfv-A)
 
+## FrSky ACCESS RX
+
+Receiver options of a FrSky ACCESS receiver bound with the [FrskyA protocol](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md#frskya---112), as the receiver options page of an ACCESS module: receiver name and versions, fast PWM, telemetry on/off and 25mW, S.Port/F.Port/F.Port2, S.Bus 24, PWM on CH5/CH6 and the channel of each output, or its port mode (S.Port, S.Bus out/in, F.Bus) on the receivers that have it (SR10+, R10+, SR12+, R12+). The options shown depend on the capabilities the receiver reports.
+
+Needs a radio firmware with the Multi Lua pipe (multiBuffer "Pipe"). Located on the radio SD card under \SCRIPTS\TOOLS.
+
 ## Graupner HoTT
 
 Enable text configuration of the HoTT RX and sensors: Vario, GPS, ESC, GAM and EAM.

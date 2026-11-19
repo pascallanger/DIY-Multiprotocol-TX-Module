@@ -30,13 +30,14 @@
 // 1.9 ms after the TX packet on the next channel (S.BUS2 slots, 4 per
 // reply). SR (TFHSS_SR, "Super Response"): 1.2 ms frames, no telemetry,
 // the receiver bound in SR mode. Bind (link), at the normal power: plain
-// packets (the TX ID and the key's 4 other bytes) on the 16-channel list,
-// one per 3 ms (the 4PM Plus: channel 1 every 48 ms), until the receiver
-// in its link mode answers (type 24 / 25, on the same channel); then
+// packets (the TX ID, the channel, the key's 4 other bytes) on the
+// 16-channel list, one per 3 ms (the 4PM Plus: channel 1 every 48 ms),
+// until the receiver in its link mode answers (type 24 / 25, on the next
+// list channel: it hops before replying, as for its telemetry); then
 // TFHSS_BIND_ACKED more with byte 1 bit 7, which make the receiver store
 // the bind (R334SBS firmware). Failsafe: every 5 s a group of 4 frames, one
 // per channel: its F/S position, or hold (the 4PM Plus' default).
-// The per channel "high speed" flags (760 us pulses) are left off.
+// The per channel "high speed" flags (3 ms output frames) are left off.
 //
 // Air (TFHSS_AIR): 128 kbps 2-FSK (the S-FHSS modem), 17 bytes, a frame
 // every 15.04 ms; 16 channels in 9 slots of 11 bits (us - 880), a slot's
@@ -296,7 +297,7 @@ static void __attribute__((unused)) TFHSS_surface_bind_packet()
 	packet[1] = TFHSS_row >> 3 | (sr ? 0x10 : 0) | (TFHSS_rx_known ? 0x80 : 0);
 	memcpy(packet + 2, TFHSS_id, 4);
 	packet[6] = 0;
-	packet[7] = 1;
+	packet[7] = TFHSS_ch;	// the channel (the 4PM Plus; echoed in the reply)
 	// SR: without b5..b8 until the reply (as the 4PM Plus)
 	if(sr && !TFHSS_rx_known)
 		memset(packet + 8, 0, 4);
@@ -564,10 +565,11 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 			TFHSS_SetPower();
 			TFHSS_tune(TFHSS_ch);
 			if(TFHSS_list_mode)
-			{	// Bind: 3 ms frames, the reply on the same channel
+			{	// Bind: 3 ms frames, the reply on the next list channel
 				if(TFHSS_link_over(TFHSS_BIND_FRAMES))
 					return TFHSS_PERIOD;
 				TFHSS_surface_bind_packet();
+				TFHSS_next();
 				phase = TFHSS_RX;
 				return TFHSS_RX_ON;
 			}
@@ -587,7 +589,6 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 			{
 				if(TFHSS_rx_read(TFHSS_LEN))
 					TFHSS_surface_bind_reply(TFHSS_ch);
-				TFHSS_next();
 			}
 			else if(TFHSS_rx_read(TFHSS_LEN))
 				TFHSS_surface_reply(TFHSS_ch);

@@ -69,7 +69,9 @@
 #define TFHSS_PERIOD			3000
 #define TFHSS_SR_PERIOD			1200
 #define TFHSS_RX_ON				1000	// from the TX packet's start: RX on the next channel
-#define TFHSS_RX_READ			2500	// the reply (1.9 ms after the TX packet) read
+// The reply (1.9 ms after the TX packet's start, 0.4 ms long) is read in the
+// next frame's callback, before its TX packet: the TX packet goes on air 0.4 ms
+// after the callback on the MPM v2, a read 2.5 ms after the callback missed it
 #define TFHSS_LEN				14
 #define TFHSS_FS_EVERY			1667	// frames, 5 s
 #define TFHSS_SR_FS_EVERY		4167
@@ -125,6 +127,7 @@ static bool TFHSS_rx_known;
 static uint8_t TFHSS_misses;
 static uint8_t TFHSS_row;
 static bool TFHSS_list_mode;	// bind (link): hopping on the list
+static bool TFHSS_rx_pending;	// Surface: RX on for a reply, read at the next frame
 static uint8_t TFHSS_ch;		// the channel of the next TX packet
 static uint16_t TFHSS_frame;
 static uint16_t TFHSS_link;		// link frames left (after the reply) or sent
@@ -162,8 +165,8 @@ static uint8_t __attribute__((unused)) TFHSS_key(uint8_t i, uint8_t n, const uin
 	return m < 4 ? a[m] : m == 4 ? 0 : n;
 }
 
-// packet[0..len-3] plain -> keyed (or not), the CRC appended, sent
-static void __attribute__((unused)) TFHSS_send(uint8_t len, bool keyed)
+// packet[0..len-3] plain -> keyed (or not), the CRC appended
+static void __attribute__((unused)) TFHSS_build(uint8_t len, bool keyed)
 {
 	uint8_t data = len - 2;
 	uint16_t c = TFHSS_crc(packet, data);
@@ -172,9 +175,19 @@ static void __attribute__((unused)) TFHSS_send(uint8_t len, bool keyed)
 			packet[i] ^= TFHSS_key(i, TFHSS_ch, TFHSS_id, TFHSS_rx_id);
 	packet[data] = c;
 	packet[data + 1] = c >> 8;
+}
+
+static void __attribute__((unused)) TFHSS_transmit(uint8_t len)
+{
 	CC2500_SetTxRxMode(TX_EN);
 	CC2500_WriteReg(CC2500_06_PKTLEN, len);
 	CC2500_WriteData(packet, len);
+}
+
+static void __attribute__((unused)) TFHSS_send(uint8_t len, bool keyed)
+{
+	TFHSS_build(len, keyed);
+	TFHSS_transmit(len);
 }
 
 // in (len bytes) -> out plain: CRC ok?
@@ -305,7 +318,7 @@ static void __attribute__((unused)) TFHSS_surface_bind_packet()
 		memcpy(packet + 8, TFHSS_rx_id, 4);
 	else
 		memset(packet + 8, 0, 4);
-	TFHSS_send(TFHSS_LEN, false);
+	TFHSS_build(TFHSS_LEN, false);
 }
 
 static void __attribute__((unused)) TFHSS_surface_packet()
@@ -346,7 +359,7 @@ static void __attribute__((unused)) TFHSS_surface_packet()
 	packet[9] = fs;		// bits 0..3: the high speed flags
 	packet[10] = e;
 	packet[11] = (e >> 8) | slot << 4;
-	TFHSS_send(TFHSS_LEN, true);
+	TFHSS_build(TFHSS_LEN, true);
 }
 
 // Surface reply: type 16 = 4 S.BUS2 slots of group byte 1 >> 4; byte 10
@@ -546,6 +559,20 @@ static uint16_t __attribute__((unused)) TFHSS_air_callback()
 	return TFHSS_AIR_PERIOD;
 }
 
+// Surface: the reply, if RX was on for one (on the current channel)
+static void __attribute__((unused)) TFHSS_surface_read(bool list)
+{
+	if(!TFHSS_rx_pending)
+		return;
+	TFHSS_rx_pending = false;
+	if(!TFHSS_rx_read(TFHSS_LEN))
+		return;
+	if(list)
+		TFHSS_surface_bind_reply();
+	else
+		TFHSS_surface_reply(TFHSS_ch);
+}
+
 static uint16_t __attribute__((unused)) TFHSS_callback()
 {
 	if(phase == TFHSS_CAL)
@@ -573,39 +600,38 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(sr ? TFHSS_SR_PERIOD : TFHSS_PERIOD);
 			#endif
+			if(TFHSS_list_mode && TFHSS_link_over(TFHSS_BIND_FRAMES))
+			{	// Bind over: back to the row
+				TFHSS_surface_read(true);
+				return TFHSS_PERIOD;
+			}
+			// The packet built first, then the reply read (on this frame's
+			// channel), as late as possible, then the packet sent
+			if(TFHSS_list_mode)
+				TFHSS_surface_bind_packet();
+			else
+				TFHSS_surface_packet();
+			TFHSS_surface_read(TFHSS_list_mode);
 			CC2500_SetFreqOffset();
 			TFHSS_SetPower();
 			TFHSS_tune(TFHSS_ch);
+			TFHSS_transmit(TFHSS_LEN);
+			TFHSS_next();
 			if(TFHSS_list_mode)
 			{	// Bind: 3 ms frames, the reply on the next list channel
-				if(TFHSS_link_over(TFHSS_BIND_FRAMES))
-					return TFHSS_PERIOD;
-				TFHSS_surface_bind_packet();
-				TFHSS_next();
 				phase = TFHSS_RX;
 				return TFHSS_RX_ON;
 			}
-			TFHSS_surface_packet();
 			TFHSS_frame++;
-			TFHSS_next();
 			if(sr || IS_DISABLE_TELEM_on)
 				return sr ? TFHSS_SR_PERIOD : TFHSS_PERIOD;
 			phase = TFHSS_RX;
 			return TFHSS_RX_ON;
 		case TFHSS_RX:
 			TFHSS_rx_on(TFHSS_LEN);
-			phase = TFHSS_READ;
-			return TFHSS_RX_READ - TFHSS_RX_ON;
-		case TFHSS_READ:
-			if(TFHSS_list_mode)
-			{
-				if(TFHSS_rx_read(TFHSS_LEN))
-					TFHSS_surface_bind_reply();
-			}
-			else if(TFHSS_rx_read(TFHSS_LEN))
-				TFHSS_surface_reply(TFHSS_ch);
+			TFHSS_rx_pending = true;
 			phase = TFHSS_DATA;
-			return TFHSS_PERIOD - TFHSS_RX_READ;
+			return TFHSS_PERIOD - TFHSS_RX_ON;
 	}
 	return TFHSS_PERIOD;
 }
@@ -626,6 +652,7 @@ static void __attribute__((unused)) TFHSS_init()
 	TFHSS_frame = 0;
 	TFHSS_replies = 0;
 	TFHSS_link = 0;
+	TFHSS_rx_pending = false;
 	memset(TFHSS_sent, 0, sizeof(TFHSS_sent));
 	memset(TFHSS_age, 0, sizeof(TFHSS_age));
 	TFHSS_list_mode = IS_BIND_IN_PROGRESS;

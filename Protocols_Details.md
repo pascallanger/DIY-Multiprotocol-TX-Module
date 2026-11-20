@@ -1162,7 +1162,7 @@ RX output will match the Futaba standard servo throw, mid point and the channel 
 
 Option for this protocol corresponds to fine frequency tuning, the same value as for S-FHSS.
 
-Bind: put the receiver in its link mode (see its manual) and start a bind on the TX side close to the receiver. The bind lasts about 10 s. The TX ID comes from the RX number (model match).
+Bind: put the receiver in its link mode (see its manual) and start a bind on the TX side close to the receiver. The bind ends about 1 s after the receiver answers, 10 s at most. The TX ID comes from the RX number (model match). The receiver's ID, learnt at the bind and needed to drive it, is stored per RX number in the module: bind again after changing the RX number or the receiver.
 
 Telemetry: the receiver's voltage (A1) and link quality (RSSI), and its S.BUS2 sensor slots (Futaba telemetry frame, decoded by the radio).
 

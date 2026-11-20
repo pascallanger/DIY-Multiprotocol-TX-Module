@@ -29,13 +29,15 @@
 // turn (ch5..8: a guess, the 4PM Plus sends none); the receiver's reply
 // 1.9 ms after the TX packet on the next channel (S.BUS2 slots, 4 per
 // reply). SR (TFHSS_SR, "Super Response"): 1.2 ms frames, no telemetry,
-// the receiver bound in SR mode. Bind (link), at the normal power: plain
-// packets (the TX ID, the channel, the key's 4 other bytes) on the
+// the receiver bound in SR mode. The key also holds the receiver's ID (its
+// serial number, not set by the TX): learnt at the bind, kept in the EEPROM
+// per model (TFHSS_EEPROM_OFFSET). Bind (link), at the normal power: plain
+// packets (the TX ID, the channel, the receiver's ID or 0) on the
 // 16-channel list, one per 3 ms (the 4PM Plus: channel 1 every 48 ms),
-// until the receiver in its link mode answers (type 24 / 25, on the next
-// list channel: it hops before replying, as for its telemetry); then
-// TFHSS_BIND_ACKED more with byte 1 bit 7, which make the receiver store
-// the bind (R334SBS firmware). Failsafe: every 5 s a group of 4 frames, one
+// until the receiver in its link mode answers (plain, type 24 / 25, with
+// its ID, on the next list channel: it hops before replying, as for its
+// telemetry); then TFHSS_BIND_ACKED more with byte 1 bit 7 and its ID,
+// which make the receiver store the bind (R334SBS firmware). Failsafe: every 5 s a group of 4 frames, one
 // per channel: its F/S position, or hold (the 4PM Plus' default).
 // The per channel "high speed" flags (3 ms output frames) are left off.
 //
@@ -118,8 +120,7 @@ const PROGMEM uint8_t TFHSS_AIR_init_values[] = {
 };
 
 static uint8_t TFHSS_id[4];		// TX ID, little endian
-static uint8_t TFHSS_b[4];		// Surface: the key's other 4 bytes
-static uint8_t TFHSS_rx_id[4];	// Air: the receiver's ID
+static uint8_t TFHSS_rx_id[4];	// the receiver's ID (Surface: stored per model)
 static bool TFHSS_rx_known;
 static uint8_t TFHSS_misses;
 static uint8_t TFHSS_row;
@@ -144,7 +145,7 @@ static uint16_t __attribute__((unused)) TFHSS_crc(const uint8_t *p, uint8_t len)
 }
 
 // Key byte i on channel n. Surface: 00 00 a0..a3 x n b0..b3 (TX: a = the TX
-// ID, b = TFHSS_b; replies swapped). Air: 00 a0..a3 x n a0..a3 x n a0..a3 x
+// ID, b = the receiver's ID; replies swapped). Air: 00 a0..a3 x n a0..a3 x n a0..a3 x
 // (TX: the TX ID; replies: the receiver's). x = 0
 static uint8_t __attribute__((unused)) TFHSS_key(uint8_t i, uint8_t n, const uint8_t *a, const uint8_t *b)
 {
@@ -168,7 +169,7 @@ static void __attribute__((unused)) TFHSS_send(uint8_t len, bool keyed)
 	uint16_t c = TFHSS_crc(packet, data);
 	if(keyed)
 		for(uint8_t i = 1; i < data; i++)
-			packet[i] ^= TFHSS_key(i, TFHSS_ch, TFHSS_id, TFHSS_b);
+			packet[i] ^= TFHSS_key(i, TFHSS_ch, TFHSS_id, TFHSS_rx_id);
 	packet[data] = c;
 	packet[data + 1] = c >> 8;
 	CC2500_SetTxRxMode(TX_EN);
@@ -298,11 +299,12 @@ static void __attribute__((unused)) TFHSS_surface_bind_packet()
 	memcpy(packet + 2, TFHSS_id, 4);
 	packet[6] = 0;
 	packet[7] = TFHSS_ch;	// the channel (the 4PM Plus; echoed in the reply)
-	// SR: without b5..b8 until the reply (as the 4PM Plus)
-	if(sr && !TFHSS_rx_known)
-		memset(packet + 8, 0, 4);
+	// The receiver's ID after its reply, 0 before (the 4PM Plus sends the
+	// last one it knows; the receiver ignores these bytes)
+	if(TFHSS_rx_known)
+		memcpy(packet + 8, TFHSS_rx_id, 4);
 	else
-		memcpy(packet + 8, TFHSS_b, 4);
+		memset(packet + 8, 0, 4);
 	TFHSS_send(TFHSS_LEN, false);
 }
 
@@ -352,25 +354,35 @@ static void __attribute__((unused)) TFHSS_surface_packet()
 static void __attribute__((unused)) TFHSS_surface_reply(uint8_t n)
 {
 	uint8_t pl[TFHSS_LEN - 2];
-	if(!TFHSS_unkey(packet_in, TFHSS_LEN, n, TFHSS_b, TFHSS_id, pl) || (pl[0] & 0x1F) != 16)
+	if(!TFHSS_unkey(packet_in, TFHSS_LEN, n, TFHSS_rx_id, TFHSS_id, pl) || (pl[0] & 0x1F) != 16)
 		return;
 	TFHSS_telemetry(4 * ((pl[1] >> 4) & 7), pl + 2, 4, pl[10] & 0x40 ? 0xFF : pl[11],
 		packet_in[TFHSS_LEN], packet_in[TFHSS_LEN + 1]);
 }
 
-// The receiver's bind reply: type 24 / 25, our ID, keyed as its telemetry
-// with the b5..b8 it got (SR: 0 until the reply), or plain
-static void __attribute__((unused)) TFHSS_surface_bind_reply(uint8_t n)
+// EEPROM address of this model's receiver ID
+static uint16_t __attribute__((unused)) TFHSS_eeprom()
 {
-	static const uint8_t zero[4] = { 0, 0, 0, 0 };
+	return TFHSS_EEPROM_OFFSET + (RX_num & 63) * 4;
+}
+
+// The receiver's bind reply: plain, type 24 / 25, our ID, x, the channel,
+// its ID (not 0) -> stored for this model
+static void __attribute__((unused)) TFHSS_surface_bind_reply()
+{
 	uint8_t pl[TFHSS_LEN - 2];
-	const uint8_t *b = sub_protocol == TFHSS_SR && !TFHSS_rx_known ? zero : TFHSS_b;
-	if((TFHSS_unkey(packet_in, TFHSS_LEN, n, b, TFHSS_id, pl) || TFHSS_unkey(packet_in, TFHSS_LEN, n, NULL, NULL, pl))
-		&& (pl[0] & 0x1E) == 24 && !memcmp(pl + 2, TFHSS_id, 4) && !TFHSS_rx_known)
+	if(TFHSS_rx_known || !TFHSS_unkey(packet_in, TFHSS_LEN, 0, NULL, NULL, pl)
+		|| (pl[0] & 0x1E) != 24 || memcmp(pl + 2, TFHSS_id, 4)
+		|| (pl[8] | pl[9] | pl[10] | pl[11]) == 0)
+		return;
+	uint16_t addr = TFHSS_eeprom();
+	for(uint8_t i = 0; i < 4; i++)
 	{
-		TFHSS_rx_known = true;
-		TFHSS_link = TFHSS_BIND_ACKED;
+		TFHSS_rx_id[i] = pl[8 + i];
+		eeprom_write_byte((EE_ADDR)(addr + i), TFHSS_rx_id[i]);
 	}
+	TFHSS_rx_known = true;
+	TFHSS_link = TFHSS_BIND_ACKED;
 }
 
 // Bind (link) frame: over (the radio ended the bind, the frames after the
@@ -588,7 +600,7 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 			if(TFHSS_list_mode)
 			{
 				if(TFHSS_rx_read(TFHSS_LEN))
-					TFHSS_surface_bind_reply(TFHSS_ch);
+					TFHSS_surface_bind_reply();
 			}
 			else if(TFHSS_rx_read(TFHSS_LEN))
 				TFHSS_surface_reply(TFHSS_ch);
@@ -600,15 +612,14 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 
 static void __attribute__((unused)) TFHSS_init()
 {
-	// The TX ID: 9 decimal digits (as Futaba's), little endian; the
-	// Surface key's other 4 bytes another such number
+	// The TX ID: 9 decimal digits (as Futaba's), little endian
 	uint32_t id = 100000000 + MProtocol_id % 900000000;
-	uint32_t b = 100000000 + (MProtocol_id ^ 0x5A5A5A5A) % 900000000;
 	for(uint8_t i = 0; i < 4; i++)
-	{
 		TFHSS_id[i] = id >> (8 * i);
-		TFHSS_b[i] = b >> (8 * i);
-	}
+	// Surface: the receiver's ID from the last bind of this model
+	uint16_t addr = TFHSS_eeprom();
+	for(uint8_t i = 0; i < 4; i++)
+		TFHSS_rx_id[i] = sub_protocol == TFHSS_AIR ? 0 : eeprom_read_byte((EE_ADDR)(addr + i));
 	TFHSS_row = id % TFHSS_CHANNELS;
 	TFHSS_rx_known = false;
 	TFHSS_misses = 0;

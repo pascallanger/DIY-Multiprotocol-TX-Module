@@ -1175,7 +1175,7 @@ Settings include:
 * setting failsafe values
 
 ## Futaba - *21*
-Also called SFHSS depending on radio version. Sub protocols S-FHSS, T-FHSS (Surface), T-FHSS SR and T-FHSS Air. The T-FHSS sub protocols are only available on the 128KB STM32 modules.
+Also called SFHSS depending on radio version. Sub protocols S-FHSS, T-FHSS (Surface), T-FHSS SR and T-FHSS Air. The T-FHSS sub protocols are only available on the 128KB STM32 modules, and the AIR firmwares only have T-FHSS Air (TFHSS and TFHSS_SR are surface sub protocols).
 
 ### Sub_protocol SFHSS - *0*
 Models: Futaba SFHSS RXs and some XK models.

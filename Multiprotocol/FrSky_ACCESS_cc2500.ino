@@ -305,7 +305,8 @@ static void __attribute__((unused)) FrSkyA_data_frame()
 		FrSkyA_chan_start ^= 0x08;
 	//S.Port downlink: frame bytes 20 (seq), 21 (count, slot 0), 22 (type), 23..30
 	FrSkyX_seq_sport(21, 30);			// data at packet[23..30]
-	memmove(&packet[24], &packet[23], 8);
+	for(uint8_t i = 31; i > 23; i--)	// data to packet[24..31] (no memmove: +200 bytes of libc)
+		packet[i] = packet[i - 1];
 	packet[23] = 0xFE;					// sequenced S.Port
 	if(FrSkyA_cfg_len && packet[22] == 0)
 	{// Receiver settings in place of the S.Port data (none in this frame)
@@ -353,37 +354,24 @@ static bool __attribute__((unused)) FrSkyA_setup_reply_ok(uint8_t type)
 	return packet_in[17] == (lcrc >> 8) && packet_in[18] == (lcrc & 0xFF);
 }
 
-static void __attribute__((unused)) FrSkyA_register_reply()
+// Register (type 1) or bind (type 2) reply: the next sub, then the next step
+static void __attribute__((unused)) FrSkyA_setup_reply(uint8_t type)
 {
-	if(!FrSkyA_setup_reply_ok(1))
+	if(!FrSkyA_setup_reply_ok(type))
 		return;
 	if(FrSkyA_sub == 0)
 		memcpy(FrSkyA_name, &packet_in[6], 8);
-	debugln("A reg %d", FrSkyA_sub);
-	FrSkyA_sub++;
+	debugln("A %d %d", type, FrSkyA_sub);
 	FrSkyA_tries = 0;
-	if(FrSkyA_sub > 5)
-	{// Registered: on to bind
-		FrSkyA_mode = FRSKYA_BIND;
+	if(++FrSkyA_sub > 5)
+	{
 		FrSkyA_sub = 0;
 		FrSkyA_count = 0;
-	}
-}
-
-static void __attribute__((unused)) FrSkyA_bind_reply()
-{
-	if(!FrSkyA_setup_reply_ok(2))
-		return;
-	if(FrSkyA_sub == 0)
-		memcpy(FrSkyA_name, &packet_in[6], 8);
-	debugln("A bind %d", FrSkyA_sub);
-	FrSkyA_sub++;
-	FrSkyA_tries = 0;
-	if(FrSkyA_sub > 5)
-	{
-		BIND_DONE;
-		FrSkyA_mode = FRSKYA_DATA;
-		FrSkyX_telem_init();
+		if(++FrSkyA_mode == FRSKYA_DATA)
+		{// Bound
+			BIND_DONE;
+			FrSkyX_telem_init();
+		}
 	}
 }
 
@@ -469,8 +457,8 @@ uint16_t FRSKYA_callback()
 					FrSkyA_count = 0;
 					FrSkyA_mode = FrSkyA_mode == FRSKYA_REGISTER ? FRSKYA_BIND : FRSKYA_REGISTER;
 				}
-				ch = FrSkyA_mode == FRSKYA_REGISTER ? FRSKYA_REG_CH : FRSKYA_BIND_CH;
-				FrSkyA_setup_frame(FrSkyA_mode == FRSKYA_REGISTER ? 1 : 2);
+				ch = FRSKYA_REG_CH + FrSkyA_mode;	// FRSKYA_BIND_CH in bind
+				FrSkyA_setup_frame(FrSkyA_mode + 1);
 			}
 			FrSkyX_set_start(ch);
 			FrSkyA_set_sync(0xD391);
@@ -493,13 +481,9 @@ uint16_t FRSKYA_callback()
 		{// The reply, then the next hop
 			bool got = FrSkyA_read_reply();
 			CC2500_Strobe(CC2500_SIDLE);
-			if(FrSkyA_mode == FRSKYA_REGISTER)
+			if(FrSkyA_mode != FRSKYA_DATA)
 			{
-				if(got) FrSkyA_register_reply();
-			}
-			else if(FrSkyA_mode == FRSKYA_BIND)
-			{
-				if(got) FrSkyA_bind_reply();
+				if(got) FrSkyA_setup_reply(FrSkyA_mode + 1);
 			}
 			else
 			{

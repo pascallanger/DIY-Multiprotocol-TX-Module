@@ -35,8 +35,8 @@
    31..32 CRC (D16) of bytes 2..30, big endian
  Bytes 3 .. 3+n-1 XOR key = (id * 0xD7) ^ 0x83, n = key & 7 (3 at least).
  Reply: id (3 bytes), RSSI | 0x80 or RX voltage XOR (id * 0xD7) ^ 0x74,
- seq/ack, count, 0xFE, up to 8 bytes of the S.Port stream (as D16) or
- zeros, CRC over bytes 2..15 with byte 3 before its XOR.
+ seq/ack, count, 0xFE, up to 9 bytes of the S.Port stream (as D16, but
+ a frame without its CRC: 7E + 8 bytes, one frame per reply) or zeros, CRC over bytes 2..15 with byte 3 before its XOR.
 
  Bind (one bind does both steps):
  - register on channel 0: 03 01 01 00 <sub>, sub 0 until a receiver in
@@ -405,12 +405,14 @@ static void __attribute__((unused)) FrSkyA_telemetry()
 	// As a D16 telemetry frame for frsky_process_telemetry(): length, id,
 	// id, byte, RSSI | 0x80 or voltage, seq, count, data, CRC (D16, of
 	// bytes 3..15), RSSI, LQI. The ACCESS reply carries the same sequenced
-	// S.Port byte stream as D16 (7E, stuffed), up to 8 bytes after the
-	// stream type; bytes past the count are left over from older replies
+	// S.Port byte stream as D16 (7E, stuffed), up to 9 bytes after the
+	// stream type: a whole frame without its CRC (proces_sport_data() takes
+	// the 8 bytes after 7E); bytes past the count are left over from older
+	// replies
 	uint8_t d[20];
 	uint8_t count = packet_in[7] == 0xFE ? packet_in[6] & 0x0F : 0;
-	if(count > 8)
-		count = 8;
+	if(count > 9)
+		count = 9;
 	d[0] = 17;
 	d[1] = packet_in[1];
 	d[2] = packet_in[2];

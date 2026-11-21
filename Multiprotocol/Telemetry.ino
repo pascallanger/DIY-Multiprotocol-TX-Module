@@ -38,8 +38,8 @@ uint8_t RetrySequence ;
 
 	// Store for out of sequence packet
 	uint8_t FrSkyX_RX_ValidSeq ;
-	// Payload: up to 6 bytes from a D16 receiver, 8 from an ACCESS one
-	#define FRSKYX_RX_PAYLOAD_MAX 8
+	// Payload: up to 6 bytes from a D16 receiver, 9 from an ACCESS one
+	#define FRSKYX_RX_PAYLOAD_MAX 9
 	struct t_FrSkyX_RX_Frame
 	{
 		boolean valid;

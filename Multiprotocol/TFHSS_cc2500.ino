@@ -154,6 +154,7 @@ static uint8_t __attribute__((unused)) TFHSS_key(uint8_t i, uint8_t n, const uin
 {
 	if(i == 0)
 		return 0;
+	#ifndef MULTI_AIR
 	if(sub_protocol != TFHSS_AIR)
 	{
 		if(i == 1 || i == 6) return 0;
@@ -161,6 +162,9 @@ static uint8_t __attribute__((unused)) TFHSS_key(uint8_t i, uint8_t n, const uin
 		if(i == 7) return n;
 		return b[i - 8];
 	}
+	#else
+		(void)b;
+	#endif
 	uint8_t m = (i - 1) % 6;
 	return m < 4 ? a[m] : m == 4 ? 0 : n;
 }
@@ -204,23 +208,11 @@ static bool __attribute__((unused)) TFHSS_unkey(const uint8_t *in, uint8_t len, 
 // Plus binds 33 dB down from its normal power, the T6K links at full power
 static void __attribute__((unused)) TFHSS_SetPower()
 {
-	if(!TFHSS_list_mode)
-	{
-		CC2500_SetPower();
-		return;
-	}
-	uint8_t power = CC2500_HIGH_POWER;
-	#ifdef CC2500_ENABLE_LOW_POWER
-		if(!IS_POWER_FLAG_on)
-			power = CC2500_LOW_POWER;
-	#endif
-	if(IS_RANGE_FLAG_on)
-		power = CC2500_RANGE_POWER;
-	if(prev_power != power)
-	{
-		CC2500_WriteReg(CC2500_3E_PATABLE, power);
-		prev_power = power;
-	}
+	bool binding = IS_BIND_IN_PROGRESS;
+	BIND_DONE;						// CC2500_SetPower(): the normal power
+	CC2500_SetPower();
+	if(binding)
+		BIND_IN_PROGRESS;
 }
 
 static uint8_t __attribute__((unused)) TFHSS_channel(uint8_t pos)
@@ -272,9 +264,11 @@ static bool __attribute__((unused)) TFHSS_rx_read(uint8_t len)
 static void __attribute__((unused)) TFHSS_telemetry(uint8_t first, const uint8_t *slots, uint8_t n, uint8_t lq, uint8_t rssi, uint8_t lqi)
 {
 	#ifdef FUTABA_FW_TELEMETRY
-		if(sub_protocol != TFHSS_AIR && ++TFHSS_replies < TFHSS_TELEM_EVERY)
-			return;
-		TFHSS_replies = 0;
+		#ifndef MULTI_AIR
+			if(sub_protocol != TFHSS_AIR && ++TFHSS_replies < TFHSS_TELEM_EVERY)
+				return;
+			TFHSS_replies = 0;
+		#endif
 		// The link frame: slot 0 half 0 = the receiver's voltage (0.1 V)
 		if(first == 0 && !(slots[0] & 0x04))
 			v_lipo1 = (uint16_t)slots[1] * 255 / 132;
@@ -667,7 +661,11 @@ static void __attribute__((unused)) TFHSS_init()
 	hopping_frequency_no = 0;
 	TFHSS_ch = TFHSS_channel(0);
 
-	const uint8_t *regs = sub_protocol == TFHSS_AIR ? TFHSS_AIR_init_values : TFHSS_init_values;
+	#ifdef MULTI_AIR
+		const uint8_t *regs = TFHSS_AIR_init_values;
+	#else
+		const uint8_t *regs = sub_protocol == TFHSS_AIR ? TFHSS_AIR_init_values : TFHSS_init_values;
+	#endif
 	CC2500_Strobe(CC2500_SIDLE);
 	for(uint8_t i = 0; i < 0x27; i++)
 		CC2500_WriteReg(i, pgm_read_byte_near(&regs[i]));

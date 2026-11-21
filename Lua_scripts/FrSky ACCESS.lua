@@ -137,8 +137,8 @@ local function sendQueue()
   multiBuffer(TX_READY, #piece)
 end
 
--- 2.4 GHz receiver model IDs as Ethos Suite 1.6.3 names them (EdgeTX knows
--- 1..30); TD / TW (TANDEM / TWIN) and R9 (900 MHz) receivers are left out
+-- 2.4 GHz ACCESS receiver model IDs; TD / TW (TANDEM / TWIN) and R9 (900 MHz)
+-- receivers are left out
 local rxNames = {
   [1]="X8R", [2]="RX8R", [3]="RX8R Pro", [4]="RX6R", [5]="RX4R", [6]="G-RX8", [7]="G-RX6",
   [8]="X6R", [9]="X4R", [10]="X4RSB", [11]="XSR", [12]="XSR M", [13]="RXSR", [14]="S6R",
@@ -147,7 +147,8 @@ local rxNames = {
   [68]="Archer Plus SR8", [69]="Archer Plus GR6", [70]="Archer Plus R6",
   [71]="R6M(ESC DC)", [72]="Archer Plus RS", [73]="Rs Mini", [74]="R6FB", [75]="GR6FB",
   [76]="Archer Plus SR12+", [77]="Archer Plus R12+", [78]="R6 Mini E", [79]="SR6 Mini",
-  [80]="SR6 Mini E" }
+  [80]="SR6 Mini E", [81]="SR6BL15A", [82]="SR6Lite", [83]="R6Lite", [84]="RS-Lite",
+  [85]="R2SIM" }
 
 -- Version bytes: major, minor << 4 | revision; shown with major + 1 as EdgeTX
 local function versionText(major, b)

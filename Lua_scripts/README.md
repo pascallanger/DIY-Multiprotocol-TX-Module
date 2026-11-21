@@ -40,6 +40,12 @@ Script to set the channels function (switch, servo, pwm, ppm, sbus) on a [LOLI R
 
 [![MultiLOLIconfig](https://img.youtube.com/vi/e698pQxfv-A/0.jpg)](https://www.youtube.com/watch?v=e698pQxfv-A)
 
+## FrSky ACCESS RX
+
+Receiver options of a FrSky ACCESS receiver bound with the [FrskyA protocol](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md#frskya---112), as the receiver options page of an ACCESS module: receiver name and versions, fast PWM, telemetry on/off and 25mW, S.Port/F.Port/F.Port2, S.Bus 24, PWM on CH5/CH6 and the channel of each output, or its port mode (S.Port, S.Bus out/in, F.Bus) on the receivers that have it (SR10+, R10+, SR12+, R12+). The options shown depend on the capabilities the receiver reports.
+
+Needs a radio firmware with the Multi Lua pipe (multiBuffer "Pipe"). Located on the radio SD card under \SCRIPTS\TOOLS.
+
 ## Futaba S.BUS2 sensors
 
 Sets up the S.BUS2 sensors of a Futaba receiver bound with the [Futaba protocol](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md#futaba---21) (T-FHSS sub protocols). S.BUS2 sensors don't tell their type on the bus: the radio shows each slot with data as a raw sensor "S1", "S2"... and this tool turns it into a typed sensor that the radio decodes: temperature (SBS-01T, SBS-01TE), RPM (SBS-01RM), voltage (SBS-01V, 2 slots) and current (SBS-01C, 3 slots: current, voltage, capacity). A preset sets up an ESCape32 ESC (its telemetry ID 1 to 4).

@@ -92,6 +92,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [Flysky AFHDS2A](Protocols_Details.md#FLYSKY-AFHDS2A---28)||28|PWM_IBUS|PPM_IBUS|PWM_SBUS|PPM_SBUS|Gyro_Off|Gyro_On|Gyro_On_Rev||A7105|
 [Flysky AFHDS2A RX](Protocols_Details.md#FLYSKY-AFHDS2A-RX---56)||56|Multi|CPPM|||||||A7105|
 [FQ777](Protocols_Details.md#FQ777---23)||23|124|XBM37|||||||NRF24L01|SSV7241
+[FrskyA](Protocols_Details.md#FRSKYA---112)||112|16ch|8ch|EU16ch|EU8ch|||||CC2500|
 [FrskyD](Protocols_Details.md#FRSKYD---3)||3|D8|Cloned|||||||CC2500|
 [FrskyL](Protocols_Details.md#FRSKYL---67)||67|LR12|LR12 6CH|||||||CC2500|
 [FrskyR9](Protocols_Details.md#FRSKYR9---65)||65|FrskyR9|R9_915|R9_868||||||SX1276|
@@ -954,6 +955,45 @@ Use the identifier learnt from another FrSky radio when binding with the FrSkyRX
 
 ## FRSKYX2 - *64*
 Same as [FrskyX](Protocols_Details.md#FRSKYX---15) but for D16 v2.1.0 FCC/LBT.
+
+## FRSKYA - *112*
+Models: FrSky ACCESS 2.4GHz receivers, tested with the RX6R (ACCESS firmware 2.1.8) and the Archer Plus SR10+ (1.0.10 and 3.0.3). Protocol also known as ACCESS.
+
+Not supported: TANDEM and TWIN receivers, race mode, 24 channels, more than one receiver per model, receiver firmware updates.
+
+Extended limits and failsafe supported
+
+Telemetry enabled for A1 (RxBatt), RSSI, TX_RSSI, TX_LQI and the S.Port sensors, as FrskyX. S.Port packets from the radio are sent to the receiver (for example the Archer Plus stabilizer settings), this needs a radio firmware able to send them to a FrskyA module.
+
+The receiver options (outputs, telemetry, F.Port/S.Bus...) are set with the [FrSky ACCESS RX script](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/Lua_scripts#frsky-access-rx).
+
+Option for this protocol corresponds to fine frequency tuning, as FrskyX. Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+
+Bind: a receiver is registered to the module, then bound, both during the same bind:
+- put the receiver in register mode (RX6R: hold its bind button while powering it until the LEDs alternate; Archer Plus: see its manual) and start the bind on the radio
+- once the receiver has registered, power cycle it normally while the module is still in bind: it binds and the link starts
+
+If no receiver answers the registration within 2 seconds, the module looks for an already registered receiver to bind, and both steps alternate until the end of the bind. The RX number of the model is sent to the receiver at bind (Model Match).
+
+### Sub_protocol 16ch - *0*
+FCC, 16 channels. A frame every 7ms carries channels 1-8 and 9-16 in turn.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|----|----|----|----|----|----|----
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+
+### Sub_protocol 8ch - *1*
+FCC, 8 channels every 7ms.
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+
+### Sub_protocol EU16ch - *2*
+Same as 16ch for the EU region. ACCESS uses the same frequencies, hopping and timing in both regions, only the region sent to the receiver changes.
+
+### Sub_protocol EU8ch - *3*
+Same as 8ch for the EU region.
 
 ## FRSKY_RX - *55*
 

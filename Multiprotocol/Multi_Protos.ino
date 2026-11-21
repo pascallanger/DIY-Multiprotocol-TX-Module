@@ -31,6 +31,7 @@ const char STR_BAYANG[]		="Bayang";
 const char STR_FRSKYL[]		="FrSky L";
 const char STR_FRSKYX[]		="FrSky X";
 const char STR_FRSKYX2[]	="FrSkyX2";
+const char STR_FRSKYA[]	="FrSkyA";
 const char STR_ESKY[]		="ESky";
 const char STR_MT99XX[]		="MT99XX";
 const char STR_MT99XX2[]	="MT99XX2";
@@ -127,8 +128,10 @@ const char STR_SUBTYPE_HUBSAN[] =     "\x04""H107""H301""H501";
 const char STR_SUBTYPE_FRSKYD[] =     "\x06""D8\0   ""Cloned";
 #ifndef MULTI_EU
 	const char STR_SUBTYPE_FRSKYX[] =     "\x07""D16\0   ""D16 8ch""LBT(EU)""LBT 8ch""Cloned\0""Clo 8ch";
+	const char STR_SUBTYPE_FRSKYA[] =     "\x06""16ch\0 ""8ch\0  ""EU16ch""EU 8ch";
 #else
 	const char STR_SUBTYPE_FRSKYX[] =     "\x07""--->\0  ""--->\0  ""LBT(EU)""LBT 8ch""Cloned\0""Clo 8ch";
+	const char STR_SUBTYPE_FRSKYA[] =     "\x06""--->\0 ""--->\0 ""EU16ch""EU 8ch";
 #endif
 const char STR_SUBTYPE_HISKY[] =      "\x05""Std\0 ""HK310";
 const char STR_SUBTYPE_V2X2[] =       "\x06""Std\0  ""JXD506""MR101\0";
@@ -340,6 +343,9 @@ const mm_protocol_definition multi_protocols[] = {
 	#if defined(FRSKYX_CC2500_INO)
 		{PROTO_FRSKYX,     STR_FRSKYX,    STR_SUBTYPE_FRSKYX,    6, OPTION_RFTUNE,  1, 0, SW_CC2500, FRSKYX_init,     FRSKYX_callback     },
 		{PROTO_FRSKYX2,    STR_FRSKYX2,   STR_SUBTYPE_FRSKYX,    6, OPTION_RFTUNE,  1, 0, SW_CC2500, FRSKYX_init,     FRSKYX_callback     },
+	#endif
+	#if defined(FRSKYA_CC2500_INO)
+		{PROTO_FRSKYA,     STR_FRSKYA,    STR_SUBTYPE_FRSKYA,    4, OPTION_RFTUNE,  1, 0, SW_CC2500, FRSKYA_init,     FRSKYA_callback     },
 	#endif
 //OpenTX 2.3.x issue: DO NOT CHANGE ORDER above
 	#if defined(FRSKYL_CC2500_INO)

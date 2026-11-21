@@ -484,6 +484,11 @@
 	#define	FRSKY_RX_CC2500_INO
 #endif
 
+//Futaba T-FHSS sub protocols (TFHSS_cc2500.ino): 128KB STM32 only, too large for the ATmega328p and the 64KB STM32
+#if defined(FUTABA_CC2500_INO) && defined(STM32_BOARD) && not defined(MCU_STM32F103C8)
+	#define FUTABA_TFHSS
+#endif
+
 //Make sure telemetry is selected correctly
 #ifndef TELEMETRY
 	#undef INVERT_TELEMETRY
@@ -508,6 +513,7 @@
 	#undef AFHDS2A_RX_TELEMETRY
 	#undef AFHDS2A_RX_A7105_INO
 	#undef HOTT_FW_TELEMETRY
+	#undef FUTABA_FW_TELEMETRY
 	#undef BAYANG_RX_TELEMETRY
 	#undef BAYANG_RX_NRF24L01_INO
 	#undef DEVO_HUB_TELEMETRY
@@ -620,6 +626,9 @@
 	#if not defined(HOTT_CC2500_INO)
 		#undef HOTT_FW_TELEMETRY
 	#endif
+	#if not defined(FUTABA_TFHSS)
+		#undef FUTABA_FW_TELEMETRY
+	#endif
 	#if not defined(WFLY2_A7105_INO)
 		#undef WFLY2_HUB_TELEMETRY
 	#endif
@@ -633,7 +642,7 @@
 		//protocols using FRSKYD user frames
 		#undef HUB_TELEMETRY 
 	#endif
-	#if not defined(HOTT_FW_TELEMETRY) && not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(RLINK_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKY_RX_TELEMETRY) && not defined(AFHDS2A_RX_TELEMETRY) && not defined(BAYANG_RX_TELEMETRY) && not defined(DEVO_HUB_TELEMETRY) && not defined(PROPEL_HUB_TELEMETRY) && not defined(OMP_HUB_TELEMETRY) && not defined(V761_HUB_TELEMETRY) && not defined(SGF22_HUB_TELEMETRY) && not defined(XK_HUB_TELEMETRY) && not defined(XK2_HUB_TELEMETRY) && not defined(FX_HUB_TELEMETRY) && not defined(KAMTOM_HUB_TELEMETRY) && not defined(YUXIANG_HUB_TELEMETRY) && not defined(WFLY2_HUB_TELEMETRY) && not defined(LOLI_HUB_TELEMETRY) && not defined(MLINK_HUB_TELEMETRY) && not defined(MLINK_FW_TELEMETRY) && not defined(MT99XX_HUB_TELEMETRY) && not defined(MULTI_CONFIG_INO)
+	#if not defined(HOTT_FW_TELEMETRY) && not defined(FUTABA_FW_TELEMETRY) && not defined(DSM_TELEMETRY) && not defined(SPORT_TELEMETRY) && not defined(HUB_TELEMETRY) && not defined(HUBSAN_HUB_TELEMETRY) && not defined(BUGS_HUB_TELEMETRY) && not defined(NCC1701_HUB_TELEMETRY) && not defined(BAYANG_HUB_TELEMETRY) && not defined(CABELL_HUB_TELEMETRY) && not defined(RLINK_HUB_TELEMETRY) && not defined(AFHDS2A_HUB_TELEMETRY) && not defined(AFHDS2A_FW_TELEMETRY) && not defined(MULTI_TELEMETRY) && not defined(MULTI_STATUS) && not defined(HITEC_HUB_TELEMETRY) && not defined(HITEC_FW_TELEMETRY) && not defined(SCANNER_TELEMETRY) && not defined(FRSKY_RX_TELEMETRY) && not defined(AFHDS2A_RX_TELEMETRY) && not defined(BAYANG_RX_TELEMETRY) && not defined(DEVO_HUB_TELEMETRY) && not defined(PROPEL_HUB_TELEMETRY) && not defined(OMP_HUB_TELEMETRY) && not defined(V761_HUB_TELEMETRY) && not defined(SGF22_HUB_TELEMETRY) && not defined(XK_HUB_TELEMETRY) && not defined(XK2_HUB_TELEMETRY) && not defined(FX_HUB_TELEMETRY) && not defined(KAMTOM_HUB_TELEMETRY) && not defined(YUXIANG_HUB_TELEMETRY) && not defined(WFLY2_HUB_TELEMETRY) && not defined(LOLI_HUB_TELEMETRY) && not defined(MLINK_HUB_TELEMETRY) && not defined(MLINK_FW_TELEMETRY) && not defined(MT99XX_HUB_TELEMETRY) && not defined(MULTI_CONFIG_INO)
 		#undef TELEMETRY
 		#undef INVERT_TELEMETRY
 		#undef MULTI_TELEMETRY

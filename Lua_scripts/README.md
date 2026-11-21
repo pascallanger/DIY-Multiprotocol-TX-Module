@@ -46,6 +46,12 @@ Receiver options of a FrSky ACCESS receiver bound with the [FrskyA protocol](htt
 
 Needs a radio firmware with the Multi Lua pipe (multiBuffer "Pipe"). Located on the radio SD card under \SCRIPTS\TOOLS.
 
+## Futaba S.BUS2 sensors
+
+Sets up the S.BUS2 sensors of a Futaba receiver bound with the [Futaba protocol](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/blob/master/Protocols_Details.md#futaba---21) (T-FHSS sub protocols). S.BUS2 sensors don't tell their type on the bus: the radio shows each slot with data as a raw sensor "S1", "S2"... and this tool turns it into a typed sensor that the radio decodes: temperature (SBS-01T, SBS-01TE), RPM (SBS-01RM), voltage (SBS-01V, 2 slots) and current (SBS-01C, 3 slots: current, voltage, capacity). A preset sets up an ESCape32 ESC (its telemetry ID 1 to 4).
+
+Needs a radio firmware with the Multi Futaba telemetry. With `model.setSensor()` the sensors are created directly and the raw ones replaced; without it, "Discover new sensors" must be on and the raw sensors are deleted by hand. Located on the radio SD card under \SCRIPTS\TOOLS.
+
 ## Graupner HoTT
 
 Enable text configuration of the HoTT RX and sensors: Vario, GPS, ESC, GAM and EAM.

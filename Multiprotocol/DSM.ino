@@ -145,6 +145,8 @@ static void __attribute__((unused)) DSM_set_sop_data_crc(bool ch2, bool dsmx)
 
 static void __attribute__((unused)) DSM_calc_dsmx_channel()
 {
+	// DSMR: same hops over 0x4A channels, all shifted up by 1 (4..77)
+	uint8_t dsmr = (protocol == PROTO_DSM && sub_protocol == DSMR) ? 1 : 0;
 	uint8_t idx = 0;
 	uint32_t id = ~(((uint32_t)cyrfmfg_id[0] << 24) | ((uint32_t)cyrfmfg_id[1] << 16) | ((uint32_t)cyrfmfg_id[2] << 8) | (cyrfmfg_id[3] << 0));
 	uint32_t id_tmp = id;
@@ -153,17 +155,18 @@ static void __attribute__((unused)) DSM_calc_dsmx_channel()
 		uint8_t i;
 		uint8_t count_3_27 = 0, count_28_51 = 0, count_52_76 = 0;
 		id_tmp = id_tmp * 0x0019660D + 0x3C6EF35F;		// Randomization
-		uint8_t next_ch = ((id_tmp >> 8) % 0x49) + 3;	// Use least-significant byte and must be larger than 3
+		uint8_t next_ch = ((id_tmp >> 8) % (0x49 + dsmr)) + 3;	// Use least-significant byte and must be larger than 3
 		if ( (next_ch ^ cyrfmfg_id[3]) & 0x01 )
 			continue;
 		for (i = 0; i < idx; i++)
 		{
-			if(hopping_frequency[i] == next_ch)
+			uint8_t ch = hopping_frequency[i] - dsmr;
+			if(ch == next_ch)
 				break;
-			if(hopping_frequency[i] <= 27)
+			if(ch <= 27)
 				count_3_27++;
 			else
-				if (hopping_frequency[i] <= 51)
+				if (ch <= 51)
 					count_28_51++;
 				else
 					count_52_76++;
@@ -173,7 +176,7 @@ static void __attribute__((unused)) DSM_calc_dsmx_channel()
 		if ((next_ch < 28 && count_3_27 < 8)
 			||(next_ch >= 28 && next_ch < 52 && count_28_51 < 7)
 			||(next_ch >= 52 && count_52_76 < 8))
-			hopping_frequency[idx++] = next_ch;
+			hopping_frequency[idx++] = next_ch + dsmr;
 	}
 }
 

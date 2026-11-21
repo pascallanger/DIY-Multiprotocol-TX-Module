@@ -100,7 +100,7 @@ CFlie|AIR|38|CFlie||||||||NRF24L01|
 [FrskyX](Protocols_Details.md#FRSKYX---15)||15|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [FrskyX2](Protocols_Details.md#FRSKYX2---64)||64|CH_16|CH_8|EU_16|EU_8|Cloned|Cloned_8|||CC2500|
 [Frsky_RX](Protocols_Details.md#FRSKY_RX---55)||55|Multi|CloneTX|EraseTX|CPPM|||||CC2500|
-[Futaba/SFHSS](Protocols_Details.md#Futaba---21)||21|SFHSS||||||||CC2500|
+[Futaba](Protocols_Details.md#Futaba---21)||21|SFHSS|TFHSS|TFH-SR|TF-Air|||||CC2500|
 [FX](Protocols_Details.md#FX---58)||58|FX816|FX620|9630|Q560|QF012|BM26|A570||NRF24L01|
 [FY326](Protocols_Details.md#FY326---20)||20|FY326|FY319|||||||NRF24L01|
 [GD00X](Protocols_Details.md#GD00X---47)||47|GD_V1*|GD_V2*|||||||NRF24L01|XN297L
@@ -1175,7 +1175,7 @@ Settings include:
 * setting failsafe values
 
 ## Futaba - *21*
-Also called SFHSS depending on radio version.
+Also called SFHSS depending on radio version. Sub protocols S-FHSS, T-FHSS (Surface), T-FHSS SR and T-FHSS Air. The T-FHSS sub protocols are only available on the 128KB STM32 modules.
 
 ### Sub_protocol SFHSS - *0*
 Models: Futaba SFHSS RXs and some XK models.
@@ -1192,6 +1192,43 @@ This protocol does not use bind on the TX side. The RX attaches to the first S-F
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
 A|E|T|R|CH5|CH6|CH7|CH8
+
+### Sub_protocol TFHSS - *1*
+T-FHSS Surface. Models: Futaba T-FHSS surface receivers (cars, boats) like the R334SBS.
+
+Failsafe and telemetry supported. Extended limits supported.
+
+RX output will match the Futaba standard servo throw, mid point and the channel order AETR independently of the input configuration AETR, RETA... unless if on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+
+Option for this protocol corresponds to fine frequency tuning, the same value as for S-FHSS.
+
+Bind: put the receiver in its link mode (see its manual) and start a bind on the TX side close to the receiver. The bind ends about 1 s after the receiver answers, 10 s at most. The TX ID comes from the RX number (model match). The receiver's ID, learnt at the bind and needed to drive it, is stored per RX number in the module: bind again after changing the RX number or the receiver.
+
+Telemetry: the receiver's voltage (A1) and link quality (RSSI), and its S.BUS2 sensor slots (Futaba telemetry frame, decoded by the radio).
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
+---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8
+
+CH1 to CH4 are sent every frame (3 ms), CH5 to CH8 one per frame.
+
+### Sub_protocol TFHSS_SR - *2*
+T-FHSS SR (Super Response), the receiver bound in SR mode: frames every 1.2 ms, digital servos only. No telemetry. Otherwise as T-FHSS.
+
+### Sub_protocol TFHSS_AIR - *3*
+T-FHSS Air. Models: Futaba T-FHSS Air receivers like the R3006SB and R3008SB.
+
+Telemetry supported. Failsafe: the receiver's own (set it on the receiver).
+
+Option for this protocol corresponds to fine frequency tuning, the same value as for S-FHSS.
+
+Bind: start a bind on the TX side, then put the receiver in its link mode (see its manual) close to the module. The bind ends when the receiver answers, 20 s at most. Without a bind, the module finds the receiver's ID in its telemetry.
+
+Telemetry: the receiver's voltage (A1) and its S.BUS2 sensor slots (Futaba telemetry frame, decoded by the radio).
+
+CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
+---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---
+A|E|T|R|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12|CH13|CH14|CH15|CH16
 
 ## Skyartec - *68*
 

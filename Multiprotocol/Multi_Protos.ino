@@ -190,7 +190,11 @@ const char STR_SUBTYPE_REALACC[] =    "\x06""R11\0  ""WLV8TX";
 const char STR_SUBTYPE_KYOSHO[] =     "\x04""FHSS""Hype";
 const char STR_SUBTYPE_KYOSHO2[] =    "\x05""KT-17";
 const char STR_SUBTYPE_KYOSHO3[] =    "\x03""ASF";
-const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
+#ifdef FUTABA_TFHSS
+	const char STR_SUBTYPE_FUTABA[] =     "\x06""SFHSS\0""TFHSS\0""TFH-SR""TF-Air";
+#else
+	const char STR_SUBTYPE_FUTABA[] =     "\x05""SFHSS";
+#endif
 const char STR_SUBTYPE_JJRC345[] =    "\x08""JJRC345\0""SkyTmblr";
 const char STR_SUBTYPE_MOULDKG[] =    "\x05""A4444""D4444""A664\0";
 const char STR_SUBTYPE_KF606[] =      "\x06""KF606\0""MIG320""ZCZ50\0";
@@ -355,7 +359,11 @@ const mm_protocol_definition multi_protocols[] = {
 		#endif
 	#endif
 	#if defined(FUTABA_CC2500_INO)
+		#if defined(FUTABA_TFHSS)
+		{PROTO_FUTABA,     STR_FUTABA,    STR_SUBTYPE_FUTABA,    4, OPTION_RFTUNE,  1, 1, SW_CC2500, FUTABA_init,     FUTABA_callback     },
+		#else
 		{PROTO_FUTABA,     STR_FUTABA,    STR_SUBTYPE_FUTABA,    1, OPTION_RFTUNE,  1, 1, SW_CC2500, SFHSS_init,      SFHSS_callback      },
+		#endif
 	#endif
 	#if defined(FX_NRF24L01_INO)
 		{PROTO_FX,         STR_FX,        STR_SUBTYPE_FX,        7, OPTION_NONE,    0, 0, SW_NRF,    FX_init,         FX_callback         },

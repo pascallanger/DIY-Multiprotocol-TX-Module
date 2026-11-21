@@ -130,7 +130,11 @@ end
 
 local function sendQueue()
   if #queue == 0 or multiBuffer(TX_READY) ~= 0 then return end
-  local piece = table.remove(queue, 1)
+  local piece = queue[1]
+  for i = 1, #queue - 1 do         -- no table library on B&W radios
+    queue[i] = queue[i + 1]
+  end
+  queue[#queue] = nil
   for i = 1, TX_MAX_PAYLOAD do
     multiBuffer(TX_PAYLOAD + i - 1, piece[i] or 0)
   end

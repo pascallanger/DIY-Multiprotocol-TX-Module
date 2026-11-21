@@ -265,6 +265,9 @@ uint8_t packet_in[TELEMETRY_BUFFER_SIZE];//telemetry receiving packets
 		uint8_t CONFIG_SerialRX_val[7];
 		bool CONFIG_SerialRX=false;
 	#endif
+	#ifdef FUTABA_FW_TELEMETRY
+		uint8_t futaba_telem[3 + 16], futaba_telem_len;	// MULTI_TELEMETRY_FUTABA
+	#endif
 	#ifdef RLINK_HUB_TELEMETRY
 		uint8_t RLINK_SerialRX_val[8];
 		uint8_t RLINK_SerialRX_len=0;

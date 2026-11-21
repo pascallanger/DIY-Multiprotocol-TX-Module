@@ -590,6 +590,9 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 		phase = TFHSS_DATA;
 		return 1000;
 	}
+	#ifdef MULTI_AIR
+		return TFHSS_air_callback();	// Surface and SR: not in AIR builds
+	#else
 	if(sub_protocol == TFHSS_AIR)
 		return TFHSS_air_callback();
 
@@ -634,6 +637,7 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 			return TFHSS_PERIOD - TFHSS_RX_ON;
 	}
 	return TFHSS_PERIOD;
+	#endif
 }
 
 static void __attribute__((unused)) TFHSS_init()
@@ -643,9 +647,13 @@ static void __attribute__((unused)) TFHSS_init()
 	for(uint8_t i = 0; i < 4; i++)
 		TFHSS_id[i] = id >> (8 * i);
 	// Surface: the receiver's ID from the last bind of this model
-	uint16_t addr = TFHSS_eeprom();
-	for(uint8_t i = 0; i < 4; i++)
-		TFHSS_rx_id[i] = sub_protocol == TFHSS_AIR ? 0 : eeprom_read_byte((EE_ADDR)(addr + i));
+	#ifdef MULTI_AIR
+		memset(TFHSS_rx_id, 0, 4);
+	#else
+		uint16_t addr = TFHSS_eeprom();
+		for(uint8_t i = 0; i < 4; i++)
+			TFHSS_rx_id[i] = sub_protocol == TFHSS_AIR ? 0 : eeprom_read_byte((EE_ADDR)(addr + i));
+	#endif
 	TFHSS_row = id % TFHSS_CHANNELS;
 	TFHSS_rx_known = false;
 	TFHSS_misses = 0;
@@ -686,6 +694,13 @@ uint16_t FUTABA_callback()
 
 void FUTABA_init()
 {
+	#ifdef MULTI_AIR
+		if(sub_protocol == TFHSS || sub_protocol == TFHSS_SR)
+		{	// Surface sub protocols: SURFACE and full builds only (space)
+			SUB_PROTO_INVALID;
+			return;
+		}
+	#endif
 	if(sub_protocol == SFHSS)
 		SFHSS_init();
 	else

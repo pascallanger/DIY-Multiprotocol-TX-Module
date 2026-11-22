@@ -69,9 +69,14 @@
 #define TFHSS_PERIOD			3000
 #define TFHSS_SR_PERIOD			1200
 #define TFHSS_RX_ON				1000	// from the TX packet's start: RX on the next channel
-// The reply (1.9 ms after the TX packet's start, 0.4 ms long) is read in the
-// next frame's callback, before its TX packet: the TX packet goes on air 0.4 ms
-// after the callback on the MPM v2, a read 2.5 ms after the callback missed it
+// The reply (its sync word 1.9 ms after the TX packet's, 14 bytes = 0.3 ms) is
+// read, and the RX turned off, TFHSS_RX_READ after the callback that sent the
+// TX packet: well before the receiver turns its own RX back on there (~2.6 ms
+// after the TX packet, R334SBS), where a CC2500 left in RX until our next
+// packet broke the link once the TX was ~60 kHz off (MT12, MPM #507)
+#ifndef TFHSS_RX_READ
+	#define TFHSS_RX_READ			2750	// STM32: the TX packet on air ~0.1 ms after the callback
+#endif
 #define TFHSS_LEN				14
 #define TFHSS_FS_EVERY			1667	// frames, 5 s
 #define TFHSS_SR_FS_EVERY		4167
@@ -127,7 +132,7 @@ static bool TFHSS_rx_known;
 static uint8_t TFHSS_misses;
 static uint8_t TFHSS_row;
 static bool TFHSS_list_mode;	// bind (link): hopping on the list
-static bool TFHSS_rx_pending;	// Surface: RX on for a reply, read at the next frame
+static bool TFHSS_rx_pending;	// Surface: RX on for a reply, read at TFHSS_RX_READ
 static uint8_t TFHSS_ch;		// the channel of the next TX packet
 static uint16_t TFHSS_frame;
 static uint16_t TFHSS_link;		// link frames left (after the reply) or sent
@@ -602,13 +607,10 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 				TFHSS_surface_read(true);
 				return TFHSS_PERIOD;
 			}
-			// The packet built first, then the reply read (on this frame's
-			// channel), as late as possible, then the packet sent
 			if(TFHSS_list_mode)
 				TFHSS_surface_bind_packet();
 			else
 				TFHSS_surface_packet();
-			TFHSS_surface_read(TFHSS_list_mode);
 			CC2500_SetFreqOffset();
 			TFHSS_SetPower();
 			TFHSS_tune(TFHSS_ch);
@@ -627,8 +629,13 @@ static uint16_t __attribute__((unused)) TFHSS_callback()
 		case TFHSS_RX:
 			TFHSS_rx_on(TFHSS_LEN);
 			TFHSS_rx_pending = true;
+			phase = TFHSS_READ;
+			return TFHSS_RX_READ - TFHSS_RX_ON;
+		case TFHSS_READ:
+			// The reply (on the channel of the next TX packet), RX off
+			TFHSS_surface_read(TFHSS_list_mode);
 			phase = TFHSS_DATA;
-			return TFHSS_PERIOD - TFHSS_RX_ON;
+			return TFHSS_PERIOD - TFHSS_RX_READ;
 	}
 	return TFHSS_PERIOD;
 	#endif

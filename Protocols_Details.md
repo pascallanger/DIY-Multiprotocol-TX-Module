@@ -1215,6 +1215,8 @@ CH1 to CH4 are sent every frame (3 ms), CH5 to CH8 one per frame.
 ### Sub_protocol TFHSS_SR - *2*
 T-FHSS SR (Super Response), the receiver bound in SR mode: frames every 1.2 ms, digital servos only. No telemetry. Otherwise as T-FHSS.
 
+Servos in narrow-band mode (760 µs centre, the "SR channels" of Futaba radios) are not supported: set them to normal mode.
+
 ### Sub_protocol TFHSS_AIR - *3*
 T-FHSS Air. Models: Futaba T-FHSS Air receivers like the R3006SB and R3008SB.
 

@@ -39,7 +39,7 @@
 // telemetry); then TFHSS_BIND_ACKED more with byte 1 bit 7 and its ID,
 // which make the receiver store the bind (R334SBS firmware). Failsafe: every 5 s a group of 4 frames, one
 // per channel: its F/S position, or hold (the 4PM Plus' default).
-// The per channel "high speed" flags (3 ms output frames) are left off.
+// In SR, the per channel "high speed"="narrow-band" flags in byte 9 (3 ms output frames) are driven by CH9..CH12
 //
 // Air (TFHSS_AIR): 128 kbps 2-FSK (the S-FHSS modem), 17 bytes, a frame
 // every 15.04 ms; 16 channels in 9 slots of 11 bits (us - 880), a slot's
@@ -355,6 +355,10 @@ static void __attribute__((unused)) TFHSS_surface_packet()
 	packet[6] = ch[2] >> 4;
 	packet[7] = ch[3];
 	packet[8] = (ch[3] >> 8) | 0x10;
+	// Bits 0..3: high speed flags of CH1..4
+	// In SR, the narrow-band outputs ("SR channels" of Futaba radios) are set by CH9..CH12
+	uint8_t nb = sr ? (Channel_AUX >> 4) & 0x0F : 0;
+	packet[9] = fs | nb;
 	packet[9] = fs;		// bits 0..3: the high speed flags
 	packet[10] = e;
 	packet[11] = (e >> 8) | slot << 4;

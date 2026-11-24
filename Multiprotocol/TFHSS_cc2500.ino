@@ -359,7 +359,6 @@ static void __attribute__((unused)) TFHSS_surface_packet()
 	// In SR, the narrow-band outputs ("SR channels" of Futaba radios) are set by CH9..CH12
 	uint8_t nb = sr ? (Channel_AUX >> 4) & 0x0F : 0;
 	packet[9] = fs | nb;
-	packet[9] = fs;		// bits 0..3: the high speed flags
 	packet[10] = e;
 	packet[11] = (e >> 8) | slot << 4;
 	TFHSS_build(TFHSS_LEN, true);

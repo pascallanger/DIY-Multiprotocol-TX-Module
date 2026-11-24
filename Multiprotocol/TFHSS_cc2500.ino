@@ -298,7 +298,7 @@ static void __attribute__((unused)) TFHSS_telemetry(uint8_t first, const uint8_t
 // Surface: the 12-bit value of a channel, 1020..2020 us at +-100 %
 static uint16_t __attribute__((unused)) TFHSS_value(uint8_t num, bool failsafe)
 {
-	int16_t v = convert_channel_16b_nolimit(CH_AETR[num], 448, 3648, failsafe);
+	int16_t v = convert_channel_16b_nolimit(num, 448, 3648, failsafe);
 	return v < 0 ? 0 : v > 4095 ? 4095 : v;
 }
 
@@ -336,7 +336,7 @@ static void __attribute__((unused)) TFHSS_surface_packet()
 		f = ch_code[k];
 		fs = 0x10;
 		#ifdef FAILSAFE_ENABLE
-			uint16_t v = Failsafe_data[CH_AETR[c]];
+			uint16_t v = Failsafe_data[c];
 			if(IS_FAILSAFE_VALUES_on && v != FAILSAFE_CHANNEL_HOLD && v != FAILSAFE_CHANNEL_NOPULSES)
 			{
 				f |= 0x04;

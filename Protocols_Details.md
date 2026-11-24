@@ -1198,7 +1198,7 @@ T-FHSS Surface. Models: Futaba T-FHSS surface receivers (cars, boats) like the R
 
 Failsafe and telemetry supported. Extended limits supported.
 
-RX output will match the Futaba standard servo throw, mid point and the channel order AETR independently of the input configuration AETR, RETA... unless if on OpenTX 2.3.3+ you use the "Disable channel mapping" feature on the GUI.
+RX output will match the Futaba standard servo throw, mid point.
 
 Option for this protocol corresponds to fine frequency tuning, the same value as for S-FHSS.
 
@@ -1208,7 +1208,7 @@ Telemetry: the receiver's voltage (A1) and link quality (RSSI), and its S.BUS2 s
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8
 ---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8
+ST|THR|CH3|CH4|CH5|CH6|CH7|CH8
 
 CH1 to CH4 are sent every frame (3 ms), CH5 to CH8 one per frame.
 
@@ -1217,7 +1217,7 @@ T-FHSS SR (Super Response), the receiver bound in SR mode: frames every 1.2 ms, 
 
 CH1|CH2|CH3|CH4|CH5|CH6|CH7|CH8|CH9|CH10|CH11|CH12
 ---|---|---|---|---|---|---|---|---|---|---|---
-A|E|T|R|CH5|CH6|CH7|CH8|NB_1|NB_2|NB_3|NB_4
+ST|THR|CH3|CH4|CH5|CH6|CH7|CH8|NB_1|NB_2|NB_3|NB_4
 
 NB_1..4: Flags for Narrow-band servos (the "SR channels" of Futaba radios) associated to CH1..4
 

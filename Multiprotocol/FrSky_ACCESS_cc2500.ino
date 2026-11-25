@@ -18,7 +18,9 @@
 
  CC2500: 125 kbps 2-FSK, 69.8 kHz deviation, sync D391 sent twice (TX), the
  receiver's replies on 89CB, variable length, CRC. Channel n at 2403.97 MHz
- + n x 300 kHz (CHANNR, 299.93 kHz steps as Mike's UNI ACCESS). Every 7 ms
+ + n x 300 kHz exactly, as the ISRM: CHANNR's 299.93 kHz steps (17.5 kHz low
+ at the bind channel 239, too much for the narrow filter of the Archer
+ receivers) corrected by FSCTRL0. Every 7 ms
  a 33-byte frame on the next hop, the receiver's 18-byte reply 3.97 ms
  after its sync word on the same channel.
 
@@ -437,7 +439,6 @@ uint16_t FRSKYA_callback()
 			#ifdef MULTI_SYNC
 				telemetry_set_input_sync(FRSKYA_PERIOD);
 			#endif
-			CC2500_SetFreqOffset();
 			CC2500_SetPower();
 			uint8_t ch;
 			if(FrSkyA_mode != FRSKYA_DATA && IS_BIND_DONE)
@@ -461,6 +462,8 @@ uint16_t FRSKYA_callback()
 				FrSkyA_setup_frame(FrSkyA_mode + 1);
 			}
 			FrSkyX_set_start(ch);
+			// The option + n x 73.3 Hz: 3/64 FSCTRL0 steps (1587 Hz) per channel
+			CC2500_WriteReg(CC2500_0C_FSCTRL0, option + ((hopping_frequency[ch] * 3 + 32) >> 6));
 			FrSkyA_set_sync(0xD391);
 			CC2500_SetTxRxMode(TX_EN);
 			CC2500_Strobe(CC2500_SFTX);
@@ -535,8 +538,8 @@ void FRSKYA_init()
 	FRSKY_init_cc2500(FRSKYA_cc2500_conf);
 	// Frequency offset compensation only once a carrier is there (10 dB over
 	// the noise): left running on noise before the reply, it drifts and 15 %
-	// of the replies were missed. Without it, 15 % fail the CRC (the RX6R is
-	// on 300 kHz steps, the CC2500 on 299.93 kHz).
+	// of the replies were missed. Without it, 15 % failed the CRC (before the
+	// FSCTRL0 correction of the CHANNR steps).
 	CC2500_WriteReg(CC2500_19_FOCCFG, 0x36);
 	CC2500_WriteReg(CC2500_1C_AGCCTRL1, 0x68);
 	for(uint8_t c = 0; c <= FRSKYA_BIND_CH; c++)

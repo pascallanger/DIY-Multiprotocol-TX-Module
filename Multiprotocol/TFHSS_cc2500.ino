@@ -338,7 +338,7 @@ static void __attribute__((unused)) TFHSS_surface_packet()
 		#ifdef FAILSAFE_ENABLE
 			uint16_t v = Failsafe_data[c];
 			if(IS_FAILSAFE_VALUES_on && v != FAILSAFE_CHANNEL_HOLD && v != FAILSAFE_CHANNEL_NOPULSES)
-+			{	// F/S: code 4 without the hold flag (4PM Plus)
+			{ // Failsafe without the hold flag (4PM Plus)
 				f |= 0x04;
 				fs = 0x00;
 				ch[c] = TFHSS_value(c, true);

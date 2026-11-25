@@ -30,7 +30,26 @@ local RSensor = "FdeR"
 local ActiveParamSensor = "Hold"
 
 local tags = {"P", "I", "D"}
+local colorLcd = type(lcd.RGB) == "function"
+local screenMode = "mono"
+if colorLcd then
+  if (LCD_W or 0) >= 720 and (LCD_H or 0) >= 320 then
+    screenMode = "mk3"
+  elseif (LCD_W or 0) >= 320 and (LCD_H or 0) >= 200 then
+    screenMode = "color"
+  end
+end
 
+local layout = screenMode == "mk3" and {
+  left = 12, tail = 170, value = 90, yBase = 30,
+  titleLeft = 12, titleTail = 220
+} or screenMode == "color" and {
+  left = 10, tail = 140, value = 76, yBase = 20,
+  titleLeft = 8, titleTail = 130
+} or {
+  left = 6, tail = 120, value = 70, yBase = 2,
+  titleLeft = 8, titleTail = 114
+}
 
 local function getPage(iParam)
   -- get page from 0-based index
@@ -94,10 +113,10 @@ local function drawParameters()
     -- check if displaying cyclic params.
     local isCyclicPage = (getPage(iParam)==1)
     -- set y draw coord
-    local y = perPageIndx*10+2
+    local y = layout.yBase + perPageIndx*12
     
     -- labels
-    local x = isCyclicPage and 6 or 120
+    local x = isCyclicPage and layout.left or layout.tail
     -- labels are P,I,D for both pages except for last param
     local val = iParam==3 and "Response" or
                   (iParam==7 and "Filtering" or tags[perPageIndx])
@@ -106,7 +125,7 @@ local function drawParameters()
     -- gains
     -- set all params for non-active page to '--' rather than 'last value'
     val = (getPage(iParam)==activePage) and params[perPageIndx] or '--'
-    x = isCyclicPage and 70 or 180
+    x = isCyclicPage and (layout.left + layout.value) or (layout.tail + layout.value)
     lcd.drawText (x, y, val, attr)
   end
 end
@@ -115,8 +134,8 @@ end
 local function run_func(event)
   -- TODO: calling clear() on every function call redrawing all labels is not ideal
   lcd.clear()
-  lcd.drawText (8, 2, "Cyclic (0...200)")
-  lcd.drawText (114, 2, "Tail (0...200)")
+  lcd.drawText (layout.titleLeft, 2, "Cyclic (0...200)")
+  lcd.drawText (layout.titleTail, 2, "Tail (0...200)")
   drawParameters()
 end
 

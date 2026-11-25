@@ -247,8 +247,8 @@
 
 //Make sure protocols are selected correctly
 #if not defined(A7105_INSTALLED) || defined MULTI_EU
-	#undef	AFHDS2A_A7105_INO
 	#if not defined(A7105_INSTALLED)
+		#undef	AFHDS2A_A7105_INO
 		#undef	AFHDS2A_RX_A7105_INO
 	#endif
 	#undef	BUGS_A7105_INO
@@ -278,6 +278,9 @@
 	#undef	SCORPIO_CYRF6936_INO
 	#undef	WFLY_CYRF6936_INO
 	#undef	WK2x01_CYRF6936_INO
+#endif
+#if not defined(DSM_CYRF6936_INO)
+	#undef	LOSI_CYRF6936_INO
 #endif
 
 #if not defined(CC2500_INSTALLED) || defined MULTI_EU
@@ -370,9 +373,6 @@
 	#undef	WL91X_CCNRF_INO
 	#undef	XK_CCNRF_INO
 	#undef	XK2_CCNRF_INO
-#endif
-#if not defined(DSM_CYRF6936_INO)
-	#undef	LOSI_CYRF6936_INO
 #endif
 #if not defined(STM32_BOARD)
 	//RF2500 emulation does not work on atmega...

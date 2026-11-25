@@ -967,7 +967,7 @@ Telemetry enabled for A1 (RxBatt), RSSI, TX_RSSI, TX_LQI and the S.Port sensors,
 
 The receiver options (outputs, telemetry, F.Port/S.Bus...) are set with the [FrSky ACCESS RX script](https://github.com/pascallanger/DIY-Multiprotocol-TX-Module/tree/master/Lua_scripts#frsky-access-rx).
 
-Option for this protocol corresponds to fine frequency tuning, as FrskyX. Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it.
+Option for this protocol corresponds to fine frequency tuning, as FrskyX. Check the [Frequency Tuning page](/docs/Frequency_Tuning.md) to determine it. The Archer receivers (for example the Archer GR8) have a narrow receive filter: if one does not register or bind, the module's frequency is likely off and needs tuning.
 
 Bind: a receiver is registered to the module, then bound, both during the same bind:
 - put the receiver in register mode (RX6R: hold its bind button while powering it until the LEDs alternate; Archer Plus: see its manual) and start the bind on the radio
